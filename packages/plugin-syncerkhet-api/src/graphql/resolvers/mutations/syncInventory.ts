@@ -32,6 +32,19 @@ const inventoryMutations = {
       isRPC: true
     });
 
+    const productCategories = await sendProductsMessage({
+      subdomain,
+      action: 'categories.find',
+      data: { query: {} },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const categoryOfId = {};
+    for (const cat of productCategories) {
+      categoryOfId[cat._id] = cat;
+    }
+
     const uoms = await sendProductsMessage({
       subdomain,
       action: 'uoms.find',
@@ -90,7 +103,10 @@ const inventoryMutations = {
           resProd.unit_price === product.unitPrice &&
           resProd.barcodes === (product.barcodes || []).join(',') &&
           (resProd.vat_type || '') === (product.taxType || '') &&
-          uom && resProd.measure_unit_code === uom.code
+          uom &&
+          resProd.measure_unit_code === uom.code &&
+          resProd.category_code ===
+            (categoryOfId[product.categoryId] || {}).code
         ) {
           matchedCount = matchedCount + 1;
         } else {
