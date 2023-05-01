@@ -1,7 +1,7 @@
-import { dimensions, colors } from "../styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { rgba, darken } from "./ecolor";
+import { dimensions, colors } from '../styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { rgba, darken } from './ecolor';
 
 const TicketRow = styled.div`
   margin-bottom: ${dimensions.unitSpacing}px;
@@ -71,14 +71,14 @@ const ListHead = styled.div`
   > div {
     display: inline-block;
     font-weight: 600;
-    flex: 0 0 15%;
+    flex: 0 0 12%;
     color: ${colors.colorCoreGray};
     text-align: center;
     text-transform: uppercase;
     font-size: 12px;
 
     &:first-child {
-      flex: 0 0 55%;
+      flex: 0 0 52%;
       text-align: left;
     }
   }
@@ -98,12 +98,12 @@ const ListRow = styled.div`
 
   > div {
     display: inline-block;
-    flex: 0 0 15%;
+    flex: 0 0 12%;
     text-align: center;
     font-size: 14px;
 
     &:first-child {
-      flex: 0 0 55%;
+      flex: 0 0 52%;
       text-align: left;
       font-weight: 600;
       text-transform: capitalize;
@@ -128,7 +128,7 @@ const TicketComment = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-const Label = styledTS<{ lblStyle: string }>(styled.div)`
+const Label = styledTS<{ lblStyle: string; colorCode?: string }>(styled.div)`
     border-radius: 14px;
     padding: 3px 9px;
     text-transform: uppercase;
@@ -136,13 +136,17 @@ const Label = styledTS<{ lblStyle: string }>(styled.div)`
     display: inline-block;
     line-height: 1.32857143;
     font-weight: 600;
-    background: ${(props) =>
-      props.lblStyle === "danger"
+    background: ${({ lblStyle, colorCode }) =>
+      lblStyle === 'danger'
         ? rgba(colors.colorCoreRed, 0.2)
+        : lblStyle === 'custom'
+        ? colorCode
         : rgba(colors.colorCoreGreen, 0.15)};
-    color: ${(props) =>
-      props.lblStyle === "danger"
+    color: ${({ lblStyle }) =>
+      lblStyle === 'danger'
         ? darken(colors.colorCoreRed, 50)
+        : lblStyle === 'custom'
+        ? colors.colorWhite
         : darken(colors.colorCoreGreen, 50)};
 `;
 
@@ -222,6 +226,14 @@ const CreatedUser = styled.div`
   }
 `;
 
+const SelectInput = styled.div`
+  margin-bottom: 5px;
+
+  label {
+    margin-right: 5px;
+  }
+`;
+
 export {
   TicketRow,
   TicketLabel,
@@ -237,4 +249,5 @@ export {
   CommentWrapper,
   CommentContent,
   CreatedUser,
+  SelectInput
 };

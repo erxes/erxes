@@ -2,7 +2,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
   line-height: 1.5;
   color: #444;
 }
@@ -91,4 +91,183 @@ hr {
   to {
     transform: scale(1);
   }
+}
+.kep-login-facebook {
+  width: 100% !important;
+  padding: inherit;
+  border-radius: 3px !important;
+}
+
+/* select  */
+
+.Select-control {
+  height: 34px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid #dee4e7;
+  box-shadow: none;
+  background: none;
+}
+
+.Select-input {
+  height: 33px;
+}
+
+.Select-control:hover {
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.Select.is-focused > .Select-control,
+.Select.is-open > .Select-control {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-color: rgba(#444, 0.8);
+  background: none;
+}
+
+.Select.is-focused:not(.is-open) > .Select-control {
+  box-shadow: none;
+  background: none;
+  border-color: rgba(#444, 0.8);
+}
+
+.Select.is-focused .Select-input > input {
+  padding: 10px 0 12px;
+}
+
+.Select.is-disabled > .Select-control {
+  cursor: not-allowed;
+}
+
+.Select-placeholder,
+.Select-input,
+.Select--single > .Select-control .Select-value {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.Select-clear-zone:hover {
+  color: #ea475d;
+}
+
+.Select--multi .Select-multi-value-wrapper {
+  padding: 0 5px 0 0;
+}
+
+.Select--multi .Select-input {
+  margin-left: 0;
+}
+
+.Select--multi .Select-value {
+  background-color: #6569df;
+  border-radius: 11px;
+  border: 1px solid #6569df;
+  color: #fff;
+  margin-top: 6px;
+  margin-left: 0;
+  margin-right: 5px;
+  position: relative;
+  padding-right: 20px;
+}
+
+.Select--multi .Select-value-icon {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  text-align: center;
+  line-height: 20px;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0;
+}
+
+.Select--multi .Select-value-icon:hover,
+.Select--multi .Select-value-icon:focus,
+.Select--multi .Select-value-icon:active {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #fff;
+}
+
+.Select--multi .Select-value-label {
+  padding: 2px 10px;
+}
+
+.Select--multi.has-value .Select-input {
+  margin-left: 5px;
+}
+
+.Select--multi a.Select-value-label {
+  color: #5629b6;
+}
+
+.Select-arrow-zone {
+  width: 20px;
+}
+
+.Select-arrow-zone > .Select-arrow {
+  border: none;
+  margin-right: 12px;
+}
+
+.Select .Select-arrow:before {
+  font-family: 'erxes';
+  content: '';
+  font-size: 14px;
+  color: #888;
+}
+
+.Select.is-open .Select-arrow:before {
+  content: '';
+}
+
+.Select-menu-outer {
+  border: none;
+  margin-top: 1px;
+  box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  max-height: 220px;
+  z-index: 9999;
+}
+
+.Select-menu {
+  max-height: 216px;
+}
+
+.Select-menu-outer,
+.Select-option:last-child {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.Select-option-group-label {
+  background-color: #fafafa;
+  color: #555;
+  border-bottom: 1px solid #eee;
+  border-top: 1px solid #eee;
+  text-transform: capitalize;
+  font-weight: bold;
+  padding: 8px 20px;
+  position: sticky;
+  top: 0;
+}
+
+.Select-option-group-label ~ .Select-option {
+  padding-left: 20px;
+}
+
+.Select-option-group-label .Select-option-group {
+  padding-left: 20px;
+}
+
+.Select-option {
+  padding: 8px 20px;
+}
+
+.Select-noresults {
+  padding: 8px 20px;
 }

@@ -45,8 +45,8 @@ export default {
 
     return response;
   },
-  publishChange: ({ data: { targetIds, type } }) =>
-    publishConversationsChanged(targetIds, type),
+  publishChange: ({ subdomain, data: { targetIds, type } }) =>
+    publishConversationsChanged(subdomain, targetIds, type),
 
   fixRelatedItems: async ({
     subdomain,

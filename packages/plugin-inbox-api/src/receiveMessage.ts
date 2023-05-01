@@ -3,12 +3,11 @@ import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendIntegrationsMessage,
   sendLogsMessage
 } from './messageBroker';
-import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
+import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
 
 const sendError = message => ({
   status: 'error',
@@ -95,7 +94,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
   }
 
   if (action === 'create-or-update-conversation') {
-    const { conversationId, content, owner } = doc;
+    const { conversationId, content, owner, updatedAt } = doc;
 
     let user;
 
@@ -111,12 +110,25 @@ export const receiveRpcMessage = async (subdomain, data) => {
       });
     }
 
-    const assignedUserId = user ? user._id : null;
+    let assignedUserId = user ? user._id : null;
 
     if (conversationId) {
+      if (!assignedUserId) {
+        const conversation = await Conversations.findOne({
+          _id: conversationId
+        });
+        assignedUserId = conversation?.assignedUserId || null;
+      }
+
       await Conversations.updateConversation(conversationId, {
         content,
-        assignedUserId
+        assignedUserId,
+        updatedAt,
+        // mark this conversation as unread
+        readUserIds: [],
+
+        // reopen this conversation if it's closed
+        status: CONVERSATION_STATUSES.OPEN
       });
 
       return sendSuccess({ _id: conversationId });
@@ -199,11 +211,20 @@ export const receiveRpcMessage = async (subdomain, data) => {
 /*
  * Integrations api notification
  */
-export const receiveIntegrationsNotification = async msg => {
-  const { action } = msg;
+export const receiveIntegrationsNotification = async (subdomain, msg) => {
+  const { action, conversationId } = msg;
+
+  const models = await generateModels(subdomain);
 
   if (action === 'external-integration-entry-added') {
     graphqlPubsub.publish('conversationExternalIntegrationMessageInserted', {});
+
+    if (conversationId) {
+      await models.Conversations.reopen(conversationId);
+      await pConversationClientMessageInserted(models, subdomain, {
+        conversationId
+      });
+    }
 
     return sendSuccess({ status: 'ok' });
   }
@@ -224,7 +245,7 @@ export const removeEngageConversations = async (models, _id) => {
 
 export const collectConversations = async (
   subdomain: string,
-  { contentId, contentType }: { contentId: string; contentType: string }
+  { contentId }: { contentId: string }
 ) => {
   const models = await generateModels(subdomain);
   const results: any[] = [];
@@ -264,38 +285,13 @@ export const collectConversations = async (
       _id: c._id,
       contentType: 'inbox:conversation',
       contentId,
-      createdAt: c.createdAt
-    });
-  }
-
-  if (contentType === 'customer') {
-    let conversationIds;
-
-    try {
-      conversationIds = await sendIntegrationsMessage({
-        subdomain,
-        action: 'getFbCustomerPosts',
-        data: {
-          customerId: contentId
-        },
-        isRPC: true
-      });
-
-      const cons = await models.Conversations.find({
-        _id: { $in: conversationIds }
-      }).lean();
-
-      for (const c of cons) {
-        results.push({
-          _id: c._id,
-          contentType: 'comment',
-          contentId,
-          createdAt: c.createdAt
-        });
+      createdAt: c.createdAt,
+      contentTypeDetail: {
+        integration: await models.Integrations.findOne({
+          _id: c.integrationId
+        })
       }
-    } catch (e) {
-      debugExternalApi(e);
-    }
+    });
   }
 
   return results;

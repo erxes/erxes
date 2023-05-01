@@ -51,6 +51,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
     showBrands: config.USE_BRAND_RESTRICTIONS === 'true',
     selectedChannels,
     selectedGroups,
+    selectedBrandIds: object.brandIds,
     channels,
     groups,
     renderButton

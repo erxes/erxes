@@ -99,6 +99,22 @@ if (configs.hasSubscriptions) {
   });
 }
 
+if (configs.hasDashboard) {
+  if (configs.hasDashboard) {
+    app.get('/dashboard', async (req, res) => {
+      const headers = req.rawHeaders;
+
+      const index = headers.indexOf('schemaName') + 1;
+
+      const schemaName = headers[index];
+
+      res.sendFile(
+        path.join(__dirname, `../../src/dashboardSchemas/${schemaName}.js`)
+      );
+    });
+  }
+}
+
 app.use((req: any, _res, next) => {
   req.rawBody = '';
 
@@ -263,6 +279,15 @@ async function startServer() {
     httpServer.listen({ port: PORT }, resolve)
   );
 
+  if (configs.freeSubscriptions) {
+    const wsServer = new ws.Server({
+      server: httpServer,
+      path: '/subscriptions'
+    });
+
+    await configs.freeSubscriptions(wsServer);
+  }
+
   console.log(
     `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
   );
@@ -298,7 +323,9 @@ async function startServer() {
       initialSetup,
       cronjobs,
       documents,
-      exporter
+      exporter,
+      documentPrintHook,
+      readFileHook
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -546,7 +573,7 @@ async function startServer() {
         `${configs.name}:documents.editorAttributes`,
         async args => ({
           status: 'success',
-          data: await documents.editorAttributes()
+          data: await documents.editorAttributes(args)
         })
       );
 
@@ -558,6 +585,24 @@ async function startServer() {
         })
       );
     }
+
+    if (readFileHook) {
+      readFileHook.isAvailable = true;
+
+      consumeRPCQueue(`${configs.name}:readFileHook`, async args => ({
+        status: 'success',
+        data: await readFileHook.action(args)
+      }));
+    }
+
+    if (documentPrintHook) {
+      documentPrintHook.isAvailable = true;
+
+      consumeRPCQueue(`${configs.name}:documentPrintHook`, async args => ({
+        status: 'success',
+        data: await documentPrintHook.action(args)
+      }));
+    }
   } // end configs.meta if
 
   await join({
@@ -565,6 +610,7 @@ async function startServer() {
     port: PORT || '',
     dbConnectionString: mongoUrl,
     hasSubscriptions: configs.hasSubscriptions,
+    hasDashboard: configs.hasDashboard,
     importExportTypes: configs.importExportTypes,
     meta: configs.meta
   });
@@ -580,15 +626,6 @@ async function startServer() {
       error: debugError
     }
   });
-
-  if (configs.freeSubscriptions) {
-    const wsServer = new ws.Server({
-      server: httpServer,
-      path: '/subscriptions'
-    });
-
-    await configs.freeSubscriptions(wsServer);
-  }
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);
 }

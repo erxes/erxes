@@ -7,16 +7,18 @@ import {
   resetConfigsCache,
   sendRequest
 } from '../../utils';
-import {
-  moduleCheckPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { putCreateLog, putUpdateLog } from '../../logUtils';
 
 const configMutations = {
   /**
    * Create or update config object
    */
-  async configsUpdate(_root, { configsMap }, { user, models }: IContext) {
+  async configsUpdate(
+    _root,
+    { configsMap },
+    { user, models, subdomain }: IContext
+  ) {
     const codes = Object.keys(configsMap);
 
     for (const code of codes) {
@@ -25,6 +27,7 @@ const configMutations = {
       }
 
       const prevConfig = (await models.Configs.findOne({ code })) || {
+        code: '',
         value: []
       };
 
@@ -79,6 +82,33 @@ const configMutations = {
           user
         });
       }
+
+      if (prevConfig.code) {
+        await putUpdateLog(
+          models,
+          subdomain,
+          {
+            type: 'config',
+            object: prevConfig,
+            newData: updatedConfig,
+            updatedDocument: updatedConfig,
+            description: updatedConfig.code
+          },
+          user
+        );
+      } else {
+        await putCreateLog(
+          models,
+          subdomain,
+          {
+            type: 'config',
+            description: updatedConfig.code,
+            object: updatedConfig,
+            newData: updatedConfig
+          },
+          user
+        );
+      }
     }
   },
 
@@ -124,8 +154,16 @@ const configMutations = {
   }
 };
 
-moduleCheckPermission(configMutations, 'manageGeneralSettings');
-requireLogin(configMutations, 'configsActivateInstallation');
-requireLogin(configMutations, 'configsManagePluginInstall');
+checkPermission(configMutations, 'configsUpdate', 'manageGeneralSettings');
+checkPermission(
+  configMutations,
+  'configsActivateInstallation',
+  'manageGeneralSettings'
+);
+checkPermission(
+  configMutations,
+  'configsManagePluginInstall',
+  'manageGeneralSettings'
+);
 
 export default configMutations;

@@ -1,6 +1,7 @@
 import { INotifcationSettings } from './../../../models/definitions/clientPortalUser';
 import { graphqlPubsub } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
+import { sendNotification } from '../../../utils';
 
 const notificationMutations = {
   async clientPortalNotificationsMarkAsRead(
@@ -52,6 +53,19 @@ const notificationMutations = {
     await models.ClientPortalUsers.updateNotificationSettings(cpUser._id, doc);
 
     return models.ClientPortalUsers.findOne({ _id: cpUser._id });
+  },
+
+  async clientPortalSendNotification(
+    _root,
+    { _id, ...doc }: any,
+    { models, subdomain }: IContext
+  ) {
+    try {
+      await sendNotification(models, subdomain, doc);
+      return 'success';
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 };
 

@@ -14,7 +14,10 @@
     "@cubejs-backend/server-core": "^0.30.55",
     "@cubejs-client/core": "^0.30.29",
     "express": "^4.18.1",
+    "http": "^0.0.1-security",
+    "http-proxy-middleware": "^2.0.6",
     "jsonwebtoken": "^8.5.1",
+    "nodejs-file-downloader": "^4.10.6",
     "sqlstring": "^2.3.2",
     "ts-node": "^10.4.0"
   }

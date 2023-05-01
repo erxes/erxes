@@ -111,6 +111,7 @@ class ClientportalUserList extends React.Component<IProps, State> {
                 />
               </th>
               <th>#</th>
+              <th>{__('ID Verification')}</th>
               <th>{__('Email')}</th>
               <th>{__('Phone')}</th>
               <th>{__('User Name')}</th>

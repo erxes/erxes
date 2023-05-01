@@ -20,7 +20,7 @@ import SuccessPreview from './preview/SuccessPreview';
 import { __ } from '../../utils';
 
 type Props = {
-  formData: any; //check - IFormData
+  formData: any; // check - IFormData
   type: string;
   calloutTitle?: string;
   calloutBtnText?: string;
@@ -30,7 +30,7 @@ type Props = {
   image?: string;
   calloutImgSize?: string;
   onChange: (name: 'carousel', value: string) => void;
-  onDocChange?: (doc: any) => void; //check - IFormData
+  onDocChange?: (doc: any) => void; // check - IFormData
   carousel: string;
   thankTitle?: string;
   thankContent?: string;
@@ -173,7 +173,7 @@ class FullPreviewStep extends React.Component<Props, State> {
           onFieldClick: this.onFieldClick,
           onChangeFieldsOrder: this.onChangeFieldsOrder,
           currentPage: this.state.currentPage,
-          configs: configs
+          configs
         });
 
       return (
@@ -190,7 +190,7 @@ class FullPreviewStep extends React.Component<Props, State> {
             isEnabled('forms') &&
             loadDynamicComponent('formPreview', {
               mode: currentMode || 'create',
-              fields: fields,
+              fields,
               field: currentField,
               numberOfPages: formData.numberOfPages || 1,
               onSubmit: this.onFieldSubmit,

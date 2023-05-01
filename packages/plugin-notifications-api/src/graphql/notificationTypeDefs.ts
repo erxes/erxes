@@ -30,6 +30,7 @@ const params = `
   perPage: Int,
   requireRead: Boolean,
   notifType: String
+  contentTypes: [String]
   title: String
   startDate: String
   endDate: String
@@ -37,7 +38,7 @@ const params = `
 
 export const queries = `
   notifications(${params}): [Notification]
-  notificationCounts(requireRead: Boolean, notifType: String): Int
+  notificationCounts(requireRead: Boolean, notifType: String, contentTypes: [String]): Int
   notificationsModules : [JSON]
   notificationsGetConfigurations : [NotificationConfiguration]
 `;

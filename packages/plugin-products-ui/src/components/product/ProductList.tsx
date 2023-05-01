@@ -1,4 +1,10 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import {
+  loadDynamicComponent,
+  Alert,
+  __,
+  confirm,
+  router
+} from '@erxes/ui/src/utils';
 import { Count, Title } from '@erxes/ui/src/styles/main';
 import { IProduct, IProductCategory } from '../../types';
 
@@ -23,6 +29,7 @@ import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+import ProductsPrintAction from './ProductPrintAction';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -248,6 +255,8 @@ class List extends React.Component<IProps, State> {
 
       actionBarRight = (
         <BarItems>
+          {isEnabled('documents') && <ProductsPrintAction bulk={bulk} />}
+
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Product"

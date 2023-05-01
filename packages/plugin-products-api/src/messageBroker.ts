@@ -72,14 +72,38 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'products:categories.withChilds',
-    async ({ subdomain, data: { _id } }) => {
+    async ({ subdomain, data: { _id, ids } }) => {
       const models = await generateModels(subdomain);
-      const category = await models.ProductCategories.findOne({ _id }).lean();
+      const categoryIds = _id ? [_id] : ids || [];
+      if (!categoryIds.length) {
+        return {
+          data: [],
+          status: 'success'
+        };
+      }
+
+      const categories = await models.ProductCategories.find({
+        _id: { $in: categoryIds }
+      }).lean();
+
+      if (!categories.length) {
+        return {
+          data: [],
+          status: 'success'
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const category of categories) {
+        orderQry.push({
+          order: { $regex: new RegExp(category.order) }
+        });
+      }
 
       return {
         data: await models.ProductCategories.find({
-          order: { $regex: new RegExp(category.order) },
-          status: { $nin: ['disabled', 'archived'] }
+          status: { $nin: ['disabled', 'archived'] },
+          $or: orderQry
         })
           .sort({ order: 1 })
           .lean(),
@@ -162,7 +186,7 @@ export const initBroker = async cl => {
         data: await models.Products.find(query, fields || {})
           .sort(sort)
           .skip(skip || 0)
-          .limit(limit || 100)
+          .limit(limit || 10000)
           .lean(),
         status: 'success'
       };
@@ -187,7 +211,7 @@ export const initBroker = async cl => {
       }
 
       return {
-        data: await models.Products.find(filter).countDocuments(),
+        data: await models.Products.find(filter).count(),
         status: 'success'
       };
     }
@@ -348,6 +372,7 @@ export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
     ...args
   });
 };
+
 export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -364,6 +389,16 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
+    ...args
+  });
+};
+
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
     ...args
   });
 };

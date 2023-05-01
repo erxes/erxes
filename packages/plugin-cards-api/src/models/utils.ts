@@ -519,6 +519,7 @@ export const conversationConvertToCard = async (
       );
 
       oldItem.productsData.push({
+        _id: product._id,
         productId: product._id,
         unitPrice: product.unitPrice,
         uom: dealUOM,
@@ -603,6 +604,7 @@ export const conversationConvertToCard = async (
 
       doc.productsData = [
         {
+          _id: product._id,
           productId: product._id,
           unitPrice: product.unitPrice,
           uom: dealUOM,

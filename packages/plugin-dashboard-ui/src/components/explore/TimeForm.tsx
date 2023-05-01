@@ -62,7 +62,7 @@ class TimeForm extends React.Component<Props> {
               ? undefined
               : value.value === 'Date range'
               ? []
-              : '',
+              : value.value,
           granularity: undefined
         });
       }

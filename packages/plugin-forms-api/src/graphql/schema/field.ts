@@ -171,9 +171,12 @@ export const fieldsGroupsTypes = `
     contentType: String
     order: Int
     code: String
+    parentId: String
     description: String
+    isMultiple: Boolean
     isVisible: Boolean
     isVisibleInDetail: Boolean
+    alwaysOpen: Boolean
     isDefinedByErxes: Boolean
     fields: [Field]
     lastUpdatedUserId: String
@@ -190,8 +193,11 @@ const fieldsGroupsCommonFields = `
   contentType: String
   order: Int
   description: String
+  parentId: String
   code: String
+  isMultiple: Boolean
   isVisible: Boolean
+  alwaysOpen: Boolean
   isVisibleInDetail: Boolean
   config: JSON
 
@@ -201,6 +207,7 @@ const fieldsGroupsCommonFields = `
 
 export const fieldsGroupsQueries = `
   fieldsGroups(contentType: String, isDefinedByErxes: Boolean, config: JSON): [FieldsGroup]
+  fieldsGetDetail(_id: String, code: String): Field
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 

@@ -44,7 +44,13 @@ import {
   sendNotificationsMessage
 } from '../../../messageBroker';
 
-export const itemResolver = async (type: string, item: IItemCommonFields) => {
+export const itemResolver = async (
+  models: IModels,
+  subdomain: string,
+  user: any,
+  type: string,
+  item: IItemCommonFields
+) => {
   let resolverType = '';
 
   switch (type) {
@@ -70,7 +76,12 @@ export const itemResolver = async (type: string, item: IItemCommonFields) => {
 
   for (const subResolver of Object.keys(resolver)) {
     try {
-      additionInfo[subResolver] = await resolver[subResolver](item);
+      additionInfo[subResolver] = await resolver[subResolver](
+        item,
+        {},
+        { models, subdomain, user },
+        { isSubscription: true }
+      );
     } catch (unused) {
       continue;
     }
@@ -120,6 +131,7 @@ export const itemsAdd = async (
   }
 
   const item = await createModel(extendedDoc);
+  const stage = await models.Stages.getStage(item.stageId);
 
   await createConformity(subdomain, {
     mainType: type,
@@ -129,11 +141,13 @@ export const itemsAdd = async (
   });
 
   if (user) {
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+
     sendNotifications(models, subdomain, {
       item,
       user,
       type: `${type}Add`,
-      action: `invited you to the ${type}`,
+      action: `invited you to the ${pipeline.name}`,
       content: `'${item.name}'.`,
       contentType: type
     });
@@ -149,8 +163,6 @@ export const itemsAdd = async (
       user
     );
   }
-
-  const stage = await models.Stages.getStage(item.stageId);
 
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {
@@ -170,6 +182,8 @@ export const itemsAdd = async (
 
 export const changeItemStatus = async (
   models: IModels,
+  subdomain: string,
+  user: any,
   {
     type,
     item,
@@ -233,7 +247,10 @@ export const changeItemStatus = async (
       proccessId,
       action: 'itemAdd',
       data: {
-        item: { ...item._doc, ...(await itemResolver(type, item)) },
+        item: {
+          ...item._doc,
+          ...(await itemResolver(models, subdomain, user, type, item))
+        },
         aboveItemId,
         destinationStageId: item.stageId
       }
@@ -258,6 +275,18 @@ export const itemsEdit = async (
     modifiedBy: user._id
   };
 
+  const stage = await models.Stages.getStage(oldItem.stageId);
+
+  const { canEditMemberIds } = stage;
+
+  if (
+    canEditMemberIds &&
+    canEditMemberIds.length > 0 &&
+    !canEditMemberIds.includes(user._id)
+  ) {
+    throw new Error('Permission denied');
+  }
+
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendFormsMessage({
@@ -281,8 +310,6 @@ export const itemsEdit = async (
     contentType: type
   };
 
-  const stage = await models.Stages.getStage(updatedItem.stageId);
-
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
@@ -300,7 +327,7 @@ export const itemsEdit = async (
     });
 
     // order notification
-    await changeItemStatus(models, {
+    await changeItemStatus(models, subdomain, user, {
       type,
       item: updatedItem,
       status: activityAction,
@@ -394,7 +421,7 @@ export const itemsEdit = async (
         data: {
           item: {
             ...updatedItem._doc,
-            ...(await itemResolver(type, updatedItem))
+            ...(await itemResolver(models, subdomain, user, type, updatedItem))
           },
           aboveItemId: '',
           destinationStageId: stage._id
@@ -410,7 +437,7 @@ export const itemsEdit = async (
         data: {
           item: {
             ...updatedItem._doc,
-            ...(await itemResolver(type, updatedItem))
+            ...(await itemResolver(models, subdomain, user, type, updatedItem))
           }
         }
       }
@@ -506,6 +533,19 @@ const itemMover = async (
   return { content, action };
 };
 
+export const checkMovePermission = (
+  stage: IStageDocument,
+  user: IUserDocument
+) => {
+  if (
+    stage.canMoveMemberIds &&
+    stage.canMoveMemberIds.length > 0 &&
+    !stage.canMoveMemberIds.includes(user._id)
+  ) {
+    throw new Error('Permission denied');
+  }
+};
+
 export const itemsChange = async (
   models: IModels,
   subdomain: string,
@@ -515,6 +555,7 @@ export const itemsChange = async (
   modelUpdate: any
 ) => {
   const { collection } = getCollection(models, type);
+
   const {
     proccessId,
     itemId,
@@ -524,6 +565,7 @@ export const itemsChange = async (
   } = doc;
 
   const item = await getItem(models, type, { _id: itemId });
+  const stage = await models.Stages.getStage(item.stageId);
 
   const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
@@ -537,6 +579,12 @@ export const itemsChange = async (
   };
 
   if (item.stageId !== destinationStageId) {
+    checkMovePermission(stage, user);
+
+    const destinationStage = await models.Stages.getStage(destinationStageId);
+
+    checkMovePermission(destinationStage, user);
+
     extendedDoc.stageChangedDate = new Date();
   }
 
@@ -590,23 +638,10 @@ export const itemsChange = async (
   );
 
   // order notification
-  const stage = await models.Stages.getStage(item.stageId);
-
   const labels = await models.PipelineLabels.find({
     _id: {
       $in: item.labelIds
     }
-  });
-
-  const assignedUsers = await sendCoreMessage({
-    subdomain,
-    action: 'users.find',
-    data: {
-      query: {
-        _id: { $in: item?.assignedUserIds }
-      }
-    },
-    isRPC: true
   });
 
   graphqlPubsub.publish('pipelinesChanged', {
@@ -617,9 +652,8 @@ export const itemsChange = async (
       data: {
         item: {
           ...item._doc,
-          ...(await itemResolver(type, item)),
-          labels,
-          assignedUsers
+          ...(await itemResolver(models, subdomain, user, type, item)),
+          labels
         },
         aboveItemId,
         destinationStageId,
@@ -724,7 +758,10 @@ export const itemsCopy = async (
       proccessId,
       action: 'itemAdd',
       data: {
-        item: { ...clone._doc, ...(await itemResolver(type, clone)) },
+        item: {
+          ...clone._doc,
+          ...(await itemResolver(models, subdomain, user, type, clone))
+        },
         aboveItemId: _id,
         destinationStageId: stage._id
       }

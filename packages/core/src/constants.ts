@@ -6,3 +6,34 @@ export const USER_PROPERTIES_INFO = {
     { field: 'username', label: 'User name' }
   ]
 };
+
+export const STRUCTURE_STATUSES = {
+  ACTIVE: 'active',
+  DELETED: 'deleted'
+};
+
+export const USER_MOVEMENT_STATUSES = {
+  CREATED: 'created',
+  REMOVED: 'removed'
+};
+
+export const USER_EXTENDED_FIELDS = [
+  {
+    _id: Math.random(),
+    name: 'departments',
+    label: 'Departments',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'branches',
+    label: 'Branches',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'password',
+    label: 'password',
+    type: 'string'
+  }
+];

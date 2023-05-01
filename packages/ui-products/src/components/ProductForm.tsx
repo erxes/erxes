@@ -9,7 +9,7 @@ import {
   IFormProps
 } from '@erxes/ui/src/types';
 import { IConfigsMap, IProduct, IProductCategory, IUom } from '../types';
-import { PRODUCT_SUPPLY, TYPES } from '../constants';
+import { PRODUCT_SUPPLY, TAX_TYPES, TYPES } from '../constants';
 import { BarcodeContainer, BarcodeItem } from '../styles';
 import {
   extractAttachment,
@@ -52,6 +52,8 @@ type State = {
   description: string;
   uomId: string;
   subUoms: any[];
+  taxType: string;
+  taxCode: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -70,7 +72,9 @@ class Form extends React.Component<Props, State> {
       vendorId,
       description,
       uomId,
-      subUoms
+      subUoms,
+      taxType,
+      taxCode
     } = product;
 
     const defaultUom = props.configsMap.defaultUOM || '';
@@ -87,7 +91,9 @@ class Form extends React.Component<Props, State> {
       vendorId: vendorId ? vendorId : '',
       description: description ? description : '',
       uomId: uomId ? uomId : defaultUom,
-      subUoms: subUoms ? subUoms : []
+      subUoms: subUoms ? subUoms : [],
+      taxType,
+      taxCode
     };
   }
 
@@ -149,18 +155,44 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSubUoms(uoms) {
-    const subUoms = this.state.subUoms;
-    return subUoms.map(subUom => (
-      <>
-        <FormWrapper>
+  renderSubUoms() {
+    const { uoms } = this.props;
+    const { subUoms } = this.state;
+
+    return subUoms.map(subUom => {
+      const updateUoms = (key, value) => {
+        const { subUoms } = this.state;
+        subUom[key] = value;
+        this.setState({
+          subUoms: subUoms.map(su => (su._id === subUom._id ? subUom : su))
+        });
+      };
+
+      const onChangeUom = option => {
+        updateUoms('uomId', option.value);
+      };
+
+      const onChangeRatio = e => {
+        const name = e.currentTarget.name;
+        let value = e.currentTarget.value;
+        if (name === 'inverse') {
+          value = 1 / e.currentTarget.value || 1;
+        }
+        updateUoms('ratio', value);
+      };
+
+      return (
+        <FormWrapper key={subUom._id}>
           <FormColumn>
             <FormGroup>
               <ControlLabel>Sub UOM</ControlLabel>
               <Select
                 value={subUom.uomId}
-                onChange={this.updateUoms.bind(this, 'subUomId', subUom._id)}
-                options={uoms.map(e => ({ value: e._id, label: e.name }))}
+                onChange={onChangeUom}
+                options={(uoms || []).map(e => ({
+                  value: e._id,
+                  label: e.name
+                }))}
               />
             </FormGroup>
           </FormColumn>
@@ -169,22 +201,40 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>Ratio</ControlLabel>
               <Row>
                 <FormControl
+                  name="ratio"
                   value={subUom.ratio}
-                  onChange={this.updateUoms.bind(this, 'ratio', subUom._id)}
+                  onChange={onChangeRatio}
                   type="number"
-                />
-                <Button
-                  btnStyle="simple"
-                  uppercase={false}
-                  icon="cancel-1"
-                  onClick={this.onClickMinusSub.bind(this, subUom._id)}
                 />
               </Row>
             </FormGroup>
           </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>~Inverse Ratio</ControlLabel>
+              <Row>
+                <FormControl
+                  name="inverse"
+                  value={Math.round((1 / (subUom.ratio || 1)) * 100) / 100}
+                  onChange={onChangeRatio}
+                  type="number"
+                />
+              </Row>
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <Row>
+              <Button
+                btnStyle="simple"
+                uppercase={false}
+                icon="cancel-1"
+                onClick={this.onClickMinusSub.bind(this, subUom._id)}
+              />
+            </Row>
+          </FormColumn>
         </FormWrapper>
-      </>
-    ));
+      );
+    });
   }
 
   onComboEvent = (variable: string, e) => {
@@ -202,23 +252,6 @@ class Form extends React.Component<Props, State> {
     }
 
     this.setState({ [variable]: value } as any);
-  };
-
-  updateUoms = (type, id, e) => {
-    const { subUoms } = this.state;
-    const condition = type === 'ratio';
-    const value = condition ? e.target.value : e.value;
-
-    let chosen = subUoms.find(sub => sub._id === id);
-    const uomId = condition ? chosen.uomId : value;
-    const ratio = condition ? value : chosen.ratio;
-
-    chosen = { uomId, ratio, _id: id };
-
-    const others = subUoms.filter(sub => sub._id !== id);
-
-    others.push(chosen);
-    this.setState({ subUoms: others });
   };
 
   updateBarcodes = (barcode?: string) => {
@@ -240,15 +273,14 @@ class Form extends React.Component<Props, State> {
 
   onClickAddSub = () => {
     const subUoms = this.state.subUoms;
-    const count = subUoms.length;
 
-    subUoms.push({ uomId: '', ratio: 0, _id: count + 1 });
+    subUoms.push({ uomId: '', ratio: 0, _id: Math.random().toString() });
     this.setState({ subUoms });
   };
 
-  onClickMinusSub = counter => {
+  onClickMinusSub = id => {
     const subUoms = this.state.subUoms;
-    const filteredUoms = subUoms.filter(sub => sub._id !== counter);
+    const filteredUoms = subUoms.filter(sub => sub._id !== id);
 
     this.setState({ subUoms: filteredUoms });
   };
@@ -302,6 +334,12 @@ class Form extends React.Component<Props, State> {
     });
   };
 
+  onTaxChange = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    } as any);
+  };
+
   renderContent = (formProps: IFormProps) => {
     const {
       renderButton,
@@ -332,7 +370,9 @@ class Form extends React.Component<Props, State> {
       barcodeDescription,
       productCount,
       disabled,
-      minimiumCount
+      minimiumCount,
+      taxType,
+      taxCode
     } = this.state;
 
     const isUom = (configsMap || {}).isRequireUOM || false;
@@ -445,11 +485,50 @@ class Form extends React.Component<Props, State> {
                 min={0}
               />
             </FormGroup>
+            <FormGroup>
+              <ControlLabel>Vendor</ControlLabel>
+              <SelectCompanies
+                label="Choose an vendor"
+                name="vendorId"
+                customOption={{ value: '', label: 'No vendor chosen' }}
+                initialValue={vendorId}
+                onSelect={this.onComboEvent.bind(this, 'vendorId')}
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Tax Type</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="taxType"
+                componentClass="select"
+                onChange={this.onTaxChange}
+                defaultValue={taxType}
+                options={[
+                  { value: '', label: 'default' },
+                  ...Object.keys(TAX_TYPES).map(type => ({
+                    value: type,
+                    label: TAX_TYPES[type].label
+                  }))
+                ]}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Tax Code</ControlLabel>
+
+              <FormControl
+                {...formProps}
+                name="taxCode"
+                componentClass="select"
+                onChange={this.onTaxChange}
+                defaultValue={taxCode}
+                options={(TAX_TYPES[taxType || ''] || {}).options || []}
+              />
+            </FormGroup>
           </FormColumn>
           <FormColumn>
             <FormGroup>
               <ControlLabel>Product supply</ControlLabel>
-
               <FormControl
                 {...formProps}
                 name="supply"
@@ -464,7 +543,6 @@ class Form extends React.Component<Props, State> {
               <FormColumn>
                 <FormGroup>
                   <ControlLabel>Product count</ControlLabel>
-
                   <FormControl
                     {...formProps}
                     name="productCount"
@@ -493,7 +571,6 @@ class Form extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Featured image</ControlLabel>
-
               <Uploader
                 defaultFileList={attachments}
                 onChange={this.onChangeAttachment}
@@ -504,7 +581,6 @@ class Form extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Secondary Images</ControlLabel>
-
               <Uploader
                 defaultFileList={attachmentsMore}
                 onChange={this.onChangeAttachmentMore}
@@ -573,18 +649,6 @@ class Form extends React.Component<Props, State> {
               />
             </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Vendor</ControlLabel>
-              <SelectCompanies
-                label="Choose an vendor"
-                name="vendorId"
-                customOption={{ value: '', label: 'No vendor chosen' }}
-                initialValue={vendorId}
-                onSelect={this.onComboEvent.bind(this, 'vendorId')}
-                multi={false}
-              />
-            </FormGroup>
-
             {!isUom && (
               <FormGroup>
                 <ControlLabel>SKU</ControlLabel>
@@ -621,7 +685,7 @@ class Form extends React.Component<Props, State> {
                   </Row>
                 </FormGroup>
 
-                {this.renderSubUoms(uoms)}
+                {this.renderSubUoms()}
               </>
             )}
           </FormColumn>

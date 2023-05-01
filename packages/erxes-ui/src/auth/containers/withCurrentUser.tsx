@@ -21,7 +21,7 @@ const withCurrentUser = Component => {
 
     const currentUser = currentUserQuery.currentUser;
 
-    // useEffect(() => {
+    // useEffect( () => {
     //   currentUserQuery.subscribeToMore({
     //     document: gql(gq.userChanged),
     //     variables: { userId: currentUser ? currentUser._id : null },

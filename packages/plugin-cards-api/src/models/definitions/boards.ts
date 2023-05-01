@@ -53,6 +53,8 @@ export interface IItemCommonFields {
   number?: string;
   data?: any;
   tagIds?: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -109,6 +111,8 @@ export interface IStage extends ICommonFields {
   pipelineId: string;
   visibility?: string;
   memberIds?: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
   departmentIds?: string[];
   formId?: string;
   status?: string;
@@ -175,7 +179,7 @@ const relationSchema = new Schema(
 
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
-  parentId: field({ type: String,optional:true,label: 'Parent Id'}),
+  parentId: field({ type: String, optional: true, label: 'Parent Id' }),
   userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number }),
@@ -250,6 +254,18 @@ export const commonItemFieldsSchema = {
     label: 'Related items used for gantt chart'
   }),
   tagIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags'
+  }),
+  branchIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags'
+  }),
+  departmentIds: field({
     type: [String],
     optional: true,
     index: true,
@@ -357,6 +373,8 @@ export const stageSchema = new Schema({
   }),
   age: field({ type: Number, optional: true, label: 'Age' }),
   memberIds: field({ type: [String], label: 'Members' }),
+  canMoveMemberIds: field({ type: [String], label: 'Can move members' }),
+  canEditMemberIds: field({ type: [String], label: 'Can edit members' }),
   departmentIds: field({ type: [String], label: 'Departments' }),
   ...commonFieldsSchema
 });

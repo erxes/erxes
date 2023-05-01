@@ -53,7 +53,11 @@ interface IWidgetEmailParams {
   attachments?: IAttachment[];
 }
 
-const pConversationClientMessageInserted = async (models, message) => {
+export const pConversationClientMessageInserted = async (
+  models,
+  subdomain,
+  message
+) => {
   const conversation = await models.Conversations.findOne(
     {
       _id: message.conversationId
@@ -68,7 +72,7 @@ const pConversationClientMessageInserted = async (models, message) => {
       {
         _id: conversation.integrationId
       },
-      { _id: 1 }
+      { _id: 1, name: 1 }
     );
   }
 
@@ -89,10 +93,27 @@ const pConversationClientMessageInserted = async (models, message) => {
 
   graphqlPubsub.publish('conversationClientMessageInserted', {
     conversationClientMessageInserted: message,
+    subdomain,
     conversation,
     integration,
     channelMemberIds
   });
+
+  if (message.content) {
+    sendCoreMessage({
+      subdomain,
+      action: 'sendMobileNotification',
+      data: {
+        title: integration ? integration.name : 'New message',
+        body: message.content,
+        receivers: channelMemberIds,
+        data: {
+          type: 'conversation',
+          id: conversation._id
+        }
+      }
+    });
+  }
 };
 
 export const getMessengerData = async (
@@ -239,7 +260,7 @@ const createFormConversation = async (
     ...conversationData.message
   });
 
-  await pConversationClientMessageInserted(models, message);
+  await pConversationClientMessageInserted(models, subdomain, message);
 
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message
@@ -821,7 +842,7 @@ const widgetMutations = {
       isRPC: true
     });
 
-    await pConversationClientMessageInserted(models, msg);
+    await pConversationClientMessageInserted(models, subdomain, msg);
 
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg
@@ -912,28 +933,6 @@ const widgetMutations = {
           status: 'connected'
         }
       });
-    }
-
-    if (!HAS_BOTENDPOINT_URL && customerId) {
-      try {
-        await sendCoreMessage({
-          subdomain,
-          action: 'sendMobileNotification',
-          data: {
-            title: 'You have a new message',
-            body: conversationContent,
-            customerId,
-            conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId),
-            data: {
-              type: 'messenger',
-              id: conversation._id
-            }
-          }
-        });
-      } catch (e) {
-        debug.error(`Failed to send mobile notification: ${e.message}`);
-      }
     }
 
     await sendToWebhook({

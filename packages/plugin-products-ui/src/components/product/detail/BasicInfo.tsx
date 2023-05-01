@@ -148,7 +148,7 @@ class BasicInfo extends React.Component<Props> {
           <ModalTrigger
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
-            size="lg"
+            size="xl"
             content={content}
           />
         </InfoWrapper>

@@ -1,5 +1,5 @@
 module.exports = {
-  name: "loyalties",
+  name: 'loyalties',
   port: 3002,
   scope: 'loyalties',
   exposes: {
@@ -10,48 +10,48 @@ module.exports = {
     './automation': './src/automations/automation.tsx'
   },
   routes: {
-    url: "http://localhost:3002/remoteEntry.js",
-    scope: "loyalties",
-    module: "./routes",
+    url: 'http://localhost:3002/remoteEntry.js',
+    scope: 'loyalties',
+    module: './routes'
   },
   automation: './automation',
   menus: [
     {
-      text: "Loyalties",
-      url: "/vouchers",
-      icon: "icon-piggybank",
-      location: "mainNavigation",
-      permission: "showLoyalties",
+      text: 'Loyalties',
+      url: '/vouchers',
+      icon: 'icon-piggybank',
+      location: 'mainNavigation',
+      permission: 'showLoyalties'
     },
     {
-      text: "Loyalties config",
-      to: "/erxes-plugin-loyalty/settings/general",
-      image: "/images/icons/erxes-16.svg",
-      location: "settings",
-      scope: "loyalties",
-      action: "loyaltyConfig",
-      permissions: ["manageLoyalties", "showLoyalties"],
-    },
+      text: 'Loyalties config',
+      to: '/erxes-plugin-loyalty/settings/general',
+      image: '/images/icons/erxes-16.svg',
+      location: 'settings',
+      scope: 'loyalties',
+      action: 'loyaltyConfig',
+      permissions: ['manageLoyalties', 'showLoyalties']
+    }
   ],
   customerRightSidebarSection: [
     {
-      text: "customerSection",
-      component: "./customerSidebar",
-      scope: "loyalties",
-    },
+      text: 'customerSection',
+      component: './customerSidebar',
+      scope: 'loyalties'
+    }
   ],
   companyRightSidebarSection: [
     {
-      text: "companySection",
-      component: "./companySidebar",
-      scope: "loyalties",
-    },
+      text: 'companySection',
+      component: './companySidebar',
+      scope: 'loyalties'
+    }
   ],
   userRightSidebarSection: [
     {
-      text: "userSection",
-      component: "./userSidebar",
-      scope: "loyalties",
-    },
-  ],
+      text: 'userSection',
+      component: './userSidebar',
+      scope: 'loyalties'
+    }
+  ]
 };

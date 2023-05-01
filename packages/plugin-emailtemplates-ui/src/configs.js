@@ -16,8 +16,8 @@ module.exports = {
       image: "/images/icons/erxes-09.svg",
       location: "settings",
       scope: "emailtemplates",
-      action: "",
-      permissions: [],
+      action: "emailTemplateAll",
+      permissions: ["showEmailTemplates"],
     },
   ],
 };

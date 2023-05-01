@@ -31,6 +31,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     _id: String!
     name: String
     description: String
+    meta: String
     parentId: String
     code: String!
     order: String!
@@ -52,6 +53,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     createdAt: Date
     ${tagsAvailable ? `getTags: [Tag]` : ''}
     tagIds: [String]
@@ -67,6 +69,9 @@ export const types = (tagsAvailable, contactsAvailable) => `
     uom: Uom
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
+    taxType: String
+    taxCode: String
+
   }
 `;
 
@@ -87,36 +92,47 @@ const productParams = `
   productCount: Int,
   minimiumCount: Int,
   vendorId: String,
-  segment: String,
-  segmentData: String,
   uomId: String,
-  tag: String,
-  searchValue: String,
-  perPage: Int,
-  page: Int,
-  ids: [String],
-  excludeIds: Boolean,
-  pipelineId: String,
-  boardId: String,
   subUoms: JSON,
+  taxType: String,
+  taxCode: String,
 `;
 
 const productCategoryParams = `
   name: String!,
   code: String!,
   description: String,
+  meta: String,
   parentId: String,
   attachment: AttachmentInput,
   status: String
 `;
 
+const productsQueryParams = `
+  type: String,
+  categoryId: String,
+  searchValue: String,
+  tag: String,
+  page: Int,
+  perPage: Int ids: [String],
+  excludeIds: Boolean,
+  pipelineId: String,
+  boardId: String,
+  segment: String,
+  segmentData: String,
+`;
+
 export const queries = `
-  productCategories(parentId: String, searchValue: String, status: String): [ProductCategory]
+  productCategories(parentId: String, searchValue: String, status: String, meta: String): [ProductCategory]
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
-  products(${productParams}): [Product]
-  productsTotalCount(type: String, segment: String, segmentData: String): Int
-  productsGroupCounts(${productParams}, only: String): JSON
+  products(
+    ${productsQueryParams},
+    perPage: Int,
+    page: Int
+  ): [Product]
+  productsTotalCount(${productsQueryParams}): Int
+  productsGroupCounts(only: String, segment: String, segmentData: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
 `;

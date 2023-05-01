@@ -1,7 +1,7 @@
 import { IOrderInput, updateOrder } from '@erxes/api-utils/src/commonUtils';
 import { ILocationOption } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
-import * as validator from 'validator';
+import validator from 'validator';
 
 import { serviceDiscovery } from '../configs';
 import { IModels } from '../connectionResolver';
@@ -328,11 +328,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
         // date
         if (validation === 'date') {
+          value = new Date(value);
+
           if (!isValidDate(value)) {
             throwError('Invalid date');
           }
-
-          value = new Date(value);
         }
 
         // objectList
@@ -451,6 +451,18 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         }).lean();
 
         if (!field) {
+          const group = await models.FieldsGroups.findOne({
+            _id: customFieldData.field
+          }).lean();
+
+          if (group) {
+            result.push({
+              ...customFieldData,
+              stringValue: customFieldData.value
+                ? customFieldData.value.toString()
+                : ''
+            });
+          }
           continue;
         }
 

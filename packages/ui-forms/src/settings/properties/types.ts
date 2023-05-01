@@ -36,14 +36,16 @@ export interface IFieldGroup {
   order: React.ReactNode;
   description: string;
   code: string;
+  parentId: string;
+  isMultiple: boolean;
   isVisible: boolean;
+  alwaysOpen: boolean;
   isVisibleInDetail: boolean;
   isDefinedByErxes: boolean;
   fields: IField[];
   lastUpdatedUserId: string;
   lastUpdatedUser: IUser;
   config: any;
-
   logics?: IFieldLogic[];
   logicAction?: string;
 }
@@ -88,7 +90,7 @@ export type FieldsGroupsQueryResponse = {
 };
 
 export type FieldsInputTypesQueryResponse = {
-  getFieldsInputTypes: { value: string; label: string }[];
+  getFieldsInputTypes: Array<{ value: string; label: string }>;
   loading: boolean;
   refetch: () => any;
 };

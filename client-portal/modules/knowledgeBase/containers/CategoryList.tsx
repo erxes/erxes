@@ -12,7 +12,12 @@ function CategoriesContainer() {
 
   const renderContent = (props) => {
     if (searchValue) {
-      return <ArticleListContainer searchValue={searchValue} />;
+      return (
+        <ArticleListContainer
+          searchValue={searchValue}
+          topicId={props.topic._id}
+        />
+      );
     }
 
     return <CategoryList {...props} />;

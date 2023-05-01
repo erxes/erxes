@@ -232,16 +232,34 @@ const userMutations = {
     const { _id, channelIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
-    const updatedDoc = {
-      ...doc,
-      details: {
-        ...doc.details,
-        fullName: `${doc.details?.firstName || ''} ${doc.details?.lastName ||
-          ''}`
-      }
-    };
+    // clean custom field values
+    if (doc.customFieldsData) {
+      doc.customFieldsData = doc.customFieldsData.map(cd => ({
+        ...cd,
+        stringValue: cd.value ? cd.value.toString() : ''
+      }));
+    }
+
+    let updatedDoc = doc;
+
+    if (doc.details) {
+      updatedDoc = {
+        ...doc,
+        details: {
+          ...doc.details,
+          fullName: `${doc.details.firstName || ''} ${doc.details.lastName ||
+            ''}`
+        }
+      };
+    }
 
     const updatedUser = await models.Users.updateUser(_id, updatedDoc);
+
+    if (args.departmentIds || args.branchIds) {
+      await models.UserMovements.manageUserMovement({
+        user: updatedUser
+      });
+    }
 
     if (channelIds) {
       await sendInboxMessage({
@@ -279,13 +297,15 @@ const userMutations = {
       email,
       password,
       details,
-      links
+      links,
+      employeeId
     }: {
       username: string;
       email: string;
       password: string;
       details: IDetail;
       links: ILink;
+      employeeId: string;
     },
     { user, models, subdomain }: IContext
   ) {
@@ -308,7 +328,8 @@ const userMutations = {
         ...details,
         fullName: `${details.firstName || ''} ${details.lastName || ''}`
       },
-      links
+      links,
+      employeeId
     };
 
     const updatedUser = models.Users.editProfile(user._id, doc);
@@ -375,12 +396,19 @@ const userMutations = {
         departmentId?: string;
       }>;
     },
-    { user, subdomain, models }: IContext
+    { user, subdomain, docModifier, models }: IContext
   ) {
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
 
-      const token = await models.Users.invite(entry);
+      let doc: any = entry;
+
+      const docModified = docModifier({});
+
+      if (!!docModified?.scopeBrandIds?.length) {
+        doc.brandIds = docModified.scopeBrandIds;
+      }
+      const token = await models.Users.invite(doc);
       const createdUser = await models.Users.findOne({ email: entry.email });
 
       if (entry.unitId) {
@@ -391,17 +419,29 @@ const userMutations = {
       }
 
       if (entry.branchId) {
-        await models.Branches.updateOne(
-          { _id: entry.branchId },
-          { $push: { userIds: createdUser?._id } }
+        await models.Users.updateOne(
+          { _id: createdUser?._id },
+          {
+            $addToSet: { branchIds: entry.branchId }
+          }
         );
       }
 
       if (entry.departmentId) {
-        await models.Departments.updateOne(
-          { _id: entry.departmentId },
-          { $push: { userIds: createdUser?._id } }
+        await models.Users.updateOne(
+          { _id: createdUser?._id },
+          {
+            $addToSet: { departmentIds: entry.departmentId }
+          }
         );
+      }
+      if (entry.channelIds) {
+        sendInboxMessage({
+          subdomain,
+          action: 'updateUserChannels',
+          data: { channelIds: entry.channelIds, userId: createdUser?._id },
+          isRPC: true
+        });
       }
 
       sendInvitationEmail(models, subdomain, { email: entry.email, token });

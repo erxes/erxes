@@ -16,9 +16,34 @@ export default {
 
     const { docs } = data;
 
+    let updated = 0;
+    const objects: any = [];
+
     try {
-      const objects = await models.Products.insertMany(docs);
-      return { objects, updated: 0 };
+      for (const doc of docs) {
+        if (doc.code) {
+          const product = await models.Products.findOne({ code: doc.code });
+
+          if (product) {
+            delete doc.code;
+            await models.Products.updateOne(
+              { _id: product._id },
+              { $set: { ...doc } }
+            );
+            updated++;
+          } else {
+            const insertedProduct = await models.Products.create(doc);
+
+            objects.push(insertedProduct);
+          }
+        } else {
+          const insertedProduct = await models.Products.create(doc);
+
+          objects.push(insertedProduct);
+        }
+      }
+
+      return { objects, updated };
     } catch (e) {
       return { error: e.message };
     }
@@ -165,7 +190,7 @@ export default {
         subUoms.push({
           id: Math.random(),
           uomId: uom._id,
-          ratio: Number(ratios[ind])
+          ratio: Number(ratios[ind] || 1)
         });
         ind += 1;
       }

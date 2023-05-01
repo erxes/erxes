@@ -6,6 +6,7 @@ import { COC_LEAD_STATUS_TYPES } from '../constants';
 import {
   fetchSegment,
   sendCoreMessage,
+  sendFormsMessage,
   sendInboxMessage,
   sendSegmentsMessage,
   sendTagsMessage

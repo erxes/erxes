@@ -6,9 +6,27 @@ const nameFields = `
   lastName
 `;
 
+export const commonStructureParamsDef = `
+    $ids: [String]
+    $excludeIds: Boolean,
+    $perPage: Int,
+    $page: Int
+    $searchValue: String,
+    $status:String,
+`;
+
+export const commonStructureParamsValue = `
+    ids: $ids
+    excludeIds: $excludeIds,
+    perPage: $perPage,
+    page: $page
+    searchValue: $searchValue
+    status: $status
+`;
+
 const allUsers = `
-  query allUsers($isActive: Boolean) {
-    allUsers(isActive: $isActive) {
+  query allUsers($isActive: Boolean,$ids:[String],$assignedToMe: String) {
+    allUsers(isActive: $isActive,ids:$ids,assignedToMe: $assignedToMe) {
       _id
       email
       username
@@ -72,18 +90,37 @@ const users = `
       }
 
       links
+      employeeId
     }
   }
 `;
 
-const departmentField = `
+export const departmentField = `
   _id
   title
   description
   parentId
   code
+  order
   supervisorId
+  supervisor {
+          _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
   userIds
+  userCount
   users {
     _id
     details {
@@ -109,19 +146,50 @@ const contactInfoFields = `
 `;
 
 const departments = `
-  query departments {
-    departments {
+  query departments(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    departments(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       ${departmentField}
     }
   }
 `;
 
-const unitField = `
+const departmentsMain = `
+  query departmentsMain(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    departmentsMain(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
+      list {
+        ${departmentField}
+      }
+      totalCount
+      totalUsersCount
+    }
+  }
+`;
+
+export const unitField = `
   _id
   title
   description
   departmentId
+  department {
+    ${departmentField}
+  }
   supervisorId
+  supervisor {
+      _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
   code
   userIds
   users {
@@ -133,22 +201,35 @@ const unitField = `
   }
 `;
 
+const unitsMain = `
+  query unitsMain(${commonStructureParamsDef}) {
+    unitsMain(${commonStructureParamsValue}) {
+      list {
+        ${unitField}
+      }
+      totalCount
+      totalUsersCount
+    }
+  }
+`;
 const units = `
-  query units {
-    units {
+  query units ($searchValue:String) {
+    units (searchValue:$searchValue) {
       ${unitField}
     }
   }
 `;
 
-const branchField = `
+export const branchField = `
   _id
   title
   address
   parentId
   supervisorId
   code
+  order
   userIds
+  userCount
   users {
     _id
     details {
@@ -161,9 +242,23 @@ const branchField = `
 `;
 
 const branches = `
-  query branches {
-    branches {
+  query branches(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    branches (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
       ${branchField}
+      parent {${branchField}}
+    }
+  }
+`;
+
+const branchesMain = `
+  query branchesMain(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    branchesMain (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
+      list {
+        ${branchField}
+        parent {${branchField}}
+      }
+      totalCount
+      totalUsersCount
     }
   }
 `;
@@ -177,6 +272,8 @@ const userDetail = `
       isActive
       status
       groupIds
+      branchIds
+      departmentIds
 
       details {
         ${detailFields}
@@ -186,6 +283,8 @@ const userDetail = `
       getNotificationByEmail
       customFieldsData
       score
+      employeeId
+      brandIds
     }
   }
 `;
@@ -346,6 +445,8 @@ const fieldsGroups = `
     fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
       name
       ${genericFields}
+      isMultiple
+      parentId
       config
       logicAction
       logics {
@@ -365,6 +466,23 @@ const fieldsGroups = `
   }
 `;
 
+const userMovements = `
+  query UserMovements($userId: String!, $contentType: String) {
+    userMovements(userId: $userId, contentType: $contentType) {
+      _id
+      contentType
+      contentTypeId
+      createdAt
+      createdBy
+      createdByDetail
+      userDetail
+      userId
+      contentTypeDetail
+      status
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -374,14 +492,18 @@ export default {
   allUsers,
   structureDetail,
   departments,
+  departmentsMain,
   departmentDetail,
   units,
+  unitsMain,
   unitDetail,
   noDepartmentUsers,
   branches,
+  branchesMain,
   branchDetail,
   detailFields,
   channels: channelQueries.channels,
   skillTypes,
-  fieldsGroups
+  fieldsGroups,
+  userMovements
 };

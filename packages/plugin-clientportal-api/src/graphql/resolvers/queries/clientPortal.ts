@@ -182,14 +182,10 @@ const configClientPortalQueries = {
     });
   },
 
-  async clientPortalTicket(
-    _root,
-    { _id }: { _id: string },
-    { subdomain }: IContext
-  ) {
+  clientPortalTicket(_root, { _id }: { _id: string }, { subdomain }: IContext) {
     return sendCardsMessage({
       subdomain,
-      action: 'tickets.find',
+      action: 'tickets.findOne',
       data: {
         _id
       },
@@ -204,20 +200,27 @@ const configClientPortalQueries = {
     _root,
     {
       categoryIds,
-      searchValue
+      searchValue,
+      topicId
     }: {
       searchValue?: string;
       categoryIds: string[];
+      topicId?: string;
     },
     { subdomain }: IContext
   ) {
     const selector: any = {};
 
-    if (searchValue && searchValue.trim()) {
-      selector.$or = [
-        { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-        { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-        { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
+    if (searchValue && searchValue.trim() && topicId && topicId.trim()) {
+      selector.$and = [
+        {
+          $or: [
+            { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+            { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+            { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
+          ]
+        },
+        { topicId }
       ];
     }
 

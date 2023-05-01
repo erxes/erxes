@@ -1,26 +1,32 @@
+import React from 'react';
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Tip from '@erxes/ui/src/components/Tip';
+import Icon from '@erxes/ui/src/components/Icon';
 import { IField, ILocationOption } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
-import React from 'react';
 
-import { SidebarContent } from '../styles';
+import { Divider, SidebarContent } from '../styles';
 import { IFieldGroup, LogicParams } from '../types';
 import { checkLogic } from '../utils';
 import GenerateField from './GenerateField';
+import { ModalTrigger } from '@erxes/ui/src';
 
 declare const navigator: any;
 
 type Props = {
   isDetail: boolean;
+  customFieldsData: any;
   fieldGroup: IFieldGroup;
+  fieldsGroups: IFieldGroup[];
   fieldsCombined: IField[];
   loading?: boolean;
   object?: any;
   data: any;
-  save: (data: any, callback: (error: Error) => void) => void;
+  save: (data: { customFieldsData: any }, callback: () => any) => void;
+  saveGroup: (data: any, callback: (error: Error) => void) => void;
 };
 
 type State = {
@@ -30,13 +36,12 @@ type State = {
 };
 
 class GenerateGroup extends React.Component<Props, State> {
-  s;
   constructor(props: Props) {
     super(props);
 
     this.state = {
       editing: false,
-      data: props.data,
+      data: JSON.parse(JSON.stringify(props.data)),
       currentLocation: { lat: 0, lng: 0 }
     };
   }
@@ -83,9 +88,9 @@ class GenerateGroup extends React.Component<Props, State> {
 
   save = () => {
     const { data } = this.state;
-    const { save } = this.props;
+    const { saveGroup } = this.props;
 
-    save(data, error => {
+    saveGroup(data, error => {
       if (error) {
         return Alert.error(error.message);
       }
@@ -98,16 +103,32 @@ class GenerateGroup extends React.Component<Props, State> {
 
   cancelEditing = () => {
     this.setState({
+      data: JSON.parse(JSON.stringify(this.props.data)),
       editing: false
     });
   };
 
-  onChange = ({ _id, value }) => {
-    const { fields } = this.props.fieldGroup;
+  onChange = (index: number, { _id, value }) => {
+    const { fields, isMultiple } = this.props.fieldGroup;
+    const fieldGroupId = this.props.fieldGroup._id;
 
     const { data } = this.state;
 
-    data[_id] = value;
+    if (isMultiple) {
+      if (!data[fieldGroupId]) {
+        data[fieldGroupId] = [];
+      }
+
+      if (!data[fieldGroupId][index]) {
+        data[fieldGroupId][index] = {
+          [_id]: value
+        };
+      } else {
+        data[fieldGroupId][index][_id] = value;
+      }
+    } else {
+      data[_id] = value;
+    }
 
     // check nested logics and clear field value
     for (const f of fields) {
@@ -121,7 +142,33 @@ class GenerateGroup extends React.Component<Props, State> {
         continue;
       }
 
-      delete data[f._id];
+      if (isMultiple) {
+        delete data[fieldGroupId][index][_id];
+      } else {
+        delete data[f._id];
+      }
+    }
+
+    this.setState({ data, editing: true });
+  };
+
+  onAddGroupInput = () => {
+    const { fieldGroup } = this.props;
+    const { data } = this.state;
+
+    data[fieldGroup._id].push({});
+
+    this.setState({ data, editing: true });
+  };
+
+  onRemoveGroupInput = (index: number) => {
+    const { fieldGroup } = this.props;
+    const { data } = this.state;
+
+    if (data[fieldGroup._id].length === 1) {
+      data[fieldGroup._id] = [];
+    } else {
+      data[fieldGroup._id].splice(index, 1);
     }
 
     this.setState({ data, editing: true });
@@ -151,8 +198,9 @@ class GenerateGroup extends React.Component<Props, State> {
   renderContent() {
     const { fieldGroup, isDetail, object = {} } = this.props;
     const { data } = this.state;
-    const { fields } = fieldGroup;
+    const { fields, isMultiple } = fieldGroup;
 
+    const groupData = data[fieldGroup._id] || [];
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
     if (!fields || fields.length === 0) {
@@ -169,81 +217,287 @@ class GenerateGroup extends React.Component<Props, State> {
       );
     }
 
+    const numberToIterate = isMultiple
+      ? groupData && groupData.length > 0
+        ? groupData.length
+        : 1
+      : 1;
+
     return (
       <SidebarContent>
-        {fields.map((field, index) => {
-          if (!field[isVisibleKey]) {
-            return null;
-          }
+        {Array(numberToIterate)
+          .fill(0)
+          .map((_, groupDataIndex) => {
+            const groupDataValue = groupData[groupDataIndex] || {};
 
-          if (field.logics && field.logics.length > 0) {
-            const logics: LogicParams[] = field.logics.map(logic => {
-              let { fieldId = '' } = logic;
-
-              if (fieldId.includes('customFieldsData')) {
-                fieldId = fieldId.split('.')[1];
-                return {
-                  fieldId,
-                  operator: logic.logicOperator,
-                  validation: fields.find(e => e._id === fieldId)?.validation,
-                  logicValue: logic.logicValue,
-                  fieldValue: data[fieldId],
-                  type: field.type
-                };
+            const fieldRenders = fields.map((field, index) => {
+              if (!field[isVisibleKey]) {
+                return null;
               }
 
-              return {
-                fieldId,
-                operator: logic.logicOperator,
-                logicValue: logic.logicValue,
-                fieldValue: object[logic.fieldId || ''],
-                validation: fields.find(e => e._id === fieldId)?.validation,
-                type: field.type
-              };
+              if (field.logics && field.logics.length > 0) {
+                const logics: LogicParams[] = field.logics.map(logic => {
+                  let { fieldId = '' } = logic;
+
+                  if (fieldId.includes('customFieldsData')) {
+                    fieldId = fieldId.split('.')[1];
+                    return {
+                      fieldId,
+                      operator: logic.logicOperator,
+                      validation: fields.find(e => e._id === fieldId)
+                        ?.validation,
+                      logicValue: logic.logicValue,
+                      fieldValue: isMultiple
+                        ? groupDataValue[fieldId]
+                        : data[fieldId],
+                      type: field.type
+                    };
+                  }
+
+                  return {
+                    fieldId,
+                    operator: logic.logicOperator,
+                    logicValue: logic.logicValue,
+                    fieldValue: object[logic.fieldId || ''],
+                    validation: fields.find(e => e._id === fieldId)?.validation,
+                    type: field.type
+                  };
+                });
+
+                const isLogicsFulfilled = checkLogic(logics);
+
+                if (field.logicAction && field.logicAction === 'show') {
+                  if (!isLogicsFulfilled) {
+                    return null;
+                  }
+                }
+
+                if (field.logicAction && field.logicAction === 'hide') {
+                  if (isLogicsFulfilled) {
+                    return null;
+                  }
+                }
+              }
+
+              return (
+                <GenerateField
+                  field={field}
+                  key={index}
+                  onValueChange={val => this.onChange(groupDataIndex, val)}
+                  defaultValue={
+                    isMultiple
+                      ? groupDataValue[field._id] || ''
+                      : data[field._id] || ''
+                  }
+                  currentLocation={this.state.currentLocation}
+                  isEditing={this.state.editing}
+                />
+              );
             });
 
-            const isLogicsFulfilled = checkLogic(logics);
-
-            if (field.logicAction && field.logicAction === 'show') {
-              if (!isLogicsFulfilled) {
-                return null;
-              }
-            }
-
-            if (field.logicAction && field.logicAction === 'hide') {
-              if (isLogicsFulfilled) {
-                return null;
-              }
-            }
-          }
-
-          return (
-            <GenerateField
-              field={field}
-              key={index}
-              onValueChange={this.onChange}
-              defaultValue={data[field._id] || ''}
-              currentLocation={this.state.currentLocation}
-              isEditing={this.state.editing}
-            />
-          );
-        })}
+            return (
+              <div key={'group' + groupDataIndex}>
+                {fieldRenders}
+                {isMultiple && (
+                  <div style={{ textAlign: 'right' }}>
+                    <Button
+                      size="small"
+                      btnStyle="danger"
+                      icon="trash"
+                      onClick={() => this.onRemoveGroupInput(groupDataIndex)}
+                    />
+                  </div>
+                )}
+                {groupDataIndex !== numberToIterate - 1 && <Divider />}
+              </div>
+            );
+          })}
       </SidebarContent>
     );
   }
 
+  renderChildGroups() {
+    const {
+      fieldGroup,
+      fieldsGroups,
+      customFieldsData = [],
+      isDetail
+    } = this.props;
+
+    const childGroups = fieldsGroups.filter(
+      gro => gro.parentId === fieldGroup._id
+    );
+
+    const allFields = childGroups.flatMap(group => {
+      return group.fields;
+    });
+
+    const saveGroup = (groupData, callback) => {
+      const { save } = this.props;
+
+      const prevData = {};
+      (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
+
+      const updatedData = {
+        ...prevData,
+        ...(groupData || {})
+      };
+
+      save(
+        {
+          customFieldsData: Object.keys(updatedData).map(key => ({
+            field: key,
+            value: updatedData[key]
+          }))
+        },
+        callback
+      );
+    };
+
+    return childGroups.map(childFieldGroup => {
+      const data = {};
+
+      for (const customFieldData of customFieldsData || []) {
+        data[customFieldData.field] = customFieldData.value;
+      }
+
+      if (childFieldGroup.logics && childFieldGroup.logics.length > 0) {
+        const logics: LogicParams[] = childFieldGroup.logics.map(logic => {
+          let { fieldId = '' } = logic;
+
+          if (fieldId.includes('customFieldsData')) {
+            fieldId = fieldId.split('.')[1];
+            return {
+              fieldId,
+              operator: logic.logicOperator,
+              validation: allFields.find(e => e._id === fieldId)?.validation,
+              logicValue: logic.logicValue,
+              fieldValue: data[fieldId]
+            };
+          }
+
+          const object = this.props.object || {};
+
+          return {
+            fieldId,
+            operator: logic.logicOperator,
+            logicValue: logic.logicValue,
+            fieldValue: object[logic.fieldId || ''],
+            validation: allFields.find(e => e._id === fieldId)?.validation
+          };
+        });
+
+        const isLogicsFulfilled = checkLogic(logics);
+
+        if (fieldGroup.logicAction && fieldGroup.logicAction === 'show') {
+          if (!isLogicsFulfilled) {
+            return null;
+          }
+        }
+
+        if (fieldGroup.logicAction && fieldGroup.logicAction === 'hide') {
+          if (isLogicsFulfilled) {
+            return null;
+          }
+        }
+      }
+
+      return (
+        <GenerateGroup
+          isDetail={isDetail}
+          key={childFieldGroup._id}
+          loading={this.props.loading}
+          data={data}
+          fieldGroup={childFieldGroup}
+          fieldsGroups={fieldsGroups}
+          fieldsCombined={allFields}
+          customFieldsData={customFieldsData}
+          save={this.props.save}
+          saveGroup={saveGroup}
+          object={this.props.object}
+        />
+      );
+    });
+  }
+
+  modalContent = (fieldGroup: IFieldGroup) => {
+    let extraButtons = <></>;
+    if (fieldGroup.isMultiple) {
+      extraButtons = (
+        <Tip placement="top" text="Add Group Input">
+          <button onClick={this.onAddGroupInput}>
+            <Icon icon="plus-circle" />
+          </button>
+        </Tip>
+      );
+    }
+    return (
+      <Box
+        extraButtons={extraButtons}
+        title={fieldGroup.name}
+        name="showCustomFields"
+        isOpen={true}
+      >
+        {this.renderContent()}
+        {this.renderButtons()}
+        {this.renderChildGroups()}
+      </Box>
+    );
+  };
+
   render() {
     const { fieldGroup, isDetail } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+    let extraButtons = <></>;
 
     if (!fieldGroup[isVisibleKey]) {
       return null;
     }
 
+    if (fieldGroup.isMultiple) {
+      extraButtons = (
+        <>
+          {
+            <ModalTrigger
+              title={'Edit'}
+              trigger={
+                <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+              }
+              size="xl"
+              content={() => this.modalContent(fieldGroup)}
+            />
+          }
+          <Tip placement="top" text="Add Group Input">
+            <button onClick={this.onAddGroupInput}>
+              <Icon icon="plus-circle" />
+            </button>
+          </Tip>
+        </>
+      );
+    }
+    if (!fieldGroup.isMultiple) {
+      extraButtons = (
+        <ModalTrigger
+          title={'Edit'}
+          trigger={
+            <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+          }
+          size="xl"
+          content={() => this.modalContent(fieldGroup)}
+        />
+      );
+    }
+
     return (
-      <Box title={fieldGroup.name} name="showCustomFields">
+      <Box
+        extraButtons={extraButtons}
+        title={fieldGroup.name}
+        name="showCustomFields"
+        isOpen={fieldGroup.alwaysOpen}
+      >
         {this.renderContent()}
         {this.renderButtons()}
+        {this.renderChildGroups()}
       </Box>
     );
   }
@@ -282,17 +536,25 @@ class GenerateGroups extends React.Component<GroupsProps> {
   };
 
   render() {
-    const { loading, fieldsGroups, customFieldsData, isDetail } = this.props;
+    const {
+      loading,
+      fieldsGroups = [],
+      customFieldsData,
+      isDetail
+    } = this.props;
 
-    if (!fieldsGroups || fieldsGroups.length === 0) {
+    const groups = fieldsGroups.filter(gro => !gro.parentId);
+    const groupsWithParents = fieldsGroups.filter(gro => !!gro.parentId);
+
+    if (!groups || groups.length === 0) {
       return null;
     }
 
-    const allFields = fieldsGroups.flatMap(group => {
+    const allFields = groups.flatMap(group => {
       return group.fields;
     });
 
-    return fieldsGroups.map(fieldGroup => {
+    return groups.map(fieldGroup => {
       const data = {};
 
       for (const customFieldData of customFieldsData || []) {
@@ -344,10 +606,13 @@ class GenerateGroups extends React.Component<GroupsProps> {
           key={fieldGroup._id}
           loading={loading}
           data={data}
+          customFieldsData={customFieldsData}
           fieldGroup={fieldGroup}
+          fieldsGroups={groupsWithParents}
           fieldsCombined={allFields}
           object={this.props.object}
-          save={this.saveGroup}
+          saveGroup={this.saveGroup}
+          save={this.props.save}
         />
       );
     });

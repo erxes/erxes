@@ -74,34 +74,33 @@ const RespondBoxContainer = (props: FinalProps) => {
 
     let optimisticResponse;
 
-    if (conversation.integration.kind === 'messenger') {
-      optimisticResponse = {
-        __typename: 'Mutation',
-        conversationMessageAdd: {
-          __typename: 'ConversationMessage',
-          _id: Math.round(Math.random() * -1000000),
-          content,
-          contentType,
-          attachments,
-          internal,
-          mentionedUserIds: [],
-          conversationId,
-          customerId: Math.random(),
-          userId: currentUser._id,
-          createdAt: new Date(),
-          messengerAppData: null,
-          isCustomerRead: false,
-          fromBot: false,
-          formWidgetData: null,
-          bookingWidgetData: null,
-          botData: null,
-          mailData: null,
-          user: null,
-          customer: null,
-          videoCallData: null
-        }
-      };
-    }
+    optimisticResponse = {
+      __typename: 'Mutation',
+      conversationMessageAdd: {
+        __typename: 'ConversationMessage',
+        _id: Math.round(Math.random() * -1000000),
+        content,
+        contentType,
+        attachments,
+        internal,
+        mentionedUserIds: [],
+        conversationId,
+        customerId: Math.random(),
+        userId: currentUser._id,
+        createdAt: new Date(),
+        messengerAppData: null,
+        isCustomerRead: false,
+        fromBot: false,
+        formWidgetData: null,
+        bookingWidgetData: null,
+        botData: null,
+        mailData: null,
+        user: null,
+        customer: null,
+        videoCallData: null,
+        mid: Math.random().toString()
+      }
+    };
 
     addMessage({
       variables,

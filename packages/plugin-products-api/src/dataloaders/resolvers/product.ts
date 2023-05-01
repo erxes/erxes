@@ -1,5 +1,7 @@
 import { IContext } from '../../connectionResolver';
+import { sendCommonMessage } from '../../messageBroker';
 import { IProductDocument } from '../../models/definitions/products';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -40,5 +42,13 @@ export default {
     }
 
     return await models.Uoms.findOne({ _id: uomId });
+  },
+
+  customFieldsDataByFieldCode(
+    product: IProductDocument,
+    _,
+    { subdomain }: IContext
+  ) {
+    return customFieldsDataByFieldCode(product, subdomain, sendCommonMessage);
   }
 };

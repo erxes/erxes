@@ -11,6 +11,7 @@ const commonDetailFields = `
   firstName: String
   middleName: String
   lastName: String
+  employeeId: String
 `;
 
 export const types = `
@@ -60,9 +61,29 @@ export const types = `
     configs: JSON
     configsConstants: [JSON]
     onboardingHistory: OnboardingHistory
+
     department: Department
+
+    departmentIds: [String]
+    departments: [Department]
+    branchIds: [String]
+    branches: [Branch]
     score: Float
     leaderBoardPosition: Int
+    employeeId: String
+  }
+
+  type UserMovement {
+    _id: String
+    createdAt: Date
+    createdBy: String
+    createdByDetail:JSON
+    userId:String
+    userDetail:JSON
+    contentType:String
+    contentTypeId:String
+    contentTypeDetail:JSON
+    status:String
   }
 `;
 
@@ -74,7 +95,10 @@ const commonParams = `
   channelIds: [String],
   groupIds: [String]
   brandIds: [String]
+  branchIds: [String]
+  departmentIds: [String]
   customFieldsData: JSON
+  employeeId: String
 `;
 
 const commonSelector = `
@@ -90,10 +114,11 @@ const commonSelector = `
 
 export const queries = `
   users(sortField: String, sortDirection: Int, page: Int, perPage: Int, status: String, excludeIds: Boolean, ${commonSelector}): [User]
-  allUsers(isActive: Boolean): [User]
+  allUsers(isActive: Boolean,ids:[String],assignedToMe:String): [User]
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   currentUser: User
+  userMovements(userId: String!,contentType: String):[UserMovement]
 `;
 
 export const mutations = `
@@ -109,6 +134,7 @@ export const mutations = `
     details: UserDetails,
     links: JSON
     password: String!
+    employeeId: String
   ): User
   usersEdit(_id: String!, ${commonParams}): User
   usersChangePassword(currentPassword: String!, newPassword: String!): User

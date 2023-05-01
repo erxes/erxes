@@ -1,7 +1,12 @@
 import { ICustomerDocument } from '../../models/definitions/customers';
-import { sendCoreMessage, sendInboxMessage } from '../../messageBroker';
+import {
+  sendCoreMessage,
+  sendInboxMessage,
+  sendCommonMessage
+} from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -45,7 +50,9 @@ export default {
 
     return response.hits.hits.map(hit => {
       const source = hit._source;
-      const firstAttribute = source.attributes[0] || {};
+      const { attributes } = source;
+      const firstAttribute =
+        (attributes && attributes.length > 0 && attributes[0]) || {};
 
       return {
         createdAt: source.createdAt,
@@ -98,5 +105,13 @@ export default {
     }
 
     return { __typename: 'User', _id: customer.ownerId };
+  },
+
+  customFieldsDataByFieldCode(
+    company: ICustomerDocument,
+    _,
+    { subdomain }: IContext
+  ) {
+    return customFieldsDataByFieldCode(company, subdomain, sendCommonMessage);
   }
 };

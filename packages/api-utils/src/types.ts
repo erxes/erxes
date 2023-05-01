@@ -34,6 +34,9 @@ export interface IUser {
   groupIds?: string[];
   deviceTokens?: string[];
   doNotDisturb?: string;
+  branchIds?: string[];
+  departmentIds?: string[];
+  role?: string;
 }
 
 export interface IUserDocument extends IUser, Document {

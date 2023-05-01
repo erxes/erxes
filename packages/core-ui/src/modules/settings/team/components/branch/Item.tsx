@@ -13,7 +13,13 @@ type Props = {
 
 export default function Item({ branch, refetch, deleteBranch, level }: Props) {
   const renderForm = ({ closeModal }) => {
-    return <Form branch={branch} closeModal={closeModal} />;
+    return (
+      <Form
+        branch={branch}
+        closeModal={closeModal}
+        additionalRefetchQueries={['users']}
+      />
+    );
   };
 
   return (

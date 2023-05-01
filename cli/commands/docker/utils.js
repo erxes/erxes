@@ -5,6 +5,20 @@ const { log, execCommand, filePath, execCurl } = require('../utils');
 
 require('dotenv').config();
 
+
+const routerConfigDirPath = filePath('./apollo-router-config');
+
+async function createRouterConfigDir() {
+  if (!fs.existsSync(routerConfigDirPath)) {
+    await fs.mkdirSync(routerConfigDirPath,{ recursive: true });
+  }
+}
+
+async function recreateRouterConfigDir() {
+  await fse.removeSync(routerConfigDirPath, { recursive: true });
+  await createRouterConfigDir();
+}
+
 const {
   DEPLOYMENT_METHOD,
   SERVICE_INTERNAL_PORT = 80,
@@ -12,7 +26,7 @@ const {
   UI_PORT = 3000,
   MONGO_PORT = 27017,
   REDIS_PORT = 6379,
-  RABBITMQ_PORT = 5672,
+  RABBITMQ_PORT = 5672
 } = process.env;
 
 const isSwarm = DEPLOYMENT_METHOD !== 'docker-compose';
@@ -25,9 +39,11 @@ const commonEnvs = configs => {
 
   const rabbitmq_host = `amqp://${rabbitmq.user}:${
     rabbitmq.pass
-  }@${rabbitmq.server_address || db_server_address || (isSwarm ? 'erxes-dbs_rabbitmq' : 'rabbitmq')}:${db_server_address ? RABBITMQ_PORT : 5672}/${
-    rabbitmq.vhost
-  }`;
+  }@${rabbitmq.server_address ||
+    db_server_address ||
+    (isSwarm ? 'erxes-dbs_rabbitmq' : 'rabbitmq')}:${
+    db_server_address ? RABBITMQ_PORT : 5672
+  }/${rabbitmq.vhost}`;
 
   return {
     ELASTIC_APM_HOST_NAME: configs.elastic_apm_host_name,
@@ -39,9 +55,10 @@ const commonEnvs = configs => {
     REDIS_PORT: db_server_address ? REDIS_PORT : 6379,
     REDIS_PASSWORD: redis.password || '',
     RABBITMQ_HOST: rabbitmq_host,
-    ELASTICSEARCH_URL: `${db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
+    ELASTICSEARCH_URL: `http://${db_server_address ||
+      (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
     ENABLED_SERVICES_PATH: '/data/enabled-services.js',
-    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
+    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || ''
   };
 };
 
@@ -64,19 +81,30 @@ const mongoEnv = (configs, plugin) => {
     db_name = plugin.db_name;
   }
 
-  const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${db_server_address || (isSwarm ? 'erxes-dbs_mongo' : 'mongo') }:${db_server_address ? MONGO_PORT : 27017}/${db_name}?authSource=admin&replicaSet=rs0`;
+  const mongo_url = `mongodb://${mongo.username}:${
+    mongo.password
+  }@${db_server_address || (isSwarm ? 'erxes-dbs_mongo' : 'mongo')}:${
+    db_server_address ? MONGO_PORT : 27017
+  }/${db_name}?authSource=admin&replicaSet=rs0`;
 
   return mongo_url;
 };
 
 const healthcheck = {
-  test: ['CMD', 'curl', '-i', `http://localhost:${SERVICE_INTERNAL_PORT}/health`],
+  test: [
+    'CMD',
+    'curl',
+    '-i',
+    `http://localhost:${SERVICE_INTERNAL_PORT}/health`
+  ],
   interval: '1s',
   start_period: '5s'
 };
 
-const generateLBaddress = (address) => 
-  `${address}${ SERVICE_INTERNAL_PORT !== 80 ? `:${SERVICE_INTERNAL_PORT}` : ''}`
+const generateLBaddress = address =>
+  `${address}${
+    SERVICE_INTERNAL_PORT !== 80 ? `:${SERVICE_INTERNAL_PORT}` : ''
+  }`;
 
 const generatePluginBlock = (configs, plugin) => {
   const api_mongo_url = mongoEnv(configs, {});
@@ -87,7 +115,11 @@ const generatePluginBlock = (configs, plugin) => {
   const extra_hosts = [];
 
   if (plugin.db_server_address || configs.db_server_address) {
-    extra_hosts.push(`mongo:${plugin.db_server_address || configs.db_server_address || '127.0.0.1'}`);
+    extra_hosts.push(
+      `mongo:${plugin.db_server_address ||
+        configs.db_server_address ||
+        '127.0.0.1'}`
+    );
   }
 
   if (configs.secondary_db_server_address) {
@@ -101,18 +133,18 @@ const generatePluginBlock = (configs, plugin) => {
       PORT: plugin.port || SERVICE_INTERNAL_PORT || 80,
       API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
-      LOAD_BALANCER_ADDRESS: generateLBaddress(`http://plugin_${plugin.name}_api`),
+      LOAD_BALANCER_ADDRESS: generateLBaddress(`http://plugin-${plugin.name}-api`),
       ...commonEnvs(configs),
-      ...(plugin.extra_env || {}),
+      ...(plugin.extra_env || {})
     },
     volumes: ['./enabled-services.js:/data/enabled-services.js'],
     networks: ['erxes'],
-    extra_hosts,
+    extra_hosts
   };
 
   if (isSwarm && plugin.replicas) {
     conf.deploy = {
-      replicas: plugin.replicas,
+      replicas: plugin.replicas
     };
   }
 
@@ -121,7 +153,7 @@ const generatePluginBlock = (configs, plugin) => {
 
 const syncUI = async ({ name, image_tag, ui_location }) => {
   const configs = await fse.readJSON(filePath('configs.json'));
-  const tag = image_tag || configs.image_tag
+  const tag = image_tag || configs.image_tag;
 
   const plName = `plugin-${name}-ui`;
 
@@ -148,7 +180,10 @@ const syncUI = async ({ name, image_tag, ui_location }) => {
       }
     }
 
-    await execCurl(`${s3_location}/build.tar`, `plugin-uis/${plName}/build.tar`);
+    await execCurl(
+      `${s3_location}/build.tar`,
+      `plugin-uis/${plName}/build.tar`
+    );
   }
 
   log(`Extracting build ......`);
@@ -182,9 +217,7 @@ const updateLocales = async () => {
     await execCommand('mkdir locales');
   }
 
-  await execCommand(
-    `tar -xf locales.tar --directory=locales`
-  );
+  await execCommand(`tar -xf locales.tar --directory=locales`);
 
   log(`Removing locales.tar ......`);
   await execCommand(`rm locales.tar`);
@@ -215,23 +248,23 @@ const updateLocales = async () => {
   }
 };
 
-const generateNetworks = (configs) => {
+const generateNetworks = configs => {
   if (configs.db_server_address) {
     return {
       driver: 'overlay'
-    }
+    };
   }
 
   if (!isSwarm) {
     return {
       driver: 'bridge'
-    }
+    };
   }
 
   return {
     external: true
-  }
-}
+  };
+};
 
 const deployDbs = async () => {
   await cleaning();
@@ -241,16 +274,16 @@ const deployDbs = async () => {
   const dockerComposeConfig = {
     version: '3.3',
     networks: {
-      erxes: generateNetworks(configs),
+      erxes: generateNetworks(configs)
     },
-    services: {},
+    services: {}
   };
 
   if (configs.kibana) {
     dockerComposeConfig.services.kibana = {
       image: 'docker.elastic.co/kibana/kibana:7.6.0',
       ports: ['5601:5601'],
-      networks: ['erxes'],
+      networks: ['erxes']
     };
   }
 
@@ -265,12 +298,12 @@ const deployDbs = async () => {
       ports: [`0.0.0.0:${MONGO_PORT}:27017`],
       environment: {
         MONGO_INITDB_ROOT_USERNAME: configs.mongo.username,
-        MONGO_INITDB_ROOT_PASSWORD: configs.mongo.password,
+        MONGO_INITDB_ROOT_PASSWORD: configs.mongo.password
       },
       networks: ['erxes'],
       volumes: ['./mongodata:/data/db'],
       command: ['--replSet', 'rs0', '--bind_ip_all'],
-      extra_hosts: ['mongo:127.0.0.1'],
+      extra_hosts: ['mongo:127.0.0.1']
     };
   }
 
@@ -282,10 +315,10 @@ const deployDbs = async () => {
       environment: {
         MONGODB_HOST: 'mongo',
         MONGO_USERNAME: configs.mongo.username,
-        MONGO_PASSWORD: configs.mongo.password,
+        MONGO_PASSWORD: configs.mongo.password
       },
       networks: ['erxes'],
-      volumes: ['./mongo.pem:/mongosqld/mongo.pem'],
+      volumes: ['./mongo.pem:/mongosqld/mongo.pem']
     };
   }
 
@@ -312,7 +345,7 @@ const deployDbs = async () => {
     );
     dockerComposeConfig.services.mongo.extra_hosts = [
       `mongo:${configs.db_server_address}`,
-      `mongo-secondary:${configs.secondary_server_address}`,
+      `mongo-secondary:${configs.secondary_server_address}`
     ];
   }
 
@@ -324,7 +357,7 @@ const deployDbs = async () => {
     dockerComposeConfig.services.elasticsearch = {
       image: 'docker.elastic.co/elasticsearch/elasticsearch:7.8.0',
       environment: {
-        'discovery.type': 'single-node',
+        'discovery.type': 'single-node'
       },
       ports: ['9200:9200'],
       networks: ['erxes'],
@@ -332,9 +365,9 @@ const deployDbs = async () => {
       ulimits: {
         memlock: {
           soft: -1,
-          hard: -1,
-        },
-      },
+          hard: -1
+        }
+      }
     };
   }
 
@@ -348,7 +381,7 @@ const deployDbs = async () => {
       command: `redis-server --appendonly yes --requirepass ${configs.redis.password}`,
       ports: [`${REDIS_PORT}:6379`],
       networks: ['erxes'],
-      volumes: ['./redisdata:/data'],
+      volumes: ['./redisdata:/data']
     };
   }
 
@@ -365,11 +398,11 @@ const deployDbs = async () => {
         RABBITMQ_ERLANG_COOKIE: configs.rabbitmq.cookie,
         RABBITMQ_DEFAULT_USER: configs.rabbitmq.user,
         RABBITMQ_DEFAULT_PASS: configs.rabbitmq.pass,
-        RABBITMQ_DEFAULT_VHOST: configs.rabbitmq.vhost,
+        RABBITMQ_DEFAULT_VHOST: configs.rabbitmq.vhost
       },
       ports: [`${RABBITMQ_PORT}:5672`, '15672:15672'],
       networks: ['erxes'],
-      volumes: ['./rabbitmq-data:/var/lib/rabbitmq'],
+      volumes: ['./rabbitmq-data:/var/lib/rabbitmq']
     };
   }
 
@@ -387,13 +420,12 @@ const deployDbs = async () => {
     );
   }
 
-  return execCommand(
-    'docker-compose -f docker-compose-dbs.yml up -d'
-  );
+  return execCommand('docker-compose -f docker-compose-dbs.yml up -d');
 };
 
 const up = async ({ uis, downloadLocales, fromInstaller }) => {
   await cleaning();
+  await createRouterConfigDir();
 
   const configs = await fse.readJSON(filePath('configs.json'));
   const image_tag = configs.image_tag || 'federation';
@@ -433,57 +465,58 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   const dockerComposeConfig = {
     version: '3.7',
     networks: {
-      erxes: generateNetworks(configs),
+      erxes: generateNetworks(configs)
     },
     services: {
       coreui: {
-        image: `erxes/erxes:${image_tag}`,
+        image: `erxes/erxes:${(configs.coreui || {}).image_tag || image_tag}`,
         environment: {
           REACT_APP_PUBLIC_PATH: '',
           REACT_APP_CDN_HOST: widgets_domain,
           REACT_APP_API_URL: gateway_url,
           REACT_APP_DASHBOARD_URL: dashboard_domain,
           REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
-          NGINX_PORT: (configs.coreui || {}).NGINX_PORT || SERVICE_INTERNAL_PORT,
+          NGINX_PORT:
+            (configs.coreui || {}).NGINX_PORT || SERVICE_INTERNAL_PORT,
           NGINX_HOST,
           NODE_ENV: 'production',
           REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
-          ...((configs.coreui || {}).extra_env || {}),
+          ...((configs.coreui || {}).extra_env || {})
         },
         ports: [`${UI_PORT}:${SERVICE_INTERNAL_PORT}`],
         volumes: [
           './plugins.js:/usr/share/nginx/html/js/plugins.js',
           './plugin-uis:/usr/share/nginx/html/js/plugins',
-          './locales:/usr/share/nginx/html/locales',
+          './locales:/usr/share/nginx/html/locales'
         ],
-        networks: ['erxes'],
+        networks: ['erxes']
       },
-      plugin_core_api: {
-        image: `erxes/core:${image_tag}`,
+      "plugin-core-api": {
+        image: `erxes/core:${(configs.core || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'core-api',
           PORT: SERVICE_INTERNAL_PORT,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_core_api'),
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-core-api'),
           MONGO_URL: mongoEnv(configs),
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
             'https://email-verifier.erxes.io',
           ENABLED_SERVICES_PATH: '/data/enabled-services.js',
           ...commonEnvs(configs),
-          ...((configs.core || {}).extra_env || {}),
+          ...((configs.core || {}).extra_env || {})
         },
         extra_hosts,
         volumes: [
           './enabled-services.js:/data/enabled-services.js',
           './permissions.json:/core-api/permissions.json',
-          './core-api-uploads:/core-api/dist/core/src/private/uploads',
+          './core-api-uploads:/core-api/dist/core/src/private/uploads'
         ],
-        networks: ['erxes'],
+        networks: ['erxes']
       },
       gateway: {
-        image: `erxes/gateway:${image_tag}`,
+        image: `erxes/gateway:${(configs.gateway || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'gateway',
           PORT: SERVICE_INTERNAL_PORT,
@@ -492,39 +525,39 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
-          ...((configs.gateway || {}).extra_env || {}),
+          ...((configs.gateway || {}).extra_env || {})
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js'],
+        volumes: ['./enabled-services.js:/data/enabled-services.js', `${routerConfigDirPath}:/erxes-gateway/dist/gateway/src/apollo-router/temp`],
         healthcheck,
         extra_hosts,
         ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
-        networks: ['erxes'],
+        networks: ['erxes']
       },
       crons: {
         image: `erxes/crons:${image_tag}`,
         environment: {
           MONGO_URL: mongoEnv(configs),
-          ...commonEnvs(configs),
+          ...commonEnvs(configs)
         },
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
-        networks: ['erxes'],
+        networks: ['erxes']
       },
-      plugin_workers_api: {
+      "plugin-workers-api": {
         image: `erxes/workers:${image_tag}`,
         environment: {
           SERVICE_NAME: 'workers',
           PORT: SERVICE_INTERNAL_PORT,
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_workers_api'),
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-workers-api'),
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
-          ...((configs.workers || {}).extra_env || {}),
+          ...((configs.workers || {}).extra_env || {})
         },
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
         extra_hosts,
-        networks: ['erxes'],
-      },
-    },
+        networks: ['erxes']
+      }
+    }
   };
 
   if (isSwarm) {
@@ -534,8 +567,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       update_config: {
         order: 'start-first',
         failure_action: 'rollback',
-        delay: '1s',
-      },
+        delay: '1s'
+      }
     };
 
     dockerComposeConfig.services.coreui.deploy = deploy;
@@ -546,13 +579,14 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     dockerComposeConfig.services.essyncer = {
       image: `erxes/essyncer:${image_tag}`,
       environment: {
-        ELASTICSEARCH_URL: `http://${configs.db_server_address}:9200`,
+        ELASTICSEARCH_URL: `http://${configs.db_server_address ||
+          (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
         MONGO_URL: `${mongoEnv(configs)}${(configs.essyncer || {})
-          .mongoOptions || ''}`,
+          .mongoOptions || ''}`
       },
       volumes: ['./essyncerData:/data/essyncerData'],
       extra_hosts,
-      networks: ['erxes'],
+      networks: ['erxes']
     };
   }
 
@@ -563,10 +597,10 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         PORT: '3200',
         ROOT_URL: widgets_domain,
         API_URL: gateway_url,
-        API_SUBSCRIPTIONS_URL: subscription_url,
+        API_SUBSCRIPTIONS_URL: subscription_url
       },
       ports: ['3200:3200'],
-      networks: ['erxes'],
+      networks: ['erxes']
     };
   }
 
@@ -576,6 +610,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       ports: [`4300:${SERVICE_INTERNAL_PORT}`],
       environment: {
         PORT: SERVICE_INTERNAL_PORT,
+        CUBEJS_SCHEMA_PATH: 'dist/dashboard/dynamicSchema',
+        NODE_ENV: 'production',
         CUBEJS_DB_TYPE: 'mongobi',
         CUBEJS_DB_HOST: `${dashboard.dashboard_db_host || 'mongosqld'}`,
         CUBEJS_DB_PORT: `${dashboard.dashboard_db_port || '3307'}`,
@@ -583,13 +619,15 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         CUBEJS_URL: dashboard_domain,
         CUBEJS_TOKEN: dashboard.api_token,
         CUBEJS_API_SECRET: dashboard.api_secret,
-        REDIS_URL: `redis://${db_server_address || 'redis'}:${REDIS_PORT}`,
-        REDIS_PASSWORD: configs.redis.password || '',
-        ...(dashboard.extra_env || {}),
+        CUBEJS_REDIS_URL: `redis://${db_server_address ||
+          'redis'}:${REDIS_PORT}`,
+        CUBEJS_REDIS_PASSWORD: configs.redis.password || '',
+        ENABLED_SERVICES_PATH: '/data/enabled-services.js',
+        ...(dashboard.extra_env || {})
       },
       volumes: ['./enabled-services.js:/data/enabled-services.js'],
       extra_hosts,
-      networks: ['erxes'],
+      networks: ['erxes']
     };
   }
 
@@ -656,8 +694,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         collections: [
           {
             name: 'users',
-            schema: '{}',
-            script: '',
+            schema: '{"customFieldsData": <nested>}',
+            script: ''
           },
           {
             name: 'conformities',
@@ -677,18 +715,18 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
               }
             }
           `,
-            script: '',
-          },
-        ],
-      },
-    ],
+            script: ''
+          }
+        ]
+      }
+    ]
   };
 
   const permissionsJSON = [];
 
   for (const plugin of configs.plugins || []) {
     dockerComposeConfig.services[
-      `plugin_${plugin.name}_api`
+      `plugin-${plugin.name}-api`
     ] = generatePluginBlock(configs, plugin);
 
     enabledPlugins.push(`'${plugin.name}'`);
@@ -700,7 +738,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         uiPlugins.push(
           JSON.stringify({
             name: plugin.name,
-            ...pluginsMap[plugin.name].ui,
+            ...pluginsMap[plugin.name].ui
           })
         );
       }
@@ -711,7 +749,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         if (apiConfig.essyncer) {
           essyncerJSON.plugins.push({
             db_name: configs.mongo.db_name || 'erxes',
-            collections: apiConfig.essyncer,
+            collections: apiConfig.essyncer
           });
         }
 
@@ -763,7 +801,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
 
     dockerComposeConfig.services[serviceName] = {
       ...service,
-      networks: ['erxes'],
+      networks: ['erxes']
     };
   }
 
@@ -836,6 +874,10 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   log('Deploy ......');
 
   if (isSwarm) {
+    await recreateRouterConfigDir();
+
+    await execCommand('docker service rm erxes_gateway', true);
+
     return execCommand(
       'docker stack deploy --compose-file docker-compose.yml erxes --with-registry-auth --resolve-image changed'
     );
@@ -848,19 +890,24 @@ const update = async ({ serviceNames, noimage, uis }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
-  const image_tag = configs.image_tag || 'federation';
-
+  
   for (const name of serviceNames.split(',')) {
     const pluginConfig = (configs.plugins || []).find(p => p.name === name);
+    const image_tag = (pluginConfig && pluginConfig.image_tag) || (configs[name] && configs[name].image_tag) || configs.image_tag || 'federation';
 
     if (!noimage) {
       log(`Updating image ${name}......`);
 
-      if (
-        ['crons', 'dashboard-api', 'gateway', 'client-portal'].includes(name)
-      ) {
+      if (['crons', 'gateway', 'client-portal'].includes(name)) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:${image_tag}`
+        );
+        continue;
+      }
+
+      if (['dashboard-api'].includes(name)) {
+        await execCommand(
+          `docker service update erxes_dashboard --image erxes/dashboard:${image_tag}`
         );
         continue;
       }
@@ -881,14 +928,14 @@ const update = async ({ serviceNames, noimage, uis }) => {
 
       if (name === 'core') {
         await execCommand(
-          `docker service update erxes_plugin_core_api --image erxes/core:${image_tag}`
+          `docker service update erxes_plugin-core-api --image erxes/core:${image_tag}`
         );
         continue;
       }
 
       if (name === 'workers') {
         await execCommand(
-          `docker service update erxes_plugin_workers_api --image erxes/workers:${image_tag}`
+          `docker service update erxes_plugin-workers-api --image erxes/workers:${image_tag}`
         );
         continue;
       }
@@ -900,7 +947,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
           : '';
 
         await execCommand(
-          `docker service update erxes_plugin_${name}_api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
+          `docker service update erxes_plugin-${name}-api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
         );
       } else {
         console.error('No plugin found');
@@ -923,6 +970,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
   }
 
   log('Updating gateway ....');
+  await recreateRouterConfigDir();
   await execCommand(`docker service update --force erxes_gateway`);
 };
 
@@ -936,7 +984,7 @@ const restart = async name => {
     return;
   }
 
-  await execCommand(`docker service update --force erxes_plugin_${name}_api`);
+  await execCommand(`docker service update --force erxes_plugin-${name}-api`);
 };
 
 module.exports.installerUpdateConfigs = async () => {
@@ -971,7 +1019,11 @@ module.exports.removeService = async () => {
 };
 
 module.exports.up = program => {
-  return up({ uis: program.uis, fromInstaller: program.fromInstaller, downloadLocales: program.locales });
+  return up({
+    uis: program.uis,
+    fromInstaller: program.fromInstaller,
+    downloadLocales: program.locales
+  });
 };
 
 const dumpDb = async program => {
@@ -1055,10 +1107,10 @@ const deployMongoBi = async program => {
     version: '2.1',
     networks: {
       erxes: {
-        driver: 'bridge',
-      },
+        driver: 'bridge'
+      }
     },
-    services: {},
+    services: {}
   };
 
   dockerComposeConfig.services.mongo = {
@@ -1067,24 +1119,24 @@ const deployMongoBi = async program => {
     ports: [`0.0.0.0:${MONGO_PORT}:27017`],
     environment: {
       MONGO_INITDB_ROOT_USERNAME: configs.mongo_username,
-      MONGO_INITDB_ROOT_PASSWORD: configs.mongo_password,
+      MONGO_INITDB_ROOT_PASSWORD: configs.mongo_password
     },
     networks: ['erxes'],
     volumes: [
       './mongodata:/data/db',
-      './mongo-key:/etc/mongodb/keys/mongo-key',
+      './mongo-key:/etc/mongodb/keys/mongo-key'
     ],
     command: [
       '--replSet',
       'rs0',
       '--bind_ip_all',
       '--keyFile',
-      '/etc/mongodb/keys/mongo-key',
+      '/etc/mongodb/keys/mongo-key'
     ],
     extra_hosts: [
       `mongo:${configs.primary_server_ip}`,
-      `mongo-secondary: ${configs.server_ip}`,
-    ],
+      `mongo-secondary: ${configs.server_ip}`
+    ]
   };
 
   dockerComposeConfig.services['mongo-bi-connector'] = {
@@ -1094,10 +1146,10 @@ const deployMongoBi = async program => {
     environment: {
       MONGODB_HOST: 'mongo-secondary',
       MONGO_USERNAME: configs.mongo_username,
-      MONGO_PASSWORD: configs.mongo_password,
+      MONGO_PASSWORD: configs.mongo_password
     },
     networks: ['erxes'],
-    volumes: ['./mongo.pem:/mongosqld/mongo.pem'],
+    volumes: ['./mongo.pem:/mongosqld/mongo.pem']
   };
 
   const yamlString = yaml.stringify(dockerComposeConfig);

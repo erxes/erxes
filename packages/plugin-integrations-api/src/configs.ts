@@ -6,6 +6,7 @@ import { initMemoryStorage } from './inmemoryStorage';
 import initApp from '.';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import dashboards from './dashboards';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -24,6 +25,10 @@ export default {
     };
   },
   hasSubscriptions: false,
+  hasDashboard: true,
+  meta: {
+    dashboards
+  },
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -12,7 +12,11 @@ const scriptMutations = {
   /**
    * Creates a new script
    */
-  async scriptsAdd(_root, doc: IScript, { user, docModifier, models, subdomain }: IContext) {
+  async scriptsAdd(
+    _root,
+    doc: IScript,
+    { user, docModifier, models, subdomain }: IContext
+  ) {
     const modifiedDoc = docModifier(doc);
     const script = await models.Scripts.createScript(modifiedDoc);
 
@@ -59,7 +63,11 @@ const scriptMutations = {
   /**
    * Deletes a script
    */
-  async scriptsRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+  async scriptsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
     const script = await models.Scripts.getScript(_id);
     const removed = await models.Scripts.removeScript(_id);
 
@@ -74,6 +82,8 @@ const scriptMutations = {
   }
 };
 
-moduleCheckPermission(scriptMutations, 'manageScripts');
+checkPermission(scriptMutations, 'scriptsAdd', 'manageScripts');
+checkPermission(scriptMutations, 'scriptsEdit', 'manageScripts');
+checkPermission(scriptMutations, 'scriptsRemove', 'manageScripts');
 
 export default scriptMutations;

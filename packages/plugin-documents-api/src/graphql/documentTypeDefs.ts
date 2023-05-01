@@ -15,6 +15,12 @@ export const types = `
     value: String
     name: String
   }
+
+  type DocumentsTypes {
+    label: String
+    contentType: String
+  }
+
 `;
 
 const params = `
@@ -28,10 +34,11 @@ export const queries = `
   documents(${params}): [Document]
   documentsDetail(_id: String!): Document
   documentsGetEditorAttributes(contentType: String!): [DocumentEditorAttribute]
+  documentsGetContentTypes:[DocumentsTypes]
   documentsTotalCount: Int
 `;
 
 export const mutations = `
-  documentsSave(_id: String, contentType: String!, name: String!, content: String, replacer: String): Document
+  documentsSave(_id: String, contentType: String, name: String!, content: String, replacer: String): Document
   documentsRemove(_id: String!): JSON
 `;

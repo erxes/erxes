@@ -4,11 +4,6 @@ import * as compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import {
-  defaultCustomerFields,
-  defaultMailFields,
-  defaultMessageFields
-} from './constants';
 import { mutations, queries } from '../../graphql';
 
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -18,10 +13,13 @@ import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
 import { mutations as engageMutations } from '@erxes/ui-engage/src/graphql';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import queryString from 'query-string';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
+  detailQuery?: any;
   source?: 'inbox' | 'engage';
   clearOnSubmit?: boolean;
   integrationId?: string;
@@ -41,7 +39,8 @@ type Props = {
   closeModal?: () => void;
   closeReply?: () => void;
   callback?: () => void;
-};
+  queryParams?: any;
+} & IRouterProps;
 
 type FinalProps = {
   currentUser: IUser;
@@ -64,14 +63,13 @@ class MailFormContainer extends React.Component<
 
   render() {
     const {
+      detailQuery,
       source = 'engage',
-      mailData,
       integrationId,
       customerId,
       conversationId,
       isReply,
       closeModal,
-      closeReply,
       emailTemplatesQuery,
       emailTemplatesTotalCountQuery,
       currentUser,
@@ -105,9 +103,24 @@ class MailFormContainer extends React.Component<
             }
           })
           .then(({ data }) => {
+            const emails: string[] = [];
+
+            for (const integration of data.imapGetIntegrations || []) {
+              if (integration.user && !emails.includes(integration.user)) {
+                emails.push(integration.user);
+              }
+
+              if (
+                integration.mainUser &&
+                !emails.includes(integration.mainUser)
+              ) {
+                emails.push(integration.mainUser);
+              }
+            }
+
             this.setState({
               loadedEmails: true,
-              verifiedEmails: data.imapGetIntegrations.map(i => i.user)
+              verifiedEmails: emails
             });
           })
           .catch(() => {
@@ -145,15 +158,11 @@ class MailFormContainer extends React.Component<
     const save = ({
       mutation,
       variables,
-      optimisticResponse,
-      update,
       callback
     }: {
       mutation: string;
       variables: any;
-      optimisticResponse?: any;
       callback?: () => void;
-      update?: any;
     }) => {
       return client
         .mutate({
@@ -164,11 +173,13 @@ class MailFormContainer extends React.Component<
             integrationId,
             conversationId,
             customerId
-          },
-          optimisticResponse,
-          update
+          }
         })
         .then(() => {
+          if (detailQuery) {
+            detailQuery.refetch();
+          }
+
           Alert.success('You have successfully sent a email');
 
           if (isReply && variables.shouldResolve) {
@@ -209,68 +220,9 @@ class MailFormContainer extends React.Component<
       variables: any;
       callback: () => void;
     }) => {
-      const email = mailData ? mailData.integrationEmail : '';
-
-      const imapSendMail = {
-        _id: Math.round(Math.random() * -1000000),
-        ...defaultMessageFields,
-        conversationId,
-        videoCallData: null,
-        contentType: '',
-        content: variables.body,
-        customer: {
-          ...defaultCustomerFields,
-          firstName: email,
-          primaryEmail: email
-        },
-        mailData: {
-          ...defaultMailFields,
-          bcc: [{ __typename: 'Email', email: variables.bcc }],
-          to: [{ __typename: 'Email', email: variables.to }],
-          from: [{ __typename: 'Email', email: variables.to }],
-          cc: [{ __typename: 'Email', email: variables.cc }],
-          body: variables.body,
-          subject: variables.subject,
-          attachments: variables.attachments,
-          integrationEmail: variables.from
-        }
-      };
-
       let sendEmailMutation = mutations.imapSendMail;
 
-      let optimisticResponse: any = {
-        __typename: 'Mutation',
-        imapSendMail
-      };
-
-      let update: any = store => {
-        const selector = {
-          query: gql(messageQueries.conversationMessages),
-          variables: { conversationId, limit: 10, skip: 0 }
-        };
-
-        // Read the data from our cache for this query.
-        try {
-          const data = store.readQuery(selector);
-          const messages = data.conversationMessages || [];
-
-          messages.push(imapSendMail);
-
-          // Write our data back to the cache.
-          store.writeQuery({ ...selector, data });
-
-          if (closeReply) {
-            closeReply();
-          }
-        } catch (e) {
-          Alert.error(e);
-          return;
-        }
-      };
-
       if (source === 'engage') {
-        update = undefined;
-        optimisticResponse = undefined;
         sendEmailMutation = engageMutations.sendMail;
       }
 
@@ -282,9 +234,7 @@ class MailFormContainer extends React.Component<
       return save({
         mutation: sendEmailMutation,
         variables,
-        callback,
-        optimisticResponse,
-        update
+        callback
       });
     };
 
@@ -305,16 +255,36 @@ class MailFormContainer extends React.Component<
   }
 }
 
-export default withProps<Props>(
+const WithMailForm = withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.emailTemplates), {
       name: 'emailTemplatesQuery',
-      options: () => ({
-        variables: { page: 1 }
+      options: ({ queryParams }) => ({
+        variables: {
+          searchValue: queryParams.emailTemplatesSearch || ''
+        },
+        fetchPolicy: 'network-only'
       })
     }),
     graphql<Props, any>(gql(queries.templateTotalCount), {
-      name: 'emailTemplatesTotalCountQuery'
+      name: 'emailTemplatesTotalCountQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          searchValue: queryParams.emailTemplatesSearch || ''
+        },
+        fetchPolicy: 'network-only'
+      })
     })
   )(withCurrentUser(MailFormContainer))
 );
+
+const WithQueryParams = (props: Props) => {
+  const { location } = props;
+  const queryParams = queryString.parse(location.search);
+
+  const extendedProps = { ...props, queryParams };
+
+  return <WithMailForm {...extendedProps} />;
+};
+
+export default withRouter<Props>(WithQueryParams);

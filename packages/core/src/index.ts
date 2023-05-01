@@ -29,7 +29,8 @@ import {
   handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
-  routeErrorHandling
+  routeErrorHandling,
+  uploadsFolderPath
 } from './data/utils';
 
 import { debugBase, debugError, debugInit } from './debuggers';
@@ -51,7 +52,10 @@ import { generateModels } from './connectionResolver';
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
 import automations from './automations';
+import imports from './imports';
+import exporter from './exporter';
 import { moduleObjects } from './data/permissions/actions/permission';
+import dashboards from './dashboards';
 
 const {
   JWT_TOKEN_SECRET,
@@ -196,7 +200,12 @@ app.get('/read-file', async (req: any, res, next) => {
       return res.send('Invalid key');
     }
 
-    const response = await readFileRequest(key, models);
+    const response = await readFileRequest({
+      key,
+      subdomain,
+      models,
+      userId: req.headers.userid
+    });
 
     res.attachment(name || key);
 
@@ -263,6 +272,26 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(error.message);
 });
 
+app.get('/dashboard', async (req, res) => {
+  const headers = req.rawHeaders;
+
+  const index = headers.indexOf('schemaName') + 1;
+
+  const schemaName = headers[index];
+
+  res.sendFile(path.join(__dirname, `./dashboardSchemas/${schemaName}.js`));
+});
+
+app.get('/get-import-file', async (req, res) => {
+  const headers = req.rawHeaders;
+
+  const index = headers.indexOf('fileName') + 1;
+
+  const fileName = headers[index];
+
+  res.sendFile(`${uploadsFolderPath}/${fileName}`);
+});
+
 // Wrap the Express server
 const httpServer = createServer(app);
 
@@ -298,12 +327,16 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
+    hasDashboard: true,
     meta: {
       logs: { providesActivityLog: true, consumers: logs },
       forms,
       segments,
       automations,
-      permissions: moduleObjects
+      permissions: moduleObjects,
+      imports,
+      exporter,
+      dashboards
     }
   });
 

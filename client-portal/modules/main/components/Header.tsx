@@ -15,7 +15,7 @@ import {
   HeaderTitle,
   HeaderTop,
   LinkItem,
-  SupportMenus,
+  SupportMenus
 } from '../../styles/main';
 import { Config, INotification, IUser } from '../../types';
 import Button from '../../common/Button';
@@ -47,7 +47,7 @@ function Header({
   headerHtml,
   headingSpacing,
   headerBottomComponent,
-  notificationsCount,
+  notificationsCount
 }: Props) {
   const [showlogin, setLogin] = useState(false);
   const [showregister, setRegister] = useState(false);
@@ -118,46 +118,46 @@ function Header({
           <HeaderRight>
             <SupportMenus color={getConfigColor(config, 'headingColor')}>
               {currentUser ? (
-                <span title="Log out" onClick={() => logout()}>
-                  <Icon icon="user" /> &nbsp;
-                  {currentUser.type === 'company'
-                    ? currentUser.companyName
-                    : currentUser.firstName}
-                </span>
+                <>
+                  <>
+                    <Icon icon="user" /> &nbsp;
+                    {currentUser.type === 'company'
+                      ? currentUser.companyName
+                      : currentUser.firstName}
+                  </>
+
+                  <Popup
+                    trigger={
+                      <span title="Notifications" className="notifications">
+                        {notificationsCount > 0 && (
+                          <Badge color={'red'}>{notificationsCount}</Badge>
+                        )}
+                        <Icon icon="bell" />
+                      </span>
+                    }
+                    position="bottom center"
+                    contentStyle={{ width: '350px' }}
+                  >
+                    <Notifications
+                      count={notificationsCount}
+                      currentUser={currentUser}
+                      config={config}
+                    />
+                  </Popup>
+
+                  <span title="Settings" onClick={() => setShowSettings(true)}>
+                    <Icon icon="settings" />
+                  </span>
+
+                  <span title="Log out" onClick={() => logout()}>
+                    <Icon icon="logout" />
+                  </span>
+                </>
               ) : (
                 renderAuth()
               )}
             </SupportMenus>
           </HeaderRight>
-
-          <HeaderLeft>
-            {currentUser ? (
-              <>
-                <Popup
-                  trigger={
-                    <span title="Notifications">
-                      {notificationsCount > 0 && (
-                        <Badge color={'red'}>{notificationsCount}</Badge>
-                      )}
-                      <Icon icon="bell" />
-                    </span>
-                  }
-                  position="bottom center"
-                  contentStyle={{ width: '350px' }}
-                >
-                  <Notifications
-                    count={notificationsCount}
-                    currentUser={currentUser}
-                    config={config}
-                  />
-                </Popup>
-                |
-                <span title="Settings" onClick={() => setShowSettings(true)}>
-                  <Icon icon="settings" />
-                </span>
-              </>
-            ) : null}
-          </HeaderLeft>
         </HeaderTop>
         <HeaderTop>
           <HeaderLogo>

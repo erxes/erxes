@@ -49,6 +49,8 @@ export const commonTypes = `
   createdAt: Date
   hasNotified: Boolean
   assignedUserIds: [String]
+  branchIds: [String]
+  departmentIds:[String]
   labelIds: [String]
   startDate: Date
   closeDate: Date
@@ -97,7 +99,9 @@ export const commonMutationParams = `
   status: String,
   sourceConversationIds: [String],
   customFieldsData: JSON,
-  tagIds: [String]
+  tagIds: [String],
+  branchIds: [String],
+  departmentIds: [String],
 `;
 
 export const commonDragParams = `
@@ -132,4 +136,9 @@ export const commonListTypes = `
   stageChangedDate: Date
   tagIds: [String]
   customProperties: JSON
+  status: String
+  branchIds: [String]
+  branches:[Branch]
+  departmentIds: [String]
+  departments:[Department]
 `;

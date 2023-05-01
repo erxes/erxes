@@ -1,11 +1,14 @@
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  moduleRequireLogin,
+  checkPermission
+} from '@erxes/api-utils/src/permissions';
 import { IPage } from '../../models/definitions/pages';
 import { IContentType } from '../../models/definitions/contentTypes';
 import { IEntry } from '../../models/definitions/entries';
 import { IContext } from '../../connectionResolver';
 import { ITemplate } from '../../models/definitions/templates';
 import { ISite } from '../../models/definitions/sites';
-import { createSiteContentTypes, readHelpersData } from './utils';
+import { sendRequest } from '@erxes/api-utils/src';
 
 interface IContentTypeEdit extends IContentType {
   _id: string;
@@ -88,28 +91,22 @@ const webbuilderMutations = {
 
   async webbuilderTemplatesUse(
     _root,
-    { _id, name }: { _id: string; name: string },
+    { _id, name, coverImage }: { _id: string; name: string; coverImage: any },
     { models, user }: IContext
   ) {
     const site = await models.Sites.createSite(
       {
         templateId: _id,
-        name
+        name,
+        coverImage
       },
       user._id
     );
 
-    const pages = await readHelpersData('pages', `templateId=${_id}`);
-
-    if (!pages.length) {
-      return;
-    }
-
-    // read and write all content types from erxes-helper
-    const contentTypesAll = await readHelpersData('contentTypes');
-
-    // read and write all entries from erxes-helper
-    const entriesAll = await readHelpersData('entries');
+    const { pages, contentTypes } = await sendRequest({
+      url: `https://helper.erxes.io/get-webbuilder-template?templateId=${_id}`,
+      method: 'get'
+    });
 
     for (const page of pages) {
       await models.Pages.createPage(
@@ -120,23 +117,27 @@ const webbuilderMutations = {
         },
         user._id
       );
+    }
 
-      // find contentTypes related with page
-      const contentTypes = contentTypesAll.filter(
-        type => type.code + '_entry' === page.name
+    for (const contentType of contentTypes) {
+      const ct = await models.ContentTypes.createContentType(
+        {
+          ...contentType,
+          _id: undefined,
+          siteId: site._id
+        },
+        user._id
       );
 
-      if (!contentTypes.length) {
-        continue;
+      for (const entry of contentType.entries) {
+        models.Entries.createEntry(
+          {
+            values: entry.values,
+            contentTypeId: ct._id
+          },
+          user._id
+        );
       }
-
-      // create content types and entries
-      await createSiteContentTypes(models, {
-        siteId: site._id,
-        contentTypes,
-        entriesAll,
-        userId: user._id
-      });
     }
 
     return site._id;
@@ -170,9 +171,86 @@ const webbuilderMutations = {
     { models }: IContext
   ) {
     return models.Sites.removeSite(_id);
+  },
+
+  async webbuilderSitesDuplicate(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext
+  ) {
+    return models.Sites.duplicateSite(_id, user._id);
   }
 };
 
 moduleRequireLogin(webbuilderMutations);
+
+checkPermission(webbuilderMutations, 'webbuilderPagesAdd', 'manageWebbuilder');
+checkPermission(webbuilderMutations, 'webbuilderPagesEdit', 'manageWebbuilder');
+checkPermission(
+  webbuilderMutations,
+  'webbuilderPagesRemove',
+  'manageWebbuilder'
+);
+
+checkPermission(
+  webbuilderMutations,
+  'webbuilderContentTypesAdd',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderContentTypesEdit',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderContentTypesRemove',
+  'manageWebbuilder'
+);
+
+checkPermission(
+  webbuilderMutations,
+  'webbuilderEntriesAdd',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderEntriesEdit',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderEntriesRemove',
+  'manageWebbuilder'
+);
+
+checkPermission(
+  webbuilderMutations,
+  'webbuilderTemplatesAdd',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderTemplatesUse',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderTemplatesRemove',
+  'manageWebbuilder'
+);
+
+checkPermission(webbuilderMutations, 'webbuilderSitesAdd', 'manageWebbuilder');
+checkPermission(webbuilderMutations, 'webbuilderSitesEdit', 'manageWebbuilder');
+checkPermission(
+  webbuilderMutations,
+  'webbuilderSitesRemove',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderSitesDuplicate',
+  'manageWebbuilder'
+);
 
 export default webbuilderMutations;

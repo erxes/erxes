@@ -8,10 +8,12 @@ import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 import { CONFIGURATIONS } from '../../constants';
 import { ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
+import PasswordConfig from './PasswordConfig';
 
 type Props = {
   handleFormChange: (name: string, value: any) => void;
@@ -29,9 +31,16 @@ type ControlItem = {
 
 function General({
   googleCredentials,
+  googleClientId,
+  googleRedirectUri,
+  googleClientSecret,
+  facebookAppId,
+  erxesAppToken,
   otpConfig,
   mailConfig,
   name,
+  manualVerificationConfig,
+  passwordVerificationConfig,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -42,8 +51,32 @@ function General({
     mailConfig ? true : false
   );
 
-  const onChangeToggle = (name: string, value: boolean) => {
-    if (name === 'otpEnabled') {
+  const [manualVerificationEnabled, setManualVerificationEnabled] = useState<
+    boolean
+  >(manualVerificationConfig ? true : false);
+
+  const [userIds] = useState<string[]>(
+    manualVerificationConfig ? manualVerificationConfig.userIds : []
+  );
+
+  const [verifyCompany, setVerifyCompany] = useState<boolean>(
+    manualVerificationConfig ? manualVerificationConfig.verifyCompany : false
+  );
+
+  const [verifyCustomer, setVerifyCustomer] = useState<boolean>(
+    manualVerificationConfig ? manualVerificationConfig.verifyCustomer : false
+  );
+
+  const onSelectUsers = values => {
+    handleFormChange('manualVerificationConfig', {
+      userIds: values,
+      verifyCompany,
+      verifyCustomer
+    });
+  };
+
+  const onChangeToggle = (type: string, value: boolean) => {
+    if (type === 'otpEnabled') {
       setOtpEnabled(value);
 
       if (!value) {
@@ -59,13 +92,54 @@ function General({
       }
     }
 
-    if (name === 'mailEnabled') {
+    if (type === 'mailEnabled') {
       setMailEnabled(value);
 
       if (!value) {
         handleFormChange('mailConfig', null);
       }
     }
+
+    if (type === 'manualVerificationEnabled') {
+      setManualVerificationEnabled(value);
+
+      if (!value) {
+        handleFormChange('manualVerificationConfig', null);
+      } else {
+        handleFormChange('manualVerificationConfig', {
+          userIds: [],
+          verifyCustomer: false,
+          verifyCompany: false
+        });
+      }
+    }
+
+    if (type === 'verifyCompany') {
+      setVerifyCompany(value);
+
+      handleFormChange('manualVerificationConfig', {
+        userIds,
+        verifyCompany: value,
+        verifyCustomer
+      });
+    }
+
+    if (type === 'verifyCustomer') {
+      setVerifyCustomer(value);
+
+      handleFormChange('manualVerificationConfig', {
+        userIds,
+        verifyCompany,
+        verifyCustomer: value
+      });
+    }
+  };
+
+  const onChangeConfiguration = option => {
+    handleFormChange('otpConfig', {
+      ...otpConfig,
+      smsTransporterType: option.value
+    });
   };
 
   function renderControl({
@@ -102,7 +176,7 @@ function General({
   }
 
   const renderOtp = () => {
-    let obj = otpConfig || {
+    const obj = otpConfig || {
       content: '',
       codeLength: 4,
       smsTransporterType: 'messagePro',
@@ -134,7 +208,7 @@ function General({
       }
 
       if (['codeLength', 'expireAfter'].includes(key)) {
-        obj[key] = parseInt(value);
+        obj[key] = Number(value);
       }
 
       if (key === 'loginWithOTP') {
@@ -236,7 +310,7 @@ function General({
   };
 
   const renderMailConfig = () => {
-    let obj = mailConfig || {
+    const obj = mailConfig || {
       registrationContent: `Hello <br /><br />Your verification link is {{ link }}.<br /><br />Thanks<br />${name}`,
       invitationContent: `Hello <br /><br />Your verification link is {{ link }}.<br />  Your password is: {{ password }} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
       subject: `${name} - invitation`
@@ -354,15 +428,92 @@ function General({
     );
   };
 
-  const onChangeConfiguration = option => {
-    otpConfig && (otpConfig.smsTransporterType = option.value);
-    handleFormChange('otpConfig', otpConfig);
+  const renderManualVerification = () => {
+    return (
+      <CollapseContent
+        title={__('Manual verification')}
+        compact={true}
+        open={false}
+      >
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Enable</ControlLabel>
+            <Toggle
+              checked={manualVerificationEnabled}
+              onChange={() =>
+                onChangeToggle(
+                  'manualVerificationEnabled',
+                  !manualVerificationEnabled
+                )
+              }
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </FormGroup>
+        </ToggleWrap>
+        {manualVerificationEnabled && (
+          <>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Team members')}</ControlLabel>
+
+              <p>{__('Select team members who can verify')}</p>
+              <SelectTeamMembers
+                label="Select team members"
+                name="userIds"
+                initialValue={userIds}
+                onSelect={onSelectUsers}
+                multi={true}
+              />
+            </FormGroup>
+
+            <ToggleWrap>
+              <FormGroup>
+                <ControlLabel>Verify customer</ControlLabel>
+                <Toggle
+                  checked={verifyCustomer}
+                  onChange={() =>
+                    onChangeToggle('verifyCustomer', !verifyCustomer)
+                  }
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>
+                  }}
+                />
+              </FormGroup>
+            </ToggleWrap>
+
+            <ToggleWrap>
+              <FormGroup>
+                <ControlLabel>Verify company</ControlLabel>
+                <Toggle
+                  checked={verifyCompany}
+                  onChange={() =>
+                    onChangeToggle('verifyCompany', !verifyCompany)
+                  }
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>
+                  }}
+                />
+              </FormGroup>
+            </ToggleWrap>
+          </>
+        )}
+      </CollapseContent>
+    );
   };
 
   return (
     <>
       {renderOtp()}
       {renderMailConfig()}
+      <PasswordConfig
+        config={passwordVerificationConfig}
+        onChange={handleFormChange}
+      />
+      {renderManualVerification()}
 
       <CollapseContent
         title={__('Google Application Credentials')}
@@ -374,9 +525,48 @@ function General({
           formValueName: 'googleCredentials',
           formValue: googleCredentials
         })}
+        {renderControl({
+          label: 'Google Client Id',
+          formValueName: 'googleClientId',
+          formValue: googleClientId
+        })}
+        {renderControl({
+          label: 'Google Client Secret',
+          formValueName: 'googleClientSecret',
+          formValue: googleClientSecret
+        })}
+        {renderControl({
+          label: 'Google Client Redirect Uri',
+          formValueName: 'googleRedirectUri',
+          formValue: googleRedirectUri
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Facebook Application Credentials')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Facebook App Id',
+          formValueName: 'facebookAppId',
+          formValue: facebookAppId
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Erxes App Token')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Erxes App Token',
+          formValueName: 'erxesAppToken',
+          formValue: erxesAppToken
+        })}
       </CollapseContent>
     </>
   );
 }
+
+//
 
 export default General;

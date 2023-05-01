@@ -11,6 +11,7 @@ export interface IBrand {
   code?: string;
   name?: string;
   description?: string;
+  memberIds?: string[];
   userId?: string;
   emailConfig?: IBrandEmailConfig;
 }
@@ -43,9 +44,16 @@ export const brandSchema = schemaWrapper(
     _id: field({ pkey: true }),
     code: field({ type: String, label: 'Code' }),
     name: field({ type: String, label: 'Name' }),
-    description: field({ type: String, optional: true, label: 'Description' }),
+    description: field({
+      type: String,
+      optional: true,
+      label: 'Description'
+    }),
     userId: field({ type: String, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
-    emailConfig: field({ type: brandEmailConfigSchema, label: 'Email config' })
+    emailConfig: field({
+      type: brandEmailConfigSchema,
+      label: 'Email config'
+    })
   })
 );

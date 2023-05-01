@@ -2,32 +2,75 @@ import { generateModels } from './connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage
+  sendProductsMessage,
+  sendFormsMessage
 } from './messageBroker';
-
+import * as _ from 'lodash';
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);
 };
 
-export default {
-  editorAttributes: async () => {
-    return [
-      { value: 'name', name: 'Name' },
-      { value: 'createdAt', name: 'Created at' },
-      { value: 'closeDate', name: 'Close date' },
-      { value: 'description', name: 'Description' },
-      { value: 'productsInfo', name: 'Products information' },
-      { value: 'servicesInfo', name: 'Services information' },
-      { value: 'assignedUsers', name: 'Assigned users' },
-      { value: 'customers', name: 'Customers' },
-      { value: 'companies', name: 'Companies' },
-      { value: 'now', name: 'Now' },
-      { value: 'productTotalAmount', name: 'Products total amount' },
-      { value: 'servicesTotalAmount', name: 'Services total amount' },
-      { value: 'totalAmount', name: 'Total amount' },
-      { value: 'totalAmountVat', name: 'Total amount vat' },
-      { value: 'totalAmountWithoutVat', name: 'Total amount without vat' }
+const getCustomFields = async ({ subdomain }) => {
+  let fields: any[] = [];
+
+  for (const cardType of ['task', 'ticket', 'deal']) {
+    let items = await sendFormsMessage({
+      subdomain,
+      action: 'fields.fieldsCombinedByContentType',
+      isRPC: true,
+      data: {
+        contentType: `cards:${cardType}`
+      },
+      defaultValue: []
+    });
+
+    fields = [
+      ...fields,
+      ...items.map(f => ({
+        value: f.name,
+        name: `${cardType}:${f.label}`
+      }))
     ];
+  }
+  return fields;
+};
+
+const commonFields = [
+  { value: 'name', name: 'Name' },
+  { value: 'createdAt', name: 'Created at' },
+  { value: 'closeDate', name: 'Close date' },
+  { value: 'description', name: 'Description' },
+  { value: 'productsInfo', name: 'Products information' },
+  { value: 'servicesInfo', name: 'Services information' },
+  { value: 'assignedUsers', name: 'Assigned users' },
+  { value: 'customers', name: 'Customers' },
+  { value: 'companies', name: 'Companies' },
+  { value: 'now', name: 'Now' },
+  { value: 'productTotalAmount', name: 'Products total amount' },
+  { value: 'servicesTotalAmount', name: 'Services total amount' },
+  { value: 'totalAmount', name: 'Total amount' },
+  { value: 'totalAmountVat', name: 'Total amount vat' },
+  { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
+  { value: 'discount', name: 'Discount' },
+  { value: 'paymentCash', name: 'Payment cash' },
+  { value: 'paymentNonCash', name: 'Payment non cash' }
+];
+
+export default {
+  types: [
+    {
+      label: 'Cards',
+      type: 'cards'
+    }
+  ],
+
+  editorAttributes: async ({ subdomain }) => {
+    const customFields = await getCustomFields({ subdomain });
+    const uniqueFields = customFields.filter(
+      customField =>
+        !commonFields.some(field => field.value === customField.value)
+    );
+    return [...commonFields, ...uniqueFields];
   },
 
   replaceContent: async ({ subdomain, data: { stageId, itemId, content } }) => {
@@ -78,19 +121,19 @@ export default {
     }
 
     replacedContent = replacedContent.replace(
-      `{{ createdAt }}`,
+      /{{ createdAt }}/g,
       item.createdAt.toLocaleDateString()
     );
 
     if (item.closeDate) {
       replacedContent = replacedContent.replace(
-        `{{ closeDate }}`,
+        /{{ closeDate }}/g,
         item.closeDate.toLocaleDateString()
       );
     }
 
     replacedContent = replacedContent.replace(
-      `{{ now }}`,
+      /{{ now }}/g,
       new Date().toLocaleDateString()
     );
 
@@ -105,7 +148,7 @@ export default {
     });
 
     replacedContent = replacedContent.replace(
-      '{{ assignedUsers }}',
+      /{{ assignedUsers }}/g,
       users
         .map(
           user =>
@@ -141,7 +184,7 @@ export default {
         const name = await sendContactsMessage({
           subdomain,
           action: 'customers.getCustomerName',
-          data: { customer: item },
+          data: item,
           isRPC: true,
           defaultValue: ''
         });
@@ -150,7 +193,7 @@ export default {
       }
 
       replacedContent = replacedContent.replace(
-        '{{ customers }}',
+        /{{ customers }}/g,
         customerRows.join(',')
       );
     }
@@ -191,13 +234,14 @@ export default {
       }
 
       replacedContent = replacedContent.replace(
-        '{{ companies }}',
+        /{{ companies }}/g,
         companyRows.join(',')
       );
     }
 
     const replaceProducts = async (key, type) => {
       let totalAmount = 0;
+      let discount = 0;
 
       const productsData = item.productsData || [];
 
@@ -225,11 +269,11 @@ export default {
         const tAmount = pd.quantity * pd.unitPrice;
 
         totalAmount += tAmount;
+        discount += pd.discount || 0;
 
         productRows.push(
           `<tr>
             <td>${index}</td>
-            <td>${product.code || ''}</td>
             <td>${product.name}</td>
             <td>${pd.quantity}</td>
             <td>${toMoney(pd.unitPrice)}</td>
@@ -247,7 +291,6 @@ export default {
                 <thead>
                   <tr>
                     <th>№</th>
-                    <th>Code</th>
                     <th>${
                       type === 'product' ? 'Product name' : 'Service name'
                     }</th>
@@ -267,42 +310,96 @@ export default {
           : ''
       );
 
-      return totalAmount;
+      return { totalAmount, discount };
     };
 
-    const productsTotalAmount = await replaceProducts(
-      '{{ productsInfo }}',
+    const replaceProductsResult = await replaceProducts(
+      /{{ productsInfo }}/g,
       'product'
     );
-    const servicesTotalAmount = await replaceProducts(
-      '{{ servicesInfo }}',
+    const productsTotalAmount = replaceProductsResult.totalAmount;
+
+    const replaceServicesResult = await replaceProducts(
+      /{{ servicesInfo }}/g,
       'service'
     );
+    const servicesTotalAmount = replaceServicesResult.totalAmount;
+
     const totalAmount = productsTotalAmount + servicesTotalAmount;
-    const totalAmountVat = (totalAmount * 10) / 100;
+    const totalAmountVat = (totalAmount * 10) / 110;
     const totalAmountWithoutVat = totalAmount - totalAmountVat;
 
     replacedContent = replacedContent.replace(
-      '{{ productTotalAmount }}',
+      /{{ productTotalAmount }}/g,
       toMoney(productsTotalAmount)
     );
+
     replacedContent = replacedContent.replace(
-      '{{ servicesTotalAmount }}',
+      /{{ servicesTotalAmount }}/g,
       toMoney(servicesTotalAmount)
     );
+
     replacedContent = replacedContent.replace(
-      '{{ totalAmount }}',
+      /{{ totalAmount }}/g,
       toMoney(totalAmount)
     );
+
     replacedContent = replacedContent.replace(
-      '{{ totalAmountVat }}',
+      /{{ totalAmountVat }}/g,
       toMoney(totalAmountVat)
     );
+
     replacedContent = replacedContent.replace(
-      '{{ totalAmountWithoutVat }}',
+      /{{ totalAmountWithoutVat }}/g,
       toMoney(totalAmountWithoutVat)
     );
 
-    return replacedContent;
+    const cash = ((item.paymentsData || {}).cash || {}).amount || 0;
+
+    replacedContent = replacedContent.replace(
+      /{{ paymentCash }}/g,
+      toMoney(cash)
+    );
+
+    replacedContent = replacedContent.replace(
+      /{{ paymentNonCash }}/g,
+      toMoney(totalAmount - cash)
+    );
+
+    replacedContent = replacedContent.replace(
+      /{{ discount }}/g,
+      toMoney(replaceProductsResult.discount + replaceServicesResult.discount)
+    );
+
+    for (const customFieldData of item.customFieldsData || []) {
+      replacedContent = replacedContent.replace(
+        new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
+        customFieldData.stringValue
+      );
+    }
+
+    const fileds = (await getCustomFields({ subdomain })).filter(
+      customField =>
+        customField.name.includes(stage.type) &&
+        !customField.value.includes('customFieldsData')
+    );
+
+    for (const field of fileds) {
+      const propertyNames = field.value.includes('.')
+        ? field.value.split('.')
+        : [field.value];
+      let propertyValue = item;
+
+      for (const propertyName of propertyNames) {
+        propertyValue = item[propertyName];
+      }
+
+      replacedContent = replacedContent.replace(
+        new RegExp(`{{ ${field.value} }}`, 'g'),
+        propertyValue || ''
+      );
+    }
+
+    return [replacedContent];
   }
 };

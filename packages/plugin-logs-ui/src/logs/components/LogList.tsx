@@ -77,6 +77,7 @@ const moduleOptions = [
   { value: 'core:permission', label: 'Permissions' },
   { value: 'core:user', label: 'Users' },
   { value: 'core:userGroup', label: 'User groups' },
+  { value: 'core:config', label: 'Config' },
   // inbox service items
   { value: 'inbox:integration', label: 'Integrations' },
   { value: 'inbox:channel', label: 'Channels' },

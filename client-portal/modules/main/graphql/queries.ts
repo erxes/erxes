@@ -17,10 +17,13 @@ export const clientPortalGetConfig = `
       taskStageId
       ticketLabel
       ticketStageId
+      ticketPipelineId
       publicTaskToggle
       ticketToggle
       taskToggle
       kbToggle
+      googleClientId
+      erxesAppToken
 
       styles {
         bodyColor

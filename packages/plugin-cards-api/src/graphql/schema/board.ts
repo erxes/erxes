@@ -50,6 +50,8 @@ export const types = ({ tags }) => `
     visibility: String
     code: String
     memberIds: [String]
+    canMoveMemberIds: [String]
+    canEditMemberIds: [String]
     members: [User]
     departmentIds: [String]
     probability: String
@@ -66,6 +68,13 @@ export const types = ({ tags }) => `
   }
 
   type PipelineChangeResponse {
+    _id: String
+    proccessId: String
+    action: String
+    data: JSON
+  }
+
+  type ProductsDataChangeResponse {
     _id: String
     proccessId: String
     action: String
@@ -104,7 +113,10 @@ const stageParams = `
   extraParams: JSON,
   closeDateType: String,
   assignedToMe: String,
-  age: Int
+  age: Int,
+  branchIds: [String]
+  departmentIds: [String]
+  segmentData:String
 `;
 
 export const queries = `

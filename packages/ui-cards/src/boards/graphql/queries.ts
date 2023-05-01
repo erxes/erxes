@@ -140,7 +140,10 @@ const commonParams = `
   $labelIds: [String],
   $extraParams: JSON,
   $closeDateType: String,
-  $assignedToMe: String
+  $assignedToMe: String,
+  $branchIds: [String]
+  $departmentIds: [String]
+  $segmentData:String
 `;
 
 const commonParamDefs = `
@@ -151,7 +154,10 @@ const commonParamDefs = `
   labelIds: $labelIds,
   extraParams: $extraParams,
   closeDateType: $closeDateType,
-  assignedToMe: $assignedToMe
+  assignedToMe: $assignedToMe,
+  branchIds:$branchIds
+  departmentIds:$departmentIds
+  segmentData:$segmentData
 `;
 
 const stageParams = `
@@ -388,6 +394,17 @@ const boardLogs = `
   }
 `;
 
+const documents = `
+  query documents($page: Int, $perPage: Int, $contentType: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType) {
+      _id
+      contentType
+      name
+      createdAt
+    }
+  }
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -416,5 +433,6 @@ export default {
   tickets,
   tasks,
   boardContentTypeDetail,
-  boardLogs
+  boardLogs,
+  documents
 };

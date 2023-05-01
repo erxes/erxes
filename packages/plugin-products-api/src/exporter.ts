@@ -4,11 +4,9 @@ import * as moment from 'moment';
 
 const prepareData = async (
   models: IModels,
-  subdomain: string,
-  query: any
+  _subdomain: string,
+  _query: any
 ): Promise<any[]> => {
-  const { contentType, segmentId } = query;
-
   let data: any[] = [];
 
   const productsFilter: any = {};
@@ -110,6 +108,31 @@ export const IMPORT_EXPORT_TYPES = [
   }
 ];
 
+const fillProductSubUomValue = async (models: IModels, column, item) => {
+  const subUoms = item.subUoms;
+  let value;
+
+  for (const subUom of subUoms) {
+    let uom;
+
+    switch (column) {
+      case 'subUoms.code':
+        uom = (await models.Uoms.findOne({ _id: subUom.uomId })) || {};
+        value = uom.code;
+        break;
+      case 'subUoms.name':
+        uom = (await models.Uoms.findOne({ _id: subUom.uomId })) || {};
+        value = uom.name;
+        break;
+      case 'subUoms.subratio':
+        value = subUom.ratio;
+        break;
+    }
+  }
+
+  return { value };
+};
+
 export default {
   importExportTypes: IMPORT_EXPORT_TYPES,
 
@@ -138,6 +161,8 @@ export default {
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
+        } else if (column.startsWith('subUoms')) {
+          headers.push(column);
         } else {
           headers.push(column);
         }
@@ -152,6 +177,14 @@ export default {
             const fieldName = column.split('.')[1];
 
             const { value } = await getCustomFieldsData(item, fieldId);
+
+            result[column] = value || '-';
+          } else if (column.startsWith('subUoms')) {
+            const { value } = await fillProductSubUomValue(
+              models,
+              column,
+              item
+            );
 
             result[column] = value || '-';
           } else {
