@@ -87,6 +87,7 @@ export interface IUserReport {
 }
 
 export interface IUserAbsenceInfo {
+  totalHoursShiftRequest?: number;
   totalHoursWorkedAbroad?: number;
   totalHoursPaidAbsence?: number;
   totalHoursUnpaidAbsence?: number;

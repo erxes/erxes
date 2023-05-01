@@ -235,6 +235,7 @@ const timeclockReports = `
               totalHoursScheduled
           
               absenceInfo {
+                totalHoursShiftRequest
                 totalHoursWorkedAbroad
                 totalHoursPaidAbsence
                 totalHoursUnpaidAbsence

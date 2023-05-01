@@ -100,15 +100,15 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([final_headers[1][0]], 'F1', 'H1', sheet, reportType, true);
       addIntoSheet([final_headers[1][1]], 'F2', 'H2', sheet, reportType);
 
-      addIntoSheet([final_headers[2][0]], 'I1', 'N1', sheet, reportType, true);
-      addIntoSheet([final_headers[2][1]], 'I2', 'N2', sheet, reportType);
+      addIntoSheet([final_headers[2][0]], 'I1', 'O1', sheet, reportType, true);
+      addIntoSheet([final_headers[2][1]], 'I2', 'O2', sheet, reportType);
 
-      addIntoSheet([final_headers[3][0]], 'O1', 'O1', sheet, reportType, true);
-      addIntoSheet([final_headers[3][1]], 'O2', 'O2', sheet, reportType);
+      addIntoSheet([final_headers[3][0]], 'P1', 'Q1', sheet, reportType, true);
+      addIntoSheet([final_headers[3][1]], 'P2', 'Q2', sheet, reportType);
 
       // absence info
-      addIntoSheet([final_headers[4][0]], 'P1', 'R1', sheet, reportType, true);
-      addIntoSheet([final_headers[4][1]], 'P2', 'R2', sheet, reportType);
+      addIntoSheet([final_headers[4][0]], 'R1', 'T1', sheet, reportType, true);
+      addIntoSheet([final_headers[4][1]], 'R2', 'T2', sheet, reportType);
       break;
 
     case 'Pivot':
@@ -123,8 +123,8 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([pivot_headers[2][0]], 'G1', 'J1', sheet, reportType, true);
       addIntoSheet([pivot_headers[2][1]], 'G2', 'J2', sheet, reportType);
 
-      addIntoSheet([pivot_headers[3][0]], 'K1', 'R1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[3][1]], 'K2', 'R2', sheet, reportType);
+      addIntoSheet([pivot_headers[3][0]], 'K1', 'S1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[3][1]], 'K2', 'S2', sheet, reportType);
 
       break;
   }
@@ -173,7 +173,7 @@ const extractAndAddIntoSheet = (
       addIntoSheet(
         extractValuesIntoArr,
         `A${startRowIdx}`,
-        `R${endRowIdx}`,
+        `T${endRowIdx}`,
         sheet,
         reportType
       );
@@ -253,16 +253,17 @@ const extractAndAddIntoSheet = (
               checkInDevice,
               shiftEnd,
               checkOutDevice,
-              scheduleShift.timeclockDuration,
-              scheduleShift.totalHoursOvertime,
+              scheduleShift.lunchBreakInHrs,
               scheduleShift.totalHoursOvernight,
+              scheduleShift.totalHoursOvertime,
+              scheduleShift.timeclockDuration,
               scheduleShift.totalMinsLate
             );
 
             addIntoSheet(
               [shiftInfo],
               `B${rowNum}`,
-              `R${rowNum}`,
+              `S${rowNum}`,
               sheet,
               reportType
             );
