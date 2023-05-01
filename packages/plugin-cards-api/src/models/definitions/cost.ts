@@ -2,7 +2,8 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 
 export interface ICost {
-  data: string[];
+  code: string;
+  name: string;
 }
 
 export interface ICostDocument extends ICost, Document {

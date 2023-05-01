@@ -373,7 +373,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   createProductServices: {
     text: 'Product & Service',
     description: 'Add and categorize your products and services to our system',

@@ -57,9 +57,7 @@ const purchaseMutations = {
     doc: ICost,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    // const data = await models.Costs.createCost(docModifier(doc));
-    // return data;
-    return models.Costs.insertMany(doc.data);
+    return models.Costs.createCost(docModifier(doc));
   },
 
   //edit cost

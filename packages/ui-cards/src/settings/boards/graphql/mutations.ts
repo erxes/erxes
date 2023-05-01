@@ -116,9 +116,7 @@ const pipelinesUpdateOrder = `
 
 const costRemove = `
   mutation costRemove($_id: String!) {
-    costRemove(_id: $_id, ) {
-      _id
-    }
+    costRemove(_id: $_id)
   }
 `;
 
@@ -127,14 +125,6 @@ mutation costAdd($name: String, $code: String) {
   costAdd(name: $name, code: $code) 
 }
 `;
-
-// const costAdd = `
-//   mutation costAdd($name: String!, $code: String!) {
-//     costAdd(name: $name, code: $code, ) {
-//       _id
-//     }
-//   }
-// `;
 
 export default {
   boardAdd,

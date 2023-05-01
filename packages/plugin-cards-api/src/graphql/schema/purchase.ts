@@ -57,9 +57,6 @@ export const types = ({ contacts, tags }) => `
     code: String
   }
 `;
-const fieldsCommonFields = `
-  data: [costObjectInput]
-`;
 
 const purchaseMutationParams = `
   paymentsData: JSON,
@@ -171,7 +168,7 @@ export const mutations = `
  purchasesCreateProductsData(proccessId: String, purchaseId: String, docs: JSON): JSON
  purchasesEditProductData(proccessId: String, purchaseId: String, dataId: String, doc: JSON): JSON
  purchasesDeleteProductData(proccessId: String, purchaseId: String, dataId: String): JSON
- costAdd(${fieldsCommonFields}): JSON
+ costAdd(code: String, name: String): JSON
  costRemove(_id: String!): JSON
  costEdit(_id: String!, ${commonCostParamsDef}): JSON
 

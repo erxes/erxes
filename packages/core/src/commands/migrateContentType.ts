@@ -28,9 +28,6 @@ const switchContentType = contentType => {
     case 'deal':
       changedContentType = `cards:${contentType}`;
       break;
-    case 'purchase':
-      changedContentType = `cards:${contentType}`;
-      break;
     case 'ticket':
       changedContentType = `cards:${contentType}`;
       break;
