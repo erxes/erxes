@@ -107,6 +107,8 @@ function withSaveAndEdit<IComponentProps>(Component) {
         subject: '',
         attachments: [],
         content: '',
+        replyTo: '',
+        sender: '',
         templateId: ''
       };
 
@@ -131,7 +133,9 @@ function withSaveAndEdit<IComponentProps>(Component) {
             subject: email.subject,
             attachments: email.attachments,
             content: email.content,
-            templateId: email.templateId
+            templateId: email.templateId,
+            replyTo: email.replyTo,
+            sender: email.sender
           },
           scheduleDate: scheduleDate
             ? {
