@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
+import { ProfilingIntegration } from '@sentry/profiling-node';
 
 // load environment variables
 dotenv.config();
@@ -70,6 +71,7 @@ if (SENTRY_DSN) {
     integrations: [
       // enable HTTP calls tracing
       new Sentry.Integrations.Http({ tracing: true }),
+      new ProfilingIntegration(),
       // Automatically instrument Node.js libraries and frameworks
       ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
     ],
@@ -77,7 +79,8 @@ if (SENTRY_DSN) {
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
-    tracesSampleRate: 1.0
+    tracesSampleRate: 1.0,
+    profilesSampleRate: 1.0 // Profiling sample rate is relative to tracesSampleRate
   });
 }
 
