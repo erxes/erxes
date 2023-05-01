@@ -52,6 +52,7 @@ const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
   border: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
   border-radius: ${props => props.hasBorder && `${dimensions.unitSpacing}px`};
   margin: ${props => props.hasBorder && dimensions.unitSpacing * 2}px;
+
   @-moz-document url-prefix() {
     overflow: hidden;
   }
@@ -157,6 +158,7 @@ const SideContent = styledTS<{
     props.hasBorder && `1px solid ${colors.borderPrimary}`};
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
+
   ${TabContainer} {
     position: sticky;
     top: 0;
@@ -388,6 +390,7 @@ const SectionContainer = styledTS<{ hasShadow?: boolean }>(styled.div)`
   position: relative;
   margin-bottom: ${dimensions.unitSpacing}px;
   box-shadow: ${props => props.hasShadow && 'rgb(0 0 0 / 8%) 0px 0px 6px 0px'};
+
   > div {
     margin-bottom: 0;
   }
@@ -401,6 +404,7 @@ const SectionContainer = styledTS<{ hasShadow?: boolean }>(styled.div)`
     height: 40px;
     cursor: pointer;
     transition: all ease 0.3s;
+
     &:hover {
       color: ${colors.colorSecondary};
     }
@@ -505,6 +509,7 @@ const AuthWrapper = styled.div`
   background-color: #f0f0f0;
   align-items: center;
   justify-content: center;
+
   @media (max-width: 768px) {
     overflow: auto;
     padding-bottom: ${dimensions.coreSpacing * 5}px;
@@ -523,6 +528,7 @@ const AuthBox = styled.div`
     0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04),
     0px 0px 1px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+
   @media (max-width: 768px) {
     flex-direction: column;
   }
@@ -559,6 +565,7 @@ const AuthCustomDescription = styled.div`
   flex-direction: column;
   justify-content: center;
   padding: 70px;
+
   &:before {
     content: '';
     position: absolute;
@@ -567,26 +574,31 @@ const AuthCustomDescription = styled.div`
     background: transparent url('/images/twinkling.png') repeat top center;
     animation: ${twinkling} 200s linear infinite;
   }
+
   @media (max-width: 768px) {
     padding: 40px;
     overflow: hidden;
     padding-bottom: ${dimensions.coreSpacing * 5}px;
   }
+
   img {
     position: absolute;
     width: 100px;
     top: 100px;
   }
+
   h1 {
     position: relative;
     font-weight: bold;
     font-size: 48px;
     color: ${colors.colorWhite};
     margin: 0px;
+
     @media (max-width: 768px) {
       font-size: 38px;
     }
   }
+
   h2 {
     position: relative;
     font-size: 18px;
@@ -594,10 +606,12 @@ const AuthCustomDescription = styled.div`
     line-height: 1.5em;
     font-weight: 900;
     margin: 1.75em 0;
+
     @media (max-width: 768px) {
       font-size: 16px;
     }
   }
+
   p {
     position: relative;
     color: ${colors.colorWhite};
@@ -620,6 +634,7 @@ const AuthDescription = styled.div`
   display: flex;
   flex-direction: column;
   padding: 70px;
+
   &:before {
     content: '';
     position: absolute;
@@ -632,36 +647,43 @@ const AuthDescription = styled.div`
     }
     animation: ${twinkling} 200s linear infinite;
   }
+
   @media (max-width: 768px) {
     padding: 40px;
     overflow: hidden;
     padding-bottom: ${dimensions.coreSpacing * 5}px;
   }
+
   img {
     position: relative;
     width: 100px;
     margin-bottom: 5%;
   }
+
   h1 {
     position: relative;
     font-weight: bold;
     font-size: 48px;
     color: ${thColor || colors.colorWhite};
     margin: 0px;
+
     @media (max-width: 768px) {
       font-size: 38px;
     }
   }
+
   h2 {
     position: relative;
     font-size: 28px;
     font-weight: 400;
     line-height: 1.5em;
     color: ${thColor || colors.colorWhite};
+
     @media (max-width: 768px) {
       font-size: 16px;
     }
   }
+
   p {
     position: relative;
     color: ${thColor || colors.colorWhite};
@@ -694,19 +716,24 @@ const NotFoundWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
   .not-found {
     display: flex;
     flex-direction: column;
     align-items: center;
+
     h1 {
       font-weight: bold;
     }
+
     p {
       margin-bottom: ${dimensions.coreSpacing}px;
     }
+
     i {
       margin-right: 5px;
     }
+
     img {
       width: 250px;
     }
