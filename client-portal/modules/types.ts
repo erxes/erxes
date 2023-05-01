@@ -116,7 +116,7 @@ export type Label = {
   _id: string;
   name: string;
   colorCode: string;
-};
+}
 
 export type Config = {
   _id?: string;
@@ -301,6 +301,7 @@ export type Topic = {
   color: string;
   backgroundImage: string;
   languageCode?: string;
+
   categories: IKbCategory[];
   parentCategories: IKbParentCategory[];
   createdBy: string;
