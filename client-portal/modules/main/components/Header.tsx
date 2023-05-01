@@ -1,9 +1,9 @@
-import Link from 'next/link'
-import { withRouter } from 'next/router'
-import React, { useState } from 'react'
-import Icon from '../../common/Icon'
-import Modal from '../../common/Modal'
-import { getConfigColor, readFile } from '../../common/utils'
+import Link from 'next/link';
+import { withRouter } from 'next/router';
+import React, { useState } from 'react';
+import Icon from '../../common/Icon';
+import Modal from '../../common/Modal';
+import { getConfigColor, readFile } from '../../common/utils';
 import {
   Badge,
   Container,
@@ -16,28 +16,28 @@ import {
   HeaderTop,
   LinkItem,
   SupportMenus
-} from '../../styles/main'
-import { Config, INotification, IUser } from '../../types'
-import Button from '../../common/Button'
-import LoginContainer from '../../user/containers/Login'
-import RegisterContainer from '../../user/containers/Register'
-import ResetPasswordContainer from '../../user/containers/ResetPassword'
-import SettingsContainer from '../containers/notifications/Settings'
-import { Alert } from '../../utils'
-import Popup from 'reactjs-popup'
-import 'reactjs-popup/dist/index.css'
-import Notifications from '../components/notifications/Notifications'
+} from '../../styles/main';
+import { Config, INotification, IUser } from '../../types';
+import Button from '../../common/Button';
+import LoginContainer from '../../user/containers/Login';
+import RegisterContainer from '../../user/containers/Register';
+import ResetPasswordContainer from '../../user/containers/ResetPassword';
+import SettingsContainer from '../containers/notifications/Settings';
+import { Alert } from '../../utils';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
+import Notifications from '../components/notifications/Notifications';
 
 type Props = {
-  config: Config
-  currentUser: IUser
-  logout: () => void
-  router: any
-  headerHtml?: string
-  headingSpacing?: boolean
-  headerBottomComponent?: React.ReactNode
-  notificationsCount: number
-}
+  config: Config;
+  currentUser: IUser;
+  logout: () => void;
+  router: any;
+  headerHtml?: string;
+  headingSpacing?: boolean;
+  headerBottomComponent?: React.ReactNode;
+  notificationsCount: number;
+};
 
 function Header({
   config,
@@ -49,18 +49,18 @@ function Header({
   headerBottomComponent,
   notificationsCount
 }: Props) {
-  const [showlogin, setLogin] = useState(false)
-  const [showregister, setRegister] = useState(false)
-  const [showResetPassword, setResetPassword] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
+  const [showlogin, setLogin] = useState(false);
+  const [showregister, setRegister] = useState(false);
+  const [showResetPassword, setResetPassword] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const onClick = (url) => {
     if (!currentUser && url.includes('tickets')) {
-      Alert.error('Log in first to create or manage ticket cards')
+      Alert.error('Log in first to create or manage ticket cards');
 
-      return setLogin(true)
+      return setLogin(true);
     }
-  }
+  };
 
   const renderMenu = (url: string, label: string) => {
     return (
@@ -73,12 +73,12 @@ function Header({
           {label}
         </Link>
       </LinkItem>
-    )
-  }
+    );
+  };
 
   const renderAuth = () => {
     if (!config.ticketToggle) {
-      return null
+      return null;
     }
 
     return (
@@ -105,12 +105,12 @@ function Header({
           Login
         </Button>
       </>
-    )
-  }
+    );
+  };
 
   const renderTopHeader = () => {
     if (headerHtml)
-      return <div dangerouslySetInnerHTML={{ __html: headerHtml }} />
+      return <div dangerouslySetInnerHTML={{ __html: headerHtml }} />;
 
     return (
       <Container>
@@ -178,8 +178,8 @@ function Header({
           </HeaderLinks>
         </HeaderTop>
       </Container>
-    )
-  }
+    );
+  };
 
   return (
     <Head
@@ -219,7 +219,7 @@ function Header({
         isOpen={showSettings}
       />
     </Head>
-  )
+  );
 }
 
-export default withRouter(Header)
+export default withRouter(Header);
