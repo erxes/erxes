@@ -494,7 +494,21 @@ export const timeclockReportFinal = async (
   // get all approved absence requests
   const requests = await models.Absences.find({
     solved: true,
-    status: /approved/gi
+    status: /approved/gi,
+    $or: [
+      {
+        startTime: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        }
+      },
+      {
+        endTime: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        }
+      }
+    ]
   });
 
   const relatedAbsenceTypes = await models.AbsenceTypes.find({
@@ -680,6 +694,9 @@ export const timeclockReportFinal = async (
 
     const userAbsenceInfo: IUserAbsenceInfo = await returnUserAbsenceInfo(
       {
+        requestsShiftRequest: relatedAbsences.requestsShiftRequest.filter(
+          absence => absence.userId === currUserId
+        ),
         requestsWorkedAbroad: relatedAbsences.requestsWorkedAbroad.filter(
           absence => absence.userId === currUserId
         ),
@@ -711,6 +728,7 @@ export const timeclockReportFinal = async (
         totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
         totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
         totalHoursOvernight: totalHoursOvernightPerUser.toFixed(2),
+        totalHoursBreak2: totalBreakInHours.toFixed(2),
         totalHoursWorked: totalHoursWorkedPerUser.toFixed(2),
         totalMinsLate: totalMinsLatePerUser.toFixed(2),
         ...userAbsenceInfo
@@ -943,6 +961,7 @@ const returnTotalAbsences = async (
   totalRequests: IAbsence[],
   models: IModels
 ): Promise<{
+  requestsShiftRequest: IAbsence[];
   requestsWorkedAbroad: IAbsence[];
   requestsPaidAbsence: IAbsence[];
   requestsUnpaidAbsence: IAbsence[];
@@ -958,6 +977,14 @@ const returnTotalAbsences = async (
     paidAbsence => paidAbsence._id
   );
 
+  const shiftRequestAbsenceTypes = await models.AbsenceTypes.find({
+    requestType: 'shift request'
+  });
+
+  const shiftRequestAbsenceTypeIds = shiftRequestAbsenceTypes.map(
+    absenceType => absenceType._id
+  );
+
   // get all unpaid absence types' ids
   const unpaidAbsenceTypes = await models.AbsenceTypes.find({
     requestType: 'unpaid absence'
@@ -968,6 +995,10 @@ const returnTotalAbsences = async (
   );
 
   // find Absences
+  const requestsShiftRequest = totalRequests.filter(request =>
+    shiftRequestAbsenceTypeIds.includes(request.absenceTypeId || '')
+  );
+
   const requestsWorkedAbroad = totalRequests.filter(request =>
     request.reason.toLocaleLowerCase().includes('томилолт')
   );
@@ -985,6 +1016,7 @@ const returnTotalAbsences = async (
   );
 
   return {
+    requestsShiftRequest,
     requestsWorkedAbroad,
     requestsPaidAbsence,
     requestsUnpaidAbsence,
@@ -996,10 +1028,16 @@ const returnUserAbsenceInfo = (
   relatedAbsences: any,
   relatedAbsenceTypes: IAbsenceTypeDocument[]
 ): IUserAbsenceInfo => {
+  let totalHoursShiftRequest = 0;
   let totalHoursWorkedAbroad = 0;
   let totalHoursPaidAbsence = 0;
   let totalHoursUnpaidAbsence = 0;
   let totalHoursSick = 0;
+
+  relatedAbsences.requestsShiftRequest.forEach(request => {
+    totalHoursShiftRequest +=
+      (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
+  });
 
   relatedAbsences.requestsWorkedAbroad.forEach(request => {
     totalHoursWorkedAbroad +=
@@ -1012,12 +1050,13 @@ const returnUserAbsenceInfo = (
     );
 
     if (absenceType && absenceType.requestTimeType === 'by day') {
-      const getTotalDays = Math.ceil(
-        (request.endTime.getTime() - request.startTime.getTime()) /
-          (1000 * 3600 * 24)
-      );
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              (1000 * 3600 * 24)
+          );
       totalHoursPaidAbsence += getTotalDays * absenceType.requestHoursPerDay;
-
       return;
     }
     totalHoursPaidAbsence +=
@@ -1034,6 +1073,7 @@ const returnUserAbsenceInfo = (
   });
 
   return {
+    totalHoursShiftRequest,
     totalHoursWorkedAbroad,
     totalHoursPaidAbsence,
     totalHoursUnpaidAbsence,

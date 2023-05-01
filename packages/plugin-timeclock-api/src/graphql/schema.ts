@@ -100,6 +100,7 @@ export const types = `
   }
 
   type IUserAbsenceInfo{ 
+    totalHoursShiftRequest: Float
     totalHoursWorkedAbroad: Float
     totalHoursPaidAbsence: Float
     totalHoursUnpaidAbsence: Float

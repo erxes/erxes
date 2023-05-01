@@ -42,6 +42,7 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
           <td>{userReport.totalHoursBreak}</td>
           <td>{userReport.totalHoursWorked}</td>
           <td>{userReport.totalMinsLate}</td>
+          <td>{userReport.absenceInfo?.totalHoursShiftRequest}</td>
           <td>{userReport.absenceInfo?.totalHoursWorkedAbroad}</td>
           <td>{userReport.absenceInfo?.totalHoursPaidAbsence}</td>
           <td>{userReport.absenceInfo?.totalHoursUnpaidAbsence}</td>
