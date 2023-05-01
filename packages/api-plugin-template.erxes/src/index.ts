@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
 
 // load environment variables
 dotenv.config({ path: '../.env' });
@@ -55,7 +54,6 @@ if (SENTRY_DSN) {
     integrations: [
       // enable HTTP calls tracing
       new Sentry.Integrations.Http({ tracing: true }),
-      new ProfilingIntegration(),
       // Automatically instrument Node.js libraries and frameworks
       ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
     ],
