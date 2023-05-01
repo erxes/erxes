@@ -610,12 +610,16 @@ export const timeclockReportFinal = async (
         const shiftEnd = currUserTimeclock.shiftEnd;
         if (shiftStart && shiftEnd) {
           // get time in hours
-          const totalHoursWorkedPerShift =
+          let totalHoursWorkedPerShift =
             (shiftEnd.getTime() - shiftStart.getTime()) / MMSTOHRS;
 
           // make sure shift end is later than shift start
           if (totalHoursWorkedPerShift > 0) {
             totalRegularHoursWorkedPerUser += totalHoursWorkedPerShift;
+          }
+          // deduct break time from timeclock
+          if (!currUserTimeclock.deviceType?.match(/shift request/gi)) {
+            totalHoursWorkedPerShift -= totalBreakInHours;
           }
 
           totalHoursOvernightPerUser += returnOvernightHours(
@@ -660,11 +664,6 @@ export const timeclockReportFinal = async (
           }
         }
       });
-
-      // deduct lunch break from worked hours
-      if (totalRegularHoursWorkedPerUser) {
-        totalRegularHoursWorkedPerUser -= totalBreakInHours;
-      }
 
       // deduct overtime from worked hours
       totalRegularHoursWorkedPerUser -= totalHoursOvertimePerUser;
