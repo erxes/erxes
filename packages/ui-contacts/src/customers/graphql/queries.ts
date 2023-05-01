@@ -17,12 +17,9 @@ const basicFields = `
   emails
   primaryPhone
   phones
-
   state
   visitorContactInfo
-
   modifiedAt
-
   position
   department
   leadStatus
@@ -33,11 +30,9 @@ const basicFields = `
   emailValidationStatus
   phoneValidationStatus
   score
-
   isOnline
   lastSeenAt
   sessionCount
-
   links
   ownerId
   owner {
@@ -54,10 +49,8 @@ export const customerFields = `
   createdAt
   remoteAddress
   location
-
   customFieldsData
   trackedData
-
   tagIds
   ${
     isEnabled('tags')
@@ -134,7 +127,6 @@ const customersMain = `
       list {
         ${customerFields}
       }
-
       totalCount
     }
   }
@@ -172,54 +164,6 @@ const customerDetail = `
         _id
         primaryName
         website
-      }
-      ${
-        isEnabled('inbox')
-          ? `conversations {
-        _id
-        content
-        createdAt
-        assignedUser {
-          _id
-          details {
-            avatar
-          }
-        }
-        integration {
-          _id
-          kind
-          brandId,
-          brand {
-            _id
-            name
-          }
-          channels {
-            _id
-            name
-          }
-        }
-        customer {
-          _id
-          firstName
-          middleName
-          lastName
-          primaryEmail
-          primaryPhone
-        }
-        readUserIds
-      ${
-        isEnabled('tags')
-          ? `
-        tags {
-          _id
-          name
-          colorCode
-        }
-          `
-          : ``
-      }
-      }`
-          : ``
       }
     }
   }

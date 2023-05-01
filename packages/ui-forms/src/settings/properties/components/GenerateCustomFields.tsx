@@ -383,7 +383,6 @@ class GenerateGroup extends React.Component<Props, State> {
             operator: logic.logicOperator,
             logicValue: logic.logicValue,
             fieldValue: object[logic.fieldId || ''],
-            fieldValue: this.props.object[logic.fieldId || ''],
             validation: allFields.find(e => e._id === fieldId)?.validation
           };
         });
