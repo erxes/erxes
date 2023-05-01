@@ -266,17 +266,17 @@ const timeclockMutations = {
           if (findAbsenceType.requestTimeType === 'by day') {
             const requestDates = shiftRequest.requestDates || [];
 
+            const schedule = await models.Schedules.createSchedule({
+              userId: shiftRequest.userId,
+              solved: true,
+              status: 'Approved'
+            });
+
             for (const requestDate of requestDates) {
               const requestStartTime = new Date(requestDate + ' 09:00:00');
               const requestEndTime = dayjs(requestStartTime)
                 .add(findAbsenceType.requestHoursPerDay, 'hour')
                 .toDate();
-
-              const schedule = await models.Schedules.createSchedule({
-                userId: shiftRequest.userId,
-                solved: true,
-                status: 'Approved'
-              });
 
               await models.Shifts.createShift({
                 scheduleId: schedule._id,
