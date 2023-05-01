@@ -128,6 +128,24 @@ export default class Editor extends React.Component<EditorProps, State> {
     }
   }
 
+  componentDidUpdate(
+    prevProps: Readonly<EditorProps>,
+    prevState: Readonly<State>
+  ): void {
+    if (
+      this.props.defaultContent !== prevProps.defaultContent &&
+      !this.props?.defaultContent &&
+      prevState.editorState.getCurrentContent().getPlainText('').length
+    ) {
+      this.setState({
+        editorState: createStateFromHTML(
+          EditorState.createEmpty(),
+          this.props.defaultContent || ''
+        )
+      });
+    }
+  }
+
   onChange = editorState => {
     this.setState({ editorState, hideTemplates: false });
 

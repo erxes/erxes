@@ -1,3 +1,77 @@
+# [1.2.0](https://github.com/erxes/erxes/compare/1.0.1...1.2.0) (2023-05-01)
+
+
+### Bug Fixes
+
+* add zalo message log ([9546cee](https://github.com/erxes/erxes/commit/9546cee637491664bbdfb632c54db540f38fee9e))
+* anonymous user send & admin send reply from oa.zalo.me ([a936487](https://github.com/erxes/erxes/commit/a936487540c140af456a10ec0f7586590e0a7d54))
+* **api:** can not send message cause of message_id ([8c2eddb](https://github.com/erxes/erxes/commit/8c2eddb898798ff90b68b42fd6ee01b419537a06))
+* **cards:** closeDate notification fix ([a9164c8](https://github.com/erxes/erxes/commit/a9164c8d19e4183e757561164e3ff1b202e2bad0))
+* **cards:** fixed growthHack template duplicate ([db0c2d8](https://github.com/erxes/erxes/commit/db0c2d87f48b39fef1f444babb78d32415ed2a6b))
+* **cards:** private stage crash ([#4277](https://github.com/erxes/erxes/issues/4277)) ([8cf1b0a](https://github.com/erxes/erxes/commit/8cf1b0a066222018fc680638e4c63b662f86923c))
+* **cards:** reduce card timer font size ([#4251](https://github.com/erxes/erxes/issues/4251)) ([3a8600a](https://github.com/erxes/erxes/commit/3a8600ad06b85d251b0668f3437264892183fbf4))
+* **cards:** subscription data fetching with errors in cards ([#3973](https://github.com/erxes/erxes/issues/3973)) ([5bd9832](https://github.com/erxes/erxes/commit/5bd9832c3d3af009e036d9f4c24595a006b99129))
+* **clientportal:** topic search ([7e02d9c](https://github.com/erxes/erxes/commit/7e02d9c0bf82518dc7998c3e5c0c052a49b8b3ad))
+* **core:** fixed user base64 issue when app token ([adedada](https://github.com/erxes/erxes/commit/adedada45e4bf3a60b1d2c8f68f3ebea8759f575))
+* **engages:** read attachment bug ([#3915](https://github.com/erxes/erxes/issues/3915)) ([5166379](https://github.com/erxes/erxes/commit/5166379ad6cfc731b2246f0300c90d82f3f203d2))
+* **forum:** content image upload ([f570905](https://github.com/erxes/erxes/commit/f570905abe877973b52a5c950844ccd8c8fb12d1))
+* **forum:** sort ([9eea7c5](https://github.com/erxes/erxes/commit/9eea7c55d946fa79dae747cfdb784a80de955d6c))
+* **imap:** fixed get customer ([a228267](https://github.com/erxes/erxes/commit/a2282678eedcd5a86ed15469484626c4c6cd21b2))
+* **imap:** fixed related message error ([d28d3f7](https://github.com/erxes/erxes/commit/d28d3f75b5369b19ecc7539b767fb5e381b59f7f))
+* **imap:** fixed ui is no longer showing issue ([06631c6](https://github.com/erxes/erxes/commit/06631c6494aee795d589764f532e16c350f77cd5))
+* **nav:** spacing bug ([#4030](https://github.com/erxes/erxes/issues/4030)) ([6a2fa2b](https://github.com/erxes/erxes/commit/6a2fa2b62a9329b19bb4eccf965019636ba1aef2))
+* **riskassessment:** add error handler ([e75e90b](https://github.com/erxes/erxes/commit/e75e90b66f2b9c40bf907bc0b7fe334ee0a7eb42))
+* **segments:** fixed cards 2 Stage field ([522a7a4](https://github.com/erxes/erxes/commit/522a7a4607a16054f0c5ffe9767b64cd4e20ea2c))
+* **ui:** update new configs.js ([e9d47e2](https://github.com/erxes/erxes/commit/e9d47e2215ca2491dd681a9250db775edbb83f26))
+* **users:** customFieldsData replace fix when userEdit ([0c4b05d](https://github.com/erxes/erxes/commit/0c4b05d4cfb47212cb4a250ffcccd1f4b480b2a0))
+* **widgets:** date-time input ([#4296](https://github.com/erxes/erxes/issues/4296)) ([11584fb](https://github.com/erxes/erxes/commit/11584fb2aa4e43106b22ceb8aef89ae8811d7a45))
+
+
+### Features
+
+* **assets:** refactored knowledgebase logic ([21ae87e](https://github.com/erxes/erxes/commit/21ae87ecf7b86537bee764e2e28b53b0dd1baced))
+* **cards:** added edit, move permission in pipeline stage setting ([7c79c4c](https://github.com/erxes/erxes/commit/7c79c4c187401fe36f62b6a6f2cd15556e27d3db))
+* **chat:** Minor fix ([#102](https://github.com/erxes/erxes/issues/102)) ([b56c7a8](https://github.com/erxes/erxes/commit/b56c7a8fa06d54217166bcae6ed7bcef249fb307))
+* **chats:** Focus bug fixed ([#96](https://github.com/erxes/erxes/issues/96)) ([7bcbb09](https://github.com/erxes/erxes/commit/7bcbb09a3809c0243e6a29349118fa4e3bf9006b))
+* **clientportal:** add clientPortalUpdateUser mutation ([d97eb55](https://github.com/erxes/erxes/commit/d97eb55e1d8294b47ab8fc45d494b3e2aa13ab42))
+* **clientportal:** Add comment section ([#4014](https://github.com/erxes/erxes/issues/4014)) ([e251a36](https://github.com/erxes/erxes/commit/e251a36f52e6d15d1c6b28d6b266df9d710170bc))
+* **emailtemplates:** fix search bug ([#3994](https://github.com/erxes/erxes/issues/3994)) ([a3890f1](https://github.com/erxes/erxes/commit/a3890f125ff3146d553bc7ce56c9248cc1194266))
+* **filemanager:** added filemanager plugin ([a91cccd](https://github.com/erxes/erxes/commit/a91cccd3eee48494118bffd7466605c4e8c42440))
+* **filemanager:** Show folder in file list ([e4c28bf](https://github.com/erxes/erxes/commit/e4c28bf3a05f67c4f189edd671ddd4ebba34e9af))
+* **imap:** added activity log ([75ba423](https://github.com/erxes/erxes/commit/75ba4232fdae61ec951c94bb1a05a1c58e1f5d5c))
+* **inbox:** fix cards add bug ([#3970](https://github.com/erxes/erxes/issues/3970)) ([840d4e2](https://github.com/erxes/erxes/commit/840d4e2301aa987f78862d529b345327ac496640))
+* **inbox:** readded incoming webhook ([73ec0a4](https://github.com/erxes/erxes/commit/73ec0a46724203a1e4ffe04d3a76aeecf1dfacf8))
+* **knowledgebase:** added notification segment in topic ([95fb244](https://github.com/erxes/erxes/commit/95fb244f95ef0b763299f2893cc46e8665832bf5))
+* **product:** add meta property in category ([2f9f1db](https://github.com/erxes/erxes/commit/2f9f1dbe3903c9b63187e500a4dc9c93548e325b))
+* **product:** add meta to category ([b41be74](https://github.com/erxes/erxes/commit/b41be74705a548d76a512a6adffc3c6348774b71))
+* **timeclock:** add pagination and improve query filter ([#67](https://github.com/erxes/erxes/issues/67)) ([8affeea](https://github.com/erxes/erxes/commit/8affeeac19c4d73103c25eb195cf337c7ad26302))
+* **timeclock:** add schedule config ([#77](https://github.com/erxes/erxes/issues/77)) ([cdebfb0](https://github.com/erxes/erxes/commit/cdebfb03d80084779de226ec78b0d1eaeecdd983))
+* **timeclock:** calculation of late minute ([#104](https://github.com/erxes/erxes/issues/104)) ([920c298](https://github.com/erxes/erxes/commit/920c298ff4d3279a3464307042c3ab33504faae2))
+* **timeclock:** export preliminary report into excel ([#83](https://github.com/erxes/erxes/issues/83)) ([ae7844d](https://github.com/erxes/erxes/commit/ae7844d7392ddbcfc7a1e6c22aacf2ba622103d5))
+* **timeclock:** extract data improvement ([#79](https://github.com/erxes/erxes/issues/79)) ([c03c0f2](https://github.com/erxes/erxes/commit/c03c0f27095ae34326f0cd184e03b302dc1f5a8b))
+* **timeclock:** fix find user's branches ([#114](https://github.com/erxes/erxes/issues/114)) ([394745a](https://github.com/erxes/erxes/commit/394745acd59d707970334911848a8724952347d6))
+* **timeclock:** improve data fetching from Microsoft SQL server ([#66](https://github.com/erxes/erxes/issues/66)) ([7c9a397](https://github.com/erxes/erxes/commit/7c9a397d5ed88b9ed59d5e5170eb5239f5c4f964))
+* **timeclock:** improvement ([a9fa3bb](https://github.com/erxes/erxes/commit/a9fa3bbf483183d381f88364b0f9826af3599a01))
+* **timeclock:** improvement of device config ([#109](https://github.com/erxes/erxes/issues/109)) ([a85ed83](https://github.com/erxes/erxes/commit/a85ed83e9a2872fb8d303a853e6ee2232a24fc23))
+* **timeclock:** refactor and add cron ([46c7faf](https://github.com/erxes/erxes/commit/46c7faf67d023eaef7898c6d839be1fde6707dc3))
+* **timeclock:** report improvement ([#100](https://github.com/erxes/erxes/issues/100)) ([d345a71](https://github.com/erxes/erxes/commit/d345a713ba8079766901b7c0e243e683c406001d))
+* **timeclock:** reports query & export report ([#85](https://github.com/erxes/erxes/issues/85)) ([f37f17f](https://github.com/erxes/erxes/commit/f37f17fe8f0f58a346e399ed0132f50ab9c32c8d))
+* **timeclock:** time log ([#115](https://github.com/erxes/erxes/issues/115)) ([f8b5240](https://github.com/erxes/erxes/commit/f8b5240aaee9fc1cf0f54e39beea3df9e01dff4d))
+* **webbuilder:** improvements of templates and sites ([#3960](https://github.com/erxes/erxes/issues/3960)) ([6fc25bf](https://github.com/erxes/erxes/commit/6fc25bf8cce2c14567c944670ae85f485f3b7103))
+
+
+### Performance Improvements
+
+* **core:** used `apollo/router` and `@apollo/rover` in the gateway instead of `@apollo/gateway` ([7465169](https://github.com/erxes/erxes/commit/74651691bc8f0e45089007508c3b91fe631e3cba))
+* **documents:** refactor ([f198c62](https://github.com/erxes/erxes/commit/f198c62ed3d04b2bb6500aa7971e20234e6dc362))
+* **filemanager:** add filemanager form in cards ([ae91768](https://github.com/erxes/erxes/commit/ae917680d32b9ea17882e21611298f9a29768306))
+* **filemanager:** add related file list on cards detail ([dd50fe2](https://github.com/erxes/erxes/commit/dd50fe2a8340e1533d82bcfa920590254e88eb49))
+* **filemanager:** add tree folder view ([7671d5a](https://github.com/erxes/erxes/commit/7671d5aac703a7272c71310aacd326d32e28a0b7))
+* **filemanager:** move fileform to common component ([c602625](https://github.com/erxes/erxes/commit/c602625b84edaf0e524c45eeb05f87b19674bb73))
+* **filemanager:** refactor ([4868a22](https://github.com/erxes/erxes/commit/4868a22d7dd45cb56a666fa519411a4051b8489e))
+* **webbuilder:** refactor templates ([60d521b](https://github.com/erxes/erxes/commit/60d521b72ffb2f4c3ce9fff5e087a833d82c252b))
+* **webbuilder:** update webbuilder ([#4331](https://github.com/erxes/erxes/issues/4331)) ([6c8c074](https://github.com/erxes/erxes/commit/6c8c07451f5035c727ab2a31bafa4eab403a63b9))
+
 ## [1.0.1](https://github.com/erxes/erxes/compare/1.0.0...1.0.1) (2022-12-20)
 
 
