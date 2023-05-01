@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -57,7 +56,6 @@ const stopRouter = () => {
       integrations: [
         // enable HTTP calls tracing
         new Sentry.Integrations.Http({ tracing: true }),
-        new ProfilingIntegration(),
         // Automatically instrument Node.js libraries and frameworks
         ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
       ],
