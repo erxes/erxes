@@ -28,7 +28,6 @@ class Form extends React.Component<Props, State> {
       values: {},
       isSubmitted: false
     };
-    console.log('form component cost data:', props.costs);
   }
 
   registerChild = child => {

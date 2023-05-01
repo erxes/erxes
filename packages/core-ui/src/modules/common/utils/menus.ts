@@ -8,7 +8,6 @@ const menuContacts = [
   { title: 'Companies', link: '/companies' },
   { title: 'Team members', link: '/settings/team' }
 ];
-
 const menuStructures = [
   { title: 'Strucure', link: '/settings/structure' },
   { title: 'Branches', link: '/settings/branches' },
