@@ -58,7 +58,8 @@ const commonEnvs = configs => {
     ELASTICSEARCH_URL: `http://${db_server_address ||
       (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
     ENABLED_SERVICES_PATH: '/data/enabled-services.js',
-    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || ''
+    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
+    SENTRY_DSN: configs.sentry_dsn,
   };
 };
 
