@@ -61,6 +61,7 @@ export const attachmentSchema = new Schema(
   {
     filename: String,
     mimeType: String,
+    type: String,
     size: Number,
     attachmentId: String
   },
@@ -88,7 +89,8 @@ export const messageSchema = new Schema({
   bcc: [emailSchema],
   from: [emailSchema],
   attachments: [attachmentSchema],
-  createdAt: { type: Date, index: true, default: new Date() }
+  createdAt: { type: Date, index: true, default: new Date() },
+  type: { type: String, enum: ['SENT', 'INBOX'] }
 });
 
 export interface IMessageModel extends Model<IMessageDocument> {}
