@@ -95,6 +95,8 @@ const TransactionForm = (props: Props) => {
 
       setTransactionType(Number(value));
     }
+
+    setTransaction({ ...transaction, toAccount: '', toAccountName: '' });
   };
 
   const onChangeInput = e => {
@@ -103,10 +105,11 @@ const TransactionForm = (props: Props) => {
     setTransaction({ ...transaction, [id]: value });
   };
 
-  const renderInput = (formProps, title, name, type, value) => {
+  const renderInput = (formProps, title, name, type, value, description?) => {
     return (
       <FormGroup>
         <ControlLabel required={formProps.required}>{title}</ControlLabel>
+        <p>{__(description)}</p>
         <FormControl
           {...formProps}
           id={name}
@@ -127,6 +130,10 @@ const TransactionForm = (props: Props) => {
     }
 
     const onBlur = () => {
+      if (transactionType === 3) {
+        return;
+      }
+
       props.getAccountHolder(transaction.toAccount, transaction.toBank);
     };
 
@@ -162,7 +169,10 @@ const TransactionForm = (props: Props) => {
           'Recipient name',
           'toAccountName',
           'string',
-          transaction.toAccountName
+          transaction.toAccountName,
+          transactionType === 3
+            ? "check the recipient's name before making a transfer"
+            : ''
         )}
       </>
     );
