@@ -444,8 +444,8 @@ export interface IUserExportReport {
   totalHoursOvertime?: string;
   totalHoursOvernight?: string;
 
-  totalHoursBreak?: string;
-  totalHoursBreak2?: string;
+  totalHoursBreakScheduled?: string;
+  totalHoursBreakActual?: string;
 
   totalMinsLate?: string;
 
