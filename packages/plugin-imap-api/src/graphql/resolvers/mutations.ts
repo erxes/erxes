@@ -117,7 +117,12 @@ const notificationMutations = {
       body: mailData.html,
       to: (mailData.to || []).map(to => ({ name: to, address: to })),
       from: [{ name: mailData.from, address: mailData.from }],
-      attachments: mailData.attachments
+      attachments: attachments.map(({ name, type, size }) => ({
+        filename: name,
+        type,
+        size
+      })),
+      type: 'SENT'
     });
   }
 };

@@ -68,10 +68,22 @@ export default {
             throw new Error('Integration not found');
           }
 
+          const sentMessage = await models.Messages.findOne({
+            messageId,
+            inboxIntegrationId: integrationId,
+            type: 'SENT'
+          });
+
+          let folderType = 'INBOX';
+
+          if (sentMessage) {
+            folderType = '[Gmail]/Sent Mail';
+          }
+
           const imap = generateImap(integration);
 
           imap.once('ready', () => {
-            imap.openBox('INBOX', true, async (err, box) => {
+            imap.openBox(folderType, true, async (err, box) => {
               imap.search([['HEADER', 'MESSAGE-ID', messageId]], function(
                 err,
                 results
