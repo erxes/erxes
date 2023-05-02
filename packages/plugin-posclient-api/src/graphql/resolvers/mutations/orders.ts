@@ -73,6 +73,13 @@ const orderMutations = {
       throw new Error('order has not owner');
     }
 
+    if (
+      posUser &&
+      ![...config.adminIds, ...config.cashierIds].includes(posUser._id)
+    ) {
+      throw new Error('Please logout and reLogin');
+    }
+
     await validateOrder(models, doc);
     const number = await generateOrderNumber(models, config);
 

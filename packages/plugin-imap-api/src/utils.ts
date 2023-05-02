@@ -209,7 +209,12 @@ const saveMessages = async (
       cc: msg.cc && msg.cc.value,
       bcc: msg.bcc && msg.bcc.value,
       from: msg.from && msg.from.value,
-      attachments: msg.attachments
+      attachments: msg.attachments.map(({ filename, contentType, size }) => ({
+        filename,
+        type: contentType,
+        size
+      })),
+      type: 'INBOX'
     });
   }
 };
