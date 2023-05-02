@@ -31,6 +31,7 @@ type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
     purchase: JSON
 
     foundDriver: Customer
+    foundCar: Car
   }
 `;
 

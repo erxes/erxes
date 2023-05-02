@@ -296,13 +296,13 @@ const queries = {
         return {
           error: 'must purchase first',
           purchase: {
-            driverId: customer._id,
-            carId: car._id
+            driver: { ...customer, primaryPhone: null, phones: [] },
+            car
           }
         };
       }
 
-      return { success: 'driver found', foundDriver: customer };
+      return { success: 'driver found', foundDriver: customer, foundCar: car };
     }
 
     const pHistory = await models.PurchaseHistories.findOne({
@@ -324,18 +324,42 @@ const queries = {
       return { error: 'not found' };
     }
 
+    let foundCar: any = null;
+    const confs = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.getConformities',
+      data: {
+        mainType: 'customer',
+        mainTypeIds: [possibleCustomer._id],
+        relTypes: ['car']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const possibleCarIds = confs.map((c: any) => {
+      if (c.mainType === 'customer') {
+        return c.relTypeId;
+      }
+
+      return c.mainTypeId;
+    });
+
+    if (possibleCarIds.length) {
+      foundCar = await models.Cars.findOne({ _id: possibleCarIds[0] }).lean();
+    }
+
     if (!pHistory) {
-      // throw new Error('must purchase first');
       return {
         error: 'must purchase first',
         purchase: {
-          driverId: possibleCustomer._id,
-          carId: ''
+          driverId: { ...possibleCustomer, primaryPhone: null, phones: [] },
+          car: foundCar
         }
       };
     }
 
-    return { success: 'driver found', foundDriver: possibleCustomer };
+    return { success: 'driver found', foundDriver: possibleCustomer, foundCar };
   }
 };
 
