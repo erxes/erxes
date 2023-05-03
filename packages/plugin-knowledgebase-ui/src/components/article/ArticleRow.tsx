@@ -73,6 +73,7 @@ const ArticleRow = (props: Props) => {
         trigger={editTrigger ? editTrigger : editButton}
         content={content}
         enforceFocus={false}
+        style={{ overflow: 'auto' }}
       />
     );
   };

@@ -49,7 +49,6 @@ export const brandSchema = schemaWrapper(
       optional: true,
       label: 'Description'
     }),
-    memberIds: field({ type: [String], label: 'Members' }),
     userId: field({ type: String, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     emailConfig: field({

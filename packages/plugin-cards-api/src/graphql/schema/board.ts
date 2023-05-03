@@ -74,6 +74,13 @@ export const types = ({ tags }) => `
     data: JSON
   }
 
+  type ProductsDataChangeResponse {
+    _id: String
+    proccessId: String
+    action: String
+    data: JSON
+  }
+
   type ConvertTo {
     ticketUrl: String,
     dealUrl: String,
@@ -106,7 +113,10 @@ const stageParams = `
   extraParams: JSON,
   closeDateType: String,
   assignedToMe: String,
-  age: Int
+  age: Int,
+  branchIds: [String]
+  departmentIds: [String]
+  segmentData:String
 `;
 
 export const queries = `

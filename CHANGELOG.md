@@ -1,3 +1,281 @@
+
+
+# [1.2.0](https://github.com/erxes/erxes/compare/1.0.1...1.2.0) (2023-05-01)
+
+
+### Bug Fixes
+
+* **cards:** closeDate notification fix ([a9164c8](https://github.com/erxes/erxes/commit/a9164c8d19e4183e757561164e3ff1b202e2bad0))
+* **cards:** fixed growthHack template duplicate ([db0c2d8](https://github.com/erxes/erxes/commit/db0c2d87f48b39fef1f444babb78d32415ed2a6b))
+* **cards:** private stage crash ([#4277](https://github.com/erxes/erxes/issues/4277)) ([8cf1b0a](https://github.com/erxes/erxes/commit/8cf1b0a066222018fc680638e4c63b662f86923c))
+* **cards:** reduce card timer font size ([#4251](https://github.com/erxes/erxes/issues/4251)) ([3a8600a](https://github.com/erxes/erxes/commit/3a8600ad06b85d251b0668f3437264892183fbf4))
+* **cards:** subscription data fetching with errors in cards ([#3973](https://github.com/erxes/erxes/issues/3973)) ([5bd9832](https://github.com/erxes/erxes/commit/5bd9832c3d3af009e036d9f4c24595a006b99129))
+* **clientportal:** topic search ([7e02d9c](https://github.com/erxes/erxes/commit/7e02d9c0bf82518dc7998c3e5c0c052a49b8b3ad))
+* **core:** fixed user base64 issue when app token ([adedada](https://github.com/erxes/erxes/commit/adedada45e4bf3a60b1d2c8f68f3ebea8759f575))
+* **engages:** read attachment bug ([#3915](https://github.com/erxes/erxes/issues/3915)) ([5166379](https://github.com/erxes/erxes/commit/5166379ad6cfc731b2246f0300c90d82f3f203d2))
+* **nav:** spacing bug ([#4030](https://github.com/erxes/erxes/issues/4030)) ([6a2fa2b](https://github.com/erxes/erxes/commit/6a2fa2b62a9329b19bb4eccf965019636ba1aef2))
+* **segments:** fixed cards 2 Stage field ([522a7a4](https://github.com/erxes/erxes/commit/522a7a4607a16054f0c5ffe9767b64cd4e20ea2c))
+* **users:** customFieldsData replace fix when userEdit ([0c4b05d](https://github.com/erxes/erxes/commit/0c4b05d4cfb47212cb4a250ffcccd1f4b480b2a0))
+* **widgets:** date-time input ([#4296](https://github.com/erxes/erxes/issues/4296)) ([11584fb](https://github.com/erxes/erxes/commit/11584fb2aa4e43106b22ceb8aef89ae8811d7a45))
+
+
+### Features
+
+* **cards:** added edit, move permission in pipeline stage setting ([7c79c4c](https://github.com/erxes/erxes/commit/7c79c4c187401fe36f62b6a6f2cd15556e27d3db))
+* **clientportal:** add clientPortalUpdateUser mutation ([d97eb55](https://github.com/erxes/erxes/commit/d97eb55e1d8294b47ab8fc45d494b3e2aa13ab42))
+* **clientportal:** Add comment section ([#4014](https://github.com/erxes/erxes/issues/4014)) ([e251a36](https://github.com/erxes/erxes/commit/e251a36f52e6d15d1c6b28d6b266df9d710170bc))
+* **emailtemplates:** fix search bug ([#3994](https://github.com/erxes/erxes/issues/3994)) ([a3890f1](https://github.com/erxes/erxes/commit/a3890f125ff3146d553bc7ce56c9248cc1194266))
+* **inbox:** fix cards add bug ([#3970](https://github.com/erxes/erxes/issues/3970)) ([840d4e2](https://github.com/erxes/erxes/commit/840d4e2301aa987f78862d529b345327ac496640))
+* **inbox:** readded incoming webhook ([73ec0a4](https://github.com/erxes/erxes/commit/73ec0a46724203a1e4ffe04d3a76aeecf1dfacf8))
+* **knowledgebase:** added notification segment in topic ([95fb244](https://github.com/erxes/erxes/commit/95fb244f95ef0b763299f2893cc46e8665832bf5))
+* **webbuilder:** improvements of templates and sites ([#3960](https://github.com/erxes/erxes/issues/3960)) ([6fc25bf](https://github.com/erxes/erxes/commit/6fc25bf8cce2c14567c944670ae85f485f3b7103))
+
+
+### Performance Improvements
+
+* **core:** used `apollo/router` and `@apollo/rover` in the gateway instead of `@apollo/gateway` ([7465169](https://github.com/erxes/erxes/commit/74651691bc8f0e45089007508c3b91fe631e3cba))
+* **documents:** refactor ([f198c62](https://github.com/erxes/erxes/commit/f198c62ed3d04b2bb6500aa7971e20234e6dc362))
+* **webbuilder:** refactor templates ([60d521b](https://github.com/erxes/erxes/commit/60d521b72ffb2f4c3ce9fff5e087a833d82c252b))
+* **webbuilder:** update webbuilder ([#4331](https://github.com/erxes/erxes/issues/4331)) ([6c8c074](https://github.com/erxes/erxes/commit/6c8c07451f5035c727ab2a31bafa4eab403a63b9))
+
+# [1.2.0](https://github.com/erxes/erxes/compare/1.0.1...1.2.0) (2023-05-01)
+
+
+### Bug Fixes
+
+* **cards:** closeDate notification fix ([a9164c8](https://github.com/erxes/erxes/commit/a9164c8d19e4183e757561164e3ff1b202e2bad0))
+* **cards:** fixed growthHack template duplicate ([db0c2d8](https://github.com/erxes/erxes/commit/db0c2d87f48b39fef1f444babb78d32415ed2a6b))
+* **cards:** private stage crash ([#4277](https://github.com/erxes/erxes/issues/4277)) ([8cf1b0a](https://github.com/erxes/erxes/commit/8cf1b0a066222018fc680638e4c63b662f86923c))
+* **cards:** reduce card timer font size ([#4251](https://github.com/erxes/erxes/issues/4251)) ([3a8600a](https://github.com/erxes/erxes/commit/3a8600ad06b85d251b0668f3437264892183fbf4))
+* **cards:** subscription data fetching with errors in cards ([#3973](https://github.com/erxes/erxes/issues/3973)) ([5bd9832](https://github.com/erxes/erxes/commit/5bd9832c3d3af009e036d9f4c24595a006b99129))
+* **clientportal:** topic search ([7e02d9c](https://github.com/erxes/erxes/commit/7e02d9c0bf82518dc7998c3e5c0c052a49b8b3ad))
+* **core:** fixed user base64 issue when app token ([adedada](https://github.com/erxes/erxes/commit/adedada45e4bf3a60b1d2c8f68f3ebea8759f575))
+* **engages:** read attachment bug ([#3915](https://github.com/erxes/erxes/issues/3915)) ([5166379](https://github.com/erxes/erxes/commit/5166379ad6cfc731b2246f0300c90d82f3f203d2))
+* **nav:** spacing bug ([#4030](https://github.com/erxes/erxes/issues/4030)) ([6a2fa2b](https://github.com/erxes/erxes/commit/6a2fa2b62a9329b19bb4eccf965019636ba1aef2))
+* **segments:** fixed cards 2 Stage field ([522a7a4](https://github.com/erxes/erxes/commit/522a7a4607a16054f0c5ffe9767b64cd4e20ea2c))
+* **users:** customFieldsData replace fix when userEdit ([0c4b05d](https://github.com/erxes/erxes/commit/0c4b05d4cfb47212cb4a250ffcccd1f4b480b2a0))
+* **widgets:** date-time input ([#4296](https://github.com/erxes/erxes/issues/4296)) ([11584fb](https://github.com/erxes/erxes/commit/11584fb2aa4e43106b22ceb8aef89ae8811d7a45))
+
+
+### Features
+
+* **cards:** added edit, move permission in pipeline stage setting ([7c79c4c](https://github.com/erxes/erxes/commit/7c79c4c187401fe36f62b6a6f2cd15556e27d3db))
+* **clientportal:** add clientPortalUpdateUser mutation ([d97eb55](https://github.com/erxes/erxes/commit/d97eb55e1d8294b47ab8fc45d494b3e2aa13ab42))
+* **clientportal:** Add comment section ([#4014](https://github.com/erxes/erxes/issues/4014)) ([e251a36](https://github.com/erxes/erxes/commit/e251a36f52e6d15d1c6b28d6b266df9d710170bc))
+* **emailtemplates:** fix search bug ([#3994](https://github.com/erxes/erxes/issues/3994)) ([a3890f1](https://github.com/erxes/erxes/commit/a3890f125ff3146d553bc7ce56c9248cc1194266))
+* **inbox:** fix cards add bug ([#3970](https://github.com/erxes/erxes/issues/3970)) ([840d4e2](https://github.com/erxes/erxes/commit/840d4e2301aa987f78862d529b345327ac496640))
+* **inbox:** readded incoming webhook ([73ec0a4](https://github.com/erxes/erxes/commit/73ec0a46724203a1e4ffe04d3a76aeecf1dfacf8))
+* **knowledgebase:** added notification segment in topic ([95fb244](https://github.com/erxes/erxes/commit/95fb244f95ef0b763299f2893cc46e8665832bf5))
+* **webbuilder:** improvements of templates and sites ([#3960](https://github.com/erxes/erxes/issues/3960)) ([6fc25bf](https://github.com/erxes/erxes/commit/6fc25bf8cce2c14567c944670ae85f485f3b7103))
+
+
+### Performance Improvements
+
+* **core:** used `apollo/router` and `@apollo/rover` in the gateway instead of `@apollo/gateway` ([7465169](https://github.com/erxes/erxes/commit/74651691bc8f0e45089007508c3b91fe631e3cba))
+* **documents:** refactor ([f198c62](https://github.com/erxes/erxes/commit/f198c62ed3d04b2bb6500aa7971e20234e6dc362))
+* **webbuilder:** refactor templates ([60d521b](https://github.com/erxes/erxes/commit/60d521b72ffb2f4c3ce9fff5e087a833d82c252b))
+* **webbuilder:** update webbuilder ([#4331](https://github.com/erxes/erxes/issues/4331)) ([6c8c074](https://github.com/erxes/erxes/commit/6c8c07451f5035c727ab2a31bafa4eab403a63b9))
+
+# [1.1.0](https://github.com/erxes/erxes/compare/1.0.1...1.1.0) (2023-05-01)
+
+
+### Bug Fixes
+
+* **cards:** closeDate notification fix ([a9164c8](https://github.com/erxes/erxes/commit/a9164c8d19e4183e757561164e3ff1b202e2bad0))
+* **cards:** fixed growthHack template duplicate ([db0c2d8](https://github.com/erxes/erxes/commit/db0c2d87f48b39fef1f444babb78d32415ed2a6b))
+* **cards:** private stage crash ([#4277](https://github.com/erxes/erxes/issues/4277)) ([8cf1b0a](https://github.com/erxes/erxes/commit/8cf1b0a066222018fc680638e4c63b662f86923c))
+* **cards:** reduce card timer font size ([#4251](https://github.com/erxes/erxes/issues/4251)) ([3a8600a](https://github.com/erxes/erxes/commit/3a8600ad06b85d251b0668f3437264892183fbf4))
+* **cards:** subscription data fetching with errors in cards ([#3973](https://github.com/erxes/erxes/issues/3973)) ([5bd9832](https://github.com/erxes/erxes/commit/5bd9832c3d3af009e036d9f4c24595a006b99129))
+* **clientportal:** topic search ([7e02d9c](https://github.com/erxes/erxes/commit/7e02d9c0bf82518dc7998c3e5c0c052a49b8b3ad))
+* **core:** fixed user base64 issue when app token ([adedada](https://github.com/erxes/erxes/commit/adedada45e4bf3a60b1d2c8f68f3ebea8759f575))
+* **engages:** read attachment bug ([#3915](https://github.com/erxes/erxes/issues/3915)) ([5166379](https://github.com/erxes/erxes/commit/5166379ad6cfc731b2246f0300c90d82f3f203d2))
+* **nav:** spacing bug ([#4030](https://github.com/erxes/erxes/issues/4030)) ([6a2fa2b](https://github.com/erxes/erxes/commit/6a2fa2b62a9329b19bb4eccf965019636ba1aef2))
+* **segments:** fixed cards 2 Stage field ([522a7a4](https://github.com/erxes/erxes/commit/522a7a4607a16054f0c5ffe9767b64cd4e20ea2c))
+* **users:** customFieldsData replace fix when userEdit ([0c4b05d](https://github.com/erxes/erxes/commit/0c4b05d4cfb47212cb4a250ffcccd1f4b480b2a0))
+* **widgets:** date-time input ([#4296](https://github.com/erxes/erxes/issues/4296)) ([11584fb](https://github.com/erxes/erxes/commit/11584fb2aa4e43106b22ceb8aef89ae8811d7a45))
+
+
+### Features
+
+* **cards:** added edit, move permission in pipeline stage setting ([7c79c4c](https://github.com/erxes/erxes/commit/7c79c4c187401fe36f62b6a6f2cd15556e27d3db))
+* **clientportal:** add clientPortalUpdateUser mutation ([d97eb55](https://github.com/erxes/erxes/commit/d97eb55e1d8294b47ab8fc45d494b3e2aa13ab42))
+* **clientportal:** Add comment section ([#4014](https://github.com/erxes/erxes/issues/4014)) ([e251a36](https://github.com/erxes/erxes/commit/e251a36f52e6d15d1c6b28d6b266df9d710170bc))
+* **emailtemplates:** fix search bug ([#3994](https://github.com/erxes/erxes/issues/3994)) ([a3890f1](https://github.com/erxes/erxes/commit/a3890f125ff3146d553bc7ce56c9248cc1194266))
+* **inbox:** fix cards add bug ([#3970](https://github.com/erxes/erxes/issues/3970)) ([840d4e2](https://github.com/erxes/erxes/commit/840d4e2301aa987f78862d529b345327ac496640))
+* **inbox:** readded incoming webhook ([73ec0a4](https://github.com/erxes/erxes/commit/73ec0a46724203a1e4ffe04d3a76aeecf1dfacf8))
+* **knowledgebase:** added notification segment in topic ([95fb244](https://github.com/erxes/erxes/commit/95fb244f95ef0b763299f2893cc46e8665832bf5))
+* **webbuilder:** improvements of templates and sites ([#3960](https://github.com/erxes/erxes/issues/3960)) ([6fc25bf](https://github.com/erxes/erxes/commit/6fc25bf8cce2c14567c944670ae85f485f3b7103))
+
+
+### Performance Improvements
+
+* **core:** used `apollo/router` and `@apollo/rover` in the gateway instead of `@apollo/gateway` ([7465169](https://github.com/erxes/erxes/commit/74651691bc8f0e45089007508c3b91fe631e3cba))
+* **documents:** refactor ([f198c62](https://github.com/erxes/erxes/commit/f198c62ed3d04b2bb6500aa7971e20234e6dc362))
+* **webbuilder:** refactor templates ([60d521b](https://github.com/erxes/erxes/commit/60d521b72ffb2f4c3ce9fff5e087a833d82c252b))
+* **webbuilder:** update webbuilder ([#4331](https://github.com/erxes/erxes/issues/4331)) ([6c8c074](https://github.com/erxes/erxes/commit/6c8c07451f5035c727ab2a31bafa4eab403a63b9))
+
+## [1.0.1](https://github.com/erxes/erxes/compare/1.0.0...1.0.1) (2022-12-20)
+
+
+### Bug Fixes
+
+* **automations:** customFieldsData empty value check in isDiffValue ([f47a817](https://github.com/erxes/erxes/commit/f47a8179486fab38016840095d04908ff2a1baf2))
+* **command:** remove plugin-empty-template [#3668](https://github.com/erxes/erxes/issues/3668) ([e247809](https://github.com/erxes/erxes/commit/e247809fda45b979ec44cf6e09133293bc81ef1e))
+* **contacts:** fixed email, phone verification action ([1d0c7f0](https://github.com/erxes/erxes/commit/1d0c7f092645cc36e0967233cd32b111c8029925))
+* **engages:** removed invalid visitor segmentType ([e21a411](https://github.com/erxes/erxes/commit/e21a4110abe798f9783afcf845de076b2e42a330))
+* **engages:** removed invalid visitor segmentType ([f986cdb](https://github.com/erxes/erxes/commit/f986cdbb93ef85acd4e350984c6ec7ccc161f004))
+* **inbox:** Fix convert to form reloading when conversation updated ([8ecfece](https://github.com/erxes/erxes/commit/8ecfecefca5daea5aeaa432ad3579e121e107e7c))
+* **marketplace:** some styling on plugin detail ([6907000](https://github.com/erxes/erxes/commit/690700071249428851d84f926fb33f75f89dceda))
+* **navigation:** fix some height ([94fe633](https://github.com/erxes/erxes/commit/94fe6332542fa7555c81e8afe1e3bbf453e4e65e))
+* **plugins:** remove unused imports and fix ts error ([#3744](https://github.com/erxes/erxes/issues/3744)) ([00034e6](https://github.com/erxes/erxes/commit/00034e6b9f0a3a13b6760feec961d9c513b3c679))
+* **workers:** fixed large amount of data importing error ([#3786](https://github.com/erxes/erxes/issues/3786)) ([456bc7b](https://github.com/erxes/erxes/commit/456bc7baf7ec02eb2fe3ccae35ab51645f89b9e8))
+
+
+### enhancement
+
+* **cli:** improve create plugin cli and add create integration cli ([58165a5](https://github.com/erxes/erxes/commit/58165a5a407c8d429dd3e1199e3b3015d3bdd78a))
+
+
+### Features
+
+* **automations:** refactor and make triggers and actions dynamic.  ([#3721](https://github.com/erxes/erxes/issues/3721)) ([fdae34e](https://github.com/erxes/erxes/commit/fdae34eca9f9b93b577153678afd10fc68584a58))
+* **cards:** added ability to create new child card on cards ([#3905](https://github.com/erxes/erxes/issues/3905)) ([505256e](https://github.com/erxes/erxes/commit/505256ef10efeba061f830ace9f5e2235ef38cc2))
+* **cli:** added docker-compose feature in installation ([589ff93](https://github.com/erxes/erxes/commit/589ff938b09c982775957eb27efe7d57552e1486))
+* **documents:** added documents feature ([1091ae9](https://github.com/erxes/erxes/commit/1091ae959633639a6cd362e9e99aebc249c16b10))
+* **forms:** added ability to add extra fields in custom properties ([b361ece](https://github.com/erxes/erxes/commit/b361ece28768d60a2c5f90cc848e2be437ae03e9))
+* **inbox:** added ability to integrate new integration to inbox easyly ([7f19de3](https://github.com/erxes/erxes/commit/7f19de3cc7aa7b8a07448735ba4a469853285f0a)), closes [#3672](https://github.com/erxes/erxes/issues/3672)
+* **marketplace:** delete constant data in plugin detail ([346dccd](https://github.com/erxes/erxes/commit/346dccd9e8f035186d3c855c876b5ddcb77bc7b7))
+* **marketplace:** fix breadcrumb and some spacing ([abdd6ef](https://github.com/erxes/erxes/commit/abdd6ef47fde69927ba6f6e85faa19d47faf8ea1))
+* **marketplace:** fix searchbar ([#3740](https://github.com/erxes/erxes/issues/3740)) ([c5889e7](https://github.com/erxes/erxes/commit/c5889e79a7f8267b26ae452803deaf5325bc1777))
+* **marketplace:** fix some image ([b43176a](https://github.com/erxes/erxes/commit/b43176a1720d32626107ca9063ba28cca9146803))
+* **marketplace:** init ([#3703](https://github.com/erxes/erxes/issues/3703)) ([269aec1](https://github.com/erxes/erxes/commit/269aec16af2e76ab89d209f94088e5aabad80840))
+* **marketplace:** remove addons ([392b237](https://github.com/erxes/erxes/commit/392b237a62f670487cf877239748dee11de5805f))
+* **marketplace:** some fix in plugin detail ([40d651b](https://github.com/erxes/erxes/commit/40d651be34aca39e03f41b0db71c83b20a1f3111))
+* **marketplace:** update some styling in plugin detail ([321a584](https://github.com/erxes/erxes/commit/321a5847463c5e08600f6529ee7d9249903ac109))
+* **martketplace:** fix maintype ([8c8d431](https://github.com/erxes/erxes/commit/8c8d43170103d631820f97750e718eb009e06064))
+* **store:** fix service duplications ([#3729](https://github.com/erxes/erxes/issues/3729)) ([68cb4fc](https://github.com/erxes/erxes/commit/68cb4fc3aa146990c430bb4fe20733c16191b9b3))
+* **theme:** added alibity to change logo, color, background, description of login page ([c284f6e](https://github.com/erxes/erxes/commit/c284f6e30687ac8a9c7c61682c3bb9517ed3855b))
+
+
+### Performance Improvements
+
+* **forms:** add dateTime to add properties validation ([#3727](https://github.com/erxes/erxes/issues/3727)) ([33c71c3](https://github.com/erxes/erxes/commit/33c71c3c48f05d7c2486edb2f5287561a4364476))
+* **message-broker:** waiting rpc message for 10sec by default ([01715ff](https://github.com/erxes/erxes/commit/01715ffd0d33f3cf5ba5364ee926a29207601a97))
+* **product/service:** Update product edit form ([829fe3d](https://github.com/erxes/erxes/commit/829fe3d185ddae4d2b8e8908a267105b8cba7330))
+* **webbuilder:** Update webbuilder UI([#3925](https://github.com/erxes/erxes/issues/3925)) ([e848cff](https://github.com/erxes/erxes/commit/e848cff032b047d00b19737e3e1f44e4691a17d1))
+* **widget:** Add some improvement in datetime input ([ddddd6f](https://github.com/erxes/erxes/commit/ddddd6f4eff95a67d68b2560704cf26b61de061f))
+
+
+### BREAKING CHANGES
+
+* **cli:** The hot reloader dependency added in plugin-ui's webpack config. Need to enter a command yarn install-deps on every plugin-ui that you are working on to install that dependency.
+
+
+
+## [0.3.39](https://github.com/erxes/erxes/compare/0.24.2...v0.3.39) (2022-10-01)
+
+
+### Bug Fixes
+
+* **automations:** cards chooser bug  ([#3620](https://github.com/erxes/erxes/issues/3620)) ([205ac91](https://github.com/erxes/erxes/commit/205ac91a4141f01ae357e45deefc16135f10c504))
+* **automations:** fixed set-property action with customFieldsData and trackedData ([40f9e1e](https://github.com/erxes/erxes/commit/40f9e1e357d0386904ecbede7da9c14a2c6ac18c)), closes [#3611](https://github.com/erxes/erxes/issues/3611)
+* **forms:** form description cannot editable ([b76cb1a](https://github.com/erxes/erxes/commit/b76cb1a0cf230fc919ec42e84ab0daa0d3438710))
+* **inbox:** change input type of name in convertTo form ([#3572](https://github.com/erxes/erxes/issues/3572)) ([2bb7808](https://github.com/erxes/erxes/commit/2bb7808aecf448113efdce8b12c186368e058585))
+* **inbox:** segments integrationId filter ([2e85502](https://github.com/erxes/erxes/commit/2e8550211a3892caa22cb9784daca09dc59ed19e))
+* **inbox:** Some fix in mail chooser ([18960d8](https://github.com/erxes/erxes/commit/18960d82829fd3e985edf2c3d890737326ba4c51))
+* **navigation:** update more menu ([6f5e336](https://github.com/erxes/erxes/commit/6f5e336c763d839282b8a50c251e0e2c025cade5))
+
+
+### Features
+
+* **store:** update plugin detail ([#3557](https://github.com/erxes/erxes/issues/3557)) ([9b255ed](https://github.com/erxes/erxes/commit/9b255edd9a45a1608f3e09877633a320432f5072))
+
+
+### Performance Improvements
+
+* **rabbitmq:** implemented connection retry logic ([1185a1b](https://github.com/erxes/erxes/commit/1185a1b825a9231b686b9db35e2d742425db296a))
+
+## [1.0.1](https://github.com/erxes/erxes/compare/1.0.0...1.0.1) (2022-12-20)
+
+
+### Bug Fixes
+
+* **automations:** customFieldsData empty value check in isDiffValue ([f47a817](https://github.com/erxes/erxes/commit/f47a8179486fab38016840095d04908ff2a1baf2))
+* **command:** remove plugin-empty-template [#3668](https://github.com/erxes/erxes/issues/3668) ([e247809](https://github.com/erxes/erxes/commit/e247809fda45b979ec44cf6e09133293bc81ef1e))
+* **contacts:** fixed email, phone verification action ([1d0c7f0](https://github.com/erxes/erxes/commit/1d0c7f092645cc36e0967233cd32b111c8029925))
+* **engages:** removed invalid visitor segmentType ([e21a411](https://github.com/erxes/erxes/commit/e21a4110abe798f9783afcf845de076b2e42a330))
+* **engages:** removed invalid visitor segmentType ([f986cdb](https://github.com/erxes/erxes/commit/f986cdbb93ef85acd4e350984c6ec7ccc161f004))
+* **inbox:** Fix convert to form reloading when conversation updated ([8ecfece](https://github.com/erxes/erxes/commit/8ecfecefca5daea5aeaa432ad3579e121e107e7c))
+* **marketplace:** some styling on plugin detail ([6907000](https://github.com/erxes/erxes/commit/690700071249428851d84f926fb33f75f89dceda))
+* **navigation:** fix some height ([94fe633](https://github.com/erxes/erxes/commit/94fe6332542fa7555c81e8afe1e3bbf453e4e65e))
+* **plugins:** remove unused imports and fix ts error ([#3744](https://github.com/erxes/erxes/issues/3744)) ([00034e6](https://github.com/erxes/erxes/commit/00034e6b9f0a3a13b6760feec961d9c513b3c679))
+* **workers:** fixed large amount of data importing error ([#3786](https://github.com/erxes/erxes/issues/3786)) ([456bc7b](https://github.com/erxes/erxes/commit/456bc7baf7ec02eb2fe3ccae35ab51645f89b9e8))
+
+
+### enhancement
+
+* **cli:** improve create plugin cli and add create integration cli ([58165a5](https://github.com/erxes/erxes/commit/58165a5a407c8d429dd3e1199e3b3015d3bdd78a))
+
+
+### Features
+
+* **automations:** refactor and make triggers and actions dynamic.  ([#3721](https://github.com/erxes/erxes/issues/3721)) ([fdae34e](https://github.com/erxes/erxes/commit/fdae34eca9f9b93b577153678afd10fc68584a58))
+* **cards:** added ability to create new child card on cards ([#3905](https://github.com/erxes/erxes/issues/3905)) ([505256e](https://github.com/erxes/erxes/commit/505256ef10efeba061f830ace9f5e2235ef38cc2))
+* **cli:** added docker-compose feature in installation ([589ff93](https://github.com/erxes/erxes/commit/589ff938b09c982775957eb27efe7d57552e1486))
+* **documents:** added documents feature ([1091ae9](https://github.com/erxes/erxes/commit/1091ae959633639a6cd362e9e99aebc249c16b10))
+* **forms:** added ability to add extra fields in custom properties ([b361ece](https://github.com/erxes/erxes/commit/b361ece28768d60a2c5f90cc848e2be437ae03e9))
+* **inbox:** added ability to integrate new integration to inbox easyly ([7f19de3](https://github.com/erxes/erxes/commit/7f19de3cc7aa7b8a07448735ba4a469853285f0a)), closes [#3672](https://github.com/erxes/erxes/issues/3672)
+* **marketplace:** delete constant data in plugin detail ([346dccd](https://github.com/erxes/erxes/commit/346dccd9e8f035186d3c855c876b5ddcb77bc7b7))
+* **marketplace:** fix breadcrumb and some spacing ([abdd6ef](https://github.com/erxes/erxes/commit/abdd6ef47fde69927ba6f6e85faa19d47faf8ea1))
+* **marketplace:** fix searchbar ([#3740](https://github.com/erxes/erxes/issues/3740)) ([c5889e7](https://github.com/erxes/erxes/commit/c5889e79a7f8267b26ae452803deaf5325bc1777))
+* **marketplace:** fix some image ([b43176a](https://github.com/erxes/erxes/commit/b43176a1720d32626107ca9063ba28cca9146803))
+* **marketplace:** init ([#3703](https://github.com/erxes/erxes/issues/3703)) ([269aec1](https://github.com/erxes/erxes/commit/269aec16af2e76ab89d209f94088e5aabad80840))
+* **marketplace:** remove addons ([392b237](https://github.com/erxes/erxes/commit/392b237a62f670487cf877239748dee11de5805f))
+* **marketplace:** some fix in plugin detail ([40d651b](https://github.com/erxes/erxes/commit/40d651be34aca39e03f41b0db71c83b20a1f3111))
+* **marketplace:** update some styling in plugin detail ([321a584](https://github.com/erxes/erxes/commit/321a5847463c5e08600f6529ee7d9249903ac109))
+* **martketplace:** fix maintype ([8c8d431](https://github.com/erxes/erxes/commit/8c8d43170103d631820f97750e718eb009e06064))
+* **store:** fix service duplications ([#3729](https://github.com/erxes/erxes/issues/3729)) ([68cb4fc](https://github.com/erxes/erxes/commit/68cb4fc3aa146990c430bb4fe20733c16191b9b3))
+* **theme:** added alibity to change logo, color, background, description of login page ([c284f6e](https://github.com/erxes/erxes/commit/c284f6e30687ac8a9c7c61682c3bb9517ed3855b))
+
+
+### Performance Improvements
+
+* **forms:** add dateTime to add properties validation ([#3727](https://github.com/erxes/erxes/issues/3727)) ([33c71c3](https://github.com/erxes/erxes/commit/33c71c3c48f05d7c2486edb2f5287561a4364476))
+* **message-broker:** waiting rpc message for 10sec by default ([01715ff](https://github.com/erxes/erxes/commit/01715ffd0d33f3cf5ba5364ee926a29207601a97))
+* **product/service:** Update product edit form ([829fe3d](https://github.com/erxes/erxes/commit/829fe3d185ddae4d2b8e8908a267105b8cba7330))
+* **webbuilder:** Update webbuilder UI([#3925](https://github.com/erxes/erxes/issues/3925)) ([e848cff](https://github.com/erxes/erxes/commit/e848cff032b047d00b19737e3e1f44e4691a17d1))
+* **widget:** Add some improvement in datetime input ([ddddd6f](https://github.com/erxes/erxes/commit/ddddd6f4eff95a67d68b2560704cf26b61de061f))
+
+
+### BREAKING CHANGES
+
+* **cli:** The hot reloader dependency added in plugin-ui's webpack config. Need to enter a command yarn install-deps on every plugin-ui that you are working on to install that dependency.
+
+
+
+## [0.3.39](https://github.com/erxes/erxes/compare/0.24.2...v0.3.39) (2022-10-01)
+
+
+### Bug Fixes
+
+* **automations:** cards chooser bug  ([#3620](https://github.com/erxes/erxes/issues/3620)) ([205ac91](https://github.com/erxes/erxes/commit/205ac91a4141f01ae357e45deefc16135f10c504))
+* **automations:** fixed set-property action with customFieldsData and trackedData ([40f9e1e](https://github.com/erxes/erxes/commit/40f9e1e357d0386904ecbede7da9c14a2c6ac18c)), closes [#3611](https://github.com/erxes/erxes/issues/3611)
+* **forms:** form description cannot editable ([b76cb1a](https://github.com/erxes/erxes/commit/b76cb1a0cf230fc919ec42e84ab0daa0d3438710))
+* **inbox:** change input type of name in convertTo form ([#3572](https://github.com/erxes/erxes/issues/3572)) ([2bb7808](https://github.com/erxes/erxes/commit/2bb7808aecf448113efdce8b12c186368e058585))
+* **inbox:** segments integrationId filter ([2e85502](https://github.com/erxes/erxes/commit/2e8550211a3892caa22cb9784daca09dc59ed19e))
+* **inbox:** Some fix in mail chooser ([18960d8](https://github.com/erxes/erxes/commit/18960d82829fd3e985edf2c3d890737326ba4c51))
+* **navigation:** update more menu ([6f5e336](https://github.com/erxes/erxes/commit/6f5e336c763d839282b8a50c251e0e2c025cade5))
+
+
+### Features
+
+* **store:** update plugin detail ([#3557](https://github.com/erxes/erxes/issues/3557)) ([9b255ed](https://github.com/erxes/erxes/commit/9b255edd9a45a1608f3e09877633a320432f5072))
+
+
+### Performance Improvements
+
+* **rabbitmq:** implemented connection retry logic ([1185a1b](https://github.com/erxes/erxes/commit/1185a1b825a9231b686b9db35e2d742425db296a))
+
 # [1.0.0](https://github.com/erxes/erxes/compare/0.24.2...1.0.0) (2022-11-07)
 
 # [1.0.0](https://github.com/erxes/erxes/compare/0.24.2...1.0.0) (2022-11-07)

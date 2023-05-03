@@ -39,6 +39,7 @@ export interface IFieldGroup {
   parentId: string;
   isMultiple: boolean;
   isVisible: boolean;
+  alwaysOpen: boolean;
   isVisibleInDetail: boolean;
   isDefinedByErxes: boolean;
   fields: IField[];
@@ -89,7 +90,7 @@ export type FieldsGroupsQueryResponse = {
 };
 
 export type FieldsInputTypesQueryResponse = {
-  getFieldsInputTypes: { value: string; label: string }[];
+  getFieldsInputTypes: Array<{ value: string; label: string }>;
   loading: boolean;
   refetch: () => any;
 };

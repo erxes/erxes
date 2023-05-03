@@ -9,13 +9,17 @@ import SignIn from '../components/SignIn';
 import { mutations } from '../graphql';
 
 const SignInContainer = (props: IRouterProps) => {
-  const { history } = props;
+  const { history, location } = props;
 
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
     const callbackResponse = () => {
       apolloClient.resetStore();
 
-      history.push('/?signedIn=true');
+      history.push(
+        (!location.pathname.includes('sign-in') &&
+          `${location.pathname}${location.search}`) ||
+          '/?signedIn=true'
+      );
 
       window.location.reload();
     };

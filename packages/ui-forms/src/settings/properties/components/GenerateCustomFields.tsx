@@ -12,6 +12,7 @@ import { Divider, SidebarContent } from '../styles';
 import { IFieldGroup, LogicParams } from '../types';
 import { checkLogic } from '../utils';
 import GenerateField from './GenerateField';
+import { ModalTrigger } from '@erxes/ui/src';
 
 declare const navigator: any;
 
@@ -35,7 +36,6 @@ type State = {
 };
 
 class GenerateGroup extends React.Component<Props, State> {
-  s;
   constructor(props: Props) {
     super(props);
 
@@ -283,7 +283,7 @@ class GenerateGroup extends React.Component<Props, State> {
                 <GenerateField
                   field={field}
                   key={index}
-                  onValueChange={data => this.onChange(groupDataIndex, data)}
+                  onValueChange={val => this.onChange(groupDataIndex, val)}
                   defaultValue={
                     isMultiple
                       ? groupDataValue[field._id] || ''
@@ -333,7 +333,7 @@ class GenerateGroup extends React.Component<Props, State> {
     });
 
     const saveGroup = (groupData, callback) => {
-      const { customFieldsData, save } = this.props;
+      const { save } = this.props;
 
       const prevData = {};
       (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
@@ -376,11 +376,13 @@ class GenerateGroup extends React.Component<Props, State> {
             };
           }
 
+          const object = this.props.object || {};
+
           return {
             fieldId,
             operator: logic.logicOperator,
             logicValue: logic.logicValue,
-            fieldValue: this.props.object[logic.fieldId || ''],
+            fieldValue: object[logic.fieldId || ''],
             validation: allFields.find(e => e._id === fieldId)?.validation
           };
         });
@@ -418,6 +420,31 @@ class GenerateGroup extends React.Component<Props, State> {
     });
   }
 
+  modalContent = (fieldGroup: IFieldGroup) => {
+    let extraButtons = <></>;
+    if (fieldGroup.isMultiple) {
+      extraButtons = (
+        <Tip placement="top" text="Add Group Input">
+          <button onClick={this.onAddGroupInput}>
+            <Icon icon="plus-circle" />
+          </button>
+        </Tip>
+      );
+    }
+    return (
+      <Box
+        extraButtons={extraButtons}
+        title={fieldGroup.name}
+        name="showCustomFields"
+        isOpen={true}
+      >
+        {this.renderContent()}
+        {this.renderButtons()}
+        {this.renderChildGroups()}
+      </Box>
+    );
+  };
+
   render() {
     const { fieldGroup, isDetail } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
@@ -429,11 +456,35 @@ class GenerateGroup extends React.Component<Props, State> {
 
     if (fieldGroup.isMultiple) {
       extraButtons = (
-        <Tip placement="top" text="Add Group Input">
-          <button onClick={this.onAddGroupInput}>
-            <Icon icon="plus-circle" />
-          </button>
-        </Tip>
+        <>
+          {
+            <ModalTrigger
+              title={'Edit'}
+              trigger={
+                <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+              }
+              size="xl"
+              content={() => this.modalContent(fieldGroup)}
+            />
+          }
+          <Tip placement="top" text="Add Group Input">
+            <button onClick={this.onAddGroupInput}>
+              <Icon icon="plus-circle" />
+            </button>
+          </Tip>
+        </>
+      );
+    }
+    if (!fieldGroup.isMultiple) {
+      extraButtons = (
+        <ModalTrigger
+          title={'Edit'}
+          trigger={
+            <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+          }
+          size="xl"
+          content={() => this.modalContent(fieldGroup)}
+        />
       );
     }
 
@@ -442,6 +493,7 @@ class GenerateGroup extends React.Component<Props, State> {
         extraButtons={extraButtons}
         title={fieldGroup.name}
         name="showCustomFields"
+        isOpen={fieldGroup.alwaysOpen}
       >
         {this.renderContent()}
         {this.renderButtons()}

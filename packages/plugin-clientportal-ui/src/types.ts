@@ -33,8 +33,8 @@ export type PasswordVerificationConfig = {
 export interface IVerificationRequest {
   status: string;
   attachments: IAttachment[];
-  description: string;
-  verifiedBy: string;
+  description?: string;
+  verifiedBy?: string;
 }
 
 export interface IClientPortalUserDoc {
@@ -135,6 +135,7 @@ export type ClientPortalConfig = {
   googleRedirectUri?: string;
   googleClientSecret?: string;
   facebookAppId?: string;
+  erxesAppToken?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;

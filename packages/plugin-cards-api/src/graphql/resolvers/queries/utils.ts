@@ -139,6 +139,8 @@ export const generateCommonFilters = async (
     pipelineIds,
     stageId,
     parentId,
+    boardIds,
+    stageCodes,
     search,
     closeDateType,
     assignedUserIds,
@@ -371,6 +373,28 @@ export const generateCommonFilters = async (
     const stageIds = await models.Stages.find({
       pipelineId: filterPipeline,
       status: { $ne: BOARD_STATUSES.ARCHIVED }
+    }).distinct('_id');
+
+    filter.stageId = { $in: stageIds };
+  }
+
+  if (boardIds) {
+    const pipelineIds = await models.Pipelines.find({
+      boardId: { $in: boardIds },
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    }).distinct('_id');
+
+    const stageIds = await models.Stages.find({
+      pipelineId: { $in: pipelineIds },
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    }).distinct('_id');
+
+    filter.stageId = { $in: stageIds };
+  }
+
+  if (stageCodes) {
+    const stageIds = await models.Stages.find({
+      code: { $in: stageCodes }
     }).distinct('_id');
 
     filter.stageId = { $in: stageIds };

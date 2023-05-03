@@ -89,6 +89,8 @@ const commonQueryParams = `
   number: String
   branchIds: [String]
   departmentIds: [String]
+  boardIds: [String]
+  stageCodes: [String]
 `;
 
 const listQueryParams = `
@@ -141,4 +143,7 @@ export const mutations = `
   dealsWatch(_id: String, isAdd: Boolean): Deal
   dealsCopy(_id: String!, proccessId: String): Deal
   dealsArchive(stageId: String!, proccessId: String): String
+  dealsCreateProductsData(proccessId: String, dealId: String, docs: JSON): JSON
+  dealsEditProductData(proccessId: String, dealId: String, dataId: String, doc: JSON): JSON
+  dealsDeleteProductData(proccessId: String, dealId: String, dataId: String): JSON
 `;
