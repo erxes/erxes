@@ -5,6 +5,8 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IAsset } from '../../common/types';
 import { KbArticles, KbCategories, KbTopics } from '../../style';
+import { EmptyState } from '@erxes/ui/src';
+import { ContainerBox } from '../../style';
 
 type Props = {
   objects: IAsset[];
@@ -13,6 +15,7 @@ type Props = {
   loadedArticles: any[];
   save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
   closeModal: () => void;
+  knowledgeData?: any;
 };
 
 type State = {
@@ -30,6 +33,34 @@ class AssignArticles extends React.Component<Props, State> {
       topicsToShow: [],
       selectedArticleIds: []
     };
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (
+      JSON.stringify(prevProps.loadedArticles) !==
+      JSON.stringify(this.props.loadedArticles)
+    ) {
+      const { loadedArticles, knowledgeData } = this.props;
+      if (!!loadedArticles?.length && knowledgeData) {
+        const loadedArticleIds = loadedArticles.map(article => article._id);
+        let selectedArticleIds: any = [];
+        for (const category of knowledgeData) {
+          const contentIds = (category?.contents || [])
+            .map(content =>
+              loadedArticleIds.includes(content._id) ? content._id : ''
+            )
+            .filter(contentId => contentId);
+          selectedArticleIds = [...selectedArticleIds, ...contentIds];
+        }
+
+        this.setState(prev => ({
+          selectedArticleIds: [
+            ...prev.selectedArticleIds,
+            ...selectedArticleIds
+          ]
+        }));
+      }
+    }
   }
 
   save = (e: React.FormEvent) => {
@@ -57,17 +88,46 @@ class AssignArticles extends React.Component<Props, State> {
   renderCategories(topic) {
     const { categories } = topic;
     const { topicsToShow } = this.state;
+    const { knowledgeData } = this.props;
 
     if (!topicsToShow.includes(topic._id)) {
       return null;
     }
+
+    const renderCount = cat => {
+      if (!knowledgeData?.length) {
+        return null;
+      }
+
+      return (
+        <div>{`${countSelectedArticles(cat._id)}/${cat.numOfArticles}`}</div>
+      );
+    };
+
+    const countSelectedArticles = categoryId => {
+      const category = (knowledgeData || []).find(
+        cat => cat._id === categoryId
+      );
+      const { contents } = category || {};
+
+      const count = (contents || [])?.length;
+
+      return count;
+    };
 
     return categories.map(cat => {
       const onClick = () => {
         this.props.loadArticles(cat._id);
       };
 
-      return <KbCategories onClick={onClick}>{cat.title}</KbCategories>;
+      return (
+        <KbCategories key={cat._id} onClick={onClick}>
+          <ContainerBox spaceBetween>
+            <div>{cat.title}</div>
+            {renderCount(cat)}
+          </ContainerBox>
+        </KbCategories>
+      );
     });
   }
 
@@ -84,7 +144,10 @@ class AssignArticles extends React.Component<Props, State> {
 
     return kbTopics.map(topic => {
       return (
-        <KbTopics onClick={this.showTopic.bind(this, topic._id)}>
+        <KbTopics
+          key={topic._id}
+          onClick={this.showTopic.bind(this, topic._id)}
+        >
           {topic.title}
 
           {this.renderCategories(topic)}
@@ -95,6 +158,16 @@ class AssignArticles extends React.Component<Props, State> {
 
   renderLoadedArticles() {
     const { loadedArticles } = this.props;
+    const { topicsToShow } = this.state;
+
+    if (!loadedArticles?.length && !!topicsToShow?.length) {
+      return (
+        <EmptyState
+          text="There has no article in this knowledgebase category"
+          image="/images/actions/5.svg"
+        />
+      );
+    }
 
     return loadedArticles.map(article => {
       const onClick = e => {
@@ -115,11 +188,12 @@ class AssignArticles extends React.Component<Props, State> {
       const { selectedArticleIds } = this.state;
 
       return (
-        <KbArticles>
+        <KbArticles key={article._id}>
           <input
             type="checkbox"
             value={article._id}
             onClick={onClick}
+            defaultChecked={false}
             checked={selectedArticleIds.includes(article._id)}
           />
           {article.title}

@@ -44,6 +44,8 @@ const knowledgeBaseTopics = `
       categories {
         _id
         title
+        numOfArticles
+        parentCategoryId
       }
     }
   }

@@ -64,7 +64,11 @@ const ListContainer = (props: FinalProps) => {
   const solveSchedule = (scheduleId: string, status: string) => {
     solveScheduleMutation({
       variables: { _id: scheduleId, status: `${status}` }
-    });
+    })
+      .then(() => {
+        Alert.success('Successfully solved a schedule request');
+      })
+      .catch(err => Alert.error(err.message));
   };
 
   const solveShift = (shiftId: string, status: string) => {
