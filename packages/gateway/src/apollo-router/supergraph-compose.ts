@@ -40,6 +40,9 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
   }
 
   if (NODE_ENV === 'production') {
+    if (fs.existsSync(supergraphConfigPath)) {
+      return;
+    }
     fs.writeFileSync(supergraphConfigPath, yaml.stringify(config), {
       encoding: 'utf-8'
     });
