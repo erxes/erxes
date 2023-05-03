@@ -26,11 +26,13 @@ const IconSelector = (props: Props) => {
 
   return (
     <DropdownButton id="dropdown-basic-button" title="Select Icon">
-      {props.icons.map(image => (
-        <Dropdown.Item key={image} onClick={() => handleClick(image)}>
-          <img src={image} alt={image} />
-        </Dropdown.Item>
-      ))}
+      <Dropdown.Item as="div" className="row" style={{ columnCount: 3 }}>
+        {props.icons.map(icon => (
+          <Dropdown.Item key={icon} as="div" className="col">
+            <img src={icon} alt={icon} onClick={() => handleClick(icon)} />
+          </Dropdown.Item>
+        ))}
+      </Dropdown.Item>
     </DropdownButton>
   );
 };
