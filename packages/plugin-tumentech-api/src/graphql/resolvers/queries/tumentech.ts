@@ -6,6 +6,7 @@ import * as path from 'path';
 import { countByCars } from '../../../carUtils';
 import { IContext } from '../../../connectionResolver';
 import {
+  fetchSegment,
   sendClientPortalMessage,
   sendCommonMessage,
   sendCoreMessage,
@@ -135,6 +136,12 @@ const generateFilter = async (params, commonQuerySelector, subdomain) => {
     const startDate = getFullDate(now);
     const endDate = getTomorrow(now);
     filter.createdAt = { $gte: startDate, $lte: endDate };
+  }
+
+  if (params.segmentData) {
+    const segment = JSON.parse(params.segmentData);
+    const itemIds = await fetchSegment(subdomain, '', {}, segment);
+    filter._id = { $in: itemIds };
   }
 
   return filter;

@@ -193,6 +193,7 @@ const listParamsDef = `
   $tireLoadType: String
   $createdStartDate: Date
   $createdEndDate: Date
+  $segmentData: String
   ${conformityQueryFields}
 `;
 
@@ -220,6 +221,7 @@ const listParamsValue = `
   tireLoadType: $tireLoadType
   createdStartDate: $createdStartDate
   createdEndDate: $createdEndDate
+  segmentData: $segmentData
   ${conformityQueryFieldDefs}
 `;
 

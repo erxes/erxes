@@ -222,6 +222,7 @@ const generateParams = ({ queryParams }) => {
     ids: queryParams.ids,
     carCategoryId: queryParams.carCategoryId,
     segment: queryParams.segment,
+    segmentData: queryParams.segmentData,
     searchValue: queryParams.searchValue,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection

@@ -220,6 +220,7 @@ const tumentechParams = `
   page: Int
   perPage: Int
   segment: String
+  segmentData: String
   carCategoryId: String
   ids: [String]
   searchValue: String
