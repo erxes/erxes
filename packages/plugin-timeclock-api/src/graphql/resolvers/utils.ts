@@ -552,7 +552,27 @@ export const timeclockReportFinal = async (
     }))
   );
 
-  const schedulesObj = createSchedulesObj(userIds, schedules, shiftsOfSchedule);
+  const shiftsOfScheduleConfigIds = shiftsOfSchedule.map(
+    scheduleShift => scheduleShift.scheduleConfigId
+  );
+  const scheduleShiftsConfigs = await models.ScheduleConfigs.find({
+    _id: { $in: shiftsOfScheduleConfigIds }
+  });
+
+  const scheduleShiftConfigsMap: { [scheduleConfigId: string]: number } = {};
+
+  scheduleShiftsConfigs.map(
+    scheduleConfig =>
+      (scheduleShiftConfigsMap[scheduleConfig._id] =
+        scheduleConfig.lunchBreakInMins)
+  );
+
+  const schedulesObj = createSchedulesObj(
+    userIds,
+    schedules,
+    shiftsOfSchedule,
+    scheduleShiftConfigsMap
+  );
 
   userIds.forEach(async currUserId => {
     // assign team member info from teamMembersObj
@@ -590,11 +610,13 @@ export const timeclockReportFinal = async (
     let totalMinsLatePerUser = 0;
     let totalHoursOvernightPerUser = 0;
 
+    let totalBreakOfTimeclocksInHrs = 0;
+
     // calculate total break time from schedules of an user
-    const totalBreakInHours =
+    const totalBreakOfSchedulesInHrs =
       currUserSchedules.reduce(
         (partialBreakSum, userSchedule) =>
-          userSchedule.totalBreakInMins || 0 + partialBreakSum,
+          partialBreakSum + (userSchedule.totalBreakInMins || 0),
         0
       ) / 60;
 
@@ -610,7 +632,7 @@ export const timeclockReportFinal = async (
         const shiftEnd = currUserTimeclock.shiftEnd;
         if (shiftStart && shiftEnd) {
           // get time in hours
-          let totalHoursWorkedPerShift =
+          const totalHoursWorkedPerShift =
             (shiftEnd.getTime() - shiftStart.getTime()) / MMSTOHRS;
 
           // make sure shift end is later than shift start
@@ -618,8 +640,18 @@ export const timeclockReportFinal = async (
             totalRegularHoursWorkedPerUser += totalHoursWorkedPerShift;
           }
           // deduct break time from timeclock
-          if (!currUserTimeclock.deviceType?.match(/shift request/gi)) {
-            totalHoursWorkedPerShift -= totalBreakInHours;
+          if (
+            !currUserTimeclock.deviceType?.match(/shift request/gi) &&
+            currUserId in schedulesObj &&
+            shiftStart.toLocaleDateString() in schedulesObj[currUserId]
+          ) {
+            const getScheduleOfTheDay =
+              schedulesObj[currUserId][shiftStart.toLocaleDateString()];
+
+            const lunchBreakOfShiftInHrs =
+              getScheduleOfTheDay.lunchBreakInMins / 60;
+
+            totalBreakOfTimeclocksInHrs += lunchBreakOfShiftInHrs;
           }
 
           totalHoursOvernightPerUser += returnOvernightHours(
@@ -665,6 +697,8 @@ export const timeclockReportFinal = async (
         }
       });
 
+      // deduct lunch break from worked hours
+      totalRegularHoursWorkedPerUser -= totalBreakOfTimeclocksInHrs;
       // deduct overtime from worked hours
       totalRegularHoursWorkedPerUser -= totalHoursOvertimePerUser;
       totalHoursWorkedPerUser =
@@ -714,7 +748,7 @@ export const timeclockReportFinal = async (
 
     // deduct lunch breaks from total scheduled hours
     if (totalHoursScheduledPerUser) {
-      totalHoursScheduledPerUser -= totalBreakInHours;
+      totalHoursScheduledPerUser -= totalBreakOfSchedulesInHrs;
     }
 
     if (exportToXlsx) {
@@ -722,12 +756,12 @@ export const timeclockReportFinal = async (
         ...usersReport[currUserId],
         totalDaysScheduled: totalDaysScheduledPerUser,
         totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
-        totalHoursBreak: totalBreakInHours.toFixed(2),
+        totalHoursBreakScheduled: totalBreakOfSchedulesInHrs.toFixed(2),
         totalDaysWorked: totalDaysWorkedPerUser,
         totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
         totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
         totalHoursOvernight: totalHoursOvernightPerUser.toFixed(2),
-        totalHoursBreak2: totalBreakInHours.toFixed(2),
+        totalHoursBreakActual: totalBreakOfTimeclocksInHrs.toFixed(2),
         totalHoursWorked: totalHoursWorkedPerUser.toFixed(2),
         totalMinsLate: totalMinsLatePerUser.toFixed(2),
         ...userAbsenceInfo
@@ -739,7 +773,8 @@ export const timeclockReportFinal = async (
       ...usersReport[currUserId],
       totalDaysScheduled: totalDaysScheduledPerUser,
       totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
-      totalHoursBreak: totalBreakInHours.toFixed(2),
+      totalHoursBreakScheduled: totalBreakOfSchedulesInHrs.toFixed(2),
+      totalHoursBreakActual: totalBreakOfTimeclocksInHrs.toFixed(2),
       totalDaysWorked: totalDaysWorkedPerUser,
       totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
       totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),

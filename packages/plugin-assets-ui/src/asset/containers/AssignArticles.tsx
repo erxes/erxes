@@ -13,6 +13,7 @@ type Props = {
   objects: IAsset[];
   save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
   queryParams: any;
+  knowledgeData?: any;
   closeModal: () => void;
 };
 
