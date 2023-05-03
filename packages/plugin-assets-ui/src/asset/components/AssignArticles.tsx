@@ -100,7 +100,7 @@ class AssignArticles extends React.Component<Props, State> {
       }
 
       return (
-        <div>{`${countSelectedArticles(cat._id)}/${cat.countArticles}`}</div>
+        <div>{`${countSelectedArticles(cat._id)}/${cat.numOfArticles}`}</div>
       );
     };
 

@@ -44,7 +44,7 @@ const knowledgeBaseTopics = `
       categories {
         _id
         title
-        countArticles
+        numOfArticles
         parentCategoryId
       }
     }
