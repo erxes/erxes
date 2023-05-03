@@ -477,6 +477,18 @@ a:hover {
   max-width: 360px;
 }
 
+.call-popover {
+  right: 15px;
+  max-width: 360px;
+  position: fixed !important;
+  bottom: 45px;
+  top: unset !important;
+}
+
+.call-popover .arrow {
+  display: none !important;
+}
+
 /* select  */
 
 .Select-control {
