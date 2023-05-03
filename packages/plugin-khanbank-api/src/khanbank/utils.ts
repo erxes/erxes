@@ -19,7 +19,7 @@ export const getAuthHeaders = async (args: {
     };
   }
 
-  const apiUrl = `${process.env.KHANBANK_API_URL}/${process.env.KHANBANK_API_VERSION}`;
+  const apiUrl = 'https://api.khanbank.com/v1';
 
   try {
     const response = await sendRequest({

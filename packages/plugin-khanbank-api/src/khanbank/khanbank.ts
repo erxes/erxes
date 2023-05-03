@@ -26,7 +26,7 @@ class Khanbank {
     this.consumerKey = config.consumerKey;
     this.secretKey = config.secretKey;
 
-    this.apiUrl = `${process.env.KHANBANK_API_URL}/${process.env.KHANBANK_API_VERSION}`;
+    this.apiUrl = 'https://api.khanbank.com/v1';
 
     this.accounts = new AccountsApi(this);
     this.statements = new StatementsApi(this);

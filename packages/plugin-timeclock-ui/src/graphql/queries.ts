@@ -228,7 +228,9 @@ const timeclockReports = `
 
               totalHoursOvertime
               totalHoursOvernight
-              totalHoursBreak
+            
+              totalHoursBreakScheduled
+              totalHoursBreakActual
             
               totalMinsScheduledThisMonth
               totalDaysScheduled

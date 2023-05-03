@@ -22,17 +22,14 @@ export class TransferApi extends BaseApi {
    * @return {object} - Returns a response object
    */
   async domestic(args: TransferParams) {
-    const { password } = args;
-
-    const data: any = args;
-
-    data.tranPassword = Buffer.from(password).toString('base64');
-
     try {
       const res = await this.request({
         method: 'POST',
         path: 'transfer/domestic',
-        data
+        data: {
+          ...args,
+          tranPassword: args.password
+        }
       });
 
       return res;
@@ -64,17 +61,14 @@ export class TransferApi extends BaseApi {
       toBank: string;
     }
   ) {
-    const { password } = args;
-
-    const data: any = args;
-
-    data.tranPassword = Buffer.from(password).toString('base64');
-
     try {
       const res = await this.request({
         method: 'POST',
         path: 'transfer/interbank',
-        data
+        data: {
+          ...args,
+          tranPassword: args.password
+        }
       });
 
       return res;

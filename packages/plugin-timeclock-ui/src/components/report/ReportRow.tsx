@@ -34,12 +34,12 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
           <td>{userReport.user.details?.position || '-'}</td>
           <td>{userReport.totalDaysScheduled}</td>
           <td>{userReport.totalHoursScheduled}</td>
-          <td>{userReport.totalHoursBreak}</td>
+          <td>{userReport.totalHoursBreakScheduled}</td>
           <td>{userReport.totalDaysWorked}</td>
           <td>{userReport.totalRegularHoursWorked}</td>
           <td>{userReport.totalHoursOvertime}</td>
           <td>{userReport.totalHoursOvernight}</td>
-          <td>{userReport.totalHoursBreak}</td>
+          <td>{userReport.totalHoursBreakActual}</td>
           <td>{userReport.totalHoursWorked}</td>
           <td>{userReport.totalMinsLate}</td>
           <td>{userReport.absenceInfo?.totalHoursShiftRequest}</td>

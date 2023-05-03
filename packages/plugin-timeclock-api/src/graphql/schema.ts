@@ -144,7 +144,9 @@ export const types = `
     totalDaysScheduled: Int
     totalMinsScheduledToday: Int
     totalMinsScheduledThisMonth: Int
-    totalHoursBreak: Float
+    
+    totalHoursBreakScheduled: Float
+    totalHoursBreakActual: Float
 
     totalHoursOvertime: Float
     totalHoursOvernight: Float
