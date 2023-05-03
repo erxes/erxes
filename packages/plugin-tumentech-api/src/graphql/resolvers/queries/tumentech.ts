@@ -274,8 +274,8 @@ const carQueries = {
 
   carCategories: async (
     _root,
-    { parentId, searchValue },
-    { commonQuerySelector, models }
+    { parentId, searchValue, onlyParent },
+    { commonQuerySelector, models }: IContext
   ) => {
     const filter: any = commonQuerySelector;
 
@@ -285,6 +285,12 @@ const carQueries = {
 
     if (searchValue) {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    if (onlyParent) {
+      return models.CarCategories.find({ ...filter, parentId: '' }).sort({
+        order: 1
+      });
     }
 
     return models.CarCategories.find(filter).sort({ order: 1 });
