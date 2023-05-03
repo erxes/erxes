@@ -195,6 +195,7 @@ export interface ICarCategory {
   createdAt: Date;
   carCount: number;
   isRoot: boolean;
+  icon?: string;
 }
 
 export type CarCategoriesQueryResponse = {

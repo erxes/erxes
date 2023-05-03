@@ -1,5 +1,7 @@
-import { checkPermission } from '@erxes/api-utils/src';
+import { checkPermission, getEnv } from '@erxes/api-utils/src';
 import { paginate } from 'erxes-api-utils';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { countByCars } from '../../../carUtils';
 import { IContext } from '../../../connectionResolver';
@@ -322,6 +324,20 @@ const carQueries = {
 
   cpCarCategoryDetail: async (_root, { _id }, { models }) => {
     return models.CarCategories.findOne({ _id });
+  },
+
+  tumentechCategoryIcons: async (_root, _param, { subdomain }: IContext) => {
+    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      : 'http://localhost:4000';
+
+    const iconsPath = path.join(__dirname, '../../../public/images');
+    const images = fs
+      .readdirSync(iconsPath)
+      .filter(file => file.endsWith('.jpg') || file.endsWith('.png'))
+      .map(file => `${DOMAIN}/pl:tumentech/static/images/${file}`);
+
+    return images;
   }
 };
 

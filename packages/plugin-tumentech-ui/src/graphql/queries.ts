@@ -60,6 +60,7 @@ const carCategoryFields = `
   parentId
   description
   collapseContent
+  icon
 
   isRoot
 `;
@@ -790,6 +791,12 @@ query CustomerAccountsList($page: Int, $perPage: Int) {
 }
 `;
 
+const categoryIcons = `
+query tumentechCategoryIcons {
+  tumentechCategoryIcons
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -828,5 +835,7 @@ export default {
 
   topupList,
   customerAccountQry,
-  accountsQuery
+  accountsQuery,
+
+  categoryIcons
 };

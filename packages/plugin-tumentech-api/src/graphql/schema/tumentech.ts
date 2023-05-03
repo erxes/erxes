@@ -47,6 +47,7 @@ type CarCategory {
   collapseContent: [String]
   code: String!
   order: String!
+  icon: String
 
   isRoot: Boolean
   carCount: Int
@@ -166,6 +167,7 @@ type CarCategoryProducts {
   carCategoryId: String
   productCategoryIds: [String]
   productCategories: JSON
+
 }
 
 type ProductCarCategories {
@@ -268,6 +270,8 @@ export const queries = `
 
   
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
+
+  tumentechCategoryIcons: [String]
 `;
 
 const tumentechCommonFields = `
@@ -360,6 +364,7 @@ const carCategoryParams = `
   description: String,
   parentId: String,
   collapseContent: [String]
+  icon: String
 `;
 
 const participantParams = `
