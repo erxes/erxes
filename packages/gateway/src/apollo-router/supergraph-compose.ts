@@ -38,15 +38,22 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
       }
     };
   }
-  fs.writeFileSync(superGraphConfigNext, yaml.stringify(config), {
-    encoding: 'utf-8'
-  });
 
-  if (
-    !fs.existsSync(supergraphConfigPath) ||
-    !isSameFile(supergraphConfigPath, superGraphConfigNext)
-  ) {
-    execSync(`cp ${superGraphConfigNext}  ${supergraphConfigPath}`);
+  if (NODE_ENV === 'production') {
+    fs.writeFileSync(supergraphConfigPath, yaml.stringify(config), {
+      encoding: 'utf-8'
+    });
+  } else {
+    fs.writeFileSync(superGraphConfigNext, yaml.stringify(config), {
+      encoding: 'utf-8'
+    });
+
+    if (
+      !fs.existsSync(supergraphConfigPath) ||
+      !isSameFile(supergraphConfigPath, superGraphConfigNext)
+    ) {
+      execSync(`cp ${superGraphConfigNext}  ${supergraphConfigPath}`);
+    }
   }
 };
 
