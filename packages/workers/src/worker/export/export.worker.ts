@@ -57,7 +57,7 @@ export const uploadFileAWS = async (
   excelHeader: any,
   docs: any,
   type: string
-): Promise<{ file: string; rowIndex: number }> => {
+): Promise<{ file: string; rowIndex: number; error: string }> => {
   const { AWS_BUCKET } = await getFileUploadConfigs();
 
   // initialize s3
@@ -88,7 +88,7 @@ export const uploadFileAWS = async (
 
   const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`;
 
-  const response: any = await new Promise((resolve, reject) => {
+  const response: any = await new Promise(resolve => {
     s3.upload(
       {
         ContentType:
@@ -100,17 +100,17 @@ export const uploadFileAWS = async (
       },
       (err, res) => {
         if (err) {
-          return reject(err);
+          return resolve({ error: err.message });
         }
-
         return resolve(res);
       }
     );
   });
 
   const file = response.Location;
+  const error = response.error;
 
-  return { file, rowIndex };
+  return { file, rowIndex, error };
 };
 
 connect()
@@ -154,11 +154,21 @@ connect()
       result = await uploadFileAWS(excelHeader, docs, type);
     }
 
-    const finalResponse = {
+    let finalResponse = {
       exportLink: result.file,
       total: result.rowIndex - 1,
-      status: 'success'
+      status: 'success',
+      errorMsg: ''
     };
+
+    if (result.error) {
+      finalResponse = {
+        exportLink: result.file,
+        total: result.rowIndex - 1,
+        status: 'failed',
+        errorMsg: `Error occurred during uploading AWS "${result.error}"`
+      };
+    }
 
     await models.ExportHistory.updateOne(
       { _id: exportHistoryId },
