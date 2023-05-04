@@ -96,10 +96,10 @@ export const BOARD_TYPES = {
   DEAL: 'deal',
   TICKET: 'ticket',
   PURCHASE: 'purchase',
+  COST: 'cost',
   TASK: 'task',
   GROWTH_HACK: 'growthHack',
-  COST: 'cost',
-  ALL: ['deal', 'ticket', 'task', 'growthHack', 'purchase', 'cost']
+  ALL: ['deal', 'ticket', 'purchase', 'cost', 'task', 'growthHack']
 };
 
 export const NOTIFICATION_TYPES = {
