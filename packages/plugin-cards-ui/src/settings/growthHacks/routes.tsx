@@ -27,6 +27,7 @@ const pipelineTemplates = ({ location }) => {
 const routes = () => (
   <React.Fragment>
     <Route path="/settings/boards/growthHack" component={GrowthHackHome} />
+
     <Route
       path="/settings/boards/growthHackTemplate"
       component={pipelineTemplates}

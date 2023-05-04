@@ -112,7 +112,6 @@ export const itemsAdd = async (
 ) => {
   const { collection } = getCollection(models, type);
 
-  console.log(typeof doc, 'doc');
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = user && [user._id];
 

@@ -13,7 +13,9 @@ import {
   PRODUCT_CATEGORY_STATUSES,
   PRODUCT_SUPPLY
 } from './constants';
+
 import { field, schemaWrapper } from './utils';
+
 export interface IProduct {
   name: string;
   categoryId?: string;
@@ -34,6 +36,7 @@ export interface IProduct {
   minimiumCount?: number;
   vendorId?: string;
   vendorCode?: string;
+
   mergedIds?: string[];
 }
 
@@ -43,6 +46,7 @@ export interface IProductDocument extends IProduct, Document {
   // vendor?: ICompany;
   vendor?: any;
 }
+
 export interface IProductCategory {
   name: string;
   code: string;
@@ -221,3 +225,4 @@ export const dealSchema = new Schema({
   productsData: field({ type: [productDataSchema], label: 'Products' }),
   paymentsData: field({ type: Object, optional: true, label: 'Payments' })
 });
+1;

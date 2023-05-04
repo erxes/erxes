@@ -2,7 +2,6 @@ import * as compose from 'lodash.flowright';
 
 import {
   BoardsQueryResponse,
-  CostsQueryResponse,
   StagesQueryResponse
 } from '@erxes/ui-cards/src/boards/types';
 
@@ -15,10 +14,7 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import {
-  queries,
-  mutations
-} from '@erxes/ui-cards/src/settings/boards/graphql';
+import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
 import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
@@ -38,9 +34,7 @@ type FinalProps = {
   stagesQuery: StagesQueryResponse;
   boardsQuery: BoardsQueryResponse;
   departmentsQuery: DepartmentsQueryResponse;
-  costsQuery: CostsQueryResponse;
   tagsQuery: TagsQueryResponse;
-  costAddMutation: any;
 } & Props;
 
 class PipelineFormContainer extends React.Component<FinalProps> {
@@ -48,19 +42,16 @@ class PipelineFormContainer extends React.Component<FinalProps> {
     const {
       stagesQuery,
       boardsQuery,
-      costsQuery,
       departmentsQuery,
       boardId,
       renderButton,
       options,
-      tagsQuery,
-      costAddMutation
+      tagsQuery
     } = this.props;
 
     if (
       (stagesQuery && stagesQuery.loading) ||
       (boardsQuery && boardsQuery.loading) ||
-      (costsQuery && costsQuery.loading) ||
       (departmentsQuery && departmentsQuery.loading) ||
       (tagsQuery && tagsQuery.loading)
     ) {
@@ -69,7 +60,6 @@ class PipelineFormContainer extends React.Component<FinalProps> {
 
     const stages = stagesQuery ? stagesQuery.stages : [];
     const boards = boardsQuery.boards || [];
-    const costs = costsQuery.costs || [];
     const departments = departmentsQuery.departments || [];
     const tags = tagsQuery.tags || [];
 
@@ -77,24 +67,15 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       ...this.props,
       stages,
       boards,
-      costs,
       departments,
       boardId,
       renderButton,
       tags
     };
 
-    const addCost = (name: string, callback: any) => {
-      costAddMutation({
-        variables: { name }
-      }).then(() => {
-        costsQuery.refetch();
-      });
-    };
-
     const Form = options ? options.PipelineForm : PipelineForm;
 
-    return <Form {...extendedProps} addCost={addCost} />;
+    return <Form {...extendedProps} />;
   }
 }
 
@@ -106,9 +87,7 @@ export default withProps<Props>(
         variables: { type: `cards:${props.type}` }
       })
     }),
-    graphql<Props, any, any>(gql(mutations.costAdd), {
-      name: 'costAddMutation'
-    }),
+
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
       {
@@ -122,9 +101,6 @@ export default withProps<Props>(
     ),
     graphql<{}, DepartmentsQueryResponse>(gql(teamQueries.departments), {
       name: 'departmentsQuery'
-    }),
-    graphql<{}, CostsQueryResponse>(gql(queries.costs), {
-      name: 'costsQuery'
     }),
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: 'boardsQuery',

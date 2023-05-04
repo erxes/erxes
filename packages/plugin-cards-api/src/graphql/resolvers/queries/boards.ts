@@ -16,7 +16,6 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { getContentTypeDetail } from '../../../utils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Purchase } from '.';
 
 export interface IIntervals {
   startTime: string;

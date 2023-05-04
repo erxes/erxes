@@ -180,4 +180,3 @@ class ListItemRow extends React.PureComponent<Props> {
 }
 
 export default ListItemRow;
-1;

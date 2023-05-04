@@ -21,7 +21,7 @@ import Select from 'react-select-plus';
 import { SelectMemberStyled } from '@erxes/ui-cards/src/settings/boards/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Stages from './Stages';
-import { FlexContent, FlexItem, Add } from '@erxes/ui/src/layout/styles';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { ITag } from '@erxes/ui-tags/src/types';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { colors } from '@erxes/ui/src/styles';
@@ -40,13 +40,10 @@ type Props = {
   renderExtraFields?: (formProps: IFormProps) => JSX.Element;
   extraFields?: any;
   departments: IDepartment[];
-  addCost: any;
 };
 
 type State = {
-  costRows: string[];
   stages: IStage[];
-  showModal: boolean;
   visibility: string;
   selectedMemberIds: string[];
   backgroundColor: string;
@@ -63,10 +60,10 @@ type State = {
 class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
+
     const { pipeline, stages } = this.props;
+
     this.state = {
-      showModal: false,
-      costRows: [],
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
@@ -83,20 +80,8 @@ class PipelineForm extends React.Component<Props, State> {
     };
   }
 
-  handleShowModal = () => this.setState({ showModal: true });
-  handleCloseModal = () => this.setState({ showModal: false });
-
-  addCost = () => {
-    this.props.addCost('sadsa', this.handleShowModal);
-    this.setState({ showModal: false });
-  };
-
   onChangeStages = stages => {
     this.setState({ stages });
-  };
-
-  handleAddRow = () => {
-    this.setState({ costRows: [...this.state.costRows, ''] });
   };
 
   onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
@@ -492,6 +477,7 @@ class PipelineForm extends React.Component<Props, State> {
 
   render() {
     const { show, closeModal } = this.props;
+
     if (!show) {
       return null;
     }
@@ -504,7 +490,7 @@ class PipelineForm extends React.Component<Props, State> {
         animation={false}
         size="xl"
       >
-        <Form renderContent={this.renderContent}></Form>
+        <Form renderContent={this.renderContent} />
       </Modal>
     );
   }

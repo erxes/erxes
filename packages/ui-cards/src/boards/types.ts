@@ -95,17 +95,6 @@ export interface IBoard {
   name: string;
   pipelines?: IPipeline[];
 }
-export interface ICost {
-  _id: string;
-  code: string;
-  name: string;
-}
-
-export interface IPipelineCost {
-  _id: string;
-  code: string;
-  name: string;
-}
 
 export interface IItemParams {
   _id?: string;
@@ -160,11 +149,6 @@ export interface IStage {
   order: number;
   code?: string;
   age?: number;
-}
-
-export interface ICost {
-  _id: string;
-  name: string;
 }
 
 export interface IConversionStage extends IStage {
@@ -490,3 +474,4 @@ export type ITimeData = {
   assignedUserIds?: string[];
   stageId?: string;
 };
+1;
