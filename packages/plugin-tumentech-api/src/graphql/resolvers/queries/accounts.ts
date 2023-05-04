@@ -287,28 +287,8 @@ const queries = {
 
       const customer = customersWithPhone[0];
 
-      const purchaseHistory = await models.PurchaseHistories.findOne({
-        cpUserId: cpUser.userId,
-        driverId: customer._id
-      }).lean();
-
-      if (!purchaseHistory) {
-        return {
-          error: 'must purchase first',
-          purchase: {
-            driver: { ...customer, primaryPhone: null, phones: [] },
-            car
-          }
-        };
-      }
-
       return { success: 'driver found', foundDriver: customer, foundCar: car };
     }
-
-    const pHistory = await models.PurchaseHistories.findOne({
-      cpUserId: cpUser.userId,
-      phone: value
-    });
 
     const possibleCustomer = await sendContactsMessage({
       subdomain,
@@ -347,16 +327,6 @@ const queries = {
 
     if (possibleCarIds.length) {
       foundCar = await models.Cars.findOne({ _id: possibleCarIds[0] }).lean();
-    }
-
-    if (!pHistory) {
-      return {
-        error: 'must purchase first',
-        purchase: {
-          driverId: { ...possibleCustomer, primaryPhone: null, phones: [] },
-          car: foundCar
-        }
-      };
     }
 
     return { success: 'driver found', foundDriver: possibleCustomer, foundCar };

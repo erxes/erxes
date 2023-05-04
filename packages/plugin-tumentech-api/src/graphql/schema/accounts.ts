@@ -27,9 +27,6 @@ type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
   type SearchResult {
     error: String
     success: String
-
-    purchase: JSON
-
     foundDriver: Customer
     foundCar: Car
   }

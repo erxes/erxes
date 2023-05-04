@@ -19,6 +19,7 @@ export const purchaseSchema = new Schema(
   },
   { _id: false }
 );
+
 export const customerAccountSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
