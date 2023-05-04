@@ -393,9 +393,13 @@ export const generateCommonFilters = async (
   }
 
   if (stageCodes) {
-    const stageIds = await models.Stages.find({
-      code: { $in: stageCodes }
-    }).distinct('_id');
+    const filterStages: any = { code: { $in: stageCodes } };
+
+    if (!!boardIds?.length && filter?.stageId?.$in) {
+      filterStages._id = { $in: filter?.stageId?.$in };
+    }
+
+    const stageIds = await models.Stages.find(filterStages).distinct('_id');
 
     filter.stageId = { $in: stageIds };
   }
