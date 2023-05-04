@@ -186,19 +186,6 @@ const ExpensesForm = ({ costsQueryData, _id }) => {
               )
             }
           />
-          <button
-            onClick={() =>
-              changeElement(
-                index,
-                element.type,
-                element.name,
-                element.expenseId,
-                element.price
-              )
-            }
-          >
-            Change Element
-          </button>
           <button onClick={() => deleteElement(index)}>Delete</button>
         </div>
       ))}
