@@ -74,16 +74,6 @@ const commonPipelineParams = `
   tagId: $tagId
 `;
 
-const commonCostParamsDef = `
-  $name: String!,
-  $code: String!,
-`;
-
-const commonCosteParams = `
-  name: $name,
-  code: $code,
-`;
-
 const pipelineAdd = `
   mutation pipelinesAdd(${commonPipelineParamsDef}) {
     pipelinesAdd(${commonPipelineParams}) {

@@ -1,22 +1,17 @@
 export const types = ({ contacts }) => `
-
   ${SubmissionFilter}
-
   ${
     contacts
       ? `
         extend type Customer @key(fields: "_id") {
           _id: String! @external
         }
-
         extend type Company @key(fields: "_id") {
           _id: String! @external
         }
         `
       : ''
   }
-
-
   type Callout {
     title: String,
     body: String,
@@ -24,7 +19,6 @@ export const types = ({ contacts }) => `
     featuredImage: String,
     skip: Boolean
   }
-
   type Form @key(fields: "_id") {
     _id: String!
     title: String
@@ -36,11 +30,9 @@ export const types = ({ contacts }) => `
     createdUser: User
     createdDate: Date
     numberOfPages: Int
-
     googleMapApiKey: String
     fields: [Field]
   }
-
   type FormSubmission {
     _id: String!
     customerId: String
@@ -51,12 +43,10 @@ export const types = ({ contacts }) => `
     value: JSON
     submittedAt: Date
   }
-
   type Submission @key(fields: "_id") {
     _id: String!
     contentTypeId: String
     customerId: String
-
     ${
       contacts
         ? `
@@ -68,7 +58,6 @@ export const types = ({ contacts }) => `
     customFieldsData:JSON
     submissions: [FormSubmission]
   }
-
   input FormSubmissionInput {
     _id: String!
     value: JSON
@@ -117,7 +106,6 @@ export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
   formSubmissionsSave(${commonFormSubmissionFields}): Boolean
-
   formSubmissionsRemove(customerId: String!, contentTypeId: String!): JSON
   formSubmissionsEdit(contentTypeId: String!, customerId: String!, submissions: [FormSubmissionInput]): Submission
 `;

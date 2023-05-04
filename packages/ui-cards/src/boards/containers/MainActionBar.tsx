@@ -221,7 +221,7 @@ class Main extends React.Component<FinalProps> {
     };
 
     const Component = this.props.component;
-    console.log('COmp', Component);
+
     return <Component {...extendedProps} />;
   }
 }
