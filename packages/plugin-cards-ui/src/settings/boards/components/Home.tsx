@@ -52,6 +52,4 @@ class Home extends React.Component<Props, {}> {
   }
 }
 
-// export default CostForm;
-
 export default Home;

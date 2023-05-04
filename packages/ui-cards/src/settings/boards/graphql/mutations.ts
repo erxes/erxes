@@ -74,6 +74,16 @@ const commonPipelineParams = `
   tagId: $tagId
 `;
 
+const commonCostParamsDef = `
+  $name: String!,
+  $code: String!,
+`;
+
+const commonCosteParams = `
+  name: $name,
+  code: $code,
+`;
+
 const pipelineAdd = `
   mutation pipelinesAdd(${commonPipelineParamsDef}) {
     pipelinesAdd(${commonPipelineParams}) {
@@ -114,22 +124,18 @@ const pipelinesUpdateOrder = `
   }
 `;
 
-const costRemove = `
-  mutation costRemove($_id: String!) {
-    costRemove(_id: $_id)
-  }
-`;
-
 const costAdd = `
-mutation costAdd($name: String, $code: String) {
-  costAdd(name: $name, code: $code) 
-}
+  mutation costAdd($costObjects: [CostObjectInput]) {
+    costAdd(costObjects: $costObjects) {
+      name,
+      code
+    }
+  }
 `;
 
 export default {
   boardAdd,
   costAdd,
-  costRemove,
   boardEdit,
   boardRemove,
   pipelineAdd,

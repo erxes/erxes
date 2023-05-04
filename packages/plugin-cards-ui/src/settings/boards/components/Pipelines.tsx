@@ -23,7 +23,7 @@ import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
-import CostForm from './Cost';
+import CostForm from './CostForm';
 
 type Props = {
   type: string;

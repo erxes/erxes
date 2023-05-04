@@ -10,7 +10,6 @@ import {
   TIME_TRACK_TYPES
 } from './constants';
 import { field, schemaWrapper } from './utils';
-import { costSchema } from './purchase';
 
 interface ICommonFields {
   userId?: string;

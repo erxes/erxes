@@ -63,6 +63,7 @@ export const purchaseFields = `
   products
   productsData
   paymentsData
+  costsData
   amount
 `;
 
@@ -202,6 +203,12 @@ const checkDiscount = `
 
 const productCategories = queries.productCategories;
 
+const costs = `
+  query costs {
+	  costs 
+  }
+`;
+
 export default {
   purchases,
   purchasesTotalCount,
@@ -211,5 +218,6 @@ export default {
   purchasesTotalAmounts,
   archivedPurchases,
   archivedPurchasesCount,
-  checkDiscount
+  checkDiscount,
+  costs
 };

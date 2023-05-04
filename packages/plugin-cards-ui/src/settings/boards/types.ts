@@ -45,9 +45,6 @@ export type CostMutationResponse = {
   name?: string;
   code?: string;
 };
-// export type CostsQueryResponse = {
-//   costs: ICost[];
-// } & QueryResponse;
 
 export type ArchivePipelineMutationResponse = {
   archivePipelineMutation: (params: {

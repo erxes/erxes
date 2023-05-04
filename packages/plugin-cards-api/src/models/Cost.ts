@@ -13,7 +13,7 @@ export const loadCostClass = (models: IModels, subdomain: string) => {
   class Cost {
     public static async createCost(doc: ICost, createdUserId: string) {
       return models.Costs.create({
-        doc,
+        ...doc,
         createdDate: new Date(),
         createdUserId
       });

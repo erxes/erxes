@@ -60,6 +60,18 @@ export interface IPaymentsData {
     amount?: number;
   };
 }
+export interface ICostsData {
+  _id: string;
+  expenseId: string;
+  code: string;
+  name: string;
+}
+
+export interface ICost {
+  _id: string;
+  name: string;
+  code: string;
+}
 
 export type PurchasesTotalAmountsQueryResponse = {
   purchasesTotalAmounts: IPurchaseTotalAmount[];
@@ -69,11 +81,13 @@ export type PurchasesTotalAmountsQueryResponse = {
 export interface IPurchase extends IItem {
   products?: any;
   paymentsData?: IPaymentsData;
+  costsData?: ICostsData[];
 }
 
 export interface IPurchaseParams extends IItemParams {
   productsData?: IProductData[];
   paymentsData?: IPaymentsData;
+  costsData?: ICostsData[];
 }
 
 export type PurchasesQueryResponse = {

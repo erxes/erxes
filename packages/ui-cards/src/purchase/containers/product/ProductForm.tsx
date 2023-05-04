@@ -4,11 +4,17 @@ import ProductForm from '../../components/product/ProductForm';
 import React from 'react';
 import { AppConsumer } from 'coreui/appContext';
 import { graphql } from 'react-apollo';
-import { IProduct } from '@erxes/ui-products/src/types';
+import { CostQueryResponse, IProduct } from '@erxes/ui-products/src/types';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '../../graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
-import { IPurchase, IPaymentsData, IProductData } from '../../types';
+import {
+  IPurchase,
+  IPaymentsData,
+  IProductData,
+  ICostsData,
+  ICost
+} from '../../types';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -21,6 +27,7 @@ type Props = {
   closeModal: () => void;
   purchaseQuery: IPurchase;
   productCategoriesQuery: ProductCategoriesQueryResponse;
+  costsQuery: CostQueryResponse;
 };
 
 class ProductFormContainer extends React.Component<Props> {
@@ -38,8 +45,18 @@ class ProductFormContainer extends React.Component<Props> {
 
           const categories = productCategoriesQuery.productCategories || [];
 
+          const { costsQuery } = this.props;
+
+          const costsQueryData = costsQuery.costs || [];
+
+          const { purchaseQuery } = this.props;
+
+          const _id = purchaseQuery._id || [];
+
           const extendedProps = {
             ...this.props,
+            costsQueryData,
+            _id,
             categories: categories,
             loading: productCategoriesQuery.loading,
             uom: configs.dealUOM || [],
@@ -52,7 +69,6 @@ class ProductFormContainer extends React.Component<Props> {
     );
   }
 }
-
 export default withProps<Props>(
   compose(
     graphql<{}, ProductCategoriesQueryResponse, {}>(
@@ -60,6 +76,9 @@ export default withProps<Props>(
       {
         name: 'productCategoriesQuery'
       }
-    )
+    ),
+    graphql<{}, CostQueryResponse, {}>(gql(queries.costs), {
+      name: 'costsQuery'
+    })
   )(ProductFormContainer)
 );

@@ -219,21 +219,16 @@ export const purchaseproductDataSchema = new Schema(
   { _id: false }
 );
 
-export const costSchema = new Schema({
-  _id: field({ pkey: true }),
-  code: field({ type: String, esType: 'keyword', label: 'Code' }),
-  name: field({ type: String, esType: 'keyword', label: 'Name' })
-});
-
 export const costDataSchema = new Schema({
   _id: field({ pkey: true }),
   expenseId: field({ type: String, esType: 'keyword', label: 'Code' }),
-  cost: field({ type: Number, label: 'Cost' })
+  price: field({ type: String, label: 'Price' }),
+  name: field({ type: String, label: 'Name' }),
+  type: field({ type: String, label: 'Type' })
 });
 
 export const purchaseSchema = new Schema({
   ...commonItemFieldsSchema,
-
   productsData: field({ type: [purchaseproductDataSchema], label: 'Products' }),
   paymentsData: field({ type: Object, optional: true, label: 'Payments' }),
   costsData: field({ type: [costDataSchema], optianal: true, label: 'Costs' })

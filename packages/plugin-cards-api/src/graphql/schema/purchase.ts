@@ -30,10 +30,10 @@ export const types = ({ contacts, tags }) => `
     }
 
     ${tags ? `tags: [Tag]` : ''}
-
     products: JSON
     productsData: JSON
     paymentsData: JSON
+    costsData: JSON
     ${commonTypes}
   }
 
@@ -41,6 +41,12 @@ export const types = ({ contacts, tags }) => `
     amount: Float
     name: String
   }
+
+  type Cost {
+    name: String
+    code: String
+  }
+
 
   type PurchaseTotalForType {
     _id: String
@@ -52,7 +58,7 @@ export const types = ({ contacts, tags }) => `
     productId : String
     quantity: Int
   }
-  input costObjectInput {
+  input CostObjectInput {
     name: String
     code: String
   }
@@ -61,6 +67,7 @@ export const types = ({ contacts, tags }) => `
 const purchaseMutationParams = `
   paymentsData: JSON,
   productsData: JSON,
+  costsData:JSON,
 `;
 
 const commonQueryParams = `
@@ -118,22 +125,6 @@ const archivedPurchasesParams = `
   endDate: String
  `;
 
-const fieldsGroupsCommonFields = `
-  name: String
-  contentType: String
-  order: Int
-  description: String
-  parentId: String
-  code: String
-  isMultiple: Boolean
-  isVisible: Boolean
-  isVisibleInDetail: Boolean
-  config: JSON
-
-  logicAction: String
-  logics: [LogicInput]
-`;
-
 export const queries = `
  purchaseDetail(_id: String!): Purchase
  purchasecheckDiscount(_id: String!,products:[ProductField]):JSON
@@ -151,7 +142,7 @@ export const queries = `
    ${commonQueryParams}
    ${conformityQueryFields}
  ): [TotalForType]
-  costs: [JSON]
+  costs:[JSON]
   costTotalCount:JSON
   costDetail(_id: String!): JSON
 
@@ -168,7 +159,7 @@ export const mutations = `
  purchasesCreateProductsData(proccessId: String, purchaseId: String, docs: JSON): JSON
  purchasesEditProductData(proccessId: String, purchaseId: String, dataId: String, doc: JSON): JSON
  purchasesDeleteProductData(proccessId: String, purchaseId: String, dataId: String): JSON
- costAdd(code: String, name: String): JSON
+ costAdd(costObjects: [CostObjectInput]): [Cost]
  costRemove(_id: String!): JSON
  costEdit(_id: String!, ${commonCostParamsDef}): JSON
 

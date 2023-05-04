@@ -10,11 +10,13 @@ import { purchaseFields } from './queries';
 const purchaseMutationVariables = `
   $productsData: JSON,
   $paymentsData: JSON,
+  $costsData: JSON,
 `;
 
 const purchaseMutationParams = `
   productsData: $productsData,
   paymentsData: $paymentsData,
+  costsData: $costsData,
 `;
 
 const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;

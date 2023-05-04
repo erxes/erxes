@@ -54,10 +54,11 @@ const purchaseMutations = {
   // add cost
   async costAdd(
     _root,
-    doc: ICost,
-    { user, docModifier, models, subdomain }: IContext
+    doc: { costObjects: ICost[] },
+    { user, models, subdomain }: IContext
   ) {
-    return models.Costs.createCost(docModifier(doc));
+    return models.Costs.insertMany(doc.costObjects);
+    // return models.Costs.createCost(docModifier(doc));
   },
 
   //edit cost
@@ -170,7 +171,6 @@ const purchaseMutations = {
 
     if (purchase.productsData) {
       const productsData = purchase.productsData;
-
       const stage = await models.Stages.getStage(doc.destinationStageId);
       const prevStage = await models.Stages.getStage(doc.sourceStageId);
 
@@ -247,7 +247,7 @@ const purchaseMutations = {
       proccessId,
       'purchase',
       user,
-      ['productsData', 'paymentsData'],
+      ['productsData', 'paymentsData', 'costsData'],
       models.Purchase.createPurchase
     );
   },

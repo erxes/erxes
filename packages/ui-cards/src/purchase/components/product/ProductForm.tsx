@@ -6,7 +6,13 @@ import {
   ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
-import { IPurchase, IPaymentsData, IProductData } from '../../types';
+import {
+  IPurchase,
+  IPaymentsData,
+  IProductData,
+  ICostsData,
+  ICost
+} from '../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -17,6 +23,8 @@ import { IProductCategory } from '@erxes/ui-products/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import PaymentForm from './PaymentForm';
+import ExpensesForm from './ExpensesForm';
+import LastExpensesForm from './LastExpensesForm';
 import ProductCategoryChooser from '@erxes/ui-products/src/components/ProductCategoryChooser';
 import ProductItem from '../../containers/product/ProductItem';
 import ProductTotal from './ProductTotal';
@@ -43,7 +51,6 @@ const ApplyVatWrapper = styled.div`
   > div {
     flex: inherit;
   }
-
   input {
     width: 100px;
   }
@@ -61,6 +68,8 @@ type Props = {
   currencies: string[];
   currentProduct?: string;
   purchaseQuery: IPurchase;
+  _id: string;
+  costsQueryData: ICost[];
   categories: IProductCategory[];
   loading: boolean;
 };
@@ -81,7 +90,6 @@ type State = {
 class ProductForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-
     this.state = {
       total: {},
       discount: {},
@@ -613,10 +621,10 @@ class ProductForm extends React.Component<Props, State> {
 
   renderTabContent() {
     const { total, tax, discount, currentTab, advancedView } = this.state;
+    const { _id, costsQueryData } = this.props;
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
-
       return (
         <PaymentForm
           total={total}
@@ -627,6 +635,14 @@ class ProductForm extends React.Component<Props, State> {
           changePayData={this.state.changePayData}
         />
       );
+    }
+
+    if (currentTab === 'expenses') {
+      return <ExpensesForm costsQueryData={costsQueryData} _id={_id} />;
+    }
+
+    if (currentTab === 'lastExpenses') {
+      return <LastExpensesForm />;
     }
 
     const avStyle = { display: advancedView ? 'inherit' : 'none' };
@@ -692,7 +708,6 @@ class ProductForm extends React.Component<Props, State> {
 
   render() {
     const { advancedView, currentTab } = this.state;
-
     return (
       <>
         <Tabs grayBorder={true} full={true}>
@@ -710,8 +725,21 @@ class ProductForm extends React.Component<Props, State> {
             <Icon icon="atm-card" />
             {__('Payments')}
           </TabTitle>
+          <TabTitle
+            className={currentTab === 'expenses' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'expenses')}
+          >
+            <Icon icon="dollar-sign" />
+            {__('Expenses')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'lastExpenses' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'lastExpenses')}
+          >
+            <Icon icon="bill" />
+            {__('LastExpenses')}
+          </TabTitle>
         </Tabs>
-
         {this.renderTabContent()}
 
         <ModalFooter>
