@@ -28,7 +28,7 @@ type State = {
   callFrom: any;
 };
 
-class Contact extends React.Component<Props, State> {
+class KeyPad extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -85,7 +85,17 @@ class Contact extends React.Component<Props, State> {
         <div className="number" onClick={() => this.handNumPad(9)}>
           9
         </div>
-        <div className="symbols">+ ✳ #</div>
+        <div className="symbols">
+          <div className="plus" onClick={() => this.handNumPad('+')}>
+            +
+          </div>
+          <div className="star" onClick={() => this.handNumPad('*')}>
+            ✳
+          </div>
+          <div className="hashtag" onClick={() => this.handNumPad('#')}>
+            #
+          </div>
+        </div>
         <div className="number" onClick={() => this.handNumPad(0)}>
           0
         </div>
@@ -186,4 +196,4 @@ class Contact extends React.Component<Props, State> {
   }
 }
 
-export default Contact;
+export default KeyPad;

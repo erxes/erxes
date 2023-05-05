@@ -184,3 +184,9 @@ export const ourPhone = [
     label: '+976 8888 7777'
   }
 ];
+
+export const caller = {
+  name: 'B. Bayartogtokh',
+  phone: '(+976) 8913 4400',
+  place: 'Ulaanbaatar Mongolia'
+};

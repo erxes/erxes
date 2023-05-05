@@ -4,7 +4,8 @@ module.exports = {
   scope: 'calls',
   exposes: {
     './routes': './src/routes.tsx',
-    './nav': './src/containers/Widget.tsx',
+    './call': './src/containers/Widget.tsx',
+    './incomin-call': './src/containers/IncomingCall.tsx',
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -18,7 +19,14 @@ module.exports = {
       icon: "icon-outgoing-call",
       location: "topNavigation",
       scope: "calls",
-      component: "./nav",
+      component: "./call",
+    },
+    {
+      text: "Incoming calls",
+      icon: "icon-outgoing-call",
+      location: "topNavigation",
+      scope: "calls",
+      component: "./incomin-call",
     }
   ]
 };

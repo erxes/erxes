@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import AssignBox from '../components/assignBox/AssignBox';
+import AssignBox from '../components/AssignBox';
 import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   AssignMutationResponse,
