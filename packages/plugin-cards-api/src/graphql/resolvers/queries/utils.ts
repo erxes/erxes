@@ -401,7 +401,7 @@ export const generateCommonFilters = async (
   if (stageCodes) {
     const filterStages: any = { code: { $in: stageCodes } };
 
-    if (!!boardIds?.length && filter?.stageId?.$in) {
+    if (filter?.stageId?.$in) {
       filterStages._id = { $in: filter?.stageId?.$in };
     }
 
