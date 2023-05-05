@@ -9,6 +9,7 @@ export interface IExportHistory {
   columnsConfig: string[];
   segmentData: string[];
   name?: string;
+  errorMsg?: string;
 }
 
 export interface IExportHistoryDocument extends IExportHistory, Document {
@@ -29,6 +30,10 @@ export const exportHistorySchema = new Schema({
     type: String,
     default: 'inProcess',
     label: 'Status'
+  }),
+  errorMsg: field({
+    type: String,
+    label: 'Error Msgs'
   }),
   total: field({ type: Number, label: 'Total attempts' }),
   name: field({ type: String, label: 'Export name' })

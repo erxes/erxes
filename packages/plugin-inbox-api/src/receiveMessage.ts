@@ -110,9 +110,16 @@ export const receiveRpcMessage = async (subdomain, data) => {
       });
     }
 
-    const assignedUserId = user ? user._id : null;
+    let assignedUserId = user ? user._id : null;
 
     if (conversationId) {
+      if (!assignedUserId) {
+        const conversation = await Conversations.findOne({
+          _id: conversationId
+        });
+        assignedUserId = conversation?.assignedUserId || null;
+      }
+
       await Conversations.updateConversation(conversationId, {
         content,
         assignedUserId,
