@@ -15,6 +15,7 @@ export const playWait = async (models: IModels, subdomain: string) => {
     const automation = await models.Automations.findOne({
       _id: exec.automationId
     }).lean();
+
     if (!automation) {
       continue;
     }
@@ -35,7 +36,7 @@ export const playWait = async (models: IModels, subdomain: string) => {
     if (
       !exec.startWaitingDate ||
       !currentAction.config ||
-      currentAction.config.value
+      !currentAction.config.value
     ) {
       continue;
     }
@@ -59,7 +60,7 @@ export const playWait = async (models: IModels, subdomain: string) => {
       subdomain,
       exec.triggerType,
       exec,
-      await getActionsMap(automation),
+      await getActionsMap(automation.actions || []),
       currentAction.nextActionId
     );
   }
