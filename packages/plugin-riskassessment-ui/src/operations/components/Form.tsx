@@ -38,7 +38,7 @@ class Form extends React.Component<Props, State> {
     return { ...values, ...operation };
   }
 
-  renderForm(formProps: IFormProps) {
+  renderForm(formProps: generateDocs) {
     const { operation } = this.state;
     const { renderButton, closeModal } = this.props;
 
