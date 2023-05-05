@@ -8,6 +8,7 @@ export const types = `
     user: User
     exportLink: String
     name: String
+    errorMsg: String
   }
 
   type ExportHistoryList {
