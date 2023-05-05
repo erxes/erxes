@@ -55,6 +55,14 @@ class HistoryRow extends React.Component<Props> {
         return <TextInfo textStyle="warning"> In Process </TextInfo>;
       }
 
+      if (value === 'failed') {
+        return (
+          <Tip placement="bottom" text={history.errorMsg}>
+            <TextInfo textStyle="danger"> Failed </TextInfo>
+          </Tip>
+        );
+      }
+
       return <TextInfo textStyle="success"> Done </TextInfo>;
     };
 

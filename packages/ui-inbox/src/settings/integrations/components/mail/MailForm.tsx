@@ -604,9 +604,7 @@ class MailForm extends React.Component<Props, State> {
         att.url = readFile(att.url);
       }
 
-      this.setState(prevState => ({
-        attachments: [...prevState.attachments, ...attachments]
-      }));
+      this.setState({ attachments });
     };
 
     return (
