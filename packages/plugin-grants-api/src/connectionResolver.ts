@@ -10,7 +10,7 @@ import {
 
 export interface IModels {
   Requests: IRequestsModel;
-  Response: IResponsesModel;
+  Responses: IResponsesModel;
 }
 
 export interface IContext extends IMainContext {
@@ -30,7 +30,7 @@ export const loadClasses = (
     'grant_requests',
     loadRequestsClass(models, subdomain)
   );
-  models.Response = db.model<IGrantResponseDocument, IResponsesModel>(
+  models.Responses = db.model<IGrantResponseDocument, IResponsesModel>(
     'grant_responses',
     loadResponsesClass(models, subdomain)
   );

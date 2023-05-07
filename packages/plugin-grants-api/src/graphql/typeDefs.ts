@@ -13,7 +13,7 @@ const typeDefs = async serviceDiscovery => {
 
     extend type User @key(fields: "_id") {
       _id: String! @external
-      submitStatus:String
+      grantResponse:String
     }
 
     enum CacheControlScope {

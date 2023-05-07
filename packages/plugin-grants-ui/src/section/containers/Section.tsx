@@ -5,19 +5,22 @@ import gql from 'graphql-tag';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { queries } from '../graphql';
 import { RequestQueryResponse } from '../../common/section/type';
-import { Spinner } from '@erxes/ui/src';
+import { Spinner, withCurrentUser } from '@erxes/ui/src';
 
 import SectionComponent from '../components/Section';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   history: any;
   queryParams: any;
   mainType: string;
   mainTypeId: string;
+  object: any;
 };
 
 type FinalProps = {
   requestQuery: RequestQueryResponse;
+  currentUser: IUser;
 } & Props;
 
 class Section extends React.Component<FinalProps> {
@@ -26,14 +29,17 @@ class Section extends React.Component<FinalProps> {
   }
 
   render() {
-    const { requestQuery } = this.props;
+    const { requestQuery, currentUser, mainType, mainTypeId } = this.props;
     if (requestQuery?.loading) {
       return <Spinner />;
     }
 
     const updatedProps = {
       ...this.props,
-      request: requestQuery.grantRequest || {}
+      cardType: mainType,
+      cardId: mainTypeId,
+      request: requestQuery.grantRequest || {},
+      currentUser
     };
 
     return <SectionComponent {...updatedProps} />;
@@ -49,5 +55,5 @@ export default withProps<Props>(
         variables: { cardType: mainType, cardId: mainTypeId }
       })
     })
-  )(Section)
+  )(withCurrentUser(Section))
 );

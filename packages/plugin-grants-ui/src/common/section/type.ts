@@ -5,8 +5,10 @@ export type IGrantRequest = {
   cardId: string;
   cardType: string;
   userIds: string[];
-  users: IUser[];
+  requesterId: string;
+  users: { grantResponse: string } & IUser[];
   action: string;
+  params: string;
 };
 
 export type RequestQueryResponse = {

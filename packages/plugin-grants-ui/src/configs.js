@@ -15,7 +15,7 @@ module.exports = {
     {
       text: 'Grants',
       url: '/grants/requests',
-      icon: 'icon-file-question-alt',
+      icon: 'icon-followers',
       location: 'mainNavigation'
     }
   ],
@@ -23,21 +23,24 @@ module.exports = {
     {
       text: 'grantsSection',
       component: './cardSideBarSection',
-      scope: 'grants'
+      scope: 'grants',
+      withDetail: true
     }
   ],
   ticketRightSidebarSection: [
     {
       text: 'grantsSection',
       component: './cardSideBarSection',
-      scope: 'grants'
+      scope: 'grants',
+      withDetail: true
     }
   ],
   taskRightSidebarSection: [
     {
       text: 'grantsSection',
       component: './cardSideBarSection',
-      scope: 'grants'
+      scope: 'grants',
+      withDetail: true
     }
   ]
 };

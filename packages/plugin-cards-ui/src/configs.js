@@ -10,7 +10,8 @@ module.exports = {
     './segmentForm': './src/segmentForm.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx',
     './automation': './src/automations/automation.tsx',
-    './contactDetailRightSidebar': './src/RightSidebar.tsx'
+    './contactDetailRightSidebar': './src/RightSidebar.tsx',
+    './grantAction': './src/grantAction.tsx'
   },
   routes: {
     url: 'http://localhost:3003/remoteEntry.js',
@@ -22,6 +23,7 @@ module.exports = {
   activityLog: './activityLog',
   automation: './automation',
   contactDetailRightSidebar: './contactDetailRightSidebar',
+  grantAction: './grantAction',
   menus: [
     {
       text: 'Sales Pipeline',

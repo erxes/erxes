@@ -2,7 +2,11 @@ import { IContext } from '../../../connectionResolver';
 
 const GrantRequestQueries = {
   async grantRequest(_root, args, { models }: IContext) {
-    return;
+    try {
+      return await models.Requests.getGrantRequest(args);
+    } catch (e) {
+      return null;
+    }
   },
   grantRequests(_root, args, {}: IContext) {
     return [];

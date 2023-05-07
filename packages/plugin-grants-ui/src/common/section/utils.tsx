@@ -1,56 +1,77 @@
-import { SelectWithSearch } from '@erxes/ui/src';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src';
 import React from 'react';
 import { queries } from '../../section/graphql';
+import { withProps } from '@erxes/ui/src/utils/core';
+import * as compose from 'lodash.flowright';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import Select from 'react-select-plus';
 
-export function SelectActions({
-  label,
-  name,
-  queryParams,
-  initialValue,
-  multi,
-  ignoreIds,
-  onSelect,
-  filterParams
-}: {
-  queryParams?: IQueryParams;
+type Props = {
   label: string;
-  onSelect: (value: string[] | string, name: string) => void;
-  multi?: boolean;
+  onSelect: (value: string[] | string, name: string, scope: string) => void;
   initialValue?: string | string[];
   name: string;
-  ignoreIds?: string[];
-  filterParams?: {
-    branchIds?: string[];
-    departmentIds?: string[];
-    operationIds?: string[];
-  };
-}) {
-  function generetaOption(
-    array: { label: string; action: string }[] = []
-  ): IOption[] {
-    let list: any[] = [];
+};
 
-    list = array.map(item => ({ value: item.action, label: item.label }));
-
-    if (ignoreIds) {
-      list = list.filter(item => !ignoreIds.includes(item.value));
-    }
-
-    return list;
+class SelectActionsComponent extends React.Component<
+  { grantActionsQuery: any } & Props
+> {
+  constructor(props) {
+    super(props);
   }
 
-  return (
-    <SelectWithSearch
-      label={label}
-      queryName="getGrantRequestActions"
-      name={name}
-      initialValue={initialValue}
-      generateOptions={generetaOption}
-      onSelect={onSelect}
-      customQuery={queries.grantActions}
-      filterParams={filterParams}
-      multi={multi}
-    />
-  );
+  render() {
+    const {
+      label,
+      initialValue,
+      name,
+      onSelect,
+      grantActionsQuery
+    } = this.props;
+
+    const { loading, getGrantRequestActions } = grantActionsQuery;
+
+    const list = getGrantRequestActions || [];
+
+    const handleSelect = option => {
+      const value = option?.value || '';
+      const scope = list.find(item => item.action === value)?.scope || '';
+
+      onSelect(value, name, scope);
+    };
+
+    return (
+      <Select
+        placeholder={__(label)}
+        name={name}
+        multi={false}
+        onChange={handleSelect}
+        value={initialValue}
+        isLoading={loading}
+        options={list.map(item => ({
+          value: item.action,
+          label: item.label
+        }))}
+      />
+    );
+  }
 }
+
+export const SelectActions = withProps<Props>(
+  compose(
+    graphql<Props>(gql(queries.grantActions), {
+      name: 'grantActionsQuery'
+      // options:({})
+    })
+  )(SelectActionsComponent)
+);
+
+export const refetchQueries = params => {
+  return [
+    {
+      query: gql(queries.grantRequest),
+      variables: { ...params }
+    }
+  ];
+};

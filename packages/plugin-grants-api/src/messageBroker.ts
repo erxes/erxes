@@ -64,6 +64,17 @@ export const sendKbMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendNotificationsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'notifications',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }
