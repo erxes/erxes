@@ -72,8 +72,7 @@ class IncomingCall extends React.Component<Props, State> {
   };
 
   endCall = () => {
-    this.setState({ haveIncomingCall: false });
-    this.setState({ showHistory: true });
+    this.setState({ haveIncomingCall: false, showHistory: true });
   };
 
   renderFooter = () => {
@@ -138,16 +137,17 @@ class IncomingCall extends React.Component<Props, State> {
       showHistory
     } = this.state;
 
-    const noteOnClick = () => {
-      this.onTabClick('Notes');
-    };
-
-    const tagsOnClick = () => {
-      this.onTabClick('Tags');
-    };
-
-    const assignOnClick = () => {
-      this.onTabClick('Assign');
+    const onTabClick = tab => {
+      if (tab === 'Notes') {
+        this.onTabClick('Notes');
+      }
+      if (tab === 'Tags') {
+        this.onTabClick('Tags');
+      }
+      if (tab === 'Assign') {
+        this.onTabClick('Assign');
+      }
+      this.setState({ shrink: true });
     };
 
     const popoverNotification = (
@@ -182,18 +182,7 @@ class IncomingCall extends React.Component<Props, State> {
                 <CallTab
                   key={tab}
                   className={currentTab === tab ? 'active' : ''}
-                  onClick={() => {
-                    if (tab === 'Notes') {
-                      noteOnClick();
-                    }
-                    if (tab === 'Tags') {
-                      tagsOnClick();
-                    }
-                    if (tab === 'Assign') {
-                      assignOnClick();
-                    }
-                    this.setState({ shrink: true });
-                  }}
+                  onClick={() => onTabClick(tab)}
                 >
                   {__(tab)}
                   <ActionNumber>1</ActionNumber>
