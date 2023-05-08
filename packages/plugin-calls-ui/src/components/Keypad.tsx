@@ -161,7 +161,7 @@ class KeyPad extends React.Component<Props, State> {
         {this.renderKeyPad()}
         <p>Calling from your own phone number</p>
         <Select
-          placeholder={__('Choose status')}
+          placeholder={__('Choose phone number')}
           value={callFrom}
           onChange={onStatusChange}
           clearable={false}
