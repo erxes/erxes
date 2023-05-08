@@ -1,8 +1,9 @@
 import * as xlsxPopulate from 'xlsx-populate';
 import * as mongoose from 'mongoose';
 import * as moment from 'moment';
+import * as fs from 'fs';
 import { connect } from '../utils';
-import { createAWS } from '../../data/utils';
+import { createAWS, uploadsFolderPath } from '../../data/utils';
 import messageBroker, { getFileUploadConfigs } from '../../messageBroker';
 import { generateModels, IModels } from '../../connectionResolvers';
 
@@ -51,38 +52,45 @@ export const getConfig = async (
 };
 
 /*
+ * Save binary data to local
+ */
+export const uploadFileLocal = async (
+  workbook: any,
+  rowIndex: any,
+  type: string
+): Promise<{ file: string; rowIndex: number; error: string }> => {
+  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`;
+
+  const excelData = await generateXlsx(workbook);
+
+  let error = '';
+
+  try {
+    await fs.promises.writeFile(
+      `${uploadsFolderPath}/${fileName}.xlsx`,
+      excelData
+    );
+  } catch (e) {
+    error = e.message;
+  }
+
+  const file = `${fileName}.xlsx`;
+
+  return { file, rowIndex, error };
+};
+
+/*
  * Save binary data to amazon s3
  */
 export const uploadFileAWS = async (
-  excelHeader: any,
-  docs: any,
+  workbook: any,
+  rowIndex: any,
   type: string
 ): Promise<{ file: string; rowIndex: number; error: string }> => {
   const { AWS_BUCKET } = await getFileUploadConfigs();
 
   // initialize s3
   const s3 = await createAWS();
-
-  const { workbook, sheet } = await createXlsFile();
-
-  for (let i = 1; i <= excelHeader.length; i++) {
-    sheet.cell(1, i).value(excelHeader[i - 1]);
-  }
-
-  let rowIndex = 2;
-
-  for (const doc of docs) {
-    let columnIndex = 0;
-
-    for (const header of excelHeader) {
-      const value = doc[header];
-
-      sheet.cell(rowIndex, columnIndex + 1).value(value || '-');
-      columnIndex++;
-    }
-
-    rowIndex++;
-  }
 
   const excelData = await generateXlsx(workbook);
 
@@ -150,14 +158,40 @@ connect()
 
     let result = {} as any;
 
+    const { workbook, sheet } = await createXlsFile();
+
+    for (let i = 1; i <= excelHeader.length; i++) {
+      sheet.cell(1, i).value(excelHeader[i - 1]);
+    }
+
+    let rowIndex = 2;
+
+    for (const doc of docs) {
+      let columnIndex = 0;
+
+      for (const header of excelHeader) {
+        const value = doc[header];
+
+        sheet.cell(rowIndex, columnIndex + 1).value(value || '-');
+        columnIndex++;
+      }
+
+      rowIndex++;
+    }
+
     if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      result = await uploadFileAWS(excelHeader, docs, type);
+      result = await uploadFileAWS(workbook, rowIndex, type);
+    }
+
+    if (UPLOAD_SERVICE_TYPE === 'local') {
+      result = await uploadFileLocal(workbook, rowIndex, type);
     }
 
     let finalResponse = {
       exportLink: result.file,
       total: result.rowIndex - 1,
       status: 'success',
+      uploadType: UPLOAD_SERVICE_TYPE,
       errorMsg: ''
     };
 
@@ -166,7 +200,8 @@ connect()
         exportLink: result.file,
         total: result.rowIndex - 1,
         status: 'failed',
-        errorMsg: `Error occurred during uploading AWS "${result.error}"`
+        uploadType: UPLOAD_SERVICE_TYPE,
+        errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`
       };
     }
 
