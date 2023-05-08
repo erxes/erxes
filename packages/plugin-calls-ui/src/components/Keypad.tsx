@@ -12,7 +12,7 @@ import {
   Keypad,
   CountryContainer
 } from '../styles';
-import { countryNumbers, ourPhone } from '../constants';
+import { countryNumbers, ourPhone, numbers, symbols } from '../constants';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 
@@ -58,43 +58,21 @@ class KeyPad extends React.Component<Props, State> {
   renderKeyPad = () => {
     return (
       <Keypad>
-        <div className="number" onClick={() => this.handNumPad(1)}>
-          1
-        </div>
-        <div className="number" onClick={() => this.handNumPad(2)}>
-          2
-        </div>
-        <div className="number" onClick={() => this.handNumPad(3)}>
-          3
-        </div>
-        <div className="number" onClick={() => this.handNumPad(4)}>
-          4
-        </div>
-        <div className="number" onClick={() => this.handNumPad(5)}>
-          5
-        </div>
-        <div className="number" onClick={() => this.handNumPad(6)}>
-          6
-        </div>
-        <div className="number" onClick={() => this.handNumPad(7)}>
-          7
-        </div>
-        <div className="number" onClick={() => this.handNumPad(8)}>
-          8
-        </div>
-        <div className="number" onClick={() => this.handNumPad(9)}>
-          9
-        </div>
+        {numbers.map(n => (
+          <div className="number" key={n} onClick={() => this.handNumPad(n)}>
+            {n}
+          </div>
+        ))}
         <div className="symbols">
-          <div className="plus" onClick={() => this.handNumPad('+')}>
-            +
-          </div>
-          <div className="star" onClick={() => this.handNumPad('*')}>
-            ✳
-          </div>
-          <div className="hashtag" onClick={() => this.handNumPad('#')}>
-            #
-          </div>
+          {symbols.map(s => (
+            <div
+              key={s.class}
+              className={s.class}
+              onClick={() => this.handNumPad(s.symbol)}
+            >
+              {s.toShow || s.symbol}
+            </div>
+          ))}
         </div>
         <div className="number" onClick={() => this.handNumPad(0)}>
           0

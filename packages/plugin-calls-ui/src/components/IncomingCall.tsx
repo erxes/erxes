@@ -18,7 +18,7 @@ import {
   CallTabsContainer,
   CallTabContent
 } from '../styles';
-import { all, caller } from '../constants';
+import { all, caller, callActionButtons, inCallTabs } from '../constants';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Button from '@erxes/ui/src/components/Button';
@@ -76,6 +76,59 @@ class IncomingCall extends React.Component<Props, State> {
     this.setState({ showHistory: true });
   };
 
+  renderFooter = () => {
+    const { currentTab, shrink } = this.state;
+
+    if (!shrink) {
+      return (
+        <InCallFooter>
+          <Button btnStyle="link">{__('Add or call')}</Button>
+          <CallAction onClick={this.endCall} isDecline={true}>
+            <Icon icon="phone-slash" />
+          </CallAction>
+          <Button btnStyle="link">{__('Transfer call')}</Button>
+        </InCallFooter>
+      );
+    }
+
+    return (
+      <>
+        <CallTabContent
+          tab="Notes"
+          show={currentTab === 'Notes' ? true : false}
+        >
+          <FormControl componentClass="textarea" placeholder="Send a note..." />
+          <Button btnStyle="success">{__('Send')}</Button>
+        </CallTabContent>
+        <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
+          <Tagger type="" />
+        </CallTabContent>
+        <CallTabContent
+          tab="Assign"
+          show={currentTab === 'Assign' ? true : false}
+        >
+          <AssignBox targets={[]} event="onClick" afterSave={this.afterSave} />
+        </CallTabContent>
+      </>
+    );
+  };
+
+  renderCallerInfo = () => {
+    const { shrink } = this.state;
+
+    if (!shrink) {
+      return (
+        <>
+          <b>{caller.name}</b>
+          <PhoneNumber shrink={shrink}>{caller.phone}</PhoneNumber>
+          <p>{caller.place}</p>
+        </>
+      );
+    }
+
+    return <PhoneNumber shrink={shrink}>{caller.phone}</PhoneNumber>;
+  };
+
   render() {
     const {
       currentTab,
@@ -104,24 +157,14 @@ class IncomingCall extends React.Component<Props, State> {
             <p>
               {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
             </p>
-            <div>
-              {!shrink && <b>{caller.name}</b>}
-              <PhoneNumber shrink={shrink}>{caller.phone}</PhoneNumber>
-              {!shrink && <p>{caller.place}</p>}
-            </div>
+            <div>{this.renderCallerInfo()}</div>
             <Actions>
-              <CallAction shrink={shrink}>
-                <Icon icon="phone-times" />
-                {!shrink && __('Mute')}
-              </CallAction>
-              <CallAction shrink={shrink}>
-                <Icon icon="pause-1" />
-                {!shrink && __('Pause')}
-              </CallAction>
-              <CallAction shrink={shrink}>
-                <Icon icon="play-circle" />
-                {!shrink && __('Record')}
-              </CallAction>
+              {callActionButtons.map(action => (
+                <CallAction key={action.text} shrink={shrink}>
+                  <Icon icon={action.icon} />
+                  {!shrink && __(action.text)}
+                </CallAction>
+              ))}
               {shrink && (
                 <CallAction
                   shrink={shrink}
@@ -135,77 +178,30 @@ class IncomingCall extends React.Component<Props, State> {
           </CallInfo>
           <ContactItem>
             <CallTabsContainer full={true}>
-              <CallTab
-                className={currentTab === 'Notes' ? 'active' : ''}
-                onClick={() => {
-                  noteOnClick();
-                  this.setState({ shrink: true });
-                }}
-              >
-                {__('Notes')}
-                <ActionNumber>1</ActionNumber>
-              </CallTab>
-              <CallTab
-                className={currentTab === 'Tags' ? 'active' : ''}
-                onClick={() => {
-                  tagsOnClick();
-                  this.setState({ shrink: true });
-                }}
-              >
-                {__('Tags')}
-                <ActionNumber>1</ActionNumber>
-              </CallTab>
-              <CallTab
-                className={currentTab === 'Assign' ? 'active' : ''}
-                onClick={() => {
-                  assignOnClick();
-                  this.setState({ shrink: true });
-                }}
-              >
-                {__('Assign')}
-                <ActionNumber>1</ActionNumber>
-              </CallTab>
+              {inCallTabs.map(tab => (
+                <CallTab
+                  key={tab}
+                  className={currentTab === tab ? 'active' : ''}
+                  onClick={() => {
+                    if (tab === 'Notes') {
+                      noteOnClick();
+                    }
+                    if (tab === 'Tags') {
+                      tagsOnClick();
+                    }
+                    if (tab === 'Assign') {
+                      assignOnClick();
+                    }
+                    this.setState({ shrink: true });
+                  }}
+                >
+                  {__(tab)}
+                  <ActionNumber>1</ActionNumber>
+                </CallTab>
+              ))}
             </CallTabsContainer>
           </ContactItem>
-          {!shrink && (
-            <InCallFooter>
-              <Button btnStyle="link">{__('Add or call')}</Button>
-              <CallAction onClick={this.endCall} isDecline={true}>
-                <Icon icon="phone-slash" />
-              </CallAction>
-              <Button btnStyle="link">{__('Transfer call')}</Button>
-            </InCallFooter>
-          )}
-          {shrink && (
-            <>
-              <CallTabContent
-                tab="Notes"
-                show={currentTab === 'Notes' ? true : false}
-              >
-                <FormControl
-                  componentClass="textarea"
-                  placeholder="Send a note..."
-                />
-                <Button btnStyle="success">{__('Send')}</Button>
-              </CallTabContent>
-              <CallTabContent
-                tab="Tags"
-                show={currentTab === 'Tags' ? true : false}
-              >
-                <Tagger type="" />
-              </CallTabContent>
-              <CallTabContent
-                tab="Assign"
-                show={currentTab === 'Assign' ? true : false}
-              >
-                <AssignBox
-                  targets={[]}
-                  event="onClick"
-                  afterSave={this.afterSave}
-                />
-              </CallTabContent>
-            </>
-          )}
+          {this.renderFooter()}
         </InCall>
       </Popover>
     );
@@ -232,7 +228,6 @@ class IncomingCall extends React.Component<Props, State> {
               onClick={() => {
                 this.setState({ status: 'accepted' });
                 this.startTimer();
-                console.log('ss', this.state.status);
               }}
             >
               <Icon icon="check" size={13} />
