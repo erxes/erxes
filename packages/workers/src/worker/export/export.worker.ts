@@ -63,13 +63,18 @@ export const uploadFileLocal = async (
 
   const excelData = await generateXlsx(workbook);
 
-  await fs.promises.writeFile(
-    `${uploadsFolderPath}/${fileName}.xlsx`,
-    excelData
-  );
+  let error = '';
+
+  try {
+    await fs.promises.writeFile(
+      `${uploadsFolderPath}/${fileName}.xlsx`,
+      excelData
+    );
+  } catch (e) {
+    error = e.message;
+  }
 
   const file = `${fileName}.xlsx`;
-  const error = '';
 
   return { file, rowIndex, error };
 };
@@ -186,6 +191,7 @@ connect()
       exportLink: result.file,
       total: result.rowIndex - 1,
       status: 'success',
+      uploadType: UPLOAD_SERVICE_TYPE,
       errorMsg: ''
     };
 
@@ -194,7 +200,8 @@ connect()
         exportLink: result.file,
         total: result.rowIndex - 1,
         status: 'failed',
-        errorMsg: `Error occurred during uploading AWS "${result.error}"`
+        uploadType: UPLOAD_SERVICE_TYPE,
+        errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`
       };
     }
 
