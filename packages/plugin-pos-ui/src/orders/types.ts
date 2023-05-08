@@ -38,12 +38,15 @@ export type IOrder = {
   };
   origin?: string;
   syncedErkhet: boolean;
+  convertDealId: string;
 };
 
 export type IOrderDet = {
   syncErkhetInfo: string;
   putResponses: any[];
   deliveryInfo: any;
+  deal: any;
+  dealLink?: string;
 } & IOrder;
 
 export type OrdersQueryResponse = {

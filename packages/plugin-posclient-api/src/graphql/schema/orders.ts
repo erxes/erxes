@@ -23,10 +23,38 @@ const paymentInputDefs = `
   registerNumber: String
 `;
 
+const orderTypeFields = `
+  ${commonFields}
+  ${orderFields}
+  ${paymentInputDefs}
+  paidAmounts: [PaidAmount]
+
+  paidDate: Date
+  dueDate: Date
+  modifiedAt: Date
+  totalAmount: Float
+  finalAmount: Float
+  shouldPrintEbarimt: Boolean
+  printedEbarimt: Boolean
+  billId: String
+  oldBillId: String
+  type: String
+  branchId: String
+  deliveryInfo: JSON
+  origin: String
+  customer: PosCustomer
+  customerType: String,
+  items: [PosOrderItem]
+  user: PosUser
+  putResponses: [PosPutResponse]
+
+  slotCode: String
+`;
+
 const addEditParams = `
   items: [OrderItemInput],
-  totalAmount: Float!,
-  type: String!,
+  totalAmount: Float,
+  type: String,
   branchId: String,
   customerId: String,
   customerType: String,
@@ -34,7 +62,8 @@ const addEditParams = `
   billType: String,
   registerNumber: String,
   slotCode: String,
-  origin: String
+  origin: String,
+  dueDate: Date
 `;
 
 export const types = `
@@ -45,6 +74,7 @@ export const types = `
   type PosOrderItem {
     ${commonFields}
     productId: String!
+    categoryId: String
     count: Float!
     orderId: String!
     unitPrice: Float
@@ -92,30 +122,13 @@ export const types = `
 
 
   type Order {
-    ${commonFields}
-    ${orderFields}
-    ${paymentInputDefs}
-    paidAmounts: [PaidAmount]
+    ${orderTypeFields}
+  }
 
-    paidDate: Date
-    modifiedAt: Date
-    totalAmount: Float
-    finalAmount: Float
-    shouldPrintEbarimt: Boolean
-    printedEbarimt: Boolean
-    billId: String
-    oldBillId: String
-    type: String
-    branchId: String
-    deliveryInfo: JSON
-    origin: String
-    customer: PosCustomer
-    customerType: String,
-    items: [PosOrderItem]
-    user: PosUser
-    putResponses: [PosPutResponse]
-
-    slotCode: String
+  type OrderDetail {
+    ${orderTypeFields}
+    deal: JSON
+    dealLink: String
   }
 
   input OrderItemInput {
@@ -146,6 +159,8 @@ export const ordersQueryParams = `
   customerType: String,
   startDate: Date,
   endDate: Date,
+  dateType: String,
+  isPaid: Boolean,
   page: Int,
   perPage: Int,
   sortField: String,
@@ -157,18 +172,22 @@ export const mutations = `
   ordersEdit(_id: String!, ${addEditParams}): Order
   ordersMakePayment(_id: String!, doc: OrderPaymentInput): PosPutResponse
   orderChangeStatus(_id: String!, status: String): Order
+  ordersChange(_id: String!, dueDate: Date, branchId: String, deliveryInfo: JSON): Order
   ordersAddPayment(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: [PaidAmountInput] ): Order
   ordersCancel(_id: String!): JSON
   ordersSettlePayment(_id: String!, billType: String!, registerNumber: String): PosPutResponse
   orderItemChangeStatus(_id: String!, status: String): PosOrderItem
+  ordersConvertToDeal(_id: String!): Order
+  afterFormSubmit(_id: String!, conversationId: String!): Order
 `;
 
 export const queries = `
-  orders(searchValue: String, page: Int, perPage: Int): [Order]
+  orders(${ordersQueryParams}): [Order]
   fullOrders(${ordersQueryParams}): [Order]
   ordersTotalCount(${ordersQueryParams}): Int
-  orderDetail(_id: String, customerId: String): Order
+  orderDetail(_id: String, customerId: String): OrderDetail
   ordersCheckCompany(registerNumber: String!): JSON
   ordersDeliveryInfo(orderId: String!): JSON
   fullOrderItems(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
+  convertedDealLink(_id: String!): JSON
 `;
