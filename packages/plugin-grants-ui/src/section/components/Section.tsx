@@ -12,6 +12,7 @@ import {
 import Form from '../containers/RequestForm';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { SectionContent } from '../../styles';
+import ResponseForm from '../containers/ResponseForm';
 
 type Props = {
   request: IGrantRequest;
@@ -27,16 +28,41 @@ class Section extends React.Component<Props> {
   }
 
   renderForm(user: { grantResponse?: string } & IUser) {
-    const { currentUser, request } = this.props;
+    const { currentUser, request, cardId, cardType } = this.props;
 
     if (
       currentUser._id !== request.requesterId &&
-      (request?.userIds || []).includes(currentUser._id)
+      (request?.userIds || []).includes(currentUser._id) &&
+      request.status === 'waiting'
     ) {
+      const trigger = (
+        <Button btnStyle="link">
+          <Icon icon="feedback" color={colors.colorCoreBlue} />
+        </Button>
+      );
+
+      const content = props => {
+        const updatedProps = {
+          ...props,
+          cardId,
+          cardType,
+          requestId: request._id
+        };
+
+        return <ResponseForm {...updatedProps} />;
+      };
+
+      return (
+        <ModalTrigger
+          title="Response on Request"
+          content={content}
+          trigger={trigger}
+        />
+      );
     }
 
     switch (user.grantResponse || '') {
-      case 'agreed':
+      case 'approved':
         return <Icon icon="like-1" color={colors.colorCoreGreen} />;
       case 'declined':
         return <Icon icon="dislike" color={colors.colorCoreRed} />;

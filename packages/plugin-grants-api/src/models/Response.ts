@@ -4,15 +4,43 @@ import {
   grantResponsesSchema
 } from './definitions/grant';
 import { IModels } from '../connectionResolver';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface IResponsesModel extends Model<IGrantResponseDocument> {
-  addGrantResponse(doc: any): Promise<IGrantResponseDocument>;
+  responseGrantRequest(
+    doc: any,
+    user: IUserDocument
+  ): Promise<IGrantResponseDocument>;
 }
 
 export const loadResponsesClass = (models: IModels, subdomain: string) => {
   class Response {
-    addGrantResponse(doc) {
-      return '';
+    public static async responseGrantRequest(doc, user: IUserDocument) {
+      const { description, response, requestId } = doc;
+
+      console.log(description, response, requestId, user._id);
+
+      const grantResponse = await models.Responses.create({
+        userId: user._id,
+        description,
+        response,
+        requestId
+      });
+
+      const reponseCount = await models.Responses.countDocuments({
+        requestId,
+        response: 'approved'
+      });
+
+      const request = await models.Requests.findOne({
+        _id: requestId
+      });
+
+      if (request?.userIds?.length === reponseCount) {
+        await models.Requests.resolveRequest(requestId);
+      }
+
+      return grantResponse;
     }
   }
 

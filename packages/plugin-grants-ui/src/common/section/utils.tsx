@@ -1,4 +1,10 @@
-import { __ } from '@erxes/ui/src';
+import {
+  DataWithLoader,
+  Pagination,
+  Spinner,
+  Wrapper,
+  __
+} from '@erxes/ui/src';
 import React from 'react';
 import { queries } from '../../section/graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
@@ -67,6 +73,8 @@ export const SelectActions = withProps<Props>(
   )(SelectActionsComponent)
 );
 
+/** RefetchQueries */
+
 export const refetchQueries = params => {
   return [
     {
@@ -74,4 +82,59 @@ export const refetchQueries = params => {
       variables: { ...params }
     }
   ];
+};
+
+/** DefaultListWrapper */
+
+export const DefaultWrapper = ({
+  title,
+  rightActionBar,
+  leftActionBar,
+  loading,
+  totalCount,
+  content,
+  sidebar,
+  isPaginationHide,
+  breadcrumb,
+  subMenu
+}: {
+  title: string;
+  rightActionBar?: JSX.Element;
+  leftActionBar?: JSX.Element;
+  loading?: boolean;
+  totalCount?: number;
+  content: JSX.Element;
+  sidebar?: JSX.Element;
+  isPaginationHide?: boolean;
+  breadcrumb?: any[];
+  subMenu?: { title: string; link: string }[];
+}) => {
+  if (loading) {
+    return <Spinner objective />;
+  }
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={title}
+          submenu={subMenu}
+          breadcrumb={breadcrumb}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+      }
+      content={
+        <DataWithLoader
+          loading={loading || false}
+          data={content}
+          count={totalCount}
+          emptyImage="/images/actions/5.svg"
+          emptyText={__('No data')}
+        />
+      }
+      leftSidebar={sidebar}
+      footer={!isPaginationHide && <Pagination count={totalCount} />}
+    />
+  );
 };

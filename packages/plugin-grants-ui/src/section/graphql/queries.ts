@@ -1,10 +1,12 @@
 const grantRequest = `
 query GrantRequest($cardId: String, $cardType: String) {
   grantRequest(cardId: $cardId, cardType: $cardType) {
+    _id
     action
     userIds
     params
     requesterId
+    status
 
     users {
       _id

@@ -4,7 +4,6 @@ const commonParams = `
     $userIds:[String],
     $action:String,
     $params:String,
-    $requesterId:String,
 `;
 const commonParamsDef = `
     cardId:$cardId,
@@ -12,7 +11,6 @@ const commonParamsDef = `
     userIds:$userIds,
     action:$action,
     params:$params,
-    requesterId:$requesterId
 `;
 
 const addGrantRequest = `
@@ -33,4 +31,15 @@ mutation CancelGrantRequest($cardId: String, $cardType: String) {
 }
 `;
 
-export default { addGrantRequest, editGrantRequest, cancelRequest };
+const responseGrantRequest = `
+mutation ResponseGrantRequest($description: String, $response: String, $requestId: String) {
+  responseGrantRequest(description: $description, response: $response, requestId: $requestId)
+}
+`;
+
+export default {
+  addGrantRequest,
+  editGrantRequest,
+  cancelRequest,
+  responseGrantRequest
+};

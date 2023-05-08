@@ -1,8 +1,8 @@
 import { IContext } from '../../../connectionResolver';
 
 const GrantRequestMutations = {
-  async addGrantRequest(_root, args, { models }: IContext) {
-    return await models.Requests.addGrantRequest(args);
+  async addGrantRequest(_root, args, { models, user }: IContext) {
+    return await models.Requests.addGrantRequest(args, user);
   },
 
   async editGrantRequest(_root, args, { models }: IContext) {

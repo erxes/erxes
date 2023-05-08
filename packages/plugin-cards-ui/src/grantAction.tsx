@@ -1,5 +1,8 @@
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
+import Select from 'react-select-plus';
 
 type Props = {
   action: string;
@@ -20,25 +23,59 @@ class GrantActionComponent extends React.Component<Props, State> {
     };
   }
 
-  renderMoveAction() {
+  handleChange = (value, name) => {
     const { onChange } = this.props;
+    const { params } = this.state;
+    params[name] = value;
 
+    onChange(params);
+  };
+
+  renderMoveAction() {
     const { params } = this.state;
 
-    const handleChange = (value, name) => {
-      params[name] = value;
+    const updateProps = {
+      ...params,
+      onChangeStage: e => this.handleChange(e, 'stageId')
+    };
 
-      onChange(params);
+    return <BoardSelect {...updateProps} />;
+  }
+
+  renderChangeCardType() {
+    const { params } = this.state;
+
+    const handleSelect = ({ value }) => {
+      this.handleChange(value, 'type');
     };
 
     const updateProps = {
       ...params,
-      onChangeBoard: e => handleChange(e, 'boardId'),
-      onChangePipeline: e => handleChange(e, 'pipelineId'),
-      onChangeStage: e => handleChange(e, 'stageId')
+      onChangeBoard: e => this.handleChange(e, 'boardId'),
+      onChangePipeline: e => this.handleChange(e, 'pipelineId'),
+      onChangeStage: e => this.handleChange(e, 'stageId')
     };
 
-    return <BoardSelect {...updateProps} />;
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>{__('Card Type')}</ControlLabel>
+          <Select
+            placeholder={__('Choose Card Type')}
+            name="type"
+            multi={false}
+            value={params['type']}
+            options={[
+              { value: 'deal', label: 'Deal' },
+              { value: 'task', label: 'Task' },
+              { value: 'ticket', label: 'Ticket' }
+            ]}
+            onChange={handleSelect}
+          />
+        </FormGroup>
+        {params['type'] && <BoardSelect {...updateProps} />}
+      </>
+    );
   }
 
   render() {
@@ -48,8 +85,11 @@ class GrantActionComponent extends React.Component<Props, State> {
       return null;
     }
 
-    if (action === 'moveCard') {
+    if (action === 'editItem') {
       return this.renderMoveAction();
+    }
+    if (action === 'changeCardType') {
+      return this.renderChangeCardType();
     }
   }
 }

@@ -1,4 +1,10 @@
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
+
+const generateFilter = params => {
+  const filter: any = {};
+  return filter;
+};
 
 const GrantRequestQueries = {
   async grantRequest(_root, args, { models }: IContext) {
@@ -8,12 +14,16 @@ const GrantRequestQueries = {
       return null;
     }
   },
-  grantRequests(_root, args, {}: IContext) {
-    return [];
+  async grantRequests(_root, args, { models }: IContext) {
+    const filter = generateFilter(args);
+
+    return await paginate(models.Requests.find(filter), args);
   },
 
-  grantRequestsTotalCount(_root, args, {}: IContext) {
-    return 0;
+  async grantRequestsTotalCount(_root, args, { models }: IContext) {
+    const filter = generateFilter(args);
+
+    return await models.Requests.countDocuments(filter);
   },
 
   async getGrantRequestActions(_root, args, { models }: IContext) {

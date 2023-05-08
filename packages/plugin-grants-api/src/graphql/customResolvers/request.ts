@@ -36,7 +36,7 @@ export default {
     for (const user of users) {
       const response = responses.find(response => response.userId === user._id);
       if (response) {
-        user.grantResponse = response.status;
+        user.grantResponse = response.response;
       } else {
         user.grantResponse = 'waiting';
       }

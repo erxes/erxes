@@ -1,19 +1,29 @@
 import { Model } from 'mongoose';
 import { IGrantRequestDocument, grantSchema } from './definitions/grant';
 import { IModels } from '../connectionResolver';
-import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendNotificationsMessage
+} from '../messageBroker';
 import { validateRequest } from '../common/utils';
 import { serviceDiscovery } from '../configs';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { doAction } from '../utils';
 
 export interface IRequestsModel extends Model<IGrantRequestDocument> {
   getGrantRequest(args: any): Promise<IGrantRequestDocument>;
   getGrantActions(): Promise<{ label: string; action: string }>;
-  addGrantRequest(doc: any): Promise<IGrantRequestDocument>;
+  addGrantRequest(
+    doc: any,
+    user: IUserDocument
+  ): Promise<IGrantRequestDocument>;
   editGrantRequest(doc: any): Promise<IGrantRequestDocument>;
   cancelGrantRequest(
     cardId: string,
     cardType: string
   ): Promise<IGrantRequestDocument>;
+  resolveRequest(requestId: string): Promise<IGrantRequestDocument>;
 }
 
 export const loadRequestsClass = (models: IModels, subdomain: string) => {
@@ -44,8 +54,8 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       return await models.Requests.findOne({ _id: requestId });
     }
 
-    public static async addGrantRequest(doc) {
-      const { cardId, cardType, userIds, action, params, requesterId } = doc;
+    public static async addGrantRequest(doc: any, user: IUserDocument) {
+      const { cardId, cardType, userIds, action, params } = doc;
       try {
         await validateRequest(doc);
       } catch (e) {
@@ -56,7 +66,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         userIds,
         action,
         params,
-        requesterId
+        requesterId: user._id
       });
 
       await sendCoreMessage({
@@ -70,18 +80,29 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         }
       });
 
-      await sendNotificationsMessage({
+      const link = await sendCardsMessage({
         subdomain,
-        action: 'send',
-        data: {
-          createdUser: requesterId,
-          receivers: userIds,
-          title: `seeking grant`,
-          content: 'shit',
-          link:
-            '/ticket/board?id=5TG3XHTdGa5vTei4R&itemId=NbYsxofuXnLrANEpq&key=&pipelineId=JBveRRgFw8ARkf2vP'
-        }
+        action: 'getLink',
+        data: { _id: cardId, type: cardType },
+        isRPC: true,
+        defaultValue: null
       });
+
+      if (!!link) {
+        await sendNotificationsMessage({
+          subdomain,
+          action: 'send',
+          data: {
+            createdUser: user,
+            receivers: userIds,
+            title: `seeking grant`,
+            action: 'wants grant',
+            content: action,
+            notifType: 'plugin',
+            link: link
+          }
+        });
+      }
 
       return request;
     }
@@ -103,6 +124,50 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         { _id: request._id },
         { $set: { userIds, action, params, requesterId } }
       );
+    }
+
+    public static async resolveRequest(requestId) {
+      const request = await models.Requests.findOne({ _id: requestId });
+
+      if (!request) {
+        return 'Something went wrong';
+      }
+
+      const declinedCount = await models.Responses.countDocuments({
+        requestId: request._id,
+        response: 'declined'
+      });
+
+      const requester = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: request.requesterId
+        },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (!declinedCount) {
+        await doAction(
+          subdomain,
+          await models.Requests.getGrantActions(),
+          request.action,
+          request.params,
+          requester
+        );
+
+        await models.Requests.updateOne(
+          { _id: request._id },
+          { status: 'approved' }
+        );
+        return 'Your grant was successfully ';
+      } else {
+        await models.Requests.updateOne(
+          { _id: request._id },
+          { status: 'declined' }
+        );
+      }
     }
 
     public static async cancelGrantRequest(cardId: string, cardType: string) {

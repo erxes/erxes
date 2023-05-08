@@ -52,7 +52,7 @@ class RequestForm extends React.Component<Props, State> {
   }
 
   generateDocs() {
-    const { currentUser, cardId, cardType } = this.props;
+    const { cardId, cardType } = this.props;
     const {
       request: { action, userIds, params }
     } = this.state;
@@ -60,7 +60,6 @@ class RequestForm extends React.Component<Props, State> {
     return {
       cardId,
       cardType,
-      requesterId: currentUser._id,
       action,
       userIds,
       params: JSON.stringify(params)
@@ -87,7 +86,7 @@ class RequestForm extends React.Component<Props, State> {
         action: request.action,
         initialProps: {
           type: cardType,
-          cardId,
+          itemId: cardId,
           ...request?.params,
           ...generateExtraParams(request.scope, request.action, object)
         },

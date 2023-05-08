@@ -6,12 +6,12 @@ export interface IGrantRequest {
   action: string;
   params: string;
   requesterId: string;
-  status: 'waiting' | 'done' | 'declined';
+  status: 'waiting' | 'approved' | 'declined';
 }
 
 export interface IGrantResponse {
   userId: string;
-  status: 'agree' | 'decline';
+  response: 'approved' | 'declined';
   description: string;
 }
 
@@ -32,7 +32,7 @@ export const grantSchema = new Schema({
   status: field({
     type: String,
     label: 'request status',
-    enum: ['waiting', 'done', 'declined'],
+    enum: ['waiting', 'approved', 'declined'],
     default: 'waiting'
   })
 });
@@ -41,10 +41,14 @@ export const grantResponsesSchema = new Schema({
   _id: field({ pkey: true }),
   userId: field({ type: String, label: 'Response member id' }),
   requestId: field({ type: String, label: 'Request id' }),
-  status: field({
+  response: field({
     type: String,
-    enum: ['agree', 'decline'],
+    enum: ['approved', 'declined'],
     label: 'Grant status'
   }),
-  description: field({ type: String, label: 'Grant description' })
+  description: field({
+    type: String,
+    label: 'Grant description',
+    optional: true
+  })
 });

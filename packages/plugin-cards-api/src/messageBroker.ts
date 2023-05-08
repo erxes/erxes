@@ -8,7 +8,11 @@ import { getCardItem } from './utils';
 import { createConformity, notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { publishHelper } from './graphql/resolvers/mutations/utils';
+import {
+  itemsChange,
+  itemsEdit,
+  publishHelper
+} from './graphql/resolvers/mutations/utils';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 let client;
@@ -57,6 +61,44 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: task
+    };
+  });
+
+  consumeRPCQueue('cards:editItem', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const objModels = {
+      ticket: models.Tickets,
+      task: models.Tasks,
+      deal: models.Deals
+    };
+
+    const { itemId, processId, type, user, ...doc } = data;
+
+    if (!itemId || !type || !user || !processId) {
+      return {
+        status: 'failed',
+        data: null
+      };
+    }
+    const collection = objModels[type];
+
+    const oldItem = await collection.findOne({ _id: itemId });
+    const typeUpperCase = type.charAt(0).toUpperCase() + type.slice(1);
+
+    return {
+      status: 'success',
+      data: await itemsEdit(
+        models,
+        subdomain,
+        itemId,
+        type,
+        oldItem,
+        doc,
+        processId,
+        user,
+        collection[`update${typeUpperCase}`]
+      )
     };
   });
 

@@ -4,10 +4,11 @@ import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 
 const GrantRequest = asyncComponent(() =>
-  import(/* webpackChunkName: "List - RCFA" */ './requests/containers/List')
+  import(/* webpackChunkName: "List - Request" */ './requests/containers/List')
 );
 
 const requests = ({ history, location }) => {
+  console.log(history);
   return (
     <GrantRequest
       history={history}
@@ -19,7 +20,7 @@ const requests = ({ history, location }) => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route path="/grant/requests" exact component={requests} />
+      <Route path="/grants/requests" exact component={requests} />
     </React.Fragment>
   );
 };
