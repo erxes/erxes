@@ -29,47 +29,47 @@ class History extends React.Component<Props, State> {
   };
 
   renderCalls = currentTab => {
-    if (all.length > 0) {
-      return all.map((item, i) => {
-        const content = (
-          <CallDetail isMissedCall={item.isMissedCall} key={i}>
-            <NameCard
-              user={item}
-              key={i}
-              avatarSize={40}
-              secondLine="To call integration"
-            />
-            <AdditionalDetail>
-              {item.time}
-              <Dropdown>
-                <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-                  <Icon icon="ellipsis-v" size={18} />
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <li key="call">
-                    <Icon icon="outgoing-call" /> {__('Call')}
-                  </li>
-                  <li key="delete">
-                    <Icon icon="trash-alt" size={14} /> {__('Delete')}
-                  </li>
-                </Dropdown.Menu>
-              </Dropdown>
-            </AdditionalDetail>
-          </CallDetail>
-        );
-
-        if (currentTab === 'Missed Call') {
-          if (item.isMissedCall === true) {
-            return content;
-          }
-          return null;
-        }
-
-        return content;
-      });
+    if (!all || all.length === 0) {
+      return <EmptyState icon="ban" text="There is no history" size="small" />;
     }
 
-    return <EmptyState icon="ban" text="There is no history" size="small" />;
+    return all.map((item, i) => {
+      const content = (
+        <CallDetail isMissedCall={item.isMissedCall} key={i}>
+          <NameCard
+            user={item}
+            key={i}
+            avatarSize={40}
+            secondLine="To call integration"
+          />
+          <AdditionalDetail>
+            {item.time}
+            <Dropdown>
+              <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
+                <Icon icon="ellipsis-v" size={18} />
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <li key="call">
+                  <Icon icon="outgoing-call" /> {__('Call')}
+                </li>
+                <li key="delete">
+                  <Icon icon="trash-alt" size={14} /> {__('Delete')}
+                </li>
+              </Dropdown.Menu>
+            </Dropdown>
+          </AdditionalDetail>
+        </CallDetail>
+      );
+
+      if (currentTab === 'Missed Call') {
+        if (item.isMissedCall === true) {
+          return content;
+        }
+        return null;
+      }
+
+      return content;
+    });
   };
 
   render() {

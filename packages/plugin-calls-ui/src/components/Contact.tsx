@@ -28,37 +28,37 @@ class Contact extends React.Component<Props, State> {
   }
 
   renderContact = () => {
-    if (all.length > 0) {
-      return all.map((item, i) => {
-        return (
-          <ContactItem key={i}>
-            <NameCard
-              user={item}
-              key={i}
-              avatarSize={40}
-              secondLine={item.details.operatorPhone}
-            />
-            <AdditionalDetail>
-              <Dropdown>
-                <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-                  <Icon icon="ellipsis-v" size={18} />
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <li key="call">
-                    <Icon icon="outgoing-call" /> {__('Call')}
-                  </li>
-                  <li key="delete">
-                    <Icon icon="trash-alt" size={14} /> {__('Delete')}
-                  </li>
-                </Dropdown.Menu>
-              </Dropdown>
-            </AdditionalDetail>
-          </ContactItem>
-        );
-      });
+    if (!all || all.length === 0) {
+      return <EmptyState icon="ban" text="There is no contact" size="small" />;
     }
 
-    return <EmptyState icon="ban" text="There is no contact" size="small" />;
+    return all.map((item, i) => {
+      return (
+        <ContactItem key={i}>
+          <NameCard
+            user={item}
+            key={i}
+            avatarSize={40}
+            secondLine={item.details.operatorPhone}
+          />
+          <AdditionalDetail>
+            <Dropdown>
+              <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
+                <Icon icon="ellipsis-v" size={18} />
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <li key="call">
+                  <Icon icon="outgoing-call" /> {__('Call')}
+                </li>
+                <li key="delete">
+                  <Icon icon="trash-alt" size={14} /> {__('Delete')}
+                </li>
+              </Dropdown.Menu>
+            </Dropdown>
+          </AdditionalDetail>
+        </ContactItem>
+      );
+    });
   };
 
   render() {
