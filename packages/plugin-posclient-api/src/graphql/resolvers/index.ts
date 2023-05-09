@@ -13,6 +13,7 @@ const resolvers: any = async () => ({
   PosConfig,
   PoscProduct,
   Order,
+  OrderDetail: Order,
   Cover,
   PosOrderItem: OrderItem,
   Mutation,

@@ -12,7 +12,11 @@ export default {
     return customFieldsDataByFieldCode(product, subdomain, sendCommonMessage);
   },
 
-  async unitPrice(product: IProductDocument, _args, { config }: IContext) {
+  unitPrice(product: IProductDocument, _args, { config }: IContext) {
     return (product.prices || {})[config.token] || 0;
+  },
+
+  category(product: IProductDocument, _, { models }: IContext) {
+    return models.ProductCategories.findOne({ _id: product.categoryId });
   }
 };

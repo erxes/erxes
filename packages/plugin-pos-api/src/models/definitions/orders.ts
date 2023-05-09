@@ -27,6 +27,7 @@ export interface IPosOrder {
   createdAt: Date;
   status: string;
   paidDate?: Date;
+  dueDate?: Date;
   number: string;
   customerId?: string;
   customerType?: string;
@@ -51,6 +52,7 @@ export interface IPosOrder {
   deliveryInfo?: any;
   origin?: string;
   taxInfo?: any;
+  convertDealId?: string;
 }
 export interface IPosOrderDocument extends IPosOrder, Document {
   _id: string;
@@ -122,6 +124,7 @@ export const posOrderSchema = schemaHooksWrapper(
     createdAt: field({ type: Date }),
     status: field({ type: String, label: 'Status of the order', index: true }),
     paidDate: field({ type: Date, label: 'Paid date' }),
+    dueDate: field({ type: Date, label: 'Due date' }),
     number: field({ type: String, label: 'Order number', index: true }),
     customerId: field({ type: String, label: 'Customer' }),
     customerType: field({ type: String, label: 'Customer type' }),
@@ -172,7 +175,12 @@ export const posOrderSchema = schemaHooksWrapper(
       label: 'Delivery Info, address, map, etc'
     }),
     origin: field({ type: String, optional: true, label: 'origin' }),
-    taxInfo: field({ type: Object, optional: true })
+    taxInfo: field({ type: Object, optional: true }),
+    convertDealId: field({
+      type: String,
+      optional: true,
+      label: 'Converted Deal'
+    })
   }),
   'erxes_posOrders'
 );
