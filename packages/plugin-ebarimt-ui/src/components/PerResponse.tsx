@@ -25,7 +25,9 @@ export default (response, counter?) => {
               ${(response.number && `<p>№: ${response.number}</p>`) || ''}
             </div>
 
-            ${`<div>
+            ${
+              response.customerNo || response.customerName
+                ? `<div>
                 <br />
                 <p><strong>Худалдан авагч:</strong></p>
                 ${
@@ -39,7 +41,9 @@ export default (response, counter?) => {
                     : ''
                 }
                 <br />
-              </div>`}
+              </div>`
+                : ''
+            }
 
             <table class="tb" cellpadding="0" cellspacing="0">
               <thead>
