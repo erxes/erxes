@@ -12,6 +12,7 @@ import * as mongoose from 'mongoose';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { generateErrors } from './data/modules/import/generateErrors';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { readFileRequest } from './worker/export/utils';
 
 async function closeMongooose() {
   try {
@@ -75,6 +76,22 @@ app.get(
     return res.send(response);
   })
 );
+
+app.get('/read-file', async (req: any, res: any) => {
+  try {
+    const key = req.query.key;
+
+    const response = await readFileRequest({
+      key
+    });
+
+    res.attachment(key);
+
+    return res.send(response);
+  } catch (e) {
+    return console.error(e);
+  }
+});
 
 app.use(express.urlencoded());
 app.use(express.json());

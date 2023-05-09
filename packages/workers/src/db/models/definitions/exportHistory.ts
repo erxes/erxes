@@ -9,6 +9,7 @@ export interface IExportHistory {
   columnsConfig: string[];
   segmentData: string[];
   name?: string;
+  uploadType?: string;
   errorMsg?: string;
 }
 
@@ -23,6 +24,7 @@ export const exportHistorySchema = new Schema({
   contentType: field({ type: String, label: 'Content type' }),
   columnsConfig: field({ type: [String], label: 'Columns config' }),
   exportLink: field({ type: String, label: 'Content type' }),
+  uploadType: field({ type: String, label: 'Upload Service Type' }),
   segmentData: field({ type: Object, label: 'Segment data' }),
   userId: field({ type: String, label: 'Created by' }),
   date: field({ type: Date, label: 'Date of export' }),
