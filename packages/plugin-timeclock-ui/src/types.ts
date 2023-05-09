@@ -1,5 +1,5 @@
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IBranch } from '@erxes/ui/src/team/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
 
 export interface ITimeclock {
@@ -220,6 +220,10 @@ export type ScheduleConfigQueryResponse = {
   scheduleConfigs: IScheduleConfig[];
 } & QueryResponse;
 
+export type DepartmentsQueryResponse = {
+  timeclockDepartments: IDepartment[];
+  departments: IDepartment[];
+};
 export type DeviceConfigsQueryResponse = {
   deviceConfigs: { list: IDeviceConfig[]; totalCount: number };
 } & QueryResponse;
@@ -230,6 +234,7 @@ export type ScheduleQueryResponse = {
 
 export type BranchesQueryResponse = {
   branches: IBranch[];
+  timeclockBranches: IBranch[];
 } & QueryResponse;
 
 export type ReportsQueryResponse = {

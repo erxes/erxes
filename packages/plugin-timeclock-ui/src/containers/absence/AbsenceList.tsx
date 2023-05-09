@@ -14,8 +14,12 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IAttachment } from '@erxes/ui/src/types';
 import { generateParams } from '../../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
+  currentUser: IUser;
+  isCurrentUserAdmin: boolean;
+
   history: any;
   queryParams: any;
   explanation?: string;
@@ -160,8 +164,8 @@ export default withProps<Props>(
   compose(
     graphql<Props, AbsenceQueryResponse>(gql(queries.requestsMain), {
       name: 'listAbsenceQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams(queryParams),
+      options: ({ queryParams, isCurrentUserAdmin }) => ({
+        variables: { ...generateParams(queryParams), isCurrentUserAdmin },
         fetchPolicy: 'network-only'
       })
     }),
