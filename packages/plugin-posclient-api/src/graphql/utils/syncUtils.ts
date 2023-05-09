@@ -258,6 +258,7 @@ export const extractConfig = async (subdomain, doc) => {
   return {
     name: doc.name,
     description: doc.description,
+    pdomain: doc.pdomain,
     productDetails: doc.productDetails,
     adminIds: doc.adminIds,
     cashierIds: doc.cashierIds,
@@ -276,6 +277,7 @@ export const extractConfig = async (subdomain, doc) => {
     kioskExcludeCategoryIds: doc.kioskExcludeCategoryIds,
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
     deliveryConfig: doc.deliveryConfig,
+    cardsConfig: doc.cardsConfig,
     posId: doc._id,
     erxesAppToken: doc.erxesAppToken,
     isOnline: doc.isOnline,

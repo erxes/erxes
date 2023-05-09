@@ -1,3 +1,4 @@
+import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import {
   Button,
   CollapseContent,
@@ -5,21 +6,19 @@ import {
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { Alert, __ } from '@erxes/ui/src/utils';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import Select from 'react-select-plus';
-import React from 'react';
-import { IConfigsMap } from '../../../../../plugin-ebarimt-ui/src/types';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { Alert, __ } from '@erxes/ui/src/utils';
+import React from 'react';
+import Select from 'react-select-plus';
 
 type Props = {
-  configsMap: IConfigsMap;
   config: any;
-  currentConfigKey: string;
-  save: (name: 'cardsConfig', value: any) => void;
-  delete: (currentConfigKey: string) => void;
+  configKey: string;
+  fieldsCombined: any[];
+  save: (key: string, value: any) => void;
+  delete: (configKey: string) => void;
 };
 
 type State = {
@@ -57,46 +56,47 @@ class PerConfigs extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
+  onMapCustomFieldChange = option => {
+    const value = !option ? '' : option.value.toString();
+    this.setState({
+      config: { ...this.state.config, deliveryMapField: value }
+    });
+  };
+
   onSave = e => {
     e.preventDefault();
-    const { configsMap, currentConfigKey } = this.props;
+    const { configKey } = this.props;
     const { config } = this.state;
-    const key = Math.floor(Math.random() * 1000000 + 1);
 
-    delete configsMap.cardsConfig[currentConfigKey];
-    configsMap.cardsConfig[key] = config;
-    this.props.save('cardsConfig', configsMap);
-    Alert.success('You successfully updated stage in cards settings.');
+    if (!config.branchId) {
+      return Alert.error('Please select the branch!');
+    }
+
+    this.props.save(configKey, config);
   };
 
   onDelete = e => {
     e.preventDefault();
 
-    this.props.delete(this.props.currentConfigKey);
+    this.props.delete(this.props.configKey);
   };
 
-  onChangeConfig = (code: string, value) => {
+  onChangeInput = e => {
     const { config } = this.state;
-    config[code] = value;
-    this.setState({ config });
-  };
-
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+    this.setState({ config: { ...config, [e.target.name]: e.target.value } });
   };
 
   render() {
+    const { fieldsCombined } = this.props;
     const { config } = this.state;
     return (
-      <CollapseContent
-        title={__(config.title)}
-        open={this.props.currentConfigKey === 'newCardsConfig' ? true : false}
-      >
+      <CollapseContent title={__(config.title || 'new Config')}>
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
           <FormControl
             defaultValue={config['title']}
-            onChange={this.onChangeInput.bind(this, 'title')}
+            name="title"
+            onChange={this.onChangeInput}
             required={true}
             autoFocus={true}
           />
@@ -134,6 +134,19 @@ class PerConfigs extends React.Component<Props, State> {
             name="assignedUserIds"
             initialValue={config.assignedUserIds}
             onSelect={this.onChangeAsssignedUserIds}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Choose map field')}</ControlLabel>
+          <Select
+            name="deliveryMapField"
+            value={config.mapCustomField}
+            onChange={this.onMapCustomFieldChange}
+            options={(fieldsCombined || []).map(f => ({
+              value: f.name,
+              label: f.label
+            }))}
           />
         </FormGroup>
 
