@@ -25,23 +25,21 @@ export default (response, counter?) => {
               ${(response.number && `<p>№: ${response.number}</p>`) || ''}
             </div>
 
-            ${
-              response.billType === '3'
-                ? `
-              <div>
+            ${`<div>
                 <br />
                 <p><strong>Худалдан авагч:</strong></p>
-                <p>ТТД: ${response.customerNo}</p>
+                ${
+                  response.customerNo
+                    ? `<p>ТТД: ${response.customerNo}</p>`
+                    : ''
+                }
                 ${
                   response.customerName
                     ? `<p>Нэр: ${response.customerName} </p>`
                     : ''
                 }
                 <br />
-              </div>
-            `
-                : ''
-            }
+              </div>`}
 
             <table class="tb" cellpadding="0" cellspacing="0">
               <thead>

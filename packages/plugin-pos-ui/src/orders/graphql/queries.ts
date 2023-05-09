@@ -67,6 +67,7 @@ export const orderFields = `
     _id
     email
   }
+  convertDealId
 `;
 
 const posOrders = `
@@ -104,6 +105,8 @@ const posOrderDetail = `
       syncErkhetInfo
       putResponses
       deliveryInfo
+      deal
+      dealLink
     }
   }
 `;

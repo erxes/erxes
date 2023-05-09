@@ -6,6 +6,8 @@ export const types = `
     firstName: String
     primaryEmail: String
     lastName: String
+    primaryAddress: JSON
+    addresses: [JSON]
   }
 `;
 

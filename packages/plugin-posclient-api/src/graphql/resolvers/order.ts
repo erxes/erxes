@@ -3,7 +3,11 @@ import { IContext } from '../../connectionResolver';
 import { IOrderDocument } from '../../models/definitions/orders';
 import { IOrderItem } from '../../models/definitions/orderItems';
 import { IPutResponseDocument } from '../../models/definitions/putResponses';
-import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
+import {
+  sendCardsMessage,
+  sendContactsMessage,
+  sendCoreMessage
+} from '../../messageBroker';
 
 export default {
   async items(order: IOrderDocument, {}, { models }: IContext) {
@@ -160,5 +164,29 @@ export default {
     }
 
     return putResponses.filter(pr => !excludeIds.includes(pr._id));
+  },
+
+  async deal(order: IOrderDocument, {}, { subdomain }: IContext) {
+    if (!order.convertDealId) {
+      return null;
+    }
+
+    return await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: { _id: order.convertDealId }
+    });
+  },
+
+  async dealLink(order: IOrderDocument, {}, { subdomain }: IContext) {
+    if (!order.convertDealId) {
+      return null;
+    }
+    return await sendCardsMessage({
+      subdomain,
+      action: 'getLink',
+      data: { _id: order.convertDealId, type: 'deal' },
+      isRPC: true
+    });
   }
 };

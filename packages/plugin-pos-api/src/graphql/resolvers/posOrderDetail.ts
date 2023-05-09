@@ -1,8 +1,11 @@
+import { IContext } from '../../connectionResolver';
 import {
   sendCoreMessage,
   sendContactsMessage,
-  sendEbarimtMessage
+  sendEbarimtMessage,
+  sendCardsMessage
 } from '../../messageBroker';
+import { IPosOrderDocument } from '../../models/definitions/orders';
 import { getConfig } from '../../utils';
 
 const resolvers = {
@@ -37,6 +40,9 @@ const resolvers = {
         defaultValue: {}
       });
 
+      if (!company) {
+        return;
+      }
       return {
         _id: company._id,
         code: company.code,
@@ -56,6 +62,10 @@ const resolvers = {
         defaultValue: {}
       });
 
+      if (!user) {
+        return;
+      }
+
       return {
         _id: user._id,
         code: user.code,
@@ -66,22 +76,30 @@ const resolvers = {
       };
     }
 
-    const customer = await sendContactsMessage({
-      subdomain,
-      action: 'customers.findOne',
-      data: { _id: order.customerId },
-      isRPC: true,
-      defaultValue: {}
-    });
+    if (!order.customerType || order.customerType === 'customer') {
+      const customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: { _id: order.customerId },
+        isRPC: true,
+        defaultValue: {}
+      });
 
-    return {
-      _id: customer._id,
-      code: customer.code,
-      primaryPhone: customer.primaryPhone,
-      firstName: customer.firstName,
-      primaryEmail: customer.primaryEmail,
-      lastName: customer.lastName
-    };
+      if (!customer) {
+        return;
+      }
+
+      return {
+        _id: customer._id,
+        code: customer.code,
+        primaryPhone: customer.primaryPhone,
+        firstName: customer.firstName,
+        primaryEmail: customer.primaryEmail,
+        lastName: customer.lastName
+      };
+    }
+
+    return {};
   },
 
   syncedErkhet: async (order, {}, { subdomain }) => {
@@ -95,7 +113,7 @@ const resolvers = {
     return order.syncedErkhet;
   },
 
-  putResponses: async (order, {}, { subdomain }) => {
+  putResponses: async (order, {}, { subdomain }: IContext) => {
     return sendEbarimtMessage({
       subdomain,
       action: 'putresponses.find',
@@ -105,6 +123,31 @@ const resolvers = {
           contentId: order._id
         }
       },
+      isRPC: true
+    });
+  },
+
+  async deal(order: IPosOrderDocument, {}, { subdomain }: IContext) {
+    if (!order.convertDealId) {
+      return null;
+    }
+
+    return await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: { _id: order.convertDealId },
+      isRPC: true
+    });
+  },
+
+  async dealLink(order: IPosOrderDocument, {}, { subdomain }: IContext) {
+    if (!order.convertDealId) {
+      return null;
+    }
+    return await sendCardsMessage({
+      subdomain,
+      action: 'getLink',
+      data: { _id: order.convertDealId, type: 'deal' },
       isRPC: true
     });
   }
