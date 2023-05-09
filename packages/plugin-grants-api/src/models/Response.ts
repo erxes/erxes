@@ -18,8 +18,6 @@ export const loadResponsesClass = (models: IModels, subdomain: string) => {
     public static async responseGrantRequest(doc, user: IUserDocument) {
       const { description, response, requestId } = doc;
 
-      console.log(description, response, requestId, user._id);
-
       const grantResponse = await models.Responses.create({
         userId: user._id,
         description,
@@ -28,8 +26,7 @@ export const loadResponsesClass = (models: IModels, subdomain: string) => {
       });
 
       const reponseCount = await models.Responses.countDocuments({
-        requestId,
-        response: 'approved'
+        requestId
       });
 
       const request = await models.Requests.findOne({

@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { IGrantRequestDocument, grantSchema } from './definitions/grant';
 import { IModels } from '../connectionResolver';
 import {
-  sendCardsMessage,
+  sendCommonMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from '../messageBroker';
@@ -13,6 +13,7 @@ import { doAction } from '../utils';
 
 export interface IRequestsModel extends Model<IGrantRequestDocument> {
   getGrantRequest(args: any): Promise<IGrantRequestDocument>;
+  grantRequestDetail(_id: string): Promise<IGrantRequestDocument>;
   getGrantActions(): Promise<{ label: string; action: string }>;
   addGrantRequest(
     doc: any,
@@ -20,8 +21,8 @@ export interface IRequestsModel extends Model<IGrantRequestDocument> {
   ): Promise<IGrantRequestDocument>;
   editGrantRequest(doc: any): Promise<IGrantRequestDocument>;
   cancelGrantRequest(
-    cardId: string,
-    cardType: string
+    contentTypeId: string,
+    contentType: string
   ): Promise<IGrantRequestDocument>;
   resolveRequest(requestId: string): Promise<IGrantRequestDocument>;
 }
@@ -29,61 +30,45 @@ export interface IRequestsModel extends Model<IGrantRequestDocument> {
 export const loadRequestsClass = (models: IModels, subdomain: string) => {
   class Request {
     public static async getGrantRequest(args: any) {
-      const { cardId, cardType } = args;
+      const { contentTypeId, contentType } = args;
 
-      if (!cardId || !cardType) {
-        throw new Error('You must specify a card type and a card id');
+      if (!contentTypeId || !contentType) {
+        throw new Error('You must specify a content type and a content id');
       }
 
-      const [requestId] = await sendCoreMessage({
-        subdomain,
-        action: 'conformities.savedConformity',
-        data: {
-          mainTypeId: cardId,
-          mainType: cardType,
-          relTypes: ['grantRequest']
-        },
-        isRPC: true,
-        defaultValue: []
-      });
+      return await models.Requests.findOne({ contentTypeId, contentType });
+    }
 
-      if (!requestId) {
-        throw new Error('There has no  grant request in this card');
+    public static async grantRequestDetail(_id: string) {
+      const request = await models.Requests.findOne({ _id }).lean();
+
+      if (!request) {
+        throw new Error('Cannot find request with id:' + _id);
       }
 
-      return await models.Requests.findOne({ _id: requestId });
+      return request;
     }
 
     public static async addGrantRequest(doc: any, user: IUserDocument) {
-      const { cardId, cardType, userIds, action, params } = doc;
+      const { contentTypeId, contentType, userIds, action } = doc;
       try {
         await validateRequest(doc);
       } catch (e) {
         throw new Error(e.message);
       }
 
-      const request = await models.Requests.create({
-        userIds,
-        action,
-        params,
+      const extendedDoc = {
+        ...doc,
         requesterId: user._id
-      });
+      };
 
-      await sendCoreMessage({
-        subdomain,
-        action: 'conformities.addConformity',
-        data: {
-          mainType: cardType,
-          mainTypeId: cardId,
-          relType: 'grantRequest',
-          relTypeId: request._id
-        }
-      });
+      const request = await models.Requests.create({ ...extendedDoc });
 
-      const link = await sendCardsMessage({
+      const link = await sendCommonMessage({
         subdomain,
+        serviceName: request.scope,
         action: 'getLink',
-        data: { _id: cardId, type: cardType },
+        data: { _id: contentTypeId, type: contentType },
         isRPC: true,
         defaultValue: null
       });
@@ -108,7 +93,14 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
     }
 
     public static async editGrantRequest(doc) {
-      const { cardId, cardType, userIds, action, params, requesterId } = doc;
+      const {
+        contentTypeId,
+        contentType,
+        userIds,
+        action,
+        params,
+        requesterId
+      } = doc;
       try {
         await validateRequest(doc);
       } catch (e) {
@@ -116,8 +108,8 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       }
 
       const request = await models.Requests.getGrantRequest({
-        cardId,
-        cardType
+        contentTypeId,
+        contentType
       });
 
       return await models.Requests.updateOne(
@@ -151,7 +143,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       if (!declinedCount) {
         await doAction(
           subdomain,
-          await models.Requests.getGrantActions(),
+          request.scope,
           request.action,
           request.params,
           requester
@@ -170,10 +162,13 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       }
     }
 
-    public static async cancelGrantRequest(cardId: string, cardType: string) {
+    public static async cancelGrantRequest(
+      contentTypeId: string,
+      contentType: string
+    ) {
       const request = await models.Requests.getGrantRequest({
-        cardId,
-        cardType
+        contentTypeId,
+        contentType
       });
 
       if (!request) {
@@ -185,16 +180,6 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           'Cannot cancel request because request is already gotten respond'
         );
       }
-
-      await sendCoreMessage({
-        subdomain,
-        action: 'conformities.removeConformity',
-        data: {
-          mainType: cardType,
-          mainTypeId: cardId
-        },
-        isRPC: true
-      });
 
       await models.Responses.deleteMany({ requestId: request._id });
 

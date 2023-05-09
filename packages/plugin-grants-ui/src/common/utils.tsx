@@ -6,7 +6,7 @@ import {
   __
 } from '@erxes/ui/src';
 import React from 'react';
-import { queries } from '../../section/graphql';
+import { queries } from '../section/graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';

@@ -3,15 +3,15 @@ import React from 'react';
 import * as compose from 'lodash.flowright';
 import Form from '../components/ResponseForm';
 import { Alert, ButtonMutate, confirm } from '@erxes/ui/src';
-import { refetchQueries } from '../../common/section/utils';
+import { refetchQueries } from '../../common/utils';
 import { mutations } from '../graphql';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 
 type Props = {
   closeModal: () => void;
-  cardId: string;
-  cardType: string;
+  contentTypeId: string;
+  contentType: string;
   requestId: string;
 };
 
@@ -56,10 +56,11 @@ export default withProps(
   compose(
     graphql<Props>(gql(mutations.responseGrantRequest), {
       name: 'responseMutation',
-      options: ({ cardId, cardType }) => ({
+      options: ({ contentTypeId, contentType }) => ({
         refetchQueries: [
-          ...refetchQueries({ cardId, cardType }),
-          `${cardType}Detail`
+          ...refetchQueries({ contentTypeId, contentType }),
+          `${contentType}Detail`,
+          `${contentType}s`
         ]
       })
     })

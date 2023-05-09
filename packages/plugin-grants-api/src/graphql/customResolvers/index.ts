@@ -1,2 +1,4 @@
 import GrantRequest from './request';
-export default { GrantRequest };
+import GrantResponse from './response';
+
+export default { GrantRequest, GrantResponse };

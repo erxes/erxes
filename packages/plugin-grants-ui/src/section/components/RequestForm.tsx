@@ -10,14 +10,13 @@ import {
   loadDynamicComponent
 } from '@erxes/ui/src';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { SelectActions } from '../../common/section/utils';
-import { IGrantRequest } from '../../common/section/type';
-import { generateExtraParams } from '../utils';
+import { SelectActions } from '../../common/utils';
+import { IGrantRequest } from '../../common/type';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 type Props = {
-  cardType: string;
-  cardId: string;
+  contentType: string;
+  contentTypeId: string;
   object?: any;
   currentUser: IUser;
   request?: IGrantRequest;
@@ -52,30 +51,30 @@ class RequestForm extends React.Component<Props, State> {
   }
 
   generateDocs() {
-    const { cardId, cardType } = this.props;
+    const { contentTypeId, contentType } = this.props;
     const {
-      request: { action, userIds, params }
+      request: { action, userIds, params, scope }
     } = this.state;
 
     return {
-      cardId,
-      cardType,
+      contentTypeId,
+      contentType,
       action,
       userIds,
+      scope,
       params: JSON.stringify(params)
     };
   }
 
   renderComponent() {
-    const { cardType, cardId, object } = this.props;
+    const { contentType, contentTypeId, object } = this.props;
     const { request } = this.state;
 
     if (!request?.action) {
       return null;
     }
-    const handleSelect = (value, name, scope?) => {
+    const handleSelect = (value, name) => {
       request[name] = value;
-      request.scope = scope;
 
       this.setState({ request });
     };
@@ -85,11 +84,12 @@ class RequestForm extends React.Component<Props, State> {
       {
         action: request.action,
         initialProps: {
-          type: cardType,
-          itemId: cardId,
-          ...request?.params,
-          ...generateExtraParams(request.scope, request.action, object)
+          type: contentType,
+          sourceType: contentType,
+          itemId: contentTypeId,
+          ...request?.params
         },
+        object,
         onChange: params => handleSelect(params, 'params')
       },
       false,
@@ -103,7 +103,9 @@ class RequestForm extends React.Component<Props, State> {
 
     const handleSelect = (value, name, scope?) => {
       request[name] = value;
-      request.scope = scope;
+      if (scope) {
+        request.scope = scope;
+      }
 
       this.setState({ request });
     };

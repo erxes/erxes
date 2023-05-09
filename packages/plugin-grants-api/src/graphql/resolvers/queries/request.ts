@@ -3,6 +3,19 @@ import { IContext } from '../../../connectionResolver';
 
 const generateFilter = params => {
   const filter: any = {};
+
+  if (params.status) {
+    filter.status = params.status;
+  }
+
+  if (params.requesterId) {
+    filter.requesterId = params.requesterId;
+  }
+
+  if (params.userId) {
+    filter.userId = params.userId;
+  }
+
   return filter;
 };
 
@@ -24,6 +37,10 @@ const GrantRequestQueries = {
     const filter = generateFilter(args);
 
     return await models.Requests.countDocuments(filter);
+  },
+
+  async grantRequestDetail(_root, { _id }, { models }: IContext) {
+    return await models.Requests.grantRequestDetail(_id);
   },
 
   async getGrantRequestActions(_root, args, { models }: IContext) {

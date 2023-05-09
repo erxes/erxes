@@ -1,5 +1,5 @@
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
 import { IGrantRequest } from '../../models/definitions/grant';
 
 export default {
@@ -42,5 +42,43 @@ export default {
       }
     }
     return users;
+  },
+
+  async requester({ requesterId }: IGrantRequest, {}, { subdomain }: IContext) {
+    return await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: {
+        _id: { $in: requesterId }
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+  },
+
+  async detail(
+    { contentType, contentTypeId, scope }: IGrantRequest,
+    {},
+    { subdomain }: IContext
+  ) {
+    const detail = await sendCommonMessage({
+      subdomain,
+      serviceName: scope,
+      action: `${contentType}s.findOne`,
+      data: {
+        _id: contentTypeId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    return detail ? detail : null;
+  },
+  async responses(
+    { _id }: { _id: string } & IGrantRequest,
+    {},
+    { models }: IContext
+  ) {
+    return await models.Responses.find({ requestId: _id });
   }
 };

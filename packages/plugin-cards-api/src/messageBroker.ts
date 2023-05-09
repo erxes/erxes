@@ -102,6 +102,12 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('changeCardType', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { type, sourceType, itemId } = data;
+  });
+
   consumeRPCQueue(
     'cards:tasks.remove',
     async ({ subdomain, data: { _ids } }) => {

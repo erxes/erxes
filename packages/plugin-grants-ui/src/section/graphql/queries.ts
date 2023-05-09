@@ -1,26 +1,22 @@
+import { userTypes } from '../../common/graohql';
+
 const grantRequest = `
-query GrantRequest($cardId: String, $cardType: String) {
-  grantRequest(cardId: $cardId, cardType: $cardType) {
+query GrantRequest($contentTypeId: String, $contentType: String) {
+  grantRequest(contentTypeId: $contentTypeId, contentType: $contentType) {
     _id
     action
     userIds
     params
     requesterId
+    requester{
+      ${userTypes}
+    }
     status
 
-    users {
-      _id
-      grantResponse
-      email
-      username
-      details {
-        avatar
-        fullName
-        firstName
-        middleName
-        lastName
-      }
+    users{
+      ${userTypes}
     }
+
   }
 }
 `;

@@ -6,6 +6,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import queries from '../graphql/queries';
 import { Spinner } from '@erxes/ui/src';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -22,7 +23,7 @@ class ListContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { listQuery } = this.props;
+    const { listQuery, queryParams, history } = this.props;
 
     if (listQuery.loading) {
       return <Spinner />;
@@ -31,21 +32,34 @@ class ListContainer extends React.Component<FinalProps> {
     const { grantRequests, grantRequestsTotalCount } = listQuery;
 
     const updatedProps = {
+      queryParams,
+      history,
       list: grantRequests || [],
       totalCount: grantRequestsTotalCount
     };
-
-    console.log({ dasds: 'sds' });
 
     return <List {...updatedProps} />;
   }
 }
 
+const generateQueryParams = queryParams => {
+  return {
+    status: queryParams.type,
+    requesterId: queryParams.requesterId,
+    userId: queryParams.recipientId,
+    ...generatePaginationParams(queryParams || {})
+  };
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.requests), {
       name: 'listQuery',
-      options: ({}) => ({})
+      options: ({ queryParams }) => ({
+        variables: {
+          ...generateQueryParams(queryParams)
+        }
+      })
     })
   )(ListContainer)
 );

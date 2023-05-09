@@ -9,8 +9,12 @@ const GrantRequestMutations = {
     return await models.Requests.editGrantRequest(args);
   },
 
-  async cancelGrantRequest(_root, { cardId, cardType }, { models }: IContext) {
-    return await models.Requests.cancelGrantRequest(cardId, cardType);
+  async cancelGrantRequest(
+    _root,
+    { contentTypeId, contentType },
+    { models }: IContext
+  ) {
+    return await models.Requests.cancelGrantRequest(contentTypeId, contentType);
   }
 };
 

@@ -4,7 +4,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { queries } from '../graphql';
-import { RequestQueryResponse } from '../../common/section/type';
+import { RequestQueryResponse } from '../../common/type';
 import { Spinner, withCurrentUser } from '@erxes/ui/src';
 
 import SectionComponent from '../components/Section';
@@ -36,8 +36,8 @@ class Section extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      cardType: mainType,
-      cardId: mainTypeId,
+      contentType: mainType,
+      contentTypeId: mainTypeId,
       request: requestQuery.grantRequest || {},
       currentUser
     };
@@ -52,7 +52,7 @@ export default withProps<Props>(
       name: 'requestQuery',
       skip: ({ mainTypeId, mainType }) => !mainTypeId || !mainType,
       options: ({ mainType, mainTypeId }) => ({
-        variables: { cardType: mainType, cardId: mainTypeId }
+        variables: { contentType: mainType, contentTypeId: mainTypeId }
       })
     })
   )(withCurrentUser(Section))

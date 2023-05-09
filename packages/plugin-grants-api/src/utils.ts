@@ -1,8 +1,6 @@
 import { sendCommonMessage } from './messageBroker';
 
-export async function doAction(subdomain, actions, action, params, user) {
-  const serviceName = actions.find(item => item.action === action)?.scope || '';
-
+export async function doAction(subdomain, serviceName, action, params, user) {
   await sendCommonMessage({
     subdomain,
     serviceName,

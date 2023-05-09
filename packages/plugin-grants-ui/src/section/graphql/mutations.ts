@@ -1,16 +1,18 @@
 const commonParams = `
-    $cardId:String,
-    $cardType:String,
+    $contentTypeId:String,
+    $contentType:String,
     $userIds:[String],
     $action:String,
     $params:String,
+    $scope:String
 `;
 const commonParamsDef = `
-    cardId:$cardId,
-    cardType:$cardType,
+    contentTypeId:$contentTypeId,
+    contentType:$contentType,
     userIds:$userIds,
     action:$action,
     params:$params,
+    scope:$scope
 `;
 
 const addGrantRequest = `
@@ -26,8 +28,8 @@ const editGrantRequest = `
 `;
 
 const cancelRequest = `
-mutation CancelGrantRequest($cardId: String, $cardType: String) {
-  cancelGrantRequest(cardId: $cardId, cardType: $cardType)
+mutation CancelGrantRequest($contentTypeId: String, $contentType: String) {
+  cancelGrantRequest(contentTypeId: $contentTypeId, contentType: $contentType)
 }
 `;
 

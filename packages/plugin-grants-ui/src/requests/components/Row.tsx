@@ -1,6 +1,9 @@
 import React from 'react';
-import { IGrantRequest } from '../../common/section/type';
-import { FormControl, Label } from '@erxes/ui/src';
+import { IGrantRequest } from '../../common/type';
+import { Button, Icon, Label, ModalTrigger } from '@erxes/ui/src';
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import Assignees from '@erxes/ui-cards/src/boards/components/Assignees';
+import Form from '../containers/Form';
 type Props = {
   request: IGrantRequest;
 };
@@ -13,8 +16,6 @@ class Row extends React.Component<Props> {
   render() {
     const { request } = this.props;
 
-    const onClick = e => {};
-
     const lblStyle = () => {
       switch (request.status) {
         case 'approved':
@@ -26,14 +27,44 @@ class Row extends React.Component<Props> {
       }
     };
 
+    const { _id, contentType, detail, requester, users } = request;
+
+    const trigger = (
+      <Button btnStyle="link">
+        <Icon icon="file-search-alt" />{' '}
+      </Button>
+    );
+
+    const content = props => {
+      const updatedProps = {
+        ...props,
+        _id
+      };
+      return <Form {...updatedProps} />;
+    };
+
+    const detailBtn = () => (
+      <ModalTrigger
+        title="Request Detail"
+        trigger={trigger}
+        content={content}
+        size="lg"
+      />
+    );
     return (
       <tr>
-        <td onClick={onClick}>
-          <FormControl componentClass="checkbox" />
+        <td>{contentType}</td>
+        <td>{detail?.name}</td>
+        <td>
+          <LinkButton>{requester?.email || '-'}</LinkButton>
+        </td>
+        <td>
+          <Assignees users={users} limit={5} />
         </td>
         <td>
           <Label lblStyle={lblStyle()}>{request.status}</Label>
         </td>
+        <td>{detailBtn()}</td>
       </tr>
     );
   }

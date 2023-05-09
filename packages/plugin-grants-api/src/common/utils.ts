@@ -1,6 +1,6 @@
 export const validateRequest = doc => {
-  if (!doc?.cardId || !doc?.cardType) {
-    throw new Error('there is no card id or card type');
+  if (!doc?.contentTypeId || !doc?.contentType) {
+    throw new Error('there is no content id or content type');
   }
 
   if (!doc?.userIds?.length) {

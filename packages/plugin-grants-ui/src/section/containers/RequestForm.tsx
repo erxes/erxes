@@ -6,15 +6,15 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { mutations } from '../graphql';
 import { Alert, ButtonMutate, confirm } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IGrantRequest } from '../../common/section/type';
-import { refetchQueries } from '../../common/section/utils';
+import { IGrantRequest } from '../../common/type';
+import { refetchQueries } from '../../common/utils';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 
 type Props = {
   closeModal: () => void;
-  cardType: string;
-  cardId: string;
+  contentType: string;
+  contentTypeId: string;
   object: any;
   currentUser: IUser;
   request: IGrantRequest;
@@ -39,8 +39,8 @@ class RequestFormContainer extends React.Component<
   render() {
     const {
       closeModal,
-      cardType,
-      cardId,
+      contentType,
+      contentTypeId,
       object,
       currentUser,
       request
@@ -61,6 +61,8 @@ class RequestFormContainer extends React.Component<
         successAction = 'edited';
       }
 
+      console.log({ values });
+
       return (
         <ButtonMutate
           disabled={this.state.loading}
@@ -68,7 +70,7 @@ class RequestFormContainer extends React.Component<
           variables={values}
           callback={closeModal}
           isSubmitted={isSubmitted}
-          refetchQueries={refetchQueries({ cardId, cardType })}
+          refetchQueries={refetchQueries({ contentTypeId, contentType })}
           type="submit"
           confirmationUpdate={confirmationUpdate}
           successMessage={`You successfully ${successAction} a ${name}`}
@@ -80,7 +82,7 @@ class RequestFormContainer extends React.Component<
       confirm().then(() => {
         this.setState({ loading: true });
         this.props
-          .cancelRequest({ variables: { cardId, cardType } })
+          .cancelRequest({ variables: { contentTypeId, contentType } })
           .then(() => {
             closeModal();
             Alert.success('Cancelled request successfully');
@@ -94,8 +96,8 @@ class RequestFormContainer extends React.Component<
     };
 
     const updatedProps: any = {
-      cardType,
-      cardId,
+      contentType,
+      contentTypeId,
       object,
       currentUser,
       renderButton,
@@ -110,6 +112,8 @@ class RequestFormContainer extends React.Component<
       };
     }
 
+    console.log({ updatedProps });
+
     return <RequestForm {...updatedProps} />;
   }
 }
@@ -118,8 +122,8 @@ export default withProps(
   compose(
     graphql<Props>(gql(mutations.cancelRequest), {
       name: 'cancelRequest',
-      options: ({ cardId, cardType }) => ({
-        refetchQueries: refetchQueries({ cardId, cardType })
+      options: ({ contentTypeId, contentType }) => ({
+        refetchQueries: refetchQueries({ contentTypeId, contentType })
       })
     })
   )(RequestFormContainer)

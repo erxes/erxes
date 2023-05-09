@@ -1,5 +1,5 @@
 import React from 'react';
-import { IGrantRequest } from '../../common/section/type';
+import { IGrantRequest } from '../../common/type';
 import {
   Box,
   Button,
@@ -16,8 +16,8 @@ import ResponseForm from '../containers/ResponseForm';
 
 type Props = {
   request: IGrantRequest;
-  cardType: string;
-  cardId: string;
+  contentType: string;
+  contentTypeId: string;
   object: any;
   currentUser: IUser;
 };
@@ -28,12 +28,13 @@ class Section extends React.Component<Props> {
   }
 
   renderForm(user: { grantResponse?: string } & IUser) {
-    const { currentUser, request, cardId, cardType } = this.props;
+    const { currentUser, request, contentTypeId, contentType } = this.props;
 
     if (
       currentUser._id !== request.requesterId &&
       (request?.userIds || []).includes(currentUser._id) &&
-      request.status === 'waiting'
+      request.status === 'waiting' &&
+      user.grantResponse === 'waiting'
     ) {
       const trigger = (
         <Button btnStyle="link">
@@ -44,8 +45,8 @@ class Section extends React.Component<Props> {
       const content = props => {
         const updatedProps = {
           ...props,
-          cardId,
-          cardType,
+          contentTypeId,
+          contentType,
           requestId: request._id
         };
 
@@ -89,7 +90,13 @@ class Section extends React.Component<Props> {
   }
 
   renderRequestForm() {
-    const { cardType, cardId, object, currentUser, request } = this.props;
+    const {
+      contentType,
+      contentTypeId,
+      object,
+      currentUser,
+      request
+    } = this.props;
 
     const trigger = (
       <button>
@@ -99,8 +106,8 @@ class Section extends React.Component<Props> {
 
     const updatedProps = {
       currentUser,
-      cardType,
-      cardId,
+      contentType,
+      contentTypeId,
       object,
       request
     };

@@ -3,16 +3,33 @@ import { QueryResponse } from '@erxes/ui/src/types';
 
 export type IGrantRequest = {
   _id?: string;
-  cardId: string;
-  cardType: string;
+  contentTypeId: string;
+  contentType: string;
   userIds: string[];
   status: string;
   requesterId: string;
   users: { grantResponse: string } & IUser[];
   action: string;
   params: string;
+  detail?: {
+    _id: string;
+    name: string;
+  };
+  requester: IUser;
 };
 
 export type RequestQueryResponse = {
   grantRequest: IGrantRequest;
+} & QueryResponse;
+
+export type IGrantResponse = {
+  _id: string;
+  description: string;
+  response: string;
+  userId: string;
+  user: IUser;
+};
+
+export type RequestDetailQueryResponse = {
+  grantRequestDetail: { responses: IGrantResponse[] } & IGrantRequest;
 } & QueryResponse;

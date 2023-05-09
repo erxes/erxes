@@ -1,10 +1,13 @@
 import React from 'react';
-import { IGrantRequest } from '../../common/section/type';
-import { DefaultWrapper } from '../../common/section/utils';
+import { IGrantRequest } from '../../common/type';
+import { DefaultWrapper } from '../../common/utils';
 import { FormControl, Table, __ } from '@erxes/ui/src';
 import Row from './Row';
+import SideBar from './SideBar';
 
 type Props = {
+  queryParams: any;
+  history: any;
   list: IGrantRequest[];
   totalCount: number;
 };
@@ -20,21 +23,23 @@ class List extends React.Component<Props, State> {
   }
 
   renderList() {
-    const { list } = this.props;
+    const { list, queryParams, history } = this.props;
 
     return (
       <Table>
         <thead>
           <tr>
-            <th>
-              <FormControl componentClass="checkbox" />
-            </th>
+            <th>{__('Type')}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Requester')}</th>
+            <th>{__('Recipients')}</th>
             <th>{__('Status')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>
           {list.map(item => (
-            <Row request={item} />
+            <Row request={item} key={item._id} />
           ))}
         </tbody>
       </Table>
@@ -42,10 +47,13 @@ class List extends React.Component<Props, State> {
   }
 
   render() {
+    const { queryParams, history } = this.props;
+
     const updatedProps = {
       title: 'List Request',
       content: this.renderList(),
-      totalCount: this.props.totalCount
+      totalCount: this.props.totalCount,
+      sidebar: <SideBar queryParams={queryParams} history={history} />
     };
 
     return <DefaultWrapper {...updatedProps} />;

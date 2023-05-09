@@ -2,6 +2,9 @@ import { Schema, Document } from 'mongoose';
 import { field } from './utils';
 
 export interface IGrantRequest {
+  contentType: string;
+  contentTypeId: string;
+  scope: string;
   userIds: string[];
   action: string;
   params: string;
@@ -25,6 +28,12 @@ export interface IGrantResponseDocument extends IGrantResponse, Document {
 
 export const grantSchema = new Schema({
   _id: field({ pkey: true }),
+  contentTypeId: field({
+    type: String,
+    label: 'content type id'
+  }),
+  contentType: field({ type: String, label: 'content type' }),
+  scope: field({ type: String, label: 'Service scope' }),
   requesterId: field({ type: String, label: 'Requester Id' }),
   userIds: field({ type: [String], label: 'Members seeking grant' }),
   action: field({ type: String, label: 'Grant action' }),
@@ -50,5 +59,6 @@ export const grantResponsesSchema = new Schema({
     type: String,
     label: 'Grant description',
     optional: true
-  })
+  }),
+  createdAt: field({ type: Date, label: 'Created at', default: Date.now })
 });
