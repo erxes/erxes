@@ -6,7 +6,7 @@ import { queries } from '../graphql';
 
 export default (props: {
   queryParams?: IQueryParams;
-  filterParams?: { ids?: string[]; status?: string };
+  filterParams?: { ids?: string[]; status?: string; excludeIds?: boolean };
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;

@@ -21,6 +21,8 @@ type Props = {
   queryParams: any;
   searchValue?: string;
 
+  isCurrentUserAdmin: boolean;
+
   reportType?: string;
 
   getActionBar: (actionBar: any) => void;

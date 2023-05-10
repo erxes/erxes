@@ -38,13 +38,6 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
     return <></>;
   }
 
-  // if (
-  //   localStorage.getItem('automationResponseId') &&
-  //   localStorage.getItem('automationResponseId') === responseId
-  // ) {
-  //   return <></>;
-  // }
-
   const printContents: any[] = [];
   let counter = 0;
 

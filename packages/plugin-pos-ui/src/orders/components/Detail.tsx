@@ -1,4 +1,5 @@
 import * as dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -203,6 +204,15 @@ class PutResponseDetail extends React.Component<Props, State> {
         {this.renderDeliveryInfo()}
         {order.syncErkhetInfo
           ? this.renderRow('Erkhet Info', order.syncErkhetInfo)
+          : ''}
+
+        {order.convertDealId
+          ? this.renderRow(
+              'Deal',
+              <Link to={order.dealLink || ''}>
+                {order.deal?.name || 'deal'}
+              </Link>
+            )
           : ''}
         <>
           {(order.putResponses || []).map(p => {

@@ -9,7 +9,7 @@ import { queries } from '../../graphql';
 import { BranchesQueryResponse, ReportsQueryResponse } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generateParams } from '../../utils';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   history: any;
@@ -17,6 +17,7 @@ type Props = {
   searchValue?: string;
 
   reportType?: string;
+  currentUser: IUser;
 
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
@@ -29,7 +30,7 @@ type FinalProps = {
 } & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const { listReportsQuery, queryParams } = props;
+  const { listReportsQuery, queryParams, currentUser } = props;
   const { branchId, deptId } = queryParams;
 
   if (listReportsQuery && listReportsQuery.loading) {
@@ -38,7 +39,8 @@ const ListContainer = (props: FinalProps) => {
 
   const exportReport = () => {
     const stringified = queryString.stringify({
-      ...queryParams
+      ...queryParams,
+      currentUserId: currentUser._id
     });
 
     const { REACT_APP_API_URL } = getEnv();

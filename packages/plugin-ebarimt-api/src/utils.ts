@@ -197,7 +197,7 @@ export const getPostData = async (subdomain, config, deal) => {
       action: 'companies.findActiveCompanies',
       data: {
         selector: { _id: { $in: companyIds } },
-        fields: { _id: 1, code: 1 }
+        fields: { _id: 1, code: 1, primaryName: 1 }
       },
       isRPC: true,
       defaultValue: []
@@ -237,14 +237,26 @@ export const getPostData = async (subdomain, config, deal) => {
         action: 'customers.findActiveCustomers',
         data: {
           selector: { _id: { $in: customerIds } },
-          fields: { _id: 1, code: 1 }
+          fields: { _id: 1, code: 1, firstName: 1, lastName: 1, middleName: 1 }
         },
         isRPC: true,
         defaultValue: []
       });
-      const customer = customers.find(c => c.code && c.code.match(/^\d{8}$/g));
+
+      let customer = customers.find(c => c.code && c.code.match(/^\d{8}$/g));
 
       customerCode = (customer && customer.code) || '';
+      customerName = (customer && customer.name) || '';
+
+      if (customer) {
+        customerCode = customer.code || '';
+        customerName = customer.name || '';
+      } else {
+        if (customers.length) {
+          customer = customers[0];
+          customerName = `${customer.firstName} - ${customer.lastName}`;
+        }
+      }
     }
   }
 

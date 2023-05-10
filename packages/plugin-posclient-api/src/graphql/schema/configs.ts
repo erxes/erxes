@@ -43,6 +43,7 @@ export const types = `
     _id: String
     name: String
     description: String
+    pdomain: String
     userId: String
     createdAt: Date
     productDetails: [String]
