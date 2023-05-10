@@ -527,8 +527,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
     }) {
       const user = await models.ClientPortalUsers.findOne({
         $or: [
-          { email: { $regex: new RegExp(`^${login}$`, 'i') } },
-          { phone: { $regex: new RegExp(`^${login}$`, 'i') } }
+          { email: { $regex: new RegExp(`^${phone}$`, 'i') } },
+          { phone: { $regex: new RegExp(`^${phone}$`, 'i') } }
         ],
         resetPasswordToken: code
       }).lean();
