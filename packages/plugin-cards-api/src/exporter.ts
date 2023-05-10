@@ -205,7 +205,7 @@ const fillValue = async (
     case 'createdAt':
     case 'closeDate':
     case 'modifiedAt':
-      value = moment(value).format('YYYY-MM-DD HH:mm');
+      value = moment(value).format('YYYY-MM-DD');
 
       break;
     case 'userId':
