@@ -15,9 +15,13 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IAttachment } from '@erxes/ui/src/types';
 import { generateParams } from '../../utils';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
   currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   isCurrentUserAdmin: boolean;
 
   history: any;

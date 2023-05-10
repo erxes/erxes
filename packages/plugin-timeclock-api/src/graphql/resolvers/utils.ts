@@ -97,7 +97,7 @@ export const returnUnionOfUserIds = async (
     concatBranchDept.push(...departmentUserIds);
   }
 
-  // prevent creating double schedule for common users
+  // prevent inserting common users twice
   const sorted = concatBranchDept.sort();
   const unionOfUserIds = sorted.filter((value, pos) => {
     return concatBranchDept.indexOf(value) === pos;
@@ -155,7 +155,7 @@ export const timeclockReportByUser = async (
 
   let report: IUserReport = {
     scheduleReport: [],
-    userId: `${userId}`,
+    userId,
     totalMinsScheduledThisMonth: 0,
     totalMinsWorkedToday: 0,
     totalMinsScheduledToday: 0

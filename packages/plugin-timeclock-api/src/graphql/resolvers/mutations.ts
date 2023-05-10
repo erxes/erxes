@@ -227,7 +227,7 @@ const timeclockMutations = {
   ) {
     return models.Absences.createAbsence({
       reason: `${checkType} request`,
-      userId: `${userId}`,
+      userId,
       startTime: checkTime,
       checkInOutRequest: true
     });
@@ -248,7 +248,7 @@ const timeclockMutations = {
   ) {
     const shiftRequest = await models.Absences.getAbsence(_id);
     let updated = models.Absences.updateAbsence(_id, {
-      status: `${status}`,
+      status,
       solved: true,
       ...doc
     });
@@ -277,6 +277,7 @@ const timeclockMutations = {
           status: `Shift request / ${status}`,
           ...doc
         });
+
         // if shift request is approved
         if (status === 'Approved') {
           if (findAbsenceType.requestTimeType === 'by day') {
@@ -397,14 +398,14 @@ const timeclockMutations = {
     { models }: IContext
   ) {
     const updated = models.Schedules.updateSchedule(_id, {
-      status: `${status}`,
+      status,
       solved: true,
       ...doc
     });
 
     await models.Shifts.updateMany(
       { scheduleId: _id, solved: false },
-      { $set: { status: `${status}`, solved: true } }
+      { $set: { status, solved: true } }
     );
 
     return updated;
@@ -417,7 +418,7 @@ const timeclockMutations = {
   ) {
     const shift = await models.Shifts.getShift(_id);
     const updated = await models.Shifts.updateShift(_id, {
-      status: `${status}`,
+      status,
       solved: true,
       ...doc
     });
