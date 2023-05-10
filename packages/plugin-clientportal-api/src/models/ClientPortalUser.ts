@@ -526,7 +526,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
       password: string;
     }) {
       const user = await models.ClientPortalUsers.findOne({
-        phone,
+        $or: [
+          { email: { $regex: new RegExp(`^${phone}$`, 'i') } },
+          { phone: { $regex: new RegExp(`^${phone}$`, 'i') } }
+        ],
         resetPasswordToken: code
       }).lean();
 
@@ -540,6 +543,15 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       this.checkPassword(password);
+
+      if (phone.includes('@')) {
+        await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
+          isEmailVerified: true,
+          password: await this.generatePassword(password)
+        });
+
+        return 'success';
+      }
 
       // set new password
       await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
