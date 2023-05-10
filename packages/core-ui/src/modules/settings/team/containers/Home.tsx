@@ -25,10 +25,7 @@ function HomeContainer(props: Props) {
   );
 
   const getRefetchQueries = () => {
-    return [
-      { query: gql(queries.users), options },
-      { query: gql(queries.usersTotalCount), options }
-    ];
+    return ['users', 'usersTotalCount'];
   };
 
   const renderButton = ({

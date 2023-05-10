@@ -254,7 +254,6 @@ export const getPostData = async (subdomain, config, deal) => {
       } else {
         if (customers.length) {
           customer = customers[0];
-          customerCode = customers[0].code || '';
           customerName = `${customer.firstName} - ${customer.lastName}`;
         }
       }

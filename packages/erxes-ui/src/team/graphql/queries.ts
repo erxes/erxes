@@ -226,6 +226,22 @@ export const branchField = `
   address
   parentId
   supervisorId
+    supervisor {
+          _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
   code
   order
   userIds

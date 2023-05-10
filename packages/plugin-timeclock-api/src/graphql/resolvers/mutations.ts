@@ -1,5 +1,7 @@
 import { IContext } from '../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src';
+
 import {
   IAbsence,
   ISchedule,
@@ -749,6 +751,56 @@ const timeclockMutations = {
   }
 };
 
-// moduleRequireLogin(timeclockMutations);
+moduleRequireLogin(timeclockMutations);
+
+// extract from mssql
+checkPermission(
+  timeclockMutations,
+  'extractAllDataFromMsSQL',
+  'manageTimeclocks'
+);
+checkPermission(
+  timeclockMutations,
+  'extractTimeLogsFromMsSQL',
+  'manageTimeclocks'
+);
+
+checkPermission(timeclockMutations, 'solveScheduleRequest', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'scheduleRemove', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'submitSchedule', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'solveAbsenceRequest', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'removeAbsenceRequest', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'timeclockRemove', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'timeclockEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'timeclockCreate', 'manageTimeclocks');
+
+checkPermission(
+  timeclockMutations,
+  'createTimeClockFromLog',
+  'manageTimeclocks'
+);
+
+// configs
+checkPermission(timeclockMutations, 'scheduleConfigAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'scheduleConfigEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'scheduleConfigRemove', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'absenceTypeAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'absenceTypeEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'absenceTypeRemove', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'payDateAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'payDateEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'payDateRemove', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'holidayAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'holidayEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'holidayRemove', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'deviceConfigAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'deviceConfigEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'deviceConfigRemove', 'manageTimeclocks');
 
 export default timeclockMutations;

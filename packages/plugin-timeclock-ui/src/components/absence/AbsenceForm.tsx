@@ -24,9 +24,16 @@ import { PopoverButton } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
 import { dateFormat } from '../../constants';
 import * as dayjs from 'dayjs';
-import { compareStartAndEndTimeOfSingleDate } from '../../utils';
+import {
+  compareStartAndEndTimeOfSingleDate,
+  prepareCurrentUserOption
+} from '../../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+
   absenceTypes: IAbsenceType[];
   history: any;
   queryParams: any;
@@ -45,6 +52,9 @@ type Props = {
     totalHoursOfAbsence: string
   ) => void;
   contentProps: any;
+
+  departments: IDepartment[];
+  branches: IBranch[];
 };
 
 type TimeRange = {
@@ -58,6 +68,11 @@ type RequestDates = {
 
 export default (props: Props) => {
   const {
+    currentUser,
+
+    departments,
+    branches,
+
     absenceTypes,
     queryParams,
     submitRequest,
@@ -78,6 +93,20 @@ export default (props: Props) => {
     };
 
     byTime: RequestByTime;
+  };
+
+  const returnTotalUserOptions = () => {
+    const totalUserOptions: string[] = [];
+
+    for (const dept of departments) {
+      totalUserOptions.push(...dept.userIds);
+    }
+
+    for (const branch of branches) {
+      totalUserOptions.push(...branch.userIds);
+    }
+
+    return totalUserOptions;
   };
 
   const { closeModal } = contentProps;
@@ -210,6 +239,11 @@ export default (props: Props) => {
 
         <SelectTeamMembers
           queryParams={queryParams}
+          filterParams={{
+            ids: returnTotalUserOptions(),
+            excludeIds: false
+          }}
+          customOption={prepareCurrentUserOption(currentUser)}
           customField="employeeId"
           label={'Team member'}
           onSelect={onUserSelect}
@@ -464,6 +498,7 @@ export default (props: Props) => {
       </FlexRow>
     );
   };
+
   return (
     <FlexColumn marginNum={10}>
       <ToggleDisplay display={requestTimeByDay}>
@@ -495,6 +530,11 @@ export default (props: Props) => {
       </MarginY>
       <SelectTeamMembers
         customField="employeeId"
+        filterParams={{
+          ids: returnTotalUserOptions(),
+          excludeIds: false
+        }}
+        customOption={prepareCurrentUserOption(currentUser)}
         queryParams={queryParams}
         label={'Team member'}
         onSelect={onUserSelect}

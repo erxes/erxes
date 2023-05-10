@@ -6,8 +6,15 @@ import Button from '@erxes/ui/src/components/Button';
 import React, { useEffect, useState } from 'react';
 import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { prepareCurrentUserOption } from '../../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   queryParams: any;
   selectedUserId: string;
   closeModal: () => void;
@@ -19,6 +26,10 @@ type Props = {
 };
 
 const FormComponent = ({
+  currentUser,
+  departments,
+  branches,
+
   startClockTime,
   stopClockTime,
   selectedUserId,
@@ -26,6 +37,20 @@ const FormComponent = ({
   shiftStarted,
   closeModal
 }: Props) => {
+  const returnTotalUserOptions = () => {
+    const totalUserOptions: string[] = [];
+
+    for (const dept of departments) {
+      totalUserOptions.push(...dept.userIds);
+    }
+
+    for (const branch of branches) {
+      totalUserOptions.push(...branch.userIds);
+    }
+
+    return totalUserOptions;
+  };
+
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userId, setUserId] = useState(selectedUserId);
 
@@ -80,6 +105,11 @@ const FormComponent = ({
           <FormGroup>
             <ControlLabel>Team member</ControlLabel>
             <SelectTeamMembers
+              customOption={prepareCurrentUserOption(currentUser)}
+              filterParams={{
+                ids: returnTotalUserOptions(),
+                excludeIds: false
+              }}
               label="Choose a team member"
               name="userId"
               customField="employeeId"
