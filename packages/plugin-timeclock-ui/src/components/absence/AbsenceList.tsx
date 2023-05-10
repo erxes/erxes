@@ -87,8 +87,8 @@ function AbsenceList(props: Props) {
   const checkInModalContent = contentProps => {
     const updatedProps = {
       ...props,
-      checkInOutRequest: true,
-      contentProps
+      contentProps,
+      checkInOutRequest: true
     };
     return <AbsenceForm {...updatedProps} />;
   };
