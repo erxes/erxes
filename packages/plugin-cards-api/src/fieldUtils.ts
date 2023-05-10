@@ -1,6 +1,9 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { generateModels, IModels } from './connectionResolver';
-import { BOARD_ITEM_EXTENDED_FIELDS } from './constants';
+import {
+  BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
+  BOARD_ITEM_EXTENDED_FIELDS
+} from './constants';
 import {
   sendCoreMessage,
   sendProductsMessage,
@@ -145,9 +148,13 @@ export const generateFields = async ({ subdomain, data }) => {
     fields = BOARD_ITEM_EXTENDED_FIELDS;
   }
 
+  if (usageType && usageType === 'export') {
+    fields = BOARD_ITEM_EXPORT_EXTENDED_FIELDS;
+  }
+
   if (schema) {
     // generate list using customer or company schema
-    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+    fields = [...(await generateFieldsFromSchema(schema, '')), ...fields];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
