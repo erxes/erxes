@@ -367,6 +367,20 @@ const fillValue = async (
 
       break;
 
+    case 'totalAmount':
+      const productDatas = item.productsData;
+      let totalAmount = 0;
+
+      for (const data of productDatas) {
+        if (data.amount) {
+          totalAmount = totalAmount + data.amount;
+        }
+      }
+
+      value = totalAmount ? totalAmount : '-';
+
+      break;
+
     default:
       break;
   }
