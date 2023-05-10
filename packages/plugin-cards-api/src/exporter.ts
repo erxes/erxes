@@ -381,6 +381,11 @@ const fillValue = async (
 
       break;
 
+    case 'totalLabelCount':
+      value = item.labelIds ? item.labelIds.length : '-';
+
+      break;
+
     default:
       break;
   }
