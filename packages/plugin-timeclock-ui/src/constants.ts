@@ -1,7 +1,7 @@
 import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
-const menuTimeClock = (searchFilter: string) => {
+const menuTimeClock = (searchFilter: string, isCurrentUserAdmin: boolean) => {
   const navigationMenu = [
     { title: __('Timeclocks'), link: `/timeclocks${searchFilter}` }
   ];
@@ -16,9 +16,15 @@ const menuTimeClock = (searchFilter: string) => {
   navigationMenu.push(
     { title: __('Requests'), link: `/timeclocks/requests${searchFilter}` },
     { title: __('Schedule'), link: `/timeclocks/schedule${searchFilter}` },
-    { title: __('Report'), link: `/timeclocks/report${searchFilter}` },
-    { title: __('Configuration'), link: `/timeclocks/config${searchFilter}` }
+    { title: __('Report'), link: `/timeclocks/report${searchFilter}` }
   );
+
+  if (isCurrentUserAdmin) {
+    navigationMenu.push({
+      title: __('Configuration'),
+      link: `/timeclocks/config${searchFilter}`
+    });
+  }
 
   return navigationMenu;
 };

@@ -27,6 +27,8 @@ type Props = {
   loading: boolean;
   totalCount: number;
 
+  isCurrentUserAdmin: boolean;
+
   startClockTime?: (userId: string) => void;
   extractAllMsSqlData: (startDate: Date, endDate: Date) => void;
   removeTimeclock: (_id: string) => void;
@@ -36,16 +38,20 @@ type Props = {
   getPagination: (pagination: any) => void;
 };
 
-function List({
-  timeclocks,
-  totalCount,
-  startClockTime,
-  extractAllMsSqlData,
-  removeTimeclock,
-  getActionBar,
-  showSideBar,
-  getPagination
-}: Props) {
+function List(props: Props) {
+  const {
+    isCurrentUserAdmin,
+
+    timeclocks,
+    totalCount,
+    startClockTime,
+    extractAllMsSqlData,
+    removeTimeclock,
+    getActionBar,
+    showSideBar,
+    getPagination
+  } = props;
+
   const trigger = (
     <Button btnStyle={'success'} icon="plus-circle">
       Start Shift
@@ -59,10 +65,15 @@ function List({
     new Date(localStorage.getItem('endDate') || Date.now())
   );
 
-  const extractTrigger = <Button icon="plus-circle">Extract all data</Button>;
+  const extractTrigger = isCurrentUserAdmin ? (
+    <Button icon="plus-circle">Extract all data</Button>
+  ) : (
+    <></>
+  );
 
-  const modalContent = props => (
+  const modalContent = contenProps => (
     <TimeForm
+      {...contenProps}
       {...props}
       startClockTime={startClockTime}
       timeclocks={timeclocks}
@@ -78,7 +89,7 @@ function List({
     setEndDate(dateVal);
     localStorage.setItem('endDate', endDate.toISOString());
   };
-  const extractContent = props => (
+  const extractContent = contentProps => (
     <FlexColumn marginNum={10}>
       <ControlLabel>Select Date Range</ControlLabel>
       <CustomRangeContainer>

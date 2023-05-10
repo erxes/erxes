@@ -18,6 +18,7 @@ import {
   findBranchUsers,
   findDepartmentUsers
 } from './graphql/resolvers/utils';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 const customFixDate = (date?: Date) => {
   // get date, return date with 23:59:59
@@ -828,12 +829,20 @@ const createScheduleObjOfMembers = async (
   return totalEmployeesSchedulesObject;
 };
 
-const createTeamMembersObject = async (subdomain: string) => {
-  const teamMembersWithEmpId = await findAllTeamMembersWithEmpId(subdomain);
-
+const createTeamMembersObject = async (subdomain: any, userIds: string[]) => {
   const teamMembersObject = {};
 
-  for (const teamMember of teamMembersWithEmpId) {
+  const teamMembers = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: { _id: { $in: userIds } }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  for (const teamMember of teamMembers) {
     if (!teamMember.employeeId) {
       continue;
     }
@@ -849,14 +858,60 @@ const createTeamMembersObject = async (subdomain: string) => {
   return teamMembersObject;
 };
 
-const generateFilter = async (params: any, subdomain: string, type: string) => {
+const returnSupervisedUsers = async (
+  currentUserId: string,
+  subdomain: string
+) => {
+  const supervisedDepartmenIds = (
+    await sendCoreMessage({
+      subdomain,
+      action: `departments.find`,
+      data: {
+        supervisorId: currentUserId
+      },
+      isRPC: true,
+      defaultValue: []
+    })
+  ).map(dept => dept._id);
+
+  const supervisedBranchIds = (
+    await sendCoreMessage({
+      subdomain,
+      action: `branches.find`,
+      data: {
+        supervisorId: currentUserId
+      },
+      isRPC: true,
+      defaultValue: []
+    })
+  ).map(branch => branch._id);
+
+  const findTotalSupervisedUsers: string[] = [];
+
+  findTotalSupervisedUsers.push(
+    ...(await findDepartmentUsers(subdomain, supervisedDepartmenIds)).map(
+      departmentUser => departmentUser._id
+    ),
+    currentUserId
+  );
+
+  return findTotalSupervisedUsers;
+};
+
+const generateFilter = async (
+  params: any,
+  subdomain: string,
+  type: string,
+  user: IUserDocument
+) => {
   const {
-    branchIds,
     departmentIds,
+    branchIds,
     userIds,
     startDate,
     endDate,
-    scheduleStatus
+    scheduleStatus,
+    isCurrentUserAdmin
   } = params;
 
   const totalUserIds: string[] = await generateCommonUserIds(
@@ -868,7 +923,17 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
 
   const models = await generateModels(subdomain);
 
-  let scheduleFilter;
+  let scheduleFilter = {};
+
+  const totalSupervisedUsers = !isCurrentUserAdmin
+    ? await returnSupervisedUsers(user._id, subdomain)
+    : [];
+
+  if (!isCurrentUserAdmin) {
+    scheduleFilter = {
+      userId: { $in: totalSupervisedUsers }
+    };
+  }
 
   if (type === 'schedule' && !scheduleStatus) {
     return [scheduleFilter, false];
@@ -876,14 +941,14 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
 
   if (scheduleStatus) {
     if (scheduleStatus.toLowerCase() === 'pending') {
-      scheduleFilter = { solved: false };
+      scheduleFilter = { ...scheduleFilter, solved: false };
     }
 
     if (
       scheduleStatus.toLowerCase() === 'approved' ||
       scheduleStatus.toLowerCase() === 'rejected'
     ) {
-      scheduleFilter = { status: scheduleStatus };
+      scheduleFilter = { ...scheduleFilter, status: scheduleStatus };
     }
   }
   const scheduleShiftSelector = {
@@ -925,7 +990,14 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
   }
 
   if (!userIdsGiven && type !== 'schedule') {
-    returnFilter = { $or: timeFields };
+    returnFilter = {};
+    if (!isCurrentUserAdmin) {
+      returnFilter = { userId: { $in: totalSupervisedUsers } };
+    }
+    returnFilter = {
+      ...returnFilter,
+      $or: timeFields
+    };
   }
 
   // user Ids given but no related data was found
@@ -1091,5 +1163,6 @@ export {
   generateCommonUserIds,
   findAllTeamMembersWithEmpId,
   createTeamMembersObject,
-  customFixDate
+  customFixDate,
+  returnSupervisedUsers
 };
