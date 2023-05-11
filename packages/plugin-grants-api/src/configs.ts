@@ -4,6 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import afterMutations from './afterMutations';
 
 export let mainDb;
 export let debug;
@@ -30,7 +31,9 @@ export default {
     return context;
   },
 
-  meta: {},
+  meta: {
+    afterMutations
+  },
 
   onServerInit: async options => {
     mainDb = options.db;

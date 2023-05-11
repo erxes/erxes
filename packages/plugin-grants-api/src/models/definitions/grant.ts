@@ -43,7 +43,9 @@ export const grantSchema = new Schema({
     label: 'request status',
     enum: ['waiting', 'approved', 'declined'],
     default: 'waiting'
-  })
+  }),
+  createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
+  resolvedAt: field({ type: Date, label: 'Resolved At', optional: true })
 });
 
 export const grantResponsesSchema = new Schema({

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  BarItems,
+  DateControl,
   Sidebar as CommonSideBar,
   ControlLabel,
   FormGroup,
@@ -14,10 +14,13 @@ import {
   Padding,
   SelectBox,
   SelectBoxContainer,
-  SidebarHeader
+  SidebarHeader,
+  CustomRangeContainer,
+  EndDateContainer
 } from '../../styles';
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 import { responseTypes } from '../../common/constants';
+import { DateContainer } from '@erxes/ui/src/styles/main';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -58,6 +61,16 @@ export default function SideBar({ history, queryParams }) {
     setParams(history, { [name]: value });
   };
 
+  const generateQueryParamsDate = params => {
+    return params ? new Date(parseInt(params)).toString() : '';
+  };
+  const dateOrder = (value, name) => {
+    removeParams(history, 'page');
+    setParams(history, {
+      [name]: new Date(value).valueOf()
+    });
+  };
+
   return (
     <CommonSideBar
       full
@@ -93,6 +106,58 @@ export default function SideBar({ history, queryParams }) {
             multi={false}
             initialValue={queryParams?.recipientId}
           />
+        </CustomField>
+        <CustomField
+          label="Created Date Range"
+          field={['createdAtFrom', 'createdAtTo']}
+          clearable={queryParams?.createdAtFrom || queryParams?.createdAtTo}
+        >
+          <CustomRangeContainer>
+            <DateContainer>
+              <DateControl
+                name="createdAtFrom"
+                value={generateQueryParamsDate(queryParams?.createdAtFrom)}
+                placeholder="select from date "
+                onChange={e => dateOrder(e, 'createdAtFrom')}
+              />
+            </DateContainer>
+            <EndDateContainer>
+              <DateContainer>
+                <DateControl
+                  name="createdAtTo"
+                  value={generateQueryParamsDate(queryParams?.createdAtTo)}
+                  placeholder="select to date "
+                  onChange={e => dateOrder(e, 'createdAtTo')}
+                />
+              </DateContainer>
+            </EndDateContainer>
+          </CustomRangeContainer>
+        </CustomField>
+        <CustomField
+          label="Closed Date Range"
+          field={['closedAtFrom', 'closedAtTo']}
+          clearable={queryParams?.closedAtFrom || queryParams?.closedAtTo}
+        >
+          <CustomRangeContainer>
+            <DateContainer>
+              <DateControl
+                name="closedAtFrom"
+                value={generateQueryParamsDate(queryParams?.closedAtFrom)}
+                placeholder="select from date "
+                onChange={e => dateOrder(e, 'closedAtFrom')}
+              />
+            </DateContainer>
+            <EndDateContainer>
+              <DateContainer>
+                <DateControl
+                  name="closedAtTo"
+                  value={generateQueryParamsDate(queryParams?.closedAtTo)}
+                  placeholder="select to date "
+                  onChange={e => dateOrder(e, 'closedAtTo')}
+                />
+              </DateContainer>
+            </EndDateContainer>
+          </CustomRangeContainer>
         </CustomField>
         <CustomField
           label="Response Type"

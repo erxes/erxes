@@ -16,7 +16,30 @@ const generateFilter = params => {
     filter.userId = params.userId;
   }
 
+  if (params.createdAtFrom) {
+    filter.createdAt = { $gte: params.createdAtFrom };
+  }
+  if (params.createdAtTo) {
+    filter.createdAt = { ...filter.createdAt, $lte: params.createdAtTo };
+  }
+  if (params.closedAtFrom) {
+    filter.closedAt = { $gte: params.closedAtFrom };
+  }
+  if (params.closedAtTo) {
+    filter.closedAt = { ...filter.closedAt, $lte: params.closedAtTo };
+  }
+
   return filter;
+};
+
+const generateSort = (sortField, sortDirection) => {
+  let sort: any = { createdAt: -1 };
+
+  if (sortField && sortDirection) {
+    sort = {};
+    sort = { [sortField]: sortDirection };
+  }
+  return sort;
 };
 
 const GrantRequestQueries = {
@@ -28,9 +51,13 @@ const GrantRequestQueries = {
     }
   },
   async grantRequests(_root, args, { models }: IContext) {
+    const { sortField, sortDirection } = args;
+
     const filter = generateFilter(args);
 
-    return await paginate(models.Requests.find(filter), args);
+    const sort = generateSort(sortField, sortDirection);
+
+    return await paginate(models.Requests.find(filter).sort(sort), args);
   },
 
   async grantRequestsTotalCount(_root, args, { models }: IContext) {

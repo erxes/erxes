@@ -1,6 +1,8 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
+import { afterMutationHandlers } from './afterMutations';
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
 let client;
 
@@ -16,6 +18,23 @@ export const initBroker = async cl => {
       status: 'success',
       data: await models.Requests.find(data).lean()
     };
+  });
+
+  consumeRPCQueue('grants:requests.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Requests.findOne(data).lean()
+    };
+  });
+
+  consumeQueue('grants:afterMutation', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    await afterMutationHandlers(models, subdomain, data);
+
+    return;
   });
 };
 

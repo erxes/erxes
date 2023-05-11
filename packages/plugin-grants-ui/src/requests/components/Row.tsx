@@ -4,6 +4,8 @@ import { Button, Icon, Label, ModalTrigger } from '@erxes/ui/src';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import Assignees from '@erxes/ui-cards/src/boards/components/Assignees';
 import Form from '../containers/Form';
+import moment from 'moment';
+
 type Props = {
   request: IGrantRequest;
 };
@@ -27,7 +29,15 @@ class Row extends React.Component<Props> {
       }
     };
 
-    const { _id, contentType, detail, requester, users } = request;
+    const {
+      _id,
+      contentType,
+      detail,
+      requester,
+      users,
+      createdAt,
+      resolvedAt
+    } = request;
 
     const trigger = (
       <Button btnStyle="link">
@@ -51,6 +61,7 @@ class Row extends React.Component<Props> {
         size="lg"
       />
     );
+
     return (
       <tr>
         <td>{contentType}</td>
@@ -64,6 +75,8 @@ class Row extends React.Component<Props> {
         <td>
           <Label lblStyle={lblStyle()}>{request.status}</Label>
         </td>
+        <td>{createdAt ? moment(createdAt).format('ll hh:mm') : '-'}</td>
+        <td>{resolvedAt ? moment(resolvedAt).format('ll hh:mm') : '-'}</td>
         <td>{detailBtn()}</td>
       </tr>
     );

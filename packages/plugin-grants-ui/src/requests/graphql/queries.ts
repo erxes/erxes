@@ -6,6 +6,12 @@ const commonParams = `
     $status: String,
     $requesterId: String,
     $userId: String,
+    $sortDirection:Int,
+    $sortField:String,
+    $closedAtFrom: String,
+    $closedAtTo: String,
+    $createdAtFrom: String,
+    $createdAtTo: String,
 `;
 
 const commonParamsDef = `
@@ -14,6 +20,12 @@ const commonParamsDef = `
     status:$status,
     requesterId:$requesterId,
     userId:$userId,
+    sortDirection: $sortDirection
+    sortField: $sortField
+    closedAtFrom: $closedAtFrom,
+    closedAtTo: $closedAtTo,
+    createdAtFrom: $createdAtFrom,
+    createdAtTo: $createdAtTo,
 `;
 
 const requests = `
@@ -25,6 +37,8 @@ query GrantRequests(${commonParams}) {
     contentTypeId,
     requesterId,
     status,
+    createdAt,
+    resolvedAt,
     
     requester {
       ${userTypes}
@@ -43,7 +57,8 @@ const requestDetail = `
   query GrantRequestDetail($_id: String) {
     grantRequestDetail(_id: $_id) {
       _id
-      action
+      action,
+      actionLabel,
       contentType,
       contentTypeId,
       requesterId,
@@ -57,6 +72,7 @@ const requestDetail = `
         _id,
         description,
         response,
+        createdAt,
         userId,
         user {
           ${userTypes}

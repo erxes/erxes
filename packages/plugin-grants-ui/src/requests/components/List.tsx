@@ -1,7 +1,7 @@
 import React from 'react';
 import { IGrantRequest } from '../../common/type';
 import { DefaultWrapper } from '../../common/utils';
-import { FormControl, Table, __ } from '@erxes/ui/src';
+import { FormControl, SortHandler, Table, __ } from '@erxes/ui/src';
 import Row from './Row';
 import SideBar from './SideBar';
 
@@ -34,6 +34,14 @@ class List extends React.Component<Props, State> {
             <th>{__('Requester')}</th>
             <th>{__('Recipients')}</th>
             <th>{__('Status')}</th>
+            <th>
+              <SortHandler sortField="createdAt" />
+              {__('Requested at')}
+            </th>
+            <th>
+              <SortHandler sortField="resolvedAt" />
+              {__('Resolved at')}
+            </th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>

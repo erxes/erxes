@@ -14,7 +14,7 @@ import { doAction } from '../utils';
 export interface IRequestsModel extends Model<IGrantRequestDocument> {
   getGrantRequest(args: any): Promise<IGrantRequestDocument>;
   grantRequestDetail(_id: string): Promise<IGrantRequestDocument>;
-  getGrantActions(): Promise<{ label: string; action: string }>;
+  getGrantActions(): Promise<{ label: string; action: string }[]>;
   addGrantRequest(
     doc: any,
     user: IUserDocument
@@ -80,7 +80,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           data: {
             createdUser: user,
             receivers: userIds,
-            title: `seeking grant`,
+            title: `Grant`,
             action: 'wants grant',
             content: action,
             notifType: 'plugin',
@@ -145,19 +145,20 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           subdomain,
           request.scope,
           request.action,
+          request._id,
           request.params,
           requester
         );
 
         await models.Requests.updateOne(
           { _id: request._id },
-          { status: 'approved' }
+          { status: 'approved', resolvedAt: new Date() }
         );
         return 'Your grant was successfully ';
       } else {
         await models.Requests.updateOne(
           { _id: request._id },
-          { status: 'declined' }
+          { status: 'declined', resolvedAt: new Date() }
         );
       }
     }

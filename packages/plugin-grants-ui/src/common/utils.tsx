@@ -138,3 +138,17 @@ export const DefaultWrapper = ({
     />
   );
 };
+
+export const generateTeamMemberParams = object => {
+  const filter: any = {};
+
+  if (!!object?.branchIds?.length) {
+    filter.branchIds = object?.branchIds;
+  }
+
+  if (!!object?.departmentIds?.length) {
+    filter.departmentIds = object?.departmentIds;
+  }
+
+  return filter;
+};

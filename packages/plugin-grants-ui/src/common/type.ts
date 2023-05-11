@@ -10,12 +10,15 @@ export type IGrantRequest = {
   requesterId: string;
   users: { grantResponse: string } & IUser[];
   action: string;
+  actionLabel?: string;
   params: string;
   detail?: {
     _id: string;
     name: string;
   };
   requester: IUser;
+  createdAt: string;
+  resolvedAt: string;
 };
 
 export type RequestQueryResponse = {
@@ -27,6 +30,7 @@ export type IGrantResponse = {
   description: string;
   response: string;
   userId: string;
+  createdAt: string;
   user: IUser;
 };
 

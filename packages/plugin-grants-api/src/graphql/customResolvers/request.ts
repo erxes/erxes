@@ -1,4 +1,4 @@
-import { IContext } from '../../connectionResolver';
+import { IContext, models } from '../../connectionResolver';
 import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
 import { IGrantRequest } from '../../models/definitions/grant';
 
@@ -80,5 +80,12 @@ export default {
     { models }: IContext
   ) {
     return await models.Responses.find({ requestId: _id });
+  },
+
+  async actionLabel({ action }: IGrantRequest, {}, { models }: IContext) {
+    const actions = await models.Requests.getGrantActions();
+    return (
+      actions.find(grantAction => grantAction.action === action)?.label || null
+    );
   }
 };

@@ -10,7 +10,7 @@ import {
   loadDynamicComponent
 } from '@erxes/ui/src';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { SelectActions } from '../../common/utils';
+import { SelectActions, generateTeamMemberParams } from '../../common/utils';
 import { IGrantRequest } from '../../common/type';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
@@ -99,7 +99,7 @@ class RequestForm extends React.Component<Props, State> {
 
   renderContent(props: IFormProps) {
     const { request } = this.state;
-    const { loading } = this.props;
+    const { loading, object } = this.props;
 
     const handleSelect = (value, name, scope?) => {
       request[name] = value;
@@ -119,6 +119,7 @@ class RequestForm extends React.Component<Props, State> {
             name="userIds"
             multi={true}
             initialValue={request.userIds}
+            filterParams={generateTeamMemberParams(object)}
             onSelect={handleSelect}
           />
         </FormGroup>

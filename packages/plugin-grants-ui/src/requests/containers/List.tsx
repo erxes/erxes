@@ -47,6 +47,12 @@ const generateQueryParams = queryParams => {
     status: queryParams.type,
     requesterId: queryParams.requesterId,
     userId: queryParams.recipientId,
+    sortField: queryParams?.sortField,
+    sortDirection: Number(queryParams?.sortDirection) || undefined,
+    createdAtFrom: queryParams.createdAtFrom || undefined,
+    createdAtTo: queryParams.createdAtTo || undefined,
+    closedAtFrom: queryParams.closedAtFrom || undefined,
+    closedAtTo: queryParams.closedAtTo || undefined,
     ...generatePaginationParams(queryParams || {})
   };
 };

@@ -17,10 +17,13 @@ export const types = `
     requester:User,
     status:String,
     userIds:[String],
+    createdAt:Date,
+    resolvedAt:Date,
     users:[User],
     detail:ContentDetail,
     
     responses:[GrantResponse]
+    actionLabel:String,
   }
 
   type GrantResponse {
@@ -28,7 +31,8 @@ export const types = `
     userId:String,
     user:User,
     response:String,
-    description:String
+    description:String,
+    createdAt:Date,
   }
 
   type Action  {
@@ -44,7 +48,13 @@ const commonParams = `
   ${paginateParams},
   requesterId:String,
   userId:String,
-  status:String
+  status:String,
+  sortField:String
+  sortDirection:Int,
+  createdAtFrom:String
+  createdAtTo:String
+  closedAtFrom:String
+  closedAtTo:String
 `;
 
 export const queries = `

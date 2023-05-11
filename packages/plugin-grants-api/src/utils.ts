@@ -1,11 +1,20 @@
 import { sendCommonMessage } from './messageBroker';
 
-export async function doAction(subdomain, serviceName, action, params, user) {
+export async function doAction(
+  subdomain,
+  serviceName,
+  action,
+  requestId,
+  params,
+  user
+) {
   await sendCommonMessage({
     subdomain,
     serviceName,
-    action,
+    action: 'grants',
     data: {
+      action,
+      requestId,
       ...JSON.parse(params || '{}'),
       user,
       processId: Math.random()

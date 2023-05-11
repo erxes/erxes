@@ -112,8 +112,6 @@ class RequestFormContainer extends React.Component<
       };
     }
 
-    console.log({ updatedProps });
-
     return <RequestForm {...updatedProps} />;
   }
 }

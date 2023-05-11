@@ -119,6 +119,7 @@ class Section extends React.Component<Props> {
         title="Send Grant Request"
         trigger={trigger}
         content={content}
+        size="lg"
       />
     );
   }

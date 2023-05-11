@@ -14,6 +14,7 @@ import {
   publishHelper
 } from './graphql/resolvers/mutations/utils';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+import grants from './grants';
 
 let client;
 
@@ -64,6 +65,13 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('cards:grants', async ({ subdomain, data }) => {
+    return {
+      status: 'success',
+      data: await grants.handlers({ subdomain, data })
+    };
+  });
+
   consumeRPCQueue('cards:editItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -100,12 +108,6 @@ export const initBroker = async cl => {
         collection[`update${typeUpperCase}`]
       )
     };
-  });
-
-  consumeRPCQueue('changeCardType', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    const { type, sourceType, itemId } = data;
   });
 
   consumeRPCQueue(
