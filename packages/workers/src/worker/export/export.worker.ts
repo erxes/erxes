@@ -66,6 +66,10 @@ export const uploadFileLocal = async (
   let error = '';
 
   try {
+    if (!fs.existsSync(`${uploadsFolderPath}`)) {
+      fs.mkdirSync(`${uploadsFolderPath}`, { recursive: true });
+    }
+
     await fs.promises.writeFile(
       `${uploadsFolderPath}/${fileName}.xlsx`,
       excelData
