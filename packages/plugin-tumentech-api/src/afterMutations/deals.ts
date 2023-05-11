@@ -65,6 +65,8 @@ export const afterDealCreate = async (subdomain, params) => {
     stage.code === 'dealsNew' ||
     stage.code === 'dealsWaitingDriver'
   ) {
+    console.log('********* deal', deal);
+    console.log('&&&&&&&&& stage', stage);
     const drivers = await sendContactsMessage({
       subdomain,
       action: 'customers.find',
