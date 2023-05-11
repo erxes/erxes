@@ -298,21 +298,28 @@ const participantMutations = {
     });
 
     if (winner) {
+      const data: any = {
+        title: 'Баяр хүргэе',
+        content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо, та ажлаа баталгаажуулна уу`,
+        receivers: [winner._id],
+        notifType: 'system',
+        link: ``,
+        isMobile: true,
+        eventData: {
+          type: 'deal',
+          id: deal._id
+        }
+      };
+
+      if (stage.code === 'dealsWaitingDriver') {
+        data.title = 'Танд ажлын хүсэлт ирлээ';
+        data.content = `Та ${deal.name} дугаарт ажилд уригдлаа.`;
+      }
+
       sendClientPortalMessage({
         subdomain,
         action: 'sendNotification',
-        data: {
-          title: 'Баяр хүргэе',
-          content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо, та ажлаа баталгаажуулна уу`,
-          receivers: [winner._id],
-          notifType: 'system',
-          link: ``,
-          isMobile: true,
-          eventData: {
-            type: 'deal',
-            id: deal._id
-          }
-        }
+        data
       });
     }
 
