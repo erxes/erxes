@@ -272,6 +272,20 @@ const participantMutations = {
       throw new Error('Deal not found');
     }
 
+    const stage = await sendCardsMessage({
+      subdomain,
+      action: 'stages.findOne',
+      data: {
+        _id: deal.stageId
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (stage.code === 'dealsWaitingDriver') {
+      return;
+    }
+
     const winner = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
