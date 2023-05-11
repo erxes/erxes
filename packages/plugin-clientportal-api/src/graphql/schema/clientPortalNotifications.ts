@@ -69,5 +69,5 @@ export const mutations = `
     configs: [NotificationConfigInput],
   ): ClientPortalUser
 
-    clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean): JSON
+    clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean, eventData: JSON): JSON
 `;
