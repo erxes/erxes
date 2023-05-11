@@ -25,8 +25,8 @@ export const types = `
     shiftEnd: Date
     shiftActive: Boolean
     employeeUserName: String
-    branchName: String
     deviceName: String
+    branchName: String
     employeeId: String
     deviceType: String
   }

@@ -278,7 +278,7 @@ export default withProps<Props>(
         name: 'sendScheduleReqMutation',
         options: ({ userId, requestedShifts }) => ({
           variables: {
-            userId: `${userId}`,
+            userId,
             shifts: requestedShifts
           },
           refetchQueries: ['schedulesMain']
@@ -289,7 +289,7 @@ export default withProps<Props>(
       name: 'submitScheduleMutation',
       options: ({ userIds, requestedShifts }) => ({
         variables: {
-          userIds: `${userIds}`,
+          userIds,
           shifts: `${requestedShifts}`
         },
         refetchQueries: ['schedulesMain']

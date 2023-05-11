@@ -40,8 +40,7 @@ function List(props: Props) {
     isCurrentUserAdmin,
     history,
     route,
-    searchFilter,
-    isCurrentUserSupervisor
+    searchFilter
   } = props;
 
   const [showSideBar, setShowSideBar] = useState(true);
