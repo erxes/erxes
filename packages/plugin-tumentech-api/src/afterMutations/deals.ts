@@ -412,6 +412,19 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
+    if (stage.code === 'dispatchContractPayment') {
+      await notifyDealRelatedUsers(
+        subdomain,
+        process.env.MOBILE_CP_ID || '',
+        deal,
+        {
+          title: 'Төлбөр хүлээгдэж байна',
+          content: `${deal.name} ажлын төлбөр хүлээгдэж байна!`,
+          isMobile: true
+        }
+      );
+    }
+
     if (
       (stage.code && stage.code === 'complete') ||
       stage.code === 'dispatchSuccess'
