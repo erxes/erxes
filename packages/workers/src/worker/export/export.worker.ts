@@ -66,6 +66,10 @@ export const uploadFileLocal = async (
   let error = '';
 
   try {
+    if (!fs.existsSync(`${uploadsFolderPath}`)) {
+      fs.mkdirSync(`${uploadsFolderPath}`, { recursive: true });
+    }
+
     await fs.promises.writeFile(
       `${uploadsFolderPath}/${fileName}.xlsx`,
       excelData
@@ -87,14 +91,14 @@ export const uploadFileAWS = async (
   rowIndex: any,
   type: string
 ): Promise<{ file: string; rowIndex: number; error: string }> => {
-  const { AWS_BUCKET } = await getFileUploadConfigs();
+  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
 
   // initialize s3
   const s3 = await createAWS();
 
   const excelData = await generateXlsx(workbook);
 
-  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`;
+  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}.xlsx`;
 
   const response: any = await new Promise(resolve => {
     s3.upload(
@@ -104,7 +108,7 @@ export const uploadFileAWS = async (
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: excelData,
-        ACL: 'public-read'
+        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
       },
       (err, res) => {
         if (err) {
@@ -115,7 +119,7 @@ export const uploadFileAWS = async (
     );
   });
 
-  const file = response.Location;
+  const file = FILE_SYSTEM_PUBLIC === 'true' ? response.Location : fileName;
   const error = response.error;
 
   return { file, rowIndex, error };
