@@ -272,20 +272,6 @@ const participantMutations = {
       throw new Error('Deal not found');
     }
 
-    const stage = await sendCardsMessage({
-      subdomain,
-      action: 'stages.findOne',
-      data: {
-        _id: deal.stageId
-      },
-      isRPC: true,
-      defaultValue: {}
-    });
-
-    if (stage.code === 'dealsWaitingDriver') {
-      return;
-    }
-
     const winner = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
@@ -298,6 +284,24 @@ const participantMutations = {
     });
 
     if (winner) {
+      const stage = await sendCardsMessage({
+        subdomain,
+        action: 'stages.findOne',
+        data: {
+          _id: deal.stageId
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      if (stage.code === 'dealsWaitingDriver') {
+        return;
+      }
+
+      console.log('winner', winner);
+      console.log('deal', deal);
+      console.log('stage', stage);
+
       const data: any = {
         title: 'Баяр хүргэе',
         content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо, та ажлаа баталгаажуулна уу`,
