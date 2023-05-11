@@ -61,8 +61,6 @@ class RequestFormContainer extends React.Component<
         successAction = 'edited';
       }
 
-      console.log({ values });
-
       return (
         <ButtonMutate
           disabled={this.state.loading}

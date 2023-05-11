@@ -8,7 +8,6 @@ const GrantRequest = asyncComponent(() =>
 );
 
 const requests = ({ history, location }) => {
-  console.log(history);
   return (
     <GrantRequest
       history={history}
