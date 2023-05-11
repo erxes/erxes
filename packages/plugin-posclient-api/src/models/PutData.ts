@@ -118,7 +118,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     return { stocks, sumAmount, vatAmount, citytaxAmount };
   }
 
-  private async generateTransactionInfo() {
+  public async generateTransactionInfo() {
     const {
       stocks,
       sumAmount,
