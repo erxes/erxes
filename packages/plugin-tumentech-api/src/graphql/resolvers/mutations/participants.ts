@@ -26,6 +26,42 @@ const participantMutations = {
       return null;
     }
 
+    const conformities = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.getConformities',
+      data: {
+        mainType: 'deal',
+        mainTypeIds: [participant.dealId],
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: {
+        _id: participant.dealId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    const stage = await sendCardsMessage({
+      subdomain,
+      action: 'stages.findOne',
+      data: {
+        _id: deal.stageId
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (stage.code === 'dealsWaitingDriver') {
+      return participant;
+    }
+
     graphqlPubsub.publish('participantsChanged', {
       participantsChanged: participant
     });
@@ -55,28 +91,6 @@ const participantMutations = {
         }
       });
     }
-
-    const conformities = await sendCoreMessage({
-      subdomain,
-      action: 'conformities.getConformities',
-      data: {
-        mainType: 'deal',
-        mainTypeIds: [participant.dealId],
-        relTypes: ['customer']
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    const deal = await sendCardsMessage({
-      subdomain,
-      action: 'deals.findOne',
-      data: {
-        _id: participant.dealId
-      },
-      isRPC: true,
-      defaultValue: null
-    });
 
     if (conformities.length > 0) {
       for (const conformity of conformities) {

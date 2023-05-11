@@ -84,21 +84,28 @@ export const afterDealCreate = async (subdomain, params) => {
       defaultValue: []
     });
 
+    const notifData: any = {
+      title: 'Шинэ зар орлоо',
+      content: `Шинэ ажлын зар орсон байна!`,
+      receivers: cpUsers.map(cpUser => cpUser._id),
+      notifType: 'system',
+      link: '',
+      isMobile: true,
+      eventData: {
+        type: 'deal',
+        id: deal._id
+      }
+    };
+
+    if (stage.code === 'dealsWaitingDriver') {
+      notifData.title = 'Танд ажлын хүсэлт ирлээ';
+      notifData.content = `Та ${deal.name} дугаарт ажилд уригдлаа.`;
+    }
+
     sendClientPortalMessage({
       subdomain,
       action: 'sendNotification',
-      data: {
-        title: 'Шинэ зар орлоо',
-        content: `Шинэ ажлын зар орсон байна!`,
-        receivers: cpUsers.map(cpUser => cpUser._id),
-        notifType: 'system',
-        link: '',
-        isMobile: true,
-        eventData: {
-          type: 'deal',
-          id: deal._id
-        }
-      }
+      data: notifData
     });
   }
 
