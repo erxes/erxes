@@ -19,6 +19,8 @@ import { invalidateCache } from '../../utils';
 import CardSelect from './CardSelect';
 import GenerateAddFormFields from './GenerateAddFormFields';
 import * as _ from 'lodash';
+import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
+import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
 
 type Props = {
   options: IOptions;
@@ -104,7 +106,7 @@ class AddForm extends React.Component<Props, State> {
   save = e => {
     e.preventDefault();
 
-    const {
+    let {
       stageId,
       name,
       cardId,
@@ -118,7 +120,7 @@ class AddForm extends React.Component<Props, State> {
       attachments,
       tagIds
     } = this.state;
-    const { saveItem, closeModal, callback, fields } = this.props;
+    let { saveItem, closeModal, callback, fields } = this.props;
 
     if (!stageId) {
       return Alert.error('No stage');
@@ -127,6 +129,34 @@ class AddForm extends React.Component<Props, State> {
     if (!name && !cardId) {
       return Alert.error('Please enter name or select card');
     }
+
+    fields = fields.filter(field => {
+      const logics: LogicParams[] = (field.logics || []).map(logic => {
+        let { fieldId = '' } = logic;
+
+        if (fieldId.includes('customFieldsData')) {
+          fieldId = fieldId.split('.')[1];
+        }
+
+        return {
+          fieldId,
+          operator: logic.logicOperator,
+          logicValue: logic.logicValue,
+          fieldValue: (customFieldsData.find(c => c.field === fieldId) || {})
+            .value,
+          validation: fields.find(e => e._id === fieldId)?.validation,
+          type: field.type
+        };
+      });
+
+      if (checkLogic(logics)) {
+        return field;
+      }
+    });
+
+    customFieldsData = customFieldsData.filter(customField =>
+      fields.find(field => field._id == customField.field)
+    );
 
     for (const field of fields) {
       const customField =

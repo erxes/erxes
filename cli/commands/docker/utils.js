@@ -10,12 +10,12 @@ const routerConfigDirPath = filePath('./apollo-router-config');
 
 async function createRouterConfigDir() {
   if (!fs.existsSync(routerConfigDirPath)) {
-    await fs.mkdirSync(routerConfigDirPath,{ recursive: true });
+    await fs.mkdirSync(routerConfigDirPath,{ recursive: true, mode: 0o777 });
   }
 }
 
 async function recreateRouterConfigDir() {
-  await fse.removeSync(routerConfigDirPath, { recursive: true });
+  await fs.rmSync(routerConfigDirPath, { recursive: true, force: true });
   await createRouterConfigDir();
 }
 
@@ -58,7 +58,8 @@ const commonEnvs = configs => {
     ELASTICSEARCH_URL: `http://${db_server_address ||
       (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
     ENABLED_SERVICES_PATH: '/data/enabled-services.js',
-    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || ''
+    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
+    SENTRY_DSN: configs.sentry_dsn,
   };
 };
 
@@ -875,7 +876,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
 
   if (isSwarm) {
     await recreateRouterConfigDir();
-    await execCommand('docker service rm erxes_gateway');
+
+    await execCommand('docker service rm erxes_gateway', true);
+
     return execCommand(
       'docker stack deploy --compose-file docker-compose.yml erxes --with-registry-auth --resolve-image changed'
     );
