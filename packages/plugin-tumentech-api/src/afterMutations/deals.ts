@@ -60,7 +60,11 @@ export const afterDealCreate = async (subdomain, params) => {
     return;
   }
 
-  if ((stage.code && stage.code === 'newOrder') || stage.code === 'dealsNew') {
+  if (
+    (stage.code && stage.code === 'newOrder') ||
+    stage.code === 'dealsNew' ||
+    stage.code === 'dealsWaitingDriver'
+  ) {
     const drivers = await sendContactsMessage({
       subdomain,
       action: 'customers.find',
@@ -101,50 +105,6 @@ export const afterDealCreate = async (subdomain, params) => {
       notifData.title = 'Танд ажлын хүсэлт ирлээ';
       notifData.content = `Та ${deal.name} дугаарт ажилд уригдлаа.`;
     }
-
-    sendClientPortalMessage({
-      subdomain,
-      action: 'sendNotification',
-      data: notifData
-    });
-  }
-
-  if (stage.code === 'dealsWaitingDriver') {
-    const drivers = await sendContactsMessage({
-      subdomain,
-      action: 'customers.find',
-      data: {
-        tagIds: 'FwJtL7Tw7FWQT4nJW'
-      },
-      isRPC: true,
-      defaultValue: {}
-    });
-
-    const driverIds = drivers.map(driver => driver._id);
-
-    const cpUsers = await sendClientPortalMessage({
-      subdomain,
-      action: 'clientPortalUsers.find',
-      data: {
-        erxesCustomerId: { $in: driverIds },
-        clientPortalId: process.env.MOBILE_CP_ID || ''
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    const notifData: any = {
-      title: 'Танд ажлын хүсэлт ирлээ',
-      content: `Та ${deal.name} дугаарт ажилд уригдлаа.`,
-      receivers: cpUsers.map(cpUser => cpUser._id),
-      notifType: 'system',
-      link: '',
-      isMobile: true,
-      eventData: {
-        type: 'deal',
-        id: deal._id
-      }
-    };
 
     sendClientPortalMessage({
       subdomain,
