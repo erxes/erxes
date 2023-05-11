@@ -60,13 +60,7 @@ export const afterDealCreate = async (subdomain, params) => {
     return;
   }
 
-  if (
-    (stage.code && stage.code === 'newOrder') ||
-    stage.code === 'dealsNew' ||
-    stage.code === 'dealsWaitingDriver'
-  ) {
-    console.log('********* deal', deal);
-    console.log('&&&&&&&&& stage', stage);
+  if ((stage.code && stage.code === 'newOrder') || stage.code === 'dealsNew') {
     const drivers = await sendContactsMessage({
       subdomain,
       action: 'customers.find',
@@ -102,11 +96,6 @@ export const afterDealCreate = async (subdomain, params) => {
         id: deal._id
       }
     };
-
-    if (stage.code === 'dealsWaitingDriver') {
-      notifData.title = 'Танд ажлын хүсэлт ирлээ';
-      notifData.content = `Та ${deal.name} дугаарт ажилд уригдлаа.`;
-    }
 
     sendClientPortalMessage({
       subdomain,
