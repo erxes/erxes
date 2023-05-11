@@ -111,6 +111,27 @@ export const BOARD_ITEM_EXTENDED_FIELDS = [
     name: 'labelIds',
     label: 'Label',
     type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'totalAmount',
+    label: 'Total Amount',
+    type: 'number'
+  }
+];
+
+export const BOARD_ITEM_EXPORT_EXTENDED_FIELDS = [
+  {
+    _id: Math.random(),
+    name: 'totalAmount',
+    label: 'Total Amount',
+    type: 'number'
+  },
+  {
+    _id: Math.random(),
+    name: 'totalLabelCount',
+    label: 'Total Label Counts',
+    type: 'number'
   }
 ];
 
