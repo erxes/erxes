@@ -15,6 +15,7 @@ const Columns = styled.div`
 const Column = styledTS<{ lastChild?: boolean }>(styled.div)`
   flex: ${props => (props.lastChild ? 3 : 4)};
   position: relative;
+  width: 33%;
   margin-left: ${props => props.lastChild && columnSizing};
   padding-left: ${props => props.lastChild && columnSizing};
   border-left: ${props =>
