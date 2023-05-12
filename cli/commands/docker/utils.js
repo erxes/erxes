@@ -15,7 +15,7 @@ async function createRouterConfigDir() {
 }
 
 async function recreateRouterConfigDir() {
-  await fse.removeSync(routerConfigDirPath, { recursive: true });
+  await fs.rmSync(routerConfigDirPath, { recursive: true, force: true });
   await createRouterConfigDir();
 }
 

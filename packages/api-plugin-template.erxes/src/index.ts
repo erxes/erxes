@@ -344,7 +344,8 @@ async function startServer() {
       documents,
       exporter,
       documentPrintHook,
-      readFileHook
+      readFileHook,
+      payment
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -621,6 +622,16 @@ async function startServer() {
         status: 'success',
         data: await documentPrintHook.action(args)
       }));
+    }
+
+    if (payment) {
+      if (payment.callback) {
+        payment.callbackAvailable = true;
+        consumeQueue(`${configs.name}:paymentCallback`, async args => ({
+          status: 'success',
+          data: await payment.callback(args)
+        }));
+      }
     }
   } // end configs.meta if
 

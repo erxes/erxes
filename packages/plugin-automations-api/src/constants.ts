@@ -1,5 +1,5 @@
 export const ACTIONS = {
-  WAIT: 'wait',
+  WAIT: 'delay',
   IF: 'if',
   SET_PROPERTY: 'setProperty'
 };
