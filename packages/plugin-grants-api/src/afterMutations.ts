@@ -86,13 +86,12 @@ export const afterMutationHandlers = async (
                 if (config.sourceStageId === newData.stageId) {
                   await sendCardsMessage({
                     subdomain,
-                    action: 'grants',
+                    action: 'editItem',
                     data: {
                       itemId,
                       type: sourceType,
                       stageId: config.destinationStageId,
                       processId: Math.random(),
-                      action: 'changeStage',
                       user
                     }
                   });

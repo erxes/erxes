@@ -20,7 +20,7 @@ export async function doAction(
   if (action === 'changeStage') {
     await sendCardsMessage({
       subdomain,
-      action: 'changeStage',
+      action: 'editItem',
       data,
       isRPC: true
     });
@@ -28,39 +28,12 @@ export async function doAction(
   }
 
   if (action === 'changeCardType') {
-    const models = await generateModels(subdomain);
-
-    const { logics, itemId, sourceType } = data;
-
     await sendCardsMessage({
       subdomain,
       action: 'createRelatedItem',
       data,
       isRPC: true
     });
-    if (!!logics?.length) {
-      const grant = await models.Requests.findOne({ _id: requestId });
-
-      const logic = await logics.find(logic => logic?.logic === grant?.status);
-
-      if (logic) {
-        const doc = {
-          itemId,
-          type: sourceType,
-          user: user,
-          processId: Math.random(),
-          stageId: logic?.targetStageId
-        };
-
-        await sendCardsMessage({
-          subdomain,
-          action: 'editItem',
-          data: {
-            doc
-          }
-        });
-      }
-    }
 
     return 'success';
   }
@@ -72,3 +45,36 @@ export async function doAction(
     data
   });
 }
+
+export const doLogicAfterAction = async (
+  subdomain,
+  requestId,
+  params,
+  user
+) => {
+  const { logics, itemId, sourceType } = JSON.parse(params || '{}');
+
+  if (!!logics?.length) {
+    const models = await generateModels(subdomain);
+    const grant = await models.Requests.findOne({ _id: requestId });
+
+    const logic = await logics.find(logic => logic?.logic === grant?.status);
+
+    if (logic) {
+      const doc = {
+        itemId,
+        type: sourceType,
+        user: user,
+        processId: Math.random(),
+        stageId: logic?.targetStageId
+      };
+
+      await sendCardsMessage({
+        subdomain,
+        action: 'editItem',
+        data: doc,
+        isRPC: true
+      });
+    }
+  }
+};

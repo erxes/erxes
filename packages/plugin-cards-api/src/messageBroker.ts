@@ -1,19 +1,15 @@
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { graphqlPubsub, serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 import {
   generateAmounts,
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
+import { itemsEdit, publishHelper } from './graphql/resolvers/mutations/utils';
+import { createConformity, notifiedUserIds } from './graphql/utils';
 import { conversationConvertToCard, createBoardItem } from './models/utils';
 import { getCardItem } from './utils';
-import { createConformity, notifiedUserIds } from './graphql/utils';
-import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import {
-  itemsChange,
-  itemsEdit,
-  publishHelper
-} from './graphql/resolvers/mutations/utils';
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 let client;
 
@@ -78,7 +74,7 @@ export const initBroker = async cl => {
     if (!itemId || !type || !user || !processId) {
       return {
         status: 'failed',
-        data: null
+        data: 'you must provide some params'
       };
     }
     const collection = objModels[type];
@@ -102,7 +98,7 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('cards.createRelatedItem', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:createRelatedItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { type, sourceType, itemId, name, stageId } = data;

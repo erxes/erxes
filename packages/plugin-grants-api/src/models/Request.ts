@@ -9,7 +9,7 @@ import {
 import { validateRequest } from '../common/utils';
 import { serviceDiscovery } from '../configs';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { doAction } from '../utils';
+import { doAction, doLogicAfterAction } from '../utils';
 
 export interface IRequestsModel extends Model<IGrantRequestDocument> {
   getGrantRequest(args: any): Promise<IGrantRequestDocument>;
@@ -154,11 +154,24 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           { _id: request._id },
           { status: 'approved', resolvedAt: new Date() }
         );
+        await doLogicAfterAction(
+          subdomain,
+          request._id,
+          request.params,
+          requester
+        );
+
         return 'Your grant was successfully ';
       } else {
         await models.Requests.updateOne(
           { _id: request._id },
           { status: 'declined', resolvedAt: new Date() }
+        );
+        await doLogicAfterAction(
+          subdomain,
+          request._id,
+          request.params,
+          requester
         );
       }
     }
@@ -195,7 +208,20 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         action: string;
         scope: string;
         type: string;
-      }[] = [];
+      }[] = [
+        {
+          label: 'Change Stage',
+          action: 'changeStage',
+          scope: 'cards',
+          type: 'card'
+        },
+        {
+          label: 'Change Card Type',
+          action: 'changeCardType',
+          scope: 'cards',
+          type: 'card'
+        }
+      ];
 
       for (const serviceName of services) {
         const service = await serviceDiscovery.getService(serviceName, true);
