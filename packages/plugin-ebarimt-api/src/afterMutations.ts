@@ -78,7 +78,7 @@ export const afterMutationHandlers = async (
       for (const ebarimtData of ebarimtDatas) {
         let ebarimtResponse;
 
-        if (config.skipPutData) {
+        if (config.skipPutData || ebarimtData.inner) {
           const putData = new PutData({
             ...config,
             ...ebarimtData,

@@ -194,7 +194,7 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const actionBarLeft = <Title>{'All jobs'}</Title>;
+    const actionBarLeft = <Title>{`${__('All jobs')}`}</Title>;
 
     return (
       <Wrapper

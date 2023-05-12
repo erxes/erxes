@@ -181,15 +181,13 @@ export const timeclockSchema = new Schema({
 
 export const absenceTypeSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String, label: 'Absence type' }),
-
+  name: field({ type: String, label: 'Absence type', index: true }),
   requestType: field({ type: String, label: 'Type of a request' }),
   requestTimeType: field({ type: String, label: 'Either by day or by hours' }),
   requestHoursPerDay: field({
     type: Number,
     label: 'Hours per day if requestTimeType is by day'
   }),
-
   explRequired: field({
     type: Boolean,
     label: 'whether absence type requires explanation'
@@ -337,7 +335,8 @@ export const scheduleConfigSchema = new Schema({
   _id: field({ pkey: true }),
   scheduleName: field({
     type: String,
-    label: 'Name of the schedule'
+    label: 'Name of the schedule',
+    index: true
   }),
   lunchBreakInMins: field({
     type: Number,
@@ -357,7 +356,11 @@ export const scheduleConfigSchema = new Schema({
 export const deviceConfigSchema = new Schema({
   _id: field({ pkey: true }),
   deviceName: field({ type: String, label: 'Name of the device' }),
-  serialNo: field({ type: String, label: 'Serial number of the device' }),
+  serialNo: field({
+    type: String,
+    label: 'Serial number of the device',
+    index: true
+  }),
   extractRequired: field({
     type: Boolean,
     label: 'whether extract from the device'
@@ -366,7 +369,7 @@ export const deviceConfigSchema = new Schema({
 
 export const reportCheckSchema = new Schema({
   _id: field({ pkey: true }),
-  userId: field({ type: String, label: 'User of the report' }),
+  userId: field({ type: String, label: 'User of the report', index: true }),
   startDate: field({ type: String, label: 'Start date of report' }),
   endDate: field({
     type: String,

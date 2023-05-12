@@ -91,8 +91,6 @@ router.post('/gateway', async (req, res, next) => {
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
 
-  console.log('prefix', prefix);
-
   const filter: any = {};
 
   if (data.paymentIds) {

@@ -1,4 +1,4 @@
-import dayjs = require('dayjs');
+import * as dayjs from 'dayjs';
 import * as xlsxPopulate from 'xlsx-populate';
 import { IModels } from './connectionResolver';
 import {

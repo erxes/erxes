@@ -8,6 +8,7 @@ import {
   sendContactsMessage,
   sendCoreMessage
 } from '../../messageBroker';
+import { PutData } from '../../models/PutData';
 
 export default {
   async items(order: IOrderDocument, {}, { models }: IContext) {
@@ -79,7 +80,7 @@ export default {
     return models.PosUsers.findOne({ _id: order.userId });
   },
 
-  async putResponses(order: IOrderDocument, {}, { models }: IContext) {
+  async putResponses(order: IOrderDocument, {}, { models, config }: IContext) {
     if (order.billType === '9') {
       const items: IOrderItem[] =
         (await models.OrderItems.find({ orderId: order._id }).lean()) || [];
@@ -161,6 +162,47 @@ export default {
           excludeIds.push(falsePR._id);
         }
       }
+    }
+
+    const innerItems = await models.OrderItems.find({
+      orderId: order._id,
+      isInner: true
+    }).lean();
+
+    if (innerItems && innerItems.length) {
+      const products = await models.Products.find({
+        _id: { $in: innerItems.map(i => i.productId) }
+      });
+      const productsById = {};
+      for (const product of products) {
+        productsById[product._id] = product;
+      }
+      const putData = new PutData({
+        ...config,
+        ...order,
+        date: new Date().toISOString().slice(0, 10),
+        orderId: order._id,
+        number: order.number,
+        hasVat: false,
+        hasCitytax: false,
+        description: order.number,
+        ebarimtResponse: {},
+        productsById,
+        contentType: 'pos',
+        contentId: order._id,
+        details: innerItems.map(i => ({ ...i, amount: i.count * i.unitPrice })),
+        config,
+        models
+      });
+
+      const response = {
+        _id: Math.random(),
+        billId: 'Түр баримт',
+        ...(await putData.generateTransactionInfo()),
+        registerNo: config.ebarimtConfig?.companyRD || ''
+      };
+
+      putResponses.push(response as any);
     }
 
     return putResponses.filter(pr => !excludeIds.includes(pr._id));

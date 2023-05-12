@@ -16,6 +16,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   payment?: IPaymentDocument;
+  metaData?: any;
 };
 
 type State = {
@@ -47,7 +48,7 @@ class MonpayConfigForm extends React.Component<Props, State> {
     const { payment } = this.props;
     const generatedValues = {
       name: values.paymentName,
-      kind: PAYMENT_KINDS.MONPAY,
+      kind: this.props.metaData.kind,
       status: 'active',
       config: {
         username: values.username,
@@ -101,6 +102,12 @@ class MonpayConfigForm extends React.Component<Props, State> {
           {this.renderItem('paymentName', 'Name')}
           {this.renderItem('username', 'Branch username')}
           {this.renderItem('accountId', 'Account ID', '', true)}
+
+          {this.props.metaData.link && (
+            <a href={this.props.metaData.link} target="_blank" rel="noreferrer">
+              {__('Apply for a Monpay')}
+            </a>
+          )}
         </SettingsContent>
 
         <ModalFooter>

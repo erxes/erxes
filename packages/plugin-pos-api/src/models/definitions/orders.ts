@@ -106,6 +106,11 @@ const posOrderItemSchema = schemaHooksWrapper(
       type: Boolean,
       label: 'order eat but some take',
       default: false
+    }),
+    isInner: field({
+      type: Boolean,
+      label: 'inner or skip ebarimt',
+      default: false
     })
   }),
   'erxes_posOrderItem'

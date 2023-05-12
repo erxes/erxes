@@ -7,8 +7,14 @@ import { TimeClockMutationResponse } from '../../types';
 import { mutations } from '../../graphql';
 import React from 'react';
 import { ITimeclock } from '../../types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   timeclocks: ITimeclock[];
   searchValue: string;
   queryParams: any;
@@ -55,7 +61,7 @@ const ListContainer = (props: FinalProps) => {
     stopTimeMutation({
       variables: {
         _id: timeId,
-        userId: `${userId}`,
+        userId,
         longitude: long,
         latitude: lat,
         deviceType: 'XOS'
@@ -82,9 +88,9 @@ export default withProps<Props>(
       name: 'startTimeMutation',
       options: ({ userId, longitude, latitude }) => ({
         variables: {
-          userId: `${userId}`,
-          longitude: `${longitude}`,
-          latitude: `${latitude}`
+          userId,
+          longitude,
+          latitude
         },
         refetchQueries: ['timeclocksMain']
       })
@@ -94,10 +100,10 @@ export default withProps<Props>(
       name: 'stopTimeMutation',
       options: ({ userId, timeId, longitude, latitude }) => ({
         variables: {
-          userId: `${userId}`,
+          userId,
           _id: timeId,
-          longitude: `${longitude}`,
-          latitude: `${latitude}`
+          longitude,
+          latitude
         },
         refetchQueries: ['timeclocksMain']
       })
