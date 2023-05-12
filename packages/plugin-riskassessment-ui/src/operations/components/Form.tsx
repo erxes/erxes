@@ -1,7 +1,7 @@
 import {
   Button,
-  ControlLabel,
   Form as CommonForm,
+  ControlLabel,
   FormControl,
   FormGroup,
   SelectTeamMembers,
@@ -38,7 +38,7 @@ class Form extends React.Component<Props, State> {
     return { ...values, ...operation };
   }
 
-  renderForm(formProps: generateDocs) {
+  renderForm(formProps: IFormProps) {
     const { operation } = this.state;
     const { renderButton, closeModal } = this.props;
 
