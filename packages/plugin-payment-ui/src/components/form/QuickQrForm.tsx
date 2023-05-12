@@ -48,7 +48,7 @@ const QuickQrForm = (props: Props) => {
   const { config, name } = payment || ({} as IPaymentDocument);
 
   const [state, setState] = React.useState<State>({
-    isCompany: config ? config.isCompany : true,
+    type: config ? (config.isCompany ? 'company' : 'person') : undefined,
     ...config,
     name
   });
