@@ -11,8 +11,7 @@ import {
   BoardSelectWrapper,
   FormFooter,
   HeaderContent,
-  HeaderRow,
-  SelectInput
+  HeaderRow
 } from '../../styles/item';
 import { IItem, IItemParams, IOptions, IStage } from '../../types';
 import { invalidateCache } from '../../utils';
@@ -324,14 +323,12 @@ class AddForm extends React.Component<Props, State> {
                 additionalValue={this.state.name}
               />
             ) : (
-              <SelectInput>
-                <FormControl
-                  value={this.state.name}
-                  autoFocus={true}
-                  placeholder="Create a new card"
-                  onChange={this.onChangeName}
-                />
-              </SelectInput>
+              <FormControl
+                value={this.state.name}
+                autoFocus={true}
+                placeholder="Create a new card"
+                onChange={this.onChangeName}
+              />
             )}
           </HeaderContent>
         </HeaderRow>
