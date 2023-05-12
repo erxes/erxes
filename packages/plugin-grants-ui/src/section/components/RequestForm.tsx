@@ -119,6 +119,10 @@ class RequestForm extends React.Component<Props, State> {
     const { loading, object } = this.props;
 
     const handleSelect = (value, name, scope?) => {
+      if (name === 'action') {
+        request.params = {};
+      }
+
       request[name] = value;
       if (scope) {
         request.scope = scope;
