@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "dependencies": {
+    "@apollo/client": "~3.7.14",
     "@nateradebaugh/react-datetime": "4.0.0-rc.10",
     "@types/styled-components": "^3.0.0",
     "apollo-cache-inmemory": "^1.6.6",
