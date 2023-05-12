@@ -6,8 +6,106 @@ import {
   MODULE_NAMES
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { IPerform } from '../../../models/definitions/performs';
+import {
+  IPerform,
+  IPerformDocument
+} from '../../../models/definitions/performs';
 import { sendInventoriesMessage } from '../../../messageBroker';
+
+const editQuantity = async (
+  subdomain: string,
+  oldPerform: IPerformDocument,
+  newPerform: IPerformDocument,
+  kind: 'in' | 'out'
+) => {
+  const keyProducts = `${kind}Products`;
+  const keyBranchId = `${kind}BranchId`;
+  const keyDepartmentId = `${kind}DepartmentId`;
+  const multiplier = kind === 'in' ? 1 : -1;
+
+  if (!(oldPerform[keyProducts].length && newPerform[keyProducts].length)) {
+    return;
+  }
+
+  if (
+    oldPerform[keyBranchId] === newPerform[keyBranchId] &&
+    oldPerform[keyDepartmentId] === newPerform[keyDepartmentId]
+  ) {
+    const keyProductsByProductId = {};
+    for (const data of oldPerform[keyProducts]) {
+      keyProductsByProductId[data.productId] = {
+        uomId: data.uomId,
+        diffCount: data.quantity
+      };
+    }
+
+    for (const updatedData of newPerform[keyProducts]) {
+      const oldData = keyProductsByProductId[updatedData.productId];
+      if (oldData) {
+        oldData.diffCount =
+          multiplier * (oldData.diffCount - updatedData.quantity);
+      } else {
+        keyProductsByProductId[updatedData.productId] = {
+          uomId: updatedData.uomId,
+          diffCount: -1 * multiplier * updatedData.quantity
+        };
+      }
+    }
+
+    const keyProductsData: any[] = [];
+    for (const productId of Object.keys(keyProductsByProductId)) {
+      if (keyProductsByProductId[productId].diffCount !== 0) {
+        keyProductsData.push({
+          productId,
+          ...keyProductsByProductId[productId]
+        });
+      }
+    }
+
+    if (keyProductsData.length) {
+      // processes in or inventories credit and out or inventories debit
+      await sendInventoriesMessage({
+        subdomain,
+        action: 'remainders.updateMany',
+        data: {
+          branchId: newPerform[keyBranchId],
+          departmentId: newPerform[keyDepartmentId],
+          productsData: keyProductsData
+        }
+      });
+    }
+
+    return;
+  }
+
+  await sendInventoriesMessage({
+    subdomain,
+    action: 'remainders.updateMany',
+    data: {
+      branchId: oldPerform[keyBranchId],
+      departmentId: oldPerform[keyDepartmentId],
+      productsData: (oldPerform[keyProducts] || []).map(ip => ({
+        productId: ip.productId,
+        uomId: ip.uomId,
+        diffCount: 1 * multiplier * ip.quantity
+      }))
+    }
+  });
+
+  await sendInventoriesMessage({
+    subdomain,
+    action: 'remainders.updateMany',
+    data: {
+      branchId: newPerform[keyBranchId],
+      departmentId: newPerform[keyDepartmentId],
+      productsData: (newPerform[keyProducts] || []).map(ip => ({
+        productId: ip.productId,
+        uomId: ip.uomId,
+        diffCount: -1 * multiplier * ip.quantity
+      }))
+    }
+  });
+};
 
 const performMutations = {
   /**
@@ -94,83 +192,8 @@ const performMutations = {
       perform
     );
 
-    const inProductsByProductId = {};
-    for (const data of perform.inProducts) {
-      inProductsByProductId[data.productId] = {
-        uomId: data.uomId,
-        diffCount: data.quantity
-      };
-    }
-
-    for (const updatedData of updatedPerform.inProducts) {
-      const oldData = inProductsByProductId[updatedData.productId];
-      if (oldData) {
-        oldData.diffCount = oldData.diffCount - updatedData.quantity;
-      } else {
-        inProductsByProductId[updatedData.productId] = {
-          uomId: updatedData.uomId,
-          diffCount: -1 * updatedData.quantity
-        };
-      }
-    }
-
-    const inProductsData: any[] = [];
-    for (const productId of Object.keys(inProductsByProductId)) {
-      inProductsData.push({
-        productId,
-        ...inProductsByProductId[productId]
-      });
-    }
-
-    // processes in or inventories credit
-    await sendInventoriesMessage({
-      subdomain,
-      action: 'remainders.updateMany',
-      data: {
-        branchId: doc.inBranchId,
-        departmentId: doc.inDepartmentId,
-        productsData: inProductsData
-      }
-    });
-
-    const outProductsByProductId = {};
-    for (const data of perform.outProducts) {
-      outProductsByProductId[data.productId] = {
-        uomId: data.uomId,
-        diffCount: -1 * data.quantity
-      };
-    }
-
-    for (const updatedData of updatedPerform.outProducts) {
-      const oldData = outProductsByProductId[updatedData.productId];
-      if (oldData) {
-        oldData.diffCount = oldData.diffCount + updatedData.quantity;
-      } else {
-        outProductsByProductId[updatedData.productId] = {
-          uomId: updatedData.uomId,
-          diffCount: updatedData.quantity
-        };
-      }
-    }
-
-    const outProductsData: any[] = [];
-    for (const productId of Object.keys(outProductsByProductId)) {
-      outProductsData.push({
-        productId,
-        ...outProductsByProductId[productId]
-      });
-    }
-
-    // processes out or inventories debit
-    await sendInventoriesMessage({
-      subdomain,
-      action: 'remainders.updateMany',
-      data: {
-        branchId: doc.outBranchId,
-        departmentId: doc.outDepartmentId,
-        productsData: outProductsData
-      }
-    });
+    await editQuantity(subdomain, perform, updatedPerform, 'in');
+    await editQuantity(subdomain, perform, updatedPerform, 'out');
 
     await putUpdateLog(
       models,

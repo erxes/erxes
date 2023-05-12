@@ -16,6 +16,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   payment?: IPaymentDocument;
+  metaData?: any;
 };
 
 type State = {
@@ -134,6 +135,14 @@ class StorepayConfigForm extends React.Component<Props, State> {
           {this.renderItem('merchantPassword', 'Merchant password', '', true)}
           {this.renderItem('appUsername', 'App username')}
           {this.renderItem('appPassword', 'App password', '', true)}
+
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLScxZItJ5egDhNqSOMTj6np6d9yrb5zW9micqvqxHFcyhsRszg/viewform"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {__('Apply for storepay')}
+          </a>
         </SettingsContent>
 
         <ModalFooter>

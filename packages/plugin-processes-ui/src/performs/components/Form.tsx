@@ -234,7 +234,7 @@ class Form extends React.Component<Props, State> {
       overallWorkDet.type === 'outlet' &&
       !(
         overallWorkDet.key.inBranchId &&
-        overallWorkDet.inDepartmentId &&
+        overallWorkDet.key.inDepartmentId &&
         inProducts.length
       )
     ) {

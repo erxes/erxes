@@ -19,6 +19,8 @@ type Props = {
   timelogs: ITimelog[];
   totalCount?: number;
 
+  isCurrentUserAdmin: boolean;
+
   extractTimeLogsFromMsSQL: (startDate: Date, endDate: Date) => void;
   createTimeclockFromLog: (userId: string, timelog: Date) => void;
 
@@ -35,7 +37,8 @@ function ReportList(props: Props) {
     getPagination,
     showSideBar,
     getActionBar,
-    createTimeclockFromLog
+    createTimeclockFromLog,
+    isCurrentUserAdmin
   } = props;
 
   const [startDate, setStartDate] = useState(
@@ -59,7 +62,11 @@ function ReportList(props: Props) {
     localStorage.setItem('endDate', endDate.toISOString());
   };
 
-  const extractTrigger = <Button icon="plus-circle">Extract time logs</Button>;
+  const extractTrigger = isCurrentUserAdmin ? (
+    <Button icon="plus-circle">Extract time logs</Button>
+  ) : (
+    <></>
+  );
 
   const extractContent = () => (
     <FlexColumn marginNum={10}>

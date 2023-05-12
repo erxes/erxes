@@ -97,7 +97,7 @@ export const returnUnionOfUserIds = async (
     concatBranchDept.push(...departmentUserIds);
   }
 
-  // prevent creating double schedule for common users
+  // prevent inserting common users twice
   const sorted = concatBranchDept.sort();
   const unionOfUserIds = sorted.filter((value, pos) => {
     return concatBranchDept.indexOf(value) === pos;
@@ -155,8 +155,10 @@ export const timeclockReportByUser = async (
 
   let report: IUserReport = {
     scheduleReport: [],
-    userId: `${userId}`,
-    totalMinsScheduledThisMonth: 0
+    userId,
+    totalMinsScheduledThisMonth: 0,
+    totalMinsWorkedToday: 0,
+    totalMinsScheduledToday: 0
   };
   const shiftsOfSchedule: any = [];
 
@@ -170,7 +172,14 @@ export const timeclockReportByUser = async (
   const endTime = endDate ? endDate : startOfNextMonth;
 
   // get the schedule data of this month
-  const schedules = models.Schedules.find({ userId });
+  const schedules = await models.Schedules.find({
+    userId,
+    status: 'Approved',
+    solved: true
+  });
+
+  const scheduleIds = schedules.map(schedule => schedule._id);
+
   const timeclocks = models.Timeclocks.find({
     $and: [
       { userId },
@@ -198,18 +207,16 @@ export const timeclockReportByUser = async (
     }
   });
 
-  for (const { _id } of await schedules) {
-    shiftsOfSchedule.push(
-      ...(await models.Shifts.find({
-        scheduleId: _id,
-        status: 'Approved',
-        shiftStart: {
-          $gte: fixDate(startTime),
-          $lte: fixDate(endTime)
-        }
-      }))
-    );
-  }
+  shiftsOfSchedule.push(
+    ...(await models.Shifts.find({
+      scheduleId: { $in: scheduleIds },
+      status: 'Approved',
+      shiftStart: {
+        $gte: fixDate(startTime),
+        $lte: fixDate(endTime)
+      }
+    }))
+  );
 
   // if any of the schemas is not empty
   if (
@@ -493,6 +500,7 @@ export const timeclockReportFinal = async (
 
   // get all approved absence requests
   const requests = await models.Absences.find({
+    userId: { $in: userIds },
     solved: true,
     status: /approved/gi,
     $or: [
@@ -589,15 +597,17 @@ export const timeclockReportFinal = async (
       schedule => schedule.userId === currUserId
     );
 
+    const currUserScheduleIds = currUserSchedules.map(schedule => schedule._id);
+
     // get shifts of schedule
     const currUserScheduleShifts: any = [];
-    currUserSchedules.forEach(userSchedule => {
+    for (const userSchedule of currUserSchedules) {
       currUserScheduleShifts.push(
         ...shiftsOfSchedule.filter(
           scheduleShift => scheduleShift.scheduleId === userSchedule._id
         )
       );
-    });
+    }
 
     let totalDaysWorkedPerUser = 0;
     let totalRegularHoursWorkedPerUser = 0;

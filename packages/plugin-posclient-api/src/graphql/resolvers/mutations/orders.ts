@@ -1,11 +1,21 @@
-import * as Random from 'meteor-random';
+import { debugError } from '@erxes/api-utils/src/debuggers';
+import { graphqlPubsub } from '../../../configs';
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendInboxMessage,
+  sendPosMessage
+} from '../../../messageBroker';
+import { IConfig } from '../../../models/definitions/configs';
 import {
   BILL_TYPES,
   ORDER_ITEM_STATUSES,
   ORDER_STATUSES
 } from '../../../models/definitions/constants';
+import { IPaidAmount } from '../../../models/definitions/orders';
+import { PutData } from '../../../models/PutData';
+import { IContext, IOrderInput } from '../../types';
 import { checkLoyalties } from '../../utils/loyalties';
-import { checkPricing } from '../../utils/pricing';
 import {
   checkOrderAmount,
   checkOrderStatus,
@@ -20,13 +30,7 @@ import {
   validateOrder,
   validateOrderPayment
 } from '../../utils/orderUtils';
-import { debugError } from '@erxes/api-utils/src/debuggers';
-import { graphqlPubsub } from '../../../configs';
-import { IConfig } from '../../../models/definitions/configs';
-import { IContext } from '../../types';
-import { IOrderInput } from '../../types';
-import { sendPosMessage } from '../../../messageBroker';
-import { IPaidAmount } from '../../../models/definitions/orders';
+import { checkPricing } from '../../utils/pricing';
 
 interface IPaymentBase {
   billType: string;
@@ -52,6 +56,13 @@ interface IOrderEditParams extends IOrderInput {
   _id: string;
   billType: string;
   registerNumber: string;
+}
+
+export interface IOrderChangeParams {
+  _id: string;
+  dueDate?: Date;
+  branchId?: string;
+  deliveryInfo?: string;
 }
 
 const getTaxInfo = (config: IConfig) => {
@@ -247,7 +258,12 @@ const orderMutations = {
       }
     });
 
-    if (order.type === 'delivery' && order.status === 'done') {
+    if (
+      order.type === 'delivery' &&
+      order.status === 'done' &&
+      order.deliveryInfo &&
+      order.customerId
+    ) {
       try {
         sendPosMessage({
           subdomain,
@@ -255,6 +271,69 @@ const orderMutations = {
           data: { action: 'statusToDone', order, posToken: config.token }
         });
       } catch (e) {}
+    }
+    return await models.Orders.getOrder(_id);
+  },
+
+  async ordersChange(
+    _root,
+    params: IOrderChangeParams,
+    { models, config, subdomain }: IContext
+  ) {
+    // after paid then edit order some field
+    // if online, update branch
+    // update dueDate
+    // update deliveryInfo
+    const order = await models.Orders.getOrder(params._id);
+
+    if (!order.paidDate) {
+      throw new Error('Can not change cause: order is not paid');
+    }
+
+    const oldBranchId = order.branchId;
+
+    if (params.dueDate && params.dueDate < new Date()) {
+      throw new Error('due date must be in future');
+    }
+
+    if (params.branchId) {
+      if (!config.isOnline) {
+        throw new Error('Can edit branch at only online pos');
+      }
+
+      if (!(config.allowBranchIds || []).includes(params.branchId)) {
+        throw new Error('not allowed branch');
+      }
+    }
+
+    const doc = { ...order };
+
+    if (params.dueDate) doc.dueDate = params.dueDate;
+
+    if (params.branchId) doc.branchId = params.branchId;
+
+    if (params.deliveryInfo) doc.deliveryInfo = params.deliveryInfo;
+
+    const changedOrder = await models.Orders.updateOrder(params._id, doc);
+
+    if (changedOrder.paidDate) {
+      try {
+        sendPosMessage({
+          subdomain,
+          action: 'createOrUpdateOrders',
+          data: {
+            posToken: config.token,
+            action: 'makePayment',
+            oldBranchId,
+            order,
+            items: await models.OrderItems.find({
+              orderId: params._id
+            }).lean()
+          }
+        });
+      } catch (e) {
+        debugError(`Error occurred while sending data to erxes: ${e.message}`);
+      }
     }
   },
 
@@ -480,6 +559,31 @@ const orderMutations = {
         for (const data of ebarimtDatas) {
           let response;
 
+          if (data.inner) {
+            const putData = new PutData({
+              ...config,
+              ...data,
+              config,
+              models
+            });
+
+            response = {
+              _id: Math.random(),
+              billId: 'Түр баримт',
+              ...(await putData.generateTransactionInfo()),
+              registerNo: config.ebarimtConfig?.companyRD || '',
+              success: 'true'
+            };
+            ebarimtResponses.push(response);
+
+            await models.OrderItems.updateOne(
+              { _id: { $in: data.itemIds } },
+              { $set: { isInner: true } }
+            );
+
+            continue;
+          }
+
           response = await models.PutResponses.putData({
             ...data,
             config: ebarimtConfig,
@@ -540,7 +644,159 @@ const orderMutations = {
 
       return e;
     }
-  } // end ordersSettlePayment()
+  }, // end ordersSettlePayment()
+
+  async ordersConvertToDeal(
+    _root,
+    params,
+    { models, subdomain, posUser, config }: IContext
+  ) {
+    const order = await models.Orders.getOrder(params._id);
+    if (!order.branchId) {
+      throw new Error(`First choose orders branch`);
+    }
+
+    if (!config.cardsConfig || config.cardsConfig.length) {
+      throw new Error(`No matching cards settings found`);
+    }
+
+    const cardConfig = config.cardsConfig[order.branchId];
+    if (!cardConfig) {
+      throw new Error(`No matching cards settings found in orders branch`);
+    }
+
+    if (order.convertDealId) {
+      const deal = await sendCardsMessage({
+        subdomain,
+        action: 'deals.findOne',
+        data: { _id: order.convertDealId },
+        isRPC: true
+      });
+      if (deal) {
+        const dealLink = await sendCardsMessage({
+          subdomain,
+          action: 'getLink',
+          data: { _id: order.convertDealId, type: 'deal' },
+          isRPC: true
+        });
+
+        throw new Error(`Already converted: ${dealLink}`);
+      }
+    }
+
+    const items = await models.OrderItems.find({ orderId: order._id });
+
+    const dealData: any = {
+      name: `Converted from pos: ${order.number}`,
+      startDate: order.createdAt,
+      closeDate: order.dueDate,
+      stageId: cardConfig.stageId,
+      assignedUserIds: [posUser._id],
+      watchedUserIds: [posUser._id],
+      productsData: items.map(i => ({
+        productId: i.productId,
+        uom: 'PC',
+        currency: 'MNT',
+        quantity: i.count,
+        unitPrice: i.unitPrice,
+        amount: i.count * (i.unitPrice || 0),
+        tickUsed: true
+      }))
+    };
+
+    if (order.deliveryInfo && cardConfig.deliveryMapField) {
+      const { description, marker } = order.deliveryInfo;
+      dealData.description = description;
+      dealData.customFieldsData = [
+        {
+          field: cardConfig.deliveryMapField.replace('customFieldsData.', ''),
+          locationValue: {
+            type: 'Point',
+            coordinates: [
+              marker.longitude || marker.lng,
+              marker.latitude || marker.lat
+            ]
+          },
+          value: {
+            lat: marker.latitude || marker.lat,
+            lng: marker.longitude || marker.lng,
+            description: 'location'
+          },
+          stringValue: `${marker.longitude || marker.lng},${marker.latitude ||
+            marker.lat}`
+        }
+      ];
+    }
+
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.create',
+      data: dealData,
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (order.customerId) {
+      if (
+        order.customerId &&
+        deal._id &&
+        ['customer', 'company'].includes(order.customerType || 'customer')
+      ) {
+        await sendCoreMessage({
+          subdomain,
+          action: 'conformities.addConformity',
+          data: {
+            mainType: 'deal',
+            mainTypeId: deal._id,
+            relType: order.customerType || 'customer',
+            relTypeId: order.customerId
+          },
+          isRPC: true
+        });
+      }
+    }
+
+    await models.Orders.updateOne(
+      { _id: order._id },
+      { $set: { convertDealId: deal._id } }
+    );
+    return models.Orders.getOrder(order._id);
+  },
+
+  async afterFormSubmit(
+    _root,
+    { _id, conversationId }: { _id: string; conversationId: string },
+    { models, subdomain, config }: IContext
+  ) {
+    const order = await models.Orders.getOrder(_id);
+
+    await sendInboxMessage({
+      subdomain,
+      action: 'createOnlyMessage',
+      data: {
+        conversationId,
+        internal: true,
+        customerId:
+          order.customerType || 'customer' === 'customer'
+            ? order.customerId
+            : '',
+        userId:
+          (config.adminIds && config.adminIds.length && config.adminIds[0]) ||
+          (config.cashierIds && config.cashierIds[0]) ||
+          '',
+        content: `
+          Pos order:
+            paid link: <a href="/pos-orders?posId=${config.posId}&search=${
+          order.number
+        }">${order.number}</a> <br />
+            posclient link: <a href="${config.pdomain || '/'}?orderId=${
+          order._id
+        }">${order.number}</a> <br />
+        `
+      },
+      isRPC: true
+    });
+  }
 };
 
 export default orderMutations;

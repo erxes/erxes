@@ -14,8 +14,14 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import CheckInOutForm from '../../containers/absence/CheckInOutForm';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   absences: IAbsence[];
   absenceTypes: IAbsenceType[];
   queryParams: any;
@@ -81,8 +87,8 @@ function AbsenceList(props: Props) {
   const checkInModalContent = contentProps => {
     const updatedProps = {
       ...props,
-      checkInOutRequest: true,
-      contentProps
+      contentProps,
+      checkInOutRequest: true
     };
     return <AbsenceForm {...updatedProps} />;
   };

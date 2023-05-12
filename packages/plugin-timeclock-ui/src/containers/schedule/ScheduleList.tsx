@@ -14,26 +14,37 @@ import {
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { IBranch } from '@erxes/ui/src/team/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { dateFormat, timeFormat } from '../../constants';
 import * as dayjs from 'dayjs';
 import { AlertContainer } from '../../styles';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
+  currentUser: IUser;
+
+  isCurrentUserAdmin: boolean;
+  isCurrentUserSupervisor?: boolean;
+
+  branches: IBranch[];
+  departments: IDepartment[];
+
   history: any;
   queryParams: any;
+
   userId?: string;
   userIds?: string[];
+
   scheduleId?: string;
   scheduleStatus?: string;
+
   shiftId?: string;
   shiftStatus?: string;
+
   requestedShifts?: IShift[];
   scheduleConfigs: IScheduleConfig[];
-
-  branchesList: IBranch[];
 
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
@@ -247,9 +258,10 @@ export default withProps<Props>(
   compose(
     graphql<Props, ScheduleQueryResponse>(gql(queries.schedulesMain), {
       name: 'listSchedulesMain',
-      options: ({ queryParams }) => ({
+      options: ({ queryParams, isCurrentUserAdmin }) => ({
         variables: {
           ...generatePaginationParams(queryParams || {}),
+          isCurrentUserAdmin,
           startDate: queryParams.startDate,
           endDate: queryParams.endDate,
           userIds: queryParams.userIds,
@@ -266,7 +278,7 @@ export default withProps<Props>(
         name: 'sendScheduleReqMutation',
         options: ({ userId, requestedShifts }) => ({
           variables: {
-            userId: `${userId}`,
+            userId,
             shifts: requestedShifts
           },
           refetchQueries: ['schedulesMain']
@@ -277,7 +289,7 @@ export default withProps<Props>(
       name: 'submitScheduleMutation',
       options: ({ userIds, requestedShifts }) => ({
         variables: {
-          userIds: `${userIds}`,
+          userIds,
           shifts: `${requestedShifts}`
         },
         refetchQueries: ['schedulesMain']

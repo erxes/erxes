@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import React from 'react';
 
 import { IInvoice } from '../../types';
+import { PAYMENTCONFIGS } from '../constants';
 
 type Props = {
   invoice: IInvoice;
@@ -86,6 +87,9 @@ class Row extends React.Component<Props> {
       return '-';
     };
 
+    const meta: any = PAYMENTCONFIGS.find(p => p.kind === payment.kind);
+    const kind = meta ? meta.name : 'NA';
+
     return (
       <tr onClick={onTrClick}>
         <td onClick={onClick}>
@@ -96,7 +100,7 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{payment ? payment.name : 'NA'}</td>
-        <td>{payment ? payment.kind : 'NA'}</td>
+        <td>{kind}</td>
         <td>{amount.toFixed(2)}</td>
 
         {/* <td>{`${contentType.split(':')[0]} - ${pluginData &&

@@ -26,20 +26,22 @@ export default (response, counter?) => {
             </div>
 
             ${
-              response.billType === '3'
-                ? `
-              <div>
+              response.customerNo || response.customerName
+                ? `<div>
                 <br />
                 <p><strong>Худалдан авагч:</strong></p>
-                <p>ТТД: ${response.customerNo}</p>
+                ${
+                  response.customerNo
+                    ? `<p>ТТД: ${response.customerNo}</p>`
+                    : ''
+                }
                 ${
                   response.customerName
                     ? `<p>Нэр: ${response.customerName} </p>`
                     : ''
                 }
                 <br />
-              </div>
-            `
+              </div>`
                 : ''
             }
 

@@ -9,6 +9,14 @@ export const types = `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+  
+  extend type Department @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Branch @key(fields: "_id") {
+    _id: String! @external
+  }
 
   type Timeclock {
     _id: String!
@@ -17,8 +25,8 @@ export const types = `
     shiftEnd: Date
     shiftActive: Boolean
     employeeUserName: String
-    branchName: String
     deviceName: String
+    branchName: String
     employeeId: String
     deviceType: String
   }
@@ -254,6 +262,16 @@ const queryParams = `
   departmentIds: [String]
   reportType: String
   scheduleStatus: String
+  isCurrentUserAdmin: Boolean
+`;
+
+const commonParams = `
+    ids: [String]
+    excludeIds: Boolean
+    perPage: Int
+    page: Int
+    searchValue: String,
+    status: String,
 `;
 
 const absence_params = `
@@ -288,6 +306,9 @@ export const queries = `
   requestsMain(${queryParams}): RequestsListResponse
   timelogsMain(${queryParams}): TimelogListResponse
   
+  timeclockBranches(${commonParams}):[Branch]
+  timeclockDepartments(${commonParams}):[Department]
+
   timeclocksPerUser(userId: String, shiftActive: Boolean, startDate: String, endDate:String): [Timeclock]
   timeLogsPerUser(userId: String, startDate: String, endDate: String ): [Timelog]
   schedulesPerUser(userId: String, startDate: String, endDate: String): [Schedule]

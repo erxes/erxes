@@ -1,5 +1,7 @@
 import { IContext } from '../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src';
+
 import {
   IAbsence,
   ISchedule,
@@ -225,7 +227,7 @@ const timeclockMutations = {
   ) {
     return models.Absences.createAbsence({
       reason: `${checkType} request`,
-      userId: `${userId}`,
+      userId,
       startTime: checkTime,
       checkInOutRequest: true
     });
@@ -246,7 +248,7 @@ const timeclockMutations = {
   ) {
     const shiftRequest = await models.Absences.getAbsence(_id);
     let updated = models.Absences.updateAbsence(_id, {
-      status: `${status}`,
+      status,
       solved: true,
       ...doc
     });
@@ -275,6 +277,7 @@ const timeclockMutations = {
           status: `Shift request / ${status}`,
           ...doc
         });
+
         // if shift request is approved
         if (status === 'Approved') {
           if (findAbsenceType.requestTimeType === 'by day') {
@@ -395,14 +398,14 @@ const timeclockMutations = {
     { models }: IContext
   ) {
     const updated = models.Schedules.updateSchedule(_id, {
-      status: `${status}`,
+      status,
       solved: true,
       ...doc
     });
 
     await models.Shifts.updateMany(
       { scheduleId: _id, solved: false },
-      { $set: { status: `${status}`, solved: true } }
+      { $set: { status, solved: true } }
     );
 
     return updated;
@@ -415,7 +418,7 @@ const timeclockMutations = {
   ) {
     const shift = await models.Shifts.getShift(_id);
     const updated = await models.Shifts.updateShift(_id, {
-      status: `${status}`,
+      status,
       solved: true,
       ...doc
     });
@@ -749,6 +752,56 @@ const timeclockMutations = {
   }
 };
 
-// moduleRequireLogin(timeclockMutations);
+moduleRequireLogin(timeclockMutations);
+
+// extract from mssql
+checkPermission(
+  timeclockMutations,
+  'extractAllDataFromMsSQL',
+  'manageTimeclocks'
+);
+checkPermission(
+  timeclockMutations,
+  'extractTimeLogsFromMsSQL',
+  'manageTimeclocks'
+);
+
+checkPermission(timeclockMutations, 'solveScheduleRequest', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'scheduleRemove', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'submitSchedule', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'solveAbsenceRequest', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'removeAbsenceRequest', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'timeclockRemove', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'timeclockEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'timeclockCreate', 'manageTimeclocks');
+
+checkPermission(
+  timeclockMutations,
+  'createTimeClockFromLog',
+  'manageTimeclocks'
+);
+
+// configs
+checkPermission(timeclockMutations, 'scheduleConfigAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'scheduleConfigEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'scheduleConfigRemove', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'absenceTypeAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'absenceTypeEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'absenceTypeRemove', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'payDateAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'payDateEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'payDateRemove', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'holidayAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'holidayEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'holidayRemove', 'manageTimeclocks');
+
+checkPermission(timeclockMutations, 'deviceConfigAdd', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'deviceConfigEdit', 'manageTimeclocks');
+checkPermission(timeclockMutations, 'deviceConfigRemove', 'manageTimeclocks');
 
 export default timeclockMutations;

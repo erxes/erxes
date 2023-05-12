@@ -10,24 +10,39 @@ import AbsenceList from '../containers/absence/AbsenceList';
 import ReportList from '../containers/report/ReportList';
 import ScheduleList from '../containers/schedule/ScheduleList';
 import LogsList from '../containers/logs/LogsList';
-import { IBranch } from '@erxes/ui/src/team/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IScheduleConfig } from '../types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
+  currentUser: IUser;
+  branches: IBranch[];
+  departments: IDepartment[];
+
+  isCurrentUserAdmin: boolean;
+  isCurrentUserSupervisor?: boolean;
+
   currentDate?: string;
   queryParams: any;
   history: any;
   route?: string;
   startTime?: Date;
   loading: boolean;
-  branchesList: IBranch[];
+
   scheduleConfigs: IScheduleConfig[];
   searchFilter: string;
 };
 
 function List(props: Props) {
-  const { branchesList, queryParams, history, route, searchFilter } = props;
+  const {
+    queryParams,
+    isCurrentUserAdmin,
+    history,
+    route,
+    searchFilter
+  } = props;
+
   const [showSideBar, setShowSideBar] = useState(true);
   const [rightActionBar, setRightActionBar] = useState(<div />);
   const [Component, setModalComponent] = useState(<div />);
@@ -37,16 +52,18 @@ function List(props: Props) {
   useEffect(() => {
     switch (route) {
       case 'config':
-        setModalComponent(
-          <ConfigList
-            {...props}
-            getPagination={setPagination}
-            showSideBar={setShowSideBar}
-            getActionBar={setRightActionBar}
-            queryParams={queryParams}
-            history={history}
-          />
-        );
+        if (isCurrentUserAdmin) {
+          setModalComponent(
+            <ConfigList
+              {...props}
+              getPagination={setPagination}
+              showSideBar={setShowSideBar}
+              getActionBar={setRightActionBar}
+              queryParams={queryParams}
+              history={history}
+            />
+          );
+        }
         setLoading(false);
         break;
       case 'report':
@@ -125,7 +142,7 @@ function List(props: Props) {
       header={
         <Wrapper.Header
           title={__('Timeclocks')}
-          submenu={menuTimeClock(searchFilter)}
+          submenu={menuTimeClock(searchFilter, isCurrentUserAdmin)}
         />
       }
       actionBar={rightActionBar}
@@ -140,11 +157,7 @@ function List(props: Props) {
       }
       leftSidebar={
         showSideBar && (
-          <SideBarList
-            branchesList={branchesList}
-            queryParams={queryParams}
-            history={history}
-          />
+          <SideBarList {...props} queryParams={queryParams} history={history} />
         )
       }
       transparent={true}

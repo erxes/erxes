@@ -401,6 +401,17 @@ class GeneralStep extends React.Component<Props, State> {
           </BlockRow>
           <BlockRow>
             <FormGroup>
+              <ControlLabel required={true}>Pos domain</ControlLabel>
+              <FormControl
+                id="pdomain"
+                type="text"
+                value={pos.pdomain || ''}
+                onChange={this.onChangeInput}
+              />
+            </FormGroup>
+          </BlockRow>
+          <BlockRow>
+            <FormGroup>
               <ControlLabel required={true}>Begin Number</ControlLabel>
               <FormControl
                 id="beginNumber"
