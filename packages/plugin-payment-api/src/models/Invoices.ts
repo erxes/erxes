@@ -22,7 +22,7 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
 export const loadInvoiceClass = (models: IModels) => {
   class Invoices {
     public static async getInvoice(doc: any) {
-      const invoice = await models.Invoices.findOne(doc);
+      const invoice = await models.Invoices.findOne(doc).lean();
 
       if (!invoice) {
         throw new Error('Invoice not found');

@@ -3,6 +3,7 @@ import { IPaymentDocument } from '../models/definitions/payments';
 import { MonpayAPI } from './monpay/api';
 import { PaypalAPI } from './paypal/api';
 import { QpayAPI } from './qpay/api';
+import { QPayQuickQrAPI } from './qpayQuickqr/api';
 import { SocialPayAPI } from './socialpay/api';
 import { StorePayAPI } from './storepay/api';
 import { WechatPayAPI } from './wechatpay/api';
@@ -14,6 +15,7 @@ class ErxesPayment {
   public monpay: MonpayAPI;
   public paypal: PaypalAPI;
   public wechatpay: WechatPayAPI;
+  public qpayQuickqr: QPayQuickQrAPI;
   public domain: string;
 
   private payment: any;
@@ -27,6 +29,7 @@ class ErxesPayment {
     this.monpay = new MonpayAPI(payment.config, domain);
     this.paypal = new PaypalAPI(payment.config);
     this.wechatpay = new WechatPayAPI(payment.config, domain);
+    this.qpayQuickqr = new QPayQuickQrAPI(payment.config, domain);
   }
 
   async createInvoice(invoice: IInvoiceDocument) {
