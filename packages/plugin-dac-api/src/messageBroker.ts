@@ -64,6 +64,15 @@ export const sendCarsMessage = (args: ISendMessageArgs) => {
   });
 };
 
+export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'clientportal',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }
