@@ -95,9 +95,10 @@ const QuickQrForm = (props: Props) => {
 
     return (
       <FormGroup>
-        <ControlLabel>{title}</ControlLabel>
-        {description && <p>{description}</p>}
+        <ControlLabel required={true}>{__(title)}</ControlLabel>
+        {description && <p>{__(description)}</p>}
         <FormControl
+          required={true}
           defaultValue={value}
           onChange={onChangeConfig.bind(this, key)}
           value={value}
@@ -120,23 +121,22 @@ const QuickQrForm = (props: Props) => {
           gap: '20px'
         }}
       >
-        {state.type === 'company' &&
-          renderItem('companyName', __('Company Name'))}
-        {state.type === 'person' && renderItem('firstName', __('First Name'))}
-        {state.type === 'person' && renderItem('lastName', __('Last Name'))}
+        {state.type === 'company' && renderItem('companyName', 'Company Name')}
+        {state.type === 'person' && renderItem('firstName', 'First Name')}
+        {state.type === 'person' && renderItem('lastName', 'Last Name')}
 
-        {renderItem('registerNumber', __('Register Number'))}
-        {renderItem('mccCode', __('MCC Code'))}
-        {renderItem('city', __('City'))}
-        {renderItem('district', __('District'))}
-        {renderItem('address', __('Address'))}
-        {renderItem('phone', __('Phone'))}
-        {renderItem('email', __('Email'))}
+        {renderItem('registerNumber', 'Register Number')}
+        {renderItem('mccCode', 'MCC Code')}
+        {renderItem('city', 'City')}
+        {renderItem('district', 'District')}
+        {renderItem('address', 'Address')}
+        {renderItem('phone', 'Phone')}
+        {renderItem('email', 'Email')}
 
         {renderItem(
           'bankAccount',
-          __('Account Number'),
-          __('The account number to receive payments')
+          'Account Number',
+          'The account number to receive payments'
         )}
         <FormGroup>
           <ControlLabel required={true}>Bank</ControlLabel>
@@ -159,11 +159,7 @@ const QuickQrForm = (props: Props) => {
             ))}
           </FormControl>
         </FormGroup>
-        {renderItem(
-          'bankAccountName',
-          __('Account Name'),
-          __('Account holder name')
-        )}
+        {renderItem('bankAccountName', 'Account Name', 'Account holder name')}
       </div>
     );
   };
@@ -174,17 +170,15 @@ const QuickQrForm = (props: Props) => {
     return (
       <>
         <SettingsContent title={__('General settings')}>
-          {renderItem('name', __('Name'))}
+          {renderItem('name', 'Name')}
 
           <FormGroup>
             <ControlLabel>{__('Type')}</ControlLabel>
             <FormControl
-              {...formProps}
               componentClass="select"
               required={true}
               defaultValue={state.type}
               onChange={onChangeConfig.bind(this, 'type')}
-              errors={formProps.errors}
             >
               <option>{__('Please select a type')}</option>
               <option value={'company'}>{__('Company')}</option>

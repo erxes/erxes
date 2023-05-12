@@ -16,9 +16,12 @@ export const storepayCallbackHandler = async (
     throw new Error('id is required');
   }
 
-  const invoice = await models.Invoices.getInvoice({
-    'apiResponse.value': id
-  });
+  const invoice = await models.Invoices.getInvoice(
+    {
+      'apiResponse.value': id
+    },
+    true
+  );
 
   const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
 

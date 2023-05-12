@@ -43,9 +43,12 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Invoice id is required');
   }
 
-  const invoice = await models.Invoices.getInvoice({
-    identifier
-  });
+  const invoice = await models.Invoices.getInvoice(
+    {
+      identifier
+    },
+    true
+  );
 
   const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
 
@@ -125,8 +128,8 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         merchant_id: this.config.merchantId,
         amount: invoice.amount,
         currency: 'MNT',
-        // customer_name: 'TDB',
-        // customer_logo: '',
+        // customer_name: 'erxes',
+        // customer_logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoCx7dnStzjd7CH3KKtZ6WR5pxNkAtwY-yVA&usqp=CAU',
         callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?identifier=${invoice.identifier}`,
         description: invoice.description || 'Гүйлгээ',
         mcc_code: this.config.mccCode,
