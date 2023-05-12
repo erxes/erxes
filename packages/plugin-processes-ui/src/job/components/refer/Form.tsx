@@ -11,7 +11,7 @@ import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { DURATION_TYPES, JOB_TYPE_CHOISES } from '../../../constants';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IJobCategory, IJobRefer } from '../../types';
