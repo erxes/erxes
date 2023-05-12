@@ -14,6 +14,7 @@ import { SelectActions, generateTeamMemberParams } from '../../common/utils';
 import { IGrantRequest } from '../../common/type';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import CardActionComponent from '../../common/CardAction';
 type Props = {
   contentType: string;
   contentTypeId: string;
@@ -78,6 +79,22 @@ class RequestForm extends React.Component<Props, State> {
 
       this.setState({ request });
     };
+
+    const updatedProps = {
+      action: request.action,
+      initialProps: {
+        type: contentType,
+        sourceType: contentType,
+        itemId: contentTypeId,
+        ...request?.params
+      },
+      object,
+      onChange: params => handleSelect(params, 'params')
+    };
+
+    if (request?.scope === 'cards') {
+      return <CardActionComponent {...updatedProps} />;
+    }
 
     return loadDynamicComponent(
       'grantAction',

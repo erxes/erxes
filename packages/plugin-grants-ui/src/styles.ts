@@ -126,3 +126,11 @@ export const ResponseCardDescription = styled.div`
   text-overflow: ellipsis;
   width: 150px;
 `;
+
+export const AssignedMemberCard = styled.div`
+  color: ${colors.textSecondary};
+  padding:10px
+  display: flex;
+  justify-content: space-between;
+  align-items:center
+`;

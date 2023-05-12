@@ -139,7 +139,7 @@ function SelectStage({
   );
 }
 
-class GrantActionComponent extends React.Component<Props, State> {
+class CardActionComponent extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -449,4 +449,4 @@ class GrantActionComponent extends React.Component<Props, State> {
   }
 }
 
-export default GrantActionComponent;
+export default CardActionComponent;

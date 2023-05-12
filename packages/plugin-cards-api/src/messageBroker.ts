@@ -3,7 +3,7 @@ import {
   generateAmounts,
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
-import { conversationConvertToCard } from './models/utils';
+import { conversationConvertToCard, createBoardItem } from './models/utils';
 import { getCardItem } from './utils';
 import { createConformity, notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
@@ -14,7 +14,6 @@ import {
   publishHelper
 } from './graphql/resolvers/mutations/utils';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
-import grants from './grants';
 
 let client;
 
@@ -65,13 +64,6 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('cards:grants', async ({ subdomain, data }) => {
-    return {
-      status: 'success',
-      data: await grants.handlers({ subdomain, data })
-    };
-  });
-
   consumeRPCQueue('cards:editItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -107,6 +99,35 @@ export const initBroker = async cl => {
         user,
         collection[`update${typeUpperCase}`]
       )
+    };
+  });
+
+  consumeRPCQueue('cards.createRelatedItem', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { type, sourceType, itemId, name, stageId } = data;
+
+    const relatedCard = await createBoardItem(
+      models,
+      subdomain,
+      { name, stageId },
+      type
+    );
+
+    await sendCoreMessage({
+      subdomain,
+      action: 'conformities.addConformity',
+      data: {
+        mainType: sourceType,
+        mainTypeId: itemId,
+        relType: type,
+        relTypeId: relatedCard._id
+      }
+    });
+
+    return {
+      status: 'success',
+      data: relatedCard
     };
   });
 

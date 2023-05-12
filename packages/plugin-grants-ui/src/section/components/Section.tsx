@@ -7,12 +7,14 @@ import {
   Icon,
   ModalTrigger,
   NameCard,
+  SectionBodyItem,
   colors
 } from '@erxes/ui/src';
 import Form from '../containers/RequestForm';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { SectionContent } from '../../styles';
+import { AssignedMemberCard, SectionContent } from '../../styles';
 import ResponseForm from '../containers/ResponseForm';
+import _loadash from 'lodash';
 
 type Props = {
   request: IGrantRequest;
@@ -31,6 +33,7 @@ class Section extends React.Component<Props> {
     const { currentUser, request, contentTypeId, contentType } = this.props;
 
     if (
+      currentUser._id === user._id &&
       currentUser._id !== request.requesterId &&
       (request?.userIds || []).includes(currentUser._id) &&
       request.status === 'waiting' &&
@@ -64,11 +67,29 @@ class Section extends React.Component<Props> {
 
     switch (user.grantResponse || '') {
       case 'approved':
-        return <Icon icon="like-1" color={colors.colorCoreGreen} />;
+        return (
+          <Icon
+            icon="like-1"
+            color={colors.colorCoreGreen}
+            style={{ padding: '7px 20px' }}
+          />
+        );
       case 'declined':
-        return <Icon icon="dislike" color={colors.colorCoreRed} />;
+        return (
+          <Icon
+            icon="dislike"
+            color={colors.colorCoreRed}
+            style={{ padding: '7px 20px' }}
+          />
+        );
       case 'waiting':
-        return <Icon icon="clock" color={colors.colorCoreBlue} />;
+        return (
+          <Icon
+            icon="clock"
+            color={colors.colorCoreBlue}
+            style={{ padding: '7px 20px' }}
+          />
+        );
     }
   }
 
@@ -82,10 +103,12 @@ class Section extends React.Component<Props> {
     }
 
     return users.map(user => (
-      <SectionContent key={user._id}>
-        <NameCard user={user} />
-        {this.renderForm(user)}
-      </SectionContent>
+      <SectionBodyItem key={user._id}>
+        <AssignedMemberCard>
+          <NameCard user={user} />
+          {this.renderForm(user)}
+        </AssignedMemberCard>
+      </SectionBodyItem>
     ));
   }
 
@@ -97,6 +120,10 @@ class Section extends React.Component<Props> {
       currentUser,
       request
     } = this.props;
+
+    if (!_loadash.isEmpty(request) && currentUser._id !== request._id) {
+      return null;
+    }
 
     const trigger = (
       <button>
