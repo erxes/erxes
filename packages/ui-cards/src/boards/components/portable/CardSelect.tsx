@@ -16,16 +16,6 @@ const Wrapper = styled.div`
 const FillContent = styled.div`
   flex: 1;
   margin-right: 5px;
-
-  .Select {
-    input {
-      width: 100% !important;
-    }
-  }
-
-  .Select-input {
-    width: 100%;
-  }
 `;
 
 type Props = {

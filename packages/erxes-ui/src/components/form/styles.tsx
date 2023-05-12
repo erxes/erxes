@@ -46,16 +46,6 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
     color: ${colors.colorCoreGray};
     margin-bottom: 5px;
   }
-
-  .Select{
-    input {
-      width: 100% !important;
-    }
-  }
-
-  .Select-input{
-    width: 100%;
-  }
 `;
 
 const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
