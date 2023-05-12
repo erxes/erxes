@@ -186,3 +186,9 @@ export const ACTIVITY_CONTENT_TYPES = {
     'checklist'
   ]
 };
+
+export const EXPENSE_DIVIDE_TYPES = {
+  QUANTITY: 'quantity',
+  AMOUNT: 'amount',
+  ALL: ['quantity', 'amount']
+};

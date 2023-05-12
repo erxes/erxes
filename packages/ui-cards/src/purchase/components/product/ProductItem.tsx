@@ -102,6 +102,8 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   onChangeField = (type: string, value, _id: string) => {
+    console.log(type, _id);
+
     const {
       productsData,
       onChangeProductsData,

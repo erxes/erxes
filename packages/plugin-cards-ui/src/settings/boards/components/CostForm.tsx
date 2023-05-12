@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+import React, { useState, useEffect } from 'react';
 import gql from 'graphql-tag';
 import { useQuery, useMutation } from 'react-apollo';
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { mutations } from '@erxes/ui-cards/src/settings/boards/graphql';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-cards/src/settings/boards/graphql';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import Modal from 'react-bootstrap/Modal';
+import { __ } from 'coreui/utils';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { SpaceFormsWrapper } from '@erxes/ui-settings/src/styles';
+import Table from '@erxes/ui/src/components/table';
 
 type array = {
+  _id: string;
   name: string;
   code: string;
 };
@@ -17,36 +27,40 @@ function CostForm() {
   const handleShow = () => setShow(true);
   const [elements, setElements] = useState<array[]>([]);
   const [costMutation] = useMutation(gql(mutations.costAdd));
+  const { data, loading } = useQuery(gql(queries.costs));
+  useEffect(() => {
+    if (data) {
+      setElements(data.costs);
+    }
+  }, [data]);
+
   const [inputValues, setInputValues] = useState({
+    _id: '',
     name: '',
     code: ''
   });
-  const handleInputChange = event => {
-    const { name, value } = event.target;
-    setInputValues(prevInputValues => ({
-      ...prevInputValues,
-      [name]: value
-    }));
-  };
 
   const addElement = () => {
     const newElement = {
+      _id: Math.random().toString(),
       code: inputValues.code,
       name: inputValues.name
     };
     setElements(prevElements => [...prevElements, newElement]);
     setInputValues({
+      _id: '',
       code: '',
       name: ''
     });
   };
+
   const changeElement = (index, newValue1, newValue2) => {
     const updatedElements = [...elements];
     updatedElements[index] = {
+      _id: elements[index]._id,
       code: newValue1,
       name: newValue2
     };
-
     setElements(updatedElements);
   };
 
@@ -57,9 +71,16 @@ function CostForm() {
   };
 
   const handleSubmit = event => {
+    const setData = elements.map((element, index) => {
+      return {
+        name: element.name,
+        code: element.code,
+        _id: element._id
+      };
+    });
     event.preventDefault();
     confirm().then(() => {
-      costMutation({ variables: { costObjects: elements } })
+      costMutation({ variables: { costObjects: setData } })
         .then(() => {
           Alert.success('Successfully created');
         })
@@ -71,8 +92,8 @@ function CostForm() {
 
   return (
     <>
-      <Button variant="primary" onClick={handleShow}>
-        Costs Accounting
+      <Button btnStyle="primary" onClick={handleShow}>
+        Costs Accountings
       </Button>
       <Modal
         centered
@@ -82,56 +103,73 @@ function CostForm() {
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Costs Accounting</Modal.Title>
+          <Modal.Title>{__('Costs Accounting')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div>
-            <input
-              type="text"
-              name="code"
-              placeholder="Enter Code"
-              value={inputValues.code}
-              onChange={handleInputChange}
-            ></input>
-            <input
-              type="text"
-              name="name"
-              placeholder="Enter Name"
-              value={inputValues.name}
-              onChange={handleInputChange}
-            ></input>
-            <button onClick={addElement}>Add Element</button>
-            {elements.map((element, index) => (
-              <div key={index}>
-                <input
-                  type="text"
-                  placeholder="Enter Code"
-                  value={element.code}
-                  onChange={event =>
-                    changeElement(index, event.target.value, element.name)
-                  }
-                />
-                <input
-                  type="text"
-                  value={element.name}
-                  placeholder="Enter Name"
-                  onChange={event =>
-                    changeElement(index, element.code, event.target.value)
-                  }
-                />
-                <button onClick={() => deleteElement(index)}>Delete</button>
-              </div>
-            ))}
-          </div>
+          <SpaceFormsWrapper>
+            <Table whiteSpace="nowrap" hover={true}>
+              <thead>
+                <tr>
+                  <th>{__('Name')}</th>
+                  <th>{__('Code')}</th>
+                  <th>{__('Action')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {elements.map((element, index) => (
+                  <tr>
+                    <td>
+                      <FormControl
+                        type="number"
+                        placeholder="Enter Code"
+                        defaultValue={element.code}
+                        onChange={(e: any) =>
+                          changeElement(index, e.target.value, element.name)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <FormControl
+                        type="text"
+                        defaultValue={element.name}
+                        placeholder="Enter Name"
+                        onChange={(e: any) =>
+                          changeElement(index, element.code, e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <Button
+                        block
+                        btnStyle="simple"
+                        type="button"
+                        icon="times"
+                        onClick={() => deleteElement(index)}
+                      ></Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <LinkButton onClick={addElement}>
+                <Icon icon="plus-1" /> {__('Add another cost')}
+              </LinkButton>
+            </Table>
+          </SpaceFormsWrapper>
+          <Modal.Footer>
+            <Button
+              btnStyle="simple"
+              size="small"
+              icon="times-circle"
+              onClick={handleClose}
+            >
+              {__('Cancel')}
+            </Button>
+
+            <Button btnStyle="success" onClick={handleSubmit} icon="checked-1">
+              Save
+            </Button>
+          </Modal.Footer>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="secondary" onClick={handleSubmit}>
-            Save
-          </Button>
-        </Modal.Footer>
       </Modal>
     </>
   );

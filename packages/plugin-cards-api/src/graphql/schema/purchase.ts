@@ -4,8 +4,7 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams,
-  commonCostParamsDef
+  copyParams
 } from './common';
 
 export const types = ({ contacts, tags }) => `
@@ -33,7 +32,7 @@ export const types = ({ contacts, tags }) => `
     products: JSON
     productsData: JSON
     paymentsData: JSON
-    costsData: JSON
+    expensesData: JSON
     ${commonTypes}
   }
 
@@ -59,6 +58,7 @@ export const types = ({ contacts, tags }) => `
     quantity: Int
   }
   input CostObjectInput {
+    _id: String
     name: String
     code: String
   }
@@ -67,7 +67,7 @@ export const types = ({ contacts, tags }) => `
 const purchaseMutationParams = `
   paymentsData: JSON,
   productsData: JSON,
-  costsData:JSON,
+  expensesData: JSON,
 `;
 
 const commonQueryParams = `
@@ -159,8 +159,5 @@ export const mutations = `
  purchasesCreateProductsData(proccessId: String, purchaseId: String, docs: JSON): JSON
  purchasesEditProductData(proccessId: String, purchaseId: String, dataId: String, doc: JSON): JSON
  purchasesDeleteProductData(proccessId: String, purchaseId: String, dataId: String): JSON
- costAdd(costObjects: [CostObjectInput]): [Cost]
- costRemove(_id: String!): JSON
- costEdit(_id: String!, ${commonCostParamsDef}): JSON
-
+ manageExpenses(costObjects: [CostObjectInput]): [Cost]
 `;

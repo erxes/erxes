@@ -11,7 +11,8 @@ import {
   PRODUCT_STATUSES,
   PRODUCT_TYPES,
   PRODUCT_CATEGORY_STATUSES,
-  PRODUCT_SUPPLY
+  PRODUCT_SUPPLY,
+  EXPENSE_DIVIDE_TYPES
 } from './constants';
 import { field, schemaWrapper } from './utils';
 
@@ -80,6 +81,15 @@ export interface IProductPurchaseData extends Document {
   assignUserId?: string;
   branchId?: string;
   departmentId?: string;
+  costPrice?: number;
+}
+
+export interface IExpensesPurchaseData extends Document {
+  price: number;
+  _id: string;
+  expenseId: string;
+  value: number;
+  type: string;
 }
 
 interface IPaymentsPurchaseData {
@@ -92,6 +102,7 @@ interface IPaymentsPurchaseData {
 export interface IPurchase extends IItemCommonFields {
   productsData?: IProductPurchaseData[];
   paymentsData?: IPaymentsPurchaseData[];
+  expensesData?: IExpensesPurchaseData[];
 }
 
 export interface IPurchaseDocument extends IPurchase, Document {
@@ -214,22 +225,27 @@ export const purchaseproductDataSchema = new Schema(
     isVatApplied: field({ type: Boolean, label: 'Is vat applied' }), // isVatApplied
     assignUserId: field({ type: String, optional: true, esType: 'keyword' }), // AssignUserId
     branchId: field({ type: String, optional: true, esType: 'keyword' }),
-    departmentId: field({ type: String, optional: true, esType: 'keyword' })
+    departmentId: field({ type: String, optional: true, esType: 'keyword' }),
+    costPrice: field({ type: Number, label: 'Amount price' }) // Cost price
   },
   { _id: false }
 );
 
-export const costDataSchema = new Schema({
+export const expensDataSchema = new Schema({
   _id: field({ pkey: true }),
-  expenseId: field({ type: String, esType: 'keyword', label: 'Code' }),
-  price: field({ type: String, label: 'Price' }),
-  name: field({ type: String, label: 'Name' }),
-  type: field({ type: String, label: 'Type' })
+  name: field({ type: String, esType: 'keyword', label: 'name' }),
+  expenseId: field({ type: String, esType: 'keyword', label: 'Expense' }),
+  price: field({ type: Number, label: 'price' }),
+  type: field({ type: String, enum: EXPENSE_DIVIDE_TYPES.ALL, label: 'Type' })
 });
 
 export const purchaseSchema = new Schema({
   ...commonItemFieldsSchema,
   productsData: field({ type: [purchaseproductDataSchema], label: 'Products' }),
   paymentsData: field({ type: Object, optional: true, label: 'Payments' }),
-  costsData: field({ type: [costDataSchema], optianal: true, label: 'Costs' })
+  expensesData: field({
+    type: [expensDataSchema],
+    optianal: true,
+    label: 'Expenses'
+  })
 });

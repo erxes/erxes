@@ -1,5 +1,10 @@
 import { CustomField, ProductName } from '../styles';
-import { IPurchase, IPaymentsData, IProductData } from '../types';
+import {
+  IPurchase,
+  IPaymentsData,
+  IProductData,
+  IExpensesData
+} from '../types';
 
 import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -17,8 +22,10 @@ type Props = {
   productsData: IProductData[];
   products: IProduct[];
   paymentsData: IPaymentsData;
+  expensesData: IExpensesData[];
   onChangeProductsData: (productsData: IProductData[]) => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
+  onchangeExpensesData: (expensesData: IExpensesData[]) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
   purchaseQuery: IPurchase;
@@ -28,8 +35,10 @@ function ProductSection({
   products,
   productsData,
   paymentsData,
+  expensesData,
   onChangeProductsData,
   onChangePaymentsData,
+  onchangeExpensesData,
   saveProductsData,
   purchaseQuery
 }: Props) {
@@ -40,9 +49,11 @@ function ProductSection({
         currentProduct={productId}
         onChangeProductsData={onChangeProductsData}
         onChangePaymentsData={onChangePaymentsData}
+        onchangeExpensesData={onchangeExpensesData}
         productsData={productsData}
         products={products}
         paymentsData={paymentsData}
+        expensesData={expensesData}
         saveProductsData={saveProductsData}
         purchaseQuery={purchaseQuery}
       />

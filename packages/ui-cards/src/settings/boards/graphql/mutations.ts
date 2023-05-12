@@ -115,8 +115,8 @@ const pipelinesUpdateOrder = `
 `;
 
 const costAdd = `
-  mutation costAdd($costObjects: [CostObjectInput]) {
-    costAdd(costObjects: $costObjects) {
+  mutation manageExpenses($costObjects: [CostObjectInput]) {
+    manageExpenses(costObjects: $costObjects) {
       name,
       code
     }

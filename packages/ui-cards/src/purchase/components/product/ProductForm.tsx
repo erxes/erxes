@@ -10,8 +10,7 @@ import {
   IPurchase,
   IPaymentsData,
   IProductData,
-  ICostsData,
-  ICost
+  IExpensesData
 } from '../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
@@ -58,6 +57,7 @@ const ApplyVatWrapper = styled.div`
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
+  onchangeExpensesData: (expensesData: IExpensesData[]) => void;
   saveProductsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   productsData: IProductData[];
@@ -68,10 +68,10 @@ type Props = {
   currencies: string[];
   currentProduct?: string;
   purchaseQuery: IPurchase;
-  _id: string;
-  costsQueryData: ICost[];
+  costsQueryData: any;
   categories: IProductCategory[];
   loading: boolean;
+  expensesData: IExpensesData[];
 };
 
 type State = {
@@ -357,7 +357,6 @@ class ProductForm extends React.Component<Props, State> {
     const { saveProductsData, productsData, closeModal } = this.props;
 
     const { total, changePayData } = this.state;
-
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
@@ -621,7 +620,7 @@ class ProductForm extends React.Component<Props, State> {
 
   renderTabContent() {
     const { total, tax, discount, currentTab, advancedView } = this.state;
-    const { _id, costsQueryData } = this.props;
+    const { costsQueryData } = this.props;
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
@@ -638,11 +637,18 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     if (currentTab === 'expenses') {
-      return <ExpensesForm costsQueryData={costsQueryData} _id={_id} />;
+      const { expensesData, onchangeExpensesData } = this.props;
+      return (
+        <ExpensesForm
+          costsQueryData={costsQueryData}
+          expensesData={expensesData}
+          onChangeExpensesData={onchangeExpensesData}
+        />
+      );
     }
 
     if (currentTab === 'lastExpenses') {
-      return <LastExpensesForm />;
+      return <LastExpensesForm productsData={this.props.productsData} />;
     }
 
     const avStyle = { display: advancedView ? 'inherit' : 'none' };

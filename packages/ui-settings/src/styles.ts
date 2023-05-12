@@ -154,6 +154,12 @@ const FlexItem = styled(DateContainer)`
   }
 `;
 
+const SpaceFormsWrapper = styled.div`
+  > div {
+    gap: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  }
+`;
+
 const BackgroundSelector = styled.div`
   border: 3px solid transparent;
   margin-right: 15px;
@@ -373,6 +379,7 @@ export {
   SidebarList,
   ContentBox,
   LogoContainer,
+  SpaceFormsWrapper,
   InputBar,
   Header,
   Title,

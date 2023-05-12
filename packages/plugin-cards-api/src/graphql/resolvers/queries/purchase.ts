@@ -78,8 +78,6 @@ const purchaseQueries = {
       return [];
     });
 
-    serverTiming.startTime('sendProductsMessage');
-
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
@@ -92,7 +90,15 @@ const purchaseQueries = {
       defaultValue: []
     });
 
-    serverTiming.endTime('sendProductsMessage');
+    const purchaseExpenseIds = purchases.flatMap(purchase => {
+      if (purchase.expensesData && purchase.expensesData.length > 0) {
+        return purchase.expensesData.flatMap(pData => pData.expenseId || []);
+      }
+    });
+
+    const expenses = await models.Costs.find({
+      _id: { $in: [...new Set(purchaseExpenseIds)] }
+    }).lean();
 
     for (const purchase of purchases) {
       let pd = purchase.productsData;
@@ -122,6 +128,15 @@ const purchaseQueries = {
         purchase.products.push({
           product: {
             name: '...More'
+          }
+        });
+      }
+
+      if (purchase.expensesData && purchase.expensesData.length > 0) {
+        purchase.expensesData.forEach((expense, ind) => {
+          if (expense.expenseId) {
+            purchase.expensesData[ind] =
+              expenses.find(e => e._id === expense.expenseId) || {};
           }
         });
       }

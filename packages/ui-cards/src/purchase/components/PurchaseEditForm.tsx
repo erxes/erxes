@@ -1,4 +1,9 @@
-import { IPurchase, IPurchaseParams, IPaymentsData } from '../types';
+import {
+  IPurchase,
+  IPurchaseParams,
+  IPaymentsData,
+  IExpensesData
+} from '../types';
 import { IEditFormContent, IItem, IOptions } from '../../boards/types';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -43,6 +48,7 @@ type State = {
   products: IProduct[];
   productsData: any;
   paymentsData: IPaymentsData;
+  expensesData: any;
   changePayData: IPaymentsData;
   updatedItem?: IItem;
   refresh: boolean;
@@ -67,6 +73,7 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
           })
         : [],
       paymentsData: item.paymentsData,
+      expensesData: item.expensesData,
       changePayData: {},
       refresh: false
     };
@@ -102,12 +109,11 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
   };
 
   saveProductsData = () => {
-    const { productsData, paymentsData } = this.state;
+    const { productsData, paymentsData, expensesData } = this.state;
     const { saveItem } = this.props;
     const products: IProduct[] = [];
     const amount: any = {};
     const filteredProductsData: any = [];
-
     productsData.forEach(data => {
       // products
       if (data.product) {
@@ -135,9 +141,15 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
     });
 
     this.setState(
-      { productsData: filteredProductsData, products, amount, paymentsData },
+      {
+        productsData: filteredProductsData,
+        products,
+        amount,
+        paymentsData,
+        expensesData
+      },
       () => {
-        saveItem({ productsData, paymentsData }, updatedItem => {
+        saveItem({ productsData, paymentsData, expensesData }, updatedItem => {
           this.setState({ updatedItem });
         });
       }
@@ -162,20 +174,26 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
   };
 
   renderProductSection = () => {
-    const { products, productsData, paymentsData } = this.state;
+    const { products, productsData, paymentsData, expensesData } = this.state;
 
-    const pDataChange = pData => this.onChangeField('productsData', pData);
+    const pDataChange = pData => {
+      this.onChangeField('productsData', pData);
+    };
     const prsChange = prs => this.onChangeField('products', prs);
+    const expDataChange = expData =>
+      this.onChangeField('expensesData', expData);
     const payDataChange = payData =>
       this.onChangeField('paymentsData', payData);
 
     return (
       <ProductSection
         onChangeProductsData={pDataChange}
+        onchangeExpensesData={expDataChange}
         onChangeProducts={prsChange}
         onChangePaymentsData={payDataChange}
         productsData={productsData}
         paymentsData={paymentsData}
+        expensesData={expensesData}
         products={products}
         saveProductsData={this.saveProductsData}
         purchaseQuery={this.props.item}

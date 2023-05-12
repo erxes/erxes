@@ -1,48 +1,31 @@
+import { Alert, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import gql from 'graphql-tag';
-import { useQuery, useMutation } from 'react-apollo';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import { mutations } from '@erxes/ui-cards/src/settings/boards/graphql';
-import { Table } from 'react-bootstrap';
+import Table from '@erxes/ui/src/components/table';
 
-function LastExpensesForm() {
+function LastExpensesForm({ productsData }) {
   return (
-    <Table striped bordered>
+    <Table whiteSpace="nowrap" hover={true}>
       <thead>
         <tr>
-          <th>#</th>
-          <th>TYPE</th>
-          <th> PRODUCT / SERVICE</th>
-          <th> QUANTITY</th>
-          <th> UNIT PRICE</th>
-          <th> AMOUNT</th>
-          <th> AFTER AMOUNT</th>
-          <th>AFTER UNIT</th>
+          <th>{__('PRODUCT / SERVICE')}</th>
+          <th>{__('QUANTITY')}</th>
+          <th>{__('AMOUNT')}</th>
+          <th>{__('UNIT PRICE')}</th>
+          <th>{__('AFTER AMOUNT')}</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>1</td>
-          <th>option1</th>
-          <th>baraa1</th>
-          <th> 1</th>
-          <th> 1412</th>
-          <th> 5000</th>
-          <th> 6000</th>
-          <th>6000</th>
-        </tr>
-        <tr>
-          <td>2</td>
-          <th>option2</th>
-          <th> baraa2</th>
-          <th> 2</th>
-          <th> 4899</th>
-          <th> 6000</th>
-          <th> 1450</th>
-          <th>6000</th>
-        </tr>
+        {productsData.map((item, key) => {
+          return (
+            <tr key={key}>
+              <td>{item.product.name}</td>
+              <td>{item.quantity}</td>
+              <td>{item.amount}</td>
+              <td>{item.unitPrice}</td>
+              <td>{item.costPrice.toFixed(3)}</td>
+            </tr>
+          );
+        })}
       </tbody>
     </Table>
   );

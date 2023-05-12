@@ -63,7 +63,7 @@ export const purchaseFields = `
   products
   productsData
   paymentsData
-  costsData
+  expensesData
   amount
 `;
 

@@ -60,7 +60,6 @@ export const loadPurchaseClass = (models: IModels, subdomain: string) => {
       );
 
       await models.Purchase.updateOne({ _id }, { $set: doc, searchText });
-
       return models.Purchase.findOne({ _id });
     }
 

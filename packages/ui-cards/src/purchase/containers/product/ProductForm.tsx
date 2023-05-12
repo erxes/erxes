@@ -12,14 +12,15 @@ import {
   IPurchase,
   IPaymentsData,
   IProductData,
-  ICostsData,
-  ICost
+  IExpensesData
 } from '../../types';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
+  onchangeExpensesData: (expensesData: IExpensesData[]) => void;
+  expensesData: IExpensesData[];
   productsData: IProductData[];
   products: IProduct[];
   paymentsData?: IPaymentsData;
@@ -49,20 +50,14 @@ class ProductFormContainer extends React.Component<Props> {
 
           const costsQueryData = costsQuery.costs || [];
 
-          const { purchaseQuery } = this.props;
-
-          const _id = purchaseQuery._id || [];
-
           const extendedProps = {
             ...this.props,
             costsQueryData,
-            _id,
             categories: categories,
             loading: productCategoriesQuery.loading,
             uom: configs.dealUOM || [],
             currencies: configs.dealCurrency || []
           };
-
           return <ProductForm {...extendedProps} />;
         }}
       </AppConsumer>

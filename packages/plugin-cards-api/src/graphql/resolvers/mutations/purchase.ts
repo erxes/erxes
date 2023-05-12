@@ -22,7 +22,9 @@ import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 import { graphqlPubsub } from '../../../configs';
 import purchase from '../customResolvers/purchase';
-import { doc } from 'prettier';
+import { EXPENSE_DIVIDE_TYPES } from '../../../models/definitions/constants';
+import exp = require('constants');
+import { stringify } from 'querystring';
 
 interface IPurchaseEdit extends IPurchase {
   _id: string;
@@ -33,47 +35,71 @@ interface ICostEdit extends ICost {
 }
 
 const purchaseMutations = {
-  // first cost result
-  async costPriceResult(
-    _root,
-    doc: any,
-    { user, docModifier, models, subdomain }: IContext
-  ) {
-    const cost = await models.Costs.find().lean();
-    if (!cost) {
-      throw new Error('cost not found');
-    }
-    const quantity = doc.quantity;
-    let sum = cost
-      .map(o => parseInt(o.price))
-      .reduce((a, c) => {
-        return a + c;
-      });
-  },
-
   // add cost
-  async costAdd(
+  async manageExpenses(
     _root,
     doc: { costObjects: ICost[] },
     { user, models, subdomain }: IContext
   ) {
-    return models.Costs.insertMany(doc.costObjects);
-    // return models.Costs.createCost(docModifier(doc));
-  },
+    const oldCosts = await models.Costs.find({ status: 'active' }).lean();
 
-  //edit cost
-  async costEdit(
-    _root,
-    { _id, ...doc }: ICostEdit,
-    { user, models, subdomain }: IContext
-  ) {
-    const updated = await models.Costs.updateCost(_id, doc);
-    return updated;
-  },
+    let bulkOps: Array<{
+      updateOne: {
+        filter: { _id: string };
+        update: any;
+        upsert?: boolean;
+      };
+    }> = [];
 
-  //remove cost
-  async costRemove(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Costs.removeCost(_id);
+    // const codes: string [] = oldCosts.map(cost => cost.code).concat(doc.costObjects.map(cost => cost.code));
+    // console.log(oldCosts,'oldCosts')
+    // console.log(doc.costObjects,'opkdsa')
+    // if((codes.length  !==  new Set(codes).size)){
+    //   throw new Error('Cost code must be unique');
+    // }
+
+    const updatedIds: string[] = [];
+    for (const cost of doc.costObjects) {
+      if (cost._id) {
+        updatedIds.push(cost._id);
+      }
+      const _id = cost._id || Math.random().toString();
+
+      bulkOps.push({
+        updateOne: {
+          filter: { _id },
+          update: {
+            ...cost,
+            status: 'active',
+            createdBy: user._id,
+            createdAt: new Date()
+          },
+          upsert: true
+        }
+      });
+    }
+
+    await models.Costs.bulkWrite(bulkOps);
+    const toDeleteCosts = oldCosts.filter(
+      cost => !updatedIds.includes(cost._id)
+    );
+
+    bulkOps = [];
+    for (const cost of toDeleteCosts) {
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: cost._id || '' },
+
+          update: {
+            $set: { status: 'deleted' }
+          }
+        }
+      });
+    }
+    if (bulkOps.length) {
+      await models.Costs.bulkWrite(bulkOps);
+    }
+    return models.Costs.find({ status: 'active' }).lean();
   },
 
   // create new purchase
@@ -113,7 +139,6 @@ const purchaseMutations = {
       const cantRemoveUserIds = removedUserIds.filter(userId =>
         oldAssignedUserPdata.includes(userId)
       );
-
       if (cantRemoveUserIds.length > 0) {
         throw new Error(
           'Cannot remove the team member, it is assigned in the product / service section'
@@ -143,6 +168,58 @@ const purchaseMutations = {
           userId => !removedUserIds.includes(userId)
         );
         doc.assignedUserIds = assignedUserIds;
+      }
+    }
+
+    if (
+      doc.expensesData &&
+      doc.expensesData &&
+      doc.productsData &&
+      doc.productsData.length
+    ) {
+      EXPENSE_DIVIDE_TYPES.QUANTITY;
+      const dataOfQuantity = doc.expensesData.filter(
+        ed => ed.type === EXPENSE_DIVIDE_TYPES.QUANTITY
+      );
+      const dataOfAmount = doc.expensesData.filter(
+        ed => ed.type === EXPENSE_DIVIDE_TYPES.AMOUNT
+      );
+
+      if (dataOfQuantity.length) {
+        const sumOfQuantity = dataOfQuantity
+          .map((item: any) => parseInt(item.price))
+          .reduce((a: any, b: any) => a + b, 0);
+
+        const sumQuantity = doc.productsData
+          .map((item: any) => parseInt(item.quantity))
+          .reduce((a: any, b: any) => a + b, 0);
+
+        const perExpense = sumOfQuantity / sumQuantity;
+
+        for (const pdata of doc.productsData) {
+          pdata.costPrice =
+            (parseInt(pdata.unitPrice.toString()) || 0) + perExpense;
+        }
+      }
+      if (dataOfAmount.length) {
+        const sumOfAmount = dataOfAmount
+          .map((item: any) => parseInt(item.price))
+          .reduce((a: any, b: any) => a + b, 0);
+
+        const sumAmount = doc.productsData
+          .map((item: any) => item.amount)
+          .reduce((a: any, b: any) => a + b, 0);
+
+        const perExpense = sumOfAmount / sumAmount;
+
+        for (const pdata of doc.productsData) {
+          pdata.costPrice =
+            ((parseInt(pdata.quantity.toString()) || 0) *
+              (parseInt(pdata.unitPrice.toString()) || 0) *
+              perExpense +
+              (pdata.amount || 0)) /
+              parseInt(pdata.quantity.toString()) || 0;
+        }
       }
     }
 
@@ -247,7 +324,7 @@ const purchaseMutations = {
       proccessId,
       'purchase',
       user,
-      ['productsData', 'paymentsData', 'costsData'],
+      ['productsData', 'paymentsData', 'expensesData'],
       models.Purchase.createPurchase
     );
   },
