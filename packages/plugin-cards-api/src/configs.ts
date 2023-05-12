@@ -22,7 +22,6 @@ import tags from './tags';
 import exporter from './exporter';
 import cronjobs from './cronjobs/common';
 import dashboards from './dashboards';
-import grants from './grants';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -58,8 +57,7 @@ export default {
     tags,
     permissions,
     documents,
-    dashboards,
-    grants
+    dashboards
   },
 
   apolloServerContext: async (context, req, res) => {
