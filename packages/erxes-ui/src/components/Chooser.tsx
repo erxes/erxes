@@ -45,8 +45,6 @@ class CommonChooser extends React.Component<Props, State> {
 
     const datas = this.props.data.datas || [];
 
-    console.log('CommonChooser constructor', props.data);
-
     this.state = {
       datas,
       loadmore: true,
