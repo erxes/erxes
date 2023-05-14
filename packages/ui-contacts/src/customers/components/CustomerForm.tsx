@@ -56,10 +56,7 @@ type State = {
   primaryPhone?: string;
   birthDate: string;
   primaryEmail?: string;
-  relationData?: {
-    ids: string[];
-    relationType: string;
-  };
+  relationData?: any;
 };
 
 class CustomerForm extends React.Component<Props, State> {
@@ -117,10 +114,14 @@ class CustomerForm extends React.Component<Props, State> {
   onAvatarUpload = url => {
     this.setState({ avatar: url });
   };
-  // onChange: (ids: string[], relationType: string) => void;
+
   onRelationsChange = (ids: string[], relationType: string) => {
-    // console.log("********** ",relations);
-    this.setState({ relationData: { ids, relationType } });
+    const { relationData = {} } = this.state;
+    const key = relationType.split(':')[1];
+
+    relationData[key] = ids;
+
+    this.setState({ relationData });
   };
 
   getVisitorInfo(customer, key) {

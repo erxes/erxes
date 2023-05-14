@@ -219,7 +219,7 @@ class PropertyRow extends React.Component<Props, State> {
           </>
         )}
 
-        {contentType.startsWith('cards:') && (
+        {contentType.startsWith('cards:') && !field.relationType && (
           <>
             <RowField>
               <Toggle
@@ -313,7 +313,7 @@ class PropertyRow extends React.Component<Props, State> {
           ) : (
             <ControlLabel>{__('Visible')}</ControlLabel>
           )}
-          {contentType.startsWith('cards:') && (
+          {contentType.startsWith('cards:') && !isRelation && (
             <>
               <ControlLabel>{__('Visible to create')}</ControlLabel>
               <ControlLabel>{__('Required')}</ControlLabel>

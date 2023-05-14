@@ -61,19 +61,25 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
       resetSubmit
     }: IButtonMutateProps) => {
       const afterSave = data => {
-        if (values.relationData && values.relationData.ids.length > 0) {
+        if (
+          values.relationData &&
+          Object.keys(values.relationData).length > 0
+        ) {
           const { relationData } = values;
-          const { ids, relationType } = relationData;
 
-          client.mutate({
-            mutation: gql(conformityMutations.conformityEdit),
-            variables: {
-              mainType: 'customer',
-              mainTypeId: data.customersAdd._id,
-              relType: relationType.split(':')[1],
-              relTypeIds: ids
+          for (const key in relationData) {
+            if (relationData.hasOwnProperty(key)) {
+              client.mutate({
+                mutation: gql(conformityMutations.conformityEdit),
+                variables: {
+                  mainType: 'customer',
+                  mainTypeId: data.customersAdd._id,
+                  relType: key,
+                  relTypeIds: relationData[key]
+                }
+              });
             }
-          });
+          }
         }
 
         closeModal();
