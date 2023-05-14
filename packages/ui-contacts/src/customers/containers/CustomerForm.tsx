@@ -32,7 +32,6 @@ type Props = {
 
 type State = {
   redirectType?: string;
-  createdCustomerId?: string;
 };
 
 type FinalProps = {} & Props & IRouterProps;
@@ -84,8 +83,6 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
 
         closeModal();
 
-        this.setState({ createdCustomerId: data.customersAdd._id });
-
         if (redirectType === 'detail') {
           return history.push(`/contacts/details/${data.customersAdd._id}`);
         }
@@ -127,8 +124,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       changeRedirectType: this.changeRedirectType,
-      renderButton,
-      insertedId: this.state.createdCustomerId
+      renderButton
     };
 
     return (
