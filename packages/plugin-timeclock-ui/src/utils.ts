@@ -123,11 +123,13 @@ export const prepareCurrentUserOption = (currentUser: IUser) => {
     ? currentUser.employeeId
     : '';
 
+  const userNameOrEmail =
+    currentUser.details && currentUser.details.fullName
+      ? currentUser.details.fullName
+      : currentUser.email;
+
   const generateLabel =
-    ((currentUser.details && currentUser.details.fullName) ||
-      currentUser.email) +
-    '\t' +
-    includeCustomFieldOnSelectLabel;
+    userNameOrEmail + '\t' + includeCustomFieldOnSelectLabel;
 
   return {
     value: currentUser._id,

@@ -48,6 +48,10 @@ const FormComponent = ({
       totalUserOptions.push(...branch.userIds);
     }
 
+    if (currentUser) {
+      totalUserOptions.push(currentUser._id);
+    }
+
     return totalUserOptions;
   };
 
@@ -105,7 +109,6 @@ const FormComponent = ({
           <FormGroup>
             <ControlLabel>Team member</ControlLabel>
             <SelectTeamMembers
-              customOption={prepareCurrentUserOption(currentUser)}
               filterParams={{
                 ids: returnTotalUserOptions(),
                 excludeIds: false

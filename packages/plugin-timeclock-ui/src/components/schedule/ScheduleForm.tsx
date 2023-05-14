@@ -73,6 +73,10 @@ function ScheduleForm(props: Props) {
       totalUserOptions.push(...branch.userIds);
     }
 
+    if (currentUser) {
+      totalUserOptions.push(currentUser._id);
+    }
+
     return totalUserOptions;
   };
 
@@ -442,7 +446,6 @@ function ScheduleForm(props: Props) {
           ids: returnTotalUserOptions(),
           excludeIds: false
         }}
-        customOption={prepareCurrentUserOption(currentUser)}
         queryParams={queryParams}
         label={'Team member'}
         onSelect={onUserSelect}
@@ -518,7 +521,6 @@ function ScheduleForm(props: Props) {
                   ids: returnTotalUserOptions(),
                   excludeIds: false
                 }}
-                customOption={prepareCurrentUserOption(currentUser)}
                 queryParams={queryParams}
                 label={'Select team member'}
                 onSelect={onUserSelect}
