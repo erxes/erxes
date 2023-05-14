@@ -7,7 +7,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 //   .BundleAnalyzerPlugin;
-const { MFLiveReloadPlugin } = require("@module-federation/fmr");
+// const { MFLiveReloadPlugin } = require("@module-federation/fmr");
 
 const configs = require("./plugin-src/configs");
 const { port = 3000 } = configs;
@@ -36,8 +36,9 @@ module.exports = (env, args) => {
   return {
     output: {
       uniqueName: configs.name,
-      publicPath: args.mode === 'development' ? `http://localhost:${port}/` : undefined,
-      chunkFilename: '[chunkhash].js'
+      publicPath:
+        args.mode === "development" ? `http://localhost:${port}/` : undefined,
+      chunkFilename: "[chunkhash].js",
     },
 
     optimization: {
@@ -76,7 +77,7 @@ module.exports = (env, args) => {
 
     devServer: {
       port: port,
-      allowedHosts: 'all',
+      allowedHosts: "all",
       historyApiFallback: true,
     },
 
@@ -198,11 +199,11 @@ module.exports = (env, args) => {
       new HtmlWebPackPlugin({
         template: "./src/index.html",
       }),
-      args.mode === 'development' ? new MFLiveReloadPlugin({
-        port, // the port your app runs on
-        container: configs.name, // the name of your app, must be unique
-        standalone: false, // false uses chrome extention
-      }) : false,
+      // args.mode === 'development' ? new MFLiveReloadPlugin({
+      //   port, // the port your app runs on
+      //   container: configs.name, // the name of your app, must be unique
+      //   standalone: false, // false uses chrome extention
+      // }) : false,
       // new BundleAnalyzerPlugin()
     ].filter(Boolean),
   };

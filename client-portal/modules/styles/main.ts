@@ -17,6 +17,7 @@ const Header = styledTS<{
     props.background ? props.background : '#f5f8fb'};
   background-image: ${(props) =>
     props.backgroundImage && `url(${props.backgroundImage})`};
+  position: relative;
 
   h3 {
     font-size: 1.75rem;
@@ -28,11 +29,30 @@ const Header = styledTS<{
     background: transparent;
     border: 0;
   }
+
+  &:after, &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: auto;
+    right: 0;
+    bottom: 0;
+    width: 30%;
+    background-image: url('/static/cp_header_bg.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  &:before {
+    left: 0;
+    top: 60%;
+  }
 `;
 
 const HeaderTop = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
@@ -51,15 +71,13 @@ const HeaderTitle = styledTS<{ color?: string }>(styled.span)`
   padding-left: 10px;
   border-left: 1px solid ${(props) =>
     props.color ? props.color : colors.colorWhite};
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 1px;
   text-transform: capitalize;
 `;
 
 const HeaderRight = styled.div`
   display: flex;
-  flex: 1;
-  flex-direction: column;
 `;
 
 const HeaderLeft = styled.div`
@@ -82,6 +100,11 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   > button {
     color: ${(props) =>
       props.color ? props.color : colors.colorWhite} !important;
+    border: 1px solid transparent;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   span {
@@ -132,8 +155,6 @@ const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
   margin-right: ${dimensions.unitSpacing}px;
   font-size: 14px;
   opacity: 0.9;
-  border-right: 1px solid ${(props) =>
-    props.color ? props.color : colors.colorWhite};
   text-transform: capitalize;
   position: relative;
   transition: all ease 0.3s;
@@ -185,8 +206,10 @@ const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
 const Container = styledTS<{ transparent?: boolean; shrink?: boolean }>(
   styled.div
 )`
-  width: ${dimensions.wrapperWidth}%;
+  width: ${dimensions.wrapperWidth + dimensions.unitSpacing}%;
   margin: 0 auto;
+  position: relative;
+  z-index: 3;
 
   ${(props) =>
     !props.shrink &&
@@ -550,6 +573,14 @@ const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
     `}
 `;
 
+const AuthContainer = styled.div`
+    button {
+      &.border {
+        border: 1px solid ${colors.colorWhite};
+      }
+    }
+`;
+
 export {
   Header,
   HeaderTop,
@@ -576,5 +607,6 @@ export {
   Content,
   NotificationList,
   InfoSection,
-  CreatedDate
+  CreatedDate,
+  AuthContainer
 };
