@@ -159,8 +159,6 @@ class PropertyRow extends React.Component<Props, State> {
 
     const hasLogic = field.logics && field.logics.length > 0;
 
-    console.log('field', field.relationType);
-
     return (
       <PropertyTableRow key={field._id}>
         <RowField>
