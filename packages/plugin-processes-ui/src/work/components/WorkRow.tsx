@@ -1,5 +1,6 @@
 import React from 'react';
-import { __, confirm } from '@erxes/ui/src/utils';
+import { confirm } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { IWorkDocument } from '../types';
 import moment from 'moment';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';

@@ -1,8 +1,8 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { __, dimensions, Button, Tip, Icon, ControlLabel } from '@erxes/ui/src';
-// import { IOrdersSummary } from '../../types';
+import { dimensions, Button, Tip, Icon, ControlLabel } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 
 const MainDescription = styledTS<{
   expand: boolean;

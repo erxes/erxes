@@ -239,7 +239,7 @@ class CompaniesList extends React.Component<IProps, State> {
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Companies"
-              size="lg"
+              size="xl"
               dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={companiesMerge}

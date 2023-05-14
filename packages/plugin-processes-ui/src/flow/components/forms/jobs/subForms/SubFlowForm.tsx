@@ -4,7 +4,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FlowChooser from '../../../../containers/flow/Chooser';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import { IJob, IFlow } from '../../../../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';

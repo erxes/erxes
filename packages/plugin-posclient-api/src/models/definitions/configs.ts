@@ -13,6 +13,7 @@ export interface IEbarimtConfig {
   vatPercent: number;
   cityTaxPercent: number;
   footerText: string;
+  hasCopy?: boolean;
 }
 
 interface IConfigColors {
@@ -100,7 +101,8 @@ const ebarimtConfigSchema = new Schema(
       optional: true,
       label: 'UB city tax percent'
     },
-    footerText: field({ type: String, optional: true, label: 'Footer text' })
+    footerText: field({ type: String, optional: true, label: 'Footer text' }),
+    hasCopy: field({ type: Boolean })
   },
   { _id: false }
 );

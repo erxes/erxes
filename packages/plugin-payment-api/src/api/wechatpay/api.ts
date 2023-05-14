@@ -12,9 +12,12 @@ export const wechatCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Invoice id is required');
   }
 
-  const invoice = await models.Invoices.getInvoice({
-    identifier
-  });
+  const invoice = await models.Invoices.getInvoice(
+    {
+      identifier
+    },
+    true
+  );
 
   const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
 

@@ -122,9 +122,11 @@ const arrangeTaxType = async (deal, productsById, billType) => {
   const details: any[] = [];
   const detailsFree: any[] = [];
   const details0: any[] = [];
+  const detailsInner: any[] = [];
   let amount = 0;
   let amountFree = 0;
   let amount0 = 0;
+  let amountInner = 0;
 
   for (const productData of deal.productsData) {
     // not tickUsed product not sent
@@ -155,6 +157,9 @@ const arrangeTaxType = async (deal, productsById, billType) => {
     } else if (product.taxType === '3' && billType === '3') {
       details0.push({ ...stock, barcode: product.taxCode });
       amount0 += productData.amount;
+    } else if (product.taxType === '5') {
+      detailsInner.push({ ...stock });
+      amountInner += product.amount;
     } else {
       let trueBarcode = '';
       for (const barcode of product.barcodes || []) {
@@ -172,9 +177,11 @@ const arrangeTaxType = async (deal, productsById, billType) => {
     details,
     detailsFree,
     details0,
+    detailsInner,
     amount,
     amountFree,
-    amount0
+    amount0,
+    amountInner
   };
 };
 
@@ -278,9 +285,11 @@ export const getPostData = async (subdomain, config, deal) => {
     details,
     detailsFree,
     details0,
+    detailsInner,
     amount,
     amountFree,
-    amount0
+    amount0,
+    amountInner
   } = await arrangeTaxType(deal, productsById, billType);
 
   const date = new Date();
@@ -339,6 +348,25 @@ export const getPostData = async (subdomain, config, deal) => {
       details: details0,
       cashAmount,
       nonCashAmount: amount0 - cashAmount
+    });
+  }
+
+  if (detailsInner && detailsInner.length) {
+    if (calcCashAmount > amountInner) {
+      cashAmount = amountInner;
+      calcCashAmount -= amountInner;
+    } else {
+      cashAmount = calcCashAmount;
+      calcCashAmount = 0;
+    }
+    result.push({
+      ...commonOderInfo,
+      inner: true,
+      hasVat: false,
+      hasCitytax: false,
+      details: detailsInner,
+      cashAmount,
+      nonCashAmount: amountInner - cashAmount
     });
   }
 

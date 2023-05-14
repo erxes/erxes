@@ -13,6 +13,7 @@ import {
   ORDER_STATUSES
 } from '../../../models/definitions/constants';
 import { IPaidAmount } from '../../../models/definitions/orders';
+import { PutData } from '../../../models/PutData';
 import { IContext, IOrderInput } from '../../types';
 import { checkLoyalties } from '../../utils/loyalties';
 import {
@@ -557,6 +558,31 @@ const orderMutations = {
 
         for (const data of ebarimtDatas) {
           let response;
+
+          if (data.inner) {
+            const putData = new PutData({
+              ...config,
+              ...data,
+              config,
+              models
+            });
+
+            response = {
+              _id: Math.random(),
+              billId: 'Түр баримт',
+              ...(await putData.generateTransactionInfo()),
+              registerNo: config.ebarimtConfig?.companyRD || '',
+              success: 'true'
+            };
+            ebarimtResponses.push(response);
+
+            await models.OrderItems.updateOne(
+              { _id: { $in: data.itemIds } },
+              { $set: { isInner: true } }
+            );
+
+            continue;
+          }
 
           response = await models.PutResponses.putData({
             ...data,

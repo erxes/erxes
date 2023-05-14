@@ -109,6 +109,8 @@ const commonSelector = `
   brandIds: [String]
   departmentId: String
   branchId: String
+  branchIds: [String]
+  departmentIds: [String]
   unitId: String
 `;
 
