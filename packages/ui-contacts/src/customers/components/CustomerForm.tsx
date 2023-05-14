@@ -30,6 +30,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import validator from 'validator';
 
 type Props = {
@@ -55,6 +56,10 @@ type State = {
   primaryPhone?: string;
   birthDate: string;
   primaryEmail?: string;
+  relationData?: {
+    ids: string[];
+    relationType: string;
+  };
 };
 
 class CustomerForm extends React.Component<Props, State> {
@@ -104,12 +109,18 @@ class CustomerForm extends React.Component<Props, State> {
       code: finalValues.code,
       emailValidationStatus: finalValues.emailValidationStatus,
       phoneValidationStatus: finalValues.phoneValidationStatus,
-      links
+      links,
+      relationData: this.state.relationData
     };
   };
 
   onAvatarUpload = url => {
     this.setState({ avatar: url });
+  };
+  // onChange: (ids: string[], relationType: string) => void;
+  onRelationsChange = (ids: string[], relationType: string) => {
+    // console.log("********** ",relations);
+    this.setState({ relationData: { ids, relationType } });
   };
 
   getVisitorInfo(customer, key) {
@@ -481,6 +492,20 @@ class CustomerForm extends React.Component<Props, State> {
               </FormColumn>
             </FormWrapper>
           </CollapseContent>
+          {isEnabled('forms') && (
+            <CollapseContent title={__('Relations')} compact={true}>
+              <FormWrapper>
+                <FormColumn>
+                  {!this.props.customer &&
+                    loadDynamicComponent('relationForm', {
+                      ...this.props,
+                      onChange: this.onRelationsChange,
+                      contentType: 'contacts:customer'
+                    })}
+                </FormColumn>
+              </FormWrapper>
+            </CollapseContent>
+          )}
         </ScrollWrapper>
         <ModalFooter>
           <Button

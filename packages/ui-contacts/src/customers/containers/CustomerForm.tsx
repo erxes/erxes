@@ -8,6 +8,7 @@ import {
   PropertyProvider
 } from '@erxes/ui-contacts/src/customers/propertyContext';
 import { mutations, queries } from '../graphql';
+import { mutations as conformityMutations } from '@erxes/ui-cards/src/conformity/graphql';
 
 import { AppConsumer } from '@erxes/ui/src/appContext';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -17,6 +18,8 @@ import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
 
 type Props = {
   type?: string;
@@ -29,6 +32,7 @@ type Props = {
 
 type State = {
   redirectType?: string;
+  createdCustomerId?: string;
 };
 
 type FinalProps = {} & Props & IRouterProps;
@@ -57,7 +61,24 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
       resetSubmit
     }: IButtonMutateProps) => {
       const afterSave = data => {
+        if (values.relationData && values.relationData.ids.length > 0) {
+          const { relationData } = values;
+          const { ids, relationType } = relationData;
+
+          client.mutate({
+            mutation: gql(conformityMutations.conformityEdit),
+            variables: {
+              mainType: 'customer',
+              mainTypeId: data.customersAdd._id,
+              relType: relationType.split(':')[1],
+              relTypeIds: ids
+            }
+          });
+        }
+
         closeModal();
+
+        this.setState({ createdCustomerId: data.customersAdd._id });
 
         if (redirectType === 'detail') {
           return history.push(`/contacts/details/${data.customersAdd._id}`);
@@ -100,7 +121,8 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       changeRedirectType: this.changeRedirectType,
-      renderButton
+      renderButton,
+      insertedId: this.state.createdCustomerId
     };
 
     return (

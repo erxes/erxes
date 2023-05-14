@@ -724,6 +724,7 @@ export const loadGroupClass = (models: IModels) => {
 
           for (const type of types) {
             const contentType = `${serviceName}:${type.type}`;
+            const relations = type.relations || [];
 
             const doc = {
               name: 'Basic information',
@@ -738,6 +739,48 @@ export const loadGroupClass = (models: IModels) => {
               contentType: doc.contentType,
               isDefinedByErxes: true
             });
+
+            if (relations.length > 0) {
+              let relationGroup = await models.FieldsGroups.findOne({
+                contentType,
+                name: 'Relations'
+              });
+
+              if (!relationGroup) {
+                relationGroup = await models.FieldsGroups.create({
+                  name: 'Relations',
+                  contentType: `${contentType}`,
+                  order: 1,
+                  isDefinedByErxes: true,
+                  code: `${contentType}:relations`,
+                  description: `Relations of a ${type.type}`,
+                  isVisible: true
+                });
+              }
+
+              for (const [index, value] of relations.entries()) {
+                const relationField = await models.Fields.findOne({
+                  contentType,
+                  type: value.name
+                });
+
+                if (relationField) {
+                  continue;
+                }
+
+                await models.Fields.create({
+                  contentType,
+                  groupId: relationGroup._id,
+                  text: value.label,
+                  type: value.name,
+                  order: index,
+                  isDefinedByErxes: true,
+                  relationType: value.relationType,
+                  isVisible: false,
+                  isVisibleInDetail: false
+                });
+              }
+            }
 
             if (existingGroup) {
               continue;

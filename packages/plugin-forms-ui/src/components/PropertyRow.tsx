@@ -159,6 +159,8 @@ class PropertyRow extends React.Component<Props, State> {
 
     const hasLogic = field.logics && field.logics.length > 0;
 
+    console.log('field', field.relationType);
+
     return (
       <PropertyTableRow key={field._id}>
         <RowField>
@@ -171,36 +173,52 @@ class PropertyRow extends React.Component<Props, State> {
             ? lastUpdatedUser.details.fullName
             : 'Erxes'}
         </RowField>
-        <RowField>
-          <Toggle
-            id="visibleToggle"
-            defaultChecked={field.isVisible}
-            disabled={!field.canHide}
-            icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
-            }}
-            onChange={onChange}
-          />
-        </RowField>
-        {['visitor', 'lead', 'customer', 'device'].includes(
-          (contentType || '').split(':')[1]
-        ) ? (
+
+        {field.relationType ? (
           <RowField>
             <Toggle
-              id="visibleDetailToggle"
-              defaultChecked={field.isVisibleInDetail}
-              disabled={!field.canHide}
+              id="isVisibleToCreate"
+              defaultChecked={field.isVisibleToCreate}
               icons={{
                 checked: <span>Yes</span>,
                 unchecked: <span>No</span>
               }}
-              onChange={onChange}
+              onChange={e => this.updateSystemFieldsHandler(e, field)}
             />
           </RowField>
         ) : (
-          <></>
+          <>
+            <RowField>
+              <Toggle
+                id="visibleToggle"
+                defaultChecked={field.isVisible}
+                disabled={!field.canHide}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+                onChange={onChange}
+              />
+            </RowField>
+            {['visitor', 'lead', 'customer', 'device'].includes(
+              (contentType || '').split(':')[1]
+            ) && (
+              <RowField>
+                <Toggle
+                  id="visibleDetailToggle"
+                  defaultChecked={field.isVisibleInDetail}
+                  disabled={!field.canHide}
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>
+                  }}
+                  onChange={onChange}
+                />
+              </RowField>
+            )}
+          </>
         )}
+
         {contentType.startsWith('cards:') && (
           <>
             <RowField>
@@ -258,12 +276,19 @@ class PropertyRow extends React.Component<Props, State> {
     }
 
     const child = field => this.renderTableRow(field);
-    const showVisibleDetail = [
-      'visitor',
-      'lead',
-      'customer',
-      'device'
-    ].includes((contentType || '').split(':')[1]);
+    let showVisibleDetail = ['visitor', 'lead', 'customer', 'device'].includes(
+      (contentType || '').split(':')[1]
+    );
+
+    let isRelation = false;
+
+    if (
+      this.props.group.isDefinedByErxes &&
+      this.props.group.code === `${contentType}:relations`
+    ) {
+      showVisibleDetail = false;
+      isRelation = true;
+    }
 
     const renderListRow = (
       <SortableList
@@ -283,6 +308,8 @@ class PropertyRow extends React.Component<Props, State> {
           <ControlLabel>{__('Last Updated By')}</ControlLabel>
           {showVisibleDetail ? (
             <ControlLabel>{__('Visible in Team Inbox')}</ControlLabel>
+          ) : isRelation ? (
+            <ControlLabel>{__('Visible to create')}</ControlLabel>
           ) : (
             <ControlLabel>{__('Visible')}</ControlLabel>
           )}
@@ -295,6 +322,7 @@ class PropertyRow extends React.Component<Props, State> {
           {showVisibleDetail && (
             <ControlLabel>{__('Visible in detail')}</ControlLabel>
           )}
+
           <ControlLabel>{__('Has logic')}</ControlLabel>
           <ControlLabel>{__('Actions')}</ControlLabel>
         </PropertyTableHeader>

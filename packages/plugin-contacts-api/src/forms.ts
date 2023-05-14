@@ -4,7 +4,15 @@ export default {
   types: [
     {
       description: 'Customers',
-      type: 'customer'
+      type: 'customer',
+      relations: [
+        {
+          name: 'companyIds',
+          label: 'Companies',
+          relationType: 'contacts:company'
+        },
+        { name: 'dealIds', label: 'Deals', relationType: 'cards:deal' }
+      ]
     },
     {
       description: 'Companies',

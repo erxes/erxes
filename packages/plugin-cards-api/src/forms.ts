@@ -13,7 +13,19 @@ export default {
     },
     {
       description: 'Sales pipelines',
-      type: 'deal'
+      type: 'deal',
+      relations: [
+        {
+          name: 'companyIds',
+          label: 'Companies',
+          relationType: 'contacts:company'
+        },
+        {
+          name: 'customerIds',
+          label: 'Customers',
+          relationType: 'contacts:customer'
+        }
+      ]
     }
   ],
   fields: generateFields,
