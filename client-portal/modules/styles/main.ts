@@ -18,6 +18,7 @@ const Header = styledTS<{
   background-image: ${(props) =>
     props.backgroundImage && `url(${props.backgroundImage})`};
   position: relative;
+  border-radius: 0 0 30px 30px;
 
   h3 {
     font-size: 1.75rem;
@@ -101,6 +102,11 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
     color: ${(props) =>
       props.color ? props.color : colors.colorWhite} !important;
     border: 1px solid transparent;
+
+    &.ghost {
+      color: ${(props) =>
+        props.color ? props.color : colors.colorPrimaryDark} !important;
+    }
 
     &:focus {
       outline: none;

@@ -95,7 +95,8 @@ function Header({
           Sign up
         </Button>
         <Button
-          btnStyle="warning"
+          btnStyle="ghost"
+          className="ghost"
           uppercase={false}
           onClick={() => setLogin(true)}
         >
