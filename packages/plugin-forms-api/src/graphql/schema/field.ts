@@ -93,6 +93,8 @@ export const fieldsTypes = ({ products }) => `
     
     ${fieldCommonFields}
     logics: [Logic]
+
+    relationType: String
   }
 
   input OrderItem {
@@ -130,6 +132,7 @@ export const fieldsQueries = `
   fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON, onlyDates: Boolean): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
+  fieldsGetRelations(contentType: String!, isVisibleToCreate: Boolean): [Field]
 `;
 
 const fieldsCommonFields = `
