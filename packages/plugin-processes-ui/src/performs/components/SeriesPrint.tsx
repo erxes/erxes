@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Barcode from 'react-barcode';
 import QRCode from 'react-qr-code';
 import dayjs from 'dayjs';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 // local
 import LeftSidebar from './SeriesPrintSidebar';

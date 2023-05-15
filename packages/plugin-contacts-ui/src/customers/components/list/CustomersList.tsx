@@ -503,7 +503,7 @@ class CustomersList extends React.Component<IProps, State> {
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Customers"
-              size="lg"
+              size="xl"
               dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={customersMerge}

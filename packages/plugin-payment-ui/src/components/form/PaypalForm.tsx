@@ -18,6 +18,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   payment?: IPaymentDocument;
+  metaData?: any;
 };
 
 type State = {

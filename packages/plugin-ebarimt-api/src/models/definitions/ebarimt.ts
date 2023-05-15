@@ -118,3 +118,5 @@ export const putResponseSchema = schemaHooksWrapper(
 
   'erxes_ebarimt'
 );
+
+putResponseSchema.index({ contentType: 1, contentId: 1, status: 1 });

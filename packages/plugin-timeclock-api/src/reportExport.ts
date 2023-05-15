@@ -146,7 +146,7 @@ const extractAndAddIntoSheet = (
 
   let startRowIdx = 2;
 
-  const endRowIdx = teamMemberIds.length + 1;
+  const endRowIdx = teamMemberIds.length + 2;
 
   switch (reportType) {
     case 'Урьдчилсан' || 'Preliminary':
@@ -384,7 +384,7 @@ export const buildFile = async (
 
   extractAndAddIntoSheet(
     Object.values(report),
-    totalSupervisedUserIds,
+    totalTeamMemberIds,
     sheet,
     reportType
   );

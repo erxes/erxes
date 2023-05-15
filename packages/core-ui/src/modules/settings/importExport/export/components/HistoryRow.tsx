@@ -22,17 +22,26 @@ class HistoryRow extends React.Component<Props> {
     const { history } = this.props;
     const { exportLink, uploadType } = history;
 
-    if (uploadType === 'local') {
-      const reqUrl = `${REACT_APP_API_URL}/pl:workers/read-file?key=${exportLink}`;
+    const onClick = () => {
+      if (uploadType === 'local') {
+        return window.open(
+          `${REACT_APP_API_URL}/pl:workers/read-file?key=${exportLink}`
+        );
+      }
 
+      return window.open(readFile(exportLink));
+    };
+
+    if (uploadType === 'local') {
       return (
-        <Button btnStyle="simple" size="small" href={reqUrl}>
+        <Button btnStyle="simple" size="small" onClick={onClick}>
           {__(`Download result`)}
         </Button>
       );
     }
+
     return (
-      <Button btnStyle="simple" size="small" href={readFile(exportLink)}>
+      <Button btnStyle="simple" size="small" onClick={onClick}>
         {__(`Download result`)}
       </Button>
     );
