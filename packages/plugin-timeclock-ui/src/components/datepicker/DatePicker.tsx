@@ -9,12 +9,6 @@ import { timeFormat } from '../../constants';
 import { IScheduleDate } from '../../types';
 
 type Props = {
-  // startDate?: Date;
-  // startTime_value?: Date;
-  // endTime_value?: Date;
-  // lunchBreakInMins?: number;
-  // overnightShift?: boolean;
-
   scheduledDate: IScheduleDate;
   curr_day_key: string;
 
@@ -40,13 +34,7 @@ const DatePicker = (props: Props) => {
     scheduledDate
   } = props;
 
-  const {
-    shiftDate,
-    shiftStart,
-    shiftEnd,
-    lunchBreakInMins,
-    overnightShift
-  } = scheduledDate;
+  const { shiftDate, shiftStart, shiftEnd, lunchBreakInMins } = scheduledDate;
 
   const onDateChange = val => {
     if (changeDate) {
@@ -54,45 +42,11 @@ const DatePicker = (props: Props) => {
     }
   };
 
-  // const onStartTimeChange = val => {
-  //   changeStartTime(curr_day_key, val);
-  // };
-
-  // const onEndTimeChange = val => {
-  //   changeEndTime(curr_day_key, val);
-  // };
-
   const onDeleteDate = () => {
     if (removeDate) {
       removeDate(curr_day_key);
     }
   };
-
-  // const onTimeChange = (input: any, type: string) => {
-  //   const getDate = startDate
-  //     ? startDate.toLocaleDateString()
-  //     : new Date().toLocaleDateString();
-  //   const validateInput = dayjs(getDate + ' ' + input).toDate();
-
-  //   if (
-  //     input instanceof Date &&
-  //     startDate?.getUTCFullYear() === input.getUTCFullYear()
-  //   ) {
-  //     if (type === 'start') {
-  //       onStartTimeChange(input);
-  //     } else {
-  //       onEndTimeChange(input);
-  //     }
-  //   }
-
-  //   if (!isNaN(validateInput.getTime())) {
-  //     if (type === 'start') {
-  //       onStartTimeChange(validateInput);
-  //     } else {
-  //       onEndTimeChange(validateInput);
-  //     }
-  //   }
-  // };
 
   const onScheduleConfigSelect = el => {
     changeScheduleConfig(curr_day_key, el.value);

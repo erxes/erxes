@@ -42,7 +42,7 @@ type Props = {
 };
 
 function ConfigForm(props: Props) {
-  const { renderButton, history, scheduleConfig, deviceConfig } = props;
+  const { renderButton, scheduleConfig, deviceConfig } = props;
   const { absenceType, holiday, payDate } = props;
 
   const [requestTime, setRequestTime] = useState(

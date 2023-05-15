@@ -60,6 +60,7 @@ const carCategoryFields = `
   parentId
   description
   collapseContent
+  icon
 
   isRoot
 `;
@@ -192,6 +193,7 @@ const listParamsDef = `
   $tireLoadType: String
   $createdStartDate: Date
   $createdEndDate: Date
+  $segmentData: String
   ${conformityQueryFields}
 `;
 
@@ -219,6 +221,7 @@ const listParamsValue = `
   tireLoadType: $tireLoadType
   createdStartDate: $createdStartDate
   createdEndDate: $createdEndDate
+  segmentData: $segmentData
   ${conformityQueryFieldDefs}
 `;
 
@@ -790,6 +793,12 @@ query CustomerAccountsList($page: Int, $perPage: Int) {
 }
 `;
 
+const categoryIcons = `
+query tumentechCategoryIcons {
+  tumentechCategoryIcons
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -828,5 +837,7 @@ export default {
 
   topupList,
   customerAccountQry,
-  accountsQuery
+  accountsQuery,
+
+  categoryIcons
 };

@@ -1,9 +1,12 @@
-import { checkPermission } from '@erxes/api-utils/src';
+import { checkPermission, getEnv } from '@erxes/api-utils/src';
 import { paginate } from 'erxes-api-utils';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { countByCars } from '../../../carUtils';
 import { IContext } from '../../../connectionResolver';
 import {
+  fetchSegment,
   sendClientPortalMessage,
   sendCommonMessage,
   sendCoreMessage,
@@ -133,6 +136,12 @@ const generateFilter = async (params, commonQuerySelector, subdomain) => {
     const startDate = getFullDate(now);
     const endDate = getTomorrow(now);
     filter.createdAt = { $gte: startDate, $lte: endDate };
+  }
+
+  if (params.segmentData) {
+    const segment = JSON.parse(params.segmentData);
+    const itemIds = await fetchSegment(subdomain, '', {}, segment);
+    filter._id = { $in: itemIds };
   }
 
   return filter;
@@ -265,8 +274,8 @@ const carQueries = {
 
   carCategories: async (
     _root,
-    { parentId, searchValue },
-    { commonQuerySelector, models }
+    { parentId, searchValue, onlyParent },
+    { commonQuerySelector, models }: IContext
   ) => {
     const filter: any = commonQuerySelector;
 
@@ -276,6 +285,12 @@ const carQueries = {
 
     if (searchValue) {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    if (onlyParent) {
+      return models.CarCategories.find({ ...filter, parentId: '' }).sort({
+        order: 1
+      });
     }
 
     return models.CarCategories.find(filter).sort({ order: 1 });
@@ -322,6 +337,20 @@ const carQueries = {
 
   cpCarCategoryDetail: async (_root, { _id }, { models }) => {
     return models.CarCategories.findOne({ _id });
+  },
+
+  tumentechCategoryIcons: async (_root, _param, { subdomain }: IContext) => {
+    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      : 'http://localhost:4000';
+
+    const iconsPath = path.join(__dirname, '../../../public/images');
+    const images = fs
+      .readdirSync(iconsPath)
+      .filter(file => file.endsWith('.jpg') || file.endsWith('.png'))
+      .map(file => `${DOMAIN}/pl:tumentech/static/images/${file}`);
+
+    return images;
   }
 };
 

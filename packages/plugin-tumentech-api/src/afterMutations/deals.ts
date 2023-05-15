@@ -84,21 +84,23 @@ export const afterDealCreate = async (subdomain, params) => {
       defaultValue: []
     });
 
+    const notifData: any = {
+      title: 'Шинэ зар орлоо',
+      content: `Шинэ ажлын зар орсон байна!`,
+      receivers: cpUsers.map(cpUser => cpUser._id),
+      notifType: 'system',
+      link: '',
+      isMobile: true,
+      eventData: {
+        type: 'deal',
+        id: deal._id
+      }
+    };
+
     sendClientPortalMessage({
       subdomain,
       action: 'sendNotification',
-      data: {
-        title: 'Шинэ зар орлоо',
-        content: `Шинэ ажлын зар орсон байна!`,
-        receivers: cpUsers.map(cpUser => cpUser._id),
-        notifType: 'system',
-        link: '',
-        isMobile: true,
-        eventData: {
-          type: 'deal',
-          id: deal._id
-        }
-      }
+      data: notifData
     });
   }
 
@@ -356,6 +358,19 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Буулгалт баталгаажлаа',
           content: `Таны ${deal.name} ажлын буулгалт баталгаажлаа!`,
+          isMobile: true
+        }
+      );
+    }
+
+    if (stage.code === 'dispatchContractPayment') {
+      await notifyDealRelatedUsers(
+        subdomain,
+        process.env.MOBILE_CP_ID || '',
+        deal,
+        {
+          title: 'Төлбөр хүлээгдэж байна',
+          content: `${deal.name} ажлын төлбөр хүлээгдэж байна!`,
           isMobile: true
         }
       );

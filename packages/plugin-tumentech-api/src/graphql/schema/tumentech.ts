@@ -47,6 +47,7 @@ type CarCategory {
   collapseContent: [String]
   code: String!
   order: String!
+  icon: String
 
   isRoot: Boolean
   carCount: Int
@@ -166,6 +167,7 @@ type CarCategoryProducts {
   carCategoryId: String
   productCategoryIds: [String]
   productCategories: JSON
+
 }
 
 type ProductCarCategories {
@@ -218,6 +220,7 @@ const tumentechParams = `
   page: Int
   perPage: Int
   segment: String
+  segmentData: String
   carCategoryId: String
   ids: [String]
   searchValue: String
@@ -250,7 +253,7 @@ export const queries = `
   cars(${tumentechParams}): [Car]
   carCounts(${tumentechParams}, only: String): JSON
   carDetail(_id: String!): Car
-  carCategories(parentId: String, searchValue: String): [CarCategory]
+  carCategories(parentId: String, searchValue: String, onlyParent: Boolean): [CarCategory]
   carCategoriesTotalCount: Int
   carCategoryDetail(_id: String): CarCategory
   carCategoryMatchProducts(carCategoryId: String): CarCategoryProducts
@@ -268,6 +271,8 @@ export const queries = `
 
   
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
+
+  tumentechCategoryIcons: [String]
 `;
 
 const tumentechCommonFields = `
@@ -360,6 +365,7 @@ const carCategoryParams = `
   description: String,
   parentId: String,
   collapseContent: [String]
+  icon: String
 `;
 
 const participantParams = `

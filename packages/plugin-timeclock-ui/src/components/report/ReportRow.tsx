@@ -34,14 +34,15 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
           <td>{userReport.user.details?.position || '-'}</td>
           <td>{userReport.totalDaysScheduled}</td>
           <td>{userReport.totalHoursScheduled}</td>
-          <td>{userReport.totalHoursBreak}</td>
+          <td>{userReport.totalHoursBreakScheduled}</td>
           <td>{userReport.totalDaysWorked}</td>
           <td>{userReport.totalRegularHoursWorked}</td>
           <td>{userReport.totalHoursOvertime}</td>
           <td>{userReport.totalHoursOvernight}</td>
-          <td>{userReport.totalHoursBreak}</td>
+          <td>{userReport.totalHoursBreakActual}</td>
           <td>{userReport.totalHoursWorked}</td>
           <td>{userReport.totalMinsLate}</td>
+          <td>{userReport.absenceInfo?.totalHoursShiftRequest}</td>
           <td>{userReport.absenceInfo?.totalHoursWorkedAbroad}</td>
           <td>{userReport.absenceInfo?.totalHoursPaidAbsence}</td>
           <td>{userReport.absenceInfo?.totalHoursUnpaidAbsence}</td>
@@ -115,13 +116,13 @@ const renderScheduleShiftInfo = scheduledShift => {
     returnDeviceTypes(scheduledShift.deviceType)[0] &&
     returnDeviceTypes(scheduledShift.deviceType)[0].includes('faceTerminal')
       ? scheduledShift.deviceName
-      : '-';
+      : scheduledShift.deviceType;
 
   const getOutDevice =
     returnDeviceTypes(scheduledShift.deviceType)[1] &&
     returnDeviceTypes(scheduledShift.deviceType)[1].includes('faceTerminal')
       ? scheduledShift.deviceName
-      : '-';
+      : scheduledShift.deviceType;
 
   return (
     <>

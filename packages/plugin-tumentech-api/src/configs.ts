@@ -1,18 +1,20 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as cookieParser from 'cookie-parser';
-import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import * as express from 'express';
+import * as path from 'path';
 
 import afterMutations from './afterMutations';
 import { generateModels } from './connectionResolver';
+import dashboards from './dashboards';
 import exporter from './exporter';
 import forms from './forms';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
+import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 import segments from './segments';
 import { getTransportData } from './utils';
-import dashboards from './dashboards';
 
 export let debug;
 export let graphqlPubsub;
@@ -88,9 +90,13 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
 
+    const { app } = options;
+
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
+
+    app.use('/static', express.static(path.join(__dirname, '/public')));
   }
 };

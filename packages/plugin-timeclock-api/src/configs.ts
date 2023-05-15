@@ -7,6 +7,7 @@ import { generateModels } from './connectionResolver';
 import cronjobs from './cronjobs/timelock';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './reportExport';
+import * as permissions from './permissions';
 
 export let mainDb;
 export let debug;
@@ -15,6 +16,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'timeclock',
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
 

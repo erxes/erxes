@@ -18,14 +18,22 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   queryParams: any;
   history: any;
   startTime?: Date;
   timeclocks: ITimeclock[];
   loading: boolean;
   totalCount: number;
+
+  isCurrentUserAdmin: boolean;
 
   startClockTime?: (userId: string) => void;
   extractAllMsSqlData: (startDate: Date, endDate: Date) => void;
@@ -36,16 +44,20 @@ type Props = {
   getPagination: (pagination: any) => void;
 };
 
-function List({
-  timeclocks,
-  totalCount,
-  startClockTime,
-  extractAllMsSqlData,
-  removeTimeclock,
-  getActionBar,
-  showSideBar,
-  getPagination
-}: Props) {
+function List(props: Props) {
+  const {
+    isCurrentUserAdmin,
+
+    timeclocks,
+    totalCount,
+    startClockTime,
+    extractAllMsSqlData,
+    removeTimeclock,
+    getActionBar,
+    showSideBar,
+    getPagination
+  } = props;
+
   const trigger = (
     <Button btnStyle={'success'} icon="plus-circle">
       Start Shift
@@ -59,10 +71,15 @@ function List({
     new Date(localStorage.getItem('endDate') || Date.now())
   );
 
-  const extractTrigger = <Button icon="plus-circle">Extract all data</Button>;
+  const extractTrigger = isCurrentUserAdmin ? (
+    <Button icon="plus-circle">Extract all data</Button>
+  ) : (
+    <></>
+  );
 
-  const modalContent = props => (
+  const modalContent = contenProps => (
     <TimeForm
+      {...contenProps}
       {...props}
       startClockTime={startClockTime}
       timeclocks={timeclocks}
@@ -78,7 +95,7 @@ function List({
     setEndDate(dateVal);
     localStorage.setItem('endDate', endDate.toISOString());
   };
-  const extractContent = props => (
+  const extractContent = contentProps => (
     <FlexColumn marginNum={10}>
       <ControlLabel>Select Date Range</ControlLabel>
       <CustomRangeContainer>

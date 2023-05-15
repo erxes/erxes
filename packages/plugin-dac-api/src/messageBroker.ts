@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
-import { afterMutationHandlers } from './afterMutations';
+import { afterMutationHandlers } from './aftermutations';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -60,6 +60,15 @@ export const sendCarsMessage = (args: ISendMessageArgs) => {
     client,
     serviceDiscovery,
     serviceName: 'cars',
+    ...args
+  });
+};
+
+export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'clientportal',
     ...args
   });
 };

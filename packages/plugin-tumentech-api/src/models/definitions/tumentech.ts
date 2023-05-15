@@ -14,49 +14,49 @@ export interface ICar {
   intervalValue: string;
   carCategoryId: string;
   parentCarCategoryId?: string;
-  vintageYear: Number;
-  importYear: Number;
+  vintageYear: number;
+  importYear: number;
   diagnosisDate: Date;
   taxDate: Date;
-  manufacture: String;
-  steeringWheel: String;
-  transmission: String;
-  drivingClassification: String;
-  carModel: String;
-  mark: String;
-  doors: String;
-  seats: String;
-  fuelType: String;
-  engineCapacity: String;
-  engineChange: String;
-  listChange: String;
-  type: String;
-  ownerBy: String;
-  repairService: String;
-  interval: String[];
-  running: String;
-  trailerType: String;
-  tireLoadType: String;
-  bowType: String;
-  brakeType: String;
-  liftType: String;
-  liftWagonCapacity: String[];
-  liftWagonCapacityValue: String;
-  wagonCapacity: String[];
-  wagonCapacityValue: String;
-  totalAxis: String;
-  steeringAxis: String;
-  forceAxis: String;
-  floorType: String;
-  pumpCapacity: String;
-  barrelNumber: String;
-  status: String;
-  description: String;
-  valve: String;
+  manufacture: string;
+  steeringWheel: string;
+  transmission: string;
+  drivingClassification: string;
+  carModel: string;
+  mark: string;
+  doors: string;
+  seats: string;
+  fuelType: string;
+  engineCapacity: string;
+  engineChange: string;
+  listChange: string;
+  type: string;
+  ownerBy: string;
+  repairService: string;
+  interval: string[];
+  running: string;
+  trailerType: string;
+  tireLoadType: string;
+  bowType: string;
+  brakeType: string;
+  liftType: string;
+  liftWagonCapacity: string[];
+  liftWagonCapacityValue: string;
+  wagonCapacity: string[];
+  wagonCapacityValue: string;
+  totalAxis: string;
+  steeringAxis: string;
+  forceAxis: string;
+  floorType: string;
+  pumpCapacity: string;
+  barrelNumber: string;
+  status: string;
+  description: string;
+  valve: string;
 
   // Merged car ids
-  mergedIds: String[];
-  searchText: String;
+  mergedIds: string[];
+  searchText: string;
   attachments?: any;
   frontAttachments?: any;
   leftAttachments?: any;
@@ -66,26 +66,26 @@ export interface ICar {
   transformationAttachments?: any;
 
   barrelWarranty: Date;
-  liftHeight: Number;
-  height: Number;
-  weight: Number;
-  wagonLength: Number;
-  wagonWidth: Number;
+  liftHeight: number;
+  height: number;
+  weight: number;
+  wagonLength: number;
+  wagonWidth: number;
 
-  porchekHeight: Number;
-  runningValue: Number;
-  volume: Number;
-  capacityL: Number;
-  barrel1: Number;
-  barrel2: Number;
-  barrel3: Number;
-  barrel4: Number;
-  barrel5: Number;
-  barrel6: Number;
-  barrel7: Number;
-  barrel8: Number;
-  forceCapacityValue: Number;
-  forceValue: Number;
+  porchekHeight: number;
+  runningValue: number;
+  volume: number;
+  capacityL: number;
+  barrel1: number;
+  barrel2: number;
+  barrel3: number;
+  barrel4: number;
+  barrel5: number;
+  barrel6: number;
+  barrel7: number;
+  barrel8: number;
+  forceCapacityValue: number;
+  forceValue: number;
 }
 
 export interface ICarDocument extends ICar, Document {
@@ -99,6 +99,7 @@ export interface ICarDocument extends ICar, Document {
 export interface ICarCategory {
   name: string;
   code: string;
+  icon: string;
   parentId?: string;
   description?: string;
   collapseContent?: string[];
@@ -111,8 +112,8 @@ export interface ICarCategoryDocument extends ICarCategory, Document {
 }
 
 export interface IProductCarCategory {
-  carCategoryId: String;
-  productCategoryId: String;
+  carCategoryId: string;
+  productCategoryId: string;
 }
 
 export interface IProductCarCategoryDocument
@@ -185,6 +186,11 @@ export const carCategorySchema = schemaHooksWrapper(
       label: 'Collapse content',
       esType: 'keyword',
       selectOptions: CAR_SELECT_OPTIONS.COLLAPSE_CONTENT_SELECTOR
+    }),
+    icon: field({
+      type: String,
+      optional: true,
+      label: 'Icon'
     }),
     description: field({ type: String, optional: true, label: 'Description' }),
     createdAt: field({

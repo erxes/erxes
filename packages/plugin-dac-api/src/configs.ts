@@ -1,13 +1,17 @@
 import { initBroker } from './messageBroker';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import afterMutations from './afterMutations';
+import afterMutations from './aftermutations';
 import {
   createCustomer,
   getCustomer,
   getCustomerByCardCode,
   updateCustomer
 } from './api/erxesApi';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { generateModels } from './connectionResolver';
+import * as permissions from './permissions';
+import cronjobs from './cronjobs/cupon';
 
 export let mainDb;
 export let debug;
@@ -16,18 +20,20 @@ export let serviceDiscovery;
 
 export default {
   name: 'dac',
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
-
     return {
       typeDefs: await typeDefs(sd),
-      resolvers
+      resolvers: await resolvers(sd)
     };
   },
   hasSubscriptions: false,
 
   meta: {
-    afterMutations
+    afterMutations,
+    permissions,
+    cronjobs
   },
 
   getHandlers: [
@@ -45,7 +51,16 @@ export default {
     { path: `/customerUpdate`, method: updateCustomer }
   ],
 
-  apolloServerContext: async context => {
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    context.subdomain = req.hostname;
+    context.models = models;
+    if (req.cpUser) {
+      context.cpUser = req.cpUser;
+    }
+
     return context;
   },
 

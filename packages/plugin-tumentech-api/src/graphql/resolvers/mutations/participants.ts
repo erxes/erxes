@@ -26,6 +26,42 @@ const participantMutations = {
       return null;
     }
 
+    const conformities = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.getConformities',
+      data: {
+        mainType: 'deal',
+        mainTypeIds: [participant.dealId],
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: {
+        _id: participant.dealId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    const stage = await sendCardsMessage({
+      subdomain,
+      action: 'stages.findOne',
+      data: {
+        _id: deal.stageId
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (stage.code === 'dealsWaitingDriver') {
+      return participant;
+    }
+
     graphqlPubsub.publish('participantsChanged', {
       participantsChanged: participant
     });
@@ -55,28 +91,6 @@ const participantMutations = {
         }
       });
     }
-
-    const conformities = await sendCoreMessage({
-      subdomain,
-      action: 'conformities.getConformities',
-      data: {
-        mainType: 'deal',
-        mainTypeIds: [participant.dealId],
-        relTypes: ['customer']
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    const deal = await sendCardsMessage({
-      subdomain,
-      action: 'deals.findOne',
-      data: {
-        _id: participant.dealId
-      },
-      isRPC: true,
-      defaultValue: null
-    });
 
     if (conformities.length > 0) {
       for (const conformity of conformities) {
@@ -270,21 +284,38 @@ const participantMutations = {
     });
 
     if (winner) {
+      const stage = await sendCardsMessage({
+        subdomain,
+        action: 'stages.findOne',
+        data: {
+          _id: deal.stageId
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      const data: any = {
+        title: 'Баяр хүргэе',
+        content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо, та ажлаа баталгаажуулна уу`,
+        receivers: [winner._id],
+        notifType: 'system',
+        link: ``,
+        isMobile: true,
+        eventData: {
+          type: 'deal',
+          id: deal._id
+        }
+      };
+
+      if (stage.code === 'dealsWaitingDriver') {
+        data.title = 'Танд ажлын хүсэлт ирлээ';
+        data.content = `Та ${deal.name} дугаарт ажилд уригдлаа.`;
+      }
+
       sendClientPortalMessage({
         subdomain,
         action: 'sendNotification',
-        data: {
-          title: 'Баяр хүргэе',
-          content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо, та ажлаа баталгаажуулна уу`,
-          receivers: [winner._id],
-          notifType: 'system',
-          link: ``,
-          isMobile: true,
-          eventData: {
-            type: 'deal',
-            id: deal._id
-          }
-        }
+        data
       });
     }
 

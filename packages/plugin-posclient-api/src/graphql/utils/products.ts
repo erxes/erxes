@@ -76,7 +76,6 @@ export const checkRemainders = async (
   const productIds = products.map(p => p._id);
 
   if (config.checkRemainder) {
-    console.log('dddddddd', config.departmentId);
     const inventoryResponse = await sendInventoriesMessage({
       subdomain,
       action: 'remainders',
