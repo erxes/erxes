@@ -446,6 +446,7 @@ function ScheduleForm(props: Props) {
           ids: returnTotalUserOptions(),
           excludeIds: false
         }}
+        customOption={prepareCurrentUserOption(currentUser)}
         queryParams={queryParams}
         label={'Team member'}
         onSelect={onUserSelect}
@@ -521,6 +522,7 @@ function ScheduleForm(props: Props) {
                   ids: returnTotalUserOptions(),
                   excludeIds: false
                 }}
+                customOption={prepareCurrentUserOption(currentUser)}
                 queryParams={queryParams}
                 label={'Select team member'}
                 onSelect={onUserSelect}

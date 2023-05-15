@@ -113,6 +113,7 @@ const FormComponent = ({
                 ids: returnTotalUserOptions(),
                 excludeIds: false
               }}
+              customOption={prepareCurrentUserOption(currentUser)}
               label="Choose a team member"
               name="userId"
               customField="employeeId"
