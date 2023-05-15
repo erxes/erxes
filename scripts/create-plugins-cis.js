@@ -62,6 +62,7 @@ var plugins = [
   { name: 'productplaces', ui: true, api: true },
   { name: 'ecommerce', api: true },
   { name: 'grants', api: true, ui: true },
+  { name: 'dac', api: true },
 ];
 
 const pluginsMap = {};
