@@ -38,7 +38,6 @@ const dacMutations = {
     { models, user }: IContext
   ) {
     const cupon = await models.DacCupons.checkCupon(customerId, cuponCode);
-
     if (cupon) {
       if (cupon.status === 'used') {
         throw new Error('Already used cupon');
