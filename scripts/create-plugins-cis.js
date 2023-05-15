@@ -70,7 +70,8 @@ var plugins = [
   { name: 'khanbank', ui: true, api: true },
   { name: 'productplaces', ui: true, api: true },
   { name: 'ecommerce', api: true },
-  { name: 'grants', api: true, ui: true }
+  { name: 'grants', api: true, ui: true },
+  { name: 'dac', ui: true, api: true }
 ];
 
 const pluginsMap = {};
