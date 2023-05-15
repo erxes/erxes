@@ -257,17 +257,29 @@ export const KbCategories = styled.div`
   margin-bottom: 10px;
   padding: 5px 10px;
   cursor: pointer;
-  border: 1px solid #dfdfdf;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
+`;
+
+export const KbArticlesContainer = styled.div`
+  padding-left: 20px;
+  margin-left: 20px;
+  border-left: 1px solid ${colors.bgGray};
 `;
 
 export const KbArticles = styled.div`
   padding: 5px 10px;
   margin-bottom: 10px;
   cursor: pointer;
-  border: 1px solid #dfdfdf;
-
-  input {
-    margin-right: 10px;
-    cursor: pointer;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
+  &:before {
+    content: '';
+    width: 1.2rem;
+    position: absolute;
+    z-index: 1;
+    padding-top: 10px;
+    left: 6%;
+    border-bottom: 1px solid #d1d1d1e0;
   }
 `;
