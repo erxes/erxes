@@ -21,7 +21,8 @@ var plugins = [
   { name: 'priuscenter', ui: true, api: true },
   { name: 'apex', ui: true, api: true },
   { name: 'bichil', ui: true, api: true },
-  { name: 'mobinet', ui: true, api: true }
+  { name: 'mobinet', ui: true, api: true },
+  { name: 'dac', ui: true, api: true }
 ];
 
 const pluginsMap = {};
