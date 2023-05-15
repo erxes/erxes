@@ -434,6 +434,15 @@ async function startServer() {
           data: await forms.fieldsGroupsHook(args)
         }));
       }
+
+      if (forms.relations) {
+        forms.relationsAvailable = true;
+
+        consumeRPCQueue(`${configs.name}:relations`, async args => ({
+          status: 'success',
+          data: await forms.relations(args)
+        }));
+      }
     }
 
     if (tags) {

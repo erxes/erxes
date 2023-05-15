@@ -65,7 +65,6 @@ jobs:
           yarn install
           yarn install-deps
           yarn build
-          ls
 
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
