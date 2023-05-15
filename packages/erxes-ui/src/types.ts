@@ -121,6 +121,8 @@ export interface IField {
   keys?: string[];
   productCategoryId?: string;
   optionsValues?: string;
+
+  relationType?: string;
 }
 
 export interface IFormProps {
