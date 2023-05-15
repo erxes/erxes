@@ -105,6 +105,9 @@ export default (props: Props) => {
       totalUserOptions.push(...branch.userIds);
     }
 
+    if (currentUser) {
+      totalUserOptions.push(currentUser._id);
+    }
     return totalUserOptions;
   };
 
