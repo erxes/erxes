@@ -81,7 +81,7 @@ export interface IProductPurchaseData extends Document {
   assignUserId?: string;
   branchId?: string;
   departmentId?: string;
-  costPrice?: number;
+  costPrice: number;
 }
 
 export interface IExpensesPurchaseData extends Document {

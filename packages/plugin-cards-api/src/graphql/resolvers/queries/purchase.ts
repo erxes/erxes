@@ -348,6 +348,6 @@ const purchaseQueries = {
 
 // moduleRequireLogin(purchaseQueries);
 
-checkPermission(purchaseQueries, 'purchases', 'showpurchases', []);
+checkPermission(purchaseQueries, 'purchases', 'showPurchases', []);
 
 export default purchaseQueries;

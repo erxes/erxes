@@ -166,11 +166,10 @@ const purchaseMutations = {
 
     if (
       doc.expensesData &&
-      doc.expensesData &&
+      doc.expensesData.length &&
       doc.productsData &&
       doc.productsData.length
     ) {
-      EXPENSE_DIVIDE_TYPES.QUANTITY;
       const dataOfQuantity = doc.expensesData.filter(
         ed => ed.type === EXPENSE_DIVIDE_TYPES.QUANTITY
       );
@@ -190,8 +189,7 @@ const purchaseMutations = {
         const perExpense = sumOfQuantity / sumQuantity;
 
         for (const pdata of doc.productsData) {
-          pdata.costPrice =
-            (parseInt(pdata.unitPrice.toString()) || 0) + perExpense;
+          pdata.costPrice = perExpense * pdata.quantity;
         }
       }
       if (dataOfAmount.length) {
@@ -206,12 +204,7 @@ const purchaseMutations = {
         const perExpense = sumOfAmount / sumAmount;
 
         for (const pdata of doc.productsData) {
-          pdata.costPrice =
-            ((parseInt(pdata.quantity.toString()) || 0) *
-              (parseInt(pdata.unitPrice.toString()) || 0) *
-              perExpense +
-              (pdata.amount || 0)) /
-              parseInt(pdata.quantity.toString()) || 0;
+          pdata.costPrice += perExpense * (pdata.amount || 0);
         }
       }
     }
