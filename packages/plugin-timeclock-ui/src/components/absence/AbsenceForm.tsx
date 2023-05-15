@@ -24,7 +24,10 @@ import { PopoverButton } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
 import { dateFormat } from '../../constants';
 import * as dayjs from 'dayjs';
-import { compareStartAndEndTimeOfSingleDate } from '../../utils';
+import {
+  compareStartAndEndTimeOfSingleDate,
+  prepareCurrentUserOption
+} from '../../utils';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
@@ -242,6 +245,7 @@ export default (props: Props) => {
             ids: returnTotalUserOptions(),
             excludeIds: false
           }}
+          customOption={prepareCurrentUserOption(currentUser)}
           customField="employeeId"
           label={'Team member'}
           onSelect={onUserSelect}
@@ -532,6 +536,7 @@ export default (props: Props) => {
           ids: returnTotalUserOptions(),
           excludeIds: false
         }}
+        customOption={prepareCurrentUserOption(currentUser)}
         queryParams={queryParams}
         label={'Team member'}
         onSelect={onUserSelect}

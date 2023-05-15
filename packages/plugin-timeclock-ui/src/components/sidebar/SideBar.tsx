@@ -210,6 +210,7 @@ const LeftSideBar = (props: Props) => {
             customField="employeeId"
             label="Select team member"
             name="userIds"
+            customOption={prepareCurrentUserOption(currentUser)}
             filterParams={{
               ids: returnTotalUserOptions(),
               excludeIds: false
