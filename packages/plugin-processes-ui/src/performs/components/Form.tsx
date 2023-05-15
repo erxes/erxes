@@ -18,7 +18,7 @@ import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectC
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { AddTrigger, TableOver } from '../../styles';
 import {
   DateContainer,
@@ -234,7 +234,7 @@ class Form extends React.Component<Props, State> {
       overallWorkDet.type === 'outlet' &&
       !(
         overallWorkDet.key.inBranchId &&
-        overallWorkDet.inDepartmentId &&
+        overallWorkDet.key.inDepartmentId &&
         inProducts.length
       )
     ) {

@@ -1,6 +1,6 @@
 import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { IUom } from '@erxes/ui-products/src/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';

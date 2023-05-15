@@ -5,7 +5,8 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
+  Tip
 } from '@erxes/ui/src';
 import { IPos, ISlot } from '../../../types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
@@ -219,7 +220,12 @@ class PaymentsStep extends React.Component<Props, State> {
             )}
 
             <Block>
-              <h4>{__('Other payments')}</h4>
+              <Tip
+                placement="top-start"
+                text={`config => {port: [8088], etc...}`}
+              >
+                <h4>{__('Other payments')}</h4>
+              </Tip>
               <FormGroup>
                 <div key={Math.random()}>
                   <FormWrapper>

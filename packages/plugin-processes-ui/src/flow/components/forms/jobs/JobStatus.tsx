@@ -1,6 +1,6 @@
 import Label from '@erxes/ui/src/components/Label';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { DisabledSpan } from '../../../styles';
 import { FLOWJOB_TYPES } from '../../../../flow/constants';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';

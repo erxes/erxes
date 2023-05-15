@@ -13,6 +13,7 @@ export interface IEbarimtConfig {
   vatPercent: number;
   cityTaxPercent: number;
   footerText: string;
+  hasCopy?: boolean;
 }
 
 interface IConfigColors {
@@ -42,6 +43,7 @@ interface ICatProd {
 export interface IConfig {
   name: string;
   description?: string;
+  pdomain?: string;
   productDetails?: string[];
   adminIds: string[];
   cashierIds: string[];
@@ -61,6 +63,7 @@ export interface IConfig {
   kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
+  cardsConfig?: any;
   posId: string;
   isOnline?: boolean;
   onServer?: boolean;
@@ -98,7 +101,8 @@ const ebarimtConfigSchema = new Schema(
       optional: true,
       label: 'UB city tax percent'
     },
-    footerText: field({ type: String, optional: true, label: 'Footer text' })
+    footerText: field({ type: String, optional: true, label: 'Footer text' }),
+    hasCopy: field({ type: Boolean })
   },
   { _id: false }
 );
@@ -107,6 +111,7 @@ export const configSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
+  pdomain: field({ type: String, optional: true, label: 'Domain' }),
   userId: field({ type: String, optional: true, label: 'Created by' }),
   createdAt: getDateFieldDefinition('Created at'),
   productDetails: field({ type: [String] }),
@@ -140,9 +145,8 @@ export const configSchema = new Schema({
     type: [String],
     label: 'kiosk Exclude Products'
   }),
-  deliveryConfig: field({
-    type: Object
-  }),
+  deliveryConfig: field({ type: Object }),
+  cardsConfig: field({ type: Object }),
   posId: field({ type: String, label: 'Pos id' }),
   isOnline: field({ type: Boolean, optional: true }),
   onServer: field({ type: Boolean, optional: true }),

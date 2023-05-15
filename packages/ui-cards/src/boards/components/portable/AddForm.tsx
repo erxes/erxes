@@ -11,8 +11,7 @@ import {
   BoardSelectWrapper,
   FormFooter,
   HeaderContent,
-  HeaderRow,
-  SelectInput
+  HeaderRow
 } from '../../styles/item';
 import { IItem, IItemParams, IOptions, IStage } from '../../types';
 import { invalidateCache } from '../../utils';
@@ -21,6 +20,7 @@ import GenerateAddFormFields from './GenerateAddFormFields';
 import * as _ from 'lodash';
 import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
 import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   options: IOptions;
@@ -60,6 +60,8 @@ type State = {
   attachments?: IAttachment[];
   description?: string;
   tagIds?: string[];
+
+  relationData?: any;
 };
 
 class AddForm extends React.Component<Props, State> {
@@ -106,11 +108,10 @@ class AddForm extends React.Component<Props, State> {
   save = e => {
     e.preventDefault();
 
-    let {
+    const {
       stageId,
       name,
       cardId,
-      customFieldsData,
       priority,
       labelIds,
       startDate,
@@ -118,9 +119,14 @@ class AddForm extends React.Component<Props, State> {
       assignedUserIds,
       description,
       attachments,
-      tagIds
+      tagIds,
+      relationData
     } = this.state;
-    let { saveItem, closeModal, callback, fields } = this.props;
+
+    let { customFieldsData } = this.state;
+
+    const { saveItem, closeModal, callback } = this.props;
+    let { fields } = this.props;
 
     if (!stageId) {
       return Alert.error('No stage');
@@ -144,7 +150,7 @@ class AddForm extends React.Component<Props, State> {
           logicValue: logic.logicValue,
           fieldValue: (customFieldsData.find(c => c.field === fieldId) || {})
             .value,
-          validation: fields.find(e => e._id === fieldId)?.validation,
+          validation: fields.find(f => f._id === fieldId)?.validation,
           type: field.type
         };
       });
@@ -155,7 +161,7 @@ class AddForm extends React.Component<Props, State> {
     });
 
     customFieldsData = customFieldsData.filter(customField =>
-      fields.find(field => field._id == customField.field)
+      fields.find(field => field._id === customField.field)
     );
 
     for (const field of fields) {
@@ -219,6 +225,10 @@ class AddForm extends React.Component<Props, State> {
 
     if (tagIds) {
       doc.tagIds = tagIds;
+    }
+
+    if (relationData) {
+      doc.relationData = relationData;
     }
 
     // before save, disable save button
@@ -294,6 +304,15 @@ class AddForm extends React.Component<Props, State> {
     this.setState({ stageId: value });
   };
 
+  onRelationsChange = (ids: string[], relationType: string) => {
+    const { relationData = {} } = this.state;
+    const key = relationType.split(':')[1];
+
+    relationData[key] = ids;
+
+    this.setState({ relationData });
+  };
+
   render() {
     const { stages, showStageSelect } = this.props;
 
@@ -324,14 +343,12 @@ class AddForm extends React.Component<Props, State> {
                 additionalValue={this.state.name}
               />
             ) : (
-              <SelectInput>
-                <FormControl
-                  value={this.state.name}
-                  autoFocus={true}
-                  placeholder="Create a new card"
-                  onChange={this.onChangeName}
-                />
-              </SelectInput>
+              <FormControl
+                value={this.state.name}
+                autoFocus={true}
+                placeholder="Create a new card"
+                onChange={this.onChangeName}
+              />
             )}
           </HeaderContent>
         </HeaderRow>
@@ -358,6 +375,13 @@ class AddForm extends React.Component<Props, State> {
           customFieldsData={this.state.customFieldsData}
           fields={this.props.fields}
         />
+
+        {loadDynamicComponent('relationForm', {
+          ...this.props,
+          onChange: this.onRelationsChange,
+          contentType: `cards:${type}`
+        })}
+
         <FormFooter>
           <Button
             btnStyle="simple"

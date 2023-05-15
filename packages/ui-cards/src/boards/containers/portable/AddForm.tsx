@@ -124,6 +124,24 @@ class AddFormContainer extends React.Component<FinalProps> {
         .then(({ data }) => {
           const message = `You've successfully created ${options.type}`;
 
+          if (doc.relationData && Object.keys(doc.relationData).length > 0) {
+            const { relationData } = doc;
+
+            for (const key in relationData) {
+              if (relationData.hasOwnProperty(key)) {
+                client.mutate({
+                  mutation: gql(mutations.conformityEdit),
+                  variables: {
+                    mainType: options.type,
+                    mainTypeId: data[options.mutationsName.addMutation]._id,
+                    relType: key,
+                    relTypeIds: relationData[key]
+                  }
+                });
+              }
+            }
+          }
+
           if (relType && relTypeIds) {
             editConformity({
               variables: {

@@ -10,12 +10,12 @@ const routerConfigDirPath = filePath('./apollo-router-config');
 
 async function createRouterConfigDir() {
   if (!fs.existsSync(routerConfigDirPath)) {
-    await fs.mkdirSync(routerConfigDirPath,{ recursive: true });
+    await fs.mkdirSync(routerConfigDirPath,{ recursive: true, mode: 0o777 });
   }
 }
 
 async function recreateRouterConfigDir() {
-  await fse.removeSync(routerConfigDirPath, { recursive: true });
+  await fs.rmSync(routerConfigDirPath, { recursive: true, force: true });
   await createRouterConfigDir();
 }
 

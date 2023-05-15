@@ -5,7 +5,7 @@ import { ActionForms } from '.';
 import { IJob } from 'flow/types';
 import JobStatus from '../../../containers/forms/jobs/FlowJobStatus';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
 
 type Props = {
   activeFlowJob: IJob;

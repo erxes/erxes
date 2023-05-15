@@ -2,6 +2,7 @@ export const posCommonFields = `
   _id
   name
   description
+  pdomain
   createdAt
   token
   erxesAppToken

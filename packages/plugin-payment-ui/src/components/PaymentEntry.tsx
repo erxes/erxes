@@ -2,18 +2,13 @@ import { ButtonMutate } from '@erxes/ui/src/components';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { getEnv, __ } from '@erxes/ui/src/utils';
+import { __, getEnv } from '@erxes/ui/src/utils';
 import React from 'react';
 
 import { getGqlString, getRefetchQueries } from '../containers/utils';
 import { mutations } from '../graphql';
 import { ByKindTotalCount } from '../types';
-import { PAYMENTCONFIGS, PAYMENT_KINDS } from './constants';
-import MonpayForm from './form/MonpayForm';
-import PaypalForm from './form/PaypalForm';
-import QpayForm from './form/QpayForm';
-import SocialPayForm from './form/SocialPayForm';
-import StorepayForm from './form/StorePayForm';
+import { PAYMENTCONFIGS } from './constants';
 import { Box, PaymentItem, Ribbon, Type } from './styles';
 
 type Props = {
@@ -70,45 +65,7 @@ function renderCreate(kind: string) {
 
   const trigger = <button>+ {__('Add')}</button>;
 
-  let formContent;
-
-  switch (kind) {
-    case PAYMENT_KINDS.QPAY:
-      formContent = props => (
-        <QpayForm {...props} renderButton={renderButton} />
-      );
-      break;
-    case PAYMENT_KINDS.SOCIALPAY:
-      formContent = props => (
-        <SocialPayForm {...props} renderButton={renderButton} />
-      );
-      break;
-    case PAYMENT_KINDS.MONPAY:
-      formContent = props => (
-        <MonpayForm {...props} renderButton={renderButton} />
-      );
-      break;
-    case PAYMENT_KINDS.STOREPAY:
-      formContent = props => (
-        <StorepayForm {...props} renderButton={renderButton} />
-      );
-      break;
-    case PAYMENT_KINDS.WECHATPAY:
-      formContent = props => (
-        <QpayForm {...props} isWechatpay={true} renderButton={renderButton} />
-      );
-      break;
-    case PAYMENT_KINDS.PAYPAL:
-      formContent = props => (
-        <PaypalForm {...props} renderButton={renderButton} />
-      );
-      break;
-    default:
-      formContent = () => null;
-      break;
-  }
-
-  const meta = PAYMENTCONFIGS.find(p => p.kind === kind);
+  const meta: any = PAYMENTCONFIGS.find(p => p.kind === kind);
 
   const title = meta ? `Add ${meta.name}` : 'Add payment config';
 
@@ -116,7 +73,22 @@ function renderCreate(kind: string) {
     return null;
   }
 
-  return <ModalTrigger title={title} trigger={trigger} content={formContent} />;
+  const Component = meta.createModal;
+
+  const formContent = props => (
+    <Component {...props} renderButton={renderButton} metaData={meta} />
+  );
+
+  const size = meta.modalSize || 'sm';
+
+  return (
+    <ModalTrigger
+      title={title}
+      trigger={trigger}
+      size={size}
+      content={formContent}
+    />
+  );
 }
 
 function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {

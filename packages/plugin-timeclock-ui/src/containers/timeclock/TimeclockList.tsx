@@ -14,10 +14,18 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
 import dayjs from 'dayjs';
 import { generateParams } from '../../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IDepartment, IBranch } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   queryParams: any;
   history: any;
+  isCurrentUserAdmin: boolean;
+
   timeclockUser?: string;
 
   timeclockId?: string;
@@ -92,8 +100,8 @@ export default withProps<Props>(
   compose(
     graphql<Props, TimeClockQueryResponse>(gql(queries.timeclocksMain), {
       name: 'timeclocksMainQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams(queryParams),
+      options: ({ queryParams, isCurrentUserAdmin }) => ({
+        variables: { ...generateParams(queryParams), isCurrentUserAdmin },
         fetchPolicy: 'network-only'
       })
     }),

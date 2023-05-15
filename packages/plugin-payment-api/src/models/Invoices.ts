@@ -12,7 +12,7 @@ import {
 import ErxesPayment from '../api/ErxesPayment';
 
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
-  getInvoice(doc: any): IInvoiceDocument;
+  getInvoice(doc: any, leanObject?: boolean): IInvoiceDocument;
   createInvoice(doc: IInvoice & { domain: string }): Promise<IInvoiceDocument>;
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
@@ -21,8 +21,10 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
 
 export const loadInvoiceClass = (models: IModels) => {
   class Invoices {
-    public static async getInvoice(doc: any) {
-      const invoice = await models.Invoices.findOne(doc);
+    public static async getInvoice(doc: any, leanObject?: boolean) {
+      const invoice = leanObject
+        ? await models.Invoices.findOne(doc).lean()
+        : await models.Invoices.findOne(doc);
 
       if (!invoice) {
         throw new Error('Invoice not found');

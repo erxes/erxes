@@ -21,6 +21,8 @@ interface IListArgs {
   brandIds?: string[];
   departmentId?: string;
   branchId?: string;
+  departmentIds: string[];
+  branchIds: string[];
   unitId?: string;
 }
 
@@ -37,7 +39,9 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
     brandIds,
     departmentId,
     unitId,
-    branchId
+    branchId,
+    departmentIds,
+    branchIds
   } = params;
 
   const selector: any = {
@@ -81,6 +85,14 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
 
   if (departmentId) {
     selector.departmentIds = { $in: [departmentId] };
+  }
+
+  if (!!branchIds?.length) {
+    selector.branchIds = { $in: branchIds };
+  }
+
+  if (!!departmentIds?.length) {
+    selector.departmentIds = { $in: departmentIds };
   }
 
   if (unitId) {

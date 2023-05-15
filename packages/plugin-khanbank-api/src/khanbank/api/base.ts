@@ -13,7 +13,7 @@ export class BaseApi {
   }
 
   get apiUrl() {
-    return `${process.env.KHANBANK_API_URL}/${process.env.KHANBANK_API_VERSION}`;
+    return 'https://api.khanbank.com/v1';
   }
 
   async request(args: {

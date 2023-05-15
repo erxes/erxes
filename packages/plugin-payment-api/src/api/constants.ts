@@ -9,6 +9,22 @@ export const PAYMENTS = {
     },
     handlerMethod: 'GET'
   },
+
+  qpayQuickqr: {
+    title: 'Qpay',
+    kind: 'qpayQuickqr',
+    apiUrl: 'https://sandbox-quickqr.qpay.mn/v2',
+    actions: {
+      auth: 'auth/token',
+      refresh: 'auth/refresh',
+      createCompany: 'merchant/company',
+      createPerson: 'merchant/person',
+      getMerchant: 'merchant',
+      merchantList: 'merchant/list',
+      checkInvoice: 'payment/check',
+      invoice: 'invoice'
+    }
+  },
   socialpay: {
     title: 'Social Pay',
     kind: 'socialpay',
@@ -63,7 +79,15 @@ export const PAYMENTS = {
     handlerMethod: 'POST'
   },
 
-  ALL: ['qpay', 'socialpay', 'monpay', 'storepay', 'wechatpay', 'paypal']
+  ALL: [
+    'qpay',
+    'socialpay',
+    'monpay',
+    'storepay',
+    'wechatpay',
+    'paypal',
+    'qpayQuickqr'
+  ]
 };
 
 export const PAYMENT_STATUS = {

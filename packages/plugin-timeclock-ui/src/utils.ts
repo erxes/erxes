@@ -2,6 +2,7 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import dayjs from 'dayjs';
 import { IScheduleForm } from './types';
 import { dateFormat } from './constants';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 const timeFormat = 'HH:mm';
 
@@ -115,4 +116,24 @@ export const returnDeviceTypes = deviceType => {
   }
 
   return [checkInDevice, checkOutDevice];
+};
+
+export const prepareCurrentUserOption = (currentUser: IUser) => {
+  const includeCustomFieldOnSelectLabel = currentUser.employeeId
+    ? currentUser.employeeId
+    : '';
+
+  const userNameOrEmail =
+    currentUser.details && currentUser.details.fullName
+      ? currentUser.details.fullName
+      : currentUser.email;
+
+  const generateLabel =
+    userNameOrEmail + '\t' + includeCustomFieldOnSelectLabel;
+
+  return {
+    value: currentUser._id,
+    label: generateLabel,
+    avatar: currentUser.details?.avatar
+  };
 };

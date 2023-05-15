@@ -25,8 +25,14 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { dateFormat } from '../../constants';
 import * as dayjs from 'dayjs';
 import { compareStartAndEndTimeOfSingleDate } from '../../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   absenceTypes: IAbsenceType[];
   history: any;
   queryParams: any;
@@ -58,6 +64,11 @@ type RequestDates = {
 
 export default (props: Props) => {
   const {
+    currentUser,
+
+    departments,
+    branches,
+
     absenceTypes,
     queryParams,
     submitRequest,
@@ -78,6 +89,23 @@ export default (props: Props) => {
     };
 
     byTime: RequestByTime;
+  };
+
+  const returnTotalUserOptions = () => {
+    const totalUserOptions: string[] = [];
+
+    for (const dept of departments) {
+      totalUserOptions.push(...dept.userIds);
+    }
+
+    for (const branch of branches) {
+      totalUserOptions.push(...branch.userIds);
+    }
+
+    if (currentUser) {
+      totalUserOptions.push(currentUser._id);
+    }
+    return totalUserOptions;
   };
 
   const { closeModal } = contentProps;
@@ -210,6 +238,10 @@ export default (props: Props) => {
 
         <SelectTeamMembers
           queryParams={queryParams}
+          filterParams={{
+            ids: returnTotalUserOptions(),
+            excludeIds: false
+          }}
           customField="employeeId"
           label={'Team member'}
           onSelect={onUserSelect}
@@ -464,6 +496,7 @@ export default (props: Props) => {
       </FlexRow>
     );
   };
+
   return (
     <FlexColumn marginNum={10}>
       <ToggleDisplay display={requestTimeByDay}>
@@ -495,6 +528,10 @@ export default (props: Props) => {
       </MarginY>
       <SelectTeamMembers
         customField="employeeId"
+        filterParams={{
+          ids: returnTotalUserOptions(),
+          excludeIds: false
+        }}
         queryParams={queryParams}
         label={'Team member'}
         onSelect={onUserSelect}
