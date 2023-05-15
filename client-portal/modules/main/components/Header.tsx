@@ -189,17 +189,30 @@ function Header({
         {headerBottomComponent && headerBottomComponent}
       </Container>
       <Modal
-        content={() => <LoginContainer />}
+        content={() => (
+          <LoginContainer
+            setLogin={setLogin}
+            setRegister={setRegister}
+            setResetPassword={setResetPassword}
+          />
+        )}
         onClose={() => setLogin(false)}
         isOpen={showlogin}
       />
       <Modal
-        content={() => <RegisterContainer />}
+        content={() => (
+          <RegisterContainer setLogin={setLogin} setRegister={setRegister} />
+        )}
         onClose={() => setRegister(false)}
         isOpen={showregister}
       />
       <Modal
-        content={() => <ResetPasswordContainer />}
+        content={() => (
+          <ResetPasswordContainer
+            setLogin={setLogin}
+            setResetPassword={setResetPassword}
+          />
+        )}
         onClose={() => setResetPassword(false)}
         isOpen={showResetPassword}
       />

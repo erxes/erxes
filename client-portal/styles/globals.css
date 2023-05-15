@@ -64,6 +64,11 @@ hr {
   justify-content: space-between;
 }
 
+.text-link {
+  color: #5629b6;
+  cursor: pointer;
+}
+
 @keyframes searchIcon {
   0% {
     transform: translateX(10px);

@@ -411,7 +411,7 @@ const ModalWrapper = styledTS<{ isFull?: boolean }>(styled.div)`
 
 const ModalClose = styled.div`
   position: absolute;
-  right: 10px;
+  right: 30px;
   top: 20px;
   width: 30px;
   height: 30px;
