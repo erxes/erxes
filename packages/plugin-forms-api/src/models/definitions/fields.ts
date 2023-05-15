@@ -89,6 +89,8 @@ export interface IField extends IVisibility {
   pageNumber?: number;
   showInCard?: boolean;
   productCategoryId?: string;
+
+  relationType?: string;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -222,6 +224,11 @@ export const fieldSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Product category'
+    }),
+    relationType: field({
+      type: String,
+      optional: true,
+      label: 'Relation type'
     })
   })
 );
