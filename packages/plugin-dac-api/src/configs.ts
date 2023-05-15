@@ -1,7 +1,7 @@
 import { initBroker } from './messageBroker';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import afterMutations from './afterMutations';
+import afterMutations from './aftermutations';
 import {
   createCustomer,
   getCustomer,
