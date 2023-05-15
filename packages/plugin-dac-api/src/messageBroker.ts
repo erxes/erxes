@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
-import { afterMutationHandlers } from './afterMutations';
+import { afterMutationHandlers } from './aftermutations';
 import { serviceDiscovery } from './configs';
 
 let client;
