@@ -35,7 +35,7 @@ export const types = `
     createdAt:Date,
   }
 
-  type Action  {
+  type GrantAction  {
     label:String,
     action:String,
     scope:String,
@@ -62,7 +62,7 @@ export const queries = `
   grantRequestDetail(_id:String):GrantRequest
   grantRequests(${commonParams}):[GrantRequest]
   grantRequestsTotalCount(${commonParams}):Int
-  getGrantRequestActions:[Action]
+  getGrantRequestActions:[GrantAction]
 `;
 
 const commonRequestMutationParams = `

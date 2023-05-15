@@ -47,6 +47,8 @@ const LeftSideBar = (props: Props) => {
       totalUserOptions.push(...branch.userIds);
     }
 
+    totalUserOptions.push(currentUser._id);
+
     return totalUserOptions;
   };
 
@@ -204,7 +206,6 @@ const LeftSideBar = (props: Props) => {
         <div>
           <ControlLabel>Team members</ControlLabel>
           <SelectTeamMembers
-            customOption={prepareCurrentUserOption(currentUser)}
             initialValue={currUserIds}
             customField="employeeId"
             label="Select team member"
