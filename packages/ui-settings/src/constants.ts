@@ -337,7 +337,7 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
 };
 
 export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
-  title: __('Getting Started with Purchase Pipeline'),
+  title: __('Getting Started with Purchase '),
   description: __(
     'Drive leads to a successful close with our Kanban-style boards'
   ),
@@ -352,12 +352,12 @@ export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
       urlText: 'Create a Board'
     },
     {
-      title: __('Start adding Pipelines to the Board'),
+      title: __('Start adding Purchase to the Board'),
       description:
         __(
           'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc'
         ) + '.',
-      urlText: 'Create a Pipeline',
+      urlText: 'Create a Purchase',
       url: '/settings/boards/purchase#showPipelineModal=true'
     }
   ]

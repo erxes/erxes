@@ -1,4 +1,3 @@
-import { ICost } from '@erxes/ui-cards/src/boards/types';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
@@ -101,17 +100,6 @@ export type ProductAddMutationResponse = {
 
 export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
-} & QueryResponse;
-
-export type CostDataMutation = {
-  _id: string;
-  expenseId: string;
-  cost: string;
-  name: string;
-};
-
-export type CostQueryResponse = {
-  costs: ICost[];
 } & QueryResponse;
 
 export type ProductsQueryResponses = {

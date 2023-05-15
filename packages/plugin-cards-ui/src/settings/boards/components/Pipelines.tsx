@@ -186,6 +186,7 @@ class Pipelines extends React.Component<Props, State> {
           />
         );
       }
+
       if (type === 'purchase') {
         return (
           <EmptyContent
@@ -198,7 +199,6 @@ class Pipelines extends React.Component<Props, State> {
           />
         );
       }
-
       return (
         <EmptyState
           text={`Get started on your ${pipelineName.toLowerCase()}`}
@@ -228,17 +228,11 @@ class Pipelines extends React.Component<Props, State> {
   renderAdditionalButton = () => {
     const { options } = this.props;
 
-    if (options && options.additionalButton) {
-      return (
-        <Link to={options.additionalButton}>
-          <Button icon="arrow-to-right" btnStyle="simple">
-            {options.additionalButtonText}
-          </Button>
-        </Link>
-      );
+    if (options && options.modal === 'true') {
+      return <CostForm />;
     }
 
-    return <CostForm />;
+    return null;
   };
 
   renderButton() {

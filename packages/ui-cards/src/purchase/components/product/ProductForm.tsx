@@ -69,6 +69,7 @@ type Props = {
   currentProduct?: string;
   purchaseQuery: IPurchase;
   costsQueryData: any;
+  costPriceQuery: any;
   categories: IProductCategory[];
   loading: boolean;
   expensesData: IExpensesData[];
@@ -648,7 +649,7 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     if (currentTab === 'lastExpenses') {
-      return <LastExpensesForm productsData={this.props.productsData} />;
+      return <LastExpensesForm costPriceQuery={this.props.costPriceQuery} />;
     }
 
     const avStyle = { display: advancedView ? 'inherit' : 'none' };

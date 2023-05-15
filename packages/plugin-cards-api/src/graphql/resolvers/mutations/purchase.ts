@@ -51,13 +51,6 @@ const purchaseMutations = {
       };
     }> = [];
 
-    // const codes: string [] = oldCosts.map(cost => cost.code).concat(doc.costObjects.map(cost => cost.code));
-    // console.log(oldCosts,'oldCosts')
-    // console.log(doc.costObjects,'opkdsa')
-    // if((codes.length  !==  new Set(codes).size)){
-    //   throw new Error('Cost code must be unique');
-    // }
-
     const updatedIds: string[] = [];
     for (const cost of doc.costObjects) {
       if (cost._id) {

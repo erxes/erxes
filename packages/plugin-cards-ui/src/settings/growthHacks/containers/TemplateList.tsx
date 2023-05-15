@@ -86,4 +86,3 @@ export default commonListComposer<Props>({
 
   ListComponent: TemplateListContainer
 });
-1;

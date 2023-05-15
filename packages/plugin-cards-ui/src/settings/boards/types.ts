@@ -37,7 +37,6 @@ export type CopiedPipelineMutationResponse = {
 };
 
 export type CostsQueryResponse = {
-  // data: { costs: ICost[] };
   costs: ICost[];
 };
 
@@ -97,4 +96,5 @@ export type IOption = {
   CostForm?: any;
   additionalButton?: string;
   additionalButtonText?: string;
+  modal: string;
 };

@@ -114,10 +114,6 @@ export const commonDragParams = `
 
 export const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;
 
-export const commonCostParams = `
-$name: String,
-`;
-
 export const commonListTypes = `
   _id: String!
   name: String

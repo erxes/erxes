@@ -134,4 +134,3 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
 }
 
 export default TemplateForm;
-1;

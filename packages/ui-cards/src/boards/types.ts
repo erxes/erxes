@@ -474,4 +474,3 @@ export type ITimeData = {
   assignedUserIds?: string[];
   stageId?: string;
 };
-1;
