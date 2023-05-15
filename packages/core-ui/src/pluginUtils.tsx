@@ -174,14 +174,18 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
             loadComponent(section.scope, section.component)
           );
 
-          return (
-            <Component
-              key={Math.random()}
-              id={object._id}
-              mainType={type}
-              mainTypeId={object._id}
-            />
-          );
+          const updatedProps = {
+            key: Math.random(),
+            id: object._id,
+            mainType: type,
+            mainTypeId: object._id
+          };
+
+          if (section?.withDetail) {
+            updatedProps['object'] = object;
+          }
+
+          return <Component {...updatedProps} />;
         });
       }}
     />

@@ -1,14 +1,35 @@
 import { generateFields, generateSystemFields } from './utils';
 
+const relations = type => {
+  return [
+    {
+      name: 'customerIds',
+      label: 'Customers',
+      relationType: 'contacts:customer'
+    },
+    {
+      name: 'companyIds',
+      label: 'Companies',
+      relationType: 'contacts:company'
+    },
+    { name: 'dealIds', label: 'Deals', relationType: 'cards:deal' },
+    { name: 'taskIds', label: 'Tasks', relationType: 'cards:task' },
+    { name: 'ticketIds', label: 'Tickets', relationType: 'cards:ticket' },
+    { name: 'carIds', label: 'Cars', relationType: 'cars:car' }
+  ].filter(r => r.relationType !== type);
+};
+
 export default {
   types: [
     {
       description: 'Customers',
-      type: 'customer'
+      type: 'customer',
+      relations: relations('contacts:customer')
     },
     {
       description: 'Companies',
-      type: 'company'
+      type: 'company',
+      relations: relations('contacts:company')
     },
     {
       description: 'Device properties',
