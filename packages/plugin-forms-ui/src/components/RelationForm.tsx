@@ -1,9 +1,8 @@
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import Info from '@erxes/ui/src/components/Info';
 import { IField } from '@erxes/ui/src/types';
-import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import React from 'react';
 
 type Props = {
   contentType: string;
@@ -25,6 +24,18 @@ const RelationForm = (props: Props) => {
           true
         )
       )}
+
+      <Info>
+        <a
+          target="_blank"
+          href={`/settings/properties?type=${props.contentType}`}
+          rel="noopener noreferrer"
+        >
+          {__(
+            'You can configure basic property and relations in properties settings'
+          )}
+        </a>
+      </Info>
     </>
   );
 };
