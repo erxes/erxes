@@ -38,15 +38,18 @@ const dacMutations = {
     { models, user }: IContext
   ) {
     const cupon = await models.DacCupons.checkCupon(customerId, cuponCode);
-    if (cupon.status === 'used') {
-      throw new Error('Already used cupon');
-    }
 
-    await models.DacCupons.updateOne(
-      { customerId, cuponCode },
-      { $set: { status: 'used', modifiedBy: user?._id } }
-    );
-    return 'success';
+    if (cupon) {
+      if (cupon.status === 'used') {
+        throw new Error('Already used cupon');
+      }
+      await models.DacCupons.updateOne(
+        { _id: cupon._id },
+        { $set: { status: 'used', modifiedBy: user?._id } }
+      );
+      return 'success';
+    }
+    throw new Error('Cupon not found');
   }
 };
 
