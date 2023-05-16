@@ -527,6 +527,26 @@ const Content = styledTS<{ isList?: boolean }>(styled.div)`
   }
 `;
 
+const NotificationHeader = styled.div`
+  background: ${colors.colorSecondary};
+  padding: ${dimensions.coreSpacing}px;
+  color: ${colors.colorWhite};
+
+  h5 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  span {
+    color: #f3f6f9;
+    background-color: rgba(243,246,249,.1);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+`;
+
 const NotificationList = styled.ul`
   margin: 0;
   padding: 0;
@@ -562,7 +582,6 @@ const NotificationList = styled.ul`
 const InfoSection = styled.div`
   position: relative;
   flex: 1;
-  padding: 0 ${dimensions.coreSpacing}px;
 `;
 
 const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
@@ -614,6 +633,7 @@ export {
   NotificationsBadge,
   Content,
   NotificationList,
+  NotificationHeader,
   InfoSection,
   CreatedDate,
   AuthContainer

@@ -1,9 +1,9 @@
-import React from 'react';
+import { TabContainers, TabTitle } from "../../../styles/tasks";
 
-import { getConfigColor } from '../../../common/utils';
-import { TabContainers, TabTitle } from '../../../styles/tasks';
-import { IUser } from '../../../types';
-import Notifications from '../../containers/notifications/List';
+import { IUser } from "../../../types";
+import Notifications from "../../containers/notifications/List";
+import React from "react";
+import { getConfigColor } from "../../../common/utils";
 
 type Props = {
   count: number;
@@ -14,15 +14,15 @@ type Props = {
 const List = (props: Props) => {
   const { config, count, currentUser } = props;
 
-  const [currentTab, setCurrentTab] = React.useState('Recent');
+  const [currentTab, setCurrentTab] = React.useState("Recent");
 
-  const tabTitles = ['Recent', 'Unread'];
+  const tabTitles = ["Recent", "Unread"];
 
-  const requireRead = currentTab === 'Unread';
+  const requireRead = currentTab === "Unread";
 
   return (
     <>
-      <TabContainers>
+      {/* <TabContainers>
         {tabTitles.map((title) => (
           <TabTitle
             key={title}
@@ -33,7 +33,7 @@ const List = (props: Props) => {
             {title}
           </TabTitle>
         ))}
-      </TabContainers>
+      </TabContainers> */}
 
       <Notifications
         count={count}

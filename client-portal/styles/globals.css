@@ -119,6 +119,12 @@ hr {
   border-radius: 3px !important;
 }
 
+.popup-content {
+  padding: 0 !important;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
 /* select  */
 
 .Select-control {
