@@ -12,6 +12,8 @@ export const listParamDefs = `
     $boardId: String,
     $ignoreIds: [String]
     $irregular: Boolean
+    $articleIds: [String]
+    $withKnowledgebase:Boolean
 `;
 
 export const listParams = `
@@ -25,7 +27,9 @@ export const listParams = `
       pipelineId: $pipelineId,
       boardId: $boardId,
       ignoreIds: $ignoreIds
-      irregular: $irregular
+      irregular: $irregular,
+      articleIds:$articleIds
+      withKnowledgebase:$withKnowledgebase
 `;
 
 const assets = `

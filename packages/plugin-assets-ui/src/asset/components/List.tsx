@@ -24,6 +24,7 @@ import { breadcrumb } from '../../common/constant';
 import { Title } from '@erxes/ui/src/styles/main';
 import { ContainerBox } from '../../style';
 import AssignArticles from '../containers/AssignArticles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   assets: IAsset[];
@@ -268,13 +269,15 @@ class List extends React.Component<Props, State> {
             Remove
           </Button>
 
-          <ModalTrigger
-            title="Assign knowledgebase articles"
-            size="lg"
-            dialogClassName="modal-1000w"
-            trigger={assignButton}
-            content={this.assignArticles}
-          />
+          {isEnabled('knowledgebase') && (
+            <ModalTrigger
+              title="Assign knowledgebase articles"
+              size="lg"
+              dialogClassName="modal-1000w"
+              trigger={assignButton}
+              content={this.assignArticles}
+            />
+          )}
         </BarItems>
       );
     }

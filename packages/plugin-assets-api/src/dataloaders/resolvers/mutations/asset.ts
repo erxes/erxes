@@ -98,13 +98,18 @@ const assetMutations = {
   },
 
   async assetsAssignKbArticles(_root, args, { models }: IContext) {
-    const selector = await generateCommonAssetFilter(models, args);
+    const { ids, articleIds } = args;
 
-    const { articleIds } = args;
+    if (!ids?.length) {
+      throw new Error('Please provide some IDs to assign articles');
+    }
 
-    return await models.Assets.updateMany(selector, {
-      kbArticleIds: articleIds
-    });
+    return await models.Assets.updateMany(
+      { _id: { $in: ids } },
+      {
+        $set: { kbArticleIds: articleIds }
+      }
+    );
   }
 };
 
