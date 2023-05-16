@@ -33,6 +33,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   topics: ITopic[];
+  topicId?: string;
 };
 
 type State = {
