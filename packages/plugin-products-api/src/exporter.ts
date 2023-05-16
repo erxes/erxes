@@ -46,7 +46,7 @@ export const fillValue = async (
 
   switch (column) {
     case 'createdAt':
-      value = moment(value).format('YYYY-MM-DD HH:mm');
+      value = moment(value).format('YYYY-MM-DD');
       break;
 
     case 'categoryName':

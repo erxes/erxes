@@ -18,27 +18,41 @@ export interface ICuponModel extends Model<ICuponDocument> {
 export const loadCuponClass = (model: IModels) => {
   class Cupon {
     public static async checkCupon(customerId: string, cuponCode: string) {
-      const cupon = await model.DacCupons.findOne({ customerId, cuponCode });
-      if (!cupon) {
-        throw new Error('Dac cupon not found');
+      const newCupon = await model.DacCupons.find({
+        customerId,
+        cuponCode,
+        status: 'new'
+      }).sort({
+        expireDate: 1
+      });
+
+      if (newCupon.length > 0) {
+        return newCupon?.[0];
       }
 
-      return cupon;
+      const oldCupon = await model.DacCupons.find({
+        customerId,
+        cuponCode,
+        status: {
+          $ne: 'new'
+        }
+      }).sort({
+        expireDate: 1
+      });
+      if (oldCupon.length > 0) {
+        return oldCupon?.[0];
+      }
+      throw new Error('Dac cupon not found');
     }
 
     /**
      * Create LmsChapter document
      */
     public static async createCupon(docFields: ICuponCreate, userId: string) {
-      const { cuponCode, customerId } = docFields;
       if (!userId) {
         throw new Error('User not found');
       }
-      const isExists = await model.DacCupons.findOne({ customerId, cuponCode });
 
-      if (isExists) {
-        throw new Error('Already exists');
-      }
       const cupon = await model.DacCupons.create({
         ...docFields,
         status: 'new',

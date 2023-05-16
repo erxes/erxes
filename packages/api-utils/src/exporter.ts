@@ -20,7 +20,7 @@ export const getCustomFieldsData = async (getField, item, column, type) => {
         }
 
         if (field.validation === 'date') {
-          value = moment(value).format('YYYY-MM-DD HH:mm');
+          value = moment(value).format('YYYY-MM-DD');
         }
 
         return { field, value };

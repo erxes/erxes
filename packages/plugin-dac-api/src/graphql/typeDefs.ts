@@ -22,7 +22,7 @@ const types = `
      customerId: String!,
      cuponCode: String,
      description: String,
-     validDate: Date,
+     startDate: Date,
      expiryDate: Date,
      status: String
    }
@@ -30,7 +30,7 @@ const types = `
      customerId: String!,
      cuponCode: String,
      description: String,
-     validDate: Date,
+     startDate: Date,
      expireDate: Date,
    },
 `;

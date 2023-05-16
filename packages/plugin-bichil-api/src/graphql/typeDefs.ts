@@ -130,6 +130,9 @@ const queries = `
   bichilSalaryLabels: JSON
 `;
 
+const mutations = `
+finishUnfinishedShifts: JSON`;
+
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -139,6 +142,10 @@ const typeDefs = async _serviceDiscovery => {
     
     extend type Query {
       ${queries}
+    }
+
+    extend type Mutation { 
+      ${mutations}
     }
     
   `;

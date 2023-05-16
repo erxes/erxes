@@ -1,6 +1,7 @@
 import React from 'react';
 import moment from 'moment';
-import { __, confirm } from '@erxes/ui/src/utils';
+import { confirm } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { IPerform } from '../types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';

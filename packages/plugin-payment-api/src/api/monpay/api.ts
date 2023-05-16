@@ -18,9 +18,12 @@ export const monpayCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Payment failed');
   }
 
-  const invoice = await models.Invoices.getInvoice({
-    'apiResponse.uuid': uuid
-  });
+  const invoice = await models.Invoices.getInvoice(
+    {
+      'apiResponse.uuid': uuid
+    },
+    true
+  );
 
   if (invoice.amount !== Number(amount)) {
     throw new Error('Payment amount is not correct');

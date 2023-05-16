@@ -10,15 +10,10 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 
+import { getGqlString, getRefetchQueries } from '../containers/utils';
 import { mutations } from '../graphql';
 import { IPaymentDocument } from '../types';
-import QpayForm from './form/QpayForm';
-import SocialPayForm from './form/SocialPayForm';
-import MonpayForm from './form/MonpayForm';
-import PaypalFrom from './form/PaypalForm';
-import StorepayForm from './form/StorePayForm';
-import { getGqlString, getRefetchQueries } from '../containers/utils';
-import { PAYMENT_KINDS } from './constants';
+import { PAYMENTCONFIGS } from './constants';
 
 type Props = {
   _id?: string;
@@ -86,60 +81,24 @@ class IntegrationListItem extends React.Component<Props, State> {
       </Button>
     );
 
-    let content;
+    const meta = PAYMENTCONFIGS.find(p => p.kind === kind);
 
-    switch (kind) {
-      case PAYMENT_KINDS.QPAY:
-        content = props => (
-          <QpayForm {...props} payment={payment} renderButton={renderButton} />
-        );
-        break;
-      case PAYMENT_KINDS.SOCIALPAY:
-        content = props => (
-          <SocialPayForm
-            {...props}
-            payment={payment}
-            renderButton={renderButton}
-          />
-        );
-        break;
-      case PAYMENT_KINDS.MONPAY:
-        content = props => (
-          <MonpayForm
-            {...props}
-            payment={payment}
-            renderButton={renderButton}
-          />
-        );
-        break;
-      case PAYMENT_KINDS.STOREPAY:
-        content = props => (
-          <StorepayForm
-            {...props}
-            payment={payment}
-            renderButton={renderButton}
-          />
-        );
-        break;
-      case PAYMENT_KINDS.PAYPAL:
-        content = props => (
-          <PaypalFrom
-            {...props}
-            payment={payment}
-            renderButton={renderButton}
-          />
-        );
-        break;
-      default:
-        content = () => null;
+    if (!meta || !meta.isAvailable) {
+      return null;
     }
+
+    const Component = meta.createModal;
+
+    const formContent = props => (
+      <Component {...props} payment={payment} renderButton={renderButton} />
+    );
 
     return (
       <ActionButtons>
         <ModalTrigger
           title="Edit config"
           trigger={editTrigger}
-          content={content}
+          content={formContent}
         />
       </ActionButtons>
     );

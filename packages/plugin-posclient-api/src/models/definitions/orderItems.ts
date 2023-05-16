@@ -72,6 +72,11 @@ export const orderItemSchema = schemaHooksWrapper(
       enum: ORDER_ITEM_STATUSES.ALL,
       default: ORDER_ITEM_STATUSES.NEW
     }),
+    isInner: field({
+      type: Boolean,
+      label: 'inner or skip ebarimt',
+      default: false
+    }),
     manufacturedDate: field({ type: String, label: 'manufactured' })
   }),
   'erxes_orderItem'

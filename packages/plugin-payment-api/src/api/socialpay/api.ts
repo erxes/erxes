@@ -21,9 +21,12 @@ export const socialpayCallbackHandler = async (models: IModels, data: any) => {
     status = PAYMENT_STATUS.PENDING;
   }
 
-  const invoiceObj = await models.Invoices.getInvoice({
-    identifier: invoice
-  });
+  const invoiceObj = await models.Invoices.getInvoice(
+    {
+      identifier: invoice
+    },
+    true
+  );
 
   const payment = await models.Payments.getPayment(
     invoiceObj.selectedPaymentId
