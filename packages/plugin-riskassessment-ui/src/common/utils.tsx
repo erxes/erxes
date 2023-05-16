@@ -656,6 +656,7 @@ export function FilterByTags({
       title="Filter by Tags"
       extraButtons={extraButtons}
       collapsible
+      isOpen
     >
       <SidebarList>
         {generateTree(

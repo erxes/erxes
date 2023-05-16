@@ -11,6 +11,7 @@ import { IAsset } from '../../common/types';
 import AssetForm from '../containers/Form';
 import { MoreContainer, Badge, ContainerBox } from '../../style';
 import AssignArticles from '../containers/AssignArticles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 type Props = {
   asset: IAsset;
   history: any;
@@ -107,7 +108,7 @@ class Row extends React.Component<Props> {
                 <Badge>{childAssetCount}</Badge>
               </MoreContainer>
             )}
-            {this.renderKbAssignForm()}
+            {isEnabled('knowledgebase') && this.renderKbAssignForm()}
             <ModalTrigger
               title="Edit basic info"
               trigger={<Icon icon="edit" />}

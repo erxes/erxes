@@ -17,7 +17,7 @@ import { queries as categoryQueries } from '../category/graphql';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 
-import { getRefetchQueries } from '../../common/utils';
+import { generateParamsIds, getRefetchQueries } from '../../common/utils';
 
 type Props = {
   queryParams: any;
@@ -66,8 +66,10 @@ class ListContainer extends React.Component<FinalProps> {
   assignKbArticles = ({ ids, data, callback }) => {
     const { queryParams, assetsAssignKbArticles } = this.props;
 
+    console.log({ ...data });
+
     assetsAssignKbArticles({
-      variables: { ids, ...data, ...generateQueryParams(queryParams) }
+      variables: { ids, ...generateQueryParams(queryParams), ...data }
     })
       .then(() => {
         Alert.success('Success');
@@ -149,6 +151,10 @@ const generateQueryParams = queryParams => {
     searchValue: queryParams?.searchValue,
     type: queryParams?.type,
     irregular: Boolean(queryParams?.irregular),
+    articleIds: generateParamsIds(queryParams?.articleIds),
+    withKnowledgebase: queryParams?.withKnowledge
+      ? queryParams?.withKnowledge === 'true'
+      : undefined,
     ...generatePaginationParams(queryParams || {})
   };
 };
@@ -165,13 +171,7 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.assetsCount), {
       name: 'assetsCount',
       options: ({ queryParams }) => ({
-        variables: {
-          categoryId: queryParams?.categoryId,
-          parentId: queryParams?.parentId,
-          searchValue: queryParams?.searchValue,
-          type: queryParams?.type,
-          ...generatePaginationParams(queryParams || {})
-        },
+        variables: generateQueryParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),

@@ -7,7 +7,6 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { IAsset } from '../../common/types';
 import { queries } from '../category/graphql';
-import { queries as assetQueries } from '../graphql';
 import AssignArticles from '../components/AssignArticles';
 
 type Props = {

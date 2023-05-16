@@ -36,7 +36,7 @@ class List extends React.Component<Props, State> {
   }
 
   renderContent = () => {
-    const { list } = this.props;
+    const { list, queryParams, history } = this.props;
     const { selectedAssessmentIds } = this.state;
 
     const handleSelect = (id: string) => {
@@ -101,6 +101,8 @@ class List extends React.Component<Props, State> {
               key={item._id}
               selecteAssessmentIds={selectedAssessmentIds}
               handleSelect={handleSelect}
+              queryParams={queryParams}
+              history={history}
             />
           ))}
         </tbody>
