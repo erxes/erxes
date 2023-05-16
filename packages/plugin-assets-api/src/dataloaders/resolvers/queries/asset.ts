@@ -94,7 +94,6 @@ export const generateCommonAssetFilter = async (
   }
 
   if ([true, false].includes(withKnowledgebase)) {
-    console.log(withKnowledgebase);
     filter['kbArticleIds.0'] = { $exists: withKnowledgebase };
   }
 
