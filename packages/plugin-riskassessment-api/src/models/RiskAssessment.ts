@@ -387,8 +387,6 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         throw new Error('Could not find risk assessment');
       }
 
-      console.log(riskAssessment._id);
-
       let RAIndicatorIds = await models.RiskAssessmentIndicators.find({
         assessmentId: riskAssessment._id
       }).distinct('indicatorId');
@@ -428,8 +426,6 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       const indicators = await models.RiskIndicators.find({
         _id: { $in: RAIndicatorIds }
       }).lean();
-
-      console.log({ indicators });
 
       for (const indicator of indicators) {
         const submitted = await models.RiskFormSubmissions.findOne({
