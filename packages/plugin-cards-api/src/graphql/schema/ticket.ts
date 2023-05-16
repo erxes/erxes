@@ -28,6 +28,12 @@ export const types = ({ contacts, tags }) => `
 
     ${commonTypes}
   }
+
+  input DateRangeFilter {
+    name: String,
+    from: Date,
+    to: Date
+  }
 `;
 
 const listQueryParams = `
@@ -63,6 +69,7 @@ const listQueryParams = `
   departmentIds: [String]
   boardIds: [String]
   stageCodes: [String]
+  dateRangeFilters:[DateRangeFilter]
   ${conformityQueryFields}
 `;
 

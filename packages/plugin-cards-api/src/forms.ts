@@ -1,19 +1,52 @@
 import { generateFields } from './fieldUtils';
 import { generateSystemFields, getBoardsAndPipelines } from './utils';
 
+const relations = type => {
+  return [
+    {
+      name: 'companyIds',
+      label: 'Companies',
+      relationType: 'contacts:company'
+    },
+    {
+      name: 'customerIds',
+      label: 'Customers',
+      relationType: 'contacts:customer'
+    },
+    {
+      name: 'ticketIds',
+      label: 'Tickets',
+      relationType: 'cards:ticket'
+    },
+    {
+      name: 'taskIds',
+      label: 'Tasks',
+      relationType: 'cards:task'
+    },
+    {
+      name: 'dealIds',
+      label: 'Deals',
+      relationType: 'cards:deal'
+    }
+  ].filter(r => r.relationType !== type);
+};
+
 export default {
   types: [
     {
       description: 'Tickets',
-      type: 'ticket'
+      type: 'ticket',
+      relations: relations('cards:ticket')
     },
     {
       description: 'Tasks',
-      type: 'task'
+      type: 'task',
+      relations: relations('cards:task')
     },
     {
       description: 'Sales pipelines',
-      type: 'deal'
+      type: 'deal',
+      relations: relations('cards:deal')
     }
   ],
   fields: generateFields,

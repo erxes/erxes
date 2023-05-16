@@ -167,7 +167,8 @@ export const generateCommonFilters = async (
     noSkipArchive,
     number,
     branchIds,
-    departmentIds
+    departmentIds,
+    dateRangeFilters
   } = args;
 
   const isListEmpty = value => {
@@ -343,6 +344,20 @@ export const generateCommonFilters = async (
       filter.closeDate = {
         $lte: new Date(endDate)
       };
+    }
+  }
+
+  if (dateRangeFilters) {
+    for (const dateRangeFilter of dateRangeFilters) {
+      const { name, from, to } = dateRangeFilter;
+
+      if (from) {
+        filter[name] = { $gte: new Date(from) };
+      }
+
+      if (to) {
+        filter[name] = { ...filter[name], $lte: new Date(to) };
+      }
     }
   }
 
