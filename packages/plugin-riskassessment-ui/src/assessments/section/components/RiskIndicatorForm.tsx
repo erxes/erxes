@@ -4,7 +4,8 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  __
+  __,
+  colors
 } from '@erxes/ui/src';
 import {
   FormColumn,
@@ -32,7 +33,9 @@ type Props = {
 };
 
 type State = {
-  submissions: { [key: string]: { value: string; description: string } };
+  submissions: {
+    [key: string]: { value: string; description: string; isFlagged?: boolean };
+  };
 };
 
 class IndicatorForm extends React.Component<Props, State> {
@@ -108,7 +111,7 @@ class IndicatorForm extends React.Component<Props, State> {
       isEditing: false,
       key: field.key,
       field,
-      onvolumechange: handleChange,
+      onValueChange: handleChange,
       isPreview: true
     };
 
@@ -118,11 +121,26 @@ class IndicatorForm extends React.Component<Props, State> {
       updateProps.defaultValue = submissions[field._id]?.value;
     }
 
+    const handleFlag = () => {
+      submissions[field._id] = {
+        ...submissions[field._id],
+        isFlagged: !submissions[field._id]?.isFlagged
+      };
+    };
+
     return (
       <FormWrapper key={field._id}>
         <FormColumn>
           <GenerateField {...updateProps} />
         </FormColumn>
+        <Button
+          btnStyle="link"
+          icon="flag"
+          iconColor={
+            submissions[field._id]?.isFlagged ? colors.colorCoreRed : ''
+          }
+          onClick={handleFlag}
+        />
         {this.renderDescriptionField(
           submissions[field._id]?.description || '',
           field._id

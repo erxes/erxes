@@ -127,7 +127,7 @@ export const queries = `
 
     riskAssessmentsTotalCount(${commonParams}):Int
 
-    riskAssessmentDetail(id:String):JSON
+    riskAssessmentDetail(id:String,showFlagged:Boolean):JSON
 
     riskAssessmentFormSubmissionDetail(${commonFormSubmitParams}):JSON
     

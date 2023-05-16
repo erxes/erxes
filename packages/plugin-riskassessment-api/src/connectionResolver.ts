@@ -40,7 +40,7 @@ export interface IModels {
   RiskAssessments: IRiskAssessmentsModel;
   RiskAssessmentIndicators: Model<any>;
   RiskAssessmentGroups: Model<any>;
-  RiksFormSubmissions: IRiskFormSubmissionModel;
+  RiskFormSubmissions: IRiskFormSubmissionModel;
   RiskAssessmentsConfigs: IRiskAssessmentsConfigModel;
   Operations: IOperationsModel;
   IndicatorsGroups: IIndicatorsGroupsModel;
@@ -78,7 +78,7 @@ export const loadClasses = (
     riskAssessmentIndicatorsGroupsSchema
   );
 
-  models.RiksFormSubmissions = db.model<
+  models.RiskFormSubmissions = db.model<
     IRiskFormSubmissionDocument,
     IRiskFormSubmissionModel
   >('risk_form_submissions', loadRiskFormSubmissions(models, subdomain));

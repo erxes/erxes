@@ -133,7 +133,8 @@ export function SideBar({ history, queryParams }) {
         <FilterByTags history={history} queryParams={queryParams} />
         <Box
           title="Filters by Selection"
-          name="filterSelection"
+          name="filterBySelection"
+          isOpen
           extraButtons={renderFiltersSelectionExtraBtn()}
         >
           <Padding>

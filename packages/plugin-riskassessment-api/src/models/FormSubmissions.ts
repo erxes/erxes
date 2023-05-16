@@ -19,6 +19,7 @@ export interface IRiskFormSubmissionModel
   formSaveSubmission(
     params: IRiskFormSubmissionParams
   ): Promise<IRiskFormSubmissionDocument>;
+  testScore(params: IRiskFormSubmissionParams): Promise<any>;
   formSubmitHistory(
     cardId: string,
     cardType: string,
@@ -57,6 +58,68 @@ const generateFields = params => {
 
 export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
   class FormSubmissionsClass {
+    public static async testScore(params: IRiskFormSubmissionParams) {
+      const { indicatorId, formSubmissions } = params;
+
+      let resultScore = 0;
+      let totalPercent = 0;
+
+      const { forms } = await models.RiskIndicators.findOne({
+        _id: indicatorId
+      }).lean();
+
+      const formIds = forms.map(form => form.formId);
+
+      const fields = await sendFormsMessage({
+        subdomain,
+        action: 'fields.find',
+        data: {
+          query: { contentType: 'form', contentTypeId: { $in: formIds } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      for (const form of forms) {
+        if (forms.length === 1) {
+          const { sumNumber } = await calculateFormResponses({
+            responses: formSubmissions,
+            fields,
+            calculateMethod: form.calculateMethod,
+            filter: {}
+          });
+
+          resultScore = sumNumber;
+        }
+        if (forms.length > 1) {
+          const fieldIds = fields.map(field => field._id);
+          const responses: any = {};
+
+          for (const [key, value] of Object.entries(formSubmissions)) {
+            if (fieldIds.includes(key)) {
+              responses[key] = value;
+            }
+          }
+          const { sumNumber } = await calculateFormResponses({
+            responses: responses,
+            fields,
+            calculateMethod: form.calculateMethod,
+            filter: {}
+          });
+          resultScore += Number(
+            (sumNumber * (form.percentWeight / 100)).toFixed(1)
+          );
+          totalPercent += form.percentWeight / 100;
+        }
+      }
+
+      if (forms.length > 1) {
+        resultScore = resultScore / totalPercent;
+      }
+
+      return { resultScore };
+    }
+
     public static async formSaveSubmission(params: IRiskFormSubmissionParams) {
       const {
         branchId,
@@ -129,7 +192,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
           resultSumNumber = sumNumber;
 
-          await models.RiksFormSubmissions.insertMany(submissions);
+          await models.RiskFormSubmissions.insertMany(submissions);
         }
 
         if (forms.length > 1) {
@@ -151,7 +214,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             (sumNumber * (form.percentWeight / 100)).toFixed(1)
           );
           totalPercent += form.percentWeight / 100;
-          await models.RiksFormSubmissions.insertMany(submissions);
+          await models.RiskFormSubmissions.insertMany(submissions);
         }
       }
       if (forms.length > 1) {
@@ -288,7 +351,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         assignedUserIds = groupAssignedUserIds;
       }
 
-      const submittedUsers = await models.RiksFormSubmissions.aggregate([
+      const submittedUsers = await models.RiskFormSubmissions.aggregate([
         {
           $match: {
             cardId,

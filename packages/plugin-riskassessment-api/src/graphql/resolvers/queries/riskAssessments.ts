@@ -103,8 +103,8 @@ const RiskAssessmentQueries = {
     const filter = await generateFilter(params, models);
     return await models.RiskAssessments.countDocuments(filter);
   },
-  async riskAssessmentDetail(_root, { id }, { models }: IContext) {
-    return models.RiskAssessments.riskAssessmentDetail(id);
+  async riskAssessmentDetail(_root, { id, ...params }, { models }: IContext) {
+    return models.RiskAssessments.riskAssessmentDetail(id, params);
   },
   async riskAssessment(_root, { cardId, cardType }, { models }: IContext) {
     return await models.RiskAssessments.find({
