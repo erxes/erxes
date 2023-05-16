@@ -84,10 +84,9 @@ const customerQueries = {
       commonQuerySelectorElk
     });
 
-    // await qb.buildAllQueries();
+    await qb.buildAllQueries();
 
-    // const { list } = await qb.runQueries();
-    const { list } = await qb.findAllMongo(20);
+    const { list } = await qb.runQueries();
 
     return list;
   },
@@ -105,10 +104,9 @@ const customerQueries = {
       commonQuerySelectorElk
     });
 
-    // await qb.buildAllQueries();
+    await qb.buildAllQueries();
 
-    // const { list, totalCount } = await qb.runQueries();
-    const { list, totalCount } = await qb.findAllMongo(30);
+    const { list, totalCount } = await qb.runQueries();
 
     return { list, totalCount };
   },
