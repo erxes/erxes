@@ -1,5 +1,6 @@
 import { Bichils } from '../../models';
-import { IContext } from '@erxes/api-utils/src/types';
+import { IContext } from '../../connectionResolver';
+import { findUnfinishedShiftsAndUpdate } from '../../utils';
 
 const bichilMutations = {
   /**
@@ -9,6 +10,10 @@ const bichilMutations = {
     const bichil = await Bichils.createBichil(doc);
 
     return bichil;
+  },
+
+  async finishUnfinishedShifts(_root, doc, { subdomain }: IContext) {
+    return findUnfinishedShiftsAndUpdate(subdomain);
   }
 };
 

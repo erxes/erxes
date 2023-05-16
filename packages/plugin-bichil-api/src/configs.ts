@@ -5,6 +5,7 @@ import { initBroker } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import cronjobs from './cronjobs/bichil';
 import { buildFile } from './reportExport';
 import * as bodyParser from 'body-parser';
 import * as multer from 'multer';
@@ -23,6 +24,7 @@ export default {
   permissions,
 
   meta: {
+    cronjobs,
     permissions
   },
 

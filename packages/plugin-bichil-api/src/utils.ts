@@ -9,9 +9,10 @@ import { NextFunction, Request, Response } from 'express';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 
-import { generateModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 import { SALARY_FIELDS_MAP } from './constants';
 import { sendCoreMessage } from './messageBroker';
+import * as dayjs from 'dayjs';
 
 export const calculateWeekendDays = (fromDate: Date, toDate: Date): number => {
   let weekendDayCount = 0;
@@ -328,4 +329,36 @@ export const checkPermission = async (
   }
 
   return;
+};
+
+export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
+  const models = await generateModels(subdomain);
+
+  const YESTERDAY = dayjs(new Date())
+    .add(-1, 'day')
+    .toDate();
+
+  const unfinishedShifts = await models.Timeclocks.find({
+    shiftActive: true,
+    shiftStart: { $gte: YESTERDAY }
+  });
+
+  const bulkWriteOps: any[] = [];
+
+  for (const unfinishedShift of unfinishedShifts) {
+    const getDateTimeOfShift = unfinishedShift.shiftStart;
+    const nextDay = dayjs(getDateTimeOfShift)
+      .add(1, 'day')
+      .format('YYYY-MM-DD');
+
+    const midnightOfShiftDay = new Date(nextDay + ' 00:00:00');
+    bulkWriteOps.push({
+      updateOne: {
+        filter: { _id: unfinishedShift._id },
+        update: { $set: { shiftEnd: midnightOfShiftDay, shiftActive: false } }
+      }
+    });
+  }
+
+  return models.Timeclocks.bulkWrite(bulkWriteOps);
 };
