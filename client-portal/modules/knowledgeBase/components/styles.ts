@@ -1,5 +1,6 @@
 import { colors, typography } from "../../styles";
 import styled, { css } from "styled-components";
+
 import styledTS from "styled-components-ts";
 
 const silverGrey = "#6c718b";
@@ -421,8 +422,6 @@ const CategoryListWrapper = styledTS<{
     }
 
     .promoted {
-      margin-top: -15rem;
-
       .promoted-wrap {
         background-color: #fff;
         display: flex;
@@ -494,16 +493,6 @@ const CategoryListWrapper = styledTS<{
       }
 
       @media only screen and (min-width: 1080px) {
-        .category-knowledge-list {
-          .list-category-title {
-            color: ${(props) =>
-              props.headingColor ? props.headingColor : colors.colorWhite};
-            
-            a {
-              color: inherit;
-            }
-          }
-        }
         .promoted-wrap {
           .card {
             width: 33.3%;

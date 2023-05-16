@@ -10,7 +10,7 @@ const Header = styledTS<{
   backgroundImage?: string;
   headingSpacing?: boolean;
 }>(styled.div)`
-  padding: ${(props) => (props.headingSpacing ? '30px 30px 180px' : '30px 0')};
+  padding: ${(props) => (props.headingSpacing ? '30px 30px 80px' : '30px 0')};
   color: ${(props) => (props.color ? props.color : colors.colorWhite)};
   font-size: ${typography.fontSizeBody}px;
   background-color: ${(props) =>
@@ -22,8 +22,8 @@ const Header = styledTS<{
 
   h3 {
     font-size: 1.75rem;
-    font-weight: ${typography.fontWeightLight};
-    margin: 20px 0;
+    font-weight: ${typography.fontWeightRegular};
+    margin: 30px 0;
   }
 
   .modal-content {
@@ -90,12 +90,11 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   display: flex;
   align-items: baseline;
   justify-content: flex-end;
+  align-items: center;
   margin-bottom: 10px;
 
-  a {
-    margin-left: 10px;
-    letter-spacing: 0.5px;
-    opacity: 0.8;
+  .dropdown {
+    cursor: pointer;
   }
 
   > button {
@@ -112,36 +111,22 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
       outline: none;
     }
   }
+`;
 
-  span {
-    margin-left: 10px;
-    
-    i {
-      font-size: 18px
-    }
-
-    &:hover {
-      cursor: pointer;
-    }
+const NotificationsBadge = styled.div`
+  cursor: pointer;
+  position: relative;
+  margin-right: ${dimensions.coreSpacing}px;
+  
+  > span {
+    position: absolute;
+    right: -5px;
+    left: auto;
+    top: -5px;
+    background: ${colors.colorCoreRed};
+    width: 20px;
+    height: 20px;
   }
-
-  .notifications {
-    position: relative;
-
-    div {
-      border-radius: 15px;
-      background-color: red;
-      font-size: 10px;
-      max-width: 50px;
-      color: white;
-      text-align: center;
-      position: absolute;
-      right: -6px;
-      width: 14px;
-      top: -8px;
-    }
-  }
-
 `;
 
 const WebLink = styled.a`
@@ -233,6 +218,22 @@ const Container = styledTS<{ transparent?: boolean; shrink?: boolean }>(
   }
 `;
 
+const BottomComponent = styledTS<{ transparent?: boolean; }>(
+  styled.div
+)`
+  width: ${dimensions.wrapperWidth + dimensions.unitSpacing}%;
+  margin: 70px auto 0;
+  text-align: center;
+
+  @media (max-width: 1200px) {
+    width: 80%;
+  }
+
+  @media (max-width: 800px) {
+    width: 90%;
+  }
+`;
+
 const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   text-align: center;
   float: left;
@@ -290,6 +291,9 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
 
 const SearchContainer = styledTS<{ focused: boolean }>(styled.div)`
   position: relative;
+  width: 80%;
+  margin: 0 auto;
+
   ${(props) =>
     props.focused &&
     css`
@@ -299,47 +303,43 @@ const SearchContainer = styledTS<{ focused: boolean }>(styled.div)`
     `};
 
   input {
-    border: 1px solid #e2e2e2;
     width: 100%;
-    background: #fff;
+    border: 1px solid #ddd;
+    background: rgba(255,255,255,.9);
     font-size: 18px;
-    border-radius: 5px;
-    padding: 10px 32px 11px 59px;
-    color: #222;
+    border-radius: 100px;
+    padding: 15px 40px 15px 55px;
+    color: ${colors.textSecondary};
     transition: all 0.3s linear;
-
-    &::placeholder {
-      color: rgba(0, 0, 0, 0.6);
-      font-weight: 400;
-    }
 
     &:focus,
     &:active {
       background: ${colors.colorWhite};
-      color: #666;
+      color: ${colors.textSecondary};
+    }
+
+    &::placeholder {
+      color: ${colors.colorLightGray};
+      font-weight: 400;
     }
   }
 
-  input:focus::-webkit-input-placeholder {
-    color: rgba(0, 0, 0, 0.5);
-    font-weight: 400;
-  }
-
   i {
-    font-size: 22px;
-    cursor: pointer;
     position: absolute;
-    top: 10px;
+    color: ${colors.colorCoreLightGray};
+    top: 5px;
   }
 
   i:nth-child(1) {
-    left: 20px;
+    left: ${dimensions.unitSpacing + 5}px;
   }
 
   .icon-times-circle {
     right: 20px;
+    cursor: pointer;
+    z-index: 2;
+    top: ${dimensions.unitSpacing}px;
   }
-
 `;
 
 const Footer = styledTS<{ color?: string; backgroundImage?: string }>(
@@ -492,7 +492,7 @@ const FormWrapper = styled.div`
   }
 `;
 
-const Badge = styled.div`
+const Badge = styled.span`
   border-radius: 15px;
   background-color: ${(props) => props.color};
   font-size: 11px;
@@ -603,6 +603,7 @@ export {
   SearchContainer,
   Footer,
   FooterLink,
+  BottomComponent,
   LinkItem,
   ModalWrapper,
   ModalClose,
@@ -610,6 +611,7 @@ export {
   FormWrapper,
   Badge,
   NotificationContent,
+  NotificationsBadge,
   Content,
   NotificationList,
   InfoSection,
