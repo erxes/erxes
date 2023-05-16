@@ -84,7 +84,7 @@ class List extends React.Component<Props, State> {
   );
 
   renderRow() {
-    const { assets, history, toggleBulk, bulk } = this.props;
+    const { assets, history, toggleBulk, bulk, assignKbArticles } = this.props;
 
     return assets.map(asset => (
       <Row
@@ -94,6 +94,7 @@ class List extends React.Component<Props, State> {
         toggleBulk={toggleBulk}
         queryParams={this.props.queryParams}
         isChecked={bulk.includes(asset)}
+        assignKbArticles={assignKbArticles}
       />
     ));
   }

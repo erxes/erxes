@@ -55,6 +55,7 @@ const knowledgeBaseArticles = `
     knowledgeBaseArticles(categoryIds: $categoryIds) {
       _id
       title
+      categoryId
     }
   }
 `;
