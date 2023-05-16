@@ -160,7 +160,7 @@ class CategoryForm extends React.Component<Props, State> {
 
         <Select
           placeholder={__('Choose category')}
-          value={self.state.parentCategoryId || queryParams.id}
+          value={self.state.parentCategoryId}
           options={self.generateOptions(categories, true)}
           onChange={onChange}
           clearable={false}
