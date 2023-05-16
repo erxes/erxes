@@ -46,7 +46,10 @@ export default {
     {
       description: 'Sales pipelines',
       type: 'deal',
-      relations: relations('cards:deal')
+      relations: [
+        ...relations('cards:deal'),
+        { name: 'carIds', label: 'Cars', relationType: 'cars:car' }
+      ]
     }
   ],
   fields: generateFields,
