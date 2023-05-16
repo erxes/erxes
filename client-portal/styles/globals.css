@@ -69,6 +69,22 @@ hr {
   cursor: pointer;
 }
 
+.dropdown-menu {
+  width: 100%;
+  top: 5px !important;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.dropdown-menu .dropdown-item {
+  font-size: 13px;
+  padding: 8px 20px;
+}
+
+.dropdown-menu .dropdown-item i {
+  margin-right: 10px;
+}
+
 @keyframes searchIcon {
   0% {
     transform: translateX(10px);
