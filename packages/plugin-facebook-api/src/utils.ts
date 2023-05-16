@@ -1,11 +1,13 @@
 import * as graph from 'fbgraph';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
+import * as AWS from 'aws-sdk';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugError, debugFacebook } from './debuggers';
 import { IIntegrationDocument } from './models/Integrations';
 import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
+import { getFileUploadConfigs } from './messageBroker';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -353,4 +355,39 @@ export const getAdapter = async (models: IModels): Promise<any> => {
       return accessTokensByPageId[pageId];
     }
   });
+};
+
+export const createAWS = async () => {
+  const {
+    AWS_FORCE_PATH_STYLE,
+    AWS_COMPATIBLE_SERVICE_ENDPOINT,
+    AWS_BUCKET,
+    AWS_SECRET_ACCESS_KEY,
+    AWS_ACCESS_KEY_ID
+  } = await getFileUploadConfigs();
+
+  if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
+    throw new Error('AWS credentials are not configured');
+  }
+
+  const options: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    endpoint?: string;
+    s3ForcePathStyle?: boolean;
+  } = {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY
+  };
+
+  if (AWS_FORCE_PATH_STYLE === 'true') {
+    options.s3ForcePathStyle = true;
+  }
+
+  if (AWS_COMPATIBLE_SERVICE_ENDPOINT) {
+    options.endpoint = AWS_COMPATIBLE_SERVICE_ENDPOINT;
+  }
+
+  // initialize s3
+  return new AWS.S3(options);
 };

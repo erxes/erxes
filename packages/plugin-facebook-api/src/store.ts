@@ -1,14 +1,17 @@
 import { ICommentParams, IPostParams } from './types';
 
 import { debugError } from './debuggers';
-import { sendInboxMessage } from './messageBroker';
+import { getFileUploadConfigs, sendInboxMessage } from './messageBroker';
 import {
+  createAWS,
   getFacebookUser,
   getFacebookUserProfilePic,
   getPostLink
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
+import * as request from 'request';
+import * as fs from 'fs';
 
 interface IDoc {
   postId?: string;
@@ -22,12 +25,58 @@ interface IDoc {
   permalink_url?: '';
 }
 
-export const generatePostDoc = (
+export const generatePostDoc = async (
   postParams: IPostParams,
   pageId: string,
   userId: string
 ) => {
   const { post_id, id, link, photos, created_time, message } = postParams;
+  const mediaGeneratedUrl: any[] = [];
+
+  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
+
+  // initialize s3
+  const s3 = await createAWS();
+
+  const mediaUrls = postParams.photos || [];
+
+  await Promise.all(
+    mediaUrls.map(url => {
+      return new Promise<void>((resolve, reject) => {
+        const mediaFile = `${Math.random()}.${
+          url.endsWith('.mp4') ? 'mp4' : 'jpg'
+        }`;
+
+        request(url)
+          .pipe(fs.createWriteStream(mediaFile))
+          .on('close', () => {
+            // Upload the file to S3
+            s3.upload(
+              {
+                Bucket: AWS_BUCKET,
+                Key: mediaFile,
+                Body: fs.readFileSync(mediaFile),
+                ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
+              },
+              err => {
+                if (err) {
+                  reject(err);
+                } else {
+                  // Generate a signed URL for the file
+                  const generatedUrl = s3.getSignedUrl('getObject', {
+                    Bucket: AWS_BUCKET,
+                    Key: mediaFile,
+                    Expires: 3600
+                  });
+                  mediaGeneratedUrl.push(generatedUrl);
+                  resolve();
+                }
+              }
+            );
+          });
+      });
+    })
+  );
 
   const doc: IDoc = {
     postId: post_id || id,
@@ -43,7 +92,7 @@ export const generatePostDoc = (
 
   // Posted multiple image
   if (photos) {
-    doc.attachments = photos;
+    doc.attachments = mediaGeneratedUrl;
   }
 
   if (created_time) {
@@ -135,7 +184,7 @@ export const getOrCreatePost = async (
     postParams.post_id || ''
   );
 
-  const doc = generatePostDoc(postParams, pageId, userId);
+  const doc = await generatePostDoc(postParams, pageId, userId);
 
   if (!doc.attachments && doc.content === '...') {
     throw new Error();
