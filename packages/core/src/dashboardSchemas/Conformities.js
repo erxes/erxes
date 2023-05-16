@@ -1,4 +1,4 @@
-const { tableSchema } = require("../tablePrefix");
+const { tableSchema } = require('../tablePrefix');
 
 cube(`Conformities`, {
   sql: `SELECT * FROM ${tableSchema()}.conformities`,
@@ -62,19 +62,19 @@ cube(`Conformities`, {
     reltypename: {
       sql: `${Cars}.\`platenumber\``,
       type: `string`,
-      title: "Rel-Type Car"
+      title: 'Rel-Type Car'
     },
 
     reltypecustomer: {
       sql: `${Customers}.\`firstName\``,
       type: `string`,
-      title: "Rel-Type Customer"
+      title: 'Rel-Type Customer'
     },
 
     reltypetasks: {
       sql: `${Tasks}.\`name\``,
       type: `string`,
-      title: "Rel-Type Tasks'
+      title: 'Rel-Type Tasks'
     },
 
     reltypetickets: {
@@ -97,3 +97,4 @@ cube(`Conformities`, {
 
   dataSource: `default`
 });
+
