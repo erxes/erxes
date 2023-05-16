@@ -8,7 +8,10 @@ const formSubmissionMutations = {
     params: IRiskFormSubmissionParams,
     { models }: IContext
   ) {
-    return models.RiksFormSubmissions.formSaveSubmission(params);
+    return models.RiskFormSubmissions.formSaveSubmission(params);
+  },
+  RAIndicatorTestScore(_root, params, { models }: IContext) {
+    return models.RiskFormSubmissions.testScore(params);
   }
 };
 

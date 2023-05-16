@@ -10,6 +10,7 @@ export interface IRiskFormSubmissionDocument extends Document {
   fieldId: string;
   value: Number;
   description: string;
+  isFlagged?: boolean;
 }
 
 export const formSubmissionSchema = new Schema({
@@ -27,7 +28,8 @@ export const formSubmissionSchema = new Schema({
   assessmentId: field({ type: String, label: 'risk assessment ID' }),
   fieldId: field({ type: String, label: 'Form Field Id' }),
   value: field({ type: String, lablel: 'Form Field Value' }),
-  description: field({ type: String, label: 'Description', optional: true })
+  description: field({ type: String, label: 'Description', optional: true }),
+  isFlagged: field({ type: String, label: 'is field flagged', optional: true })
 });
 
 export interface IAssessmentConformitiesDocument extends Document {
