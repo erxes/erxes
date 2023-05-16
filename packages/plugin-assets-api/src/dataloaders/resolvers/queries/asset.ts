@@ -17,6 +17,7 @@ export const generateCommonAssetFilter = async (
     boardId,
     ignoreIds,
     irregular,
+    articleIds,
     ...pagintationArgs
   }: {
     ids: string[];
@@ -31,6 +32,7 @@ export const generateCommonAssetFilter = async (
     boardId: string;
     ignoreIds: string[];
     irregular: boolean;
+    articleIds: string[];
   }
 ) => {
   const filter: any = {};
@@ -87,12 +89,13 @@ export const generateCommonAssetFilter = async (
 
     filter.$or = fields;
   }
+  if (!!articleIds?.length) {
+    filter.kbArticleIds = { $in: articleIds };
+  }
 
-  if (withKnowledgebase) {
-    filter.$and = [
-      { kbArticleIds: { $exists: true } },
-      { 'kbArticleIds.0': { $exists: true } }
-    ];
+  if ([true, false].includes(withKnowledgebase)) {
+    console.log(withKnowledgebase);
+    filter['kbArticleIds.0'] = { $exists: withKnowledgebase };
   }
 
   if (irregular) {
@@ -118,6 +121,7 @@ const assetQueries = {
       pipelineId,
       boardId,
       ignoreIds,
+      articleIds,
       ...pagintationArgs
     }: {
       ids: string[];
@@ -132,6 +136,7 @@ const assetQueries = {
       pipelineId: string;
       boardId: string;
       ignoreIds: string[];
+      articleIds: string[];
     },
     { commonQuerySelector, models, subdomain, user }: IContext
   ) {
@@ -146,6 +151,7 @@ const assetQueries = {
       pipelineId,
       boardId,
       ignoreIds,
+      articleIds,
       ...pagintationArgs
     });
 
