@@ -18,6 +18,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   topics: ITopic[];
+  queryParams: any;
 };
 
 type State = {
@@ -30,12 +31,13 @@ class CategoryForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { category, currentTopicId } = props;
+    const { category, currentTopicId, queryParams } = props;
 
     this.state = {
       selectedIcon: this.getSelectedIcon(),
       topicId: currentTopicId,
-      parentCategoryId: category && category.parentCategoryId
+      parentCategoryId:
+        (category && category.parentCategoryId) || queryParams.id
     };
   }
 
