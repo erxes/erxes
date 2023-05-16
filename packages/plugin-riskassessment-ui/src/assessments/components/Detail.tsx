@@ -7,7 +7,8 @@ import {
   Tabs,
   TabTitle,
   __,
-  Attachment
+  Attachment,
+  Button
 } from '@erxes/ui/src';
 import React from 'react';
 import {
@@ -21,6 +22,7 @@ import {
 } from '../../styles';
 
 import { DetailPopOver } from '../common/utils';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   riskAssessment: any;
@@ -28,6 +30,8 @@ type Props = {
   assignedUsers: any;
   groupAssessment: any;
   indicatorAssessment: any;
+  queryParams: any;
+  history: any;
 };
 
 type State = {
@@ -69,6 +73,16 @@ export function renderSubmission(fields) {
       );
     } else {
       updateProps.title = `${field?.text}: ${field?.value}`;
+
+      if (field.isFlagged) {
+        updateProps.beforeTitle = (
+          <Icon
+            icon="flag"
+            color={colors.colorCoreRed}
+            style={{ marginRight: 10, fontSize: 15 }}
+          />
+        );
+      }
 
       children = (
         <>
@@ -165,6 +179,19 @@ class Detail extends React.Component<Props, State> {
     );
   }
 
+  renderSubmissions(submissions) {
+    const { currentUserId } = this.state;
+
+    if (!currentUserId) {
+      return;
+    }
+
+    const fields =
+      submissions.find(({ _id }) => _id === currentUserId)?.fields || [];
+
+    return <>{renderSubmission(fields)}</>;
+  }
+
   renderAssignedUsers = submissions => {
     const { assignedUsers } = this.props;
     const { currentUserId } = this.state;
@@ -196,11 +223,7 @@ class Detail extends React.Component<Props, State> {
             })}
           </Tabs>
         </TriggerTabs>
-        {currentUserId &&
-          renderSubmission(
-            (submissions.find(({ _id }) => _id === currentUserId) || {})
-              .fields || []
-          )}
+        {currentUserId && this.renderSubmissions(submissions)}
       </>
     );
   };
@@ -299,7 +322,20 @@ class Detail extends React.Component<Props, State> {
   }
 
   render() {
-    const { detail, groupAssessment, indicatorAssessment } = this.props;
+    const {
+      detail,
+      groupAssessment,
+      indicatorAssessment,
+      queryParams,
+      history
+    } = this.props;
+
+    const handleShowFlagged = () => {
+      if (queryParams.showFlagged) {
+        return removeParams(history, 'showFlagged');
+      }
+      setParams(history, { showFlagged: true });
+    };
 
     return (
       <FormContainer column gap>
@@ -323,6 +359,12 @@ class Detail extends React.Component<Props, State> {
           </FormContainer>
           {this.renderUsers()}
         </FormContainer>
+        <Button
+          icon={queryParams.showFlagged ? 'eye-slash' : 'eye'}
+          onClick={handleShowFlagged}
+        >
+          {__('Show only flagged')}
+        </Button>
         {groupAssessment && this.renderGroups()}
         {!groupAssessment?.length &&
           indicatorAssessment &&

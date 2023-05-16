@@ -145,7 +145,7 @@ export const checkAllUsersSubmitted = async (
   const assignedUsers = await getAsssignedUsers(subdomain, cardId, cardType);
 
   const assignedUserIds = assignedUsers.map(usr => usr._id);
-  const submissions = await model.RiksFormSubmissions.find({
+  const submissions = await model.RiskFormSubmissions.find({
     cardId,
     formId: { $in: formIds },
     userId: { $in: assignedUserIds }
@@ -340,7 +340,7 @@ export const riskAssessmentIndicator = async ({
     await getAsssignedUsers(subdomain, cardId, cardType)
   ).map(user => user._id);
 
-  const submissions = await models.RiksFormSubmissions.find({
+  const submissions = await models.RiskFormSubmissions.find({
     cardId,
     riskAssessmentId,
     riskIndicatorId,
@@ -442,7 +442,8 @@ export const getIndicatorSubmissions = async ({
   cardId,
   cardType,
   assessmentId,
-  indicatorId
+  indicatorId,
+  params
 }: {
   models: IModels;
   subdomain;
@@ -450,6 +451,7 @@ export const getIndicatorSubmissions = async ({
   cardType?: string;
   assessmentId: string;
   indicatorId: string;
+  params?: any;
 }) => {
   let match: any = { assessmentId, indicatorId };
 
@@ -457,7 +459,11 @@ export const getIndicatorSubmissions = async ({
     match = { ...match, cardType, cardId };
   }
 
-  const submissions = await models.RiksFormSubmissions.aggregate([
+  if (params?.showFlagged) {
+    match = { ...match, isFlagged: params.showFlagged };
+  }
+
+  const submissions = await models.RiskFormSubmissions.aggregate([
     {
       $match: match
     },

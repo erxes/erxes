@@ -89,6 +89,7 @@ export interface IAsset {
   parent: IAsset;
   childAssetCount: number;
   vendor?: ICompany;
+  kbArticleIds: string[];
   knowledgeData?: any;
 }
 

@@ -1,27 +1,37 @@
 import Button from '@erxes/ui/src/components/Button';
-import { Columns, Column } from '@erxes/ui/src/styles/chooser';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __, categories } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IAsset } from '../../common/types';
-import { KbArticles, KbCategories, KbTopics } from '../../style';
-import { EmptyState } from '@erxes/ui/src';
+import {
+  KbArticles,
+  KbArticlesContainer,
+  KbCategories,
+  TriggerTabs
+} from '../../style';
+import {
+  ControlLabel,
+  EmptyState,
+  FormControl,
+  TabTitle,
+  Tabs
+} from '@erxes/ui/src';
 import { ContainerBox } from '../../style';
 
 type Props = {
-  objects: IAsset[];
+  objects?: IAsset[];
   kbTopics: any[];
   loadArticles: (categoryId: string) => void;
   loadedArticles: any[];
   save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
   closeModal: () => void;
-  knowledgeData?: any;
+  selectedArticleIds?: string[];
 };
 
 type State = {
-  topicsToShow: string[];
+  topicId: string;
+  categoriesToShow: string[];
   selectedArticleIds: string[];
-  action: string;
 };
 
 class AssignArticles extends React.Component<Props, State> {
@@ -29,197 +39,213 @@ class AssignArticles extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      action: 'add',
-      topicsToShow: [],
-      selectedArticleIds: []
+      topicId: '',
+      categoriesToShow: [],
+      selectedArticleIds: props?.selectedArticleIds || []
     };
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>): void {
-    if (
-      JSON.stringify(prevProps.loadedArticles) !==
-      JSON.stringify(this.props.loadedArticles)
-    ) {
-      const { loadedArticles, knowledgeData } = this.props;
-      if (!!loadedArticles?.length && knowledgeData) {
-        const loadedArticleIds = loadedArticles.map(article => article._id);
-        let selectedArticleIds: any = [];
-        for (const category of knowledgeData) {
-          const contentIds = (category?.contents || [])
-            .map(content =>
-              loadedArticleIds.includes(content._id) ? content._id : ''
-            )
-            .filter(contentId => contentId);
-          selectedArticleIds = [...selectedArticleIds, ...contentIds];
-        }
-
-        this.setState(prev => ({
-          selectedArticleIds: [
-            ...prev.selectedArticleIds,
-            ...selectedArticleIds
-          ]
-        }));
-      }
+  componentDidMount() {
+    if (!this.state?.topicId && this.props?.kbTopics?.length) {
+      const topic = this.props?.kbTopics[0] || {};
+      this.selectTopic(topic);
     }
   }
 
   save = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { selectedArticleIds, action } = this.state;
+    const { selectedArticleIds } = this.state;
     const { objects } = this.props;
 
     this.props.save({
-      ids: objects.map(asset => asset._id),
+      ids: (objects || []).map(asset => asset._id),
       data: {
-        action,
         articleIds: selectedArticleIds
       },
       callback: () => {
+        this.setState({
+          selectedArticleIds: this.props.selectedArticleIds || []
+        });
         this.props.closeModal();
       }
     });
   };
 
-  onChangeAction = e => {
-    this.setState({ action: e.currentTarget.value });
-  };
+  selectTopic(topic) {
+    const { loadArticles } = this.props;
 
-  renderCategories(topic) {
-    const { categories } = topic;
-    const { topicsToShow } = this.state;
-    const { knowledgeData } = this.props;
+    const categoryIds = (topic?.categories || []).map(category => category._id);
 
-    if (!topicsToShow.includes(topic._id)) {
-      return null;
+    loadArticles(categoryIds);
+
+    this.setState({ topicId: topic._id });
+  }
+
+  renderCategories() {
+    const { topicId, selectedArticleIds, categoriesToShow } = this.state;
+    const { kbTopics, loadedArticles } = this.props;
+
+    if (!topicId) {
+      return;
     }
 
-    const renderCount = cat => {
-      if (!knowledgeData?.length) {
-        return null;
+    const { categories } = kbTopics.find(topic => topic._id === topicId) || {};
+
+    if (!categories?.length) {
+      return (
+        <EmptyState text="There is no categories on topic" icon="list-ul" />
+      );
+    }
+
+    const selectAllArticles = categoryId => {
+      const articleIds = loadedArticles
+        .filter(article => article.categoryId === categoryId)
+        .map(article => article._id);
+
+      if (
+        articleIds.every(articleId => selectedArticleIds.includes(articleId))
+      ) {
+        const updatedSelectedArticleIds = selectedArticleIds.filter(
+          articleId => !articleIds.includes(articleId)
+        );
+        return this.setState({ selectedArticleIds: updatedSelectedArticleIds });
       }
 
-      return (
-        <div>{`${countSelectedArticles(cat._id)}/${cat.numOfArticles}`}</div>
-      );
-    };
-
-    const countSelectedArticles = categoryId => {
-      const category = (knowledgeData || []).find(
-        cat => cat._id === categoryId
-      );
-      const { contents } = category || {};
-
-      const count = (contents || [])?.length;
-
-      return count;
+      this.setState({
+        selectedArticleIds: [...selectedArticleIds, ...articleIds]
+      });
     };
 
     return categories.map(cat => {
       const onClick = () => {
-        this.props.loadArticles(cat._id);
+        if (categoriesToShow.includes(cat._id)) {
+          const updateCategoryIds = categoriesToShow.filter(
+            categoryId => categoryId !== cat._id
+          );
+          return this.setState({ categoriesToShow: updateCategoryIds });
+        }
+
+        this.setState({ categoriesToShow: [...categoriesToShow, cat._id] });
       };
 
+      const articleIds = loadedArticles
+        .filter(article => article.categoryId === cat._id)
+        .map(article => article._id);
+
+      const checked =
+        !!articleIds?.length &&
+        articleIds.every(articleId => selectedArticleIds.includes(articleId));
+
+      const countArticles =
+        articleIds.filter(articleId => selectedArticleIds.includes(articleId))
+          ?.length || 0;
+
       return (
-        <KbCategories key={cat._id} onClick={onClick}>
-          <ContainerBox spaceBetween>
-            <div>{cat.title}</div>
-            {renderCount(cat)}
-          </ContainerBox>
-        </KbCategories>
+        <>
+          <KbCategories key={cat._id} onClick={onClick}>
+            <ContainerBox spaceBetween>
+              <ContainerBox gap={5} align="center">
+                <FormControl
+                  componentClass="checkbox"
+                  onChange={selectAllArticles.bind(this, cat._id)}
+                  checked={checked}
+                />
+                <ControlLabel>
+                  <div>{cat.title}</div>
+                </ControlLabel>
+              </ContainerBox>
+              <p>{`${countArticles}/${cat.numOfArticles}`}</p>
+            </ContainerBox>
+          </KbCategories>
+          {categoriesToShow.includes(cat._id) &&
+            this.renderLoadedArticles(cat._id)}
+        </>
       );
     });
   }
-
-  showTopic = topicId => {
-    const { topicsToShow } = this.state;
-
-    topicsToShow.push(topicId);
-
-    this.setState({ topicsToShow });
-  };
 
   renderTopics() {
     const { kbTopics } = this.props;
-
-    return kbTopics.map(topic => {
-      return (
-        <KbTopics
-          key={topic._id}
-          onClick={this.showTopic.bind(this, topic._id)}
-        >
-          {topic.title}
-
-          {this.renderCategories(topic)}
-        </KbTopics>
-      );
-    });
+    const { topicId } = this.state;
+    return (
+      <>
+        <TriggerTabs>
+          <Tabs full>
+            {kbTopics.map(topic => (
+              <TabTitle
+                key={topic._id}
+                onClick={this.selectTopic.bind(this, topic)}
+                className={topicId === topic._id ? 'active' : ''}
+              >
+                {topic.title}
+              </TabTitle>
+            ))}
+          </Tabs>
+        </TriggerTabs>
+        {this.renderCategories()}
+      </>
+    );
   }
 
-  renderLoadedArticles() {
+  renderLoadedArticles(categoryId) {
     const { loadedArticles } = this.props;
-    const { topicsToShow } = this.state;
 
-    if (!loadedArticles?.length && !!topicsToShow?.length) {
+    const articles = loadedArticles.filter(
+      article => article.categoryId === categoryId
+    );
+
+    if (!articles?.length) {
       return (
         <EmptyState
           text="There has no article in this knowledgebase category"
-          image="/images/actions/5.svg"
+          icon="list-ul"
         />
       );
     }
 
-    return loadedArticles.map(article => {
-      const onClick = e => {
-        const id = e.currentTarget.value;
+    return (
+      <KbArticlesContainer>
+        {articles.map(article => {
+          const { selectedArticleIds } = this.state;
+          const onClick = () => {
+            const articleId = article._id;
 
-        const { selectedArticleIds } = this.state;
+            if (selectedArticleIds.includes(articleId)) {
+              const index = selectedArticleIds.indexOf(articleId);
+              selectedArticleIds.splice(index, 1);
+            } else {
+              selectedArticleIds.push(articleId);
+            }
 
-        if (selectedArticleIds.includes(id)) {
-          const index = selectedArticleIds.indexOf(id);
-          selectedArticleIds.splice(index, 1);
-        } else {
-          selectedArticleIds.push(e.currentTarget.value);
-        }
+            this.setState({ selectedArticleIds });
+          };
 
-        this.setState({ selectedArticleIds });
-      };
-
-      const { selectedArticleIds } = this.state;
-
-      return (
-        <KbArticles key={article._id}>
-          <input
-            type="checkbox"
-            value={article._id}
-            onClick={onClick}
-            defaultChecked={false}
-            checked={selectedArticleIds.includes(article._id)}
-          />
-          {article.title}
-        </KbArticles>
-      );
-    });
+          return (
+            <KbArticles key={article._id}>
+              <ContainerBox gap={5}>
+                <FormControl
+                  componentClass="checkbox"
+                  checked={selectedArticleIds.includes(article._id)}
+                  onClick={onClick}
+                />
+                {article.title}
+              </ContainerBox>
+            </KbArticles>
+          );
+        })}
+      </KbArticlesContainer>
+    );
   }
 
   render() {
     const { closeModal } = this.props;
-    const { action } = this.state;
 
     return (
       <form onSubmit={this.save}>
-        <Columns>
-          <Column>{this.renderTopics()}</Column>
-
-          <Column>{this.renderLoadedArticles()}</Column>
-        </Columns>
+        {this.renderTopics()}
 
         <ModalFooter>
-          <select onChange={this.onChangeAction} value={action}>
-            <option value="add">Add</option>
-            <option value="subtract">Subtract</option>
-          </select>
-
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>

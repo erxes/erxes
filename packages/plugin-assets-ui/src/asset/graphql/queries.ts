@@ -32,6 +32,7 @@ const assets = `
   query assets(${listParamDefs}) {
     assets(${listParams}) {
       ${assetFields}
+      kbArticleIds
     }
   }
 `;
@@ -47,6 +48,7 @@ const assetDetail = `
     assetDetail(_id: $_id) {
       ${assetFields}
       customFieldsData
+      kbArticleIds
       knowledgeData
     }
   }

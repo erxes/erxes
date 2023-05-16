@@ -68,10 +68,22 @@ class Form extends React.Component<FinalProps> {
   }
 }
 
-export const refetchQueries = ({ cardId, cardType }) => [
+export const refetchQueries = ({
+  cardId,
+  cardType,
+  riskAssessmentId
+}: {
+  cardId: string;
+  cardType: string;
+  riskAssessmentId?: string;
+}) => [
   {
     query: gql(queries.riskAssessment),
     variables: { cardId, cardType }
+  },
+  {
+    query: gql(queries.riskAssessmentSubmitForm),
+    variables: { cardId, cardType, riskAssessmentId }
   }
 ];
 
@@ -85,8 +97,12 @@ export default withProps<Props>(
     }),
     graphql<Props>(gql(mutations.editRiskAssessment), {
       name: 'editRiskAssessment',
-      options: ({ cardId, cardType }) => ({
-        refetchQueries: refetchQueries({ cardId, cardType })
+      options: ({ cardId, cardType, riskAssessment }) => ({
+        refetchQueries: refetchQueries({
+          cardId,
+          cardType,
+          riskAssessmentId: riskAssessment._id
+        })
       })
     }),
     graphql<Props>(gql(mutations.removeRiskAssessment), {

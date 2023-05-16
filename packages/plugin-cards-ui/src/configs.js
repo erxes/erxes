@@ -11,7 +11,7 @@ module.exports = {
     './activityLog': './src/activityLogs/activityLog.tsx',
     './automation': './src/automations/automation.tsx',
     './contactDetailRightSidebar': './src/RightSidebar.tsx',
-    './selectRelation': './src/SelectCard'
+    './selectRelation': './src/common/SelectRelation.tsx'
   },
   routes: {
     url: 'http://localhost:3003/remoteEntry.js',

@@ -29,6 +29,11 @@ import AssignArticles from '../../containers/AssignArticles';
 type Props = {
   asset: IAsset;
   remove: () => void;
+  assignKbArticles: (doc: {
+    ids: string[];
+    data: any;
+    callback: () => void;
+  }) => void;
   history: any;
 };
 
@@ -121,13 +126,16 @@ class BasicInfo extends React.Component<Props> {
   }
 
   renderKbDetail() {
-    const { asset } = this.props;
+    const { asset, assignKbArticles } = this.props;
 
     const content = props => (
       <AssignArticles
         {...props}
         knowledgeData={asset?.knowledgeData}
+        dialogClassName="modal-1000w"
+        assignedArticleIds={asset.kbArticleIds}
         objects={[asset]}
+        save={assignKbArticles}
       />
     );
 
