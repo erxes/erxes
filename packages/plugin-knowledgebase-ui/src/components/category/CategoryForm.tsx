@@ -31,13 +31,12 @@ class CategoryForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { category, currentTopicId, queryParams } = props;
+    const { category, currentTopicId } = props;
 
     this.state = {
       selectedIcon: this.getSelectedIcon(),
       topicId: currentTopicId,
-      parentCategoryId:
-        (category && category.parentCategoryId) || queryParams.id
+      parentCategoryId: category && category.parentCategoryId
     };
   }
 
@@ -153,7 +152,7 @@ class CategoryForm extends React.Component<Props, State> {
 
         <Select
           placeholder={__('Choose category')}
-          value={self.state.parentCategoryId}
+          value={self.state.parentCategoryId || this.props.queryParams.id}
           options={self.generateOptions(categories, true)}
           onChange={onChange}
           clearable={false}
