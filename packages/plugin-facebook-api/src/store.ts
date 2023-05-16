@@ -1,5 +1,7 @@
-import { ICommentParams, IPostParams } from './types';
+import * as request from 'request';
+import * as fs from 'fs';
 
+import { ICommentParams, IPostParams } from './types';
 import { debugError } from './debuggers';
 import { getFileUploadConfigs, sendInboxMessage } from './messageBroker';
 import {
@@ -10,8 +12,6 @@ import {
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
-import * as request from 'request';
-import * as fs from 'fs';
 
 interface IDoc {
   postId?: string;
@@ -33,50 +33,61 @@ export const generatePostDoc = async (
   const { post_id, id, link, photos, created_time, message } = postParams;
   const mediaGeneratedUrl: any[] = [];
 
-  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
+  const {
+    AWS_BUCKET,
+    FILE_SYSTEM_PUBLIC,
+    UPLOAD_SERVICE_TYPE
+  } = await getFileUploadConfigs();
 
   // initialize s3
   const s3 = await createAWS();
 
   const mediaUrls = postParams.photos || [];
+  const videoUrl = postParams.link || '';
 
-  await Promise.all(
-    mediaUrls.map(url => {
-      return new Promise<void>((resolve, reject) => {
-        const mediaFile = `${Math.random()}.${
-          url.endsWith('.mp4') ? 'mp4' : 'jpg'
-        }`;
+  const uploadMedia = async (url, video) => {
+    return new Promise<void>((resolve, reject) => {
+      const mediaFile = `${Math.random()}.${video ? 'mp4' : 'jpg'}`;
 
-        request(url)
-          .pipe(fs.createWriteStream(mediaFile))
-          .on('close', () => {
-            // Upload the file to S3
-            s3.upload(
-              {
-                Bucket: AWS_BUCKET,
-                Key: mediaFile,
-                Body: fs.readFileSync(mediaFile),
-                ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
-              },
-              err => {
-                if (err) {
-                  reject(err);
-                } else {
-                  // Generate a signed URL for the file
-                  const generatedUrl = s3.getSignedUrl('getObject', {
-                    Bucket: AWS_BUCKET,
-                    Key: mediaFile,
-                    Expires: 3600
-                  });
-                  mediaGeneratedUrl.push(generatedUrl);
-                  resolve();
-                }
+      request(url)
+        .pipe(fs.createWriteStream(mediaFile))
+        .on('close', () => {
+          // Upload the file to S3
+          s3.upload(
+            {
+              Bucket: AWS_BUCKET,
+              Key: mediaFile,
+              Body: fs.readFileSync(mediaFile),
+              ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
+            },
+            err => {
+              if (err) {
+                reject(err);
+              } else {
+                // Generate a signed URL for the file
+                const generatedUrl = s3.getSignedUrl('getObject', {
+                  Bucket: AWS_BUCKET,
+                  Key: mediaFile,
+                  Expires: 3600
+                });
+                mediaGeneratedUrl.push(generatedUrl);
+                resolve();
               }
-            );
-          });
-      });
-    })
-  );
+            }
+          );
+        });
+    });
+  };
+
+  if (UPLOAD_SERVICE_TYPE === 'AWS') {
+    if (videoUrl) {
+      await uploadMedia(videoUrl, true);
+    }
+
+    if (mediaUrls) {
+      await Promise.all(mediaUrls.map(url => uploadMedia(url, false)));
+    }
+  }
 
   const doc: IDoc = {
     postId: post_id || id,
@@ -87,12 +98,17 @@ export const generatePostDoc = async (
   };
 
   if (link) {
-    doc.attachments = [link];
+    doc.attachments = mediaGeneratedUrl;
   }
 
   // Posted multiple image
   if (photos) {
-    doc.attachments = mediaGeneratedUrl;
+    if (UPLOAD_SERVICE_TYPE === 'AWS') {
+      doc.attachments = mediaGeneratedUrl;
+    }
+    if (UPLOAD_SERVICE_TYPE === 'local') {
+      doc.attachments = photos;
+    }
   }
 
   if (created_time) {
