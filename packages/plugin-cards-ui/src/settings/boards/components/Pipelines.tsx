@@ -5,9 +5,8 @@ import {
 } from '@erxes/ui-settings/src/constants';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { __, router } from 'coreui/utils';
-
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';

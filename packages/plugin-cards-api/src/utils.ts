@@ -4,6 +4,7 @@ import { CARD_PROPERTIES_INFO, MODULE_NAMES } from './constants';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { Purchase } from './graphql/resolvers/customResolvers';
 
 export const configReplacer = config => {
   const now = new Date();
@@ -59,7 +60,7 @@ export const generateConditionStageIds = async (
 export const getContentItem = async (subdomain, data) => {
   const models = await generateModels(subdomain);
 
-  const { Deals, Tasks, Tickets, GrowthHacks, Stages } = models;
+  const { Deals, Tasks, Tickets, GrowthHacks, Stages, Purchases } = models;
   const { action, content, contentType, contentId } = data;
 
   const type =
@@ -82,6 +83,9 @@ export const getContentItem = async (subdomain, data) => {
         break;
       case 'ticket':
         item = await Tickets.getTicket(contentId);
+        break;
+      case 'purchase':
+        item = await Purchases.getPurchase(contentId);
         break;
       default:
         break;
@@ -190,7 +194,8 @@ export const getContentTypeDetail = async (subdomain, data) => {
     Tasks,
     GrowthHacks,
     ChecklistItems,
-    Checklists
+    Checklists,
+    Purchases
   } = models;
   const { contentType = '', contentId, content } = data;
 
@@ -216,6 +221,8 @@ export const getContentTypeDetail = async (subdomain, data) => {
       case 'checklistitem':
         item = (await ChecklistItems.findOne({ _id: content._id })) || {};
         break;
+      case 'purchase':
+        item = (await Purchases.findOne({ _id: content._id })) || {};
     }
   } catch (e) {
     debug.error(e.message);

@@ -12,7 +12,7 @@ import { dealSchema, productDataSchema } from './models/definitions/deals';
 import {
   purchaseSchema,
   purchaseproductDataSchema
-} from './models/definitions/purchase';
+} from './models/definitions/purchases';
 import { growthHackSchema } from './models/definitions/growthHacks';
 import {
   pipelineTemplateSchema,

@@ -1,7 +1,7 @@
 // import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import React from 'react';
 import DealRoutes from './deals/routes';
-import PurchaseRotes from './purchase/routes';
+import PurchaseRotes from './purchases/routes';
 import TaskRoutes from './tasks/routes';
 import TicketRoutes from './tickets/routes';
 import GrowthHackingRoutes from './growthHacks/routes';

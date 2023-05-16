@@ -21,7 +21,7 @@ export default {
         model = models.Deals;
         break;
       case 'purchase':
-        model = models.Purchase;
+        model = models.Purchases;
         break;
       case 'task':
         model = models.Tasks;

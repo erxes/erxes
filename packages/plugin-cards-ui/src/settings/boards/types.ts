@@ -1,4 +1,3 @@
-import { ICost } from '@erxes/ui-cards/src/boards/types';
 import { MutationVariables } from '@erxes/ui/src/types';
 // mutations
 export type AddBoardMutationVariables = {
@@ -34,15 +33,6 @@ export type CopiedPipelineMutationResponse = {
     variables: MutationVariables;
     refetchQueries: any[];
   }) => Promise<void>;
-};
-
-export type CostsQueryResponse = {
-  costs: ICost[];
-};
-
-export type CostMutationResponse = {
-  name?: string;
-  code?: string;
 };
 
 export type ArchivePipelineMutationResponse = {
@@ -89,12 +79,11 @@ export type PipelineCopyMutation = ({
 }) => Promise<any>;
 
 export type IOption = {
+  modal: string;
   boardName: string;
   pipelineName: string;
   StageItem: any;
   PipelineForm: any;
-  CostForm?: any;
   additionalButton?: string;
   additionalButtonText?: string;
-  modal: string;
 };

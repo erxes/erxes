@@ -132,7 +132,7 @@ export const generateFields = async ({ subdomain, data }) => {
       schema = models.Deals.schema;
       break;
     case 'purchase':
-      schema = models.Purchase.schema;
+      schema = models.Purchases.schema;
       break;
     case 'task':
       schema = models.Tasks.schema;

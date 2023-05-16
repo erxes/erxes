@@ -72,6 +72,10 @@ function CostForm() {
 
   const handleSubmit = event => {
     const setData = elements.map((element, index) => {
+      if (element.name === '' || element.code === '') {
+        Alert.error('Please fill all fields');
+        throw new Error('Please fill all fields');
+      }
       return {
         name: element.name,
         code: element.code,
@@ -83,6 +87,7 @@ function CostForm() {
       costMutation({ variables: { costObjects: setData } })
         .then(() => {
           Alert.success('Successfully created');
+          handleClose();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -92,8 +97,8 @@ function CostForm() {
 
   return (
     <>
-      <Button btnStyle="primary" onClick={handleShow}>
-        Costs Accountings
+      <Button btnStyle="primary" icon="list" onClick={handleShow}>
+        Expenses
       </Button>
       <Modal
         centered
@@ -103,15 +108,15 @@ function CostForm() {
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title>{__('Costs Accounting')}</Modal.Title>
+          <Modal.Title>{__('Add Expenses')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <SpaceFormsWrapper>
             <Table whiteSpace="nowrap" hover={true}>
               <thead>
                 <tr>
-                  <th>{__('Name')}</th>
                   <th>{__('Code')}</th>
+                  <th>{__('Name')}</th>
                   <th>{__('Action')}</th>
                 </tr>
               </thead>
@@ -120,7 +125,7 @@ function CostForm() {
                   <tr>
                     <td>
                       <FormControl
-                        type="number"
+                        type="text"
                         placeholder="Enter Code"
                         defaultValue={element.code}
                         onChange={(e: any) =>
@@ -151,7 +156,7 @@ function CostForm() {
                 ))}
               </tbody>
               <LinkButton onClick={addElement}>
-                <Icon icon="plus-1" /> {__('Add another cost')}
+                <Icon icon="plus-1" /> {__('Add another expense')}
               </LinkButton>
             </Table>
           </SpaceFormsWrapper>

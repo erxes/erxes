@@ -18,6 +18,11 @@ export interface IUom {
   code: string;
   createdAt: Date;
 }
+export interface CostQueryResponse {
+  _id: string;
+  name: string;
+  code: string;
+}
 export interface IProduct {
   _id: string;
   name: string;

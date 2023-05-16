@@ -88,7 +88,7 @@ export default {
         args.extraParams
       );
 
-      const amountList = await models.Purchase.aggregate([
+      const amountList = await models.Purchases.aggregate([
         {
           $match: filter
         },
@@ -129,7 +129,7 @@ export default {
     { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
-    const { Deals, Tickets, Tasks, GrowthHacks, Purchase } = models;
+    const { Deals, Tickets, Tasks, GrowthHacks, Purchases } = models;
 
     switch (stage.type) {
       case BOARD_TYPES.DEAL: {
@@ -152,7 +152,7 @@ export default {
           args.extraParams
         );
 
-        return Purchase.find(filter).count();
+        return Purchases.find(filter).count();
       }
 
       case BOARD_TYPES.TICKET: {

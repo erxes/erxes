@@ -169,7 +169,7 @@ const getItems = async (
       model = models.Tickets;
       break;
     case 'purchase':
-      model = models.Purchase;
+      model = models.Purchases;
       break;
     default:
       model = models.Deals;

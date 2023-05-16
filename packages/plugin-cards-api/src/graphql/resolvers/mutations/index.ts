@@ -1,6 +1,6 @@
 import Board from './boards';
 import Deal from './deals';
-import Purchase from './purchase';
+import Purchase from './purchases';
 import Task from './tasks';
 import Ticket from './tickets';
 import GrowthHack from './growthHacks';

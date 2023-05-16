@@ -17,7 +17,7 @@ import { IDeal, IDealDocument } from '../../../models/definitions/deals';
 import {
   IPurchase,
   IPurchaseDocument
-} from '../../../models/definitions/purchase';
+} from '../../../models/definitions/purchases';
 
 import {
   IGrowthHack,
@@ -48,7 +48,6 @@ import {
   sendFormsMessage,
   sendNotificationsMessage
 } from '../../../messageBroker';
-import { ICost } from '../../../models/definitions/cost';
 
 export const itemResolver = async (
   models: IModels,

@@ -1,4 +1,4 @@
-import { IPurchaseDocument } from '../../../models/definitions/purchase';
+import { IPurchaseDocument } from '../../../models/definitions/purchases';
 import { boardId } from '../../utils';
 import { IContext } from '../../../connectionResolver';
 import {
@@ -84,7 +84,7 @@ export const generateAmounts = productsData => {
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.Purchase.findOne({ _id });
+    return models.Purchases.findOne({ _id });
   },
 
   async companies(

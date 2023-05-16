@@ -108,7 +108,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Purchase.create(data)
+      data: await models.Purchases.create(data)
     };
   });
 
@@ -119,7 +119,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Purchase.removePurchases(_ids)
+        data: await models.Purchases.removePurchases(_ids)
       };
     }
   );
@@ -325,7 +325,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Purchase.find(data).count()
+      data: await models.Purchases.find(data).count()
     };
   });
 
@@ -334,7 +334,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Purchase.findOne(data).lean()
+      data: await models.Purchases.findOne(data).lean()
     };
   });
 
@@ -376,7 +376,7 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { _ids } }) => {
       const models = await generateModels(subdomain);
 
-      const dealProductIds = await await models.Purchase.find({
+      const dealProductIds = await await models.Purchases.find({
         'productsData.productId': { $in: _ids }
       }).distinct('productsData.productId');
 

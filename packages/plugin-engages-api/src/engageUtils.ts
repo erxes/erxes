@@ -102,7 +102,8 @@ export const generateCustomerSelector = async (
           'contacts:company',
           'cards:deal',
           'cards:task',
-          'cards:ticket'
+          'cards:ticket',
+          'cards:purchase'
         ].includes(segment.contentType)
       ) {
         const returnFields = [

@@ -87,7 +87,7 @@ export default {
       collection = models.Deals;
     }
     if (stage.type == 'purchase') {
-      collection = models.Purchase;
+      collection = models.Purchases;
     }
     if (stage.type == 'ticket') {
       collection = models.Tickets;

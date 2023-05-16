@@ -90,7 +90,7 @@ export default {
           }
         );
 
-        return models.Purchase.find(filter).count();
+        return models.Purchases.find(filter).count();
       }
 
       case BOARD_TYPES.TICKET: {

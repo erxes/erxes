@@ -598,7 +598,7 @@ const boardQueries = {
     _root,
     { conversationId }: { conversationId: string },
     {
-      models: { Deals, Purchase, Stages, Pipelines, Boards, Tasks, Tickets }
+      models: { Deals, Purchases, Stages, Pipelines, Boards, Tasks, Tickets }
     }: IContext
   ) {
     const filter = { sourceConversationIds: { $in: [conversationId] } };
@@ -617,7 +617,7 @@ const boardQueries = {
       dealUrl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
     }
 
-    const purchase = await Purchase.findOne(filter).lean();
+    const purchase = await Purchases.findOne(filter).lean();
     if (purchase) {
       const stage = await Stages.getStage(purchase.stateId);
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
@@ -693,7 +693,7 @@ const boardQueries = {
   },
 
   async boardLogs(_root, args, { subdomain, models }: IContext) {
-    const { Deals, Purchase, Tasks, GrowthHacks, Tickets, Stages } = models;
+    const { Deals, Purchases, Tasks, GrowthHacks, Tickets, Stages } = models;
     const { action, content, contentType, contentId } = args;
 
     const type = contentType.split(':')[0];
@@ -706,7 +706,7 @@ const boardQueries = {
           item = await Deals.getDeal(contentId);
           break;
         case 'purchase':
-          item = await Purchase.getPurchase(contentId);
+          item = await Purchases.getPurchase(contentId);
           break;
         case 'task':
           item = await Tasks.getTask(contentId);
