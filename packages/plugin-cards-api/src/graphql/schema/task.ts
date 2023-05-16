@@ -61,7 +61,7 @@ const listQueryParams = `
     departmentIds: [String]
     boardIds: [String]
     stageCodes: [String]
-    dateRangeFilters:[DateRangeFilter]
+    dateRangeFilters:JSON
     ${conformityQueryFields}
 `;
 
