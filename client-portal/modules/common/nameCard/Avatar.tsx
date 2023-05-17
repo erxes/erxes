@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import React from "react";
 import { colors } from "../../styles";
 import { readFile } from "../utils";
@@ -63,13 +62,6 @@ function Element({
   children: React.ReactNode;
   customer?;
 }) {
-  if (customer) {
-    return (
-      <Link to={customer && `/contacts/details/${customer._id}`}>
-        {children}
-      </Link>
-    );
-  }
   return <div>{children}</div>;
 }
 
