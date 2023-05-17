@@ -28,6 +28,7 @@ export default function BranchForm(props: Props) {
   const [parentId, setParentId] = useState(object.parentId || null);
   const [links, setLinks] = useState(object.links || {});
   const [image, setImage] = useState(object.image || null);
+  const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const coordinateObj = object.coordinate || {};
 
@@ -48,6 +49,7 @@ export default function BranchForm(props: Props) {
       parentId,
       links,
       coordinate,
+      supervisorId,
       image,
       ...finalValues,
       radius: Number(finalValues.radius)
@@ -64,6 +66,10 @@ export default function BranchForm(props: Props) {
 
   const onSelectTeamMembers = (ids: any) => {
     setUserIds(ids);
+  };
+
+  const onSelectSupervisor = value => {
+    setSupervisorId(value);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -100,6 +106,18 @@ export default function BranchForm(props: Props) {
             defaultValue={object.code}
           />
         </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Supervisor')}</ControlLabel>
+
+          <SelectTeamMembers
+            label="Choose supervisor"
+            name="supervisorId"
+            initialValue={supervisorId}
+            onSelect={onSelectSupervisor}
+            multi={false}
+          />
+        </FormGroup>
+
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
           <SelectBranches

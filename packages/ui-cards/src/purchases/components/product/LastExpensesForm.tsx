@@ -11,7 +11,8 @@ function LastExpensesForm({ costPriceQuery }) {
           <th>{__('QUANTITY')}</th>
           <th>{__('AMOUNT')}</th>
           <th>{__('UNIT PRICE')}</th>
-          <th>{__('AFTER AMOUNT')}</th>
+          <th>{__('EXPENSE')}</th>
+          <th>{__('AMOUNT WITH EXPENSE')}</th>
         </tr>
       </thead>
       <tbody>
@@ -22,7 +23,8 @@ function LastExpensesForm({ costPriceQuery }) {
               <td>{item.quantity}</td>
               <td>{item.amount}</td>
               <td>{item.unitPrice}</td>
-              <td>{item.costPrice.toFixed(3)}</td>
+              <td>{item.costPrice}</td>
+              <td>{item.amount + item.costPrice}</td>
             </tr>
           );
         })}

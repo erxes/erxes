@@ -27,6 +27,8 @@ export const types = (tagsEnabled, inboxEnabled) => `
     emails: [String]
     primaryPhone: String
     phones: [String]
+    primaryAddress: JSON
+    addresses: [JSON]
 
     phone: String
     tagIds: [String]
@@ -111,6 +113,8 @@ const fields = `
   emails: [String]
   primaryPhone: String
   phones: [String]
+  primaryAddress: JSON
+  addresses: [JSON]
   ownerId: String
   position: String
   department: String

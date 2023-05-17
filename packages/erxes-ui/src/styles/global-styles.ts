@@ -650,6 +650,14 @@ a:hover {
   padding: 8px 20px;
 }
 
+.Select .Select-input {
+  width: 100%;
+
+  input {
+    width: 100% !important;
+  }
+}
+
 .simple-option .channel-round {
   color: ${colors.colorWhite};
   font-weight: bold;

@@ -94,6 +94,7 @@ export default function TicketEditForm(props: Props) {
       <>
         <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
         <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
+
         {pluginsOfItemSidebar(props.item, 'ticket')}
       </>
     );
