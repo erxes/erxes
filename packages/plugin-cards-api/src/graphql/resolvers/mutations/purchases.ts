@@ -27,7 +27,7 @@ interface IPurchaseEdit extends IPurchase {
 
 const purchaseMutations = {
   /**
-   * Edit, Add , Delete expense
+   * Edit, Add , Delete expense mutation
    */
 
   async manageExpenses(
