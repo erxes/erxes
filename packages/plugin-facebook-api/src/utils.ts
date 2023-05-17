@@ -211,18 +211,14 @@ export const uploadMedia = async (response: any, video) => {
               Body: fs.readFileSync(mediaFile),
               ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
             },
-            err => {
+            (err, res) => {
               if (err) {
                 reject(err);
-              } else {
-                // Generate a signed URL for the file
-                const generatedUrl = s3.getSignedUrl('getObject', {
-                  Bucket: AWS_BUCKET,
-                  Key: mediaFile,
-                  Expires: 3600
-                });
-                resolve(generatedUrl);
               }
+              const file =
+                FILE_SYSTEM_PUBLIC === 'true' ? res.Location : res.key;
+
+              return resolve(file);
             }
           );
         });
@@ -259,8 +255,9 @@ export const getFacebookUserProfilePic = async (
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
     if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      const generateProfileUrl = await uploadMedia(response.location, false);
-      return generateProfileUrl;
+      const awsResponse = await uploadMedia(response.location, false);
+
+      return awsResponse;
     }
 
     return null;

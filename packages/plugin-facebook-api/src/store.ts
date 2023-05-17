@@ -1,11 +1,7 @@
-import * as request from 'request';
-import * as fs from 'fs';
-
 import { ICommentParams, IPostParams } from './types';
 import { debugError } from './debuggers';
 import { getFileUploadConfigs, sendInboxMessage } from './messageBroker';
 import {
-  createAWS,
   getFacebookUser,
   getFacebookUserProfilePic,
   getPostLink,
@@ -36,18 +32,15 @@ export const generatePostDoc = async (
 
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
-  // initialize s3
-  const s3 = await createAWS();
-
   const mediaUrls = postParams.photos || [];
   const videoUrl = postParams.link || '';
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     if (videoUrl) {
-      await uploadMedia(videoUrl, true);
+      generatedMediaUrls = (await uploadMedia(videoUrl, true)) as any;
     }
 
-    if (mediaUrls) {
+    if (mediaUrls.length > 0) {
       generatedMediaUrls = await Promise.all(
         mediaUrls.map(url => uploadMedia(url, false))
       );

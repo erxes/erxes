@@ -60,15 +60,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
           />
         );
       }
-      if (link.includes('s3.amazonaws.com')) {
-        if (link.includes('mp4')) {
-          return (
-            <video width="320" height="240" controls={true}>
-              <source src={link} type="video/mp4" />
-            </video>
-          );
-        }
-
+      if (link.includes('jpg')) {
         return (
           <ImageWithPreview
             alt={link}
@@ -76,6 +68,13 @@ export default class FacebookContent extends React.Component<Props, {}> {
             key={index}
             onLoad={scrollBottom}
           />
+        );
+      }
+      if (link.includes('mp4')) {
+        return (
+          <video width="320" height="240" controls={true}>
+            <source src={readFile(link)} type="video/mp4" />
+          </video>
         );
       } else {
         return (
