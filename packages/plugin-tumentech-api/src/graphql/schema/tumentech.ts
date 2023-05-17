@@ -400,4 +400,5 @@ export const mutations = `
   generateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
 
   tumentechInvite(phone: String!): String
+  inviteDriversToDeal(dealId: String!, driverIds: [String]!): JSON
 `;
