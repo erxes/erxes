@@ -26,7 +26,10 @@ interface IPurchaseEdit extends IPurchase {
 }
 
 const purchaseMutations = {
-  // add edit delete expense
+  /**
+   * Edit, Add , Delete expense
+   */
+
   async manageExpenses(
     _root,
     doc: { costObjects: ICost[] },
