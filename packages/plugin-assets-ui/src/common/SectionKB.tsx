@@ -186,7 +186,7 @@ class SelectKbArticles extends React.Component<FinalProps, Stage> {
     };
 
     const clearParams = () => {
-      removeParams(history, 'articleIds');
+      removeParams(history, 'articleIds', 'withKnowledge');
     };
 
     const handleWithKnowledge = type => {
@@ -214,12 +214,11 @@ class SelectKbArticles extends React.Component<FinalProps, Stage> {
       return '';
     };
 
-    const extraButtons = (
-      <BarItems>
-        {queryParams?.articleIds && (
-          <Button icon="clear-1" onClick={clearParams} />
-        )}
-      </BarItems>
+    const extraButtons = (queryParams?.articleIds ||
+      ['true', 'false'].includes(queryParams?.withKnowledge)) && (
+      <Button btnStyle="link" onClick={clearParams}>
+        <Icon icon="cancel-1" />
+      </Button>
     );
 
     return (
