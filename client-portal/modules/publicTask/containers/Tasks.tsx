@@ -37,7 +37,7 @@ function TasksContainer({ config, router, ...props }: Props) {
 
   const { stageId } = router.query;
   const stages = data.clientPortalGetTaskStages || [];
-  console.log(router);
+
   if (router && !stageId && stages.length > 0) {
     router.push(`/publicTasks?stageId=${stages[0]._id}`);
   }
