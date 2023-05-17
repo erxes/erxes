@@ -3,8 +3,10 @@ import {
   CommentContent,
   CommentWrapper,
   CreatedUser,
+  Description,
   DetailHeader,
   DetailRow,
+  Label,
   RightSidebar,
   TicketComment,
   TicketDetailContent,
@@ -175,7 +177,7 @@ export default class DealDetail extends React.Component<
       return null;
     }
 
-    const { attachments, stage, description } = item;
+    const { labels, description } = item;
 
     return (
       <>
@@ -190,9 +192,29 @@ export default class DealDetail extends React.Component<
           <div className="col-md-9">
             <h4>{item.name}</h4>
             <DetailRow>
+              <ControlLabel>Labels</ControlLabel>
+              <div className="d-flex" style={{ gap: "5px" }}>
+                {!labels || labels.length === 0 ? (
+                  <span>No labels at the moment!</span>
+                ) : (
+                  (labels || []).map((label) => (
+                    <Label
+                      key={label._id}
+                      lblStyle={"custom"}
+                      colorCode={label.colorCode}
+                    >
+                      {label.name}
+                    </Label>
+                  ))
+                )}
+              </div>
+            </DetailRow>
+            <DetailRow>
               <ControlLabel>Description</ControlLabel>
               {description ? (
-                <div dangerouslySetInnerHTML={{ __html: description }} />
+                <Description
+                  dangerouslySetInnerHTML={{ __html: description }}
+                />
               ) : (
                 <span>No description at the moment!</span>
               )}
