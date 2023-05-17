@@ -1,11 +1,12 @@
-import { gql, useQuery } from "@apollo/client";
-import React from "react";
-import { withRouter } from "next/router";
 import { Config, IUser, Store } from "../../types";
-import Tasks from "../components/Tasks";
-import Spinner from "../../common/Spinner";
+import { gql, useQuery } from "@apollo/client";
+
 import Layout from "../../main/containers/Layout";
+import React from "react";
+import Spinner from "../../common/Spinner";
 import TaskHeader from "../components/Header";
+import Tasks from "../components/Tasks";
+import { withRouter } from "next/router";
 
 type Props = {
   config: Config;
@@ -54,7 +55,7 @@ function TasksContainer({ config, router, ...props }: Props) {
 
 const WithRouterParams = (props) => {
   return (
-    <Layout headerBottomComponent={<TaskHeader {...props} />}>
+    <Layout>
       {(layoutProps: Store) => {
         return <TasksContainer {...props} {...layoutProps} />;
       }}

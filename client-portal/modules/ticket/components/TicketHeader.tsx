@@ -1,21 +1,19 @@
 import Button from "../../common/Button";
 import { HeaderWrapper } from "../../styles/main";
-import { IUser } from "../../types";
 import Icon from "../../common/Icon";
 import Modal from "../../common/Modal";
 import React from "react";
-import TaskForm from "../containers/Form";
+import TicketForm from "../containers/Form";
 
 type Props = {
-  currentUser: IUser;
-  taskLabel: string;
+  ticketLabel: string;
 };
 
 type State = {
   show: boolean;
 };
 
-export default class TaskHeader extends React.Component<Props, State> {
+export default class TicketHeader extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -29,25 +27,27 @@ export default class TaskHeader extends React.Component<Props, State> {
   };
 
   render() {
+    const { show } = this.state;
+
     return (
       <>
         <HeaderWrapper>
-          <h4>{this.props.taskLabel}</h4>
+          <h4>{this.props.ticketLabel}</h4>
           <div className="right">
             <Button
-              btnStyle="success"
+              btnStyle="primary"
               uppercase={false}
               onClick={this.showModal}
               icon="add"
             >
-              Create New Task
+              Create New Ticket
             </Button>
           </div>
         </HeaderWrapper>
         <Modal
-          content={() => <TaskForm />}
+          content={() => <TicketForm closeModal={this.showModal} />}
           onClose={this.showModal}
-          isOpen={this.state.show}
+          isOpen={show}
         />
       </>
     );

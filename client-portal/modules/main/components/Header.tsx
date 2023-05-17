@@ -1,12 +1,10 @@
 import "reactjs-popup/dist/index.css";
 
 import {
-  AuthContainer,
   Badge,
   BottomComponent,
   Container,
   Header as Head,
-  HeaderLeft,
   HeaderLinks,
   HeaderLogo,
   HeaderRight,
@@ -16,7 +14,7 @@ import {
   NotificationsBadge,
   SupportMenus,
 } from "../../styles/main";
-import { Config, INotification, IUser } from "../../types";
+import { Config, IUser } from "../../types";
 import React, { useState } from "react";
 import { getConfigColor, readFile } from "../../common/utils";
 
@@ -25,6 +23,7 @@ import Button from "../../common/Button";
 import { Dropdown } from "react-bootstrap";
 import DropdownToggle from "../../common/DropdownToggle";
 import Icon from "../../common/Icon";
+import Label from "../../common/Label";
 import Link from "next/link";
 import LoginContainer from "../../user/containers/Login";
 import Modal from "../../common/Modal";
@@ -112,9 +111,6 @@ function Header({
   };
 
   const renderCurrentUser = () => {
-    const { type, companyName, firstName } = currentUser || ({} as IUser);
-    console.log(currentUser);
-
     return (
       <>
         <Popup
@@ -140,13 +136,25 @@ function Header({
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            <Dropdown.Item eventKey="1">
-              <Icon icon="user" />
-              My profle
+            <Dropdown.Item
+              className="d-flex align-items-center justify-content-between"
+              eventKey="1"
+            >
+              <div>
+                <Icon icon="user" />
+                My profle
+              </div>
+              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
-            <Dropdown.Item eventKey="1">
-              <Icon icon="settings" />
-              Settings
+            <Dropdown.Item
+              className="d-flex align-items-center justify-content-between"
+              eventKey="1"
+            >
+              <div>
+                <Icon icon="settings" />
+                Settings
+              </div>
+              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Divider />
             <Dropdown.Item eventKey="4" onClick={() => logout()}>
@@ -155,17 +163,6 @@ function Header({
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-        {/* <>
-          <Icon icon="user" /> &nbsp;
-          {type === "company" ? companyName : firstName}
-        </>
-        <span title="Settings" onClick={() => setShowSettings(true)}>
-          <Icon icon="settings" />
-        </span>
-
-        <span title="Log out" onClick={() => logout()}>
-          <Icon icon="logout" />
-        </span> */}
       </>
     );
   };

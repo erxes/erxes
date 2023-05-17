@@ -427,34 +427,12 @@ const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
 
-  button {
-    border: 1px solid ${colors.colorWhite};
-    background: transparent;
-    opacity: 0.9;
-    transition: all ease 0.3s;
-
-    &:hover {
-      opacity: 1;
-      background: transparent;
-    }
-  }
-
-  > div:first-child {
-    width: 60%;
-    margin-right: ${dimensions.coreSpacing}px;
-
-    @media (max-width: 1550px) {
-      width: 45%;
-    }
-  }
-
-  .right {
-    @media (max-width: 1140px) {
-      button {
-        margin-bottom: ${dimensions.unitSpacing}px;
-      }
-    }
+  h4 {
+    text-transform: uppercase;
+    font-size: 18px;
+    margin: 0;
   }
 `;
 

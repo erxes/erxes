@@ -1,23 +1,30 @@
-import React from 'react';
-import { TextArea } from '../../common/form/styles';
 import {
-  TicketRow,
-  TicketLabel,
-  TicketContent,
-  TicketComment,
-  TicketDetailContent,
+  CommentContainer,
+  CommentContent,
   CommentWrapper,
   CreatedUser,
-  CommentContent
-} from '../../styles/tickets';
-import { IUser } from '../../types';
-import Button from '../../common/Button';
-import Modal from '../../common/Modal';
-import dayjs from 'dayjs';
-import { FormWrapper } from '../../styles/main';
-import PriorityIndicator from '../../common/PriorityIndicator';
-import Icon from '../../common/Icon';
-import { readFile } from '../../../modules/common/utils';
+  DetailHeader,
+  DetailRow,
+  RightSidebar,
+  TicketComment,
+  TicketDetailContent,
+  TicketLabel,
+  TicketRow,
+} from "../../styles/tickets";
+
+import Button from "../../common/Button";
+import { ControlLabel } from "../../common/form";
+import { FormWrapper } from "../../styles/main";
+import { IUser } from "../../types";
+import Icon from "../../common/Icon";
+import Link from "next/link";
+import Modal from "../../common/Modal";
+import PriorityIndicator from "../../common/PriorityIndicator";
+import React from "react";
+import { TextArea } from "../../common/form/styles";
+import dayjs from "dayjs";
+import { readFile } from "../../../modules/common/utils";
+import { renderUserFullName } from "../../utils";
 
 type Props = {
   item?: any;
@@ -36,58 +43,41 @@ export default class TicketDetail extends React.Component<
     super(props);
 
     this.state = {
-      content: ''
+      content: "",
     };
   }
 
-  handleChange = e => {
+  handleChange = (e) => {
     this.setState({ content: e.target.value });
   };
 
   createComment = () => {
     this.props.handleSubmit({ content: this.state.content });
 
-    this.setState({ content: '' });
+    this.setState({ content: "" });
   };
 
   deleteComment = (commentId: string) => {
     this.props.handleRemoveComment(commentId);
   };
 
-  renderContent(label, text) {
-    switch (label) {
-      case 'Priority':
-        return (
-          <>
-            <PriorityIndicator value={text} /> {text}
-          </>
-        );
-      default:
-        return text;
-    }
-  }
-
-  renderRow = (icon: string, label: string, text: string) => {
-    return (
-      <TicketRow>
-        <TicketLabel>
-          <Icon icon={icon} size={14} /> {label}
-        </TicketLabel>
-        <TicketContent>{this.renderContent(label, text)}</TicketContent>
-      </TicketRow>
-    );
-  };
-
   renderComments(comments) {
     return (
       <CommentWrapper>
-        {comments.map(comment => {
+        {comments.map((comment) => {
           const { createdUser = {} } = comment;
 
           return (
             <TicketComment key={comment._id}>
               <CreatedUser>
-                <img src={readFile(createdUser?.avatar)} alt="profile" />
+                <img
+                  src={readFile(
+                    createdUser && createdUser.avatar
+                      ? createdUser?.avatar
+                      : "/static/avatar-colored.svg"
+                  )}
+                  alt="profile"
+                />
                 <div>
                   <CommentContent>
                     <h5>{`${createdUser?.firstName} ${createdUser?.lastName}`}</h5>
@@ -97,8 +87,8 @@ export default class TicketDetail extends React.Component<
                     />
                   </CommentContent>
                   <span>
-                    Reported{' '}
-                    {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
+                    Created at{" "}
+                    {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
                   </span>
                 </div>
                 {createdUser?._id === this.props.currentUser._id && (
@@ -116,36 +106,114 @@ export default class TicketDetail extends React.Component<
     );
   }
 
+  renderDetailInfo() {
+    const {
+      number,
+      createdUser,
+      status,
+      stage,
+      priority,
+      createdAt,
+      modifiedAt,
+      modifiedBy,
+      startedDate,
+      endDate,
+    } = this.props.item || ({} as any);
+
+    return (
+      <TicketDetailContent>
+        <DetailRow>
+          <ControlLabel>Number</ControlLabel>
+          <span>{number || "-"}</span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>Stage</ControlLabel>
+          <span>{stage.name}</span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>Requestor</ControlLabel>
+          <span>{renderUserFullName(createdUser)}</span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>Assigned users</ControlLabel>
+          <span>{number}</span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>Status</ControlLabel>
+          <span>{status}</span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>Priority</ControlLabel>
+          <span>
+            <PriorityIndicator value={priority} /> {priority || "Normal"}
+          </span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>Created at</ControlLabel>
+          <span>{dayjs(createdAt).format("DD MMM YYYY, HH:mm")}</span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>Modified at</ControlLabel>
+          <span>
+            {dayjs(modifiedAt).format("DD MMM YYYY, HH:mm")}
+            {modifiedBy && `by ${modifiedBy}`}
+          </span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>Start date</ControlLabel>
+          <span>{dayjs(startedDate).format("DD MMM YYYY, HH:mm")}</span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>End date</ControlLabel>
+          <span>{dayjs(endDate).format("DD MMM YYYY, HH:mm")}</span>
+        </DetailRow>
+        <DetailRow>
+          <ControlLabel>Custom Properties</ControlLabel>
+          <span>{number}</span>
+        </DetailRow>
+      </TicketDetailContent>
+    );
+  }
+
   render() {
     const currentUser = this.props.currentUser || ({} as IUser);
     const { item, onClose, comments } = this.props;
     const email = currentUser.email;
-
+    console.log(item);
     if (!item) {
       return null;
     }
 
-    const { stage } = item;
+    const { attachments, stage, description } = item;
 
-    const content = () => (
-      <FormWrapper>
-        <h4>{item.name}</h4>
-        <TicketDetailContent>
-          {this.renderRow('file-question-alt', 'Requestor', email)}
-          {this.renderRow('chart-growth', 'Priority', item.priority)}
-          {this.renderRow(
-            'align-left-justify',
-            'Description',
-            item.description
-          )}
-          {this.renderRow('notes', 'Stage', stage.name)}
-          <TicketRow>
-            <TicketLabel>
-              {' '}
-              <Icon icon="comment-1" size={14} />
-              &nbsp; Activity
-            </TicketLabel>
-            <TicketContent>
+    return (
+      <>
+        <DetailHeader className="d-flex align-items-center">
+          <Link href="/tickets">
+            <span>
+              <Icon icon="leftarrow-3" /> Back
+            </span>
+          </Link>
+        </DetailHeader>
+        <div className="row">
+          <div className="col-md-9">
+            <h4>{item.name}</h4>
+            <DetailRow>
+              <ControlLabel>Description</ControlLabel>
+              {description ? (
+                <div dangerouslySetInnerHTML={{ __html: description }} />
+              ) : (
+                <span>No description at the moment!</span>
+              )}
+            </DetailRow>
+
+            <DetailRow>
+              <ControlLabel>Attachments</ControlLabel>
+              <span>No attachments at the moment!</span>
+            </DetailRow>
+
+            <ControlLabel>Comments</ControlLabel>
+            <CommentContainer>
               <TextArea
                 onChange={this.handleChange}
                 placeholder="Write a comment..."
@@ -164,14 +232,19 @@ export default class TicketDetail extends React.Component<
                 </div>
               )}
               {this.renderComments(comments)}
-            </TicketContent>
-          </TicketRow>
-        </TicketDetailContent>
-      </FormWrapper>
-    );
+            </CommentContainer>
+          </div>
 
-    return (
-      <Modal content={content} onClose={onClose} isFull={true} isOpen={item} />
+          <div className="col-md-3">
+            <RightSidebar>
+              <h6 className="d-flex align-items-center">
+                <Icon icon="info-circle" /> &nbsp; Detail Info
+              </h6>
+              {this.renderDetailInfo()}
+            </RightSidebar>
+          </div>
+        </div>
+      </>
     );
   }
 }

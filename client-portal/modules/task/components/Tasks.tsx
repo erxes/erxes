@@ -1,23 +1,30 @@
-import React from "react";
-import Item from "../containers/Item";
+import { Config, IStage, IUser } from "../../types";
 import { TabContainers, TabTitle } from "../../styles/tasks";
+
+import Item from "../containers/Item";
 import Link from "next/link";
-import { Config, IStage } from "../../types";
+import React from "react";
+import TaskHeader from "./Header";
 import { getConfigColor } from "../../common/utils";
 
 type Props = {
   stages: IStage[];
   config: Config;
   stageId: string;
+  currentUser: IUser;
 };
 
-function Tasks({ stages, config, stageId }: Props) {
+function Tasks({ stages, config, stageId, currentUser }: Props) {
   if (!stages || stages.length === 0) {
     return null;
   }
 
   return (
     <>
+      <TaskHeader
+        currentUser={currentUser}
+        taskLabel={config.taskLabel || "Task"}
+      />
       <TabContainers>
         {stages.map((stage) => (
           <TabTitle
