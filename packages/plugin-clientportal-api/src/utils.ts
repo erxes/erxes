@@ -450,11 +450,6 @@ export const getCards = async (
     return [];
   }
 
-  const userCards = await models.ClientPortalUserCards.find({
-    customerId: customer._id,
-    type
-  }).lean();
-
   const cardIds: string[] = [];
 
   for (const c of conformities) {
