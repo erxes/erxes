@@ -8,6 +8,8 @@ export default async function cpUserMiddleware(
 ) {
   const token = req.cookies['client-auth-token'];
 
+  console.log('cpUserMiddlewareeeeeeeeeeeeee', token);
+
   if (!token) {
     return next();
   }
@@ -15,6 +17,8 @@ export default async function cpUserMiddleware(
   try {
     // verify user token and retrieve stored user information
     const cpUser: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
+
+    console.log('########################eeeeeeeeee', cpUser);
 
     if (!cpUser) {
       return next();

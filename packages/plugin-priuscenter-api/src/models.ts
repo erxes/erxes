@@ -1,8 +1,10 @@
 import * as _ from 'underscore';
 import { model } from 'mongoose';
 import { Schema } from 'mongoose';
+import { field } from '@erxes/api-utils/src/definitions/utils';
 
 export const adSchema = new Schema({
+  _id: field({ pkey: true }),
   createdAt: Date,
   cpUserId: String,
 
