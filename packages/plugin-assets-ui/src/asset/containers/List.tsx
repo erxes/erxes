@@ -66,8 +66,6 @@ class ListContainer extends React.Component<FinalProps> {
   assignKbArticles = ({ ids, data, callback }) => {
     const { queryParams, assetsAssignKbArticles } = this.props;
 
-    console.log({ ...data });
-
     assetsAssignKbArticles({
       variables: { ids, ...generateQueryParams(queryParams), ...data }
     })

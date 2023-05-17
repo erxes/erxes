@@ -88,7 +88,7 @@ export const mutations = `
   assetsEdit(_id: String!, ${assetParams}): Asset
   assetsRemove(assetIds: [String!]): String
   assetsMerge(assetIds: [String], assetFields: JSON): Asset
-  assetsAssignKbArticles(${searchParams}): JSON
+  assetsAssignKbArticles(${searchParams},action:String): JSON
   assetCategoryAdd(${assetCategoryParams}): AssetCategory
   assetCategoryEdit(_id: String!, ${assetCategoryParams}): AssetCategory
   assetCategoryRemove(_id: String!): JSON,

@@ -39,7 +39,7 @@ class AssignContainer extends React.Component<FinalProps, State> {
       .query({
         query: gql(queries.knowledgeBaseArticles),
         fetchPolicy: 'network-only',
-        variables: { categoryIds }
+        variables: { categoryIds, perPage: 500 }
       })
       .then(({ data }) => {
         const kbArticles = data.knowledgeBaseArticles || [];
