@@ -3,20 +3,47 @@ const clientPortalGetTicket = `
     clientPortalTicket(_id: $_id) {
       _id
       name
+      number
+      pipeline {
+        _id
+        name
+      }
       description
       modifiedAt
+      modifiedBy
       status
       priority
       createdAt
-      
+      closeDate
+      startDate
+      assignedUsers {
+        _id
+        email
+        username
+        details {
+          firstName
+          lastName
+          fullName
+        }
+      }
+      createdUser {
+        _id
+        email
+        username
+        details {
+          firstName
+          lastName
+          fullName
+        }
+      }
+      customFieldsData
+      customProperties
       stage {
         name
       }
-
       labels {
         name
         colorCode
-
       }
     }
   }
@@ -52,6 +79,8 @@ const clientPortalComments = `
       content
       createdUser 
       createdAt
+      userType
+      type
     }
   }
 `;
