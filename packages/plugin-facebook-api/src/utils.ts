@@ -1,6 +1,8 @@
 import * as graph from 'fbgraph';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 import * as AWS from 'aws-sdk';
+import * as request from 'request';
+import * as fs from 'fs';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugError, debugFacebook } from './debuggers';
@@ -207,7 +209,51 @@ export const getFacebookUserProfilePic = async (
       `/${fbId}/picture?height=600`,
       pageAccessToken
     );
-    return response.image ? response.location : '';
+
+    const mediaFile = `${Math.random()}.${'jpg'}`;
+
+    const {
+      AWS_BUCKET,
+      FILE_SYSTEM_PUBLIC,
+      UPLOAD_SERVICE_TYPE
+    } = await getFileUploadConfigs();
+
+    // initialize s3
+    const s3 = await createAWS();
+
+    if (UPLOAD_SERVICE_TYPE === 'AWS') {
+      return new Promise((resolve, reject) => {
+        request(response.location)
+          .pipe(fs.createWriteStream(mediaFile))
+          .on('close', () => {
+            // Upload the file to S3
+            s3.upload(
+              {
+                Bucket: AWS_BUCKET,
+                Key: mediaFile,
+                Body: fs.readFileSync(mediaFile),
+                ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
+              },
+              err => {
+                if (err) {
+                  reject(err);
+                } else {
+                  // Generate a signed URL for the file
+                  const generatedUrl = s3.getSignedUrl('getObject', {
+                    Bucket: AWS_BUCKET,
+                    Key: mediaFile,
+                    Expires: 3600
+                  });
+
+                  resolve(generatedUrl);
+                }
+              }
+            );
+          });
+      });
+    }
+
+    return null;
   } catch (e) {
     debugError(
       `Error occurred while getting facebook user profile pic: ${e.message}`

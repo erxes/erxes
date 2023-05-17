@@ -314,9 +314,11 @@ export const getOrCreateCustomer = async (
     debugError(`Error during get customer info: ${e.message}`);
   }
 
-  const fbUserProfilePic =
-    fbUser.profile_pic ||
-    (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
+  const fbUserProfilePic = await getFacebookUserProfilePic(
+    pageId,
+    facebookPageTokensMap,
+    userId
+  );
 
   // save on integrations db
   try {
