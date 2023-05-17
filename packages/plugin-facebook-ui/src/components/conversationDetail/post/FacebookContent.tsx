@@ -1,6 +1,6 @@
 import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
+import { readFile } from '@erxes/ui/src/utils/core';
 import * as React from 'react';
-import xss from 'xss';
 import { ContentContainer, FacebookContentMessage } from './styles';
 
 type Props = {
@@ -51,6 +51,24 @@ export default class FacebookContent extends React.Component<Props, {}> {
         );
       }
       if (link.includes('fna.fbcdn.net')) {
+        return (
+          <ImageWithPreview
+            alt={link}
+            src={link}
+            key={index}
+            onLoad={scrollBottom}
+          />
+        );
+      }
+      if (link.includes('s3.amazonaws.com')) {
+        if (link.includes('mp4')) {
+          return (
+            <video width="320" height="240" controls={true}>
+              <source src={link} type="video/mp4" />
+            </video>
+          );
+        }
+
         return (
           <ImageWithPreview
             alt={link}
