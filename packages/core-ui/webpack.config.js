@@ -3,7 +3,7 @@ const path = require("path");
 
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-// const { MFLiveReloadPlugin } = require("@module-federation/fmr");
+const { MFLiveReloadPlugin } = require("@module-federation/fmr");
 
 // replace accordingly './.env' with the path of your .env file
 const envs = require("dotenv").config({ path: "./.env" });
@@ -175,13 +175,13 @@ module.exports = (env, args) => {
           "./src/pluginUtils": {},
         },
       }),
-      // args.mode === 'development'
-      //   ? new MFLiveReloadPlugin({
-      //       port: 3000, // the port your app runs on
-      //       container: "coreui", // the name of your app, must be unique
-      //       standalone: false // false uses chrome extention
-      //     })
-      //   : false
+      args.mode === "development"
+        ? new MFLiveReloadPlugin({
+            port: 3000, // the port your app runs on
+            container: "coreui", // the name of your app, must be unique
+            standalone: false, // false uses chrome extention
+          })
+        : false,
     ].filter(Boolean),
   };
 };
