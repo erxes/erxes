@@ -8,7 +8,8 @@ import {
   createAWS,
   getFacebookUser,
   getFacebookUserProfilePic,
-  getPostLink
+  getPostLink,
+  uploadMedia
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
@@ -31,13 +32,9 @@ export const generatePostDoc = async (
   userId: string
 ) => {
   const { post_id, id, link, photos, created_time, message } = postParams;
-  const mediaGeneratedUrl: any[] = [];
+  let generatedMediaUrls: any[] = [];
 
-  const {
-    AWS_BUCKET,
-    FILE_SYSTEM_PUBLIC,
-    UPLOAD_SERVICE_TYPE
-  } = await getFileUploadConfigs();
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
   // initialize s3
   const s3 = await createAWS();
@@ -45,47 +42,15 @@ export const generatePostDoc = async (
   const mediaUrls = postParams.photos || [];
   const videoUrl = postParams.link || '';
 
-  const uploadMedia = async (url, video) => {
-    return new Promise<void>((resolve, reject) => {
-      const mediaFile = `${Math.random()}.${video ? 'mp4' : 'jpg'}`;
-
-      request(url)
-        .pipe(fs.createWriteStream(mediaFile))
-        .on('close', () => {
-          // Upload the file to S3
-          s3.upload(
-            {
-              Bucket: AWS_BUCKET,
-              Key: mediaFile,
-              Body: fs.readFileSync(mediaFile),
-              ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
-            },
-            err => {
-              if (err) {
-                reject(err);
-              } else {
-                // Generate a signed URL for the file
-                const generatedUrl = s3.getSignedUrl('getObject', {
-                  Bucket: AWS_BUCKET,
-                  Key: mediaFile,
-                  Expires: 3600
-                });
-                mediaGeneratedUrl.push(generatedUrl);
-                resolve();
-              }
-            }
-          );
-        });
-    });
-  };
-
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     if (videoUrl) {
       await uploadMedia(videoUrl, true);
     }
 
     if (mediaUrls) {
-      await Promise.all(mediaUrls.map(url => uploadMedia(url, false)));
+      generatedMediaUrls = await Promise.all(
+        mediaUrls.map(url => uploadMedia(url, false))
+      );
     }
   }
 
@@ -98,13 +63,13 @@ export const generatePostDoc = async (
   };
 
   if (link) {
-    doc.attachments = mediaGeneratedUrl;
+    doc.attachments = generatedMediaUrls;
   }
 
   // Posted multiple image
   if (photos) {
     if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      doc.attachments = mediaGeneratedUrl;
+      doc.attachments = generatedMediaUrls;
     }
     if (UPLOAD_SERVICE_TYPE === 'local') {
       doc.attachments = photos;
