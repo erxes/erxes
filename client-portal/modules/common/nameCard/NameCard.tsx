@@ -36,6 +36,7 @@ type Props = {
   singleLine?: boolean;
   secondLine?: React.ReactNode;
   avatarSize?: number;
+  hideUserName?: boolean;
 };
 
 class NameCard extends React.Component<Props> {
@@ -73,15 +74,17 @@ class NameCard extends React.Component<Props> {
   }
 
   render() {
-    const { user, avatarSize } = this.props;
+    const { user, avatarSize, hideUserName } = this.props;
 
     return (
       <NameCardStyled>
         <Avatar user={user} size={avatarSize} />
-        <NameCardText>
-          <FirstLine>{this.renderFirstLine()}</FirstLine>
-          <SecondLine>{this.renderSecondLine()}</SecondLine>
-        </NameCardText>
+        {!hideUserName && (
+          <NameCardText>
+            <FirstLine>{this.renderFirstLine()}</FirstLine>
+            <SecondLine>{this.renderSecondLine()}</SecondLine>
+          </NameCardText>
+        )}
       </NameCardStyled>
     );
   }

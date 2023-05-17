@@ -92,9 +92,14 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   justify-content: flex-end;
   align-items: center;
   margin-bottom: 10px;
+  position: relative;
 
   .dropdown {
     cursor: pointer;
+  }
+
+  .dropdown-menu {
+    width: 210px;
   }
 
   > button {
@@ -116,7 +121,7 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
 const NotificationsBadge = styled.div`
   cursor: pointer;
   position: relative;
-  margin-right: ${dimensions.coreSpacing}px;
+  margin-right: ${dimensions.coreSpacing - 5}px;
   
   > span {
     position: absolute;
@@ -194,10 +199,10 @@ const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
     `};
 `;
 
-const Container = styledTS<{ transparent?: boolean; shrink?: boolean }>(
+const Container = styledTS<{ transparent?: boolean; shrink?: boolean; large?: boolean }>(
   styled.div
 )`
-  width: ${dimensions.wrapperWidth + dimensions.unitSpacing}%;
+  width: ${props => props.large ? dimensions.wrapperWidth + dimensions.coreSpacing : dimensions.wrapperWidth + dimensions.unitSpacing}%;
   margin: 0 auto;
   position: relative;
   z-index: 3;

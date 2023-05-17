@@ -33,7 +33,7 @@ type Props = {
   handleRemoveComment: (commentId: string) => void;
 };
 
-export default class TicketDetail extends React.Component<
+export default class DealDetail extends React.Component<
   Props,
   { content: string }
 > {
@@ -187,7 +187,7 @@ export default class TicketDetail extends React.Component<
     return (
       <>
         <DetailHeader className="d-flex align-items-center">
-          <Link href="/tickets">
+          <Link href="/deals">
             <span>
               <Icon icon="leftarrow-3" /> Back
             </span>

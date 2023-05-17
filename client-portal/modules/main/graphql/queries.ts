@@ -15,12 +15,16 @@ export const clientPortalGetConfig = `
       taskLabel
       taskPublicPipelineId
       taskStageId
+      dealLabel
+      dealPipelineId
+      dealStageId
       ticketLabel
       ticketStageId
       ticketPipelineId
       publicTaskToggle
       ticketToggle
       taskToggle
+      dealToggle
       kbToggle
       googleClientId
       facebookAppId

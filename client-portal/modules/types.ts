@@ -133,15 +133,19 @@ export type Config = {
   knowledgeBaseTopicId?: string;
   taskPublicPipelineId?: string;
   ticketLabel?: string;
+  dealLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   ticketStageId?: string;
+  dealStageId?: string;
   ticketPipelineId?: string;
+  dealPipelineId?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   taskToggle?: boolean;
+  dealToggle?: boolean;
 
   styles?: {
     bodyColor?: string;

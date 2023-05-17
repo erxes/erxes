@@ -1,5 +1,6 @@
 import "reactjs-popup/dist/index.css";
 
+import { Alert, renderUserFullName } from "../../utils";
 import {
   Badge,
   BottomComponent,
@@ -18,7 +19,6 @@ import { Config, IUser } from "../../types";
 import React, { useState } from "react";
 import { getConfigColor, readFile } from "../../common/utils";
 
-import { Alert } from "../../utils";
 import Button from "../../common/Button";
 import { Dropdown } from "react-bootstrap";
 import DropdownToggle from "../../common/DropdownToggle";
@@ -132,10 +132,17 @@ function Header({
 
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-custom-components">
-            <NameCard user={currentUser} avatarSize={28} />
+            <NameCard user={currentUser} avatarSize={28} hideUserName={true} />
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
+            <Dropdown.Item
+              className="d-flex align-items-center justify-content-between"
+              eventKey="1"
+            >
+              {renderUserFullName(currentUser)}
+            </Dropdown.Item>
+            <Dropdown.Divider />
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
               eventKey="1"
@@ -170,9 +177,9 @@ function Header({
   const renderTopHeader = () => {
     if (headerHtml)
       return <div dangerouslySetInnerHTML={{ __html: headerHtml }} />;
-
+    console.log("ccc", config);
     return (
-      <Container>
+      <Container large={true}>
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
@@ -184,10 +191,16 @@ function Header({
           </HeaderLogo>
           <HeaderLinks>
             {config.publicTaskToggle
-              ? renderMenu("/tasks", config.taskLabel || "Task")
+              ? renderMenu("/publicTasks", "Public Task")
               : null}
-            {config.ticketToggle
+            {config.ticketToggle && currentUser
               ? renderMenu("/tickets", config.ticketLabel || "Ticket")
+              : null}
+            {config.dealToggle && currentUser
+              ? renderMenu("/deals", config.dealLabel || "Sales pipeline")
+              : null}
+            {config.taskToggle && currentUser
+              ? renderMenu("/tasks", config.taskLabel || "Task")
               : null}
           </HeaderLinks>
           <HeaderRight>
