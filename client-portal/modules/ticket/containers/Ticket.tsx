@@ -1,12 +1,15 @@
-import { gql, useQuery } from '@apollo/client';
-import React from 'react';
-import { AppConsumer } from '../../appContext';
-import { IUser, Store } from '../../types';
-import Ticket from '../components/Ticket';
-import { queries } from '../graphql';
+import { Config, IUser, Store } from "../../types";
+import { gql, useQuery } from "@apollo/client";
+
+import { AppConsumer } from "../../appContext";
+import React from "react";
+import Spinner from "../../common/Spinner";
+import Ticket from "../components/Ticket";
+import { queries } from "../graphql";
 
 type Props = {
   currentUser: IUser;
+  config: Config;
 };
 
 function TicketContainer({ currentUser, ...props }: Props) {
@@ -14,9 +17,13 @@ function TicketContainer({ currentUser, ...props }: Props) {
     gql(queries.clientPortalTickets),
     {
       skip: !currentUser,
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only",
     }
   );
+
+  if (loading) {
+    return <Spinner objective={true} />;
+  }
 
   const tickets = data.clientPortalTickets || [];
 
@@ -24,13 +31,13 @@ function TicketContainer({ currentUser, ...props }: Props) {
     ...props,
     tickets,
     loading,
-    currentUser
+    currentUser,
   };
 
   return <Ticket {...updatedProps} />;
 }
 
-const WithConsumer = props => {
+const WithConsumer = (props) => {
   return (
     <AppConsumer>
       {({ currentUser }: Store) => {
