@@ -40,7 +40,7 @@ export default class TaskHeader extends React.Component<Props, State> {
               onClick={this.showModal}
               icon="add"
             >
-              Create New Task
+              Create a New Task
             </Button>
           </div>
         </HeaderWrapper>

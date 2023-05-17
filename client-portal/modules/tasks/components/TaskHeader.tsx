@@ -34,12 +34,12 @@ export default class TaskHeader extends React.Component<Props, State> {
           <h4>{this.props.taskLabel}</h4>
           <div className="right">
             <Button
-              btnStyle="primary"
+              btnStyle="success"
               uppercase={false}
               onClick={this.showModal}
               icon="add"
             >
-              Create a new task
+              Create a New Task
             </Button>
           </div>
         </HeaderWrapper>

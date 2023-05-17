@@ -27,7 +27,7 @@ function Tasks({ stages, config, stageId, currentUser }: Props) {
           <TabTitle
             key={stage._id}
             active={stageId === stage._id}
-            color={getConfigColor(config, "activeTabColor")}
+            color={getConfigColor(config, "baseColor")}
           >
             <Link href={`/publicTasks?stageId=${stage._id}`}>{stage.name}</Link>
           </TabTitle>

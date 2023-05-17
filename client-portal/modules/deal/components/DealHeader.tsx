@@ -34,12 +34,12 @@ export default class DealHeader extends React.Component<Props, State> {
           <h4>{this.props.dealLabel}</h4>
           <div className="right">
             <Button
-              btnStyle="primary"
+              btnStyle="success"
               uppercase={false}
               onClick={this.showModal}
               icon="add"
             >
-              Create New sales pipeline
+              Create a New Deal
             </Button>
           </div>
         </HeaderWrapper>
