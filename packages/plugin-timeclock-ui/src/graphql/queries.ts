@@ -225,7 +225,6 @@ const timeclockReports = `
 
               totalRegularHoursWorked
               totalHoursWorked
-              totalMinsWorkedThisMonth
               totalDaysWorked
 
               totalHoursOvertime
@@ -234,7 +233,6 @@ const timeclockReports = `
               totalHoursBreakScheduled
               totalHoursBreakActual
             
-              totalMinsScheduledThisMonth
               totalDaysScheduled
               totalHoursScheduled
           

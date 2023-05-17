@@ -8,6 +8,7 @@ import {
 } from './utils';
 import {
   customFixDate,
+  findAllTeamMembersWithEmpId,
   generateCommonUserIds,
   generateFilter,
   returnSupervisedUsers
@@ -265,11 +266,17 @@ const timeclockQueries = {
 
   async timeclockReportByUser(
     _root,
-    { selectedUser },
+    { selectedUser, selectedMonth, selectedYear, selectedDate },
     { subdomain, user }: IContext
   ) {
     const userId = selectedUser || user._id;
-    return timeclockReportByUser(userId, subdomain);
+    return timeclockReportByUser(
+      subdomain,
+      userId,
+      selectedMonth,
+      selectedYear,
+      selectedDate
+    );
   },
 
   async timeclockReports(
@@ -305,10 +312,15 @@ const timeclockQueries = {
       subdomain
     );
 
-    const totalTeamMemberIds =
-      teamMemberIdsFromFilter.length || filterGiven
-        ? teamMemberIdsFromFilter
-        : totalSupervisedUserIds;
+    const totalUserIds = (await findAllTeamMembersWithEmpId(subdomain)).map(
+      returnedUser => returnedUser._id
+    );
+
+    const totalTeamMemberIds = filterGiven
+      ? teamMemberIdsFromFilter
+      : isCurrentUserAdmin
+      ? totalUserIds
+      : totalSupervisedUserIds;
 
     switch (reportType) {
       case 'Урьдчилсан' || 'Preliminary':

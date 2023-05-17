@@ -141,8 +141,6 @@ export const types = `
     totalMinsLate: Float
     totalAbsenceMins: Int
     totalMinsWorked: Int
-    totalMinsWorkedToday: Int
-    totalMinsWorkedThisMonth: Int
     totalRegularHoursWorked: Float
     totalHoursWorked: Float
     totalDaysWorked:Int
@@ -150,8 +148,6 @@ export const types = `
     totalMinsScheduled: Int
     totalHoursScheduled: Float
     totalDaysScheduled: Int
-    totalMinsScheduledToday: Int
-    totalMinsScheduledThisMonth: Int
     
     totalHoursBreakScheduled: Float
     totalHoursBreakActual: Float
@@ -159,11 +155,23 @@ export const types = `
     totalHoursOvertime: Float
     totalHoursOvernight: Float
 
-    totalMinsLateToday: Int
-    totalMinsLateThisMonth: Int
-    totalMinsAbsenceThisMonth: Int
-
     absenceInfo: IUserAbsenceInfo
+
+    totalHoursWorkedSelectedDay: Float
+    totalHoursScheduledSelectedDay: Float
+    totalMinsLateSelectedDay: Float
+    
+    totalHoursWorkedSelectedMonth: Float
+    totalHoursScheduledSelectedMonth: Float
+    totalMinsLateSelectedMonth: Float
+    
+    totalHoursWorkedOutsideSchedule: Float
+    totalHoursNotWorked: Float
+    
+    totalDaysWorkedOutsideSchedule: Float
+    totalDaysNotWorked: Int
+    totalDaysScheduledSelectedMonth:Int
+    totalDaysWorkedSelectedMonth: Int
   }
   
   type Report {
@@ -315,7 +323,11 @@ export const queries = `
   absenceTypes:[AbsenceType]
   
   timeclockReports(${queryParams}): ReportsListResponse
-  timeclockReportByUser(selectedUser: String): UserReport
+
+  
+  timeclockReportByUser(selectedUser: String, selectedMonth: String, selectedYear: String, selectedDate:String): UserReport
+  
+  
   timeclockDetail(_id: String!): Timeclock
   
   timeclockActivePerUser(userId: String): Timeclock
