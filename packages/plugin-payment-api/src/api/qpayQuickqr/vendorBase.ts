@@ -44,6 +44,8 @@ export class VendorBaseAPI {
       );
 
       this.accessToken = access_token;
+
+      return access_token;
     } catch (e) {
       throw new Error(e.message);
     }
@@ -84,6 +86,8 @@ export class VendorBaseAPI {
       );
 
       this.accessToken = access_token;
+
+      return access_token;
     } catch (e) {
       throw new Error(e.message);
     }

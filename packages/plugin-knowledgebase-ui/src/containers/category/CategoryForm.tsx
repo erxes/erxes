@@ -16,6 +16,7 @@ type Props = {
   topicId: string;
   closeModal: () => void;
   refetchTopics: () => void;
+  queryParams: any;
 };
 
 type FinalProps = {
@@ -23,7 +24,7 @@ type FinalProps = {
 } & Props;
 
 const KnowledgeBaseContainer = (props: FinalProps) => {
-  const { category, topicId, topicsQuery, closeModal } = props;
+  const { category, topicId, topicsQuery, closeModal, queryParams } = props;
 
   const renderButton = ({
     name,
@@ -56,6 +57,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     renderButton,
     currentTopicId: topicId,
     category,
+    queryParams,
     topics: topicsQuery.knowledgeBaseTopics || []
   };
 

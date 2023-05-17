@@ -122,7 +122,10 @@ class AssessmentHistory extends React.Component<Props, State> {
             </FormContainer>
           }
         >
-          <ColorBox color={assessmentHistory.statusColor || ''} cursor />
+          <ColorBox
+            color={assessmentHistory.statusColor || ''}
+            pointer={true}
+          />
         </Tip>
       </div>
     );

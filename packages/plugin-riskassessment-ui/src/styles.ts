@@ -190,14 +190,14 @@ export const Badge = styledTS<{ color?: string }>(styled.div)`
   max-width: 100px;
 `;
 
-export const ColorBox = styledTS<{ color?: string; cursor?: boolean }>(
+export const ColorBox = styledTS<{ color?: string; pointer?: boolean }>(
   styled.div
 )`
   height: 10px;
   width: 10px;
   background-color: ${({ color }) => color}
   border-radius: 15px;
-  ${({ cursor }) => (cursor ? 'cursor:pointer' : '')}
+  ${({ pointer }) => (pointer ? 'cursor:pointer' : '')}
 `;
 
 export const ColorButton = styledTS<{ color?: string }>(styled.div)`

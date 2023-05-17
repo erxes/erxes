@@ -19,6 +19,7 @@ interface ContainerBoxType {
   marginY?: number;
   rightBorder?: boolean;
   flexWrap?: boolean;
+  placeContentEnd?: boolean;
 }
 
 export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
@@ -28,12 +29,14 @@ export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
   column ? 'column' : ''};
     gap: ${({ gap }) => (gap ? `${gap}px` : '')};
     place-items: ${({ align }) => (align ? `${align}` : '')};
+    place-content:${({ placeContentEnd }) => (placeContentEnd ? 'end' : '')};
     padding: ${({ horizontal, vertical }) =>
       horizontal && vertical
         ? '10px'
         : `${vertical ? '10px' : '0px'} ${horizontal ? '10px' : '0px'}`};
     justify-content: ${({ spaceBetween }) =>
       spaceBetween ? 'space-between' : ''};
+    justify-content:${({ spaceAround }) => (spaceAround ? 'space-around' : '')};
     justify-content: ${({ justifyEnd }) => (justifyEnd ? 'end' : '')};
     justify-content: ${({ justifyCenter }) =>
       justifyCenter ? 'center  ' : ''};
@@ -248,7 +251,8 @@ export const KbTopics = styled.div`
   margin-bottom: 10px;
   padding: 5px 10px;
   cursor: pointer;
-  border: 1px solid #dfdfdf;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
 `;
 
 export const KbCategories = styled.div`
@@ -257,17 +261,46 @@ export const KbCategories = styled.div`
   margin-bottom: 10px;
   padding: 5px 10px;
   cursor: pointer;
-  border: 1px solid #dfdfdf;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
+`;
+
+export const KbArticlesContainer = styled.div`
+  padding-left: 20px;
+  margin-left: 20px;
+  border-left: 1px solid ${colors.bgGray};
 `;
 
 export const KbArticles = styled.div`
   padding: 5px 10px;
   margin-bottom: 10px;
   cursor: pointer;
-  border: 1px solid #dfdfdf;
-
-  input {
-    margin-right: 10px;
-    cursor: pointer;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
+  &:before {
+    content: '';
+    width: 1.2rem;
+    position: absolute;
+    z-index: 1;
+    padding-top: 10px;
+    left: 6%;
+    border-bottom: 1px solid #d1d1d1e0;
   }
+`;
+
+export const KbTreeViewItem = styled.div`
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 5px;
+  &.active {
+    animation: ${highlight} 0.9s ease;
+    box-shadow: 0 0 5px 0 #63d2d6;
+  }
+`;
+
+export const SelectAssignType = styled.select`
+  height: 20px;
+  margin-top: 30px;
 `;

@@ -1,19 +1,13 @@
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
-
-import { ICustomer } from '../types';
-import React from 'react';
+import { queries } from '@erxes/ui-cards/src/boards/graphql';
 import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { queries } from '../graphql';
-import { renderFullName } from '@erxes/ui/src/utils';
+import { IOption, IQueryParams } from '@erxes/ui/src/types';
+import React from 'react';
 
-function generateCustomerOptions(array: ICustomer[] = []): IOption[] {
+function generateCustomerOptions(array: any[] = []): IOption[] {
   return array.map(item => {
-    const customer = item || ({} as ICustomer);
-
     return {
-      value: customer._id,
-      label: renderFullName(customer),
-      avatar: customer.avatar
+      value: item._id,
+      label: item.name
     };
   });
 }
@@ -26,7 +20,7 @@ export default ({
   customOption,
   label,
   name,
-  showAvatar = true
+  type
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -35,17 +29,17 @@ export default ({
   customOption?: IOption;
   initialValue?: string | string[];
   name: string;
-  showAvatar?: boolean;
+  type: 'deal' | 'ticket' | 'task';
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   return (
     <SelectWithSearch
-      showAvatar={showAvatar}
+      showAvatar={false}
       label={label}
-      queryName="customers"
+      queryName={`${type}s`}
+      customQuery={queries[`${type}s`]}
       name={name}
-      customQuery={queries.customers}
       initialValue={defaultValue}
       generateOptions={generateCustomerOptions}
       onSelect={onSelect}

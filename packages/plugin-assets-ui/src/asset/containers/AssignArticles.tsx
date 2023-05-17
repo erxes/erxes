@@ -10,19 +10,21 @@ import { queries } from '../category/graphql';
 import AssignArticles from '../components/AssignArticles';
 
 type Props = {
-  objects: IAsset[];
+  objects?: IAsset[];
   save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
   queryParams: any;
-  knowledgeData?: any;
+  assignedArticleIds?: string[];
   closeModal: () => void;
+  assetId?: string;
 };
 
 type FinalProps = {
   knowledgeBaseTopics: any;
+  assetKbDetail: any;
 } & Props;
 
 type State = {
-  articles: string[];
+  articles: any[];
 };
 
 class AssignContainer extends React.Component<FinalProps, State> {
@@ -32,30 +34,47 @@ class AssignContainer extends React.Component<FinalProps, State> {
     this.state = { articles: [] };
   }
 
-  loadArticles = categoryId => {
+  loadArticles = categoryIds => {
     client
       .query({
         query: gql(queries.knowledgeBaseArticles),
         fetchPolicy: 'network-only',
-        variables: { categoryIds: [categoryId] }
+        variables: { categoryIds, perPage: 500 }
       })
       .then(({ data }) => {
-        this.setState({ articles: data.knowledgeBaseArticles || [] });
+        const kbArticles = data.knowledgeBaseArticles || [];
+        const articleIds = this.state.articles.map(article => article._id);
+
+        const uniqueArticles = kbArticles.filter(
+          kbArticle => !articleIds.includes(kbArticle._id)
+        );
+
+        this.setState({
+          articles: [...this.state.articles, ...uniqueArticles]
+        });
       });
   };
 
   render() {
-    const { knowledgeBaseTopics } = this.props;
+    const {
+      knowledgeBaseTopics,
+      assetKbDetail,
+      assignedArticleIds
+    } = this.props;
 
     if (knowledgeBaseTopics.loading) {
       return <Spinner />;
     }
 
+    const selectedArticleIds =
+      assetKbDetail?.assetDetail?.kbArticleIds || assignedArticleIds || [];
+
     const updatedProps = {
       ...this.props,
       kbTopics: knowledgeBaseTopics.knowledgeBaseTopics || [],
       loadArticles: this.loadArticles,
-      loadedArticles: this.state.articles
+      loadedArticles: this.state.articles,
+      selectedArticleIds: [...selectedArticleIds]
     };
 
     return <AssignArticles {...updatedProps} />;

@@ -18,6 +18,7 @@ type Props = {
 
 type FinalProps = {
   currentUser: IUser;
+  assetsAssignKbArticles: any;
 } & Props &
   IRouterProps &
   AssetRemoveMutationResponse;
@@ -38,16 +39,38 @@ const BasicInfoContainer = (props: FinalProps) => {
       });
   };
 
+  const assignKbArticles = ({ ids, data, callback }) => {
+    const { assetsAssignKbArticles } = props;
+
+    assetsAssignKbArticles({
+      variables: { ids, ...data }
+    })
+      .then(() => {
+        Alert.success('Articles assigned successfully');
+        callback();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+        callback();
+      });
+  };
+
   const updatedProps = {
     ...props,
-    remove
+    remove,
+    assignKbArticles
   };
 
   return <BasicInfo {...updatedProps} />;
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['assets', 'assetCategories', 'assetsTotalCount']
+  refetchQueries: [
+    'assets',
+    'assetCategories',
+    'assetsTotalCount',
+    'assetDetail'
+  ]
 });
 
 export default withProps<Props>(
@@ -58,6 +81,10 @@ export default withProps<Props>(
         name: 'assetsRemove',
         options: generateOptions
       }
-    )
+    ),
+    graphql(gql(mutations.assetsAssignKbArticles), {
+      name: 'assetsAssignKbArticles',
+      options: () => generateOptions()
+    })
   )(withRouter<FinalProps>(BasicInfoContainer))
 );

@@ -1,12 +1,19 @@
+import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels, IModels } from './connectionResolver';
-import { IPosOrder } from './models/definitions/orders';
 import {
+  sendAutomationsMessage,
+  sendCardsMessage,
+  sendContactsMessage,
   sendCoreMessage,
+  sendEbarimtMessage,
+  sendInventoriesMessage,
   sendLoyaltiesMessage,
   sendPosclientMessage,
-  sendProductsMessage
+  sendProductsMessage,
+  sendSyncerkhetMessage
 } from './messageBroker';
-import { generateFieldsFromSchema } from '@erxes/api-utils/src';
+import { IPosOrder } from './models/definitions/orders';
+import { IPosDocument } from './models/definitions/pos';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
@@ -15,28 +22,6 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
     data: { code, defaultValue },
     isRPC: true
   });
-};
-
-export const getPureDate = (date: Date, multiplier = 1) => {
-  const ndate = new Date(date);
-  const diffTimeZone =
-    multiplier * Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
-export const getFullDate = (date: Date) => {
-  const ndate = getPureDate(date, -1);
-  const year = ndate.getFullYear();
-  const month = ndate.getMonth();
-  const day = ndate.getDate();
-
-  const today = new Date(year, month, day);
-
-  return today;
-};
-
-export const getTomorrow = (date: Date) => {
-  return getFullDate(new Date(date.getTime() + 24 * 60 * 60 * 1000));
 };
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
@@ -177,4 +162,472 @@ export const generateFields = async ({ subdomain, data }) => {
   }
 
   return fields;
+};
+
+const updateCustomer = async ({ subdomain, doneOrder }) => {
+  const deliveryInfo = doneOrder.deliveryInfo || {};
+  const {
+    marker = {},
+    address,
+    description,
+    phone,
+    email,
+    saveInfo
+  } = deliveryInfo;
+
+  const customerType = doneOrder.customerType || 'customer';
+  if (
+    saveInfo &&
+    doneOrder.customerId &&
+    ['customer', 'company'].includes(customerType)
+  ) {
+    const moduleTxt = customerType === 'company' ? 'companies' : 'customers';
+
+    const pushInfo: any = {};
+
+    if (
+      marker &&
+      (marker.longitude || marker.lng) &&
+      (marker.latitude || marker.lat)
+    ) {
+      pushInfo.addresses = {
+        id: `${marker.longitude || marker.lng}_${marker.latitude ||
+          marker.lat}`,
+        location: {
+          type: 'Point',
+          coordinates: [
+            marker.longitude || marker.lng,
+            marker.latitude || marker.lat
+          ]
+        },
+        address,
+        short: description
+      };
+    }
+
+    if (phone) {
+      pushInfo.phones = phone;
+    }
+
+    if (email) {
+      pushInfo.emails = email;
+    }
+
+    if (Object.keys(pushInfo).length) {
+      await sendContactsMessage({
+        subdomain,
+        action: `${moduleTxt}.updateOne`,
+        data: {
+          selector: { _id: doneOrder.customerId },
+          modifier: {
+            $addToSet: pushInfo
+          }
+        },
+        isRPC: true
+      });
+    }
+  }
+};
+
+const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
+  const { deliveryConfig = {} } = pos;
+  const deliveryInfo = doneOrder.deliveryInfo || {};
+  const { marker = {}, description } = deliveryInfo;
+
+  const dealsData: any = {
+    name: `Delivery: ${doneOrder.number}`,
+    startDate: doneOrder.createdAt,
+    closeDate: doneOrder.dueDate,
+    description,
+    stageId: deliveryConfig.stageId,
+    assignedUserIds: deliveryConfig.assignedUserIds,
+    watchedUserIds: deliveryConfig.watchedUserIds,
+    productsData: doneOrder.items.map(i => ({
+      productId: i.productId,
+      uom: 'PC',
+      currency: 'MNT',
+      quantity: i.count,
+      unitPrice: i.unitPrice,
+      amount: i.count * i.unitPrice,
+      tickUsed: true
+    }))
+  };
+
+  if (deliveryConfig.mapCustomField) {
+    // {
+    //   "locationValue": {
+    //     "type": "Point",
+    //     "coordinates": [
+    //       106.936283111572,
+    //       47.920138551642
+    //     ]
+    //   },
+    //   "field": "dznoBhE3XCkCaHuBX",
+    //   "value": {
+    //     "lat": 47.920138551642,
+    //     "lng": 106.936283111572
+    //   },
+    //   "stringValue": "106.93628311157227,47.920138551642026"
+    // }
+    dealsData.customFieldsData = [
+      {
+        field: deliveryConfig.mapCustomField.replace('customFieldsData.', ''),
+        locationValue: {
+          type: 'Point',
+          coordinates: [
+            marker.longitude || marker.lng,
+            marker.latitude || marker.lat
+          ]
+        },
+        value: {
+          lat: marker.latitude || marker.lat,
+          lng: marker.longitude || marker.lng,
+          description: 'location'
+        },
+        stringValue: `${marker.longitude || marker.lng},${marker.latitude ||
+          marker.lat}`
+      }
+    ];
+  }
+
+  if ((doneOrder.deliveryInfo || {}).dealId) {
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.updateOne',
+      data: {
+        selector: { _id: doneOrder.deliveryInfo.dealId },
+        modifier: dealsData
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    await sendCardsMessage({
+      subdomain,
+      action: 'pipelinesChanged',
+      data: {
+        pipelineId: deliveryConfig.pipelineId,
+        action: 'itemUpdate',
+        data: {
+          item: deal,
+          destinationStageId: deliveryConfig.stageId
+        }
+      }
+    });
+  } else {
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.create',
+      data: dealsData,
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (
+      doneOrder.customerId &&
+      deal._id &&
+      ['customer', 'company'].includes(doneOrder.customerType || 'customer')
+    ) {
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: 'deal',
+          mainTypeId: deal._id,
+          relType: doneOrder.customerType || 'customer',
+          relTypeId: doneOrder.customerId
+        },
+        isRPC: true
+      });
+    }
+
+    await sendCardsMessage({
+      subdomain,
+      action: 'pipelinesChanged',
+      data: {
+        pipelineId: deliveryConfig.pipelineId,
+        action: 'itemAdd',
+        data: {
+          item: deal,
+          destinationStageId: deliveryConfig.stageId
+        }
+      }
+    });
+
+    await models.PosOrders.updateOne(
+      { _id: doneOrder },
+      {
+        $set: {
+          deliveryInfo: {
+            ...deliveryInfo,
+            dealId: deal._id
+          }
+        }
+      }
+    );
+  }
+};
+
+export const statusToDone = async ({
+  subdomain,
+  models,
+  order,
+  pos
+}: {
+  subdomain;
+  models;
+  order;
+  pos;
+}) => {
+  // must have
+  const doneOrder = await models.PosOrders.findOne({
+    _id: order._id
+  }).lean();
+
+  if (!doneOrder) {
+    return {};
+  }
+
+  await createDeliveryDeal({ subdomain, models, doneOrder, pos });
+
+  await updateCustomer({ subdomain, doneOrder });
+
+  return {
+    status: 'success'
+  };
+};
+
+const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
+  // ===> sync cards config then
+  const { cardsConfig } = pos;
+
+  const currentCardsConfig: any = (Object.values(cardsConfig || {}) || []).find(
+    c =>
+      (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId
+  );
+
+  if (currentCardsConfig && currentCardsConfig.stageId) {
+    const cardDeal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.create',
+      data: {
+        name: `Cards: ${newOrder.number}`,
+        startDate: newOrder.createdAt,
+        description: newOrder.deliveryInfo ? newOrder.deliveryInfo.address : '',
+        stageId: currentCardsConfig.stageId,
+        assignedUserIds: currentCardsConfig.assignedUserIds,
+        productsData: newOrder.items.map(i => ({
+          productId: i.productId,
+          uom: 'PC',
+          currency: 'MNT',
+          quantity: i.count,
+          unitPrice: i.unitPrice,
+          amount: i.count * i.unitPrice,
+          tickUsed: true
+        }))
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (newOrder.customerId && cardDeal._id) {
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: 'deal',
+          mainTypeId: cardDeal._id,
+          relType: newOrder.customerType || 'customer',
+          relTypeId: newOrder.customerId
+        },
+        isRPC: true
+      });
+    }
+
+    await sendCardsMessage({
+      subdomain,
+      action: 'pipelinesChanged',
+      data: {
+        pipelineId: currentCardsConfig.pipelineId,
+        action: 'itemAdd',
+        data: {
+          item: cardDeal,
+          destinationStageId: currentCardsConfig.stageId
+        }
+      }
+    });
+  }
+  // end sync cards config then <
+};
+
+const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
+  if (!(pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet)) {
+    return;
+  }
+  const resp = await sendSyncerkhetMessage({
+    subdomain,
+    action: 'toOrder',
+    data: {
+      pos,
+      order: newOrder
+    },
+    isRPC: true,
+    defaultValue: {},
+    timeout: 50000
+  });
+
+  if (resp.message || resp.error) {
+    const txt = JSON.stringify({
+      message: resp.message,
+      error: resp.error
+    });
+
+    await models.PosOrders.updateOne(
+      { _id: newOrder._id },
+      { $set: { syncErkhetInfo: txt } }
+    );
+  }
+};
+
+const syncInventoriesRem = async ({
+  subdomain,
+  newOrder,
+  oldBranchId,
+  pos
+}) => {
+  if (!(pos.checkRemainder && newOrder.departmentId)) {
+    return;
+  }
+
+  if (
+    (!oldBranchId && newOrder.branchId) ||
+    (oldBranchId && oldBranchId !== newOrder.branchId)
+  ) {
+    sendInventoriesMessage({
+      subdomain,
+      action: 'remainders.updateMany',
+      data: {
+        branchId: newOrder.branchId,
+        departmentId: newOrder.departmentId,
+        productsData: (newOrder.items || []).map(item => ({
+          productId: item.productId,
+          uomId: item.uomId,
+          diffCount: -1 * item.count
+        }))
+      }
+    });
+  }
+
+  if (oldBranchId && oldBranchId !== newOrder.branchId) {
+    sendInventoriesMessage({
+      subdomain,
+      action: 'remainders.updateMany',
+      data: {
+        branchId: oldBranchId,
+        departmentId: newOrder.departmentId,
+        productsData: (newOrder.items || []).map(item => ({
+          productId: item.productId,
+          uomId: item.uomId,
+          diffCount: item.count
+        }))
+      }
+    });
+  }
+};
+
+export const syncOrderFromClient = async ({
+  subdomain,
+  models,
+  order,
+  items,
+  pos,
+  posToken,
+  responses,
+  oldBranchId
+}: {
+  subdomain: string;
+  models: IModels;
+  order;
+  items;
+  pos: IPosDocument;
+  posToken: string;
+  responses;
+  oldBranchId: string;
+}) => {
+  for (const response of responses || []) {
+    if (response && response._id) {
+      await sendEbarimtMessage({
+        subdomain,
+        action: 'putresponses.createOrUpdate',
+        data: { _id: response._id, doc: { ...response, posToken } },
+        isRPC: true
+      });
+    }
+  }
+
+  await models.PosOrders.updateOne(
+    { _id: order._id },
+    {
+      $set: {
+        ...order,
+        posToken,
+        items,
+        branchId: order.branchId || pos.branchId,
+        departmentId: order.departmentId || pos.departmentId
+      }
+    },
+    { upsert: true }
+  );
+
+  const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
+
+  if (newOrder.customerId) {
+    await sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: 'pos:posOrder',
+        targets: [newOrder]
+      }
+    });
+  }
+
+  await confirmLoyalties(subdomain, newOrder);
+
+  await createDealPerOrder({ subdomain, pos, newOrder });
+
+  // return info saved
+  await sendPosclientMessage({
+    subdomain,
+    action: `updateSynced`,
+    data: {
+      status: 'ok',
+      posToken,
+      responseIds: (responses || []).map(resp => resp._id),
+      orderId: order._id
+    },
+    pos
+  });
+
+  if (pos.isOnline && newOrder.branchId) {
+    const toPos = await models.Pos.findOne({
+      branchId: newOrder.branchId
+    }).lean();
+
+    // paid order info to offline pos
+    if (toPos) {
+      await sendPosclientMessage({
+        subdomain,
+        action: 'erxes-posclient-to-pos-api',
+        data: {
+          order: { ...newOrder, posToken, subToken: toPos.token }
+        },
+        pos: toPos
+      });
+    }
+  }
+
+  await syncErkhetRemainder({ subdomain, models, pos, newOrder });
+
+  await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
 };

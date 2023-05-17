@@ -363,3 +363,13 @@ export const SelectWithAssetCategory = ({
     />
   );
 };
+
+export const generateParamsIds = ids => {
+  if (!ids?.length) {
+    return undefined;
+  }
+  if (typeof ids === 'string') {
+    return [ids];
+  }
+  return ids;
+};

@@ -9,6 +9,8 @@ import { Spinner } from '@erxes/ui/src';
 
 type Props = {
   riskAssessment: any;
+  queryParams: any;
+  history: any;
 };
 
 type FinalProps = {
@@ -21,7 +23,12 @@ class Detail extends React.Component<FinalProps> {
   }
 
   render() {
-    const { riskAssessment, detailQueryResponse } = this.props;
+    const {
+      riskAssessment,
+      detailQueryResponse,
+      queryParams,
+      history
+    } = this.props;
 
     if (detailQueryResponse.loading) {
       return <Spinner />;
@@ -35,6 +42,8 @@ class Detail extends React.Component<FinalProps> {
     } = detailQueryResponse?.riskAssessmentDetail;
 
     const updatedProps = {
+      queryParams,
+      history,
       riskAssessment,
       detail,
       assignedUsers,
@@ -50,9 +59,10 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.riskAssessmentDetail), {
       name: 'detailQueryResponse',
-      options: ({ riskAssessment }) => ({
+      options: ({ riskAssessment, queryParams }) => ({
         variables: {
-          id: riskAssessment._id
+          id: riskAssessment._id,
+          showFlagged: !!queryParams?.showFlagged
         }
       })
     })
