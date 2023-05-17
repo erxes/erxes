@@ -35,7 +35,7 @@ export default class TicketHeader extends React.Component<Props, State> {
           <h4>{this.props.ticketLabel}</h4>
           <div className="right">
             <Button
-              btnStyle="sucess"
+              btnStyle="success"
               uppercase={false}
               onClick={this.showModal}
               icon="add"

@@ -152,10 +152,7 @@ export default class TaskDetail extends React.Component<
         </DetailRow>
         <DetailRow>
           <ControlLabel>Modified at</ControlLabel>
-          <span>
-            {dayjs(modifiedAt).format("DD MMM YYYY, HH:mm")}
-            {modifiedBy && `by ${modifiedBy}`}
-          </span>
+          <span>{dayjs(modifiedAt).format("DD MMM YYYY, HH:mm")}</span>
         </DetailRow>
         <DetailRow>
           <ControlLabel>Start date</ControlLabel>

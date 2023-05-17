@@ -1,11 +1,13 @@
 import { Config, IStage, IUser } from "../../types";
+import React, { useState } from "react";
 import { TabContainers, TabTitle } from "../../styles/tasks";
 
+import Detail from "../../tasks/containers/Detail";
 import Item from "../containers/Item";
 import Link from "next/link";
-import React from "react";
 import TaskHeader from "./Header";
 import { getConfigColor } from "../../common/utils";
+import { useRouter } from "next/router";
 
 type Props = {
   stages: IStage[];
@@ -15,8 +17,23 @@ type Props = {
 };
 
 function Tasks({ stages, config, stageId, currentUser }: Props) {
+  const router = useRouter();
+  const { itemId } = router.query as any;
+
+  const [taskId, setId] = useState(null);
+
   if (!stages || stages.length === 0) {
     return null;
+  }
+
+  if (itemId) {
+    return (
+      <Detail
+        _id={itemId}
+        onClose={() => router.push("/publicTasks")}
+        currentUser={currentUser}
+      />
+    );
   }
 
   return (
