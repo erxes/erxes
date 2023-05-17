@@ -52,7 +52,7 @@ const sendDesktopNotification = (doc: { title: string; content?: string }) => {
 };
 
 const renderUserFullName = (data) => {
-  const { details } = data;
+  const { details = {} as any } = data;
 
   if (details) {
     if (details.fullName) {
