@@ -165,10 +165,6 @@ export default class DealDetail extends React.Component<
           <ControlLabel>End date</ControlLabel>
           <span>{dayjs(endDate).format("DD MMM YYYY, HH:mm")}</span>
         </DetailRow>
-        <DetailRow>
-          <ControlLabel>Custom Properties</ControlLabel>
-          <span>{number}</span>
-        </DetailRow>
       </TicketDetailContent>
     );
   }

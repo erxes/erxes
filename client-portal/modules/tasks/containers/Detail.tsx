@@ -13,8 +13,8 @@ type Props = {
 };
 
 function DetailContainer({ _id, ...props }: Props) {
-  const { data, loading: dealQueryLoading } = useQuery(
-    gql(queries.clientPortalGetDeal),
+  const { data, loading: taskQueryLoading } = useQuery(
+    gql(queries.clientPortalGetTask),
     {
       variables: { _id },
       skip: !_id,
@@ -24,7 +24,7 @@ function DetailContainer({ _id, ...props }: Props) {
   const { data: commentsQuery, loading: commentsQueryLoading } = useQuery(
     gql(queries.clientPortalComments),
     {
-      variables: { typeId: _id, type: "deal" },
+      variables: { typeId: _id, type: "task" },
       skip: !_id,
     }
   );
@@ -33,7 +33,7 @@ function DetailContainer({ _id, ...props }: Props) {
     refetchQueries: [
       {
         query: gql(queries.clientPortalComments),
-        variables: { typeId: _id, type: "deal" },
+        variables: { typeId: _id, type: "task" },
       },
     ],
   });
@@ -44,15 +44,15 @@ function DetailContainer({ _id, ...props }: Props) {
       refetchQueries: [
         {
           query: gql(queries.clientPortalComments),
-          variables: { typeId: _id, type: "deal" },
+          variables: { typeId: _id, type: "task" },
         },
       ],
     }
   );
 
-  if (dealQueryLoading || commentsQueryLoading) return null;
+  if (taskQueryLoading || commentsQueryLoading) return null;
 
-  const item = data?.dealDetail;
+  const item = data?.taskDetail;
   const comments = commentsQuery?.clientPortalComments || [];
 
   const handleSubmit = (values: { content: string }) => {
@@ -60,7 +60,7 @@ function DetailContainer({ _id, ...props }: Props) {
       variables: {
         ...values,
         typeId: item._id,
-        type: "deal",
+        type: "task",
         userType: "client",
       },
     });

@@ -177,7 +177,7 @@ function Header({
   const renderTopHeader = () => {
     if (headerHtml)
       return <div dangerouslySetInnerHTML={{ __html: headerHtml }} />;
-    console.log("ccc", config);
+
     return (
       <Container large={true}>
         <HeaderTop>

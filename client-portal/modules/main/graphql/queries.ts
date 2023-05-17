@@ -14,6 +14,7 @@ export const clientPortalGetConfig = `
       knowledgeBaseTopicId
       taskLabel
       taskPublicPipelineId
+      taskPipelineId
       taskStageId
       dealLabel
       dealPipelineId

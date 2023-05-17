@@ -21,7 +21,7 @@ import PriorityIndicator from "../../common/PriorityIndicator";
 import React from "react";
 import { TextArea } from "../../common/form/styles";
 import dayjs from "dayjs";
-import { readFile } from "../../../modules/common/utils";
+import { readFile } from "../../common/utils";
 import { renderUserFullName } from "../../utils";
 
 type Props = {
@@ -33,7 +33,7 @@ type Props = {
   handleRemoveComment: (commentId: string) => void;
 };
 
-export default class TicketDetail extends React.Component<
+export default class TaskDetail extends React.Component<
   Props,
   { content: string }
 > {
@@ -183,7 +183,7 @@ export default class TicketDetail extends React.Component<
     return (
       <>
         <DetailHeader className="d-flex align-items-center">
-          <Link href="/tickets">
+          <Link href="/tasks">
             <span>
               <Icon icon="leftarrow-3" /> Back
             </span>

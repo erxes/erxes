@@ -1,13 +1,10 @@
 import Button from "../../common/Button";
 import { HeaderWrapper } from "../../styles/main";
-import { IUser } from "../../types";
-import Icon from "../../common/Icon";
 import Modal from "../../common/Modal";
 import React from "react";
 import TaskForm from "../containers/Form";
 
 type Props = {
-  currentUser: IUser;
   taskLabel: string;
 };
 
@@ -29,25 +26,27 @@ export default class TaskHeader extends React.Component<Props, State> {
   };
 
   render() {
+    const { show } = this.state;
+
     return (
       <>
         <HeaderWrapper>
           <h4>{this.props.taskLabel}</h4>
           <div className="right">
             <Button
-              btnStyle="success"
+              btnStyle="primary"
               uppercase={false}
               onClick={this.showModal}
               icon="add"
             >
-              Create New Task
+              Create a new task
             </Button>
           </div>
         </HeaderWrapper>
         <Modal
-          content={() => <TaskForm />}
+          content={() => <TaskForm closeModal={this.showModal} />}
           onClose={this.showModal}
-          isOpen={this.state.show}
+          isOpen={show}
         />
       </>
     );

@@ -140,6 +140,7 @@ export type Config = {
   dealStageId?: string;
   ticketPipelineId?: string;
   dealPipelineId?: string;
+  taskPipelineId?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
