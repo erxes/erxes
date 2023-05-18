@@ -1,12 +1,14 @@
-import React from 'react';
+import { INotification, IUser } from "../../../types";
+import { NotificationHeader, NotificationList } from "../../../styles/main";
 
-import Modal from '../../../common/Modal';
-import { NotificationList } from '../../../styles/main';
-import { Wrapper } from '../../../styles/tasks';
-import { INotification, IUser } from '../../../types';
-import Alert from '../../../utils/Alert';
-import NotificationDetail from '../../containers/notifications/Detail';
-import Row from './Row';
+import Alert from "../../../utils/Alert";
+import EmptyState from "../../../common/form/EmptyState";
+import Modal from "../../../common/Modal";
+import NotificationDetail from "../../containers/notifications/Detail";
+import React from "react";
+import Row from "./Row";
+import Spinner from "../../../common/Spinner";
+import { Wrapper } from "../../../styles/tasks";
 
 type Props = {
   currentUser: IUser;
@@ -18,19 +20,25 @@ type Props = {
 };
 
 const List = (props: Props) => {
-  const { notifications } = props;
+  const { notifications, loading } = props;
 
   const [showModal, setShowModal] = React.useState(false);
   const [selectedNotificationId, setSelectedNotificationId] = React.useState(
-    ''
+    ""
   );
 
   const renderContent = () => {
-    if (notifications.length === 0) {
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
+
+    if (!notifications || notifications.length === 0) {
       return (
-        <Wrapper>
-          <h4>Looks like you are all caught up!</h4>
-        </Wrapper>
+        <EmptyState
+          icon="ban"
+          text="Looks like you are all caught up!"
+          size="small"
+        />
       );
     }
 
@@ -66,7 +74,15 @@ const List = (props: Props) => {
     );
   };
 
-  return renderContent();
+  return (
+    <>
+      <NotificationHeader className="d-flex align-items-center justify-content-between">
+        <h5>Notifications</h5>
+        <span>0 New</span>
+      </NotificationHeader>
+      {renderContent()}
+    </>
+  );
 };
 
 export default List;

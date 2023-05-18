@@ -75,6 +75,7 @@ export interface IUserModel extends Model<IUserDocument> {
     idsToExclude?: string | string[];
     emails?: string[];
     employeeId?: string;
+    username?: string;
   }): never;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -142,10 +143,12 @@ export const loadUserClass = (models: IModels) => {
     public static async checkDuplication({
       email,
       employeeId,
+      username,
       idsToExclude
     }: {
       email?: string;
       employeeId?: string;
+      username?: string;
       idsToExclude?: string;
     }) {
       const query: { [key: string]: any } = {};
@@ -173,6 +176,16 @@ export const loadUserClass = (models: IModels) => {
         // Checking if duplicated
         if (previousEntry) {
           throw new Error('Duplicated Employee Id');
+        }
+      }
+
+      //Checking username
+      if (username) {
+        previousEntry = await models.Users.findOne({ ...query, username });
+
+        // Checking if duplicated
+        if (previousEntry) {
+          throw new Error('Duplicated User Name Id');
         }
       }
     }
@@ -256,6 +269,13 @@ export const loadUserClass = (models: IModels) => {
       if (['', undefined, null].includes(doc.employeeId)) {
         delete operations.$set.employeeId;
         operations.$unset = { employeeId: 1 };
+      }
+
+      if (doc.username) {
+        await this.checkDuplication({
+          username: doc.username,
+          idsToExclude: _id
+        });
       }
 
       await models.Users.updateOne({ _id }, operations);

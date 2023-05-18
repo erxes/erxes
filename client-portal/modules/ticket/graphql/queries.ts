@@ -1,23 +1,55 @@
-const clientPortalGetTicket = `
-  query clientPortalTicket($_id: String!) {
-    clientPortalTicket(_id: $_id) {
-      _id
+const ticketFields = `
+_id
       name
+      number
+      pipeline {
+        _id
+        name
+      }
       description
       modifiedAt
+      modifiedBy
       status
       priority
       createdAt
-      
+      closeDate
+      startDate
+      assignedUsers {
+        _id
+        email
+        username
+        details {
+          firstName
+          lastName
+          fullName
+        }
+      }
+      createdUser {
+        _id
+        email
+        username
+        details {
+          firstName
+          lastName
+          fullName
+        }
+      }
+      customFieldsData
+      customProperties
+      stageChangedDate
       stage {
         name
       }
-
       labels {
         name
         colorCode
-
       }
+`;
+
+const clientPortalGetTicket = `
+  query clientPortalTicket($_id: String!) {
+    clientPortalTicket(_id: $_id) {
+      ${ticketFields}
     }
   }
 `;
@@ -25,22 +57,7 @@ const clientPortalGetTicket = `
 const clientPortalTickets = `
   query clientPortalTickets {
     clientPortalTickets {
-      _id
-      name
-      description
-      status
-      priority
-      createdAt
-      stageChangedDate
-      stage {
-        name
-      }
-
-      labels {
-        name
-        colorCode
-
-      }
+      ${ticketFields}
     }
   }
 `;
@@ -52,6 +69,8 @@ const clientPortalComments = `
       content
       createdUser 
       createdAt
+      userType
+      type
     }
   }
 `;

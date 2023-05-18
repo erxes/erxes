@@ -1,11 +1,15 @@
 import * as graph from 'fbgraph';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
+import * as AWS from 'aws-sdk';
+import * as request from 'request';
+import * as fs from 'fs';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugError, debugFacebook } from './debuggers';
 import { IIntegrationDocument } from './models/Integrations';
 import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
+import { getFileUploadConfigs } from './messageBroker';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -186,6 +190,48 @@ export const getFacebookUser = async (
   }
 };
 
+export const uploadMedia = async (response: any, video) => {
+  const mediaFile = `${Math.random()}.${video ? 'mp4' : 'jpg'}`;
+
+  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
+
+  // initialize s3
+  const s3 = await createAWS();
+
+  try {
+    return new Promise((resolve, reject) => {
+      request(response)
+        .pipe(fs.createWriteStream(mediaFile))
+        .on('close', () => {
+          // Upload the file to S3
+          s3.upload(
+            {
+              Bucket: AWS_BUCKET,
+              Key: mediaFile,
+              Body: fs.readFileSync(mediaFile),
+              ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
+            },
+            (err, res) => {
+              if (err) {
+                reject(err);
+              }
+              const file =
+                FILE_SYSTEM_PUBLIC === 'true' ? res.Location : res.key;
+
+              return resolve(file);
+            }
+          );
+        });
+    });
+  } catch (e) {
+    debugError(
+      `Error occurred while getting facebook user profile pic: ${e.message}`
+    );
+
+    return null;
+  }
+};
+
 export const getFacebookUserProfilePic = async (
   pageId: string,
   pageTokens: { [key: string]: string },
@@ -205,7 +251,16 @@ export const getFacebookUserProfilePic = async (
       `/${fbId}/picture?height=600`,
       pageAccessToken
     );
-    return response.image ? response.location : '';
+
+    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+
+    if (UPLOAD_SERVICE_TYPE === 'AWS') {
+      const awsResponse = await uploadMedia(response.location, false);
+
+      return awsResponse;
+    }
+
+    return null;
   } catch (e) {
     debugError(
       `Error occurred while getting facebook user profile pic: ${e.message}`
@@ -353,4 +408,39 @@ export const getAdapter = async (models: IModels): Promise<any> => {
       return accessTokensByPageId[pageId];
     }
   });
+};
+
+export const createAWS = async () => {
+  const {
+    AWS_FORCE_PATH_STYLE,
+    AWS_COMPATIBLE_SERVICE_ENDPOINT,
+    AWS_BUCKET,
+    AWS_SECRET_ACCESS_KEY,
+    AWS_ACCESS_KEY_ID
+  } = await getFileUploadConfigs();
+
+  if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
+    throw new Error('AWS credentials are not configured');
+  }
+
+  const options: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    endpoint?: string;
+    s3ForcePathStyle?: boolean;
+  } = {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY
+  };
+
+  if (AWS_FORCE_PATH_STYLE === 'true') {
+    options.s3ForcePathStyle = true;
+  }
+
+  if (AWS_COMPATIBLE_SERVICE_ENDPOINT) {
+    options.endpoint = AWS_COMPATIBLE_SERVICE_ENDPOINT;
+  }
+
+  // initialize s3
+  return new AWS.S3(options);
 };

@@ -170,7 +170,7 @@ const init = async app => {
               );
               return res.end('success');
             } catch (e) {
-              debugError(`Error processing comment: ${e.message}`);
+              debugError(`Error processing post: ${e.message}`);
               return res.end('success');
             }
           } else {
