@@ -1,7 +1,5 @@
-const clientPortalGetDeal = `
-  query dealDetail($_id: String!) {
-    dealDetail(_id: $_id) {
-      _id
+const dealFields = `
+_id
       name
       number
       pipeline {
@@ -16,6 +14,7 @@ const clientPortalGetDeal = `
       createdAt
       closeDate
       startDate
+      stageChangedDate
       assignedUsers {
         _id
         email
@@ -45,6 +44,12 @@ const clientPortalGetDeal = `
         name
         colorCode
       }
+`;
+
+const clientPortalGetDeal = `
+  query dealDetail($_id: String!) {
+    dealDetail(_id: $_id) {
+      ${dealFields}
     }
   }
 `;
@@ -52,21 +57,7 @@ const clientPortalGetDeal = `
 const clientPortalDeals = `
   query clientPortalDeals {
     clientPortalDeals {
-      _id
-      name
-      description
-      status
-      priority
-      createdAt
-      stageChangedDate
-      stage {
-        name
-      }
-
-      labels {
-        name
-        colorCode
-      }
+      ${dealFields}
     }
   }
 `;

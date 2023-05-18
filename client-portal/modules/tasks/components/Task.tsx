@@ -28,6 +28,8 @@ export default function Task({ tasks, currentUser, config }: Props) {
       <>
         <ListHead className="head">
           <div>Subject</div>
+          <div>Start date</div>
+          <div>Close date</div>
           <div>Created date</div>
           <div>Stage changed date</div>
           <div>Stage</div>
@@ -45,6 +47,16 @@ export default function Task({ tasks, currentUser, config }: Props) {
               >
                 <div className="base-color">{task.name}</div>
 
+                <div>
+                  {task.startDate
+                    ? dayjs(task.startDate).format("MMM D YYYY")
+                    : "-"}
+                </div>
+                <div>
+                  {task.closeDate
+                    ? dayjs(task.closeDate).format("MMM D YYYY")
+                    : "-"}
+                </div>
                 <div>{dayjs(task.createdAt).format("MMM D YYYY")}</div>
                 <div>
                   {task.stageChangedDate
