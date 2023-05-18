@@ -314,18 +314,41 @@ const importDataAndCreateTimeclock = async (
     devicesDictionary
   );
 
+  // {empId : [employee Data]}
+  const queryDataDictionary: { [employeeId: string]: any[] } = {};
+
+  for (const queryRow of newQueryData) {
+    const getTeamMemberId = parseFloat(queryRow.ID);
+
+    if (getTeamMemberId in queryDataDictionary) {
+      const existingData = queryDataDictionary[getTeamMemberId];
+      queryDataDictionary[getTeamMemberId] = [...existingData, queryRow];
+      continue;
+    }
+
+    queryDataDictionary[getTeamMemberId] = [queryRow];
+  }
+
+  const existingTimeclocksDict: { [key: string]: ITimeClockDocument[] } = {};
+
+  for (const timeclock of existingTimeclocks) {
+    if (timeclock.userId in existingTimeclocksDict) {
+      existingTimeclocksDict[timeclock.userId] = [
+        ...existingTimeclocks[timeclock.userId],
+        timeclock
+      ];
+    }
+    existingTimeclocksDict[timeclock.userId] = [timeclock];
+  }
+
   for (const teamMemberId of Object.keys(empSchedulesObj)) {
-    const currEmployeeId = teamMembersObj[teamMemberId];
+    const currEmployeeId = parseFloat(teamMembersObj[teamMemberId]);
 
-    const existingTimeclocksOfEmployee = existingTimeclocks.filter(
-      timeclock => timeclock.userId === teamMemberId
-    );
+    const existingTimeclocksOfEmployee = existingTimeclocksDict[teamMemberId];
 
-    const currentEmpData = newQueryData.filter(
-      row => parseFloat(row.ID) === parseFloat(currEmployeeId)
-    );
+    const currentEmpData = queryDataDictionary[currEmployeeId];
 
-    if (!currentEmpData.length) {
+    if (!currentEmpData) {
       continue;
     }
 
@@ -440,7 +463,10 @@ const createNewTimeClock = (
         deviceType: 'faceTerminal'
       };
 
-      if (!checkTimeClockAlreadyExists(newTimeclock, existingTimeclocks)) {
+      if (
+        existingTimeclocks &&
+        !checkTimeClockAlreadyExists(newTimeclock, existingTimeclocks)
+      ) {
         return newTimeclock;
       }
       return;
@@ -459,7 +485,10 @@ const createNewTimeClock = (
       deviceType: 'faceTerminal'
     };
 
-    if (!checkTimeClockAlreadyExists(newTime, existingTimeclocks)) {
+    if (
+      existingTimeclocks &&
+      !checkTimeClockAlreadyExists(newTime, existingTimeclocks)
+    ) {
       return newTime;
     }
   }
@@ -565,16 +594,18 @@ const getShiftStartAndEndIdx = (
 
 const checkTimeClockAlreadyExists = (
   userData: ITimeClock,
-  existingTimeclocks: ITimeClockDocument[]
+  existingTimeclocks?: ITimeClockDocument[]
 ) => {
   let alreadyExists = false;
 
   // find duplicates and not include them in new timeclock data
-  const findExistingTimeclock = existingTimeclocks.find(
-    existingShift =>
-      existingShift.shiftStart.getTime() === userData.shiftStart?.getTime() ||
-      existingShift.shiftEnd?.getTime() === userData.shiftEnd?.getTime()
-  );
+  const findExistingTimeclock =
+    existingTimeclocks &&
+    existingTimeclocks.find(
+      existingShift =>
+        existingShift.shiftStart.getTime() === userData.shiftStart?.getTime() ||
+        existingShift.shiftEnd?.getTime() === userData.shiftEnd?.getTime()
+    );
 
   if (findExistingTimeclock) {
     alreadyExists = true;
@@ -594,20 +625,21 @@ const findAndUpdateUnfinishedShifts = async (
   const newEmpData = empData.slice();
 
   // find unfinished shifts
-  const unfinishedShifts = await models?.Timeclocks.find({
+  const unfinishedTimeclocks = await models?.Timeclocks.find({
     shiftActive: true,
     userId: { $in: teamMemberIds }
   });
 
-  unfinishedShifts.forEach(async unfinishedShift => {
+  const bulkWriteOps: any[] = [];
+
+  unfinishedTimeclocks.forEach(async unfinishedTimeclock => {
     let getShiftEndIdx;
-    const teamMemberId = unfinishedShift.userId || '';
+
+    const teamMemberId = unfinishedTimeclock.userId || '';
     const empId = parseInt(teamMembersObj[teamMemberId || ''], 10);
 
-    const shiftStart = unfinishedShift.shiftStart;
-    const getShiftStart = dayjs(shiftStart);
-
-    const getScheduledDay = getShiftStart.format(dateFormat);
+    const shiftStart = unfinishedTimeclock.shiftStart;
+    const getScheduledDay = dayjs(shiftStart).format(dateFormat);
 
     // if there's no schedule config for that shift
     if (
@@ -617,7 +649,7 @@ const findAndUpdateUnfinishedShifts = async (
       return;
     }
 
-    // for each config of a scheduled day shift
+    // for each config of a scheduled day shift  / max 2 configs per scheduled day/
     for (const empScheduledayObj of empSchedulesObj[teamMemberId][
       getScheduledDay
     ]) {
@@ -642,18 +674,27 @@ const findAndUpdateUnfinishedShifts = async (
           newEmpData[getShiftEndIdx].deviceName;
 
         const updateTimeClock = {
-          shiftStart: unfinishedShift.shiftStart,
+          shiftStart: unfinishedTimeclock.shiftStart,
           shiftEnd: getShiftEnd,
           userId: teamMemberId,
           shiftActive: false,
           deviceName: getDeviceName,
-          deviceType: unfinishedShift.deviceType + ' x faceTerminal'
+          deviceType: unfinishedTimeclock.deviceType + ' x faceTerminal'
         };
 
-        await models.Timeclocks.updateTimeClock(
-          unfinishedShift._id,
-          updateTimeClock
-        );
+        const updateTimeclockOperation = {
+          updateOne: {
+            filter: {
+              _id: unfinishedTimeclock._id
+            },
+            update: {
+              ...updateTimeClock
+            }
+          }
+        };
+
+        // if shiftEnd of unfinished timeclock found, insert into bulkWrite and remove data from query data
+        bulkWriteOps.push(updateTimeclockOperation);
 
         const deleteCount = getShiftEndIdx - getShiftStartIdx + 1;
         await newEmpData.splice(getShiftStartIdx, deleteCount);
@@ -662,6 +703,11 @@ const findAndUpdateUnfinishedShifts = async (
       }
     }
   });
+
+  //  update unfinished timeclocks
+  if (bulkWriteOps.length) {
+    await models.Timeclocks.bulkWrite(bulkWriteOps);
+  }
 
   return newEmpData;
 };

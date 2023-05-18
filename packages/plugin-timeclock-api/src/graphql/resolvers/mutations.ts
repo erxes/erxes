@@ -180,6 +180,7 @@ const timeclockMutations = {
         shiftEnd: new Date(),
         shiftActive: false,
         deviceType: getShiftStartDeviceType + ' x ' + deviceType,
+        userId: getUserId,
         ...doc
       });
     } else {
