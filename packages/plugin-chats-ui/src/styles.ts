@@ -169,7 +169,7 @@ export const WidgetChatWindowHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   background-color: #f9f9f9;
-  padding: 0 ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
   border-bottom: 2px solid ${colors.borderPrimary};
 
   i {

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 // erxes
 import Icon from '@erxes/ui/src/components/Icon';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 // local
 import ChatList from '../containers/chats/ChatList';
 import WidgetChatWindow from '../containers/WidgetChatWindow';
@@ -42,7 +41,10 @@ const Widget = () => {
   const popoverChat = (
     <Popover id="chat-popover" className="notification-popover">
       <WidgetPopoverWrapper>
-        <ChatList isWidget handleClickItem={_chatId => handleActive(_chatId)} />
+        <ChatList
+          isWidget={true}
+          handleClickItem={_chatId => handleActive(_chatId)}
+        />
       </WidgetPopoverWrapper>
       <WidgetPopoverSeeAll>
         <Link to="/erxes-plugin-chat">See all</Link>
