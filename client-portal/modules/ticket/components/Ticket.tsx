@@ -30,6 +30,8 @@ export default function Ticket({ tickets, currentUser, config }: Props) {
           <div>Subject</div>
           <div>Created date</div>
           <div>Stage changed date</div>
+          <div>Start date</div>
+          <div>Close date</div>
           <div>Stage</div>
           <div>Labels</div>
         </ListHead>
@@ -49,6 +51,18 @@ export default function Ticket({ tickets, currentUser, config }: Props) {
                 <div>
                   {ticket.stageChangedDate
                     ? dayjs(ticket.stageChangedDate).format("MMM D YYYY")
+                    : "-"}
+                </div>
+
+                <div>
+                  {ticket.startDate
+                    ? dayjs(ticket.startDate).format("MMM D YYYY")
+                    : "-"}
+                </div>
+
+                <div>
+                  {ticket.closeDate
+                    ? dayjs(ticket.closeDate).format("MMM D YYYY")
                     : "-"}
                 </div>
 
@@ -79,6 +93,7 @@ export default function Ticket({ tickets, currentUser, config }: Props) {
         _id={itemId}
         onClose={() => router.push("/tickets")}
         currentUser={currentUser}
+        config={config}
       />
     );
   }
