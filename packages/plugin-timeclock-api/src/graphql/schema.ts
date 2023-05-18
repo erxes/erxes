@@ -149,9 +149,6 @@ export const types = `
     totalHoursScheduled: Float
     totalDaysScheduled: Int
     
-    totalHoursBreakScheduled: Float
-    totalHoursBreakActual: Float
-
     totalHoursOvertime: Float
     totalHoursOvernight: Float
 
@@ -172,6 +169,10 @@ export const types = `
     
     totalHoursNotWorked: Float
     totalDaysNotWorked: Int
+
+    totalHoursBreakTaken: Float
+    totalHoursBreakScheduled: Float
+    totalHoursBreakSelecteDay:Float
   }
   
   type Report {

@@ -231,7 +231,7 @@ const timeclockReports = `
               totalHoursOvernight
             
               totalHoursBreakScheduled
-              totalHoursBreakActual
+              totalHoursBreakTaken
             
               totalDaysScheduled
               totalHoursScheduled

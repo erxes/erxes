@@ -241,28 +241,33 @@ export const timeclockReportByUser = async (
           $gte: startOfSelectedMonth,
           $lte: startOfNextMonth
         }
-      }
+      },
+      { shiftActive: false }
     ]
   });
+
+  let totalHoursWorkedSelectedMonth = 0;
+  let totalHoursWorkedSelectedDay = 0;
+
+  let totalMinsLateSelectedMonth = 0;
+  let totalMinsLateSelectedDay = 0;
+
+  // all below calculated according to selected
+  let totalHoursNotWorked = 0;
+  const notWorkedDays: string[] = [];
+  let totalDaysNotWorked = 0;
+  let totalHoursWorkedOutsideSchedule = 0;
+  let totalDaysWorkedOutsideSchedule = 0;
+
+  let totalHoursBreakTaken = 0;
+  let totalHoursBreakScheduled = 0;
+  let totalHoursBreakSelecteDay = 0;
 
   // if any of the schemas is not empty
   if (
     scheduleShiftsSelectedMonth.length !== 0 ||
     timeclocksOfSelectedMonth.length !== 0
   ) {
-    let totalHoursWorkedSelectedMonth = 0;
-    let totalHoursWorkedSelectedDay = 0;
-
-    let totalMinsLateSelectedMonth = 0;
-    let totalMinsLateSelectedDay = 0;
-
-    // all below calculated according to selected
-    let totalHoursNotWorked = 0;
-    const notWorkedDays: string[] = [];
-    let totalDaysNotWorked = 0;
-    let totalHoursWorkedOutsideSchedule = 0;
-    let totalDaysWorkedOutsideSchedule = 0;
-
     //  timeclocks
     for (const timeclock of timeclocksOfSelectedMonth) {
       const previousSchedules = report.scheduleReport;
@@ -293,9 +298,9 @@ export const timeclockReportByUser = async (
     }
 
     const totalDaysWorkedSelectedMonth = new Set(
-      timeclocksOfSelectedMonth.map(shift =>
-        new Date(shift.shiftStart).toLocaleDateString()
-      )
+      timeclocksOfSelectedMonth.map(shift => {
+        return new Date(shift.shiftStart).toLocaleDateString();
+      })
     ).size;
 
     const totalDaysScheduledSelectedMonth = new Set(
@@ -331,6 +336,7 @@ export const timeclockReportByUser = async (
       }
 
       scheduleDuration -= lunchBreakOfDay;
+      totalHoursBreakScheduled += lunchBreakOfDay;
 
       // if selected day's scheduled time is found
       if (scheduleDateString === selectedDayString) {
@@ -357,45 +363,39 @@ export const timeclockReportByUser = async (
             totalMinsLateSelectedDay += shiftStartDiff / MMSTOMINS;
           }
 
-          recordedShiftOfSelectedDay.checked = true;
-
+          totalHoursBreakSelecteDay = lunchBreakOfDay;
           report.totalHoursWorkedSelectedDay = report.totalHoursWorkedSelectedDay
             ? report.totalHoursWorkedSelectedDay - lunchBreakOfDay
             : 0;
         }
       }
 
-      const recordedShift = report.scheduleReport.find(
-        shift =>
-          shift.date === scheduleDateString &&
-          shift.recordedStart &&
-          !shift.checked
+      const recordedShiftIdx = report.scheduleReport.findIndex(
+        shift => shift.date === scheduleDateString && !shift.checked
       );
 
       // no timeclock found, thus not worked on a scheduled day
-      if (!recordedShift) {
+      if (recordedShiftIdx === -1) {
         notWorkedDays.push(scheduleDateString);
         totalHoursNotWorked += scheduleDuration;
-      }
+      } else {
+        // corresponding timeclock found, calculate how many mins late
+        if (scheduleShift.shiftStart) {
+          const shiftStartDiff =
+            report.scheduleReport[recordedShiftIdx].recordedStart.getTime() -
+            scheduleShift.shiftStart.getTime();
 
-      if (
-        recordedShift &&
-        recordedShift.recordedStart &&
-        scheduleShift.shiftStart
-      ) {
-        // if corresponding timeclock of a scheduled day found, calculate how many mins late
-        const shiftStartDiff =
-          recordedShift.recordedStart.getTime() -
-          scheduleShift.shiftStart.getTime();
-
-        if (shiftStartDiff > 0) {
-          totalMinsLateSelectedMonth += shiftStartDiff / MMSTOMINS;
+          if (shiftStartDiff > 0) {
+            totalMinsLateSelectedMonth += shiftStartDiff / MMSTOMINS;
+          }
         }
 
-        recordedShift.checked = true;
+        report.scheduleReport[recordedShiftIdx].checked = true;
+
+        totalHoursBreakTaken += lunchBreakOfDay;
+        totalHoursWorkedSelectedMonth -= lunchBreakOfDay;
       }
 
-      totalHoursWorkedSelectedMonth -= lunchBreakOfDay;
       report.totalHoursScheduledSelectedMonth += scheduleDuration;
     }
 
@@ -423,7 +423,10 @@ export const timeclockReportByUser = async (
       totalMinsLateSelectedMonth,
       totalMinsLateSelectedDay,
       totalDaysScheduledSelectedMonth,
-      totalDaysWorkedSelectedMonth
+      totalDaysWorkedSelectedMonth,
+      totalHoursBreakTaken,
+      totalHoursBreakScheduled,
+      totalHoursBreakSelecteDay
     };
   }
 
@@ -515,9 +518,11 @@ export const timeclockReportPreliminary = async (
 
     if (currUserTimeclocks) {
       totalDaysWorkedPerUser = new Set(
-        currUserTimeclocks.map(shift =>
-          new Date(shift.shiftStart).toLocaleDateString()
-        )
+        currUserTimeclocks.map(shift => {
+          if (!shift.shiftActive) {
+            return new Date(shift.shiftStart).toLocaleDateString();
+          }
+        })
       ).size;
     }
     if (currUserScheduleShifts) {
@@ -660,8 +665,13 @@ export const timeclockReportFinal = async (
       timeclock => timeclock.userId === currUserId
     );
 
+    const filterSchedules = shiftsOfSchedule.map(
+      scheduleShift => scheduleShift.scheduleId
+    );
+
     const currUserSchedules = schedules.filter(
-      schedule => schedule.userId === currUserId
+      schedule =>
+        schedule.userId === currUserId && filterSchedules.includes(schedule._id)
     );
 
     const currUserScheduleIds = currUserSchedules.map(schedule => schedule._id);
@@ -704,7 +714,7 @@ export const timeclockReportFinal = async (
         )
       ).size;
 
-      currUserTimeclocks.forEach(currUserTimeclock => {
+      for (const currUserTimeclock of currUserTimeclocks) {
         const shiftStart = currUserTimeclock.shiftStart;
         const shiftEnd = currUserTimeclock.shiftEnd;
         if (shiftStart && shiftEnd) {
@@ -772,14 +782,14 @@ export const timeclockReportFinal = async (
             }
           }
         }
-      });
+      }
 
       // deduct lunch break from worked hours
       totalRegularHoursWorkedPerUser -= totalBreakOfTimeclocksInHrs;
+      totalHoursWorkedPerUser = totalRegularHoursWorkedPerUser;
+
       // deduct overtime from worked hours
       totalRegularHoursWorkedPerUser -= totalHoursOvertimePerUser;
-      totalHoursWorkedPerUser =
-        totalRegularHoursWorkedPerUser + totalHoursOvertimePerUser;
     }
 
     if (currUserScheduleShifts) {
@@ -838,7 +848,7 @@ export const timeclockReportFinal = async (
         totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
         totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
         totalHoursOvernight: totalHoursOvernightPerUser.toFixed(2),
-        totalHoursBreakActual: totalBreakOfTimeclocksInHrs.toFixed(2),
+        totalHoursBreakTaken: totalBreakOfTimeclocksInHrs.toFixed(2),
         totalHoursWorked: totalHoursWorkedPerUser.toFixed(2),
         totalMinsLate: totalMinsLatePerUser.toFixed(2),
         ...userAbsenceInfo
@@ -851,7 +861,7 @@ export const timeclockReportFinal = async (
       totalDaysScheduled: totalDaysScheduledPerUser,
       totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
       totalHoursBreakScheduled: totalBreakOfSchedulesInHrs.toFixed(2),
-      totalHoursBreakActual: totalBreakOfTimeclocksInHrs.toFixed(2),
+      totalHoursBreakTaken: totalBreakOfTimeclocksInHrs.toFixed(2),
       totalDaysWorked: totalDaysWorkedPerUser,
       totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
       totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),

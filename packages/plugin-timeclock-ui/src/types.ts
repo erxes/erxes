@@ -78,7 +78,7 @@ export interface IUserReport {
   totalHoursOvernight?: number;
 
   totalHoursBreakScheduled?: number;
-  totalHoursBreakActual?: number;
+  totalHoursBreakTaken?: number;
 
   totalMinsLate?: number;
   totalMinsLateToday?: number;

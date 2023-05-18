@@ -223,11 +223,13 @@ const timeclockMutations = {
   async submitCheckInOutRequest(
     _root,
     { checkType, userId, checkTime },
-    { models }: IContext
+    { models, user }: IContext
   ) {
+    const getUserId = userId ? userId : user._id;
+
     return models.Absences.createAbsence({
       reason: `${checkType} request`,
-      userId,
+      userId: getUserId,
       startTime: checkTime,
       checkInOutRequest: true
     });
