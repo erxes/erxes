@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import * as _ from "lodash";
 
-import FormControl from '../../common/form/Control';
-import FormGroup from '../../common/form/Group';
-import Button from '../../common/Button';
-import { ICustomField, Label, Ticket } from '../../types';
-import { ControlLabel } from '../../common/form';
-import { FormWrapper } from '../../styles/main';
-import GenerateField from './GenerateField';
-import Alert from '../../utils/Alert';
-import * as _ from 'lodash';
+import { ICustomField, Label, Ticket } from "../../types";
+import React, { useState } from "react";
+
+import Alert from "../../utils/Alert";
+import Button from "../../common/Button";
+import { ControlLabel } from "../../common/form";
+import { DetailHeader } from "../../styles/tickets";
+import FormControl from "../../common/form/Control";
+import FormGroup from "../../common/form/Group";
+import { FormWrapper } from "../../styles/main";
+import GenerateField from "./GenerateField";
+import Icon from "../../common/Icon";
+import Link from "next/link";
 
 type Props = {
   handleSubmit: (doc: Ticket) => void;
@@ -17,15 +21,17 @@ type Props = {
   branches: string[];
   products: string[];
   labels: Label[];
+  closeModal: () => void;
 };
 
 export default function TicketForm({
   handleSubmit,
+  closeModal,
   customFields,
   departments,
   branches,
   products,
-  labels
+  labels,
 }: Props) {
   const [ticket, setTicket] = useState<Ticket>({} as Ticket);
   const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
@@ -39,7 +45,7 @@ export default function TicketForm({
         const alert = customField.value;
 
         if (!alert) {
-          return Alert.error('Please enter or choose a required field');
+          return Alert.error("Please enter or choose a required field");
         }
       }
     }
@@ -76,7 +82,7 @@ export default function TicketForm({
 
       customFieldsData.forEach((c) => {
         if (c.field === f._id) {
-          c.value = '';
+          c.value = "";
         }
       });
     }
@@ -89,7 +95,7 @@ export default function TicketForm({
     }
   };
 
-  function renderControl({ label, name, placeholder, value = '' }) {
+  function renderControl({ label, name, placeholder, value = "" }) {
     const handleChange = (e) => {
       setTicket({
         ...ticket,
@@ -129,33 +135,40 @@ export default function TicketForm({
   }
 
   return (
-    <FormWrapper>
-      <h4>Add a new ticket</h4>
-      <div className="content">
-        {renderControl({
-          name: 'subject',
-          label: 'Subject',
-          value: ticket.subject,
-          placeholder: 'Enter a subject',
-        })}
-        {renderControl({
-          name: 'description',
-          label: 'Description',
-          value: ticket.description,
-          placeholder: 'Enter a description',
-        })}
-        {renderCustomFields()}
-        <div className="right">
-          <Button
-            btnStyle="success"
-            onClick={handleClick}
-            uppercase={false}
-            icon="check-circle"
-          >
-            Save
-          </Button>
+    <>
+      <DetailHeader className="d-flex align-items-center">
+        <span onClick={() => closeModal()}>
+          <Icon icon="leftarrow-3" /> Back
+        </span>
+      </DetailHeader>
+      <FormWrapper>
+        <h4>Add a new ticket</h4>
+        <div className="content">
+          {renderControl({
+            name: "subject",
+            label: "Subject",
+            value: ticket.subject,
+            placeholder: "Enter a subject",
+          })}
+          {renderControl({
+            name: "description",
+            label: "Description",
+            value: ticket.description,
+            placeholder: "Enter a description",
+          })}
+          {renderCustomFields()}
+          <div className="right">
+            <Button
+              btnStyle="success"
+              onClick={handleClick}
+              uppercase={false}
+              icon="check-circle"
+            >
+              Save
+            </Button>
+          </div>
         </div>
-      </div>
-    </FormWrapper>
+      </FormWrapper>
+    </>
   );
 }

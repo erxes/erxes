@@ -174,6 +174,8 @@ export const queries = (cardAvailable, kbAvailable) => `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
     clientPortalTickets: [Ticket]
+    clientPortalDeals: [Deal]
+    clientPortalTasks: [Task]
     clientPortalTicket(_id: String!): Ticket
    `
       : ''
