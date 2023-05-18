@@ -28,6 +28,14 @@ cube(`Tickets`, {
     TicketsCustomfieldsdata: {
       sql: `${CUBE}._id = ${TicketsCustomfieldsdata}._id`,
       relationship: `belongsTo`
+    },
+    TicketsDepartments: {
+      sql: `${CUBE}._id = ${TicketsDepartments}._id`,
+      relationship: `belongsTo`
+    },
+    TicketsBranches: {
+      sql: `${CUBE}._id = ${TicketsBranches}._id`,
+      relationship: `belongsTo`
     }
   },
 

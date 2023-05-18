@@ -1,10 +1,10 @@
-import { useRouter } from "next/router";
-import React from "react";
 import ArticleDetail from "../../../modules/knowledgeBase/containers/ArticleDetail";
 import ArticleListContainer from "../../../modules/knowledgeBase/containers/ArticleList";
-import Search from "../../../modules/main/components/Search";
 import Layout from "../../../modules/main/containers/Layout";
+import React from "react";
+import Search from "../../../modules/main/components/Search";
 import { Store } from "../../../modules/types";
+import { useRouter } from "next/router";
 
 export default function Category() {
   const router = useRouter();
@@ -16,6 +16,7 @@ export default function Category() {
         <ArticleListContainer
           searchValue={searchValue}
           topicId={props.topic._id}
+          config={props.config}
         />
       );
     }
