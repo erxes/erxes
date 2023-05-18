@@ -18,7 +18,13 @@ export default {
     'TicketsCustomfieldsdata',
     'Pipelines',
     'PipelineLabels',
-    'Stages'
+    'Stages',
+    'DealsBranches',
+    'DealsDepartments',
+    'TicketsBranches',
+    'TicketsDepartments',
+    'TasksDepartments',
+    'TasksBranches'
   ],
   types: ['Deals', 'Purchase', 'Tasks', 'Tickets']
 };

@@ -421,6 +421,14 @@ export const getCards = async (
     throw new Error('Login required');
   }
 
+  const cp = await models.ClientPortals.getConfig(cpUser.clientPortalId);
+
+  const pipelineId = cp[type + 'PipelineId'];
+
+  if (!pipelineId || pipelineId.length === 0) {
+    return [];
+  }
+
   const customer = await sendContactsMessage({
     subdomain,
     action: 'customers.findOne',
@@ -462,11 +470,28 @@ export const getCards = async (
     }
   }
 
+  const stages = await sendCardsMessage({
+    subdomain,
+    action: 'stages.find',
+    data: {
+      pipelineId
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (stages.length === 0) {
+    return [];
+  }
+
+  const stageIds = stages.map(stage => stage._id);
+
   return sendCardsMessage({
     subdomain,
     action: `${type}s.find`,
     data: {
-      _id: { $in: cardIds }
+      _id: { $in: cardIds },
+      stageId: { $in: stageIds }
     },
     isRPC: true,
     defaultValue: []

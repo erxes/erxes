@@ -1,11 +1,11 @@
 import { ICommentParams, IPostParams } from './types';
-
 import { debugError } from './debuggers';
-import { sendInboxMessage } from './messageBroker';
+import { getFileUploadConfigs, sendInboxMessage } from './messageBroker';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
-  getPostLink
+  getPostLink,
+  uploadMedia
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
@@ -22,12 +22,30 @@ interface IDoc {
   permalink_url?: '';
 }
 
-export const generatePostDoc = (
+export const generatePostDoc = async (
   postParams: IPostParams,
   pageId: string,
   userId: string
 ) => {
   const { post_id, id, link, photos, created_time, message } = postParams;
+  let generatedMediaUrls: any[] = [];
+
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+
+  const mediaUrls = postParams.photos || [];
+  const videoUrl = postParams.link || '';
+
+  if (UPLOAD_SERVICE_TYPE === 'AWS') {
+    if (videoUrl) {
+      generatedMediaUrls = (await uploadMedia(videoUrl, true)) as any;
+    }
+
+    if (mediaUrls.length > 0) {
+      generatedMediaUrls = await Promise.all(
+        mediaUrls.map(url => uploadMedia(url, false))
+      );
+    }
+  }
 
   const doc: IDoc = {
     postId: post_id || id,
@@ -38,12 +56,17 @@ export const generatePostDoc = (
   };
 
   if (link) {
-    doc.attachments = [link];
+    doc.attachments = generatedMediaUrls;
   }
 
   // Posted multiple image
   if (photos) {
-    doc.attachments = photos;
+    if (UPLOAD_SERVICE_TYPE === 'AWS') {
+      doc.attachments = generatedMediaUrls;
+    }
+    if (UPLOAD_SERVICE_TYPE === 'local') {
+      doc.attachments = photos;
+    }
   }
 
   if (created_time) {
@@ -135,7 +158,7 @@ export const getOrCreatePost = async (
     postParams.post_id || ''
   );
 
-  const doc = generatePostDoc(postParams, pageId, userId);
+  const doc = await generatePostDoc(postParams, pageId, userId);
 
   if (!doc.attachments && doc.content === '...') {
     throw new Error();
@@ -249,9 +272,11 @@ export const getOrCreateCustomer = async (
     debugError(`Error during get customer info: ${e.message}`);
   }
 
-  const fbUserProfilePic =
-    fbUser.profile_pic ||
-    (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
+  const fbUserProfilePic = await getFacebookUserProfilePic(
+    pageId,
+    facebookPageTokensMap,
+    userId
+  );
 
   // save on integrations db
   try {

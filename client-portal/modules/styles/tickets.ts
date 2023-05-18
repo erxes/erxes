@@ -1,7 +1,8 @@
-import { dimensions, colors } from '../styles';
+import { colors, dimensions } from '../styles';
+import { darken, rgba } from './ecolor';
+
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { rgba, darken } from './ecolor';
 
 const TicketRow = styled.div`
   margin-bottom: ${dimensions.unitSpacing}px;
@@ -21,9 +22,8 @@ const TicketLabel = styled.div`
   }
 `;
 
-const TicketContent = styled.div`
-  flex: 0 0 80%;
-  padding-left: ${dimensions.unitSpacing}px;
+const CommentContainer = styled.div`
+  flex: 1;
   font-size: 14px;
 
   .buttons {
@@ -73,12 +73,12 @@ const ListHead = styled.div`
     font-weight: 600;
     flex: 0 0 12%;
     color: ${colors.colorCoreGray};
-    text-align: center;
     text-transform: uppercase;
     font-size: 12px;
+    padding: 0 ${dimensions.unitSpacing - 5}px;
 
     &:first-child {
-      flex: 0 0 52%;
+      flex: 0 0 30%;
       text-align: left;
     }
   }
@@ -97,13 +97,16 @@ const ListRow = styled.div`
   transition: all ease 0.3s;
 
   > div {
-    display: inline-block;
+    display: flex;
+    align-items: center;
     flex: 0 0 12%;
-    text-align: center;
     font-size: 14px;
+    gap: 5px;
+    flex-wrap: wrap;
+    padding: 0 ${dimensions.unitSpacing - 5}px;
 
     &:first-child {
-      flex: 0 0 52%;
+      flex: 0 0 30%;
       text-align: left;
       font-weight: 600;
       text-transform: capitalize;
@@ -115,8 +118,40 @@ const ListRow = styled.div`
   }
 `;
 
+const DetailHeader = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  span {
+    text-transform: uppercase;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all ease .3s;
+    color: ${colors.colorCoreGray};
+
+    &:hover {
+      color: ${colors.textPrimary};
+    }
+  }
+`;
+
 const TicketDetailContent = styled.div`
-  padding: 20px 40px;
+  
+`;
+
+const DetailRow = styled.div`
+  margin-bottom: ${dimensions.unitSpacing + 5}px;
+
+  label {
+    font-weight: 600;
+  }
+  
+  span {
+    display: block;
+    font-size: 12px;
+    display: flex;
+    font-weight: 300;
+    align-items: center;
+  }
 `;
 
 const TicketComment = styled.div`
@@ -234,12 +269,19 @@ const SelectInput = styled.div`
   }
 `;
 
+const RightSidebar = styled.h6`
+  position: sticky;
+  overflow: auto;
+  height: 100%;
+`;
+
 export {
   TicketRow,
   TicketLabel,
-  TicketContent,
+  CommentContainer,
   Table,
   Label,
+  DetailHeader,
   ListHead,
   ListBody,
   ListRow,
@@ -249,5 +291,7 @@ export {
   CommentWrapper,
   CommentContent,
   CreatedUser,
-  SelectInput
+  SelectInput,
+  RightSidebar,
+  DetailRow
 };
