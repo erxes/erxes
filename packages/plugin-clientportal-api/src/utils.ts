@@ -5,8 +5,13 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 
 import { IUserDocument } from './../../api-utils/src/types';
 import { graphqlPubsub } from './configs';
-import { generateModels, IModels } from './connectionResolver';
-import { sendCoreMessage, sendCommonMessage } from './messageBroker';
+import { generateModels, IContext, IModels } from './connectionResolver';
+import {
+  sendCoreMessage,
+  sendCommonMessage,
+  sendContactsMessage,
+  sendCardsMessage
+} from './messageBroker';
 
 import * as admin from 'firebase-admin';
 export const getConfig = async (
@@ -405,4 +410,65 @@ export const sendAfterMutation = async (
       });
     }
   }
+};
+
+export const getCards = async (
+  type: 'ticket' | 'deal' | 'task',
+  context: IContext
+) => {
+  const { subdomain, models, cpUser } = context;
+  if (!cpUser) {
+    throw new Error('Login required');
+  }
+
+  const customer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: {
+      _id: cpUser.erxesCustomerId
+    },
+    isRPC: true
+  });
+
+  if (!customer) {
+    return [];
+  }
+
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: 'conformities.getConformities',
+    data: {
+      mainType: 'customer',
+      mainTypeIds: [customer._id],
+      relTypes: [type]
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (conformities.length === 0) {
+    return [];
+  }
+
+  const cardIds: string[] = [];
+
+  for (const c of conformities) {
+    if (c.relType === type && c.mainType === 'customer') {
+      cardIds.push(c.relTypeId);
+    }
+
+    if (c.mainType === type && c.relType === 'customer') {
+      cardIds.push(c.mainTypeId);
+    }
+  }
+
+  return sendCardsMessage({
+    subdomain,
+    action: `${type}s.find`,
+    data: {
+      _id: { $in: cardIds }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 };

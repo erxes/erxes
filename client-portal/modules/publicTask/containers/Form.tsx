@@ -1,9 +1,10 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useContext } from 'react';
-import { Config, IUser, Store, Task } from '../../types';
-import Form from '../components/Form';
-import { AppConsumer } from '../../appContext';
-import { Alert } from '../../utils';
+import { Config, IUser, Store, Task } from "../../types";
+import React, { useContext } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+
+import { Alert } from "../../utils";
+import { AppConsumer } from "../../appContext";
+import Form from "../components/Form";
 
 type Props = {
   config: Config;
@@ -50,19 +51,19 @@ function FormContainer({ config = {}, currentUser, ...props }: Props) {
 
   const handleSubmit = (doc: Task) => {
     if (!currentUser) {
-      return Alert.error('Log in first to create task');
+      return Alert.error("Log in first to create task");
     }
 
     createTask({
       variables: {
         ...doc,
-        type: 'task',
+        type: "task",
         stageId: config.taskStageId,
         email: currentUser.email,
-        priority: 'Critical', // TODO: Add select in Form
+        priority: "Critical", // TODO: Add select in Form
       },
     }).then(() => {
-      window.location.href = '/tasks';
+      window.location.href = "/publicTasks";
     });
   };
 

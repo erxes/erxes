@@ -14,15 +14,21 @@ export const clientPortalGetConfig = `
       knowledgeBaseTopicId
       taskLabel
       taskPublicPipelineId
+      taskPipelineId
       taskStageId
+      dealLabel
+      dealPipelineId
+      dealStageId
       ticketLabel
       ticketStageId
       ticketPipelineId
       publicTaskToggle
       ticketToggle
       taskToggle
+      dealToggle
       kbToggle
       googleClientId
+      facebookAppId
       erxesAppToken
 
       styles {

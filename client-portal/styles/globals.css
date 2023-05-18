@@ -64,6 +64,27 @@ hr {
   justify-content: space-between;
 }
 
+.text-link {
+  color: #5629b6;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  width: 100%;
+  top: 5px !important;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.dropdown-menu .dropdown-item {
+  font-size: 13px;
+  padding: 8px 20px;
+}
+
+.dropdown-menu .dropdown-item i {
+  margin-right: 10px;
+}
+
 @keyframes searchIcon {
   0% {
     transform: translateX(10px);
@@ -96,6 +117,12 @@ hr {
   width: 100% !important;
   padding: inherit;
   border-radius: 3px !important;
+}
+
+.popup-content {
+  padding: 0 !important;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 /* select  */
