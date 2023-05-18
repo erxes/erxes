@@ -31,6 +31,10 @@ const checkSyncedMutations = {
     });
     const result = JSON.parse(response);
 
+    if (result.status === 'error') {
+      throw new Error(result.message);
+    }
+
     const data = result.data || {};
 
     return (Object.keys(data) || []).map(_id => {

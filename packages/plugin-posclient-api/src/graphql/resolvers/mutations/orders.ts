@@ -539,6 +539,16 @@ const orderMutations = {
     const now = new Date();
 
     const ebarimtConfig: any = config.ebarimtConfig;
+
+    if (
+      !ebarimtConfig ||
+      !Object.keys(ebarimtConfig) ||
+      !ebarimtConfig.districtCode ||
+      !ebarimtConfig.companyRD
+    ) {
+      billType = BILL_TYPES.INNER;
+    }
+
     try {
       const ebarimtResponses: any[] = [];
 
@@ -553,7 +563,7 @@ const orderMutations = {
         );
 
         ebarimtConfig.districtName = getDistrictName(
-          (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
+          (ebarimtConfig && ebarimtConfig.districtCode) || ''
         );
 
         for (const data of ebarimtDatas) {
@@ -571,7 +581,7 @@ const orderMutations = {
               _id: Math.random(),
               billId: 'Түр баримт',
               ...(await putData.generateTransactionInfo()),
-              registerNo: config.ebarimtConfig?.companyRD || '',
+              registerNo: ebarimtConfig.companyRD || '',
               success: 'true'
             };
             ebarimtResponses.push(response);
