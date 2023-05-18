@@ -79,6 +79,7 @@ export default function Task({ tasks, currentUser, config }: Props) {
         _id={itemId}
         onClose={() => router.push("/tasks")}
         currentUser={currentUser}
+        config={config}
       />
     );
   }

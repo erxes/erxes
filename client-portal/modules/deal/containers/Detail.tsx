@@ -1,14 +1,15 @@
+import { Config, IUser } from "../../types";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries } from "../graphql";
 
 import Detail from "../components/Detail";
-import { IUser } from "../../types";
 import React from "react";
 import { confirm } from "../../utils";
 
 type Props = {
   _id?: string;
   currentUser: IUser;
+  config: Config;
   onClose: () => void;
 };
 
@@ -18,6 +19,11 @@ function DetailContainer({ _id, ...props }: Props) {
     {
       variables: { _id },
       skip: !_id,
+      context: {
+        headers: {
+          "erxes-app-token": props.config?.erxesAppToken,
+        },
+      },
     }
   );
 

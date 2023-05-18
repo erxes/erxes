@@ -79,6 +79,7 @@ export default function Deal({ deals, currentUser, config }: Props) {
         _id={itemId}
         onClose={() => router.push("/deals")}
         currentUser={currentUser}
+        config={config}
       />
     );
   }

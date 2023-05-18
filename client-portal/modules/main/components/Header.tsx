@@ -204,7 +204,10 @@ function Header({
               : null}
           </HeaderLinks>
           <HeaderRight>
-            <SupportMenus color={getConfigColor(config, "headingColor")}>
+            <SupportMenus
+              color={getConfigColor(config, "headingColor")}
+              baseColor={getConfigColor(config, "baseColor")}
+            >
               {currentUser ? renderCurrentUser() : renderAuth()}
             </SupportMenus>
           </HeaderRight>

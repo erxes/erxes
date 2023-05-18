@@ -79,6 +79,7 @@ export default function Ticket({ tickets, currentUser, config }: Props) {
         _id={itemId}
         onClose={() => router.push("/tickets")}
         currentUser={currentUser}
+        config={config}
       />
     );
   }
