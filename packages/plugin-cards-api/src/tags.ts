@@ -22,7 +22,7 @@ export default {
     },
     {
       description: 'Purchases',
-      type: 'purchases'
+      type: 'purchase'
     },
     {
       description: 'Tasks',
