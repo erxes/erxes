@@ -192,7 +192,9 @@ export const timeclockReportByUser = async (
     startOfSelectedDay = new Date(selectedDate);
   }
 
-  const selectedDayString = startOfSelectedDay.toLocaleDateString();
+  const selectedDayString = startOfSelectedDay
+    ? startOfSelectedDay.toLocaleDateString()
+    : '';
 
   const scheduleShiftsSelectedMonth: IShiftDocument[] = [];
 

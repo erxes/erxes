@@ -162,16 +162,16 @@ export const types = `
     totalMinsLateSelectedDay: Float
     
     totalHoursWorkedSelectedMonth: Float
+    totalDaysWorkedSelectedMonth: Int
     totalHoursScheduledSelectedMonth: Float
+    totalDaysScheduledSelectedMonth:Int
     totalMinsLateSelectedMonth: Float
     
     totalHoursWorkedOutsideSchedule: Float
-    totalHoursNotWorked: Float
+    totalDaysWorkedOutsideSchedule: Int
     
-    totalDaysWorkedOutsideSchedule: Float
+    totalHoursNotWorked: Float
     totalDaysNotWorked: Int
-    totalDaysScheduledSelectedMonth:Int
-    totalDaysWorkedSelectedMonth: Int
   }
   
   type Report {
