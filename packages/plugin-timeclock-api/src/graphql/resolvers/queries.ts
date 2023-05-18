@@ -62,9 +62,11 @@ const timeclockQueries = {
 
   timeclocksPerUser(
     _root,
-    { userId, startDate, endDate },
-    { models }: IContext
+    { userId, startDate, endDate, shiftActive },
+    { models, user }: IContext
   ) {
+    const getUserId = userId || user._id;
+
     const timeField = {
       $or: [
         {
@@ -82,7 +84,13 @@ const timeclockQueries = {
       ]
     };
 
-    return models.Timeclocks.find({ $and: [{ userId }, timeField] });
+    const selector: any = [{ userId: getUserId }, timeField];
+
+    if (shiftActive) {
+      selector.push({ shiftActive });
+    }
+
+    return models.Timeclocks.find({ $and: selector });
   },
 
   async timeclocksMain(

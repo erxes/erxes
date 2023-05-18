@@ -321,6 +321,8 @@ export const queries = `
   timeclocksPerUser(userId: String, shiftActive: Boolean, startDate: String, endDate:String): [Timeclock]
   timeLogsPerUser(userId: String, startDate: String, endDate: String ): [Timelog]
   schedulesPerUser(userId: String, startDate: String, endDate: String): [Schedule]
+
+  
   absenceTypes:[AbsenceType]
   
   timeclockReports(${queryParams}): ReportsListResponse
