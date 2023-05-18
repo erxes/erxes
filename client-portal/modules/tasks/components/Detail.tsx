@@ -132,7 +132,7 @@ export default class TaskDetail extends React.Component<
         </DetailRow>
         <DetailRow>
           <ControlLabel>Requestor</ControlLabel>
-          <span>{renderUserFullName(createdUser)}</span>
+          <span>{renderUserFullName(createdUser || ({} as any))}</span>
         </DetailRow>
         <DetailRow>
           <ControlLabel>Assigned users</ControlLabel>
