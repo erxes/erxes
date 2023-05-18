@@ -15,6 +15,7 @@ import {
 type Props = {
   currentCategoryId: string;
   topicId: string;
+  queryParams?: any;
 };
 
 type FinalProps = {
@@ -31,7 +32,8 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     categoriesCountQuery,
     articlesCountQuery,
     removeCategoriesMutation,
-    topicId
+    topicId,
+    queryParams
   } = props;
 
   // remove action
@@ -57,6 +59,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     currentCategoryId,
     topicId,
     categoriesQuery,
+    queryParams,
     categories: categoriesQuery.knowledgeBaseCategories || [],
     loading: categoriesQuery.loading,
     topicsCount: categoriesCountQuery.knowledgeBaseCategoriesTotalCount || 0,

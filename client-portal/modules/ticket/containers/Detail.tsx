@@ -1,13 +1,15 @@
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React from 'react';
-import Detail from '../components/Detail';
-import { IUser } from '../../types';
-import { queries, mutations } from '../graphql';
-import { confirm } from '../../utils';
+import { Config, IUser } from "../../types";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
+
+import Detail from "../components/Detail";
+import React from "react";
+import { confirm } from "../../utils";
 
 type Props = {
   _id?: string;
   currentUser: IUser;
+  config: Config;
   onClose: () => void;
 };
 
@@ -16,15 +18,15 @@ function DetailContainer({ _id, ...props }: Props) {
     gql(queries.clientPortalGetTicket),
     {
       variables: { _id },
-      skip: !_id
+      skip: !_id,
     }
   );
 
   const { data: commentsQuery, loading: commentsQueryLoading } = useQuery(
     gql(queries.clientPortalComments),
     {
-      variables: { typeId: _id, type: 'ticket' },
-      skip: !_id
+      variables: { typeId: _id, type: "ticket" },
+      skip: !_id,
     }
   );
 
@@ -32,9 +34,9 @@ function DetailContainer({ _id, ...props }: Props) {
     refetchQueries: [
       {
         query: gql(queries.clientPortalComments),
-        variables: { typeId: _id, type: 'ticket' }
-      }
-    ]
+        variables: { typeId: _id, type: "ticket" },
+      },
+    ],
   });
 
   const [deleteComment] = useMutation(
@@ -43,9 +45,9 @@ function DetailContainer({ _id, ...props }: Props) {
       refetchQueries: [
         {
           query: gql(queries.clientPortalComments),
-          variables: { typeId: _id, type: 'ticket' }
-        }
-      ]
+          variables: { typeId: _id, type: "ticket" },
+        },
+      ],
     }
   );
 
@@ -59,9 +61,9 @@ function DetailContainer({ _id, ...props }: Props) {
       variables: {
         ...values,
         typeId: item._id,
-        type: 'ticket',
-        userType: 'client'
-      }
+        type: "ticket",
+        userType: "client",
+      },
     });
   };
 
@@ -69,8 +71,8 @@ function DetailContainer({ _id, ...props }: Props) {
     confirm().then(() =>
       deleteComment({
         variables: {
-          _id: commentId
-        }
+          _id: commentId,
+        },
       })
     );
   };
@@ -80,7 +82,7 @@ function DetailContainer({ _id, ...props }: Props) {
     item,
     comments,
     handleSubmit,
-    handleRemoveComment
+    handleRemoveComment,
   };
 
   return <Detail {...updatedProps} />;
