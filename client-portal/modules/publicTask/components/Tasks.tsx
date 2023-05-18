@@ -32,6 +32,7 @@ function Tasks({ stages, config, stageId, currentUser }: Props) {
         _id={itemId}
         onClose={() => router.push("/publicTasks")}
         currentUser={currentUser}
+        config={config}
       />
     );
   }
