@@ -100,6 +100,8 @@ const SupportMenus = styledTS<{ color?: string, baseColor?: string }>(styled.div
 
   .dropdown-menu {
     width: 210px;
+    right: 0px;
+    left: auto !important;
   }
 
   > button {
