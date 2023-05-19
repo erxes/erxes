@@ -204,6 +204,16 @@ mutation ClientPortalUsersChangeVerificationStatus($status: ClientPortalUserVeri
 }
 `;
 
+const editFields = `
+mutation ClientPortalFieldConfigsEdit($fieldId: String!, $allowedClientPortalIds: [String], $requiredOn: [String]) {
+  clientPortalFieldConfigsEdit(fieldId: $fieldId, allowedClientPortalIds: $allowedClientPortalIds, requiredOn: $requiredOn) {
+    allowedClientPortalIds
+    fieldId
+    requiredOn
+  }
+}
+`;
+
 export default {
   createOrUpdateConfig,
   remove,
@@ -213,5 +223,6 @@ export default {
   verifyUsers,
   clientPortalCommentsAdd,
   clientPortalCommentsRemove,
-  changeVerificationStatus
+  changeVerificationStatus,
+  editFields
 };

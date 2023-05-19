@@ -1,4 +1,4 @@
-export const types = (cardAvailable, kbAvailable) => `
+export const types = (cardAvailable, kbAvailable, formsAvailable) => `
 ${
   cardAvailable
     ? `
@@ -29,6 +29,16 @@ ${
     _id: String! @external
   }
    `
+    : ''
+}
+
+${
+  formsAvailable
+    ? `
+    extend type Form @key(fields: "_id") {
+      _id: String! @external
+    }
+    `
     : ''
 }
 
@@ -161,13 +171,19 @@ ${
   }
 `;
 
-export const queries = (cardAvailable, kbAvailable) => `
+export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
   clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain: ClientPortal
   clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
-
+  ${
+    formsAvailable
+      ? `
+  clientPortalGetAllowedFields(_id: String!): [Field]
+  `
+      : ''
+  }
   ${
     cardAvailable
       ? `
