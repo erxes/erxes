@@ -740,7 +740,8 @@ const createScheduleObjOfMembers = async (
   } = {};
 
   const totalSchedules = await models.Schedules.find({
-    userId: { $in: teamMemberIds }
+    userId: { $in: teamMemberIds },
+    status: { $regex: /Approved/, $options: 'gi' }
   });
 
   const totalScheduleIds = totalSchedules.map(schedule => schedule._id);
@@ -772,7 +773,8 @@ const createScheduleObjOfMembers = async (
   const totalScheduleConfigShifts = await models.Shifts.find({
     scheduleConfigId: {
       $in: totalScheduleConfigIds
-    }
+    },
+    scheduleId: { $exists: false }
   });
 
   const totalScheduleConfigs = await models.ScheduleConfigs.find({
@@ -835,18 +837,24 @@ const createScheduleObjOfMembers = async (
 
           currEmpScheduleConfig = {
             ...currEmpScheduleConfig,
-            shiftStart: getScheduleConfig?.shiftStart,
-            shiftEnd: getScheduleConfig?.shiftEnd,
+            shiftStart:
+              getScheduleConfig?.shiftStart ||
+              dayjs(scheduleShift.shiftStart).format(timeFormat),
+            shiftEnd:
+              getScheduleConfig?.shiftEnd ||
+              dayjs(scheduleShift.shiftEnd).format(timeFormat),
             overnight:
               dayjs(
                 new Date().toLocaleDateString() +
                   ' ' +
-                  getScheduleConfig?.shiftStart
+                  getScheduleConfig?.shiftStart ||
+                  dayjs(scheduleShift.shiftStart).format(timeFormat)
               ) >
               dayjs(
                 new Date().toLocaleDateString() +
                   ' ' +
-                  getScheduleConfig?.shiftEnd
+                  getScheduleConfig?.shiftEnd ||
+                  dayjs(scheduleShift.shiftEnd).format(timeFormat)
               )
           };
           // if there're config(s) already, put all in array
@@ -896,6 +904,7 @@ const createScheduleObjOfMembers = async (
     if (!Object.keys(empSchedulesDict).length) {
       continue;
     }
+
     totalEmployeesSchedulesObject[teamMemberId] = empSchedulesDict;
   }
 
