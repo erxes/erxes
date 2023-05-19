@@ -3,10 +3,10 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import React from 'react';
-import { useQuery, useLazyQuery } from 'react-apollo';
+import { useQuery, useMutation, useLazyQuery } from 'react-apollo';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
 import List from '../../components/salary/SalaryList';
-import { queries } from '../../graphql';
+import { queries, mutations } from '../../graphql';
 
 type Props = {
   refetch?: () => void;
@@ -28,6 +28,11 @@ export default function ListContainer(props: Props) {
     },
     skip: isEmployeeSalary,
     fetchPolicy: 'network-only'
+  });
+
+  const [removeSalary] = useMutation(gql(mutations.removeSalary), {
+    variables: { _id: '' },
+    refetchQueries: gql(queries.bichilSalaryReport)
   });
 
   const labelsQuery = useQuery(gql(queries.labelsQuery), {
@@ -68,6 +73,23 @@ export default function ListContainer(props: Props) {
       });
   };
 
+  const remove = (id: string) => {
+    const message = __('Are you sure you want to delete this salary?');
+
+    confirm(message).then(() => {
+      removeSalary({
+        variables: { _id: id }
+      })
+        .then(() => {
+          Alert.success(__('Successfully deleted.'));
+          salariesQry.refetch();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
   let salaries: any = [];
   let totalCount = 0;
 
@@ -92,6 +114,7 @@ export default function ListContainer(props: Props) {
     salaries,
     totalCount,
     isEmployeeSalary,
+    remove,
     confirmPassword
   };
 

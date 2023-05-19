@@ -132,7 +132,10 @@ const queries = `
 `;
 
 const mutations = `
-finishUnfinishedShifts: JSON`;
+  finishUnfinishedShifts: JSON
+
+  bichilRemoveSalaryReport(_id: String!): JSON
+`;
 
 const typeDefs = async _serviceDiscovery => {
   return gql`

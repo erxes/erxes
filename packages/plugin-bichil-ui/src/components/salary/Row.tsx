@@ -10,28 +10,30 @@ type Props = {
   salary: any;
   keys: any[];
   symbols: any;
+  isEmployeeSalary?: boolean;
+  remove: (id: string) => void;
 };
 
 const Row = (props: Props) => {
   const { salary, keys, symbols } = props;
 
   // TODO: discuss with bichil then implement
-  // const renderRemoveAction = () => {
-  //   const onClick = () => {
-  //     remove(salary._id);
-  //   };
+  const renderRemoveAction = () => {
+    const onClick = () => {
+      props.remove(salary._id);
+    };
 
-  //   return (
-  //     <Tip text={__('Delete')} placement="top">
-  //       <Button
-  //         id="configDelete"
-  //         btnStyle="link"
-  //         onClick={onClick}
-  //         icon="times-circle"
-  //       />
-  //     </Tip>
-  //   );
-  // };
+    return (
+      <Tip text={__('Delete')} placement="top">
+        <Button
+          id="configDelete"
+          btnStyle="link"
+          onClick={onClick}
+          icon="times-circle"
+        />
+      </Tip>
+    );
+  };
 
   const branches =
     (salary && salary.employee && salary.employee.branches) || [];
@@ -74,11 +76,11 @@ const Row = (props: Props) => {
         </td>
       ))}
 
-      {/*
-        TODO: discuss with bichil then implement this
-      <td>
-        <ActionButtons>{renderRemoveAction()}</ActionButtons>
-      </td> */}
+      {!props.isEmployeeSalary && (
+        <td>
+          <ActionButtons>{renderRemoveAction()}</ActionButtons>
+        </td>
+      )}
     </tr>
   );
 };

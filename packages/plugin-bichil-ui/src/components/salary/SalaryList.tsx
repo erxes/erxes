@@ -23,7 +23,7 @@ type Props = {
   queryParams?: any;
   loading?: boolean;
   isEmployeeSalary?: boolean;
-  remove?: (id: string) => void;
+  remove: (id: string) => void;
   refetch?: () => void;
   confirmPassword?: () => void;
 };
@@ -34,14 +34,13 @@ const List = (props: Props) => {
     queryParams,
     loading,
     salaries = [],
-    labels = {},
-    symbols = {}
+    labels = {}
   } = props;
   const keys = Object.keys(labels).filter(key => key !== 'title');
 
   const renderRow = () => {
     return salaries.map(salary => (
-      <Row key={salary._id} salary={salary} keys={keys} symbols={symbols} />
+      <Row {...props} key={salary._id} salary={salary} keys={keys} />
     ));
   };
 
@@ -120,6 +119,8 @@ const List = (props: Props) => {
           {/*
             TODO: discuss with bichil then implement this
           <th>{__('Action')}</th> */}
+
+          {!props.isEmployeeSalary && <th>{__('Action')}</th>}
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>
