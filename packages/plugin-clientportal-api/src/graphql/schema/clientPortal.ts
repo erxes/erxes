@@ -35,7 +35,7 @@ ${
 ${
   formsAvailable
     ? `
-    extend type Form @key(fields: "_id") {
+    extend type Field @key(fields: "_id") {
       _id: String! @external
     }
     `
