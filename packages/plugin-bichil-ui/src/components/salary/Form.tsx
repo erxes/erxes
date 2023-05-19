@@ -37,16 +37,14 @@ const SalaryForm = (props: Props) => {
 
   const onChangeRangeFilter = (kind, e) => {
     if (kind === 'startDate') {
-      setStartDate(e.currentTarget.value.replace(/-/g, '.'));
+      setStartDate(e.currentTarget.value.replace(/-/g, '/'));
     } else {
-      setEndDate(e.currentTarget.value.replace(/-/g, '.'));
+      setEndDate(e.currentTarget.value.replace(/-/g, '/'));
     }
   };
 
   const onSubmit = (e: any) => {
     e.preventDefault();
-
-    console.log('onSubmit', title);
 
     if (!title) {
       return Alert.error('Please enter a title');
