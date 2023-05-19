@@ -100,9 +100,10 @@ export default withProps<Props>(
   compose(
     graphql<Props, ReportsQueryResponse>(gql(queries.timelogsMain), {
       name: 'listTimelogsQuery',
-      options: ({ queryParams, reportType }) => ({
+      options: ({ queryParams, reportType, isCurrentUserAdmin }) => ({
         variables: {
           ...generateParams(queryParams),
+          isCurrentUserAdmin,
           reportType
         },
         fetchPolicy: 'network-only'

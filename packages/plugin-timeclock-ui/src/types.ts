@@ -321,7 +321,7 @@ export type AbsenceMutationResponse = {
   submitCheckInOutRequestMutation: (params: {
     variables: {
       checkType: string;
-      userId: string;
+      userId?: string;
       checkTime: Date;
     };
   }) => Promise<any>;

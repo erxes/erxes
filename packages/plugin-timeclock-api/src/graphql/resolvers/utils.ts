@@ -812,7 +812,7 @@ export const timeclockReportFinal = async (
       });
     }
 
-    const userAbsenceInfo: IUserAbsenceInfo = await returnUserAbsenceInfo(
+    const userAbsenceInfo: IUserAbsenceInfo = returnUserAbsenceInfo(
       {
         requestsShiftRequest: relatedAbsences.requestsShiftRequest.filter(
           absence => absence.userId === currUserId
@@ -1156,11 +1156,53 @@ const returnUserAbsenceInfo = (
   let totalHoursSick = 0;
 
   relatedAbsences.requestsShiftRequest.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursShiftRequest += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursShiftRequest += getTotalDays * absenceType.requestHoursPerDay;
+      return;
+    }
+
     totalHoursShiftRequest +=
       (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
   });
 
   relatedAbsences.requestsWorkedAbroad.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursWorkedAbroad += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursWorkedAbroad += getTotalDays * absenceType.requestHoursPerDay;
+      return;
+    }
+
     totalHoursWorkedAbroad +=
       (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
   });
@@ -1185,10 +1227,53 @@ const returnUserAbsenceInfo = (
   });
 
   relatedAbsences.requestsUnpaidAbsence.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursUnpaidAbsence += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursUnpaidAbsence += getTotalDays * absenceType.requestHoursPerDay;
+      return;
+    }
+
     totalHoursUnpaidAbsence +=
       (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
   });
+
   relatedAbsences.requestsSick.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursSick += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursSick += getTotalDays * absenceType.requestHoursPerDay;
+      return;
+    }
+
     totalHoursSick +=
       (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
   });

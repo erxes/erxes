@@ -2,7 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface ITimeClock {
-  userId?: string;
+  userId: string;
   shiftStart: Date;
   shiftEnd?: Date;
   shiftActive?: boolean;
