@@ -180,6 +180,7 @@ const timeclockMutations = {
         shiftEnd: new Date(),
         shiftActive: false,
         deviceType: getShiftStartDeviceType + ' x ' + deviceType,
+        userId: getUserId,
         ...doc
       });
     } else {
@@ -223,11 +224,13 @@ const timeclockMutations = {
   async submitCheckInOutRequest(
     _root,
     { checkType, userId, checkTime },
-    { models }: IContext
+    { models, user }: IContext
   ) {
+    const getUserId = userId ? userId : user._id;
+
     return models.Absences.createAbsence({
       reason: `${checkType} request`,
-      userId,
+      userId: getUserId,
       startTime: checkTime,
       checkInOutRequest: true
     });
@@ -357,27 +360,29 @@ const timeclockMutations = {
             return;
           }
 
-          const newSchedule = await models.Schedules.createSchedule({
-            userId: shiftRequest.userId,
-            solved: true,
-            status: 'Approved'
-          });
+          if (shiftRequest.userId) {
+            const newSchedule = await models.Schedules.createSchedule({
+              userId: shiftRequest.userId,
+              solved: true,
+              status: 'Approved'
+            });
 
-          await models.Shifts.createShift({
-            scheduleId: newSchedule._id,
-            shiftStart: shiftRequest.startTime,
-            shiftEnd: shiftRequest.endTime,
-            solved: true,
-            status: 'Approved'
-          });
+            await models.Shifts.createShift({
+              scheduleId: newSchedule._id,
+              shiftStart: shiftRequest.startTime,
+              shiftEnd: shiftRequest.endTime,
+              solved: true,
+              status: 'Approved'
+            });
 
-          await models.Timeclocks.createTimeClock({
-            userId: shiftRequest.userId,
-            shiftStart: shiftRequest.startTime,
-            shiftEnd: shiftRequest.endTime,
-            shiftActive: false,
-            deviceType: 'Shift request'
-          });
+            await models.Timeclocks.createTimeClock({
+              userId: shiftRequest.userId,
+              shiftStart: shiftRequest.startTime,
+              shiftEnd: shiftRequest.endTime,
+              shiftActive: false,
+              deviceType: 'Shift request'
+            });
+          }
         }
       }
 

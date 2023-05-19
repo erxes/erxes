@@ -15,6 +15,7 @@ type Props = {
   history: any;
   queryParams: any;
   searchValue?: string;
+  isCurrentUserAdmin: boolean;
 
   reportType?: string;
   currentUser: IUser;
@@ -69,10 +70,11 @@ export default withProps<Props>(
     graphql<Props, ReportsQueryResponse>(gql(queries.timeclockReports), {
       name: 'listReportsQuery',
       skip: isEnabled('bichil') || false,
-      options: ({ queryParams, reportType }) => ({
+      options: ({ queryParams, reportType, isCurrentUserAdmin }) => ({
         variables: {
           ...generateParams(queryParams),
-          reportType
+          reportType,
+          isCurrentUserAdmin
         },
         fetchPolicy: 'network-only'
       })

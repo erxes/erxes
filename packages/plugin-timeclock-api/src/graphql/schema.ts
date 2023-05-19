@@ -141,8 +141,6 @@ export const types = `
     totalMinsLate: Float
     totalAbsenceMins: Int
     totalMinsWorked: Int
-    totalMinsWorkedToday: Int
-    totalMinsWorkedThisMonth: Int
     totalRegularHoursWorked: Float
     totalHoursWorked: Float
     totalDaysWorked:Int
@@ -150,20 +148,31 @@ export const types = `
     totalMinsScheduled: Int
     totalHoursScheduled: Float
     totalDaysScheduled: Int
-    totalMinsScheduledToday: Int
-    totalMinsScheduledThisMonth: Int
     
-    totalHoursBreakScheduled: Float
-    totalHoursBreakActual: Float
-
     totalHoursOvertime: Float
     totalHoursOvernight: Float
 
-    totalMinsLateToday: Int
-    totalMinsLateThisMonth: Int
-    totalMinsAbsenceThisMonth: Int
-
     absenceInfo: IUserAbsenceInfo
+
+    totalHoursWorkedSelectedDay: Float
+    totalHoursScheduledSelectedDay: Float
+    totalMinsLateSelectedDay: Float
+    
+    totalHoursWorkedSelectedMonth: Float
+    totalDaysWorkedSelectedMonth: Int
+    totalHoursScheduledSelectedMonth: Float
+    totalDaysScheduledSelectedMonth:Int
+    totalMinsLateSelectedMonth: Float
+    
+    totalHoursWorkedOutsideSchedule: Float
+    totalDaysWorkedOutsideSchedule: Int
+    
+    totalHoursNotWorked: Float
+    totalDaysNotWorked: Int
+
+    totalHoursBreakTaken: Float
+    totalHoursBreakScheduled: Float
+    totalHoursBreakSelecteDay:Float
   }
   
   type Report {
@@ -312,10 +321,16 @@ export const queries = `
   timeclocksPerUser(userId: String, shiftActive: Boolean, startDate: String, endDate:String): [Timeclock]
   timeLogsPerUser(userId: String, startDate: String, endDate: String ): [Timelog]
   schedulesPerUser(userId: String, startDate: String, endDate: String): [Schedule]
+
+  
   absenceTypes:[AbsenceType]
   
   timeclockReports(${queryParams}): ReportsListResponse
-  timeclockReportByUser(selectedUser: String): UserReport
+
+  
+  timeclockReportByUser(selectedUser: String, selectedMonth: String, selectedYear: String, selectedDate:String): UserReport
+  
+  
   timeclockDetail(_id: String!): Timeclock
   
   timeclockActivePerUser(userId: String): Timeclock

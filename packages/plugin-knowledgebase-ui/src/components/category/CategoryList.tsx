@@ -9,6 +9,7 @@ type Props = {
   categories: ICategory[];
   articlesCount: number;
   remove: (categoryId: string) => void;
+  queryParams?: any;
 };
 
 class CategoryList extends React.Component<Props> {
@@ -23,7 +24,13 @@ class CategoryList extends React.Component<Props> {
   };
 
   renderRow(category, isChild, isParent?) {
-    const { remove, currentCategoryId, topicId, articlesCount } = this.props;
+    const {
+      remove,
+      currentCategoryId,
+      topicId,
+      articlesCount,
+      queryParams
+    } = this.props;
 
     return (
       <CategoryRow
@@ -32,6 +39,7 @@ class CategoryList extends React.Component<Props> {
         articlesCount={articlesCount}
         topicId={topicId}
         category={category}
+        queryParams={queryParams}
         remove={remove}
         isChild={isChild}
         isParent={isParent}

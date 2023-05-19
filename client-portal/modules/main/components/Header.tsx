@@ -1,32 +1,39 @@
-import Link from 'next/link';
-import { withRouter } from 'next/router';
-import React, { useState } from 'react';
-import Icon from '../../common/Icon';
-import Modal from '../../common/Modal';
-import { getConfigColor, readFile } from '../../common/utils';
+import "reactjs-popup/dist/index.css";
+
+import { Alert, renderUserFullName } from "../../utils";
 import {
   Badge,
+  BottomComponent,
   Container,
   Header as Head,
-  HeaderLeft,
   HeaderLinks,
   HeaderLogo,
   HeaderRight,
   HeaderTitle,
   HeaderTop,
   LinkItem,
-  SupportMenus
-} from '../../styles/main';
-import { Config, INotification, IUser } from '../../types';
-import Button from '../../common/Button';
-import LoginContainer from '../../user/containers/Login';
-import RegisterContainer from '../../user/containers/Register';
-import ResetPasswordContainer from '../../user/containers/ResetPassword';
-import SettingsContainer from '../containers/notifications/Settings';
-import { Alert } from '../../utils';
-import Popup from 'reactjs-popup';
-import 'reactjs-popup/dist/index.css';
-import Notifications from '../components/notifications/Notifications';
+  NotificationsBadge,
+  SupportMenus,
+} from "../../styles/main";
+import { Config, IUser } from "../../types";
+import React, { useState } from "react";
+import { getConfigColor, readFile } from "../../common/utils";
+
+import Button from "../../common/Button";
+import { Dropdown } from "react-bootstrap";
+import DropdownToggle from "../../common/DropdownToggle";
+import Icon from "../../common/Icon";
+import Label from "../../common/Label";
+import Link from "next/link";
+import LoginContainer from "../../user/containers/Login";
+import Modal from "../../common/Modal";
+import NameCard from "../../common/nameCard/NameCard";
+import Notifications from "../components/notifications/Notifications";
+import Popup from "reactjs-popup";
+import RegisterContainer from "../../user/containers/Register";
+import ResetPasswordContainer from "../../user/containers/ResetPassword";
+import SettingsContainer from "../containers/notifications/Settings";
+import { withRouter } from "next/router";
 
 type Props = {
   config: Config;
@@ -47,7 +54,7 @@ function Header({
   headerHtml,
   headingSpacing,
   headerBottomComponent,
-  notificationsCount
+  notificationsCount,
 }: Props) {
   const [showlogin, setLogin] = useState(false);
   const [showregister, setRegister] = useState(false);
@@ -55,8 +62,8 @@ function Header({
   const [showSettings, setShowSettings] = useState(false);
 
   const onClick = (url) => {
-    if (!currentUser && url.includes('tickets')) {
-      Alert.error('Log in first to create or manage ticket cards');
+    if (!currentUser && url.includes("tickets")) {
+      Alert.error("Log in first to create or manage ticket cards");
 
       return setLogin(true);
     }
@@ -67,9 +74,9 @@ function Header({
       <LinkItem
         active={router && router.pathname === url}
         onClick={() => onClick(url)}
-        color={getConfigColor(config, 'headingColor')}
+        color={getConfigColor(config, "headingColor")}
       >
-        <Link href={!currentUser && url.includes('tickets') ? '' : url}>
+        <Link href={!currentUser && url.includes("tickets") ? "" : url}>
           {label}
         </Link>
       </LinkItem>
@@ -84,26 +91,85 @@ function Header({
     return (
       <>
         <Button
+          className="border"
           btnStyle="link"
           uppercase={false}
           onClick={() => setRegister(true)}
         >
           Sign up
         </Button>
-        {/* <Button
-          btnStyle="primary"
-          uppercase={false}
-          onClick={() => setResetPassword(true)}
-        >
-          Reset password
-        </Button> */}
         <Button
-          btnStyle="warning"
+          btnStyle="ghost"
+          className="ghost"
           uppercase={false}
           onClick={() => setLogin(true)}
         >
-          Login
+          Sign in
         </Button>
+      </>
+    );
+  };
+
+  const renderCurrentUser = () => {
+    return (
+      <>
+        <Popup
+          trigger={
+            <NotificationsBadge>
+              {notificationsCount > 0 && <Badge>{notificationsCount}</Badge>}
+              <Icon icon="bell" size={22} />
+            </NotificationsBadge>
+          }
+          position="bottom center"
+          contentStyle={{ width: "350px" }}
+        >
+          <Notifications
+            count={notificationsCount}
+            currentUser={currentUser}
+            config={config}
+          />
+        </Popup>
+
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-custom-components">
+            <NameCard user={currentUser} avatarSize={28} hideUserName={true} />
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            <Dropdown.Item
+              className="d-flex align-items-center justify-content-between"
+              eventKey="1"
+            >
+              {renderUserFullName(currentUser)}
+            </Dropdown.Item>
+            <Dropdown.Divider />
+            <Dropdown.Item
+              className="d-flex align-items-center justify-content-between"
+              eventKey="1"
+            >
+              <div>
+                <Icon icon="user" />
+                My profle
+              </div>
+              <Label lblStyle="simple">Soon</Label>
+            </Dropdown.Item>
+            <Dropdown.Item
+              className="d-flex align-items-center justify-content-between"
+              eventKey="1"
+            >
+              <div>
+                <Icon icon="settings" />
+                Settings
+              </div>
+              <Label lblStyle="simple">Soon</Label>
+            </Dropdown.Item>
+            <Dropdown.Divider />
+            <Dropdown.Item eventKey="4" onClick={() => logout()}>
+              <Icon icon="logout-1" />
+              Logout
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </>
     );
   };
@@ -113,69 +179,38 @@ function Header({
       return <div dangerouslySetInnerHTML={{ __html: headerHtml }} />;
 
     return (
-      <Container>
-        <HeaderTop>
-          <HeaderRight>
-            <SupportMenus color={getConfigColor(config, 'headingColor')}>
-              {currentUser ? (
-                <>
-                  <>
-                    <Icon icon="user" /> &nbsp;
-                    {currentUser.type === 'company'
-                      ? currentUser.companyName
-                      : currentUser.firstName}
-                  </>
-
-                  <Popup
-                    trigger={
-                      <span title="Notifications" className="notifications">
-                        {notificationsCount > 0 && (
-                          <Badge color={'red'}>{notificationsCount}</Badge>
-                        )}
-                        <Icon icon="bell" />
-                      </span>
-                    }
-                    position="bottom center"
-                    contentStyle={{ width: '350px' }}
-                  >
-                    <Notifications
-                      count={notificationsCount}
-                      currentUser={currentUser}
-                      config={config}
-                    />
-                  </Popup>
-
-                  <span title="Settings" onClick={() => setShowSettings(true)}>
-                    <Icon icon="settings" />
-                  </span>
-
-                  <span title="Log out" onClick={() => logout()}>
-                    <Icon icon="logout" />
-                  </span>
-                </>
-              ) : (
-                renderAuth()
-              )}
-            </SupportMenus>
-          </HeaderRight>
-        </HeaderTop>
+      <Container large={true}>
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
               <img src={readFile(config.logo)} />
             </Link>
-            <HeaderTitle color={getConfigColor(config, 'headingColor')}>
+            <HeaderTitle color={getConfigColor(config, "headingColor")}>
               {config.name}
             </HeaderTitle>
           </HeaderLogo>
           <HeaderLinks>
             {config.publicTaskToggle
-              ? renderMenu('/tasks', config.taskLabel || 'Task')
+              ? renderMenu("/publicTasks", "Public Task")
               : null}
-            {config.ticketToggle
-              ? renderMenu('/tickets', config.ticketLabel || 'Ticket')
+            {config.ticketToggle && currentUser
+              ? renderMenu("/tickets", config.ticketLabel || "Ticket")
+              : null}
+            {config.dealToggle && currentUser
+              ? renderMenu("/deals", config.dealLabel || "Sales pipeline")
+              : null}
+            {config.taskToggle && currentUser
+              ? renderMenu("/tasks", config.taskLabel || "Task")
               : null}
           </HeaderLinks>
+          <HeaderRight>
+            <SupportMenus
+              color={getConfigColor(config, "headingColor")}
+              baseColor={getConfigColor(config, "baseColor")}
+            >
+              {currentUser ? renderCurrentUser() : renderAuth()}
+            </SupportMenus>
+          </HeaderRight>
         </HeaderTop>
       </Container>
     );
@@ -183,31 +218,47 @@ function Header({
 
   return (
     <Head
-      background={getConfigColor(config, 'headerColor')}
-      color={getConfigColor(config, 'headingColor')}
+      background={getConfigColor(config, "headerColor")}
+      color={getConfigColor(config, "headingColor")}
       headingSpacing={headingSpacing}
     >
       {renderTopHeader()}
-      <Container transparent={true}>
-        <h3>{config.description}</h3>
+      <BottomComponent>
+        <h3>
+          {config.description
+            ? config.description
+            : "What we can help you with"}
+        </h3>
         {headerBottomComponent && headerBottomComponent}
-      </Container>
+      </BottomComponent>
       <Modal
-        content={() => <LoginContainer />}
+        content={() => (
+          <LoginContainer
+            setLogin={setLogin}
+            setRegister={setRegister}
+            setResetPassword={setResetPassword}
+          />
+        )}
         onClose={() => setLogin(false)}
         isOpen={showlogin}
       />
       <Modal
-        content={() => <RegisterContainer />}
+        content={() => (
+          <RegisterContainer setLogin={setLogin} setRegister={setRegister} />
+        )}
         onClose={() => setRegister(false)}
         isOpen={showregister}
       />
       <Modal
-        content={() => <ResetPasswordContainer />}
+        content={() => (
+          <ResetPasswordContainer
+            setLogin={setLogin}
+            setResetPassword={setResetPassword}
+          />
+        )}
         onClose={() => setResetPassword(false)}
         isOpen={showResetPassword}
       />
-
       <Modal
         content={() => (
           <SettingsContainer
