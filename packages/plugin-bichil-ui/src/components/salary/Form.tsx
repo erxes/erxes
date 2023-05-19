@@ -7,6 +7,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
+import { CustomRangeContainer } from '../../styles';
 
 type Props = {
   closeModal: () => void;
@@ -16,6 +17,14 @@ type Props = {
 const SalaryForm = (props: Props) => {
   const [title, setTitle] = useState('');
   const [file, setFile] = useState<File | undefined>(undefined);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
+
+  React.useEffect(() => {
+    if (startDate && endDate) {
+      setTitle(`${startDate} - ${endDate}`);
+    }
+  }, [startDate, endDate]);
 
   const onChangeFile = (e: any) => {
     const f = e.currentTarget.files[0];
@@ -26,8 +35,18 @@ const SalaryForm = (props: Props) => {
     setFile(f);
   };
 
+  const onChangeRangeFilter = (kind, e) => {
+    if (kind === 'startDate') {
+      setStartDate(e.currentTarget.value.replace(/-/g, '.'));
+    } else {
+      setEndDate(e.currentTarget.value.replace(/-/g, '.'));
+    }
+  };
+
   const onSubmit = (e: any) => {
     e.preventDefault();
+
+    console.log('onSubmit', title);
 
     if (!title) {
       return Alert.error('Please enter a title');
@@ -52,10 +71,33 @@ const SalaryForm = (props: Props) => {
       <>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
-          <FormControl
+          <CustomRangeContainer>
+            <div className="input-container">
+              <FormControl
+                defaultValue={''}
+                type="date"
+                required={false}
+                name="startDate"
+                onChange={onChangeRangeFilter.bind(this, 'startDate')}
+                placeholder={'Start date'}
+              />
+            </div>
+
+            <div className="input-container">
+              <FormControl
+                defaultValue={''}
+                type="date"
+                required={false}
+                name="endDate"
+                placeholder={'End date'}
+                onChange={onChangeRangeFilter.bind(this, 'endDate')}
+              />
+            </div>
+          </CustomRangeContainer>
+          {/* <FormControl
             value={title}
             onChange={(e: any) => setTitle(e.currentTarget.value)}
-          />
+          /> */}
 
           <ControlLabel>File</ControlLabel>
           <label htmlFor="file-upload">
