@@ -39,9 +39,13 @@ const Row = (props: Props) => {
     .map(branch => branch.name)
     .join(', ')
     .slice(0, -1);
-  const position = salary.employee.details.position.name;
-  const fullName =
-    salary.employee.details.lastName + ' ' + salary.employee.details.firstName;
+  const position = salary.employee
+    ? salary.employee.details.position.name
+    : '-';
+
+  const fullName = salary.employee
+    ? salary.employee.details.lastName + ' ' + salary.employee.details.firstName
+    : '-';
 
   return (
     <tr>
