@@ -6,14 +6,19 @@ import FormControl from "../../common/form/Control";
 import FormGroup from "../../common/form/Group";
 import { IButtonMutateProps } from "../../common/types";
 import Icon from "../../common/Icon";
-import Layout from "../../main/containers/Layout";
-import { Store } from "../../types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  setResetPassword: (value: boolean) => void;
+  setLogin: (value: boolean) => void;
 };
 
-function ResetPassword({ renderButton }: Props) {
+function ForgotPassword({ renderButton, setResetPassword, setLogin }: Props) {
+  const onSignin = () => {
+    setResetPassword(false);
+    setLogin(true);
+  };
+
   const renderContent = (formProps) => {
     const { values, isSubmitted } = formProps;
 
@@ -21,12 +26,12 @@ function ResetPassword({ renderButton }: Props) {
       <>
         <FormGroup>
           <WithIconFormControl>
-            <Icon icon="lock-alt" size={26} />
+            <Icon icon="envelope-alt" size={26} />
             <FormControl
               {...formProps}
-              name="newPassword"
-              type="password"
-              placeholder={"Enter your new password"}
+              name="email"
+              type="email"
+              placeholder={"Enter your email"}
               required={true}
             />
           </WithIconFormControl>
@@ -38,24 +43,27 @@ function ResetPassword({ renderButton }: Props) {
             isSubmitted,
           })}
         </FormGroup>
+
+        <div className="auth-divider" />
+
+        <div className="text-center">
+          Already have an account?{" "}
+          <span className="text-link" onClick={onSignin}>
+            Sign in
+          </span>
+        </div>
       </>
     );
   };
 
   return (
-    <Layout headingSpacing={true}>
-      {(props: Store) => (
-        <div className="d-flex justify-content-center">
-          <LoginFormWrapper>
-            <h2>{"Reset password"} &nbsp;</h2>
-            <p>{"Enter your new password and sign in again"}</p>
+    <LoginFormWrapper>
+      <h2>{"Reset password"} &nbsp;</h2>
+      <p>{"Enter your email to reset your password"}</p>
 
-            <Form renderContent={renderContent} />
-          </LoginFormWrapper>
-        </div>
-      )}
-    </Layout>
+      <Form renderContent={renderContent} />
+    </LoginFormWrapper>
   );
 }
 
-export default ResetPassword;
+export default ForgotPassword;

@@ -14,11 +14,9 @@ import {
 
 import Button from "../../common/Button";
 import { ControlLabel } from "../../common/form";
-import { FormWrapper } from "../../styles/main";
 import { IUser } from "../../types";
 import Icon from "../../common/Icon";
 import Link from "next/link";
-import Modal from "../../common/Modal";
 import PriorityIndicator from "../../common/PriorityIndicator";
 import React from "react";
 import { TextArea } from "../../common/form/styles";

@@ -1,29 +1,32 @@
 import { gql, useMutation } from "@apollo/client";
 
 import ButtonMutate from "../../common/ButtonMutate";
+import ForgotPassword from "../components/ForgotPassword";
 import { IButtonMutateProps } from "../../common/types";
 import React from "react";
-import ResetPassword from "../components/ResetPassword";
 import mutations from "../graphql/mutations";
 
 type Props = {
-  token: string;
+  setResetPassword: (value: boolean) => void;
+  setLogin: (value: boolean) => void;
+  clientPortalId: string;
 };
 
-function ResetPasswordContainer(props: Props) {
+function ForgotPasswordContainer(props: Props) {
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
     const callbackResponse = () => (window.location.href = "/");
 
-    values.token = props.token;
+    values.phone = values?.phone && values?.phone.toString();
+    values.clientPortalId = props.clientPortalId;
 
     return (
       <ButtonMutate
-        mutation={mutations.resetPassword}
+        mutation={mutations.forgotPassword}
         variables={values}
         callback={callbackResponse}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage="Successfully reset your password! Go login again!"
+        successMessage="Successfully send! Check your email"
         block={true}
         uppercase={true}
         icon={false}
@@ -38,7 +41,7 @@ function ResetPasswordContainer(props: Props) {
     renderButton,
   };
 
-  return <ResetPassword {...updatedProps} />;
+  return <ForgotPassword {...updatedProps} />;
 }
 
-export default ResetPasswordContainer;
+export default ForgotPasswordContainer;
