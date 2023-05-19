@@ -156,6 +156,23 @@ const bichilQueries = {
     return labels;
   },
 
+  bichilSalarySymbols(_root, _args, _context: IContext) {
+    const symbmols: any = {};
+    const exclude = ['createdAt', 'createdBy'];
+
+    Object.keys(salarySchema.paths).forEach(path => {
+      if (
+        salarySchema.paths[path].options.symbol === undefined ||
+        exclude.includes(path)
+      ) {
+        return;
+      }
+      symbmols[path] = salarySchema.paths[path].options.symbol;
+    });
+
+    return symbmols;
+  },
+
   async bichilSalaryByEmployee(
     _root,
     args: { password: string; page: number; perPage: number },

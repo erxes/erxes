@@ -9,10 +9,11 @@ import React from 'react';
 type Props = {
   salary: any;
   keys: any[];
+  symbols: any;
 };
 
 const Row = (props: Props) => {
-  const { salary, keys } = props;
+  const { salary, keys, symbols } = props;
 
   // TODO: discuss with bichil then implement
   // const renderRemoveAction = () => {
@@ -67,7 +68,9 @@ const Row = (props: Props) => {
 
       {keys.map(key => (
         <td key={key}>
-          <RowTitle>{Number(salary[key]).toLocaleString() || '-'}</RowTitle>
+          <RowTitle>
+            {Number(salary[key]).toLocaleString() + ' ' + symbols[key] || '-'}
+          </RowTitle>
         </td>
       ))}
 

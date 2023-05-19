@@ -34,6 +34,10 @@ export default function ListContainer(props: Props) {
     fetchPolicy: 'cache-first'
   });
 
+  const symbolsQuery = useQuery(gql(queries.symbmolsQuery), {
+    fetchPolicy: 'cache-first'
+  });
+
   const [getEmployeeSalary, { data, loading, error }] = useLazyQuery(
     gql(queries.salaryByEmployee),
     {
@@ -84,6 +88,7 @@ export default function ListContainer(props: Props) {
   const extendedProps = {
     ...props,
     labels: labelsQuery.data.bichilSalaryLabels || {},
+    symbols: symbolsQuery.data.bichilSalarySymbols || {},
     salaries,
     totalCount,
     isEmployeeSalary,

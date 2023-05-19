@@ -18,6 +18,7 @@ import { Formgroup } from '@erxes/ui/src/components/form/styles';
 type Props = {
   salaries?: any[];
   labels: any;
+  symbols: any;
   totalCount?: number;
   queryParams?: any;
   loading?: boolean;
@@ -33,13 +34,14 @@ const List = (props: Props) => {
     queryParams,
     loading,
     salaries = [],
-    labels = {}
+    labels = {},
+    symbols = {}
   } = props;
   const keys = Object.keys(labels).filter(key => key !== 'title');
 
   const renderRow = () => {
     return salaries.map(salary => (
-      <Row key={salary._id} salary={salary} keys={keys} />
+      <Row key={salary._id} salary={salary} keys={keys} symbols={symbols} />
     ));
   };
 

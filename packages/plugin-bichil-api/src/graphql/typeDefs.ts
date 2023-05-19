@@ -128,6 +128,7 @@ const queries = `
   bichilSalaryByEmployee(password: String!): BichilSalaryReportsListResponse
 
   bichilSalaryLabels: JSON
+  bichilSalarySymbols: JSON
 `;
 
 const mutations = `

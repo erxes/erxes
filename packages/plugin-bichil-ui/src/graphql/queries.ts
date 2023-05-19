@@ -107,6 +107,12 @@ const labelsQuery = `
   }
 `;
 
+const symbmolsQuery = `
+query bichilSalarySymbols {
+  bichilSalarySymbols
+}
+`;
+
 const salaryFields = `
 _id
 employee {
@@ -173,5 +179,6 @@ export default {
   bichilTimeclockReport,
   labelsQuery,
   bichilSalaryReport,
-  salaryByEmployee
+  salaryByEmployee,
+  symbmolsQuery
 };
