@@ -111,6 +111,7 @@ function Header({
   };
 
   const renderCurrentUser = () => {
+    console.log(currentUser);
     return (
       <>
         <Popup
