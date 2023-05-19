@@ -334,7 +334,7 @@ const importDataAndCreateTimeclock = async (
   for (const timeclock of existingTimeclocks) {
     if (timeclock.userId in existingTimeclocksDict) {
       existingTimeclocksDict[timeclock.userId] = [
-        ...existingTimeclocks[timeclock.userId],
+        ...existingTimeclocksDict[timeclock.userId],
         timeclock
       ];
     }
