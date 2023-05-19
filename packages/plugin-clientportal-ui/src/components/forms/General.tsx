@@ -56,6 +56,7 @@ function General({
   knowledgeBaseTopicId,
   taskPublicBoardId,
   taskPublicPipelineId,
+  taskPublicLabel,
   topics,
   boards,
   pipelines,
@@ -223,15 +224,30 @@ function General({
     return (
       <>
         <FormGroup>
-          <ControlLabel>Task public board</ControlLabel>
-          <p>{__('Public task board')}</p>
-          {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
+          {/* <ControlLabel>Task public board</ControlLabel> */}
+          {/* <p>{__('Public task board')}</p> */}
+          {/* {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
+           */}
+          {renderControl({
+            label: 'Public tasks',
+            subtitle: 'Shown name on menu',
+            formValueName: 'taskPublicLabel',
+            formValue: taskPublicLabel,
+            placeholder: 'Please enter a label for public task'
+          })}
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>Task public pipeline</ControlLabel>
-          <p>{__('Public task pipeline')}</p>
-          {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
-        </FormGroup>
+        <FlexContent>
+          <FormGroup>
+            <ControlLabel>Task public board</ControlLabel>
+            <p>{__('Public task board')}</p>
+            {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Task public pipeline</ControlLabel>
+            <p>{__('Public task pipeline')}</p>
+            {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
+          </FormGroup>
+        </FlexContent>
       </>
     );
   };

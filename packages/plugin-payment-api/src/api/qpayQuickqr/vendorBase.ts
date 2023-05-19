@@ -30,22 +30,27 @@ export class VendorBaseAPI {
 
       const { access_token, refresh_token, expires_in } = authResponse;
 
-      const data = {
-        access_token,
-        refresh_token,
-        tokenExpiration: expires_in * 1000 + Date.now()
-      };
-
-      await redis.set(
-        'qpay_merchant_data',
-        JSON.stringify(data),
-        'EX',
-        expires_in
-      );
-
       this.accessToken = access_token;
 
       return access_token;
+
+      // TODO: uncomment this code when redis is ready
+      // const data = {
+      //   access_token,
+      //   refresh_token,
+      //   tokenExpiration: expires_in * 1000 + Date.now()
+      // };
+
+      // await redis.set(
+      //   'qpay_merchant_data',
+      //   JSON.stringify(data),
+      //   'EX',
+      //   expires_in
+      // );
+
+      // this.accessToken = access_token;
+
+      // return access_token;
     } catch (e) {
       throw new Error(e.message);
     }
@@ -93,27 +98,6 @@ export class VendorBaseAPI {
     }
   }
 
-  async getToken() {
-    // Check if token is expired or not set
-    const data = await redis.get('qpay_merchant_data');
-
-    if (!this.accessToken.length && !data) {
-      return await this.authenticate();
-    }
-
-    if (data) {
-      const { tokenExpiration, access_token } = JSON.parse(data);
-
-      if (Date.now() >= tokenExpiration) {
-        return await this.refreshToken();
-      }
-
-      this.accessToken = access_token;
-    }
-
-    return this.accessToken;
-  }
-
   async makeRequest(args: {
     method: string;
     path: string;
@@ -123,7 +107,7 @@ export class VendorBaseAPI {
   }) {
     const { method, path, params, data } = args;
 
-    const token = await this.getToken();
+    const token = await this.authenticate();
 
     const headers = {
       ...args.headers,

@@ -4,6 +4,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import {
   sendCardsMessage,
+  sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
   sendKbMessage
@@ -196,6 +197,57 @@ const configClientPortalQueries = {
       },
       isRPC: true,
       defaultValue: []
+    });
+  },
+
+  async clientPortalGetAllowedFields(
+    _root,
+    { _id }: { _id: string },
+    { models, subdomain }: IContext
+  ) {
+    const configs = await models.FieldConfigs.find({
+      allowedClientPortalIds: _id
+    });
+
+    const required = await models.FieldConfigs.find({
+      allowedClientPortalIds: _id,
+      requiredOn: _id
+    });
+
+    if (!configs || configs.length === 0) {
+      return [];
+    }
+
+    const fieldIds = configs.map(config => config.fieldId);
+    const fields = await sendCommonMessage({
+      subdomain,
+      serviceName: 'forms',
+      action: 'fields.find',
+      data: {
+        query: {
+          _id: { $in: fieldIds },
+          contentType: 'clientportal:user'
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (!required.length || required.length === 0) {
+      return fields;
+    }
+
+    return fields.map(field => {
+      const found = required.find(config => config.fieldId === field._id);
+
+      if (!found) {
+        return field;
+      }
+
+      return {
+        ...field,
+        isRequired: true
+      };
     });
   }
 };

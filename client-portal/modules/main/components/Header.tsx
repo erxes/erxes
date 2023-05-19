@@ -22,6 +22,7 @@ import { getConfigColor, readFile } from "../../common/utils";
 import Button from "../../common/Button";
 import { Dropdown } from "react-bootstrap";
 import DropdownToggle from "../../common/DropdownToggle";
+import ForgotPasswordContainer from "../../user/containers/ForgotPassword";
 import Icon from "../../common/Icon";
 import Label from "../../common/Label";
 import Link from "next/link";
@@ -31,7 +32,6 @@ import NameCard from "../../common/nameCard/NameCard";
 import Notifications from "../components/notifications/Notifications";
 import Popup from "reactjs-popup";
 import RegisterContainer from "../../user/containers/Register";
-import ResetPasswordContainer from "../../user/containers/ResetPassword";
 import SettingsContainer from "../containers/notifications/Settings";
 import { withRouter } from "next/router";
 
@@ -251,8 +251,9 @@ function Header({
       />
       <Modal
         content={() => (
-          <ResetPasswordContainer
+          <ForgotPasswordContainer
             setLogin={setLogin}
+            clientPortalId={config._id}
             setResetPassword={setResetPassword}
           />
         )}
