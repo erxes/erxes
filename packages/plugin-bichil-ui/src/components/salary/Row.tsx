@@ -32,7 +32,10 @@ const Row = (props: Props) => {
   //   );
   // };
 
-  const branches = salary.employee.branches
+  const branches =
+    (salary && salary.employee && salary.employee.branches) || [];
+
+  const branchText = branches
     .map(branch => branch.name)
     .join(', ')
     .slice(0, -1);
@@ -47,7 +50,7 @@ const Row = (props: Props) => {
       </td>
 
       <td key={'department'}>
-        <RowTitle>{branches || '-'}</RowTitle>
+        <RowTitle>{branchText || '-'}</RowTitle>
       </td>
 
       <td key={'position'}>
