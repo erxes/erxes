@@ -7,7 +7,6 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { IAsset } from '../../common/types';
 import { queries } from '../category/graphql';
-import { queries as assetQueries } from '../graphql';
 import AssignArticles from '../components/AssignArticles';
 
 type Props = {
@@ -40,7 +39,7 @@ class AssignContainer extends React.Component<FinalProps, State> {
       .query({
         query: gql(queries.knowledgeBaseArticles),
         fetchPolicy: 'network-only',
-        variables: { categoryIds }
+        variables: { categoryIds, perPage: 500 }
       })
       .then(({ data }) => {
         const kbArticles = data.knowledgeBaseArticles || [];

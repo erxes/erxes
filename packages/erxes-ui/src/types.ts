@@ -139,6 +139,7 @@ export type IOption = {
   label: string;
   value: string;
   avatar?: string;
+  extraValue?: string;
 };
 
 export type IButtonMutateProps = {

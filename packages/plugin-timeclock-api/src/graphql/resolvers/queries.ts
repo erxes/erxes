@@ -8,6 +8,7 @@ import {
 } from './utils';
 import {
   customFixDate,
+  findAllTeamMembersWithEmpId,
   generateCommonUserIds,
   generateFilter,
   returnSupervisedUsers
@@ -61,9 +62,11 @@ const timeclockQueries = {
 
   timeclocksPerUser(
     _root,
-    { userId, startDate, endDate },
-    { models }: IContext
+    { userId, startDate, endDate, shiftActive },
+    { models, user }: IContext
   ) {
+    const getUserId = userId || user._id;
+
     const timeField = {
       $or: [
         {
@@ -81,7 +84,13 @@ const timeclockQueries = {
       ]
     };
 
-    return models.Timeclocks.find({ $and: [{ userId }, timeField] });
+    const selector: any = [{ userId: getUserId }, timeField];
+
+    if (shiftActive) {
+      selector.push({ shiftActive });
+    }
+
+    return models.Timeclocks.find({ $and: selector });
   },
 
   async timeclocksMain(
@@ -198,7 +207,7 @@ const timeclockQueries = {
 
   schedulesPerUser(_root, queryParams, { models, user }: IContext) {
     const getUserId = queryParams.userId || user._id;
-    return models.Schedules.find({ userId: getUserId });
+    return models.Schedules.find({ userId: getUserId, status: 'Approved' });
   },
 
   scheduleConfigs(_root, {}, { models }: IContext) {
@@ -265,11 +274,17 @@ const timeclockQueries = {
 
   async timeclockReportByUser(
     _root,
-    { selectedUser },
+    { selectedUser, selectedMonth, selectedYear, selectedDate },
     { subdomain, user }: IContext
   ) {
     const userId = selectedUser || user._id;
-    return timeclockReportByUser(userId, subdomain);
+    return timeclockReportByUser(
+      subdomain,
+      userId,
+      selectedMonth,
+      selectedYear,
+      selectedDate
+    );
   },
 
   async timeclockReports(
@@ -305,10 +320,15 @@ const timeclockQueries = {
       subdomain
     );
 
-    const totalTeamMemberIds =
-      teamMemberIdsFromFilter.length || filterGiven
-        ? teamMemberIdsFromFilter
-        : totalSupervisedUserIds;
+    const totalUserIds = (await findAllTeamMembersWithEmpId(subdomain)).map(
+      returnedUser => returnedUser._id
+    );
+
+    const totalTeamMemberIds = filterGiven
+      ? teamMemberIdsFromFilter
+      : isCurrentUserAdmin
+      ? totalUserIds
+      : totalSupervisedUserIds;
 
     switch (reportType) {
       case 'Урьдчилсан' || 'Preliminary':

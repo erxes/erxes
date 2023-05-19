@@ -1,6 +1,6 @@
 import { sendProductsMessage } from '../../../messageBroker';
-import { getFullDate, getPureDate, getTomorrow } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
+import { getPureDate, getToday, getTomorrow } from '@erxes/api-utils/src/core';
 
 export const paginate = (
   collection,
@@ -101,7 +101,7 @@ const generateFilterPosQuery = async (
   if (paidDate === 'today') {
     const now = new Date();
 
-    const startDate = getFullDate(now);
+    const startDate = getToday(now);
     const endDate = getTomorrow(now);
 
     query.paidDate = { $gte: startDate, $lte: endDate };

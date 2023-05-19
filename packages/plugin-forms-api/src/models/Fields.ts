@@ -22,6 +22,7 @@ export interface ITypedListItem {
   numberValue?: number;
   dateValue?: Date;
   locationValue?: ILocationOption;
+  extraValue?: string;
 }
 
 export const isValidDate = value => {
@@ -53,7 +54,8 @@ export interface IFieldModel extends Model<IFieldDocument> {
     field: string,
     value: string,
     type: string,
-    validation?: string
+    validation?: string,
+    extraValue?: string
   ): ITypedListItem;
   prepareCustomFieldsData(
     customFieldsData?: Array<{ field: string; value: any }>
@@ -388,7 +390,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       field: string,
       value: string | number | string[] | ILocationOption,
       type: string,
-      validation?: string
+      validation?: string,
+      extraValue?: string
     ): ITypedListItem {
       let stringValue;
       let numberValue;
@@ -429,7 +432,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         stringValue,
         numberValue,
         dateValue,
-        locationValue
+        locationValue,
+        extraValue
       };
     }
 
@@ -441,7 +445,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
     }
 
     public static async prepareCustomFieldsData(
-      customFieldsData?: Array<{ field: string; value: any }>
+      customFieldsData?: Array<{
+        field: string;
+        value: any;
+        extraValue?: string;
+      }>
     ): Promise<ITypedListItem[]> {
       const result: ITypedListItem[] = [];
 
@@ -477,7 +485,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
             field._id,
             customFieldData.value,
             field ? field.type || '' : '',
-            field?.validation
+            field?.validation,
+            customFieldData?.extraValue
           )
         );
       }
