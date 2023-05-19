@@ -103,6 +103,7 @@ ${
     dealLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
+    taskPublicLabel: String
     taskLabel: String
     taskStageId: String
     taskPipelineId: String
@@ -227,6 +228,7 @@ export const mutations = cardAvailable => `
     dealLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
+    taskPublicLabel: String
     taskStageId: String
     taskPipelineId: String
     taskBoardId: String

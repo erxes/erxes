@@ -21,6 +21,7 @@ export const commonFields = `
   dealLabel
   taskPublicPipelineId
   taskPublicBoardId
+  taskPublicLabel
   taskLabel
   taskStageId
   taskPipelineId
