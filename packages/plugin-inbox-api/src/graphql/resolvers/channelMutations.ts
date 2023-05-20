@@ -171,6 +171,6 @@ const channelMutations = {
 
 checkPermission(channelMutations, 'channelsAdd', 'manageChannels');
 checkPermission(channelMutations, 'channelsEdit', 'manageChannels');
-checkPermission(channelMutations, 'channelsRemove', 'manageChannels');
+checkPermission(channelMutations, 'channelsRemove', 'removeChannels');
 
 export default channelMutations;
