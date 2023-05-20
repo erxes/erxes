@@ -83,7 +83,7 @@ class CloseDate extends React.Component<Props, State> {
       const type = e.target.type;
       const value = e.target.value;
 
-      const oldDay = dayjs(dueDate).format('YYYY-MM-DD');
+      const oldDay = dayjs(dueDate).format('YYYY/MM/DD');
       const oldTime = dayjs(dueDate).format('HH:mm');
       let newDate = dueDate;
 

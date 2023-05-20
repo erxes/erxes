@@ -74,7 +74,7 @@ class StartDate extends React.Component<Props, State> {
       const type = e.target.type;
       const value = e.target.value;
 
-      const oldDay = dayjs(startDate).format('YYYY-MM-DD');
+      const oldDay = dayjs(startDate).format('YYYY/MM/DD');
       const oldTime = dayjs(startDate).format('HH:mm');
       let newDate = startDate;
 
