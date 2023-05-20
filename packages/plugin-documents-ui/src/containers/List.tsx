@@ -42,8 +42,6 @@ class ListContainer extends React.Component<FinalProps> {
     const list = listQuery.documents || [];
     const tags = tagsQuery.tags || [];
 
-    console.log('tagsQuery', tagsQuery);
-
     const updatedProps = {
       ...this.props,
       list,
