@@ -103,6 +103,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
 
     public static fillSearchText(doc: ICompany) {
       return validSearchText([
+        doc.primaryName || '',
         (doc.names || []).join(' '),
         (doc.emails || []).join(' '),
         (doc.phones || []).join(' '),
