@@ -46,7 +46,7 @@ function LeadFilterContainer(props: Props) {
       prevIntegrationsQuery &&
       integrationsQuery.integrations !== prevIntegrationsQuery.integrations
     ) {
-      if (!queryParams.searchTarget.length) {
+      if (!queryParams.searchTarget || !queryParams.searchTarget.length) {
         setIntegrations([...integrations, ...integrationsQuery.integrations]);
       } else {
         setIntegrations(integrationsQuery.integrations);
