@@ -3,6 +3,7 @@ import {
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
+import { ToggleIcon } from '../../../erxes-ui/src/components/filterableList/styles';
 
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
@@ -24,7 +25,20 @@ type Props = {
   loading: boolean;
 };
 
-class Segments extends React.Component<Props> {
+type State = {
+  key: string;
+  parentFieldIds: { [key: string]: boolean };
+};
+
+class Segments extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      key: '',
+      parentFieldIds: {}
+    };
+  }
   renderCancelBtn() {
     const { currentSegment, removeSegment } = this.props;
 
@@ -74,9 +88,27 @@ class Segments extends React.Component<Props> {
     setSegment(segmentId);
   }
 
+  onToggle = (id: string, isOpen: boolean) => {
+    const parentFieldIds = this.state.parentFieldIds;
+    parentFieldIds[id] = !isOpen;
+
+    this.setState({ parentFieldIds });
+  };
+
+  groupByParent = (array: any[]) => {
+    const key = 'subOf';
+
+    return array.reduce((rv, x) => {
+      (rv[x[key]] = rv[x[key]] || []).push(x);
+
+      return rv;
+    }, {});
+  };
+
   renderData() {
     const { counts, segments, currentSegment } = this.props;
     const orderedSegments: ISegment[] = [];
+    const { key } = this.state;
 
     segments.forEach(segment => {
       if (!segment.subOf) {
@@ -84,31 +116,72 @@ class Segments extends React.Component<Props> {
       }
     });
 
-    return (
-      <SidebarList>
-        {orderedSegments.map(segment => (
-          <li
-            key={segment._id}
-            className={segment.subOf ? 'child-segment' : ''}
+    const renderOrderItem = (field: ISegment, isOpen?: boolean) => {
+      if (key && field.name.toLowerCase().indexOf(key) < 0) {
+        return false;
+      }
+
+      if (!field._id || !field.name) {
+        return null;
+      }
+
+      return (
+        <li key={field._id} className={field.subOf ? 'child-segment' : ''}>
+          <a
+            href="#active"
+            tabIndex={0}
+            className={currentSegment === field._id ? 'active' : ''}
+            onClick={this.onSegmentClick.bind(this, field._id)}
           >
-            <a
-              href="#active"
-              tabIndex={0}
-              className={currentSegment === segment._id ? 'active' : ''}
-              onClick={this.onSegmentClick.bind(this, segment._id)}
-            >
-              {segment.subOf ? '\u00a0\u00a0' : null}
-              <Icon
-                icon="chart-pie"
-                style={{ color: segment.color, marginRight: '5px' }}
-              />{' '}
-              <FieldStyle>{segment.name}</FieldStyle>
-              <SidebarCounter>{counts[segment._id]}</SidebarCounter>
-            </a>
-          </li>
-        ))}
-      </SidebarList>
-    );
+            {field.subOf ? '\u00a0\u00a0' : null}
+            <Icon
+              icon="chart-pie"
+              style={{ color: field.color, marginRight: '5px' }}
+            />{' '}
+            <FieldStyle>{field.name}</FieldStyle>
+            <SidebarCounter>{counts[field._id]}</SidebarCounter>
+          </a>
+        </li>
+      );
+    };
+
+    const renderContent = () => {
+      const subFields = orderedSegments.filter(f => f.subOf);
+      const parents = orderedSegments.filter(f => !f.subOf);
+      const groupByParent = this.groupByParent(subFields);
+
+      const renderTree = field => {
+        const childrens = groupByParent[field._id];
+        if (childrens) {
+          const isOpen = this.state.parentFieldIds[field._id];
+
+          return (
+            <div key={field._id}>
+              <ToggleIcon
+                onClick={this.onToggle.bind(this, field._id, isOpen)}
+                type="params"
+              >
+                <Icon icon={isOpen ? 'angle-down' : 'angle-right'} />
+              </ToggleIcon>
+
+              {renderOrderItem(field, isOpen)}
+              {isOpen &&
+                childrens.map(childField => {
+                  return renderTree(childField);
+                })}
+            </div>
+          );
+        }
+
+        return renderOrderItem(field);
+      };
+
+      return parents.map(field => {
+        return renderTree(field);
+      });
+    };
+
+    return <SidebarList>{renderContent()}</SidebarList>;
   }
 
   render() {
