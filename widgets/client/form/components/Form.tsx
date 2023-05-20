@@ -184,7 +184,7 @@ class Form extends React.Component<Props, State> {
           ...field,
           value: `Product: ${
             selectedProduct.name
-          } : ${(selectedProduct.unitPrice.toLocaleString())} x ${(this.state.qty || 1)} = Total: ${(selectedProduct.unitPrice * (this.state.qty || 1)).toLocaleString()}`  ,
+          } : ${(selectedProduct.unitPrice.toLocaleString())} x ${(this.state.qty || 1)} = Total ${(selectedProduct.unitPrice * (this.state.qty || 1)).toLocaleString()}`  ,
           productId: selectedProduct._id
         };
 
