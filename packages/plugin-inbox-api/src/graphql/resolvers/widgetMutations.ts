@@ -626,13 +626,13 @@ const widgetMutations = {
 
       if (!company) {
         companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
 
         company = await sendContactsMessage({
           subdomain,
           action: 'companies.createCompany',
           data: {
             ...companyData,
-            names: [companyData.name],
             scopeBrandIds: [brand._id]
           },
           isRPC: true
