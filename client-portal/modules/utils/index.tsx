@@ -52,6 +52,10 @@ const sendDesktopNotification = (doc: { title: string; content?: string }) => {
 };
 
 const renderUserFullName = (data) => {
+  if (!data) {
+    return null;
+  }
+
   if (data.firstName || data.lastName) {
     return (data.firstName || "") + " " + (data.lastName || "");
   }
