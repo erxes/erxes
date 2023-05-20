@@ -21,6 +21,7 @@ export const commonFields = `
   dealLabel
   taskPublicPipelineId
   taskPublicBoardId
+  taskPublicLabel
   taskLabel
   taskStageId
   taskPipelineId
@@ -252,6 +253,16 @@ const clientPortalComments = `
   }
 `;
 
+const fieldConfig = `
+query ClientPortalFieldConfig($fieldId: String) {
+  clientPortalFieldConfig(fieldId: $fieldId) {
+    allowedClientPortalIds
+    fieldId
+    requiredOn
+  }
+}
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -261,5 +272,6 @@ export default {
   clientPortalUsersMain,
   clientPortalUserDetail,
   clientPortalUserCounts,
-  clientPortalComments
+  clientPortalComments,
+  fieldConfig
 };

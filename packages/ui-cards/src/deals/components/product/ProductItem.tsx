@@ -485,7 +485,7 @@ class ProductItem extends React.Component<Props, State> {
           <Amount>
             {(
               productData.quantity * productData.unitPrice -
-              productData.discount
+              (productData.discount || 0)
             ).toLocaleString()}{' '}
           </Amount>
         </td>
