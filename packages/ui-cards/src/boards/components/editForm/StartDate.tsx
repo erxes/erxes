@@ -1,5 +1,3 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
 import {
   Button,
   CalenderWrapper,
@@ -7,10 +5,13 @@ import {
   CloseDateWrapper,
   DateGrid
 } from '../../styles/popup';
+
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import React from 'react';
+import Datetime from '@nateradebaugh/react-datetime';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import React from 'react';
+import dayjs from 'dayjs';
 import { generateButtonStart } from '../../utils';
 
 type Props = {
@@ -36,7 +37,7 @@ class StartDate extends React.Component<Props, State> {
     this.ref = React.createRef();
 
     this.state = {
-      startDate: props.startDate || dayjs()
+      startDate: props.startDate || dayjs(new Date())
     };
   }
 

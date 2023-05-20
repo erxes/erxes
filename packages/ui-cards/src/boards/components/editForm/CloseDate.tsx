@@ -1,6 +1,3 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import { REMINDER_MINUTES } from '../../constants';
 import {
   Button,
   CalenderWrapper,
@@ -9,13 +6,17 @@ import {
   CloseDateWrapper,
   DateGrid
 } from '../../styles/popup';
-import FormControl from '@erxes/ui/src/components/form/Control';
+import { generateButtonClass, selectOptions } from '../../utils';
+
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import React from 'react';
+import Datetime from '@nateradebaugh/react-datetime';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import { REMINDER_MINUTES } from '../../constants';
+import React from 'react';
 import Select from 'react-select-plus';
-import { generateButtonClass, selectOptions } from '../../utils';
+import dayjs from 'dayjs';
 
 type Props = {
   closeDate: Date;
@@ -41,7 +42,7 @@ class CloseDate extends React.Component<Props, State> {
     this.ref = React.createRef();
 
     this.state = {
-      dueDate: props.closeDate || dayjs()
+      dueDate: props.closeDate || dayjs(new Date())
     };
   }
 
