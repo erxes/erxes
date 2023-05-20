@@ -6,16 +6,20 @@ module.exports = {
       {
         name: 'emailTemplateAll',
         description: 'All',
-        use: ['showEmailTemplates', 'manageEmailTemplate']
+        use: ['showEmailTemplates', 'manageEmailTemplate', 'removeEmailTemplate']
       },
       {
         name: 'manageEmailTemplate',
         description: 'Manage email template'
       },
       {
+        name: 'removeEmailTemplate',
+        description: 'Remove email template'
+      },
+      {
         name: 'showEmailTemplates',
         description: 'Show email templates'
       }
     ]
-  }, 
+  },
 }

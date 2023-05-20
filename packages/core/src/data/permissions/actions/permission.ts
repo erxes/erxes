@@ -6,7 +6,7 @@ export const moduleObjects = {
       {
         name: 'brandsAll',
         description: 'All',
-        use: ['showBrands', 'manageBrands', 'exportBrands']
+        use: ['showBrands', 'manageBrands', 'exportBrands', 'removeBrands']
       },
       {
         name: 'manageBrands',
@@ -19,6 +19,10 @@ export const moduleObjects = {
       {
         name: 'exportBrands',
         description: 'Export brands'
+      },
+      {
+        name: 'removeBrands',
+        description: 'Remove brands'
       }
     ]
   },

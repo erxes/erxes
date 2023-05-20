@@ -6,11 +6,15 @@ module.exports = {
       {
         name: 'productsAll',
         description: 'All',
-        use: ['showProducts', 'manageProducts', 'productsMerge']
+        use: ['showProducts', 'manageProducts', 'productsMerge', 'removeProducts']
       },
       {
         name: 'manageProducts',
         description: 'Manage products'
+      },
+      {
+        name: 'removeProducts',
+        description: 'Remove products'
       },
       {
         name: 'showProducts',

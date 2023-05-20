@@ -101,7 +101,7 @@ checkPermission(
 checkPermission(
   clientPortalMutations,
   'clientPortalRemove',
-  'manageClientPortal'
+  'removeClientPortal'
 );
 
 export default clientPortalMutations;

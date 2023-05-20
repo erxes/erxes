@@ -156,7 +156,7 @@ checkPermission(
 checkPermission(
   emailTemplateMutations,
   'emailTemplatesRemove',
-  'manageEmailTemplate'
+  'removeEmailTemplate'
 );
 checkPermission(
   emailTemplateMutations,

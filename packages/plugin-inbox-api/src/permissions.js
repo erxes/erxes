@@ -204,11 +204,15 @@ module.exports = {
       {
         name: 'channelsAll',
         description: 'All',
-        use: ['showChannels', 'manageChannels', 'exportChannels']
+        use: ['showChannels', 'manageChannels', 'exportChannels', 'removeChannels']
       },
       {
         name: 'manageChannels',
         description: 'Manage channels'
+      },
+      {
+        name: 'removeChannels',
+        description: 'Remove channels'
       },
       {
         name: 'showChannels',
