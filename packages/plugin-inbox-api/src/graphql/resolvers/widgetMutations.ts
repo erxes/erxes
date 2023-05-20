@@ -632,6 +632,7 @@ const widgetMutations = {
           action: 'companies.createCompany',
           data: {
             ...companyData,
+            names: [companyData.name],
             scopeBrandIds: [brand._id]
           },
           isRPC: true
