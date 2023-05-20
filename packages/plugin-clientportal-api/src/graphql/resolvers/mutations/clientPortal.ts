@@ -1,8 +1,8 @@
-import { checkPermission } from '@erxes/api-utils/src';
-
-import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage, sendContactsMessage } from '../../../messageBroker';
+
 import { IClientPortal } from '../../../models/definitions/clientPortal';
+import { IContext } from '../../../connectionResolver';
+import { checkPermission } from '@erxes/api-utils/src';
 
 export interface IVerificationParams {
   userId: string;
@@ -54,7 +54,7 @@ const clientPortalMutations = {
     }
 
     if (['High', 'Critical'].includes(priority)) {
-      priority = 'Normal';
+      priority = 'Medium';
     }
 
     const card = await sendCardsMessage({

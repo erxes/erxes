@@ -1,19 +1,20 @@
 import {
   attachmentSchema,
   boardSchema,
-  pipelineSchema,
-  stageSchema as boardStageSchema
+  stageSchema as boardStageSchema,
+  pipelineSchema
 } from './models/definitions/boards';
 import {
-  checklistSchema,
-  checklistItemSchema
+  checklistItemSchema,
+  checklistSchema
 } from './models/definitions/checklists';
 import { dealSchema, productDataSchema } from './models/definitions/deals';
-import { growthHackSchema } from './models/definitions/growthHacks';
 import {
   pipelineTemplateSchema,
   stageSchema
 } from './models/definitions/pipelineTemplates';
+
+import { growthHackSchema } from './models/definitions/growthHacks';
 import { pipelineLabelSchema } from './models/definitions/pipelineLabels';
 import { taskSchema } from './models/definitions/tasks';
 import { ticketSchema } from './models/definitions/tickets';
@@ -46,7 +47,7 @@ export const PRIORITIES = {
       color: '#EA475D'
     },
     { name: 'High', color: '#F7CE53' },
-    { name: 'Normal', color: '#3B85F4' },
+    { name: 'Medium', color: '#3B85F4' },
     { name: 'Low', color: '#AAAEB3' }
   ]
 };
