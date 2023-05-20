@@ -67,6 +67,8 @@ type Props = {
 
 type State = {
   total: { [currency: string]: number };
+  unUsedTotal: { [currency: string]: number };
+  bothTotal: { [currency: string]: number };
   tax: { [currency: string]: { value?: number; percent?: number } };
   discount: { [currency: string]: { value?: number; percent?: number } };
   vatPercent: number;
@@ -84,6 +86,8 @@ class ProductForm extends React.Component<Props, State> {
 
     this.state = {
       total: {},
+      unUsedTotal: {},
+      bothTotal: {},
       discount: {},
       tax: {},
       vatPercent: 0,
@@ -170,20 +174,34 @@ class ProductForm extends React.Component<Props, State> {
 
   updateTotal = (productsData = this.props.productsData) => {
     const total = {};
+    const unUsedTotal = {};
+    const bothTotal = {};
     const tax = {};
     const discount = {};
 
     productsData.forEach(p => {
-      if (p.currency && p.tickUsed) {
-        if (!total[p.currency]) {
-          discount[p.currency] = { percent: 0, value: 0 };
-          tax[p.currency] = { percent: 0, value: 0 };
-          total[p.currency] = 0;
+      if (p.currency) {
+        if (!bothTotal[p.currency]) {
+          bothTotal[p.currency] = 0;
         }
+        bothTotal[p.currency] += p.amount || 0;
 
-        discount[p.currency].value += p.discount || 0;
-        tax[p.currency].value += p.tax || 0;
-        total[p.currency] += p.amount || 0;
+        if (p.tickUsed) {
+          if (!total[p.currency]) {
+            discount[p.currency] = { percent: 0, value: 0 };
+            tax[p.currency] = { percent: 0, value: 0 };
+            total[p.currency] = 0;
+          }
+
+          discount[p.currency].value += p.discount || 0;
+          tax[p.currency].value += p.tax || 0;
+          total[p.currency] += p.amount || 0;
+        } else {
+          if (!unUsedTotal[p.currency]) {
+            unUsedTotal[p.currency] = 0;
+          }
+          unUsedTotal[p.currency] += p.amount || 0;
+        }
       }
     });
 
@@ -196,7 +214,7 @@ class ProductForm extends React.Component<Props, State> {
         (discount[currency].value * 100) / clearTotal;
     }
 
-    this.setState({ total, tax, discount });
+    this.setState({ total, tax, discount, bothTotal, unUsedTotal });
   };
 
   renderTotal(totalKind, kindTxt) {
@@ -612,7 +630,15 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    const { total, tax, discount, currentTab, advancedView } = this.state;
+    const {
+      total,
+      tax,
+      discount,
+      currentTab,
+      advancedView,
+      unUsedTotal,
+      bothTotal
+    } = this.state;
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
@@ -630,6 +656,10 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     const avStyle = { display: advancedView ? 'inherit' : 'none' };
+    let totalContent = this.renderTotal(total, 'total');
+    if (!Object.keys(totalContent).length) {
+      totalContent = '--' as any;
+    }
 
     return (
       <FormContainer>
@@ -650,12 +680,25 @@ class ProductForm extends React.Component<Props, State> {
               </tr>
               <tr>
                 <td>{__('Total')}:</td>
-                <td>{this.renderTotal(total, 'total')}</td>
+                <td>{totalContent}</td>
               </tr>
+              {(Object.keys(unUsedTotal).length && (
+                <tr>
+                  <td>{__('Un used Total')}:</td>
+                  <td>{this.renderTotal(unUsedTotal, 'unUsedTotal')}</td>
+                </tr>
+              )) ||
+                ''}
+              {(Object.keys(unUsedTotal).length && (
+                <tr>
+                  <td>{__('Both Total')}:</td>
+                  <td>{this.renderTotal(bothTotal, 'bothTotal')}</td>
+                </tr>
+              )) ||
+                ''}
 
               <tr>
-                <td />
-                <td>
+                <td colSpan={6}>
                   <ApplyVatWrapper>
                     <FormControl
                       placeholder="Vat percent"
