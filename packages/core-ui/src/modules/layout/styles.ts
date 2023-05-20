@@ -464,11 +464,22 @@ const NavItem = styledTS<{ isMoreItem?: boolean }>(styled.div)`
   }
 
   @media screen and (max-height: 870px){
-    &.more {
+    &.more-2 {
       position: fixed;
       bottom: 160px;
     }
   }
+  @media screen and (max-height: 560px){
+    &.more-1 {
+      position: fixed;
+      bottom: 120px;
+    }
+    &.more-3 {
+      position: fixed;
+      bottom: 120px;
+    }
+  }
+
 `;
 
 const DropNav = styled.a`
