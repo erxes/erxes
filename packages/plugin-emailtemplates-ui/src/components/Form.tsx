@@ -7,6 +7,10 @@ import React from 'react';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IEmailTemplate } from '../types';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { Icon, PopoverButton, Tags } from '@erxes/ui/src/index';
+import { ColorButton } from '@erxes/ui-cards/src/boards/styles/common';
 
 type Props = {
   object?: IEmailTemplate;
@@ -46,7 +50,19 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as IEmailTemplate);
-
+    const tagTrigger = (
+      <PopoverButton id="conversationTags">
+        {object.tags?.length ? (
+          <>
+            <Tags tags={object.tags} limit={1} /> <Icon icon="angle-down" />
+          </>
+        ) : (
+          <ColorButton>
+            <Icon icon="tag-alt" /> No tags
+          </ColorButton>
+        )}
+      </PopoverButton>
+    );
     return (
       <>
         <FormGroup>
@@ -60,6 +76,16 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             autoFocus={true}
           />
         </FormGroup>
+
+        {isEnabled('tags') && (
+          <TaggerPopover
+            type={'emailtemplates:emailtemplates'}
+            trigger={tagTrigger}
+            refetchQueries={['dealDetail']}
+            targets={[object]}
+            singleSelect={true}
+          />
+        )}
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>

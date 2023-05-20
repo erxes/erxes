@@ -7,6 +7,10 @@ import {
 } from './schema/emailTemplate';
 
 const typeDefs = async _serviceDiscovery => {
+  const tagsEnabled = await _serviceDiscovery.isEnabled('tags');
+  const isEnabled = {
+    tags: tagsEnabled
+  };
   return gql`
     scalar JSON
     scalar Date
@@ -22,7 +26,7 @@ const typeDefs = async _serviceDiscovery => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
-    ${emailTemplateTypes}
+    ${emailTemplateTypes(isEnabled)}
 
     extend type Query {
       ${emailTemplateQueries}

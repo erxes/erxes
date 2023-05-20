@@ -4,21 +4,27 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
+import { sendTagsMessage } from '../../../messageBroker';
 
 interface IListParams {
   page: number;
   perPage: number;
   searchValue: string;
   status: string;
+  tag: string;
 }
 
 const generateFilter = (commonSelector, args: IListParams) => {
-  const { searchValue, status } = args;
+  const { searchValue, status, tag } = args;
 
   const filter: any = commonSelector;
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (tag) {
+    filter.tagIds = tag;
   }
 
   if (status) {
@@ -44,6 +50,35 @@ const emailTemplateQueries = {
     const filter = generateFilter(commonQuerySelector, args);
 
     return paginate(models.EmailTemplates.find(filter), args);
+  },
+
+  async emailTemplateCountsByTags(
+    _root,
+    { type },
+    { models, subdomain }: IContext
+  ) {
+    const counts: any = {
+      byTag: {}
+    };
+
+    console.log();
+
+    // Count customers by tag
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: { type: type },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for await (const tag of tags) {
+      counts.byTag[tag._id] = await models.EmailTemplates.count({
+        tagIds: tag._id
+      });
+    }
+
+    return counts;
   },
 
   /**

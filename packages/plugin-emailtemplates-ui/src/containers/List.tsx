@@ -73,6 +73,7 @@ export default commonListComposer<Props>({
         variables: {
           searchValue: queryParams.searchValue,
           status: queryParams.status,
+          tag: queryParams.tag,
           ...generatePaginationParams(queryParams)
         }
       };

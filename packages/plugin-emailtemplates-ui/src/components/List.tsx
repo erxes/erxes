@@ -18,6 +18,7 @@ import Form from './Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { router } from 'coreui/utils';
 import dayjs from 'dayjs';
+import Sidebar from './Sidebar';
 
 type Props = {
   queryParams: any;
@@ -157,6 +158,12 @@ class EmailTemplateList extends React.Component<Props> {
         {...this.props}
         queryParams={this.props.queryParams}
         history={this.props.history}
+        leftSidebar={
+          <Sidebar
+            loadingMainQuery={false}
+            type={'emailtemplates:emailtemplates'}
+          />
+        }
         additionalButton={
           <FormControl
             type="text"

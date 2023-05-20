@@ -9,5 +9,11 @@ export default {
         _id: emailTemplate.createdBy
       }
     );
+  },
+  async tags(emailTemplate: IEmailTemplateDocument) {
+    return (emailTemplate.tagIds || []).map(_id => ({
+      __typename: 'Tag',
+      _id
+    }));
   }
 };

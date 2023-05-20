@@ -4,6 +4,7 @@ import { generateModels } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import logs from './logUtils';
+import tags from './tags';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
@@ -38,5 +39,5 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: { logs: { consumers: logs }, permissions }
+  meta: { logs: { consumers: logs }, permissions, tags }
 };
