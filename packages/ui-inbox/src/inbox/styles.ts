@@ -283,6 +283,7 @@ const Mask = styled.div`
 
   .facebook-mask {
     background: #fff;
+    width: 100%;
   }
 
   &:hover {
