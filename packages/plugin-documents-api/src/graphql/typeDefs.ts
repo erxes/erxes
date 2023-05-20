@@ -6,11 +6,16 @@ import {
   mutations as DocumentMutations
 } from './documentTypeDefs';
 
-const typeDefs = gql`
+const typeDefs = async _serviceDiscovery => {
+  const tagsEnabled = await _serviceDiscovery.isEnabled('tags');
+  const isEnabled = {
+    tags: tagsEnabled
+  };
+  return gql`
   scalar JSON
   scalar Date
 
-  ${DocumentTypes}
+  ${DocumentTypes(isEnabled)}
 
   extend type Query {
     ${DocumentQueries}
@@ -20,5 +25,6 @@ const typeDefs = gql`
     ${DocumentMutations}
   }
 `;
+};
 
 export default typeDefs;

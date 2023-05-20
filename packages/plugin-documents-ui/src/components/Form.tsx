@@ -8,6 +8,10 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { Title } from '@erxes/ui/src/styles/main';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { ColorButton } from '@erxes/ui-cards/src/boards/styles/common';
+import { Icon, PopoverButton, Tags } from '@erxes/ui/src/index';
 
 type Props = {
   contentType: String;
@@ -60,6 +64,21 @@ class Form extends React.Component<Props, State> {
 
   render() {
     const { obj, contentType } = this.props;
+
+    const tagTrigger = (
+      <PopoverButton id="conversationTags">
+        {obj.tags?.length ? (
+          <>
+            <Tags tags={obj.tags} limit={1} /> <Icon icon="angle-down" />
+          </>
+        ) : (
+          <ColorButton>
+            <Icon icon="tag-alt" /> No tags
+          </ColorButton>
+        )}
+      </PopoverButton>
+    );
+
     const { content } = this.state;
 
     const formContent = (
@@ -74,6 +93,19 @@ class Form extends React.Component<Props, State> {
             defaultValue={obj.name}
             onChange={this.onChangeField.bind(this, 'name')}
           />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Tags</ControlLabel>
+
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={'documents:documents'}
+              trigger={tagTrigger}
+              refetchQueries={['documentsDetail']}
+              targets={[obj]}
+              singleSelect={true}
+            />
+          )}
         </FormGroup>
 
         <FormGroup>

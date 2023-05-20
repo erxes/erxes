@@ -6,6 +6,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { getServices, getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { initBroker, sendCommonMessage } from './messageBroker';
 import * as permissions from './permissions';
+import tags from './tags';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -16,10 +17,10 @@ export let debug;
 export default {
   name: 'documents',
   permissions,
-  graphql: sd => {
+  graphql: async sd => {
     serviceDiscovery = sd;
     return {
-      typeDefs,
+      typeDefs: await typeDefs(sd),
       resolvers
     };
   },
@@ -240,5 +241,6 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-  }
+  },
+  meta: { tags }
 };

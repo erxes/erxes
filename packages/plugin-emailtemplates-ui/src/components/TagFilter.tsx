@@ -17,8 +17,6 @@ const TagFilterContainer = (props: {
 }) => {
   const { emailTemplatesCountTagQuery, tagsQuery } = props;
 
-  console.log('emailTemplatesCountTagQuery', emailTemplatesCountTagQuery);
-
   const counts = (emailTemplatesCountTagQuery
     ? emailTemplatesCountTagQuery.emailTemplateCountsByTags
     : null) || { byTag: {} };
@@ -30,8 +28,6 @@ const TagFilterContainer = (props: {
     tagsLoading = tagsQuery.loading || false;
     tags = tagsQuery.tags || [];
   }
-
-  console.log(tags);
 
   return (
     <CountsByTag

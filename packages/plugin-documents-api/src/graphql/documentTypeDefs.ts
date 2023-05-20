@@ -1,4 +1,11 @@
-export const types = `
+export const types = ({ tags }) => `
+  ${
+    tags
+      ? `extend type Tag @key(fields: "_id") {
+          _id: String! @external
+        }`
+      : ''
+  }
   type Document {
     _id: String!
 
@@ -9,6 +16,7 @@ export const types = `
     name: String!
     content: String
     replacer: String
+    ${tags ? 'tags: [Tag]' : ''}
   }
 
   type DocumentEditorAttribute {
@@ -28,6 +36,7 @@ const params = `
   page: Int,
   perPage: Int,
   contentType: String
+  tag: String
 `;
 
 export const queries = `

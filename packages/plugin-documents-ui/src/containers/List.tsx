@@ -4,6 +4,7 @@ import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import { mutations, queries } from '../graphql';
 
 type Props = {
@@ -13,13 +14,14 @@ type Props = {
 
 type FinalProps = {
   listQuery;
+  tagsQuery;
   removeMutation;
   getTypesQuery;
 } & Props;
 
 class ListContainer extends React.Component<FinalProps> {
   render() {
-    const { getTypesQuery, listQuery, removeMutation } = this.props;
+    const { getTypesQuery, listQuery, removeMutation, tagsQuery } = this.props;
 
     const remove = _id => {
       confirm().then(() => {
@@ -38,10 +40,14 @@ class ListContainer extends React.Component<FinalProps> {
     const contentTypes = getTypesQuery?.documentsGetContentTypes || [];
 
     const list = listQuery.documents || [];
+    const tags = tagsQuery.tags || [];
+
+    console.log('tagsQuery', tagsQuery);
 
     const updatedProps = {
       ...this.props,
       list,
+      tags,
       contentTypes,
       remove
     };
@@ -61,10 +67,23 @@ export default withProps<Props>(
       options: ({ queryParams }) => {
         return {
           variables: {
-            contentType: queryParams.contentType
+            contentType: queryParams.contentType,
+            tag: queryParams.tag
           }
         };
       }
+    }),
+    graphql<any, any, { type: string }>(gql(tagQueries.tags), {
+      name: 'tagsQuery',
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: ({ abortController }) => ({
+        variables: {
+          type: 'documents:documents'
+        },
+        context: {
+          fetchOptions: { signal: abortController && abortController.signal }
+        }
+      })
     }),
 
     // mutations

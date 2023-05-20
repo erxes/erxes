@@ -1,6 +1,8 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const documents = `
-  query documents($page: Int, $perPage: Int, $contentType: String) {
-    documents(page: $page, perPage: $perPage, contentType: $contentType) {
+  query documents($page: Int, $perPage: Int, $contentType: String, $tag: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType, tag: $tag) {
       _id
       contentType
       name
@@ -17,6 +19,15 @@ const documentsDetail = `
       name
       content
       replacer
+      ${
+        isEnabled('tags')
+          ? `tags {
+        _id
+        name
+        colorCode
+      }`
+          : ''
+      }
     }
   }
 `;

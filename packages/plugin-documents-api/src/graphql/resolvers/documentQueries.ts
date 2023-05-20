@@ -7,7 +7,11 @@ import { serviceDiscovery } from '../../configs';
 const documentQueries = {
   documents(
     _root,
-    { limit, contentType }: { limit: number; contentType: string },
+    {
+      limit,
+      contentType,
+      tag
+    }: { limit: number; contentType: string; tag: string },
     { models }: IContext
   ) {
     const sort = { date: -1 };
@@ -16,6 +20,10 @@ const documentQueries = {
 
     if (contentType) {
       selector.contentType = contentType;
+    }
+
+    if (tag) {
+      selector.tagIds = tag;
     }
 
     if (limit) {

@@ -17,12 +17,20 @@ import { removeParams } from '@erxes/ui/src/utils/router';
 type Props = {
   queryParams: any;
   list: any[];
+  tags: any[];
   contentTypes: { label: string; contentType: string }[];
   history: any;
   remove: (_id: String) => void;
 };
 
-function List({ queryParams, contentTypes, list, remove, history }: Props) {
+function List({
+  queryParams,
+  contentTypes,
+  list,
+  tags,
+  remove,
+  history
+}: Props) {
   const actionBarRight = (
     <Button
       href={`/settings/documents/create?contentType=${queryParams.contentType}`}
@@ -86,6 +94,10 @@ function List({ queryParams, contentTypes, list, remove, history }: Props) {
     removeParams(history, 'contentType');
   };
 
+  const clearTagParams = () => {
+    removeParams(history, 'tag');
+  };
+
   const sidebar = (
     <LeftSidebar header={<SidebarHeader />} hasBorder>
       <LeftSidebar.Header uppercase={true}>
@@ -103,6 +115,20 @@ function List({ queryParams, contentTypes, list, remove, history }: Props) {
             <Link to={`/settings/documents/?contentType=${contentType}`}>
               {__(label)}
             </Link>
+          </SidebarListItem>
+        ))}
+      </SidebarList>
+      <LeftSidebar.Header>{''}</LeftSidebar.Header>
+      <LeftSidebar.Header uppercase={true}>
+        {__('Document tag')}
+        {queryParams.tag && (
+          <Button icon="cancel-1" btnStyle="link" onClick={clearTagParams} />
+        )}
+      </LeftSidebar.Header>
+      <SidebarList noTextColor noBackground id={'DocumentsSidebar'}>
+        {tags.map(({ name, _id }) => (
+          <SidebarListItem key={_id} isActive={queryParams?.tag === _id}>
+            <Link to={`/settings/documents/?tag=${_id}`}>{__(name)}</Link>
           </SidebarListItem>
         ))}
       </SidebarList>
