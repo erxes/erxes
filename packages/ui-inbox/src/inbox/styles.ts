@@ -281,6 +281,10 @@ const Mask = styled.div`
   overflow: hidden;
   text-align: center;
 
+  .facebook-mask {
+    background: #fff;
+  }
+
   &:hover {
     cursor: pointer;
   }
