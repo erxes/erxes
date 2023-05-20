@@ -104,11 +104,6 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<StringState, keyof StringState>);
   };
 
-  onHandleDateValues = (type: string, date) => {
-    console.log('aaa', this.state.dateRangeType);
-    return this.onChangeRangeFilter(type, date);
-  };
-
   onTypeChange = type => {
     return this.setState({ dateRangeType: type.value }, () => {
       switch (this.state.dateRangeType) {
@@ -122,22 +117,22 @@ export default class RightMenu extends React.Component<Props, State> {
         case 'stageChangedDate':
           return this.setState({
             dateRange: {
-              startDate: 'createdStartDate',
-              endDate: 'createdEndDate'
+              startDate: 'stateChangedStartDate',
+              endDate: 'stateChangedEndDate'
             }
           });
         case 'startDate':
           return this.setState({
             dateRange: {
-              startDate: 'createdStartDate',
-              endDate: 'createdEndDate'
+              startDate: 'startDateStartDate',
+              endDate: 'startDateEndDate'
             }
           });
         case 'closeDate':
           return this.setState({
             dateRange: {
-              startDate: 'createdStartDate',
-              endDate: 'createdEndDate'
+              startDate: 'closeDateStartDate',
+              endDate: 'closeDateEndDate'
             }
           });
       }
@@ -277,20 +272,24 @@ export default class RightMenu extends React.Component<Props, State> {
 
         <CustomRangeContainer>
           <DateControl
-            value={queryParams.startDate}
+            value={queryParams[this.state.dateRange.startDate]}
             required={false}
-            name="startDate"
-            onChange={date => this.onHandleDateValues('startDate', date)}
+            name={this.state.dateRange.startDate}
+            onChange={date =>
+              this.onChangeRangeFilter(this.state.dateRange.startDate, date)
+            }
             placeholder={'Start date'}
             dateFormat={'YYYY-MM-DD'}
           />
 
           <DateControl
-            value={queryParams.endDate}
+            value={queryParams[this.state.dateRange.endDate]}
             required={false}
-            name="endDate"
+            name={this.state.dateRange.endDate}
             placeholder={'End date'}
-            onChange={date => this.onHandleDateValues('endDate', date)}
+            onChange={date =>
+              this.onChangeRangeFilter(this.state.dateRange.endDate, date)
+            }
             dateFormat={'YYYY-MM-DD'}
           />
         </CustomRangeContainer>
