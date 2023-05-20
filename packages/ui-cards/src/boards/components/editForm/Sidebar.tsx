@@ -9,6 +9,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import { __ } from '@erxes/ui/src/utils';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   item: IItem;
@@ -27,15 +28,24 @@ type Props = {
     callback?: () => void
   ) => void;
   childrenSection: () => any;
+  currentUser: IUser;
 };
 
 class Sidebar extends React.Component<Props> {
   render() {
-    const { item, saveItem, sidebar, childrenSection } = this.props;
+    const {
+      item,
+      saveItem,
+      sidebar,
+      childrenSection,
+      currentUser
+    } = this.props;
 
     const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
     const onChangeStructure = (values, name) => saveItem({ [name]: values });
     const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
+    const branchIds = currentUser.branchIds;
+    const departmentIds = currentUser.departmentIds;
 
     return (
       <RightContent>
@@ -46,6 +56,10 @@ class Sidebar extends React.Component<Props> {
             name="assignedUserIds"
             initialValue={assignedUserIds}
             onSelect={userOnChange}
+            filterParams={{
+              departmentIds,
+              branchIds
+            }}
           />
         </FormGroup>
         <FormGroup>

@@ -18,6 +18,7 @@ import { ITicket, ITicketParams } from '../types';
 import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
 import queryString from 'query-string';
 import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   options: IOptions;
@@ -37,6 +38,7 @@ type Props = {
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
+  currentUser: IUser;
 };
 
 export default function TicketEditForm(props: Props) {
@@ -122,7 +124,14 @@ export default function TicketEditForm(props: Props) {
     saveItem,
     onChangeStage
   }: IEditFormContent) {
-    const { options, onUpdate, addItem, sendToBoard, updateTimeTrack } = props;
+    const {
+      options,
+      onUpdate,
+      addItem,
+      sendToBoard,
+      updateTimeTrack,
+      currentUser
+    } = props;
 
     const renderSidebar = () => renderSidebarFields(saveItem);
 
@@ -158,6 +167,7 @@ export default function TicketEditForm(props: Props) {
             renderItems={renderItems}
             updateTimeTrack={updateTimeTrack}
             childrenSection={renderChildrenSection}
+            currentUser={currentUser}
           />
         </Flex>
       </>
