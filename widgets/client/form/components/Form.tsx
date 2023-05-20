@@ -33,6 +33,7 @@ type State = {
   currentPage: number;
   currentLocation?: ILocationOption;
   mapScriptLoaded?: boolean;
+  qty?: number;
 };
 
 class Form extends React.Component<Props, State> {
@@ -149,6 +150,10 @@ class Form extends React.Component<Props, State> {
     this.setState({ doc });
   };
 
+  onQtyChange = (qty: number) => {
+    this.setState({ qty });
+  }
+
   onSubmit = () => {
     const doc: any = {};
     const { fields } = this.props.form;
@@ -177,14 +182,14 @@ class Form extends React.Component<Props, State> {
         const selectedProduct = products.find(p => p._id === field.value);
         doc[key] = selectedProduct && {
           ...field,
-          value: `${
+          value: `Product: ${
             selectedProduct.name
-          } - ${selectedProduct.unitPrice.toLocaleString()}`,
+          } : ${(selectedProduct.unitPrice.toLocaleString())} x ${(this.state.qty || 1)} = Total: ${(selectedProduct.unitPrice * (this.state.qty || 1)).toLocaleString()}`  ,
           productId: selectedProduct._id
         };
 
         if (formField.isRequired && field.value && selectedProduct) {
-          subTotal += selectedProduct.unitPrice;
+          subTotal += (selectedProduct.unitPrice * (this.state.qty || 1));
         }
       }
     }
@@ -392,6 +397,7 @@ class Form extends React.Component<Props, State> {
           field={field}
           error={fieldError}
           onChange={this.onFieldValueChange}
+          onQtyChange={this.onQtyChange}
           value={this.state.doc[field._id].value || ""}
           currentLocation={this.state.currentLocation}
           color={this.props.color}
