@@ -119,7 +119,7 @@ class CloseDate extends React.Component<Props, State> {
               inputProps={{ placeholder: 'Click to select a date' }}
               dateFormat="YYYY/MM/DD"
               timeFormat="HH:mm"
-              value={this.state.dueDate}
+              value={dueDate}
               closeOnSelect={true}
               utc={true}
               input={false}
