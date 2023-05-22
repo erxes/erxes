@@ -22,8 +22,8 @@ export default async function userMiddleware(
   _res: Response,
   next: NextFunction
 ) {
-  const erxesCoreToken = req.headers['erxes-core-token'];
   const url = req.headers['erxes-core-website-url'];
+  const erxesCoreToken = req.headers['erxes-core-token'];
 
   if (erxesCoreToken && url) {
     try {

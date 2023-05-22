@@ -18,6 +18,7 @@ const createOrUpdateConfig = `
     $dealLabel: String
     $taskPublicBoardId: String
     $taskPublicPipelineId: String
+    $taskPublicLabel: String
     $taskLabel: String
     $taskStageId: String
     $taskPipelineId: String
@@ -62,6 +63,7 @@ const createOrUpdateConfig = `
       knowledgeBaseTopicId: $knowledgeBaseTopicId,
       taskPublicBoardId: $taskPublicBoardId,
       taskPublicPipelineId: $taskPublicPipelineId,
+      taskPublicLabel: $taskPublicLabel,
       ticketLabel: $ticketLabel,
       taskLabel: $taskLabel,
       dealLabel: $dealLabel,
@@ -204,6 +206,16 @@ mutation ClientPortalUsersChangeVerificationStatus($status: ClientPortalUserVeri
 }
 `;
 
+const editFields = `
+mutation ClientPortalFieldConfigsEdit($fieldId: String!, $allowedClientPortalIds: [String], $requiredOn: [String]) {
+  clientPortalFieldConfigsEdit(fieldId: $fieldId, allowedClientPortalIds: $allowedClientPortalIds, requiredOn: $requiredOn) {
+    allowedClientPortalIds
+    fieldId
+    requiredOn
+  }
+}
+`;
+
 export default {
   createOrUpdateConfig,
   remove,
@@ -213,5 +225,6 @@ export default {
   verifyUsers,
   clientPortalCommentsAdd,
   clientPortalCommentsRemove,
-  changeVerificationStatus
+  changeVerificationStatus,
+  editFields
 };

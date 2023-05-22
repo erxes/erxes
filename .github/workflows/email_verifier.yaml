@@ -6,16 +6,16 @@ on:
       - master
       - develop
     paths:
-      - "email-verifier/**"
-      - ".github/workflows/email_verifier.yaml"
+      - 'email-verifier/**'
+      - '.github/workflows/email_verifier.yaml'
 
   pull_request:
     branches:
       - master
       - develop
     paths:
-      - "email-verifier/**"
-      - ".github/workflows/email_verifier.yaml"
+      - 'email-verifier/**'
+      - '.github/workflows/email_verifier.yaml'
 
 jobs:
   email-verifier:
@@ -61,7 +61,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging'   )
         run: |
           cd email-verifier
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
