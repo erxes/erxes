@@ -8,7 +8,7 @@ import { getMainDefinition } from 'apollo-utilities';
 import { __, getEnv } from './utils/core';
 import WebSocketLink from './WebSocketLink';
 
-const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();
+const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 
 // Create an http link:
 const httpLink = createHttpLink({
