@@ -1,4 +1,4 @@
-name: Plugin loan UI CI
+name: Plugin contacts UI CI
 
 on:
   push:
@@ -6,45 +6,43 @@ on:
       - dev
       - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-loan/**"
-      - "packages/plugin-loan-ui/**"
-      - ".github/workflows/plugin-loan-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-contacts/**'
+      - 'packages/plugin-contacts-ui/**'
+      - '.github/workflows/plugin-contacts-ui.yaml'
   pull_request:
     branches:
       - dev
       - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-loan/**"
-      - "packages/plugin-loan-ui/**"
-      - ".github/workflows/plugin-loan-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-contacts/**'
+      - 'packages/plugin-contacts-ui/**'
+      - '.github/workflows/plugin-contacts-ui.yaml'
 
 jobs:
   ui:
@@ -61,13 +59,12 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-loan-ui/.erxes
-          cp -r packages/plugin-loan-ui/src packages/plugin-loan-ui/.erxes/plugin-src
-          cd packages/plugin-loan-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-contacts-ui/.erxes
+          cp -r packages/plugin-contacts-ui/src packages/plugin-contacts-ui/.erxes/plugin-src
+          cd packages/plugin-contacts-ui
           yarn install
           yarn install-deps
           yarn build
-          ls
 
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
@@ -80,7 +77,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
-          tar -cf build.tar --directory=packages/plugin-loan-ui/.erxes/dist .
-          cp build.tar packages/plugin-loan-ui/.erxes/dist
-          rm -rf packages/plugin-loan-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-loan-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-loan-ui --delete
+          tar -cf build.tar --directory=packages/plugin-contacts-ui/.erxes/dist .
+          cp build.tar packages/plugin-contacts-ui/.erxes/dist
+          rm -rf packages/plugin-contacts-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-contacts-ui/.erxes/dist s3://erxes-staging-plugins/uis/plugin-contacts-ui --delete
