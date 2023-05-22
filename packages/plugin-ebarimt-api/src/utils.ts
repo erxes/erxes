@@ -190,8 +190,16 @@ const getCustomerName = customer => {
     return '';
   }
 
-  if (customer.firstName || customer.lastName) {
+  if (customer.firstName && customer.lastName) {
     return `${customer.firstName} - ${customer.lastName}`;
+  }
+
+  if (customer.firstName) {
+    return customer.firstName;
+  }
+
+  if (customer.lastName) {
+    return customer.lastName;
   }
 
   if (customer.primaryEmail) {
@@ -201,6 +209,7 @@ const getCustomerName = customer => {
   if (customer.primaryPhone) {
     return customer.primaryPhone;
   }
+
   return '';
 };
 
