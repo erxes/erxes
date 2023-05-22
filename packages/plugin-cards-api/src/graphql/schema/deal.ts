@@ -91,7 +91,15 @@ const commonQueryParams = `
   departmentIds: [String]
   boardIds: [String]
   stageCodes: [String]
-  dateRangeFilters:JSON
+  dateRangeFilters:JSON,
+  createdStartDate: Date,
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
 `;
 
 const listQueryParams = `

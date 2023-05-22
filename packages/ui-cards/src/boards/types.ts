@@ -399,6 +399,14 @@ export interface IFilterParams extends ISavedConformity {
   tagIds?: string[];
   branchIds: string[];
   departmentIds: string[];
+  createdEndDate: Date;
+  createdStartDate: Date;
+  stateChangedStartDate: Date;
+  stateChangedEndDate: Date;
+  startDateStartDate: Date;
+  startDateEndDate: Date;
+  closeDateStartDate: Date;
+  closeDateEndDate: Date;
 }
 
 export interface INonFilterParams {
