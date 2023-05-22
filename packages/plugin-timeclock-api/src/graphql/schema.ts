@@ -347,6 +347,7 @@ export const queries = `
 `;
 
 export const mutations = `
+  replaceDuplcateTimeclocks: JSON
   timeclockStart(${params}): Timeclock
   timeclockStop(${params}): Timeclock
   timeclockRemove(_id : String): JSON
