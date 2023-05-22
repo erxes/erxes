@@ -1,21 +1,21 @@
-import React from 'react';
 import {
-  __,
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
   Icon,
-  Tip
+  Tip,
+  __
 } from '@erxes/ui/src';
-import { IPos, ISlot } from '../../../types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { Block, FlexColumn, FlexItem } from '../../../styles';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { PAYMENT_TYPE_ICONS } from '../../../constants';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
+import { PAYMENT_TYPE_ICONS } from '../../../constants';
+import { Block, Description, FlexColumn, FlexItem } from '../../../styles';
+import { IPos, ISlot } from '../../../types';
 
 export const SelectValue = styled.div`
   display: flex;
@@ -128,6 +128,14 @@ class PaymentsStep extends React.Component<Props, State> {
       onChange('pos', pos);
     };
 
+    const getTipText = type => {
+      if (type === 'golomtCard') return 'continue';
+      if (type === 'TDBCard') return 'must config: "{port: 8078}"';
+      if (type === 'khaanCard')
+        return 'check localhost:27028 and contact databank';
+      return '';
+    };
+
     return (
       <div key={paymentType._id}>
         <FormWrapper>
@@ -170,12 +178,14 @@ class PaymentsStep extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <FormControl
-                name="config"
-                type="text"
-                defaultValue={paymentType.config || ''}
-                onChange={onChangeInput}
-              />
+              <Tip text={getTipText(paymentType.type)}>
+                <FormControl
+                  name="config"
+                  type="text"
+                  defaultValue={paymentType.config || ''}
+                  onChange={onChangeInput}
+                />
+              </Tip>
             </FormGroup>
           </FormColumn>
           <FormColumn>
@@ -220,12 +230,17 @@ class PaymentsStep extends React.Component<Props, State> {
             )}
 
             <Block>
-              <Tip
-                placement="top-start"
-                text={`config => {port: [8088], etc...}`}
-              >
-                <h4>{__('Other payments')}</h4>
-              </Tip>
+              <h4>{__('Other payments')}</h4>
+              <Description>
+                type is must latin, some default types: golomtCard, khaanCard,
+                TDBCard
+              </Description>
+              <Description>
+                Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
+                Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true",
+                Хэрэв хуваах боломжгүй бол: "notSplit: true"
+              </Description>
+
               <FormGroup>
                 <div key={Math.random()}>
                   <FormWrapper>
