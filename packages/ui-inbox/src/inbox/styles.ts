@@ -281,14 +281,14 @@ const Mask = styled.div`
   overflow: hidden;
   text-align: center;
 
-  .facebook-mask {
-    background: #fff;
-    width: 100%;
-  }
-
   &:hover {
     cursor: pointer;
   }
+`;
+
+const MaskText = styled.div`
+  background: #fff;
+  width: 100%;
 `;
 
 const NoHeight = styled.div`
@@ -376,6 +376,7 @@ export {
   PreviewImg,
   FileName,
   Mask,
+  MaskText,
   MaskWrapper,
   NoHeight,
   SmallEditor,
