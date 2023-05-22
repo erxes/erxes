@@ -464,10 +464,6 @@ const createNewTimeClock = (
         deviceType: 'faceTerminal'
       };
 
-      if (!existingTimeclocks) {
-        return newTimeclock;
-      }
-
       if (!checkTimeClockAlreadyExists(newTimeclock, existingTimeclocks)) {
         return newTimeclock;
       }
@@ -486,10 +482,6 @@ const createNewTimeClock = (
       deviceName: getDeviceName,
       deviceType: 'faceTerminal'
     };
-
-    if (!existingTimeclocks) {
-      return newTime;
-    }
 
     if (!checkTimeClockAlreadyExists(newTime, existingTimeclocks)) {
       return newTime;
