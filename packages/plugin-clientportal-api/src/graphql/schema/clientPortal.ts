@@ -190,7 +190,7 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets: [Ticket]
+    clientPortalTickets(priority: [String],labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Ticket]
     clientPortalDeals: [Deal]
     clientPortalTasks: [Task]
     clientPortalTicket(_id: String!): Ticket

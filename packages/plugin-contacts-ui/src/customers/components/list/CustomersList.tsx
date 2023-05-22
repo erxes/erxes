@@ -574,7 +574,13 @@ class CustomersList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar loadingMainQuery={loading} type={type} />}
+        leftSidebar={
+          <Sidebar
+            loadingMainQuery={loading}
+            type={type}
+            queryParams={queryParams}
+          />
+        }
         content={
           <DataWithLoader
             data={this.renderContent()}

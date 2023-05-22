@@ -6,15 +6,16 @@ on:
       - dev
       - staging
     paths:
-      - "client-portal/**"
-      - ".github/workflows/client_portal.yaml"
+      - 'client-portal/**'
+      - '.github/workflows/client_portal.yaml'
   pull_request:
     branches:
       - master
       - develop
       - apm
+      - staging
     paths:
-      - "client-portal/**"
+      - 'client-portal/**'
 
 jobs:
   client-portal:
