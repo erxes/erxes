@@ -142,9 +142,9 @@ module.exports = (env, args) => {
       new webpack.DefinePlugin({
         "process.env": JSON.stringify(process.env),
       }),
-      // new webpack.ProvidePlugin({
-      //   process: 'process/browser'
-      // }),
+      new webpack.ProvidePlugin({
+        process: 'process/browser'
+      }),
       new InterpolateHtmlPlugin({
         PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`
       }),

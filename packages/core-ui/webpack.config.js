@@ -140,9 +140,9 @@ module.exports = (env, args) => {
         ...envs.parsed,
         PUBLIC_URL: ''
       }),
-      // new webpack.ProvidePlugin({
-      //   process: 'process/browser'
-      // }),
+      new webpack.ProvidePlugin({
+        process: 'process/browser'
+      }),
       new HtmlWebPackPlugin({
         template: path.resolve(__dirname, 'public/index.html'),
         filename: 'index.html',
