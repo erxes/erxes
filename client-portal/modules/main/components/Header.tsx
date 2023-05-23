@@ -138,7 +138,7 @@ function Header({
           <Dropdown.Menu>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="1"
+              eventKey="0"
             >
               {renderUserFullName(currentUser)}
             </Dropdown.Item>
@@ -146,25 +146,25 @@ function Header({
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
               eventKey="1"
+              href="/profile"
             >
               <div>
                 <Icon icon="user" />
                 My profle
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="1"
+              eventKey="2"
+              href="/settings"
             >
               <div>
                 <Icon icon="settings" />
                 Settings
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item eventKey="4" onClick={() => logout()}>
+            <Dropdown.Item eventKey="3" onClick={() => logout()}>
               <Icon icon="logout-1" />
               Logout
             </Dropdown.Item>
