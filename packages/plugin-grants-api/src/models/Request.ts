@@ -115,6 +115,17 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
             link: link
           }
         });
+        sendCoreMessage({
+          subdomain: 'os',
+          action: 'sendMobileNotification',
+          data: {
+            title: `Grant`,
+            body: `${user?.details?.fullName ||
+              user?.details?.shortName} wants ${action}`,
+            receivers: userIds,
+            data: { _id: contentTypeId, type: contentType }
+          }
+        });
       }
 
       return request;
