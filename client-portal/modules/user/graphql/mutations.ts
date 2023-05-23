@@ -34,6 +34,31 @@ const createUser = `
   }
 `;
 
+const userEdit = `
+  mutation clientPortalUsersEdit(
+    $_id: String!,
+    $clientPortalId: String,
+    $email: String,
+    $firstName: String,
+    $lastName: String,
+    $phone: String,
+    $username: String,
+  ) {
+    clientPortalUsersEdit(
+      _id: $_id,
+      clientPortalId: $clientPortalId,
+      email: $email,
+      firstName: $firstName,
+      lastName: $lastName,
+      phone: $phone,
+      username: $username,
+    ) {
+      _id
+      email
+    }
+  }
+`;
+
 const logout = `
   mutation {
     clientPortalLogout
@@ -90,10 +115,12 @@ const facebookLogin = `
 }
 `;
 
+
 export default {
   login: clientPortalLogin,
   logout,
   createUser,
+  userEdit,
   getCode,
   forgotPassword,
   resetPassword,

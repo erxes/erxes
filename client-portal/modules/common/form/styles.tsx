@@ -30,11 +30,10 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
     props.horizontal &&
     css`
       display: flex;
-      align-items: center;
+      gap: ${dimensions.coreSpacing}px;
 
-      label {
-        margin-bottom: 0;
-        margin-left: 10px;
+      > div {
+        flex: 1;
       }
     `};
 
@@ -47,6 +46,11 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
     color: ${colors.colorCoreGray};
     margin-bottom: 5px;
   }
+`;
+
+const ModalFooter = styled.div`
+  text-align: right;
+  margin-top: 30px;
 `;
 
 const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
@@ -379,4 +383,5 @@ export {
   SortItem,
   SortableWrapper,
   DragHandler,
+  ModalFooter,
 };
