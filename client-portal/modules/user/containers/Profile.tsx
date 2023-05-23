@@ -1,43 +1,33 @@
 import { AppConsumer } from "../../appContext";
 import ButtonMutate from "../../common/ButtonMutate";
 import { IButtonMutateProps } from "../../common/types";
-import Layout from "../../main/containers/Layout";
 import Profile from "../components/Profile";
 import React from "react";
-import { Store } from "../../types";
+import SettingsLayoutContainer from "../../main/containers/SettingsLayout";
 import { mutations } from "../graphql";
-
-type Props = {};
 
 function ProfileContainer() {
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-    const callbackResponse = () => {
-      window.location.href = "/";
-    };
-
     return (
       <ButtonMutate
-        mutation={mutations.login}
+        mutation={mutations.userEdit}
         variables={{
           ...values,
         }}
-        callback={callbackResponse}
         isSubmitted={isSubmitted}
-        block={true}
         uppercase={true}
+        successMessage="Successfully updated!"
         type="submit"
       >
-        Sign in
+        Update user
       </ButtonMutate>
     );
   };
 
-  const updatedProps = {};
-
   return (
-    <Layout headingSpacing={true}>
-      {(props: Store) => <Profile {...props} {...updatedProps} />}
-    </Layout>
+    <SettingsLayoutContainer>
+      {(props) => <Profile {...props} renderButton={renderButton} />}
+    </SettingsLayoutContainer>
   );
 }
 
