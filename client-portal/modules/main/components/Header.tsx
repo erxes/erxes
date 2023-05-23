@@ -22,6 +22,7 @@ import { getConfigColor, readFile } from "../../common/utils";
 import Button from "../../common/Button";
 import { Dropdown } from "react-bootstrap";
 import DropdownToggle from "../../common/DropdownToggle";
+import ForgotPasswordContainer from "../../user/containers/ForgotPassword";
 import Icon from "../../common/Icon";
 import Label from "../../common/Label";
 import Link from "next/link";
@@ -31,7 +32,6 @@ import NameCard from "../../common/nameCard/NameCard";
 import Notifications from "../components/notifications/Notifications";
 import Popup from "reactjs-popup";
 import RegisterContainer from "../../user/containers/Register";
-import ResetPasswordContainer from "../../user/containers/ResetPassword";
 import SettingsContainer from "../containers/notifications/Settings";
 import { withRouter } from "next/router";
 
@@ -138,7 +138,7 @@ function Header({
           <Dropdown.Menu>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="1"
+              eventKey="0"
             >
               {renderUserFullName(currentUser)}
             </Dropdown.Item>
@@ -146,25 +146,25 @@ function Header({
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
               eventKey="1"
+              href="/profile"
             >
               <div>
                 <Icon icon="user" />
                 My profle
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="1"
+              eventKey="2"
+              href="/settings"
             >
               <div>
                 <Icon icon="settings" />
                 Settings
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item eventKey="4" onClick={() => logout()}>
+            <Dropdown.Item eventKey="3" onClick={() => logout()}>
               <Icon icon="logout-1" />
               Logout
             </Dropdown.Item>
@@ -251,8 +251,9 @@ function Header({
       />
       <Modal
         content={() => (
-          <ResetPasswordContainer
+          <ForgotPasswordContainer
             setLogin={setLogin}
+            clientPortalId={config._id}
             setResetPassword={setResetPassword}
           />
         )}

@@ -6,37 +6,14 @@ import FormControl from "../../common/form/Control";
 import FormGroup from "../../common/form/Group";
 import { IButtonMutateProps } from "../../common/types";
 import Icon from "../../common/Icon";
+import Layout from "../../main/containers/Layout";
+import { Store } from "../../types";
 
 type Props = {
-  handleCode: (phone: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  setResetPassword: (value: boolean) => void;
-  setLogin: (value: boolean) => void;
 };
 
-function ResetPassword({
-  renderButton,
-  handleCode,
-  setResetPassword,
-  setLogin,
-}: Props) {
-  const [phone, changePhone] = useState("");
-
-  const handleSubmit = (e) => {
-    handleCode(phone);
-    e.isDefaultPrevented();
-  };
-
-  const onChange = (e) => {
-    changePhone(e.target.value);
-    e.isDefaultPrevented();
-  };
-
-  const onSignin = () => {
-    setResetPassword(false);
-    setLogin(true);
-  };
-
+function ResetPassword({ renderButton }: Props) {
   const renderContent = (formProps) => {
     const { values, isSubmitted } = formProps;
 
@@ -44,37 +21,12 @@ function ResetPassword({
       <>
         <FormGroup>
           <WithIconFormControl>
-            <Icon icon="phone-alt" size={26} />
+            <Icon icon="lock-alt" size={26} />
             <FormControl
               {...formProps}
-              name="phone"
-              placeholder={"Enter your phone number"}
-              onChange={onChange}
-            />
-          </WithIconFormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <WithIconFormControl>
-            <Icon icon="dialpad-alt" size={28} />
-            <FormControl
-              {...formProps}
-              name="code"
-              type="code"
-              placeholder={"Enter your code"}
-              required={true}
-            />
-          </WithIconFormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <WithIconFormControl>
-            <Icon icon="lock-alt" size={28} />
-            <FormControl
-              {...formProps}
-              name="password"
+              name="newPassword"
               type="password"
-              placeholder={"Enter your password"}
+              placeholder={"Enter your new password"}
               required={true}
             />
           </WithIconFormControl>
@@ -86,26 +38,23 @@ function ResetPassword({
             isSubmitted,
           })}
         </FormGroup>
-
-        <div className="auth-divider" />
-
-        <div className="text-center">
-          Already have an account?{" "}
-          <span className="text-link" onClick={onSignin}>
-            Sign in
-          </span>
-        </div>
       </>
     );
   };
 
   return (
-    <LoginFormWrapper>
-      <h2>{"Reset password"} &nbsp;</h2>
-      <p>{"Enter your phone number to reset your password"}</p>
+    <Layout headingSpacing={true}>
+      {(props: Store) => (
+        <div className="d-flex justify-content-center">
+          <LoginFormWrapper>
+            <h2>{"Reset password"} &nbsp;</h2>
+            <p>{"Enter your new password and sign in again"}</p>
 
-      <Form renderContent={renderContent} />
-    </LoginFormWrapper>
+            <Form renderContent={renderContent} />
+          </LoginFormWrapper>
+        </div>
+      )}
+    </Layout>
   );
 }
 

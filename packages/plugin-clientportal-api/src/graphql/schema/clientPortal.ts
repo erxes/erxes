@@ -1,4 +1,4 @@
-export const types = (cardAvailable, kbAvailable) => `
+export const types = (cardAvailable, kbAvailable, formsAvailable) => `
 ${
   cardAvailable
     ? `
@@ -29,6 +29,16 @@ ${
     _id: String! @external
   }
    `
+    : ''
+}
+
+${
+  formsAvailable
+    ? `
+    extend type Field @key(fields: "_id") {
+      _id: String! @external
+    }
+    `
     : ''
 }
 
@@ -93,6 +103,7 @@ ${
     dealLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
+    taskPublicLabel: String
     taskLabel: String
     taskStageId: String
     taskPipelineId: String
@@ -161,19 +172,25 @@ ${
   }
 `;
 
-export const queries = (cardAvailable, kbAvailable) => `
+export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
   clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain: ClientPortal
   clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
-
+  ${
+    formsAvailable
+      ? `
+  clientPortalGetAllowedFields(_id: String!): [Field]
+  `
+      : ''
+  }
   ${
     cardAvailable
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets: [Ticket]
+    clientPortalTickets(priority: [String],labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Ticket]
     clientPortalDeals: [Deal]
     clientPortalTasks: [Task]
     clientPortalTicket(_id: String!): Ticket
@@ -211,6 +228,7 @@ export const mutations = cardAvailable => `
     dealLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
+    taskPublicLabel: String
     taskStageId: String
     taskPipelineId: String
     taskBoardId: String

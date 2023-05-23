@@ -199,7 +199,7 @@ class SelectWithSearch extends React.Component<
     const selectSingle = (option: IOption) => {
       const selectedOptionValue = option ? option.value : '';
 
-      onSelect(selectedOptionValue, name);
+      onSelect(selectedOptionValue, name, option?.extraValue);
 
       this.setState({
         selectedValues: [selectedOptionValue],
@@ -314,7 +314,11 @@ type WrapperProps = {
   queryName: string;
   name: string;
   label: string;
-  onSelect: (values: string[] | string, name: string) => void;
+  onSelect: (
+    values: string[] | string,
+    name: string,
+    extraValue?: string
+  ) => void;
   generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;
   multi?: boolean;

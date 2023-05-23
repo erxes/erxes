@@ -7,23 +7,14 @@ import ResetPassword from "../components/ResetPassword";
 import mutations from "../graphql/mutations";
 
 type Props = {
-  setResetPassword: (value: boolean) => void;
-  setLogin: (value: boolean) => void;
+  token: string;
 };
 
 function ResetPasswordContainer(props: Props) {
-  const [getVerificationCode] = useMutation(gql(mutations.getCode));
-
-  const handleCode = (phone: string) => {
-    getVerificationCode({
-      variables: { phone },
-    }).then((data) => {
-      console.log("sent verification code");
-    });
-  };
-
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
     const callbackResponse = () => (window.location.href = "/");
+
+    values.token = props.token;
 
     return (
       <ButtonMutate
@@ -32,7 +23,7 @@ function ResetPasswordContainer(props: Props) {
         callback={callbackResponse}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage="Success!"
+        successMessage="Successfully reset your password! Go login again!"
         block={true}
         uppercase={true}
         icon={false}
@@ -44,7 +35,6 @@ function ResetPasswordContainer(props: Props) {
 
   const updatedProps = {
     ...props,
-    handleCode,
     renderButton,
   };
 
