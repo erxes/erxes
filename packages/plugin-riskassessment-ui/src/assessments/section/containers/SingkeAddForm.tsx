@@ -45,7 +45,7 @@ class Form extends React.Component<FinalProps> {
       if (riskAssessment && !doc.groupId && !doc.indicatorId) {
         return confirm().then(() => {
           removeRiskAssessment({
-            variables: { riskAssessmentId: riskAssessment._id }
+            variables: { riskAssessmentId: riskAssessment?._id }
           });
         });
       }
@@ -101,7 +101,7 @@ export default withProps<Props>(
         refetchQueries: refetchQueries({
           cardId,
           cardType,
-          riskAssessmentId: riskAssessment._id
+          riskAssessmentId: riskAssessment?._id
         })
       })
     }),

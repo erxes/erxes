@@ -1,6 +1,15 @@
+import React from 'react';
+import gql from 'graphql-tag';
+import client from '@erxes/ui/src/apolloClient';
+import { mutations } from '../graphql';
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
 import { ShowPreview } from '@erxes/ui-forms/src/forms/styles';
+import { IField } from '@erxes/ui/src/types';
+import Select from 'react-select-plus';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import TwitterPicker from 'react-color/lib/Twitter';
 import {
   Button,
   colors,
@@ -14,7 +23,6 @@ import {
   Tip,
   __
 } from '@erxes/ui/src';
-import client from '@erxes/ui/src/apolloClient';
 import {
   ColorPick,
   ColorPicker,
@@ -22,13 +30,6 @@ import {
   FormWrapper,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
-import { IField } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import Select from 'react-select-plus';
 import { calculateMethods, COLORS } from '../../common/constants';
 import {
   ContentWrapper,
@@ -38,7 +39,6 @@ import {
   RemoveRow
 } from '../../styles';
 import { RiskCalculateLogicType } from '../common/types';
-import { mutations } from '../graphql';
 
 type Props = {
   formId?: string;

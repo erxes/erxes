@@ -7,8 +7,8 @@ import {
 
 export default {
   'cards:ticket': ['update', 'create'],
-  'cards:task': ['update', 'create']
-  //   'cards:deal': ['update', 'create']
+  'cards:task': ['update', 'create'],
+  'cards:deal': ['update', 'create']
 };
 
 export const afterMutationHandlers = async (

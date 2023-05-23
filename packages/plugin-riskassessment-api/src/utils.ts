@@ -23,12 +23,14 @@ export const validRiskIndicators = async params => {
     throw new Error('Please add a form to the risk assessment');
   }
 
+  if (forms?.length === 1) {
+    await validateCalculateMethods(forms[0]);
+  }
+
   for (const form of forms) {
     if (!form.formId) {
       throw new Error('Please build a form');
     }
-
-    await validateCalculateMethods(form);
 
     if (forms.length > 1) {
       if (!form.percentWeight) {
@@ -460,7 +462,7 @@ export const getIndicatorSubmissions = async ({
   }
 
   if (params?.showFlagged) {
-    match = { ...match, isFlagged: params.showFlagged };
+    match.isFlagged = true;
   }
 
   const submissions = await models.RiskFormSubmissions.aggregate([
