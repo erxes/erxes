@@ -115,7 +115,10 @@ export const generateCustomerSelector = async (
           'customFieldsData'
         ];
 
-        if (segment.contentType === 'cards:deal') {
+        if (
+          segment.contentType === 'cards:deal' ||
+          segment.contentType === 'cards:purchase'
+        ) {
           returnFields.push('productsData');
         }
       }

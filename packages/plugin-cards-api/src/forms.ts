@@ -24,6 +24,11 @@ const relations = type => {
       relationType: 'cards:task'
     },
     {
+      name: 'purchaseIds',
+      label: 'Purchases',
+      relationType: 'cards:purchase'
+    },
+    {
       name: 'dealIds',
       label: 'Deals',
       relationType: 'cards:deal'
@@ -44,7 +49,7 @@ export default {
       relations: relations('cards:task')
     },
     {
-      description: 'Purchases',
+      description: 'Purchases pipelines',
       type: 'purchase',
       relations: relations('cards:purchase')
     },

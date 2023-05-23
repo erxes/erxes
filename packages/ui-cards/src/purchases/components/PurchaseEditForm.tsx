@@ -12,6 +12,7 @@ import { Flex } from '@erxes/ui/src/styles/main';
 import { HeaderContentSmall } from '../../boards/styles/item';
 import { IProduct } from '@erxes/ui-products/src/types';
 import Left from '../../boards/components/editForm/Left';
+import PortableDeals from '../../deals/components/PortableDeals';
 import PortableTasks from '../../tasks/components/PortableTasks';
 import PortableTickets from '../../tickets/components/PortableTickets';
 import ProductSection from './ProductSection';
@@ -223,6 +224,7 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
       <>
         <PortableTickets mainType="purchase" mainTypeId={item._id} />
         <PortableTasks mainType="purchase" mainTypeId={item._id} />
+        <PortableDeals mainType="purchase" mainTypeId={item._id} />
         {pluginsOfItemSidebar(item, 'purchase')}
       </>
     );

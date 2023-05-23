@@ -5,6 +5,7 @@ import { IModels } from './connectionResolver';
 export default {
   'cards:ticket': ['update', 'delete'],
   'cards:task': ['update', 'delete'],
+  'cards:deal': ['update', 'delete'],
   'cards:purchase': ['update', 'delete'],
   'knowledgebase:knowledgeBaseArticle': ['create', 'update']
 };

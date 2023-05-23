@@ -39,24 +39,14 @@ class Board extends React.Component<Props> {
     if (!pipelineDetailQuery || !pipelineDetailQuery.pipelineDetail) {
       const type = options.type;
 
-      if (type === 'deal' || type === 'task') {
-        return (
-          <EmptyContent
-            content={type === 'deal' ? EMPTY_CONTENT_DEAL : EMPTY_CONTENT_TASK}
-            maxItemWidth="400px"
-          />
-        );
-      }
+      if (['deal', 'task', 'purchase'].includes(type)) {
+        const contents = {
+          deal: EMPTY_CONTENT_DEAL,
+          task: EMPTY_CONTENT_TASK,
+          purchase: EMPTY_CONTENT_PURCHASE
+        };
 
-      if (type === 'purchase') {
-        return (
-          <EmptyContent
-            content={
-              type === 'purchase' ? EMPTY_CONTENT_PURCHASE : EMPTY_CONTENT_TASK
-            }
-            maxItemWidth="400px"
-          />
-        );
+        return <EmptyContent content={contents[type]} maxItemWidth="400px" />;
       }
 
       return (

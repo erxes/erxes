@@ -1,4 +1,3 @@
-import { Purchase } from '.';
 import { IContext } from '../../../connectionResolver';
 import { IStageDocument } from '../../../models/definitions/boards';
 import {

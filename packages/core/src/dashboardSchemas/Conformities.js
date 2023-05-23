@@ -25,8 +25,8 @@ cube(`Conformities`, {
       sql: `${CUBE}.relTypeId = ${Deals}._id`,
       relationship: `belongsTo`
     },
-    Purchase: {
-      sql: `${CUBE}.relTypeId = ${Purchase}._id`,
+    Purchases: {
+      sql: `${CUBE}.relTypeId = ${Purchases}._id`,
       relationship: `belongsTo`
     }
   },

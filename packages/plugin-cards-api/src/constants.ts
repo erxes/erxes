@@ -171,10 +171,12 @@ export const MODULE_NAMES = {
   BOARD_TICKET: 'ticketBoards',
   BOARD_GH: 'growthHackBoards',
   PIPELINE_DEAL: 'dealPipelines',
+  PIPELINE_PURCHASE: 'purchasePipelines',
   PIPELINE_TASK: 'taskPipelines',
   PIPELINE_TICKET: 'ticketPipelines',
   PIPELINE_GH: 'growthHackPipelines',
   STAGE_DEAL: 'dealStages',
+  STAGE_PURCHASE: 'purchaseStages',
   STAGE_TASK: 'taskStages',
   STAGE_TICKET: 'ticketStages',
   STAGE_GH: 'growthHackStages',
@@ -200,6 +202,10 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [attachmentSchema, boardSchema]
   },
   {
+    name: MODULE_NAMES.BOARD_PURCHASE,
+    schemas: [attachmentSchema, boardSchema]
+  },
+  {
     name: MODULE_NAMES.BOARD_TASK,
     schemas: [attachmentSchema, boardSchema]
   },
@@ -209,6 +215,10 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   },
   {
     name: MODULE_NAMES.PIPELINE_DEAL,
+    schemas: [pipelineSchema]
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_PURCHASE,
     schemas: [pipelineSchema]
   },
   {
@@ -257,6 +267,10 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   },
   {
     name: MODULE_NAMES.STAGE_DEAL,
+    schemas: [boardStageSchema]
+  },
+  {
+    name: MODULE_NAMES.STAGE_PURCHASE,
     schemas: [boardStageSchema]
   },
   {

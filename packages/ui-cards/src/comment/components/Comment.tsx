@@ -4,7 +4,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Modal from 'react-bootstrap/Modal';
 import { __, readFile } from 'coreui/utils';
 import {
-  SpaceFormsWrapper,
   CommentWrapper,
   TicketComment,
   CreatedUser,
@@ -57,44 +56,42 @@ function Comment(item) {
           <Modal.Title>{__('Comments')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <SpaceFormsWrapper>
-            <CommentWrapper>
-              {clientPortalComments.map(comment => {
-                const { createdUser = {} } = comment;
+          <CommentWrapper>
+            {clientPortalComments.map(comment => {
+              const { createdUser = {} } = comment;
 
-                return (
-                  <TicketComment key={comment._id}>
-                    <CreatedUser>
-                      <img
-                        src={readFile(
-                          createdUser && createdUser.avatar
-                            ? createdUser?.avatar
-                            : '/static/avatar-colored.svg'
-                        )}
-                        alt="profile"
-                      />
-                      <div>
-                        <CommentContent>
-                          <h5>{`${createdUser?.firstName} ${createdUser?.lastName}`}</h5>
-                          <div
-                            className="comment"
-                            dangerouslySetInnerHTML={{
-                              __html: comment.content
-                            }}
-                          />
-                        </CommentContent>
-                        <span>
-                          Reported{' '}
-                          {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
-                        </span>
-                      </div>
-                      <div className="actions"></div>
-                    </CreatedUser>
-                  </TicketComment>
-                );
-              })}
-            </CommentWrapper>
-          </SpaceFormsWrapper>
+              return (
+                <TicketComment key={comment._id}>
+                  <CreatedUser>
+                    <img
+                      src={readFile(
+                        createdUser && createdUser.avatar
+                          ? createdUser?.avatar
+                          : '/static/avatar-colored.svg'
+                      )}
+                      alt="profile"
+                    />
+                    <div>
+                      <CommentContent>
+                        <h5>{`${createdUser?.firstName} ${createdUser?.lastName}`}</h5>
+                        <div
+                          className="comment"
+                          dangerouslySetInnerHTML={{
+                            __html: comment.content
+                          }}
+                        />
+                      </CommentContent>
+                      <span>
+                        Reported{' '}
+                        {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
+                      </span>
+                    </div>
+                    <div className="actions"></div>
+                  </CreatedUser>
+                </TicketComment>
+              );
+            })}
+          </CommentWrapper>
           <Modal.Footer>
             <Button
               btnStyle="simple"

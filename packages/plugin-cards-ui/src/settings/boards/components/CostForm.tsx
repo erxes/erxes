@@ -12,7 +12,6 @@ import { LinkButton } from '@erxes/ui/src/styles/main';
 import Modal from 'react-bootstrap/Modal';
 import { __ } from 'coreui/utils';
 import { FormControl } from '@erxes/ui/src/components/form';
-import { SpaceFormsWrapper } from '@erxes/ui-settings/src/styles';
 import Table from '@erxes/ui/src/components/table';
 
 type array = {
@@ -111,55 +110,53 @@ function CostForm() {
           <Modal.Title>{__('Add Expenses')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <SpaceFormsWrapper>
-            <Table whiteSpace="nowrap" hover={true}>
-              <thead>
+          <Table whiteSpace="nowrap" hover={true}>
+            <thead>
+              <tr>
+                <th>{__('Code')}</th>
+                <th>{__('Name')}</th>
+                <th>{__('Action')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {elements.map((element, index) => (
                 <tr>
-                  <th>{__('Code')}</th>
-                  <th>{__('Name')}</th>
-                  <th>{__('Action')}</th>
+                  <td>
+                    <FormControl
+                      type="text"
+                      placeholder="Enter Code"
+                      defaultValue={element.code}
+                      onChange={(e: any) =>
+                        changeElement(index, e.target.value, element.name)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <FormControl
+                      type="text"
+                      defaultValue={element.name}
+                      placeholder="Enter Name"
+                      onChange={(e: any) =>
+                        changeElement(index, element.code, e.target.value)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <Button
+                      block
+                      btnStyle="simple"
+                      type="button"
+                      icon="times"
+                      onClick={() => deleteElement(index)}
+                    ></Button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {elements.map((element, index) => (
-                  <tr>
-                    <td>
-                      <FormControl
-                        type="text"
-                        placeholder="Enter Code"
-                        defaultValue={element.code}
-                        onChange={(e: any) =>
-                          changeElement(index, e.target.value, element.name)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <FormControl
-                        type="text"
-                        defaultValue={element.name}
-                        placeholder="Enter Name"
-                        onChange={(e: any) =>
-                          changeElement(index, element.code, e.target.value)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <Button
-                        block
-                        btnStyle="simple"
-                        type="button"
-                        icon="times"
-                        onClick={() => deleteElement(index)}
-                      ></Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <LinkButton onClick={addElement}>
-                <Icon icon="plus-1" /> {__('Add another expense')}
-              </LinkButton>
-            </Table>
-          </SpaceFormsWrapper>
+              ))}
+            </tbody>
+            <LinkButton onClick={addElement}>
+              <Icon icon="plus-1" /> {__('Add another expense')}
+            </LinkButton>
+          </Table>
           <Modal.Footer>
             <Button
               btnStyle="simple"

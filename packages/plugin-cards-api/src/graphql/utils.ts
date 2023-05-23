@@ -1,6 +1,7 @@
 import { getNewOrder } from '../models/utils';
 import { NOTIFICATION_TYPES } from '../models/definitions/constants';
 import { IDealDocument } from '../models/definitions/deals';
+import { IPurchaseDocument } from '../models/definitions/purchases';
 import { IGrowthHackDocument } from '../models/definitions/growthHacks';
 import { ITaskDocument } from '../models/definitions/tasks';
 import { ITicketDocument } from '../models/definitions/tickets';
@@ -310,13 +311,13 @@ export const createConformity = async (
 };
 
 interface ILabelParams {
-  item: IDealDocument | ITaskDocument | ITicketDocument;
+  item: IDealDocument | IPurchaseDocument | ITaskDocument | ITicketDocument;
   doc: any;
   user: IUserDocument;
 }
 
 /**
- * Copies pipeline labels alongside deal/task/tickets when they are moved between different pipelines.
+ * Copies pipeline labels alongside deal/purchase/task/tickets when they are moved between different pipelines.
  */
 export const copyPipelineLabels = async (
   models: IModels,
@@ -449,7 +450,12 @@ export const copyChecklists = async (
 };
 
 export const prepareBoardItemDoc = async (
-  item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
+  item:
+    | IDealDocument
+    | IPurchaseDocument
+    | ITaskDocument
+    | ITicketDocument
+    | IGrowthHackDocument,
   collection: string,
   userId: string
 ) => {

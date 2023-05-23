@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils/core';
-import { IPurchase } from '@erxes/ui-cards/src/purchase/types';
+import { IPurchase } from '@erxes/ui-cards/src/purchases/types';
 import * as React from 'react';
 import { CenterButton, Purchases, SubHead } from '../style';
 import PurchaseItem from './PurchaseItem';

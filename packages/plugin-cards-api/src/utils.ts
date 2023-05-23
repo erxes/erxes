@@ -4,7 +4,6 @@ import { CARD_PROPERTIES_INFO, MODULE_NAMES } from './constants';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Purchase } from './graphql/resolvers/customResolvers';
 
 export const configReplacer = config => {
   const now = new Date();
@@ -118,6 +117,9 @@ export const getContentItem = async (subdomain, data) => {
       case 'deal':
         item = await Deals.getDeal(contentId);
         break;
+      case 'purchase':
+        item = await Purchases.getPurchase(contentId);
+        break;
       case 'task':
         item = await Tasks.getTask(contentId);
         break;
@@ -206,6 +208,9 @@ export const getContentTypeDetail = async (subdomain, data) => {
       case 'deal':
         item = await Deals.getDeal(contentId);
         break;
+      case 'purchase':
+        item = await Purchases.getPurchase(content._id);
+        break;
       case 'task':
         item = await Tasks.getTask(contentId);
         break;
@@ -221,8 +226,6 @@ export const getContentTypeDetail = async (subdomain, data) => {
       case 'checklistitem':
         item = (await ChecklistItems.findOne({ _id: content._id })) || {};
         break;
-      case 'purchase':
-        item = (await Purchases.findOne({ _id: content._id })) || {};
     }
   } catch (e) {
     debug.error(e.message);
@@ -293,7 +296,7 @@ export const collectItems = async (
   return tasks;
 };
 
-// contentType should come with "cards:deal|task|ticket|growthHack" format
+// contentType should come with "cards:deal|purchase|task|ticket|growthHack" format
 export const getCardContentIds = async (
   models: IModels,
   { pipelineId, contentType }
@@ -310,7 +313,7 @@ export const getCardItem = async (
   models: IModels,
   { contentTypeId, contentType }
 ) => {
-  const { Deals, Tasks, Tickets, GrowthHacks } = models;
+  const { Deals, Purchases, Tasks, Tickets, GrowthHacks } = models;
   const filter = { _id: contentTypeId };
 
   let item;
@@ -318,6 +321,9 @@ export const getCardItem = async (
   switch (contentType) {
     case MODULE_NAMES.DEAL:
       item = await Deals.findOne(filter);
+      break;
+    case MODULE_NAMES.PURCHASE:
+      item = await Purchases.findOne(filter);
       break;
     case MODULE_NAMES.TASK:
       item = await Tasks.findOne(filter);

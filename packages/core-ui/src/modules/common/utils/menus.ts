@@ -1,7 +1,5 @@
 const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
 
-const menuDeal = [{ title: 'Sales pipeline', link: '/deal/board' }];
-
 const menuContacts = [
   { title: 'Visitors', link: '/contacts/visitor' },
   { title: 'Leads', link: '/contacts/lead' },
@@ -17,4 +15,4 @@ const menuStructures = [
   { title: 'Units', link: '/settings/units' }
 ];
 
-export { menuContacts, menuInbox, menuDeal, menuStructures };
+export { menuContacts, menuInbox, menuStructures };

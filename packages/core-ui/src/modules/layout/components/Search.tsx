@@ -28,7 +28,7 @@ const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
     color: ${colors.colorCoreGray};
     padding-left: 3px;
   }
-  
+
   i {
     cursor: pointer;
     color: ${colors.colorCoreDarkGray};

@@ -3,7 +3,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import * as React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import { IPurchase } from '@erxes/ui-cards/src/purchase/types';
+import { IPurchase } from '@erxes/ui-cards/src/purchases/types';
 import { BodyRow, StageName } from '../style';
 import PurchaseList from './PurchaseList';
 

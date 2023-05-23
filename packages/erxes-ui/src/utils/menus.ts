@@ -2,8 +2,6 @@ import { isEnabled } from './core';
 
 const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
 
-const menuDeal = [{ title: 'Sales pipeline', link: '/deal/board' }];
-const menuPurchase = [{ title: 'Purchase pipeline', link: '/purchase/board' }];
 const menuContacts = [
   { title: 'Visitors', link: '/contacts/visitor' },
   { title: 'Leads', link: '/contacts/lead' },
@@ -17,4 +15,4 @@ const menuContacts = [
     : { title: '', link: '' }
 ];
 
-export { menuContacts, menuInbox, menuDeal, menuPurchase };
+export { menuContacts, menuInbox };

@@ -287,7 +287,7 @@ export default {
         type: 'cards:purchase',
         img: 'automation3.svg',
         icon: 'piggy-bank',
-        label: 'Sales pipeline',
+        label: 'Purchase pipeline',
         description:
           'Start with a blank workflow that enralls and is triggered off sales pipeline item'
       }

@@ -618,11 +618,12 @@ const boardQueries = {
     }
 
     const purchase = await Purchases.findOne(filter).lean();
+
     if (purchase) {
       const stage = await Stages.getStage(purchase.stateId);
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
-      purchaseurl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
+      purchaseurl = `/purchase/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
     }
 
     const task = await Tasks.findOne(filter).lean();
