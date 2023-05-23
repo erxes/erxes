@@ -14,7 +14,7 @@ export type RetryInput<T> = {
 async function retry<T>({
   fn,
   intervalMs = 1000,
-  maxTries = Infinity,
+  maxTries = Number.MAX_SAFE_INTEGER,
   retryExhaustedLog = 'Retry exhausted',
   retryLog,
   successLog
