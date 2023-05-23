@@ -1,10 +1,10 @@
-import Button from "../../common/Button";
-import { HeaderWrapper } from "../../styles/main";
-import { IUser } from "../../types";
-import Icon from "../../common/Icon";
-import Modal from "../../common/Modal";
-import React from "react";
-import TaskForm from "../containers/Form";
+import Button from '../../common/Button';
+import { HeaderWrapper } from '../../styles/main';
+import { IUser } from '../../types';
+import Icon from '../../common/Icon';
+import Modal from '../../common/Modal';
+import React from 'react';
+import TaskForm from '../containers/Form';
 
 type Props = {
   currentUser: IUser;
@@ -20,7 +20,7 @@ export default class TaskHeader extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      show: false,
+      show: false
     };
   }
 
