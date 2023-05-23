@@ -54,7 +54,7 @@ const clientPortalMutations = {
     }
 
     if (['High', 'Critical'].includes(priority)) {
-      priority = 'Medium';
+      priority = 'Normal';
     }
 
     const card = await sendCardsMessage({

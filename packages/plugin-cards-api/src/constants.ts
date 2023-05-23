@@ -47,7 +47,7 @@ export const PRIORITIES = {
       color: '#EA475D'
     },
     { name: 'High', color: '#F7CE53' },
-    { name: 'Medium', color: '#3B85F4' },
+    { name: 'Normal', color: '#3B85F4' },
     { name: 'Low', color: '#AAAEB3' }
   ]
 };
