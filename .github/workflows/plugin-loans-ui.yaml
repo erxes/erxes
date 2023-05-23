@@ -6,45 +6,45 @@ on:
       - dev
       - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-loans/**"
-      - "packages/plugin-loans-ui/**"
-      - ".github/workflows/plugin-loans-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
+      - 'packages/ui-loans/**'
+      - 'packages/plugin-loans-ui/**'
+      - '.github/workflows/plugin-loans-ui.yaml'
   pull_request:
     branches:
       - dev
       - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-loans/**"
-      - "packages/plugin-loans-ui/**"
-      - ".github/workflows/plugin-loans-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
+      - 'packages/ui-loans/**'
+      - 'packages/plugin-loans-ui/**'
+      - '.github/workflows/plugin-loans-ui.yaml'
 
 jobs:
   ui:
@@ -82,4 +82,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-loans-ui/.erxes/dist .
           cp build.tar packages/plugin-loans-ui/.erxes/dist
           rm -rf packages/plugin-loans-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-loans-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-loans-ui --delete
+          aws s3 sync packages/plugin-loans-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-loans-ui --delete
