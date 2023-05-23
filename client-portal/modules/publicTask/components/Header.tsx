@@ -33,16 +33,6 @@ export default class TaskHeader extends React.Component<Props, State> {
       <>
         <HeaderWrapper>
           <h4>{this.props.taskLabel}</h4>
-          <div className="right">
-            <Button
-              btnStyle="success"
-              uppercase={false}
-              onClick={this.showModal}
-              icon="add"
-            >
-              Create a New Task
-            </Button>
-          </div>
         </HeaderWrapper>
         <Modal
           content={() => <TaskForm />}
