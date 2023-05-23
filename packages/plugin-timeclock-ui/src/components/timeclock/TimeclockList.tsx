@@ -12,7 +12,9 @@ import {
   CustomRangeContainer,
   FlexCenter,
   FlexColumn,
-  TextAlignCenter
+  FlexRowLeft,
+  TextAlignCenter,
+  ToggleButton
 } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { ControlLabel } from '@erxes/ui/src/components/form';
@@ -20,6 +22,7 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   currentUser: IUser;
@@ -77,6 +80,16 @@ function List(props: Props) {
     <></>
   );
 
+  const [isSideBarOpen, setIsOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+  );
+
+  const onToggleSidebar = () => {
+    const toggleIsOpen = !isSideBarOpen;
+    setIsOpen(toggleIsOpen);
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+  };
+
   const modalContent = contenProps => (
     <TimeForm
       {...contenProps}
@@ -124,6 +137,22 @@ function List(props: Props) {
     </FlexColumn>
   );
 
+  const actionBarLeft = (
+    <FlexRowLeft>
+      <ToggleButton
+        id="btn-inbox-channel-visible"
+        isActive={isSideBarOpen}
+        onClick={onToggleSidebar}
+      >
+        <Icon icon="subject" />
+      </ToggleButton>
+
+      <Title capitalize={true}>
+        {__(new Date().toDateString().slice(0, -4))}
+      </Title>
+    </FlexRowLeft>
+  );
+
   const actionBarRight = (
     <>
       {!isEnabled('bichil') && (
@@ -141,15 +170,9 @@ function List(props: Props) {
     </>
   );
 
-  const title = (
-    <Title capitalize={true}>
-      {__(new Date().toDateString().slice(0, -4))}
-    </Title>
-  );
-
   const actionBar = (
     <Wrapper.ActionBar
-      left={title}
+      left={actionBarLeft}
       right={actionBarRight}
       hasFlex={true}
       wideSpacing={true}
@@ -198,7 +221,7 @@ function List(props: Props) {
   );
 
   getActionBar(actionBar);
-  showSideBar(true);
+  showSideBar(isSideBarOpen);
   getPagination(<Pagination count={totalCount} />);
 
   return content;

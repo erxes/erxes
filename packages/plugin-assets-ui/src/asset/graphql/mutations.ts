@@ -32,8 +32,8 @@ const assetsRemove = `
 `;
 
 const assetsAssignKbArticles = `
-  mutation assetsAssignKbArticles(${listParamDefs}, $action: String, $articleIds: [String]) {
-    assetsAssignKbArticles(${listParams}, action: $action, articleIds: $articleIds)
+  mutation assetsAssignKbArticles(${listParamDefs},$action:String) {
+    assetsAssignKbArticles(${listParams},action:$action)
   }
 `;
 

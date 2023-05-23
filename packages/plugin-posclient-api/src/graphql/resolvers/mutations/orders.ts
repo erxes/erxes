@@ -13,6 +13,7 @@ import {
   ORDER_STATUSES
 } from '../../../models/definitions/constants';
 import { IPaidAmount } from '../../../models/definitions/orders';
+import { PutData } from '../../../models/PutData';
 import { IContext, IOrderInput } from '../../types';
 import { checkLoyalties } from '../../utils/loyalties';
 import {
@@ -538,6 +539,16 @@ const orderMutations = {
     const now = new Date();
 
     const ebarimtConfig: any = config.ebarimtConfig;
+
+    if (
+      !ebarimtConfig ||
+      !Object.keys(ebarimtConfig) ||
+      !ebarimtConfig.districtCode ||
+      !ebarimtConfig.companyRD
+    ) {
+      billType = BILL_TYPES.INNER;
+    }
+
     try {
       const ebarimtResponses: any[] = [];
 
@@ -552,11 +563,36 @@ const orderMutations = {
         );
 
         ebarimtConfig.districtName = getDistrictName(
-          (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
+          (ebarimtConfig && ebarimtConfig.districtCode) || ''
         );
 
         for (const data of ebarimtDatas) {
           let response;
+
+          if (data.inner) {
+            const putData = new PutData({
+              ...config,
+              ...data,
+              config,
+              models
+            });
+
+            response = {
+              _id: Math.random(),
+              billId: 'Түр баримт',
+              ...(await putData.generateTransactionInfo()),
+              registerNo: ebarimtConfig.companyRD || '',
+              success: 'true'
+            };
+            ebarimtResponses.push(response);
+
+            await models.OrderItems.updateOne(
+              { _id: { $in: data.itemIds } },
+              { $set: { isInner: true } }
+            );
+
+            continue;
+          }
 
           response = await models.PutResponses.putData({
             ...data,

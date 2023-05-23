@@ -119,6 +119,7 @@ export type ClientPortalConfig = {
   dealLabel?: string;
   taskPublicBoardId?: string;
   taskPublicPipelineId?: string;
+  taskPublicLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   taskBoardId?: string;

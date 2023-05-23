@@ -16,6 +16,14 @@ cube(`Tasks`, {
       sql: `${CUBE}._id = ${TasksAssigneduser}._id`,
       relationship: `belongsTo`
     },
+    TasksDepartments: {
+      sql: `${CUBE}._id = ${TasksDepartments}._id`,
+      relationship: `belongsTo`
+    },
+    TasksBranches: {
+      sql: `${CUBE}._id = ${TasksBranches}._id`,
+      relationship: `belongsTo`
+    },
     Conformities: {
       sql: `${CUBE}._id = ${Conformities}.relTypeId or ${CUBE}._id = ${Conformities}.mainTypeId `,
       relationship: `belongsTo`

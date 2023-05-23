@@ -226,9 +226,11 @@ export const prepareEbarimtData = async (
   const details: IDetailItem[] = [];
   const detailsFree: IDetailItem[] = [];
   const details0: IDetailItem[] = [];
+  const detailsInner: (IDetailItem & { itemId: string })[] = [];
   let amountDefault = 0;
   let amountFree = 0;
   let amount0 = 0;
+  let amountInner = 0;
 
   for (const item of items) {
     const product = productsById[item.productId];
@@ -254,6 +256,13 @@ export const prepareEbarimtData = async (
     } else if (product.taxType === '3' && billType === '3') {
       details0.push({ ...stock, barcode: product.taxCode });
       amount0 += amount;
+    } else if (product.taxType === '5') {
+      detailsInner.push({
+        ...stock,
+        barcode: product.taxCode,
+        itemId: item._id
+      });
+      amountInner += amount;
     } else {
       let trueBarcode = '';
       for (const barcode of product.barcodes) {
@@ -320,6 +329,26 @@ export const prepareEbarimtData = async (
       details: details0,
       cashAmount,
       nonCashAmount: amount0 - cashAmount
+    });
+  }
+
+  if (detailsInner && detailsInner.length) {
+    if (calcCashAmount > amountInner) {
+      cashAmount = amountInner;
+      calcCashAmount -= amountInner;
+    } else {
+      cashAmount = calcCashAmount;
+      calcCashAmount = 0;
+    }
+    result.push({
+      ...commonOderInfo,
+      hasVat: false,
+      hasCityTax: false,
+      itemIds: detailsInner.map(di => di.itemId),
+      inner: true,
+      details: detailsInner,
+      cashAmount,
+      nonCashAmount: amountInner - cashAmount
     });
   }
 

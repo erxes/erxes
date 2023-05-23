@@ -9,36 +9,46 @@ import React from 'react';
 type Props = {
   salary: any;
   keys: any[];
+  symbols: any;
+  isEmployeeSalary?: boolean;
+  remove: (id: string) => void;
 };
 
 const Row = (props: Props) => {
-  const { salary, keys } = props;
+  const { salary, keys, symbols } = props;
 
   // TODO: discuss with bichil then implement
-  // const renderRemoveAction = () => {
-  //   const onClick = () => {
-  //     remove(salary._id);
-  //   };
+  const renderRemoveAction = () => {
+    const onClick = () => {
+      props.remove(salary._id);
+    };
 
-  //   return (
-  //     <Tip text={__('Delete')} placement="top">
-  //       <Button
-  //         id="configDelete"
-  //         btnStyle="link"
-  //         onClick={onClick}
-  //         icon="times-circle"
-  //       />
-  //     </Tip>
-  //   );
-  // };
+    return (
+      <Tip text={__('Delete')} placement="top">
+        <Button
+          id="configDelete"
+          btnStyle="link"
+          onClick={onClick}
+          icon="times-circle"
+        />
+      </Tip>
+    );
+  };
 
-  const branches = salary.employee.branches
+  const branches =
+    (salary && salary.employee && salary.employee.branches) || [];
+
+  const branchText = branches
     .map(branch => branch.name)
     .join(', ')
     .slice(0, -1);
-  const position = salary.employee.details.position.name;
-  const fullName =
-    salary.employee.details.lastName + ' ' + salary.employee.details.firstName;
+  const position = salary.employee
+    ? salary.employee.details.position.name
+    : '-';
+
+  const fullName = salary.employee
+    ? salary.employee.details.lastName + ' ' + salary.employee.details.firstName
+    : '-';
 
   return (
     <tr>
@@ -47,7 +57,7 @@ const Row = (props: Props) => {
       </td>
 
       <td key={'department'}>
-        <RowTitle>{branches || '-'}</RowTitle>
+        <RowTitle>{branchText || '-'}</RowTitle>
       </td>
 
       <td key={'position'}>
@@ -60,15 +70,17 @@ const Row = (props: Props) => {
 
       {keys.map(key => (
         <td key={key}>
-          <RowTitle>{Number(salary[key]).toLocaleString() || '-'}</RowTitle>
+          <RowTitle>
+            {Number(salary[key]).toLocaleString() + ' ' + symbols[key] || '-'}
+          </RowTitle>
         </td>
       ))}
 
-      {/*
-        TODO: discuss with bichil then implement this
-      <td>
-        <ActionButtons>{renderRemoveAction()}</ActionButtons>
-      </td> */}
+      {!props.isEmployeeSalary && (
+        <td>
+          <ActionButtons>{renderRemoveAction()}</ActionButtons>
+        </td>
+      )}
     </tr>
   );
 };

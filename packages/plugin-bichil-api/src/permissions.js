@@ -6,7 +6,7 @@ module.exports = {
       {
         name: 'bichilSalariesAll',
         description: 'All',
-        use: ['addSalaries', 'showSalaries'],
+        use: ['addSalaries', 'showSalaries', 'removeSalaries'],
       },
       {
         name: 'addSalaries',
@@ -16,6 +16,10 @@ module.exports = {
         name: 'showSalaries',
         description: 'Show salaries',
       },
+      {
+        name: 'removeSalaries',
+        description: 'Remove salaries',
+      }
     ],
   },
 };

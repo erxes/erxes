@@ -1,10 +1,11 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import React from 'react';
-import { Config, IUser, Ticket, Store } from '../../types';
-import Form from '../components/Form';
-import { AppConsumer } from '../../appContext';
-import { queries, mutations } from '../graphql';
-import { Alert } from '../../utils';
+import { Config, IUser, Store, Ticket } from "../../types";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
+
+import { Alert } from "../../utils";
+import { AppConsumer } from "../../appContext";
+import Form from "../components/Form";
+import React from "react";
 
 type Props = {
   config: Config;
@@ -19,72 +20,71 @@ function FormContainer({
   ...props
 }: Props) {
   const [createTicket] = useMutation(gql(mutations.clientPortalCreateTicket), {
-    refetchQueries: [{ query: gql(queries.clientPortalTickets) }]
+    refetchQueries: [{ query: gql(queries.clientPortalTickets) }],
   });
 
   const { data: customFields } = useQuery(gql(queries.fields), {
     variables: {
-      contentType: 'cards:ticket',
+      contentType: "cards:ticket",
       pipelineId: config?.ticketPipelineId,
-      isVisibleToCreate: true
+      isVisibleToCreate: true,
     },
     context: {
       headers: {
-        'erxes-app-token': config?.erxesAppToken
-      }
-    }
+        "erxes-app-token": config?.erxesAppToken,
+      },
+    },
   });
 
   const labelsQuery = useQuery(gql(queries.pipelineLabels), {
     variables: {
-      pipelineId: config?.ticketPipelineId
+      pipelineId: config?.ticketPipelineId,
     },
     context: {
       headers: {
-        'erxes-app-token': config?.erxesAppToken
-      }
-    }
+        "erxes-app-token": config?.erxesAppToken,
+      },
+    },
   });
-  
 
   const { data: departments } = useQuery(gql(queries.departments), {
     variables: {
-      withoutUserFilter: true
+      withoutUserFilter: true,
     },
     context: {
       headers: {
-        'erxes-app-token': config?.erxesAppToken
-      }
-    }
+        "erxes-app-token": config?.erxesAppToken,
+      },
+    },
   });
 
   const { data: branches } = useQuery(gql(queries.branches), {
     variables: {
-      withoutUserFilter: true
+      withoutUserFilter: true,
     },
     context: {
       headers: {
-        'erxes-app-token': config?.erxesAppToken
-      }
-    }
+        "erxes-app-token": config?.erxesAppToken,
+      },
+    },
   });
 
   const { data: products } = useQuery(gql(queries.products), {
     context: {
       headers: {
-        'erxes-app-token': config?.erxesAppToken
-      }
-    }
+        "erxes-app-token": config?.erxesAppToken,
+      },
+    },
   });
 
   const handleSubmit = (doc: Ticket) => {
     createTicket({
       variables: {
         ...doc,
-        type: 'ticket',
+        type: "ticket",
         stageId: config.ticketStageId,
         email: currentUser.email,
-      }
+      },
     }).then(() => {
       Alert.success("You've successfully created a ticket");
 
@@ -92,17 +92,18 @@ function FormContainer({
     });
   };
 
-
   const labels = labelsQuery?.data?.pipelineLabels || [];
 
   const updatedProps = {
     ...props,
-    customFields: customFields?.fields.filter(f => f.field !== 'description') || [],
+    customFields:
+      customFields?.fields.filter((f) => f.field !== "description") || [],
     departments: departments?.departments || [],
     branches: branches?.branches || [],
     products: products?.products || [],
     labels,
-    handleSubmit
+    closeModal,
+    handleSubmit,
   };
 
   return <Form {...updatedProps} />;

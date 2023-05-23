@@ -128,6 +128,13 @@ const queries = `
   bichilSalaryByEmployee(password: String!): BichilSalaryReportsListResponse
 
   bichilSalaryLabels: JSON
+  bichilSalarySymbols: JSON
+`;
+
+const mutations = `
+  finishUnfinishedShifts: JSON
+
+  bichilRemoveSalaryReport(_id: String!): JSON
 `;
 
 const typeDefs = async _serviceDiscovery => {
@@ -139,6 +146,10 @@ const typeDefs = async _serviceDiscovery => {
     
     extend type Query {
       ${queries}
+    }
+
+    extend type Mutation { 
+      ${mutations}
     }
     
   `;

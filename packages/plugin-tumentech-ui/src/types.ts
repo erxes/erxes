@@ -475,6 +475,7 @@ export type IDealPlace = {
   endPlaceId: string;
   startPlace: IPlace;
   endPlace: IPlace;
+  path?: string;
 };
 
 export type IDealRoute = {
@@ -505,7 +506,7 @@ export type ITrip = {
   statusInfo: any;
   route: IRoute;
   driver: ICustomer;
-  deals: { deal: IDeal; dealPlace: IDealPlace }[];
+  deals: Array<{ deal: IDeal; dealPlace: IDealPlace }>;
   cars: ICar[];
   trackingData: ITrackingData[];
 };

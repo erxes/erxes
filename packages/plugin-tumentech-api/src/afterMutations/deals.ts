@@ -165,45 +165,45 @@ export const afterDealUpdate = async (subdomain, params) => {
     ) {
       const trip = await models.Trips.findOne({ dealId: deal._id });
       const dealRoute = await models.DealRoutes.findOne({ dealId: deal._id });
+      const dealPlace = await models.DealPlaces.findOne({ dealId: deal._id });
       const participant = await models.Participants.findOne({
         dealId: deal._id,
         status: 'won'
       });
-
-      let estimatedCloseDate: any;
+      // let estimatedCloseDate: any;
 
       if (!trip && participant) {
-        if (dealRoute) {
-          const route = (await models.Routes.findOne({
-            _id: dealRoute.routeId
-          })) || { directionIds: [] };
+        // if (dealPlace) {
+        //   const route = (await models.Routes.findOne({
+        //     _id: dealRoute.routeId
+        //   })) || { directionIds: [] };
 
-          const result: any = await models.Directions.aggregate([
-            { $match: { _id: { $in: route.directionIds } } },
-            {
-              $group: {
-                _id: null,
-                duration: {
-                  $sum: '$duration'
-                }
-              }
-            },
-            {
-              $project: {
-                duration: '$duration'
-              }
-            }
-          ]);
+        //   // const result: any = await models.Directions.aggregate([
+        //   //   { $match: { _id: { $in: route.directionIds } } },
+        //   //   {
+        //   //     $group: {
+        //   //       _id: null,
+        //   //       duration: {
+        //   //         $sum: '$duration'
+        //   //       }
+        //   //     }
+        //   //   },
+        //   //   {
+        //   //     $project: {
+        //   //       duration: '$duration'
+        //   //     }
+        //   //   }
+        //   // ]);
 
-          if (!result || !result.length) {
-            return null;
-          }
+        //   if (!result || !result.length) {
+        //     return null;
+        //   }
 
-          const obj: any = result[0];
-          estimatedCloseDate = moment(new Date())
-            .add(obj.duration, 'minutes')
-            .toDate();
-        }
+        //   const obj: any = result[0];
+        //   estimatedCloseDate = moment(new Date())
+        //     .add(obj.duration, 'minutes')
+        //     .toDate();
+        // }
 
         const conformities = await sendCoreMessage({
           subdomain,
@@ -226,7 +226,8 @@ export const afterDealUpdate = async (subdomain, params) => {
           routeReversed: dealRoute && dealRoute.reversed,
           startedDate: new Date(),
           customerIds: conformities.map(c => c.relTypeId),
-          estimatedCloseDate
+          // estimatedCloseDate
+          path: dealPlace && dealPlace.path
         });
       }
 

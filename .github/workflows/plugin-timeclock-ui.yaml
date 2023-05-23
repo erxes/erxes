@@ -1,9 +1,10 @@
-name: Plugin timeclock UI CI
+name: Plugin documents UI CI
 
 on:
   push:
     branches:
       - dev
+      - staging
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'
@@ -18,12 +19,13 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
-      - 'packages/ui-timeclock/**'
-      - 'packages/plugin-timeclock-ui/**'
-      - '.github/workflows/plugin-timeclock-ui.yaml'
+      - 'packages/ui-documents/**'
+      - 'packages/plugin-documents-ui/**'
+      - '.github/workflows/plugin-documents-ui.yaml'
   pull_request:
     branches:
       - dev
+      - staging
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'
@@ -38,9 +40,9 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
-      - 'packages/ui-timeclock/**'
-      - 'packages/plugin-timeclock-ui/**'
-      - '.github/workflows/plugin-timeclock-ui.yaml'
+      - 'packages/ui-documents/**'
+      - 'packages/plugin-documents-ui/**'
+      - '.github/workflows/plugin-documents-ui.yaml'
 
 jobs:
   ui:
@@ -57,16 +59,15 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-timeclock-ui/.erxes
-          cp -r packages/plugin-timeclock-ui/src packages/plugin-timeclock-ui/.erxes/plugin-src
-          cd packages/plugin-timeclock-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-documents-ui/.erxes
+          cp -r packages/plugin-documents-ui/src packages/plugin-documents-ui/.erxes/plugin-src
+          cd packages/plugin-documents-ui
           yarn install
           yarn install-deps
           yarn build
-          ls
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -74,9 +75,9 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
-          tar -cf build.tar --directory=packages/plugin-timeclock-ui/.erxes/dist .
-          cp build.tar packages/plugin-timeclock-ui/.erxes/dist
-          rm -rf packages/plugin-timeclock-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-timeclock-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-timeclock-ui --delete
+          tar -cf build.tar --directory=packages/plugin-documents-ui/.erxes/dist .
+          cp build.tar packages/plugin-documents-ui/.erxes/dist
+          rm -rf packages/plugin-documents-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-documents-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-documents-ui --delete

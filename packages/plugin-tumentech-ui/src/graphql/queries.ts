@@ -517,6 +517,7 @@ const dealPlaces = `
 query getDealPlace($dealId: String!) {
   getDealPlace(dealId: $dealId) {
     dealId
+    path
     endPlace {
       _id
       center

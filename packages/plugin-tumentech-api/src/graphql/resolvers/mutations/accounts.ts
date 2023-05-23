@@ -233,6 +233,43 @@ const accountMutations = {
     }
 
     return customer.primaryPhone;
+  },
+
+  customerAccountEditDriverGroups: async (
+    _root,
+    { driverGroups }: { driverGroups: any[] },
+    { models, cpUser, subdomain }: IContext
+  ) => {
+    const user = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: {
+        _id: cpUser.userId
+      },
+      isRPC: true,
+      defaultValue: undefined
+    });
+
+    if (!user) {
+      throw new Error('login required');
+    }
+
+    const account = await models.CustomerAccounts.findOne({
+      customerId: user.erxesCustomerId
+    });
+
+    console.log(account);
+
+    if (!account) {
+      throw new Error('Данс олдсонгүй, данс үүсгэнэ үү');
+    }
+
+    await models.CustomerAccounts.updateOne(
+      { _id: account._id },
+      { $set: { driverGroups } }
+    );
+
+    return account;
   }
 };
 

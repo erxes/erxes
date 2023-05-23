@@ -52,6 +52,7 @@ export default function Component({
             locationOptions={[startPlace.center, endPlace.center]}
             streetViewControl={false}
             connectWithLines={true}
+            googleMapPath={dealPlace.path}
           />
         )}
       </div>

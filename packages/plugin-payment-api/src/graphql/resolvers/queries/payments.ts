@@ -6,6 +6,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { MonpayAPI } from '../../../api/monpay/api';
 import { PAYMENTS } from '../../../api/constants';
+import { QPayQuickQrAPI } from '../../../api/qpayQuickqr/api';
 
 interface IParam {
   searchValue?: string;
@@ -109,6 +110,15 @@ const queries = {
     const api = new MonpayAPI(config.config);
 
     return api.couponCheck(couponCode);
+  },
+
+  async qpayGetMerchant(_root, args, { models }: IContext) {
+    const api = new QPayQuickQrAPI({
+      username: process.env.QUICK_QR_USERNAME || '',
+      password: process.env.QUICK_QR_PASSWORD || ''
+    });
+
+    return api.get(args._id);
   }
 };
 

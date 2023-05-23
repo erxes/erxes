@@ -348,6 +348,36 @@ const participantMutations = {
     }
 
     return participant;
+  },
+
+  inviteDriversToDeal: async (
+    _root,
+    { dealId, driverIds }: { dealId: string; driverIds: string[] },
+    { models, subdomain }: IContext
+  ) => {
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: {
+        _id: dealId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!deal) {
+      throw new Error('Deal not found');
+    }
+
+    for (const driverId of driverIds) {
+      await models.Participants.create({
+        dealId,
+        driverId,
+        status: 'participating'
+      });
+    }
+
+    return { status: 'ok', message: 'Drivers invited' };
   }
 };
 

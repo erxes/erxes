@@ -10,12 +10,18 @@ import {
 import { IAsset } from '../../common/types';
 import AssetForm from '../containers/Form';
 import { MoreContainer, Badge, ContainerBox } from '../../style';
+import AssignArticles from '../containers/AssignArticles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 type Props = {
   asset: IAsset;
   history: any;
   queryParams: any;
   isChecked: boolean;
   toggleBulk: (asset: IAsset, isChecked?: boolean) => void;
+  assignKbArticles: (
+    doc: { assetIds: string[] },
+    emptyBulk: () => void
+  ) => void;
 };
 
 class Row extends React.Component<Props> {
@@ -23,6 +29,31 @@ class Row extends React.Component<Props> {
     super(props);
   }
 
+  renderKbAssignForm() {
+    const { asset, assignKbArticles, queryParams } = this.props;
+
+    const content = props => (
+      <AssignArticles
+        {...props}
+        assignedArticleIds={asset.kbArticleIds}
+        objects={[asset]}
+        queryParams={queryParams}
+        save={assignKbArticles}
+      />
+    );
+
+    const trigger = <Icon icon="light-bulb" />;
+
+    return (
+      <ModalTrigger
+        title="Assign knowledgebase articles"
+        size="lg"
+        dialogClassName="modal-1000w"
+        trigger={trigger}
+        content={content}
+      />
+    );
+  }
   render() {
     const { asset, history, queryParams, toggleBulk, isChecked } = this.props;
 
@@ -77,6 +108,7 @@ class Row extends React.Component<Props> {
                 <Badge>{childAssetCount}</Badge>
               </MoreContainer>
             )}
+            {isEnabled('knowledgebase') && this.renderKbAssignForm()}
             <ModalTrigger
               title="Edit basic info"
               trigger={<Icon icon="edit" />}

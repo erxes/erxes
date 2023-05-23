@@ -253,7 +253,11 @@ export const SelectWithAssets = ({
 }: {
   queryParams?: IQueryParams;
   label: string;
-  onSelect: (value: string[] | string, name: string) => void;
+  onSelect: (
+    value: string[] | string,
+    name: string,
+    assetName?: string
+  ) => void;
   multi?: boolean;
   customOption?: IOption;
   initialValue?: string | string[];
@@ -280,6 +284,7 @@ export const SelectWithAssets = ({
 
       list.push({
         label: `${space} ${asset.code} - ${asset.name}`,
+        extraValue: asset.name,
         value: asset._id
       });
     }
@@ -362,4 +367,14 @@ export const SelectWithAssetCategory = ({
       multi={multi}
     />
   );
+};
+
+export const generateParamsIds = ids => {
+  if (!ids?.length) {
+    return undefined;
+  }
+  if (typeof ids === 'string') {
+    return [ids];
+  }
+  return ids;
 };

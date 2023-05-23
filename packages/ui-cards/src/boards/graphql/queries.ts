@@ -347,6 +347,7 @@ const boardItemQueryParamsDef = `
   $skip: Int,
   $limit: Int,
   $tagIds: [String],
+  $searchValue: String,
 `;
 
 const boardItemQueryParams = `
@@ -356,6 +357,7 @@ const boardItemQueryParams = `
   skip: $skip,
   limit: $limit,
   tagIds: $tagIds,
+  search: $searchValue,
 `;
 
 const tasks = `

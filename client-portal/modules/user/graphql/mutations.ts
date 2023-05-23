@@ -34,6 +34,31 @@ const createUser = `
   }
 `;
 
+const userEdit = `
+  mutation clientPortalUsersEdit(
+    $_id: String!,
+    $clientPortalId: String,
+    $email: String,
+    $firstName: String,
+    $lastName: String,
+    $phone: String,
+    $username: String,
+  ) {
+    clientPortalUsersEdit(
+      _id: $_id,
+      clientPortalId: $clientPortalId,
+      email: $email,
+      firstName: $firstName,
+      lastName: $lastName,
+      phone: $phone,
+      username: $username,
+    ) {
+      _id
+      email
+    }
+  }
+`;
+
 const logout = `
   mutation {
     clientPortalLogout
@@ -45,19 +70,33 @@ const getCode = `
     sendVerificationCode(phone: $phone)
   }
 `;
-const resetPassword = `
-  mutation resetPasswordWithCode(
-    $phone: String!,
-    $password: String!,
-    $code: String!,
+
+const forgotPassword = `
+  mutation clientPortalForgotPassword(
+    $clientPortalId: String!,
+    $email: String,
+    $phone: String,
   ) {
-    resetPasswordWithCode(
+    clientPortalForgotPassword(
+      clientPortalId: $clientPortalId,
+      email: $email,
       phone: $phone,
-      password: $password,
-      code: $code,
     )
   }
 `;
+
+const resetPassword = `
+  mutation clientPortalResetPassword(
+    $token: String!,
+    $newPassword: String!,
+  ) {
+    clientPortalResetPassword(
+      token: $token,
+      newPassword: $newPassword,
+    )
+  }
+`;
+
 const googleLogin = `
   mutation clientPortalGoogleAuthentication(
     $code: String!,
@@ -76,11 +115,14 @@ const facebookLogin = `
 }
 `;
 
+
 export default {
   login: clientPortalLogin,
   logout,
   createUser,
+  userEdit,
   getCode,
+  forgotPassword,
   resetPassword,
   googleLogin,
   facebookLogin

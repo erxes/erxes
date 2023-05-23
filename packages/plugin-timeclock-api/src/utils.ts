@@ -314,18 +314,41 @@ const importDataAndCreateTimeclock = async (
     devicesDictionary
   );
 
+  // {empId : [employee Data]}
+  const queryDataDictionary: { [employeeId: string]: any[] } = {};
+
+  for (const queryRow of newQueryData) {
+    const getTeamMemberId = parseFloat(queryRow.ID);
+
+    if (getTeamMemberId in queryDataDictionary) {
+      const existingData = queryDataDictionary[getTeamMemberId];
+      queryDataDictionary[getTeamMemberId] = [...existingData, queryRow];
+      continue;
+    }
+
+    queryDataDictionary[getTeamMemberId] = [queryRow];
+  }
+
+  const existingTimeclocksDict: { [key: string]: ITimeClockDocument[] } = {};
+
+  for (const timeclock of existingTimeclocks) {
+    if (timeclock.userId in existingTimeclocksDict) {
+      existingTimeclocksDict[timeclock.userId] = [
+        ...existingTimeclocksDict[timeclock.userId],
+        timeclock
+      ];
+    }
+    existingTimeclocksDict[timeclock.userId] = [timeclock];
+  }
+
   for (const teamMemberId of Object.keys(empSchedulesObj)) {
-    const currEmployeeId = teamMembersObj[teamMemberId];
+    const currEmployeeId = parseFloat(teamMembersObj[teamMemberId]);
 
-    const existingTimeclocksOfEmployee = existingTimeclocks.filter(
-      timeclock => timeclock.userId === teamMemberId
-    );
+    const existingTimeclocksOfEmployee = existingTimeclocksDict[teamMemberId];
 
-    const currentEmpData = newQueryData.filter(
-      row => parseFloat(row.ID) === parseFloat(currEmployeeId)
-    );
+    const currentEmpData = queryDataDictionary[currEmployeeId];
 
-    if (!currentEmpData.length) {
+    if (!currentEmpData) {
       continue;
     }
 
@@ -376,6 +399,7 @@ const createUserTimeclock = async (
           existingTimeclocks,
           devicesDictionary
         );
+
         if (newTime) {
           returnUserData.push(newTime);
         }
@@ -483,6 +507,10 @@ const getShiftStartAndEndIdx = (
   // shift start of an unfinished shift
   const getShiftStart = dayjs(unfinishedShiftStart);
 
+  const nextDay = dayjs(scheduledDay)
+    .add(1, 'day')
+    .format(dateFormat);
+
   // if there's no schedule config, compare empData with schedule start/end
   if (!('validCheckIn' in empScheduleDayObj)) {
     checkInStart = dayjs(scheduledDay + ' ' + empScheduleDayObj.shiftStart).add(
@@ -500,7 +528,9 @@ const getShiftStartAndEndIdx = (
     );
 
     checkInEnd = dayjs(
-      scheduledDay + ' ' + empScheduleDayObj.validCheckIn.configShiftEnd
+      (empScheduleDayObj.validCheckIn.overnight ? nextDay : scheduledDay) +
+        ' ' +
+        empScheduleDayObj.validCheckIn.configShiftEnd
     );
   }
 
@@ -519,10 +549,6 @@ const getShiftStartAndEndIdx = (
   // if overnight shift, look from next day's time logs
   const overnightShift = empScheduleDayObj.overnight;
 
-  const nextDay = dayjs(scheduledDay)
-    .add(1, 'day')
-    .format(dateFormat);
-
   if (!('validCheckout' in empScheduleDayObj)) {
     checkOutStart = dayjs(
       overnightShift ? nextDay : scheduledDay + ' ' + empScheduleDayObj.shiftEnd
@@ -532,17 +558,29 @@ const getShiftStartAndEndIdx = (
       overnightShift ? nextDay : scheduledDay + ' ' + empScheduleDayObj.shiftEnd
     ).add(3, 'hour');
   } else {
-    checkOutStart = dayjs(
-      (overnightShift ? nextDay : scheduledDay) +
-        ' ' +
-        empScheduleDayObj.validCheckout.configShiftStart
-    );
+    // if valid check out interval itself is overnight start from scheduled day end at next day
+    if (empScheduleDayObj.validCheckout.overnight) {
+      checkOutStart = dayjs(
+        scheduledDay + ' ' + empScheduleDayObj.validCheckout.configShiftStart
+      );
 
-    checkOutEnd = dayjs(
-      (overnightShift ? nextDay : scheduledDay) +
-        ' ' +
-        empScheduleDayObj.validCheckout.configShiftEnd
-    );
+      checkOutEnd = dayjs(
+        nextDay + ' ' + empScheduleDayObj.validCheckout.configShiftEnd
+      );
+    }
+    // valid check out inverval is not overnight, but in case shift itself is overnight
+    else {
+      checkOutStart = dayjs(
+        (overnightShift ? nextDay : scheduledDay) +
+          ' ' +
+          empScheduleDayObj.validCheckout.configShiftStart
+      );
+      checkOutEnd = dayjs(
+        (overnightShift ? nextDay : scheduledDay) +
+          ' ' +
+          empScheduleDayObj.validCheckout.configShiftEnd
+      );
+    }
   }
 
   const getReverseData = empData.slice().reverse();
@@ -565,16 +603,18 @@ const getShiftStartAndEndIdx = (
 
 const checkTimeClockAlreadyExists = (
   userData: ITimeClock,
-  existingTimeclocks: ITimeClockDocument[]
+  existingTimeclocks?: ITimeClockDocument[]
 ) => {
   let alreadyExists = false;
 
   // find duplicates and not include them in new timeclock data
-  const findExistingTimeclock = existingTimeclocks.find(
-    existingShift =>
-      existingShift.shiftStart.getTime() === userData.shiftStart?.getTime() ||
-      existingShift.shiftEnd?.getTime() === userData.shiftEnd?.getTime()
-  );
+  const findExistingTimeclock =
+    existingTimeclocks &&
+    existingTimeclocks.find(
+      existingShift =>
+        existingShift.shiftStart.getTime() === userData.shiftStart?.getTime() ||
+        existingShift.shiftEnd?.getTime() === userData.shiftEnd?.getTime()
+    );
 
   if (findExistingTimeclock) {
     alreadyExists = true;
@@ -594,20 +634,21 @@ const findAndUpdateUnfinishedShifts = async (
   const newEmpData = empData.slice();
 
   // find unfinished shifts
-  const unfinishedShifts = await models?.Timeclocks.find({
+  const unfinishedTimeclocks = await models?.Timeclocks.find({
     shiftActive: true,
     userId: { $in: teamMemberIds }
   });
 
-  unfinishedShifts.forEach(async unfinishedShift => {
+  const bulkWriteOps: any[] = [];
+
+  unfinishedTimeclocks.forEach(async unfinishedTimeclock => {
     let getShiftEndIdx;
-    const teamMemberId = unfinishedShift.userId || '';
+
+    const teamMemberId = unfinishedTimeclock.userId || '';
     const empId = parseInt(teamMembersObj[teamMemberId || ''], 10);
 
-    const shiftStart = unfinishedShift.shiftStart;
-    const getShiftStart = dayjs(shiftStart);
-
-    const getScheduledDay = getShiftStart.format(dateFormat);
+    const shiftStart = unfinishedTimeclock.shiftStart;
+    const getScheduledDay = dayjs(shiftStart).format(dateFormat);
 
     // if there's no schedule config for that shift
     if (
@@ -617,7 +658,7 @@ const findAndUpdateUnfinishedShifts = async (
       return;
     }
 
-    // for each config of a scheduled day shift
+    // for each config of a scheduled day shift  / max 2 configs per scheduled day/
     for (const empScheduledayObj of empSchedulesObj[teamMemberId][
       getScheduledDay
     ]) {
@@ -642,18 +683,27 @@ const findAndUpdateUnfinishedShifts = async (
           newEmpData[getShiftEndIdx].deviceName;
 
         const updateTimeClock = {
-          shiftStart: unfinishedShift.shiftStart,
+          shiftStart: unfinishedTimeclock.shiftStart,
           shiftEnd: getShiftEnd,
           userId: teamMemberId,
           shiftActive: false,
           deviceName: getDeviceName,
-          deviceType: unfinishedShift.deviceType + ' x faceTerminal'
+          deviceType: unfinishedTimeclock.deviceType + ' x faceTerminal'
         };
 
-        await models.Timeclocks.updateTimeClock(
-          unfinishedShift._id,
-          updateTimeClock
-        );
+        const updateTimeclockOperation = {
+          updateOne: {
+            filter: {
+              _id: unfinishedTimeclock._id
+            },
+            update: {
+              ...updateTimeClock
+            }
+          }
+        };
+
+        // if shiftEnd of unfinished timeclock found, insert into bulkWrite and remove data from query data
+        bulkWriteOps.push(updateTimeclockOperation);
 
         const deleteCount = getShiftEndIdx - getShiftStartIdx + 1;
         await newEmpData.splice(getShiftStartIdx, deleteCount);
@@ -662,6 +712,11 @@ const findAndUpdateUnfinishedShifts = async (
       }
     }
   });
+
+  //  update unfinished timeclocks
+  if (bulkWriteOps.length) {
+    await models.Timeclocks.bulkWrite(bulkWriteOps);
+  }
 
   return newEmpData;
 };
@@ -677,7 +732,8 @@ const createScheduleObjOfMembers = async (
   } = {};
 
   const totalSchedules = await models.Schedules.find({
-    userId: { $in: teamMemberIds }
+    userId: { $in: teamMemberIds },
+    status: { $regex: /Approved/, $options: 'gi' }
   });
 
   const totalScheduleIds = totalSchedules.map(schedule => schedule._id);
@@ -709,7 +765,8 @@ const createScheduleObjOfMembers = async (
   const totalScheduleConfigShifts = await models.Shifts.find({
     scheduleConfigId: {
       $in: totalScheduleConfigIds
-    }
+    },
+    scheduleId: { $exists: false }
   });
 
   const totalScheduleConfigs = await models.ScheduleConfigs.find({
@@ -755,24 +812,41 @@ const createScheduleObjOfMembers = async (
           scheduleConfigShifts?.forEach(scheduleConfigShift => {
             currEmpScheduleConfig[scheduleConfigShift.configName || ''] = {
               configShiftStart: scheduleConfigShift.configShiftStart,
-              configShiftEnd: scheduleConfigShift.configShiftEnd
+              configShiftEnd: scheduleConfigShift.configShiftEnd,
+              overnight:
+                dayjs(
+                  new Date().toLocaleDateString() +
+                    ' ' +
+                    scheduleConfigShift.configShiftStart
+                ) >
+                dayjs(
+                  new Date().toLocaleDateString() +
+                    ' ' +
+                    scheduleConfigShift.configShiftEnd
+                )
             };
           });
 
           currEmpScheduleConfig = {
             ...currEmpScheduleConfig,
-            shiftStart: getScheduleConfig?.shiftStart,
-            shiftEnd: getScheduleConfig?.shiftEnd,
+            shiftStart:
+              getScheduleConfig?.shiftStart ||
+              dayjs(scheduleShift.shiftStart).format(timeFormat),
+            shiftEnd:
+              getScheduleConfig?.shiftEnd ||
+              dayjs(scheduleShift.shiftEnd).format(timeFormat),
             overnight:
               dayjs(
                 new Date().toLocaleDateString() +
                   ' ' +
-                  getScheduleConfig?.shiftStart
+                  getScheduleConfig?.shiftStart ||
+                  dayjs(scheduleShift.shiftStart).format(timeFormat)
               ) >
               dayjs(
                 new Date().toLocaleDateString() +
                   ' ' +
-                  getScheduleConfig?.shiftEnd
+                  getScheduleConfig?.shiftEnd ||
+                  dayjs(scheduleShift.shiftEnd).format(timeFormat)
               )
           };
           // if there're config(s) already, put all in array

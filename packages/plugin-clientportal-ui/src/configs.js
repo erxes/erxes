@@ -4,9 +4,11 @@ module.exports = {
   scope: 'clientportal',
   exposes: {
     './routes': './src/routes.tsx',
-    './cardDetailAction': './src/containers/comments/CardDetailAction.tsx'
+    './cardDetailAction': './src/containers/comments/CardDetailAction.tsx',
+    './fieldConfig': './src/containers/FieldConfigForm.tsx'
   },
   cardDetailAction: './cardDetailAction',
+  fieldConfig: './fieldConfig',
   routes: {
     url: 'http://localhost:3015/remoteEntry.js',
     scope: 'clientportal',

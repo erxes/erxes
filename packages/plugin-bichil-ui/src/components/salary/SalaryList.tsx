@@ -18,11 +18,12 @@ import { Formgroup } from '@erxes/ui/src/components/form/styles';
 type Props = {
   salaries?: any[];
   labels: any;
+  symbols: any;
   totalCount?: number;
   queryParams?: any;
   loading?: boolean;
   isEmployeeSalary?: boolean;
-  remove?: (id: string) => void;
+  remove: (id: string) => void;
   refetch?: () => void;
   confirmPassword?: () => void;
 };
@@ -39,7 +40,7 @@ const List = (props: Props) => {
 
   const renderRow = () => {
     return salaries.map(salary => (
-      <Row key={salary._id} salary={salary} keys={keys} />
+      <Row {...props} key={salary._id} salary={salary} keys={keys} />
     ));
   };
 
@@ -118,6 +119,8 @@ const List = (props: Props) => {
           {/*
             TODO: discuss with bichil then implement this
           <th>{__('Action')}</th> */}
+
+          {!props.isEmployeeSalary && <th>{__('Action')}</th>}
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>

@@ -25,6 +25,7 @@ import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import * as ws from 'ws';
+
 import {
   getService,
   getServices,
@@ -344,7 +345,8 @@ async function startServer() {
       documents,
       exporter,
       documentPrintHook,
-      readFileHook
+      readFileHook,
+      payment
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -431,6 +433,15 @@ async function startServer() {
         consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async args => ({
           status: 'success',
           data: await forms.fieldsGroupsHook(args)
+        }));
+      }
+
+      if (forms.relations) {
+        forms.relationsAvailable = true;
+
+        consumeRPCQueue(`${configs.name}:relations`, async args => ({
+          status: 'success',
+          data: await forms.relations(args)
         }));
       }
     }
@@ -621,6 +632,16 @@ async function startServer() {
         status: 'success',
         data: await documentPrintHook.action(args)
       }));
+    }
+
+    if (payment) {
+      if (payment.callback) {
+        payment.callbackAvailable = true;
+        consumeQueue(`${configs.name}:paymentCallback`, async args => ({
+          status: 'success',
+          data: await payment.callback(args)
+        }));
+      }
     }
   } // end configs.meta if
 

@@ -42,3 +42,16 @@ export const menuMovements = [
   { title: 'Movements', link: '/asset-movements' },
   { title: 'Assets', link: '/asset-movement-items' }
 ];
+
+export const checkKnowledge = [
+  {
+    title: 'Assigned',
+    label: 'Assigned Knowledgebase',
+    icon: 'file-bookmark-alt'
+  },
+  {
+    title: 'Designated',
+    label: 'Designated Knowledgebase',
+    icon: 'file-times'
+  }
+];

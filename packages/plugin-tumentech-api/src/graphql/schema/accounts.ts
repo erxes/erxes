@@ -11,6 +11,27 @@ type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
         `
         : ''
     }
+
+    driverGroups: [DriverGroup]
+  }
+
+  type DriverGroup {
+    name: String
+    description: String
+    driverIds: [String]
+    ${
+      contacts
+        ? `
+        drivers: [Customer]
+        `
+        : ''
+    }
+  }
+
+  input DriverGroupInput {
+    name: String
+    description: String
+    driverIds: [String]
   }
 
   type CustomerAccountListResponse {
@@ -46,6 +67,7 @@ export const queries = `
 export const mutations = `
   topupAccount(invoiceId: String): JSON
   revealPhone(driverId: String, carId: String, dealId: String): String
-
+  customerAccountEditDriverGroups( driverGroups: [DriverGroupInput]): CustomerAccount
+  
   manualTopup(customerId: String!, amount: Float!): JSON
 `;

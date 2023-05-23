@@ -1,48 +1,48 @@
-name: Plugin apex UI CI
+name: Plugin logs UI CI
 
 on:
   push:
     branches:
       - dev
+      - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-apex/**"
-      - "packages/plugin-apex-ui/**"
-      - ".github/workflows/plugin-apex-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-logs/**'
+      - 'packages/plugin-logs-ui/**'
+      - '.github/workflows/plugin-logs-ui.yaml'
   pull_request:
     branches:
       - dev
+      - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-apex/**"
-      - "packages/plugin-apex-ui/**"
-      - ".github/workflows/plugin-apex-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-logs/**'
+      - 'packages/plugin-logs-ui/**'
+      - '.github/workflows/plugin-logs-ui.yaml'
 
 jobs:
   ui:
@@ -59,16 +59,15 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-apex-ui/.erxes
-          cp -r packages/plugin-apex-ui/src packages/plugin-apex-ui/.erxes/plugin-src
-          cd packages/plugin-apex-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-logs-ui/.erxes
+          cp -r packages/plugin-logs-ui/src packages/plugin-logs-ui/.erxes/plugin-src
+          cd packages/plugin-logs-ui
           yarn install
           yarn install-deps
           yarn build
-          ls
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -76,9 +75,9 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
-          tar -cf build.tar --directory=packages/plugin-apex-ui/.erxes/dist .
-          cp build.tar packages/plugin-apex-ui/.erxes/dist
-          rm -rf packages/plugin-apex-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-apex-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-apex-ui --delete
+          tar -cf build.tar --directory=packages/plugin-logs-ui/.erxes/dist .
+          cp build.tar packages/plugin-logs-ui/.erxes/dist
+          rm -rf packages/plugin-logs-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-logs-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-logs-ui --delete

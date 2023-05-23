@@ -211,6 +211,12 @@ mutation submitCheckInOutRequest($checkType: String, $userId: String, $checkTime
   }
 }`;
 
+const removeSalary = `
+mutation BichilRemoveSalaryReport($_id: String!) {
+  bichilRemoveSalaryReport(_id: $_id)
+}
+`;
+
 export default {
   sendScheduleRequest,
   submitSchedule,
@@ -249,5 +255,7 @@ export default {
   submitCheckInOutRequest,
 
   extractAllDataFromMsSQL,
-  extractTimeLogsFromMsSql
+  extractTimeLogsFromMsSql,
+
+  removeSalary
 };
