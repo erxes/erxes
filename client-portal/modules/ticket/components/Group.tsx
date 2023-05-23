@@ -1,13 +1,10 @@
 import { Config, IUser } from '../../types';
 import { Label, ListBody, ListHead, ListRow } from '../../styles/tickets';
 
-import Detail from '../containers/Detail';
 import EmptyContent from '../../common/EmptyContent';
 import React from 'react';
-import TicketHeader from './TicketHeader';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
-import { Card } from 'react-bootstrap';
 
 type Props = {
   loading: boolean;
@@ -27,7 +24,7 @@ export default function Group({ tickets, currentUser, config, type }: Props) {
 
   return (
     <>
-      <ListHead className='head'>
+      <ListHead className="head">
         <div>Subject</div>
         <div>Created date</div>
         <div>Stage changed date</div>
@@ -43,10 +40,10 @@ export default function Group({ tickets, currentUser, config, type }: Props) {
           return (
             <ListRow
               key={type + ticket._id}
-              className='item'
+              className="item"
               onClick={() => router.push(`/tickets?itemId=${ticket._id}`)}
             >
-              <div className='base-color'>{ticket.name}</div>
+              <div className="base-color">{ticket.name}</div>
 
               <div>{dayjs(ticket.createdAt).format('MMM D YYYY')}</div>
               <div>
@@ -67,7 +64,7 @@ export default function Group({ tickets, currentUser, config, type }: Props) {
                   : '-'}
               </div>
 
-              <div className='base-color'>{stage.name}</div>
+              <div className="base-color">{stage.name}</div>
 
               <div>
                 {(labels || []).map(label => (

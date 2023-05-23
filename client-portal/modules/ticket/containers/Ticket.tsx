@@ -6,7 +6,6 @@ import React, { useState } from 'react';
 import Spinner from '../../common/Spinner';
 import Ticket from '../components/Ticket';
 import { queries } from '../graphql';
-import { commonQueries } from '../../common/graphqpl';
 
 type Props = {
   currentUser: IUser;

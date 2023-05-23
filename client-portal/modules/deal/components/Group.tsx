@@ -1,13 +1,10 @@
 import { Config, IUser } from '../../types';
 import { Label, ListBody, ListHead, ListRow } from '../../styles/deals';
 
-import Detail from '../containers/Detail';
 import EmptyContent from '../../common/EmptyContent';
 import React from 'react';
-import DealHeader from './DealHeader';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
-import { Card } from 'react-bootstrap';
 
 type Props = {
   loading: boolean;
