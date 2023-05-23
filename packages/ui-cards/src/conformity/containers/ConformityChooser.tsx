@@ -37,7 +37,7 @@ const ConformityChooser = (props: FinalProps) => {
 
   const onSelected = relTypes => {
     const relTypeIds = relTypes.map(item => item._id);
-    const update = proxy => {
+    const update = cache => {
       const variables: any = {
         mainType: data.mainType,
         mainTypeId: data.mainTypeId,
@@ -54,23 +54,11 @@ const ConformityChooser = (props: FinalProps) => {
         query: gql(refetchQuery),
         variables
       };
-
-      // Read the data from our cache for this query.
-      let result;
       const qryName = gql(refetchQuery).definitions[0].name.value;
 
-      try {
-        result = proxy.readQuery(selector);
-
-        // Do not do anything while reading query somewhere else
-      } catch (e) {
-        return;
-      }
-
-      result[qryName] = relTypes;
-
-      // Write our result back to the cache.
-      proxy.writeQuery({ ...selector, data: result });
+      cache.updateQuery(selector, _data => ({
+        [qryName]: relTypes
+      }));
     };
 
     editConformityMutation({
