@@ -1,5 +1,5 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, renderWithProps } from '@erxes/ui/src/utils';
 import { mutations } from '../../../conformity/graphql';
@@ -8,7 +8,7 @@ import {
   IConformityEdit
 } from '../../../conformity/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import AddForm from '../../components/portable/AddForm';
 import { mutations as boardMutations, queries } from '../../graphql';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
