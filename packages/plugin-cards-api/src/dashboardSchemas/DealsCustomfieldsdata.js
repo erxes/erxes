@@ -3,19 +3,9 @@ const { tableSchema } = require('../tablePrefix');
 cube(`DealsCustomfieldsdata`, {
   sql: `SELECT * FROM ${tableSchema()}.\`deals_customFieldsData\``,
 
-  preAggregations: {
-    // Pre-Aggregations definitions go here
-    // Learn more here: https://cube.dev/docs/caching/pre-aggregations/getting-started
-  },
-
   joins: {
     Fields: {
       sql: `${CUBE}.\`customFieldsData.field\` = ${Fields}._id`,
-      relationship: `belongsTo`
-    },
-
-    Customers: {
-      sql: `${CUBE}._id = ${Customers}._id`,
       relationship: `belongsTo`
     }
   },

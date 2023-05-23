@@ -28,6 +28,8 @@ export default function Deal({ deals, currentUser, config }: Props) {
       <>
         <ListHead className="head">
           <div>Subject</div>
+          <div>Start date</div>
+          <div>Close date</div>
           <div>Created date</div>
           <div>Stage changed date</div>
           <div>Stage</div>
@@ -45,6 +47,16 @@ export default function Deal({ deals, currentUser, config }: Props) {
               >
                 <div className="base-color">{deal.name}</div>
 
+                <div>
+                  {deal.startDate
+                    ? dayjs(deal.startDate).format("MMM D YYYY")
+                    : "-"}
+                </div>
+                <div>
+                  {deal.closeDate
+                    ? dayjs(deal.closeDate).format("MMM D YYYY")
+                    : "-"}
+                </div>
                 <div>{dayjs(deal.createdAt).format("MMM D YYYY")}</div>
                 <div>
                   {deal.stageChangedDate
@@ -79,6 +91,7 @@ export default function Deal({ deals, currentUser, config }: Props) {
         _id={itemId}
         onClose={() => router.push("/deals")}
         currentUser={currentUser}
+        config={config}
       />
     );
   }

@@ -6,6 +6,7 @@ import {
 } from '../../conformity/graphql/queries';
 
 const commonParams = `
+  $_ids: [String]
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
@@ -33,6 +34,7 @@ const commonParams = `
 `;
 
 const commonParamDefs = `
+  _ids: $_ids,
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - staging
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/core-ui/**'
@@ -32,7 +33,7 @@ jobs:
           yarn build
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -40,13 +41,13 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy locales
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         run: |
           tar -cf locales.tar --directory=packages/core-ui/public/locales .
-          aws s3 cp locales.tar s3://erxes-dev-plugins/locales.tar
+          aws s3 cp locales.tar s3://erxes-${GITHUB_REF#refs/heads/}-plugins/locales.tar
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         env:
           BASE_IMAGE: erxes/erxes:base-1.18-alpine
         run: |

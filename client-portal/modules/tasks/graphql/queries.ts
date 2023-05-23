@@ -1,50 +1,55 @@
+const taskFields = `
+_id
+name
+number
+pipeline {
+  _id
+  name
+}
+description
+modifiedAt
+modifiedBy
+status
+priority
+createdAt
+closeDate
+startDate
+stageChangedDate
+assignedUsers {
+  _id
+  email
+  username
+  details {
+    firstName
+    lastName
+    fullName
+  }
+}
+createdUser {
+  _id
+  email
+  username
+  details {
+    firstName
+    lastName
+    fullName
+  }
+}
+customFieldsData
+customProperties
+stage {
+  name
+}
+labels {
+  name
+  colorCode
+}
+`;
+
 const clientPortalGetTask = `
   query taskDetail($_id: String!) {
     taskDetail(_id: $_id) {
-      _id
-      name
-      number
-      pipeline {
-        _id
-        name
-      }
-      description
-      modifiedAt
-      modifiedBy
-      status
-      priority
-      createdAt
-      closeDate
-      startDate
-      assignedUsers {
-        _id
-        email
-        username
-        details {
-          firstName
-          lastName
-          fullName
-        }
-      }
-      createdUser {
-        _id
-        email
-        username
-        details {
-          firstName
-          lastName
-          fullName
-        }
-      }
-      customFieldsData
-      customProperties
-      stage {
-        name
-      }
-      labels {
-        name
-        colorCode
-      }
+     ${taskFields}
     }
   }
 `;
@@ -52,21 +57,7 @@ const clientPortalGetTask = `
 const clientPortalTasks = `
   query clientPortalTasks {
     clientPortalTasks {
-      _id
-      name
-      description
-      status
-      priority
-      createdAt
-      stageChangedDate
-      stage {
-        name
-      }
-
-      labels {
-        name
-        colorCode
-      }
+      ${taskFields}
     }
   }
 `;
