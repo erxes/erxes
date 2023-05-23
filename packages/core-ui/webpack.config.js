@@ -9,6 +9,7 @@ const { MFLiveReloadPlugin } = require("@module-federation/fmr");
 const envs = require("dotenv").config({ path: "./.env" });
 
 const depNames = [
+  "@apollo/client",
   "apollo-cache-inmemory",
   "apollo-client",
   "apollo-link",
@@ -37,7 +38,7 @@ const deps = require("./package.json").dependencies;
 const shared = {};
 
 for (const name of depNames) {
-  shared[name] = { eager: true, requiredVersion: deps[name] };
+  shared[name] = { eager: true, singleton: true, requiredVersion: deps[name] };
 }
 
 module.exports = (env, args) => {
