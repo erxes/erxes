@@ -2,6 +2,7 @@ import styledTS from 'styled-components-ts';
 import styled from 'styled-components';
 import { colors, dimensions } from '@erxes/ui/src';
 import { highlight } from '@erxes/ui/src/utils/animations';
+import { Column as CommonColumn } from '@erxes/ui/src/styles/main';
 
 export const SectionContent = styledTS<{}>(styled.div)`
     display:flex;
@@ -133,4 +134,9 @@ export const AssignedMemberCard = styled.div`
   display: flex;
   justify-content: space-between;
   align-items:center
+`;
+
+export const Column = styledTS<{ border?: boolean }>(styled(CommonColumn))`
+  border-right: ${({ border }) => (border ? '1px solid #ddd' : '')} 
+  margin-right: ${dimensions.coreSpacing}px;
 `;

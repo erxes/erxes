@@ -6,15 +6,15 @@ on:
       - dev
       - staging
     paths:
-      - "scripts/pluginsMap.js"
-      - ".github/workflows/plugins-map.yaml"
+      - 'scripts/pluginsMap.js'
+      - '.github/workflows/plugins-map.yaml'
   pull_request:
     branches:
       - dev
       - staging
     paths:
-      - "scripts/pluginsMap.js"
-      - ".github/workflows/plugins-map.yaml"
+      - 'scripts/pluginsMap.js'
+      - '.github/workflows/plugins-map.yaml'
 
 jobs:
   ui:
@@ -39,5 +39,4 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
-          aws s3 cp scripts/pluginsMap.js s3://erxes-dev-plugins
-
+          aws s3 cp scripts/pluginsMap.js s3://erxes-${GITHUB_REF#refs/heads/}-plugins

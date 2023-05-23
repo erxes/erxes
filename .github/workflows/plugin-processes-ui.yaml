@@ -6,45 +6,45 @@ on:
       - dev
       - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-processes/**"
-      - "packages/plugin-processes-ui/**"
-      - ".github/workflows/plugin-processes-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
+      - 'packages/ui-processes/**'
+      - 'packages/plugin-processes-ui/**'
+      - '.github/workflows/plugin-processes-ui.yaml'
   pull_request:
     branches:
       - dev
       - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-processes/**"
-      - "packages/plugin-processes-ui/**"
-      - ".github/workflows/plugin-processes-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
+      - 'packages/ui-processes/**'
+      - 'packages/plugin-processes-ui/**'
+      - '.github/workflows/plugin-processes-ui.yaml'
 
 jobs:
   ui:
@@ -82,4 +82,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-processes-ui/.erxes/dist .
           cp build.tar packages/plugin-processes-ui/.erxes/dist
           rm -rf packages/plugin-processes-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-processes-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-processes-ui --delete
+          aws s3 sync packages/plugin-processes-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-processes-ui --delete
