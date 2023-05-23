@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - dev
-      - stating
+      - staging
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/core-ui/**'
@@ -41,7 +41,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy locales
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/stating' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         run: |
           tar -cf locales.tar --directory=packages/core-ui/public/locales .
           aws s3 cp locales.tar s3://erxes-dev-plugins/locales.tar
