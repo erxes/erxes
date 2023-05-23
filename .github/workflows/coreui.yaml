@@ -44,7 +44,7 @@ jobs:
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         run: |
           tar -cf locales.tar --directory=packages/core-ui/public/locales .
-          aws s3 cp locales.tar s3://erxes-staging-plugins/locales.tar
+          aws s3 cp locales.tar s3://erxes-dev-plugins/locales.tar
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
