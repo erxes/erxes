@@ -1,4 +1,4 @@
-name: Plugin mobinet UI CI
+name: Plugin engages UI CI
 
 on:
   push:
@@ -6,45 +6,43 @@ on:
       - dev
       - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-mobinet/**"
-      - "packages/plugin-mobinet-ui/**"
-      - ".github/workflows/plugin-mobinet-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-engages/**'
+      - 'packages/plugin-engages-ui/**'
+      - '.github/workflows/plugin-engages-ui.yaml'
   pull_request:
     branches:
       - dev
       - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-mobinet/**"
-      - "packages/plugin-mobinet-ui/**"
-      - ".github/workflows/plugin-mobinet-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-engages/**'
+      - 'packages/plugin-engages-ui/**'
+      - '.github/workflows/plugin-engages-ui.yaml'
 
 jobs:
   ui:
@@ -61,13 +59,12 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-mobinet-ui/.erxes
-          cp -r packages/plugin-mobinet-ui/src packages/plugin-mobinet-ui/.erxes/plugin-src
-          cd packages/plugin-mobinet-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-engages-ui/.erxes
+          cp -r packages/plugin-engages-ui/src packages/plugin-engages-ui/.erxes/plugin-src
+          cd packages/plugin-engages-ui
           yarn install
           yarn install-deps
           yarn build
-          ls
 
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
@@ -80,7 +77,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
-          tar -cf build.tar --directory=packages/plugin-mobinet-ui/.erxes/dist .
-          cp build.tar packages/plugin-mobinet-ui/.erxes/dist
-          rm -rf packages/plugin-mobinet-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-mobinet-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-mobinet-ui --delete
+          tar -cf build.tar --directory=packages/plugin-engages-ui/.erxes/dist .
+          cp build.tar packages/plugin-engages-ui/.erxes/dist
+          rm -rf packages/plugin-engages-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-engages-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-engages-ui --delete
