@@ -76,6 +76,7 @@
     "path-browserify": "^1.0.1",
     "postcss": "^8.2.1",
     "postcss-loader": "^4.1.0",
+    "process": "0.11.10",
     "style-loader": "^3.3.0",
     "timers-browserify": "^2.0.12",
     "typescript": "3.4.1",
