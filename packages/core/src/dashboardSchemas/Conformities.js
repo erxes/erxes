@@ -17,16 +17,16 @@ cube(`Conformities`, {
       sql: `${CUBE}.relTypeId = ${Tasks}._id`,
       relationship: `belongsTo`
     },
+    Purchases:{
+      sql: `${CUBE}.relTypeId = ${Purchases}._id`,
+      relationship: `belongsTo`    
+    },
     Tickets: {
       sql: `${CUBE}.relTypeId = ${Tickets}._id`,
       relationship: `belongsTo`
     },
     Deals: {
       sql: `${CUBE}.relTypeId = ${Deals}._id`,
-      relationship: `belongsTo`
-    },
-    Purchases: {
-      sql: `${CUBE}.relTypeId = ${Purchases}._id`,
       relationship: `belongsTo`
     }
   },
@@ -77,6 +77,12 @@ cube(`Conformities`, {
       title: 'Rel-Type Tasks'
     },
 
+    reltypepurchases:{
+      sql: `${Purchases}.\`name\``,
+      type: `string`,
+      title: 'Rel-Type Purchases'
+    },
+
     reltypetickets: {
       sql: `${Tickets}.\`name\``,
       type: `string`,
@@ -87,14 +93,8 @@ cube(`Conformities`, {
       sql: `${Deals}.\`name\``,
       type: `string`,
       title: 'Rel-Type Deals'
-    },
-    reltypepurchases: {
-      sql: `${Purchases}.\`name\``,
-      type: `string`,
-      title: 'Rel-Type Purchases'
     }
   },
 
   dataSource: `default`
 });
-

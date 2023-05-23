@@ -8,6 +8,12 @@ import styledTS from 'styled-components-ts';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
+const SpaceFormsWrapper = styled.div`
+  > div {
+    gap: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  }
+`;
+
 const CommentWrapper = styled.div`
   margin: ${dimensions.coreSpacing}px 0;
 `;
@@ -116,7 +122,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-
+  
   a {
     white-space: normal;
     flex: 1;
@@ -146,11 +152,11 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   &:last-child {
     border: none;
   }
-
+  
   &:hover {
     cursor: pointer;
     background: ${props => !props.isActive && colors.bgLight};
-
+    
     ${ActionButtons} {
       width: 60px;
     }
@@ -463,6 +469,7 @@ export {
   CreatedDate,
   LeftContent,
   Row,
+  SpaceFormsWrapper,
   CommentWrapper,
   TicketComment,
   CommentContent,

@@ -4,6 +4,7 @@ import {
   BoardContainer,
   BoardContent
 } from '@erxes/ui-cards/src/boards/styles/common';
+import { menuDeal } from '@erxes/ui/src/utils/menus';
 import { __ } from '@erxes/ui/src/utils/core';
 import Header from '@erxes/ui/src/layout/components/Header';
 import React from 'react';
@@ -29,11 +30,9 @@ class DealBoard extends React.Component<Props> {
   }
 
   render() {
-    const breadcrumb = [{ title: __('Sales pipeline') }];
-
     return (
       <BoardContainer>
-        <Header title={__('Sales')} breadcrumb={breadcrumb} />
+        <Header title={__('Sales')} submenu={menuDeal} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}

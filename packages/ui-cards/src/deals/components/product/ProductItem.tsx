@@ -206,7 +206,7 @@ class ProductItem extends React.Component<Props, State> {
         if (isEnabled('loyalties') && this.state.isSelectedVoucher === true) {
           const { confirmLoyalties } = this.props;
           const { discountValue } = this.state;
-          const variables: any = {};
+          const variables = {};
           variables.checkInfo = {
             [product._id]: {
               voucherId: discountValue?.voucherId,

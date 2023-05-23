@@ -598,14 +598,14 @@ const boardQueries = {
     _root,
     { conversationId }: { conversationId: string },
     {
-      models: { Deals, Purchases, Stages, Pipelines, Boards, Tasks, Tickets }
+      models: { Deals, Stages, Pipelines, Boards, Tasks, Tickets, Purchases }
     }: IContext
   ) {
     const filter = { sourceConversationIds: { $in: [conversationId] } };
     let dealUrl = '';
-    let purchaseurl = '';
     let ticketUrl = '';
     let taskUrl = '';
+    let purchaseUrl = '';
 
     const deal = await Deals.findOne(filter).lean();
 
@@ -615,15 +615,6 @@ const boardQueries = {
       const board = await Boards.getBoard(pipeline.boardId);
 
       dealUrl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
-    }
-
-    const purchase = await Purchases.findOne(filter).lean();
-
-    if (purchase) {
-      const stage = await Stages.getStage(purchase.stateId);
-      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-      const board = await Boards.getBoard(pipeline.boardId);
-      purchaseurl = `/purchase/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
     }
 
     const task = await Tasks.findOne(filter).lean();
@@ -646,11 +637,21 @@ const boardQueries = {
       ticketUrl = `/ticket/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
     }
 
+    const purchase = await Purchases.findOne(filter).lean();
+
+    if (purchase) {
+      const stage = await Stages.getStage(purchase.stageId);
+      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+      const board = await Boards.getBoard(pipeline.boardId);
+
+      purchaseUrl = `/purchase/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
+    }
+
     return {
       dealUrl,
-      purchaseurl,
       ticketUrl,
-      taskUrl
+      taskUrl,
+      purchaseUrl
     };
   },
 
@@ -694,7 +695,7 @@ const boardQueries = {
   },
 
   async boardLogs(_root, args, { subdomain, models }: IContext) {
-    const { Deals, Purchases, Tasks, GrowthHacks, Tickets, Stages } = models;
+    const { Deals, Tasks, GrowthHacks, Tickets, Stages, Purchases } = models;
     const { action, content, contentType, contentId } = args;
 
     const type = contentType.split(':')[0];
@@ -706,9 +707,6 @@ const boardQueries = {
         case 'deal':
           item = await Deals.getDeal(contentId);
           break;
-        case 'purchase':
-          item = await Purchases.getPurchase(contentId);
-          break;
         case 'task':
           item = await Tasks.getTask(contentId);
           break;
@@ -717,6 +715,9 @@ const boardQueries = {
           break;
         case 'ticket':
           item = await Tickets.getTicket(contentId);
+          break;
+        case 'purchase':
+          item = await Purchases.getPurchase(contentId);
           break;
         default:
           break;
@@ -780,7 +781,7 @@ const boardQueries = {
   async cardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
-    for (const ct of ['deal', 'purchase', 'ticket', 'task']) {
+    for (const ct of ['deal', 'ticket', 'task', 'purchase']) {
       result[ct] = [];
 
       const groups = await sendFormsMessage({

@@ -286,7 +286,17 @@ class MainActionBar extends React.Component<Props> {
                 {__('Calendar')}
               </Link>
             </li>
-            {(options.type === 'deal' || options.type === 'purchase') && (
+            {options.type === 'deal' && (
+              <li key="conversion">
+                <Link
+                  to={onFilterClick('conversion')}
+                  className={viewType === 'conversion' ? 'active' : ''}
+                >
+                  {__('Conversion')}
+                </Link>
+              </li>
+            )}
+            {options.type === 'purchase' && (
               <li key="conversion">
                 <Link
                   to={onFilterClick('conversion')}

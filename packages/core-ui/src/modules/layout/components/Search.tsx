@@ -28,7 +28,7 @@ const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
     color: ${colors.colorCoreGray};
     padding-left: 3px;
   }
-
+  
   i {
     cursor: pointer;
     color: ${colors.colorCoreDarkGray};
@@ -251,12 +251,13 @@ class Search extends React.Component<
       if (module === 'deals') {
         href = `/deal/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
-      if (module === 'purchases') {
-        href = `/purchase/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
-      }
 
       if (module === 'tasks') {
         href = `/task/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
+      }
+
+      if (module === 'purchases') {
+        href = `/purchase/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
 
       if (module === 'tickets') {

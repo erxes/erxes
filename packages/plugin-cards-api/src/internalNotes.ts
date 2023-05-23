@@ -20,11 +20,11 @@ export default {
       case 'deal':
         model = models.Deals;
         break;
-      case 'purchase':
-        model = models.Purchases;
-        break;
       case 'task':
         model = models.Tasks;
+        break;
+      case 'purchase':
+        model = models.Purchases;
         break;
       default:
         model = models.Tickets;
@@ -42,7 +42,7 @@ export default {
     notifDoc.contentType = `${type}`;
     notifDoc.item = card;
 
-    // sendNotificationOfItems on ticket, task, purchase and deal
+    // sendNotificationOfItems on ticket, task and deal
     notifDoc.notifOfItems = true;
 
     return notifDoc;

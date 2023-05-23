@@ -7,10 +7,10 @@ import {
 } from '../../../models/definitions/constants';
 import {
   generateDealCommonFilters,
-  generatePurchaseCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
-  generateTicketCommonFilters
+  generateTicketCommonFilters,
+  generatePurchaseCommonFilters
 } from '../queries/utils';
 
 export default {
@@ -78,47 +78,6 @@ export default {
       });
     }
 
-    if (stage.type === BOARD_TYPES.PURCHASE) {
-      const filter = await generatePurchaseCommonFilters(
-        models,
-        subdomain,
-        user._id,
-        { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-        args.extraParams
-      );
-
-      const amountList = await models.Purchases.aggregate([
-        {
-          $match: filter
-        },
-        {
-          $unwind: '$productsData'
-        },
-        {
-          $project: {
-            amount: '$productsData.amount',
-            currency: '$productsData.currency',
-            tickUsed: '$productsData.tickUsed'
-          }
-        },
-        {
-          $match: { tickUsed: true }
-        },
-        {
-          $group: {
-            _id: '$currency',
-            amount: { $sum: '$amount' }
-          }
-        }
-      ]);
-
-      amountList.forEach(item => {
-        if (item._id) {
-          amountsMap[item._id] = item.amount;
-        }
-      });
-    }
-
     return amountsMap;
   },
 
@@ -142,18 +101,6 @@ export default {
 
         return Deals.find(filter).count();
       }
-      case BOARD_TYPES.PURCHASE: {
-        const filter = await generatePurchaseCommonFilters(
-          models,
-          subdomain,
-          user._id,
-          { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams
-        );
-
-        return Purchases.find(filter).count();
-      }
-
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
           models,
@@ -190,6 +137,21 @@ export default {
         );
 
         return GrowthHacks.find(filter).count();
+      }
+      case BOARD_TYPES.PURCHASE: {
+        const filter = await generatePurchaseCommonFilters(
+          models,
+          subdomain,
+          user._id,
+          {
+            ...args,
+            stageId: stage._id,
+            pipelineId: stage.pipelineId
+          },
+          args.extraParams
+        );
+
+        return Purchases.find(filter).count();
       }
     }
   },

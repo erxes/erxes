@@ -33,7 +33,7 @@ class PurchaseBoard extends React.Component<Props> {
 
     return (
       <BoardContainer>
-        <Header title={__('Purchasssses')} breadcrumb={breadcrumb} />
+        <Header title={__('Purchase')} breadcrumb={breadcrumb} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}
