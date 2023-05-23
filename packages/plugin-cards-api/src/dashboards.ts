@@ -9,7 +9,7 @@ export default {
     'TasksAssigneduser',
     'TicketsAssigneduser',
     'DealsLabel',
-    'PurchaseLabel',
+    'PurchasesLabel',
     'TasksLabel',
     'TicketsLabel',
     'DealsProductsData',
