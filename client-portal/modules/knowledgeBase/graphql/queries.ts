@@ -5,6 +5,7 @@ const categoryFields = `
   icon
   numOfArticles
   authors {
+    _id
     details {
       fullName
       avatar
