@@ -483,7 +483,7 @@ const NavItem = styledTS<{ isMoreItem?: boolean }>(styled.div)`
 `;
 
 const DropNav = styled.a`
-  position: relastive;
+  position: relative;
   display: flex !important;
   align-items: center;
   justify-content: space-between;
