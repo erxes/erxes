@@ -116,7 +116,7 @@ export type Label = {
   _id: string;
   name: string;
   colorCode: string;
-}
+};
 
 export type Config = {
   _id?: string;
@@ -275,6 +275,16 @@ export interface ITicket {
     [key: string]: any;
   };
 }
+
+export type GroupBy = {
+  groupBy: string;
+  setGroupBy: string;
+};
+
+export type ViewMode = {
+  viewMode: string;
+  setViewMode: string;
+};
 
 export interface IKbArticle extends ICommonFields {
   _id: string;

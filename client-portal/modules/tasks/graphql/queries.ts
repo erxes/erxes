@@ -233,7 +233,50 @@ query pipelineLabels($pipelineId: String!) {
     colorCode
   }
 }
-`
+`;
+
+const stages = `
+query stages($isNotLost: Boolean, $pipelineId: String!, $search: String, $customerIds: [String], $companyIds: [String], $assignedUserIds: [String], $labelIds: [String], $extraParams: JSON, $closeDateType: String, $assignedToMe: String, $branchIds: [String], $departmentIds: [String], $segmentData: String) {
+  stages(
+    isNotLost: $isNotLost
+    pipelineId: $pipelineId
+    search: $search
+    customerIds: $customerIds
+    companyIds: $companyIds
+    assignedUserIds: $assignedUserIds
+    labelIds: $labelIds
+    extraParams: $extraParams
+    closeDateType: $closeDateType
+    assignedToMe: $assignedToMe
+    branchIds: $branchIds
+    departmentIds: $departmentIds
+    segmentData: $segmentData
+  ) {
+    _id
+    name
+    order
+    amount
+    itemsTotalCount
+    pipelineId
+    code
+    age
+    __typename
+  }
+}
+`;
+
+const pipelineAssignedUsers = `
+query pipelineAssignedUsers($_id: String!) {
+  pipelineAssignedUsers(_id: $_id) {
+    _id
+    details {
+      avatar
+      fullName
+      __typename
+    }
+    __typename
+  }
+}`;
 
 export default {
   clientPortalGetTask,
@@ -243,5 +286,7 @@ export default {
   departments,
   branches,
   products,
-  pipelineLabels
+  pipelineLabels,
+  pipelineAssignedUsers,
+  stages
 };
