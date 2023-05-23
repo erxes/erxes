@@ -29,7 +29,7 @@ export const formSubmissionSchema = new Schema({
   fieldId: field({ type: String, label: 'Form Field Id' }),
   value: field({ type: String, lablel: 'Form Field Value' }),
   description: field({ type: String, label: 'Description', optional: true }),
-  isFlagged: field({ type: String, label: 'is field flagged', optional: true })
+  isFlagged: field({ type: Boolean, label: 'is field flagged', optional: true })
 });
 
 export interface IAssessmentConformitiesDocument extends Document {

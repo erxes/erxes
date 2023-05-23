@@ -106,6 +106,13 @@ class IndicatorForm extends React.Component<Props, State> {
         }
       }));
     };
+    const handleFlag = () => {
+      submissions[field._id] = {
+        ...submissions[field._id],
+        isFlagged: !submissions[field._id]?.isFlagged
+      };
+      this.setState({ submissions });
+    };
 
     const updateProps: any = {
       isEditing: false,
@@ -120,13 +127,6 @@ class IndicatorForm extends React.Component<Props, State> {
     } else {
       updateProps.defaultValue = submissions[field._id]?.value;
     }
-
-    const handleFlag = () => {
-      submissions[field._id] = {
-        ...submissions[field._id],
-        isFlagged: !submissions[field._id]?.isFlagged
-      };
-    };
 
     return (
       <FormWrapper key={field._id}>
