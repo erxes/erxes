@@ -17,7 +17,7 @@
     "dayjs": "1.8.15",
     "dotenv": "^10.0.0",
     "erxes-icon": "^1.2.1",
-    "graphql": "^15",
+    "graphql": "^15.8.0",
     "graphql-ws": "^5.5.5",
     "lodash": "^4.17.15",
     "lodash.flowright": "^3.5.0",
