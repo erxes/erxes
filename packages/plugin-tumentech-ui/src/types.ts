@@ -475,6 +475,7 @@ export type IDealPlace = {
   endPlaceId: string;
   startPlace: IPlace;
   endPlace: IPlace;
+  path?: string;
 };
 
 export type IDealRoute = {
