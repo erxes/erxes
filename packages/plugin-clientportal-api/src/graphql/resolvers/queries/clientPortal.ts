@@ -129,15 +129,15 @@ const configClientPortalQueries = {
   },
 
   async clientPortalTickets(_root, _args, context: IContext) {
-    return getCards('ticket', context);
+    return getCards('ticket', context, _args);
   },
 
   async clientPortalTasks(_root, _args, context: IContext) {
-    return getCards('task', context);
+    return getCards('task', context, _args);
   },
 
   async clientPortalDeals(_root, _args, context: IContext) {
-    return getCards('deal', context);
+    return getCards('deal', context, _args);
   },
 
   clientPortalTicket(_root, { _id }: { _id: string }, { subdomain }: IContext) {
