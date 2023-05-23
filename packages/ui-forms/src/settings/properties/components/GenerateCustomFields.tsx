@@ -470,8 +470,17 @@ class GenerateGroup extends React.Component<Props, State> {
     const { fieldGroup, isDetail } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
     let extraButtons = <></>;
+    const visibleField = fieldGroup.fields.find(el => el.isVisible === true);
+
+    if (!visibleField) {
+      return null;
+    }
 
     if (!fieldGroup[isVisibleKey]) {
+      return null;
+    }
+
+    if (fieldGroup.fields.length === 0) {
       return null;
     }
 
@@ -507,10 +516,6 @@ class GenerateGroup extends React.Component<Props, State> {
           content={() => this.modalContent(fieldGroup)}
         />
       );
-    }
-
-    if (fieldGroup.fields.length === 0) {
-      return null;
     }
 
     return (
