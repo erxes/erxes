@@ -170,6 +170,7 @@ class PaymentForm extends React.Component<Props, State> {
 
   render() {
     const { total } = this.props;
+
     return (
       <>
         <ContentRowTitle>

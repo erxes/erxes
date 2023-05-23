@@ -77,6 +77,8 @@ type Props = {
 
 type State = {
   total: { [currency: string]: number };
+  unUsedTotal: { [currency: string]: number };
+  bothTotal: { [currency: string]: number };
   tax: { [currency: string]: { value?: number; percent?: number } };
   discount: { [currency: string]: { value?: number; percent?: number } };
   vatPercent: number;
@@ -91,8 +93,11 @@ type State = {
 class ProductForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+
     this.state = {
       total: {},
+      unUsedTotal: {},
+      bothTotal: {},
       discount: {},
       tax: {},
       vatPercent: 0,
@@ -100,7 +105,7 @@ class ProductForm extends React.Component<Props, State> {
       changePayData: {},
       tempId: '',
       filterValues: JSON.parse(
-        localStorage.getItem('purchaseProductFormFilter') || '{}'
+        localStorage.getItem('dealProductFormFilter') || '{}'
       )
     };
   }
@@ -179,20 +184,34 @@ class ProductForm extends React.Component<Props, State> {
 
   updateTotal = (productsData = this.props.productsData) => {
     const total = {};
+    const unUsedTotal = {};
+    const bothTotal = {};
     const tax = {};
     const discount = {};
 
     productsData.forEach(p => {
-      if (p.currency && p.tickUsed) {
-        if (!total[p.currency]) {
-          discount[p.currency] = { percent: 0, value: 0 };
-          tax[p.currency] = { percent: 0, value: 0 };
-          total[p.currency] = 0;
+      if (p.currency) {
+        if (!bothTotal[p.currency]) {
+          bothTotal[p.currency] = 0;
         }
+        bothTotal[p.currency] += p.amount || 0;
 
-        discount[p.currency].value += p.discount || 0;
-        tax[p.currency].value += p.tax || 0;
-        total[p.currency] += p.amount || 0;
+        if (p.tickUsed) {
+          if (!total[p.currency]) {
+            discount[p.currency] = { percent: 0, value: 0 };
+            tax[p.currency] = { percent: 0, value: 0 };
+            total[p.currency] = 0;
+          }
+
+          discount[p.currency].value += p.discount || 0;
+          tax[p.currency].value += p.tax || 0;
+          total[p.currency] += p.amount || 0;
+        } else {
+          if (!unUsedTotal[p.currency]) {
+            unUsedTotal[p.currency] = 0;
+          }
+          unUsedTotal[p.currency] += p.amount || 0;
+        }
       }
     });
 
@@ -637,7 +656,6 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     if (currentTab === 'expenses') {
-      console.log('this.props', this.props);
       const { expensesData, onchangeExpensesData, costsQueryData } = this.props;
       return (
         <ExpensesForm
