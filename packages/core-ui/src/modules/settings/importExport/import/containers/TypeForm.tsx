@@ -1,9 +1,9 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IImportHistoryContentType } from '../../types';
 import TypeForm from '../components/TypeForm';
 import { queries } from '../../common/graphql';
