@@ -20,6 +20,7 @@ type Props = {
   mainTypeId?: string;
   mainTypeName?: string;
   relType?: string;
+  hideQuickButtons?: boolean;
   onChangeItem: () => void;
 };
 
@@ -78,7 +79,8 @@ class Items extends React.Component<Props, { openItemId?: string }> {
       data,
       onChangeItem,
       items,
-      relType
+      relType,
+      hideQuickButtons
     } = this.props;
 
     const trigger = (
@@ -142,7 +144,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
     );
 
     const boxProps = {
-      extraButtons: quickButtons,
+      extraButtons: !hideQuickButtons && quickButtons,
       title: __(data.options.title),
       name: relType && `show${relType}`
     };

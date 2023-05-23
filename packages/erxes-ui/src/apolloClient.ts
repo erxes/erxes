@@ -12,7 +12,7 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { __, getEnv } from './utils/core';
 import { createClient } from 'graphql-ws';
 
-const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();
+const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 
 // Create an http link:
 const httpLink = createHttpLink({

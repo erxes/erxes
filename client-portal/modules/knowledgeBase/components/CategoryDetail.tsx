@@ -1,11 +1,12 @@
-import React from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import { Config, Topic } from "../../types";
-import { SidebarList } from "./styles";
-import SideBar from "./SideBar";
-import SectionHeader from "../../common/SectionHeader";
-import { getConfigColor } from "../../common/utils";
+
 import ArticleListContainer from "../containers/ArticleList";
+import React from "react";
+import SectionHeader from "../../common/SectionHeader";
+import SideBar from "./SideBar";
+import { SidebarList } from "./styles";
+import { getConfigColor } from "../../common/utils";
 
 type Props = {
   category: any;
@@ -32,7 +33,7 @@ function CategoryDetail({ topic, category, config }: Props) {
           </SidebarList>
         </Col>
         <Col md={9}>
-          <ArticleListContainer categoryId={category._id} />
+          <ArticleListContainer categoryId={category._id} config={config} />
         </Col>
       </Row>
     </Container>

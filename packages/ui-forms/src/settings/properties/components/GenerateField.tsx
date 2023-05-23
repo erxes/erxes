@@ -37,7 +37,11 @@ type Props = {
   hasLogic?: boolean;
   isEditing?: boolean;
   isPreview?: boolean;
-  onValueChange?: (data: { _id: string; value: any }) => void;
+  onValueChange?: (data: {
+    _id: string;
+    value: any;
+    extraValue?: string;
+  }) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 };
 
@@ -348,13 +352,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderExtraFields({ id, value }, type, filteredPlugin) {
-    const onSelect = e => {
+    const onSelect = (_id, value, extraValue) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: e });
+        this.setState({ value: _id });
 
-        onValueChange({ _id: id, value: e });
+        onValueChange({ _id: id, value: _id, extraValue });
       }
     };
 

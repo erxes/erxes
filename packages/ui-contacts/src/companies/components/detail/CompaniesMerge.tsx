@@ -188,15 +188,17 @@ class CompaniesMerge extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <Columns>
-          <Column className="multiple">
+          <Column className="multiple" width="33%">
             {this.renderCompany(company1, 'plus-1')}
           </Column>
 
-          <Column className="multiple">
+          <Column className="multiple" width="33%">
             {this.renderCompany(company2, 'plus-1')}
           </Column>
 
-          <Column>{this.renderCompany(selectedValues, 'times')}</Column>
+          <Column width="33%">
+            {this.renderCompany(selectedValues, 'times')}
+          </Column>
         </Columns>
 
         <ModalFooter>

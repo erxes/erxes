@@ -1,7 +1,8 @@
-import React from "react";
 import { IUser, IUserDetails } from "../types";
-import dayjs from "dayjs";
+
 import { Avatars } from "../knowledgeBase/components/styles";
+import React from "react";
+import dayjs from "dayjs";
 import { readFile } from "./utils";
 
 type Props = {
@@ -22,7 +23,7 @@ export default function Avatar({ user = {} as IUser, date }: Props) {
       <img
         className="round-img"
         alt={fullName}
-        src={readFile(avatar)}
+        src={avatar ? readFile(avatar) : "/static/avatar-colored.svg"}
         width="42px"
         height="42px"
       />

@@ -1,18 +1,12 @@
-import React from 'react';
-
-import AppProvider, { AppConsumer } from '../../modules/appContext';
-import Tasks from '../../modules/task/containers/Tasks';
+import Layout from "../../modules/main/containers/Layout";
+import TaskList from "../../modules/tasks/containers/Task";
 
 export default function Category() {
-  // return <Tasks />;
-
   return (
-    <AppProvider>
-      <AppConsumer>
-        {({ currentUser }: any) => {
-          return <Tasks currentUser={currentUser} />;
-        }}
-      </AppConsumer>
-    </AppProvider>
+    <Layout>
+      {(props) => {
+        return <TaskList {...props} />;
+      }}
+    </Layout>
   );
 }
