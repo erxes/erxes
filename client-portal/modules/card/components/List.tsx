@@ -1,14 +1,14 @@
 import { Config, IUser } from "../../types";
 import React, { useState } from "react";
+import { capitalize, getConfigColor } from "../../common/utils";
 import { duedateFilter, priorityFilter } from "../../main/constants";
 
 import { Card } from "react-bootstrap";
 import Detail from "../containers/Detail";
+import Form from "../containers/Form";
 import Group from "../containers/Group";
 import { GroupList } from "../../styles/cards";
-import TicketForm from "../containers/Form";
-import TicketHeader from "./TicketHeader";
-import { getConfigColor } from "../../common/utils";
+import ListHeader from "./ListHeader";
 import { renderUserFullName } from "../../utils";
 import { useRouter } from "next/router";
 
@@ -16,14 +16,16 @@ type Props = {
   currentUser: IUser;
   config: Config;
   stages: any;
+  type: string;
   pipeLinelabels: any;
   pipelineAssignedUsers: any;
 };
 
-export default function Ticket({
+export default function List({
   currentUser,
   config,
   stages,
+  type,
   pipeLinelabels,
   pipelineAssignedUsers,
 }: Props) {
@@ -38,14 +40,15 @@ export default function Ticket({
     return (
       <Detail
         _id={itemId}
-        onClose={() => router.push("/tickets")}
+        onClose={() => router.push(`/${type}s`)}
         currentUser={currentUser}
         config={config}
+        type={type}
       />
     );
   }
 
-  const renderGroup = (items, type: string) => {
+  const renderGroup = (items, groupType: string) => {
     if (!items || items.length === 0) {
       return null;
     }
@@ -53,9 +56,9 @@ export default function Ticket({
     return (items || []).map((item, index) => (
       <GroupList key={index}>
         <Card.Header>
-          {type === "user" ? renderUserFullName(item.details) : item.name}
+          {groupType === "user" ? renderUserFullName(item.details) : item.name}
         </Card.Header>
-        <Group type={type} id={item._id} />
+        <Group groupType={groupType} type={type} id={item._id} />
       </GroupList>
     ));
   };
@@ -77,20 +80,21 @@ export default function Ticket({
       case "user":
         return renderGroup(pipelineAssignedUsers.pipelineAssignedUsers, "user");
       default:
-        return <Group type={"all"} id={""} />;
+        return null;
     }
   };
 
   if (showForm) {
-    return <TicketForm closeModal={() => setShowForm(!showForm)} />;
+    return <Form closeModal={() => setShowForm(!showForm)} type={type} />;
   }
 
   return (
     <>
-      <TicketHeader
-        ticketLabel={config.ticketLabel || "Tickets"}
+      <ListHeader
+        headerLabel={config[`${type}Label`] || `${capitalize(type)}s`}
         baseColor={getConfigColor(config, "baseColor")}
         mode={mode}
+        type={type}
         viewType={viewType}
         setMode={setMode}
         setViewType={setViewType}

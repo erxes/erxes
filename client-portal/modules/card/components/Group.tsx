@@ -14,17 +14,18 @@ import { useRouter } from "next/router";
 
 type Props = {
   loading: boolean;
-  tickets: any;
+  items: any;
   currentUser: IUser;
   config: Config;
   type: string;
+  groupType: string;
 };
 
-export default function Group({ tickets, currentUser, config, type }: Props) {
+export default function Group({ items, type, groupType }: Props) {
   const router = useRouter();
   const { itemId } = router.query as { itemId: string };
 
-  if (!tickets || tickets.length === 0) {
+  if (!items || items.length === 0) {
     return <EmptyState icon="ban" text="No cards" size="small" />;
   }
 
@@ -40,33 +41,33 @@ export default function Group({ tickets, currentUser, config, type }: Props) {
         <div>Labels</div>
       </ListHead>
       <ListBody>
-        {(tickets || []).map((ticket) => {
-          const { stage = {}, labels } = ticket;
+        {(items || []).map((item) => {
+          const { stage = {}, labels } = item;
 
           return (
             <ListRow
-              key={type + ticket._id}
+              key={groupType + item._id}
               className="item"
-              onClick={() => router.push(`/tickets?itemId=${ticket._id}`)}
+              onClick={() => router.push(`/${type}s?itemId=${item._id}`)}
             >
-              <div className="base-color">{ticket.name}</div>
+              <div className="base-color">{item.name}</div>
 
-              <div>{dayjs(ticket.createdAt).format("MMM D YYYY")}</div>
+              <div>{dayjs(item.createdAt).format("MMM D YYYY")}</div>
               <div>
-                {ticket.stageChangedDate
-                  ? dayjs(ticket.stageChangedDate).format("MMM D YYYY")
+                {item.stageChangedDate
+                  ? dayjs(item.stageChangedDate).format("MMM D YYYY")
                   : "-"}
               </div>
 
               <div>
-                {ticket.startDate
-                  ? dayjs(ticket.startDate).format("MMM D YYYY")
+                {item.startDate
+                  ? dayjs(item.startDate).format("MMM D YYYY")
                   : "-"}
               </div>
 
               <div>
-                {ticket.closeDate
-                  ? dayjs(ticket.closeDate).format("MMM D YYYY")
+                {item.closeDate
+                  ? dayjs(item.closeDate).format("MMM D YYYY")
                   : "-"}
               </div>
 

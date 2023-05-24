@@ -1,13 +1,13 @@
-import { Config, IUser } from '../../types';
-import { Label, ListBody, ListHead, ListRow } from '../../styles/tickets';
+import { Config, IUser } from "../../types";
+import { Label, ListBody, ListHead, ListRow } from "../../styles/cards";
+import React, { useState } from "react";
 
-import Detail from '../containers/Detail';
-import EmptyContent from '../../common/EmptyContent';
-import React, { useState } from 'react';
-import TaskHeader from './TaskHeader';
-import { useRouter } from 'next/router';
-import { Card } from 'react-bootstrap';
-import Group from '../containers/Group';
+import { Card } from "react-bootstrap";
+import Detail from "../containers/Detail";
+import EmptyContent from "../../common/EmptyContent";
+import Group from "../containers/Group";
+import TaskHeader from "./TaskHeader";
+import { useRouter } from "next/router";
 
 type Props = {
   loading: boolean;
@@ -20,13 +20,13 @@ type Props = {
 };
 
 const duedateFilter = [
-  'noCloseDate',
-  'nextMonth',
-  'nextWeek',
-  'overdue',
-  'nextDay'
+  "noCloseDate",
+  "nextMonth",
+  "nextWeek",
+  "overdue",
+  "nextDay",
 ];
-const priorityFilter = ['Critical', 'High', 'Normal', 'Low'];
+const priorityFilter = ["Critical", "High", "Normal", "Low"];
 
 export default function Task({
   tasks,
@@ -34,18 +34,18 @@ export default function Task({
   config,
   stages,
   pipeLinelabels,
-  pipelineAssignedUsers
+  pipelineAssignedUsers,
 }: Props) {
   const router = useRouter();
   const { itemId } = router.query as { itemId: string };
 
-  const [groupBy, setGroupBy] = useState('normal');
+  const [groupBy, setGroupBy] = useState("normal");
 
   if (itemId) {
     return (
       <Detail
         _id={itemId}
-        onClose={() => router.push('/tasks')}
+        onClose={() => router.push("/tasks")}
         currentUser={currentUser}
         config={config}
       />
@@ -53,17 +53,17 @@ export default function Task({
   }
 
   const renderContent = () => {
-    if (groupBy === 'stage') {
+    if (groupBy === "stage") {
       return (
         <>
-          {stages?.stages?.map(d => {
+          {stages?.stages?.map((d) => {
             return (
               <Card key={d._id}>
                 <Card.Header>
                   <a>{d?.name}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'stage'} id={d._id} />
+                  <Group type={"stage"} id={d._id} />
                 </Card.Body>
               </Card>
             );
@@ -72,17 +72,17 @@ export default function Task({
       );
     }
 
-    if (groupBy === 'label') {
+    if (groupBy === "label") {
       return (
         <>
-          {pipeLinelabels?.pipelineLabels?.map(d => {
+          {pipeLinelabels?.pipelineLabels?.map((d) => {
             return (
               <Card key={d._id}>
                 <Card.Header>
                   <a>{d?.name}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'label'} id={d._id} />
+                  <Group type={"label"} id={d._id} />
                 </Card.Body>
               </Card>
             );
@@ -90,17 +90,17 @@ export default function Task({
         </>
       );
     }
-    if (groupBy === 'duedate') {
+    if (groupBy === "duedate") {
       return (
         <>
-          {duedateFilter?.map(d => {
+          {duedateFilter?.map((d) => {
             return (
               <Card key={d}>
                 <Card.Header>
                   <a>{d}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'duedate'} id={d} />
+                  <Group type={"duedate"} id={d} />
                 </Card.Body>
               </Card>
             );
@@ -108,17 +108,17 @@ export default function Task({
         </>
       );
     }
-    if (groupBy === 'priority') {
+    if (groupBy === "priority") {
       return (
         <>
-          {priorityFilter?.map(d => {
+          {priorityFilter?.map((d) => {
             return (
               <Card key={d}>
                 <Card.Header>
                   <a>{d}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'priority'} id={d} />
+                  <Group type={"priority"} id={d} />
                 </Card.Body>
               </Card>
             );
@@ -126,22 +126,22 @@ export default function Task({
         </>
       );
     }
-    if (groupBy === 'user') {
+    if (groupBy === "user") {
       return (
         <>
           <TaskHeader
-            taskLabel={config.taskLabel || 'Tickets'}
+            taskLabel={config.taskLabel || "Tickets"}
             setGroupBy={setGroupBy}
           />
 
-          {pipelineAssignedUsers.pipelineAssignedUsers?.map(d => {
+          {pipelineAssignedUsers.pipelineAssignedUsers?.map((d) => {
             return (
               <Card key={d._id}>
                 <Card.Header>
                   <a>{d?.details?.fullName}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'user'} id={d._id} />
+                  <Group type={"user"} id={d._id} />
                 </Card.Body>
               </Card>
             );
@@ -153,7 +153,7 @@ export default function Task({
     return (
       <Card>
         <Card.Body>
-          <Group type={'all'} id={''} tasks={tasks} />
+          <Group type={"all"} id={""} tasks={tasks} />
         </Card.Body>
       </Card>
     );
@@ -163,7 +163,7 @@ export default function Task({
     return (
       <Detail
         _id={itemId}
-        onClose={() => router.push('/tasks')}
+        onClose={() => router.push("/tasks")}
         currentUser={currentUser}
         config={config}
       />
@@ -173,7 +173,7 @@ export default function Task({
   return (
     <>
       <TaskHeader
-        taskLabel={config.ticketLabel || 'Tasks'}
+        taskLabel={config.ticketLabel || "Tasks"}
         setGroupBy={setGroupBy}
       />
       <>{renderContent()}</>

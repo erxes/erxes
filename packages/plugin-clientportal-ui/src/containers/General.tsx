@@ -16,7 +16,7 @@ import knowledgeBaseQueries from '@erxes/ui-knowledgebase/src/graphql/queries';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
-  handleFormChange: (name: string, value: string) => void;
+  handleFormChange: (name: string, value: string | boolean) => void;
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
   boardsQuery: BoardsQueryResponse;
   taskPublicPipelineId: string;
