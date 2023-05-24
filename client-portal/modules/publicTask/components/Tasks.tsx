@@ -16,7 +16,7 @@ type Props = {
   currentUser: IUser;
 };
 
-function Tasks({ stages, config, stageId, currentUser }: Props) {
+function PublicTasks({ stages, config, stageId, currentUser }: Props) {
   const router = useRouter();
   const { itemId } = router.query as any;
 
@@ -57,4 +57,4 @@ function Tasks({ stages, config, stageId, currentUser }: Props) {
   );
 }
 
-export default Tasks;
+export default PublicTasks;
