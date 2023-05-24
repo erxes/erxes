@@ -5,6 +5,7 @@ const path = require('path');
 const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const { MFLiveReloadPlugin } = require('@module-federation/fmr');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 // replace accordingly './.env' with the path of your .env file
 const envs = require('dotenv').config({ path: './.env' });
@@ -130,8 +131,8 @@ module.exports = (env, args) => {
         ...envs.parsed,
         PUBLIC_URL: ''
       }),
-      new webpack.ProvidePlugin({
-        process: 'process/browser'
+      new NodePolyfillPlugin({
+        includeAliases: ['process']
       }),
       new HtmlWebPackPlugin({
         template: path.resolve(__dirname, 'public/index.html'),

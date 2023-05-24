@@ -2,7 +2,6 @@ const webpack = require("webpack");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-
 const TerserPlugin = require("terser-webpack-plugin");
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
@@ -141,9 +140,6 @@ module.exports = (env, args) => {
     plugins: [
       new webpack.DefinePlugin({
         "process.env": JSON.stringify(process.env),
-      }),
-      new webpack.ProvidePlugin({
-        process: 'process/browser'
       }),
       new InterpolateHtmlPlugin({
         PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`

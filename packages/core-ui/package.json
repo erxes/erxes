@@ -21,7 +21,7 @@
     "graphql-ws": "^5.5.5",
     "lodash": "^4.17.15",
     "lodash.flowright": "^3.5.0",
-    "process": "0.11.10",
+    "node-polyfill-webpack-plugin": "^2.0.1",
     "query-string": "^5.0.0",
     "react": "^16.14.0",
     "react-bootstrap": "1.0.0-beta.14",
