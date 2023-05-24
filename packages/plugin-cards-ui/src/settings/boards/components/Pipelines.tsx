@@ -5,7 +5,7 @@ import {
 } from '@erxes/ui-settings/src/constants';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { __, router } from 'coreui/utils';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
@@ -227,6 +227,15 @@ class Pipelines extends React.Component<Props, State> {
   renderAdditionalButton = () => {
     const { options } = this.props;
 
+    if (options && options.additionalButton) {
+      return (
+        <Link to={options.additionalButton}>
+          <Button icon="arrow-to-right" btnStyle="simple">
+            {options.additionalButtonText}
+          </Button>
+        </Link>
+      );
+    }
     if (options && options.modal === 'true') {
       return <CostForm />;
     }

@@ -120,7 +120,7 @@ function CostForm() {
             </thead>
             <tbody>
               {elements.map((element, index) => (
-                <tr>
+                <tr key={index}>
                   <td>
                     <FormControl
                       type="text"

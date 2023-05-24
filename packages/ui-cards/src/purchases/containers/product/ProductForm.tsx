@@ -43,15 +43,15 @@ class ProductFormContainer extends React.Component<Props> {
 
           const configs = currentUser.configs || {};
 
-          const { productCategoriesQuery } = this.props;
+          const {
+            productCategoriesQuery,
+            costsQuery,
+            purchaseQuery
+          } = this.props;
 
           const categories = productCategoriesQuery.productCategories || [];
 
-          const { costsQuery } = this.props;
-
           const costsQueryData = costsQuery.costs;
-
-          const { purchaseQuery } = this.props;
 
           const costPriceQuery = purchaseQuery.products || 0;
           const extendedProps = {

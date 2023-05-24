@@ -64,15 +64,17 @@ export interface IExpensesData {
   forEach(arg0: (data: any) => void): unknown;
   _id: string;
   expenseId: string;
-  value: string;
+  price: string;
   type: string;
+  name: string;
 }
 
 export interface IExpenses {
   _id: string;
   expenseId: string;
-  value: string;
+  price: string;
   type: string;
+  name: string;
 }
 
 export type PurchasesTotalAmountsQueryResponse = {

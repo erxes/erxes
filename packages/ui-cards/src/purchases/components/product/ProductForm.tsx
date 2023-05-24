@@ -373,10 +373,30 @@ class ProductForm extends React.Component<Props, State> {
   };
 
   onClick = () => {
-    const { saveProductsData, productsData, closeModal } = this.props;
+    const {
+      saveProductsData,
+      productsData,
+      expensesData,
+      closeModal
+    } = this.props;
 
     const { total, changePayData } = this.state;
-
+    if (expensesData.length !== 0) {
+      for (const data of expensesData) {
+        if (!data.type) {
+          return Alert.error('Please choose a type');
+        }
+        if (!data.name) {
+          return Alert.error('Please choose a name');
+        }
+        if (!data.price) {
+          return Alert.error('Please choose a price');
+        }
+        if (!data.expenseId) {
+          return Alert.error('expenseId null');
+        }
+      }
+    }
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {

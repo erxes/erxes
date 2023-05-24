@@ -7,8 +7,6 @@ const options = {
   StageItem,
   PipelineForm,
   modal: 'true'
-  //additionalButton: "modal",
-  //   additionalButtonText: "Go to templates",
 };
 
 const templateOptions = {

@@ -1,4 +1,4 @@
-import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
+import { IConversionStagePurchase } from '@erxes/ui-cards/src/boards/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import * as React from 'react';
 import {
@@ -12,7 +12,7 @@ import {
 } from '../style';
 
 type Props = {
-  stage: IConversionStage;
+  stage: IConversionStagePurchase;
   spacing: number;
 };
 
@@ -45,10 +45,10 @@ class Stage extends React.Component<Props> {
             <Name>{stage.name}</Name>
             <Stayed>
               {stage.itemsTotalCount} /{' '}
-              <span>{stage.initialDealsTotalCount}</span>
+              <span>{stage.initialPurchasesTotalCount}</span>
             </Stayed>
           </Content>
-          {this.renderLostInfo(stage.compareNextStage)}
+          {this.renderLostInfo(stage.compareNextStagePurchase)}
         </StageContainer>
       </StageWrap>
     );

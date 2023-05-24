@@ -74,7 +74,7 @@ const ExpensesForm = ({
       </thead>
       <tbody>
         {expensesData.map((element, index) => (
-          <tr>
+          <tr key={index}>
             <td>
               <Select
                 placeholder={__('Select a type')}

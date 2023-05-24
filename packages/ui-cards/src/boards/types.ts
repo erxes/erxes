@@ -156,7 +156,7 @@ export interface IConversionStage extends IStage {
   initialDealsTotalCount: number;
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
-  compareNextStagePurchase: IStageComparisonInfo;
+  compareNextStage: IStageComparisonInfo;
 }
 
 export interface IConversionStagePurchase extends IStage {
