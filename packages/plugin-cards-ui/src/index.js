@@ -8,5 +8,4 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 dayjs.extend(localizedFormat);
 
-// trigger
 export default App;
