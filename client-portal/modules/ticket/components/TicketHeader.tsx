@@ -1,77 +1,73 @@
+import { typeFilters, viewModes } from "../../main/constants";
+
 import Button from "../../common/Button";
+import { CardTab } from "../../styles/tickets";
 import { Dropdown } from "react-bootstrap";
 import DropdownToggle from "../../common/DropdownToggle";
 import { HeaderWrapper } from "../../styles/main";
+import Icon from "../../common/Icon";
 import React from "react";
 
 type Props = {
   ticketLabel: string;
   mode: any;
   setMode: any;
+  viewType: string;
+  baseColor: string;
   setShowForm: (val: boolean) => void;
+  setViewType: (val: string) => void;
 };
 
-type State = {
-  show: boolean;
-  currViewMode: string;
-};
-
-export default class TicketHeader extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      show: false,
-      currViewMode: "List",
-    };
-  }
-
-  showModal = () => {
-    this.setState({ show: !this.state.show });
-  };
-
+export default class TicketHeader extends React.Component<Props> {
   render() {
-    const { show } = this.state;
-    const { setMode, setShowForm } = this.props;
-
-    type ViewMode = {
-      showMode: string;
-      setMode: string;
-    };
-
-    const viewModes: ViewMode[] = [
-      { showMode: "List", setMode: "normal" },
-      { showMode: "Stage", setMode: "stage" },
-      { showMode: "Label", setMode: "label" },
-      { showMode: "Priority", setMode: "priority" },
-      { showMode: "Due Date", setMode: "duedate" },
-      { showMode: "Assigned User", setMode: "user" },
-    ];
+    const {
+      mode,
+      setMode,
+      baseColor,
+      setShowForm,
+      setViewType,
+      viewType,
+    } = this.props;
 
     return (
       <>
         <HeaderWrapper>
           <h4>{this.props.ticketLabel}</h4>
           <div className="d-flex">
+            <CardTab
+              baseColor={baseColor}
+              className="d-flex align-items-center"
+            >
+              {viewModes.map((item) => (
+                <span
+                  className={`d-flex align-items-center justify-content-center ${
+                    item.type === viewType ? "active" : ""
+                  }`}
+                  key={item.type}
+                  onClick={() => setViewType(item.type)}
+                >
+                  <Icon icon={item.icon} size={15} /> &nbsp; {item.label}
+                </span>
+              ))}
+            </CardTab>
             <Dropdown>
               <Dropdown.Toggle
                 as={DropdownToggle}
                 id="dropdown-custom-components"
               >
                 <Button btnStyle="simple" uppercase={false} icon="filter">
-                  {this.state.currViewMode}
+                  {mode}
                 </Button>
               </Dropdown.Toggle>
 
               <Dropdown.Menu>
-                {viewModes.map((viewMode) => (
+                {typeFilters.map((viewMode) => (
                   <Dropdown.Item
                     key={viewMode.showMode}
                     className="d-flex align-items-center justify-content-between"
                     eventKey="1"
                     onClick={() => {
                       setMode(viewMode.setMode);
-                      this.setState({ currViewMode: viewMode.showMode });
                     }}
                   >
                     {viewMode.showMode}

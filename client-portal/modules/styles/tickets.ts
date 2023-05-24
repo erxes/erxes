@@ -290,6 +290,27 @@ const GroupWrapper = styled.div`
   padding: ${dimensions.unitSpacing}px;
 `;
 
+const CardTab = styledTS<{baseColor?: string}>(styled.div)`
+  margin-right: ${dimensions.coreSpacing}px;
+  font-size: 13px;
+  background: #eaeaea;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: ${dimensions.unitSpacing}px;
+  color: ${colors.colorCoreGray};
+  overflow: hidden;
+
+  span {
+    padding: 6px ${dimensions.unitSpacing}px;
+    cursor: pointer;
+    width: 120px;
+    
+    &.active {
+      background: ${props => props.baseColor ? props.baseColor : colors.colorSecondary};
+      color: ${colors.colorWhite};
+    }
+  }
+`;
+
 export {
   TicketRow,
   TicketLabel,
@@ -310,5 +331,6 @@ export {
   RightSidebar,
   DetailRow,
   GroupList,
-  GroupWrapper
+  GroupWrapper,
+  CardTab
 };

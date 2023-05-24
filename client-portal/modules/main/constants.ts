@@ -8,3 +8,15 @@ export const duedateFilter = [
   
 export const priorityFilter = [{name: "Critical", _id: "1"}, {name: "High", _id: "2"}, {name: "Normal", _id: "3"}, {name: "Low", _id: '4'}];
   
+export const typeFilters = [
+  { showMode: "Stage", setMode: "stage" },
+  { showMode: "Label", setMode: "label" },
+  { showMode: "Priority", setMode: "priority" },
+  { showMode: "Due Date", setMode: "duedate" },
+  { showMode: "Assigned User", setMode: "user" },
+];
+
+export const viewModes = [
+  { label: "List View", type: "list", icon: "list-ul" },
+  { label: "Board View", type: "board", icon: "postcard" },
+];

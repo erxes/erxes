@@ -8,6 +8,7 @@ import Group from "../containers/Group";
 import { GroupList } from "../../styles/tickets";
 import TicketForm from "../containers/Form";
 import TicketHeader from "./TicketHeader";
+import { getConfigColor } from "../../common/utils";
 import { renderUserFullName } from "../../utils";
 import { useRouter } from "next/router";
 
@@ -29,7 +30,8 @@ export default function Ticket({
   const router = useRouter();
   const { itemId } = router.query as { itemId: string };
 
-  const [mode, setMode] = useState("normal");
+  const [mode, setMode] = useState("stage");
+  const [viewType, setViewType] = useState("list");
   const [showForm, setShowForm] = useState(false);
 
   if (itemId) {
@@ -59,6 +61,10 @@ export default function Ticket({
   };
 
   const renderContent = () => {
+    if (viewType === "board") {
+      return <div>hi kkk</div>;
+    }
+
     switch (mode) {
       case "stage":
         return renderGroup(stages?.stages, "stage");
@@ -83,8 +89,11 @@ export default function Ticket({
     <>
       <TicketHeader
         ticketLabel={config.ticketLabel || "Tickets"}
+        baseColor={getConfigColor(config, "baseColor")}
         mode={mode}
+        viewType={viewType}
         setMode={setMode}
+        setViewType={setViewType}
         setShowForm={setShowForm}
       />
 

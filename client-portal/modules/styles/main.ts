@@ -437,7 +437,7 @@ const HeaderWrapper = styled.div`
   margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
 
   .dropdown {
-    margin-right: ${dimensions.unitSpacing}px;
+    margin-right: ${dimensions.coreSpacing}px;
 
     button:focus {
       outline: 0;
