@@ -7,10 +7,12 @@ import DropdownToggle from "../../common/DropdownToggle";
 import { HeaderWrapper } from "../../styles/main";
 import Icon from "../../common/Icon";
 import React from "react";
+import { capitalize } from "../../common/utils";
 
 type Props = {
-  ticketLabel: string;
+  headerLabel: string;
   mode: any;
+  type: string;
   setMode: any;
   viewType: string;
   baseColor: string;
@@ -18,7 +20,7 @@ type Props = {
   setViewType: (val: string) => void;
 };
 
-export default class TicketHeader extends React.Component<Props> {
+export default class ListHeader extends React.Component<Props> {
   render() {
     const {
       mode,
@@ -27,12 +29,13 @@ export default class TicketHeader extends React.Component<Props> {
       setShowForm,
       setViewType,
       viewType,
+      type,
     } = this.props;
 
     return (
       <>
         <HeaderWrapper>
-          <h4>{this.props.ticketLabel}</h4>
+          <h4>{this.props.headerLabel}</h4>
           <div className="d-flex">
             <CardTab
               baseColor={baseColor}
@@ -82,7 +85,7 @@ export default class TicketHeader extends React.Component<Props> {
               onClick={() => setShowForm(true)}
               icon="add"
             >
-              Create a New Ticket
+              Create a New {capitalize(type)}
             </Button>
           </div>
         </HeaderWrapper>
