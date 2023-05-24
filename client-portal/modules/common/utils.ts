@@ -1,6 +1,6 @@
 import { Config } from '../types';
-import { urlParser } from '../utils';
 import { getEnv } from '../../utils/configs';
+import { urlParser } from '../utils';
 
 /**
  * Generate random string
@@ -76,3 +76,7 @@ export const reorder = (
 
   return result;
 };
+
+export const capitalize = (word: string) => {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
