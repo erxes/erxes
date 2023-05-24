@@ -1,66 +1,67 @@
 import { Config, IUser } from '../../types';
-import { Label, ListBody, ListHead, ListRow } from '../../styles/tickets';
+import { Label, ListBody, ListHead, ListRow } from '../../styles/tasks';
 
+import Detail from '../containers/Detail';
 import EmptyContent from '../../common/EmptyContent';
 import React from 'react';
+import TaskHeader from './TaskHeader';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
+import { Card } from 'react-bootstrap';
 
 type Props = {
   loading: boolean;
-  tickets: any;
+  tasks: any;
   currentUser: IUser;
   config: Config;
   type: string;
 };
 
-export default function Group({ tickets, currentUser, config, type }: Props) {
+export default function Group({ tasks, currentUser, config, type }: Props) {
   const router = useRouter();
   const { itemId } = router.query as { itemId: string };
 
-  if (!tickets || tickets.length === 0) {
-    return <EmptyContent text="You don't have more tickets to view!" />;
+  if (!tasks || tasks.length === 0) {
+    return <EmptyContent text="You don't have more tasks to view!" />;
   }
 
   return (
     <>
       <ListHead className="head">
         <div>Subject</div>
-        <div>Created date</div>
-        <div>Stage changed date</div>
         <div>Start date</div>
         <div>Close date</div>
+        <div>Created date</div>
+        <div>Stage changed date</div>
         <div>Stage</div>
         <div>Labels</div>
       </ListHead>
       <ListBody>
-        {(tickets || []).map(ticket => {
-          const { stage = {}, labels } = ticket;
+        {(tasks || []).map(task => {
+          const { stage = {}, labels } = task;
 
           return (
             <ListRow
-              key={type + ticket._id}
+              key={task._id}
               className="item"
-              onClick={() => router.push(`/tickets?itemId=${ticket._id}`)}
+              onClick={() => router.push(`/tasks?itemId=${task._id}`)}
             >
-              <div className="base-color">{ticket.name}</div>
+              <div className="base-color">{task.name}</div>
 
-              <div>{dayjs(ticket.createdAt).format('MMM D YYYY')}</div>
               <div>
-                {ticket.stageChangedDate
-                  ? dayjs(ticket.stageChangedDate).format('MMM D YYYY')
+                {task.startDate
+                  ? dayjs(task.startDate).format('MMM D YYYY')
                   : '-'}
               </div>
-
               <div>
-                {ticket.startDate
-                  ? dayjs(ticket.startDate).format('MMM D YYYY')
+                {task.closeDate
+                  ? dayjs(task.closeDate).format('MMM D YYYY')
                   : '-'}
               </div>
-
+              <div>{dayjs(task.createdAt).format('MMM D YYYY')}</div>
               <div>
-                {ticket.closeDate
-                  ? dayjs(ticket.closeDate).format('MMM D YYYY')
+                {task.stageChangedDate
+                  ? dayjs(task.stageChangedDate).format('MMM D YYYY')
                   : '-'}
               </div>
 
