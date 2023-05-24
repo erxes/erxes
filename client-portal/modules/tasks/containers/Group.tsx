@@ -12,11 +12,12 @@ type Props = {
   config: Config;
   type: string;
   id: any;
+  tasks: any;
 };
 
 function GroupContainer({ currentUser, ...props }: Props) {
   const { loading, data = {} as any } = useQuery(
-    gql(queries.clientPortalTickets),
+    gql(queries.clientPortalTasks),
     {
       skip: !currentUser,
       fetchPolicy: 'network-only',
@@ -34,11 +35,11 @@ function GroupContainer({ currentUser, ...props }: Props) {
     return <Spinner objective={true} />;
   }
 
-  const tickets = data.clientPortalTickets || [];
+  const tasks = data.clientPortalTasks || [];
 
   const updatedProps = {
     ...props,
-    tickets,
+    tasks,
     loading,
     currentUser
   };

@@ -1,6 +1,5 @@
 import Button from '../../common/Button';
 import { HeaderWrapper } from '../../styles/main';
-import Icon from '../../common/Icon';
 import Modal from '../../common/Modal';
 import React from 'react';
 import TicketForm from '../containers/Form';
@@ -16,6 +15,7 @@ type Props = {
 
 type State = {
   show: boolean;
+  currViewMode: string;
 };
 
 export default class TicketHeader extends React.Component<Props, State> {
@@ -23,7 +23,8 @@ export default class TicketHeader extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      show: false
+      show: false,
+      currViewMode: 'List'
     };
   }
 
@@ -35,16 +36,30 @@ export default class TicketHeader extends React.Component<Props, State> {
     const { show } = this.state;
     const { setMode, mode } = this.props;
 
+    type ViewMode = {
+      showMode: string;
+      setMode: string;
+    };
+
+    const viewModes: ViewMode[] = [
+      { showMode: 'List', setMode: 'normal' },
+      { showMode: 'Stage', setMode: 'stage' },
+      { showMode: 'Label', setMode: 'label' },
+      { showMode: 'Priority', setMode: 'priority' },
+      { showMode: 'Due Date', setMode: 'duedate' },
+      { showMode: 'Assigned User', setMode: 'user' }
+    ];
+
     return (
       <>
         <HeaderWrapper>
           <h4>{this.props.ticketLabel}</h4>
-          <div className='right'>
+          <div className="right">
             <Button
-              btnStyle='success'
+              btnStyle="success"
               uppercase={false}
               onClick={this.showModal}
-              icon='add'
+              icon="add"
             >
               Create a New Ticket
             </Button>
@@ -53,58 +68,27 @@ export default class TicketHeader extends React.Component<Props, State> {
           <Dropdown>
             <Dropdown.Toggle
               as={DropdownToggle}
-              id='dropdown-custom-components'
+              id="dropdown-custom-components"
             >
-              <Button btnStyle='success' uppercase={false} icon='filter'>
-                LIST
+              <Button btnStyle="primary" uppercase={false} icon="filter">
+                {this.state.currViewMode}
               </Button>
             </Dropdown.Toggle>
 
             <Dropdown.Menu>
-              <Dropdown.Item
-                className='d-flex align-items-center justify-content-between'
-                eventKey='1'
-                onClick={() => {
-                  setMode('stage');
-                }}
-              >
-                Stage
-              </Dropdown.Item>
-              <Dropdown.Item
-                className='d-flex align-items-center justify-content-between'
-                eventKey='1'
-                onClick={() => {
-                  setMode('label');
-                }}
-              >
-                <div>Label</div>
-              </Dropdown.Item>
-              <Dropdown.Item
-                className='d-flex align-items-center justify-content-between'
-                eventKey='1'
-                onClick={() => {
-                  setMode('priority');
-                }}
-              >
-                <div>Priority</div>
-              </Dropdown.Item>
-              <Dropdown.Item
-                eventKey='4'
-                onClick={() => {
-                  setMode('duedate');
-                }}
-              >
-                Due Date
-              </Dropdown.Item>
-
-              <Dropdown.Item
-                eventKey='5'
-                onClick={() => {
-                  setMode('user');
-                }}
-              >
-                Assigned user
-              </Dropdown.Item>
+              {viewModes.map(viewMode => (
+                <Dropdown.Item
+                  key={viewMode.showMode}
+                  className="d-flex align-items-center justify-content-between"
+                  eventKey="1"
+                  onClick={() => {
+                    setMode(viewMode.setMode);
+                    this.setState({ currViewMode: viewMode.showMode });
+                  }}
+                >
+                  {viewMode.showMode}
+                </Dropdown.Item>
+              ))}
             </Dropdown.Menu>
           </Dropdown>
         </HeaderWrapper>
