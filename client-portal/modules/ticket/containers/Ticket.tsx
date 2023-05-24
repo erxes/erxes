@@ -15,7 +15,6 @@ type Props = {
 const MODES = ['stage', 'label', 'priority', 'duedate', 'user'];
 
 function TicketContainer({ currentUser, ...props }: Props) {
-  const [mode, setMode] = useState('normal');
   const { loading, data = {} as any } = useQuery(
     gql(queries.clientPortalTickets),
     {
@@ -61,8 +60,6 @@ function TicketContainer({ currentUser, ...props }: Props) {
     tickets,
     loading,
     currentUser,
-    mode,
-    setMode,
     stages,
     pipeLinelabels,
     pipelineAssignedUsers

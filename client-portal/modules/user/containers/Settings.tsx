@@ -1,15 +1,11 @@
-import { IUser, Store } from "../../types";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 
-import { AppConsumer } from "../../appContext";
-import ButtonMutate from "../../common/ButtonMutate";
-import { IButtonMutateProps } from "../../common/types";
-import Layout from "../../main/containers/Layout";
+import Alert from "../../utils/Alert";
 import React from "react";
 import Settings from "../components/Settings";
-import { mutations } from "../graphql";
+import SettingsLayoutContainer from "../../main/containers/SettingsLayout";
 
-type Props = { currentUser: IUser; saveCallback: () => void };
+type Props = {};
 
 const notificationSettingsMutation = gql`
   mutation ClientPortalUserUpdateNotificationSettings(
@@ -39,7 +35,7 @@ function SettingsContainer(props: Props) {
         receiveBySms,
       },
     }).then(() => {
-      props.saveCallback();
+      Alert.success("Successfully updated.");
     });
   };
 
@@ -49,9 +45,9 @@ function SettingsContainer(props: Props) {
   };
 
   return (
-    <Layout headingSpacing={true}>
-      {(layoutProps: Store) => <Settings {...layoutProps} {...updatedProps} />}
-    </Layout>
+    <SettingsLayoutContainer>
+      {(layoutProps) => <Settings {...layoutProps} {...updatedProps} />}
+    </SettingsLayoutContainer>
   );
 }
 
