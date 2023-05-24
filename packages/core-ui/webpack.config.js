@@ -38,10 +38,6 @@ module.exports = (env, args) => {
     resolve: {
       extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']
     },
-
-    optimization: {
-      usedExports: true,
-    },
     output: {
       publicPath: '/',
       chunkFilename: '[id].[contenthash].js'
