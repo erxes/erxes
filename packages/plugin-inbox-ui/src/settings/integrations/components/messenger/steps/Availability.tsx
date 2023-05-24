@@ -143,7 +143,9 @@ class Availability extends React.Component<Props> {
   }
 
   renderOfflineOption() {
-    if (this.props.availabilityMethod === 'manual') {
+    const { availabilityMethod, hideWhenOffline } = this.props;
+
+    if (availabilityMethod === 'manual') {
       return null;
     }
 
@@ -164,7 +166,7 @@ class Availability extends React.Component<Props> {
 
           <ToggleWrapper>
             <Toggle
-              checked={this.props.hideWhenOffline}
+              checked={hideWhenOffline}
               onChange={onChange}
               icons={{
                 checked: <span>Yes</span>,
