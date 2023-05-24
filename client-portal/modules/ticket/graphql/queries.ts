@@ -268,8 +268,11 @@ const pipelineAssignedUsers = `
 query pipelineAssignedUsers($_id: String!) {
   pipelineAssignedUsers(_id: $_id) {
     _id
+    email
     details {
       avatar
+      firstName
+      lastName
       fullName
       __typename
     }

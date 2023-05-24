@@ -1,17 +1,17 @@
-import { Config, IUser } from '../../types';
-import { Label, ListBody, ListHead, ListRow } from '../../styles/tickets';
+import { Config, IUser } from "../../types";
+import React, { useState } from "react";
+import { duedateFilter, priorityFilter } from "../../main/constants";
 
-import Detail from '../containers/Detail';
-import EmptyContent from '../../common/EmptyContent';
-import React, { useState } from 'react';
-import TicketHeader from './TicketHeader';
-import dayjs from 'dayjs';
-import { useRouter } from 'next/router';
-import { Card } from 'react-bootstrap';
-import Group from '../containers/Group';
+import { Card } from "react-bootstrap";
+import Detail from "../containers/Detail";
+import Group from "../containers/Group";
+import { GroupList } from "../../styles/tickets";
+import TicketForm from "../containers/Form";
+import TicketHeader from "./TicketHeader";
+import { renderUserFullName } from "../../utils";
+import { useRouter } from "next/router";
+
 type Props = {
-  loading: boolean;
-  tickets: any;
   currentUser: IUser;
   config: Config;
   stages: any;
@@ -19,172 +19,76 @@ type Props = {
   pipelineAssignedUsers: any;
 };
 
-const duedateFilter = [
-  'noCloseDate',
-  'nextMonth',
-  'nextWeek',
-  'overdue',
-  'nextDay'
-];
-const priorityFilter = ['Critical', 'High', 'Normal', 'Low'];
 export default function Ticket({
-  tickets,
   currentUser,
   config,
   stages,
   pipeLinelabels,
-  pipelineAssignedUsers
+  pipelineAssignedUsers,
 }: Props) {
   const router = useRouter();
   const { itemId } = router.query as { itemId: string };
 
-  const [mode, setMode] = useState('normal');
+  const [mode, setMode] = useState("normal");
+  const [showForm, setShowForm] = useState(false);
 
   if (itemId) {
     return (
       <Detail
         _id={itemId}
-        onClose={() => router.push('/tickets')}
+        onClose={() => router.push("/tickets")}
         currentUser={currentUser}
         config={config}
       />
     );
   }
 
-  if (mode === 'stage') {
-    return (
-      <>
-        <TicketHeader
-          ticketLabel={config.ticketLabel || 'Tickets'}
-          mode={mode}
-          setMode={setMode}
-        />
+  const renderGroup = (items, type: string) => {
+    if (!items || items.length === 0) {
+      return null;
+    }
 
-        {stages?.stages?.map(d => {
-          return (
-            <Card key={d._id}>
-              <Card.Header>
-                <a>{d?.name}</a>
-              </Card.Header>
-              <Card.Body>
-                <Group type={'stage'} id={d._id} />
-              </Card.Body>
-            </Card>
-          );
-        })}
-      </>
-    );
+    return (items || []).map((item, index) => (
+      <GroupList key={index}>
+        <Card.Header>
+          {type === "user" ? renderUserFullName(item.details) : item.name}
+        </Card.Header>
+        <Group type={type} id={item._id} />
+      </GroupList>
+    ));
+  };
+
+  const renderContent = () => {
+    switch (mode) {
+      case "stage":
+        return renderGroup(stages?.stages, "stage");
+      case "label":
+        return renderGroup(pipeLinelabels?.pipelineLabels, "label");
+      case "duedate":
+        return renderGroup(duedateFilter, "duedate");
+      case "priority":
+        return renderGroup(priorityFilter, "priority");
+      case "user":
+        return renderGroup(pipelineAssignedUsers.pipelineAssignedUsers, "user");
+      default:
+        return <Group type={"all"} id={""} />;
+    }
+  };
+
+  if (showForm) {
+    return <TicketForm closeModal={() => setShowForm(!showForm)} />;
   }
 
-  if (mode === 'label') {
-    return (
-      <>
-        <TicketHeader
-          ticketLabel={config.ticketLabel || 'Tickets'}
-          mode={mode}
-          setMode={setMode}
-        />
-
-        {pipeLinelabels?.pipelineLabels?.map(d => {
-          return (
-            <Card key={d._id}>
-              <Card.Header>
-                <a>{d?.name}</a>
-              </Card.Header>
-              <Card.Body>
-                <Group type={'label'} id={d._id} />
-              </Card.Body>
-            </Card>
-          );
-        })}
-      </>
-    );
-  }
-  if (mode === 'duedate') {
-    return (
-      <>
-        <TicketHeader
-          ticketLabel={config.ticketLabel || 'Tickets'}
-          mode={mode}
-          setMode={setMode}
-        />
-
-        {duedateFilter?.map(d => {
-          return (
-            <Card key={d}>
-              <Card.Header>
-                <a>{d}</a>
-              </Card.Header>
-              <Card.Body>
-                <Group type={'duedate'} id={d} />
-              </Card.Body>
-            </Card>
-          );
-        })}
-      </>
-    );
-  }
-  if (mode === 'priority') {
-    return (
-      <>
-        <TicketHeader
-          ticketLabel={config.ticketLabel || 'Tickets'}
-          mode={mode}
-          setMode={setMode}
-        />
-
-        {priorityFilter?.map(d => {
-          return (
-            <Card key={d}>
-              <Card.Header>
-                <a>{d}</a>
-              </Card.Header>
-              <Card.Body>
-                <Group type={'priority'} id={d} />
-              </Card.Body>
-            </Card>
-          );
-        })}
-      </>
-    );
-  }
-  if (mode === 'user') {
-    return (
-      <>
-        <TicketHeader
-          ticketLabel={config.ticketLabel || 'Tickets'}
-          mode={mode}
-          setMode={setMode}
-        />
-
-        {pipelineAssignedUsers.pipelineAssignedUsers?.map(d => {
-          return (
-            <Card key={d._id}>
-              <Card.Header>
-                <a>{d?.details?.fullName}</a>
-              </Card.Header>
-              <Card.Body>
-                <Group type={'user'} id={d._id} />
-              </Card.Body>
-            </Card>
-          );
-        })}
-      </>
-    );
-  }
   return (
     <>
       <TicketHeader
-        ticketLabel={config.ticketLabel || 'Tickets'}
+        ticketLabel={config.ticketLabel || "Tickets"}
         mode={mode}
         setMode={setMode}
+        setShowForm={setShowForm}
       />
-      {/* {renderContent()} */}
-      <Card>
-        <Card.Body>
-          <Group type={'all'} id={''} />
-        </Card.Body>
-      </Card>
+
+      {renderContent()}
     </>
   );
 }

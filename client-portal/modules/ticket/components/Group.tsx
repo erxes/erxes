@@ -1,10 +1,16 @@
-import { Config, IUser } from '../../types';
-import { Label, ListBody, ListHead, ListRow } from '../../styles/tickets';
+import { Config, IUser } from "../../types";
+import {
+  GroupWrapper,
+  Label,
+  ListBody,
+  ListHead,
+  ListRow,
+} from "../../styles/tickets";
 
-import EmptyContent from '../../common/EmptyContent';
-import React from 'react';
-import dayjs from 'dayjs';
-import { useRouter } from 'next/router';
+import EmptyState from "../../common/form/EmptyState";
+import React from "react";
+import dayjs from "dayjs";
+import { useRouter } from "next/router";
 
 type Props = {
   loading: boolean;
@@ -19,11 +25,11 @@ export default function Group({ tickets, currentUser, config, type }: Props) {
   const { itemId } = router.query as { itemId: string };
 
   if (!tickets || tickets.length === 0) {
-    return <EmptyContent text="You don't have more tickets to view!" />;
+    return <EmptyState icon="ban" text="No cards" size="small" />;
   }
 
   return (
-    <>
+    <GroupWrapper>
       <ListHead className="head">
         <div>Subject</div>
         <div>Created date</div>
@@ -34,7 +40,7 @@ export default function Group({ tickets, currentUser, config, type }: Props) {
         <div>Labels</div>
       </ListHead>
       <ListBody>
-        {(tickets || []).map(ticket => {
+        {(tickets || []).map((ticket) => {
           const { stage = {}, labels } = ticket;
 
           return (
@@ -45,32 +51,32 @@ export default function Group({ tickets, currentUser, config, type }: Props) {
             >
               <div className="base-color">{ticket.name}</div>
 
-              <div>{dayjs(ticket.createdAt).format('MMM D YYYY')}</div>
+              <div>{dayjs(ticket.createdAt).format("MMM D YYYY")}</div>
               <div>
                 {ticket.stageChangedDate
-                  ? dayjs(ticket.stageChangedDate).format('MMM D YYYY')
-                  : '-'}
+                  ? dayjs(ticket.stageChangedDate).format("MMM D YYYY")
+                  : "-"}
               </div>
 
               <div>
                 {ticket.startDate
-                  ? dayjs(ticket.startDate).format('MMM D YYYY')
-                  : '-'}
+                  ? dayjs(ticket.startDate).format("MMM D YYYY")
+                  : "-"}
               </div>
 
               <div>
                 {ticket.closeDate
-                  ? dayjs(ticket.closeDate).format('MMM D YYYY')
-                  : '-'}
+                  ? dayjs(ticket.closeDate).format("MMM D YYYY")
+                  : "-"}
               </div>
 
               <div className="base-color">{stage.name}</div>
 
               <div>
-                {(labels || []).map(label => (
+                {(labels || []).map((label) => (
                   <Label
                     key={label._id}
-                    lblStyle={'custom'}
+                    lblStyle={"custom"}
                     colorCode={label.colorCode}
                   >
                     {label.name}
@@ -81,6 +87,6 @@ export default function Group({ tickets, currentUser, config, type }: Props) {
           );
         })}
       </ListBody>
-    </>
+    </GroupWrapper>
   );
 }

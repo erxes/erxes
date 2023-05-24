@@ -275,6 +275,21 @@ const RightSidebar = styled.h6`
   height: 100%;
 `;
 
+const GroupList = styled.div`
+  margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  border-radius: 12px;
+  border: 1px solid ${colors.borderDarker};
+  background: ${colors.colorWhite};
+
+  .card-header {
+    font-size: 14px;
+  }
+`;
+
+const GroupWrapper = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+`;
+
 export {
   TicketRow,
   TicketLabel,
@@ -293,5 +308,7 @@ export {
   CreatedUser,
   SelectInput,
   RightSidebar,
-  DetailRow
+  DetailRow,
+  GroupList,
+  GroupWrapper
 };
