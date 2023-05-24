@@ -4,6 +4,7 @@ const path = require("path");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 //   .BundleAnalyzerPlugin;
 const { MFLiveReloadPlugin } = require("@module-federation/fmr");
@@ -141,6 +142,9 @@ module.exports = (env, args) => {
     plugins: [
       new webpack.DefinePlugin({
         "process.env": JSON.stringify(process.env),
+      }),      
+      new NodePolyfillPlugin({
+        includeAliases: ['process']
       }),
       new InterpolateHtmlPlugin({
         PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`
