@@ -14,6 +14,9 @@ import { ApolloProvider } from '@apollo/client';
 import { render } from 'react-dom';
 import { getThemeItem } from '@erxes/ui/src/utils/core';
 
+import { setVerbosity } from 'ts-invariant';
+setVerbosity('warn');
+
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(utc, { parseLocal: true });
