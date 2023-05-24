@@ -28,6 +28,7 @@ const shared = {};
 for (const name of depNames) {
   shared[name] = {
     singleton: true,
+    eager: true,
     requiredVersion: deps[name],
   };
 }
