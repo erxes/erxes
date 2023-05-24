@@ -67,6 +67,7 @@ module.exports = (env, args) => {
           },
         }),
       ],
+      usedExports: true,
     },
 
     resolve: {

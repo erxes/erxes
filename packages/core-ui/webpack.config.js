@@ -39,6 +39,9 @@ module.exports = (env, args) => {
       extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']
     },
 
+    optimization: {
+      usedExports: true,
+    },
     output: {
       publicPath: '/',
       chunkFilename: '[id].[contenthash].js'
