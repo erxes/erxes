@@ -7,7 +7,10 @@ import {
 } from './definitions/cupon';
 
 export interface ICuponModel extends Model<ICuponDocument> {
-  checkCupon(customerId: string, cuponCode: string): Promise<ICuponDocument>;
+  checkCupon(
+    customerId: string,
+    cuponUniqueId: string
+  ): Promise<ICuponDocument>;
   createCupon(
     docFields: ICuponCreate,
     userId?: string
@@ -17,32 +20,16 @@ export interface ICuponModel extends Model<ICuponDocument> {
 }
 export const loadCuponClass = (model: IModels) => {
   class Cupon {
-    public static async checkCupon(customerId: string, cuponCode: string) {
-      const newCupon = await model.DacCupons.find({
+    public static async checkCupon(customerId: string, cuponUniqueId: string) {
+      const cupon = await model.DacCupons.findOne({
         customerId,
-        cuponCode,
-        status: 'new'
-      }).sort({
-        expireDate: 1
+        cuponUniqueId
       });
 
-      if (newCupon.length > 0) {
-        return newCupon?.[0];
+      if (cupon) {
+        return cupon;
       }
-
-      const oldCupon = await model.DacCupons.find({
-        customerId,
-        cuponCode,
-        status: {
-          $ne: 'new'
-        }
-      }).sort({
-        expireDate: 1
-      });
-      if (oldCupon.length > 0) {
-        return oldCupon?.[0];
-      }
-      throw new Error('Dac cupon not found');
+      throw new Error('Cupon not found');
     }
 
     /**
@@ -52,34 +39,23 @@ export const loadCuponClass = (model: IModels) => {
       if (!userId) {
         throw new Error('User not found');
       }
+      const { customerId, cuponUniqueId } = docFields;
+      const cupon = await model.DacCupons.findOne({
+        customerId,
+        cuponUniqueId
+      });
+      if (cupon) {
+        throw new Error('Already exists');
+      }
 
-      const cupon = await model.DacCupons.create({
+      const result = await model.DacCupons.create({
         ...docFields,
         status: 'new',
         createdDate: new Date(),
         createdBy: userId,
         modifiedDate: new Date()
       });
-      return cupon;
-    }
-
-    /**
-     * Update LmsChapter document
-     */
-    public static async updateExpiryCupons() {
-      const now = new Date();
-
-      await model.DacCupons.updateMany(
-        { expireDate: { $lte: now }, status: 'new' },
-        {
-          $set: {
-            status: 'expired',
-            modifiedBy: 'by Cron',
-            modifiedDate: new Date()
-          }
-        }
-      );
-      return 'runned';
+      return result;
     }
   }
 

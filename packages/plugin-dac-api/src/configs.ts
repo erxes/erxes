@@ -11,7 +11,6 @@ import {
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
-import cronjobs from './cronjobs/cupon';
 
 export let mainDb;
 export let debug;
@@ -32,8 +31,7 @@ export default {
 
   meta: {
     afterMutations,
-    permissions,
-    cronjobs
+    permissions
   },
 
   getHandlers: [
