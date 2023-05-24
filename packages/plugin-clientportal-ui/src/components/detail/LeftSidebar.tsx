@@ -1,5 +1,6 @@
 import {
   FieldStyle,
+  SectionContainer,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
@@ -16,10 +17,12 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import VerificationForm from '../../containers/details/VerificationForm';
-
+import CompanyAssignForm from '../../containers/details/CompanyAssignForm';
 type Props = {
   clientPortalUser: IClientPortalUser;
   history: any;
+
+  queryParams?: any;
 };
 
 class LeftSidebar extends React.Component<Props> {
@@ -29,6 +32,50 @@ class LeftSidebar extends React.Component<Props> {
 
   renderCompany() {
     return renderFullName(this.props.clientPortalUser.company);
+  }
+
+  renderCompanyAssignSection() {
+    const { clientPortalUser } = this.props;
+
+    const content = contentProps => {
+      return (
+        <CompanyAssignForm
+          {...contentProps}
+          {...this.props}
+          clientPortalUser={clientPortalUser}
+        />
+      );
+    };
+
+    const extraButtons = (
+      <>
+        <ModalTrigger
+          title="Assig corresponding company"
+          trigger={
+            <button>
+              <Icon icon="edit-3" />
+            </button>
+          }
+          content={content}
+        />
+      </>
+    );
+
+    return (
+      <Box
+        title="Company"
+        isOpen={true}
+        name="verification"
+        extraButtons={extraButtons}
+      >
+        <SidebarList className="no-link">
+          <li>
+            <FieldStyle>{__('Company Name')}</FieldStyle>
+            <SidebarCounter>{clientPortalUser.companyName}</SidebarCounter>
+          </li>
+        </SidebarList>
+      </Box>
+    );
   }
 
   renderVerificationSection() {
@@ -105,8 +152,12 @@ class LeftSidebar extends React.Component<Props> {
 
     return (
       <Sidebar wide={true}>
-        <DetailInfo clientPortalUser={clientPortalUser} />
+        <SectionContainer>
+          <DetailInfo clientPortalUser={clientPortalUser} />
+        </SectionContainer>
         {this.renderVerificationSection()}
+
+        {clientPortalUser.customer && this.renderCompanyAssignSection()}
         {!clientPortalUser.customer && !clientPortalUser.company ? null : (
           <Box
             title={

@@ -156,6 +156,12 @@ const clientPortalUsersRemove = `
   }
 `;
 
+const clientPortalUserAssignCompany = `
+   mutation clientPortalUserAssignCompany($clientPortalUserId: String!, $erxesCompanyId: String!){
+    clientPortalUserAssignCompany(clientPortalUserId: $clientPortalUserId, erxesCompanyId: $erxesCompanyId)
+   }
+`;
+
 const remove = `
   mutation clientPortalRemove(
     $_id: String!
@@ -226,5 +232,6 @@ export default {
   clientPortalCommentsAdd,
   clientPortalCommentsRemove,
   changeVerificationStatus,
-  editFields
+  editFields,
+  clientPortalUserAssignCompany
 };

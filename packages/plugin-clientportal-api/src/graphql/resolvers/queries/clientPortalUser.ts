@@ -3,6 +3,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 import { IContext } from '../../../connectionResolver';
+import { sendContactsMessage } from '../../../messageBroker';
 
 const clientPortalUserQueries = {
   /**
@@ -139,6 +140,14 @@ const clientPortalUserQueries = {
     }
 
     return models.ClientPortalUsers.find(filter).countDocuments();
+  },
+  async companies(_root, {}, { subdomain }: IContext) {
+    return sendContactsMessage({
+      subdomain,
+      action: 'customers.find',
+      data: {},
+      isRPC: true
+    });
   }
 };
 

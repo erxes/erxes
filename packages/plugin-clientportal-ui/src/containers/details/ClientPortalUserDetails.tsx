@@ -14,6 +14,7 @@ import { ClientPoratlUserDetailQueryResponse } from '../../types';
 type Props = {
   id: string;
   history: any;
+  queryParams?: any;
 };
 
 type FinalProps = {
