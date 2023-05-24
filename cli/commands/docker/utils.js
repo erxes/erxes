@@ -177,8 +177,7 @@ const syncUI = async ({ name, image_tag, ui_location }) => {
     } else {
       if (tag === 'dev') {
         s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
-      }
-      if (tag === 'staging') {
+      } else if (tag === 'staging') {
         s3_location = `https://erxes-staging-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
         s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${tag}`;
@@ -208,8 +207,7 @@ const updateLocales = async () => {
 
   if (tag === 'dev') {
     s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com`;
-  }
-  if (tag === 'staging') {
+  } else if (tag === 'staging') {
     s3_location = `https://erxes-staging-plugins.s3.us-west-2.amazonaws.com`;
   } else {
     s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${tag}`;
@@ -669,8 +667,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     if (configs.image_tag === 'dev') {
       pluginsMapLocation =
         'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
-    }
-    if (configs.image_tag === 'staging') {
+    } else if (configs.image_tag === 'staging') {
       pluginsMapLocation =
         'https://erxes-staging-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
     } else {
