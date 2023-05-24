@@ -12,7 +12,7 @@ type Props = {
   config: Config;
 };
 class CategoryList extends React.Component<Props> {
-  renderNames = (authors) => {
+  renderNames = authors => {
     if (authors.length > 3) {
       return (
         <>
@@ -32,7 +32,7 @@ class CategoryList extends React.Component<Props> {
     ));
   };
 
-  renderAuthors = (cat) => {
+  renderAuthors = cat => {
     const { authors } = cat;
 
     if (authors.length === 0) {
@@ -68,7 +68,10 @@ class CategoryList extends React.Component<Props> {
 
     const categoryUrl = `/knowledge-base/category`;
 
-    const renderInfo = (cat) => {
+    const renderInfo = cat => {
+      const getAuthorsCount = cat.authors
+        ? new Set(cat.authors.map(author => author._id)).size
+        : 0;
       return (
         <Link href={`${categoryUrl}?id=${cat._id}`} passHref={true}>
           <a className="d-flex flex-column align-items-start w-100 h-100 link-color">
@@ -88,7 +91,7 @@ class CategoryList extends React.Component<Props> {
                 <span className="d-flex align-item-center">
                   <Icon icon="users-alt" />
                   &nbsp;
-                  {(cat.authors && cat.authors.length) || 0} authors
+                  {getAuthorsCount} authors
                 </span>
               </div>
             </div>
@@ -108,7 +111,7 @@ class CategoryList extends React.Component<Props> {
           <p>{parentCat.description}</p>
           <Row>
             {parentCat.childrens &&
-              parentCat.childrens.map((cat) => (
+              parentCat.childrens.map(cat => (
                 <Col md={4} key={cat._id} className="category-col">
                   <Card className="category-item">{renderInfo(cat)}</Card>
                 </Col>
