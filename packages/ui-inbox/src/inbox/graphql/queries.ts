@@ -286,6 +286,7 @@ const convertToInfo = `
       ticketUrl
       dealUrl
       taskUrl
+      purchaseUrl
     }
   }
 `;

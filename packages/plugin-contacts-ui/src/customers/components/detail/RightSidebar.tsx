@@ -9,7 +9,7 @@ import { List } from '../../../companies/styles';
 import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
 import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
-import PortabelPurchase from '@erxes/ui-cards/src/purchases/components/PortablePurchases';
+import PortabelPurchases from '@erxes/ui-cards/src/purchases/components/PortablePurchases';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -99,7 +99,7 @@ export default class RightSidebar extends React.Component<Props> {
               mainTypeId={customer._id}
               mainTypeName={mainTypeName}
             />
-            <PortabelPurchase
+            <PortabelPurchases
               mainType="customer"
               mainTypeId={customer._id}
               mainTypeName={mainTypeName}

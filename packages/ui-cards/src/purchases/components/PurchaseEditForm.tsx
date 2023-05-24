@@ -1,9 +1,4 @@
-import {
-  IPurchase,
-  IPurchaseParams,
-  IPaymentsData,
-  IExpensesData
-} from '../types';
+import { IPurchase, IPurchaseParams, IPaymentsData } from '../types';
 import { IEditFormContent, IItem, IOptions } from '../../boards/types';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';

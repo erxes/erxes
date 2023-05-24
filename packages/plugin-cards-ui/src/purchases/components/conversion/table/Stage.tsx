@@ -1,4 +1,4 @@
-import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
+import { IConversionStagePurchase } from '@erxes/ui-cards/src/boards/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import * as React from 'react';
@@ -8,7 +8,7 @@ import { BodyRow, StageName } from '../style';
 import PurchaseList from './PurchaseList';
 
 type Props = {
-  stage: IConversionStage;
+  stage: IConversionStagePurchase;
   purchases: IPurchase[];
   loadMore: () => void;
   hasMore: boolean;
@@ -62,7 +62,7 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   isCollabsible = () => {
-    if (this.props.stage.initialDealsTotalCount === 0) {
+    if (this.props.stage.initialPurchasesTotalCount === 0) {
       return false;
     }
 
@@ -72,10 +72,10 @@ export default class Stage extends React.Component<Props, State> {
   renderLostInfo = () => {
     const { stage } = this.props;
 
-    const primary = stage.initialDealsTotalCount || 1;
-    const stayed = stage.stayedDealsTotalCount || 0;
-    const inProcess = stage.inProcessDealsTotalCount || 0;
-    const lost = (stage.initialDealsTotalCount || 0) - inProcess - stayed;
+    const primary = stage.initialPurchasesTotalCount || 1;
+    const stayed = stage.stayedPurchasesTotalCount || 0;
+    const inProcess = stage.inProcessPurchasesTotalCount || 0;
+    const lost = (stage.initialPurchasesTotalCount || 0) - inProcess - stayed;
 
     return (
       <>
@@ -115,7 +115,7 @@ export default class Stage extends React.Component<Props, State> {
             open={this.state.showCollapse}
             isCollabsible={isCollabsible}
           >
-            {stage.name} <label>({stage.initialDealsTotalCount})</label>
+            {stage.name} <label>({stage.initialPurchasesTotalCount})</label>
             {isCollabsible && <Icon icon="angle-down" />}
           </StageName>
           {this.renderLostInfo()}

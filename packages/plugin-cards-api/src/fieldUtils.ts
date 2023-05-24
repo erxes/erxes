@@ -209,7 +209,7 @@ export const generateFields = async ({ subdomain, data }) => {
     ]
   ];
 
-  if (type === 'deal' && usageType !== 'export') {
+  if (type === 'deal' || (type === 'purchase' && usageType !== 'export')) {
     const productOptions = await generateProductsOptions(
       subdomain,
       'productsData.productId',
@@ -220,13 +220,13 @@ export const generateFields = async ({ subdomain, data }) => {
     fields = [...fields, ...[productOptions, assignedUserOptions]];
   }
 
-  if (type === 'deal' && usageType === 'export') {
-    const extendFieldsDealExport = [
+  if (type === 'deal' || (type === 'purchase' && usageType === 'export')) {
+    const extendFieldsExport = [
       { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
       { _id: Math.random(), name: 'productsData.code', label: 'Product Code' }
     ];
 
-    fields = [...fields, ...extendFieldsDealExport];
+    fields = [...fields, ...extendFieldsExport];
   }
 
   if (usageType === 'export') {

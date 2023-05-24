@@ -54,7 +54,7 @@ export const removeTasks = (subdomain, _ids) =>
     data: { _ids }
   });
 
-export const removePurchase = (subdomain, _ids) =>
+export const removePurchases = (subdomain, _ids) =>
   sendRPCMessage('cards:purchases.remove', {
     subdomain,
     data: { _ids }

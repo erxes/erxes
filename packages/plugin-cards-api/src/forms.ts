@@ -49,9 +49,12 @@ export default {
       relations: relations('cards:task')
     },
     {
-      description: 'Purchases',
+      description: 'purchase pipelines',
       type: 'purchase',
-      relations: relations('cards:purchase')
+      relations: [
+        ...relations('cards:purchase'),
+        { name: 'carIds', label: 'Cars', relationType: 'cars:car' }
+      ]
     },
     {
       description: 'Sales pipelines',

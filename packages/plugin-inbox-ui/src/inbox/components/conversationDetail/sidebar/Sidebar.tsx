@@ -56,7 +56,7 @@ const PortableTickets = asyncComponent(() =>
 );
 const PortablePurchases = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui-cards/src/purchases/components/PortablePurchases'
+    /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ '@erxes/ui-cards/src/purchases/components/PortablePurchases'
   )
 );
 

@@ -48,7 +48,7 @@ class Stage extends React.Component<Props> {
               <span>{stage.initialDealsTotalCount}</span>
             </Stayed>
           </Content>
-          {this.renderLostInfo(stage.compareNextStage)}
+          {this.renderLostInfo(stage.compareNextStagePurchase)}
         </StageContainer>
       </StageWrap>
     );

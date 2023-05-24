@@ -49,7 +49,7 @@ export const notifiedUserIds = async (models: IModels, item: any) => {
 };
 
 export interface IBoardNotificationParams {
-  item: IDealDocument;
+  item: IDealDocument | IPurchaseDocument;
   user: IUserDocument;
   type: string;
   action?: string;
@@ -317,7 +317,7 @@ interface ILabelParams {
 }
 
 /**
- * Copies pipeline labels alongside deal/task/tickets when they are moved between different pipelines.
+ * Copies pipeline labels alongside deal/task/tickets/purchase when they are moved between different pipelines.
  */
 export const copyPipelineLabels = async (
   models: IModels,

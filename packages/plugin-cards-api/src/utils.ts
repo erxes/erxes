@@ -4,8 +4,6 @@ import { CARD_PROPERTIES_INFO, MODULE_NAMES } from './constants';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Purchase } from './graphql/resolvers/customResolvers';
-import purchase from './graphql/resolvers/customResolvers/purchase';
 
 export const configReplacer = config => {
   const now = new Date();
@@ -296,7 +294,7 @@ export const collectItems = async (
   return tasks;
 };
 
-// contentType should come with "cards:deal|task|ticket|growthHack" format
+// contentType should come with "cards:deal|task|ticket|growthHack|purchase" format
 export const getCardContentIds = async (
   models: IModels,
   { pipelineId, contentType }

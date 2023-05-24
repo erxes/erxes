@@ -105,11 +105,10 @@ class ProductForm extends React.Component<Props, State> {
       changePayData: {},
       tempId: '',
       filterValues: JSON.parse(
-        localStorage.getItem('dealProductFormFilter') || '{}'
+        localStorage.getItem('purchaseProductFormFilter') || '{}'
       )
     };
   }
-
   componentDidMount() {
     this.updateTotal();
   }
@@ -377,6 +376,7 @@ class ProductForm extends React.Component<Props, State> {
     const { saveProductsData, productsData, closeModal } = this.props;
 
     const { total, changePayData } = this.state;
+
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {

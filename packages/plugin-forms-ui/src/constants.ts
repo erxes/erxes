@@ -1,4 +1,3 @@
-
 const PROPERTY_GROUPS = [
   {
     label: 'Contacts',
@@ -21,6 +20,14 @@ const PROPERTY_GROUPS = [
     value: 'deal',
     types: [
       { value: 'deal', label: 'Sales pipeline' },
+      { value: 'product', label: 'Products & services' }
+    ]
+  },
+  {
+    label: 'Purchase pipeline',
+    value: 'purchase',
+    types: [
+      { value: 'purchase', label: 'Purchase pipeline' },
       { value: 'product', label: 'Products & services' }
     ]
   },

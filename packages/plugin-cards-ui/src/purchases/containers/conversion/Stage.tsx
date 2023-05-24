@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
+import { IConversionStagePurchase } from '@erxes/ui-cards/src/boards/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
@@ -15,7 +15,7 @@ import * as React from 'react';
 import { graphql } from 'react-apollo';
 
 type Props = {
-  stage: IConversionStage;
+  stage: IConversionStagePurchase;
   queryParams: IQueryParams;
   pipelineId: string;
 };
@@ -42,9 +42,9 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
 
     const purchases = purchasesQuery.purchases || [];
     const loading = purchasesQuery.loading || purchasesQuery.loading;
-    const hasMore = stage.initialDealsTotalCount > purchases.length;
+    const hasMore = stage.initialPurchasesTotalCount > purchases.length;
 
-    if (purchases.length === stage.initialDealsTotalCount) {
+    if (purchases.length === stage.initialPurchasesTotalCount) {
       return;
     }
 
@@ -105,7 +105,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
       return <EmptyState text="Purchases not found" icon="piggy-bank" />;
     }
 
-    const hasMore = stage.initialDealsTotalCount > purchases.length;
+    const hasMore = stage.initialPurchasesTotalCount > purchases.length;
 
     return (
       <Stage

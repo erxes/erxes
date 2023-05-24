@@ -337,7 +337,7 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
 };
 
 export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
-  title: __('Getting Started with Purchase '),
+  title: __('Getting Started with Purchase'),
   description: __(
     'Drive leads to a successful close with our Kanban-style boards'
   ),
@@ -442,6 +442,26 @@ export const WEBHOOK_ACTIONS = [
     label: 'Deal moved',
     action: 'createBoardItemMovementLog',
     type: 'deal'
+  },
+  {
+    label: 'Purchase created',
+    action: 'create',
+    type: 'purchase'
+  },
+  {
+    label: 'Purchase updated',
+    action: 'update',
+    type: 'purchase'
+  },
+  {
+    label: 'Purchase deleted',
+    action: 'delete',
+    type: 'purchase'
+  },
+  {
+    label: 'Purchase moved',
+    action: 'createBoardItemMovementLog',
+    type: 'purchase'
   },
   {
     label: 'Task created',

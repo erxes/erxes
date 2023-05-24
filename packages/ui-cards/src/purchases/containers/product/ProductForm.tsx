@@ -4,7 +4,7 @@ import ProductForm from '../../components/product/ProductForm';
 import React from 'react';
 import { AppConsumer } from 'coreui/appContext';
 import { graphql } from 'react-apollo';
-import { CostQueryResponse, IProduct } from '@erxes/ui-products/src/types';
+import { IProduct, CostQueryResponse } from '@erxes/ui-products/src/types';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '../../graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
@@ -28,6 +28,7 @@ type Props = {
   closeModal: () => void;
   purchaseQuery: IPurchase;
   productCategoriesQuery: ProductCategoriesQueryResponse;
+  CostQueryResponse: CostQueryResponse;
   costsQuery: any;
 };
 
@@ -48,7 +49,7 @@ class ProductFormContainer extends React.Component<Props> {
 
           const { costsQuery } = this.props;
 
-          const costsQueryData = costsQuery.costs || [];
+          const costsQueryData = costsQuery.costs;
 
           const { purchaseQuery } = this.props;
 

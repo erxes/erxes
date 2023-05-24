@@ -1,6 +1,5 @@
 import { IDeal, IDealParams, IPaymentsData } from '../types';
 import { IEditFormContent, IItem, IOptions } from '../../boards/types';
-
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditForm from '../../boards/components/editForm/EditForm';
 import { Flex } from '@erxes/ui/src/styles/main';

@@ -37,6 +37,7 @@ type Props = {
     ticketUrl?: string;
     dealUrl?: string;
     taskUrl?: string;
+    purchaseUrl?: string;
   };
   changeStatusComment: () => void;
   replyComment: (
@@ -216,7 +217,7 @@ export default class FacebookComment extends React.Component<
                   <li key="purchase">
                     <PurchaseConvertTrigger
                       {...triggerProps}
-                      url={convertToInfo.taskUrl}
+                      url={convertToInfo.purchaseUrl}
                     />
                   </li>
                 </Dropdown.Menu>

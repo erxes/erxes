@@ -19,6 +19,9 @@ export const clientPortalGetConfig = `
       dealLabel
       dealPipelineId
       dealStageId
+      purchaseLabel
+      purchasePipelineId
+      purchaseStageId
       ticketLabel
       ticketStageId
       ticketPipelineId
@@ -26,6 +29,7 @@ export const clientPortalGetConfig = `
       ticketToggle
       taskToggle
       dealToggle
+      purchaseToggle
       kbToggle
       googleClientId
       facebookAppId

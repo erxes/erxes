@@ -19,14 +19,27 @@ export default {
     {
       type: 'deal',
       description: 'Deal',
-      esIndex: 'deals'
+      esIndex: 'deals',
+      esIndexPurchase: 'deals'
+    },
+    {
+      type: 'purchase',
+      description: 'Purchase',
+      esIndex: 'purchases',
+      esIndexPurchase: 'purchases'
     },
     {
       type: 'ticket',
       description: 'Ticket',
-      esIndex: 'tickets'
+      esIndex: 'tickets',
+      esIndexPurchase: 'tickets'
     },
-    { type: 'task', description: 'Task', esIndex: 'tasks' }
+    {
+      type: 'task',
+      description: 'Task',
+      esIndex: 'tasks',
+      esIndexPurchase: 'purchases'
+    }
   ],
 
   propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
