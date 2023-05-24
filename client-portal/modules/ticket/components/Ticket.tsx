@@ -3,7 +3,7 @@ import { Label, ListBody, ListHead, ListRow } from '../../styles/tickets';
 
 import Detail from '../containers/Detail';
 import EmptyContent from '../../common/EmptyContent';
-import React from 'react';
+import React, { useState } from 'react';
 import TicketHeader from './TicketHeader';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
@@ -14,8 +14,6 @@ type Props = {
   tickets: any;
   currentUser: IUser;
   config: Config;
-  mode: any;
-  setMode: any;
   stages: any;
   pipeLinelabels: any;
   pipelineAssignedUsers: any;
@@ -33,14 +31,14 @@ export default function Ticket({
   tickets,
   currentUser,
   config,
-  mode,
-  setMode,
   stages,
   pipeLinelabels,
   pipelineAssignedUsers
 }: Props) {
   const router = useRouter();
   const { itemId } = router.query as { itemId: string };
+
+  const [mode, setMode] = useState('normal');
 
   if (itemId) {
     return (
@@ -53,14 +51,6 @@ export default function Ticket({
     );
   }
 
-  // return (
-  //   <>
-  //     <TicketHeader ticketLabel={config.ticketLabel || 'Tickets'} />
-  //     {mode === 'label'}
-  //     {renderContent()}
-  //   </>
-  // );
-
   if (mode === 'stage') {
     return (
       <>
@@ -72,7 +62,7 @@ export default function Ticket({
 
         {stages?.stages?.map(d => {
           return (
-            <Card>
+            <Card key={d._id}>
               <Card.Header>
                 <a>{d?.name}</a>
               </Card.Header>
@@ -87,7 +77,6 @@ export default function Ticket({
   }
 
   if (mode === 'label') {
-    console.log(pipeLinelabels);
     return (
       <>
         <TicketHeader
@@ -98,7 +87,7 @@ export default function Ticket({
 
         {pipeLinelabels?.pipelineLabels?.map(d => {
           return (
-            <Card>
+            <Card key={d._id}>
               <Card.Header>
                 <a>{d?.name}</a>
               </Card.Header>
@@ -122,7 +111,7 @@ export default function Ticket({
 
         {duedateFilter?.map(d => {
           return (
-            <Card>
+            <Card key={d}>
               <Card.Header>
                 <a>{d}</a>
               </Card.Header>
@@ -146,7 +135,7 @@ export default function Ticket({
 
         {priorityFilter?.map(d => {
           return (
-            <Card>
+            <Card key={d}>
               <Card.Header>
                 <a>{d}</a>
               </Card.Header>
@@ -160,7 +149,6 @@ export default function Ticket({
     );
   }
   if (mode === 'user') {
-    console.log(pipelineAssignedUsers);
     return (
       <>
         <TicketHeader
@@ -171,7 +159,7 @@ export default function Ticket({
 
         {pipelineAssignedUsers.pipelineAssignedUsers?.map(d => {
           return (
-            <Card>
+            <Card key={d._id}>
               <Card.Header>
                 <a>{d?.details?.fullName}</a>
               </Card.Header>
