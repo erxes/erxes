@@ -7,8 +7,8 @@ import {
 
 export default {
   'cards:ticket': ['update', 'create'],
-  'cards:task': ['update', 'create']
-  //   'cards:deal': ['update', 'create']
+  'cards:task': ['update', 'create'],
+  'cards:deal': ['update', 'create']
 };
 
 export const afterMutationHandlers = async (
@@ -121,6 +121,17 @@ export const afterMutationHandlers = async (
                 content: name,
                 notifType: 'plugin',
                 link: link
+              }
+            });
+            sendCoreMessage({
+              subdomain: 'os',
+              action: 'sendMobileNotification',
+              data: {
+                title: `Grant`,
+                body: `${user?.details?.fullName ||
+                  user?.details?.shortName} wants ${action}`,
+                receivers: receiverIds,
+                data: { _id, type: contentType }
               }
             });
           }

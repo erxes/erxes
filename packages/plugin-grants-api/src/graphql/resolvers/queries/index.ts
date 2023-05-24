@@ -1,3 +1,3 @@
 import Request from './request';
-
-export { Request };
+import Config from './config';
+export { Request, Config };

@@ -31,8 +31,8 @@ const {
   ALLOWED_ORIGINS,
   PORT,
   RABBITMQ_HOST,
-  SENTRY_DSN,
-  MESSAGE_BROKER_PREFIX
+  MESSAGE_BROKER_PREFIX,
+  SENTRY_DSN
 } = process.env;
 
 let apolloRouterProcess: ChildProcess | undefined = undefined;

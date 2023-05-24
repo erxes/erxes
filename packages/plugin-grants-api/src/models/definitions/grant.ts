@@ -18,11 +18,26 @@ export interface IGrantResponse {
   description: string;
 }
 
+export interface IGrantConfigs {
+  name: string;
+  scope: string;
+  action: string;
+  userIds: string[];
+  config: string;
+  params: string;
+  createdAt: string;
+  modifiedAt: string;
+}
+
 export interface IGrantRequestDocument extends IGrantRequest, Document {
   _id: string;
 }
 
 export interface IGrantResponseDocument extends IGrantResponse, Document {
+  _id: string;
+}
+
+export interface IGrantConfigsDocument extends IGrantConfigs, Document {
   _id: string;
 }
 
@@ -63,4 +78,15 @@ export const grantResponsesSchema = new Schema({
     optional: true
   }),
   createdAt: field({ type: Date, label: 'Created at', default: Date.now })
+});
+
+export const grantConfigsSchema = new Schema({
+  _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
+  scope: field({ type: String, label: 'Scope' }),
+  action: field({ type: String, label: 'Request Action' }),
+  config: field({ type: String, label: 'Config' }),
+  params: field({ type: String, label: 'params' }),
+  createdAt: field({ type: Date, label: 'Created at', default: Date.now }),
+  modifiedAt: field({ type: Date, label: 'Modified at', default: Date.now })
 });

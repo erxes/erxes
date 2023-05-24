@@ -9,7 +9,7 @@ import {
 import { validateRequest } from '../common/utils';
 import { serviceDiscovery } from '../configs';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { doAction, doLogicAfterAction } from '../utils';
+import { checkConfig, doAction, doLogicAfterAction } from '../utils';
 
 export interface IRequestsModel extends Model<IGrantRequestDocument> {
   getGrantRequest(args: any): Promise<IGrantRequestDocument>;
@@ -50,17 +50,45 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
     }
 
     public static async addGrantRequest(doc: any, user: IUserDocument) {
-      const { contentTypeId, contentType, userIds, action } = doc;
-      try {
-        await validateRequest(doc);
-      } catch (e) {
-        throw new Error(e.message);
-      }
+      const {
+        contentTypeId,
+        contentType,
+        userIds,
+        action,
+        scope,
+        params
+      } = doc;
+
+      const config = await checkConfig({
+        subdomain,
+        action,
+        scope,
+        contentType,
+        contentTypeId
+      });
 
       const extendedDoc = {
         ...doc,
+        params: JSON.stringify({
+          sourceType: contentType,
+          ...JSON.parse(params || '{}')
+        }),
         requesterId: user._id
       };
+
+      if (config) {
+        extendedDoc.params = JSON.stringify({
+          type: contentType,
+          itemId: contentTypeId,
+          ...JSON.parse(config.params || '{}')
+        });
+      } else {
+        try {
+          await validateRequest(doc);
+        } catch (e) {
+          throw new Error(e.message);
+        }
+      }
 
       const request = await models.Requests.create({ ...extendedDoc });
 
@@ -87,16 +115,28 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
             link: link
           }
         });
+        sendCoreMessage({
+          subdomain: 'os',
+          action: 'sendMobileNotification',
+          data: {
+            title: `Grant`,
+            body: `${user?.details?.fullName ||
+              user?.details?.shortName} wants ${action}`,
+            receivers: userIds,
+            data: { _id: contentTypeId, type: contentType }
+          }
+        });
       }
 
       return request;
     }
 
     public static async editGrantRequest(doc) {
-      const {
+      let {
         contentTypeId,
         contentType,
         userIds,
+        scope,
         action,
         params,
         requesterId
@@ -112,6 +152,22 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         contentType
       });
 
+      if (request.action !== action) {
+        const config = await checkConfig({
+          subdomain,
+          action,
+          scope,
+          contentType,
+          contentTypeId
+        });
+
+        params = JSON.stringify({
+          type: contentType,
+          itemId: contentTypeId,
+          ...JSON.parse(config?.params || '{}')
+        });
+      }
+
       return await models.Requests.updateOne(
         { _id: request._id },
         { $set: { userIds, action, params, requesterId } }
@@ -122,7 +178,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       const request = await models.Requests.findOne({ _id: requestId });
 
       if (!request) {
-        return 'Something went wrong';
+        throw new Error('Something went wrong');
       }
 
       const declinedCount = await models.Responses.countDocuments({
@@ -149,7 +205,6 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           request.params,
           requester
         );
-
         await models.Requests.updateOne(
           { _id: request._id },
           { status: 'approved', resolvedAt: new Date() }
@@ -160,8 +215,6 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           request.params,
           requester
         );
-
-        return 'Your grant was successfully ';
       } else {
         await models.Requests.updateOne(
           { _id: request._id },
@@ -216,8 +269,8 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           type: 'card'
         },
         {
-          label: 'Change Card Type',
-          action: 'changeCardType',
+          label: 'Create Related Card',
+          action: 'createRelatedCard',
           scope: 'cards',
           type: 'card'
         }

@@ -1,4 +1,4 @@
-import { BarItems, CollapseContent, Icon, colors } from '@erxes/ui/src';
+import { CollapseContent, Icon } from '@erxes/ui/src';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import {
   ControlLabel,
@@ -7,137 +7,21 @@ import {
 } from '@erxes/ui/src/components/form';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import styled, { css } from 'styled-components';
-import { highlight } from '@erxes/ui/src/utils/animations';
-import gql from 'graphql-tag';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import { useQuery } from 'react-apollo';
 import Select from 'react-select-plus';
 import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { FormColumn, FormWrapper, LinkButton } from '@erxes/ui/src/styles/main';
-import styledTS from 'styled-components-ts';
-
+import { ListItem, RemoveRow, Row } from './styles';
+import { SelectCardType, SelectStage } from './common';
 type Props = {
   action: string;
   initialProps: any;
-  object: any;
+  source: any;
   onChange: (params: any) => void;
 };
 
 type State = {
   params: any;
 };
-
-const Card = styled.div`
-  display: flex;
-  width: 150px;
-  height: 40px;
-  text-align: center;
-  margin-bottom: 5px;
-  border-radius: 6px;
-  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
-  justify-content: center;
-  place-items: center;
-  cursor: pointer;
-  gap: 5px;
-
-  &.active {
-    animation: ${highlight} 0.9s ease;
-    box-shadow: 0 0 5px 0 #63d2d6;
-  }
-`;
-
-const Row = styled.div`
-  display: flex;
-  place-items: center;
-  justify-content: space-between;
-  gap: 5px;
-`;
-
-export const ListItem = styledTS<{
-  column?: number;
-}>(styled.div)`
-  background: ${colors.colorWhite};
-  padding: 5px;
-  margin-bottom: 10px;
-  border-left: 2px solid transparent; 
-  border-top: none;
-  border-radius: 4px;
-  box-shadow: none;
-  left: auto;
-  &:last-child {
-    margin-bottom: 0;
-  }
-  
-  &:hover {
-    box-shadow: 0 2px 8px ${colors.shadowPrimary};
-    border-color: ${colors.colorSecondary};
-    border-top: none;
-  }
-  ${props =>
-    props.column &&
-    css`
-      width: ${100 / props.column}%;
-      display: inline-block;
-    `}
-`;
-
-export const RemoveRow = styled.div`
-  color: ${colors.colorCoreRed};
-  text-align: end;
-
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-function SelectStage({
-  pipelineId,
-  initialValue,
-  label,
-  name,
-  excludeIds,
-  onSelect
-}: {
-  pipelineId: string;
-  initialValue?: string;
-  label: string;
-  name: string;
-  excludeIds?: string[];
-  onSelect: (props: { value: string }) => void;
-}) {
-  const queryVariables: any = { pipelineId };
-
-  if (!!excludeIds?.length) {
-    queryVariables.excludeIds = excludeIds;
-  }
-
-  const { data, loading } = useQuery(gql(queries.stages), {
-    variables: queryVariables,
-    fetchPolicy: 'network-only',
-    skip: !pipelineId
-  });
-
-  const options = (data?.stages || []).map(stage => ({
-    value: stage._id,
-    label: stage.name
-  }));
-
-  return (
-    <FormGroup>
-      <ControlLabel required>{__(label)}</ControlLabel>
-      <Select
-        isRequired={true}
-        name={name}
-        placeholder={'Choose a stage'}
-        value={initialValue}
-        onChange={onSelect}
-        options={options}
-        isLoading={loading}
-      />
-    </FormGroup>
-  );
-}
 
 class CardActionComponent extends React.Component<Props, State> {
   constructor(props) {
@@ -172,8 +56,8 @@ class CardActionComponent extends React.Component<Props, State> {
 
   renderConfigs() {
     const { params } = this.state;
-    const { object } = this.props;
-    const { pipeline } = object || ({} as IItem);
+    const { source } = this.props;
+    const { pipelineId } = source || {};
 
     const {
       configs
@@ -225,8 +109,8 @@ class CardActionComponent extends React.Component<Props, State> {
           <FormColumn>
             <SelectStage
               name="destinationStageId"
-              label={`source stage`}
-              pipelineId={pipeline._id}
+              label={`Destination stage`}
+              pipelineId={pipelineId}
               excludeIds={selectedDestinationStageIds}
               initialValue={config.destinationStageId}
               onSelect={({ value }) =>
@@ -242,7 +126,7 @@ class CardActionComponent extends React.Component<Props, State> {
   renderLogics() {
     const { params } = this.state;
     const {
-      object: { pipeline }
+      source: { pipelineId }
     } = this.props;
 
     const removeLogic = _id => {
@@ -280,7 +164,7 @@ class CardActionComponent extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>{__('Logic')}</ControlLabel>
+              <ControlLabel required>{__('Logic')}</ControlLabel>
               <Select
                 value={logic.logic}
                 options={generateOptions(logic._id, logicOptions)}
@@ -294,7 +178,7 @@ class CardActionComponent extends React.Component<Props, State> {
             <SelectStage
               name="targetStageId"
               label="Stage"
-              pipelineId={pipeline?._id || null}
+              pipelineId={pipelineId || null}
               initialValue={logic.targetStageId}
               onSelect={({ value }) =>
                 onChangeLogic(logic._id, value, 'targetStageId')
@@ -306,7 +190,7 @@ class CardActionComponent extends React.Component<Props, State> {
     ));
   }
 
-  renderChangeCardType(sourceType: string) {
+  renderCreateRelatedCard({ type }) {
     const { params } = this.state;
 
     const handleSelect = ({ value }) => {
@@ -343,32 +227,17 @@ class CardActionComponent extends React.Component<Props, State> {
       onChangeStage: e => this.handleChange(e, 'stageId')
     };
 
-    const options = [
-      { value: 'deal', label: 'Deal', icon: 'piggy-bank' },
-      { value: 'task', label: 'Task', icon: 'file-check-alt' },
-      { value: 'ticket', label: 'Ticket', icon: 'ticket' }
-    ].filter(option => option.value !== sourceType);
-
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Card Type')}</ControlLabel>
-          <BarItems>
-            {options.map(option => {
-              return (
-                <Card
-                  key={option.value}
-                  className={params['type'] === option.value ? 'active' : ''}
-                  onClick={() => handleSelect({ value: option.value })}
-                >
-                  <Icon icon={option.icon} />
-                  <ControlLabel>{option.label}</ControlLabel>
-                </Card>
-              );
-            })}
-          </BarItems>
+          <ControlLabel required>{__('Card Type')}</ControlLabel>
+          <SelectCardType
+            type={type}
+            handleSelect={handleSelect}
+            params={params}
+          />
         </FormGroup>
-        {params['type'] !== sourceType && (
+        {params['type'] !== type && (
           <>
             <CollapseContent title="Settings" compact>
               <BoardSelect {...updateProps} />
@@ -429,22 +298,17 @@ class CardActionComponent extends React.Component<Props, State> {
   }
 
   render() {
-    const { action, object, initialProps } = this.props;
+    const { action, source } = this.props;
 
     if (!action) {
       return null;
     }
 
     if (action === 'changeStage') {
-      const extraProps = {
-        boardId: object.boardId,
-        pipelineId: object.pipeline._id,
-        stageId: object.stageId
-      };
-      return this.renderMoveAction(extraProps);
+      return this.renderMoveAction({ ...source });
     }
-    if (action === 'changeCardType') {
-      return this.renderChangeCardType(initialProps.sourceType || '');
+    if (action === 'createRelatedCard') {
+      return this.renderCreateRelatedCard({ ...source });
     }
   }
 }

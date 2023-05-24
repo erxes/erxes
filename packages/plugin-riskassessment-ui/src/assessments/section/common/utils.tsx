@@ -58,7 +58,7 @@ function SelectGroupAssignedUsers({
           name="groupTeamMembers"
           label="Assign Team Members"
           initialValue={groupAssignedUserIds || []}
-          filterParams={{ status: '', ids: assignedUserIds }}
+          filterParams={{ status: '', ids: assignedUserIds, excludeIds: false }}
           onSelect={values =>
             handleSelect({
               groupId: group._id,

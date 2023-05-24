@@ -1,9 +1,10 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 import {
   Request as RequestMutations,
-  Response as ResponseMutations
+  Response as ResponseMutations,
+  Config as ConfigMutations
 } from './mutations';
-import { Request as RequestQueries } from './queries';
+import { Request as RequestQueries, Config as ConfigQueries } from './queries';
 
 import DataLoaders from '../customResolvers';
 
@@ -14,10 +15,12 @@ const resolvers: any = async serviceDiscovery => ({
 
   Mutation: {
     ...RequestMutations,
-    ...ResponseMutations
+    ...ResponseMutations,
+    ...ConfigMutations
   },
   Query: {
-    ...RequestQueries
+    ...RequestQueries,
+    ...ConfigQueries
   }
 });
 

@@ -21,11 +21,11 @@ function GroupContainer({ currentUser, ...props }: Props) {
       skip: !currentUser,
       fetchPolicy: 'network-only',
       variables: {
-        ...(props.type == 'priority' && { priority: [props.id] }),
-        ...(props.type == 'label' && { labelIds: [props.id] }),
-        ...(props.type == 'duedate' && { closeDateType: props.id }),
-        ...(props.type == 'stage' && { stageId: props.id }),
-        ...(props.type == 'user' && { userIds: [props.id] })
+        ...(props.type === 'priority' && { priority: [props.id] }),
+        ...(props.type === 'label' && { labelIds: [props.id] }),
+        ...(props.type === 'duedate' && { closeDateType: props.id }),
+        ...(props.type === 'stage' && { stageId: props.id }),
+        ...(props.type === 'user' && { userIds: [props.id] })
       }
     }
   );
