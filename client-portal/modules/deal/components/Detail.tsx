@@ -10,7 +10,7 @@ import {
   RightSidebar,
   TicketComment,
   TicketDetailContent,
-} from "../../styles/tickets";
+} from "../../styles/cards";
 
 import Button from "../../common/Button";
 import { ControlLabel } from "../../common/form";

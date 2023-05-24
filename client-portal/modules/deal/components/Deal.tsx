@@ -1,14 +1,14 @@
-import { Config, IUser } from '../../types';
-import { Label, ListBody, ListHead, ListRow } from '../../styles/tickets';
+import { Config, IUser } from "../../types";
+import { Label, ListBody, ListHead, ListRow } from "../../styles/cards";
+import React, { useState } from "react";
 
-import DealHeader from './DealHeader';
-import Detail from '../containers/Detail';
-import EmptyContent from '../../common/EmptyContent';
-import React, { useState } from 'react';
-import dayjs from 'dayjs';
-import { useRouter } from 'next/router';
-import { Card } from 'react-bootstrap';
-import Group from '../containers/Group';
+import { Card } from "react-bootstrap";
+import DealHeader from "./DealHeader";
+import Detail from "../containers/Detail";
+import EmptyContent from "../../common/EmptyContent";
+import Group from "../containers/Group";
+import dayjs from "dayjs";
+import { useRouter } from "next/router";
 
 type Props = {
   loading: boolean;
@@ -21,13 +21,13 @@ type Props = {
 };
 
 const duedateFilter = [
-  'noCloseDate',
-  'nextMonth',
-  'nextWeek',
-  'overdue',
-  'nextDay'
+  "noCloseDate",
+  "nextMonth",
+  "nextWeek",
+  "overdue",
+  "nextDay",
 ];
-const priorityFilter = ['Critical', 'High', 'Normal', 'Low'];
+const priorityFilter = ["Critical", "High", "Normal", "Low"];
 
 export default function Deal({
   deals,
@@ -35,25 +35,25 @@ export default function Deal({
   config,
   stages,
   pipeLinelabels,
-  pipelineAssignedUsers
+  pipelineAssignedUsers,
 }: Props) {
   const router = useRouter();
   const { itemId } = router.query as { itemId: string };
 
-  const [groupBy, setGroupBy] = useState('normal');
+  const [groupBy, setGroupBy] = useState("normal");
 
   const renderContent = () => {
-    if (groupBy === 'stage') {
+    if (groupBy === "stage") {
       return (
         <>
-          {stages?.stages?.map(d => {
+          {stages?.stages?.map((d) => {
             return (
               <Card key={d._id}>
                 <Card.Header>
                   <a>{d?.name}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'stage'} id={d._id} />
+                  <Group type={"stage"} id={d._id} />
                 </Card.Body>
               </Card>
             );
@@ -62,17 +62,17 @@ export default function Deal({
       );
     }
 
-    if (groupBy === 'label') {
+    if (groupBy === "label") {
       return (
         <>
-          {pipeLinelabels?.pipelineLabels?.map(d => {
+          {pipeLinelabels?.pipelineLabels?.map((d) => {
             return (
               <Card key={d._id}>
                 <Card.Header>
                   <a>{d?.name}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'label'} id={d._id} />
+                  <Group type={"label"} id={d._id} />
                 </Card.Body>
               </Card>
             );
@@ -80,17 +80,17 @@ export default function Deal({
         </>
       );
     }
-    if (groupBy === 'duedate') {
+    if (groupBy === "duedate") {
       return (
         <>
-          {duedateFilter?.map(d => {
+          {duedateFilter?.map((d) => {
             return (
               <Card key={d}>
                 <Card.Header>
                   <a>{d}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'duedate'} id={d} />
+                  <Group type={"duedate"} id={d} />
                 </Card.Body>
               </Card>
             );
@@ -98,17 +98,17 @@ export default function Deal({
         </>
       );
     }
-    if (groupBy === 'priority') {
+    if (groupBy === "priority") {
       return (
         <>
-          {priorityFilter?.map(d => {
+          {priorityFilter?.map((d) => {
             return (
               <Card key={d}>
                 <Card.Header>
                   <a>{d}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'priority'} id={d} />
+                  <Group type={"priority"} id={d} />
                 </Card.Body>
               </Card>
             );
@@ -116,17 +116,17 @@ export default function Deal({
         </>
       );
     }
-    if (groupBy === 'user') {
+    if (groupBy === "user") {
       return (
         <>
-          {pipelineAssignedUsers.pipelineAssignedUsers?.map(d => {
+          {pipelineAssignedUsers.pipelineAssignedUsers?.map((d) => {
             return (
               <Card key={d._id}>
                 <Card.Header>
                   <a>{d?.details?.fullName}</a>
                 </Card.Header>
                 <Card.Body>
-                  <Group type={'user'} id={d._id} />
+                  <Group type={"user"} id={d._id} />
                 </Card.Body>
               </Card>
             );
@@ -138,7 +138,7 @@ export default function Deal({
     return (
       <Card>
         <Card.Body>
-          <Group type={'all'} id={''} deals={deals} />
+          <Group type={"all"} id={""} deals={deals} />
         </Card.Body>
       </Card>
     );
@@ -148,7 +148,7 @@ export default function Deal({
     return (
       <Detail
         _id={itemId}
-        onClose={() => router.push('/deals')}
+        onClose={() => router.push("/deals")}
         currentUser={currentUser}
         config={config}
       />
@@ -159,7 +159,7 @@ export default function Deal({
     <>
       <DealHeader
         setGroupBy={setGroupBy}
-        dealLabel={config.dealLabel || 'Deals'}
+        dealLabel={config.dealLabel || "Deals"}
       />
       {renderContent()}
     </>

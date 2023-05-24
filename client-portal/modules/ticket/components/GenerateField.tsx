@@ -1,14 +1,15 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import FormControl from '../../common/form/Control';
-import FormGroup from '../../common/form/Group';
-import { IAttachment, IField, IOption, Label } from '../../types';
-import { ControlLabel } from '../../common/form';
-import { SelectInput } from '../../styles/tickets';
-import Uploader from '../../common/Uploader';
-import ModifiableList from '../../common/form/ModifiableList';
-import { __ } from '../../../utils';
-import SelectData from './SelectData';
+import { IAttachment, IField, IOption, Label } from "../../types";
+
+import { ControlLabel } from "../../common/form";
+import FormControl from "../../common/form/Control";
+import FormGroup from "../../common/form/Group";
+import ModifiableList from "../../common/form/ModifiableList";
+import React from "react";
+import Select from "react-select-plus";
+import SelectData from "./SelectData";
+import { SelectInput } from "../../styles/cards";
+import Uploader from "../../common/Uploader";
+import { __ } from "../../../utils";
 
 type Props = {
   field: IField;
@@ -40,7 +41,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     const state = { value: defaultValue, checkBoxValues: [] };
 
-    if (defaultValue && field.type === 'check') {
+    if (defaultValue && field.type === "check") {
       state.checkBoxValues = defaultValue;
     }
 
@@ -57,11 +58,11 @@ export default class GenerateField extends React.Component<Props, State> {
 
     let value = optionValue || e.target.value;
 
-    if (validation === 'number') {
+    if (validation === "number") {
       value = Number(value);
     }
 
-    if (type === 'check') {
+    if (type === "check") {
       let checkBoxValues = this.state.checkBoxValues;
       const isChecked = e.target.checked;
       // if selected value is not already in list then add it
@@ -91,22 +92,22 @@ export default class GenerateField extends React.Component<Props, State> {
     const checkBoxValues = this.state.checkBoxValues || [];
     const { type } = this.props.field;
 
-    attrs.type = 'text';
+    attrs.type = "text";
 
     attrs.onChange = (e) => {
       this.setState({ value: e.target.value });
       this.onChange(e, attrs.option);
     };
 
-    if (type === 'radio') {
-      attrs.type = 'radio';
-      attrs.componentClass = 'radio';
+    if (type === "radio") {
+      attrs.type = "radio";
+      attrs.componentClass = "radio";
       attrs.checked = String(value) === attrs.option;
     }
 
-    if (type === 'check') {
-      attrs.type = 'checkbox';
-      attrs.componentClass = 'checkbox';
+    if (type === "check") {
+      attrs.type = "checkbox";
+      attrs.componentClass = "checkbox";
       attrs.checked = checkBoxValues.includes(attrs.option);
     }
 
@@ -120,7 +121,7 @@ export default class GenerateField extends React.Component<Props, State> {
   renderSelect(options: string[] = [], attrs = {}) {
     return (
       <FormControl componentClass="select" {...attrs}>
-        <option key={''} value="">
+        <option key={""} value="">
           Choose option
         </option>
         {options.map((option, index) => (
@@ -170,7 +171,7 @@ export default class GenerateField extends React.Component<Props, State> {
   renderList(attrs) {
     let options = [];
     if (attrs.value && attrs.value.length > 0) {
-      options = attrs.value.split(',') || [];
+      options = attrs.value.split(",") || [];
     }
 
     const onChange = (ops) => {
@@ -189,7 +190,7 @@ export default class GenerateField extends React.Component<Props, State> {
       <ModifiableList
         options={options}
         onChangeOption={onChange}
-        addButtonLabel={__('Add a value')}
+        addButtonLabel={__("Add a value")}
         showAddButton={true}
       />
     );
@@ -228,7 +229,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <SelectData
-        label={'Add a Product'}
+        label={"Add a Product"}
         products={products}
         value={value}
         onSelect={onSelect}
@@ -246,7 +247,7 @@ export default class GenerateField extends React.Component<Props, State> {
     };
     return (
       <SelectData
-        label={'Add a Branch'}
+        label={"Add a Branch"}
         branches={branches}
         value={value}
         onSelect={onSelect}
@@ -262,7 +263,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <FormControl componentClass="select" {...attrs} onChange={onSelect}>
-        <option key={''} value="">
+        <option key={""} value="">
           Choose option
         </option>
         {labels.map((label) => (
@@ -286,7 +287,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <SelectData
-        label={'Add a Department'}
+        label={"Add a Department"}
         departments={departments}
         value={value}
         onSelect={onSelect}
@@ -303,31 +304,31 @@ export default class GenerateField extends React.Component<Props, State> {
       id: field._id,
       value: this.state.value,
       onChange: this.onChange,
-      name: '',
+      name: "",
     };
 
-    if (field.field === 'labelIds') {
+    if (field.field === "labelIds") {
       return this.renderLabels(attrs);
     }
 
     switch (type) {
-      case 'select':
+      case "select":
         return this.renderSelect(options, attrs);
 
-      case 'multiSelect':
+      case "multiSelect":
         return this.renderMultiSelect(options, attrs);
 
-      case 'textarea':
+      case "textarea":
         return this.renderTextarea(attrs);
 
-      case 'check':
+      case "check":
         try {
           return this.renderRadioOrCheckInputs(options, attrs);
         } catch {
           return this.renderRadioOrCheckInputs(options, attrs, true);
         }
 
-      case 'radio':
+      case "radio":
         attrs.name = Math.random().toString();
         try {
           return this.renderRadioOrCheckInputs(options, attrs);
@@ -335,23 +336,23 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(options, attrs, true);
         }
 
-      case 'list': {
+      case "list": {
         return this.renderList(attrs);
       }
 
-      case 'file': {
+      case "file": {
         return this.renderFile(attrs);
       }
 
-      case 'product': {
+      case "product": {
         return this.renderProduct(attrs);
       }
 
-      case 'branch': {
+      case "branch": {
         return this.renderBranch(attrs);
       }
 
-      case 'department': {
+      case "department": {
         return this.renderDepartment(attrs);
       }
 
