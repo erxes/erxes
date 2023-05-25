@@ -114,7 +114,14 @@ const integrationQueries = {
     }
 
     if (args.kind === 'lead') {
-      return models.Integrations.findLeadIntegrations(query, args);
+      args.sortField = 'name';
+
+      const integration = await models.Integrations.findLeadIntegrations(
+        query,
+        args
+      );
+
+      return integration;
     }
 
     const integrations = paginate(

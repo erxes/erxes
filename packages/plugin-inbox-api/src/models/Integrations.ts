@@ -191,6 +191,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       return models.Integrations.aggregate([
         { $match: query },
+        { $sort: { [sortField]: sortDirection } },
         {
           $project: {
             isActive: 1,
@@ -225,7 +226,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
             }
           }
         },
-        { $sort: { [sortField]: sortDirection } },
+
         { $skip: perPage * (page - 1) },
         { $limit: perPage }
       ]);
