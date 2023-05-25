@@ -406,37 +406,37 @@ const participantMutations = {
           invited: true
         }
       });
-
-      const cpUsers = await sendClientPortalMessage({
-        subdomain,
-        action: 'clientPortalUsers.find',
-        data: {
-          erxesCustomerId: { $in: driverIds },
-          clientPortalId: process.env.MOBILE_CP_ID || ''
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      const notifData: any = {
-        title: 'Шинэ зар орлоо',
-        content: `${deal.name} дугаартай тээврийн ажилд та уригдлаа, үнийн санал илгээнэ үү.`,
-        receivers: cpUsers.map(cpUser => cpUser._id),
-        notifType: 'system',
-        link: '',
-        isMobile: true,
-        eventData: {
-          type: 'deal',
-          id: deal._id
-        }
-      };
-
-      sendClientPortalMessage({
-        subdomain,
-        action: 'sendNotification',
-        data: notifData
-      });
     }
+
+    const cpUsers = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      data: {
+        erxesCustomerId: { $in: driverIds },
+        clientPortalId: process.env.MOBILE_CP_ID || ''
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const notifData: any = {
+      title: 'Шинэ зар орлоо',
+      content: `${deal.name} дугаартай тээврийн ажилд та уригдлаа, үнийн санал илгээнэ үү.`,
+      receivers: cpUsers.map(cpUser => cpUser._id),
+      notifType: 'system',
+      link: '',
+      isMobile: true,
+      eventData: {
+        type: 'deal',
+        id: deal._id
+      }
+    };
+
+    sendClientPortalMessage({
+      subdomain,
+      action: 'sendNotification',
+      data: notifData
+    });
 
     return { status: 'ok', message: 'Drivers invited' };
   }
