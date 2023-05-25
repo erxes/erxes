@@ -24,9 +24,13 @@ type FinalProps = {} & Props & ClientPortalUserAssignCompanyMutationResponse;
 const FormContainer = (props: FinalProps) => {
   const { clientPortalUserAssignCompany, closeModal } = props;
 
-  const assignCompany = (userId: string, erxesCompanyId: string) => {
+  const assignCompany = (
+    userId: string,
+    erxesCompanyId: string,
+    erxesCustomerId: string
+  ) => {
     clientPortalUserAssignCompany({
-      variables: { erxesCompanyId, userId }
+      variables: { erxesCustomerId, erxesCompanyId, userId }
     })
       .then(() => {
         Alert.success('Successfully assigned company');

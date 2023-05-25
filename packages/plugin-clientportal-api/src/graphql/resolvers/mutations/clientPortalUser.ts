@@ -872,10 +872,10 @@ const clientPortalUserMutations = {
   },
   clientPortalUserAssignCompany: async (
     _root,
-    args: { userId: string; erxesCompanyId },
+    args: { userId: string; erxesCompanyId: string; erxesCustomerId: string },
     { models, subdomain }: IContext
   ) => {
-    const { userId, erxesCompanyId } = args;
+    const { userId, erxesCompanyId, erxesCustomerId } = args;
 
     const getCompany = await sendContactsMessage({
       subdomain,
@@ -888,6 +888,22 @@ const clientPortalUserMutations = {
 
     if (getCompany) {
       setOps = { ...setOps, companyName: getCompany.primaryName };
+    }
+
+    try {
+      // add conformity company to customer
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: 'customer',
+          mainTypeId: erxesCustomerId,
+          relType: 'company',
+          relTypeId: erxesCompanyId
+        }
+      });
+    } catch (error) {
+      throw new Error(error);
     }
 
     return models.ClientPortalUsers.updateOne(

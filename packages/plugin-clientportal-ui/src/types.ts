@@ -97,7 +97,11 @@ export type ClientPortalUserRemoveMutationResponse = {
 };
 export type ClientPortalUserAssignCompanyMutationResponse = {
   clientPortalUserAssignCompany: (mutation: {
-    variables: { userId: string; erxesCompanyId: string };
+    variables: {
+      userId: string;
+      erxesCompanyId: string;
+      erxesCustomerId: string;
+    };
   }) => Promise<any>;
 };
 

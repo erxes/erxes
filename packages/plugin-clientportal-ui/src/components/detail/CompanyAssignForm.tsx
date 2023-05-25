@@ -11,7 +11,11 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 import { __ } from '@erxes/ui/src/utils';
 type Props = {
   clientPortalUser: IClientPortalUser;
-  assignCompany: (userId: string, erxesCompanyId: string) => void;
+  assignCompany: (
+    userId: string,
+    erxesCompanyId: string,
+    erxesCustomerId: string
+  ) => void;
   queryParams: any;
 };
 
@@ -30,7 +34,11 @@ const CompanyAssignForm = (props: Props) => {
       Alert.error('Please choose a company to assign');
       return;
     }
-    assignCompany(clientPortalUser._id, companyId);
+    assignCompany(
+      clientPortalUser._id,
+      companyId,
+      clientPortalUser.erxesCustomerId
+    );
   };
 
   const onSelect = erxesCompanyId => {

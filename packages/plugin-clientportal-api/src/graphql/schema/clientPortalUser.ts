@@ -169,7 +169,7 @@ export const mutations = () => `
   clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!
   clientPortalUsersVerifyPhone(code: String!): String!
 
-  clientPortalUserAssignCompany(userId: String!, erxesCompanyId: String!):  JSON
+  clientPortalUserAssignCompany(userId: String!, erxesCompanyId: String!, erxesCustomerId: String!):  JSON
 
   clientPortalConfirmInvitation(token: String, password: String, passwordConfirmation: String, username: String): ClientPortalUser
   clientPortalForgotPassword(clientPortalId: String!, email: String, phone: String): String!
