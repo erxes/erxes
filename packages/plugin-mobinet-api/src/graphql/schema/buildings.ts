@@ -160,7 +160,7 @@ const mutationParams = `
 export const mutations = `
   buildingsAdd(${mutationParams}): Building
   buildingsEdit(_id: String!, ${mutationParams}): Building
-  buildingsRemove(_id: [String]): JSON
+  buildingsRemove(_ids: [String]): JSON
   buildingsUpdate(_id: String!, customerIds: [String], companyIds: [String], assetIds: [String]): Building
   buildingsEditProductPriceConfigs(_id: String!, productPriceConfigs: [ProductPriceConfigInput]): Building
 
