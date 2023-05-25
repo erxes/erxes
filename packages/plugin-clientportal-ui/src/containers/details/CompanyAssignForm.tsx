@@ -13,8 +13,7 @@ import * as compose from 'lodash.flowright';
 
 import { mutations, queries } from '../../graphql';
 import CompanyAssignForm from '../../components/detail/CompanyAssignForm';
-import { ButtonMutate, Spinner } from '@erxes/ui/src';
-import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
+import { clientPortalUserFields } from '../../graphql/queries';
 
 type Props = {
   queryParams: any;
@@ -34,7 +33,10 @@ const FormContainer = (props: FinalProps) => {
     clientPortalUserAssignCompany({
       variables: { erxesCompanyId, userId }
     })
-      .then(() => closeModal())
+      .then(() => {
+        Alert.success('Successfully assigned company');
+        closeModal();
+      })
       .catch(err => Alert.error(err));
   };
 
@@ -47,8 +49,16 @@ const FormContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql(gql(mutations.clientPortalUserAssignCompany), {
-      name: 'clientPortalUserAssignCompany'
+    graphql<Props>(gql(mutations.clientPortalUserAssignCompany), {
+      name: 'clientPortalUserAssignCompany',
+      options: ({ clientPortalUser }) => ({
+        refetchQueries: [
+          {
+            query: gql(queries.clientPortalUserDetail),
+            variables: { _id: clientPortalUser._id }
+          }
+        ]
+      })
     })
   )(FormContainer)
 );

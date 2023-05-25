@@ -18,11 +18,12 @@ import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import VerificationForm from '../../containers/details/VerificationForm';
 import CompanyAssignForm from '../../containers/details/CompanyAssignForm';
+import { Button } from '@erxes/ui/src/components';
 type Props = {
   clientPortalUser: IClientPortalUser;
   history: any;
 
-  queryParams?: any;
+  queryParams: any;
 };
 
 class LeftSidebar extends React.Component<Props> {
@@ -37,24 +38,26 @@ class LeftSidebar extends React.Component<Props> {
   renderCompanyAssignSection() {
     const { clientPortalUser } = this.props;
 
-    const content = contentProps => {
+    const content = ({ closeModal }) => {
       return (
         <CompanyAssignForm
-          {...contentProps}
+          closeModal={closeModal}
           {...this.props}
           clientPortalUser={clientPortalUser}
         />
       );
     };
 
+    const trigger = (
+      <Button btnStyle="link">
+        <Icon icon="edit-3" />
+      </Button>
+    );
+
     const extraButtons = (
       <ModalTrigger
-        title="Assign corresponding company to user"
-        trigger={
-          <button>
-            <Icon icon="edit-3" />
-          </button>
-        }
+        title={'Assign corresponding company to user'}
+        trigger={trigger}
         content={content}
       />
     );

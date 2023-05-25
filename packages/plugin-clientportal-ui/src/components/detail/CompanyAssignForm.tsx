@@ -18,37 +18,38 @@ type Props = {
 const CompanyAssignForm = (props: Props) => {
   const { clientPortalUser, assignCompany, queryParams } = props;
 
-  const [companyId, setCompanyId] = useState(null);
+  const getUserErxesCompanyId =
+    clientPortalUser && clientPortalUser.erxesCompanyId
+      ? clientPortalUser.erxesCompanyId
+      : '';
+
+  const [companyId, setCompanyId] = useState(getUserErxesCompanyId);
 
   const onSave = () => {
-    if (!companyId) {
+    if (!companyId.length) {
       Alert.error('Please choose a company to assign');
       return;
     }
     assignCompany(clientPortalUser._id, companyId);
   };
 
-  const onSelect = el => {
-    console.log('asdasd ', el);
-
-    setCompanyId(el.value);
+  const onSelect = erxesCompanyId => {
+    setCompanyId(erxesCompanyId);
   };
 
   const renderContent = (formProps: IFormProps) => {
     return (
       <>
-        <FormGroup>
-          <ControlLabel>
-            {(clientPortalUser && clientPortalUser.companyName) || ''}
-          </ControlLabel>
-          <SelectCompanies
-            label={__('Select a company to assign')}
-            name="companyIds"
-            queryParams={queryParams}
-            onSelect={onSelect}
-            multi={false}
-          />
-        </FormGroup>
+        <ControlLabel>
+          {clientPortalUser && (clientPortalUser.companyName || '')}
+        </ControlLabel>
+        <SelectCompanies
+          initialValue={getUserErxesCompanyId}
+          label={__('Select a company to assign')}
+          name="companyIds"
+          onSelect={onSelect}
+          multi={false}
+        />
         <ModalFooter>
           <Button btnStyle="success" type="button" onClick={onSave}>
             Save

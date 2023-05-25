@@ -873,12 +873,26 @@ const clientPortalUserMutations = {
   clientPortalUserAssignCompany: async (
     _root,
     args: { userId: string; erxesCompanyId },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) => {
     const { userId, erxesCompanyId } = args;
+
+    const getCompany = await sendContactsMessage({
+      subdomain,
+      action: 'companies.findOne',
+      data: { _id: erxesCompanyId },
+      isRPC: true
+    });
+
+    let setOps: any = { erxesCompanyId };
+
+    if (getCompany) {
+      setOps = { ...setOps, companyName: getCompany.primaryName };
+    }
+
     return models.ClientPortalUsers.updateOne(
-      { _id: args.userId },
-      { $set: { erxesCompanyId } }
+      { _id: userId },
+      { $set: setOps }
     );
   },
   clientPortalUpdateUser: async (
