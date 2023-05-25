@@ -35,6 +35,7 @@ import { RiskCalculateLogicType, RiskIndicatorsType } from '../common/types';
 import { SelectTags } from '../common/utils';
 import { mutations } from '../graphql';
 import FormItem from './FormItem';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   indicatorDetail?: RiskIndicatorsType;
@@ -425,16 +426,19 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             onChange={handleState}
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Tags')}</ControlLabel>
-          <SelectTags
-            name="tagIds"
-            label="Choose Tags"
-            initialValue={riskIndicator.tagIds}
-            onSelect={handleChangeSelection}
-            multi
-          />
-        </FormGroup>
+        {isEnabled('tags') && (
+          <FormGroup>
+            <ControlLabel>{__('Tags')}</ControlLabel>
+            <SelectTags
+              name="tagIds"
+              label="Choose Tags"
+              initialValue={riskIndicator.tagIds}
+              onSelect={handleChangeSelection}
+              multi
+            />
+          </FormGroup>
+        )}
+
         <FormContainer row flex gap>
           <FormGroup>
             <ControlLabel>{__('Branches')}</ControlLabel>

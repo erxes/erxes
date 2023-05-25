@@ -1,3 +1,4 @@
+import { serviceDiscovery } from './configs';
 import { IModels, models } from './connectionResolver';
 import {
   sendCardsMessage,
@@ -6,7 +7,7 @@ import {
 } from './messageBroker';
 
 export const validRiskIndicators = async params => {
-  if (!params.tagIds) {
+  if (serviceDiscovery.isEnabled('tags') && !params.tagIds) {
     throw new Error('Please select some tags');
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {
@@ -209,14 +210,17 @@ export const calculateFormResponses = async ({
   responses,
   fields,
   calculateMethod,
+  generalcalculateMethod,
   filter
 }: {
   responses: { [key: string]: { value: number; description: string } };
   fields: any[];
   calculateMethod: string;
+  generalcalculateMethod?: string;
   filter: any;
 }) => {
   let sumNumber = 0;
+  let scoreAviable = 0;
   const submissions: any = [];
 
   if (calculateMethod === 'Multiply') {
@@ -241,6 +245,12 @@ export const calculateFormResponses = async ({
           }
         }, [])
         .filter(item => item);
+
+      if (generalcalculateMethod === 'ByPercent') {
+        const scores = optValues.map(option => option.value);
+        scoreAviable += Math.max(...scores);
+      }
+
       const fieldValue = optValues.find(
         option => option.label.trim() === String(response.value).trim()
       );
@@ -250,6 +260,7 @@ export const calculateFormResponses = async ({
           break;
         case 'Addition':
         case 'Average':
+        case 'ByPercent':
           sumNumber += parseInt(fieldValue?.value || 0);
           break;
       }
@@ -276,8 +287,7 @@ export const calculateFormResponses = async ({
     const fieldCount = fields?.length || 1;
     sumNumber = sumNumber / fieldCount;
   }
-
-  return { submissions, sumNumber };
+  return { submissions, sumNumber, scoreAviable };
 };
 
 export const getFieldsGroupByForm = async ({

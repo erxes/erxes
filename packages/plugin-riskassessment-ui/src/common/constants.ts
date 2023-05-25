@@ -62,6 +62,10 @@ export const calculateMethods = [
   {
     value: 'Average',
     label: 'Average'
+  },
+  {
+    value: 'ByPercent',
+    label: 'ByPercent'
   }
 ];
 
