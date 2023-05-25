@@ -1,60 +1,127 @@
-import { Config, IUser } from "../../types";
-import React, { useState } from "react";
+import { ControlLabel, Form, FormControl, FormGroup } from "../../common/form";
+import { SettingsContent, SettingsTitle } from "../../styles/profile";
 
-import Dropdown from "react-bootstrap/Dropdown";
-import Icon from "../../common/Icon";
-import { LeftSidebar } from "../../styles/profile";
-import Link from "next/link";
-import NameCard from "../../common/nameCard/NameCard";
-import { getConfigColor } from "../../common/utils";
-import { renderUserFullName } from "../../utils";
+import { IFormProps } from "../../common/types";
+import { IUser } from "../../types";
+import { ModalFooter } from "../../common/form/styles";
+import React from "react";
 import { useRouter } from "next/router";
 
 type Props = {
-  config: Config;
   currentUser: IUser;
+  renderButton: ({}: any) => void;
 };
 
-function Profile({ currentUser, config }: Props) {
-  const router = useRouter();
+function Profile({ currentUser, renderButton }: Props) {
+  const generateDoc = (values) => {
+    const { object } = {} as any;
 
-  const renderMenu = (icon: string, url: string, name: string) => {
+    const finalValues = values;
+
+    if (object) {
+      finalValues._id = object._id;
+    }
+
+    return {
+      ...finalValues,
+    };
+  };
+
+  const renderContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
+
+    const object = currentUser || ({} as any);
+
+    if (object) {
+      values._id = object._id;
+    }
+
     return (
-      <Dropdown.Item
-        href={url}
-        className={`d-flex align-items-center flex-fill ${
-          router.pathname === url ? "selected" : ""
-        }`}
-      >
-        <Icon icon={icon} size={16} /> &nbsp; {name}
-      </Dropdown.Item>
+      <>
+        <SettingsTitle>User Profile</SettingsTitle>
+        <SettingsContent>
+          <FormGroup horizontal={true}>
+            <div>
+              <ControlLabel>First name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="firstName"
+                defaultValue={object.firstName}
+              />
+            </div>
+
+            <div>
+              <ControlLabel>Last name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="lastName"
+                defaultValue={object.lastName}
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup horizontal={true}>
+            <div>
+              <ControlLabel>User name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="username"
+                defaultValue={object.username}
+              />
+            </div>
+
+            <div>
+              <ControlLabel required={true}>Email</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="email"
+                type="email"
+                defaultValue={object.email}
+                required={true}
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup horizontal={true}>
+            <div>
+              <ControlLabel>Phone</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="phone"
+                defaultValue={object.phone}
+              />
+            </div>
+
+            {object.companyName && (
+              <div>
+                <ControlLabel>Company name</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="companyName"
+                  type="number"
+                  defaultValue={object.phone}
+                />
+              </div>
+            )}
+          </FormGroup>
+
+          <ModalFooter>
+            <>
+              {renderButton({
+                name: "user group",
+                values: generateDoc(values),
+                isSubmitted,
+                callback: () => ({}),
+                object: {},
+              })}
+            </>
+          </ModalFooter>
+        </SettingsContent>
+      </>
     );
   };
 
-  return (
-    <div className="row">
-      <div className="col-md-4">
-        <LeftSidebar baseColor={getConfigColor(config, "baseColor")}>
-          <div className="header-info d-flex flex-column align-items-center text-center ">
-            <NameCard user={currentUser} avatarSize={80} hideUserName={true} />
-            <h6>{renderUserFullName(currentUser)}</h6>
-            {currentUser.email && <p>{currentUser.email}</p>}
-          </div>
-          <Dropdown.Divider />
-          <div className="list">
-            {renderMenu("dashboard", "/profile", "My profle")}
-            {renderMenu("settings", "/settings", "Settings")}
-            <Dropdown.Item>
-              <a className="d-flex align-items-center flex-fill" href="#">
-                <Icon icon="sign-out-alt" size={18} /> &nbsp; Logout
-              </a>
-            </Dropdown.Item>
-          </div>
-        </LeftSidebar>
-      </div>
-      <div className="col-md-8">Hi, i'm content ntr</div>
-    </div>
-  );
+  return <Form renderContent={renderContent} />;
 }
 
 export default Profile;

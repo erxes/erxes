@@ -80,4 +80,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-{sample}-ui/.erxes/dist .
           cp build.tar packages/plugin-{sample}-ui/.erxes/dist
           rm -rf packages/plugin-{sample}-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-{sample}-ui/.erxes/dist s3://erxes-staging-plugins/uis/plugin-{sample}-ui --delete
+          aws s3 sync packages/plugin-{sample}-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-{sample}-ui --delete
