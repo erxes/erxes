@@ -2,6 +2,7 @@ import { Config, IUser, Store } from "../../types";
 import { gql, useQuery } from "@apollo/client";
 
 import { AppConsumer } from "../../appContext";
+import BoardItem from "../components/BoardItem";
 import Group from "../components/Group";
 import React from "react";
 import Spinner from "../../common/Spinner";
@@ -13,10 +14,11 @@ type Props = {
   config: Config;
   type: string;
   groupType: string;
+  viewType: string;
   id: any;
 };
 
-function GroupContainer({ currentUser, type, ...props }: Props) {
+function GroupContainer({ currentUser, type, viewType, ...props }: Props) {
   const { loading, data = {} as any } = useQuery(
     gql(queries[`clientPortal${capitalize(type)}s`]),
     {
@@ -50,6 +52,10 @@ function GroupContainer({ currentUser, type, ...props }: Props) {
     loading,
     currentUser,
   };
+
+  if (viewType === "board") {
+    return <BoardItem items={items} />;
+  }
 
   return <Group {...updatedProps} />;
 }

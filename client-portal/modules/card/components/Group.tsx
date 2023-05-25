@@ -23,7 +23,6 @@ type Props = {
 
 export default function Group({ items, type, groupType }: Props) {
   const router = useRouter();
-  const { itemId } = router.query as { itemId: string };
 
   if (!items || items.length === 0) {
     return <EmptyState icon="ban" text="No cards" size="small" />;
