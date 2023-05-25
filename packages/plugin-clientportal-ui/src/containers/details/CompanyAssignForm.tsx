@@ -1,7 +1,6 @@
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import {
   ClientPortalUserAssignCompanyMutationResponse,
-  CompaniesMainQueryResponse,
   IClientPortalUser
 } from '../../types';
 import React from 'react';
@@ -13,7 +12,6 @@ import * as compose from 'lodash.flowright';
 
 import { mutations, queries } from '../../graphql';
 import CompanyAssignForm from '../../components/detail/CompanyAssignForm';
-import { clientPortalUserFields } from '../../graphql/queries';
 
 type Props = {
   queryParams: any;
@@ -21,10 +19,7 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  companiesMainQuery: CompaniesMainQueryResponse;
-} & Props &
-  ClientPortalUserAssignCompanyMutationResponse;
+type FinalProps = {} & Props & ClientPortalUserAssignCompanyMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
   const { clientPortalUserAssignCompany, closeModal } = props;

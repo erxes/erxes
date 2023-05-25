@@ -195,7 +195,3 @@ export type ClientPortalGetLastQueryResponse = {
   clientPortalGetLast: ClientPortalConfig;
   loading?: boolean;
 };
-
-export type CompaniesMainQueryResponse = {
-  companies: ICompany[];
-} & QueryResponse;
