@@ -41,7 +41,7 @@ export const types = () => `
     interestRate: Float
     repayment: String
     startDate: Date
-    scheduleDay: Float
+    scheduleDays: [Float]
     customerId: String
     customerType: String
 
@@ -165,7 +165,7 @@ const commonFields = `
   interestRate: Float
   repayment: String
   startDate: Date
-  scheduleDay: Float
+  scheduleDays: [Float]
   insurancesData: JSON
   collateralsData: JSON
   customerId: String

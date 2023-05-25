@@ -1,5 +1,6 @@
 import { generateModels } from './connectionResolver';
 import { sendMessageBroker } from './messageBroker';
+import { ISchedule } from './models/definitions/schedules';
 
 const toMoney = value => {
   if (!value) {
@@ -20,7 +21,7 @@ const fields = [
   { value: 'unduePercent', name: 'unduePercent' },
   { value: 'repayment', name: 'repayment' },
   { value: 'startDate', name: 'startDate' },
-  { value: 'scheduleDay', name: 'scheduleDay' },
+  { value: 'scheduleDays', name: 'scheduleDays' },
   { value: 'insuranceAmount', name: 'insuranceAmount', isAmount: true },
   { value: 'salvageAmount', name: 'salvageAmount', isAmount: true },
   { value: 'salvagePercent', name: 'salvagePercent' },
@@ -29,7 +30,8 @@ const fields = [
   { value: 'debtTenor', name: 'debtTenor' },
   { value: 'customerName', name: 'Customer name' },
   { value: 'customerLastName', name: 'Customer last name' },
-  { value: 'closeDate', name: 'closeDate' }
+  { value: 'closeDate', name: 'closeDate' },
+  { value: 'loanScheduleInfo', name: 'Loan Schedule Info' }
 ];
 
 export default {
@@ -77,6 +79,51 @@ export default {
 
       contract.customerName = company.primaryName;
     }
+
+    const firstSchedules = await models.FirstSchedules.find({
+      contractId: contract._id
+    })
+      .sort({ payDate: 1 })
+      .lean<ISchedule>();
+    contract.loanScheduleInfo = `
+      <table>
+        <tbody>
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>DATE</th>
+              <th>LOAN BALANCE</th>
+              <th>LOAN PAYMENT</th>
+              <th>INTEREST</th>
+              <th>INSURANCE</th>
+              <th>DEBT</th>
+              <th>TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+          ${firstSchedules
+            .map(
+              (row, index) => `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${row.payDate.getFullYear()}-${row.payDate.getMonth() +
+                1}-${row.payDate.getDate()}</td>
+                <td>${toMoney(row.balance)}</td>
+                <td>${toMoney(row.payment)}</td>
+                <td>${toMoney(
+                  (row.interestEve || 0) + (row.interestNonce || 0)
+                )}</td>
+                <td>${toMoney(row.insurance)}</td>
+                <td>${toMoney(row.debt)}</td>
+                <td>${toMoney(row.total)}</td>
+              </tr>
+            `
+            )
+            .join('')}
+          </tbody>
+        </tbody>
+      </table>
+    `;
 
     var printContent = content;
     for await (const row of fields) {

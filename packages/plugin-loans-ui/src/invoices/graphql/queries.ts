@@ -41,7 +41,7 @@ export const invoiceOtherFields = `
     interestRate
     repayment
     startDate
-    scheduleDay
+    scheduleDays
   }
   company {
     _id

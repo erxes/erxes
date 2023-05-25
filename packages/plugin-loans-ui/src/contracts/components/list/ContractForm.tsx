@@ -44,7 +44,7 @@ type State = {
   interestMonth: number;
   repayment: string;
   startDate: Date;
-  scheduleDay: number;
+  scheduleDays: number[];
   customerId: string;
   customerType: string;
 
@@ -85,7 +85,7 @@ class ContractForm extends React.Component<Props, State | any> {
       interestMonth: (contract.interestRate || 0) / 12,
       repayment: contract.repayment || 'fixed',
       startDate: contract.startDate || new Date(),
-      scheduleDay: contract.scheduleDay || new Date().getDate(),
+      scheduleDays: contract.scheduleDays || [new Date().getDate()],
       debt: contract.debt || 0,
       debtTenor: contract.debtTenor || 0,
       debtLimit: contract.debtLimit || 0,
@@ -133,7 +133,7 @@ class ContractForm extends React.Component<Props, State | any> {
       interestRate: Number(this.state.interestRate),
       repayment: this.state.repayment,
       startDate: this.state.startDate,
-      scheduleDay: Number(this.state.scheduleDay),
+      scheduleDay: this.state.scheduleDay,
       debt: Number(this.state.debt),
       debtTenor: Number(this.state.debtTenor),
       debtLimit: Number(this.state.debtLimit),
@@ -319,6 +319,10 @@ class ContractForm extends React.Component<Props, State | any> {
     this.setState({ weekends: values.map(val => val.value) });
   };
 
+  onSelectScheduleDays = values => {
+    this.setState({ scheduleDays: values.map(val => val.value) });
+  };
+
   onSelectRelContract = value => {
     const contractObj = ContractById[value];
 
@@ -487,14 +491,20 @@ class ContractForm extends React.Component<Props, State | any> {
                 </FormControl>
               </FormGroup>
 
-              {this.renderFormGroup('schedule Day', {
-                ...formProps,
-                type: 'number',
-                name: 'scheduleDay',
-                value: this.state.scheduleDay || 0,
-                onChange: this.onChangeField,
-                onClick: this.onFieldClick
-              })}
+              <FormGroup>
+                <ControlLabel>schedule Days</ControlLabel>
+                <Select
+                  className="flex-item"
+                  placeholder={__('Choose an schedule Days')}
+                  value={this.state.scheduleDays}
+                  onChange={this.onSelectScheduleDays}
+                  multi={true}
+                  options={new Array(31).fill(1).map((row, index) => ({
+                    value: row + index,
+                    label: row + index
+                  }))}
+                />
+              </FormGroup>
 
               {this.renderFormGroup('debt', {
                 ...formProps,
@@ -521,8 +531,6 @@ class ContractForm extends React.Component<Props, State | any> {
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
               })}
-
-              {this.renderSalvage(formProps)}
             </FormColumn>
             <FormColumn>
               <FormGroup>
