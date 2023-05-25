@@ -58,9 +58,13 @@ export default class ListHeader extends React.Component<Props> {
                 as={DropdownToggle}
                 id="dropdown-custom-components"
               >
-                <Button btnStyle="simple" uppercase={false} icon="filter">
-                  {mode}
-                </Button>
+                <CardTab>
+                  <span
+                    className={`d-flex align-items-center justify-content-center`}
+                  >
+                    <Icon icon="filter" size={15} /> &nbsp; {mode}
+                  </span>
+                </CardTab>
               </Dropdown.Toggle>
 
               <Dropdown.Menu>
