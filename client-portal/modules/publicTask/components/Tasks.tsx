@@ -2,7 +2,7 @@ import { Config, IStage, IUser } from "../../types";
 import React, { useState } from "react";
 import { TabContainers, TabTitle } from "../../styles/tasks";
 
-import Detail from "../../tasks/containers/Detail";
+import Detail from "../../card/containers/Detail";
 import Item from "../containers/Item";
 import Link from "next/link";
 import TaskHeader from "./Header";
@@ -33,6 +33,7 @@ function PublicTasks({ stages, config, stageId, currentUser }: Props) {
         onClose={() => router.push("/publicTasks")}
         currentUser={currentUser}
         config={config}
+        type="task"
       />
     );
   }

@@ -65,7 +65,7 @@ export default function List({
 
   const renderContent = () => {
     if (viewType === "board") {
-      return <div>hi kkk</div>;
+      return <div>Coming soon!</div>;
     }
 
     switch (mode) {
