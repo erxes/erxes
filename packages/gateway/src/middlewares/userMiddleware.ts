@@ -94,6 +94,7 @@ export default async function userMiddleware(
           });
 
           if (user) {
+            console.log('user found *************', user);
             const key = `user_permissions_${user._id}`;
             const cachedPermissions = await redis.get(key);
 
