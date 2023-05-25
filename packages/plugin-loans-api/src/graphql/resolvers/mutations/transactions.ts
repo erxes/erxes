@@ -35,7 +35,7 @@ const transactionMutations = {
 
     await putCreateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -77,7 +77,7 @@ const transactionMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -115,7 +115,7 @@ const transactionMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -153,7 +153,7 @@ const transactionMutations = {
 
       await putDeleteLog(
         subdomain,
-        messageBroker,
+        messageBroker(),
 
         { ...logData, ...descriptions },
         user

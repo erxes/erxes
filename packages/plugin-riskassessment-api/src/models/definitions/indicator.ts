@@ -89,6 +89,7 @@ export const riskIndicatorSchema = new Schema({
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
   createdAt: field({ type: Date, default: Date.now, label: 'Created At' }),
+  modifiedAt: field({ type: Date, default: Date.now, label: 'Modified At' }),
   tagIds: field({ type: [String], label: 'Tag Ids' }),
   operationIds: field({ type: [String], label: 'OperationIDs' }),
   branchIds: field({ type: [String], label: ' BranchIDs' }),

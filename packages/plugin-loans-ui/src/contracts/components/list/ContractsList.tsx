@@ -164,7 +164,7 @@ class ContractsList extends React.Component<IProps, State> {
               </th>
               <th>
                 <SortHandler
-                  sortField={'scheduleDay'}
+                  sortField={'scheduleDays'}
                   label={__('Schedule Day')}
                 />
               </th>

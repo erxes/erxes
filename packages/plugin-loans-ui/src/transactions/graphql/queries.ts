@@ -39,7 +39,7 @@ export const transactionOtherFields = `
     interestRate
     repayment
     startDate
-    scheduleDay
+    scheduleDays
   }
   company {
     _id

@@ -26,7 +26,7 @@ import {
   FormWrapper
 } from '@erxes/ui/src/styles/main';
 import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
+import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
@@ -604,6 +604,13 @@ export function FilterByTags({
   history: any;
   queryParams: any;
 }) {
+  if (!isEnabled('tags')) {
+    return (
+      <Box name="tags" title="Filter by Tags">
+        <EmptyState text="Not Aviable Tags" icon="info-circle" />
+      </Box>
+    );
+  }
   const { data, error, loading } = useQuery(gql(tagsQuery), {
     variables: { type: 'riskassessment:riskassessment' }
   });

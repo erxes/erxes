@@ -82,4 +82,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-ebarimt-ui/.erxes/dist .
           cp build.tar packages/plugin-ebarimt-ui/.erxes/dist
           rm -rf packages/plugin-ebarimt-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-ebarimt-ui/.erxes/dist s3://erxes-staging-plugins/uis/plugin-ebarimt-ui --delete
+          aws s3 sync packages/plugin-ebarimt-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-ebarimt-ui --delete

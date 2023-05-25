@@ -19,7 +19,7 @@ const contractFields = `
   interestRate
   repayment
   startDate
-  scheduleDay
+  scheduleDays
   debt
   debtTenor
   debtLimit

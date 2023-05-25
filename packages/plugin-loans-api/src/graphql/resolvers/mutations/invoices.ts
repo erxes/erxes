@@ -35,7 +35,7 @@ const invoiceMutations = {
 
     await putCreateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       { ...descriptions, ...logData },
       user
     );
@@ -70,7 +70,7 @@ const invoiceMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       { ...descriptions, ...logData },
       user
     );
@@ -103,7 +103,7 @@ const invoiceMutations = {
       const descriptions = gatherDescriptions(logData);
       await putDeleteLog(
         subdomain,
-        messageBroker,
+        messageBroker(),
         { ...logData, ...descriptions },
         user
       );

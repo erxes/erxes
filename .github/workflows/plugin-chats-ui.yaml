@@ -82,4 +82,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-chats-ui/.erxes/dist .
           cp build.tar packages/plugin-chats-ui/.erxes/dist
           rm -rf packages/plugin-chats-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-chats-ui/.erxes/dist s3://erxes-staging-plugins/uis/plugin-chats-ui --delete
+          aws s3 sync packages/plugin-chats-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-chats-ui --delete

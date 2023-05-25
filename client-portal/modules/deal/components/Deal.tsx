@@ -1,87 +1,146 @@
-import { Config, IUser } from "../../types";
-import { Label, ListBody, ListHead, ListRow } from "../../styles/tickets";
+import { Config, IUser } from '../../types';
+import { Label, ListBody, ListHead, ListRow } from '../../styles/tickets';
 
-import DealHeader from "./DealHeader";
-import Detail from "../containers/Detail";
-import EmptyContent from "../../common/EmptyContent";
-import React from "react";
-import dayjs from "dayjs";
-import { useRouter } from "next/router";
+import DealHeader from './DealHeader';
+import Detail from '../containers/Detail';
+import EmptyContent from '../../common/EmptyContent';
+import React, { useState } from 'react';
+import dayjs from 'dayjs';
+import { useRouter } from 'next/router';
+import { Card } from 'react-bootstrap';
+import Group from '../containers/Group';
 
 type Props = {
   loading: boolean;
   deals: any;
   currentUser: IUser;
   config: Config;
+  stages: any;
+  pipeLinelabels: any;
+  pipelineAssignedUsers: any;
 };
 
-export default function Deal({ deals, currentUser, config }: Props) {
+const duedateFilter = [
+  'noCloseDate',
+  'nextMonth',
+  'nextWeek',
+  'overdue',
+  'nextDay'
+];
+const priorityFilter = ['Critical', 'High', 'Normal', 'Low'];
+
+export default function Deal({
+  deals,
+  currentUser,
+  config,
+  stages,
+  pipeLinelabels,
+  pipelineAssignedUsers
+}: Props) {
   const router = useRouter();
   const { itemId } = router.query as { itemId: string };
 
+  const [groupBy, setGroupBy] = useState('normal');
+
   const renderContent = () => {
-    if (!deals || deals.length === 0) {
-      return <EmptyContent text="You don't have more deals to view!" />;
+    if (groupBy === 'stage') {
+      return (
+        <>
+          {stages?.stages?.map(d => {
+            return (
+              <Card key={d._id}>
+                <Card.Header>
+                  <a>{d?.name}</a>
+                </Card.Header>
+                <Card.Body>
+                  <Group type={'stage'} id={d._id} />
+                </Card.Body>
+              </Card>
+            );
+          })}
+        </>
+      );
+    }
+
+    if (groupBy === 'label') {
+      return (
+        <>
+          {pipeLinelabels?.pipelineLabels?.map(d => {
+            return (
+              <Card key={d._id}>
+                <Card.Header>
+                  <a>{d?.name}</a>
+                </Card.Header>
+                <Card.Body>
+                  <Group type={'label'} id={d._id} />
+                </Card.Body>
+              </Card>
+            );
+          })}
+        </>
+      );
+    }
+    if (groupBy === 'duedate') {
+      return (
+        <>
+          {duedateFilter?.map(d => {
+            return (
+              <Card key={d}>
+                <Card.Header>
+                  <a>{d}</a>
+                </Card.Header>
+                <Card.Body>
+                  <Group type={'duedate'} id={d} />
+                </Card.Body>
+              </Card>
+            );
+          })}
+        </>
+      );
+    }
+    if (groupBy === 'priority') {
+      return (
+        <>
+          {priorityFilter?.map(d => {
+            return (
+              <Card key={d}>
+                <Card.Header>
+                  <a>{d}</a>
+                </Card.Header>
+                <Card.Body>
+                  <Group type={'priority'} id={d} />
+                </Card.Body>
+              </Card>
+            );
+          })}
+        </>
+      );
+    }
+    if (groupBy === 'user') {
+      return (
+        <>
+          {pipelineAssignedUsers.pipelineAssignedUsers?.map(d => {
+            return (
+              <Card key={d._id}>
+                <Card.Header>
+                  <a>{d?.details?.fullName}</a>
+                </Card.Header>
+                <Card.Body>
+                  <Group type={'user'} id={d._id} />
+                </Card.Body>
+              </Card>
+            );
+          })}
+        </>
+      );
     }
 
     return (
-      <>
-        <ListHead className="head">
-          <div>Subject</div>
-          <div>Start date</div>
-          <div>Close date</div>
-          <div>Created date</div>
-          <div>Stage changed date</div>
-          <div>Stage</div>
-          <div>Labels</div>
-        </ListHead>
-        <ListBody>
-          {(deals || []).map((deal) => {
-            const { stage = {}, labels } = deal;
-
-            return (
-              <ListRow
-                key={deal._id}
-                className="item"
-                onClick={() => router.push(`/deals?itemId=${deal._id}`)}
-              >
-                <div className="base-color">{deal.name}</div>
-
-                <div>
-                  {deal.startDate
-                    ? dayjs(deal.startDate).format("MMM D YYYY")
-                    : "-"}
-                </div>
-                <div>
-                  {deal.closeDate
-                    ? dayjs(deal.closeDate).format("MMM D YYYY")
-                    : "-"}
-                </div>
-                <div>{dayjs(deal.createdAt).format("MMM D YYYY")}</div>
-                <div>
-                  {deal.stageChangedDate
-                    ? dayjs(deal.stageChangedDate).format("MMM D YYYY")
-                    : "-"}
-                </div>
-
-                <div className="base-color">{stage.name}</div>
-
-                <div>
-                  {(labels || []).map((label) => (
-                    <Label
-                      key={label._id}
-                      lblStyle={"custom"}
-                      colorCode={label.colorCode}
-                    >
-                      {label.name}
-                    </Label>
-                  ))}
-                </div>
-              </ListRow>
-            );
-          })}
-        </ListBody>
-      </>
+      <Card>
+        <Card.Body>
+          <Group type={'all'} id={''} deals={deals} />
+        </Card.Body>
+      </Card>
     );
   };
 
@@ -89,7 +148,7 @@ export default function Deal({ deals, currentUser, config }: Props) {
     return (
       <Detail
         _id={itemId}
-        onClose={() => router.push("/deals")}
+        onClose={() => router.push('/deals')}
         currentUser={currentUser}
         config={config}
       />
@@ -98,7 +157,10 @@ export default function Deal({ deals, currentUser, config }: Props) {
 
   return (
     <>
-      <DealHeader dealLabel={config.dealLabel || "Deals"} />
+      <DealHeader
+        setGroupBy={setGroupBy}
+        dealLabel={config.dealLabel || 'Deals'}
+      />
       {renderContent()}
     </>
   );

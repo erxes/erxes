@@ -52,7 +52,7 @@ class PutResponseRow extends React.Component<Props, {}> {
         <td key={'taxType'}>{displayValue(putResponse, 'taxType')}</td>
         <td key={'amount'}>{displayValue(putResponse, 'amount')}</td>
         <td key={'message'}>{displayValue(putResponse, 'message')}</td>
-        <td key={'ReturnBillId'}>{putResponse.sendInfo.returnBillId} </td>
+        <td key={'ReturnBillId'}>{putResponse.sendInfo?.returnBillId} </td>
         <td key={'actions'}>
           {putResponse.contentType === 'deal' && (
             <Button
