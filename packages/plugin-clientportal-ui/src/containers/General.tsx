@@ -12,11 +12,11 @@ import client from '@erxes/ui/src/apolloClient';
 import compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import knowledgeBaseQueries from '@erxes/ui-knowledgebase/src/graphql/queries';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import knowledgeBaseQueries from '@erxes/ui-knowledgebase/src/graphql/queries';
 
 type Props = {
-  handleFormChange: (name: string, value: string) => void;
+  handleFormChange: (name: string, value: string | boolean) => void;
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
   boardsQuery: BoardsQueryResponse;
   taskPublicPipelineId: string;

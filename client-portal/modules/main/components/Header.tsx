@@ -32,7 +32,6 @@ import NameCard from "../../common/nameCard/NameCard";
 import Notifications from "../components/notifications/Notifications";
 import Popup from "reactjs-popup";
 import RegisterContainer from "../../user/containers/Register";
-import SettingsContainer from "../containers/notifications/Settings";
 import { withRouter } from "next/router";
 
 type Props = {
@@ -138,7 +137,7 @@ function Header({
           <Dropdown.Menu>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="1"
+              eventKey="0"
             >
               {renderUserFullName(currentUser)}
             </Dropdown.Item>
@@ -146,25 +145,25 @@ function Header({
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
               eventKey="1"
+              href="/profile"
             >
               <div>
                 <Icon icon="user" />
                 My profle
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="1"
+              eventKey="2"
+              href="/settings"
             >
               <div>
                 <Icon icon="settings" />
                 Settings
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item eventKey="4" onClick={() => logout()}>
+            <Dropdown.Item eventKey="3" onClick={() => logout()}>
               <Icon icon="logout-1" />
               Logout
             </Dropdown.Item>
@@ -191,7 +190,10 @@ function Header({
           </HeaderLogo>
           <HeaderLinks>
             {config.publicTaskToggle
-              ? renderMenu("/publicTasks", "Public Task")
+              ? renderMenu(
+                  "/publicTasks",
+                  config.taskPublicLabel || "Public Task"
+                )
               : null}
             {config.ticketToggle && currentUser
               ? renderMenu("/tickets", config.ticketLabel || "Ticket")
@@ -259,16 +261,6 @@ function Header({
         )}
         onClose={() => setResetPassword(false)}
         isOpen={showResetPassword}
-      />
-      <Modal
-        content={() => (
-          <SettingsContainer
-            currentUser={currentUser}
-            saveCallback={() => setShowSettings(false)}
-          />
-        )}
-        onClose={() => setShowSettings(false)}
-        isOpen={showSettings}
       />
     </Head>
   );

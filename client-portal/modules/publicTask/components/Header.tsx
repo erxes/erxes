@@ -1,10 +1,10 @@
-import Button from "../../common/Button";
-import { HeaderWrapper } from "../../styles/main";
-import { IUser } from "../../types";
-import Icon from "../../common/Icon";
-import Modal from "../../common/Modal";
-import React from "react";
-import TaskForm from "../containers/Form";
+import Button from '../../common/Button';
+import { HeaderWrapper } from '../../styles/main';
+import { IUser } from '../../types';
+import Icon from '../../common/Icon';
+import Modal from '../../common/Modal';
+import React from 'react';
+import TaskForm from '../containers/Form';
 
 type Props = {
   currentUser: IUser;
@@ -20,7 +20,7 @@ export default class TaskHeader extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      show: false,
+      show: false
     };
   }
 
@@ -33,16 +33,6 @@ export default class TaskHeader extends React.Component<Props, State> {
       <>
         <HeaderWrapper>
           <h4>{this.props.taskLabel}</h4>
-          <div className="right">
-            <Button
-              btnStyle="success"
-              uppercase={false}
-              onClick={this.showModal}
-              icon="add"
-            >
-              Create a New Task
-            </Button>
-          </div>
         </HeaderWrapper>
         <Modal
           content={() => <TaskForm />}
