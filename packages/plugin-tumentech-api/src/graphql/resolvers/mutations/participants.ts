@@ -370,10 +370,40 @@ const participantMutations = {
     }
 
     for (const driverId of driverIds) {
+      const conformities = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.getConformities',
+        data: {
+          mainType: 'customer',
+          mainTypeIds: [driverId],
+          relTypes: ['car']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (conformities.length === 0) {
+        continue;
+      }
+
+      const carIds: string[] = [];
+
+      conformities.forEach(c => {
+        if (c.mainType === 'customer') {
+          carIds.push(c.relTypeId);
+        } else {
+          carIds.push(c.mainTypeId);
+        }
+      });
+
       await models.Participants.create({
         dealId,
         driverId,
-        status: 'participating'
+        status: 'participating',
+        carIds,
+        detail: {
+          invited: true
+        }
       });
     }
 
