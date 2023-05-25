@@ -21,6 +21,7 @@ export type RiskIndicatorsType = {
   description?: string;
   name?: string;
   createdAt?: string;
+  modifiedAt?: string;
   calculateLogics?: [RiskCalculateLogicType];
   calculateMethod?: string;
   forms?: any[];

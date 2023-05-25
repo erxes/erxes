@@ -61,10 +61,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
     public static async testScore(params: IRiskFormSubmissionParams) {
       const { indicatorId, formSubmissions } = params;
 
-      let resultScore = 0;
-      let totalPercent = 0;
+      let resultScore: number = 0;
+      let totalPercent: number = 0;
+      let maxScoreAviable: any = 0;
 
-      const { forms } = await models.RiskIndicators.findOne({
+      const { forms, calculateMethod } = await models.RiskIndicators.findOne({
         _id: indicatorId
       }).lean();
 
@@ -80,19 +81,21 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         defaultValue: []
       });
 
-      for (const form of forms) {
-        if (forms.length === 1) {
-          const { sumNumber } = await calculateFormResponses({
-            responses: formSubmissions,
-            fields,
-            calculateMethod: form.calculateMethod,
-            filter: {}
-          });
+      if (forms.length === 1) {
+        const { sumNumber } = await calculateFormResponses({
+          responses: formSubmissions,
+          fields,
+          calculateMethod: forms[0].calculateMethod,
+          filter: {}
+        });
 
-          resultScore = sumNumber;
-        }
-        if (forms.length > 1) {
-          const fieldIds = fields.map(field => field._id);
+        resultScore = sumNumber;
+      }
+      if (forms.length > 1) {
+        for (const form of forms) {
+          const fieldIds = fields
+            .filter(field => field.contentTypeId === form.formId)
+            .map(field => field._id);
           const responses: any = {};
 
           for (const [key, value] of Object.entries(formSubmissions)) {
@@ -100,21 +103,34 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
               responses[key] = value;
             }
           }
-          const { sumNumber } = await calculateFormResponses({
+          const { sumNumber, scoreAviable } = await calculateFormResponses({
             responses: responses,
             fields,
             calculateMethod: form.calculateMethod,
+            generalcalculateMethod: calculateMethod,
             filter: {}
           });
+
           resultScore += Number(
-            (sumNumber * (form.percentWeight / 100)).toFixed(1)
+            (sumNumber * (form.percentWeight / 100)).toFixed(2)
           );
           totalPercent += form.percentWeight / 100;
+          maxScoreAviable += Number(
+            (scoreAviable * (form.percentWeight / 100)).toFixed(2)
+          );
         }
-      }
 
-      if (forms.length > 1) {
-        resultScore = resultScore / totalPercent;
+        switch (calculateMethod) {
+          case 'ByPercent':
+            resultScore = Number(
+              ((resultScore / maxScoreAviable) * (totalPercent * 100)).toFixed(
+                1
+              )
+            );
+            break;
+          default:
+            resultScore = resultScore / totalPercent;
+        }
       }
 
       return { resultScore };
@@ -157,46 +173,50 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
        * Calculate the submitted indicator score of user
        */
 
-      const { forms } = await models.RiskIndicators.findOne({
+      const { forms, calculateMethod } = await models.RiskIndicators.findOne({
         _id: indicatorId
       }).lean();
       let totalCount = 0;
       let totalPercent = 0;
       let resultSumNumber = 0;
+      let maxScoreAviable: any = 0;
 
       const filter = generateFields(params);
 
-      for (const form of forms) {
-        const fields = await sendFormsMessage({
-          subdomain,
-          action: 'fields.find',
-          data: {
-            query: { contentType: 'form', contentTypeId: form.formId }
-          },
-          isRPC: true,
-          defaultValue: []
+      const formIds = forms.map(form => form.formId);
+
+      const fields = await sendFormsMessage({
+        subdomain,
+        action: 'fields.find',
+        data: {
+          query: { contentType: 'form', contentTypeId: { $in: formIds } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (forms.length === 1) {
+        const { sumNumber, submissions } = await calculateFormResponses({
+          responses: formSubmissions,
+          fields,
+          calculateMethod: forms[0].calculateMethod,
+          filter: { ...filter, riskAssessmentId: _id }
         });
 
-        if (forms.length === 1) {
-          const { sumNumber, submissions } = await calculateFormResponses({
-            responses: formSubmissions,
-            fields,
-            calculateMethod: form.calculateMethod,
-            filter: { ...filter, riskAssessmentId: _id }
-          });
+        await models.RiskAssessmentIndicators.updateOne(
+          { assessmentId: _id, indicatorId },
+          { $inc: { totalScore: sumNumber } }
+        );
 
-          await models.RiskAssessmentIndicators.updateOne(
-            { assessmentId: _id, indicatorId },
-            { $inc: { totalScore: sumNumber } }
-          );
+        resultSumNumber = sumNumber;
 
-          resultSumNumber = sumNumber;
-
-          await models.RiskFormSubmissions.insertMany(submissions);
-        }
-
-        if (forms.length > 1) {
-          const fieldIds = fields.map(field => field._id);
+        await models.RiskFormSubmissions.insertMany(submissions);
+      }
+      if (forms.length > 1) {
+        for (const form of forms) {
+          const fieldIds = fields
+            .filter(field => field.contentTypeId === form.formId)
+            .map(field => field._id);
           const responses: any = {};
 
           for (const [key, value] of Object.entries(formSubmissions)) {
@@ -204,22 +224,38 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
               responses[key] = value;
             }
           }
-          const { sumNumber, submissions } = await calculateFormResponses({
+          const {
+            sumNumber,
+            submissions,
+            scoreAviable
+          } = await calculateFormResponses({
             responses: responses,
             fields,
             calculateMethod: form.calculateMethod,
+            generalcalculateMethod: calculateMethod,
             filter: { ...filter, riskAssessmentId: _id }
           });
           totalCount += Number(
-            (sumNumber * (form.percentWeight / 100)).toFixed(1)
+            (sumNumber * (form.percentWeight / 100)).toFixed(2)
           );
           totalPercent += form.percentWeight / 100;
+          maxScoreAviable += Number(
+            (scoreAviable * (form.percentWeight / 100)).toFixed(2)
+          );
           await models.RiskFormSubmissions.insertMany(submissions);
         }
-      }
-      if (forms.length > 1) {
-        totalCount = totalCount / totalPercent;
-        resultSumNumber = totalCount;
+
+        switch (calculateMethod) {
+          case 'ByPercent':
+            totalCount = Number(
+              ((totalCount / maxScoreAviable) * (totalPercent * 100)).toFixed(1)
+            );
+            resultSumNumber = totalCount;
+            break;
+          default:
+            totalCount = totalCount / totalPercent;
+            resultSumNumber = totalCount;
+        }
         await models.RiskAssessmentIndicators.updateOne(
           { assessmentId: _id, indicatorId },
           { $inc: { totalScore: totalCount } }
