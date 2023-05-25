@@ -140,6 +140,7 @@ export const clientPortalUserFields = `
 export const listParamsDef = `
   $page: Int,
   $perPage: Int,
+  $type: String,
   $ids: [String],
   $excludeIds: Boolean,
   $searchValue: String,
@@ -153,6 +154,7 @@ export const listParamsDef = `
 export const listParamsValue = `
   page: $page,
   perPage: $perPage,
+  type: $type,
   ids: $ids,
   excludeIds: $excludeIds,
   searchValue: $searchValue,
