@@ -5,9 +5,11 @@ import { IScheduleDocument } from '../definitions/schedules';
 import { ITransactionDocument } from '../definitions/transactions';
 import { trAfterSchedule, transactionRule } from './transactionUtils';
 import {
+  addMonths,
   calcInterest,
   calcPerMonthEqual,
   calcPerMonthFixed,
+  checkNextDay,
   getChanged,
   getDatesDiffMonth,
   getDiffDay,
@@ -33,17 +35,58 @@ export const scheduleHelper = async (
   }
   let currentDate = getFullDate(startDate);
 
-  if (contract.repayment === 'equal') {
-    const payment = Math.round((balance - (salvageAmount || 0)) / tenor);
+  const dateRange = contract.scheduleDays.sort((a, b) => a - b);
+  var mainDate = new Date(startDate);
+  var endDate = addMonths(new Date(startDate), contract.tenor);
 
-    for (let i = 0; i < tenor; i++) {
+  var dateRanges: Date[] = [];
+
+  for (let index = 0; index < contract.tenor + 2; index++) {
+    dateRange.map((day, i) => {
+      const ndate = getFullDate(new Date(mainDate));
+      const year = ndate.getFullYear();
+      const month = i === 0 ? ndate.getMonth() + 1 : ndate.getMonth();
+
+      if (day > 28 && new Date(year, month, day).getDate() !== day)
+        mainDate = new Date(year, month + 1, 0);
+      else mainDate = new Date(year, month, day);
+      dateRanges.push(mainDate);
+    });
+  }
+
+  const paymentDates = dateRanges.filter(date => {
+    const diffDay =
+      date.getMonth() === startDate.getMonth() && getDiffDay(startDate, date);
+
+    date = checkNextDay(
+      date,
+      contract.weekends,
+      contract.useHoliday,
+      perHolidays
+    );
+
+    if (
+      date < startDate ||
+      (diffDay && diffDay < 10 && date.getMonth() === startDate.getMonth()) ||
+      date > endDate
+    )
+      return false;
+    return true;
+  });
+
+  if (contract.repayment === 'equal') {
+    const payment = Math.round(
+      (balance - (salvageAmount || 0)) / paymentDates.length
+    );
+
+    for (let i = 0; i < paymentDates.length; i++) {
       const perMonth = await calcPerMonthEqual(
         contract,
         balance,
         currentDate,
         payment,
         perHolidays,
-        i === 0 ? nextDate : undefined
+        paymentDates[i]
       );
       currentDate = perMonth.date;
       balance = perMonth.loanBalance;
@@ -64,25 +107,24 @@ export const scheduleHelper = async (
   } else {
     let total = await getEqualPay({
       startDate,
-      scheduleDay: contract.scheduleDay,
       interestRate: contract.interestRate,
-      tenor: tenor - salvageTenor,
       nextDate,
       leaseAmount: balance,
       salvage: salvageAmount,
       weekends: contract.weekends,
       useHoliday: contract.useHoliday,
-      perHolidays
+      perHolidays,
+      paymentDates
     });
 
-    for (let i = 0; i < tenor - salvageTenor; i++) {
+    for (let i = 0; i < paymentDates.length - salvageTenor; i++) {
       const perMonth = await calcPerMonthFixed(
         contract,
         balance,
         currentDate,
         total,
         perHolidays,
-        i === 0 && nextDate
+        paymentDates[i]
       );
       currentDate = perMonth.date;
       balance = perMonth.loanBalance;
@@ -166,7 +208,7 @@ export const reGenerateSchedules = async (
 
   const firstNextDate = getNextMonthDay(
     contract.startDate,
-    contract.scheduleDay
+    contract.scheduleDays
   );
   const diffDay = getDiffDay(contract.startDate, firstNextDate);
 
@@ -176,13 +218,13 @@ export const reGenerateSchedules = async (
     nextDate = new Date(
       contract.startDate.getFullYear(),
       contract.startDate.getMonth(),
-      contract.scheduleDay
+      contract.scheduleDays?.[0] || 1
     );
   } else if (diffDay < 10) {
     nextDate = new Date(
       firstNextDate.getFullYear(),
       firstNextDate.getMonth() + 1,
-      contract.scheduleDay
+      contract.scheduleDays?.[0] || 1
     );
   }
 
@@ -296,7 +338,7 @@ export const fixSchedules = async (
     contractId: contractId,
     payDate: {
       $lte: new Date(today.getTime() + 1000 * 3600 * 24),
-      $gt: periodLock?.date
+      ...(periodLock?.date ? { $gt: periodLock?.date } : {})
     },
     status: SCHEDULE_STATUS.PENDING,
     balance: { $gt: 0 },

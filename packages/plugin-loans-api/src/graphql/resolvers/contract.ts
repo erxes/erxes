@@ -151,7 +151,7 @@ const Contracts = {
         let data: any = contract;
         data.untilDay = getDiffDay(
           new Date(),
-          getNextMonthDay(contract.startDate, contract.scheduleDay)
+          getNextMonthDay(contract.startDate, contract.scheduleDays)
         );
         data.donePercent = 0;
         return data;
@@ -223,7 +223,8 @@ const Contracts = {
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $gte: today },
-      isDefault: true
+      isDefault: true,
+      status: SCHEDULE_STATUS.PENDING
     })
       .sort({ payDate: 1 })
       .lean();
@@ -240,7 +241,8 @@ const Contracts = {
 
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
-      payDate: { $gte: today }
+      payDate: { $gte: today },
+      status: SCHEDULE_STATUS.PENDING
     })
       .sort({ payDate: 1 })
       .lean();

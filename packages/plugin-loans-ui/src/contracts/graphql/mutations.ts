@@ -16,7 +16,7 @@ const commonFields = `
   $interestRate: Float,
   $repayment: String,
   $startDate: Date,
-  $scheduleDay: Float,
+  $scheduleDays: [Float],
   $customerId: String,
   $customerType: String,
 
@@ -57,7 +57,7 @@ const commonVariables = `
   interestRate: $interestRate,
   repayment: $repayment,
   startDate: $startDate,
-  scheduleDay: $scheduleDay,
+  scheduleDays: $scheduleDays,
   customerId: $customerId,
   customerType: $customerType,
 
