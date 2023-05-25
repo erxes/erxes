@@ -34,19 +34,19 @@ const dacMutations = {
   },
   async dacCuponUse(
     _root,
-    { customerId, cuponCode }: ICupon,
+    { customerId, cuponUniqueId, status }: ICupon,
     { models, user }: IContext
   ) {
-    const cupon = await models.DacCupons.checkCupon(customerId, cuponCode);
+    const cupon = await models.DacCupons.checkCupon(customerId, cuponUniqueId);
     if (cupon) {
-      if (cupon.status === 'used') {
-        throw new Error('Already used cupon');
+      if (cupon.status === 'new') {
+        await models.DacCupons.updateOne(
+          { _id: cupon._id },
+          { $set: { status: status, modifiedBy: user?._id } }
+        );
+        return 'success';
       }
-      await models.DacCupons.updateOne(
-        { _id: cupon._id },
-        { $set: { status: 'used', modifiedBy: user?._id } }
-      );
-      return 'success';
+      throw new Error('Already used cupon');
     }
     throw new Error('Cupon not found');
   }

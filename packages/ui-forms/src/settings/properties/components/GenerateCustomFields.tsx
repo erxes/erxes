@@ -549,7 +549,8 @@ class GenerateGroups extends React.Component<GroupsProps> {
         customFieldsData: Object.keys(updatedData).map(key => ({
           field: key,
           value: updatedData[key],
-          extraValue: extraValues[key] ? extraValues[key] : undefined
+          extraValue:
+            extraValues && extraValues[key] ? extraValues[key] : undefined
         }))
       },
       callback

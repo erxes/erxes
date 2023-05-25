@@ -21,6 +21,7 @@ const types = `
      _id: String!,
      customerId: String!,
      cuponCode: String,
+     cuponUniqueId: String,
      description: String,
      startDate: Date,
      expiryDate: Date,
@@ -29,6 +30,7 @@ const types = `
      input DacCuponInput {
      customerId: String!,
      cuponCode: String,
+     cuponUniqueId: String!,
      description: String,
      startDate: Date,
      expireDate: Date,
@@ -39,7 +41,7 @@ const queries = `
   dac(typeId: String): [Dac]
   dacTypes: [DacType]
   dacTotalCount: Int,
-  dacCuponCheck(customerId: String!, cuponCode: String!): String
+  dacCuponCheck(customerId: String!, cuponUniqueId: String!): String
   dacUserActiveCupons: [DacCupon]
 `;
 
@@ -58,7 +60,7 @@ const mutations = `
   dacTypesRemove(_id: String!):JSON
   dacTypesEdit(_id: String!, name:String): DacType
   dacCuponAdd(doc: DacCuponInput!): String
-  dacCuponUse(cuponCode: String, customerId: String): String
+  dacCuponUse(status: String, customerId: String, cuponUniqueId: String!): String
 `;
 
 const typeDefs = async _serviceDiscovery => {

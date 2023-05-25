@@ -1,4 +1,4 @@
-name: Plugin cards UI CI
+name: Plugin documents UI CI
 
 on:
   push:
@@ -19,9 +19,9 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
-      - 'packages/ui-cards/**'
-      - 'packages/plugin-cards-ui/**'
-      - '.github/workflows/plugin-cards-ui.yaml'
+      - 'packages/ui-documents/**'
+      - 'packages/plugin-documents-ui/**'
+      - '.github/workflows/plugin-documents-ui.yaml'
   pull_request:
     branches:
       - dev
@@ -40,9 +40,9 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
-      - 'packages/ui-cards/**'
-      - 'packages/plugin-cards-ui/**'
-      - '.github/workflows/plugin-cards-ui.yaml'
+      - 'packages/ui-documents/**'
+      - 'packages/plugin-documents-ui/**'
+      - '.github/workflows/plugin-documents-ui.yaml'
 
 jobs:
   ui:
@@ -59,9 +59,9 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-cards-ui/.erxes
-          cp -r packages/plugin-cards-ui/src packages/plugin-cards-ui/.erxes/plugin-src
-          cd packages/plugin-cards-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-documents-ui/.erxes
+          cp -r packages/plugin-documents-ui/src packages/plugin-documents-ui/.erxes/plugin-src
+          cd packages/plugin-documents-ui
           yarn install
           yarn install-deps
           yarn build
@@ -77,7 +77,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
-          tar -cf build.tar --directory=packages/plugin-cards-ui/.erxes/dist .
-          cp build.tar packages/plugin-cards-ui/.erxes/dist
-          rm -rf packages/plugin-cards-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-cards-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-cards-ui --delete
+          tar -cf build.tar --directory=packages/plugin-documents-ui/.erxes/dist .
+          cp build.tar packages/plugin-documents-ui/.erxes/dist
+          rm -rf packages/plugin-documents-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-documents-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-documents-ui --delete
