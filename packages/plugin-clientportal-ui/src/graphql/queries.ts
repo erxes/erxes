@@ -3,10 +3,6 @@ import {
   conformityQueryFields
 } from '@erxes/ui-cards/src/conformity/graphql/queries';
 
-import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
-
-const companyFields = companyQueries.companyFields;
-
 export const commonFields = `
   _id
   name
@@ -264,13 +260,6 @@ query ClientPortalFieldConfig($fieldId: String) {
   }
 }
 `;
-const companies = `
-  query companies(${listParamsDef}) {
-    companies(${listParamsValue}) {
-        ${companyFields}
-    }
-  }
-`;
 
 export default {
   getConfig,
@@ -282,6 +271,5 @@ export default {
   clientPortalUserDetail,
   clientPortalUserCounts,
   clientPortalComments,
-  fieldConfig,
-  companies
+  fieldConfig
 };

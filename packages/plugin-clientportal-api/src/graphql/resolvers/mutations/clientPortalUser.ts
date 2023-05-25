@@ -870,7 +870,17 @@ const clientPortalUserMutations = {
 
     return 'Phone verified';
   },
-
+  clientPortalUserAssignCompany: async (
+    _root,
+    args: { userId: string; erxesCompanyId },
+    { models }: IContext
+  ) => {
+    const { userId, erxesCompanyId } = args;
+    return models.ClientPortalUsers.updateOne(
+      { _id: args.userId },
+      { $set: { erxesCompanyId } }
+    );
+  },
   clientPortalUpdateUser: async (
     _root,
     args: { _id: string; doc },

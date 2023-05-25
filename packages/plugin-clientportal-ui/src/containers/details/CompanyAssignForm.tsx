@@ -1,9 +1,13 @@
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { CompaniesMainQueryResponse, IClientPortalUser } from '../../types';
+import {
+  ClientPortalUserAssignCompanyMutationResponse,
+  CompaniesMainQueryResponse,
+  IClientPortalUser
+} from '../../types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 
 import * as compose from 'lodash.flowright';
 
@@ -13,64 +17,38 @@ import { ButtonMutate, Spinner } from '@erxes/ui/src';
 import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
 
 type Props = {
-  queryParams?: any;
+  queryParams: any;
   clientPortalUser: IClientPortalUser;
-  closeModal?: () => void;
+  closeModal: () => void;
 };
 
 type FinalProps = {
   companiesMainQuery: CompaniesMainQueryResponse;
-} & Props;
+} & Props &
+  ClientPortalUserAssignCompanyMutationResponse;
 
-class FormContainer extends React.Component<FinalProps> {
-  renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
-    const callBackResponse = () => {
-      if (callback) {
-        callback();
-      }
-    };
+const FormContainer = (props: FinalProps) => {
+  const { clientPortalUserAssignCompany, closeModal } = props;
 
-    return (
-      <ButtonMutate
-        mutation={mutations.changeVerificationStatus}
-        variables={values}
-        callback={callBackResponse}
-        isSubmitted={isSubmitted}
-        type="submit"
-        successMessage={`You successfully updated a clientportal user.`}
-        refetchQueries={['clientPortalUserDetail']}
-      />
-    );
+  const assignCompany = (userId: string, erxesCompanyId: string) => {
+    clientPortalUserAssignCompany({
+      variables: { erxesCompanyId, userId }
+    })
+      .then(() => closeModal())
+      .catch(err => Alert.error(err));
   };
 
-  render() {
-    if (this.props.companiesMainQuery.loading) {
-      return <Spinner />;
-    }
+  const updatedProps = {
+    ...props
+  };
 
-    const updatedProps = {
-      ...this.props,
-      companies: this.props.companiesMainQuery.companies || []
-    };
-    return (
-      <CompanyAssignForm {...updatedProps} renderButton={this.renderButton} />
-    );
-  }
-}
+  return <CompanyAssignForm {...updatedProps} assignCompany={assignCompany} />;
+};
 
 export default withProps<Props>(
   compose(
-    graphql<Props, CompaniesMainQueryResponse>(gql(companyQueries.companies), {
-      name: 'companiesMainQuery',
-      options: ({ queryParams }) => ({
-        variables: { searchValue: queryParams.searchValue }
-      })
+    graphql(gql(mutations.clientPortalUserAssignCompany), {
+      name: 'clientPortalUserAssignCompany'
     })
-    // graphql(gql(mutations.clientPortalUserAssignCompany), {
-    //   name:'ass'
-    //   options: ({ queryParams }) => ({
-    //     variables: { searchValue: queryParams.searchValue }
-    //   })
-    // })
   )(FormContainer)
 );

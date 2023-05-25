@@ -48,17 +48,15 @@ class LeftSidebar extends React.Component<Props> {
     };
 
     const extraButtons = (
-      <>
-        <ModalTrigger
-          title="Assig corresponding company"
-          trigger={
-            <button>
-              <Icon icon="edit-3" />
-            </button>
-          }
-          content={content}
-        />
-      </>
+      <ModalTrigger
+        title="Assign corresponding company to user"
+        trigger={
+          <button>
+            <Icon icon="edit-3" />
+          </button>
+        }
+        content={content}
+      />
     );
 
     return (
@@ -156,7 +154,6 @@ class LeftSidebar extends React.Component<Props> {
           <DetailInfo clientPortalUser={clientPortalUser} />
         </SectionContainer>
         {this.renderVerificationSection()}
-
         {clientPortalUser.customer && this.renderCompanyAssignSection()}
         {!clientPortalUser.customer && !clientPortalUser.company ? null : (
           <Box

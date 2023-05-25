@@ -57,7 +57,6 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Code', clientPortalUser.code)}
         {this.renderRow('Email', clientPortalUser.email)}
         {this.renderRow('Phone', clientPortalUser.phone)}
-        {this.renderRow('Company', clientPortalUser.companyName)}
         {this.renderRow('Client Portal', clientPortalUser.clientPortal.name)}
       </SidebarList>
     );

@@ -157,8 +157,8 @@ const clientPortalUsersRemove = `
 `;
 
 const clientPortalUserAssignCompany = `
-   mutation clientPortalUserAssignCompany($clientPortalUserId: String!, $erxesCompanyId: String!){
-    clientPortalUserAssignCompany(clientPortalUserId: $clientPortalUserId, erxesCompanyId: $erxesCompanyId)
+   mutation clientPortalUserAssignCompany($userId: String!, $erxesCompanyId: String!){
+    clientPortalUserAssignCompany(userId: $userId, erxesCompanyId: $erxesCompanyId)
    }
 `;
 

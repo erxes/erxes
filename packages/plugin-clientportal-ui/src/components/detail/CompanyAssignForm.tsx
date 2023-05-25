@@ -1,42 +1,59 @@
-import { ControlLabel, Form, FormControl } from '@erxes/ui/src/components/form';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IClientPortalUser, IVerificationRequest } from '../../types';
+import { ControlLabel, Form } from '@erxes/ui/src/components/form';
+import { IFormProps } from '@erxes/ui/src/types';
+import { IClientPortalUser } from '../../types';
 import React, { useState } from 'react';
 
-import AttachmentsGallery from '@erxes/ui/src/components/AttachmentGallery';
 import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-
-import Select from 'react-select-plus';
-
+import { FlexCenter, ModalFooter } from '@erxes/ui/src/styles/main';
+import { Alert } from '@erxes/ui/src/utils';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { __ } from '@erxes/ui/src/utils';
 type Props = {
   clientPortalUser: IClientPortalUser;
-  companies: any;
-
-  closeModal?: () => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  assignCompany: (userId: string, erxesCompanyId: string) => void;
+  queryParams: any;
 };
 
 const CompanyAssignForm = (props: Props) => {
-  const { clientPortalUser, companies, closeModal, renderButton } = props;
+  const { clientPortalUser, assignCompany, queryParams } = props;
+
+  const [companyId, setCompanyId] = useState(null);
+
+  const onSave = () => {
+    if (!companyId) {
+      Alert.error('Please choose a company to assign');
+      return;
+    }
+    assignCompany(clientPortalUser._id, companyId);
+  };
+
+  const onSelect = el => {
+    console.log('asdasd ', el);
+
+    setCompanyId(el.value);
+  };
 
   const renderContent = (formProps: IFormProps) => {
-    console.log(companies);
     return (
       <>
         <FormGroup>
-          <ControlLabel>Verification status</ControlLabel>
-          <FormControl componentClass="select">
-            {companies &&
-              companies.map(company => (
-                <option value={company._id} key={company._id}>
-                  {company.name}
-                </option>
-              ))}
-          </FormControl>
+          <ControlLabel>
+            {(clientPortalUser && clientPortalUser.companyName) || ''}
+          </ControlLabel>
+          <SelectCompanies
+            label={__('Select a company to assign')}
+            name="companyIds"
+            queryParams={queryParams}
+            onSelect={onSelect}
+            multi={false}
+          />
         </FormGroup>
+        <ModalFooter>
+          <Button btnStyle="success" type="button" onClick={onSave}>
+            Save
+          </Button>
+        </ModalFooter>
       </>
     );
   };
