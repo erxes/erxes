@@ -26,7 +26,7 @@ const clientPortalCommentsRemove = `
   }
 `;
 
-const clientPortalCreateDeal = `
+const clientPortalCreateCard = `
   mutation clientPortalCreateCard(
     $type: String!
     $stageId: String!
@@ -53,5 +53,5 @@ const clientPortalCreateDeal = `
 export default {
   clientPortalCommentsAdd,
   clientPortalCommentsRemove,
-  clientPortalCreateDeal
+  clientPortalCreateCard
 };

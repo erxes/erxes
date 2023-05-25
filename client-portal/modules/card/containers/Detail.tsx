@@ -4,33 +4,30 @@ import { mutations, queries } from "../graphql";
 
 import Detail from "../components/Detail";
 import React from "react";
+import { capitalize } from "../../common/utils";
 import { confirm } from "../../utils";
 
 type Props = {
   _id?: string;
   currentUser: IUser;
   config: Config;
+  type: string;
   onClose: () => void;
 };
 
-function DetailContainer({ _id, ...props }: Props) {
-  const { data, loading: taskQueryLoading } = useQuery(
-    gql(queries.clientPortalGetTask),
+function DetailContainer({ _id, type, ...props }: Props) {
+  const { data, loading: cardQueryLoading } = useQuery(
+    gql(queries[`clientPortalGet${capitalize(type)}`]),
     {
       variables: { _id },
       skip: !_id,
-      context: {
-        headers: {
-          "erxes-app-token": props.config?.erxesAppToken,
-        },
-      },
     }
   );
 
   const { data: commentsQuery, loading: commentsQueryLoading } = useQuery(
     gql(queries.clientPortalComments),
     {
-      variables: { typeId: _id, type: "task" },
+      variables: { typeId: _id, type },
       skip: !_id,
     }
   );
@@ -39,7 +36,7 @@ function DetailContainer({ _id, ...props }: Props) {
     refetchQueries: [
       {
         query: gql(queries.clientPortalComments),
-        variables: { typeId: _id, type: "task" },
+        variables: { typeId: _id, type },
       },
     ],
   });
@@ -50,15 +47,15 @@ function DetailContainer({ _id, ...props }: Props) {
       refetchQueries: [
         {
           query: gql(queries.clientPortalComments),
-          variables: { typeId: _id, type: "task" },
+          variables: { typeId: _id, type },
         },
       ],
     }
   );
 
-  if (taskQueryLoading || commentsQueryLoading) return null;
+  if (cardQueryLoading || commentsQueryLoading) return null;
 
-  const item = data?.taskDetail;
+  const item = data[`clientPortal${capitalize(type)}`];
   const comments = commentsQuery?.clientPortalComments || [];
 
   const handleSubmit = (values: { content: string }) => {
@@ -66,7 +63,7 @@ function DetailContainer({ _id, ...props }: Props) {
       variables: {
         ...values,
         typeId: item._id,
-        type: "task",
+        type,
         userType: "client",
       },
     });
@@ -85,6 +82,7 @@ function DetailContainer({ _id, ...props }: Props) {
   const updatedProps = {
     ...props,
     item,
+    type,
     comments,
     handleSubmit,
     handleRemoveComment,
