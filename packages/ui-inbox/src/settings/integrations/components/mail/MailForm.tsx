@@ -7,7 +7,8 @@ import {
   ShowReplies,
   ShowReplyButtonWrapper,
   SpaceBetweenRow,
-  ToolBar
+  ToolBar,
+  NewEmailHeader
 } from './styles';
 import { FlexRow, Subject } from './styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
@@ -37,6 +38,9 @@ import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { readFile } from '@erxes/ui/src/utils/core';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { NotifButton } from '@erxes/ui-notifications/src/components/styles';
+import Popover from 'react-bootstrap/Popover';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -88,6 +92,7 @@ type State = {
   emailSignature: string;
   name: string;
   showReply: string;
+  smallEditor: boolean;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -137,7 +142,8 @@ class MailForm extends React.Component<Props, State> {
       fileIds: [],
 
       name: `mail_${mailKey}`,
-      showReply: `reply_${mailKey}`
+      showReply: `reply_${mailKey}`,
+      smallEditor: false
     };
   }
 
@@ -459,7 +465,7 @@ class MailForm extends React.Component<Props, State> {
   renderFrom() {
     return (
       <FlexRow>
-        <label>From:</label>
+        <label className="from">From:</label>
         {this.renderFromValue()}
       </FlexRow>
     );
@@ -476,6 +482,7 @@ class MailForm extends React.Component<Props, State> {
           name="to"
           required={true}
         />
+        {this.renderRightSide()}
       </FlexRow>
     );
   }
@@ -609,11 +616,15 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <EditorFooter>
-        <SpaceBetweenRow>
+        <SpaceBetweenRow id="SpaceBetweenRow">
           <ToolBar>
             <Uploader
               defaultFileList={this.state.attachments || []}
               onChange={onChangeAttachment}
+              text=" "
+              icon="attach"
+              tip="Attach files"
+              tipPlacement="top"
             />
             {this.renderIcon({
               text: 'Delete',
@@ -717,22 +728,50 @@ class MailForm extends React.Component<Props, State> {
   renderMeta = () => {
     return (
       <Meta>
-        <SpaceBetweenRow>
-          {this.renderLeftSide()}
-          {this.renderRightSide()}
-        </SpaceBetweenRow>
+        <SpaceBetweenRow>{this.renderLeftSide()}</SpaceBetweenRow>
       </Meta>
+    );
+  };
+
+  renderData = () => {
+    const { smallEditor } = this.state;
+    return (
+      <Popover
+        id="email-popover"
+        className={`email-popover ${smallEditor && 'small'}`}
+      >
+        <ControlWrapper>
+          <NewEmailHeader>
+            {__('New Email')}
+            <div>
+              <Icon
+                icon={smallEditor ? 'plus' : 'minus'}
+                onClick={() => this.setState({ smallEditor: !smallEditor })}
+              />
+              <Icon icon="cancel" onClick={() => console.log('CANCEL')} />
+            </div>
+          </NewEmailHeader>
+          {!smallEditor && this.renderMeta()}
+          {!smallEditor && this.renderSubject()}
+          {!smallEditor && this.renderBody()}
+          {!smallEditor && this.renderButtons()}
+        </ControlWrapper>
+      </Popover>
     );
   };
 
   render() {
     return (
-      <ControlWrapper>
-        {this.renderMeta()}
-        {this.renderSubject()}
-        {this.renderBody()}
-        {this.renderButtons()}
-      </ControlWrapper>
+      <OverlayTrigger
+        trigger="click"
+        rootClose={false}
+        placement="bottom"
+        overlay={this.renderData()}
+      >
+        <NotifButton>
+          <Icon icon="envelope" size={20} />
+        </NotifButton>
+      </OverlayTrigger>
     );
   }
 }

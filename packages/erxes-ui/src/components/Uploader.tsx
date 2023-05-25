@@ -10,6 +10,7 @@ import Spinner from './Spinner';
 import AttachmentsGallery from './AttachmentGallery';
 import Icon from './Icon';
 import { Meta } from './Attachment';
+import Tip from './Tip';
 
 const LoadingContainer = styled.div`
   margin: 10px 0;
@@ -86,6 +87,23 @@ type Props = {
   text?: string;
   icon?: string;
   warningText?: string;
+  tip?: string;
+  tipPlacement?:
+    | 'auto-start'
+    | 'auto'
+    | 'auto-end'
+    | 'top-start'
+    | 'top'
+    | 'top-end'
+    | 'right-start'
+    | 'right'
+    | 'right-end'
+    | 'bottom-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'left-end'
+    | 'left'
+    | 'left-start';
 };
 
 type State = {
@@ -210,7 +228,7 @@ class Uploader extends React.Component<Props, State> {
   }
 
   render() {
-    const { limit = 4, onChange } = this.props;
+    const { limit = 4, onChange, tip, tipPlacement } = this.props;
     const { attachments, loading } = this.state;
 
     return (
@@ -227,7 +245,13 @@ class Uploader extends React.Component<Props, State> {
           onChange={onChange}
           removeAttachment={this.removeAttachment}
         />
-        {this.renderUploadButton()}
+        {tip ? (
+          <Tip text={__(tip)} placement={tipPlacement}>
+            {this.renderUploadButton()}
+          </Tip>
+        ) : (
+          this.renderUploadButton()
+        )}
       </>
     );
   }

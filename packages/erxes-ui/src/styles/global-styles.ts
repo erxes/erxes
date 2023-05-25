@@ -477,6 +477,25 @@ a:hover {
   max-width: 360px;
 }
 
+.email-popover {
+  right: 15px;
+  left: auto !important;
+  width: 600px;
+  max-width: 600px;
+  position: fixed !important;
+  bottom: 10px;
+  top: auto !important;
+  transform: none !important;
+}
+
+.email-popover.small {
+  width: 260px;
+}
+
+.email-popover .arrow {
+  display: none !important;
+}
+
 /* select  */
 
 .Select-control {
