@@ -77,9 +77,27 @@ class CloseDate extends React.Component<Props, State> {
   renderContent() {
     const { reminderMinute } = this.props;
     const { dueDate } = this.state;
-
-    const day = dayjs(dueDate).format('YYYY/MM/DD');
+    const day = dayjs(dueDate).format('YYYY-MM-DD');
     const time = dayjs(dueDate).format('HH:mm');
+
+    const onChangeDateTime = e => {
+      const type = e.target.type;
+      const value = e.target.value;
+
+      const oldDay = dayjs(dueDate).format('YYYY/MM/DD');
+      const oldTime = dayjs(dueDate).format('HH:mm');
+      let newDate = dueDate;
+
+      if (type === 'date') {
+        newDate = new Date(value.concat(' ', oldTime));
+      }
+
+      if (type === 'time') {
+        newDate = new Date(oldDay.concat(' ', value));
+      }
+
+      this.setState({ dueDate: newDate });
+    };
 
     return (
       <Popover id="pipeline-popover">
@@ -88,11 +106,11 @@ class CloseDate extends React.Component<Props, State> {
             <DateGrid>
               <div>
                 <ControlLabel>Date</ControlLabel>
-                <span>{day}</span>
+                <input type="date" value={day} onChange={onChangeDateTime} />
               </div>
               <div>
                 <ControlLabel>Time</ControlLabel>
-                <span>{time}</span>
+                <input type="time" value={time} onChange={onChangeDateTime} />
               </div>
             </DateGrid>
           )}

@@ -11,8 +11,8 @@ import { IOption } from '../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
 import { withRouter } from 'react-router-dom';
 

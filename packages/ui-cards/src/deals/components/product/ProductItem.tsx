@@ -22,7 +22,7 @@ import { IDeal, IDiscountValue, IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '../../graphql';
 import Tip from '@erxes/ui/src/components/Tip';
 

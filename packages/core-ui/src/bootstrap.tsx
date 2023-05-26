@@ -10,9 +10,12 @@ import 'erxes-icon/css/erxes.min.css';
 import '@erxes/ui/src/styles/global-styles.ts';
 import { getEnv, readFile } from 'modules/common/utils';
 import React from 'react';
-import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider } from '@apollo/client';
 import { render } from 'react-dom';
 import { getThemeItem } from '@erxes/ui/src/utils/core';
+
+import { setVerbosity } from 'ts-invariant';
+setVerbosity('warn');
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);

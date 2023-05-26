@@ -1,6 +1,6 @@
 import client from '@erxes/ui/src/apolloClient';
 import WithPermission from 'coreui/withPermission';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { queries } from '../../graphql';
 import { getEnv, __ } from '@erxes/ui/src/utils';

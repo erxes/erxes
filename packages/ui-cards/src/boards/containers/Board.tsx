@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -6,7 +6,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { IDateColumn, IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { EMPTY_CONTENT_DEAL, EMPTY_CONTENT_TASK } from '../constants';
 import { queries } from '../graphql';

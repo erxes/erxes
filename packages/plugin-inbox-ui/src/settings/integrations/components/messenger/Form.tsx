@@ -82,6 +82,7 @@ type State = {
   requireAuth?: boolean;
   showChat?: boolean;
   showLauncher?: boolean;
+  hideWhenOffline?: boolean;
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
   messengerApps: IMessengerApps;
@@ -99,6 +100,7 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth: true,
       showChat: true,
       showLauncher: true,
+      hideWhenOffline: false,
       forceLogoutWhenResolve: false,
       showVideoCallRequest: false,
       botEndpointUrl: '',
@@ -125,6 +127,7 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth: configData.requireAuth,
       showChat: configData.showChat,
       showLauncher: configData.showLauncher,
+      hideWhenOffline: configData.hideWhenOffline,
       forceLogoutWhenResolve: configData.forceLogoutWhenResolve,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
@@ -195,6 +198,7 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth,
       showChat,
       showLauncher,
+      hideWhenOffline,
       forceLogoutWhenResolve,
       showVideoCallRequest,
       messengerApps,
@@ -262,6 +266,7 @@ class CreateMessenger extends React.Component<Props, State> {
         requireAuth,
         showChat,
         showLauncher,
+        hideWhenOffline,
         forceLogoutWhenResolve,
         showVideoCallRequest,
         links
@@ -342,6 +347,7 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth,
       showChat,
       showLauncher,
+      hideWhenOffline,
       forceLogoutWhenResolve,
       showVideoCallRequest,
       channelIds,
@@ -421,6 +427,7 @@ class CreateMessenger extends React.Component<Props, State> {
                   responseRate={responseRate}
                   showTimezone={showTimezone}
                   onlineHours={onlineHours}
+                  hideWhenOffline={hideWhenOffline}
                 />
               </Step>
 

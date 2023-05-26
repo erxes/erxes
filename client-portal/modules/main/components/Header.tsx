@@ -32,7 +32,6 @@ import NameCard from "../../common/nameCard/NameCard";
 import Notifications from "../components/notifications/Notifications";
 import Popup from "reactjs-popup";
 import RegisterContainer from "../../user/containers/Register";
-import SettingsContainer from "../containers/notifications/Settings";
 import { withRouter } from "next/router";
 
 type Props = {
@@ -191,7 +190,10 @@ function Header({
           </HeaderLogo>
           <HeaderLinks>
             {config.publicTaskToggle
-              ? renderMenu("/publicTasks", "Public Task")
+              ? renderMenu(
+                  "/publicTasks",
+                  config.taskPublicLabel || "Public Task"
+                )
               : null}
             {config.ticketToggle && currentUser
               ? renderMenu("/tickets", config.ticketLabel || "Ticket")
@@ -259,16 +261,6 @@ function Header({
         )}
         onClose={() => setResetPassword(false)}
         isOpen={showResetPassword}
-      />
-      <Modal
-        content={() => (
-          <SettingsContainer
-            currentUser={currentUser}
-            saveCallback={() => setShowSettings(false)}
-          />
-        )}
-        onClose={() => setShowSettings(false)}
-        isOpen={showSettings}
       />
     </Head>
   );
