@@ -16,7 +16,7 @@ const dacQueries = {
 
     return result?.status;
   },
-
+  //get active cupon
   async dacUserActiveCupons(_root, {}, { cpUser, models }: IContext) {
     if (!cpUser) {
       throw new Error('You are not logged in');
