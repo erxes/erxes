@@ -40,6 +40,10 @@ type Props = {
   closeReply?: () => void;
   callback?: () => void;
   queryParams?: any;
+  shrink?: boolean;
+  isWidget?: boolean;
+  changeShrink?: () => void;
+  hideWidget?: () => void;
 } & IRouterProps;
 
 type FinalProps = {

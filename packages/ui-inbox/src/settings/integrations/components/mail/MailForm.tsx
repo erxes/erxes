@@ -69,6 +69,10 @@ type Props = {
   }) => void;
   verifiedEmails: string[];
   history: any;
+  shrink?: boolean;
+  isWidget?: boolean;
+  changeShrink?: () => void;
+  hideWidget?: () => void;
 };
 
 type State = {
@@ -92,7 +96,6 @@ type State = {
   emailSignature: string;
   name: string;
   showReply: string;
-  smallEditor: boolean;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -142,8 +145,7 @@ class MailForm extends React.Component<Props, State> {
       fileIds: [],
 
       name: `mail_${mailKey}`,
-      showReply: `reply_${mailKey}`,
-      smallEditor: false
+      showReply: `reply_${mailKey}`
     };
   }
 
@@ -733,45 +735,25 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
-  renderData = () => {
-    const { smallEditor } = this.state;
+  render() {
+    const { shrink, changeShrink, isWidget, hideWidget } = this.props;
+
     return (
-      <Popover
-        id="email-popover"
-        className={`email-popover ${smallEditor && 'small'}`}
-      >
-        <ControlWrapper>
-          <NewEmailHeader>
+      <ControlWrapper>
+        {isWidget && (
+          <NewEmailHeader onClick={changeShrink}>
             {__('New Email')}
             <div>
-              <Icon
-                icon={smallEditor ? 'plus' : 'minus'}
-                onClick={() => this.setState({ smallEditor: !smallEditor })}
-              />
-              <Icon icon="cancel" onClick={() => console.log('CANCEL')} />
+              <Icon icon={shrink ? 'plus' : 'minus'} />
+              <Icon icon="cancel" onClick={hideWidget} />
             </div>
           </NewEmailHeader>
-          {!smallEditor && this.renderMeta()}
-          {!smallEditor && this.renderSubject()}
-          {!smallEditor && this.renderBody()}
-          {!smallEditor && this.renderButtons()}
-        </ControlWrapper>
-      </Popover>
-    );
-  };
-
-  render() {
-    return (
-      <OverlayTrigger
-        trigger="click"
-        rootClose={false}
-        placement="bottom"
-        overlay={this.renderData()}
-      >
-        <NotifButton>
-          <Icon icon="envelope" size={20} />
-        </NotifButton>
-      </OverlayTrigger>
+        )}
+        {!shrink && this.renderMeta()}
+        {!shrink && this.renderSubject()}
+        {!shrink && this.renderBody()}
+        {!shrink && this.renderButtons()}
+      </ControlWrapper>
     );
   }
 }

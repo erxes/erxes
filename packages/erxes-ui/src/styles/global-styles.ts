@@ -486,10 +486,15 @@ a:hover {
   bottom: 10px;
   top: auto !important;
   transform: none !important;
+  height: 0;
 }
 
 .email-popover.small {
   width: 260px;
+}
+
+.email-popover.show {
+  height: unset;
 }
 
 .email-popover .arrow {
