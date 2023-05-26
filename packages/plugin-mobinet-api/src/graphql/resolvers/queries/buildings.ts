@@ -71,7 +71,9 @@ const queries = {
     { _id }: { _id: string },
     { models }: IContext
   ) => {
-    return models.Buildings.getBuilding({ $or: [{ _id }, { osmbId: _id }] });
+    return models.Buildings.getBuilding({
+      $or: [{ _id }, { osmbId: Number(_id) }, { osmbId: _id }]
+    });
   },
 
   buildingGet: async (
