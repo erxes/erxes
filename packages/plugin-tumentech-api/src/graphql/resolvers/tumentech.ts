@@ -122,8 +122,22 @@ const Participant = {
   phone: async (
     participant: IParticipantDocument,
     {},
-    { models, cpUser }: IContext
+    { models, subdomain, cpUser }: IContext
   ) => {
+    if (participant.detail.invited) {
+      const driver = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: { _id: participant.driverId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (driver) {
+        return driver.primaryPhone;
+      }
+    }
+
     const history = await models.PurchaseHistories.findOne({
       driverId: participant.driverId,
       dealId: participant.dealId,

@@ -29,6 +29,6 @@ const qryParams = `
 `;
 
 export const queries = `
-mobinetServices(${qryParams},districtId:String!, buildingId: String!, voo: Boolean, hbb: Boolean): MobinetServices
+mobinetServices(${qryParams},districtId:String, buildingId: String, voo: Boolean, hbb: Boolean): MobinetServices
 mobinetProducts(${qryParams},districtId:String!, buildingId: String!, voo: Boolean, hbb: Boolean): MobinetProducts
 `;

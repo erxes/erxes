@@ -4,7 +4,8 @@ import {
   sendCardsMessage,
   sendClientPortalMessage,
   sendContactsMessage,
-  sendCoreMessage
+  sendCoreMessage,
+  sendNotification
 } from '../../../messageBroker';
 import { IParticipant } from './../../../models/definitions/participants';
 
@@ -370,12 +371,72 @@ const participantMutations = {
     }
 
     for (const driverId of driverIds) {
+      const conformities = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.getConformities',
+        data: {
+          mainType: 'customer',
+          mainTypeIds: [driverId],
+          relTypes: ['car']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (conformities.length === 0) {
+        continue;
+      }
+
+      const carIds: string[] = [];
+
+      conformities.forEach(c => {
+        if (c.mainType === 'customer') {
+          carIds.push(c.relTypeId);
+        } else {
+          carIds.push(c.mainTypeId);
+        }
+      });
+
       await models.Participants.create({
         dealId,
         driverId,
-        status: 'participating'
+        status: 'participating',
+        carIds,
+        detail: {
+          invited: true
+        }
       });
     }
+
+    const cpUsers = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      data: {
+        erxesCustomerId: { $in: driverIds },
+        clientPortalId: process.env.MOBILE_CP_ID || ''
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const notifData: any = {
+      title: 'Шинэ зар орлоо',
+      content: `${deal.name} дугаартай тээврийн ажилд та уригдлаа, үнийн санал илгээнэ үү.`,
+      receivers: cpUsers.map(cpUser => cpUser._id),
+      notifType: 'system',
+      link: '',
+      isMobile: true,
+      eventData: {
+        type: 'deal',
+        id: deal._id
+      }
+    };
+
+    sendClientPortalMessage({
+      subdomain,
+      action: 'sendNotification',
+      data: notifData
+    });
 
     return { status: 'ok', message: 'Drivers invited' };
   }

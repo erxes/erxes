@@ -46,26 +46,26 @@ const getProducts = async (models, subdomain, args, kind) => {
 
   const config: IMobinetConfig = mobinetConfigs && mobinetConfigs.value;
 
-  if (!config.hbbCatId || !config.vooCatId) {
-    throw new Error('Config not found');
-  }
-
-  const building = await models.Buildings.getBuilding({ _id: buildingId });
-
-  if (building.networkType === 'ftth' && !config.ftthTagId) {
-    throw new Error('Config not found');
-  }
-
-  if (building.networkType === 'fttb' && !config.fttbTagId) {
-    throw new Error('Config not found');
-  }
-
-  const district = await models.Districts.getDistrict({ _id: districtId });
-
   let vooProducts: any = [];
   let hbbProducts: any = [];
 
   if (hbb) {
+    if (!config.hbbCatId || !config.vooCatId) {
+      throw new Error('Config not found');
+    }
+
+    const building = await models.Buildings.getBuilding({ _id: buildingId });
+
+    if (building.networkType === 'ftth' && !config.ftthTagId) {
+      throw new Error('Config not found');
+    }
+
+    if (building.networkType === 'fttb' && !config.fttbTagId) {
+      throw new Error('Config not found');
+    }
+
+    const district = await models.Districts.getDistrict({ _id: districtId });
+
     hbbProducts = await sendCommonMessage({
       subdomain,
       serviceName: 'products',
