@@ -637,6 +637,7 @@ const widgetMutations = {
 
       if (!company) {
         companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
 
         company = await sendContactsMessage({
           subdomain,
