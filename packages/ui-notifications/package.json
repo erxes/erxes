@@ -6,7 +6,7 @@
     "dayjs": "1.8.15",
     "lodash": "4.17.15",
     "lodash.flowright": "3.5.0",
-    "query-string": "5.0.0",
+    "query-string": "^5.0.0",
     "react": "16.14.0",
     "react-bootstrap": "1.0.0-beta.14",
     "react-router-dom": "5.1.2",
