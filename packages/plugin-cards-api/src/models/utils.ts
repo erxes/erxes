@@ -550,7 +550,14 @@ export const conversationConvertToCard = async (
 
     await putActivityLog(subdomain, {
       action: 'createBoardItem',
-      data: { item, contentType: type, contentId: item._id }
+      data: {
+        item,
+        contentType: type,
+        action: 'convert',
+        content: conversation._id,
+        createdBy: item.userId || '',
+        contentId: item._id
+      }
     });
 
     const relTypeIds: string[] = [];

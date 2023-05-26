@@ -12,11 +12,10 @@ import {
 } from '@erxes/ui-settings/src/styles';
 import Table from '@erxes/ui/src/components/table';
 import { ColorButton } from '../../boards/styles/common';
-import { useQuery, useMutation } from 'react-apollo';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import dayjs from 'dayjs';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { queries, mutations } from '../graphql/';
-import gql from 'graphql-tag';
 
 function Comment(item) {
   const typeId = item.item._id;
