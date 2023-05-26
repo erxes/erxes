@@ -38,9 +38,6 @@ import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { readFile } from '@erxes/ui/src/utils/core';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { NotifButton } from '@erxes/ui-notifications/src/components/styles';
-import Popover from 'react-bootstrap/Popover';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -618,7 +615,7 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <EditorFooter>
-        <SpaceBetweenRow id="SpaceBetweenRow">
+        <SpaceBetweenRow>
           <ToolBar>
             <Uploader
               defaultFileList={this.state.attachments || []}
@@ -735,6 +732,21 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
+  renderData = () => {
+    if (!this.props.shrink) {
+      return (
+        <>
+          {this.renderMeta()}
+          {this.renderSubject()}
+          {this.renderBody()}
+          {this.renderButtons()}
+        </>
+      );
+    }
+
+    return null;
+  };
+
   render() {
     const { shrink, changeShrink, isWidget, hideWidget } = this.props;
 
@@ -749,10 +761,7 @@ class MailForm extends React.Component<Props, State> {
             </div>
           </NewEmailHeader>
         )}
-        {!shrink && this.renderMeta()}
-        {!shrink && this.renderSubject()}
-        {!shrink && this.renderBody()}
-        {!shrink && this.renderButtons()}
+        {this.renderData()}
       </ControlWrapper>
     );
   }
