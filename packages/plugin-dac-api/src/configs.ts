@@ -11,6 +11,8 @@ import {
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
+import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import * as cookieParser from 'cookie-parser';
 
 export let mainDb;
 export let debug;
@@ -61,7 +63,7 @@ export default {
 
     return context;
   },
-
+  middlewares: [cookieParser(), cpUserMiddleware],
   onServerInit: async options => {
     mainDb = options.db;
 
