@@ -17,7 +17,7 @@ export interface IBuilding {
   code: string;
   description: string;
   type: string;
-  osmbId: string;
+  osmbId: number;
   quarterId: string;
   bounds: {
     minLat: number;
@@ -74,7 +74,11 @@ export const buildingSchema = schemaHooksWrapper(
       required: false
     }),
     type: field({ type: String, label: 'type', required: false }),
-    osmbId: field({ type: String, label: 'osmbId', required: false }),
+    osmbId: field({
+      type: Schema.Types.Mixed,
+      label: 'osmbId',
+      required: false
+    }),
     quarterId: field({
       type: String,
       label: 'quarterId',
@@ -187,4 +191,4 @@ export const buildingSchema = schemaHooksWrapper(
   'mobinet_buildings'
 );
 
-buildingSchema.index({ location: '2dsphere' });
+buildingSchema.index({ location: '2dsphere', osmbId: 1, quarterId: 1 });
