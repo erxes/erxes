@@ -2,7 +2,7 @@ import { __ } from '@erxes/ui/src/utils';
 export const STORAGE_BOARD_KEY = 'erxesCurrentBoardId';
 export const STORAGE_PIPELINE_KEY = 'erxesCurrentPipelineId';
 
-export const PRIORITIES = ['Critical', 'High', 'Normal', 'Low'];
+export const PRIORITIES = ['Critical', 'High', 'Medium', 'Low'];
 
 export const TEXT_COLORS = [
   '#fff',

@@ -414,9 +414,7 @@ export const createBoardItem = async (
       searchText: fillSearchTextItem(doc)
     });
   } catch (e) {
-    if (
-      e.message === `E11000 duplicate key error dup key: { : "${doc.number}" }`
-    ) {
+    if (e.message.includes(`E11000 duplicate key error`)) {
       await createBoardItem(models, subdomain, doc, type);
     } else {
       throw new Error(e.message);
@@ -567,7 +565,14 @@ export const conversationConvertToCard = async (
 
     await putActivityLog(subdomain, {
       action: 'createBoardItem',
-      data: { item, contentType: type, contentId: item._id }
+      data: {
+        item,
+        contentType: type,
+        action: 'convert',
+        content: conversation._id,
+        createdBy: item.userId || '',
+        contentId: item._id
+      }
     });
 
     const relTypeIds: string[] = [];

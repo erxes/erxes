@@ -15,8 +15,8 @@ import { CountQueryResponse } from '@erxes/ui-leads/src/types';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { MutationVariables as RemoveMutationVariables } from '@erxes/ui/src/types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;

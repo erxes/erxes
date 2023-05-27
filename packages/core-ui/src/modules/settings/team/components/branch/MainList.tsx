@@ -17,7 +17,7 @@ import SettingsSideBar from '../common/SettingsSideBar';
 import Form from '../../containers/branch/Form';
 import { generateTree } from '../../utils';
 import { queries } from '@erxes/ui/src/team/graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { DescriptionContentRow } from '../common/DescriptionContentRow';
 

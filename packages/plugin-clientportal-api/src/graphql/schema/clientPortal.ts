@@ -198,10 +198,10 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets(priority: [String],labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Ticket]
-    clientPortalDeals: [Deal]
-    clientPortalPurchases: [Purchase]
-    clientPortalTasks: [Task]
+    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Ticket]
+    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Deal]
+    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Purchase]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Task]
     clientPortalTicket(_id: String!): Ticket
    `
       : ''

@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import LogList from '../components/LogList';
 import queries from '../queries';
 import { LogsQueryResponse } from '../types';

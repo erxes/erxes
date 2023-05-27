@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { PageHeader } from '../styles/header';
 import { getDefaultBoardAndPipelines } from '../utils';
@@ -7,7 +7,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
