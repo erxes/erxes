@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import gql from 'graphql-tag';
-import { useQuery, useMutation } from 'react-apollo';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   mutations,
