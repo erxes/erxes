@@ -72,6 +72,10 @@ class BoardItemForm extends React.Component<Props, State> {
       case 'cards:ticket.create':
         type = 'ticket';
         break;
+
+      case 'cards:purchase.create':
+        type = 'purchase';
+        break;
     }
 
     const { stageId, pipelineId, boardId } = this.state.config;

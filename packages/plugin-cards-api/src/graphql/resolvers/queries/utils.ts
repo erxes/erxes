@@ -580,6 +580,37 @@ export const generateDealCommonFilters = async (
   return filter;
 };
 
+export const generatePurchaseCommonFilters = async (
+  models: IModels,
+  subdomain: string,
+  currentUserId: string,
+  args = {} as any,
+  extraParams?: any
+) => {
+  args.type = 'purchase';
+  const { productIds } = extraParams || args;
+
+  let filter = await generateCommonFilters(
+    models,
+    subdomain,
+    currentUserId,
+    args
+  );
+
+  if (extraParams) {
+    filter = await generateExtraFilters(filter, extraParams);
+  }
+
+  if (productIds) {
+    filter['productsData.productId'] = contains(productIds);
+  }
+
+  // Calendar monthly date
+  await calendarFilters(models, filter, args);
+
+  return filter;
+};
+
 export const generateTicketCommonFilters = async (
   models: IModels,
   subdomain: string,

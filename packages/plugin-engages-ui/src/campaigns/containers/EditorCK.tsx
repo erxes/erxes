@@ -57,6 +57,11 @@ const generateAttributes = (
     { value: 'dealAmounts', name: 'Amount' },
     ...generateItemCustomFields(cardsFields.deal),
 
+    { name: 'Purchase' },
+    { value: 'purchaseProducts', name: 'Products' },
+    { value: 'purchaseAmounts', name: 'Amount' },
+    ...generateItemCustomFields(cardsFields.purchase),
+
     { name: 'Ticket' },
     ...generateItemCustomFields(cardsFields.ticket),
 
