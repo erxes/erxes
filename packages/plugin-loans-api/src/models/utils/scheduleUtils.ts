@@ -370,7 +370,9 @@ export const fixSchedules = async (
         //now resolve schedules
         await trAfterSchedule(models, { ...transaction, ...trInfo } as any);
       }
+
       if (transactions.find(a => a.payDate === scheduleRow.payDate)) continue;
+
       //create empty row transaction to the schedule
       let doc = {
         contractId: contractId,
@@ -464,6 +466,14 @@ export const generatePendingSchedules = async (
 ) => {
   let changeDoc = {};
 
+  const preMainSchedule: any =
+    !updatedSchedule.isDefault &&
+    (await models.Schedules.findOne({
+      contractId: contract._id,
+      isDefault: true,
+      payDate: { $lt: updatedSchedule.payDate }
+    }).sort({ dayDate: -1 }));
+
   /**when didDebt less than debt then only change status */
   if (
     !!updatedSchedule.didDebt &&
@@ -476,7 +486,15 @@ export const generatePendingSchedules = async (
     });
     await models.Schedules.updateOne(
       { _id: updatedSchedule._id },
-      { $set: { status: SCHEDULE_STATUS.LESS } }
+      {
+        $set: {
+          status:
+            preMainSchedule?.status === SCHEDULE_STATUS.DONE ||
+            preMainSchedule === null
+              ? SCHEDULE_STATUS.PRE
+              : SCHEDULE_STATUS.LESS
+        }
+      }
     );
     tr._id &&
       (await models.Transactions.updateOne(
@@ -500,7 +518,15 @@ export const generatePendingSchedules = async (
     });
     await models.Schedules.updateOne(
       { _id: updatedSchedule._id },
-      { $set: { status: SCHEDULE_STATUS.LESS } }
+      {
+        $set: {
+          status:
+            preMainSchedule?.status === SCHEDULE_STATUS.DONE ||
+            preMainSchedule === null
+              ? SCHEDULE_STATUS.PRE
+              : SCHEDULE_STATUS.LESS
+        }
+      }
     );
     tr._id &&
       (await models.Transactions.updateOne(
@@ -545,7 +571,15 @@ export const generatePendingSchedules = async (
       });
       await models.Schedules.updateOne(
         { _id: updatedSchedule._id },
-        { $set: { status: SCHEDULE_STATUS.LESS } }
+        {
+          $set: {
+            status:
+              preMainSchedule?.status === SCHEDULE_STATUS.DONE ||
+              preMainSchedule === null
+                ? SCHEDULE_STATUS.PRE
+                : SCHEDULE_STATUS.LESS
+          }
+        }
       );
       tr._id &&
         (await models.Transactions.updateOne(
@@ -926,6 +960,12 @@ export const betweenScheduled = async (
     true
   );
 
+  const preMainSchedule: any = await models.Schedules.findOne({
+    contractId: contract._id,
+    isDefault: true,
+    payDate: { $lt: tr.payDate }
+  }).sort({ dayDate: -1 });
+
   const diff =
     (doc.payment || 0) -
     (doc.didPayment || 0) +
@@ -936,7 +976,13 @@ export const betweenScheduled = async (
 
   doc.contractId = contract._id;
   doc.payDate = tr.payDate;
-  doc.status = diff > 0 ? SCHEDULE_STATUS.LESS : SCHEDULE_STATUS.DONE;
+  doc.status =
+    diff > 0
+      ? preMainSchedule?.status === SCHEDULE_STATUS.DONE ||
+        preMainSchedule === null
+        ? SCHEDULE_STATUS.PRE
+        : SCHEDULE_STATUS.LESS
+      : SCHEDULE_STATUS.DONE;
 
   const updatedSchedule: any = await models.Schedules.create({
     ...doc,

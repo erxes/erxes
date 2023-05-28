@@ -25,7 +25,7 @@ export const types = `
     total: Float,
   }
 
-  type Transaction {
+  type LoanTransaction {
     _id: String,
     createdAt: Date,
     createdBy: String
@@ -38,7 +38,7 @@ export const types = `
     futureDebt: Float,
     debtTenor: Float,
 
-    contract: Contract,
+    contract: LoanContract,
     invoice: InvoicePreInfo,
     customer: Customer,
     company: Company,
@@ -46,7 +46,7 @@ export const types = `
   }
 
   type TransactionsListResponse {
-    list: [Transaction],
+    list: [LoanTransaction],
     totalCount: Float,
   }
 `;
@@ -69,8 +69,8 @@ const queryParams = `
 
 export const queries = `
   transactionsMain(${queryParams}): TransactionsListResponse
-  transactions(${queryParams}): [Transaction]
-  transactionDetail(_id: String!): Transaction
+  transactions(${queryParams}): [LoanTransaction]
+  transactionDetail(_id: String!): LoanTransaction
   getPaymentInfo(id: String!, payDate: Date): TransactionPreInfo
 `;
 
@@ -103,8 +103,8 @@ const changeFields = `
 `;
 
 export const mutations = `
-  transactionsAdd(${commonFields}): Transaction
-  transactionsEdit(_id: String!, ${commonFields}): Transaction
-  transactionsChange(_id: String!, ${changeFields}): Transaction
+  transactionsAdd(${commonFields}): LoanTransaction
+  transactionsEdit(_id: String!, ${commonFields}): LoanTransaction
+  transactionsChange(_id: String!, ${changeFields}): LoanTransaction
   transactionsRemove(transactionIds: [String]): [String]
 `;

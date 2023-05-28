@@ -16,7 +16,9 @@ const scheduleMutations = {
   ) => {
     const doneSchedules = await models.Schedules.find({
       contractId,
-      status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] }
+      status: {
+        $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
+      }
     }).lean();
     if (doneSchedules && doneSchedules.length) {
       const trs = await models.Transactions.find({ contractId }).lean();

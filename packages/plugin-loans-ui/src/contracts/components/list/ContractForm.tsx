@@ -183,7 +183,7 @@ class ContractForm extends React.Component<Props, State | any> {
 
     if (name === 'interestRate') {
       this.setState({
-        interestRate: Number(value),
+        interestRate: value,
         interestMonth: Number(value || 0) / 12
       });
       return;
@@ -192,7 +192,7 @@ class ContractForm extends React.Component<Props, State | any> {
     // interestMonth
     this.setState({
       interestRate: Number((Number(value || 0) * 12).toFixed(2)),
-      interestMonth: Number(value || 0)
+      interestMonth: value || 0
     });
     return;
   };
@@ -413,6 +413,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'marginAmount',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.marginAmount || 0,
                 onChange: this.onChangeWithSalvage,
                 onClick: this.onFieldClick
@@ -422,6 +424,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'leaseAmount',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.leaseAmount || 0,
                 onChange: this.onChangeWithSalvage,
                 onClick: this.onFieldClick
@@ -431,6 +435,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'feeAmount',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.feeAmount || 0,
                 onChange: this.onChangeWithSalvage,
                 onClick: this.onFieldClick
@@ -440,6 +446,7 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'tenor',
+                useNumberFormat: true,
                 value: this.state.tenor || 0,
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
@@ -451,6 +458,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 type: 'number',
                 name: 'interestMonth',
                 value: this.state.interestMonth || 0,
+                useNumberFormat: true,
+                fixed: 2,
                 onChange: this.onChangeInterest,
                 onClick: this.onFieldClick
               })}
@@ -458,6 +467,8 @@ class ContractForm extends React.Component<Props, State | any> {
               {this.renderFormGroup('interest Rate', {
                 ...formProps,
                 type: 'number',
+                useNumberFormat: true,
+                fixed: 2,
                 name: 'interestRate',
                 value: this.state.interestRate || 0,
                 onChange: this.onChangeInterest,
@@ -468,6 +479,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'unduePercent',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.unduePercent || 0,
                 onChange: this.onChangeUnduePercent,
                 onClick: this.onFieldClick
@@ -510,6 +523,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'debt',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.debt || 0,
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
@@ -518,6 +533,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'debtTenor',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.debtTenor || 0,
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
@@ -527,6 +544,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'debtLimit',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.debtLimit || 0,
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick

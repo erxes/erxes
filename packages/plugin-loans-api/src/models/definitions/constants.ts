@@ -40,8 +40,9 @@ export const SCHEDULE_STATUS = {
   DONE: 'done',
   SKIPPED: 'skipped',
   LESS: 'less',
+  PRE: 'pre',
 
-  ALL: ['pending', 'done', 'skipped', 'less']
+  ALL: ['pending', 'done', 'skipped', 'pre', 'less']
 };
 
 export const LEASE_TYPES = {

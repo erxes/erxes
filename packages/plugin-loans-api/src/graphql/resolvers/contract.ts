@@ -223,7 +223,6 @@ const Contracts = {
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $gte: today },
-      isDefault: true,
       status: SCHEDULE_STATUS.PENDING
     })
       .sort({ payDate: 1 })
@@ -234,7 +233,14 @@ const Contracts = {
       payDate: nextSchedule?.payDate || today
     });
 
-    return calcedInfo.total;
+    return (
+      (calcedInfo.payment || 0) +
+      (calcedInfo.undue || 0) +
+      (calcedInfo.interestEve || 0) +
+      (calcedInfo.interestNonce || 0) +
+      (calcedInfo.insurance || 0) +
+      (calcedInfo.debt || 0)
+    );
   },
   async nextPaymentDate(contract: IContractDocument, {}, { models }: IContext) {
     const today = getFullDate(new Date());
