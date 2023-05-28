@@ -275,6 +275,42 @@ const RightSidebar = styled.h6`
   height: 100%;
 `;
 
+const GroupList = styled.div`
+  margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  border-radius: 12px;
+  border: 1px solid ${colors.borderDarker};
+  background: ${colors.colorWhite};
+
+  .card-header {
+    font-size: 14px;
+  }
+`;
+
+const GroupWrapper = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+`;
+
+const CardTab = styledTS<{baseColor?: string}>(styled.div)`
+  margin-right: ${dimensions.coreSpacing}px;
+  font-size: 13px;
+  background: #eaeaea;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: ${dimensions.unitSpacing}px;
+  color: ${colors.colorCoreGray};
+  overflow: hidden;
+
+  span {
+    padding: 6px ${dimensions.unitSpacing}px;
+    cursor: pointer;
+    width: 120px;
+    
+    &.active {
+      background: ${props => props.baseColor ? props.baseColor : colors.colorSecondary};
+      color: ${colors.colorWhite};
+    }
+  }
+`;
+
 export {
   TicketRow,
   TicketLabel,
@@ -293,5 +329,8 @@ export {
   CreatedUser,
   SelectInput,
   RightSidebar,
-  DetailRow
+  DetailRow,
+  GroupList,
+  GroupWrapper,
+  CardTab
 };

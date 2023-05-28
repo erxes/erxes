@@ -1,39 +1,40 @@
 import * as _ from "lodash";
 
-import { ICustomField, Label, Ticket } from "../../types";
+import { ICustomField, Label } from "../../types";
 import React, { useState } from "react";
 
 import Alert from "../../utils/Alert";
 import Button from "../../common/Button";
 import { ControlLabel } from "../../common/form";
-import { DetailHeader } from "../../styles/tickets";
+import { DetailHeader } from "../../styles/cards";
 import FormControl from "../../common/form/Control";
 import FormGroup from "../../common/form/Group";
 import { FormWrapper } from "../../styles/main";
 import GenerateField from "./GenerateField";
 import Icon from "../../common/Icon";
-import Link from "next/link";
 
 type Props = {
-  handleSubmit: (doc: Ticket) => void;
+  handleSubmit: (doc) => void;
   customFields: any[];
   departments: string[];
   branches: string[];
   products: string[];
   labels: Label[];
+  type: string;
   closeModal: () => void;
 };
 
-export default function TicketForm({
+export default function Form({
   handleSubmit,
   closeModal,
   customFields,
   departments,
   branches,
   products,
+  type,
   labels,
 }: Props) {
-  const [ticket, setTicket] = useState<Ticket>({} as Ticket);
+  const [item, setItem] = useState({} as any);
   const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
 
   const handleClick = () => {
@@ -50,7 +51,7 @@ export default function TicketForm({
       }
     }
 
-    handleSubmit({ ...ticket, customFieldsData });
+    handleSubmit({ ...item, customFieldsData });
   };
 
   const onCustomFieldsDataChange = ({ _id, value }) => {
@@ -61,8 +62,8 @@ export default function TicketForm({
     );
 
     if (systemField) {
-      return setTicket({
-        ...ticket,
+      return setItem({
+        ...item,
         [systemField.field]: value,
       });
     }
@@ -97,8 +98,8 @@ export default function TicketForm({
 
   function renderControl({ label, name, placeholder, value = "" }) {
     const handleChange = (e) => {
-      setTicket({
-        ...ticket,
+      setItem({
+        ...item,
         [name]: e.target.value,
       });
     };
@@ -142,18 +143,18 @@ export default function TicketForm({
         </span>
       </DetailHeader>
       <FormWrapper>
-        <h4>Add a new ticket</h4>
+        <h4>Add a new {type}</h4>
         <div className="content">
           {renderControl({
             name: "subject",
             label: "Subject",
-            value: ticket.subject,
+            value: item.subject,
             placeholder: "Enter a subject",
           })}
           {renderControl({
             name: "description",
             label: "Description",
-            value: ticket.description,
+            value: item.description,
             placeholder: "Enter a description",
           })}
           {renderCustomFields()}

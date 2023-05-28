@@ -1,4 +1,4 @@
-import { Config, IUser, Store, Ticket } from "../../types";
+import { Config, IUser, Store } from "../../types";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries } from "../graphql";
 
@@ -6,10 +6,12 @@ import { Alert } from "../../utils";
 import { AppConsumer } from "../../appContext";
 import Form from "../components/Form";
 import React from "react";
+import { capitalize } from "../../common/utils";
 
 type Props = {
   config: Config;
   currentUser: IUser;
+  type: string;
   closeModal: () => void;
 };
 
@@ -17,16 +19,19 @@ function FormContainer({
   config = {},
   currentUser,
   closeModal,
+  type,
   ...props
 }: Props) {
-  const [createDeal] = useMutation(gql(mutations.clientPortalCreateDeal), {
-    refetchQueries: [{ query: gql(queries.clientPortalDeals) }],
+  const [createItem] = useMutation(gql(mutations.clientPortalCreateCard), {
+    refetchQueries: [
+      { query: gql(queries[`clientPortal${capitalize(type)}s`]) },
+    ],
   });
 
   const { data: customFields } = useQuery(gql(queries.fields), {
     variables: {
-      contentType: "cards:deal",
-      pipelineId: config?.dealPipelineId,
+      contentType: `cards:${type}`,
+      pipelineId: config[`${type}PipelineId`],
       isVisibleToCreate: true,
     },
     context: {
@@ -38,7 +43,7 @@ function FormContainer({
 
   const labelsQuery = useQuery(gql(queries.pipelineLabels), {
     variables: {
-      pipelineId: config?.dealPipelineId,
+      pipelineId: config[`${type}PipelineId`],
     },
     context: {
       headers: {
@@ -77,16 +82,16 @@ function FormContainer({
     },
   });
 
-  const handleSubmit = (doc: Ticket) => {
-    createDeal({
+  const handleSubmit = (doc) => {
+    createItem({
       variables: {
         ...doc,
-        type: "deal",
-        stageId: config.dealStageId,
+        type,
+        stageId: config[`${type}StageId`],
         email: currentUser.email,
       },
     }).then(() => {
-      Alert.success("You've successfully created a sales pipeline");
+      Alert.success(`You've successfully created a ${type}`);
 
       closeModal();
     });
@@ -102,6 +107,8 @@ function FormContainer({
     branches: branches?.branches || [],
     products: products?.products || [],
     labels,
+    type,
+    closeModal,
     handleSubmit,
   };
 

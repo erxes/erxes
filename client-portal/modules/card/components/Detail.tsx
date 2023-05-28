@@ -10,15 +10,13 @@ import {
   RightSidebar,
   TicketComment,
   TicketDetailContent,
-} from "../../styles/tickets";
+} from "../../styles/cards";
 
 import Button from "../../common/Button";
 import { ControlLabel } from "../../common/form";
-import { FormWrapper } from "../../styles/main";
 import { IUser } from "../../types";
 import Icon from "../../common/Icon";
 import Link from "next/link";
-import Modal from "../../common/Modal";
 import PriorityIndicator from "../../common/PriorityIndicator";
 import React from "react";
 import { TextArea } from "../../common/form/styles";
@@ -30,12 +28,13 @@ type Props = {
   item?: any;
   comments?: any;
   currentUser: IUser;
+  type: string;
   onClose: () => void;
   handleSubmit: ({ content }: { content: string }) => void;
   handleRemoveComment: (commentId: string) => void;
 };
 
-export default class TaskDetail extends React.Component<
+export default class CardDetail extends React.Component<
   Props,
   { content: string }
 > {
@@ -170,7 +169,7 @@ export default class TaskDetail extends React.Component<
 
   render() {
     const currentUser = this.props.currentUser || ({} as IUser);
-    const { item, onClose, comments } = this.props;
+    const { item, type, comments } = this.props;
     const email = currentUser.email;
 
     if (!item) {
@@ -182,7 +181,7 @@ export default class TaskDetail extends React.Component<
     return (
       <>
         <DetailHeader className="d-flex align-items-center">
-          <Link href="/tasks">
+          <Link href={`/${type}s`}>
             <span>
               <Icon icon="leftarrow-3" /> Back
             </span>
