@@ -70,6 +70,14 @@ const clientPortalGetDeal = `
   }
 `;
 
+const clientPortalGetPurchase = `
+  query purchaseDetail($_id: String!) {
+    purchaseDetail(_id: $_id) {
+      ${itemFields}
+    }
+  }
+`;
+
 const clientPortalTasks = `
   query clientPortalTasks($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String]) {
     clientPortalTasks(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds) {
@@ -77,7 +85,6 @@ const clientPortalTasks = `
     }
   }
 `;
-
 
 const clientPortalTickets = `
   query clientPortalTickets ($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String]){
@@ -90,6 +97,14 @@ const clientPortalTickets = `
 const clientPortalDeals = `
   query clientPortalDeals($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String]) {
     clientPortalDeals(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds) {
+      ${itemFields}
+    }
+  }
+`;
+
+const clientPortalPurchases = `
+  query clientPortalPurchases($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String]) {
+    clientPortalPurchases(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds) {
       ${itemFields}
     }
   }
@@ -315,9 +330,11 @@ query pipelineAssignedUsers($_id: String!) {
 export default {
   clientPortalGetTicket,
   clientPortalGetDeal,
+  clientPortalGetPurchase,
   clientPortalGetTask,
   clientPortalTickets,
   clientPortalDeals,
+  clientPortalPurchases,
   clientPortalTasks,
   clientPortalComments,
   fields,

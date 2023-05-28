@@ -1,11 +1,11 @@
-import PurchaseList from "../../modules/purchase/containers/Purchase";
+import CardList from "../../modules/card/containers/List";
 import Layout from "../../modules/main/containers/Layout";
 
 function Purchase() {
   return (
     <Layout>
       {(props) => {
-        return <PurchaseList {...props} />;
+        return <CardList {...props} type="purchase" />;
       }}
     </Layout>
   );
