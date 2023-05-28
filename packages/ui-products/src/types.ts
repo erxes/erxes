@@ -102,11 +102,6 @@ export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
 } & QueryResponse;
 
-export interface CostQueryResponse {
-  _id: string;
-  name: string;
-  code: string;
-}
 export type ProductsQueryResponses = {
   products: IProduct[];
 } & QueryResponse;

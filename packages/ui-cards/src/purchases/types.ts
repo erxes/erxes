@@ -107,3 +107,9 @@ export type PurchasesTotalCountQueryResponse = {
   refetch: () => void;
   fetchMore: any;
 };
+
+export interface CostQueryResponse {
+  _id: string;
+  name: string;
+  code: string;
+}

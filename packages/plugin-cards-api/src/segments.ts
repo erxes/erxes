@@ -19,26 +19,22 @@ export default {
     {
       type: 'deal',
       description: 'Deal',
-      esIndex: 'deals',
-      esIndexPurchase: 'deals'
+      esIndex: 'deals'
     },
     {
       type: 'purchase',
       description: 'Purchase',
-      esIndex: 'purchases',
-      esIndexPurchase: 'purchases'
+      esIndex: 'purchases'
     },
     {
       type: 'ticket',
       description: 'Ticket',
-      esIndex: 'tickets',
-      esIndexPurchase: 'tickets'
+      esIndex: 'tickets'
     },
     {
       type: 'task',
       description: 'Task',
-      esIndex: 'tasks',
-      esIndexPurchase: 'purchases'
+      esIndex: 'tasks'
     }
   ],
 

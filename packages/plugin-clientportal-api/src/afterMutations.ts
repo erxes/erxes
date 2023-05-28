@@ -6,6 +6,7 @@ export default {
   'cards:ticket': ['update', 'delete'],
   'cards:task': ['update', 'delete'],
   'knowledgebase:knowledgeBaseArticle': ['create', 'update'],
+  'cards:deal': ['update', 'delete'],
   'cards:purchase': ['update', 'delete']
 };
 

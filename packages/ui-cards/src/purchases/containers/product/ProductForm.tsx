@@ -4,7 +4,7 @@ import ProductForm from '../../components/product/ProductForm';
 import React from 'react';
 import { AppConsumer } from 'coreui/appContext';
 import { graphql } from '@apollo/client/react/hoc';
-import { IProduct, CostQueryResponse } from '@erxes/ui-products/src/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '../../graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
@@ -12,7 +12,8 @@ import {
   IPurchase,
   IPaymentsData,
   IProductData,
-  IExpensesData
+  IExpensesData,
+  CostQueryResponse
 } from '../../types';
 
 type Props = {

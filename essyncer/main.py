@@ -176,7 +176,7 @@ conformity_mapping = {
 deal_mapping = item_mapping
 task_mapping = item_mapping
 ticket_mapping = item_mapping
-purchase_mapping=item_mapping
+purchase_mapping = item_mapping
 event_mapping = {
     'type': {
         'type': 'keyword',
