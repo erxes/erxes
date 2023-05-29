@@ -58,6 +58,30 @@ export const EMPTY_CONTENT_DEAL = {
   ]
 };
 
+export const EMPTY_CONTENT_PURCHASE = {
+  title: __('Getting Started with Sales Pipeline'),
+  description: __(
+    `Drive leads to a successful close with our Kanban-style boards`
+  ),
+  steps: [
+    {
+      title: __('Create Boards and Pipelines'),
+      description: `${__(
+        'Track your entire sales pipeline from one dashboard'
+      )}${__('You can also restrict access to your sales pipelines')}`,
+      url: '/settings/boards/purchase',
+      urlText: __('Go to Board & Pipeline')
+    },
+    {
+      title: __('Tip: Choose different views'),
+      description: __(
+        'Click on “Boards, Calendar, Conversions” to filter purchases'
+      ),
+      icon: 'lightbulb-alt'
+    }
+  ]
+};
+
 export const EMPTY_CONTENT_TASK = {
   title: __('Getting Started with Tasks'),
   description: __(

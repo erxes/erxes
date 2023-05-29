@@ -77,6 +77,8 @@ class Actions extends React.Component<Props> {
         ? TAG_TYPES.DEAL
         : options.type === 'task'
         ? TAG_TYPES.TASK
+        : options.type === 'purchase' // Add a new condition for 'purchase'
+        ? TAG_TYPES.PURCHASE
         : TAG_TYPES.TICKET;
 
     const tagTrigger = (

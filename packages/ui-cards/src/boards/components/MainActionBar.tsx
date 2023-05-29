@@ -301,6 +301,16 @@ class MainActionBar extends React.Component<Props> {
                 </Link>
               </li>
             )}
+            {options.type === 'purchase' && (
+              <li key="conversion">
+                <Link
+                  to={onFilterClick('conversion')}
+                  className={viewType === 'conversion' ? 'active' : ''}
+                >
+                  {__('Conversion')}
+                </Link>
+              </li>
+            )}
             <li key="activity">
               <Link
                 to={onFilterClick('activity')}
