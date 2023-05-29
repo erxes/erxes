@@ -1,17 +1,17 @@
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import * as compose from 'lodash.flowright';
+
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   ClientPortalUserAssignCompanyMutationResponse,
   IClientPortalUser
 } from '../../types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-
-import * as compose from 'lodash.flowright';
-
 import { mutations, queries } from '../../graphql';
+
 import CompanyAssignForm from '../../components/detail/CompanyAssignForm';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
