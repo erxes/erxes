@@ -7,9 +7,9 @@ import { mutations, queries } from '../../graphql';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import PostsList from '../../components/posts/PostsList';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { useQuery } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { useQuery } from '@apollo/client';
 import { useSearchParam } from '../../hooks';
 import Spinner from '@erxes/ui/src/components/Spinner';
 

@@ -1,7 +1,7 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import { RatesQueryResponse } from '../../../types';
 import Rates from '../components/Rates';
 import queries from '../graphql/queries';

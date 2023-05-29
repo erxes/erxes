@@ -1,9 +1,9 @@
 import * as compose from 'lodash.flowright';
 import Detail from '../components/CoverDetail';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { Alert } from '@erxes/ui/src/utils';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import {
   ICover,
   PosCoverEditNoteMutationResponse,

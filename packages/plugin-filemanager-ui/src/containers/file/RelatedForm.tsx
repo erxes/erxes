@@ -9,8 +9,8 @@ import { mutations, queries } from '../../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import Chooser from '@erxes/ui/src/components/Chooser';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   item: any;

@@ -6,8 +6,8 @@ import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import RequestAccessForm from '../../components/file/RequestAccessForm';
 import { RequestAccessMutationResponse } from '../../types';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   fileId: string;

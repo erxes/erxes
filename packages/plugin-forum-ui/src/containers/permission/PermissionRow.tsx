@@ -1,9 +1,9 @@
 import React from 'react';
 import { mutations } from '../../graphql';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/client';
 import { IPermission } from '../../types';
 import Row from '../../components/permission/PermissionRow';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { confirm } from '@erxes/ui/src/utils';
 
 type Props = {

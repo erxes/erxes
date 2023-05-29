@@ -20,8 +20,8 @@ import {
 } from '../../types';
 import { can, withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 import withConsumer from '../../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
 

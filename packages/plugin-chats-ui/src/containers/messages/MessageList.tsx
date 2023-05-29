@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery, useSubscription } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery, useSubscription } from '@apollo/client';
+import { gql } from '@apollo/client';
 // erxes
 import Spinner from '@erxes/ui/src/components/Spinner';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';

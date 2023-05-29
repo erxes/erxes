@@ -2,7 +2,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import PaymentList from '../components/PaymentList';
 import { mutations, queries } from '../graphql';
