@@ -1,58 +1,52 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { NotifButton } from '@erxes/ui-notifications/src/components/styles';
-import Popover from 'react-bootstrap/Popover';
 import Icon from '@erxes/ui/src/components/Icon';
+import { WidgetWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 
 const WidgetContainer = () => {
   const [shrink, setShrink] = useState(false);
   const [show, setShow] = useState(true);
-  const ref = useRef(null);
 
   const changeShrink = () => {
     setShrink(!shrink);
   };
 
   const hideWidget = () => {
-    setShow(false);
     setTimeout(() => {
-      ref.current.click();
       setShow(true);
       setShrink(false);
     }, 10);
+
+    localStorage.setItem('emailWidgetShow', 'false');
   };
 
-  const renderData = () => {
-    return (
-      <Popover
-        id="email-popover"
-        className={`email-popover ${shrink && 'small'}`}
-      >
-        {' '}
+  const showWidget = () => {
+    setShrink(false);
+    setShow(!show);
+    if (show) {
+      localStorage.setItem('emailWidgetShow', 'true');
+    }
+    if (!show) {
+      localStorage.setItem('emailWidgetShow', 'false');
+    }
+  };
+
+  const isWidgetShow = localStorage.getItem('emailWidgetShow');
+
+  return (
+    <>
+      <NotifButton>
+        <Icon icon="fast-mail" size={20} onClick={() => showWidget()} />
+      </NotifButton>
+      <WidgetWrapper show={isWidgetShow === 'true' ? true : false}>
         <MailForm
           shrink={shrink}
           hideWidget={hideWidget}
           isWidget={true}
           changeShrink={changeShrink}
         />
-      </Popover>
-    );
-  };
-
-  return (
-    <>
-      <div ref={ref} />
-      <OverlayTrigger
-        trigger="click"
-        rootClose={show ? false : true}
-        placement="bottom"
-        overlay={renderData()}
-      >
-        <NotifButton>
-          <Icon icon="fast-mail" size={20} />
-        </NotifButton>
-      </OverlayTrigger>
+      </WidgetWrapper>
     </>
   );
 };

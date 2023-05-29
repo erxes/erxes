@@ -254,10 +254,25 @@ const NewEmailHeader = styled.h5`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
 
   i {
     margin-left: ${dimensions.unitSpacing}px;
   }
+`;
+
+const WidgetWrapper = styledTS<{ show: boolean }>(styled.div)`
+  position: fixed;
+  bottom: ${dimensions.unitSpacing}px;
+  right: ${dimensions.unitSpacing}px;
+  display: flex;
+  z-index: 9999;
+  justify-content: flex-end;
+  align-content: flex-end;
+  background: #fff;
+  box-shadow: 0 0 20px 3px rgba(0,0,0,0.15);
+
+  ${props => !props.show && 'display:none;'}
 `;
 
 export {
@@ -278,5 +293,6 @@ export {
   ShowReplies,
   PopoverLinkWrapper,
   Meta,
-  NewEmailHeader
+  NewEmailHeader,
+  WidgetWrapper
 };
