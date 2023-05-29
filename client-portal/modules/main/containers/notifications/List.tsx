@@ -5,7 +5,7 @@ import Notifications from '../../components/notifications/List';
 import {
   IUser,
   NotificationsCountQueryResponse,
-  NotificationsQueryResponse,
+  NotificationsQueryResponse
 } from '../../../types';
 import { useRouter } from 'next/router';
 
@@ -40,6 +40,9 @@ const notificationsQuery = gql`
       createdAt
       isRead
       title
+      createdUser {
+        username
+      }
     }
   }
 `;
@@ -53,12 +56,12 @@ const markAsReadMutation = gql`
 function NotificationsContainer(props: Props) {
   const [markAsReadMutaion] = useMutation(markAsReadMutation);
 
-  const onClickNotification = (notificationId: string) => {
+  const markAsRead = (ids: string[]) => {
     markAsReadMutaion({
       variables: {
-        ids: [notificationId],
-      },
-    })
+        ids
+      }
+    });
   };
 
   const notificationsResponse = useQuery<NotificationsQueryResponse>(
@@ -68,9 +71,9 @@ function NotificationsContainer(props: Props) {
       variables: {
         requireRead: props.requireRead,
         page: 1,
-        perPage: 10,
+        perPage: 10
       },
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'network-only'
     }
   );
 
@@ -87,8 +90,8 @@ function NotificationsContainer(props: Props) {
     ...props,
     notifications,
     loading: notificationsResponse.loading,
-    onClickNotification,
-    refetch,
+    markAsRead,
+    refetch
   };
 
   return <Notifications {...updatedProps} />;
