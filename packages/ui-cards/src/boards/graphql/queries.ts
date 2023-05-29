@@ -323,9 +323,13 @@ const conversionStages = `
     ) {
       ${stageCommon}
       compareNextStage
+      compareNextStagePurchase
       initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount
+      initialPurchasesTotalCount
+      stayedPurchasesTotalCount
+      inProcessPurchasesTotalCount
     }
   }
 `;
@@ -385,6 +389,14 @@ const deals = `
   }
 `;
 
+const purchases = `
+  query purchases(${boardItemQueryParamsDef}) {
+    purchases(${boardItemQueryParams}) {
+      ${cardFields}
+    }
+  }
+`;
+
 const boardContentTypeDetail = `
   query boardContentTypeDetail($contentType: String, $contentId: String){
     boardContentTypeDetail(contentType: $contentType, contentId: $contentId)
@@ -437,5 +449,6 @@ export default {
   tasks,
   boardContentTypeDetail,
   boardLogs,
-  documents
+  documents,
+  purchases
 };

@@ -16,6 +16,7 @@ const createOrUpdateConfig = `
     $knowledgeBaseTopicId: String
     $ticketLabel: String
     $dealLabel: String
+    $purchaseLabel: String
     $taskPublicBoardId: String
     $taskPublicPipelineId: String
     $taskPublicLabel: String
@@ -29,6 +30,9 @@ const createOrUpdateConfig = `
     $dealStageId: String
     $dealPipelineId: String
     $dealBoardId: String
+    $purchaseStageId: String
+    $purchasePipelineId: String
+    $purchaseBoardId: String
     $styles: StylesParams
     $mobileResponsive: Boolean
     $googleCredentials: JSON
@@ -43,6 +47,7 @@ const createOrUpdateConfig = `
     $ticketToggle: Boolean
     $taskToggle: Boolean
     $dealToggle: Boolean
+    $purchaseToggle: Boolean
     $otpConfig: OTPConfigInput
     $mailConfig: MailConfigInput
     $manualVerificationConfig: JSON
@@ -67,6 +72,7 @@ const createOrUpdateConfig = `
       ticketLabel: $ticketLabel,
       taskLabel: $taskLabel,
       dealLabel: $dealLabel,
+      purchaseLabel: $purchaseLabel,
       taskStageId: $taskStageId,
       taskPipelineId: $taskPipelineId,
       taskBoardId: $taskBoardId,
@@ -76,6 +82,9 @@ const createOrUpdateConfig = `
       dealStageId: $dealStageId,
       dealPipelineId: $dealPipelineId,
       dealBoardId: $dealBoardId
+      purchaseStageId: $purchaseStageId,
+      purchasePipelineId: $purchasePipelineId,
+      purchaseBoardId: $purchaseBoardId
       styles: $styles
       mobileResponsive: $mobileResponsive
       googleCredentials: $googleCredentials
@@ -90,6 +99,7 @@ const createOrUpdateConfig = `
       ticketToggle: $ticketToggle,
       taskToggle: $taskToggle,
       dealToggle: $dealToggle,
+      purchaseToggle: $purchaseToggle,
       otpConfig: $otpConfig
       mailConfig: $mailConfig
       manualVerificationConfig: $manualVerificationConfig

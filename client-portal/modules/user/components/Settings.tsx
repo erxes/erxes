@@ -2,7 +2,6 @@ import { ControlLabel, FormGroup } from "../../common/form";
 import { SettingsContent, SettingsTitle } from "../../styles/profile";
 
 import Button from "../../common/Button";
-import { FormWrapper } from "../../styles/main";
 import { IUser } from "../../types";
 import { ModalFooter } from "../../common/form/styles";
 import React from "react";
@@ -13,7 +12,7 @@ type Props = {
   onSave: (doc: { [key: string]: any }) => void;
 };
 
-function Settings({ currentUser, onSave }: Props) {
+function Settings({ currentUser = {} as IUser, onSave }: Props) {
   const notificationSettings = currentUser.notificationSettings || {
     receiveByEmail: false,
     receiveBySms: false,

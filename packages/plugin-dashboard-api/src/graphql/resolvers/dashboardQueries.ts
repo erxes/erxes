@@ -127,13 +127,14 @@ const dashBoardQueries = {
       }
     }
 
-    const types = ['Customers', 'Deals', 'Conversations', 'Tasks', 'Tickets'];
-
-    if (services.includes('pos')) {
-      types.push('Pos');
-    }
-
-    return types;
+    return [
+      'Customers',
+      'Deals',
+      'Conversations',
+      'Tasks',
+      'Tickets',
+      'Purchases'
+    ];
   },
 
   async dashboardCountByTags(_root, _params, { models, subdomain }: IContext) {

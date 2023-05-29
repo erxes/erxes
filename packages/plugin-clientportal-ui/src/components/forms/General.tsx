@@ -63,6 +63,7 @@ function General({
   ticketLabel,
   taskLabel,
   dealLabel,
+  purchaseLabel,
   taskStageId,
   taskPipelineId,
   taskBoardId,
@@ -72,12 +73,16 @@ function General({
   dealStageId,
   dealPipelineId,
   dealBoardId,
+  purchaseStageId,
+  purchasePipelineId,
+  purchaseBoardId,
   fetchPipelines,
   handleFormChange,
   kbToggle,
   publicTaskToggle,
   taskToggle,
   dealToggle,
+  purchaseToggle,
   ticketToggle
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
@@ -399,6 +404,28 @@ function General({
             </>,
             'dealToggle',
             dealToggle || false
+          )}
+
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'purchases',
+            <>
+              {renderControl({
+                label: 'Purchases',
+                subtitle: 'Shown name on menu',
+                formValueName: 'purchaseLabel',
+                formValue: purchaseLabel,
+                placeholder: 'Please enter a label for Purchase'
+              })}
+              {renderBoardSelect({
+                type: 'purchase',
+                stageId: purchaseStageId,
+                pipelineId: purchasePipelineId,
+                boardId: purchaseBoardId
+              })}
+            </>,
+            'purchaseToggle',
+            purchaseToggle || false
           )}
 
         {isEnabled('cards') &&

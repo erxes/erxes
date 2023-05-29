@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import { ErrorMsg } from '../../components';
 import Map, { IMapProps } from '../../components/map/Map';
 import Spinner from '../../components/Spinner';
