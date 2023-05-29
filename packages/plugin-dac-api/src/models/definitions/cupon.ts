@@ -64,5 +64,6 @@ export const cuponSchema = new Schema({
     optional: true,
     label: 'description'
   }),
+  discount: field({ type: String, optional: true, label: 'discount' }),
   ...commonFields
 });

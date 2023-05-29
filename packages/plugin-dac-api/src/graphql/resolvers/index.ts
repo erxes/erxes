@@ -1,7 +1,7 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
 import mutations from './mutations';
-import queries from './queries';
+import queries, { dacUserActiveCupons } from './queries';
 // import { Types } from '../../models';
 
 const Dac = {
@@ -17,7 +17,8 @@ const resolvers: any = async _serviceDiscovery => ({
     ...mutations
   },
   Query: {
-    ...queries
+    ...queries,
+    dacUserActiveCupons
   }
 });
 
