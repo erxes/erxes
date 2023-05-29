@@ -9,10 +9,10 @@ const dacQueries = {
   },
   async dacCuponCheck(
     _root,
-    { customerId, cuponUniqueId }: ICupon,
+    { customerId, _id }: ICupon,
     { models }: IContext
   ) {
-    const result = await models.DacCupons.checkCupon(customerId, cuponUniqueId);
+    const result = await models.DacCupons.checkCupon(customerId, _id);
 
     return result?.status;
   }

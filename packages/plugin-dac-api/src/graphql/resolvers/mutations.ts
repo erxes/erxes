@@ -27,17 +27,17 @@ const dacMutations = {
       defaultValue: null
     });
     if (isExistsCpUser) {
-      await models.DacCupons.createCupon(doc, user?._id);
-      return 'success';
+      const createdCupon = await models.DacCupons.createCupon(doc, user?._id);
+      return createdCupon?._id || '0';
     }
     throw new Error('User not found');
   },
   async dacCuponUse(
     _root,
-    { customerId, cuponUniqueId, status }: ICupon,
+    { customerId, _id, status }: ICupon,
     { models, user }: IContext
   ) {
-    const cupon = await models.DacCupons.checkCupon(customerId, cuponUniqueId);
+    const cupon = await models.DacCupons.checkCupon(customerId, _id);
     if (cupon) {
       if (cupon.status === 'new') {
         await models.DacCupons.updateOne(

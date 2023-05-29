@@ -7,10 +7,7 @@ import {
 } from './definitions/cupon';
 
 export interface ICuponModel extends Model<ICuponDocument> {
-  checkCupon(
-    customerId: string,
-    cuponUniqueId: string
-  ): Promise<ICuponDocument>;
+  checkCupon(customerId: string, _id: string): Promise<ICuponDocument>;
   createCupon(
     docFields: ICuponCreate,
     userId?: string
@@ -20,10 +17,10 @@ export interface ICuponModel extends Model<ICuponDocument> {
 }
 export const loadCuponClass = (model: IModels) => {
   class Cupon {
-    public static async checkCupon(customerId: string, cuponUniqueId: string) {
+    public static async checkCupon(customerId: string, _id: string) {
       const cupon = await model.DacCupons.findOne({
         customerId,
-        cuponUniqueId
+        _id
       });
 
       if (cupon) {
@@ -39,10 +36,10 @@ export const loadCuponClass = (model: IModels) => {
       if (!userId) {
         throw new Error('User not found');
       }
-      const { customerId, cuponUniqueId } = docFields;
+      const { customerId, _id } = docFields;
       const cupon = await model.DacCupons.findOne({
         customerId,
-        cuponUniqueId
+        _id
       });
       if (cupon) {
         throw new Error('Already exists');

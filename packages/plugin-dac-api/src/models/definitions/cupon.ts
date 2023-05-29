@@ -14,7 +14,7 @@ export interface ICuponCreate extends ICupon {
 
 export interface ICupon {
   cuponCode: string;
-  cuponUniqueId: string;
+  _id: string;
   customerId: string;
   expireDate?: Date;
   startDate?: Date;
@@ -54,11 +54,7 @@ export const cuponSchema = new Schema({
   cuponCode: field({ type: String, optional: true, label: 'cuponCode' }),
   startDate: field({ type: Date, label: 'start date' }),
   expireDate: field({ type: Date, label: 'Expiry date' }),
-  cuponUniqueId: field({
-    type: String,
-    optional: true,
-    label: 'cupon unique id'
-  }),
+
   description: field({
     type: String,
     optional: true,
