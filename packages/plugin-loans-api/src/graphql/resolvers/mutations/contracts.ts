@@ -37,7 +37,7 @@ const contractMutations = {
 
     await putCreateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -72,7 +72,7 @@ const contractMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -114,7 +114,7 @@ const contractMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -147,7 +147,7 @@ const contractMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -182,7 +182,7 @@ const contractMutations = {
       const descriptions = gatherDescriptions(logData);
       await putDeleteLog(
         subdomain,
-        messageBroker,
+        messageBroker(),
         { ...logData, ...descriptions },
         user
       );

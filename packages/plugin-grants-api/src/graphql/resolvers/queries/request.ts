@@ -13,7 +13,7 @@ const generateFilter = params => {
   }
 
   if (params.userId) {
-    filter.userId = params.userId;
+    filter.userIds = { $in: params.userId };
   }
 
   if (params.createdAtFrom) {

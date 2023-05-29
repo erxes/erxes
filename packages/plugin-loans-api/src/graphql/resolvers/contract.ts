@@ -151,7 +151,7 @@ const Contracts = {
         let data: any = contract;
         data.untilDay = getDiffDay(
           new Date(),
-          getNextMonthDay(contract.startDate, contract.scheduleDay)
+          getNextMonthDay(contract.startDate, contract.scheduleDays)
         );
         data.donePercent = 0;
         return data;
@@ -223,7 +223,7 @@ const Contracts = {
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $gte: today },
-      isDefault: true
+      status: SCHEDULE_STATUS.PENDING
     })
       .sort({ payDate: 1 })
       .lean();
@@ -233,14 +233,22 @@ const Contracts = {
       payDate: nextSchedule?.payDate || today
     });
 
-    return calcedInfo.total;
+    return (
+      (calcedInfo.payment || 0) +
+      (calcedInfo.undue || 0) +
+      (calcedInfo.interestEve || 0) +
+      (calcedInfo.interestNonce || 0) +
+      (calcedInfo.insurance || 0) +
+      (calcedInfo.debt || 0)
+    );
   },
   async nextPaymentDate(contract: IContractDocument, {}, { models }: IContext) {
     const today = getFullDate(new Date());
 
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
-      payDate: { $gte: today }
+      payDate: { $gte: today },
+      status: SCHEDULE_STATUS.PENDING
     })
       .sort({ payDate: 1 })
       .lean();

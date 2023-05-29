@@ -1,5 +1,5 @@
 export const types = () => `
-  type CurrentSchedule {
+  type LoanCurrentSchedule {
     contractId: String
     version: String
     payDate: Date
@@ -23,7 +23,7 @@ export const types = () => `
     closeType: String
   }
 
-  type Contract {
+  type LoanContract {
     _id: String!
     contractTypeId: String
     number: String
@@ -41,7 +41,7 @@ export const types = () => `
     interestRate: Float
     repayment: String
     startDate: Date
-    scheduleDay: Float
+    scheduleDays: [Float]
     customerId: String
     customerType: String
 
@@ -68,7 +68,7 @@ export const types = () => `
     collaterals: JSON
     insurancesData: JSON
     collateralsData: JSON
-    currentSchedule: CurrentSchedule
+    currentSchedule: LoanCurrentSchedule
 
     weekends: [Int]
     useHoliday: Boolean
@@ -104,7 +104,7 @@ export const types = () => `
     total: Float,
   }
   type ContractsListResponse {
-    list: [Contract],
+    list: [LoanContract],
     totalCount: Float,
   }
 `;
@@ -141,10 +141,10 @@ const queryParams = `
 
 export const queries = `
   contractsMain(${queryParams}): ContractsListResponse
-  contracts(${queryParams}): [Contract]
-  contractDetail(_id: String!): Contract
-  cpContracts(cpUserType: String cpUserEmail: String cpUserPhone: String): [Contract]
-  cpContractDetail(_id: String!): Contract
+  contracts(${queryParams}): [LoanContract]
+  contractDetail(_id: String!): LoanContract
+  cpContracts(cpUserType: String cpUserEmail: String cpUserPhone: String): [LoanContract]
+  cpContractDetail(_id: String!): LoanContract
   closeInfo(contractId: String, date: Date): CloseInfo
 `;
 
@@ -165,7 +165,7 @@ const commonFields = `
   interestRate: Float
   repayment: String
   startDate: Date
-  scheduleDay: Float
+  scheduleDays: [Float]
   insurancesData: JSON
   collateralsData: JSON
   customerId: String
@@ -186,10 +186,10 @@ const commonFields = `
 `;
 
 export const mutations = `
-  contractsAdd(${commonFields}): Contract
-  contractsEdit(_id: String!, ${commonFields}): Contract
-  contractsDealEdit(_id: String!, ${commonFields}): Contract
-  contractsClose(contractId: String, closeDate: Date, closeType: String, description: String): Contract
+  contractsAdd(${commonFields}): LoanContract
+  contractsEdit(_id: String!, ${commonFields}): LoanContract
+  contractsDealEdit(_id: String!, ${commonFields}): LoanContract
+  contractsClose(contractId: String, closeDate: Date, closeType: String, description: String): LoanContract
   contractsRemove(contractIds: [String]): [String]
   getProductsData(contractId: String): CollateralsDataResponse
 `;

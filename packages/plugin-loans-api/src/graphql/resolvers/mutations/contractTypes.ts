@@ -31,7 +31,7 @@ const contractTypeMutations = {
 
     await putCreateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -66,7 +66,7 @@ const contractTypeMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -101,7 +101,7 @@ const contractTypeMutations = {
       });
       await putDeleteLog(
         subdomain,
-        messageBroker,
+        messageBroker(),
         {
           type: 'contractType',
           object: contractType,

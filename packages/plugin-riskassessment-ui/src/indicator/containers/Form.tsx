@@ -14,14 +14,13 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   asssessmentId?: string;
-  indicatorDetail?: RiskIndicatortDetailQueryResponse;
   fieldsSkip?: any;
   closeModal: () => void;
   queryParams: any;
 };
 
 type FinalProps = {
-  object;
+  indicatorDetail: any;
 } & ICommonFormProps &
   IRouterProps &
   Props;

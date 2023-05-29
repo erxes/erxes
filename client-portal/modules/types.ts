@@ -132,6 +132,8 @@ export type Config = {
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   taskPublicPipelineId?: string;
+  taskPublicLabel?: string;
+  taskPublicBoardId?: string;
   ticketLabel?: string;
   dealLabel?: string;
   taskLabel?: string;

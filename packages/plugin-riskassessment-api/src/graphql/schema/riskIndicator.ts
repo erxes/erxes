@@ -43,12 +43,12 @@ export const types = tagsAvailable => `
     type RiskIndicatorType {
         ${commonRiskIndicatorParams}
         createdAt:Date
+        modifiedAt:Date
         calculateMethod:String
         calculateLogics:[CalculateLogicType]
         forms:[RiskIndicatorFormType]
         isWithDescription:Boolean
-        tags:[Tag]
-        ${tagsAvailable ? `` : ''}
+        ${tagsAvailable ? `tags:[Tag]` : ''}
         
     }
     
@@ -109,7 +109,7 @@ export const types = tagsAvailable => `
         name:String,
         description:String
         tagIds:[String]
-        tags:[Tag]
+        ${tagsAvailable ? `tags:[Tag]` : ''}
         calculateMethod:String,
         calculateLogics:[CalculateLogicType]
         groups:[GroupsOfGroupTypes]

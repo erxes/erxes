@@ -1,21 +1,18 @@
-import { Config, IUser } from "../../types";
 import { ControlLabel, Form, FormControl, FormGroup } from "../../common/form";
 import { SettingsContent, SettingsTitle } from "../../styles/profile";
 
 import { IFormProps } from "../../common/types";
+import { IUser } from "../../types";
 import { ModalFooter } from "../../common/form/styles";
 import React from "react";
 import { useRouter } from "next/router";
 
 type Props = {
-  config: Config;
   currentUser: IUser;
   renderButton: ({}: any) => void;
 };
 
-function Profile({ currentUser, config, renderButton }: Props) {
-  const router = useRouter();
-
+function Profile({ currentUser, renderButton }: Props) {
   const generateDoc = (values) => {
     const { object } = {} as any;
 

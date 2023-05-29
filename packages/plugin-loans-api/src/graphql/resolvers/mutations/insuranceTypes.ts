@@ -37,7 +37,7 @@ const insuranceTypeMutations = {
 
     await putCreateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -82,7 +82,7 @@ const insuranceTypeMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         ...logData,
         ...descriptions
@@ -118,7 +118,7 @@ const insuranceTypeMutations = {
       const descriptions = gatherDescriptions(logData);
       await putDeleteLog(
         subdomain,
-        messageBroker,
+        messageBroker(),
         {
           ...logData,
           ...descriptions

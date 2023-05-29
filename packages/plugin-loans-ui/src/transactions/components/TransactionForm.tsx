@@ -268,6 +268,8 @@ class TransactionForm extends React.Component<Props, State> {
                 <FormControl
                   {...formProps}
                   type={'number'}
+                  useNumberFormat
+                  fixed={2}
                   name="total"
                   value={this.state.total}
                   onChange={onChangeField}
