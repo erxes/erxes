@@ -98,6 +98,36 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('cards:createChildItem', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { type, itemId, ...doc } = data;
+
+    const parent = await getCardItem(models, {
+      contentType: type,
+      contentTypeId: itemId
+    });
+
+    if (!parent) {
+      return {
+        status: 'failde',
+        data: null
+      };
+    }
+
+    const childCard = await createBoardItem(
+      models,
+      subdomain,
+      { parentId: itemId, stageId: parent.stageId, ...doc },
+      type
+    );
+
+    return {
+      status: 'success',
+      data: childCard
+    };
+  });
+
   consumeRPCQueue('cards:createRelatedItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
