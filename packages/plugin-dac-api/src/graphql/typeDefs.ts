@@ -25,7 +25,9 @@ const types = `
      description: String,
      startDate: Date,
      expiryDate: Date,
-     status: String
+     status: String,
+     title: String,
+     discount: String
    }
      input DacCuponInput {
      customerId: String!,
@@ -34,6 +36,8 @@ const types = `
      description: String,
      startDate: Date,
      expireDate: Date,
+     title: String,
+     discount: String
    },
 `;
 
