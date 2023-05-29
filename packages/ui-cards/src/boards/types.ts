@@ -150,6 +150,7 @@ export interface IStage {
   order: number;
   code?: string;
   age?: number;
+  defaultTick?: boolean;
 }
 
 export interface IConversionStage extends IStage {
