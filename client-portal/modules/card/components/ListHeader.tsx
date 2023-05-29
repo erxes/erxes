@@ -53,31 +53,37 @@ export default class ListHeader extends React.Component<Props> {
                 </span>
               ))}
             </CardTab>
-            <Dropdown>
-              <Dropdown.Toggle
-                as={DropdownToggle}
-                id="dropdown-custom-components"
-              >
-                <Button btnStyle="simple" uppercase={false} icon="filter">
-                  {mode}
-                </Button>
-              </Dropdown.Toggle>
+            {viewType !== "board" && (
+              <Dropdown>
+                <Dropdown.Toggle
+                  as={DropdownToggle}
+                  id="dropdown-custom-components"
+                >
+                  <CardTab>
+                    <span
+                      className={`d-flex align-items-center justify-content-center`}
+                    >
+                      <Icon icon="filter" size={15} /> &nbsp; {mode}
+                    </span>
+                  </CardTab>
+                </Dropdown.Toggle>
 
-              <Dropdown.Menu>
-                {typeFilters.map((viewMode) => (
-                  <Dropdown.Item
-                    key={viewMode.showMode}
-                    className="d-flex align-items-center justify-content-between"
-                    eventKey="1"
-                    onClick={() => {
-                      setMode(viewMode.setMode);
-                    }}
-                  >
-                    {viewMode.showMode}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
+                <Dropdown.Menu>
+                  {typeFilters.map((viewMode) => (
+                    <Dropdown.Item
+                      key={viewMode.showMode}
+                      className="d-flex align-items-center justify-content-between"
+                      eventKey="1"
+                      onClick={() => {
+                        setMode(viewMode.setMode);
+                      }}
+                    >
+                      {viewMode.showMode}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
 
             <Button
               btnStyle="success"

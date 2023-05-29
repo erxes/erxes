@@ -6,8 +6,8 @@ import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { queries as activityLogsQuery } from '@erxes/ui-log/src/activityLogs/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-cards/src/checklists/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 

@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { withApollo } from 'react-apollo';
+import { withApollo } from '@apollo/client/react/hoc';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import styled from 'styled-components';

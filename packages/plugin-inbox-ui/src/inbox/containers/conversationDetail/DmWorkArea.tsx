@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import strip from 'strip';
 
 import { AppConsumer } from 'coreui/appContext';
@@ -76,6 +76,21 @@ const getQueryResult = (queryResponse: object, countQuery?: boolean) => {
   }
 
   return queryResponse[key] || [];
+};
+
+const getQueryResultKey = (queryResponse: object, countQuery?: boolean) => {
+  let key = countQuery
+    ? 'conversationMessagesTotalCount'
+    : 'conversationMessages';
+
+  for (const k of Object.keys(queryResponse)) {
+    if (k.includes('ConversationMessages')) {
+      key = k;
+      break;
+    }
+  }
+
+  return key;
 };
 
 class WorkArea extends React.Component<FinalProps, State> {
@@ -203,7 +218,7 @@ class WorkArea extends React.Component<FinalProps, State> {
     let update;
 
     if (optimisticResponse) {
-      update = (proxy, { data: { conversationMessageAdd } }) => {
+      update = (cache, { data: { conversationMessageAdd } }) => {
         const message = conversationMessageAdd;
 
         let messagesQuery = queries.conversationMessages;
@@ -223,30 +238,17 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
         };
 
-        // Read the data from our cache for this query.
-        let data;
+        cache.updateQuery(selector, data => {
+          const key = getQueryResultKey(data);
+          const messages = data[key] || [];
 
-        try {
-          data = proxy.readQuery(selector);
+          // check duplications
+          if (messages.find(m => m._id === message._id)) {
+            return;
+          }
 
-          // Do not do anything while reading query somewhere else
-        } catch (e) {
-          console.log(e.message);
-          return;
-        }
-
-        const messages = getQueryResult(data);
-
-        // check duplications
-        if (messages.find(m => m._id === message._id)) {
-          return;
-        }
-
-        // Add our comment from the mutation to the end.
-        messages.push(message);
-
-        // Write our data back to the cache.
-        proxy.writeQuery({ ...selector, data });
+          return { [key]: [...messages, message] };
+        });
       };
     }
 

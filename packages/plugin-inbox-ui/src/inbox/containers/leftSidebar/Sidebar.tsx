@@ -1,12 +1,12 @@
 import { AppConsumer } from 'coreui/appContext';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { IBulkContentProps } from '@erxes/ui/src/components/Bulk';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import DumbSidebar from '../../components/leftSidebar/Sidebar';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
@@ -14,7 +14,11 @@ import {
   ResolveAllMutationResponse,
   ResolveAllMutationVariables
 } from '@erxes/ui-inbox/src/inbox/types';
-import { getConfig, setConfig, refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/inbox/utils';
+import {
+  getConfig,
+  setConfig,
+  refetchSidebarConversationsOptions
+} from '@erxes/ui-inbox/src/inbox/utils';
 import { InboxManagementActionConsumer } from '../InboxCore';
 
 type Props = {

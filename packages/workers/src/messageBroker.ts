@@ -54,6 +54,11 @@ export const removeTasks = (subdomain, _ids) =>
     data: { _ids }
   });
 
+export const removePurchases = (subdomain, _ids) =>
+  sendRPCMessage('cards:purchases.remove', {
+    subdomain,
+    data: { _ids }
+  });
 export const getFileUploadConfigs = async () =>
   sendRPCMessage('core:getFileUploadConfigs', {});
 

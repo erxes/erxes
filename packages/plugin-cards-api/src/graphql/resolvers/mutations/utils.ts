@@ -15,6 +15,11 @@ import {
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
 import { IDeal, IDealDocument } from '../../../models/definitions/deals';
 import {
+  IPurchase,
+  IPurchaseDocument
+} from '../../../models/definitions/purchases';
+
+import {
   IGrowthHack,
   IGrowthHackDocument
 } from '../../../models/definitions/growthHacks';
@@ -57,7 +62,9 @@ export const itemResolver = async (
     case 'deal':
       resolverType = 'Deal';
       break;
-
+    case 'purchase':
+      resolverType = 'Purchase';
+      break;
     case 'task':
       resolverType = 'Task';
       break;
@@ -93,7 +100,7 @@ export const itemResolver = async (
 export const itemsAdd = async (
   models: IModels,
   subdomain: string,
-  doc: (IDeal | IItemCommonFields | ITicket | IGrowthHack) & {
+  doc: (IDeal | IPurchase | IItemCommonFields | ITicket | IGrowthHack) & {
     proccessId: string;
     aboveItemId: string;
   },
@@ -474,7 +481,12 @@ const itemMover = async (
   models: IModels,
   subdomain: string,
   userId: string,
-  item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
+  item:
+    | IDealDocument
+    | IPurchaseDocument
+    | ITaskDocument
+    | ITicketDocument
+    | IGrowthHackDocument,
   contentType: string,
   destinationStageId: string
 ) => {
@@ -829,7 +841,12 @@ export const itemsArchive = async (
 };
 
 export const publishHelperItemsConformities = async (
-  item: IDealDocument | ITicketDocument | ITaskDocument | IGrowthHackDocument,
+  item:
+    | IDealDocument
+    | IPurchaseDocument
+    | ITicketDocument
+    | ITaskDocument
+    | IGrowthHackDocument,
   stage: IStageDocument
 ) => {
   graphqlPubsub.publish('pipelinesChanged', {
