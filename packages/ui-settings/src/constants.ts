@@ -336,6 +336,33 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
   ]
 };
 
+export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
+  title: __('Getting Started with Purchase'),
+  description: __(
+    'Drive leads to a successful close with our Kanban-style boards'
+  ),
+  steps: [
+    {
+      title: __('Create your first Sales Board'),
+      description:
+        __(
+          'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc'
+        ) + '.',
+      url: '/settings/boards/purchase#showBoardModal=true',
+      urlText: 'Create a Board'
+    },
+    {
+      title: __('Start adding Purchase to the Board'),
+      description:
+        __(
+          'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc'
+        ) + '.',
+      urlText: 'Create a Purchase',
+      url: '/settings/boards/purchase#showPipelineModal=true'
+    }
+  ]
+};
+
 export const EMPTY_CONTENT_TASK_PIPELINE = {
   title: __('Getting Started with Sales Pipeline'),
   description: __(
@@ -415,6 +442,26 @@ export const WEBHOOK_ACTIONS = [
     label: 'Deal moved',
     action: 'createBoardItemMovementLog',
     type: 'deal'
+  },
+  {
+    label: 'Purchase created',
+    action: 'create',
+    type: 'purchase'
+  },
+  {
+    label: 'Purchase updated',
+    action: 'update',
+    type: 'purchase'
+  },
+  {
+    label: 'Purchase deleted',
+    action: 'delete',
+    type: 'purchase'
+  },
+  {
+    label: 'Purchase moved',
+    action: 'createBoardItemMovementLog',
+    type: 'purchase'
   },
   {
     label: 'Task created',
