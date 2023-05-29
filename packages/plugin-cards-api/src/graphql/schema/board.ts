@@ -64,6 +64,7 @@ export const types = ({ tags }) => `
     inProcessDealsTotalCount: Int
     formId: String
     age: Int
+    defaultTick: Boolean
     ${commonTypes}
   }
 
