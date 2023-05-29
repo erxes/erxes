@@ -222,6 +222,8 @@ const dealMutations = {
     { models, subdomain, user }: IContext
   ) {
     const deal = await models.Deals.getDeal(dealId);
+    const stage = await models.Stages.getStage(deal.stageId);
+
     const oldDataIds = (deal.productsData || []).map(pd => pd._id);
 
     for (const doc of docs) {
@@ -235,10 +237,17 @@ const dealMutations = {
       }
     }
 
-    const productsData = (deal.productsData || []).concat(docs);
+    // undefenid or null then true
+    const tickUsed = stage.defaultTick === false ? false : true;
+    const addDocs = (docs || []).map(
+      doc => ({ ...doc, tickUsed } as IProductData)
+    );
+    const productsData: IProductData[] = (deal.productsData || []).concat(
+      addDocs
+    );
+
     await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
 
-    const stage = await models.Stages.getStage(deal.stageId);
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
