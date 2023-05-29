@@ -181,6 +181,7 @@ export const commonFields = `
   stage {
     probability
     type
+    defaultTick
   }
   isWatched
   attachments {
