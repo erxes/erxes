@@ -373,6 +373,27 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+  purchasePipeline: {
+    text: 'Purchase stage',
+    description:
+      'Create purchase stages to track your entire purchase pipeline from one dashboard',
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      purchaseBoardsCreate: {
+        name: 'Create a board',
+        url: '/settings/boards/purchase#showBoardModal=true'
+      },
+      purchasePipelinesCreate: {
+        name: 'Create a pipeline to be used on your board',
+        url: '/settings/boards/purchase#showPipelineModal=true'
+      },
+      purchaseCreate: {
+        name: 'Create purchase',
+        url: '/purchase/board'
+      }
+    }
+  },
   createProductServices: {
     text: 'Product & Service',
     description: 'Add and categorize your products and services to our system',

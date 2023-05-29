@@ -52,6 +52,10 @@ a:hover {
 }
 /* override */
 
+.modal {
+  overflow-y: auto;
+}
+
 .modal-backdrop {
   background-color: #30435C;
 } !important

@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import BasicInfo from '../../../containers/product/detail/BasicInfo';

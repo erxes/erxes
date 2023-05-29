@@ -1,6 +1,5 @@
 import { IDeal, IDealParams, IPaymentsData } from '../types';
 import { IEditFormContent, IItem, IOptions } from '../../boards/types';
-
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditForm from '../../boards/components/editForm/EditForm';
 import { Flex } from '@erxes/ui/src/styles/main';
@@ -9,6 +8,7 @@ import { IProduct } from '@erxes/ui-products/src/types';
 import Left from '../../boards/components/editForm/Left';
 import PortableTasks from '../../tasks/components/PortableTasks';
 import PortableTickets from '../../tickets/components/PortableTickets';
+import PortablePurchase from '../../purchases/components/PortablePurchases';
 import ProductSection from './ProductSection';
 import React from 'react';
 import Sidebar from '../../boards/components/editForm/Sidebar';
@@ -205,6 +205,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       <>
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
+        <PortablePurchase mainType="deal" mainTypeId={item._id} />
         {pluginsOfItemSidebar(item, 'deal')}
       </>
     );

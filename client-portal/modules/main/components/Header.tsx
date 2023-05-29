@@ -201,6 +201,9 @@ function Header({
             {config.dealToggle && currentUser
               ? renderMenu("/deals", config.dealLabel || "Sales pipeline")
               : null}
+            {config.purchaseToggle && currentUser
+              ? renderMenu("/purchases", config.purchaseLabel || "Purchase pipeline")
+              : null}
             {config.taskToggle && currentUser
               ? renderMenu("/tasks", config.taskLabel || "Task")
               : null}

@@ -10,13 +10,13 @@ import {
   SkillsRemoveMutationResponse,
   SkillsTotalCountQueryResponse
 } from '../types';
-import { graphql, useMutation } from 'react-apollo';
+import { gql, useMutation } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import Skills from '../components/Skills';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
 import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';

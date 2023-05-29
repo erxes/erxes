@@ -166,7 +166,7 @@ export const getCollection = (models: IModels, type: string) => {
   let update;
   let remove;
 
-  const { Deals, GrowthHacks, Tasks, Tickets } = models;
+  const { Deals, GrowthHacks, Tasks, Tickets, Purchases, Costs } = models;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
@@ -174,6 +174,13 @@ export const getCollection = (models: IModels, type: string) => {
       create = Deals.createDeal;
       update = Deals.updateDeal;
       remove = Deals.removeDeals;
+      break;
+    }
+    case BOARD_TYPES.PURCHASE: {
+      collection = Purchases;
+      create = Purchases.createPurchase;
+      update = Purchases.updatePurchase;
+      remove = Purchases.removePurchases;
       break;
     }
     case BOARD_TYPES.GROWTH_HACK: {
@@ -194,6 +201,14 @@ export const getCollection = (models: IModels, type: string) => {
       create = Tickets.createTicket;
       update = Tickets.updateTicket;
       remove = Tickets.removeTickets;
+      break;
+    }
+    case BOARD_TYPES.COST: {
+      collection = Costs;
+      create = Costs.createCost;
+      update = Costs.updateCost;
+      remove = Costs.removeCost;
+
       break;
     }
     default:
@@ -550,7 +565,14 @@ export const conversationConvertToCard = async (
 
     await putActivityLog(subdomain, {
       action: 'createBoardItem',
-      data: { item, contentType: type, contentId: item._id }
+      data: {
+        item,
+        contentType: type,
+        action: 'convert',
+        content: conversation._id,
+        createdBy: item.userId || '',
+        contentId: item._id
+      }
     });
 
     const relTypeIds: string[] = [];

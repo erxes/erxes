@@ -293,7 +293,7 @@ const GroupWrapper = styled.div`
 const CardTab = styledTS<{baseColor?: string}>(styled.div)`
   margin-right: ${dimensions.coreSpacing}px;
   font-size: 13px;
-  background: #eaeaea;
+  background: #f4f4f4;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing}px;
   color: ${colors.colorCoreGray};
@@ -303,6 +303,7 @@ const CardTab = styledTS<{baseColor?: string}>(styled.div)`
     padding: 6px ${dimensions.unitSpacing}px;
     cursor: pointer;
     width: 120px;
+    text-transform: capitalize;
     
     &.active {
       background: ${props => props.baseColor ? props.baseColor : colors.colorSecondary};

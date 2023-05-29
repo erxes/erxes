@@ -1,18 +1,18 @@
-import React from 'react';
+import { Divider, SidebarContent } from '../styles';
+import { IField, ILocationOption } from '@erxes/ui/src/types';
+import { IFieldGroup, LogicParams } from '../types';
+
+import { Alert } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import GenerateField from './GenerateField';
+import Icon from '@erxes/ui/src/components/Icon';
+import { ModalTrigger } from '@erxes/ui/src';
+import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IField, ILocationOption } from '@erxes/ui/src/types';
-import { Alert } from '@erxes/ui/src/utils';
-
-import { Divider, SidebarContent } from '../styles';
-import { IFieldGroup, LogicParams } from '../types';
 import { checkLogic } from '../utils';
-import GenerateField from './GenerateField';
-import { ModalTrigger } from '@erxes/ui/src';
 
 declare const navigator: any;
 
@@ -470,8 +470,17 @@ class GenerateGroup extends React.Component<Props, State> {
     const { fieldGroup, isDetail } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
     let extraButtons = <></>;
+    const visibleField = fieldGroup.fields.find(el => el.isVisible === true);
+
+    if (!visibleField) {
+      return null;
+    }
 
     if (!fieldGroup[isVisibleKey]) {
+      return null;
+    }
+
+    if (fieldGroup.fields.length === 0) {
       return null;
     }
 
