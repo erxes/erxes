@@ -88,19 +88,7 @@ export const getCloseDateByType = (closeDateType: string) => {
 };
 
 export const generateExtraFilters = async (filter, extraParams) => {
-  const {
-    source,
-    userIds,
-    priority,
-    startDate,
-    endDate,
-    stateChangedStartDate,
-    stateChangedEndDate,
-    startDateStartDate,
-    startDateEndDate,
-    closeDateStartDate,
-    closeDateEndDate
-  } = extraParams;
+  const { source, userIds, priority, startDate, endDate } = extraParams;
 
   const isListEmpty = value => {
     return value.length === 1 && value[0].length === 0;
@@ -134,24 +122,6 @@ export const generateExtraFilters = async (filter, extraParams) => {
         $lte: new Date(endDate)
       };
     }
-  }
-  if (stateChangedStartDate || stateChangedEndDate) {
-    filter.stageChangedDate = {
-      $gte: stateChangedStartDate,
-      $lte: stateChangedEndDate
-    };
-  }
-  if (startDateStartDate || startDateEndDate) {
-    filter.startDate = {
-      $gte: startDateStartDate,
-      $lte: startDateEndDate
-    };
-  }
-  if (closeDateStartDate || closeDateEndDate) {
-    filter.closeDate = {
-      $gte: closeDateStartDate,
-      $lte: closeDateEndDate
-    };
   }
   return filter;
 };
@@ -622,7 +592,6 @@ export const generateDealCommonFilters = async (
 ) => {
   args.type = 'deal';
   const { productIds } = extraParams || args;
-
   let filter = await generateCommonFilters(
     models,
     subdomain,
