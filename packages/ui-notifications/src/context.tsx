@@ -11,8 +11,8 @@ import { mutations, queries, subscriptions } from './graphql';
 
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import strip from 'strip';
 
 interface IStore {

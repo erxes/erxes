@@ -1,8 +1,9 @@
 import { Config, IUser } from "../../types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { capitalize, getConfigColor } from "../../common/utils";
 import { duedateFilter, priorityFilter } from "../../main/constants";
 
+import BoardView from "./BoardView";
 import { Card } from "react-bootstrap";
 import Detail from "../containers/Detail";
 import Form from "../containers/Form";
@@ -30,11 +31,18 @@ export default function List({
   pipelineAssignedUsers,
 }: Props) {
   const router = useRouter();
-  const { itemId } = router.query as { itemId: string };
+  const { itemId, stageId } = router.query as any;
 
   const [mode, setMode] = useState("stage");
   const [viewType, setViewType] = useState("list");
   const [showForm, setShowForm] = useState(false);
+  const [activeStageId, setStageId] = useState(
+    stageId ? stageId : stages.stages[0]._id
+  );
+
+  useEffect(() => {
+    setStageId(stageId);
+  }, [stageId]);
 
   if (itemId) {
     return (
@@ -65,7 +73,17 @@ export default function List({
 
   const renderContent = () => {
     if (viewType === "board") {
-      return <div>Coming soon!</div>;
+      return (
+        <BoardView
+          stages={stages.stages}
+          stageId={activeStageId}
+          currentUser={currentUser}
+          config={config}
+          type={type}
+          groupType={mode}
+          viewType={viewType}
+        />
+      );
     }
 
     switch (mode) {

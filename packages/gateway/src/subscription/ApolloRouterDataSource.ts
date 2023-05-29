@@ -4,7 +4,7 @@ const { GatewayDataSource } = require('esm')(module)(
 
 import { DocumentNode, GraphQLResolveInfo } from 'graphql';
 import { merge } from 'lodash';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 export default class ApolloRouterDataSource extends GatewayDataSource {
   constructor(apolloRouterUrl: string) {

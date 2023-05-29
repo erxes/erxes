@@ -134,6 +134,17 @@ export const getMessengerData = async (
     if (messages) {
       messagesByLanguage = messages[languageCode];
     }
+
+    if (
+      messengerData &&
+      messengerData.hideWhenOffline &&
+      messengerData.availabilityMethod === 'auto'
+    ) {
+      const isOnline = await models.Integrations.isOnline(integration);
+      if (!isOnline) {
+        messengerData.showChat = false;
+      }
+    }
   }
 
   // knowledgebase app =======
@@ -626,6 +637,7 @@ const widgetMutations = {
 
       if (!company) {
         companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
 
         company = await sendContactsMessage({
           subdomain,
