@@ -8,7 +8,7 @@ import {
 } from '../messageBroker';
 import { validateRequest } from '../common/utils';
 import { serviceDiscovery } from '../configs';
-import { IUserDocument } from '@erxes/api-utils/src/types';
+import { IUser, IUserDocument } from '@erxes/api-utils/src/types';
 import { checkConfig, doAction, doLogicAfterAction } from '../utils';
 
 export interface IRequestsModel extends Model<IGrantRequestDocument> {
@@ -19,7 +19,10 @@ export interface IRequestsModel extends Model<IGrantRequestDocument> {
     doc: any,
     user: IUserDocument
   ): Promise<IGrantRequestDocument>;
-  editGrantRequest(doc: any): Promise<IGrantRequestDocument>;
+  editGrantRequest(
+    doc: any,
+    user: IUserDocument
+  ): Promise<IGrantRequestDocument>;
   cancelGrantRequest(
     contentTypeId: string,
     contentType: string
@@ -131,16 +134,8 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       return request;
     }
 
-    public static async editGrantRequest(doc) {
-      let {
-        contentTypeId,
-        contentType,
-        userIds,
-        scope,
-        action,
-        params,
-        requesterId
-      } = doc;
+    public static async editGrantRequest(doc, user) {
+      let { contentTypeId, contentType, userIds, scope, action, params } = doc;
       try {
         await validateRequest(doc);
       } catch (e) {
@@ -168,9 +163,11 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         });
       }
 
+      await this.changeGrantRequester(request._id, userIds, user);
+
       return await models.Requests.updateOne(
         { _id: request._id },
-        { $set: { userIds, action, params, requesterId } }
+        { $set: { userIds, action, params, requesterId: user._id } }
       );
     }
 
@@ -252,6 +249,108 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
 
       request.remove();
       return 'canceled';
+    }
+
+    public static async changeGrantRequester(
+      requestId: string,
+      requesterIds: string[],
+      user: IUserDocument
+    ) {
+      const request = await models.Requests.findOne({ _id: requestId });
+
+      if (!request) {
+        throw new Error('Cannot find request');
+      }
+
+      const newRequesterIds = requesterIds.filter(
+        requesterId => !(request?.userIds || []).includes(requesterId)
+      );
+      const removedRequesterIds = request.userIds.filter(
+        userId => !requesterIds.includes(userId)
+      );
+
+      if (!!removedRequesterIds?.length || !!newRequesterIds.length) {
+        const link = await sendCommonMessage({
+          subdomain,
+          serviceName: request.scope,
+          action: 'getLink',
+          data: {
+            _id: request.contentTypeId,
+            type: request.contentType
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+        if (!!removedRequesterIds?.length) {
+          const responses = await models.Responses.find({
+            requestId: request._id,
+            userId: { $in: removedRequesterIds },
+            status: { $ne: 'waiting' }
+          });
+
+          if (!!responses?.length) {
+            throw new Error(
+              'Cannot remove some requesters from request.Because some requesters are already responded'
+            );
+          }
+
+          await models.Requests.updateOne(
+            { _id: request._id },
+            { $pull: { userIds: { $in: removedRequesterIds } } }
+          );
+
+          await sendNotificationsMessage({
+            subdomain,
+            action: 'send',
+            data: {
+              createdUser: user,
+              receivers: removedRequesterIds,
+              title: `Grant`,
+              action: 'removed from request',
+              content: request.action,
+              notifType: 'plugin'
+            }
+          });
+          sendCoreMessage({
+            subdomain: 'os',
+            action: 'sendMobileNotification',
+            data: {
+              title: `Grant`,
+              body: `${user?.details?.fullName ||
+                user?.details?.shortName} removed ${request.action}`,
+              receivers: removedRequesterIds,
+              data: { _id: request.contentTypeId, type: request.contentType }
+            }
+          });
+        }
+
+        if (!!newRequesterIds?.length) {
+          await sendNotificationsMessage({
+            subdomain,
+            action: 'send',
+            data: {
+              createdUser: user,
+              receivers: newRequesterIds,
+              title: `Grant`,
+              action: 'wants grant',
+              content: request.action,
+              notifType: 'plugin',
+              link: link
+            }
+          });
+          sendCoreMessage({
+            subdomain: 'os',
+            action: 'sendMobileNotification',
+            data: {
+              title: `Grant`,
+              body: `${user?.details?.fullName ||
+                user?.details?.shortName} wants ${request.action}`,
+              receivers: newRequesterIds,
+              data: { _id: request.contentTypeId, type: request.contentType }
+            }
+          });
+        }
+      }
     }
 
     public static async getGrantActions() {

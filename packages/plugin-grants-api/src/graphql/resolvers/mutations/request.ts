@@ -5,8 +5,8 @@ const GrantRequestMutations = {
     return await models.Requests.addGrantRequest(args, user);
   },
 
-  async editGrantRequest(_root, args, { models }: IContext) {
-    return await models.Requests.editGrantRequest(args);
+  async editGrantRequest(_root, args, { models, user }: IContext) {
+    return await models.Requests.editGrantRequest(args, user);
   },
 
   async cancelGrantRequest(

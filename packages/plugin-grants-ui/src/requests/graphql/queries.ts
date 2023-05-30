@@ -47,7 +47,7 @@ query GrantRequests(${commonParams}) {
     users{
       ${userTypes},
     }
-    ${contentTypeTypes}
+    detail
   }
   grantRequestsTotalCount(${commonParamsDef}) 
 }
