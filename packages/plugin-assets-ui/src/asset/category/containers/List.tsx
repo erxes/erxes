@@ -2,8 +2,8 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import * as compose from 'lodash.flowright';
 import List from '../components/List';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../graphql';
 import {
   IAssetCategoryQeuryResponse,

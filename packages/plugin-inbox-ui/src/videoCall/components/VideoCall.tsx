@@ -1,6 +1,6 @@
 // import DailyIframe from '@daily-co/daily-js';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { SimpleButton } from '@erxes/ui/src/styles/main';
 import { __, Alert } from 'coreui/utils';
 import React from 'react';

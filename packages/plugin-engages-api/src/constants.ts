@@ -5,6 +5,7 @@ export const CONTENT_TYPES = {
   COMPANY: 'company',
   DEAL: 'deal',
   TASK: 'task',
+  PURCHASE: 'purchase',
   TICKET: 'ticket',
   CONVERSATION: 'conversation',
   USER: 'user',
@@ -16,6 +17,7 @@ export const CONTENT_TYPES = {
     'company',
     'deal',
     'task',
+    'purchase',
     'ticket',
     'conversation',
     'user'

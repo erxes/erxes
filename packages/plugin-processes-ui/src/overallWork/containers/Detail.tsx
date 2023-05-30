@@ -1,9 +1,9 @@
 import * as compose from 'lodash.flowright';
 import Detail from '../components/Detail';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { Alert, Spinner, withProps } from '@erxes/ui/src';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { OverallWorkDetailQueryResponse } from '../types';
 import {

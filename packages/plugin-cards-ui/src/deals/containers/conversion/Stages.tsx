@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { queries } from '@erxes/ui-cards/src/boards/graphql';
 import { ConversionStagesQueryResponse } from '@erxes/ui-cards/src/boards/types';
@@ -8,7 +8,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import List from '../../components/conversion/list/List';
 import Table from '../../components/conversion/table/Table';
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   pipelineId: string;

@@ -1,5 +1,5 @@
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { generateParamsIds } from '../../../common/utils';
 import { queries } from '../graphql';
 export const refetchQueries = queryParams => [

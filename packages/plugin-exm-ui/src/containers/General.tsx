@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 
 import { queries } from '../graphql';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';

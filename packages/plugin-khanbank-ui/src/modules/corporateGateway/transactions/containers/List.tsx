@@ -2,9 +2,9 @@ import { router } from '@erxes/ui/src';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 
 import List from '../components/List';
 import { queries } from '../graphql';

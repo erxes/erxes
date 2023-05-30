@@ -25,7 +25,7 @@ import SelectContracts, {
 } from '../../contracts/components/common/SelectContract';
 import dayjs from 'dayjs';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '../graphql';
 
 type Props = {

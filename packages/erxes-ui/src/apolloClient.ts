@@ -1,12 +1,16 @@
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { ApolloClient } from 'apollo-client';
-import { split } from 'apollo-link';
-import { setContext } from 'apollo-link-context';
-import { onError } from 'apollo-link-error';
-import { createHttpLink } from 'apollo-link-http';
-import { getMainDefinition } from 'apollo-utilities';
+import {
+  createHttpLink,
+  from,
+  ApolloClient,
+  InMemoryCache
+} from '@apollo/client';
+import { onError } from '@apollo/client/link/error';
+import { setContext } from '@apollo/client/link/context';
+import { split } from '@apollo/client/link/core';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { __, getEnv } from './utils/core';
-import WebSocketLink from './WebSocketLink';
+import { createClient } from 'graphql-ws';
 
 const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 
@@ -37,16 +41,19 @@ const authLink = setContext((_, { headers }) => {
 });
 
 // Combining httpLink and warelinks altogether
-const httpLinkWithMiddleware = errorLink.concat(authLink).concat(httpLink);
+// const httpLinkWithMiddleware = errorLink.concat(authLink).concat(httpLink);
+const httpLinkWithMiddleware = from([errorLink, authLink, httpLink]);
 
 // Subscription config
-export const wsLink: any = new WebSocketLink({
-  url: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost:4000/graphql',
-  retryAttempts: 1000,
-  retryWait: async () => {
-    await new Promise(resolve => setTimeout(resolve, 5000));
-  }
-});
+export const wsLink: any = new GraphQLWsLink(
+  createClient({
+    url: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost:4000/graphql',
+    retryAttempts: 1000,
+    retryWait: async () => {
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  })
+);
 
 type Definintion = {
   kind: string;

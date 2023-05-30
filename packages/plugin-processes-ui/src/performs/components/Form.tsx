@@ -7,7 +7,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import PerformDetail from './PerformDetail';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';

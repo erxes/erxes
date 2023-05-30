@@ -22,7 +22,7 @@ import { ASSET_CATEGORY_STATUS_FILTER } from './constant';
 import { CommonFormGroupTypes, IAsset, IAssetCategoryTypes } from './types';
 import { queries as movementQueries } from '../movements/graphql';
 import { queries as movementItemQueries } from '../movements/items/graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 export const DefaultWrapper = ({
   title,

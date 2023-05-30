@@ -29,7 +29,7 @@ export default ({
   customOption?: IOption;
   initialValue?: string | string[];
   name: string;
-  type: 'deal' | 'ticket' | 'task';
+  type: 'deal' | 'ticket' | 'task' | 'purchase';
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 

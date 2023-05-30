@@ -1,5 +1,6 @@
 import {
   Config,
+  IUser,
   NotificationsCountQueryResponse,
   NotificationsQueryResponse,
   UserQueryResponse,
@@ -23,7 +24,7 @@ type Props = {
 };
 
 function AppProvider({ children }: Props) {
-  const [currentUser, setCurrentUser] = React.useState(null);
+  const [currentUser, setCurrentUser] = React.useState({} as IUser);
   const [notificationsCount, setNotificationsCount] = React.useState(0);
 
   const userQuery = useQuery<UserQueryResponse>(gql(queries.currentUser));

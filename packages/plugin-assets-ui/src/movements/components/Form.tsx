@@ -29,7 +29,7 @@ import {
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import _loadash from 'lodash';
 import React from 'react';
 import { IMovementItem, IMovementType } from '../../common/types';

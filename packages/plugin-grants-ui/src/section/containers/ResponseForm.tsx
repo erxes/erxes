@@ -5,8 +5,8 @@ import Form from '../components/ResponseForm';
 import { Alert, ButtonMutate, confirm } from '@erxes/ui/src';
 import { refetchQueries } from '../../common/utils';
 import { mutations } from '../graphql';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 
 type Props = {
   closeModal: () => void;

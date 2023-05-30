@@ -59,9 +59,13 @@ export const types = ({ tags }) => `
     amount: JSON
     itemsTotalCount: Int
     compareNextStage: JSON
+    compareNextStagePurchase: JSON
     stayedDealsTotalCount: Int
     initialDealsTotalCount: Int
     inProcessDealsTotalCount: Int
+    stayedPurchasesTotalCount: Int
+    initialPurchasesTotalCount: Int
+    inProcessPurchasesTotalCount: Int
     formId: String
     age: Int
     defaultTick: Boolean
@@ -86,6 +90,7 @@ export const types = ({ tags }) => `
     ticketUrl: String,
     dealUrl: String,
     taskUrl: String,
+    purchaseUrl:String,
   }
 
   type BoardCount {

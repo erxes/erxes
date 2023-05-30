@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Bulk, withProps } from '@erxes/ui/src';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import SchedulesList from '../components/schedules/SchedulesList';
 import { queries } from '../graphql';
 import { SchedulesQueryResponse, ScheduleYearsQueryResponse } from '../types';

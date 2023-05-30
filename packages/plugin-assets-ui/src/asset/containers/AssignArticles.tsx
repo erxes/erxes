@@ -1,10 +1,10 @@
 import client from '@erxes/ui/src/apolloClient';
 import { Spinner } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IAsset } from '../../common/types';
 import { queries } from '../category/graphql';
 import AssignArticles from '../components/AssignArticles';

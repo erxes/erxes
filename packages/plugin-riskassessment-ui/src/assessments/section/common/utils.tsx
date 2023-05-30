@@ -10,10 +10,11 @@ import {
   Spinner
 } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql, useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { ListItem } from '../../../styles';
 import { queries } from '../graphql';
 import { GroupsQueryResponse } from './types';

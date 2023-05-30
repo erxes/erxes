@@ -71,6 +71,9 @@ class Histories extends React.Component<Props & IRouterProps> {
       case 'deal':
         buttonText = 'sales pipelines';
         break;
+      case 'purchase':
+        buttonText = 'purchases pipelines';
+        break;
       case 'user':
         buttonText = 'team members';
         break;

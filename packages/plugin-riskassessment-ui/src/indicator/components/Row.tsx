@@ -8,7 +8,7 @@ import {
   Tip
 } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import moment from 'moment';
 import React from 'react';
 import { FormContainer } from '../../styles';

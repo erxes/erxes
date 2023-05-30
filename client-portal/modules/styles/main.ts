@@ -436,15 +436,6 @@ const HeaderWrapper = styled.div`
   justify-content: space-between;
   margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
 
-  .dropdown {
-    margin-right: ${dimensions.coreSpacing}px;
-
-    button:focus {
-      outline: 0;
-      box-shadow: none;
-    }
-  }
-
   h4 {
     text-transform: uppercase;
     font-size: 18px;

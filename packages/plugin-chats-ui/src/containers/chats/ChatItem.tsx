@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
 import confirm from '@erxes/ui/src/utils/confirmation/confirm';

@@ -413,7 +413,7 @@ export const sendAfterMutation = async (
 };
 
 export const getCards = async (
-  type: 'ticket' | 'deal' | 'task',
+  type: 'ticket' | 'deal' | 'task' | 'purchase',
   context: IContext,
   _args: any
 ) => {

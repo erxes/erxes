@@ -10,7 +10,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 type Props = {
   company: ICompany;

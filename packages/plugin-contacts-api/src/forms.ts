@@ -13,6 +13,7 @@ const relations = type => {
       relationType: 'contacts:company'
     },
     { name: 'dealIds', label: 'Deals', relationType: 'cards:deal' },
+    { name: 'purchaseIds', label: 'Purchases', relationType: 'cards:purchase' },
     { name: 'taskIds', label: 'Tasks', relationType: 'cards:task' },
     { name: 'ticketIds', label: 'Tickets', relationType: 'cards:ticket' },
     { name: 'carIds', label: 'Cars', relationType: 'cars:car' }

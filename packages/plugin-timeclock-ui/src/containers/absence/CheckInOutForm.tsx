@@ -7,8 +7,8 @@ import {
 } from '../../types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 import { mutations, queries } from '../../graphql';
 import CheckInOutForm from '../../components/absence/CheckInOutForm';
 import React from 'react';
