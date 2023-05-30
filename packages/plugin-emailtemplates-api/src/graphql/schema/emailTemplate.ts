@@ -1,8 +1,15 @@
-export const types = `
+export const types = ({ tags }) => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
+  ${
+    tags
+      ? `extend type Tag @key(fields: "_id") {
+          _id: String! @external
+        }`
+      : ''
+  }
 
   type EmailTemplate @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
@@ -13,11 +20,13 @@ export const types = `
     createdAt: Date
     modifiedAt: Date
     createdUser: User
+    ${tags ? 'tags: [Tag]' : ''}
   }
 `;
 
 export const queries = `
-  emailTemplates(page: Int, perPage: Int, searchValue: String, status: String): [EmailTemplate]
+  emailTemplates(page: Int, perPage: Int, searchValue: String, tag: String, status: String): [EmailTemplate]
+  emailTemplateCountsByTags(type: String): JSON
   emailTemplatesTotalCount(searchValue: String): Int
 `;
 
