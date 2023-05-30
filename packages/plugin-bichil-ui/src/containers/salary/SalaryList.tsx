@@ -31,7 +31,7 @@ export default function ListContainer(props: Props) {
 
   const [removeSalary] = useMutation(gql(mutations.removeSalary), {
     variables: { _id: '' },
-    refetchQueries: gql(queries.bichilSalaryReport)
+    refetchQueries: [gql(queries.bichilSalaryReport)]
   });
 
   const labelsQuery = useQuery(gql(queries.labelsQuery), {
