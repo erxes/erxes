@@ -408,7 +408,6 @@ export default {
     const docs = [] as any;
     const headers = [] as any;
     const excelHeader = [] as any;
-    const productsArray = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -436,6 +435,7 @@ export default {
       for (const item of results) {
         const result = {};
         const productDocs = [] as any;
+        const productsArray = [] as any;
 
         for (const column of headers) {
           if (column.startsWith('customFieldsData')) {
