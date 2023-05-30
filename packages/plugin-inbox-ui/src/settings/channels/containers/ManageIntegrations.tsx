@@ -10,8 +10,8 @@ import { mutations, queries } from '../graphql';
 import { IChannelDoc } from '@erxes/ui-inbox/src/settings/channels/types';
 import ManageIntegrations from '@erxes/ui-inbox/src/settings/integrations/containers/common/ManageIntegrations';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as integQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 

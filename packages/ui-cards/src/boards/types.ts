@@ -160,6 +160,13 @@ export interface IConversionStage extends IStage {
   compareNextStage: IStageComparisonInfo;
 }
 
+export interface IConversionStagePurchase extends IStage {
+  initialPurchasesTotalCount: number;
+  inProcessPurchasesTotalCount: number;
+  stayedPurchasesTotalCount: number;
+  compareNextStagePurchase: IStageComparisonInfo;
+}
+
 export interface IPipelineLabel {
   _id?: string;
   name: string;

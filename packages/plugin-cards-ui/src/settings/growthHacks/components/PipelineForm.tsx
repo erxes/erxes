@@ -25,7 +25,7 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import { __ } from 'coreui/utils';
 import client from '@erxes/ui/src/apolloClient';
 import { colors } from '@erxes/ui/src/styles';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { metricOptions } from '../constants';
 import { queries } from '../graphql';
 

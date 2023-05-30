@@ -1,11 +1,14 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { ICommonFormProps, ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import {
+  ICommonFormProps,
+  ICommonListProps
+} from '@erxes/ui-settings/src/common/types';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { commonListComposer } from '@erxes/ui/src/utils';
 import WebhookList from '../components/WebhookList';
 import { mutations, queries } from '../graphql';

@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
 import ResponseTemplate from '../../../components/conversationDetail/workarea/responseTemplate/ResponseTemplate';
@@ -11,7 +11,7 @@ import {
   SaveResponseTemplateMutationResponse
 } from '../../../../settings/responseTemplates/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;

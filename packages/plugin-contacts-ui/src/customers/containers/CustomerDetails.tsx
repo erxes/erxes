@@ -1,10 +1,10 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import CustomerDetails from '../components/detail/CustomerDetails';
 import { queries } from '@erxes/ui-contacts/src/customers/graphql';
 import { CustomerDetailQueryResponse } from '@erxes/ui-contacts/src/customers/types';

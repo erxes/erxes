@@ -1,9 +1,9 @@
 import { IFieldLogic } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import PropertyLogics from '../components/PropertyLogics';
 import { queries } from '../graphql';
