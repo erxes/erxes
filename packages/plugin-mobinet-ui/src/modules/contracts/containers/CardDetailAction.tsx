@@ -1,12 +1,12 @@
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { Alert } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
 import Button from '@erxes/ui/src/components/Button';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { queries, mutations } from '../graphql';
 

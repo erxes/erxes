@@ -1,8 +1,7 @@
 import { router } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
-import { useMutation, useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { CityListQueryResponse } from '../types';

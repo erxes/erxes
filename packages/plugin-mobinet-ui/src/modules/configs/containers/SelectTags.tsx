@@ -1,6 +1,5 @@
 import React from 'react';
-import gql from 'graphql-tag';
-import { useLazyQuery, useQuery } from 'react-apollo';
+import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import SelectTags from '../components/SelectTags';
 
 const TAGS_QUERY = gql`

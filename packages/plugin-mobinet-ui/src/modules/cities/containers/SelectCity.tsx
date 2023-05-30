@@ -1,8 +1,8 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql, ChildProps } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 
 import SelectCity from '../components/SelectCity';
 import { queries } from '../graphql';

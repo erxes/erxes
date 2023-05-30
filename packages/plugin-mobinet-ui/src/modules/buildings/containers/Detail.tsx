@@ -1,8 +1,7 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
 
 import BuildingDetail from '../components/detail/Detail';
 import { queries, mutations } from '../graphql';

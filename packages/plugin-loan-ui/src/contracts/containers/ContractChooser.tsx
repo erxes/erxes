@@ -1,9 +1,9 @@
 import { withProps } from '@erxes/ui/src';
 import ConformityChooser from '@erxes/ui-cards/src/conformity/containers/ConformityChooser';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import { mutations, queries } from '../graphql';
 import {

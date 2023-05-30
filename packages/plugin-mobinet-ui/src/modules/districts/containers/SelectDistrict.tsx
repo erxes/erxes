@@ -1,7 +1,6 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
+import { gql, useQuery } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
 import { ICoordinates } from '../../../types';
 
 import SelectDistrict from '../components/SelectDistrict';

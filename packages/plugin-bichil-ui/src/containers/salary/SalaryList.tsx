@@ -1,9 +1,8 @@
 import { router } from '@erxes/ui/src';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
 import React from 'react';
-import { useQuery, useMutation, useLazyQuery } from 'react-apollo';
+import { gql, useQuery, useMutation, useLazyQuery } from '@apollo/client';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
 import List from '../../components/salary/SalaryList';
 import { queries, mutations } from '../../graphql';

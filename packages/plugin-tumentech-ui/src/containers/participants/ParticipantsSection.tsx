@@ -1,9 +1,8 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql, useQuery } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
 
 import ParticipantsSection from '../../components/participants/ParticipantsSection';
 import { mutations, queries } from '../../graphql';

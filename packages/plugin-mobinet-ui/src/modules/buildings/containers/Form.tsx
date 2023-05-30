@@ -1,13 +1,12 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql, useQuery } from '@apollo/client';
 import BuildingForm from '../components/Form';
 import { mutations, queries } from '../graphql';
 import { queries as cityQueries } from '../../cities/graphql';
 import { queries as districtQueries } from '../../districts/graphql';
 import { IBuilding } from '../types';
-import { useQuery } from 'react-apollo';
 import { CityByCoordinateQueryResponse } from '../../cities/types';
 import { ICoordinates } from '../../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';

@@ -1,7 +1,6 @@
 import { router } from '@erxes/ui/src';
-import gql from 'graphql-tag';
+import { gql, useQuery } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
 
 import List from '../../components/trips/List';
 import { queries } from '../../graphql';

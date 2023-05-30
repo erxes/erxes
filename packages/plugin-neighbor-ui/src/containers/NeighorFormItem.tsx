@@ -1,6 +1,5 @@
 import React from 'react';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+import { gql, useQuery } from '@apollo/client';
 import NeighborFormItem from '../components/NeighorFormItem';
 import queries from '../graphql/queries';
 
