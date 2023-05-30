@@ -19,6 +19,7 @@
     "esm": "^3.2.25",
     "express": "^4.17.2",
     "federation-subscription-tools": "^0.1.0",
+    "react": "^16.14.0",
     "graphql": "^15.8.0",
     "graphql-redis-subscriptions": "^2.4.2",
     "graphql-subscriptions": "^2.0.0",
