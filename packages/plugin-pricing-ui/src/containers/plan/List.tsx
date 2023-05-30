@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import queryString from 'query-string';
 // local
 import { queries } from '../../graphql';

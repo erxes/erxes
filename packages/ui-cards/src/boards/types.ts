@@ -150,6 +150,7 @@ export interface IStage {
   order: number;
   code?: string;
   age?: number;
+  defaultTick?: boolean;
 }
 
 export interface IConversionStage extends IStage {
@@ -157,6 +158,13 @@ export interface IConversionStage extends IStage {
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
+}
+
+export interface IConversionStagePurchase extends IStage {
+  initialPurchasesTotalCount: number;
+  inProcessPurchasesTotalCount: number;
+  stayedPurchasesTotalCount: number;
+  compareNextStagePurchase: IStageComparisonInfo;
 }
 
 export interface IPipelineLabel {

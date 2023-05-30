@@ -122,10 +122,12 @@ export const commonFields = `
   ${
     isEnabled('contacts')
       ? `
-    companies {
-      _id
-      primaryName
-      links
+    ... @defer {
+      companies {
+        _id
+        primaryName
+        links
+      }
     }
   `
       : ``
@@ -133,14 +135,16 @@ export const commonFields = `
   ${
     isEnabled('contacts')
       ? `
-    customers {
-      _id
-      firstName
-      middleName
-      lastName
-      primaryEmail
-      primaryPhone
-      visitorContactInfo
+    ... @defer {
+      customers {
+        _id
+        firstName
+        middleName
+        lastName
+        primaryEmail
+        primaryPhone
+        visitorContactInfo
+      }
     }
   `
       : ``
@@ -180,6 +184,8 @@ export const commonFields = `
   labelIds
   stage {
     probability
+    type
+    defaultTick
   }
   isWatched
   attachments {

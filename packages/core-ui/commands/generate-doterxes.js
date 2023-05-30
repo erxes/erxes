@@ -17,6 +17,7 @@ for (const pluginName of pluginNames) {
   if (pluginName.startsWith('plugin-') && pluginName.endsWith('ui')) {
                             
     try {
+      fse.rmSync(filePath(`../${pluginName}/.erxes`), { recursive: true, force: true });
       fse.copySync(templatePath, filePath(`../${pluginName}/.erxes`), { overwrite: true });
       console.log(`successfully updated ${pluginName}`)
     } catch (e) {

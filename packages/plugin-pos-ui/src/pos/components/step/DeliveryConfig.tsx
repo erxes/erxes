@@ -1,6 +1,6 @@
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Select from 'react-select-plus';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';

@@ -580,6 +580,37 @@ export const generateDealCommonFilters = async (
   return filter;
 };
 
+export const generatePurchaseCommonFilters = async (
+  models: IModels,
+  subdomain: string,
+  currentUserId: string,
+  args = {} as any,
+  extraParams?: any
+) => {
+  args.type = 'purchase';
+  const { productIds } = extraParams || args;
+
+  let filter = await generateCommonFilters(
+    models,
+    subdomain,
+    currentUserId,
+    args
+  );
+
+  if (extraParams) {
+    filter = await generateExtraFilters(filter, extraParams);
+  }
+
+  if (productIds) {
+    filter['productsData.productId'] = contains(productIds);
+  }
+
+  // Calendar monthly date
+  await calendarFilters(models, filter, args);
+
+  return filter;
+};
+
 export const generateTicketCommonFilters = async (
   models: IModels,
   subdomain: string,
@@ -1171,6 +1202,8 @@ export const getItemList = async (
     serverTiming.endTime('getItemsFields');
   }
 
+  // add just incremented order to each item in list, not from db
+  let order = 0;
   for (const item of list) {
     if (
       item.customFieldsData &&
@@ -1196,6 +1229,7 @@ export const getItemList = async (
 
     updatedList.push({
       ...item,
+      order: order++,
       isWatched: (item.watchedUserIds || []).includes(user._id),
       hasNotified: notification ? false : true,
       customers: getCocsByItemId(item._id, customerIdsByItemId, customers),

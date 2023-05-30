@@ -164,7 +164,7 @@ class Properties extends React.Component<
 
     let size;
 
-    if (['task', 'deal', 'ticket'].includes(currentType)) {
+    if (['task', 'deal', 'ticket', 'purchase'].includes(currentType)) {
       size = 'lg';
     }
 

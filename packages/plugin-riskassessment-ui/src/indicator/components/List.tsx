@@ -18,6 +18,7 @@ import { RiskIndicatorsType } from '../common/types';
 import Form from '../containers/Form';
 import TableRow from './Row';
 import SideBar from './SideBar';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
@@ -148,10 +149,14 @@ class ListComp extends React.Component<Props, IState> {
               )}
             </th>
             <th>{__('Name')}</th>
-            <th>{__('Tags')}</th>
+            {isEnabled('tags') && <th>{__('Tags')}</th>}
             <th>
               <SortHandler />
               {__('Create At')}
+            </th>
+            <th>
+              <SortHandler />
+              {__('Modified At')}
             </th>
             <th>{__('Action')}</th>
           </tr>

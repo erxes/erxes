@@ -31,4 +31,10 @@ query GetGrantRequestActions {
 }
 `;
 
-export default { grantRequest, grantActions };
+const checkConfig = `
+query CheckGrantActionConfig($contentType: String, $contentTypeId: String, $action: String, $scope: String) {
+  checkGrantActionConfig(contentType: $contentType, contentTypeId: $contentTypeId, action: $action, scope: $scope)
+}
+`;
+
+export default { grantRequest, grantActions, checkConfig };

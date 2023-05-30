@@ -58,28 +58,6 @@ const scheduleQueries = {
         result.push({ ...perMonth, index: i });
       }
     }
-  },
-
-  cpSchedules: async (
-    _root,
-    params: { contractId: string; status: string },
-    { models }: IContext
-  ) => {
-    if (params.status === 'done')
-      return models.Schedules.find({
-        contractId: params.contractId,
-        status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] }
-      }).sort({ payDate: 1 });
-
-    if (params.status === 'pending')
-      return models.Schedules.find({
-        contractId: params.contractId,
-        status: { $in: [SCHEDULE_STATUS.PENDING, SCHEDULE_STATUS.LESS] }
-      }).sort({ payDate: 1 });
-
-    return models.Schedules.find({
-      contractId: params.contractId
-    }).sort({ payDate: 1 });
   }
 };
 

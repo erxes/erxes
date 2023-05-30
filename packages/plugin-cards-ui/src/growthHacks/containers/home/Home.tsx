@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { queries } from '@erxes/ui-cards/src/boards/graphql';
 import { BoardCountsQueryResponse } from '@erxes/ui-cards/src/boards/types';
@@ -7,7 +7,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import { queries as ghQueries } from '../../graphql';
 import { StateCountsQueryResponse } from '../../types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Home from '../../components/home/Home';
 
 type Props = {

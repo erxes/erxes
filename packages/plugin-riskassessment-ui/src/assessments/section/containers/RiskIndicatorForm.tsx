@@ -1,13 +1,14 @@
 import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { RiskAssessmentIndicatorFormQueryResponse } from '../../common/types';
 import { AssessmentFilters } from '../common/types';
 import IndicatorForm from '../components/RiskIndicatorForm';
 import { mutations, queries } from '../graphql';
+import client from '@erxes/ui/src/apolloClient';
 type Props = {
   filters: AssessmentFilters;
   closeModal: () => void;
@@ -74,6 +75,20 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
       });
     };
 
+    const checkTestScore = variables => {
+      client
+        .mutate({
+          mutation: gql(mutations.checkTestScore),
+          variables
+        })
+        .then(res => {
+          const { RAIndicatorTestScore } = res.data;
+
+          Alert.info(`Test Score: ${RAIndicatorTestScore?.resultScore || 0}`);
+        })
+        .catch(err => Alert.error(err.message));
+    };
+
     const updatedProps = {
       fields: riskAssessmentIndicatorForm?.fields,
       submittedFields: riskAssessmentIndicatorForm?.submittedFields,
@@ -84,7 +99,8 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
       operationId: filters.operationId || '',
       submitForm,
       closeModal,
-      onlyPreview
+      onlyPreview,
+      checkTestScore
     };
 
     return <IndicatorForm {...updatedProps} />;

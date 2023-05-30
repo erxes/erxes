@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - staging
+      - apollo-client-3-all
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'

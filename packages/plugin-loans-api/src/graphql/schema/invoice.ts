@@ -24,10 +24,10 @@ export const types = `
     status: String,
     ${typeFields}
 
-    contract: Contract,
+    contract: LoanContract,
     customer: Customer,
     company: Company,
-    transaction: Transaction,
+    transaction: LoanTransaction,
   }
 
   type LoanInvoicesListResponse {

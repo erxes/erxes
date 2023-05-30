@@ -4,13 +4,16 @@ import * as mongoose from 'mongoose';
 import { IRequestsModel, loadRequestsClass } from './models/Request';
 import { IResponsesModel, loadResponsesClass } from './models/Response';
 import {
+  IGrantConfigsDocument,
   IGrantRequestDocument,
   IGrantResponseDocument
 } from './models/definitions/grant';
+import { IConfigsModel, loadConfigsClass } from './models/Configs';
 
 export interface IModels {
   Requests: IRequestsModel;
   Responses: IResponsesModel;
+  Configs: IConfigsModel;
 }
 
 export interface IContext extends IMainContext {
@@ -33,6 +36,10 @@ export const loadClasses = (
   models.Responses = db.model<IGrantResponseDocument, IResponsesModel>(
     'grant_responses',
     loadResponsesClass(models, subdomain)
+  );
+  models.Configs = db.model<IGrantConfigsDocument, IConfigsModel>(
+    'grant_configs',
+    loadConfigsClass(models, subdomain)
   );
 
   return models;

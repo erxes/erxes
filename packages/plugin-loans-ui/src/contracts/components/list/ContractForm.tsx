@@ -44,7 +44,7 @@ type State = {
   interestMonth: number;
   repayment: string;
   startDate: Date;
-  scheduleDay: number;
+  scheduleDays: number[];
   customerId: string;
   customerType: string;
 
@@ -85,7 +85,7 @@ class ContractForm extends React.Component<Props, State | any> {
       interestMonth: (contract.interestRate || 0) / 12,
       repayment: contract.repayment || 'fixed',
       startDate: contract.startDate || new Date(),
-      scheduleDay: contract.scheduleDay || new Date().getDate(),
+      scheduleDays: contract.scheduleDays || [new Date().getDate()],
       debt: contract.debt || 0,
       debtTenor: contract.debtTenor || 0,
       debtLimit: contract.debtLimit || 0,
@@ -133,7 +133,7 @@ class ContractForm extends React.Component<Props, State | any> {
       interestRate: Number(this.state.interestRate),
       repayment: this.state.repayment,
       startDate: this.state.startDate,
-      scheduleDay: Number(this.state.scheduleDay),
+      scheduleDay: this.state.scheduleDay,
       debt: Number(this.state.debt),
       debtTenor: Number(this.state.debtTenor),
       debtLimit: Number(this.state.debtLimit),
@@ -183,7 +183,7 @@ class ContractForm extends React.Component<Props, State | any> {
 
     if (name === 'interestRate') {
       this.setState({
-        interestRate: Number(value),
+        interestRate: value,
         interestMonth: Number(value || 0) / 12
       });
       return;
@@ -192,7 +192,7 @@ class ContractForm extends React.Component<Props, State | any> {
     // interestMonth
     this.setState({
       interestRate: Number((Number(value || 0) * 12).toFixed(2)),
-      interestMonth: Number(value || 0)
+      interestMonth: value || 0
     });
     return;
   };
@@ -319,6 +319,10 @@ class ContractForm extends React.Component<Props, State | any> {
     this.setState({ weekends: values.map(val => val.value) });
   };
 
+  onSelectScheduleDays = values => {
+    this.setState({ scheduleDays: values.map(val => val.value) });
+  };
+
   onSelectRelContract = value => {
     const contractObj = ContractById[value];
 
@@ -409,6 +413,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'marginAmount',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.marginAmount || 0,
                 onChange: this.onChangeWithSalvage,
                 onClick: this.onFieldClick
@@ -418,6 +424,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'leaseAmount',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.leaseAmount || 0,
                 onChange: this.onChangeWithSalvage,
                 onClick: this.onFieldClick
@@ -427,6 +435,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'feeAmount',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.feeAmount || 0,
                 onChange: this.onChangeWithSalvage,
                 onClick: this.onFieldClick
@@ -436,6 +446,7 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'tenor',
+                useNumberFormat: true,
                 value: this.state.tenor || 0,
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
@@ -447,6 +458,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 type: 'number',
                 name: 'interestMonth',
                 value: this.state.interestMonth || 0,
+                useNumberFormat: true,
+                fixed: 2,
                 onChange: this.onChangeInterest,
                 onClick: this.onFieldClick
               })}
@@ -454,6 +467,8 @@ class ContractForm extends React.Component<Props, State | any> {
               {this.renderFormGroup('interest Rate', {
                 ...formProps,
                 type: 'number',
+                useNumberFormat: true,
+                fixed: 2,
                 name: 'interestRate',
                 value: this.state.interestRate || 0,
                 onChange: this.onChangeInterest,
@@ -464,6 +479,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'unduePercent',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.unduePercent || 0,
                 onChange: this.onChangeUnduePercent,
                 onClick: this.onFieldClick
@@ -487,19 +504,27 @@ class ContractForm extends React.Component<Props, State | any> {
                 </FormControl>
               </FormGroup>
 
-              {this.renderFormGroup('schedule Day', {
-                ...formProps,
-                type: 'number',
-                name: 'scheduleDay',
-                value: this.state.scheduleDay || 0,
-                onChange: this.onChangeField,
-                onClick: this.onFieldClick
-              })}
+              <FormGroup>
+                <ControlLabel>schedule Days</ControlLabel>
+                <Select
+                  className="flex-item"
+                  placeholder={__('Choose an schedule Days')}
+                  value={this.state.scheduleDays}
+                  onChange={this.onSelectScheduleDays}
+                  multi={true}
+                  options={new Array(31).fill(1).map((row, index) => ({
+                    value: row + index,
+                    label: row + index
+                  }))}
+                />
+              </FormGroup>
 
               {this.renderFormGroup('debt', {
                 ...formProps,
                 type: 'number',
                 name: 'debt',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.debt || 0,
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
@@ -508,6 +533,8 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'debtTenor',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.debtTenor || 0,
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
@@ -517,12 +544,12 @@ class ContractForm extends React.Component<Props, State | any> {
                 ...formProps,
                 type: 'number',
                 name: 'debtLimit',
+                useNumberFormat: true,
+                fixed: 2,
                 value: this.state.debtLimit || 0,
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
               })}
-
-              {this.renderSalvage(formProps)}
             </FormColumn>
             <FormColumn>
               <FormGroup>

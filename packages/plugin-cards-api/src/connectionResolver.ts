@@ -13,7 +13,10 @@ import {
   loadClass as loadChecklistClass,
   loadItemClass
 } from './models/Checklists';
+
+import { loadCostClass } from './models/Costs';
 import { IDealModel, loadDealClass } from './models/Deals';
+import { IPurchaseModel, loadPurchaseClass } from './models/Purchases';
 import { ITaskModel, loadTaskClass } from './models/Tasks';
 import { ITicketModel, loadTicketClass } from './models/Tickets';
 import { IGrowthHackModel, loadGrowthHackClass } from './models/GrowthHacks';
@@ -24,6 +27,7 @@ import {
   IStageDocument
 } from './models/definitions/boards';
 import { IDealDocument } from './models/definitions/deals';
+import { IPurchaseDocument } from './models/definitions/purchases';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
 import { IGrowthHackDocument } from './models/definitions/growthHacks';
@@ -42,12 +46,16 @@ import {
 } from './models/PipelineTemplates';
 import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { ICostModel } from './models/Costs';
+import { ICostDocument } from './models/definitions/costs';
 
 export interface IModels {
   Boards: IBoardModel;
   Pipelines: IPipelineModel;
   Stages: IStageModel;
+  Costs: ICostModel;
   Deals: IDealModel;
+  Purchases: IPurchaseModel;
   Tasks: ITaskModel;
   Tickets: ITicketModel;
   GrowthHacks: IGrowthHackModel;
@@ -76,6 +84,11 @@ export const loadClasses = (
     loadBoardClass(models, subdomain)
   );
 
+  models.Costs = db.model<ICostDocument, ICostModel>(
+    'expenses',
+    loadCostClass(models, subdomain)
+  );
+
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
     'pipelines',
     loadPipelineClass(models, subdomain)
@@ -87,6 +100,10 @@ export const loadClasses = (
   models.Deals = db.model<IDealDocument, IDealModel>(
     'deals',
     loadDealClass(models, subdomain)
+  );
+  models.Purchases = db.model<IPurchaseDocument, IPurchaseModel>(
+    'purchases',
+    loadPurchaseClass(models, subdomain)
   );
   models.Tasks = db.model<ITaskDocument, ITaskModel>(
     'tasks',

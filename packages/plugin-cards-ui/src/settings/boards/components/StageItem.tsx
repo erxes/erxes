@@ -67,6 +67,11 @@ class StageItem extends React.Component<Props> {
     const onChangeFormControl = (stageId, e) =>
       onChange(stageId, e.target.name, e.target.value);
 
+    const onChangeCheckbox = (stageId, e) => {
+      const value = e.target.checked;
+      onChange(stageId, e.target.name, e.target.checked);
+    };
+
     return (
       <StageItemContainer key={stage._id}>
         <FormControl
@@ -136,6 +141,17 @@ class StageItem extends React.Component<Props> {
           autoFocus={true}
           onChange={onChangeFormControl.bind(this, stage._id)}
         />
+
+        {(['deal', 'purchase'].includes(type) && (
+          <FormControl
+            componentClass="checkbox"
+            checked={stage.defaultTick === undefined ? true : stage.defaultTick}
+            name="defaultTick"
+            placeholder={__('defaultTick')}
+            autoFocus={true}
+            onChange={onChangeCheckbox.bind(this, stage._id)}
+          />
+        )) || <></>}
 
         {this.renderSelectMembers()}
 

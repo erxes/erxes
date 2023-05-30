@@ -7,7 +7,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { Attributes } from '@erxes/ui-automations/src/components/forms/actions/styles';
 import { IStage } from '@erxes/ui-cards/src/boards/types';
 import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { Alert, __ } from 'coreui/utils';
 
 type Props = {

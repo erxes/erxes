@@ -1,8 +1,8 @@
 import { getEnv, isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 import React from 'react';
 import ReportList from '../../components/report/ReportList';
 import { queries } from '../../graphql';

@@ -30,6 +30,7 @@ type Props = {
   branchId: string;
   departmentId: string;
   operationId: string;
+  checkTestScore: (variables: any) => void;
 };
 
 type State = {
@@ -106,6 +107,13 @@ class IndicatorForm extends React.Component<Props, State> {
         }
       }));
     };
+    const handleFlag = () => {
+      submissions[field._id] = {
+        ...submissions[field._id],
+        isFlagged: !submissions[field._id]?.isFlagged
+      };
+      this.setState({ submissions });
+    };
 
     const updateProps: any = {
       isEditing: false,
@@ -120,13 +128,6 @@ class IndicatorForm extends React.Component<Props, State> {
     } else {
       updateProps.defaultValue = submissions[field._id]?.value;
     }
-
-    const handleFlag = () => {
-      submissions[field._id] = {
-        ...submissions[field._id],
-        isFlagged: !submissions[field._id]?.isFlagged
-      };
-    };
 
     return (
       <FormWrapper key={field._id}>
@@ -158,7 +159,8 @@ class IndicatorForm extends React.Component<Props, State> {
       indicatorId,
       branchId,
       departmentId,
-      operationId
+      operationId,
+      checkTestScore
     } = this.props;
 
     const setHistory = submissions => {
@@ -171,6 +173,11 @@ class IndicatorForm extends React.Component<Props, State> {
       submitForm({
         formSubmissions: submissions
       });
+    };
+
+    const handleTestScore = () => {
+      const { submissions } = this.state;
+      checkTestScore({ indicatorId, formSubmissions: submissions });
     };
 
     return (
@@ -188,6 +195,9 @@ class IndicatorForm extends React.Component<Props, State> {
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal}>
             {__('Cancel')}
+          </Button>
+          <Button btnStyle="warning" onClick={handleTestScore}>
+            {__('Check Test Score')}
           </Button>
           {_loadash.isEmpty(submittedFields) && !onlyPreview && (
             <Button btnStyle="success" onClick={submitForm}>

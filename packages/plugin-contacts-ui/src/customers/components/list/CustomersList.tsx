@@ -31,7 +31,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import { __, Alert, confirm, router } from 'coreui/utils';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, withRouter } from 'react-router-dom';

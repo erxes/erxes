@@ -1,6 +1,6 @@
 import React from 'react';
-import gql from 'graphql-tag';
-import { useMutation, useQuery } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { queries, mutations } from '../../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, confirm } from '@erxes/ui/src/utils';

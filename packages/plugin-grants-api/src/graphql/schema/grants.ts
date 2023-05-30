@@ -2,11 +2,6 @@ import { paginateParams } from '../../common/graphql';
 
 export const types = `
 
-  type ContentDetail  {
-    _id:String,
-    name:String,
-  }
-
   type GrantRequest {
     _id:String,
     contentTypeId:String,
@@ -20,7 +15,7 @@ export const types = `
     createdAt:Date,
     resolvedAt:Date,
     users:[User],
-    detail:ContentDetail,
+    detail:JSON,
     
     responses:[GrantResponse]
     actionLabel:String,
@@ -40,6 +35,17 @@ export const types = `
     action:String,
     scope:String,
     type:String,
+  }
+
+  type GrantConfig {
+    _id:String,
+    name:String,
+    scope:String,
+    action:String,
+    config:String,
+    params:String,
+    createdAt:Date,
+    modifiedAt:Date,
   }
 
 `;
@@ -63,6 +69,9 @@ export const queries = `
   grantRequests(${commonParams}):[GrantRequest]
   grantRequestsTotalCount(${commonParams}):Int
   getGrantRequestActions:[GrantAction]
+  grantConfigs:[GrantConfig]
+  grantConfigsTotalCount:Int
+  checkGrantActionConfig(contentType:String,contentTypeId:String,action:String,scope:String):Boolean
 `;
 
 const commonRequestMutationParams = `
@@ -74,9 +83,20 @@ const commonRequestMutationParams = `
   scope:String
 `;
 
+const commonConfigMutationParams = `
+  name:String,
+  scope:String,
+  action:String,
+  config:String,,
+  params:String,
+`;
+
 export const mutations = `
     addGrantRequest(${commonRequestMutationParams}):JSON
     editGrantRequest(${commonRequestMutationParams}):JSON
     responseGrantRequest( description:String, response:String, requestId:String):JSON
-    cancelGrantRequest(contentType:String,contentTypeId:String):JSON
+    cancelGrantRequest(contentType:String,contentTypeId:String):JSON,
+    addGrantConfig(${commonConfigMutationParams}):GrantConfig
+    editGrantConfig(_id:String,${commonConfigMutationParams}):GrantConfig
+    removeGrantConfig(_id:String):JSON
 `;

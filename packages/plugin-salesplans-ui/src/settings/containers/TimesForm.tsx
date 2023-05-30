@@ -1,10 +1,10 @@
 import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import From from '../components/TimesForm';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { mutations } from '../graphql';
 import { queries } from '../graphql';

@@ -5,8 +5,8 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IPost } from '../../types';
 import PostForm from '../../components/posts/PostForm';
 import React from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   post?: IPost;

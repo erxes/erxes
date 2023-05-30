@@ -17,6 +17,13 @@ module.exports = {
       url: '/grants/requests',
       icon: 'icon-followers',
       location: 'mainNavigation'
+    },
+    {
+      text: 'Grants Configs',
+      to: '/settings/grants-configs',
+      image: '/images/icons/erxes-18.svg',
+      location: 'settings',
+      scope: 'grants'
     }
   ],
   dealRightSidebarSection: [

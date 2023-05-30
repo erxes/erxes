@@ -1,12 +1,12 @@
 import { Alert, __ } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../../graphql';
-import { useMutation, useQuery } from 'react-apollo';
+import { useQuery, useMutation } from '@apollo/client';
 
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUserGroupDocument } from '../../types';
 import PermissionForm from '../../components/permission/PermissionGroupForm';
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 type Props = {
   group?: IUserGroupDocument;

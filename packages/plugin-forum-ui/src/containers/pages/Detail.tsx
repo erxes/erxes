@@ -1,5 +1,5 @@
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '../../graphql';
 import { PageDetailQueryResponse, IPage } from '../../types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -7,7 +7,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import Detail from '../../components/pages/PageDetail';
 import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   id: string;

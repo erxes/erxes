@@ -39,7 +39,7 @@ cube(`TicketsCustomfieldsdata`, {
     },
 
     customfieldsdataValue: {
-      sql: `${CUBE}.\`customFieldsData.value\``,
+      sql: `${CUBE}.\`customFieldsData.extraValue\``,
       type: `string`,
       title: `Customfieldsdata.value`,
       shown: false

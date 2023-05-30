@@ -53,6 +53,10 @@ const search = async ({ subdomain, data: { value } }) => {
       items: await searchBoardItems(models, subdomain, 'deals', value)
     },
     {
+      module: 'purchases',
+      items: await searchBoardItems(models, subdomain, 'purchases', value)
+    },
+    {
       module: 'stages',
       items: await doSearch({
         subdomain,

@@ -33,7 +33,11 @@ export const getAOESchedules = async (
     contractId: contract._id,
     $or: [
       { payDate: { $lt: trDate } },
-      { status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] } }
+      {
+        status: {
+          $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
+        }
+      }
     ]
   })
     .sort({ payDate: -1 })
@@ -161,7 +165,10 @@ export const getCalcedAmounts = async (
   // one day two pay
   if (getDiffDay(trDate, prePayDate) === 0) {
     //when less payed prev schedule there will be must add amount's of
-    if (preSchedule.status === SCHEDULE_STATUS.LESS) {
+    if (
+      preSchedule.status === SCHEDULE_STATUS.LESS ||
+      preSchedule.status === SCHEDULE_STATUS.PRE
+    ) {
       result.undue = (preSchedule.undue || 0) - (preSchedule.didUndue || 0);
       result.interestEve =
         (preSchedule.interestEve || 0) - (preSchedule.didInterestEve || 0);
@@ -242,7 +249,7 @@ export const getCalcedAmounts = async (
       dayOfMonth: diffNonce
     });
 
-    if (preSchedule.status === 'less') {
+    if (preSchedule.status === SCHEDULE_STATUS.LESS) {
       result.undue = (preSchedule.undue || 0) - (preSchedule.didUndue || 0);
       const unduePercent = await getUnduePercent(
         models,
@@ -285,7 +292,7 @@ export const getCalcedAmounts = async (
     result.debt += nextSchedule.debt || 0;
 
     result.payment += nextSchedule.payment || 0;
-    if (preSchedule.status === 'less' && preSchedule.isDefault === true) {
+    if (preSchedule.status === SCHEDULE_STATUS.LESS) {
       result.undue = (preSchedule.undue || 0) - (preSchedule.didUndue || 0);
       const unduePercent = await getUnduePercent(
         models,
@@ -334,7 +341,7 @@ export const getCalcedAmounts = async (
 
   result.insurance = nextSchedule.insurance;
   //result.payment = nextSchedule.payment;
-  if (nextSchedule.status === 'less') {
+  if (nextSchedule.status === SCHEDULE_STATUS.LESS) {
     result.payment = (preSchedule.payment || 0) - (preSchedule.didPayment || 0);
     if (result.payment < 0) result.payment = 0;
   }
@@ -480,7 +487,9 @@ export const trAfterSchedule = async (
   // with skipped of done
   let preSchedule = await models.Schedules.findOne({
     contractId: contract._id,
-    status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] }
+    status: {
+      $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
+    }
   })
     .sort({ payDate: -1 })
     .lean();

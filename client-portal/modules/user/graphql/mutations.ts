@@ -19,6 +19,7 @@ const createUser = `
     $email: String,
     $firstName: String,
     $lastName: String,
+    $companyName: String
     $phone: String,
     $type: String,
   ) {
@@ -28,6 +29,7 @@ const createUser = `
       password: $password,
       firstName: $firstName,
       lastName: $lastName,
+      companyName: $companyName
       phone: $phone,
       type: $type,
     )
@@ -114,7 +116,6 @@ const facebookLogin = `
   clientPortalFacebookAuthentication(accessToken: $accessToken, clientPortalId: $clientPortalId)
 }
 `;
-
 
 export default {
   login: clientPortalLogin,

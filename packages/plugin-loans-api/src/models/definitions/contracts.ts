@@ -52,7 +52,7 @@ export interface IContract {
   unduePercent: number;
   repayment: string;
   startDate: Date;
-  scheduleDay: number;
+  scheduleDays: number[];
   insuranceAmount: number;
   /**
    * @property {number} debt loan debit amount it will be chance to lender can pay lower than main payment amount
@@ -217,8 +217,8 @@ export const contractSchema = schemaHooksWrapper(
       selectOptions: REPAYMENT_TYPE
     }),
     startDate: field({ type: Date, label: 'Rate Start Date' }),
-    scheduleDay: field({
-      type: Number,
+    scheduleDays: field({
+      type: [Number],
       min: 1,
       max: 31,
       label: 'Schedule Day'

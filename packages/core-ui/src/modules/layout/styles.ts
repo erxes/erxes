@@ -196,7 +196,6 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
   styled.div
 )`
   width: 100%;
-
   > a {  
     display: flex;
     color: ${colors.bgLight};
@@ -463,6 +462,24 @@ const NavItem = styledTS<{ isMoreItem?: boolean }>(styled.div)`
       visibility: visible;
     }
   }
+
+  @media screen and (max-height: 870px){
+    &.more-2 {
+      position: fixed;
+      bottom: 160px;
+    }
+  }
+  @media screen and (max-height: 560px){
+    &.more-1 {
+      position: fixed;
+      bottom: 120px;
+    }
+    &.more-3 {
+      position: fixed;
+      bottom: 120px;
+    }
+  }
+
 `;
 
 const DropNav = styled.a`

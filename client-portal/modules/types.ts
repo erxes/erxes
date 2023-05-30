@@ -116,7 +116,7 @@ export type Label = {
   _id: string;
   name: string;
   colorCode: string;
-}
+};
 
 export type Config = {
   _id?: string;
@@ -132,14 +132,19 @@ export type Config = {
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   taskPublicPipelineId?: string;
+  taskPublicLabel?: string;
+  taskPublicBoardId?: string;
   ticketLabel?: string;
   dealLabel?: string;
+  purchaseLabel?:string;
   taskLabel?: string;
   taskStageId?: string;
   ticketStageId?: string;
   dealStageId?: string;
+  purchaseStageId?: string;
   ticketPipelineId?: string;
   dealPipelineId?: string;
+  purchasePipelineId?:string;
   taskPipelineId?: string;
 
   kbToggle?: boolean;
@@ -147,6 +152,7 @@ export type Config = {
   ticketToggle?: boolean;
   taskToggle?: boolean;
   dealToggle?: boolean;
+  purchaseToggle?:boolean;
 
   styles?: {
     bodyColor?: string;
@@ -275,6 +281,16 @@ export interface ITicket {
     [key: string]: any;
   };
 }
+
+export type GroupBy = {
+  groupBy: string;
+  setGroupBy: string;
+};
+
+export type ViewMode = {
+  viewMode: string;
+  setViewMode: string;
+};
 
 export interface IKbArticle extends ICommonFields {
   _id: string;
