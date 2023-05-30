@@ -66,7 +66,7 @@ const requestDetail = `
       requester {
         ${userTypes}
       },
-      ${contentTypeTypes},
+      detail,
 
       responses {
         _id,
