@@ -9,13 +9,13 @@ const notificationMutations = {
     { _ids, markAll }: { _ids: string[]; markAll: boolean },
     { models, cpUser }: IContext
   ) {
-    let cpIds = _ids;
+    let cpNotifIds = _ids;
 
     // mark all notifs as read
     if (markAll) {
-      cpIds = (await models.ClientPortalNotifications.find()).map(
-        notif => notif._id
-      );
+      cpNotifIds = (
+        await models.ClientPortalNotifications.find({ isRead: false })
+      ).map(notif => notif._id);
     }
 
     if (!cpUser) {
@@ -26,7 +26,7 @@ const notificationMutations = {
       clientPortalNotificationRead: { userId: cpUser._id }
     });
 
-    await models.ClientPortalNotifications.markAsRead(cpIds, cpUser._id);
+    await models.ClientPortalNotifications.markAsRead(cpNotifIds, cpUser._id);
 
     return 'marked';
   },
