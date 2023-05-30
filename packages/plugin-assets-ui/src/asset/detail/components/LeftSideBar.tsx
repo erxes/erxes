@@ -1,5 +1,5 @@
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { IAsset } from '../../../common/types';
 import { queries } from '../../graphql';

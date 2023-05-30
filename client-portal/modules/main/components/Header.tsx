@@ -201,6 +201,12 @@ function Header({
             {config.dealToggle && currentUser
               ? renderMenu("/deals", config.dealLabel || "Sales pipeline")
               : null}
+            {config.purchaseToggle && currentUser
+              ? renderMenu(
+                  "/purchases",
+                  config.purchaseLabel || "Purchase pipeline"
+                )
+              : null}
             {config.taskToggle && currentUser
               ? renderMenu("/tasks", config.taskLabel || "Task")
               : null}
@@ -210,7 +216,9 @@ function Header({
               color={getConfigColor(config, "headingColor")}
               baseColor={getConfigColor(config, "baseColor")}
             >
-              {currentUser ? renderCurrentUser() : renderAuth()}
+              {currentUser && Object.keys(currentUser).length !== 0
+                ? renderCurrentUser()
+                : renderAuth()}
             </SupportMenus>
           </HeaderRight>
         </HeaderTop>

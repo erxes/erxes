@@ -54,6 +54,11 @@ const PortableTickets = asyncComponent(() =>
     /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
   )
 );
+const PortablePurchases = asyncComponent(() =>
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ '@erxes/ui-cards/src/purchases/components/PortablePurchases'
+  )
+);
 
 const Contacts = asyncComponent(() =>
   import(
@@ -265,6 +270,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         <PortableDeals mainType="customer" mainTypeId={customer._id} />
         <PortableTickets mainType="customer" mainTypeId={customer._id} />
         <PortableTasks mainType="customer" mainTypeId={customer._id} />
+        <PortablePurchases mainType="customer" mainTypeId={customer._id} />
       </>
     );
   }

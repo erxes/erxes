@@ -395,7 +395,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
         phones
       });
 
-      // Updating customer companies, deals, tasks, tickets
+      // Updating customer companies, deals, tasks, tickets, purchase
       await sendCoreMessage({
         subdomain,
         action: 'conformities.changeConformity',

@@ -1,6 +1,6 @@
 import React, { useEffect, FC } from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 
 const CURRENT_USER = gql`
   query ClientPortalCurrentUser {

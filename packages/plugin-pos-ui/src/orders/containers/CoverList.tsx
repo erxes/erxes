@@ -1,9 +1,9 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import List from '../components/CoverList';
 import queryString from 'query-string';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps } from '@erxes/ui/src/types';
 import {
   ListQueryVariables,

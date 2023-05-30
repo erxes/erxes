@@ -1,8 +1,8 @@
 import { router, Spinner } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 
 import List from '../components/List';

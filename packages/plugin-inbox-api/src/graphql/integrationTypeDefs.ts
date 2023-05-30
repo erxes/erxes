@@ -176,6 +176,7 @@ export const types = ({ products, tags, forms }) => `
     showLauncher: Boolean
     forceLogoutWhenResolve: Boolean
     showVideoCallRequest: Boolean
+    hideWhenOffline: Boolean
   }
 
   input MessengerUiOptions {

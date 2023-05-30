@@ -28,10 +28,11 @@ import {
 import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
 import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql, useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';

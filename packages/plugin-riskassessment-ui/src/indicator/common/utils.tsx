@@ -1,7 +1,7 @@
 import { ITag } from '@erxes/ui-tags/src/types';
 import { router, SelectWithSearch } from '@erxes/ui/src';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { tags as tagsQuery } from '../../common/graphql';
 import { generateParamsIds } from '../../common/utils';

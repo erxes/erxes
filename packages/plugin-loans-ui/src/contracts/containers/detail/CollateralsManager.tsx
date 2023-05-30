@@ -1,10 +1,10 @@
 import { AppConsumer } from '@erxes/ui/src';
 import { Alert, withProps } from '@erxes/ui/src';
 import { IProduct } from '@erxes/ui-products/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import CollateralsManager from '../../components/collaterals/CollateralsManager';
 import { mutations } from '../../graphql';

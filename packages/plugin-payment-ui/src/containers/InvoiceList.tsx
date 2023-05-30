@@ -2,7 +2,7 @@ import Bulk from '@erxes/ui/src/components/Bulk';
 import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import List from '../components/invoice/List';
 import { queries } from '../graphql';

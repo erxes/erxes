@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
 import { Amount } from './styles/stage';
 import { IDateColumn } from '@erxes/ui/src/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { ColumnProps, getCommonParams } from './components/Calendar';
 import PriorityIndicator from './components/editForm/PriorityIndicator';
 import { IDraggableLocation, IFilterParams, IItem, IItemMap } from './types';

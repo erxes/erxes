@@ -136,12 +136,15 @@ export type Config = {
   taskPublicBoardId?: string;
   ticketLabel?: string;
   dealLabel?: string;
+  purchaseLabel?:string;
   taskLabel?: string;
   taskStageId?: string;
   ticketStageId?: string;
   dealStageId?: string;
+  purchaseStageId?: string;
   ticketPipelineId?: string;
   dealPipelineId?: string;
+  purchasePipelineId?:string;
   taskPipelineId?: string;
 
   kbToggle?: boolean;
@@ -149,6 +152,7 @@ export type Config = {
   ticketToggle?: boolean;
   taskToggle?: boolean;
   dealToggle?: boolean;
+  purchaseToggle?:boolean;
 
   styles?: {
     bodyColor?: string;

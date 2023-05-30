@@ -1,6 +1,6 @@
 import React from 'react';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { queries } from '../graphql';
 
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';

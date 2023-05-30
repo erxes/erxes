@@ -870,7 +870,47 @@ const clientPortalUserMutations = {
 
     return 'Phone verified';
   },
+  clientPortalUserAssignCompany: async (
+    _root,
+    args: { userId: string; erxesCompanyId: string; erxesCustomerId: string },
+    { models, subdomain }: IContext
+  ) => {
+    const { userId, erxesCompanyId, erxesCustomerId } = args;
 
+    const getCompany = await sendContactsMessage({
+      subdomain,
+      action: 'companies.findOne',
+      data: { _id: erxesCompanyId },
+      isRPC: true
+    });
+
+    let setOps: any = { erxesCompanyId };
+
+    if (getCompany) {
+      setOps = { ...setOps, companyName: getCompany.primaryName };
+    }
+
+    try {
+      // add conformity company to customer
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: 'customer',
+          mainTypeId: erxesCustomerId,
+          relType: 'company',
+          relTypeId: erxesCompanyId
+        }
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+
+    return models.ClientPortalUsers.updateOne(
+      { _id: userId },
+      { $set: setOps }
+    );
+  },
   clientPortalUpdateUser: async (
     _root,
     args: { _id: string; doc },

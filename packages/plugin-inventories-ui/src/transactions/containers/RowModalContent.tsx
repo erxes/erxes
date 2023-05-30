@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 // local
 import { queries } from '../graphql';

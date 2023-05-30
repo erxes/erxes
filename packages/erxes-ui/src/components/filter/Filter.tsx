@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import Chip from '../Chip';
 import { __ } from '../../utils/core';
 import { cleanIntegrationKind } from '../../utils';

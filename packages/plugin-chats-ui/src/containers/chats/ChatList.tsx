@@ -1,6 +1,6 @@
 import React from 'react';
-import { useQuery, useSubscription } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery, useSubscription } from '@apollo/client';
+import { gql } from '@apollo/client';
 // erxes
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';

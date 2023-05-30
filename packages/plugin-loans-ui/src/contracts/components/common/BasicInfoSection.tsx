@@ -19,7 +19,7 @@ import { IContract } from '../../types';
 import DetailInfo from './DetailInfo';
 import { getEnv } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '../../graphql';
 import { can, isEnabled } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../../withConsumer';

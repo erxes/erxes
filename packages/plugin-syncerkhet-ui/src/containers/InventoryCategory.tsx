@@ -1,10 +1,10 @@
 import * as compose from 'lodash.flowright';
 import Alert from '@erxes/ui/src/utils/Alert';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Bulk } from '@erxes/ui/src/components';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils/core';

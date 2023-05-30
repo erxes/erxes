@@ -1,5 +1,5 @@
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import client from '@erxes/ui/src/apolloClient';
 import { mutations } from '../graphql';
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';

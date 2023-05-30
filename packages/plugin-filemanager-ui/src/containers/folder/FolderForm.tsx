@@ -9,7 +9,7 @@ import { mutations, queries } from '../../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import FolderForm from '../../components/folder/FolderForm';
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 type Props = {
   folder?: IFolder;

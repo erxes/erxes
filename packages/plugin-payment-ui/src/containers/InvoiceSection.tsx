@@ -1,6 +1,6 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 
 import InvoiceSection from '../components/invoice/InvoiceSection';
 import { queries } from '../graphql';
