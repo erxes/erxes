@@ -19,6 +19,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import { router } from 'coreui/utils';
 import dayjs from 'dayjs';
 import Sidebar from './SideBar';
+import Tags from '@erxes/ui/src/components/Tags';
 
 type Props = {
   queryParams: any;
@@ -83,12 +84,14 @@ class EmailTemplateList extends React.Component<Props> {
 
   renderRow = () => {
     return this.props.objects.map((object, index) => {
-      const { name, content, createdAt, modifiedAt, createdUser } =
+      const { name, content, createdAt, modifiedAt, createdUser, tags } =
         object || {};
 
       return (
         <Template key={index} isLongName={name.length > 46}>
+          <FormControl componentClass="checkbox" />
           <h5>{name}</h5>
+          <Tags tags={tags || []} limit={3} />
           <TemplateBox>
             <Actions>
               {this.renderEditAction(object)}

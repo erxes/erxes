@@ -50,6 +50,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as IEmailTemplate);
+
     const tagTrigger = (
       <PopoverButton id="conversationTags">
         {object.tags?.length ? (
@@ -77,11 +78,12 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             autoFocus={true}
           />
         </FormGroup>
+
         {isEnabled('tags') && (
           <TaggerPopover
             type={'emailtemplates:emailtemplates'}
             trigger={tagTrigger}
-            refetchQueries={['dealDetail']}
+            refetchQueries={['emailTemplateCountsByTags']}
             targets={[object]}
             singleSelect={true}
           />
