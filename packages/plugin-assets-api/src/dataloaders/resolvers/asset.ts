@@ -56,7 +56,8 @@ export default {
           _id: { $in: asset.kbArticleIds || [] }
         }
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
 
     const map = {};

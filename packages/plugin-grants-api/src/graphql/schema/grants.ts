@@ -2,11 +2,6 @@ import { paginateParams } from '../../common/graphql';
 
 export const types = `
 
-  type ContentDetail  {
-    _id:String,
-    name:String,
-  }
-
   type GrantRequest {
     _id:String,
     contentTypeId:String,
@@ -20,7 +15,7 @@ export const types = `
     createdAt:Date,
     resolvedAt:Date,
     users:[User],
-    detail:ContentDetail,
+    detail:JSON,
     
     responses:[GrantResponse]
     actionLabel:String,
