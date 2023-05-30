@@ -1,8 +1,7 @@
-import * as dotenv from 'dotenv';
-
+const dotenv = require('dotenv');
 dotenv.config();
 
-import { Collection, Db, MongoClient } from 'mongodb';
+const { MongoClient } = require('mongodb');
 const { MONGO_URL } = process.env;
 
 if (!MONGO_URL) {
@@ -11,11 +10,11 @@ if (!MONGO_URL) {
 
 const client = new MongoClient(MONGO_URL);
 
-let db: Db;
-let Assets: Collection<any>;
-let Tickets: Collection<any>;
-let Tasks: Collection<any>;
-let Deals: Collection<any>;
+let db;
+let Assets;
+let Tickets;
+let Tasks;
+let Deals;
 
 const command = async () => {
   console.log(`starting ... ${MONGO_URL}`);
@@ -23,7 +22,7 @@ const command = async () => {
   await client.connect();
   console.log('db connected ...');
 
-  db = client.db() as Db;
+  db = client.db();
 
   Assets = db.collection('assets');
   Tickets = db.collection('tickets');
@@ -44,15 +43,14 @@ const command = async () => {
       collection: Deals
     }
   ];
-
-  console.log('starting fetch asset ids');
-
-  const assets = await Assets.find().toArray();
-  const assetIds = assets.map(asset => asset._id);
-
-  console.log(`fetched ${assetIds?.length || 0} assets`);
-
   try {
+    console.log('starting fetch asset ids');
+
+    const assets = await Assets.find().toArray();
+    const assetIds = assets.map(asset => asset._id);
+
+    console.log(`fetched ${assetIds?.length || 0} assets`);
+
     for (let models of modelsMap) {
       console.log(`${models.type} starting...`);
 
