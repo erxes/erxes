@@ -14,7 +14,6 @@ import {
   TabContainer,
   TabCaption
 } from '../../../styles/notifications';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { __ } from '../../../../utils';
 
 type Props = {
@@ -88,9 +87,7 @@ const List = (props: Props) => {
         </NotificationList>
 
         <NotificationSeeAll>
-          <Router>
-            <Link to="/notifications">{__('See all')}</Link>
-          </Router>
+          <span>{__('See all')}</span>
         </NotificationSeeAll>
         <MarkAllRead>
           <span onClick={markAllAsRead}>{__('Mark all as read')}</span>{' '}
