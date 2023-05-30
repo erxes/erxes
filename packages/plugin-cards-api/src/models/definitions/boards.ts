@@ -119,6 +119,7 @@ export interface IStage extends ICommonFields {
   status?: string;
   code?: string;
   age?: number;
+  defaultTick?: boolean;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -377,5 +378,10 @@ export const stageSchema = new Schema({
   canMoveMemberIds: field({ type: [String], label: 'Can move members' }),
   canEditMemberIds: field({ type: [String], label: 'Can edit members' }),
   departmentIds: field({ type: [String], label: 'Departments' }),
+  defaultTick: field({
+    type: Boolean,
+    label: 'Default tick used',
+    optional: true
+  }),
   ...commonFieldsSchema
 });

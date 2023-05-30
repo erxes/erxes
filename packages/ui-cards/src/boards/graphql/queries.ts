@@ -181,6 +181,7 @@ const stageCommon = `
   pipelineId
   code
   age
+  defaultTick
 `;
 
 const stages = `
