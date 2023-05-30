@@ -6,9 +6,18 @@ import { sendNotification } from '../../../utils';
 const notificationMutations = {
   async clientPortalNotificationsMarkAsRead(
     _root,
-    { _ids }: { _ids: string[] },
+    { _ids, markAll }: { _ids: string[]; markAll: boolean },
     { models, cpUser }: IContext
   ) {
+    let cpIds = _ids;
+
+    // mark all notifs as read
+    if (markAll) {
+      cpIds = (await models.ClientPortalNotifications.find()).map(
+        notif => notif._id
+      );
+    }
+
     if (!cpUser) {
       throw new Error('You are not logged in');
     }
@@ -17,7 +26,7 @@ const notificationMutations = {
       clientPortalNotificationRead: { userId: cpUser._id }
     });
 
-    await models.ClientPortalNotifications.markAsRead(_ids, cpUser._id);
+    await models.ClientPortalNotifications.markAsRead(cpIds, cpUser._id);
 
     return 'marked';
   },

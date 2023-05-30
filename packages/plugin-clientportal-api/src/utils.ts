@@ -487,8 +487,6 @@ export const getCards = async (
 
   const stageIds = stages.map(stage => stage._id);
 
-  //гоё засаарай АМЖИЛТ kiss
-
   let oneStageId = '';
   if ('stageId' in _args) {
     if (stageIds.includes(_args.stageId)) {
