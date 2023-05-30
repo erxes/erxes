@@ -1,7 +1,10 @@
+import { ITag } from '@erxes/ui-tags/src/types';
 export interface IEmailTemplate {
   _id: string;
   name: string;
   content: string;
+  tagIds: string[];
+  tags: ITag[];
 }
 export type EmailTemplatesTotalCountQueryResponse = {
   emailTemplatesTotalCount: number;
