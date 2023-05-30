@@ -415,7 +415,7 @@ export const sendAfterMutation = async (
 export const getCards = async (
   type: 'ticket' | 'deal' | 'task' | 'purchase',
   context: IContext,
-  _args: any
+  args: any
 ) => {
   const { subdomain, models, cpUser } = context;
   if (!cpUser) {
@@ -487,12 +487,10 @@ export const getCards = async (
 
   const stageIds = stages.map(stage => stage._id);
 
-  //гоё засаарай АМЖИЛТ kiss
-
   let oneStageId = '';
-  if ('stageId' in _args) {
-    if (stageIds.includes(_args.stageId)) {
-      oneStageId = _args.stageId;
+  if (args.stageId) {
+    if (stageIds.includes(args.stageId)) {
+      oneStageId = args.stageId;
     } else {
       oneStageId = 'noneId';
     }
@@ -504,10 +502,10 @@ export const getCards = async (
     data: {
       _id: { $in: cardIds },
       stageId: oneStageId ? oneStageId : { $in: stageIds },
-      ...(_args?.priority && { priority: _args?.priority || [] }),
-      ...(_args?.labelIds && { labelIds: _args?.labelIds || [] }),
-      ...(_args?.closeDateType && { closeDateType: _args?.closeDateType }),
-      ...(_args?.userIds && { assignedUserIds: _args?.userIds || [] })
+      ...(args?.priority && { priority: args?.priority || [] }),
+      ...(args?.labelIds && { labelIds: args?.labelIds || [] }),
+      ...(args?.closeDateType && { closeDateType: args?.closeDateType }),
+      ...(args?.userIds && { assignedUserIds: args?.userIds || [] })
     },
     isRPC: true,
     defaultValue: []
