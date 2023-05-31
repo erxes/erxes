@@ -7,7 +7,8 @@ import {
   Icon,
   SelectTeamMembers,
   Tip,
-  __
+  __,
+  Toggle
 } from '@erxes/ui/src';
 import {
   ClearableBtn,
@@ -21,6 +22,7 @@ import {
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 import { responseTypes } from '../../common/constants';
 import { DateContainer } from '@erxes/ui/src/styles/main';
+import { Row } from '../../styles';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -158,6 +160,24 @@ export default function SideBar({ history, queryParams }) {
               </DateContainer>
             </EndDateContainer>
           </CustomRangeContainer>
+        </CustomField>
+        <CustomField
+          label=""
+          field="onlyWaitingMe"
+          clearable={queryParams?.onlyWaitingMe}
+        >
+          <Row spaceBetween>
+            <ControlLabel>{__('Waiting Me')}</ControlLabel>
+            <Toggle
+              checked={['true'].includes(queryParams?.onlyWaitingMe)}
+              onChange={() =>
+                handleSelect(
+                  !['true'].includes(queryParams?.onlyWaitingMe),
+                  'onlyWaitingMe'
+                )
+              }
+            />
+          </Row>
         </CustomField>
         <CustomField
           label="Response Type"

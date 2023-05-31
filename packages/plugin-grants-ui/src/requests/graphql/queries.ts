@@ -12,6 +12,7 @@ const commonParams = `
     $closedAtTo: String,
     $createdAtFrom: String,
     $createdAtTo: String,
+    $onlyWaitingMe:Boolean
 `;
 
 const commonParamsDef = `
@@ -26,6 +27,7 @@ const commonParamsDef = `
     closedAtTo: $closedAtTo,
     createdAtFrom: $createdAtFrom,
     createdAtTo: $createdAtTo,
+    onlyWaitingMe:$onlyWaitingMe
 `;
 
 const requests = `
