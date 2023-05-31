@@ -228,7 +228,7 @@ class MailFormContainer extends React.Component<
     }) => {
       let sendEmailMutation = mutations.imapSendMail;
 
-      if (source === 'engage') {
+      if (!variables.replyToMessageId) {
         sendEmailMutation = engageMutations.sendMail;
       }
 
