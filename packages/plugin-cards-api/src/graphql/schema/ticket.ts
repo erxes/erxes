@@ -9,7 +9,7 @@ import {
 
 export const types = ({ contacts, tags }) => `
   type TicketListItem {
-    customFieldsData:JSON,
+    customPropertiesData:JSON,
     ${commonListTypes}
   }
 
