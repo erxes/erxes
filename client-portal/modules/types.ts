@@ -136,7 +136,7 @@ export type Config = {
   taskPublicBoardId?: string;
   ticketLabel?: string;
   dealLabel?: string;
-  purchaseLabel?:string;
+  purchaseLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   ticketStageId?: string;
@@ -144,7 +144,7 @@ export type Config = {
   purchaseStageId?: string;
   ticketPipelineId?: string;
   dealPipelineId?: string;
-  purchasePipelineId?:string;
+  purchasePipelineId?: string;
   taskPipelineId?: string;
 
   kbToggle?: boolean;
@@ -152,7 +152,7 @@ export type Config = {
   ticketToggle?: boolean;
   taskToggle?: boolean;
   dealToggle?: boolean;
-  purchaseToggle?:boolean;
+  purchaseToggle?: boolean;
 
   styles?: {
     bodyColor?: string;
@@ -230,7 +230,7 @@ export interface IUser {
   details?: IUserDetails;
   type: string;
   companyName: string;
-
+  username?: string;
   notificationSettings?: INotifcationSettings;
 }
 
@@ -311,6 +311,7 @@ export interface INotification {
   link: string;
   isRead: boolean;
   createdAt: Date;
+  createdUser: IUser;
 }
 
 export type Topic = {

@@ -1,20 +1,20 @@
 import { INotification, IUser } from '../../../types';
-import { NotificationHeader, NotificationList } from '../../../styles/main';
+import { NotificationList } from '../../../styles/main';
 
 import EmptyState from '../../../common/form/EmptyState';
 import Modal from '../../../common/Modal';
 import NotificationDetail from '../../containers/notifications/Detail';
-import React from 'react';
+import React, { useState } from 'react';
 import Row from './Row';
 import Spinner from '../../../common/Spinner';
 import {
   NotificationSeeAll,
   MarkAllRead,
-  NotificationWrapper
+  NotificationWrapper,
+  TabContainer,
+  TabCaption
 } from '../../../styles/notifications';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { __ } from '../../../../utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 type Props = {
   currentUser: IUser;
@@ -23,22 +23,39 @@ type Props = {
   loading: boolean;
   refetch?: () => void;
   markAsRead: (notificationIds?: string[]) => void;
+  markAllAsRead: any;
+  showNotifications: (requireRead: boolean) => void;
 };
 
 const List = (props: Props) => {
-  const { notifications, loading, markAsRead } = props;
+  const {
+    notifications,
+    loading,
+    count,
+    markAsRead,
+    markAllAsRead,
+    showNotifications
+  } = props;
 
+  const [currentTab, setCurrentTab] = useState('Recent');
   const [showModal, setShowModal] = React.useState(false);
   const [selectedNotificationId, setSelectedNotificationId] = React.useState(
     ''
   );
 
-  // const seeAllNotifications = asyncComponent(
-  //   () =>
-  //     import(
-  //       /* webpackChunkName: "NotificationList"  */ './containers/NotificationList'
-  //     )
-  // );
+  const onTabClick = currTab => {
+    setCurrentTab(currTab);
+  };
+
+  const recentOnClick = () => {
+    onTabClick('Recent');
+    showNotifications(false);
+  };
+
+  const unreadOnClick = () => {
+    onTabClick('Unread');
+    showNotifications(true);
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -56,7 +73,7 @@ const List = (props: Props) => {
     }
 
     const onClick = (notificationId: string) => {
-      props.markAsRead([notificationId]);
+      markAsRead([notificationId]);
       setSelectedNotificationId(notificationId);
       setShowModal(true);
     };
@@ -70,14 +87,10 @@ const List = (props: Props) => {
         </NotificationList>
 
         <NotificationSeeAll>
-          <Router>
-            <Link to="/notifications">{__('See all')}</Link>
-          </Router>
+          <span>{__('See all')}</span>
         </NotificationSeeAll>
         <MarkAllRead>
-          <span onClick={markAsRead.bind(this, [])}>
-            {__('Mark all as read')}
-          </span>{' '}
+          <span onClick={markAllAsRead}>{__('Mark all as read')}</span>{' '}
         </MarkAllRead>
 
         <Modal
@@ -100,11 +113,21 @@ const List = (props: Props) => {
 
   return (
     <>
-      <NotificationHeader className="d-flex align-items-center justify-content-between">
-        <h5>Notifications</h5>
-        <span>0 New</span>
-      </NotificationHeader>
-      {renderContent()}
+      <TabContainer full={true}>
+        <TabCaption
+          className={currentTab === 'Recent' ? 'active' : ''}
+          onClick={recentOnClick}
+        >
+          {__('Recent')}
+        </TabCaption>
+        <TabCaption
+          className={currentTab === 'Unread' ? 'active' : ''}
+          onClick={unreadOnClick}
+        >
+          {__('Unread')}
+        </TabCaption>
+      </TabContainer>
+      <NotificationWrapper>{renderContent()}</NotificationWrapper>
     </>
   );
 };
