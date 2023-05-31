@@ -37,7 +37,7 @@ const WidgetContainer = () => {
   return (
     <>
       <NotifButton>
-        <Icon icon="fast-mail" size={20} onClick={() => showWidget()} />
+        <Icon icon="send" size={15} onClick={() => showWidget()} />
       </NotifButton>
       <WidgetWrapper show={isWidgetShow === 'true' ? true : false}>
         <MailForm
