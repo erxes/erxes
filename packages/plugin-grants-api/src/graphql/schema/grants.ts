@@ -60,7 +60,8 @@ const commonParams = `
   createdAtFrom:String
   createdAtTo:String
   closedAtFrom:String
-  closedAtTo:String
+  closedAtTo:String,
+  onlyWaitingMe:Boolean
 `;
 
 export const queries = `

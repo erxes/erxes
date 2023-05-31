@@ -53,6 +53,7 @@ const generateQueryParams = queryParams => {
     createdAtTo: queryParams.createdAtTo || undefined,
     closedAtFrom: queryParams.closedAtFrom || undefined,
     closedAtTo: queryParams.closedAtTo || undefined,
+    onlyWaitingMe: ['true'].includes(queryParams?.onlyWaitingMe),
     ...generatePaginationParams(queryParams || {})
   };
 };
