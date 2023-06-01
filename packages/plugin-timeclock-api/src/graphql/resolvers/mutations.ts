@@ -289,7 +289,8 @@ const timeclockMutations = {
             const schedule = await models.Schedules.createSchedule({
               userId: shiftRequest.userId,
               solved: true,
-              status: 'Approved'
+              status: 'Approved',
+              createdByRequest: true
             });
 
             const scheduleShiftsWriteOps: any[] = [];
@@ -360,11 +361,13 @@ const timeclockMutations = {
             return;
           }
 
+          //  shift request - by time
           if (shiftRequest.userId) {
             const newSchedule = await models.Schedules.createSchedule({
               userId: shiftRequest.userId,
               solved: true,
-              status: 'Approved'
+              status: 'Approved',
+              createdByRequest: true
             });
 
             await models.Shifts.createShift({
@@ -736,12 +739,8 @@ const timeclockMutations = {
     });
   },
 
-  async extractAllDataFromMsSQL(
-    _root,
-    { startDate, endDate },
-    { subdomain }: IContext
-  ) {
-    return await connectAndQueryFromMsSql(subdomain, startDate, endDate);
+  async extractAllDataFromMsSQL(_root, params, { subdomain }: IContext) {
+    return await connectAndQueryFromMsSql(subdomain, params);
   },
 
   async extractTimeLogsFromMsSQL(

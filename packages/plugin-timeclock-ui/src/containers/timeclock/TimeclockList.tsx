@@ -62,12 +62,13 @@ const ListContainer = (props: FinalProps) => {
     });
   };
 
-  const extractAllMsSqlData = (start: Date, end: Date) => {
+  const extractAllMsSqlData = (start: Date, end: Date, params: any) => {
     setLoading(true);
     extractAllMsSqlDataMutation({
       variables: {
         startDate: dayjs(start).format(dateFormat),
-        endDate: dayjs(end).format(dateFormat)
+        endDate: dayjs(end).format(dateFormat),
+        ...params
       }
     })
       .then(() => {
