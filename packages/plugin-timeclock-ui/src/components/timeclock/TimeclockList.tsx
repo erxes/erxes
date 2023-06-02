@@ -123,6 +123,13 @@ function List(props: Props) {
     return totalUserOptions;
   };
 
+  const filterParams = isCurrentUserAdmin
+    ? {}
+    : {
+        ids: returnTotalUserOptions(),
+        excludeIds: false
+      };
+
   const trigger = (
     <Button btnStyle={'success'} icon="plus-circle">
       Start Shift
@@ -242,10 +249,7 @@ function List(props: Props) {
             label="Select team member"
             name="userIds"
             customOption={prepareCurrentUserOption(currentUser)}
-            filterParams={{
-              ids: returnTotalUserOptions(),
-              excludeIds: false
-            }}
+            filterParams={filterParams}
             onSelect={onMemberSelect}
           />
         </div>

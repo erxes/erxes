@@ -14,6 +14,7 @@ import { prepareCurrentUserOption } from '../../utils';
 
 type Props = {
   currentUser: IUser;
+  isCurrentUserAdmin: boolean;
 
   queryParams: any;
   history: any;
@@ -27,7 +28,14 @@ const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
 const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
 
 const LeftSideBar = (props: Props) => {
-  const { history, branches, queryParams, departments, currentUser } = props;
+  const {
+    history,
+    branches,
+    queryParams,
+    departments,
+    currentUser,
+    isCurrentUserAdmin
+  } = props;
 
   const [currUserIds, setUserIds] = useState(queryParams.userIds);
 
@@ -51,6 +59,13 @@ const LeftSideBar = (props: Props) => {
 
     return totalUserOptions;
   };
+
+  const filterParams = isCurrentUserAdmin
+    ? {}
+    : {
+        ids: returnTotalUserOptions(),
+        excludeIds: false
+      };
 
   const [startDate, setStartDate] = useState(
     queryParams.startDate || startOfThisMonth
@@ -214,10 +229,7 @@ const LeftSideBar = (props: Props) => {
             label="Select team member"
             name="userIds"
             customOption={prepareCurrentUserOption(currentUser)}
-            filterParams={{
-              ids: returnTotalUserOptions(),
-              excludeIds: false
-            }}
+            filterParams={filterParams}
             queryParams={queryParams}
             onSelect={onMemberSelect}
           />
