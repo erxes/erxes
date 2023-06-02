@@ -8,7 +8,8 @@ import {
   ShowReplyButtonWrapper,
   SpaceBetweenRow,
   ToolBar,
-  NewEmailHeader
+  NewEmailHeader,
+  UploaderWrapper
 } from './styles';
 import { FlexRow, Subject } from './styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
@@ -64,7 +65,8 @@ type Props = {
     variables: any;
     callback: () => void;
   }) => void;
-  verifiedEmails: string[];
+  verifiedImapEmails: string[];
+  verifiedEngageEmails: string[];
   history: any;
   shrink?: boolean;
   isWidget?: boolean;
@@ -485,7 +487,7 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderFromValue = () => {
-    const { verifiedEmails } = this.props;
+    const { verifiedImapEmails, verifiedEngageEmails } = this.props;
 
     const onChangeMail = (from: string) => {
       this.setState({ from });
@@ -498,7 +500,8 @@ class MailForm extends React.Component<Props, State> {
         onChange={onChangeMail}
         integrations={[]}
         selectedItem={this.state.from}
-        verifiedEmails={verifiedEmails}
+        verifiedImapEmails={verifiedImapEmails}
+        verifiedEngageEmails={verifiedEngageEmails}
       />
     );
   };
@@ -659,14 +662,16 @@ class MailForm extends React.Component<Props, State> {
       <EditorFooter>
         <SpaceBetweenRow>
           <ToolBar>
-            <Uploader
-              defaultFileList={this.state.attachments || []}
-              onChange={onChangeAttachment}
-              text=" "
-              icon="attach"
-              tip="Attach files"
-              tipPlacement="top"
-            />
+            <Tip text="Attach file" placement="top">
+              <UploaderWrapper>
+                <Uploader
+                  defaultFileList={this.state.attachments || []}
+                  onChange={onChangeAttachment}
+                  text=" "
+                  icon="attach"
+                />
+              </UploaderWrapper>
+            </Tip>
             {this.renderIcon({
               text: 'Delete',
               icon: 'trash-alt',

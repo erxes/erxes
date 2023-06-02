@@ -56,7 +56,7 @@ class MailFormContainer extends React.Component<
   FinalProps,
   {
     loadedEmails: boolean;
-    verifiedEmails: string[];
+    verifiedImapEmails: string[];
     verifiedEngageEmails: string[];
   }
 > {
@@ -65,7 +65,7 @@ class MailFormContainer extends React.Component<
 
     this.state = {
       loadedEmails: false,
-      verifiedEmails: [],
+      verifiedImapEmails: [],
       verifiedEngageEmails: []
     };
   }
@@ -86,7 +86,11 @@ class MailFormContainer extends React.Component<
       messageId
     } = this.props;
 
-    const { loadedEmails, verifiedEmails, verifiedEngageEmails } = this.state;
+    const {
+      loadedEmails,
+      verifiedImapEmails,
+      verifiedEngageEmails
+    } = this.state;
 
     if (!loadedEmails) {
       client
@@ -127,11 +131,11 @@ class MailFormContainer extends React.Component<
 
           this.setState({
             loadedEmails: true,
-            verifiedEmails: emails
+            verifiedImapEmails: emails
           });
         })
         .catch(() => {
-          this.setState({ loadedEmails: true, verifiedEmails: [] });
+          this.setState({ loadedEmails: true, verifiedImapEmails: [] });
         });
     }
 
@@ -244,12 +248,6 @@ class MailFormContainer extends React.Component<
       });
     };
 
-    verifiedEngageEmails.map(email => {
-      if (!verifiedEmails.includes(email)) {
-        verifiedEmails.push(email);
-      }
-    });
-
     const updatedProps = {
       ...this.props,
       sendMail,
@@ -260,7 +258,8 @@ class MailFormContainer extends React.Component<
       totalCount: emailTemplatesTotalCount,
       mails,
       messageId,
-      verifiedEmails
+      verifiedImapEmails,
+      verifiedEngageEmails
     };
 
     return <MailForm {...updatedProps} />;
