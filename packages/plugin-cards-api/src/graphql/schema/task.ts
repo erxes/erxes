@@ -9,6 +9,7 @@ import {
 
 export const types = ({ contacts, tags }) => `
   type TaskListItem {
+    customPropertiesData:JSON,
     ${commonListTypes}
   }
 
