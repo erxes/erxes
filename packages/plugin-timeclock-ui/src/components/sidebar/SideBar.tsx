@@ -186,13 +186,16 @@ const LeftSideBar = (props: Props) => {
   return (
     <Sidebar wide={true} hasBorder={true} header={renderSidebarHeader()}>
       <FlexColumnCustom marginNum={20}>
-        <Select
-          value={selectedDepartments}
-          onChange={onDepartmentSelect}
-          placeholder="Select departments"
-          multi={true}
-          options={departments && renderDepartmentOptions(departments)}
-        />
+        <div>
+          <ControlLabel>Departments</ControlLabel>
+          <Select
+            value={selectedDepartments}
+            onChange={onDepartmentSelect}
+            placeholder="Select departments"
+            multi={true}
+            options={departments && renderDepartmentOptions(departments)}
+          />
+        </div>
         <div>
           <ControlLabel>Branches</ControlLabel>
           <Select

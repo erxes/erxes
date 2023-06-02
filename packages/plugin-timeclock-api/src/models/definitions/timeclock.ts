@@ -72,6 +72,7 @@ export interface ISchedule {
   scheduleChecked?: boolean;
   submittedByAdmin?: boolean;
   totalBreakInMins?: number;
+  createdByRequest?: boolean;
   shiftIds?: string[];
 }
 
@@ -276,8 +277,13 @@ export const scheduleSchema = new Schema({
   }),
   totalBreakInMins: field({
     type: Number,
-    label: 'Total break time in mins',
-    default: false
+    label: 'Total break time in mins'
+  }),
+  createdByRequest: field({
+    type: Boolean,
+    label: 'Whether schedule was created by shift request',
+    default: false,
+    optional: true
   })
 });
 

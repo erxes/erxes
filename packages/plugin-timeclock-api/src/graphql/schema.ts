@@ -347,7 +347,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  replaceDuplcateTimeclocks: JSON
   timeclockStart(${params}): Timeclock
   timeclockStop(${params}): Timeclock
   timeclockRemove(_id : String): JSON
@@ -395,6 +394,6 @@ export const mutations = `
 
   createTimeClockFromLog(userId: String, timelog: Date): Timeclock
 
-  extractAllDataFromMsSQL(startDate: String, endDate: String): [Timeclock]
+  extractAllDataFromMsSQL(startDate: String, endDate: String, extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): [Timeclock]
   extractTimeLogsFromMsSQL(startDate: String, endDate: String): [Timelog]
 `;
