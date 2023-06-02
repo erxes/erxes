@@ -36,6 +36,7 @@ class Home extends React.Component<Props, State> {
     for (const p of pluginsWithIntegrations) {
       integrations = integrations.concat(p.inboxIntegrations);
     }
+    // integrations = integrations.concat((window as any).plugins[5].inboxIntegration)
 
     this.state = {
       searchValue: '',
