@@ -121,6 +121,7 @@ class DealItem extends React.PureComponent<Props> {
         />
 
         <PriceContainer>
+          {renderAmount(item.unUsedAmount || {}, false)}
           {renderAmount(item.amount)}
 
           <Right>

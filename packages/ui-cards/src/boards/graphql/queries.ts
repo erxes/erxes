@@ -176,6 +176,7 @@ const stageCommon = `
   _id
   name
   order
+  unUsedAmount
   amount
   itemsTotalCount
   pipelineId
