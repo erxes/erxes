@@ -50,6 +50,7 @@ const ApplyVatWrapper = styled.div`
   > div {
     flex: inherit;
   }
+
   input {
     width: 100px;
   }
@@ -109,6 +110,7 @@ class ProductForm extends React.Component<Props, State> {
       )
     };
   }
+
   componentDidMount() {
     this.updateTotal();
   }
@@ -223,7 +225,7 @@ class ProductForm extends React.Component<Props, State> {
         (discount[currency].value * 100) / clearTotal;
     }
 
-    this.setState({ total, tax, discount });
+    this.setState({ total, tax, discount, bothTotal, unUsedTotal });
   };
 
   renderTotal(totalKind, kindTxt) {
@@ -397,6 +399,7 @@ class ProductForm extends React.Component<Props, State> {
         }
       }
     }
+
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
@@ -586,7 +589,7 @@ class ProductForm extends React.Component<Props, State> {
   };
 
   renderBulkProductChooser() {
-    const { productsData } = this.props;
+    const { productsData, purchaseQuery } = this.props;
 
     const productOnChange = (products: IProduct[]) => {
       this.clearFilter();
@@ -607,7 +610,7 @@ class ProductForm extends React.Component<Props, State> {
             : 0,
           amount: 0,
           currency,
-          tickUsed: true,
+          tickUsed: purchaseQuery.stage?.defaultTick === false ? false : true, // undefined or null then true
           maxQuantity: 0,
           product,
           quantity: 1,
@@ -659,10 +662,19 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    const { total, tax, discount, currentTab, advancedView } = this.state;
+    const {
+      total,
+      tax,
+      discount,
+      currentTab,
+      advancedView,
+      unUsedTotal,
+      bothTotal
+    } = this.state;
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
+
       return (
         <PaymentForm
           total={total}
@@ -691,6 +703,10 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     const avStyle = { display: advancedView ? 'inherit' : 'none' };
+    let totalContent = this.renderTotal(total, 'total');
+    if (!Object.keys(totalContent).length) {
+      totalContent = '--' as any;
+    }
 
     return (
       <FormContainer>
@@ -711,12 +727,25 @@ class ProductForm extends React.Component<Props, State> {
               </tr>
               <tr>
                 <td>{__('Total')}:</td>
-                <td>{this.renderTotal(total, 'total')}</td>
+                <td>{totalContent}</td>
               </tr>
+              {(Object.keys(unUsedTotal).length && (
+                <tr>
+                  <td>{__('Un used Total')}:</td>
+                  <td>{this.renderTotal(unUsedTotal, 'unUsedTotal')}</td>
+                </tr>
+              )) ||
+                ''}
+              {(Object.keys(unUsedTotal).length && (
+                <tr>
+                  <td>{__('Both Total')}:</td>
+                  <td>{this.renderTotal(bothTotal, 'bothTotal')}</td>
+                </tr>
+              )) ||
+                ''}
 
               <tr>
-                <td />
-                <td>
+                <td colSpan={6}>
                   <ApplyVatWrapper>
                     <FormControl
                       placeholder="Vat percent"
@@ -753,6 +782,7 @@ class ProductForm extends React.Component<Props, State> {
 
   render() {
     const { advancedView, currentTab } = this.state;
+
     return (
       <>
         <Tabs grayBorder={true} full={true}>
@@ -785,6 +815,7 @@ class ProductForm extends React.Component<Props, State> {
             {__('LastExpenses')}
           </TabTitle>
         </Tabs>
+
         {this.renderTabContent()}
 
         <ModalFooter>

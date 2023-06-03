@@ -15,7 +15,6 @@ type Props = {
   removeItem: (itemId: string, callback: () => void) => void;
   copyItem: (itemId: string, callback: () => void, msg?: string) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
-  amount?: () => React.ReactNode;
   formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
   onUpdate: (item: IItem, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;

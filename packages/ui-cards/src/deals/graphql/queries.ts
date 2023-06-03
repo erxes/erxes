@@ -65,6 +65,7 @@ export const dealFields = `
   products
   productsData
   paymentsData
+  unUsedAmount
   amount
 `;
 
@@ -101,6 +102,7 @@ const deals = `
       ${commonParamDefs}
     ) {
       products
+      unUsedAmount
       amount
       ${commonListFields}
     }

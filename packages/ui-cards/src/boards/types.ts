@@ -137,6 +137,7 @@ export interface IStage {
   probability: string;
   index?: number;
   itemId?: string;
+  unUsedAmount?: any;
   amount?: any;
   itemsTotalCount: number;
   formId: string;
@@ -190,6 +191,7 @@ export interface IItem {
   startDate: Date;
   closeDate: Date;
   description: string;
+  unUsedAmount?: number;
   amount: number;
   modifiedAt: Date;
   assignedUserIds?: string[];
