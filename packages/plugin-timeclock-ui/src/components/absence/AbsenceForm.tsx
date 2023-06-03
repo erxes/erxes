@@ -36,6 +36,8 @@ type Props = {
   departments: IDepartment[];
   branches: IBranch[];
 
+  isCurrentUserAdmin: boolean;
+
   absenceTypes: IAbsenceType[];
   history: any;
   queryParams: any;
@@ -77,7 +79,9 @@ export default (props: Props) => {
     submitRequest,
     contentProps,
     checkInOutRequest,
-    submitCheckInOut
+    submitCheckInOut,
+
+    isCurrentUserAdmin
   } = props;
 
   type RequestByTime = {
@@ -227,6 +231,13 @@ export default (props: Props) => {
     closeModal();
   };
 
+  const filterParams = isCurrentUserAdmin
+    ? {}
+    : {
+        ids: returnTotalUserOptions(),
+        excludeIds: false
+      };
+
   if (checkInOutRequest) {
     return (
       <FlexColumn marginNum={10}>
@@ -241,10 +252,7 @@ export default (props: Props) => {
 
         <SelectTeamMembers
           queryParams={queryParams}
-          filterParams={{
-            ids: returnTotalUserOptions(),
-            excludeIds: false
-          }}
+          filterParams={filterParams}
           customOption={prepareCurrentUserOption(currentUser)}
           customField="employeeId"
           label={'Team member'}
@@ -532,10 +540,7 @@ export default (props: Props) => {
       </MarginY>
       <SelectTeamMembers
         customField="employeeId"
-        filterParams={{
-          ids: returnTotalUserOptions(),
-          excludeIds: false
-        }}
+        filterParams={filterParams}
         customOption={prepareCurrentUserOption(currentUser)}
         queryParams={queryParams}
         label={'Team member'}
