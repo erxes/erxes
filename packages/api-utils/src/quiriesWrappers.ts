@@ -19,15 +19,21 @@ export const afterQueryWrapper = async (
 
   for (const service of afterQueries[queryName]) {
     try {
-      results = await messageBroker.sendRPCMessage(`${service}:afterQuery`, {
-        subdomain,
-        data: {
-          queryName,
-          args,
-          results,
-          user
+      const perResults = await messageBroker.sendRPCMessage(
+        `${service}:afterQuery`,
+        {
+          subdomain,
+          data: {
+            queryName,
+            args,
+            results,
+            user
+          }
         }
-      });
+      );
+      if (perResults) {
+        results = perResults;
+      }
     } catch (e) {
       console.log(`afterQueries error: ${e}`);
       return results;
