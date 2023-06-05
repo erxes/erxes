@@ -21,10 +21,12 @@ function LastExpensesForm({ costPriceQuery }) {
             <tr key={key}>
               <td>{item.product.name}</td>
               <td>{item.quantity}</td>
-              <td>{item.amount}</td>
-              <td>{item.unitPrice}</td>
-              <td>{item.costPrice}</td>
-              <td>{item.amount + item.costPrice}</td>
+              <td>{(item.amount || 0).toLocaleString()}</td>
+              <td>{(item.unitPrice || 0).toLocaleString()}</td>
+              <td>{(item.costPrice || 0).toLocaleString()}</td>
+              <td>
+                {((item.amount || 0) + (item.costPrice || 0)).toLocaleString()}
+              </td>
             </tr>
           );
         })}
