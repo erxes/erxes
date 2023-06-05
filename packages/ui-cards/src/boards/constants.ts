@@ -68,7 +68,7 @@ export const EMPTY_CONTENT_PURCHASE = {
       title: __('Create Boards and purchases Pipeline'),
       description: `${__(
         'Track your entire purchases pipeline from one dashboard'
-      )}${__('You can also restrict access to your purchases')}`,
+      )}${__('You can also restrict access to your purchases pipelines')}`,
       url: '/settings/boards/purchase',
       urlText: __('Go to Board & purchases pipeline')
     },
