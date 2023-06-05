@@ -11,7 +11,6 @@ cube(`PurchasesDepartments`, {
   joins: {
     Departments: {
       sql: `CONCAT(${CUBE}.departmentIds)= ${Departments}._id`,
-
       relationship: `belongsTo`
     }
   },

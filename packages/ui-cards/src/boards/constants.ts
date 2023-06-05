@@ -65,17 +65,17 @@ export const EMPTY_CONTENT_PURCHASE = {
   ),
   steps: [
     {
-      title: __('Create Boards and purchases'),
-      description: `${__('Track your entire purchases from one dashboard')}${__(
-        'You can also restrict access to your purchases'
-      )}`,
+      title: __('Create Boards and purchases Pipeline'),
+      description: `${__(
+        'Track your entire purchases pipeline from one dashboard'
+      )}${__('You can also restrict access to your purchases')}`,
       url: '/settings/boards/purchase',
-      urlText: __('Go to Board & purchases')
+      urlText: __('Go to Board & purchases pipeline')
     },
     {
       title: __('Tip: Choose different views'),
       description: __(
-        'Click on “Boards, Calendar, Conversions” to filter purchases'
+        'Click on “Boards, Calendar, Conversions” to filter purchases pipeline'
       ),
       icon: 'lightbulb-alt'
     }
