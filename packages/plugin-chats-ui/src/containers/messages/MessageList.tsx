@@ -3,8 +3,6 @@ import { useQuery, useSubscription } from 'react-apollo';
 import gql from 'graphql-tag';
 // erxes
 import Spinner from '@erxes/ui/src/components/Spinner';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { IUser } from '@erxes/ui/src/auth/types';
 // local
 import Component from '../../components/messages/MessageList';
 import { queries, subscriptions } from '../../graphql';

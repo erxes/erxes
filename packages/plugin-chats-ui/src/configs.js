@@ -3,7 +3,7 @@ module.exports = {
   port: 3110,
   exposes: {
     './routes': './src/routes.tsx',
-    './widget': './src/components/Widget.tsx'
+    './widget': './src/containers/Widget.tsx'
   },
   widget: './widget',
   routes: {

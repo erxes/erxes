@@ -7,7 +7,7 @@ const chat = asyncComponent(() =>
 );
 
 const widget = asyncComponent(() =>
-  import(/* webpackChunkName: "Plugin chat - Widget" */ './components/Widget')
+  import(/* webpackChunkName: "Plugin chat - Widget" */ './containers/Widget')
 );
 
 const routes = () => {

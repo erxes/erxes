@@ -12,10 +12,19 @@ import {
   WidgetPopoverSeeAll,
   WidgetChatWrapper
 } from '../styles';
+import Label from '@erxes/ui/src/components/Label';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 const LOCALSTORAGE_KEY = 'erxes_active_chats';
 
-const Widget = () => {
+type Props = {
+  unreadCount: number;
+  currentUser: IUser;
+};
+
+const Widget = (props: Props) => {
+  const { unreadCount, currentUser } = props;
+
   const [activeChatIds, setActiveChatIds] = useState<any[]>(
     JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]')
   );
@@ -62,11 +71,19 @@ const Widget = () => {
       >
         <WidgetButton>
           <Icon icon="chat-1" size={20} />
+          {unreadCount ? (
+            <Label shake={true} lblStyle="danger" ignoreTrans={true}>
+              {unreadCount}
+            </Label>
+          ) : (
+            <></>
+          )}
         </WidgetButton>
       </OverlayTrigger>
       <WidgetChatWrapper>
         {activeChatIds.map(c => (
           <WidgetChatWindow
+            currentUser={currentUser}
             key={c._id}
             chatId={c}
             handleActive={handleActive}
