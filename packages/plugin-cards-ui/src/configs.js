@@ -33,7 +33,7 @@ module.exports = {
       permission: 'showDeals'
     },
     {
-      text: 'Purchase Pipeline',
+      text: 'Purchases',
       url: '/purchase',
       icon: 'icon-bag-alt',
       location: 'mainNavigation',
@@ -84,7 +84,7 @@ module.exports = {
       ]
     },
     {
-      text: 'Purchase Pipelines',
+      text: 'Purchases',
       to: '/settings/boards/purchase',
       image: '/images/icons/erxes-25.png',
       location: 'settings',

@@ -24,10 +24,10 @@ const PROPERTY_GROUPS = [
     ]
   },
   {
-    label: 'Purchase pipeline',
+    label: 'Purchases',
     value: 'purchase',
     types: [
-      { value: 'purchase', label: 'Purchase pipeline' },
+      { value: 'purchase', label: 'Purchases' },
       { value: 'product', label: 'Products & services' }
     ]
   },

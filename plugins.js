@@ -328,7 +328,7 @@ window.plugins = [
         ]
       },
       {
-        text: 'Purchase Pipelines',
+        text: 'Purchases',
         to: '/settings/boards/purchase',
         image: '/images/icons/erxes-25.png',
         location: 'settings',
