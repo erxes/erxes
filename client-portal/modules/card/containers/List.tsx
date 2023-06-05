@@ -65,7 +65,7 @@ function ListContainer({ currentUser, type, config, ...props }: Props) {
     type,
     config,
     currentUser,
-    stages,
+    stages: stages?.stages || [],
     pipeLinelabels,
     pipelineAssignedUsers,
   };
