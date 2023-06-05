@@ -1,5 +1,4 @@
 import {
-  __,
   Alert,
   Button,
   confirm,
@@ -9,6 +8,7 @@ import {
   ModalTrigger,
   Sidebar
 } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -97,7 +97,7 @@ class BasicInfoSection extends React.Component<Props, State> {
               return (
                 <li key={mur._id}>
                   <a href="#print" onClick={() => onPrint(mur)}>
-                    {__('Print ' + mur.name)}
+                    {__('Print') + ' ' + mur.name}
                   </a>
                 </li>
               );
@@ -105,7 +105,7 @@ class BasicInfoSection extends React.Component<Props, State> {
             {can('contractsClose', currentUser) && (
               <li>
                 <ModalTrigger
-                  title="To Close Contract"
+                  title={__('To Close Contract')}
                   trigger={<a href="#toClose">{__('To Close Contract')}</a>}
                   size="lg"
                   content={closeForm}
@@ -139,7 +139,7 @@ class BasicInfoSection extends React.Component<Props, State> {
           <Name>{contract.number}</Name>
           {can('contractsEdit', currentUser) && (
             <ModalTrigger
-              title="Edit basic info"
+              title={__('Edit basic info')}
               trigger={<Icon icon="edit" />}
               size="lg"
               content={contractForm}

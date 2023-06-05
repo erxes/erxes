@@ -1,4 +1,5 @@
-import { __, Wrapper } from '@erxes/ui/src';
+import { Wrapper } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import React from 'react';
 
 import { IContractTypeDetail } from '../types';

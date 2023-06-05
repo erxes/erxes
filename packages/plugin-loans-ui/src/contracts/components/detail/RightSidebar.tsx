@@ -3,7 +3,7 @@ import { IContract } from '../../types';
 import { List } from '../../styles';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';

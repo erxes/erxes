@@ -1,4 +1,5 @@
-import { __, Box, EmptyState, Icon, ModalTrigger } from '@erxes/ui/src';
+import { Box, EmptyState, Icon, ModalTrigger } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 
@@ -63,7 +64,7 @@ function CollateralsSection({
   const renderRow = (label, value) => {
     return (
       <CollateralField>
-        <ItemLabel>{__(`${label}`)}</ItemLabel>
+        <ItemLabel>{__(label)}</ItemLabel>
         <ItemValue>{value || '-'}</ItemValue>
       </CollateralField>
     );
@@ -75,7 +76,7 @@ function CollateralsSection({
       <RowCollateral>
         <CollateralColumn>
           {renderRow(
-            'Insurance Type',
+            'Insurance type',
             (insuranceType && insuranceType.name) || ''
           )}
           {renderRow(

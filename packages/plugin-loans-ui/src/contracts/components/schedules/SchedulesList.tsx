@@ -1,4 +1,5 @@
-import { __, Spinner, Table, Button } from '@erxes/ui/src';
+import { Spinner, Table, Button } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';

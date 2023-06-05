@@ -7,7 +7,7 @@ import React from 'react';
 import PeriodLockForm from '../components/PeriodLockForm';
 import { mutations } from '../graphql';
 import { IPeriodLock } from '../types';
-
+import { __ } from 'coreui/utils';
 type Props = {
   periodLock: IPeriodLock;
   getAssociatedPeriodLock?: (periodLockId: string) => void;
@@ -49,7 +49,9 @@ class PeriodLockFromContainer extends React.Component<FinalProps> {
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

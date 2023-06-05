@@ -16,6 +16,7 @@ const contractFields = `
   feeAmount
   tenor
   unduePercent
+  undueCalcType
   interestRate
   repayment
   startDate
