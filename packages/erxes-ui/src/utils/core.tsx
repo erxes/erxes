@@ -544,6 +544,12 @@ export function numberFormatter(value, fixed) {
 }
 
 export function numberParser(value, fixed) {
+  if (value === '-') return '-';
+  if (RegExp('-', 'g').test(value)) {
+    value = value.replace(RegExp('-', 'g'), '');
+    value = `-${value}`;
+  }
+
   value = value!.replace(/(,*)/g, '');
 
   if (value?.includes('.')) {
