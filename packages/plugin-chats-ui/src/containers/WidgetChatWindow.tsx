@@ -13,7 +13,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 type Props = {
   chatId: string;
   currentUser: IUser;
-  handleActive: (chatId: string) => void;
+  handleActive: (chatId: string, toClose: boolean) => void;
 };
 
 const WidgetChatWindowContainer = (props: Props) => {
@@ -58,7 +58,7 @@ const WidgetChatWindowContainer = (props: Props) => {
   }
 
   if (error) {
-    return <p>{error.message}</p>;
+    Alert.error(error.message);
   }
 
   if (data.chatDetail) {

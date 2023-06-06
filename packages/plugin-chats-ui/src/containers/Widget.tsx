@@ -5,6 +5,8 @@ import Component from '../components/Widget';
 import { queries, subscriptions } from '../graphql';
 import { IUser } from '@erxes/ui/src/auth/types';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   currentUser: IUser;
@@ -24,18 +26,21 @@ const WdigetListContainer = (props: Props) => {
     }
   });
 
-  if (loading) {
-    return <p>...</p>;
+  const chats = useQuery(gql(queries.chats));
+
+  if (loading || chats.loading) {
+    return <Spinner objective={true} />;
   }
 
   if (error) {
-    return <p>{error.message}</p>;
+    Alert.error(error.message);
   }
 
   return (
     <Component
       unreadCount={data.getUnreadChatCount || 0}
       currentUser={currentUser}
+      lastChat={chats.data.chats.list[0]}
     />
   );
 };

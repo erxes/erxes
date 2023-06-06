@@ -7,6 +7,8 @@ import { IUser } from '@erxes/ui/src/auth/types';
 // local
 import Component from '../../components/chats/ChatList';
 import { queries, subscriptions } from '../../graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   chatId?: string;
@@ -31,11 +33,11 @@ const ChatListContainer = (props: FinalProps) => {
   });
 
   if (loading) {
-    return <p>...</p>;
+    return <Spinner objective={true} />;
   }
 
   if (error) {
-    return <p>{error.message}</p>;
+    Alert.error(error.message);
   }
 
   return (

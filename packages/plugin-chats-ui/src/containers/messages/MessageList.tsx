@@ -6,6 +6,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 // local
 import Component from '../../components/messages/MessageList';
 import { queries, subscriptions } from '../../graphql';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   chatId: string;
@@ -33,7 +34,9 @@ const MessageListContainer = (props: Props) => {
   useSubscription(gql(subscriptions.chatMessageInserted), {
     variables: { chatId },
     onSubscriptionData: ({ subscriptionData }) => {
-      if (!subscriptionData.data) return;
+      if (!subscriptionData.data) {
+        return null;
+      }
 
       setLatestMessages([
         subscriptionData.data.chatMessageInserted,
@@ -82,7 +85,7 @@ const MessageListContainer = (props: Props) => {
   }
 
   if (error) {
-    return <p>{error.message}</p>;
+    Alert.error(error.message);
   }
 
   const chatMessages = (data && data.chatMessages.list) || [];
