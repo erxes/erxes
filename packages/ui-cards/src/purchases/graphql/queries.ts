@@ -64,6 +64,7 @@ export const purchaseFields = `
   productsData
   paymentsData
   expensesData
+  unUsedAmount
   amount
 `;
 
@@ -100,6 +101,7 @@ const purchases = `
       ${commonParamDefs}
     ) {
       products
+      unUsedAmount
       amount
       ${commonListFields}
     }
@@ -205,7 +207,7 @@ const productCategories = queries.productCategories;
 
 const costs = `
   query costs {
-	  costs 
+	  costs
   }
 `;
 
