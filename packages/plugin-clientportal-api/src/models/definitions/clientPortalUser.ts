@@ -1,3 +1,4 @@
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 
 import { USER_LOGIN_TYPES } from './constants';
@@ -40,6 +41,18 @@ export interface IUser {
   lastSeenAt: Date;
   sessionCount: number;
   notificationSettings: INotifcationSettings;
+  avatar?: string;
+  customFieldsData?: any;
+  facebookId?: string;
+  googleId?: string;
+
+  // verification for company
+  verificationRequest?: {
+    status: string;
+    attachments: IAttachment[];
+    description?: string;
+    verifiedBy?: string;
+  };
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -88,6 +101,30 @@ export const notificationSettingsSchema = new Schema(
   { _id: false }
 );
 
+const customFieldSchema = new Schema(
+  {
+    field: { type: String },
+    value: { type: Schema.Types.Mixed },
+    stringValue: { type: String, optional: true },
+    numberValue: { type: Number, optional: true },
+    dateValue: { type: Date, optional: true },
+    locationValue: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        optional: true
+      },
+      coordinates: {
+        type: [Number],
+        optional: true
+      },
+      required: false
+    }
+  },
+  { _id: false }
+);
+customFieldSchema.index({ locationValue: '2dsphere' });
+
 export const clientPortalUserSchema = new Schema({
   _id: field({ pkey: true }),
   type: field({
@@ -106,12 +143,25 @@ export const clientPortalUserSchema = new Schema({
     sparse: true
   }),
   phone: field({ type: String, optional: true, sparse: true }),
-  username: field({ type: String, optional: true, unique: true, sparse: true }),
+  username: field({
+    type: String,
+    optional: true,
+    unique: true,
+    sparse: true
+  }),
   code: field({ type: String, optional: true }),
   password: field({ type: String }),
-  firstName: field({ type: String, optional: true, label: 'First name' }),
+  firstName: field({
+    type: String,
+    optional: true,
+    label: 'First name'
+  }),
   lastName: field({ type: String, optional: true, label: 'Last name' }),
-  companyName: field({ type: String, optional: true, label: 'Company name' }),
+  companyName: field({
+    type: String,
+    optional: true,
+    label: 'Company name'
+  }),
   companyRegistrationNumber: field({
     type: String,
     optional: true,
@@ -172,7 +222,27 @@ export const clientPortalUserSchema = new Schema({
   notificationSettings: field({
     type: notificationSettingsSchema,
     default: {}
-  })
+  }),
+  avatar: field({ type: String, label: 'Avatar' }),
+
+  // manual verification
+  verificationRequest: field({
+    type: {
+      status: { type: String, default: 'notVerified' },
+      attachments: { type: Object, optional: false },
+      description: { type: String, optional: true },
+      verifiedBy: { type: String, optional: true }
+    },
+    optional: true
+  }),
+
+  customFieldsData: field({
+    type: [customFieldSchema],
+    optional: true,
+    label: 'Custom fields data'
+  }),
+  facebookId: field({ type: String }),
+  googleId: field({ type: String })
 });
 
 clientPortalUserSchema.index(

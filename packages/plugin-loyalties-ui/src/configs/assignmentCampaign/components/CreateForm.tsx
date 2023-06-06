@@ -7,7 +7,6 @@ import {
   FormGroup,
   DateControl,
   Uploader,
-  Table,
   DataWithLoader
 } from '@erxes/ui/src/components';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
@@ -24,10 +23,6 @@ import {
 import { IAssignmentCampaign } from '../types';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
-import { ISegment } from '@erxes/ui-segments/src/types';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import Row from './SegmentRow';
 import Select from 'react-select-plus';
 import { IVoucherCampaign } from '../../voucherCampaign/types';
 import { Wrapper } from '@erxes/ui/src/layout';
@@ -35,12 +30,11 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import Sidebar from '../../general/components/Sidebar';
 import { FormFooter, SettingsContent } from '../../../styles';
 import { Link } from 'react-router-dom';
-import { callbackify } from 'util';
+import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
 
 type Props = {
   assignmentCampaign?: IAssignmentCampaign;
   voucherCampaigns: IVoucherCampaign[];
-  segments: ISegment[];
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -111,26 +105,6 @@ class CreateForm extends React.Component<Props, State> {
     });
   };
 
-  afterSave = response => {
-    const { history } = this.props;
-
-    const prevSegmentIds = routerUtils.getParam(history, 'segmentIds');
-
-    let arr: string[] = [];
-    if (prevSegmentIds) arr = JSON.parse(prevSegmentIds);
-    arr.push(response.data.segmentsAdd._id);
-    routerUtils.setParams(history, {
-      segmentIds: JSON.stringify(arr)
-    });
-  };
-
-  renderRow = () => {
-    const { segments, history } = this.props;
-    return segments.map(segment => (
-      <Row key={segment._id} history={history} segment={segment} />
-    ));
-  };
-
   renderContent = (formProps: IFormProps) => {
     const { renderButton } = this.props;
     const { values, isSubmitted } = formProps;
@@ -142,6 +116,15 @@ class CreateForm extends React.Component<Props, State> {
         assignmentCampaign: {
           ...this.state.assignmentCampaign,
           voucherCampaignId: value
+        }
+      });
+    };
+
+    const onChangeSegments = values => {
+      this.setState({
+        assignmentCampaign: {
+          ...this.state.assignmentCampaign,
+          segmentIds: values.map(v => v.value)
         }
       });
     };
@@ -227,26 +210,16 @@ class CreateForm extends React.Component<Props, State> {
         {isEnabled('segments') && isEnabled('contacts') && (
           <>
             <FormGroup>
-              <ControlLabel>Customer Segment</ControlLabel>
-              <br />
-              <TemporarySegment
-                contentType={`contacts:customer`}
-                afterSave={this.afterSave}
+              <ControlLabel>Segments</ControlLabel>
+              <SelectSegments
+                name="segmentIds"
+                label="Choose segments"
+                contentTypes={['contacts:customer', 'contacts:lead']}
+                initialValue={this.state.assignmentCampaign.segmentIds}
+                multi={true}
+                onSelect={segmentIds => onChangeSegments(segmentIds)}
               />
             </FormGroup>
-            {this.props.segments.length > 0 && (
-              <Table hover={true} bordered={true}>
-                <thead>
-                  <tr>
-                    <th>{__('Color')}</th>
-                    <th>{__('Name')}</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>{this.renderRow()}</tbody>
-              </Table>
-            )}
-            <br />
           </>
         )}
         <FormGroup>

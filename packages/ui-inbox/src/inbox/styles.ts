@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const ResponseSuggestions = styled.ul`
   position: absolute;
@@ -96,7 +96,8 @@ const EditorActions = styled.div`
       cursor: pointer;
       color: ${darken(colors.colorCoreGray, 30)};
     }
-    ${isEnabled("internalnotes") && `
+    ${isEnabled('internalnotes') &&
+      `
       &:first-of-type {
         position: absolute;
         left: 20px;
@@ -285,6 +286,11 @@ const Mask = styled.div`
   }
 `;
 
+const MaskText = styled.div`
+  background: #fff;
+  width: 100%;
+`;
+
 const NoHeight = styled.div`
   height: auto;
 `;
@@ -370,6 +376,7 @@ export {
   PreviewImg,
   FileName,
   Mask,
+  MaskText,
   MaskWrapper,
   NoHeight,
   SmallEditor,

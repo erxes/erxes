@@ -140,7 +140,10 @@ const commonParams = `
   $labelIds: [String],
   $extraParams: JSON,
   $closeDateType: String,
-  $assignedToMe: String
+  $assignedToMe: String,
+  $branchIds: [String]
+  $departmentIds: [String]
+  $segmentData:String
 `;
 
 const commonParamDefs = `
@@ -151,7 +154,10 @@ const commonParamDefs = `
   labelIds: $labelIds,
   extraParams: $extraParams,
   closeDateType: $closeDateType,
-  assignedToMe: $assignedToMe
+  assignedToMe: $assignedToMe,
+  branchIds:$branchIds
+  departmentIds:$departmentIds
+  segmentData:$segmentData
 `;
 
 const stageParams = `
@@ -175,6 +181,7 @@ const stageCommon = `
   pipelineId
   code
   age
+  defaultTick
 `;
 
 const stages = `
@@ -316,9 +323,13 @@ const conversionStages = `
     ) {
       ${stageCommon}
       compareNextStage
+      compareNextStagePurchase
       initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount
+      initialPurchasesTotalCount
+      stayedPurchasesTotalCount
+      inProcessPurchasesTotalCount
     }
   }
 `;
@@ -341,6 +352,7 @@ const boardItemQueryParamsDef = `
   $skip: Int,
   $limit: Int,
   $tagIds: [String],
+  $searchValue: String,
 `;
 
 const boardItemQueryParams = `
@@ -350,6 +362,7 @@ const boardItemQueryParams = `
   skip: $skip,
   limit: $limit,
   tagIds: $tagIds,
+  search: $searchValue,
 `;
 
 const tasks = `
@@ -376,6 +389,14 @@ const deals = `
   }
 `;
 
+const purchases = `
+  query purchases(${boardItemQueryParamsDef}) {
+    purchases(${boardItemQueryParams}) {
+      ${cardFields}
+    }
+  }
+`;
+
 const boardContentTypeDetail = `
   query boardContentTypeDetail($contentType: String, $contentId: String){
     boardContentTypeDetail(contentType: $contentType, contentId: $contentId)
@@ -385,6 +406,17 @@ const boardContentTypeDetail = `
 const boardLogs = `
   query boardLogs($action: String, $content: JSON, $contentType: String, $contentId: String){
     boardLogs(action: $action, content: $content, contentType: $contentType, contentId: $contentId)
+  }
+`;
+
+const documents = `
+  query documents($page: Int, $perPage: Int, $contentType: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType) {
+      _id
+      contentType
+      name
+      createdAt
+    }
   }
 `;
 
@@ -416,5 +448,7 @@ export default {
   tickets,
   tasks,
   boardContentTypeDetail,
-  boardLogs
+  boardLogs,
+  documents,
+  purchases
 };

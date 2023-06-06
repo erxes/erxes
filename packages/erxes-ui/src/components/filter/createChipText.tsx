@@ -1,4 +1,4 @@
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 const ChipText = (props: any) => {
   const { query } = props;
@@ -12,13 +12,15 @@ const ChipText = (props: any) => {
   const tag = query.tagDetail;
   const segment = query.segmentDetail;
   const form = query.formDetail;
+  const forum = query.forumCategory;
 
   return (
     (brand && brand.name) ||
     (channel && channel.name) ||
     (tag && tag.name) ||
     (segment && segment.name) ||
-    (form && form.title)
+    (form && form.title) ||
+    (forum && forum.name)
   );
 };
 

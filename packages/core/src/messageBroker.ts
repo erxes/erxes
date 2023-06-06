@@ -22,6 +22,8 @@ import internalNotes from './internalNotes';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import imports from './imports';
+import exporter from './exporter';
 
 let client;
 
@@ -376,6 +378,17 @@ export const initBroker = async options => {
     };
   });
 
+  consumeRPCQueue('core:users.comparePassword', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { password, userPassword } = data;
+
+    return {
+      status: 'success',
+      data: await models.Users.comparePassword(password, userPassword)
+    };
+  });
+
   consumeRPCQueue(
     'core:brands.findOne',
     async ({ subdomain, data: { query } }) => {
@@ -419,6 +432,24 @@ export const initBroker = async options => {
     };
   });
 
+  consumeRPCQueue('core:units.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Units.find(data).lean()
+    };
+  });
+
+  consumeRPCQueue('core:units.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Units.findOne(data).lean()
+    };
+  });
+
   consumeRPCQueue('core:getFileUploadConfigs', async ({ subdomain }) => {
     const models = await generateModels(subdomain);
 
@@ -448,12 +479,29 @@ export const initBroker = async options => {
     systemFields: forms.systemFields
   });
 
-  consumeRPCQueue('core:fields.getList', async ({ subdomain }) => {
+  consumeRPCQueue('core:fields.getList', async ({ subdomain, data }) => {
     return {
       status: 'success',
-      data: await forms.fields({ subdomain })
+      data: await forms.fields({ subdomain, data })
     };
   });
+
+  consumeRPCQueue('core:imports:prepareImportDocs', async args => {
+    return {
+      status: 'success',
+      data: await imports.prepareImportDocs(args)
+    };
+  });
+
+  consumeRPCQueue('core:imports:insertImportItems', async args => ({
+    status: 'success',
+    data: await imports.insertImportItems(args)
+  }));
+
+  consumeRPCQueue('core:exporter:prepareExportData', async args => ({
+    status: 'success',
+    data: await exporter.prepareExportData(args)
+  }));
 
   return client;
 };
@@ -473,6 +521,17 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
+    ...args
+  });
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
     ...args
   });
 };
@@ -523,6 +582,28 @@ export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
     ...args
   });
 };
+
+export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'forms',
+    ...args
+  });
+};
+
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any
+) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options, segmentData },
+    isRPC: true
+  });
 
 export default function() {
   return client;

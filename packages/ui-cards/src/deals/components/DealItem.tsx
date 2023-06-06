@@ -14,6 +14,7 @@ import Labels from '../../boards/components/label/Labels';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { colors } from '@erxes/ui/src/styles';
+import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 
 type Props = {
   stageId?: string;
@@ -48,9 +49,15 @@ class DealItem extends React.PureComponent<Props> {
   };
 
   renderStatusLabel(text, color) {
+    const { item } = this.props;
+
     return (
       <Status>
         <span style={{ backgroundColor: color }}>{__(text)}</span>
+        <ItemArchivedStatus
+          status={item.status || 'active'}
+          skipContainer={true}
+        />
       </Status>
     );
   }

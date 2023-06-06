@@ -1,4 +1,4 @@
-export const types = (cardAvailable, kbAvailable) => `
+export const types = (cardAvailable, kbAvailable, formsAvailable) => `
 ${
   cardAvailable
     ? `
@@ -9,6 +9,9 @@ ${
     _id: String! @external
   }
   extend type Ticket @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Purchase @key(fields: "_id") {
     _id: String! @external
   }
   extend type Deal @key(fields: "_id") {
@@ -32,6 +35,16 @@ ${
     : ''
 }
 
+${
+  formsAvailable
+    ? `
+    extend type Field @key(fields: "_id") {
+      _id: String! @external
+    }
+    `
+    : ''
+}
+
   type OTPConfig {
     content: String
     codeLength: Int
@@ -45,6 +58,20 @@ ${
     invitationContent : String
     registrationContent : String
   }
+
+  type ManualVerificationConfig {
+    userIds: [String]
+    verifyCustomer: Boolean
+    verifyCompany: Boolean
+  }
+
+  type PasswordVerificationConfig {
+    verifyByOTP: Boolean
+    emailSubject: String
+    emailContent: String
+    smsContent: String
+  }
+
 
   input OTPConfigInput {
     content: String
@@ -76,8 +103,11 @@ ${
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
+    dealLabel: String
+    purchaseLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
+    taskPublicLabel: String
     taskLabel: String
     taskStageId: String
     taskPipelineId: String
@@ -85,17 +115,32 @@ ${
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
+    purchaseStageId: String
+    purchasePipelineId: String
+    purchaseBoardId: String
     googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
+    facebookAppId: String
+    erxesAppToken: String
     styles: Styles
     mobileResponsive: Boolean
   
     otpConfig: OTPConfig
     mailConfig: MailConfig
+    manualVerificationConfig: ManualVerificationConfig
+    passwordVerificationConfig: PasswordVerificationConfig
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
     taskToggle: Boolean,
+    dealToggle: Boolean,
+    purchaseToggle: Boolean,
   }
 
   type Styles {
@@ -135,19 +180,28 @@ ${
   }
 `;
 
-export const queries = (cardAvailable, kbAvailable) => `
+export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
   clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain: ClientPortal
   clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
-
+  ${
+    formsAvailable
+      ? `
+  clientPortalGetAllowedFields(_id: String!): [Field]
+  `
+      : ''
+  }
   ${
     cardAvailable
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets: [Ticket]
+    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Ticket]
+    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Deal]
+    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Purchase]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Task]
     clientPortalTicket(_id: String!): Ticket
    `
       : ''
@@ -157,7 +211,8 @@ export const queries = (cardAvailable, kbAvailable) => `
     kbAvailable
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String]): [KnowledgeBaseArticle]
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String): 
+[KnowledgeBaseArticle]
    `
       : ''
   }
@@ -179,24 +234,42 @@ export const mutations = cardAvailable => `
     knowledgeBaseTopicId: String
     ticketLabel: String
     taskLabel: String
+    dealLabel: String
+    purchaseLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
+    taskPublicLabel: String
     taskStageId: String
     taskPipelineId: String
     taskBoardId: String
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
+    purchaseStageId: String
+    purchasePipelineId: String
+    purchaseBoardId: String
     googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
+    facebookAppId: String
+    erxesAppToken: String
     styles: StylesParams
     mobileResponsive: Boolean
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
+    dealToggle: Boolean,
+    purchaseToggle: Boolean,
     taskToggle: Boolean,
 
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput
+    manualVerificationConfig: JSON
+    passwordVerificationConfig: JSON
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
@@ -210,7 +283,15 @@ export const mutations = cardAvailable => `
         subject: String!
         description: String
         priority: String,
+        parentId: String,
+        closeDate: Date
+        startDate: Date
+        attachments: [AttachmentInput]
+        customFieldsData: JSON
+        labelIds: [String]
       ): JSON
+      clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
+      clientPortalCommentsRemove(_id: String!): String
      `
       : ''
   }

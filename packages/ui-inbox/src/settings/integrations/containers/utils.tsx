@@ -1,6 +1,6 @@
 import { IEmail } from '@erxes/ui-inbox/src/inbox/types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import juice from 'juice';
 import { queries } from '../graphql';
 import sanitizeHtml from 'sanitize-html';

@@ -42,6 +42,7 @@ class ContentTypesList extends React.Component<Props> {
           </li>
         ))}
         <li
+          className="link"
           onClick={() =>
             handleItemSettings(
               { displayName: '', code: '', fields: [] },
@@ -49,7 +50,7 @@ class ContentTypesList extends React.Component<Props> {
             )
           }
         >
-          <div className="link">
+          <div>
             <Icon icon="plus-1" /> &nbsp;
             {__('Create content type')}
           </div>

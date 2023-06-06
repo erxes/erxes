@@ -1,6 +1,6 @@
 import React from 'react';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 import Home from '../components/Home';
 import { options } from './UserList';
@@ -19,13 +19,13 @@ function HomeContainer(props: Props) {
     fetchPolicy: 'network-only'
   });
   const configsEnvQuery = useQuery(gql(generalQueries.configsGetEnv));
-  const totalCountQuery = useQuery(gql(queries.usersTotalCount));
+  const totalCountQuery = useQuery(
+    gql(queries.usersTotalCount),
+    options({ queryParams: props.queryParams || {} })
+  );
 
   const getRefetchQueries = () => {
-    return [
-      { query: gql(queries.users), options },
-      { query: gql(queries.usersTotalCount), options }
-    ];
+    return ['users', 'usersTotalCount'];
   };
 
   const renderButton = ({
@@ -55,8 +55,8 @@ function HomeContainer(props: Props) {
     : usersGroupQuery.data.usersGroups || [];
 
   const totalCount = totalCountQuery.loading
-    ? []
-    : totalCountQuery.data.usersTotalCount || [];
+    ? 0
+    : totalCountQuery.data.usersTotalCount || 0;
 
   return (
     <Home

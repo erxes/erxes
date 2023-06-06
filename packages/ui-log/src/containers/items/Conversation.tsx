@@ -10,8 +10,8 @@ import Conversation from '../../components/items/Conversation';
 import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
@@ -40,8 +40,7 @@ class ConversationContainer extends React.Component<FinalProps> {
 
     const conversation = conversationDetailQuery.conversationDetail;
     const messages = messagesQuery.conversationMessages || [];
-    const comments =
-      (commentsQuery && commentsQuery.integrationsConversationFbComments) || [];
+    const comments = (commentsQuery && commentsQuery.facebookGetComments) || [];
 
     const updatedProps = {
       ...this.props,
@@ -78,13 +77,13 @@ export default withProps<Props>(
       })
     }),
     graphql<Props, FacebookCommentsQueryResponse>(
-      gql(queries.integrationsConversationFbComments),
+      gql(queries.facebookGetComments),
       {
         name: 'commentsQuery',
         skip: ({ activity }) => activity.contentType !== 'comment',
         options: ({ conversationId, activity }) => ({
           variables: {
-            postId: conversationId,
+            conversationId,
             senderId: activity.contentId
           }
         })

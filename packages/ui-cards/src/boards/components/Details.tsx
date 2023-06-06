@@ -1,4 +1,4 @@
-import { ItemIndicator, Quantity } from '../styles/stage';
+import { ItemBox, ItemIndicator, Quantity } from '../styles/stage';
 
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
@@ -14,7 +14,7 @@ type Props = {
 class Details extends React.Component<Props> {
   renderItem(item, color, index) {
     return (
-      <div key={index}>
+      <ItemBox key={index}>
         <ItemIndicator color={color} />
         {item.name || item.primaryName || renderFullName(item)}
         {item.quantity && (
@@ -22,7 +22,7 @@ class Details extends React.Component<Props> {
             ({item.quantity} {item.uom ? item.uom : 'PC'})
           </Quantity>
         )}
-      </div>
+      </ItemBox>
     );
   }
 

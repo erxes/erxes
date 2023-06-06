@@ -12,6 +12,8 @@ import {
 import { receiveVisitorDetail } from './widgetUtils';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { getIntegrationsKinds } from './utils';
+import { sendNotifications } from './graphql/resolvers/conversationMutations';
+import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
 
 export let client;
 
@@ -81,13 +83,37 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'inbox:createOnlyMessage',
+    async ({
+      subdomain,
+      data: { conversationId, content, userId, customerId }
+    }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.ConversationMessages.createMessage({
+          conversationId,
+          internal: true,
+          userId,
+          customerId,
+          content
+        })
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'inbox:integrations.receive',
     async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
   );
 
-  consumeQueue('inbox:integrationsNotification', async ({ data }) => {
-    await receiveIntegrationsNotification(data);
-  });
+  consumeQueue(
+    'inbox:integrationsNotification',
+    async ({ subdomain, data }) => {
+      await receiveIntegrationsNotification(subdomain, data);
+    }
+  );
 
   consumeRPCQueue(
     'inbox:integrations.find',
@@ -292,6 +318,19 @@ export const initBroker = cl => {
         status: 'success',
         data: filter
       };
+    }
+  );
+
+  consumeQueue('inbox:sendNotifications', async ({ data, subdomain }) => {
+    await sendNotifications(subdomain, data);
+  });
+
+  consumeQueue(
+    'inbox:conversationClientMessageInserted',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      await pConversationClientMessageInserted(models, subdomain, data);
     }
   );
 };

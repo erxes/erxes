@@ -14,7 +14,8 @@ import imports from './imports';
 import exporter from './exporter';
 import segments from './segments';
 import search from './search';
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import documents from './documents';
+import dashboards from './dashboards';
 
 export let debug;
 export let mainDb;
@@ -45,6 +46,8 @@ export default {
     return context;
   },
 
+  hasDashboard: true,
+
   meta: {
     logs: { consumers: logs },
     tags,
@@ -54,6 +57,8 @@ export default {
     exporter,
     permissions,
     segments,
+    documents,
+    dashboards,
     search
   },
 

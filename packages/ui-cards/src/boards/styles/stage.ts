@@ -65,6 +65,10 @@ const StageFooter = styled.div`
   border-radius: 0 0 3px 3px;
 `;
 
+const ItemBox = styled.div`
+  word-break: break-word;
+`;
+
 const Header = styled.div`
   padding: 12px 16px;
   position: relative;
@@ -249,5 +253,6 @@ export {
   StageFooter,
   LoadingContent,
   StageRoot,
-  ListContainer
+  ListContainer,
+  ItemBox
 };

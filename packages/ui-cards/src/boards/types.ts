@@ -115,6 +115,7 @@ export interface IItemParams {
   proccessId?: string;
   aboveItemId?: string;
   attachments?: string[];
+  relationData?: any;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -142,11 +143,14 @@ export interface IStage {
   pipelineId: string;
   visibility: string;
   memberIds: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
   departmentIds: string[];
   status: string;
   order: number;
   code?: string;
   age?: number;
+  defaultTick?: boolean;
 }
 
 export interface IConversionStage extends IStage {
@@ -154,6 +158,13 @@ export interface IConversionStage extends IStage {
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
+}
+
+export interface IConversionStagePurchase extends IStage {
+  initialPurchasesTotalCount: number;
+  inProcessPurchasesTotalCount: number;
+  stayedPurchasesTotalCount: number;
+  compareNextStagePurchase: IStageComparisonInfo;
 }
 
 export interface IPipelineLabel {
@@ -212,6 +223,8 @@ export interface IItem {
   tags: ITag[];
   tagIds: string[];
   customProperties?: any;
+  departmentIds: string[];
+  branchIds: string[];
 }
 
 export interface IDraggableLocation {
@@ -392,6 +405,8 @@ export interface IFilterParams extends ISavedConformity {
   endDate?: string;
   pipelineId?: string;
   tagIds?: string[];
+  branchIds: string[];
+  departmentIds: string[];
 }
 
 export interface INonFilterParams {

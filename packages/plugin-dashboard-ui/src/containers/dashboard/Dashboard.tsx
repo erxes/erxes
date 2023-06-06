@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../../graphql';
 import {
   DashboardDetailsQueryResponse,
@@ -20,6 +20,9 @@ import Dashboard from '../../components/dashboard/Dashboard';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { confirm } from '@erxes/ui/src/utils';
+import { getEnv } from '@erxes/ui/src/utils';
+import { CubeProvider } from '@cubejs-client/react';
+import cubejs from '@cubejs-client/core';
 
 type Props = {
   id: string;
@@ -37,7 +40,27 @@ type FinalProps = {
   DashboardDetailsQueryResponse &
   EditDashboardMutationResponse;
 
-class DashboardContainer extends React.Component<FinalProps, {}> {
+const { REACT_APP_DASHBOARD_URL } = getEnv();
+
+class DashboardContainer extends React.Component<
+  FinalProps,
+  { dashboardToken: any }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      dashboardToken: null
+    };
+  }
+
+  componentDidMount() {
+    fetch(`${REACT_APP_DASHBOARD_URL}/get-token`)
+      .then(response => response.json())
+      .then(data => this.setState({ dashboardToken: data.dashboardToken }))
+      .catch(error => console.log(error));
+  }
+
   render() {
     const {
       dashboardItemsQuery,
@@ -51,10 +74,13 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
       departmentsQuery
     } = this.props;
 
+    const { dashboardToken } = this.state;
+
     if (
       dashboardItemsQuery.loading ||
       dashboardDetailsQuery.loading ||
-      departmentsQuery.loading
+      departmentsQuery.loading ||
+      !dashboardToken
     ) {
       return <Spinner objective={true} />;
     }
@@ -107,18 +133,24 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
     const dashboard = dashboardDetailsQuery.dashboardDetails || {};
     const departments = departmentsQuery.departments || [];
 
+    const cubejsApi = cubejs(dashboardToken, {
+      apiUrl: `${REACT_APP_DASHBOARD_URL}/cubejs-api/v1`
+    });
+
     return (
-      <Dashboard
-        editDashboardItem={editDashboardItem}
-        queryParams={queryParams}
-        dashboard={dashboard}
-        removeDashboardItem={removeDashboardItem}
-        dashboardItems={dashboardItemsQuery.dashboardItems || []}
-        dashboardId={id}
-        history={history}
-        save={save}
-        departments={departments}
-      />
+      <CubeProvider cubejsApi={cubejsApi}>
+        <Dashboard
+          editDashboardItem={editDashboardItem}
+          queryParams={queryParams}
+          dashboard={dashboard}
+          removeDashboardItem={removeDashboardItem}
+          dashboardItems={dashboardItemsQuery.dashboardItems || []}
+          dashboardId={id}
+          history={history}
+          save={save}
+          departments={departments}
+        />
+      </CubeProvider>
     );
   }
 }

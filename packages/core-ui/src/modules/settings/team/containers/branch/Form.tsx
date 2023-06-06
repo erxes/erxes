@@ -3,8 +3,8 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Form from '../../components/branch/Form';
 import { mutations, queries } from '@erxes/ui/src/team/graphql';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { IBranch } from '@erxes/ui/src/team/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
@@ -12,6 +12,7 @@ import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 type Props = {
   branch?: IBranch;
   closeModal: () => void;
+  additionalRefetchQueries?: any[];
 };
 
 const FormContainer = (props: Props) => {
@@ -39,8 +40,13 @@ const FormContainer = (props: Props) => {
         mutation={object._id ? mutations.branchesEdit : mutations.branchesAdd}
         refetchQueries={[
           {
-            query: gql(queries.branches)
-          }
+            query: gql(queries.branches),
+            variables: {
+              withoutUserFilter: true,
+              searchValue: undefined
+            }
+          },
+          ...(props.additionalRefetchQueries || [])
         ]}
         variables={values}
         isSubmitted={isSubmitted}

@@ -1,8 +1,8 @@
 import React from 'react';
 import Sidebar from '../components/Sidebar';
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 import { TypesQueryResponse } from '../types';
 

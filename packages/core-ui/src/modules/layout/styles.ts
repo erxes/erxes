@@ -196,7 +196,6 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
   styled.div
 )`
   width: 100%;
-
   > a {  
     display: flex;
     color: ${colors.bgLight};
@@ -337,7 +336,7 @@ const NavImage = styledTS<{ navCollapse?: number }>(styled.img)`
       : props.navCollapse === 2
       ? dimensions.headerSpacing * 2 - 1
       : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px !important;
-  margin: 5px;
+  padding: 5px;
 `;
 
 const BottomMenu = styled.div`
@@ -463,6 +462,24 @@ const NavItem = styledTS<{ isMoreItem?: boolean }>(styled.div)`
       visibility: visible;
     }
   }
+
+  @media screen and (max-height: 870px){
+    &.more-2 {
+      position: fixed;
+      bottom: 160px;
+    }
+  }
+  @media screen and (max-height: 560px){
+    &.more-1 {
+      position: fixed;
+      bottom: 120px;
+    }
+    &.more-3 {
+      position: fixed;
+      bottom: 120px;
+    }
+  }
+
 `;
 
 const DropNav = styled.a`

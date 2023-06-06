@@ -73,6 +73,7 @@ export const handleContacts = async (args: IContactsParams) => {
     }
 
     if (customer && customer._id) {
+      user.erxesCustomerId = customer._id;
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
         { $set: { erxesCustomerId: customer._id } }
@@ -129,6 +130,7 @@ export const handleContacts = async (args: IContactsParams) => {
     }
 
     if (company && company._id) {
+      user.erxesCompanyId = company._id;
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
         { $set: { erxesCompanyId: company._id } }

@@ -6,6 +6,8 @@ export const renderText = value => {
       return 'Companies';
     case 'deal':
       return 'Deals';
+    case 'purchase':
+      return 'Purchases';
     case 'ticket':
       return 'Tickets';
     case 'task':
@@ -25,6 +27,8 @@ export const renderIcon = contentType => {
       return 'building';
     case 'deal':
       return 'signal-alt-3';
+    case 'purchase':
+      return 'signal-alt-3';
     case 'task':
       return 'laptop';
     case 'ticket':
@@ -32,6 +36,9 @@ export const renderIcon = contentType => {
 
     case 'lead':
       return 'file-alt';
+
+    case 'user':
+      return 'user-square';
 
     default:
       return 'users-alt';

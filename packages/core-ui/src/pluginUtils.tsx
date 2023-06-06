@@ -101,8 +101,10 @@ const useDynamicScript = args => {
     }
 
     const element = document.createElement('script');
+    const id = `dynamic-script-${args.scope}`;
 
     element.src = args.url;
+    element.id = id;
     element.type = 'text/javascript';
     element.async = true;
 
@@ -140,8 +142,14 @@ export const loadComponent = (scope, module) => {
     await __webpack_init_sharing__('default');
 
     const container = window[scope]; // or get the container somewhere else
-    // Initialize the container, it may provide shared modules
-    await container.init(__webpack_share_scopes__.default);
+
+    try {
+      // Initialize the container, it may provide shared modules
+      await container.init(__webpack_share_scopes__.default);
+    } catch (e) {
+      // already was initialized
+    }
+
     const factory = await window[scope].get(module);
 
     const Module = factory();
@@ -166,14 +174,18 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
             loadComponent(section.scope, section.component)
           );
 
-          return (
-            <Component
-              key={Math.random()}
-              id={object._id}
-              mainType={type}
-              mainTypeId={object._id}
-            />
-          );
+          const updatedProps = {
+            key: Math.random(),
+            id: object._id,
+            mainType: type,
+            mainTypeId: object._id
+          };
+
+          if (section?.withDetail) {
+            updatedProps['object'] = object;
+          }
+
+          return <Component {...updatedProps} />;
         });
       }}
     />
@@ -183,7 +195,8 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
 const System = props => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
-      url: props.system && props.system.url
+      url: props.system && props.system.url,
+      scope: props.system.scope
     });
 
     if (!props.system || !ready || failed) {
@@ -310,7 +323,7 @@ export const pluginsOfTopNavigations = () => {
             <CustomComponent
               scope={menu.scope}
               component={menu.component}
-              isTopNav
+              isTopNav={true}
             />
           </React.Fragment>
         );
@@ -363,7 +376,7 @@ export const pluginRouters = () => {
 };
 
 export const pluginsOfCustomerSidebar = (customer: any) => {
-  //check - ICustomer
+  // check - ICustomer
   return renderPluginSidebar(
     'customerRightSidebarSection',
     'customer',
@@ -372,7 +385,7 @@ export const pluginsOfCustomerSidebar = (customer: any) => {
 };
 
 export const pluginsOfCompanySidebar = (company: any) => {
-  //check - ICompany
+  // check - ICompany
   return renderPluginSidebar('companyRightSidebarSection', 'company', company);
 };
 
@@ -464,4 +477,10 @@ export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
       }}
     />
   );
+};
+
+export const pluginsOfWebhooks = () => {
+  const plugins = (window as any).plugins.filter(p => p.webhookActions) || [];
+
+  return plugins;
 };

@@ -24,14 +24,14 @@ import WithPermission from 'coreui/withPermission';
 import { __ } from '@erxes/ui/src/utils';
 import { cleanIntegrationKind } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '../../graphql/index';
 
 type Props = {
   _id?: string;
   integration: IIntegration;
   archive: (id: string, status: boolean) => void;
-  repair: (id: string) => void;
+  repair: (id: string, kind: string) => void;
   removeIntegration: (integration: IIntegration) => void;
   disableAction?: boolean;
   editIntegration: (
@@ -246,7 +246,7 @@ class IntegrationListItem extends React.Component<Props, State> {
       return null;
     }
 
-    const onClick = () => repair(integration._id);
+    const onClick = () => repair(integration._id, integration.kind);
 
     if (
       integration.healthStatus &&

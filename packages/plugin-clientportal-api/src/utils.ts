@@ -1,12 +1,19 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+import redis from '@erxes/api-utils/src/redis';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
 import { IUserDocument } from './../../api-utils/src/types';
 import { graphqlPubsub } from './configs';
-import { generateModels, IModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
+import { generateModels, IContext, IModels } from './connectionResolver';
+import {
+  sendCoreMessage,
+  sendCommonMessage,
+  sendContactsMessage,
+  sendCardsMessage
+} from './messageBroker';
 
+import * as admin from 'firebase-admin';
 export const getConfig = async (
   code: string,
   subdomain: string,
@@ -84,7 +91,7 @@ export const sendSms = async (
       );
 
       if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
-        throw new Error('messagin config not set properly');
+        throw new Error('messaging config not set properly');
       }
 
       try {
@@ -122,8 +129,8 @@ export const generateRandomPassword = (len: number = 10) => {
     min: number,
     max: number
   ) => {
-    let n,
-      chars = '';
+    let n;
+    let chars = '';
 
     if (max === undefined) {
       n = min;
@@ -147,11 +154,11 @@ export const generateRandomPassword = (len: number = 10) => {
 
   const shuffle = (string: string) => {
     const array = string.split('');
-    let tmp,
-      current,
-      top = array.length;
+    let tmp;
+    let current;
+    let top = array.length;
 
-    if (top)
+    if (top) {
       while (--top) {
         current = Math.floor(Math.random() * (top + 1));
         tmp = array[current];
@@ -159,7 +166,8 @@ export const generateRandomPassword = (len: number = 10) => {
         array[top] = tmp;
       }
 
-    return array.join('');
+      return array.join('');
+    }
   };
 
   let password = '';
@@ -170,6 +178,36 @@ export const generateRandomPassword = (len: number = 10) => {
   password += pick(password, numbers, 3, 3);
 
   return shuffle(password);
+};
+
+export const initFirebase = async (subdomain: string): Promise<void> => {
+  const config = await sendCoreMessage({
+    subdomain,
+    action: 'configs.findOne',
+    data: {
+      query: {
+        code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+      }
+    },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  if (!config) {
+    return;
+  }
+
+  const codeString = config.value || 'value';
+
+  if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
+    const serviceAccount = JSON.parse(codeString);
+
+    if (serviceAccount.private_key) {
+      await admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+    }
+  }
 };
 
 interface ISendNotification {
@@ -198,7 +236,7 @@ export const sendNotification = async (
     eventData
   } = doc;
 
-  let link = doc.link;
+  const link = doc.link;
 
   // remove duplicated ids
   const receiverIds = [...Array.from(new Set(receivers))];
@@ -268,6 +306,10 @@ export const sendNotification = async (
   });
 
   if (isMobile) {
+    if (!admin.apps.length) {
+      await initFirebase(subdomain);
+    }
+    const transporter = admin.messaging();
     const deviceTokens: string[] = [];
 
     for (const recipient of recipients) {
@@ -276,14 +318,198 @@ export const sendNotification = async (
       }
     }
 
-    sendCoreMessage({
-      subdomain: subdomain,
-      action: 'sendMobileNotification',
-      data: {
-        title,
-        body: content,
-        deviceTokens: [...Array.from(new Set(deviceTokens))]
+    const expiredTokens = [''];
+    for (const token of deviceTokens) {
+      try {
+        await transporter.send({
+          token,
+          notification: { title, body: content },
+          data: eventData || {}
+        });
+      } catch (e) {
+        debugError(`Error occurred during firebase send: ${e.message}`);
+        expiredTokens.push(token);
       }
-    });
+    }
+
+    if (expiredTokens.length > 0) {
+      await models.ClientPortalUsers.updateMany(
+        {},
+        { $pull: { deviceTokens: { $in: expiredTokens } } }
+      );
+    }
   }
+};
+
+export const customFieldsDataByFieldCode = async (object, subdomain) => {
+  const customFieldsData =
+    object.customFieldsData && object.customFieldsData.toObject
+      ? object.customFieldsData.toObject()
+      : object.customFieldsData || [];
+
+  const fieldIds = customFieldsData.map(data => data.field);
+
+  const fields = await sendCommonMessage({
+    serviceName: 'forms',
+    subdomain,
+    action: 'fields.find',
+    data: {
+      query: {
+        _id: { $in: fieldIds }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const fieldCodesById = {};
+
+  for (const field of fields) {
+    fieldCodesById[field._id] = field.code;
+  }
+
+  const results: any = {};
+
+  for (const data of customFieldsData) {
+    results[fieldCodesById[data.field]] = {
+      ...data
+    };
+  }
+
+  return results;
+};
+
+export const sendAfterMutation = async (
+  subdomain: string,
+  type: string,
+  action: string,
+  object: any,
+  newData: any,
+  extraDesc: any
+) => {
+  const value = await redis.get('afterMutations');
+  const afterMutations = JSON.parse(value || '{}');
+
+  if (
+    afterMutations[type] &&
+    afterMutations[type][action] &&
+    afterMutations[type][action].length
+  ) {
+    for (const service of afterMutations[type][action]) {
+      sendCommonMessage({
+        serviceName: service,
+        subdomain,
+        action: 'afterMutation',
+        data: {
+          type,
+          action,
+          object,
+          newData,
+          extraDesc
+        }
+      });
+    }
+  }
+};
+
+export const getCards = async (
+  type: 'ticket' | 'deal' | 'task' | 'purchase',
+  context: IContext,
+  _args: any
+) => {
+  const { subdomain, models, cpUser } = context;
+  if (!cpUser) {
+    throw new Error('Login required');
+  }
+
+  const cp = await models.ClientPortals.getConfig(cpUser.clientPortalId);
+
+  const pipelineId = cp[type + 'PipelineId'];
+
+  if (!pipelineId || pipelineId.length === 0) {
+    return [];
+  }
+
+  const customer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: {
+      _id: cpUser.erxesCustomerId
+    },
+    isRPC: true
+  });
+
+  if (!customer) {
+    return [];
+  }
+
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: 'conformities.getConformities',
+    data: {
+      mainType: 'customer',
+      mainTypeIds: [customer._id],
+      relTypes: [type]
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (conformities.length === 0) {
+    return [];
+  }
+
+  const cardIds: string[] = [];
+
+  for (const c of conformities) {
+    if (c.relType === type && c.mainType === 'customer') {
+      cardIds.push(c.relTypeId);
+    }
+
+    if (c.mainType === type && c.relType === 'customer') {
+      cardIds.push(c.mainTypeId);
+    }
+  }
+
+  const stages = await sendCardsMessage({
+    subdomain,
+    action: 'stages.find',
+    data: {
+      pipelineId
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (stages.length === 0) {
+    return [];
+  }
+
+  const stageIds = stages.map(stage => stage._id);
+
+  //гоё засаарай АМЖИЛТ kiss
+
+  let oneStageId = '';
+  if ('stageId' in _args) {
+    if (stageIds.includes(_args.stageId)) {
+      oneStageId = _args.stageId;
+    } else {
+      oneStageId = 'noneId';
+    }
+  }
+
+  return sendCardsMessage({
+    subdomain,
+    action: `${type}s.find`,
+    data: {
+      _id: { $in: cardIds },
+      stageId: oneStageId ? oneStageId : { $in: stageIds },
+      ...(_args?.priority && { priority: _args?.priority || [] }),
+      ...(_args?.labelIds && { labelIds: _args?.labelIds || [] }),
+      ...(_args?.closeDateType && { closeDateType: _args?.closeDateType }),
+      ...(_args?.userIds && { assignedUserIds: _args?.userIds || [] })
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 };

@@ -121,6 +121,8 @@ export interface IField {
   keys?: string[];
   productCategoryId?: string;
   optionsValues?: string;
+
+  relationType?: string;
 }
 
 export interface IFormProps {
@@ -137,6 +139,7 @@ export type IOption = {
   label: string;
   value: string;
   avatar?: string;
+  extraValue?: string;
 };
 
 export type IButtonMutateProps = {
@@ -166,6 +169,7 @@ export type IEditorProps = {
   onCtrlEnter?: (evt?: any) => void;
   content: string;
   onChange: (evt: any) => void;
+  onInstanceReady?: (e: any) => any;
   height?: number | string;
   insertItems?: any;
   removeButtons?: string;
@@ -185,7 +189,7 @@ export type IEditorProps = {
 
 export type QueryResponse = {
   loading: boolean;
-  refetch: () => Promise<any>;
+  refetch: (variables?: any) => Promise<any>;
   error?: string;
 };
 

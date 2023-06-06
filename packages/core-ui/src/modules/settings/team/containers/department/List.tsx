@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 
 import Spinner from '@erxes/ui/src/components/Spinner';
 import List from '../../components/department/List';
@@ -11,7 +11,9 @@ import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { MenuFooter } from 'modules/settings/styles';
 
 export default function ListContainer() {
-  const listQuery = useQuery(gql(queries.departments));
+  const listQuery = useQuery(gql(queries.departments), {
+    variables: { withoutUserFilter: true }
+  });
 
   if (listQuery.loading) {
     return <Spinner />;

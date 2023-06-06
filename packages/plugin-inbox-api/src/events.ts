@@ -10,6 +10,7 @@ import {
 interface ISaveEventArgs {
   type?: string;
   name?: string;
+  triggerAutomation?: boolean;
   customerId?: string;
   visitorId?: string;
   attributes?: any;
@@ -24,7 +25,7 @@ interface ICustomerIdentifyParams {
 }
 
 export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
-  const { type, name, attributes, additionalQuery } = args;
+  const { type, name, triggerAutomation, attributes, additionalQuery } = args;
 
   if (!type) {
     throw new Error('Type is required');
@@ -84,6 +85,26 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
     visitorId = undefined;
   }
 
+  if (triggerAutomation && customerId) {
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: customerId
+      },
+      isRPC: true
+    });
+
+    sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: `contacts:${customer.state}`,
+        targets: [customer]
+      }
+    });
+  }
+
   return { customerId };
 };
 
@@ -137,6 +158,7 @@ export const trackCustomEvent = (
   subdomain: string,
   args: {
     name: string;
+    triggerAutomation?: boolean;
     customerId?: string;
     visitorId?: string;
     attributes: any;
@@ -145,6 +167,7 @@ export const trackCustomEvent = (
   return saveEvent(subdomain, {
     type: 'custom',
     name: args.name,
+    triggerAutomation: args.triggerAutomation,
     customerId: args.customerId,
     visitorId: args.visitorId,
     attributes: args.attributes

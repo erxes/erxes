@@ -7,8 +7,8 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import UserForm from '../components/UserForm';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '../../utils/core';
 import { queries } from '../graphql';
 import { queries as usersGroupsQueries } from '@erxes/ui-settings/src/permissions/graphql';
@@ -51,6 +51,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
     showBrands: config.USE_BRAND_RESTRICTIONS === 'true',
     selectedChannels,
     selectedGroups,
+    selectedBrandIds: object.brandIds,
     channels,
     groups,
     renderButton

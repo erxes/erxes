@@ -15,6 +15,11 @@ import {
   mutations as dealMutations
 } from './schema/deal';
 import {
+  types as purchaseTypes,
+  queries as purchaseQueries,
+  mutations as purchaseMutations
+} from './schema/purchase';
+import {
   types as taskTypes,
   queries as taskQueries,
   mutations as taskMutations
@@ -60,6 +65,14 @@ const typeDefs = async serviceDiscovery => {
       _id: String! @external
     }
   
+    extend type Branch @key(fields: "_id") {
+          _id: String! @external
+    }
+
+    extend type Department @key(fields: "_id") {
+          _id: String! @external
+    }
+
     ${
       contactsEnabled
         ? `
@@ -86,6 +99,7 @@ const typeDefs = async serviceDiscovery => {
     
     ${boardTypes(isEnabled)}
     ${dealTypes(isEnabled)}
+    ${purchaseTypes(isEnabled)}
     ${taskTypes(isEnabled)}
     ${ticketTypes(isEnabled)}
 
@@ -99,6 +113,7 @@ const typeDefs = async serviceDiscovery => {
     extend type Query {
       ${boardQueries}
       ${dealQueries}
+      ${purchaseQueries}
       ${taskQueries}
       ${ticketQueries}
 
@@ -112,11 +127,10 @@ const typeDefs = async serviceDiscovery => {
     extend type Mutation {
       ${boardMutations}
       ${dealMutations}
+      ${purchaseMutations}
       ${taskMutations}
       ${ticketMutations}
-
       ${formsEnabled ? growthHackMutations : ''}
-
       ${plMutations}
       ${ptMutations}
       ${checkListMutations}

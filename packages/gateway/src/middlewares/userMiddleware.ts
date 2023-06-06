@@ -9,13 +9,21 @@ import { generateModels } from '../connectionResolver';
 import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
+const generateBase64 = req => {
+  if (req.user) {
+    const userJson = JSON.stringify(req.user);
+    const userJsonBase64 = Buffer.from(userJson, 'utf8').toString('base64');
+    req.headers.user = userJsonBase64;
+  }
+};
+
 export default async function userMiddleware(
   req: Request & { user?: any },
   _res: Response,
   next: NextFunction
 ) {
-  const erxesCoreToken = req.headers['erxes-core-token'];
   const url = req.headers['erxes-core-website-url'];
+  const erxesCoreToken = req.headers['erxes-core-token'];
 
   if (erxesCoreToken && url) {
     try {
@@ -111,6 +119,7 @@ export default async function userMiddleware(
 
             req.user = {
               _id: user._id || 'userId',
+              role: USER_ROLES.SYSTEM,
               customPermissions: permissions.map(p => ({
                 action: p.action,
                 allowed: p.allowed,
@@ -120,6 +129,8 @@ export default async function userMiddleware(
           }
         }
       }
+
+      generateBase64(req);
 
       return next();
     } catch (e) {
@@ -176,6 +187,8 @@ export default async function userMiddleware(
   } catch (e) {
     console.error(e);
   }
+
+  generateBase64(req);
 
   return next();
 }

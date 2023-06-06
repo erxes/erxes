@@ -1,16 +1,19 @@
-import { gql, useQuery } from '@apollo/client';
-import React, { createContext, useEffect } from 'react';
 import {
   Config,
+  IUser,
   NotificationsCountQueryResponse,
   NotificationsQueryResponse,
   UserQueryResponse,
-} from './types';
-import queries from './user/graphql/queries';
-import { clientPortalGetConfig } from './main/graphql/queries';
-import { getKbTopicQuery } from './knowledgeBase/graphql/queries';
-import subscriptions from './user/graphql/subscriptions';
-import { sendDesktopNotification } from './utils';
+} from "./types";
+import React, { createContext, useEffect } from "react";
+import { gql, useQuery } from "@apollo/client";
+
+import Spinner from "./common/Spinner";
+import { clientPortalGetConfig } from "./main/graphql/queries";
+import { getKbTopicQuery } from "./knowledgeBase/graphql/queries";
+import queries from "./user/graphql/queries";
+import { sendDesktopNotification } from "./utils";
+import subscriptions from "./user/graphql/subscriptions";
 
 const AppContext = createContext({});
 
@@ -21,7 +24,7 @@ type Props = {
 };
 
 function AppProvider({ children }: Props) {
-  const [currentUser, setCurrentUser] = React.useState(null);
+  const [currentUser, setCurrentUser] = React.useState({} as IUser);
   const [notificationsCount, setNotificationsCount] = React.useState(0);
 
   const userQuery = useQuery<UserQueryResponse>(gql(queries.currentUser));
@@ -83,8 +86,13 @@ function AppProvider({ children }: Props) {
       unsubscribe();
       unsubscribe2();
     };
-
-  }, [userQuery, currentUser, notificationsCountQry, notificationsCount, setNotificationsCount]);
+  }, [
+    userQuery,
+    currentUser,
+    notificationsCountQry,
+    notificationsCount,
+    setNotificationsCount,
+  ]);
 
   const response: any = useQuery(gql(clientPortalGetConfig), {});
 
@@ -103,6 +111,10 @@ function AppProvider({ children }: Props) {
     (topicResponse.data
       ? topicResponse.data.clientPortalKnowledgeBaseTopicDetail
       : {}) || {};
+
+  if (userQuery.loading || response.loading) {
+    return <Spinner />;
+  }
 
   return (
     <AppContext.Provider

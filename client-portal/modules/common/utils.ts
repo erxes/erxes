@@ -1,14 +1,14 @@
-import { Config } from "../types";
-import { urlParser } from "../utils";
-import { getEnv } from "../../utils/configs";
+import { Config } from '../types';
+import { getEnv } from '../../utils/configs';
+import { urlParser } from '../utils';
 
 /**
  * Generate random string
  */
 export const generateRandomString = (len: number = 10) => {
-  const charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-  let randomString = "";
+  let randomString = '';
 
   for (let i = 0; i < len; i++) {
     const position = Math.floor(Math.random() * charSet.length);
@@ -28,14 +28,14 @@ const getSelector = (name: string) => {
   return document.querySelector(`[name='${name}']`) as any;
 };
 
-export const getValue = (name) => {
+export const getValue = name => {
   const element = getSelector(name);
 
   if (element) {
     return element.value;
   }
 
-  return "";
+  return '';
 };
 
 export const getConfigColor = (config: Config, key: string) => {
@@ -52,11 +52,31 @@ export const getConfigColor = (config: Config, key: string) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  if (!value || urlParser.isValidURL(value) || value.includes("/")) {
+  if (!value || urlParser.isValidURL(value) || value.includes('/')) {
     return value;
   }
 
   const { REACT_APP_DOMAIN } = getEnv();
 
-  return `${REACT_APP_DOMAIN}/gateway/read-file?key=${value}`;
+  if (REACT_APP_DOMAIN.includes('localhost')) {
+    return `${REACT_APP_DOMAIN}/read-file?key=${value}`;
+  }
+  return `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
 };
+
+export const reorder = (
+  list: string[],
+  startIndex: number,
+  endIndex: number
+) => {
+  const result = Array.from(list);
+
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+
+  return result;
+};
+
+export const capitalize = (word: string) => {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}

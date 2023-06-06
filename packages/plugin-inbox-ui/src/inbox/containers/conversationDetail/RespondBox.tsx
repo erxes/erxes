@@ -1,5 +1,5 @@
 import { AppConsumer } from 'coreui/appContext';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { fromJS } from 'immutable';
 import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
@@ -7,7 +7,7 @@ import { IAttachmentPreview } from '@erxes/ui/src/types';
 import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { readFile, withProps } from '@erxes/ui/src/utils';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
@@ -74,34 +74,33 @@ const RespondBoxContainer = (props: FinalProps) => {
 
     let optimisticResponse;
 
-    if (conversation.integration.kind === 'messenger') {
-      optimisticResponse = {
-        __typename: 'Mutation',
-        conversationMessageAdd: {
-          __typename: 'ConversationMessage',
-          _id: Math.round(Math.random() * -1000000),
-          content,
-          contentType,
-          attachments,
-          internal,
-          mentionedUserIds: [],
-          conversationId,
-          customerId: Math.random(),
-          userId: currentUser._id,
-          createdAt: new Date(),
-          messengerAppData: null,
-          isCustomerRead: false,
-          fromBot: false,
-          formWidgetData: null,
-          bookingWidgetData: null,
-          botData: null,
-          mailData: null,
-          user: null,
-          customer: null,
-          videoCallData: null
-        }
-      };
-    }
+    optimisticResponse = {
+      __typename: 'Mutation',
+      conversationMessageAdd: {
+        __typename: 'ConversationMessage',
+        _id: Math.round(Math.random() * -1000000),
+        content,
+        contentType,
+        attachments,
+        internal,
+        mentionedUserIds: [],
+        conversationId,
+        customerId: Math.random(),
+        userId: currentUser._id,
+        createdAt: new Date(),
+        messengerAppData: null,
+        isCustomerRead: false,
+        fromBot: false,
+        formWidgetData: null,
+        bookingWidgetData: null,
+        botData: null,
+        mailData: null,
+        user: null,
+        customer: null,
+        videoCallData: null,
+        mid: Math.random().toString()
+      }
+    };
 
     addMessage({
       variables,

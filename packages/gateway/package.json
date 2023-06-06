@@ -5,21 +5,21 @@
   "scripts": {
     "dev": "NODE_ENV=development yarn watchTemplate & nodemon src/index.ts",
     "watchTemplate": "nodemon src/commands/watch-template.ts",
-    "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts"
+    "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts",
+    "build": "yarn tsc -p tsconfig.prod.json && node fix-build.js"
   },
   "dependencies": {
-    "@apollo/federation": "^0.33.8",
-    "@apollo/gateway": "^0.44.1",
-    "apollo-server-core": "^3.6.1",
-    "apollo-server-express": "^3.5.0",
+    "@apollo/rover": "^0.13.0",
+    "@graphql-tools/schema": "^9.0.16",
+    "@sentry/node": "^7.50.0",
     "cookie-parser": "^1.4.6",
     "dotenv": "^10.0.0",
-    "elastic-apm-node": "3.36.0",
     "erxes-api-utils": "^0.0.34",
     "erxes-telemetry": "^1.0.4",
     "esm": "^3.2.25",
     "express": "^4.17.2",
     "federation-subscription-tools": "^0.1.0",
+    "react": "^16.14.0",
     "graphql": "^15.8.0",
     "graphql-redis-subscriptions": "^2.4.2",
     "graphql-subscriptions": "^2.0.0",
@@ -27,9 +27,11 @@
     "http-proxy-middleware": "^2.0.1",
     "ioredis": "^4.28.2",
     "lodash": "^4.17.21",
+    "node-fetch": "^2.6.7",
     "nodejs-file-downloader": "^4.9.2",
     "server-timing": "^3.3.2",
-    "ws": "^8.4.0"
+    "ws": "^8.4.0",
+    "yaml": "^1.10.2"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",

@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import Spinner from '../../components/Spinner';
 import { storeConstantToStore, withProps } from '../../utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import * as gq from '../graphql';
 import { CurrentUserQueryResponse } from '../types';
 
@@ -21,7 +21,7 @@ const withCurrentUser = Component => {
 
     const currentUser = currentUserQuery.currentUser;
 
-    // useEffect(() => {
+    // useEffect( () => {
     //   currentUserQuery.subscribeToMore({
     //     document: gql(gq.userChanged),
     //     variables: { userId: currentUser ? currentUser._id : null },

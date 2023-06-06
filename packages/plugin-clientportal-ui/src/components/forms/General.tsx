@@ -1,18 +1,3 @@
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { ISelectedOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import { OverlayTrigger } from 'react-bootstrap';
-import Select from 'react-select-plus';
-
 import {
   Block,
   BlockRow,
@@ -21,7 +6,22 @@ import {
   IconWrap,
   ToggleWrap
 } from '../../styles';
+import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
+import React, { useState } from 'react';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
+
+import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { ClientPortalConfig } from '../../types';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ISelectedOption } from '@erxes/ui/src/types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { OverlayTrigger } from 'react-bootstrap';
+import Select from 'react-select-plus';
+import Toggle from '@erxes/ui/src/components/Toggle';
 
 type Props = {
   topics: ITopic[];
@@ -56,22 +56,33 @@ function General({
   knowledgeBaseTopicId,
   taskPublicBoardId,
   taskPublicPipelineId,
+  taskPublicLabel,
   topics,
   boards,
   pipelines,
   ticketLabel,
   taskLabel,
+  dealLabel,
+  purchaseLabel,
   taskStageId,
   taskPipelineId,
   taskBoardId,
   ticketStageId,
   ticketPipelineId,
   ticketBoardId,
+  dealStageId,
+  dealPipelineId,
+  dealBoardId,
+  purchaseStageId,
+  purchasePipelineId,
+  purchaseBoardId,
   fetchPipelines,
   handleFormChange,
   kbToggle,
   publicTaskToggle,
   taskToggle,
+  dealToggle,
+  purchaseToggle,
   ticketToggle
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
@@ -113,7 +124,7 @@ function General({
       handleFormChange(`${type}PipelineId`, plId);
     const onChangeBoard = brId => handleFormChange(`${type}BoardId`, brId);
 
-    return (
+    return isEnabled('cards') ? (
       <BoardSelect
         type={type}
         stageId={stageId}
@@ -125,7 +136,7 @@ function General({
         autoSelectStage={false}
         callback={handleToggleBoardSelect}
       />
-    );
+    ) : null;
   }
 
   function renderControl({
@@ -200,26 +211,42 @@ function General({
     };
 
     const handleSelectBoard = (option: ISelectedOption) => {
-      fetchPipelines(option.value);
-      handleFormChange('taskPublicBoardId', option.value);
+      const value = option ? option.value : '';
+
+      if (value) {
+        fetchPipelines(value);
+      }
+
+      handleFormChange('taskPublicBoardId', value);
     };
 
     const handleSelecPipeline = (option: ISelectedOption) => {
-      handleFormChange('taskPublicPipelineId', option.value);
+      const value = option ? option.value : '';
+
+      handleFormChange('taskPublicPipelineId', value);
     };
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel required={true}>Task public board</ControlLabel>
-          <p>{__('Public task board')}</p>
-          {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel required={true}>Task public pipeline</ControlLabel>
-          <p>{__('Public task pipeline')}</p>
-          {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
-        </FormGroup>
+        {renderControl({
+          label: 'Public tasks',
+          subtitle: 'Shown name on menu',
+          formValueName: 'taskPublicLabel',
+          formValue: taskPublicLabel,
+          placeholder: 'Please enter a label for Public Task'
+        })}
+        <div>
+          <FormGroup>
+            <ControlLabel>Task public board</ControlLabel>
+            <p>{__('Public task board')}</p>
+            {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Task public pipeline</ControlLabel>
+            <p>{__('Public task pipeline')}</p>
+            {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
+          </FormGroup>
+        </div>
       </>
     );
   };
@@ -290,87 +317,145 @@ function General({
   };
 
   const renderFeatures = () => {
+    if (
+      !isEnabled('knowledgebase') &&
+      !isEnabled('cards') &&
+      !isEnabled('inbox')
+    ) {
+      return null;
+    }
     return (
       <Block>
         <h4>{__('Features')}</h4>
-        {renderFeatureBlock(
-          'knowledgeBase',
-          <>
-            {renderControl({
-              label: 'Knowledge Base Name',
-              subtitle: 'Shown name on menu',
-              formValueName: 'knowledgeBaseLabel',
-              formValue: knowledgeBaseLabel,
-              placeholder: 'Please enter a label for Knowledge base'
-            })}
-            <FormGroup>
-              <ControlLabel required={true}>Knowledge base topic</ControlLabel>
-              <p>{__('Knowledge base topic in Client Portal')}</p>
-              <Select
-                placeholder="Select a knowledge base topic"
-                value={knowledgeBaseTopicId}
-                options={generateOptions(topics, '_id', 'title')}
-                onChange={handleSelectChange}
-              />
-            </FormGroup>
-          </>,
-          'kbToggle',
-          kbToggle || false
-        )}
-        {renderFeatureBlock(
-          'publicTask',
-          renderTaskPipelines(),
-          'publicTaskToggle',
-          publicTaskToggle || false
-        )}
+        {isEnabled('knowledgebase') &&
+          renderFeatureBlock(
+            'knowledgeBase',
+            <>
+              {renderControl({
+                label: 'Knowledge Base Name',
+                subtitle: 'Shown name on menu',
+                formValueName: 'knowledgeBaseLabel',
+                formValue: knowledgeBaseLabel,
+                placeholder: 'Please enter a label for Knowledge base'
+              })}
+              <FormGroup>
+                <ControlLabel required={true}>
+                  Knowledge base topic
+                </ControlLabel>
+                <p>{__('Knowledge base topic in Client Portal')}</p>
+                <Select
+                  placeholder="Select a knowledge base topic"
+                  value={knowledgeBaseTopicId}
+                  options={generateOptions(topics, '_id', 'title')}
+                  onChange={handleSelectChange}
+                />
+              </FormGroup>
+            </>,
+            'kbToggle',
+            kbToggle || false
+          )}
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'publicTask',
+            renderTaskPipelines(),
+            'publicTaskToggle',
+            publicTaskToggle || false
+          )}
 
-        {renderFeatureBlock(
-          'tickets',
-          <>
-            {renderControl({
-              label: 'Tickets',
-              subtitle: 'Shown name on menu',
-              formValueName: 'ticketLabel',
-              formValue: ticketLabel,
-              placeholder: 'Please enter a label for Ticket'
-            })}
-            {renderBoardSelect({
-              type: 'ticket',
-              stageId: ticketStageId,
-              pipelineId: ticketPipelineId,
-              boardId: ticketBoardId
-            })}
-          </>,
-          'ticketToggle',
-          ticketToggle || false
-        )}
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'tickets',
+            <>
+              {renderControl({
+                label: 'Tickets',
+                subtitle: 'Shown name on menu',
+                formValueName: 'ticketLabel',
+                formValue: ticketLabel,
+                placeholder: 'Please enter a label for Ticket'
+              })}
+              {renderBoardSelect({
+                type: 'ticket',
+                stageId: ticketStageId,
+                pipelineId: ticketPipelineId,
+                boardId: ticketBoardId
+              })}
+            </>,
+            'ticketToggle',
+            ticketToggle || false
+          )}
 
-        {renderFeatureBlock(
-          'tasks',
-          <>
-            {renderControl({
-              label: 'Tasks incoming pipeline',
-              subtitle: 'Shown name on menu',
-              formValueName: 'taskLabel',
-              formValue: taskLabel,
-              placeholder: 'Please enter a label for Task'
-            })}
-            {renderBoardSelect({
-              type: 'task',
-              stageId: taskStageId,
-              pipelineId: taskPipelineId,
-              boardId: taskBoardId
-            })}
-          </>,
-          'taskToggle',
-          taskToggle || false
-        )}
-        {renderControl({
-          label: 'Messenger brand code',
-          subtitle: 'Brand code in messenger install script',
-          formValueName: 'messengerBrandCode',
-          formValue: messengerBrandCode
-        })}
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'deals',
+            <>
+              {renderControl({
+                label: 'Deals',
+                subtitle: 'Shown name on menu',
+                formValueName: 'dealLabel',
+                formValue: dealLabel,
+                placeholder: 'Please enter a label for Deal'
+              })}
+              {renderBoardSelect({
+                type: 'deal',
+                stageId: dealStageId,
+                pipelineId: dealPipelineId,
+                boardId: dealBoardId
+              })}
+            </>,
+            'dealToggle',
+            dealToggle || false
+          )}
+
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'purchases',
+            <>
+              {renderControl({
+                label: 'Purchases',
+                subtitle: 'Shown name on menu',
+                formValueName: 'purchaseLabel',
+                formValue: purchaseLabel,
+                placeholder: 'Please enter a label for Purchase'
+              })}
+              {renderBoardSelect({
+                type: 'purchase',
+                stageId: purchaseStageId,
+                pipelineId: purchasePipelineId,
+                boardId: purchaseBoardId
+              })}
+            </>,
+            'purchaseToggle',
+            purchaseToggle || false
+          )}
+
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'tasks',
+            <>
+              {renderControl({
+                label: 'Tasks incoming pipeline',
+                subtitle: 'Shown name on menu',
+                formValueName: 'taskLabel',
+                formValue: taskLabel,
+                placeholder: 'Please enter a label for Task'
+              })}
+              {renderBoardSelect({
+                type: 'task',
+                stageId: taskStageId,
+                pipelineId: taskPipelineId,
+                boardId: taskBoardId
+              })}
+            </>,
+            'taskToggle',
+            taskToggle || false
+          )}
+        {isEnabled('inbox') &&
+          renderControl({
+            label: 'Messenger brand code',
+            subtitle: 'Brand code in messenger install script',
+            formValueName: 'messengerBrandCode',
+            formValue: messengerBrandCode
+          })}
       </Block>
     );
   };

@@ -1,15 +1,8 @@
-import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
+import * as Sentry from '@sentry/node';
 
 // load environment variables
 dotenv.config();
-
-if (process.env.ELASTIC_APM_HOST_NAME) {
-  apm.start({
-    serviceName: `${process.env.ELASTIC_APM_HOST_NAME}-core-api`,
-    serverUrl: 'http://172.104.115.19:8200'
-  });
-}
 
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
@@ -29,7 +22,8 @@ import {
   handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
-  routeErrorHandling
+  routeErrorHandling,
+  uploadsFolderPath
 } from './data/utils';
 
 import { debugBase, debugError, debugInit } from './debuggers';
@@ -51,13 +45,17 @@ import { generateModels } from './connectionResolver';
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
 import automations from './automations';
+import imports from './imports';
+import exporter from './exporter';
 import { moduleObjects } from './data/permissions/actions/permission';
+import dashboards from './dashboards';
 
 const {
   JWT_TOKEN_SECRET,
   WIDGETS_DOMAIN,
   DOMAIN,
-  CLIENT_PORTAL_DOMAINS
+  CLIENT_PORTAL_DOMAINS,
+  SENTRY_DSN
 } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
@@ -65,6 +63,30 @@ if (!JWT_TOKEN_SECRET) {
 }
 
 export const app = express();
+
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    integrations: [
+      // enable HTTP calls tracing
+      new Sentry.Integrations.Http({ tracing: true }),
+      // Automatically instrument Node.js libraries and frameworks
+      ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
+    ],
+
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+    profilesSampleRate: 1.0 // Profiling sample rate is relative to tracesSampleRate
+  });
+}
+
+// RequestHandler creates a separate execution context, so that all
+// transactions/spans/breadcrumbs are isolated across requests
+app.use(Sentry.Handlers.requestHandler());
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler());
 
 app.disable('x-powered-by');
 
@@ -196,7 +218,12 @@ app.get('/read-file', async (req: any, res, next) => {
       return res.send('Invalid key');
     }
 
-    const response = await readFileRequest(key, models);
+    const response = await readFileRequest({
+      key,
+      subdomain,
+      models,
+      userId: req.headers.userid
+    });
 
     res.attachment(name || key);
 
@@ -263,6 +290,29 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(error.message);
 });
 
+app.get('/dashboard', async (req, res) => {
+  const headers = req.rawHeaders;
+
+  const index = headers.indexOf('schemaName') + 1;
+
+  const schemaName = headers[index];
+
+  res.sendFile(path.join(__dirname, `./dashboardSchemas/${schemaName}.js`));
+});
+
+app.get('/get-import-file', async (req, res) => {
+  const headers = req.rawHeaders;
+
+  const index = headers.indexOf('fileName') + 1;
+
+  const fileName = headers[index];
+
+  res.sendFile(`${uploadsFolderPath}/${fileName}`);
+});
+
+// The error handler must be before any other error middleware and after all controllers
+app.use(Sentry.Handlers.errorHandler());
+
 // Wrap the Express server
 const httpServer = createServer(app);
 
@@ -298,12 +348,16 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
+    hasDashboard: true,
     meta: {
       logs: { providesActivityLog: true, consumers: logs },
       forms,
       segments,
       automations,
-      permissions: moduleObjects
+      permissions: moduleObjects,
+      imports,
+      exporter,
+      dashboards
     }
   });
 

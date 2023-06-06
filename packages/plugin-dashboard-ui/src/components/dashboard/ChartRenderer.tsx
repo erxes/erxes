@@ -16,13 +16,13 @@ import {
   PieChart,
   ResponsiveContainer,
   Tooltip,
-  XAxis,
-  YAxis
+  XAxis
 } from 'recharts';
 import { chartColors } from '../../constants';
 import Table from '@erxes/ui/src/components/table';
 import { ChartTable, EmptyContent, Number } from '../../styles';
 import { __ } from '@erxes/ui/src/utils';
+import numeral from 'numeral';
 
 type Props = {
   query?: any;
@@ -32,32 +32,41 @@ type Props = {
   validatedQuery?: any;
 };
 
-const nFormatter = num => {
-  const si = [
-    { value: 1, symbol: '' },
-    { value: 1e3, symbol: 'k' },
-    { value: 1e6, symbol: 'M' },
-    { value: 1e9, symbol: 'G' },
-    { value: 1e12, symbol: 'T' },
-    { value: 1e15, symbol: 'P' },
-    { value: 1e18, symbol: 'E' }
-  ];
+const msConversion = millis => {
+  let sec = Math.floor(millis / 1000) as any;
+  const hrs = Math.floor(sec / 3600) as any;
+  sec -= hrs * 3600;
+  let min = Math.floor(sec / 60) as any;
+  sec -= min * 60;
 
-  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-  let i;
+  sec = '' + sec;
+  sec = ('00' + sec).substring(sec.length);
 
-  for (i = si.length - 1; i > 0; i--) {
-    if (num >= si[i].value) {
-      break;
-    }
+  if (hrs > 0) {
+    min = '' + min;
+    min = ('00' + min).substring(min.length);
+    return `${hrs}h:${min}m:${sec}s`;
+  } else {
+    return `${min}m:${sec}s`;
   }
-  return (num / si[i].value).toFixed(1).replace(rx, '$1') + si[i].symbol;
+};
+
+const numberFormatter = (item, measureType) => {
+  if (measureType === 'Conversations Average response time') {
+    return msConversion(item);
+  }
+
+  if (measureType === 'Conversations Average close time') {
+    return msConversion(item);
+  }
+
+  return numeral(item).format('0,0');
 };
 
 const dateFormatter = (item, dateType) => {
   switch (dateType) {
-    case 'hours':
-      return dayjs(item).format('HH');
+    case 'hour':
+      return dayjs(item).format('HH:mm');
     case 'day':
       return dayjs(item).format('MMM/DD');
     case 'month':
@@ -66,17 +75,27 @@ const dateFormatter = (item, dateType) => {
       return dayjs(item).format('YYYY');
     case 'week':
       return dayjs(item).format('MMM/DD');
-
     default:
       return dayjs(item).format('YYYY');
   }
+};
+
+const decamelize = (str, separator) => {
+  separator = typeof separator === 'undefined' ? ' ' : separator;
+
+  str = str
+    .replace(/([a-z\d])([A-Z])/g, '$1' + separator + '$2')
+    .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + separator + '$2')
+    .replace('-', ' ');
+
+  return str.toLowerCase();
 };
 
 const xAxisFormatter = (item, dateType) => {
   if (dateType) {
     return dateFormatter(item, dateType);
   } else {
-    return item.toString();
+    return decamelize(item.toString(), ' ');
   }
 };
 
@@ -86,27 +105,29 @@ const CartesianChart = ({
   ChartComponent,
   height,
   dateType
-}) => (
-  <ResponsiveContainer width="100%" height={height}>
-    <ChartComponent margin={{ left: -10 }} data={resultSet.chartPivot()}>
-      <XAxis
-        axisLine={false}
-        tickLine={false}
-        tickFormatter={item => xAxisFormatter(item, dateType)}
-        dataKey="x"
-        minTickGap={20}
-      />
-      <YAxis axisLine={false} tickLine={false} tickFormatter={nFormatter} />
-      <CartesianGrid vertical={false} />
-      {children}
-      <Legend />
-      <Tooltip
-        labelFormatter={item => xAxisFormatter(item, dateType)}
-        formatter={nFormatter}
-      />
-    </ChartComponent>
-  </ResponsiveContainer>
-);
+}) => {
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <ChartComponent margin={{ left: -10 }} data={resultSet.chartPivot()}>
+        <XAxis
+          axisLine={false}
+          tickLine={false}
+          tickFormatter={item => xAxisFormatter(item, dateType)}
+          dataKey="x"
+          minTickGap={20}
+        />
+
+        <CartesianGrid vertical={false} />
+        {children}
+        <Legend />
+        <Tooltip
+          labelFormatter={item => xAxisFormatter(item, dateType)}
+          formatter={(item, key) => numberFormatter(item, key)}
+        />
+      </ChartComponent>
+    </ResponsiveContainer>
+  );
+};
 
 const TypeToChartComponent = {
   line: ({ resultSet, height, dateType }) => (
@@ -203,7 +224,23 @@ const TypeToChartComponent = {
 
     const rowValues = resultSet.tablePivot();
 
-    const renderTableValue = value => {
+    const renderTableValue = (value, key) => {
+      if (key === 'Conversations.avgResponse') {
+        return msConversion(value);
+      }
+
+      if (key === 'Conversations.avgClose') {
+        return msConversion(value);
+      }
+
+      if (typeof value === 'number') {
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      }
+
+      if (typeof value === 'string') {
+        return decamelize(value, ' ');
+      }
+
       return value;
     };
 
@@ -221,9 +258,18 @@ const TypeToChartComponent = {
             {rowValues.map(rowValue => {
               return (
                 <tr key={Math.random()}>
-                  {Object.values(rowValue).map(value => {
+                  {/* {columns.map(column => {
                     return (
-                      <td key={Math.random()}>{renderTableValue(value)}</td>
+                      <td key={Math.random()}>
+                        {renderTableValue(rowValue[column], column, rowValue)}
+                      </td>
+                    );
+                  })} */}
+                  {Object.keys(rowValue).map(key => {
+                    return (
+                      <td key={Math.random()}>
+                        {renderTableValue(rowValue[key], key)}
+                      </td>
                     );
                   })}
                 </tr>
@@ -291,7 +337,7 @@ const ChartRenderer = (props: Props) => {
   let dateType = '';
 
   if (renderProps.resultSet) {
-    const { timeDimensions } = query;
+    const { timeDimensions, measures } = query;
 
     if (timeDimensions && timeDimensions[0]) {
       dateType = timeDimensions[0].granularity;

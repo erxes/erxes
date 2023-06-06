@@ -47,7 +47,7 @@ type Props = {
 
 class Properties extends React.Component<
   Props,
-  { fieldsGroups: IFieldGroup[] }
+  { fieldsGroups: IFieldGroup[]; fieldsGroupsWithParent: IFieldGroup[] }
 > {
   constructor(props: Props) {
     super(props);
@@ -55,7 +55,12 @@ class Properties extends React.Component<
     const { fieldsGroups = [] } = props;
 
     this.state = {
-      fieldsGroups: fieldsGroups.filter(gro => !gro.isDefinedByErxes)
+      fieldsGroups: fieldsGroups.filter(
+        gro => !gro.isDefinedByErxes && !gro.parentId
+      ),
+      fieldsGroupsWithParent: fieldsGroups.filter(
+        gro => !gro.isDefinedByErxes && gro.parentId
+      )
     };
   }
 
@@ -63,7 +68,10 @@ class Properties extends React.Component<
     if (this.props.fieldsGroups !== nextProps.fieldsGroups) {
       this.setState({
         fieldsGroups: nextProps.fieldsGroups.filter(
-          gro => !gro.isDefinedByErxes
+          gro => !gro.isDefinedByErxes && !gro.parentId
+        ),
+        fieldsGroupsWithParent: nextProps.fieldsGroups.filter(
+          gro => !gro.isDefinedByErxes && gro.parentId
         )
       });
     }
@@ -83,14 +91,19 @@ class Properties extends React.Component<
       updatePropertyVisible,
       updatePropertyDetailVisible,
       updatePropertySystemFields,
-      updateFieldOrder
+      updateFieldOrder,
+      updateGroupOrder
     } = this.props;
+
+    const { fieldsGroupsWithParent } = this.state;
 
     return (
       <PropertyRow
         key={group._id}
         group={group}
+        groupsWithParents={fieldsGroupsWithParent}
         queryParams={queryParams}
+        updateGroupOrder={updateGroupOrder}
         removePropertyGroup={removePropertyGroup}
         removeProperty={removeProperty}
         updatePropertyVisible={updatePropertyVisible}
@@ -151,11 +164,11 @@ class Properties extends React.Component<
 
     let size;
 
-    if (['task', 'deal', 'ticket'].includes(currentType)) {
+    if (['task', 'deal', 'ticket', 'purchase'].includes(currentType)) {
       size = 'lg';
     }
 
-    const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
+    const addGroup = <Dropdown.Item>{__('Add Group')}</Dropdown.Item>;
     const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
 
     const groupContent = props => (
@@ -236,7 +249,7 @@ class Properties extends React.Component<
             background="bgWhite"
             left={title}
             right={this.renderActionBar()}
-            wideSpacing
+            wideSpacing={true}
           />
         }
         header={
@@ -248,7 +261,7 @@ class Properties extends React.Component<
         }
         content={this.renderProperties()}
         transparent={true}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

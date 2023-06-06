@@ -467,6 +467,14 @@ select.form-control:focus,
     color: $text-color;
     display: block;
     font-size: 13px;
+
+    p {
+      margin: 0;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
   }
 
   .check-control {

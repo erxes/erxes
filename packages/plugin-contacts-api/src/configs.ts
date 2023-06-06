@@ -22,6 +22,7 @@ import {
   updateContactValidationStatus
 } from './verifierUtils';
 import exporter from './exporter';
+import documents from './documents';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -43,6 +44,7 @@ export default {
   },
 
   hasSubscriptions: true,
+  hasDashboard: true,
   meta: {
     imports,
     segments,
@@ -55,6 +57,7 @@ export default {
     webhooks,
     dashboards,
     exporter,
+    documents,
     // for fixing permissions
     permissions
   },

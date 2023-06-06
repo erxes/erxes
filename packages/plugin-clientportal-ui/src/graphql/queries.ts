@@ -18,8 +18,11 @@ export const commonFields = `
   knowledgeBaseLabel
   knowledgeBaseTopicId
   ticketLabel
+  dealLabel
+  purchaseLabel
   taskPublicPipelineId
   taskPublicBoardId
+  taskPublicLabel
   taskLabel
   taskStageId
   taskPipelineId
@@ -27,6 +30,12 @@ export const commonFields = `
   ticketStageId
   ticketPipelineId
   ticketBoardId
+  dealStageId
+  dealPipelineId
+  dealBoardId
+  purchaseStageId
+  purchasePipelineId
+  purchaseBoardId
   styles {
     bodyColor
     headerColor
@@ -46,11 +55,18 @@ export const commonFields = `
   }
   mobileResponsive
   googleCredentials
+  googleClientId
+  googleClientSecret
+  googleRedirectUri
+  facebookAppId
+  erxesAppToken
 
   kbToggle
   publicTaskToggle
   ticketToggle
   taskToggle
+  dealToggle
+  purchaseToggle
   otpConfig {
     smsTransporterType
     content
@@ -63,6 +79,19 @@ export const commonFields = `
     subject
     invitationContent
     registrationContent
+  }
+
+  manualVerificationConfig {
+    userIds
+    verifyCustomer
+    verifyCompany
+  }
+
+  passwordVerificationConfig {
+    verifyByOTP
+    emailSubject
+    emailContent
+    smsContent
   }
 `;
 
@@ -91,11 +120,24 @@ export const basicFields = `
   lastSeenAt
   sessionCount
   isOnline
+
+  avatar
 `;
 
 export const clientPortalUserFields = `
   ${basicFields}
   createdAt
+
+  verificationRequest {
+    status
+    attachments{
+      name
+      url
+      size
+      type
+    }
+    description
+  }
 
   customFieldsData
 `;
@@ -205,6 +247,27 @@ const clientPortalUserDetail = `
   }
 `;
 
+const clientPortalComments = `
+  query clientPortalComments($typeId: String!, $type: String!) {
+    clientPortalComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdAt
+      createdUser
+    }
+  }
+`;
+
+const fieldConfig = `
+query ClientPortalFieldConfig($fieldId: String) {
+  clientPortalFieldConfig(fieldId: $fieldId) {
+    allowedClientPortalIds
+    fieldId
+    requiredOn
+  }
+}
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -213,5 +276,7 @@ export default {
   clientPortalUsers,
   clientPortalUsersMain,
   clientPortalUserDetail,
-  clientPortalUserCounts
+  clientPortalUserCounts,
+  clientPortalComments,
+  fieldConfig
 };

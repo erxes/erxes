@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import { ConformityQueryResponse, ISavedConformity } from '../types';
 import { renderWithProps } from '@erxes/ui/src/utils/core';
@@ -78,6 +78,11 @@ export default (props: IProps) =>
             if (mainType === 'user') {
               variables.assignedUserIds = [mainTypeId];
               variables.isSaved = false;
+            }
+
+            // add archived items in contacts side bar
+            if (mainType === 'customer' || mainType === 'company') {
+              variables.noSkipArchive = true;
             }
 
             return { variables };

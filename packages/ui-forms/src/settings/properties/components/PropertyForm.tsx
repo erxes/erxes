@@ -18,7 +18,7 @@ import {
   ILocationOption,
   IObjectListConfig
 } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 import PropertyGroupForm from '../containers/PropertyGroupForm';
@@ -49,6 +49,7 @@ type State = {
   showInCard: boolean;
   logics?: IFieldLogic[];
   logicAction?: string;
+  isSubmitted?: boolean;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -295,7 +296,11 @@ class PropertyForm extends React.Component<Props, State> {
     const { type } = this.props;
     const { showInCard } = this.state;
 
-    if (!['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
+    if (
+      !['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
+        type
+      )
+    ) {
       return null;
     }
 
@@ -459,6 +464,8 @@ class PropertyForm extends React.Component<Props, State> {
             />
           </CollapseContent>
         )}
+
+        {field && loadDynamicComponent('fieldConfig', { field, isSubmitted })}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

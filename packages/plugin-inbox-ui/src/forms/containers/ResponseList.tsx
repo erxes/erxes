@@ -12,8 +12,8 @@ import { LeadIntegrationDetailQueryResponse } from '@erxes/ui-inbox/src/settings
 import React from 'react';
 import ResponseList from '../components/ResponseList';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import { withProps } from '@erxes/ui/src/utils';

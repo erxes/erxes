@@ -24,8 +24,12 @@ export const loadComponent = (scope, module) => {
 
     const container = window[scope]; // or get the container somewhere else
 
-    // Initialize the container, it may provide shared modules
-    await container.init(__webpack_share_scopes__.default);
+    try {
+      // Initialize the container, it may provide shared modules
+      await container.init(__webpack_share_scopes__.default);
+    } catch (e) {
+      // already was initialized
+    }
 
     const factory = await window[scope].get(module);
 
@@ -41,6 +45,7 @@ export const loadDynamicComponent = (
   pluginName?: string
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
+
   const filteredPlugins = plugins.filter(plugin => plugin[componentName]);
 
   const renderDynamicComp = (plugin: any) => (
@@ -118,6 +123,21 @@ export class RenderDynamicComponent extends React.Component<
     return this.renderComponent();
   }
 }
+
+export const getPluginConfig = ({ pluginName, configName }) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  let result;
+
+  for (const plugin of plugins) {
+    if (plugin.name === pluginName && plugin[configName]) {
+      result = plugin[configName];
+      break;
+    }
+  }
+
+  return result;
+};
 
 export const renderFullName = data => {
   if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
@@ -508,6 +528,36 @@ export function formatValue(value) {
   return value || '-';
 }
 
+export function numberFormatter(value, fixed) {
+  if (
+    fixed &&
+    `${value}`.includes('.') &&
+    `${value}`.split('.')?.[1]?.length > fixed
+  )
+    value = Number(value).toFixed(fixed);
+
+  return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+export function numberParser(value, fixed) {
+  value = value!.replace(/(,*)/g, '');
+
+  if (value?.includes('.')) {
+    var numberValues = value.split('.');
+    numberValues[0] = Number(numberValues[0]);
+
+    if (fixed && numberValues[1].length > fixed) {
+      numberValues[1] = numberValues[1].substring(0, fixed);
+    }
+
+    value = `${numberValues[0]}.${numberValues[1]}`;
+  } else {
+    value = Number(value);
+  }
+
+  return value;
+}
+
 export function isEmptyContent(content: string) {
   // check if a string contains whitespace or empty
   return !/\S/.test(content);
@@ -558,6 +608,11 @@ export const bustIframe = () => {
   } else {
     window.top.location = window.self.location;
   }
+};
+
+export const getSubdomain = () => {
+  const env = (window as any).erxesEnv || {};
+  return env.subdomain || 'localhost';
 };
 
 // get env config from process.env or window.env
@@ -653,4 +708,79 @@ export const getThemeItem = code => {
   const config = configs.find(c => c.code === `THEME_${code.toUpperCase()}`);
 
   return config ? config.value : '';
+};
+
+const DATE_OPTIONS = {
+  d: 1000 * 60 * 60 * 24,
+  h: 1000 * 60 * 60,
+  m: 1000 * 60,
+  s: 1000,
+  ms: 1
+};
+
+const CHARACTERS =
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*()-=+{}[]<>.,:;"`|/?';
+
+const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
+
+export const dateToShortStr = (
+  date?: Date | string | number,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms'
+) => {
+  date = new Date(date || new Date());
+
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+
+  const divider = DATE_OPTIONS[kind];
+  const chars = CHARACTERS.substring(0, scale);
+
+  let intgr = Math.round((date.getTime() - BEGIN_DIFF) / divider);
+
+  let short = '';
+
+  while (intgr > 0) {
+    const preInt = intgr;
+    intgr = Math.floor(intgr / scale);
+    const strInd = preInt - intgr * scale;
+    short = `${chars[strInd]}${short}`;
+  }
+
+  return short;
+};
+
+export const shortStrToDate = (
+  shortStr: string,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+  resultType?: 'd' | 'n'
+) => {
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+  const chars = CHARACTERS.substring(0, scale);
+  const multiplier = DATE_OPTIONS[kind];
+
+  let intgr = 0;
+  let scaler = 1;
+
+  for (let i = shortStr.length; i--; i >= 0) {
+    const char = shortStr[i];
+    intgr = intgr + scaler * chars.indexOf(char);
+    scaler = scaler * scale;
+  }
+
+  intgr = intgr * multiplier + BEGIN_DIFF;
+
+  if (resultType === 'd') return new Date(intgr);
+
+  return intgr;
 };

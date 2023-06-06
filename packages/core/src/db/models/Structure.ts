@@ -1,3 +1,4 @@
+import { STRUCTURE_STATUSES } from '../../constants';
 import { Model } from 'mongoose';
 import { IModels } from '../../connectionResolver';
 import {
@@ -11,6 +12,7 @@ import {
   IStructureDocument
 } from './definitions/structures';
 import { IUserDocument } from './definitions/users';
+import { checkCodeDuplication } from './utils';
 
 export interface IStructureModel extends Model<IStructureDocument> {
   getStructure(doc: any): IStructureDocument;
@@ -102,7 +104,7 @@ export interface IDepartmentModel extends Model<IDepartmentDocument> {
     doc: any,
     user: IUserDocument
   ): IDepartmentDocument;
-  removeDepartment(_id: string): IDepartmentDocument;
+  removeDepartments(ids?: string[]): IDepartmentDocument;
 }
 
 export const loadDepartmentClass = (models: IModels) => {
@@ -124,9 +126,23 @@ export const loadDepartmentClass = (models: IModels) => {
      * Create an department
      */
     public static async createDepartment(doc: any, user: IUserDocument) {
+      await checkCodeDuplication(models.Departments, doc.code);
+
+      const parent = await models.Departments.findOne({
+        _id: doc.parentId
+      }).lean();
+
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
+
       const department = await models.Departments.create({
         ...doc,
         createdAt: new Date(),
+        createdBy: user._id
+      });
+      await models.UserMovements.manageStructureUsersMovement({
+        userIds: department.userIds || [],
+        contentType: 'department',
+        contentTypeId: department._id,
         createdBy: user._id
       });
 
@@ -136,11 +152,51 @@ export const loadDepartmentClass = (models: IModels) => {
     /*
      * Update a department
      */
+
     public static async updateDepartment(
       _id: string,
       doc: any,
       user: IUserDocument
     ) {
+      const department = await models.Departments.getDepartment({ _id });
+      if (department?.code !== doc.code) {
+        await checkCodeDuplication(models.Departments, doc.code);
+      }
+
+      const parent = await models.Departments.findOne({
+        _id: doc.parentId
+      });
+
+      if (parent && parent?.parentId === _id) {
+        throw new Error('Cannot change a department');
+      }
+
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
+      const children = await models.Departments.find({
+        order: { $regex: new RegExp(department.order, 'i') }
+      });
+
+      for (const child of children) {
+        let order = child.order;
+
+        order = order.replace(department.order, doc.order);
+
+        await models.Departments.updateOne(
+          {
+            _id: child._id
+          },
+          {
+            $set: { order }
+          }
+        );
+      }
+
+      await models.UserMovements.manageStructureUsersMovement({
+        userIds: doc.userIds || [],
+        contentType: 'department',
+        contentTypeId: _id,
+        createdBy: user._id
+      });
       await models.Departments.update(
         { _id },
         {
@@ -156,12 +212,34 @@ export const loadDepartmentClass = (models: IModels) => {
     /*
      * Remove a department
      */
-    public static async removeDepartment(_id: string) {
-      const department = await models.Departments.getDepartment({ _id });
 
-      await models.Departments.deleteMany({ parentId: department._id });
+    public static async removeDepartments(ids: string[]) {
+      const departments = await models.Departments.find({ _id: { $in: ids } });
 
-      return department.remove();
+      const departmentIds = departments.map(department => department._id);
+      const userMovements = await models.UserMovements.find({
+        contentType: 'department',
+        contentTypeId: { $in: departmentIds }
+      });
+
+      if (!!userMovements.length) {
+        return await models.Departments.updateMany(
+          {
+            $or: [
+              { _id: { $in: departmentIds } },
+              { parentId: { $in: departmentIds } }
+            ]
+          },
+          { $set: { status: STRUCTURE_STATUSES.DELETED } }
+        );
+      }
+
+      return await models.Departments.deleteMany({
+        $or: [
+          { _id: { $in: departmentIds } },
+          { parentId: { $in: departmentIds } }
+        ]
+      });
     }
   }
 
@@ -174,7 +252,7 @@ export interface IUnitModel extends Model<IUnitDocument> {
   getUnit(doc: any): IUnitDocument;
   createUnit(doc: any, user: IUserDocument): IUnitDocument;
   updateUnit(_id: string, doc: any, user: IUserDocument): IUnitDocument;
-  removeUnit(_id: string): IUnitDocument;
+  removeUnits(ids?: string[]): IUnitDocument;
 }
 
 export const loadUnitClass = (models: IModels) => {
@@ -224,10 +302,12 @@ export const loadUnitClass = (models: IModels) => {
     /*
      * Remove an unit
      */
-    public static async removeUnit(_id: string) {
-      const unit = await models.Units.getUnit({ _id });
+    public static async removeUnits(ids: string) {
+      const units = await models.Units.find({ _id: { $in: ids } });
 
-      return unit.remove();
+      const unitIds = units.map(unit => unit._id);
+
+      return await models.Units.deleteMany({ _id: { $in: unitIds } });
     }
   }
 
@@ -240,7 +320,7 @@ export interface IBranchModel extends Model<IBranchDocument> {
   getBranch(doc: any): IBranchDocument;
   createBranch(doc: any, user: IUserDocument): IBranchDocument;
   updateBranch(_id: string, doc: any, user: IUserDocument): IBranchDocument;
-  removeBranch(_id: string): IBranchDocument;
+  removeBranches(ids?: string[]): IBranchDocument;
 }
 
 export const loadBranchClass = (models: IModels) => {
@@ -262,9 +342,24 @@ export const loadBranchClass = (models: IModels) => {
      * Create a branch
      */
     public static async createBranch(doc: any, user: IUserDocument) {
+      await checkCodeDuplication(models.Branches, doc.code);
+
+      const parent = await models.Branches.findOne({
+        _id: doc.parentId
+      }).lean();
+
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
+
       const branch = await models.Branches.create({
         ...doc,
         createdAt: new Date(),
+        createdBy: user._id
+      });
+
+      await models.UserMovements.manageStructureUsersMovement({
+        userIds: branch.userIds || [],
+        contentType: 'branch',
+        contentTypeId: branch._id,
         createdBy: user._id
       });
 
@@ -279,6 +374,45 @@ export const loadBranchClass = (models: IModels) => {
       doc: any,
       user: IUserDocument
     ) {
+      const branch = await models.Branches.getBranch({ _id });
+
+      if (branch?.code !== doc.code) {
+        await checkCodeDuplication(models.Branches, doc.code);
+      }
+
+      const parent = await models.Branches.findOne({ _id: doc.parentId });
+
+      if (parent && parent?.parentId === _id) {
+        throw new Error('Cannot change a branch');
+      }
+
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
+
+      const children = await models.Branches.find({
+        order: { $regex: new RegExp(branch.order, 'i') }
+      });
+
+      for (const child of children) {
+        let order = child.order;
+
+        order = order.replace(branch.order, doc.order);
+
+        await models.Branches.updateOne(
+          {
+            _id: child._id
+          },
+          {
+            $set: { order }
+          }
+        );
+      }
+      await models.UserMovements.manageStructureUsersMovement({
+        userIds: doc.userIds || [],
+        contentType: 'branch',
+        contentTypeId: _id,
+        createdBy: user._id
+      });
+
       await models.Branches.update(
         { _id },
         {
@@ -294,10 +428,28 @@ export const loadBranchClass = (models: IModels) => {
     /*
      * Remove a branch
      */
-    public static async removeBranch(_id: string) {
-      const branch = await models.Branches.getBranch({ _id });
 
-      return branch.remove();
+    public static async removeBranches(ids: string[]) {
+      const branches = await models.Branches.find({ _id: { $in: ids } });
+
+      const branchIds = branches.map(branch => branch._id);
+      const userMovements = await models.UserMovements.find({
+        contentType: 'branch',
+        contentTypeId: { $in: branchIds }
+      });
+
+      if (!!userMovements.length) {
+        return await models.Branches.updateMany(
+          {
+            $or: [{ _id: { $in: branchIds } }, { parentId: { $in: branchIds } }]
+          },
+          { $set: { status: STRUCTURE_STATUSES.DELETED } }
+        );
+      }
+
+      return await models.Branches.deleteMany({
+        $or: [{ _id: { $in: branchIds } }, { parentId: { $in: branchIds } }]
+      });
     }
   }
 

@@ -1,6 +1,7 @@
 import * as requestify from 'requestify';
 import { sendMessage } from './messageBroker';
 import { debugExternalApi } from './debuggers';
+import { isEnabled } from './serviceDiscovery';
 export interface IRequestParams {
   url?: string;
   path?: string;
@@ -9,13 +10,14 @@ export interface IRequestParams {
   params?: { [key: string]: string };
   body?: { [key: string]: any };
   form?: { [key: string]: string };
+  timeout?: number;
 }
 
 /**
  * Sends post request to specific url
  */
 export const sendRequest = async (
-  { url, method, headers, form, body, params }: IRequestParams,
+  { url, method, headers, form, body, params, timeout }: IRequestParams,
   errorMessage?: string
 ) => {
   debugExternalApi(`
@@ -32,7 +34,8 @@ export const sendRequest = async (
       headers: { 'Content-Type': 'application/json', ...(headers || {}) },
       form,
       body,
-      params
+      params,
+      timeout
     });
 
     const responseBody = response.getBody();
@@ -69,11 +72,8 @@ export const routeErrorHandling = (fn, callback?: any) => {
   };
 };
 
-export const sendToWebhook = async (messageBroker, { subdomain, data }) => {
-  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
-    'gateway:isServiceAvailable',
-    'webhooks'
-  );
+export const sendToWebhook = async (_messageBroker, { subdomain, data }) => {
+  const isWebhooksAvailable = await isEnabled('webhooks');
 
   if (isWebhooksAvailable) {
     await sendMessage(`webhooks:send`, {

@@ -31,7 +31,7 @@ class StageItem extends React.Component<Props> {
     return (
       <>
         <SelectTeamMembers
-          label="Choose members"
+          label="Members"
           name="memberIds"
           initialValue={memberIds}
           onSelect={ids => onChange(_id, 'memberIds', ids)}
@@ -53,7 +53,7 @@ class StageItem extends React.Component<Props> {
               (options || []).map(o => o.value)
             )
           }
-          placeholder={__('Choose department ...')}
+          placeholder={__('Department ...')}
           multi={true}
         />
       </>
@@ -66,6 +66,11 @@ class StageItem extends React.Component<Props> {
 
     const onChangeFormControl = (stageId, e) =>
       onChange(stageId, e.target.name, e.target.value);
+
+    const onChangeCheckbox = (stageId, e) => {
+      const value = e.target.checked;
+      onChange(stageId, e.target.name, e.target.checked);
+    };
 
     return (
       <StageItemContainer key={stage._id}>
@@ -137,7 +142,32 @@ class StageItem extends React.Component<Props> {
           onChange={onChangeFormControl.bind(this, stage._id)}
         />
 
+        {(['deal', 'purchase'].includes(type) && (
+          <FormControl
+            componentClass="checkbox"
+            checked={stage.defaultTick === undefined ? true : stage.defaultTick}
+            name="defaultTick"
+            placeholder={__('defaultTick')}
+            autoFocus={true}
+            onChange={onChangeCheckbox.bind(this, stage._id)}
+          />
+        )) || <></>}
+
         {this.renderSelectMembers()}
+
+        <SelectTeamMembers
+          label="Can move members"
+          name="canMoveMemberIds"
+          initialValue={stage.canMoveMemberIds}
+          onSelect={ids => onChange(stage._id, 'canMoveMemberIds', ids)}
+        />
+
+        <SelectTeamMembers
+          label="Can edit members"
+          name="canEditMemberIds"
+          initialValue={stage.canEditMemberIds}
+          onSelect={ids => onChange(stage._id, 'canEditMemberIds', ids)}
+        />
 
         <Button
           btnStyle="link"

@@ -1,16 +1,17 @@
-import { rgba } from '../../styles/ecolor';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors, dimensions, typography } from '../../styles';
+import { colors, dimensions, typography } from "../../styles";
+import styled, { css } from "styled-components";
 
-const inputPadding = '0px';
-const inputHeight = '15px';
-const inputScale = '12px';
-const inputBorderWidth = '2px';
-const textInputHeight = '34px';
+import { rgba } from "../../styles/ecolor";
+import styledTS from "styled-components-ts";
+
+const inputPadding = "0px";
+const inputHeight = "15px";
+const inputScale = "12px";
+const inputBorderWidth = "2px";
+const textInputHeight = "34px";
 
 const Label = styledTS<{ uppercase?: boolean }>(styled.label)`
-  text-transform: ${(props) => (props.uppercase ? 'uppercase' : 'none')};
+  text-transform: ${(props) => (props.uppercase ? "uppercase" : "none")};
   display: inline-block;
   font-weight: ${typography.fontWeightMedium};
   color: ${colors.textPrimary};
@@ -29,11 +30,10 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
     props.horizontal &&
     css`
       display: flex;
-      align-items: center;
+      gap: ${dimensions.coreSpacing}px;
 
-      label {
-        margin-bottom: 0;
-        margin-left: 10px;
+      > div {
+        flex: 1;
       }
     `};
 
@@ -48,16 +48,20 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
   }
 `;
 
+const ModalFooter = styled.div`
+  text-align: right;
+  margin-top: 30px;
+`;
+
 const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
   display: block;
   border: none;
   width: 100%;
-  height: ${textInputHeight};
-  padding: ${dimensions.unitSpacing}px 0;
+  padding: ${dimensions.unitSpacing + 5}px;
   color: ${colors.textPrimary};
-  border-bottom: 1px solid;
-  border-color:${(props) =>
-    props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
+  border: 1px solid;
+  border-radius: 12px;
+  border-color:${(props) => (props.hasError ? colors.colorCoreRed : "#DFDFE6")};
   background: none;
   transition: all 0.3s ease;
 
@@ -71,7 +75,7 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
       `;
     }
 
-    return '';
+    return "";
   }};
 
   &:hover {
@@ -116,7 +120,7 @@ const SelectWrapper = styledTS<{ hasError?: boolean }>(styled.div)`
   }
 `;
 
-const Select = styled(Input.withComponent('select'))`
+const Select = styled(Input.withComponent("select"))`
   border: none;
   height: ${textInputHeight};
   padding: 0;
@@ -126,7 +130,7 @@ const Select = styled(Input.withComponent('select'))`
 
 const TextArea = styledTS<{
   maxHeight?: number;
-}>(styled(Input.withComponent('textarea')))`
+}>(styled(Input.withComponent("textarea")))`
   transition: none;
   max-height: ${(props) => props.maxHeight && `${props.maxHeight}px`};
   min-height: 80px;
@@ -156,7 +160,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
   position: absolute !important;
   width: 1px !important;
   white-space: nowrap !important;
-  cursor: ${(props) => props.disabled && 'not-allowed'}
+  cursor: ${(props) => props.disabled && "not-allowed"}
 
   &:focus {
     + span {
@@ -203,7 +207,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
       display: inline-block;
       vertical-align: text-top;
       border-radius: 2px;
-      cursor: ${(props) => props.disabled && 'not-allowed'}
+      cursor: ${(props) => props.disabled && "not-allowed"}
     }
 
     &:after {
@@ -307,6 +311,63 @@ const FlexWrapper = styled.span`
   flex: 1;
 `;
 
+const SortItem = styledTS<{
+  isDragging: boolean;
+  isModal: boolean;
+  column?: number;
+}>(styled.div)`
+  background: ${colors.colorWhite};
+  display: block;
+  padding: 5px;
+  margin-bottom: 10px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  border-left: 2px solid transparent; 
+  border-top: ${(props) =>
+    !props.isDragging ? `1px solid ${colors.borderPrimary}` : "none"};
+  border-radius: 4px;
+  box-shadow: ${(props) =>
+    props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : "none"};
+  left: ${(props) =>
+    props.isDragging && props.isModal ? "40px!important" : "auto"};
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:hover {
+    box-shadow: 0 2px 8px ${colors.shadowPrimary};
+    border-color: ${colors.colorSecondary};
+    border-top: none;
+  }
+  ${(props) =>
+    props.column &&
+    css`
+      width: ${100 / props.column}%;
+      display: inline-block;
+    `}
+`;
+
+const SortableWrapper = styled.div`
+  width: 100%;
+  flex: 1;
+  label {
+    margin: 0;
+  }
+`;
+
+const DragHandler = styled.div`
+  display: flex;
+  width: 20px;
+  margin-right: 5px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  i {
+    color: ${colors.colorLightGray};
+  }
+`;
+
 export {
   Input,
   SelectWrapper,
@@ -319,4 +380,8 @@ export {
   Formgroup,
   FlexWrapper,
   Error,
+  SortItem,
+  SortableWrapper,
+  DragHandler,
+  ModalFooter,
 };

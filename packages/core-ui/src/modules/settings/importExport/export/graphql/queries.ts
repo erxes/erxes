@@ -14,6 +14,8 @@ const exportHistories = `
           }
         }
         exportLink
+        uploadType
+        errorMsg
         }
       count 
     }

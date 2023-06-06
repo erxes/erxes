@@ -1,19 +1,15 @@
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { ButtonMutate, Spinner } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { mutations, queries } from '../graphql';
-import {
-  AssignmentCampaignQueryResponse,
-  SegmentsQueryResponse
-} from '../types';
+import { mutations } from '../graphql';
+import { AssignmentCampaignQueryResponse } from '../types';
 import { withProps } from '@erxes/ui/src/utils';
 import { VoucherCampaignQueryResponse } from '../../voucherCampaign/types';
 import { queries as voucherCampaignQueries } from '../../voucherCampaign/graphql';
 import CreateForm from '../components/CreateForm';
-import { Link } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -22,15 +18,14 @@ type Props = {
 
 type FinalProps = {
   assignmentCampaignsQuery: AssignmentCampaignQueryResponse;
-  segmentsQuery: SegmentsQueryResponse;
   voucherCampaignsQuery: VoucherCampaignQueryResponse;
 } & Props;
 
 class AssignmentCreateFormContainer extends React.Component<FinalProps> {
   render() {
-    const { segmentsQuery, voucherCampaignsQuery } = this.props;
+    const { voucherCampaignsQuery } = this.props;
 
-    if (segmentsQuery.loading || voucherCampaignsQuery.loading) {
+    if (voucherCampaignsQuery.loading) {
       return <Spinner />;
     }
     const renderButton = ({
@@ -53,14 +48,6 @@ class AssignmentCreateFormContainer extends React.Component<FinalProps> {
         : null;
       values.attachmentMore = attachmentMoreArray;
 
-      if (this.props.queryParams) {
-        values.segmentIds = this.props.queryParams.segmentIds
-          ? this.props.queryParams.segmentIds
-            ? JSON.parse(this.props.queryParams.segmentIds)
-            : []
-          : [];
-      }
-
       return (
         <ButtonMutate
           mutation={
@@ -81,13 +68,11 @@ class AssignmentCreateFormContainer extends React.Component<FinalProps> {
       );
     };
 
-    const segments = segmentsQuery.segments || [];
     const voucherCampaigns = voucherCampaignsQuery.voucherCampaigns || [];
 
     const updatedProps = {
       ...this.props,
       renderButton,
-      segments,
       voucherCampaigns
     };
 
@@ -101,20 +86,6 @@ const getRefetchQueries = () => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
-      name: 'segmentsQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          ids:
-            queryParams === undefined
-              ? []
-              : queryParams.segmentIds
-              ? JSON.parse(queryParams.segmentIds)
-              : [],
-          contentTypes: ['contacts:customer']
-        }
-      })
-    }),
     graphql<Props, VoucherCampaignQueryResponse>(
       gql(voucherCampaignQueries.voucherCampaigns),
       {

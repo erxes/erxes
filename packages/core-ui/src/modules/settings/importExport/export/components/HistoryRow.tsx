@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import { DateWrapper } from 'modules/common/styles/main';
-import { readFile, __ } from 'modules/common/utils';
+import { getEnv, readFile, __ } from 'modules/common/utils';
 import React from 'react';
 
 import {
@@ -15,13 +15,33 @@ type Props = {
   history?: any;
 };
 
+const { REACT_APP_API_URL } = getEnv();
+
 class HistoryRow extends React.Component<Props> {
   renderAction = () => {
     const { history } = this.props;
-    const { exportLink } = history;
+    const { exportLink, uploadType } = history;
+
+    const onClick = () => {
+      if (uploadType === 'local') {
+        return window.open(
+          `${REACT_APP_API_URL}/pl:workers/read-file?key=${exportLink}`
+        );
+      }
+
+      return window.open(readFile(exportLink));
+    };
+
+    if (uploadType === 'local') {
+      return (
+        <Button btnStyle="simple" size="small" onClick={onClick}>
+          {__(`Download result`)}
+        </Button>
+      );
+    }
 
     return (
-      <Button btnStyle="simple" size="small" href={readFile(exportLink)}>
+      <Button btnStyle="simple" size="small" onClick={onClick}>
         {__(`Download result`)}
       </Button>
     );
@@ -53,6 +73,14 @@ class HistoryRow extends React.Component<Props> {
     const renderStatus = value => {
       if (value === 'inProcess') {
         return <TextInfo textStyle="warning"> In Process </TextInfo>;
+      }
+
+      if (value === 'failed') {
+        return (
+          <Tip placement="bottom" text={history.errorMsg}>
+            <TextInfo textStyle="danger"> Failed </TextInfo>
+          </Tip>
+        );
       }
 
       return <TextInfo textStyle="success"> Done </TextInfo>;

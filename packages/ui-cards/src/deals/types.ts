@@ -38,14 +38,20 @@ export interface IProductData {
   currency?: string;
   quantity: number;
   unitPrice: number;
+  globalUnitPrice: number;
+  unitPricePercent: number;
   taxPercent: number;
   tax: number;
+  vatPercent: number;
   discountPercent: number;
   discount: number;
   amount: number;
-  tickUsed: boolean;
+  tickUsed?: boolean;
+  isVatApplied?: boolean;
   assignUserId?: string;
   maxQuantity: number;
+  branchId?: string;
+  departmentId?: string;
 }
 
 export interface IPaymentsData {

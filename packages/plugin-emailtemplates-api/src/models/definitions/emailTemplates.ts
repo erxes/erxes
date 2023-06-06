@@ -8,6 +8,7 @@ export interface IEmailTemplate {
   createdAt?: Date;
   modifiedAt?: Date;
   createdBy?: string;
+  tagIds?: string[];
   scopeBrandIds?: string[];
 }
 
@@ -21,6 +22,12 @@ export const emailTemplateSchema = schemaWrapper(
     name: field({ type: String, label: 'Name' }),
     status: field({ type: String, label: 'Status' }),
     content: field({ type: String, optional: true, label: 'Content' }),
+    tagIds: field({
+      type: [String],
+      optional: true,
+      index: true,
+      label: 'Tags'
+    }),
     createdAt: field({
       type: Date,
       label: 'Created at'

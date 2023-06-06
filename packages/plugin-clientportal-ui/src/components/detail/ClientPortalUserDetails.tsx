@@ -26,6 +26,8 @@ type Props = {
   clientPortalUser: IClientPortalUser;
   currentUser: IUser;
   history: any;
+
+  queryParams?: any;
 };
 
 class ClientPortalUserDetails extends React.Component<Props> {
@@ -68,7 +70,7 @@ class ClientPortalUserDetails extends React.Component<Props> {
         header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         mainHead={
           <UserHeader>
-            <InfoSection clientPortalUser={clientPortalUser}>
+            <InfoSection avatarSize={40} clientPortalUser={clientPortalUser}>
               <BasicInfo clientPortalUser={clientPortalUser} />
             </InfoSection>
           </UserHeader>

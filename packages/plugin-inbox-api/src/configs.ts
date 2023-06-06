@@ -24,6 +24,8 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import automations from './automations';
 import cronjobs from './cronjobs/conversations';
+import dashboards from './dashboards';
+import webhookMiddleware from './middlewares/webhookMiddleware';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -43,6 +45,7 @@ export default {
     };
   },
   hasSubscriptions: true,
+  hasDashboard: true,
   meta: {
     forms,
     segments,
@@ -52,8 +55,8 @@ export default {
     webhooks,
     automations,
     cronjobs,
-    // for fixing permissions
-    permissions
+    permissions,
+    dashboards
   },
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
@@ -83,7 +86,7 @@ export default {
       '/events-receive',
       routeErrorHandling(
         async (req, res) => {
-          const { name, customerId, attributes } = req.body;
+          const { name, triggerAutomation, customerId, attributes } = req.body;
           const subdomain = getSubdomain(req);
 
           const response =
@@ -91,6 +94,7 @@ export default {
               ? await trackViewPageEvent(subdomain, { customerId, attributes })
               : await trackCustomEvent(subdomain, {
                   name,
+                  triggerAutomation,
                   customerId,
                   attributes
                 });
@@ -129,6 +133,7 @@ export default {
     );
 
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
+    app.post('/webhooks/:id', webhookMiddleware);
 
     initBroker(options.messageBrokerClient);
 

@@ -15,8 +15,11 @@ const createOrUpdateConfig = `
     $knowledgeBaseLabel: String
     $knowledgeBaseTopicId: String
     $ticketLabel: String
+    $dealLabel: String
+    $purchaseLabel: String
     $taskPublicBoardId: String
     $taskPublicPipelineId: String
+    $taskPublicLabel: String
     $taskLabel: String
     $taskStageId: String
     $taskPipelineId: String
@@ -24,16 +27,31 @@ const createOrUpdateConfig = `
     $ticketStageId: String
     $ticketPipelineId: String
     $ticketBoardId: String
+    $dealStageId: String
+    $dealPipelineId: String
+    $dealBoardId: String
+    $purchaseStageId: String
+    $purchasePipelineId: String
+    $purchaseBoardId: String
     $styles: StylesParams
     $mobileResponsive: Boolean
     $googleCredentials: JSON
+    $googleClientId: String
+    $googleRedirectUri: String
+    $googleClientSecret: String
+    $facebookAppId: String
+    $erxesAppToken: String
 
     $kbToggle: Boolean
     $publicTaskToggle: Boolean
     $ticketToggle: Boolean
     $taskToggle: Boolean
+    $dealToggle: Boolean
+    $purchaseToggle: Boolean
     $otpConfig: OTPConfigInput
     $mailConfig: MailConfigInput
+    $manualVerificationConfig: JSON
+    $passwordVerificationConfig: JSON
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -50,24 +68,42 @@ const createOrUpdateConfig = `
       knowledgeBaseTopicId: $knowledgeBaseTopicId,
       taskPublicBoardId: $taskPublicBoardId,
       taskPublicPipelineId: $taskPublicPipelineId,
+      taskPublicLabel: $taskPublicLabel,
       ticketLabel: $ticketLabel,
       taskLabel: $taskLabel,
+      dealLabel: $dealLabel,
+      purchaseLabel: $purchaseLabel,
       taskStageId: $taskStageId,
       taskPipelineId: $taskPipelineId,
       taskBoardId: $taskBoardId,
       ticketStageId: $ticketStageId,
       ticketPipelineId: $ticketPipelineId,
-      ticketBoardId: $ticketBoardId
+      ticketBoardId: $ticketBoardId,
+      dealStageId: $dealStageId,
+      dealPipelineId: $dealPipelineId,
+      dealBoardId: $dealBoardId
+      purchaseStageId: $purchaseStageId,
+      purchasePipelineId: $purchasePipelineId,
+      purchaseBoardId: $purchaseBoardId
       styles: $styles
       mobileResponsive: $mobileResponsive
       googleCredentials: $googleCredentials
+      googleClientId: $googleClientId
+      googleRedirectUri: $googleRedirectUri
+      googleClientSecret: $googleClientSecret
+      facebookAppId: $facebookAppId
+      erxesAppToken: $erxesAppToken
 
       kbToggle: $kbToggle,
       publicTaskToggle: $publicTaskToggle,
       ticketToggle: $ticketToggle,
       taskToggle: $taskToggle,
+      dealToggle: $dealToggle,
+      purchaseToggle: $purchaseToggle,
       otpConfig: $otpConfig
       mailConfig: $mailConfig
+      manualVerificationConfig: $manualVerificationConfig
+      passwordVerificationConfig: $passwordVerificationConfig
     ) {
       ${commonFields}
     }
@@ -88,6 +124,7 @@ const commonUserFields = `
   $ownerId: String,
   $links: JSON,
   $customFieldsData: JSON,
+  $avatar: String
 `;
 
 const commonUserVariables = `
@@ -104,6 +141,7 @@ const commonUserVariables = `
   ownerId: $ownerId,
   links: $links,
   customFieldsData: $customFieldsData
+  avatar: $avatar
 `;
 
 const clientPortalUsersInvite = `
@@ -128,6 +166,12 @@ const clientPortalUsersRemove = `
   }
 `;
 
+const clientPortalUserAssignCompany = `
+   mutation clientPortalUserAssignCompany($userId: String!, $erxesCompanyId: String!, $erxesCustomerId: String!){
+    clientPortalUserAssignCompany(userId: $userId, erxesCompanyId: $erxesCompanyId, erxesCustomerId: $erxesCustomerId)
+   }
+`;
+
 const remove = `
   mutation clientPortalRemove(
     $_id: String!
@@ -144,11 +188,60 @@ mutation clientPortalUsersVerify($type: String, $userIds: [String]!) {
 }
 `;
 
+const clientPortalCommentsAdd = `
+  mutation clientPortalCommentsAdd(
+    $typeId: String!
+    $type: String!
+    $content: String!
+    $userType: String!
+  ) {
+    clientPortalCommentsAdd(
+      typeId: $typeId
+      type: $type
+      content: $content
+      userType: $userType
+    ) {
+      _id
+    }
+  }
+`;
+
+const clientPortalCommentsRemove = `
+  mutation clientPortalCommentsRemove(
+    $_id: String!
+  ) {
+    clientPortalCommentsRemove(
+      _id: $_id
+    ) 
+  }
+`;
+
+const changeVerificationStatus = `
+mutation ClientPortalUsersChangeVerificationStatus($status: ClientPortalUserVerificationStatus!, $userId: String!) {
+  clientPortalUsersChangeVerificationStatus(status: $status, userId: $userId)
+}
+`;
+
+const editFields = `
+mutation ClientPortalFieldConfigsEdit($fieldId: String!, $allowedClientPortalIds: [String], $requiredOn: [String]) {
+  clientPortalFieldConfigsEdit(fieldId: $fieldId, allowedClientPortalIds: $allowedClientPortalIds, requiredOn: $requiredOn) {
+    allowedClientPortalIds
+    fieldId
+    requiredOn
+  }
+}
+`;
+
 export default {
   createOrUpdateConfig,
   remove,
   clientPortalUsersInvite,
   clientPortalUsersEdit,
   clientPortalUsersRemove,
-  verifyUsers
+  verifyUsers,
+  clientPortalCommentsAdd,
+  clientPortalCommentsRemove,
+  changeVerificationStatus,
+  editFields,
+  clientPortalUserAssignCompany
 };

@@ -7,11 +7,11 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import { UnreadConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
 import UnreadCount from '../components/UnreadCount';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import strip from 'strip';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { withProps } from '@erxes/ui/src/utils';
+import { withProps, getSubdomain } from '@erxes/ui/src/utils';
 
 type Props = {
   currentUser: IUser;
@@ -29,7 +29,7 @@ class UnreadCountContainer extends React.Component<FinalProps> {
       unreadConversationsCountQuery.subscribeToMore({
         // listen for all conversation changes
         document: gql(subscriptions.conversationClientMessageInserted),
-        variables: { userId: currentUser._id },
+        variables: { subdomain: getSubdomain(), userId: currentUser._id },
         updateQuery: (prev, { subscriptionData: { data } }) => {
           const { conversationClientMessageInserted } = data;
           const { content } = conversationClientMessageInserted;

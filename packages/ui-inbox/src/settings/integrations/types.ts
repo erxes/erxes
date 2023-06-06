@@ -213,6 +213,7 @@ export interface IMessengerData {
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
   onlineHours?: IOnlineHour[];
+  hideWhenOffline?: boolean;
   links?: ILink;
 }
 
@@ -303,6 +304,8 @@ export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
   channelIds?: string[];
+  visibility?: string;
+  departmentIds?: string[];
   data?: any;
 };
 

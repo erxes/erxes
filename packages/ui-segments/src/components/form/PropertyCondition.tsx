@@ -27,26 +27,24 @@ type Props = {
     conjunction: string
   ) => void;
   config?: any;
+  onChangeConfig?: (config: any) => void;
 };
 
 type State = {
   propertyType: string;
   chosenProperty?: IField;
   searchValue: string;
-
-  config: any;
 };
 
 class PropertyCondition extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { contentType, config = {} } = props;
+    const { contentType } = props;
 
     this.state = {
       propertyType: contentType,
-      searchValue: '',
-      config
+      searchValue: ''
     };
   }
 
@@ -64,13 +62,9 @@ class PropertyCondition extends React.Component<Props, State> {
     this.setState({ searchValue: value });
   };
 
-  onChangeConfig = config => {
-    this.setState({ config });
-  };
-
   renderExtraContent = () => {
-    const { contentType, hideDetailForm } = this.props;
-    const { config, propertyType } = this.state;
+    const { contentType, hideDetailForm, config, onChangeConfig } = this.props;
+    const { propertyType } = this.state;
 
     const plugins: any[] = (window as any).plugins || [];
 
@@ -84,7 +78,7 @@ class PropertyCondition extends React.Component<Props, State> {
               config,
               type: contentType,
               propertyType,
-              onChangeConfig: this.onChangeConfig,
+              onChangeConfig,
               hideDetailForm,
               component: 'filter'
             }}
@@ -97,9 +91,14 @@ class PropertyCondition extends React.Component<Props, State> {
   };
 
   render() {
-    const { associationTypes, onClickBackToList, hideBackButton } = this.props;
+    const {
+      associationTypes,
+      onClickBackToList,
+      hideBackButton,
+      config
+    } = this.props;
 
-    const { chosenProperty, propertyType, searchValue, config } = this.state;
+    const { chosenProperty, propertyType, searchValue } = this.state;
 
     const onChange = e => {
       const value = e.value;

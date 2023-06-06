@@ -173,54 +173,6 @@ const customerDetail = `
         primaryName
         website
       }
-      ${
-        isEnabled('inbox')
-          ? `conversations {
-        _id
-        content
-        createdAt
-        assignedUser {
-          _id
-          details {
-            avatar
-          }
-        }
-        integration {
-          _id
-          kind
-          brandId,
-          brand {
-            _id
-            name
-          }
-          channels {
-            _id
-            name
-          }
-        }
-        customer {
-          _id
-          firstName
-          middleName
-          lastName
-          primaryEmail
-          primaryPhone
-        }
-        readUserIds
-      ${
-        isEnabled('tags')
-          ? `
-        tags {
-          _id
-          name
-          colorCode
-        }
-          `
-          : ``
-      }
-      }`
-          : ``
-      }
     }
   }
 `;

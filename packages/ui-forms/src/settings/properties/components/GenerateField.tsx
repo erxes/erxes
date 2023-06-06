@@ -6,9 +6,15 @@ import {
 } from '@erxes/ui-contacts/src/companies/constants';
 import { IAttachment, IField, ILocationOption } from '@erxes/ui/src/types';
 import { LogicIndicator, SelectInput } from '../styles';
+import {
+  RenderDynamicComponent,
+  __,
+  isEnabled
+} from '@erxes/ui/src/utils/core';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Datetime from '@nateradebaugh/react-datetime';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IOption } from '@erxes/ui/src/types';
@@ -17,18 +23,12 @@ import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import ObjectList from './ObjectList';
 import React from 'react';
 import Select from 'react-select-plus';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectProductCategory from '../containers/SelectProductCategory';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import {
-  isEnabled,
-  RenderDynamicComponent,
-  __
-} from '@erxes/ui/src/utils/core';
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectProductCategory from '../containers/SelectProductCategory';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import Uploader from '@erxes/ui/src/components/Uploader';
 
 type Props = {
   field: IField;
@@ -37,7 +37,11 @@ type Props = {
   hasLogic?: boolean;
   isEditing?: boolean;
   isPreview?: boolean;
-  onValueChange?: (data: { _id: string; value: any }) => void;
+  onValueChange?: (data: {
+    _id: string;
+    value: any;
+    extraValue?: string;
+  }) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 };
 
@@ -348,13 +352,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderExtraFields({ id, value }, type, filteredPlugin) {
-    const onSelect = e => {
+    const onSelect = (_id, value, extraValue) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: e });
+        this.setState({ value: _id });
 
-        onValueChange({ _id: id, value: e });
+        onValueChange({ _id: id, value: _id, extraValue });
       }
     };
 
@@ -748,7 +752,9 @@ export default class GenerateField extends React.Component<Props, State> {
         {this.renderAddButton()}
 
         {hasLogic && <LogicIndicator>Logic</LogicIndicator>}
-        {field.description ? <p>{field.description}</p> : null}
+        {field.description ? (
+          <div dangerouslySetInnerHTML={{ __html: field.description }} />
+        ) : null}
 
         {this.renderControl()}
       </FormGroup>

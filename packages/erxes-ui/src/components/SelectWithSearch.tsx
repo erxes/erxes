@@ -8,8 +8,8 @@ import React from 'react';
 import Select from 'react-select-plus';
 import colors from '../styles/colors';
 import debounce from 'lodash/debounce';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import styled from 'styled-components';
 
 export const SelectValue = styled.div`
@@ -102,16 +102,22 @@ class SelectWithSearch extends React.Component<
     totalOptions?: IOption[];
     selectedOptions?: IOption[];
     selectedValues: string[];
+    searchValue: string;
   }
 > {
+  private timer: any;
+
   constructor(props: Props) {
     super(props);
 
     this.state = {
       selectedValues: props.initialValues,
+      searchValue: '',
       selectedOptions: undefined,
       totalOptions: undefined
     };
+
+    this.timer = 0;
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -193,7 +199,7 @@ class SelectWithSearch extends React.Component<
     const selectSingle = (option: IOption) => {
       const selectedOptionValue = option ? option.value : '';
 
-      onSelect(selectedOptionValue, name);
+      onSelect(selectedOptionValue, name, option?.extraValue);
 
       this.setState({
         selectedValues: [selectedOptionValue],
@@ -204,9 +210,13 @@ class SelectWithSearch extends React.Component<
     const onChange = multi ? selectMultiple : selectSingle;
 
     const onSearch = (searchValue: string) => {
-      if (searchValue) {
-        debounce(() => search(searchValue), 1000)();
-      }
+      this.setState({ searchValue });
+
+      clearTimeout(this.timer);
+
+      this.timer = setTimeout(() => {
+        search(searchValue);
+      }, 1000);
     };
 
     const onOpen = () => search('reload');
@@ -304,7 +314,11 @@ type WrapperProps = {
   queryName: string;
   name: string;
   label: string;
-  onSelect: (values: string[] | string, name: string) => void;
+  onSelect: (
+    values: string[] | string,
+    name: string,
+    extraValue?: string
+  ) => void;
   generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;
   multi?: boolean;

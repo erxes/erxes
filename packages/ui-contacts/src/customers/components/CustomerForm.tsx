@@ -30,6 +30,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import validator from 'validator';
 
 type Props = {
@@ -55,6 +56,7 @@ type State = {
   primaryPhone?: string;
   birthDate: string;
   primaryEmail?: string;
+  relationData?: any;
 };
 
 class CustomerForm extends React.Component<Props, State> {
@@ -104,12 +106,22 @@ class CustomerForm extends React.Component<Props, State> {
       code: finalValues.code,
       emailValidationStatus: finalValues.emailValidationStatus,
       phoneValidationStatus: finalValues.phoneValidationStatus,
-      links
+      links,
+      relationData: this.state.relationData
     };
   };
 
   onAvatarUpload = url => {
     this.setState({ avatar: url });
+  };
+
+  onRelationsChange = (ids: string[], relationType: string) => {
+    const { relationData = {} } = this.state;
+    const key = relationType.split(':')[1];
+
+    relationData[key] = ids;
+
+    this.setState({ relationData });
   };
 
   getVisitorInfo(customer, key) {
@@ -159,7 +171,7 @@ class CustomerForm extends React.Component<Props, State> {
       name = 'owner';
     }
 
-    if (!visibility[name]) {
+    if (!visibility[name] && type !== 'link') {
       return null;
     }
 
@@ -248,12 +260,16 @@ class CustomerForm extends React.Component<Props, State> {
     const { customer } = this.props;
     const links = (customer ? customer.links : {}) || {};
 
-    return this.renderFormGroup(link.label, {
-      ...formProps,
-      name: link.value,
-      defaultValue: links[link.value] || '',
-      type: 'url'
-    });
+    return this.renderFormGroup(
+      link.label,
+      {
+        ...formProps,
+        name: link.value,
+        defaultValue: links[link.value] || '',
+        type: 'url'
+      },
+      'link'
+    );
   }
 
   renderContent = (formProps: IFormProps) => {
@@ -477,6 +493,20 @@ class CustomerForm extends React.Component<Props, State> {
               </FormColumn>
             </FormWrapper>
           </CollapseContent>
+          {isEnabled('forms') && (
+            <CollapseContent title={__('Relations')} compact={true}>
+              <FormWrapper>
+                <FormColumn>
+                  {!this.props.customer &&
+                    loadDynamicComponent('relationForm', {
+                      ...this.props,
+                      onChange: this.onRelationsChange,
+                      contentType: 'contacts:customer'
+                    })}
+                </FormColumn>
+              </FormWrapper>
+            </CollapseContent>
+          )}
         </ScrollWrapper>
         <ModalFooter>
           <Button

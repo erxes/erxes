@@ -6,6 +6,7 @@ import {
 } from '../../conformity/graphql/queries';
 
 const commonParams = `
+  $_ids: [String]
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
@@ -26,10 +27,14 @@ const commonParams = `
   $startDate: String,
   $endDate: String,
   $tagIds: [String],
+  $noSkipArchive: Boolean
+  $branchIds:[String]
+  $departmentIds:[String]
   ${conformityQueryFields}
 `;
 
 const commonParamDefs = `
+  _ids: $_ids,
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
@@ -50,7 +55,9 @@ const commonParamDefs = `
   startDate: $startDate,
   endDate: $endDate,
   tagIds: $tagIds,
-  
+  noSkipArchive: $noSkipArchive
+  branchIds: $branchIds,
+  departmentIds: $departmentIds,
   ${conformityQueryFieldDefs}
 `;
 

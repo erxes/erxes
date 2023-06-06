@@ -61,6 +61,8 @@ const stages = `
       probability
       visibility
       memberIds
+      canMoveMemberIds
+      canEditMemberIds
       departmentIds
       pipelineId
       formId
@@ -81,10 +83,17 @@ const boardDetail = `
   }
 `;
 
+const costs = `
+  query costs {
+	  costs 
+  }
+`;
+
 export default {
   boards,
   pipelines,
   stages,
   boardGetLast,
-  boardDetail
+  boardDetail,
+  costs
 };

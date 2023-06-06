@@ -52,12 +52,21 @@ a:hover {
 }
 /* override */
 
+.modal {
+  overflow-y: auto;
+}
+
 .modal-backdrop {
   background-color: #30435C;
 } !important
 
 .modal-backdrop.in {
   opacity: 0.8;
+}
+
+.modal.show {
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .modal.in .modal-dialog {
@@ -643,6 +652,14 @@ a:hover {
 
 .Select-noresults {
   padding: 8px 20px;
+}
+
+.Select .Select-input {
+  width: 100%;
+
+  input {
+    width: 100% !important;
+  }
 }
 
 .simple-option .channel-round {

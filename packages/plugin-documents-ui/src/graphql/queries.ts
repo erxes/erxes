@@ -1,6 +1,6 @@
 const documents = `
-  query documents($page: Int, $perPage: Int) {
-    documents(page: $page, perPage: $perPage) {
+  query documents($page: Int, $perPage: Int, $contentType: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType) {
       _id
       contentType
       name
@@ -36,9 +36,19 @@ const totalCount = `
   }
 `;
 
+const documentsGetContentTypes = `
+  query DocumentsGetContentTypes {
+  documentsGetContentTypes {
+    contentType
+    label
+  }
+}
+`;
+
 export default {
   documents,
   documentsDetail,
   editorAttributes,
-  totalCount
+  totalCount,
+  documentsGetContentTypes
 };

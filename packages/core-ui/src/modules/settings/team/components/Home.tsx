@@ -4,7 +4,6 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
 import UserList from '../containers/UserList';
 import Sidebar from './Sidebar';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
 import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
@@ -103,6 +102,7 @@ export default function Home(props: Props) {
   const renderFilter = (
     <FilterContainer>
       <FlexRow>
+        <ControlLabel>#{totalCount} members&nbsp;&nbsp;</ControlLabel>
         {renderBrandChooser()}
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
@@ -183,9 +183,8 @@ export default function Home(props: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          queryParams={queryParams}
-          title={'Team members'}
-          submenu={menuContacts}
+          title={__('Team members')}
+          breadcrumb={[{ title: 'Team members' }]}
         />
       }
       leftSidebar={<Sidebar loadingMainQuery={loading} />}
