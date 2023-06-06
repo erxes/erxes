@@ -54,7 +54,7 @@ function GroupContainer({ currentUser, type, viewType, ...props }: Props) {
   };
 
   if (viewType === "board") {
-    return <BoardItem items={items} />;
+    return <BoardItem items={items} type={type} stageId={props.id} />;
   }
 
   return <Group {...updatedProps} />;

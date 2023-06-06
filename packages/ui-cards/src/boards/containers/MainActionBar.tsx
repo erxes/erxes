@@ -44,7 +44,15 @@ const FILTER_PARAMS = [
   'assignedToMe',
   'closeDateType',
   'startDate',
-  'endDate'
+  'endDate',
+  'createdStartDate',
+  'createdEndDate',
+  'stateChangedStartDate',
+  'stateChangedEndDate',
+  'startDateStartDate',
+  'startDateEndDate',
+  'closeDateStartDate',
+  'closeDateEndDate'
 ];
 
 const generateQueryParams = ({ location }) => {
