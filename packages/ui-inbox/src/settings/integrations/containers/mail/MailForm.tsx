@@ -41,9 +41,7 @@ type Props = {
   callback?: () => void;
   queryParams?: any;
   shrink?: boolean;
-  isWidget?: boolean;
-  changeShrink?: () => void;
-  hideWidget?: () => void;
+  clear?: boolean;
 } & IRouterProps;
 
 type FinalProps = {
@@ -73,7 +71,6 @@ class MailFormContainer extends React.Component<
   render() {
     const {
       detailQuery,
-      source = 'engage',
       integrationId,
       customerId,
       conversationId,

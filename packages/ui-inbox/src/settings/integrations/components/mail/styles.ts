@@ -134,7 +134,6 @@ const ToolBar = styled.div`
     font-size: 14px;
     margin-bottom: 0 !important;
     margin-top: 0 !important;
-    margin-bottom: 0 !important;
     padding: 0 !important;
 
     &:hover {
@@ -246,7 +245,7 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
   }
 `;
 
-const NewEmailHeader = styled.h5`
+const NewEmailHeader = styledTS<{ shrink: boolean }>(styled.h5)`
   background: ${colors.bgActive};
   margin-bottom: 0;
   margin-top: 0;
@@ -255,6 +254,7 @@ const NewEmailHeader = styled.h5`
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
+  width: ${props => (props.shrink ? '260px' : '600px')};
 
   i {
     margin-left: ${dimensions.unitSpacing}px;
@@ -266,11 +266,13 @@ const WidgetWrapper = styledTS<{ show: boolean }>(styled.div)`
   bottom: ${dimensions.unitSpacing}px;
   right: ${dimensions.unitSpacing}px;
   display: flex;
+  flex-direction: column;
   z-index: 9999;
   justify-content: flex-end;
   align-content: flex-end;
   background: #fff;
   box-shadow: 0 0 20px 3px rgba(0,0,0,0.15);
+  border-radius: 8px;
 
   ${props => !props.show && 'display:none;'}
 `;

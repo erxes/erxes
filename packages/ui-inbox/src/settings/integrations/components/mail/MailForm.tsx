@@ -8,7 +8,6 @@ import {
   ShowReplyButtonWrapper,
   SpaceBetweenRow,
   ToolBar,
-  NewEmailHeader,
   UploaderWrapper
 } from './styles';
 import { FlexRow, Subject } from './styles';
@@ -69,9 +68,7 @@ type Props = {
   verifiedEngageEmails: string[];
   history: any;
   shrink?: boolean;
-  isWidget?: boolean;
-  changeShrink?: () => void;
-  hideWidget?: () => void;
+  clear?: boolean;
 };
 
 type State = {
@@ -110,6 +107,7 @@ class MailForm extends React.Component<Props, State> {
       : mailWidget
       ? mailWidget.cc
       : '';
+
     const bcc = replyAll
       ? formatObj(mailData.bcc || [])
       : mailWidget
@@ -120,7 +118,7 @@ class MailForm extends React.Component<Props, State> {
     const sender =
       this.getEmailSender(from.email || props.fromEmail) || mailWidget?.to;
 
-    const to = isForward ? '' : sender;
+    const to = mailWidget ? mailWidget.to : isForward ? '' : sender;
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
       (localStorage.getItem(`reply_${mailKey}`) || '').length > 0;
@@ -147,7 +145,7 @@ class MailForm extends React.Component<Props, State> {
       showPrevEmails,
 
       fromEmail: sender,
-      from: mailWidget ? mailWidget.from : '',
+      from: mailWidget ? mailWidget.from : mailData.from || ([{}] as IEmail[]),
       subject: mailData.subject || mailWidget ? mailWidget.subject : '',
       emailSignature: '',
       content: mailWidget
@@ -167,11 +165,15 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
-  componentDidUpdate(_, prevState) {
+  componentDidUpdate(prevProps, prevState) {
     const { name, content } = this.state;
 
     if (prevState.content !== content) {
       localStorage.setItem(name, content);
+    }
+
+    if (prevProps.clear !== this.props.clear) {
+      this.clearContent();
     }
   }
 
@@ -795,27 +797,7 @@ class MailForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { shrink, changeShrink, isWidget, hideWidget } = this.props;
-
-    const onClose = () => {
-      this.clearContent();
-      hideWidget();
-    };
-
-    return (
-      <ControlWrapper>
-        {isWidget && (
-          <NewEmailHeader onClick={changeShrink}>
-            {__('New Email')}
-            <div>
-              <Icon icon={shrink ? 'plus' : 'minus'} />
-              <Icon icon="cancel" onClick={() => onClose()} />
-            </div>
-          </NewEmailHeader>
-        )}
-        {this.renderData()}
-      </ControlWrapper>
-    );
+    return <ControlWrapper>{this.renderData()}</ControlWrapper>;
   }
 }
 
