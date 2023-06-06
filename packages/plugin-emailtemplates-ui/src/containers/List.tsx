@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import client from '@erxes/ui/src/apolloClient';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { commonListComposer } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';

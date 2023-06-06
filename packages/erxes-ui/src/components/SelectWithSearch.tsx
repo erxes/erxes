@@ -8,8 +8,8 @@ import React from 'react';
 import Select from 'react-select-plus';
 import colors from '../styles/colors';
 import debounce from 'lodash/debounce';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import styled from 'styled-components';
 
 export const SelectValue = styled.div`
@@ -199,7 +199,7 @@ class SelectWithSearch extends React.Component<
     const selectSingle = (option: IOption) => {
       const selectedOptionValue = option ? option.value : '';
 
-      onSelect(selectedOptionValue, name);
+      onSelect(selectedOptionValue, name, option?.extraValue);
 
       this.setState({
         selectedValues: [selectedOptionValue],
@@ -314,7 +314,11 @@ type WrapperProps = {
   queryName: string;
   name: string;
   label: string;
-  onSelect: (values: string[] | string, name: string) => void;
+  onSelect: (
+    values: string[] | string,
+    name: string,
+    extraValue?: string
+  ) => void;
   generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;
   multi?: boolean;

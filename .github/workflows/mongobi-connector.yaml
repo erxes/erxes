@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Build docker image
-      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' )
-      run: |
-        cd mongobi-connector
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/mongobi-connector:${GITHUB_REF#refs/heads/} -f Dockerfile .
-        docker push erxes/mongobi-connector:${GITHUB_REF#refs/heads/}
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' )
+        run: |
+          cd mongobi-connector
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/mongobi-connector:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/mongobi-connector:${GITHUB_REF#refs/heads/}

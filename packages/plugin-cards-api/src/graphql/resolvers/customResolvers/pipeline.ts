@@ -6,6 +6,7 @@ import {
 } from '../../../models/definitions/constants';
 import {
   generateDealCommonFilters,
+  generatePurchaseCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
   generateTicketCommonFilters
@@ -78,6 +79,20 @@ export default {
 
         return models.Deals.find(filter).count();
       }
+
+      case BOARD_TYPES.PURCHASE: {
+        const filter = await generatePurchaseCommonFilters(
+          models,
+          subdomain,
+          user._id,
+          {
+            pipelineId: pipeline._id
+          }
+        );
+
+        return models.Purchases.find(filter).count();
+      }
+
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
           models,
