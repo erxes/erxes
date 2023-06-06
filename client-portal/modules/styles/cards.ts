@@ -122,11 +122,12 @@ const DetailHeader = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 
   span {
-    text-transform: uppercase;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
     transition: all ease .3s;
     color: ${colors.colorCoreGray};
+    display: flex;
+    align-items: center;
 
     &:hover {
       color: ${colors.textPrimary};
@@ -269,7 +270,14 @@ const SelectInput = styled.div`
   }
 `;
 
-const RightSidebar = styled.h6`
+const Card = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  background: ${colors.colorWhite};
+  box-shadow: 0 3px 3px rgba(56,65,74,0.1);
+  border-radius: ${dimensions.unitSpacing}px;
+`;
+
+const RightSidebar = styled(Card)`
   position: sticky;
   overflow: auto;
   height: 100%;
@@ -333,5 +341,6 @@ export {
   DetailRow,
   GroupList,
   GroupWrapper,
-  CardTab
+  CardTab,
+  Card
 };

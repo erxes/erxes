@@ -1,4 +1,5 @@
 import {
+  Card,
   CommentContainer,
   CommentContent,
   CommentWrapper,
@@ -183,68 +184,70 @@ export default class CardDetail extends React.Component<
         <DetailHeader className="d-flex align-items-center">
           <Link href={`/${type}s`}>
             <span>
-              <Icon icon="leftarrow-3" /> Back
+              <Icon icon="angle-double-left" size={20} /> Back
             </span>
           </Link>
         </DetailHeader>
         <div className="row">
           <div className="col-md-9">
-            <h4>{item.name}</h4>
-            <DetailRow>
-              <ControlLabel>Labels</ControlLabel>
-              <div className="d-flex" style={{ gap: "5px" }}>
-                {!labels || labels.length === 0 ? (
-                  <span>No labels at the moment!</span>
-                ) : (
-                  (labels || []).map((label) => (
-                    <Label
-                      key={label._id}
-                      lblStyle={"custom"}
-                      colorCode={label.colorCode}
-                    >
-                      {label.name}
-                    </Label>
-                  ))
-                )}
-              </div>
-            </DetailRow>
-            <DetailRow>
-              <ControlLabel>Description</ControlLabel>
-              {description ? (
-                <Description
-                  dangerouslySetInnerHTML={{ __html: description }}
-                />
-              ) : (
-                <span>No description at the moment!</span>
-              )}
-            </DetailRow>
-
-            <DetailRow>
-              <ControlLabel>Attachments</ControlLabel>
-              <span>No attachments at the moment!</span>
-            </DetailRow>
-
-            <ControlLabel>Comments</ControlLabel>
-            <CommentContainer>
-              <TextArea
-                onChange={this.handleChange}
-                placeholder="Write a comment..."
-                value={this.state.content}
-              />
-              {this.state.content.length !== 0 && (
-                <div className="buttons">
-                  <Button
-                    btnStyle="success"
-                    size="small"
-                    icon="message"
-                    onClick={this.createComment.bind(this, email)}
-                  >
-                    Save
-                  </Button>
+            <Card>
+              <h4>{item.name}</h4>
+              <DetailRow>
+                <ControlLabel>Labels</ControlLabel>
+                <div className="d-flex" style={{ gap: "5px" }}>
+                  {!labels || labels.length === 0 ? (
+                    <span>No labels at the moment!</span>
+                  ) : (
+                    (labels || []).map((label) => (
+                      <Label
+                        key={label._id}
+                        lblStyle={"custom"}
+                        colorCode={label.colorCode}
+                      >
+                        {label.name}
+                      </Label>
+                    ))
+                  )}
                 </div>
-              )}
-              {this.renderComments(comments)}
-            </CommentContainer>
+              </DetailRow>
+              <DetailRow>
+                <ControlLabel>Description</ControlLabel>
+                {description ? (
+                  <Description
+                    dangerouslySetInnerHTML={{ __html: description }}
+                  />
+                ) : (
+                  <span>No description at the moment!</span>
+                )}
+              </DetailRow>
+
+              <DetailRow>
+                <ControlLabel>Attachments</ControlLabel>
+                <span>No attachments at the moment!</span>
+              </DetailRow>
+
+              <ControlLabel>Comments</ControlLabel>
+              <CommentContainer>
+                <TextArea
+                  onChange={this.handleChange}
+                  placeholder="Write a comment..."
+                  value={this.state.content}
+                />
+                {this.state.content.length !== 0 && (
+                  <div className="buttons">
+                    <Button
+                      btnStyle="success"
+                      size="small"
+                      icon="message"
+                      onClick={this.createComment.bind(this, email)}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                )}
+                {this.renderComments(comments)}
+              </CommentContainer>
+            </Card>
           </div>
 
           <div className="col-md-3">
