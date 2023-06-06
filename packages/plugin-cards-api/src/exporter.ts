@@ -394,10 +394,11 @@ const fillValue = async (
     case 'stageMovedUser':
       const activities = await sendLogsMessage({
         subdomain,
-        action: 'activityLogs.findOne',
+        action: 'activityLogs.findMany',
         data: {
           query: {
-            contentId: item._id
+            contentId: item._id,
+            action: 'moved'
           }
         },
         isRPC: true,
@@ -408,7 +409,10 @@ const fillValue = async (
         subdomain,
         action: 'users.findOne',
         data: {
-          _id: activities.length > 0 ? activities[0].createdBy : ''
+          _id:
+            activities.length > 0
+              ? activities[activities.length - 1].createdBy
+              : ''
         },
         isRPC: true
       });
