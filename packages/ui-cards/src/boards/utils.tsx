@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
-import { Amount } from './styles/stage';
+import { Amount, HeaderAmount } from './styles/stage';
 import { IDateColumn } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
@@ -136,19 +136,21 @@ export const getDefaultBoardAndPipelines = () => {
   };
 };
 
-export const renderAmount = (amount = {}) => {
-  if (Object.keys(amount).length === 0) {
-    return null;
+export const renderAmount = (amount = {}, tick = true) => {
+  if (!Object.keys(amount).length) {
+    return <></>;
   }
 
   return (
-    <Amount>
-      {Object.keys(amount).map(key => (
-        <li key={key}>
-          {amount[key].toLocaleString()} <span>{key}</span>
-        </li>
-      ))}
-    </Amount>
+    <HeaderAmount>
+      <Amount unUsed={!tick}>
+        {Object.keys(amount).map(key => (
+          <li key={key}>
+            {amount[key].toLocaleString()} <span>{key}</span>
+          </li>
+        ))}
+      </Amount>
+    </HeaderAmount>
   );
 };
 

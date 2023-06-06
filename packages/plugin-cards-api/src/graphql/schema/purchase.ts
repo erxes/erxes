@@ -10,6 +10,7 @@ import {
 export const types = ({ contacts, tags }) => `
   type PurchaseListItem @key(fields: "_id") {
     products: JSON
+    unUsedAmount: JSON
     amount: JSON
     customFieldsData: JSON
     ${commonListTypes}
@@ -17,6 +18,7 @@ export const types = ({ contacts, tags }) => `
 
   type Purchase @key(fields: "_id") {
     _id: String!
+    unUsedAmount: JSON
     amount: JSON
 
     ${

@@ -113,8 +113,7 @@ class Actions extends React.Component<Props> {
         <ChecklistAdd itemId={item._id} type={options.type} />
 
         <Watch item={item} options={options} isSmall={true} />
-
-        <Comment item={item} />
+        {(isEnabled('clientportal') && <Comment item={item} />) || ''}
         <ColorButton onClick={copyItem}>
           <Icon icon="copy-1" />
           {__('Copy')}

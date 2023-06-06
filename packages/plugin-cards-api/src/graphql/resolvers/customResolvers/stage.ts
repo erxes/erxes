@@ -13,6 +13,57 @@ import {
   generatePurchaseCommonFilters
 } from '../queries/utils';
 
+const getAmountsMap = async (
+  subdomain,
+  models,
+  collection,
+  user,
+  args,
+  stage,
+  tickUsed = true
+) => {
+  const amountsMap = {};
+  const filter = await generateDealCommonFilters(
+    models,
+    subdomain,
+    user._id,
+    { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
+    args.extraParams
+  );
+
+  const amountList = await collection.aggregate([
+    {
+      $match: filter
+    },
+    {
+      $unwind: '$productsData'
+    },
+    {
+      $project: {
+        amount: '$productsData.amount',
+        currency: '$productsData.currency',
+        tickUsed: '$productsData.tickUsed'
+      }
+    },
+    {
+      $match: { tickUsed }
+    },
+    {
+      $group: {
+        _id: '$currency',
+        amount: { $sum: '$amount' }
+      }
+    }
+  ]);
+
+  amountList.forEach(item => {
+    if (item._id) {
+      amountsMap[item._id] = item.amount;
+    }
+  });
+  return amountsMap;
+};
+
 export default {
   __resolveReference({ _id }, { models }: IContext) {
     return models.Stages.findOne({ _id });
@@ -29,94 +80,69 @@ export default {
     return [];
   },
 
+  async unUsedAmount(
+    stage: IStageDocument,
+    _args,
+    { user, models, subdomain }: IContext,
+    { variableValues: args }
+  ) {
+    let amountsMap = {};
+
+    if (stage.type === BOARD_TYPES.DEAL) {
+      amountsMap = getAmountsMap(
+        subdomain,
+        models,
+        models.Deals,
+        user,
+        args,
+        stage,
+        false
+      );
+    }
+
+    if (stage.type === BOARD_TYPES.PURCHASE) {
+      amountsMap = getAmountsMap(
+        subdomain,
+        models,
+        models.Purchases,
+        user,
+        args,
+        stage,
+        false
+      );
+    }
+
+    return amountsMap;
+  },
+
   async amount(
     stage: IStageDocument,
     _args,
     { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
-    const amountsMap = {};
+    let amountsMap = {};
 
     if (stage.type === BOARD_TYPES.DEAL) {
-      const filter = await generateDealCommonFilters(
-        models,
+      amountsMap = getAmountsMap(
         subdomain,
-        user._id,
-        { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-        args.extraParams
+        models,
+        models.Deals,
+        user,
+        args,
+        stage
       );
-
-      const amountList = await models.Deals.aggregate([
-        {
-          $match: filter
-        },
-        {
-          $unwind: '$productsData'
-        },
-        {
-          $project: {
-            amount: '$productsData.amount',
-            currency: '$productsData.currency',
-            tickUsed: '$productsData.tickUsed'
-          }
-        },
-        {
-          $match: { tickUsed: true }
-        },
-        {
-          $group: {
-            _id: '$currency',
-            amount: { $sum: '$amount' }
-          }
-        }
-      ]);
-
-      amountList.forEach(item => {
-        if (item._id) {
-          amountsMap[item._id] = item.amount;
-        }
-      });
     }
 
     if (stage.type === BOARD_TYPES.PURCHASE) {
-      const filter = await generatePurchaseCommonFilters(
-        models,
+      amountsMap = getAmountsMap(
         subdomain,
-        user._id,
-        { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-        args.extraParams
+        models,
+        models.Purchases,
+        user,
+        args,
+        stage
       );
-
-      const amountList = await models.Purchases.aggregate([
-        {
-          $match: filter
-        },
-        {
-          $unwind: '$productsData'
-        },
-        {
-          $project: {
-            amount: '$productsData.amount',
-            currency: '$productsData.currency',
-            tickUsed: '$productsData.tickUsed'
-          }
-        },
-        {
-          $match: { tickUsed: true }
-        },
-        {
-          $group: {
-            _id: '$currency',
-            amount: { $sum: '$amount' }
-          }
-        }
-      ]);
-
-      amountList.forEach(item => {
-        if (item._id) {
-          amountsMap[item._id] = item.amount;
-        }
-      });
     }
 
     return amountsMap;
