@@ -16,4 +16,5 @@ const commonFormSubmissionsTypes = `
 
 export const mutations = `
     riskFormSaveSubmissions(${commonFormSubmissionsTypes}):JSON
+    RAIndicatorTestScore(${commonFormSubmissionsTypes}):JSON
 `;

@@ -195,6 +195,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     return {
       date: this.params.date,
+      number: this.params.number,
       cashAmount: format_number(sumAmount),
       nonCashAmount: format_number(0),
 
@@ -209,6 +210,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       stocks,
 
       customerNo: this.params.customerCode,
+      customerName: this.params.customerName,
       billIdSuffix: Math.round(
         Math.random() * (999999 - 100000) + 100000
       ).toString(),

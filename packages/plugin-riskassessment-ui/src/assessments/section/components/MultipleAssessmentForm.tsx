@@ -58,8 +58,6 @@ class MultipleAssessment extends React.Component<Props, State> {
         }).filter(([_, property]) => property)
       );
 
-      console.log({ selected });
-
       this.setState({ selected });
     }
   }

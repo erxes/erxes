@@ -5,6 +5,7 @@ const categoryFields = `
   icon
   numOfArticles
   authors {
+    _id
     details {
       fullName
       avatar
@@ -112,7 +113,13 @@ export const articlesQuery = `
       title
       summary
       content
+      status
+      forms {
+        brandId
+        formId
+      }
       reactionChoices
+      reactionCounts
       createdBy
       createdDate
       modifiedBy

@@ -1,10 +1,10 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import SubFlowForm from '../../../../components/forms/jobs/subForms/SubFlowForm';
 import { FlowDetailQueryResponse, IFlow } from '../../../../types';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IJob } from '../../../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';

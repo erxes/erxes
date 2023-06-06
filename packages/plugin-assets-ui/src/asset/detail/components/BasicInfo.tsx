@@ -25,10 +25,16 @@ import { AssetContent, ContainerBox } from '../../../style';
 import AssetForm from '../../containers/Form';
 import { Tip } from '@erxes/ui/src';
 import AssignArticles from '../../containers/AssignArticles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   asset: IAsset;
   remove: () => void;
+  assignKbArticles: (doc: {
+    ids: string[];
+    data: any;
+    callback: () => void;
+  }) => void;
   history: any;
 };
 
@@ -121,13 +127,16 @@ class BasicInfo extends React.Component<Props> {
   }
 
   renderKbDetail() {
-    const { asset } = this.props;
+    const { asset, assignKbArticles } = this.props;
 
     const content = props => (
       <AssignArticles
         {...props}
         knowledgeData={asset?.knowledgeData}
+        dialogClassName="modal-1000w"
+        assignedArticleIds={asset.kbArticleIds}
         objects={[asset]}
+        save={assignKbArticles}
       />
     );
 
@@ -177,7 +186,7 @@ class BasicInfo extends React.Component<Props> {
           <Name>{name}</Name>
           <ContainerBox gap={5}>
             {this.renderEditForm()}
-            {this.renderKbDetail()}
+            {isEnabled('knowledgebase') && this.renderKbDetail()}
           </ContainerBox>
         </InfoWrapper>
 

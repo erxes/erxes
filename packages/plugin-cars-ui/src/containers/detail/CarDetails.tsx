@@ -1,10 +1,10 @@
 import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
 import { EmptyState, Spinner, withProps } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import CarDetails from '../../components/detail/CarDetails';
 import { queries } from '../../graphql';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';

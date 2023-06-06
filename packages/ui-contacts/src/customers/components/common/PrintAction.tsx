@@ -6,9 +6,9 @@ import { getEnv, __ } from '@erxes/ui/src/utils';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Dropdown from 'react-bootstrap/Dropdown';
 import WithPermission from 'coreui/withPermission';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import { ICompany } from '../../../companies/types';
 import { ICustomer } from '../../types';
 const ActionItem = styled.button`

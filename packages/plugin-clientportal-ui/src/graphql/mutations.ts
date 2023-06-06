@@ -16,8 +16,10 @@ const createOrUpdateConfig = `
     $knowledgeBaseTopicId: String
     $ticketLabel: String
     $dealLabel: String
+    $purchaseLabel: String
     $taskPublicBoardId: String
     $taskPublicPipelineId: String
+    $taskPublicLabel: String
     $taskLabel: String
     $taskStageId: String
     $taskPipelineId: String
@@ -28,6 +30,9 @@ const createOrUpdateConfig = `
     $dealStageId: String
     $dealPipelineId: String
     $dealBoardId: String
+    $purchaseStageId: String
+    $purchasePipelineId: String
+    $purchaseBoardId: String
     $styles: StylesParams
     $mobileResponsive: Boolean
     $googleCredentials: JSON
@@ -42,6 +47,7 @@ const createOrUpdateConfig = `
     $ticketToggle: Boolean
     $taskToggle: Boolean
     $dealToggle: Boolean
+    $purchaseToggle: Boolean
     $otpConfig: OTPConfigInput
     $mailConfig: MailConfigInput
     $manualVerificationConfig: JSON
@@ -62,9 +68,11 @@ const createOrUpdateConfig = `
       knowledgeBaseTopicId: $knowledgeBaseTopicId,
       taskPublicBoardId: $taskPublicBoardId,
       taskPublicPipelineId: $taskPublicPipelineId,
+      taskPublicLabel: $taskPublicLabel,
       ticketLabel: $ticketLabel,
       taskLabel: $taskLabel,
       dealLabel: $dealLabel,
+      purchaseLabel: $purchaseLabel,
       taskStageId: $taskStageId,
       taskPipelineId: $taskPipelineId,
       taskBoardId: $taskBoardId,
@@ -74,6 +82,9 @@ const createOrUpdateConfig = `
       dealStageId: $dealStageId,
       dealPipelineId: $dealPipelineId,
       dealBoardId: $dealBoardId
+      purchaseStageId: $purchaseStageId,
+      purchasePipelineId: $purchasePipelineId,
+      purchaseBoardId: $purchaseBoardId
       styles: $styles
       mobileResponsive: $mobileResponsive
       googleCredentials: $googleCredentials
@@ -88,6 +99,7 @@ const createOrUpdateConfig = `
       ticketToggle: $ticketToggle,
       taskToggle: $taskToggle,
       dealToggle: $dealToggle,
+      purchaseToggle: $purchaseToggle,
       otpConfig: $otpConfig
       mailConfig: $mailConfig
       manualVerificationConfig: $manualVerificationConfig
@@ -154,6 +166,12 @@ const clientPortalUsersRemove = `
   }
 `;
 
+const clientPortalUserAssignCompany = `
+   mutation clientPortalUserAssignCompany($userId: String!, $erxesCompanyId: String!, $erxesCustomerId: String!){
+    clientPortalUserAssignCompany(userId: $userId, erxesCompanyId: $erxesCompanyId, erxesCustomerId: $erxesCustomerId)
+   }
+`;
+
 const remove = `
   mutation clientPortalRemove(
     $_id: String!
@@ -204,6 +222,16 @@ mutation ClientPortalUsersChangeVerificationStatus($status: ClientPortalUserVeri
 }
 `;
 
+const editFields = `
+mutation ClientPortalFieldConfigsEdit($fieldId: String!, $allowedClientPortalIds: [String], $requiredOn: [String]) {
+  clientPortalFieldConfigsEdit(fieldId: $fieldId, allowedClientPortalIds: $allowedClientPortalIds, requiredOn: $requiredOn) {
+    allowedClientPortalIds
+    fieldId
+    requiredOn
+  }
+}
+`;
+
 export default {
   createOrUpdateConfig,
   remove,
@@ -213,5 +241,7 @@ export default {
   verifyUsers,
   clientPortalCommentsAdd,
   clientPortalCommentsRemove,
-  changeVerificationStatus
+  changeVerificationStatus,
+  editFields,
+  clientPortalUserAssignCompany
 };

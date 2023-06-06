@@ -1,11 +1,11 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import PutResponse from '../components/PutResponses';
 import queryString from 'query-string';
 import React from 'react';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
 import { router, withProps } from '@erxes/ui/src/utils';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import {
   ListQueryVariables,

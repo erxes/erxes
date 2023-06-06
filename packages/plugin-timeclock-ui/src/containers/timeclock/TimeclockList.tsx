@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import List from '../../components/timeclock/TimeclockList';
 import {
@@ -62,12 +62,13 @@ const ListContainer = (props: FinalProps) => {
     });
   };
 
-  const extractAllMsSqlData = (start: Date, end: Date) => {
+  const extractAllMsSqlData = (start: Date, end: Date, params: any) => {
     setLoading(true);
     extractAllMsSqlDataMutation({
       variables: {
         startDate: dayjs(start).format(dateFormat),
-        endDate: dayjs(end).format(dateFormat)
+        endDate: dayjs(end).format(dateFormat),
+        ...params
       }
     })
       .then(() => {

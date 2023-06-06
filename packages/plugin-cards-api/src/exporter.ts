@@ -41,6 +41,10 @@ const prepareData = async (
       data = await models.Deals.find(boardItemsFilter).lean();
 
       break;
+    case MODULE_NAMES.PURCHASE:
+      data = await models.Purchases.find(boardItemsFilter).lean();
+
+      break;
     case MODULE_NAMES.TASK:
       data = await models.Tasks.find(boardItemsFilter).lean();
 
@@ -221,7 +225,7 @@ const fillValue = async (
       value = createdUser ? createdUser.username : 'user not found';
 
       break;
-    // deal, task, ticket fields
+    // deal, task, purchase ticket fields
     case 'assignedUserIds':
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
@@ -404,7 +408,6 @@ export default {
     const docs = [] as any;
     const headers = [] as any;
     const excelHeader = [] as any;
-    const productsArray = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -432,6 +435,7 @@ export default {
       for (const item of results) {
         const result = {};
         const productDocs = [] as any;
+        const productsArray = [] as any;
 
         for (const column of headers) {
           if (column.startsWith('customFieldsData')) {

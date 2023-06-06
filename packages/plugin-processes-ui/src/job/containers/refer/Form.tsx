@@ -13,8 +13,8 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import From from '../../components/refer/Form';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import { IProductsData } from '../../../types';
 

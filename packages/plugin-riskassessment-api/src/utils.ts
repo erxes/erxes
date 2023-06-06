@@ -1,3 +1,4 @@
+import { serviceDiscovery } from './configs';
 import { IModels, models } from './connectionResolver';
 import {
   sendCardsMessage,
@@ -6,7 +7,7 @@ import {
 } from './messageBroker';
 
 export const validRiskIndicators = async params => {
-  if (!params.tagIds) {
+  if (serviceDiscovery.isEnabled('tags') && !params.tagIds) {
     throw new Error('Please select some tags');
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {
@@ -23,12 +24,14 @@ export const validRiskIndicators = async params => {
     throw new Error('Please add a form to the risk assessment');
   }
 
+  if (forms?.length === 1) {
+    await validateCalculateMethods(forms[0]);
+  }
+
   for (const form of forms) {
     if (!form.formId) {
       throw new Error('Please build a form');
     }
-
-    await validateCalculateMethods(form);
 
     if (forms.length > 1) {
       if (!form.percentWeight) {
@@ -145,7 +148,7 @@ export const checkAllUsersSubmitted = async (
   const assignedUsers = await getAsssignedUsers(subdomain, cardId, cardType);
 
   const assignedUserIds = assignedUsers.map(usr => usr._id);
-  const submissions = await model.RiksFormSubmissions.find({
+  const submissions = await model.RiskFormSubmissions.find({
     cardId,
     formId: { $in: formIds },
     userId: { $in: assignedUserIds }
@@ -207,14 +210,17 @@ export const calculateFormResponses = async ({
   responses,
   fields,
   calculateMethod,
+  generalcalculateMethod,
   filter
 }: {
   responses: { [key: string]: { value: number; description: string } };
   fields: any[];
   calculateMethod: string;
+  generalcalculateMethod?: string;
   filter: any;
 }) => {
   let sumNumber = 0;
+  let scoreAviable = 0;
   const submissions: any = [];
 
   if (calculateMethod === 'Multiply') {
@@ -239,6 +245,12 @@ export const calculateFormResponses = async ({
           }
         }, [])
         .filter(item => item);
+
+      if (generalcalculateMethod === 'ByPercent') {
+        const scores = optValues.map(option => option.value);
+        scoreAviable += Math.max(...scores);
+      }
+
       const fieldValue = optValues.find(
         option => option.label.trim() === String(response.value).trim()
       );
@@ -248,6 +260,7 @@ export const calculateFormResponses = async ({
           break;
         case 'Addition':
         case 'Average':
+        case 'ByPercent':
           sumNumber += parseInt(fieldValue?.value || 0);
           break;
       }
@@ -274,8 +287,7 @@ export const calculateFormResponses = async ({
     const fieldCount = fields?.length || 1;
     sumNumber = sumNumber / fieldCount;
   }
-
-  return { submissions, sumNumber };
+  return { submissions, sumNumber, scoreAviable };
 };
 
 export const getFieldsGroupByForm = async ({
@@ -340,7 +352,7 @@ export const riskAssessmentIndicator = async ({
     await getAsssignedUsers(subdomain, cardId, cardType)
   ).map(user => user._id);
 
-  const submissions = await models.RiksFormSubmissions.find({
+  const submissions = await models.RiskFormSubmissions.find({
     cardId,
     riskAssessmentId,
     riskIndicatorId,
@@ -442,7 +454,8 @@ export const getIndicatorSubmissions = async ({
   cardId,
   cardType,
   assessmentId,
-  indicatorId
+  indicatorId,
+  params
 }: {
   models: IModels;
   subdomain;
@@ -450,6 +463,7 @@ export const getIndicatorSubmissions = async ({
   cardType?: string;
   assessmentId: string;
   indicatorId: string;
+  params?: any;
 }) => {
   let match: any = { assessmentId, indicatorId };
 
@@ -457,7 +471,11 @@ export const getIndicatorSubmissions = async ({
     match = { ...match, cardType, cardId };
   }
 
-  const submissions = await models.RiksFormSubmissions.aggregate([
+  if (params?.showFlagged) {
+    match.isFlagged = true;
+  }
+
+  const submissions = await models.RiskFormSubmissions.aggregate([
     {
       $match: match
     },

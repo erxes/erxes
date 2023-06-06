@@ -1,9 +1,9 @@
 import { Alert, confirm } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import FormComponent from '../components/SingleAddForm';
 import { mutations, queries } from '../graphql';
 type Props = {
@@ -45,7 +45,7 @@ class Form extends React.Component<FinalProps> {
       if (riskAssessment && !doc.groupId && !doc.indicatorId) {
         return confirm().then(() => {
           removeRiskAssessment({
-            variables: { riskAssessmentId: riskAssessment._id }
+            variables: { riskAssessmentId: riskAssessment?._id }
           });
         });
       }
@@ -68,10 +68,22 @@ class Form extends React.Component<FinalProps> {
   }
 }
 
-export const refetchQueries = ({ cardId, cardType }) => [
+export const refetchQueries = ({
+  cardId,
+  cardType,
+  riskAssessmentId
+}: {
+  cardId: string;
+  cardType: string;
+  riskAssessmentId?: string;
+}) => [
   {
     query: gql(queries.riskAssessment),
     variables: { cardId, cardType }
+  },
+  {
+    query: gql(queries.riskAssessmentSubmitForm),
+    variables: { cardId, cardType, riskAssessmentId }
   }
 ];
 
@@ -85,8 +97,12 @@ export default withProps<Props>(
     }),
     graphql<Props>(gql(mutations.editRiskAssessment), {
       name: 'editRiskAssessment',
-      options: ({ cardId, cardType }) => ({
-        refetchQueries: refetchQueries({ cardId, cardType })
+      options: ({ cardId, cardType, riskAssessment }) => ({
+        refetchQueries: refetchQueries({
+          cardId,
+          cardType,
+          riskAssessmentId: riskAssessment?._id
+        })
       })
     }),
     graphql<Props>(gql(mutations.removeRiskAssessment), {

@@ -26,12 +26,13 @@ import {
   FormWrapper
 } from '@erxes/ui/src/styles/main';
 import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
+import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql, useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
@@ -604,6 +605,13 @@ export function FilterByTags({
   history: any;
   queryParams: any;
 }) {
+  if (!isEnabled('tags')) {
+    return (
+      <Box name="tags" title="Filter by Tags">
+        <EmptyState text="Not Aviable Tags" icon="info-circle" />
+      </Box>
+    );
+  }
   const { data, error, loading } = useQuery(gql(tagsQuery), {
     variables: { type: 'riskassessment:riskassessment' }
   });
@@ -656,6 +664,7 @@ export function FilterByTags({
       title="Filter by Tags"
       extraButtons={extraButtons}
       collapsible
+      isOpen
     >
       <SidebarList>
         {generateTree(

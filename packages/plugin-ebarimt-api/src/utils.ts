@@ -185,6 +185,34 @@ const arrangeTaxType = async (deal, productsById, billType) => {
   };
 };
 
+const getCustomerName = customer => {
+  if (!customer) {
+    return '';
+  }
+
+  if (customer.firstName && customer.lastName) {
+    return `${customer.firstName} - ${customer.lastName}`;
+  }
+
+  if (customer.firstName) {
+    return customer.firstName;
+  }
+
+  if (customer.lastName) {
+    return customer.lastName;
+  }
+
+  if (customer.primaryEmail) {
+    return customer.primaryEmail;
+  }
+
+  if (customer.primaryPhone) {
+    return customer.primaryPhone;
+  }
+
+  return '';
+};
+
 export const getPostData = async (subdomain, config, deal) => {
   let billType = '1';
   let customerCode = '';
@@ -244,7 +272,14 @@ export const getPostData = async (subdomain, config, deal) => {
         action: 'customers.findActiveCustomers',
         data: {
           selector: { _id: { $in: customerIds } },
-          fields: { _id: 1, code: 1, firstName: 1, lastName: 1, middleName: 1 }
+          fields: {
+            _id: 1,
+            code: 1,
+            firstName: 1,
+            lastName: 1,
+            primaryEmail: 1,
+            primaryPhone: 1
+          }
         },
         isRPC: true,
         defaultValue: []
@@ -252,16 +287,13 @@ export const getPostData = async (subdomain, config, deal) => {
 
       let customer = customers.find(c => c.code && c.code.match(/^\d{8}$/g));
 
-      customerCode = (customer && customer.code) || '';
-      customerName = (customer && customer.name) || '';
-
       if (customer) {
         customerCode = customer.code || '';
-        customerName = customer.name || '';
+        customerName = getCustomerName(customer);
       } else {
         if (customers.length) {
           customer = customers[0];
-          customerName = `${customer.firstName} - ${customer.lastName}`;
+          customerName = getCustomerName(customer);
         }
       }
     }

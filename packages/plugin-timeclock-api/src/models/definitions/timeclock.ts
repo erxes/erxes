@@ -2,7 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface ITimeClock {
-  userId?: string;
+  userId: string;
   shiftStart: Date;
   shiftEnd?: Date;
   shiftActive?: boolean;
@@ -72,6 +72,7 @@ export interface ISchedule {
   scheduleChecked?: boolean;
   submittedByAdmin?: boolean;
   totalBreakInMins?: number;
+  createdByRequest?: boolean;
   shiftIds?: string[];
 }
 
@@ -276,8 +277,13 @@ export const scheduleSchema = new Schema({
   }),
   totalBreakInMins: field({
     type: Number,
-    label: 'Total break time in mins',
-    default: false
+    label: 'Total break time in mins'
+  }),
+  createdByRequest: field({
+    type: Boolean,
+    label: 'Whether schedule was created by shift request',
+    default: false,
+    optional: true
   })
 });
 
@@ -404,6 +410,8 @@ export interface IScheduleReport {
   totalMinsLate?: string;
   totalHoursOvertime?: string;
   totalHoursOvernight?: string;
+  shiftDuration?: number;
+  checked?: boolean;
 }
 
 export interface IUserReport {
@@ -416,20 +424,24 @@ export interface IUserReport {
   scheduleReport: IScheduleReport[];
 
   totalMinsWorked?: number;
-  totalMinsWorkedToday?: number;
-  totalMinsWorkedThisMonth?: number;
-  totalDaysWorkedThisMonth?: number;
 
   totalMinsScheduled?: number;
-  totalMinsScheduledToday?: number;
-  totalMinsScheduledThisMonth?: number;
-  totalDaysScheduledThisMonth?: number;
 
   totalMinsLate?: number;
-  totalMinsLateToday?: number;
-  totalMinsLateThisMonth?: number;
   totalAbsenceMins?: number;
-  totalMinsAbsenceThisMonth?: number;
+
+  totalHoursWorkedSelectedDay?: number;
+  totalHoursScheduledSelectedDay?: number;
+  totalHoursAbsentSelectedDay?: number;
+  totalMinsLateSelectedDay?: number;
+
+  totalHoursWorkedSelectedMonth?: number;
+  totalHoursScheduledSelectedMonth: number;
+  totalHoursAbsentSelectedMonth?: number;
+  totalMinsLateSelectedMonth?: number;
+
+  totalDaysScheduledSelectedMonth?: number;
+  totalDaysWorkedSelectedMonth?: number;
 }
 
 export interface IUserExportReport {
@@ -448,7 +460,7 @@ export interface IUserExportReport {
   totalHoursOvernight?: string;
 
   totalHoursBreakScheduled?: string;
-  totalHoursBreakActual?: string;
+  totalHoursBreakTaken?: string;
 
   totalMinsLate?: string;
 

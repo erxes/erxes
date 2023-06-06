@@ -1,9 +1,9 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import List from '../components/ProductList';
 import React from 'react';
 import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import { PosProductsQueryResponse } from '../types';
 import { queries } from '../graphql';

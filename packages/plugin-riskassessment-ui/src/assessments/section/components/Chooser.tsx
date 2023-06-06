@@ -10,9 +10,9 @@ import {
 } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import { DetailPopOver } from '../../../assessments/common/utils';
 import RiskIndicatorForm from '../../../indicator/containers/Form';
 import { mutations as riskIndicatorMutattions } from '../../../indicator/graphql';
@@ -21,7 +21,7 @@ import { queries as groupsQueries } from '../../../indicator/groups/graphql';
 import { SelectGroupsAssignedUsers } from '../common/utils';
 import { queries } from '../graphql';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   detail: any;

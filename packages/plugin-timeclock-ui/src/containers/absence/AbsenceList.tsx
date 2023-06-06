@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import AbsenceList from '../../components/absence/AbsenceList';
@@ -139,7 +139,6 @@ const ListContainer = (props: FinalProps) => {
     submitCheckInOutRequestMutation({
       variables: {
         checkType: type,
-        userId: `${userId}`,
         checkTime: dateVal
       }
     })

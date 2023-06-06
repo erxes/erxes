@@ -9,6 +9,7 @@ import {
 
 export const types = ({ contacts, tags }) => `
   type TicketListItem {
+    customPropertiesData:JSON,
     ${commonListTypes}
   }
 
@@ -27,12 +28,6 @@ export const types = ({ contacts, tags }) => `
     ${tags ? `tags: [Tag]` : ''}
 
     ${commonTypes}
-  }
-
-  input DateRangeFilter {
-    name: String,
-    from: Date,
-    to: Date
   }
 `;
 
@@ -69,7 +64,7 @@ const listQueryParams = `
   departmentIds: [String]
   boardIds: [String]
   stageCodes: [String]
-  dateRangeFilters:[DateRangeFilter]
+  dateRangeFilters:JSON
   ${conformityQueryFields}
 `;
 

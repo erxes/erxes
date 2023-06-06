@@ -7,8 +7,8 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import ShareForm from '../components/ShareForm';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   item: any;

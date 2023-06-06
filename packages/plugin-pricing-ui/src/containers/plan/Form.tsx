@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { useQuery, useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 // erxes
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { Alert } from '@erxes/ui/src/utils';

@@ -1,6 +1,8 @@
 import { getService, getServices } from '../redis';
 import retry from '../util/retry';
 import fetch from 'node-fetch';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export type ErxesProxyTarget = {
   name: string;
@@ -8,6 +10,10 @@ export type ErxesProxyTarget = {
   pathRegex?: RegExp;
   config: any;
 };
+
+const { MAX_PLUGIN_RETRY } = process.env;
+
+const maxPluginRetry = Number(MAX_PLUGIN_RETRY) || Number.MAX_SAFE_INTEGER;
 
 async function getProxyTarget(name: string): Promise<ErxesProxyTarget> {
   const service = await getService(name);
@@ -25,13 +31,11 @@ async function getProxyTarget(name: string): Promise<ErxesProxyTarget> {
 
 async function retryGetProxyTarget(name: string): Promise<ErxesProxyTarget> {
   const intervalSeconds = 1;
-  const maxTries = 200;
-  const totalWaitSeconds = intervalSeconds * maxTries;
   return retry({
     fn: () => getProxyTarget(name),
     intervalMs: intervalSeconds * 1000,
-    maxTries,
-    retryExhaustedLog: `Plugin ${name} is still not joing service discovery after waiting for ${totalWaitSeconds} seconds`,
+    maxTries: maxPluginRetry,
+    retryExhaustedLog: `Plugin ${name} still hasn't joined the service discovery after checking for ${maxPluginRetry} time(s) with ${intervalSeconds} second(s) interval. Retry exhausted.`,
     retryLog: `Waiting for plugin ${name} to join service discovery`,
     successLog: `Plugin ${name} joined service discovery.`
   });
@@ -73,13 +77,11 @@ async function retryEnsureGraphqlEndpointIsUp(target: ErxesProxyTarget) {
   const { name, address } = target;
   const endpoint = `${address}/graphql`;
   const intervalSeconds = 1;
-  const maxTries = 200;
-  const totalWaitSeconds = intervalSeconds * maxTries;
   await retry({
     fn: () => ensureGraphqlEndpointIsUp(target),
     intervalMs: intervalSeconds * 1000,
-    maxTries,
-    retryExhaustedLog: `Plugin ${name}'s graphql endpoint ${endpoint} is still not ready after waiting for ${totalWaitSeconds} seconds`,
+    maxTries: maxPluginRetry,
+    retryExhaustedLog: `Plugin ${name}'s graphql endpoint ${endpoint} is still not ready after checking for ${maxPluginRetry} times with ${intervalSeconds} second(s) interval. Retry exhausted.`,
     retryLog: `Waiting for service ${name}'s graphql endpoint ${endpoint} to be up.`,
     successLog: `Plugin ${name}'s graphql endpoint ${endpoint} is up.`
   });

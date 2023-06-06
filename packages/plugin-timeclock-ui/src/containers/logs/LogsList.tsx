@@ -1,7 +1,7 @@
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 import React, { useState } from 'react';
 import LogsList from '../../components/logs/LogsList';
 import { mutations, queries } from '../../graphql';
@@ -100,9 +100,10 @@ export default withProps<Props>(
   compose(
     graphql<Props, ReportsQueryResponse>(gql(queries.timelogsMain), {
       name: 'listTimelogsQuery',
-      options: ({ queryParams, reportType }) => ({
+      options: ({ queryParams, reportType, isCurrentUserAdmin }) => ({
         variables: {
           ...generateParams(queryParams),
+          isCurrentUserAdmin,
           reportType
         },
         fetchPolicy: 'network-only'

@@ -4,7 +4,9 @@ const modelChanger = (type: string, models: IModels) => {
   if (type === 'task') {
     return models.Tasks;
   }
-
+  if (type === 'purchase') {
+    return models.Purchases;
+  }
   if (type === 'ticket') {
     return models.Tickets;
   }
@@ -17,6 +19,10 @@ export default {
     {
       description: 'Deals',
       type: 'deal'
+    },
+    {
+      description: 'Purchases',
+      type: 'purchase'
     },
     {
       description: 'Tasks',

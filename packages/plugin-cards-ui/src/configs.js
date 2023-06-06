@@ -11,7 +11,7 @@ module.exports = {
     './activityLog': './src/activityLogs/activityLog.tsx',
     './automation': './src/automations/automation.tsx',
     './contactDetailRightSidebar': './src/RightSidebar.tsx',
-    './selectRelation': './src/SelectCard'
+    './selectRelation': './src/common/SelectRelation.tsx'
   },
   routes: {
     url: 'http://localhost:3003/remoteEntry.js',
@@ -31,6 +31,13 @@ module.exports = {
       icon: 'icon-piggy-bank',
       location: 'mainNavigation',
       permission: 'showDeals'
+    },
+    {
+      text: 'Purchase Pipeline',
+      url: '/purchase',
+      icon: 'icon-bag-alt',
+      location: 'mainNavigation',
+      permission: 'showPurchases'
     },
     {
       text: 'Task',
@@ -74,6 +81,29 @@ module.exports = {
         'dealStagesEdit',
         'dealStagesUpdateOrder',
         'dealStagesRemove'
+      ]
+    },
+    {
+      text: 'Purchase Pipelines',
+      to: '/settings/boards/purchase',
+      image: '/images/icons/erxes-25.png',
+      location: 'settings',
+      scope: 'cards',
+      action: 'purchasesAll',
+      permissions: [
+        'purchaseBoardsAdd',
+        'purchaseBoardsEdit',
+        'purchaseBoardsRemove',
+        'purchasePipelinesAdd',
+        'purchasePipelinesEdit',
+        'purchasePipelinesUpdateOrder',
+        'purchasePipelinesRemove',
+        'purchasePipelinesArchive',
+        'purchasePipelinesArchive',
+        'purchaseStagesAdd',
+        'purchaseStagesEdit',
+        'purchaseStagesUpdateOrder',
+        'purchaseStagesRemove'
       ]
     },
     {

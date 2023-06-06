@@ -1,5 +1,5 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import debounce from 'lodash/debounce';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
 import { __, Alert, getUserAvatar } from 'coreui/utils';

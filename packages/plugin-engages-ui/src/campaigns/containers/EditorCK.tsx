@@ -9,8 +9,8 @@ import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { IEditorProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import { withProps } from '@erxes/ui/src/utils';
@@ -56,6 +56,11 @@ const generateAttributes = (
     { value: 'dealProducts', name: 'Products' },
     { value: 'dealAmounts', name: 'Amount' },
     ...generateItemCustomFields(cardsFields.deal),
+
+    { name: 'Purchase' },
+    { value: 'purchaseProducts', name: 'Products' },
+    { value: 'purchaseAmounts', name: 'Amount' },
+    ...generateItemCustomFields(cardsFields.purchase),
 
     { name: 'Ticket' },
     ...generateItemCustomFields(cardsFields.ticket),

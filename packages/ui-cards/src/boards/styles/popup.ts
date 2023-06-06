@@ -85,11 +85,21 @@ export const DateGrid = styled.div`
   div {
     flex: 1;
 
-    span {
+    input {
       border-radius: 4px;
       display: block;
       border: 2px solid ${colors.borderPrimary};
       padding: 4px 8px;
+    }
+
+    input[type='time']::-webkit-calendar-picker-indicator {
+      display: none;
+    }
+
+    input[type='date']::-webkit-inner-spin-button,
+    input[type='date']::-webkit-calendar-picker-indicator {
+      display: none;
+      -webkit-appearance: none;
     }
 
     &:first-child {

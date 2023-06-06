@@ -1,8 +1,8 @@
 import React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useQuery, useMutation } from 'react-apollo';
+import { useQuery, useMutation } from '@apollo/client';
 import queryString from 'query-string';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 // erxes
 import Bulk from '@erxes/ui/src/components/Bulk';

@@ -1,4 +1,4 @@
 import Request from './request';
 import Response from './response';
-
-export { Request, Response };
+import Config from './config';
+export { Request, Response, Config };

@@ -18,6 +18,7 @@ export type TriggerType =
   | 'company'
   | 'deal'
   | 'task'
+  | 'purchase'
   | 'ticket'
   | 'conversation';
 
@@ -25,7 +26,11 @@ export interface ITrigger {
   id: string;
   type: string;
   actionId?: string;
-  config: { contentId: string; reEnrollment: boolean; reEnrollmentRules: string[] };
+  config: {
+    contentId: string;
+    reEnrollment: boolean;
+    reEnrollmentRules: string[];
+  };
   style?: any;
   icon?: string;
   label?: string;
@@ -91,5 +96,5 @@ export const automationSchema = new Schema({
   },
   createdBy: { type: String },
   updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
-  updatedBy: { type: String },
+  updatedBy: { type: String }
 });

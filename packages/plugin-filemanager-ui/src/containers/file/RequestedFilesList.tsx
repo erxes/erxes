@@ -7,8 +7,8 @@ import { ConfirmRequestMutationResponse } from '../../types';
 import React from 'react';
 import RequestedFileList from '../../components/file/RequestedFilesList';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   fileId: string;

@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 const ORDERS = gql`
   query ForumCpMySubscriptionOrders {

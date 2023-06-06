@@ -3,13 +3,14 @@ import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils/core';
 import RequestForm from '../components/RequestForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import { Alert, ButtonMutate, confirm } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IGrantRequest } from '../../common/type';
 import { refetchQueries } from '../../common/utils';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
+import client from '@erxes/ui/src/apolloClient';
 
 type Props = {
   closeModal: () => void;
@@ -93,6 +94,23 @@ class RequestFormContainer extends React.Component<
       });
     };
 
+    const checkConfig = async ({
+      contentType,
+      contentTypeId,
+      action,
+      scope
+    }) => {
+      return await client
+        .query({
+          query: gql(queries.checkConfig),
+          fetchPolicy: 'network-only',
+          variables: { contentType, contentTypeId, action, scope }
+        })
+        .then(({ data }) => {
+          return data.checkGrantActionConfig;
+        });
+    };
+
     const updatedProps: any = {
       contentType,
       contentTypeId,
@@ -100,6 +118,7 @@ class RequestFormContainer extends React.Component<
       currentUser,
       renderButton,
       cancelRequest,
+      checkConfig,
       loading: this.state.loading
     };
 

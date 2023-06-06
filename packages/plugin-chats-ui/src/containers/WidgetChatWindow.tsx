@@ -1,6 +1,6 @@
 import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';

@@ -65,6 +65,10 @@ const StageFooter = styled.div`
   border-radius: 0 0 3px 3px;
 `;
 
+const ItemBox = styled.div`
+  word-break: break-word;
+`;
+
 const Header = styled.div`
   padding: 12px 16px;
   position: relative;
@@ -95,16 +99,18 @@ const HeaderAmount = styled.div`
   min-height: 28px;
 `;
 
-const Amount = styled.ul`
+const Amount = styledTS<{ unUsed: boolean }>(styled.ul)`
   list-style: none;
   margin: 5px 0 0;
   overflow: hidden;
   padding: 0 !important;
   max-width: 230px;
   font-size: 12px;
+
   display: inline-block;
   li {
     float: left;
+    ${props => props.unUsed && `text-decoration: line-through;`}
     padding-right: 5px;
     line-height: 22px;
     span {
@@ -120,6 +126,7 @@ const Amount = styled.ul`
     }
   }
 `;
+
 const ListContainer = styled.div`
   border: 1px solid rgb(238, 238, 238);
   border-radius: ${dimensions.unitSpacing - 4}px;
@@ -249,5 +256,6 @@ export {
   StageFooter,
   LoadingContent,
   StageRoot,
-  ListContainer
+  ListContainer,
+  ItemBox
 };
