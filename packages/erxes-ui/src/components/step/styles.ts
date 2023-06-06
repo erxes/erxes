@@ -163,12 +163,14 @@ const StepHeaderTitle = styled.h5`
   margin: 0 0 0 ${dimensions.unitSpacing}px;
 `;
 
-const StepContent = styledTS<{ direction?: string }>(styled.div)`
+const StepContent = styledTS<{ direction?: string; fullWidth?: boolean }>(
+  styled.div
+)`
   width: ${props =>
     props.direction === 'vertical' ? 'calc(100% - 35px)' : '100%'};
   height: 100%;
   margin-left: ${props => props.direction && 'auto'};
-  overflow: hidden;
+ overflow: ${props => props.fullWidth && 'hidden'};
 `;
 
 const ShortStep = styledTS<{

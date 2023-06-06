@@ -1,8 +1,8 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import ProductItem from '../../components/product/ProductItem';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IDeal, IProductData } from '../../types';
 import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import { mutations } from '../../graphql';

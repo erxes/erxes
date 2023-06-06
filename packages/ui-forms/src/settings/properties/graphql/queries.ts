@@ -52,6 +52,8 @@ const commonFields = `
     logicOperator
     logicValue
   }
+
+  relationType
 `;
 
 const commonFieldsGroups = `

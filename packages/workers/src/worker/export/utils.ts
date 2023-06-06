@@ -1,6 +1,7 @@
 import { IModels } from '../../connectionResolvers';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as fs from 'fs';
 
 import CustomWorker from '../workerUtil';
 import { debugWorkers } from '../debugger';
@@ -8,6 +9,8 @@ import { debugWorkers } from '../debugger';
 dotenv.config();
 
 const myWorker = new CustomWorker();
+
+export const uploadsFolderPath = path.join(__dirname, '../../private/uploads');
 
 const getWorkerFile = () => {
   if (process.env.NODE_ENV !== 'production') {
@@ -56,4 +59,23 @@ export const receiveExportCreate = async (
     );
   }
   return { id: exportHistoryId };
+};
+
+/**
+ * Read file from Local
+ */
+export const readFileRequest = async ({
+  key
+}: {
+  key: string;
+}): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(`${uploadsFolderPath}/${key}`, (error, response) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(response);
+    });
+  });
 };

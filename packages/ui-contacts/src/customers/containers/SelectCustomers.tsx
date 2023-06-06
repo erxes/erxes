@@ -25,7 +25,8 @@ export default ({
   multi = true,
   customOption,
   label,
-  name
+  name,
+  showAvatar = true
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -34,11 +35,13 @@ export default ({
   customOption?: IOption;
   initialValue?: string | string[];
   name: string;
+  showAvatar?: boolean;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   return (
     <SelectWithSearch
+      showAvatar={showAvatar}
       label={label}
       queryName="customers"
       name={name}

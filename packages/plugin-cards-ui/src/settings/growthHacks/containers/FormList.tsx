@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import { FormsQueryResponse } from '@erxes/ui-forms/src/forms/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import FormList from '../components/FormList';
 
 type Props = {

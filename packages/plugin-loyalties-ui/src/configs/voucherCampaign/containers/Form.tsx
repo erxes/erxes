@@ -1,9 +1,9 @@
 import * as compose from 'lodash.flowright';
 import From from '../components/Form';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { ButtonMutate } from '@erxes/ui/src/components';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IVoucherCampaign } from '../types';
 import { LotteryCampaignQueryResponse } from '../../lotteryCampaign/types';

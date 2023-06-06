@@ -5,8 +5,13 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 
 import { IUserDocument } from './../../api-utils/src/types';
 import { graphqlPubsub } from './configs';
-import { generateModels, IModels } from './connectionResolver';
-import { sendCoreMessage, sendCommonMessage } from './messageBroker';
+import { generateModels, IContext, IModels } from './connectionResolver';
+import {
+  sendCoreMessage,
+  sendCommonMessage,
+  sendContactsMessage,
+  sendCardsMessage
+} from './messageBroker';
 
 import * as admin from 'firebase-admin';
 export const getConfig = async (
@@ -405,4 +410,106 @@ export const sendAfterMutation = async (
       });
     }
   }
+};
+
+export const getCards = async (
+  type: 'ticket' | 'deal' | 'task' | 'purchase',
+  context: IContext,
+  _args: any
+) => {
+  const { subdomain, models, cpUser } = context;
+  if (!cpUser) {
+    throw new Error('Login required');
+  }
+
+  const cp = await models.ClientPortals.getConfig(cpUser.clientPortalId);
+
+  const pipelineId = cp[type + 'PipelineId'];
+
+  if (!pipelineId || pipelineId.length === 0) {
+    return [];
+  }
+
+  const customer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: {
+      _id: cpUser.erxesCustomerId
+    },
+    isRPC: true
+  });
+
+  if (!customer) {
+    return [];
+  }
+
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: 'conformities.getConformities',
+    data: {
+      mainType: 'customer',
+      mainTypeIds: [customer._id],
+      relTypes: [type]
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (conformities.length === 0) {
+    return [];
+  }
+
+  const cardIds: string[] = [];
+
+  for (const c of conformities) {
+    if (c.relType === type && c.mainType === 'customer') {
+      cardIds.push(c.relTypeId);
+    }
+
+    if (c.mainType === type && c.relType === 'customer') {
+      cardIds.push(c.mainTypeId);
+    }
+  }
+
+  const stages = await sendCardsMessage({
+    subdomain,
+    action: 'stages.find',
+    data: {
+      pipelineId
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (stages.length === 0) {
+    return [];
+  }
+
+  const stageIds = stages.map(stage => stage._id);
+
+  //гоё засаарай АМЖИЛТ kiss
+
+  let oneStageId = '';
+  if ('stageId' in _args) {
+    if (stageIds.includes(_args.stageId)) {
+      oneStageId = _args.stageId;
+    } else {
+      oneStageId = 'noneId';
+    }
+  }
+
+  return sendCardsMessage({
+    subdomain,
+    action: `${type}s.find`,
+    data: {
+      _id: { $in: cardIds },
+      stageId: oneStageId ? oneStageId : { $in: stageIds },
+      ...(_args?.priority && { priority: _args?.priority || [] }),
+      ...(_args?.labelIds && { labelIds: _args?.labelIds || [] }),
+      ...(_args?.closeDateType && { closeDateType: _args?.closeDateType }),
+      ...(_args?.userIds && { assignedUserIds: _args?.userIds || [] })
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 };

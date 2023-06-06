@@ -3,10 +3,10 @@ import styled, { css } from 'styled-components';
 
 import Button from '@erxes/ui/src/components/Button';
 import { Flex } from '@erxes/ui/src/styles/main';
+import { FormContainer } from '../styles/common';
 import { borderRadius } from './common';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
-import { FormContainer } from '../styles/common';
 
 const buttonColor = '#0a1e3c';
 
@@ -167,18 +167,6 @@ export const AddContent = styled.div`
   }
 `;
 
-export const SelectInput = styled.div`
-  overflow: hidden;
-
-  .Select-input {
-    width: 100%;
-
-    input {
-      width: 100% !important;
-    }
-  }
-`;
-
 export const TitleRow = styled.div`
   display: flex;
   align-items: center;
@@ -294,6 +282,7 @@ export const WatchIndicator = styled.span`
 export const RightContent = styled.div`
   width: 280px;
   flex-shrink: 0;
+  margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
 export const RightButton = styled(Button)`

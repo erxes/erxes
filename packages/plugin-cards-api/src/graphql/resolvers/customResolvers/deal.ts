@@ -60,12 +60,16 @@ export const generateProducts = async (subdomain: string, productsData) => {
   return products;
 };
 
-export const generateAmounts = productsData => {
+export const generateAmounts = (productsData, useTick = true) => {
   const amountsMap = {};
 
   (productsData || []).forEach(product => {
     // Tick paid or used is false then exclude
-    if (!product.tickUsed) {
+    if (useTick && !product.tickUsed) {
+      return;
+    }
+
+    if (!useTick && product.tickUsed) {
       return;
     }
 
@@ -164,6 +168,10 @@ export default {
     const response = await generateProducts(subdomain, deal.productsData);
 
     return response;
+  },
+
+  unUsedAmount(deal: IDealDocument) {
+    return generateAmounts(deal.productsData || [], false);
   },
 
   amount(deal: IDealDocument) {

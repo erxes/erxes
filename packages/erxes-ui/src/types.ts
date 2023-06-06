@@ -121,6 +121,8 @@ export interface IField {
   keys?: string[];
   productCategoryId?: string;
   optionsValues?: string;
+
+  relationType?: string;
 }
 
 export interface IFormProps {
@@ -137,6 +139,7 @@ export type IOption = {
   label: string;
   value: string;
   avatar?: string;
+  extraValue?: string;
 };
 
 export type IButtonMutateProps = {
