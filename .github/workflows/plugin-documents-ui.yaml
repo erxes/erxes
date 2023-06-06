@@ -5,7 +5,6 @@ on:
     branches:
       - dev
       - staging
-      - apollo-client-3-all
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'
@@ -68,7 +67,7 @@ jobs:
           yarn build
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/apollo-client-3-all')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -76,7 +75,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/apollo-client-3-all')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         run: |
           tar -cf build.tar --directory=packages/plugin-documents-ui/.erxes/dist .
           cp build.tar packages/plugin-documents-ui/.erxes/dist

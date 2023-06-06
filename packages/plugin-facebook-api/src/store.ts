@@ -27,17 +27,32 @@ export const generatePostDoc = async (
   pageId: string,
   userId: string
 ) => {
-  const { post_id, id, link, photos, created_time, message } = postParams;
+  const {
+    post_id,
+    id,
+    link,
+    photos,
+    created_time,
+    message,
+    photo_id,
+    video_id
+  } = postParams;
   let generatedMediaUrls: any[] = [];
 
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
   const mediaUrls = postParams.photos || [];
-  const videoUrl = postParams.link || '';
+  const mediaLink = postParams.link || '';
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    if (videoUrl) {
-      generatedMediaUrls = (await uploadMedia(videoUrl, true)) as any;
+    if (mediaLink) {
+      if (video_id) {
+        generatedMediaUrls = (await uploadMedia(mediaLink, true)) as any;
+      }
+
+      if (photo_id) {
+        generatedMediaUrls = (await uploadMedia(mediaLink, false)) as any;
+      }
     }
 
     if (mediaUrls.length > 0) {

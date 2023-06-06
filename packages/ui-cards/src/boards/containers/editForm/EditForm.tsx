@@ -283,7 +283,8 @@ const withQuery = (props: ContainerProps) => {
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
-          name: 'editMutation'
+          name: 'editMutation',
+          options: refetchOptions
         }
       ),
       graphql<ContainerProps, RemoveMutation, { _id: string }>(
