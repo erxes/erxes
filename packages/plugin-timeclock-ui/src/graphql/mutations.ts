@@ -249,8 +249,8 @@ mutation extractAllDataFromMsSQL($startDate: String, $endDate: String, $extractA
 }`;
 
 const extractTimeLogsFromMsSql = `
-mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String){
-  extractTimeLogsFromMsSQL(startDate: $startDate, endDate: $endDate){
+mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String, $extractAll: Boolean, $branchIds: [String], $departmentIds: [String],$userIds: [String]){
+  extractTimeLogsFromMsSQL(startDate: $startDate, endDate: $endDate, extractAll: $extractAll, branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds){
     _id
   }
 }`;
