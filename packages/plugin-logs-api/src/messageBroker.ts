@@ -158,6 +158,22 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'logs:activityLogs.findOne',
+    async ({ data: { query, options }, subdomain }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ActivityLogs.find(query, options)
+          .sort({
+            createdAt: -1
+          })
+          .limit(1),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'logs.activityLogs.insertMany',
     async ({ data: { rows }, subdomain }) => {
       const models = await generateModels(subdomain);

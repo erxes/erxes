@@ -4,6 +4,7 @@ import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
+  sendLogsMessage,
   sendProductsMessage
 } from './messageBroker';
 import * as moment from 'moment';
@@ -387,6 +388,32 @@ const fillValue = async (
 
     case 'totalLabelCount':
       value = item.labelIds ? item.labelIds.length : '-';
+
+      break;
+
+    case 'stageMovedUser':
+      const activities = await sendLogsMessage({
+        subdomain,
+        action: 'activityLogs.findOne',
+        data: {
+          query: {
+            contentId: item._id
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const movedUser: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: activities.length > 0 ? activities[0].createdBy : ''
+        },
+        isRPC: true
+      });
+
+      value = movedUser ? movedUser.username : '-';
 
       break;
 
