@@ -142,6 +142,12 @@ export const BOARD_ITEM_EXPORT_EXTENDED_FIELDS = [
     name: 'totalLabelCount',
     label: 'Total Label Counts',
     type: 'number'
+  },
+  {
+    _id: Math.random(),
+    name: 'stageMovedUser',
+    label: 'Stage Moved User',
+    type: 'string'
   }
 ];
 
