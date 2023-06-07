@@ -40,7 +40,8 @@ const FilterContainer = (props: FinalProps) => {
     setSegment,
     removeSegment,
     segments: segmentsQuery.segments || [],
-    loading: segmentsQuery.loading
+    loading: segmentsQuery.loading,
+    treeView: true
   };
 
   return <Filter {...extendedProps} />;

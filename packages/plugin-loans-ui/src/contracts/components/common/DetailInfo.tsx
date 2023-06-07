@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import { __, FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { WEEKENDS } from '../../../constants';
 import { Description } from '../../styles';
@@ -70,6 +71,11 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Loan Repayment', contract.repayment)}
         {this.renderRow('Start Date', dayjs(contract.startDate).format('ll'))}
         {this.renderRow('Schedule Days', contract.scheduleDays.join(','))}
+        {this.renderRow(
+          'Undue Percent',
+          (contract.unduePercent || 0).toLocaleString()
+        )}
+        {this.renderRow('Undue calc type', contract.undueCalcType)}
         {this.renderRow('Debt Limit', (contract.debt || 0).toLocaleString())}
         {this.renderRow(
           'Insurance On Year',

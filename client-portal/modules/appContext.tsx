@@ -24,7 +24,7 @@ type Props = {
 };
 
 function AppProvider({ children }: Props) {
-  const [currentUser, setCurrentUser] = React.useState({} as IUser);
+  const [currentUser, setCurrentUser] = React.useState(null);
   const [notificationsCount, setNotificationsCount] = React.useState(0);
 
   const userQuery = useQuery<UserQueryResponse>(gql(queries.currentUser));

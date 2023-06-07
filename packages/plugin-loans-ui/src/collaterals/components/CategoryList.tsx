@@ -1,5 +1,4 @@
 import {
-  __,
   DataWithLoader,
   Icon,
   router,
@@ -10,6 +9,7 @@ import {
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { __ } from 'coreui/utils';
 
 import { SidebarListItem } from '../styles';
 

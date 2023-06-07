@@ -191,6 +191,20 @@ const Contracts = {
       })) > 0
     );
   },
+  async expiredDays(contract: IContractDocument, {}, { models }: IContext) {
+    const today = getFullDate(new Date());
+    const expiredSchedule = await models.Schedules.findOne({
+      contractId: contract._id,
+      scheduleDidStatus: { $ne: SCHEDULE_STATUS.DONE },
+      isDefault: true
+    }).sort({ payDate: 1 });
+
+    const paymentDate = getFullDate(expiredSchedule?.payDate as Date);
+    const days = Math.ceil(
+      (today.getTime() - paymentDate.getTime()) / (1000 * 3600 * 24)
+    );
+    return days > 0 ? days : 0;
+  },
   async loanBalanceAmount(
     contract: IContractDocument,
     {},

@@ -59,12 +59,16 @@ export const generateProducts = async (subdomain: string, productsData) => {
   return products;
 };
 
-export const generateAmounts = productsData => {
+export const generateAmounts = (productsData, useTick = true) => {
   const amountsMap = {};
 
   (productsData || []).forEach(product => {
     // Tick paid or used is false then exclude
-    if (!product.tickUsed) {
+    if (useTick && !product.tickUsed) {
+      return;
+    }
+
+    if (!useTick && product.tickUsed) {
       return;
     }
 
@@ -165,8 +169,12 @@ export default {
     return response;
   },
 
-  amount(purchase: IPurchaseDocument) {
-    return generateAmounts(purchase.productsData || []);
+  unUsedAmount(deal: IPurchaseDocument) {
+    return generateAmounts(deal.productsData || [], false);
+  },
+
+  amount(deal: IPurchaseDocument) {
+    return generateAmounts(deal.productsData || []);
   },
 
   assignedUsers(

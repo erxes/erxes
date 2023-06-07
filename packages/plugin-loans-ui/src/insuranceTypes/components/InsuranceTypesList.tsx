@@ -1,5 +1,4 @@
 import {
-  __,
   Alert,
   BarItems,
   Button,
@@ -21,6 +20,7 @@ import InsuranceTypeForm from '../containers/InsuranceTypeForm';
 import { InsuranceTypesTableWrapper } from '../styles';
 import { IInsuranceType } from '../types';
 import InsuranceTypeRow from './InsuranceTypeRow';
+import { __ } from 'coreui/utils';
 
 interface IProps extends IRouterProps {
   insuranceTypes: IInsuranceType[];
@@ -152,7 +152,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
-        Add insuranceType
+        {__('Add insuranceType')}
       </Button>
     );
 
@@ -176,7 +176,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
             icon="cancel-1"
             onClick={onClick}
           >
-            Delete
+            {__('Delete')}
           </Button>
         </BarItems>
       );
@@ -198,7 +198,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
         />
 
         <ModalTrigger
-          title="New insuranceType"
+          title={__('New insuranceType')}
           trigger={addTrigger}
           autoOpenKey="showInsuranceTypeModal"
           content={insuranceTypeForm}
@@ -219,7 +219,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
             queryParams={queryParams}
             breadcrumb={[
               { title: __('Settings'), link: '/settings' },
-              { title: 'Insurance type' }
+              { title: __('Insurance type') }
             ]}
           />
         }

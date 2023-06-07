@@ -70,7 +70,7 @@ class Row extends React.Component<Props> {
           <LinkButton>{requester?.email || '-'}</LinkButton>
         </td>
         <td>
-          <Assignees users={users} limit={5} />
+          <Assignees users={users || []} limit={5} />
         </td>
         <td>
           <Label lblStyle={lblStyle()}>{request.status}</Label>

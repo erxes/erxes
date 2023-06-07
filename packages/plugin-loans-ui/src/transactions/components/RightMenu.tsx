@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import { Button, ControlLabel, FormControl, Icon } from '@erxes/ui/src';
 import {
   CustomRangeContainer,
@@ -12,7 +10,7 @@ import {
 
 import RTG from 'react-transition-group';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -118,7 +116,7 @@ export default class RightMenu extends React.Component<Props, State> {
       <FilterBox>
         <FormControl
           defaultValue={queryParams.search}
-          placeholder={__('Number ...')}
+          placeholder={__('Contract Number' + ' ...')}
           onKeyPress={this.onSearch}
           autoFocus={true}
         />
@@ -126,7 +124,7 @@ export default class RightMenu extends React.Component<Props, State> {
         {isEnabled('contacts') && (
           <>
             <SelectCustomers
-              label="Filter by customer"
+              label={__('Filter by customers')}
               name="customerId"
               queryParams={queryParams}
               onSelect={onSelect}

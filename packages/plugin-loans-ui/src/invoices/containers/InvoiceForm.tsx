@@ -15,6 +15,7 @@ import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/gra
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../graphql';
+import { __ } from 'coreui/utils';
 
 type Props = {
   invoice: IInvoice;
@@ -68,7 +69,9 @@ class InvoiceFromContainer extends React.Component<FinalProps> {
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

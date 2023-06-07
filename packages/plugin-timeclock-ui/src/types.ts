@@ -301,7 +301,7 @@ export type TimeClockMutationResponse = {
     variables: MutationVariables;
   }) => Promise<any>;
   extractAllMsSqlDataMutation: (params: {
-    variables: { startDate: string; endDate: string };
+    variables: { startDate: string; endDate: string; params: any };
   }) => Promise<any>;
 };
 

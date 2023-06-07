@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   ControlLabel,
   DateControl,
@@ -15,10 +14,9 @@ import {
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import Select from 'react-select-plus';
-import { WEEKENDS } from '../../../constants';
 import { ChangeAmount } from '../../styles';
 import { ICloseInfo, IContract, IContractDoc } from '../../types';
+import { __ } from 'coreui/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -90,7 +88,7 @@ class CloseForm extends React.Component<Props, State> {
       <FormWrapper>
         <FormColumn>
           <ChangeAmount>
-            <ControlLabel>{`${label}`}</ControlLabel>
+            <ControlLabel>{__(label)}</ControlLabel>
           </ChangeAmount>
         </FormColumn>
         <FormColumn>
@@ -102,12 +100,12 @@ class CloseForm extends React.Component<Props, State> {
   renderCloseInfo = () => {
     return (
       <>
-        {this.renderRow(__('total'), 'total')}
-        {this.renderRow(__('payment'), 'payment')}
-        {this.renderRow(__('interest'), 'interest')}
-        {this.renderRow(__('undue'), 'undue')}
-        {this.renderRow(__('insurance'), 'insurance')}
-        {this.renderRow(__('debt'), 'debt')}
+        {this.renderRow('Total', 'total')}
+        {this.renderRow('Payment', 'payment')}
+        {this.renderRow('Interest', 'interest')}
+        {this.renderRow('Undue', 'undue')}
+        {this.renderRow('Insurance', 'insurance')}
+        {this.renderRow('Debt', 'debt')}
       </>
     );
   };
@@ -164,7 +162,7 @@ class CloseForm extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>Description</ControlLabel>
+                <ControlLabel>{__('Description')}</ControlLabel>
                 <FormControl
                   {...formProps}
                   max={140}
@@ -182,7 +180,7 @@ class CloseForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({

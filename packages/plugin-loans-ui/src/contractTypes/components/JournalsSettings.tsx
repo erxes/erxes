@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   CollapseContent,
   ControlLabel,
@@ -14,6 +13,7 @@ import styled from 'styled-components';
 import React from 'react';
 import { JOURNALS_KEY_LABELS } from '../constants';
 import { IContractTypeDetail } from '../types';
+import { __ } from 'coreui/utils';
 
 const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -106,7 +106,7 @@ class GeneralSettings extends React.Component<Props, State> {
         icon="check-circle"
         uppercase={false}
       >
-        Save
+        {__('Save')}
       </Button>
     );
 

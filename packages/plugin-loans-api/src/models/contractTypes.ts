@@ -1,4 +1,5 @@
 import {
+  IContractType,
   IContractTypeDocument,
   contractTypeSchema
 } from './definitions/contractTypes';
@@ -28,7 +29,12 @@ export const loadContractTypeClass = (models: IModels) => {
     /**
      * Create a insuranceType
      */
-    public static async createContractType(doc) {
+    public static async createContractType(doc: IContractType) {
+      if (!doc.code) throw new Error('Code is required');
+      if (!doc.number) throw new Error('Start Number is required');
+      if (!doc.vacancy) throw new Error('Vacancy is required');
+      if (!doc.name) throw new Error('Name is required');
+
       return models.ContractTypes.create(doc);
     }
 

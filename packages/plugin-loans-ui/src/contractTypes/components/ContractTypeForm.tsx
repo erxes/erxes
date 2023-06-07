@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   ControlLabel,
   Form,
@@ -14,6 +13,7 @@ import { IProductCategory } from '@erxes/ui-products/src/types';
 import Select from 'react-select-plus';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
+import { __ } from 'coreui/utils';
 
 import { IContractType, IContractTypeDoc } from '../types';
 
@@ -67,7 +67,7 @@ class ContractTypeForm extends React.Component<Props, State> {
   renderFormGroup = (label, props) => {
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
+        <ControlLabel required={props.required}>{__(label)}</ControlLabel>
         <FormControl {...props} />
       </FormGroup>
     );
@@ -96,29 +96,34 @@ class ContractTypeForm extends React.Component<Props, State> {
               {this.renderFormGroup('Code', {
                 ...formProps,
                 name: 'code',
+                required: true,
                 defaultValue: contractType.code || ''
               })}
               {this.renderFormGroup('Name', {
                 ...formProps,
                 name: 'name',
+                required: true,
                 defaultValue: contractType.name || ''
               })}
               {this.renderFormGroup('Start Number', {
                 ...formProps,
                 name: 'number',
+                required: true,
                 defaultValue: contractType.number || ''
               })}
               {this.renderFormGroup('After vacancy count', {
                 ...formProps,
                 name: 'vacancy',
+                required: true,
                 type: 'number',
-                defaultValue: contractType.vacancy || 0,
+                defaultValue: contractType.vacancy || 1,
                 max: 20
               })}
               {this.renderFormGroup('Undue Percent', {
                 ...formProps,
                 name: 'unduePercent',
-                defaultValue: contractType.unduePercent || ''
+                defaultValue: contractType.unduePercent || '',
+                type: 'number'
               })}
               <FormGroup>
                 <ControlLabel>{__('Lease Type')}:</ControlLabel>
@@ -140,7 +145,7 @@ class ContractTypeForm extends React.Component<Props, State> {
               </FormGroup>
 
               <FormGroup>
-                <ControlLabel>Allow Product Categories</ControlLabel>
+                <ControlLabel>{__('Allow Product Categories')}</ControlLabel>
                 <Select
                   className="flex-item"
                   placeholder={__('Select product categories')}
@@ -169,7 +174,7 @@ class ContractTypeForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({

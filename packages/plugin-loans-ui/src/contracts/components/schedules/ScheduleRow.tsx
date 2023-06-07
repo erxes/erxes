@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import { __, Icon } from '@erxes/ui/src';
+import { Icon } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import _ from 'lodash';
 import React from 'react';
 
