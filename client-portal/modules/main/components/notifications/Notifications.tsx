@@ -1,9 +1,6 @@
-import { TabContainers, TabTitle } from "../../../styles/tasks";
-
 import { IUser } from "../../../types";
 import Notifications from "../../containers/notifications/List";
 import React from "react";
-import { getConfigColor } from "../../../common/utils";
 
 type Props = {
   count: number;
@@ -22,19 +19,6 @@ const List = (props: Props) => {
 
   return (
     <>
-      {/* <TabContainers>
-        {tabTitles.map((title) => (
-          <TabTitle
-            key={title}
-            active={currentTab === title}
-            color={getConfigColor(config, 'activeTabColor')}
-            onClick={() => setCurrentTab(title)}
-          >
-            {title}
-          </TabTitle>
-        ))}
-      </TabContainers> */}
-
       <Notifications
         count={count}
         currentUser={currentUser}
