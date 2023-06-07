@@ -83,7 +83,7 @@ function Header({
   };
 
   const renderAuth = () => {
-    if (!config.ticketToggle) {
+    if (!config.ticketToggle || !config.taskToggle || !config.dealToggle) {
       return null;
     }
 
@@ -182,7 +182,13 @@ function Header({
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
-              <img src={readFile(config.logo)} />
+              <img
+                src={
+                  config.logo
+                    ? readFile(config.logo)
+                    : "/static/logos/erxes-logo-white.svg"
+                }
+              />
             </Link>
             <HeaderTitle color={getConfigColor(config, "headingColor")}>
               {config.name}

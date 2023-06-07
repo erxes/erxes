@@ -24,7 +24,7 @@ type Props = {
 };
 
 function AppProvider({ children }: Props) {
-  const [currentUser, setCurrentUser] = React.useState({} as IUser);
+  const [currentUser, setCurrentUser] = React.useState(null);
   const [notificationsCount, setNotificationsCount] = React.useState(0);
 
   const userQuery = useQuery<UserQueryResponse>(gql(queries.currentUser));
@@ -113,7 +113,7 @@ function AppProvider({ children }: Props) {
       : {}) || {};
 
   if (userQuery.loading || response.loading) {
-    return <Spinner />;
+    return null;
   }
 
   return (

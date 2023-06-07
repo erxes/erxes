@@ -4,6 +4,13 @@ export const STORAGE_PIPELINE_KEY = 'erxesCurrentPipelineId';
 
 export const PRIORITIES = ['Critical', 'High', 'Medium', 'Low'];
 
+export const DATERANGES = [
+  { name: 'Created date', value: 'createdAt' },
+  { name: 'Stage changed date', value: 'stageChangedDate' },
+  { name: 'Start date', value: 'startDate' },
+  { name: 'Close date', value: 'closeDate' }
+];
+
 export const TEXT_COLORS = [
   '#fff',
   '#fefefe',

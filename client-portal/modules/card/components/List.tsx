@@ -37,11 +37,12 @@ export default function List({
   const [viewType, setViewType] = useState("list");
   const [showForm, setShowForm] = useState(false);
   const [activeStageId, setStageId] = useState(
-    stageId ? stageId : stages.stages[0]._id
+    stageId ? stageId : stages && stages.length !== 0 ? stages[0]._id : ""
   );
 
   useEffect(() => {
-    setStageId(stageId);
+    // tslint:disable-next-line:no-unused-expression
+    stageId && setStageId(stageId);
   }, [stageId]);
 
   if (itemId) {
@@ -75,7 +76,7 @@ export default function List({
     if (viewType === "board") {
       return (
         <BoardView
-          stages={stages.stages}
+          stages={stages}
           stageId={activeStageId}
           currentUser={currentUser}
           config={config}
@@ -88,7 +89,7 @@ export default function List({
 
     switch (mode) {
       case "stage":
-        return renderGroup(stages?.stages, "stage");
+        return renderGroup(stages, "stage");
       case "label":
         return renderGroup(pipeLinelabels?.pipelineLabels, "label");
       case "duedate":
