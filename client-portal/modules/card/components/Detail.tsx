@@ -175,7 +175,7 @@ export default class CardDetail extends React.Component<
     const { attachments } = this.props.item || {};
 
     if (!attachments || attachments.length === 0) {
-      return <span>{__("No attachments at the moment!")}</span>;
+      return <Description>{__("No attachments at the moment!")}</Description>;
     }
 
     return <AttachmentsGallery attachments={attachments} />;

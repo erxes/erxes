@@ -33,7 +33,7 @@ const CommentContainer = styled.div`
 `;
 
 const Description = styled.div`
-  font-size: 13px;
+  font-size: 14px;
 `;
 
 const Table = styled.table`

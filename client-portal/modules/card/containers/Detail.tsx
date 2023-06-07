@@ -58,7 +58,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
     return <Spinner objective={true} />;
   }
 
-  const item = data[`clientPortal${capitalize(type)}`];
+  const item =
+    type === "ticket"
+      ? data[`clientPortal${capitalize(type)}`]
+      : data[`${type}Detail`];
+
   const comments = commentsQuery?.clientPortalComments || [];
 
   const handleSubmit = (values: { content: string }) => {
