@@ -56,6 +56,7 @@ export const types = ({ tags }) => `
     departmentIds: [String]
     probability: String
     status: String
+    unUsedAmount: JSON
     amount: JSON
     itemsTotalCount: Int
     compareNextStage: JSON
@@ -191,7 +192,7 @@ export const mutations = `
   pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
   pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
   pipelinesRemove(_id: String!): JSON
-  pipelinesArchive(_id: String!): JSON  
+  pipelinesArchive(_id: String!): JSON
   pipelinesCopied(_id: String!): JSON
 
   stagesUpdateOrder(orders: [OrderItem]): [Stage]
