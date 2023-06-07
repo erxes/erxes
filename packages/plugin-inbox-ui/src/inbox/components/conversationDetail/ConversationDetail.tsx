@@ -104,6 +104,10 @@ export default class ConversationDetail extends React.Component<Props> {
         }
 
         if (content) {
+          if (currentConversation.integration.kind === 'imap') {
+            return <DmWorkArea content={content} {...this.props} />;
+          }
+
           return (
             <WorkArea
               currentConversation={currentConversation}
@@ -119,10 +123,12 @@ export default class ConversationDetail extends React.Component<Props> {
       });
 
       if (dmConfig) {
-        return <DmWorkArea {...this.props} dmConfig={dmConfig} />;
+        return (
+          <DmWorkArea {...this.props} content={content} dmConfig={dmConfig} />
+        );
       }
 
-      return <DmWorkArea {...this.props} />;
+      return <DmWorkArea content={content} {...this.props} />;
     }
 
     if (loading) {

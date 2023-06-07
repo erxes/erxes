@@ -33,6 +33,7 @@ type Props = {
   currentId?: string;
   refetchDetail: () => void;
   dmConfig?: DmConfig;
+  content?: any;
 };
 
 type FinalProps = {
@@ -134,7 +135,7 @@ class WorkArea extends React.Component<FinalProps, State> {
         document: gql(subscriptions.conversationMessageInserted),
         variables: { _id: currentId },
         updateQuery: (prev, { subscriptionData }) => {
-          let message = subscriptionData.data.conversationMessageInserted;
+          const message = subscriptionData.data.conversationMessageInserted;
           const kind = currentConversation.integration.kind;
 
           if (!prev) {

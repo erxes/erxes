@@ -44,6 +44,7 @@ type Props = {
   }) => void;
   refetchMessages: () => void;
   refetchDetail: () => void;
+  content?: any;
 };
 
 type State = {
@@ -205,7 +206,8 @@ export default class WorkArea extends React.Component<Props, State> {
       addMessage,
       typingInfo,
       refetchMessages,
-      refetchDetail
+      refetchDetail,
+      content
     } = this.props;
 
     const { kind } = currentConversation.integration;
@@ -214,6 +216,7 @@ export default class WorkArea extends React.Component<Props, State> {
       this.isMailConversation(kind) ||
       kind === 'lead' ||
       kind === 'booking' ||
+      kind === 'imap' ||
       kind === 'webhook';
 
     const typingIndicator = typingInfo ? (
@@ -230,6 +233,31 @@ export default class WorkArea extends React.Component<Props, State> {
         refetchDetail={refetchDetail}
       />
     );
+
+    if (content) {
+      return (
+        <>
+          <ActionBar currentConversation={currentConversation} />
+
+          <ContentBox>
+            <RenderConversationWrapper>
+              {content}
+              {isEnabled('internalnotes') && this.renderConversation()}
+            </RenderConversationWrapper>
+          </ContentBox>
+          {isEnabled('internalnotes') && (
+            <RespondBox
+              showInternal={true}
+              conversation={currentConversation}
+              setAttachmentPreview={this.setAttachmentPreview}
+              addMessage={addMessage}
+              refetchMessages={refetchMessages}
+              refetchDetail={refetchDetail}
+            />
+          )}
+        </>
+      );
+    }
 
     return (
       <>
