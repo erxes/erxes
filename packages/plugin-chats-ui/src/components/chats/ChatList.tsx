@@ -22,7 +22,6 @@ type State = {
 };
 
 const LOCALSTORAGE_KEY = 'erxes_pinned_chats';
-const LOCALSTORAGE_KEY_ACTIVE = 'erxes_active_chats';
 
 class ChatList extends React.Component<Props, State> {
   constructor(props) {
