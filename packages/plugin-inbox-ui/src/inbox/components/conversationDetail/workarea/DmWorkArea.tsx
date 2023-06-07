@@ -216,7 +216,6 @@ export default class WorkArea extends React.Component<Props, State> {
       this.isMailConversation(kind) ||
       kind === 'lead' ||
       kind === 'booking' ||
-      kind === 'imap' ||
       kind === 'webhook';
 
     const typingIndicator = typingInfo ? (
