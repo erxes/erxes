@@ -1,18 +1,3 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { IOption } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import React from 'react';
-import Select from 'react-select-plus';
-import RTG from 'react-transition-group';
-import { PRIORITIES } from '../constants';
-import SegmentFilter from '../containers/SegmentFilter';
-import dayjs from 'dayjs';
 import {
   CustomRangeContainer,
   FilterBox,
@@ -21,12 +6,28 @@ import {
   RightMenuContainer,
   TabContent
 } from '../styles/rightMenu';
-import { IOptions } from '../types';
+import { DATERANGES, PRIORITIES } from '../constants';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+
 import Archive from './Archive';
-import SelectLabel from './label/SelectLabel';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IOption } from '@erxes/ui/src/types';
+import { IOptions } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import RTG from 'react-transition-group';
+import React from 'react';
+import SegmentFilter from '../containers/SegmentFilter';
+import Select from 'react-select-plus';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectLabel from './label/SelectLabel';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { __ } from 'coreui/utils';
+import dayjs from 'dayjs';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -45,6 +46,8 @@ type StringState = {
 
 type State = {
   showMenu: boolean;
+  dateRangeType: string;
+  dateRange: any;
 } & StringState;
 
 export default class RightMenu extends React.Component<Props, State> {
@@ -55,7 +58,9 @@ export default class RightMenu extends React.Component<Props, State> {
 
     this.state = {
       currentTab: 'Filter',
-      showMenu: false
+      dateRangeType: '',
+      showMenu: false,
+      dateRange: {} as any
     };
 
     this.setWrapperRef = this.setWrapperRef.bind(this);
@@ -99,22 +104,40 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<StringState, keyof StringState>);
   };
 
-  renderLink(label: string, key: string, value: string) {
-    const { onSelect, queryParams } = this.props;
-
-    const selected = queryParams[key] === value;
-
-    const onClick = _e => {
-      onSelect(value, key);
-    };
-
-    return (
-      <FilterButton selected={selected} onClick={onClick}>
-        {__(label)}
-        {selected && <Icon icon="check-1" size={14} />}
-      </FilterButton>
-    );
-  }
+  onTypeChange = type => {
+    return this.setState({ dateRangeType: type.value }, () => {
+      switch (this.state.dateRangeType) {
+        case 'createdAt':
+          return this.setState({
+            dateRange: {
+              startDate: 'createdStartDate',
+              endDate: 'createdEndDate'
+            }
+          });
+        case 'stageChangedDate':
+          return this.setState({
+            dateRange: {
+              startDate: 'stateChangedStartDate',
+              endDate: 'stateChangedEndDate'
+            }
+          });
+        case 'startDate':
+          return this.setState({
+            dateRange: {
+              startDate: 'startDateStartDate',
+              endDate: 'startDateEndDate'
+            }
+          });
+        case 'closeDate':
+          return this.setState({
+            dateRange: {
+              startDate: 'closeDateStartDate',
+              endDate: 'closeDateEndDate'
+            }
+          });
+      }
+    });
+  };
 
   onChangeRangeFilter = (kind: string, date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
@@ -145,10 +168,31 @@ export default class RightMenu extends React.Component<Props, State> {
     );
   }
 
+  renderLink(label: string, key: string, value: string) {
+    const { onSelect, queryParams } = this.props;
+
+    const selected = queryParams[key] === value;
+
+    const onClick = _e => {
+      onSelect(value, key);
+    };
+
+    return (
+      <FilterButton selected={selected} onClick={onClick}>
+        {__(label)}
+        {selected && <Icon icon="check-1" size={14} />}
+      </FilterButton>
+    );
+  }
+
   renderFilter() {
     const { queryParams, onSelect, extraFilter, options } = this.props;
 
     const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
+    const daterangeValues = DATERANGES.map(p => ({
+      label: p.name,
+      value: p.value
+    }));
     const priorities = queryParams ? queryParams.priority : [];
 
     const onPrioritySelect = (ops: IOption[]) =>
@@ -218,22 +262,34 @@ export default class RightMenu extends React.Component<Props, State> {
 
         <ControlLabel>Date range:</ControlLabel>
 
+        <Select
+          placeholder={__('Choose date range type')}
+          value={this.state.dateRangeType}
+          options={daterangeValues}
+          name="daterangeType"
+          onChange={this.onTypeChange}
+        />
+
         <CustomRangeContainer>
           <DateControl
-            value={queryParams.startDate}
+            value={queryParams[this.state.dateRange.startDate]}
             required={false}
-            name="startDate"
-            onChange={date => this.onChangeRangeFilter('startDate', date)}
+            name={this.state.dateRange.startDate}
+            onChange={date =>
+              this.onChangeRangeFilter(this.state.dateRange.startDate, date)
+            }
             placeholder={'Start date'}
             dateFormat={'YYYY-MM-DD'}
           />
 
           <DateControl
-            value={queryParams.endDate}
+            value={queryParams[this.state.dateRange.endDate]}
             required={false}
-            name="endDate"
+            name={this.state.dateRange.endDate}
             placeholder={'End date'}
-            onChange={date => this.onChangeRangeFilter('endDate', date)}
+            onChange={date =>
+              this.onChangeRangeFilter(this.state.dateRange.endDate, date)
+            }
             dateFormat={'YYYY-MM-DD'}
           />
         </CustomRangeContainer>
