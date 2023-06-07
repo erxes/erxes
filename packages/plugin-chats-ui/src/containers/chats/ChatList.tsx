@@ -41,7 +41,11 @@ const ChatListContainer = (props: FinalProps) => {
   }
 
   return (
-    <Component {...props} chats={data.chats.list} currentUser={currentUser} />
+    <Component
+      {...props}
+      chats={data.chats.list || []}
+      currentUser={currentUser}
+    />
   );
 };
 

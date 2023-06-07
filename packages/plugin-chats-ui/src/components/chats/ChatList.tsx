@@ -19,7 +19,6 @@ type State = {
   searchValue: string;
   filteredChats: any;
   pinnedChatIds: any;
-  activeChatIds: string[];
 };
 
 const LOCALSTORAGE_KEY = 'erxes_pinned_chats';
@@ -32,25 +31,8 @@ class ChatList extends React.Component<Props, State> {
     this.state = {
       searchValue: '',
       filteredChats: [],
-      pinnedChatIds: JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]'),
-      activeChatIds: JSON.parse(
-        localStorage.getItem(LOCALSTORAGE_KEY_ACTIVE) || '[]'
-      )
+      pinnedChatIds: JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]')
     };
-  }
-
-  componentDidUpdate(prevProps) {
-    const { chats } = this.props;
-
-    if (
-      chats[0].lastMessage.createdAt !==
-      prevProps.chats[0].lastMessage.createdAt
-    ) {
-      localStorage.setItem(
-        LOCALSTORAGE_KEY_ACTIVE,
-        JSON.stringify([...this.state.activeChatIds, chats[0]._id])
-      );
-    }
   }
 
   render() {
