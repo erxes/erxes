@@ -49,7 +49,7 @@ export const loadInvoiceClass = (models: IModels) => {
         identifier: doc.identifier || makeInvoiceNo(32)
       });
 
-      const api = new ErxesPayment(payment.config, doc.domain);
+      const api = new ErxesPayment(payment, doc.domain);
 
       try {
         const apiResponse = await api.createInvoice(invoice);
@@ -167,7 +167,7 @@ export const loadInvoiceClass = (models: IModels) => {
         invoice.selectedPaymentId
       );
 
-      const api = new ErxesPayment(payment.config);
+      const api = new ErxesPayment(payment);
 
       api.cancelInvoice(invoice);
 
@@ -189,9 +189,16 @@ export const loadInvoiceClass = (models: IModels) => {
         invoice.selectedPaymentId
       );
 
-      const api = new ErxesPayment(payment.config);
+      const api = new ErxesPayment(payment);
 
-      return await api.checkInvoice(invoice);
+      const status = await api.checkInvoice(invoice);
+
+      if (status !== invoice.status) {
+        invoice.status = status;
+        await invoice.save();
+      }
+
+      return status;
     }
   }
   invoiceSchema.loadClass(Invoices);

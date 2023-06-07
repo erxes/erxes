@@ -66,6 +66,8 @@ export interface IContract {
   riskExpertId: string;
   customerId: string;
   customerType: string;
+  unduePercent: number;
+  undueCalcType: string;
 
   contractType?: IContractTypeDoc;
   weekends: number[];

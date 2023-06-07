@@ -5,7 +5,7 @@ import { TrNumberCols, TrRows } from '../../contracts/styles';
 import ChangeTrForm from '../containers/ChangeTrForm';
 import TransactionForm from '../containers/TransactionForm';
 import { ITransaction } from '../types';
-
+import { __ } from 'coreui/utils';
 type Props = {
   transaction: ITransaction;
   history: any;
@@ -70,7 +70,7 @@ function TransactionRow({
     );
     return (
       <ModalTrigger
-        title="Edit basic info"
+        title={__('Edit basic info')}
         trigger={<Icon icon="edit" />}
         size="lg"
         content={trBaseForm}

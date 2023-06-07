@@ -109,7 +109,7 @@ const renderButtons = (content, removeInvoices) => {
   return (
     <>
       <Button btnStyle="danger" size="small" icon="cancel-1" onClick={onDelete}>
-        Delete
+        {__('Delete')}
       </Button>
       {renderAddTransaction(content)}
     </>

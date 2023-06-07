@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   ControlLabel,
   DateControl,
@@ -12,7 +11,7 @@ import {
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-
+import { __ } from 'coreui/utils';
 import { IPeriodLock, IPeriodLockDoc } from '../types';
 
 import SelectContract from '../../contracts/components/common/SelectContract';
@@ -89,7 +88,7 @@ class PeriodLockForm extends React.Component<Props, State> {
       <>
         <FormWrapper>
           <FormGroup>
-            <ControlLabel required={true}>Date</ControlLabel>
+            <ControlLabel required={true}>{__('Date')}</ControlLabel>
             <DateContainer>
               <DateControl
                 {...formProps}
@@ -102,11 +101,11 @@ class PeriodLockForm extends React.Component<Props, State> {
           </FormGroup>
         </FormWrapper>
         <FormGroup>
-          <ControlLabel>Exclude Contracts</ControlLabel>
+          <ControlLabel>{__('Exclude Contracts')}</ControlLabel>
           <ContractContainer>
             <SelectContract
               onSelect={onChangeExcludeContracts}
-              label="Contracts"
+              label={__('Contracts')}
               name="excludeContracts"
               initialValue={this.props.periodLock?.excludeContracts}
               multi={true}
@@ -115,7 +114,7 @@ class PeriodLockForm extends React.Component<Props, State> {
         </FormGroup>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({

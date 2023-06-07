@@ -17,6 +17,8 @@ function displayValue(contract, name) {
   if (name === 'primaryName') {
     return <FlexItem>{formatValue(contract.primaryName)}</FlexItem>;
   }
+  if (name.includes('Amount'))
+    return formatValue(value ? value?.toLocaleString() : value);
 
   return formatValue(value);
 }

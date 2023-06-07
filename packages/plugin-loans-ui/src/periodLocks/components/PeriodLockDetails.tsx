@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import { __, Wrapper } from '@erxes/ui/src';
+import { Wrapper } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 

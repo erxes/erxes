@@ -38,6 +38,7 @@ export const types = () => `
     feeAmount: Float
     tenor: Float
     unduePercent: Float
+    undueCalcType: String
     interestRate: Float
     repayment: String
     startDate: Date
@@ -85,6 +86,7 @@ export const types = () => `
     nextPayment:Float
     payedAmountSum:Float
     loanBalanceAmount:Float
+    expiredDays:Float
   }
 
 
@@ -162,6 +164,7 @@ const commonFields = `
   feeAmount: Float
   tenor: Float
   unduePercent: Float
+  undueCalcType: String
   interestRate: Float
   repayment: String
   startDate: Date

@@ -1,5 +1,4 @@
 import {
-  __,
   Alert,
   Button,
   confirm,
@@ -25,6 +24,7 @@ import RightMenu from './RightMenu';
 import { can } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { __ } from 'coreui/utils';
 
 interface IProps extends IRouterProps {
   transactions: ITransaction[];
@@ -184,7 +184,7 @@ class TransactionsList extends React.Component<IProps> {
               icon="cancel-1"
               onClick={onClick}
             >
-              Delete
+              {__('Delete')}
             </Button>
           )}
         </BarItems>

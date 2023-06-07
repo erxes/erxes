@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   MainStyleTitle as Title,
   Wrapper,
@@ -11,6 +10,7 @@ import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import PerSettings from './PerHolidayBonus';
 import Sidebar from './Sidebar';
+import { __ } from 'coreui/utils';
 
 function Header() {
   return (
@@ -97,7 +97,7 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Ebarimt config') }
+      { title: __('Loan config') }
     ];
 
     const actionButtons = (
@@ -107,7 +107,7 @@ class GeneralSettings extends React.Component<Props, State> {
         icon="plus"
         uppercase={false}
       >
-        New config
+        {__('New config')}
       </Button>
     );
 

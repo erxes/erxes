@@ -1,5 +1,4 @@
 import {
-  __,
   BarItems,
   DataWithLoader,
   FormControl,
@@ -21,6 +20,7 @@ import Sidebar from './Sidebar';
 import { can } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { __ } from 'coreui/utils';
 
 interface IProps extends IRouterProps {
   collaterals: ICollateral[];
@@ -169,7 +169,6 @@ class CollateralsList extends React.Component<IProps, State> {
         header={
           <Wrapper.Header
             title={__(`Collaterals`) + ` (${totalCount})`}
-            queryParams={queryParams}
             submenu={menuContracts.filter(row =>
               can(row.permission, currentUser)
             )}

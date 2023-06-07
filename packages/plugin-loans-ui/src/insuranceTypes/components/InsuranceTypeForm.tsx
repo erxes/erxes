@@ -15,7 +15,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IInsuranceType, IInsuranceTypeDoc } from '../types';
 
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -77,7 +77,7 @@ class InsuranceTypeForm extends React.Component<Props, State> {
   renderFormGroup = (label, props) => {
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
+        <ControlLabel required={props.required}>{__(label)}</ControlLabel>
         <FormControl {...props} />
       </FormGroup>
     );
@@ -102,21 +102,24 @@ class InsuranceTypeForm extends React.Component<Props, State> {
               {this.renderFormGroup('Code', {
                 ...formProps,
                 name: 'code',
+                required: true,
                 defaultValue: insuranceType.code || ''
               })}
               {this.renderFormGroup('Name', {
                 ...formProps,
                 name: 'name',
+                required: true,
                 defaultValue: insuranceType.name || ''
               })}
 
               {isEnabled('contacts') && (
                 <FormGroup>
-                  <ControlLabel>Company</ControlLabel>
+                  <ControlLabel required>{__('Company')}</ControlLabel>
                   <SelectCompanies
                     label="Choose an company"
                     name="companyId"
                     initialValue={companyId}
+                    required
                     onSelect={onSelectCompany}
                     multi={false}
                   />
@@ -130,14 +133,14 @@ class InsuranceTypeForm extends React.Component<Props, State> {
                 defaultValue: insuranceType.percent || 0
               })}
 
-              {this.renderFormGroup('years percents', {
+              {this.renderFormGroup('Year Percents', {
                 ...formProps,
                 name: 'yearPercents',
                 defaultValue: insuranceType.yearPercents || ''
               })}
 
               <FormGroup>
-                <ControlLabel>Description</ControlLabel>
+                <ControlLabel>{__('Description')}</ControlLabel>
                 <FormControl
                   {...formProps}
                   max={140}
@@ -152,7 +155,7 @@ class InsuranceTypeForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({
