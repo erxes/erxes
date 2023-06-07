@@ -4,6 +4,7 @@ import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
+  sendLogsMessage,
   sendProductsMessage
 } from './messageBroker';
 import * as moment from 'moment';
@@ -149,7 +150,7 @@ const fillDealProductValue = async (subdomain, column, item) => {
         break;
 
       case 'productsData.tickUsed':
-        value = productData.tickUsed;
+        value = productData.tickUsed ? 'TRUE' : 'FALSE';
         break;
 
       case 'productsData.isVatApplied':
@@ -387,6 +388,36 @@ const fillValue = async (
 
     case 'totalLabelCount':
       value = item.labelIds ? item.labelIds.length : '-';
+
+      break;
+
+    case 'stageMovedUser':
+      const activities = await sendLogsMessage({
+        subdomain,
+        action: 'activityLogs.findMany',
+        data: {
+          query: {
+            contentId: item._id,
+            action: 'moved'
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const movedUser: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id:
+            activities.length > 0
+              ? activities[activities.length - 1].createdBy
+              : ''
+        },
+        isRPC: true
+      });
+
+      value = movedUser ? movedUser.username : '-';
 
       break;
 
