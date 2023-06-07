@@ -51,10 +51,10 @@ const mutationParams = `
 
 export const mutations = `
   generateInvoiceUrl(${mutationParams}): String
+  checkInvoice(_id:String!): String
 `;
 
 export const queries = `
-  checkInvoice(_id:String!): String
   invoices(searchValue: String, kind: String, status: String, page: Int, perPage: Int, contentType: String, contentTypeId: String): [Invoice]
   invoicesTotalCount(searchValue: String, kind: String, status: String, contentType: String, contentTypeId: String): invoicesTotalCount
 `;

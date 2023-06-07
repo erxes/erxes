@@ -1,11 +1,9 @@
+import { useMutation, useQuery } from '@apollo/client';
+import { router } from '@erxes/ui/src';
 import Bulk from '@erxes/ui/src/components/Bulk';
-import { withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-
 import List from '../components/invoice/List';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   InvoicesQueryResponse,
   InvoicesTotalCountQueryResponse
@@ -17,87 +15,78 @@ type Props = {
   type?: string;
 };
 
-type FinalProps = {
-  invoicesQuery: InvoicesQueryResponse;
-  invoicesTotalCountQuery: InvoicesTotalCountQueryResponse;
-} & Props;
+const InvoiceListContainer = (props: Props) => {
+  const { queryParams } = props;
 
-class InvoiceListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
+  const invoicesQuery = useQuery<InvoicesQueryResponse>(queries.invoices, {
+    variables: {
+      ...router.generatePaginationParams(props.queryParams || {})
+    },
+    fetchPolicy: 'network-only'
+  });
 
-    this.state = {
-      mergeProductLoading: false
-    };
-  }
-
-  render() {
-    const { queryParams, invoicesQuery, invoicesTotalCountQuery } = this.props;
-
-    if (invoicesQuery.loading || invoicesTotalCountQuery.loading) {
-      return false;
+  const invoicesTotalCountQuery = useQuery<InvoicesTotalCountQueryResponse>(
+    queries.invoicesTotalCount,
+    {
+      variables: {
+        searchValue: queryParams.searchValue,
+        kind: queryParams.kind,
+        status: queryParams.status
+      },
+      fetchPolicy: 'network-only'
     }
+  );
 
-    const invoices = invoicesQuery.invoices || [];
+  const [invoiceCheck] = useMutation(mutations.checkInvoice, {
+    refetchQueries: [
+      {
+        query: queries.invoices,
+        variables: {
+          ...router.generatePaginationParams(props.queryParams || {})
+        }
+      }
+    ]
+  });
 
-    const counts = invoicesTotalCountQuery.invoicesTotalCount || {
-      total: 0
-    };
+  const checkInvoice = (invoiceId: string) => {
+    invoiceCheck({
+      variables: {
+        _id: invoiceId
+      }
+    });
+  };
 
-    const updatedProps = {
-      ...this.props,
-      queryParams,
-      invoices,
-      loading: invoicesQuery.loading,
-      searchValue: this.props.queryParams.searchValue || '',
-      counts
-    };
-
-    const invoiceList = props => {
-      return <List {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.invoicesQuery.refetch();
-    };
-
-    return <Bulk content={invoiceList} refetch={refetch} />;
+  if (invoicesQuery.loading || invoicesTotalCountQuery.loading) {
+    return false;
   }
-}
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, InvoicesQueryResponse, { page: number; perPage: number }>(
-      queries.invoices,
-      {
-        name: 'invoicesQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            searchValue: queryParams.searchValue,
-            page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-            perPage: queryParams.perPage
-              ? parseInt(queryParams.perPage, 10)
-              : 10,
-            kind: queryParams.kind,
-            status: queryParams.status
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, InvoicesTotalCountQueryResponse>(
-      queries.invoicesTotalCount,
-      {
-        name: 'invoicesTotalCountQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            searchValue: queryParams.searchValue,
-            kind: queryParams.kind,
-            status: queryParams.status
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(InvoiceListContainer)
-);
+  const invoices = (invoicesQuery.data && invoicesQuery.data.invoices) || [];
+
+  const counts = (invoicesTotalCountQuery.data &&
+    invoicesTotalCountQuery.data.invoicesTotalCount) || {
+    total: 0
+  };
+
+  const updatedProps = {
+    ...props,
+    queryParams,
+    invoices,
+    loading: invoicesQuery.loading,
+    searchValue: props.queryParams.searchValue || '',
+    check: checkInvoice,
+    counts
+  };
+
+  const invoiceList = listProps => {
+    return <List {...updatedProps} {...listProps} />;
+  };
+
+  const refetch = () => {
+    invoicesQuery.refetch();
+    invoicesTotalCountQuery.refetch();
+  };
+
+  return <Bulk content={invoiceList} refetch={refetch} />;
+};
+
+export default InvoiceListContainer;

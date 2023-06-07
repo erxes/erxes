@@ -97,10 +97,6 @@ const queries = {
     counts.total = await count(qry);
 
     return counts;
-  },
-
-  async checkInvoice(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Invoices.checkInvoice(_id);
   }
 };
 
