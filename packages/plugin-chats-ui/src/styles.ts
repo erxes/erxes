@@ -216,11 +216,17 @@ export const ChatListWrapper = styled.div`
 export const ChatItemWrapper = styledTS<{
   active?: boolean;
   isWidget?: boolean;
+  isSeen?: boolean;
 }>(styled.div)`
   position: relative;
   display: flex;
   align-items: center;
-  background-color: ${props => (props.active ? colors.bgGray : 'initial')};
+  background-color: ${props =>
+    props.isWidget && !props.isSeen
+      ? '#edf2fa'
+      : props.active
+      ? colors.bgGray
+      : 'initial'};
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom: ${props =>
     props.isWidget && `1px solid ${colors.borderPrimary}`};

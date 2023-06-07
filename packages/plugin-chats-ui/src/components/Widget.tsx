@@ -15,14 +15,13 @@ import {
 } from '../styles';
 import Label from '@erxes/ui/src/components/Label';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __, Alert } from '@erxes/ui/src/utils';
 
 const LOCALSTORAGE_KEY = 'erxes_active_chats';
 
 type Props = {
   unreadCount: number;
   currentUser: IUser;
-  lastChat?: any;
 };
 
 type State = {
@@ -39,11 +38,8 @@ class Widget extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps) {
-    if (
-      this.props.unreadCount - prevProps.unreadCount === 1 &&
-      this.props.lastChat
-    ) {
-      this.handleActive(this.props.lastChat._id);
+    if (this.props.unreadCount - prevProps.unreadCount === 1) {
+      Alert.success('You have a new chat');
     }
   }
 

@@ -26,9 +26,7 @@ const WdigetListContainer = (props: Props) => {
     }
   });
 
-  const chats = useQuery(gql(queries.chats));
-
-  if (loading || chats.loading) {
+  if (loading) {
     return <Spinner objective={true} />;
   }
 
@@ -40,7 +38,6 @@ const WdigetListContainer = (props: Props) => {
     <Component
       unreadCount={data.getUnreadChatCount || 0}
       currentUser={currentUser}
-      lastChat={chats.data.chats.list[0]}
     />
   );
 };
