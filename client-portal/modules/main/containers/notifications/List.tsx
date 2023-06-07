@@ -1,6 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useEffect } from 'react';
-import { mutations } from '../../../user/graphql';
+import React from 'react';
 import Notifications from '../../components/notifications/List';
 import {
   IUser,
