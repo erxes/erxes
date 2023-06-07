@@ -179,6 +179,7 @@ export type Styles = {
   dividerColor?: string;
   baseFont?: string;
   headingFont?: string;
+  __typename?: string;
 };
 
 export type ClientPortalConfigsQueryResponse = {
