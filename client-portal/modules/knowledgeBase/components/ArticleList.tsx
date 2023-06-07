@@ -25,7 +25,11 @@ class Lists extends React.Component<Props> {
               <h5 className="base-color">{article.title}</h5>
               <p>{article.summary}</p>
 
-              <Avatar date={article.modifiedDate} user={article.createdUser} />
+              <Avatar
+                date={article.modifiedDate}
+                user={article.createdUser}
+                viewCount={article.viewCount || 0}
+              />
             </CategoryContent>
           </CategoryItem>
         </Link>

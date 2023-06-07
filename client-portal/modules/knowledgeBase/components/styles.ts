@@ -53,6 +53,8 @@ const CategoryIcon = styled.div`
 `;
 
 const CategoryContent = styledTS<{ color?: string }>(styled.div)`
+  flex: 1;
+
   h5 {
     color: ${(props) => props.color || colors.colorSecondary};
     font-weight: ${typography.fontWeightMedium};
@@ -96,11 +98,11 @@ const Avatars = styled.div`
 
   img {
     background: rgb(240, 240, 240);
-    border: 2px solid rgb(255, 255, 255);
+    border: 1px solid ${colors.borderPrimary};
     margin-left: -12px;
     font-size: 10px;
-    width: 34px;
-    height: 34px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     overflow: hidden;
 
@@ -119,6 +121,11 @@ const Avatars = styled.div`
     color: #888;
     margin-left: 10px;
     font-size: 13px;
+    flex: 1;
+    
+    > div {
+      width: 250px;
+    }
 
     .darker {
       display: inline;
@@ -126,7 +133,8 @@ const Avatars = styled.div`
 
     span {
       color: ${silverGrey};
-      width: auto;
+      margin-left: 5px;
+      font-weight: 500;
     }
   }
 `;

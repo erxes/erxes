@@ -111,6 +111,7 @@ export const articlesQuery = `
     clientPortalKnowledgeBaseArticles(categoryIds: $categoryIds, searchValue: $searchValue, topicId: $topicId) {
       _id
       title
+      viewCount
       summary
       content
       status
