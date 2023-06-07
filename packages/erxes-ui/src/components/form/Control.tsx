@@ -213,7 +213,7 @@ class FormControl extends React.Component<Props> {
     if (props.type === 'number' && props.useNumberFormat) {
       return (
         <Column>
-          <NumberInput {...attributes} />
+          <NumberInput {...attributes} fixed={props.fixed} />
           {errorMessage}
         </Column>
       );
