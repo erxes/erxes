@@ -8,7 +8,7 @@ on:
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'
-      - 'packages/ui-rcfa/**'
+      - 'packages/ui-cards/**'
       - 'packages/ui-forms/**'
       - 'packages/ui-inbox/**'
       - 'packages/ui-knowledgebase/**'
@@ -29,7 +29,7 @@ on:
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'
-      - 'packages/ui-rcfa/**'
+      - 'packages/ui-cards/**'
       - 'packages/ui-forms/**'
       - 'packages/ui-inbox/**'
       - 'packages/ui-knowledgebase/**'
