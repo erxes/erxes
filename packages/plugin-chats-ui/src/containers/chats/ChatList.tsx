@@ -22,8 +22,12 @@ type FinalProps = {
 } & Props;
 
 const ChatListContainer = (props: FinalProps) => {
-  const { currentUser } = props;
+  const { currentUser, isWidget } = props;
   const { loading, error, data, refetch } = useQuery(gql(queries.chats));
+
+  if (isWidget && isWidget) {
+    refetch();
+  }
 
   useSubscription(gql(subscriptions.chatInserted), {
     variables: { userId: currentUser._id },
