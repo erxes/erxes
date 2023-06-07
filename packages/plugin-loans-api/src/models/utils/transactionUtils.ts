@@ -17,6 +17,7 @@ import {
   onNextScheduled,
   onPreScheduled
 } from './scheduleUtils';
+import { addMonths } from './utils';
 import {
   calcInterest,
   getUnduePercent,
@@ -163,6 +164,12 @@ export const getCalcedAmounts = async (
   }
 
   const startDate = getFullDate(contract.startDate);
+  const skipInterestCalcDate = addMonths(
+    new Date(startDate),
+    contract.skipInterestCalcMonth || 0
+  );
+
+  const isSkipInterestCalc = getDiffDay(trDate, skipInterestCalcDate) >= 0;
 
   if (trDate < startDate) {
     return result;
@@ -196,17 +203,23 @@ export const getCalcedAmounts = async (
       unduePercent,
       getDiffDay(prePayDate, trDate)
     );
-    const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
-    result.interestEve = calcInterest({
-      balance: preSchedule.balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffEve
-    });
-    result.interestNonce = calcInterest({
-      balance: preSchedule.balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffNonce
-    });
+    if (isSkipInterestCalc) {
+      result.interestEve = 0;
+      result.interestNonce = 0;
+    } else {
+      const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
+      result.interestEve = calcInterest({
+        balance: preSchedule.balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffEve
+      });
+      result.interestNonce = calcInterest({
+        balance: preSchedule.balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffNonce
+      });
+    }
+
     result.insurance = preSchedule.insurance;
     result.payment = preSchedule.balance;
     return result;
@@ -289,19 +302,25 @@ export const getCalcedAmounts = async (
     if (!preSchedule) result.debt += nextSchedule.debt;
 
     /** calculating interest eve and nonce from prev date to transaction date */
-    const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
 
-    result.interestEve += calcInterest({
-      balance: preSchedule.balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffEve
-    });
+    if (isSkipInterestCalc) {
+      result.interestEve = 0;
+      result.interestNonce = 0;
+    } else {
+      const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
 
-    result.interestNonce += calcInterest({
-      balance: preSchedule.balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffNonce
-    });
+      result.interestEve += calcInterest({
+        balance: preSchedule.balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffEve
+      });
+
+      result.interestNonce += calcInterest({
+        balance: preSchedule.balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffNonce
+      });
+    }
 
     if (preSchedule.status === SCHEDULE_STATUS.LESS) {
       result.undue = (preSchedule.undue || 0) - (preSchedule.didUndue || 0);
@@ -383,18 +402,24 @@ export const getCalcedAmounts = async (
     unduePercent,
     getDiffDay(prePayDate, trDate)
   );
-  const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
 
-  result.interestEve = calcInterest({
-    balance: preSchedule.balance,
-    interestRate: contract.interestRate,
-    dayOfMonth: diffEve
-  });
-  result.interestNonce = calcInterest({
-    balance: preSchedule.balance,
-    interestRate: contract.interestRate,
-    dayOfMonth: diffNonce
-  });
+  if (isSkipInterestCalc) {
+    result.interestEve = 0;
+    result.interestNonce = 0;
+  } else {
+    const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
+
+    result.interestEve = calcInterest({
+      balance: preSchedule.balance,
+      interestRate: contract.interestRate,
+      dayOfMonth: diffEve
+    });
+    result.interestNonce = calcInterest({
+      balance: preSchedule.balance,
+      interestRate: contract.interestRate,
+      dayOfMonth: diffNonce
+    });
+  }
 
   result.insurance = nextSchedule.insurance;
   //result.payment = nextSchedule.payment;

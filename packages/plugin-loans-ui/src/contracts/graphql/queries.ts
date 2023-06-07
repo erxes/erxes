@@ -36,6 +36,7 @@ const contractFields = `
   weekends
   useHoliday
   relContractId
+  skipInterestCalcMonth
   dealId
 `;
 
