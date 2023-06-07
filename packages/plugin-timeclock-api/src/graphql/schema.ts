@@ -154,7 +154,7 @@ export const types = `
 
     absenceInfo: IUserAbsenceInfo
 
-    scheduledShifts: [Schedule]
+    scheduledShifts: [Shift]
     timeclocks: [Timeclock]
     
     totalHoursWorkedSelectedDay: Float
