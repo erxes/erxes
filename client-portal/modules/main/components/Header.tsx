@@ -182,7 +182,13 @@ function Header({
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
-              <img src={readFile(config.logo)} />
+              <img
+                src={
+                  config.logo
+                    ? readFile(config.logo)
+                    : "/static/logos/erxes-logo-white.svg"
+                }
+              />
             </Link>
             <HeaderTitle color={getConfigColor(config, "headingColor")}>
               {config.name}

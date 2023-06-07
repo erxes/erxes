@@ -150,7 +150,7 @@ const fillDealProductValue = async (subdomain, column, item) => {
         break;
 
       case 'productsData.tickUsed':
-        value = productData.tickUsed;
+        value = productData.tickUsed ? 'TRUE' : 'FALSE';
         break;
 
       case 'productsData.isVatApplied':

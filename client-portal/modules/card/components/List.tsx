@@ -37,7 +37,7 @@ export default function List({
   const [viewType, setViewType] = useState("list");
   const [showForm, setShowForm] = useState(false);
   const [activeStageId, setStageId] = useState(
-    stageId ? stageId : stages[0]._id
+    stageId ? stageId : stages && stages.length !== 0 ? stages[0]._id : ""
   );
 
   useEffect(() => {
