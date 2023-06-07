@@ -94,6 +94,7 @@ export interface IContract {
 
   isExpired?: boolean;
   repaymentDate?: Date;
+  undueCalcType?: string;
 
   dealId?: string;
 }
@@ -213,7 +214,7 @@ export const contractSchema = schemaHooksWrapper(
       type: String,
       enum: REPAYMENT_TYPE.map(option => option.value),
       required: true,
-      label: 'Type',
+      label: 'Schedule Type',
       selectOptions: REPAYMENT_TYPE
     }),
     startDate: field({ type: Date, label: 'Rate Start Date' }),
@@ -322,13 +323,17 @@ export const contractSchema = schemaHooksWrapper(
     isExpired: field({
       type: Boolean,
       optional: true,
-      label:
-        'when contract expired of payment date then this field will be true'
+      label: 'Is Expired'
     }),
     repaymentDate: field({
       type: Date,
       optional: true,
-      label: 'contract payment date of schedule'
+      label: 'Repayment'
+    }),
+    undueCalcType: field({
+      type: String,
+      optional: true,
+      label: 'Undue Calc Type'
     }),
     dealId: field({
       type: String,

@@ -1,5 +1,10 @@
 import { IModels } from '../../connectionResolver';
-import { INVOICE_STATUS, SCHEDULE_STATUS } from '../definitions/constants';
+import {
+  INVOICE_STATUS,
+  SCHEDULE_STATUS,
+  UNDUE_CALC_TYPE
+} from '../definitions/constants';
+import { IContractDocument } from '../definitions/contracts';
 import { IScheduleDocument } from '../definitions/schedules';
 import {
   ICalcDivideParams,
@@ -53,6 +58,54 @@ export const getAOESchedules = async (
 
   return { preSchedule, nextSchedule };
 };
+
+/**
+ * @param preSchedule must pay default schedule
+ * @param contract
+ * @param unduePercent
+ * @param diff
+ * @returns calculatedUndue
+ */
+export const calcUndue = async (
+  preSchedule: IScheduleDocument,
+  contract: IContractDocument,
+  unduePercent,
+  diff: number
+): Promise<number> => {
+  let result = 0;
+
+  switch (contract.undueCalcType) {
+    case UNDUE_CALC_TYPE.FROMAMOUNT:
+      result = Math.round((preSchedule.payment || 0) * unduePercent * diff);
+      break;
+
+    case UNDUE_CALC_TYPE.FROMINTEREST:
+      result = Math.round(
+        ((preSchedule.balance * contract.interestRate) / 100 / 365) *
+          unduePercent *
+          diff
+      );
+      break;
+
+    case UNDUE_CALC_TYPE.FROMENDAMOUNT:
+      result = Math.round(preSchedule.balance * unduePercent * diff);
+      break;
+
+    case UNDUE_CALC_TYPE.FROMTOTALPAYMENT:
+      result = Math.round(preSchedule.total * unduePercent * diff);
+      break;
+
+    default:
+      result = Math.round(
+        ((preSchedule.balance * contract.interestRate) / 100 / 365) *
+          unduePercent *
+          diff
+      );
+      break;
+  }
+  return result;
+};
+
 /**
  * this method generate loan payment data
  * @param models
@@ -137,10 +190,11 @@ export const getCalcedAmounts = async (
       contract
     );
 
-    result.undue = Math.round(
-      ((preSchedule.balance * contract.interestRate) / 100 / 365) *
-        unduePercent *
-        getDiffDay(prePayDate, trDate)
+    result.undue = await calcUndue(
+      preSchedule,
+      contract,
+      unduePercent,
+      getDiffDay(prePayDate, trDate)
     );
     const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
     result.interestEve = calcInterest({
@@ -258,10 +312,11 @@ export const getCalcedAmounts = async (
         contract
       );
 
-      result.undue += Math.round(
-        ((preSchedule.balance * contract.interestRate) / 100 / 365) *
-          unduePercent *
-          getDiffDay(prePayDate, trDate)
+      result.undue += await calcUndue(
+        preSchedule,
+        contract,
+        unduePercent,
+        getDiffDay(prePayDate, trDate)
       );
     }
     return result;
@@ -301,10 +356,11 @@ export const getCalcedAmounts = async (
         contract
       );
 
-      result.undue += Math.round(
-        ((preSchedule.balance * contract.interestRate) / 100 / 365) *
-          unduePercent *
-          getDiffDay(prePayDate, trDate)
+      result.undue += await calcUndue(
+        preSchedule,
+        contract,
+        unduePercent,
+        getDiffDay(prePayDate, trDate)
       );
     }
 
@@ -321,10 +377,11 @@ export const getCalcedAmounts = async (
     contract
   );
 
-  result.undue = Math.round(
-    ((preSchedule.balance * contract.interestRate) / 100 / 365) *
-      unduePercent *
-      getDiffDay(nextPayDate, trDate)
+  result.undue = await calcUndue(
+    preSchedule,
+    contract,
+    unduePercent,
+    getDiffDay(prePayDate, trDate)
   );
   const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
 

@@ -12,6 +12,8 @@ import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
   currentUser: IUser;
+  isCurrentUserAdmin: boolean;
+
   departments: IDepartment[];
   branches: IBranch[];
 
@@ -27,6 +29,7 @@ type Props = {
 
 const FormComponent = ({
   currentUser,
+  isCurrentUserAdmin,
   departments,
   branches,
 
@@ -54,6 +57,13 @@ const FormComponent = ({
 
     return totalUserOptions;
   };
+
+  const filterParams = isCurrentUserAdmin
+    ? {}
+    : {
+        ids: returnTotalUserOptions(),
+        excludeIds: false
+      };
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userId, setUserId] = useState(selectedUserId);
@@ -109,10 +119,7 @@ const FormComponent = ({
           <FormGroup>
             <ControlLabel>Team member</ControlLabel>
             <SelectTeamMembers
-              filterParams={{
-                ids: returnTotalUserOptions(),
-                excludeIds: false
-              }}
+              filterParams={filterParams}
               customOption={prepareCurrentUserOption(currentUser)}
               label="Choose a team member"
               name="userId"

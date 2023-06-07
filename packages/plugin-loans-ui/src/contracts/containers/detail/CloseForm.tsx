@@ -1,4 +1,5 @@
-import { __, ButtonMutate, withProps } from '@erxes/ui/src';
+import { ButtonMutate, withProps } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
@@ -56,7 +57,9 @@ class CloseFromContainer extends React.Component<FinalProps, State> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={__(`You successfully closed this contract`)}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

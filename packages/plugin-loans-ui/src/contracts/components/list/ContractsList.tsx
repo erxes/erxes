@@ -1,5 +1,4 @@
 import {
-  __,
   Alert,
   Button,
   confirm,
@@ -27,6 +26,7 @@ import RightMenu from './RightMenu';
 import { can } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { __ } from 'coreui/utils';
 // import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
@@ -136,7 +136,10 @@ class ContractsList extends React.Component<IProps, State> {
                 />
               </th>
               <th>
-                <SortHandler sortField={'number'} label={__('Number')} />
+                <SortHandler
+                  sortField={'number'}
+                  label={__('Contract Number')}
+                />
               </th>
               <th>
                 <SortHandler
@@ -212,7 +215,7 @@ class ContractsList extends React.Component<IProps, State> {
               icon="cancel-1"
               onClick={onClick}
             >
-              Delete
+              {__('Delete')}
             </Button>
           )}
         </BarItems>

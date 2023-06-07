@@ -10,6 +10,7 @@ import { buildFile } from './reportExport';
 import * as bodyParser from 'body-parser';
 import * as multer from 'multer';
 import * as cors from 'cors';
+import * as path from 'path';
 import * as cookieParser from 'cookie-parser';
 import userMiddleware, { checkPermission, handleUpload } from './utils';
 import * as permissions from './permissions';
@@ -95,8 +96,9 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
+    const uploadDir = path.join(__dirname, '../uploads');
 
-    const upload = multer({ dest: __dirname + '../uploads/' });
+    const upload = multer({ dest: uploadDir });
 
     app.post(
       '/upload-salary',

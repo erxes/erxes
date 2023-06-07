@@ -8,7 +8,7 @@ import React from 'react';
 import InsuranceTypeForm from '../components/InsuranceTypeForm';
 import { mutations } from '../graphql';
 import { IInsuranceType } from '../types';
-
+import { __ } from 'coreui/utils';
 type Props = {
   insuranceType: IInsuranceType;
   getAssociatedInsuranceType?: (insuranceTypeId: string) => void;
@@ -51,7 +51,9 @@ class InsuranceTypeFromContainer extends React.Component<FinalProps> {
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

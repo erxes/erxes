@@ -19,7 +19,7 @@ import { Amount } from '../../contracts/styles';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IInvoice } from '../../invoices/types';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import SelectContracts, {
   Contracts
 } from '../../contracts/components/common/SelectContract';
@@ -135,7 +135,7 @@ class TransactionForm extends React.Component<Props, State> {
     return (
       <FormWrapper>
         <FormColumn>
-          <ControlLabel>{`${label}:`}</ControlLabel>
+          <ControlLabel>{`${__(label)}:`}</ControlLabel>
         </FormColumn>
         <FormColumn>
           <Amount>{Number(trVal).toLocaleString()}</Amount>
@@ -151,19 +151,19 @@ class TransactionForm extends React.Component<Props, State> {
         <>
           <FormWrapper>
             <FormColumn>
-              <ControlLabel>Type</ControlLabel>
+              <ControlLabel>{__('Type')}</ControlLabel>
             </FormColumn>
             <FormColumn>
               <ControlLabel>Transaction</ControlLabel>
             </FormColumn>
           </FormWrapper>
-          {this.renderRowTr('total', 'total')}
-          {this.renderRowTr('payment', 'payment')}
-          {this.renderRowTr('interest eve', 'interestEve')}
-          {this.renderRowTr('interest nonce', 'interestNonce')}
-          {this.renderRowTr('undue', 'undue')}
-          {this.renderRowTr('insurance', 'insurance')}
-          {this.renderRowTr('debt', 'debt')}
+          {this.renderRowTr('Total must pay', 'total')}
+          {this.renderRowTr('Payment', 'payment')}
+          {this.renderRowTr('Interest Eve', 'interestEve')}
+          {this.renderRowTr('Interest Nonce', 'interestNonce')}
+          {this.renderRowTr('Undue', 'undue')}
+          {this.renderRowTr('Insurance', 'insurance')}
+          {this.renderRowTr('Debt', 'debt')}
         </>
       );
     }
@@ -238,7 +238,7 @@ class TransactionForm extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>Pay Date</ControlLabel>
+                <ControlLabel>{__('Pay Date')}</ControlLabel>
                 <DateContainer>
                   <DateControl
                     {...formProps}
@@ -251,7 +251,7 @@ class TransactionForm extends React.Component<Props, State> {
               </FormGroup>
 
               <FormGroup>
-                <ControlLabel>Description</ControlLabel>
+                <ControlLabel>{__('Description')}</ControlLabel>
                 <DateContainer>
                   <FormControl
                     {...formProps}
@@ -264,7 +264,7 @@ class TransactionForm extends React.Component<Props, State> {
               </FormGroup>
 
               <FormGroup>
-                <ControlLabel>Total</ControlLabel>
+                <ControlLabel>{__('Total')}</ControlLabel>
                 <FormControl
                   {...formProps}
                   type={'number'}
@@ -278,9 +278,9 @@ class TransactionForm extends React.Component<Props, State> {
               </FormGroup>
 
               <FormGroup>
-                <ControlLabel>Contract</ControlLabel>
+                <ControlLabel>{__('Contract')}</ControlLabel>
                 <SelectContracts
-                  label="Choose an customer"
+                  label={__('Choose an contract')}
                   name="contractId"
                   initialValue={this.state.contractId}
                   onSelect={(v, n) => {
@@ -293,7 +293,7 @@ class TransactionForm extends React.Component<Props, State> {
                   multi={false}
                 />
               </FormGroup>
-              {this.renderRowTr('total', 'total', true)}
+              {this.renderRowTr('Total', 'total', true)}
             </FormColumn>
           </FormWrapper>
 
@@ -302,7 +302,7 @@ class TransactionForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            Close
+            {__('Close')}
           </Button>
 
           {renderButton({

@@ -34,6 +34,8 @@ import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   currentUser: IUser;
+  isCurrentUserAdmin: boolean;
+
   branches: IBranch[];
   departments: IDepartment[];
 
@@ -51,6 +53,7 @@ type Props = {
 function ScheduleForm(props: Props) {
   const {
     currentUser,
+    isCurrentUserAdmin,
     queryParams,
     closeModal,
 
@@ -83,6 +86,13 @@ function ScheduleForm(props: Props) {
   if (!scheduleConfigs.length) {
     Alert.error('Please add schedule config in configuration section!');
   }
+
+  const filterParams = isCurrentUserAdmin
+    ? {}
+    : {
+        ids: returnTotalUserOptions(),
+        excludeIds: false
+      };
 
   // prepare schedule configsObject
   const scheduleConfigsObject = {};
@@ -442,10 +452,7 @@ function ScheduleForm(props: Props) {
     <FlexColumn marginNum={10}>
       <SelectTeamMembers
         customField="employeeId"
-        filterParams={{
-          ids: returnTotalUserOptions(),
-          excludeIds: false
-        }}
+        filterParams={filterParams}
         customOption={prepareCurrentUserOption(currentUser)}
         queryParams={queryParams}
         label={'Team member'}
@@ -518,10 +525,7 @@ function ScheduleForm(props: Props) {
             <div style={{ width: '100%' }}>
               <SelectTeamMembers
                 customField="employeeId"
-                filterParams={{
-                  ids: returnTotalUserOptions(),
-                  excludeIds: false
-                }}
+                filterParams={filterParams}
                 customOption={prepareCurrentUserOption(currentUser)}
                 queryParams={queryParams}
                 label={'Select team member'}

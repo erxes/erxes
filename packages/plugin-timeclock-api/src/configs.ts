@@ -47,8 +47,8 @@ export default {
     app.get(
       '/remove-duplicates',
       routeErrorHandling(async (req: any, res) => {
-        const remove = removeDuplicates();
-        return res.send();
+        const remove = await removeDuplicates();
+        return res.send(remove);
       })
     );
 

@@ -123,7 +123,6 @@ export const generateExtraFilters = async (filter, extraParams) => {
       };
     }
   }
-
   return filter;
 };
 
@@ -537,13 +536,48 @@ export const generateCommonFilters = async (
 };
 
 export const calendarFilters = async (models: IModels, filter, args) => {
-  const { date, pipelineId } = args;
+  const {
+    date,
+    pipelineId,
+    createdStartDate,
+    createdEndDate,
+    stateChangedStartDate,
+    stateChangedEndDate,
+    startDateStartDate,
+    startDateEndDate,
+    closeDateStartDate,
+    closeDateEndDate
+  } = args;
 
   if (date) {
     const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
 
     filter.closeDate = dateSelector(date);
     filter.stageId = { $in: stageIds };
+  }
+
+  if (createdStartDate || createdEndDate) {
+    const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
+    filter.createdAt = { $gte: createdStartDate, $lte: createdEndDate };
+    filter.stageId = { $in: stageIds };
+  }
+  if (stateChangedStartDate || stateChangedEndDate) {
+    filter.stageChangedDate = {
+      $gte: stateChangedStartDate,
+      $lte: stateChangedEndDate
+    };
+  }
+  if (startDateStartDate || startDateEndDate) {
+    filter.startDate = {
+      $gte: startDateStartDate,
+      $lte: startDateEndDate
+    };
+  }
+  if (closeDateStartDate || closeDateEndDate) {
+    filter.closeDate = {
+      $gte: closeDateStartDate,
+      $lte: closeDateEndDate
+    };
   }
 
   return filter;
@@ -558,7 +592,6 @@ export const generateDealCommonFilters = async (
 ) => {
   args.type = 'deal';
   const { productIds } = extraParams || args;
-
   let filter = await generateCommonFilters(
     models,
     subdomain,

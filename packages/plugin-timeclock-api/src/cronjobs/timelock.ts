@@ -48,11 +48,11 @@ const connectAndImportFromMysql = async (subdomain: string) => {
   const NOW = dayjs(Date.now());
   const YESTERDAY = NOW.add(-1, 'day');
 
-  const returnQuery = await connectAndQueryFromMsSql(
-    subdomain,
-    YESTERDAY.format(format),
-    NOW.format(format)
-  );
+  const returnQuery = await connectAndQueryFromMsSql(subdomain, {
+    startDate: YESTERDAY.format(format),
+    endDate: NOW.format(format),
+    extractAll: true
+  });
 
   if (returnQuery instanceof Error) {
     createLogWhenImportedFromMssql(

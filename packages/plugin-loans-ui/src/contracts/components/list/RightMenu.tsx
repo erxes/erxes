@@ -10,7 +10,7 @@ import {
 
 import RTG from 'react-transition-group';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import SelectContractType from '../../../contractTypes/containers/SelectContractType';
@@ -129,13 +129,13 @@ export default class RightMenu extends React.Component<Props, State> {
       <FilterBox>
         <FormControl
           defaultValue={queryParams.search}
-          placeholder={__('Number ...')}
+          placeholder={__('Contract Number') + ' ...'}
           onKeyPress={this.onSearch}
           autoFocus={true}
         />
 
         <SelectCustomers
-          label="Filter by customer"
+          label={__('Filter by customers')}
           name="customerId"
           queryParams={queryParams}
           onSelect={onSelect}
@@ -143,7 +143,7 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         <SelectBranches
-          label="Filter by branch"
+          label={__('Filter by branch')}
           name="branchId"
           queryParams={queryParams}
           onSelect={onSelect}
@@ -151,7 +151,7 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         <SelectCompanies
-          label="Filter by company"
+          label={__('Filter by companies')}
           name="companyId"
           queryParams={queryParams}
           onSelect={onSelect}
@@ -159,7 +159,7 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         <SelectContractType
-          label="Filter by contract type"
+          label={__('Filter by contract type')}
           name="contractTypeId"
           queryParams={queryParams}
           onSelect={onSelect}
@@ -170,7 +170,7 @@ export default class RightMenu extends React.Component<Props, State> {
           type="number"
           required={false}
           name="leaseAmount"
-          placeholder={'Lease Amount'}
+          placeholder={__('Lease Amount')}
           onChange={this.onChangeRangeFilter.bind(this, 'leaseAmount')}
         />
         <FormControl
@@ -178,7 +178,7 @@ export default class RightMenu extends React.Component<Props, State> {
           type="number"
           required={false}
           name="interestRate"
-          placeholder={'Interest Rate'}
+          placeholder={__('Interest Rate')}
           onChange={this.onChangeRangeFilter.bind(this, 'interestRate')}
         />
         <FormControl
@@ -186,7 +186,7 @@ export default class RightMenu extends React.Component<Props, State> {
           type="number"
           required={false}
           name="tenor"
-          placeholder={'Tenor'}
+          placeholder={__('Tenor')}
           onChange={this.onChangeRangeFilter.bind(this, 'tenor')}
         />
         <FormControl
@@ -212,7 +212,7 @@ export default class RightMenu extends React.Component<Props, State> {
               required={false}
               name="startStartDate"
               onChange={this.onChangeRangeFilter.bind(this, 'startStartDate')}
-              placeholder={'Start date'}
+              placeholder={__('Start date')}
             />
           </div>
 
@@ -222,7 +222,7 @@ export default class RightMenu extends React.Component<Props, State> {
               type="date"
               required={false}
               name="endStartDate"
-              placeholder={'End date'}
+              placeholder={__('End date')}
               onChange={this.onChangeRangeFilter.bind(this, 'endStartDate')}
             />
           </div>
@@ -237,7 +237,7 @@ export default class RightMenu extends React.Component<Props, State> {
               required={false}
               name="startCloseDate"
               onChange={this.onChangeRangeFilter.bind(this, 'startCloseDate')}
-              placeholder={'Start date'}
+              placeholder={__('Start date')}
             />
           </div>
 
@@ -247,7 +247,7 @@ export default class RightMenu extends React.Component<Props, State> {
               type="date"
               required={false}
               name="endCloseDate"
-              placeholder={'End date'}
+              placeholder={__('End date')}
               onChange={this.onChangeRangeFilter.bind(this, 'endCloseDate')}
             />
           </div>

@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   CollapseContent,
   ControlLabel,
@@ -9,6 +8,7 @@ import {
 } from '@erxes/ui/src';
 import React from 'react';
 import { IConfigsMap } from '../types';
+import { __ } from 'coreui/utils';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -72,7 +72,7 @@ class PerSettings extends React.Component<Props, State> {
         open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
       >
         <FormGroup>
-          <ControlLabel>{'Title'}</ControlLabel>
+          <ControlLabel>{__('Title')}</ControlLabel>
           <FormControl
             defaultValue={config['title']}
             onChange={this.onChangeInput.bind(this, 'title')}
@@ -82,7 +82,7 @@ class PerSettings extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{'Month'}</ControlLabel>
+          <ControlLabel>{__('Month')}</ControlLabel>
           <FormControl
             defaultValue={config['month']}
             type={'number'}
@@ -94,7 +94,7 @@ class PerSettings extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{'Day'}</ControlLabel>
+          <ControlLabel>{__('Day')}</ControlLabel>
           <FormControl
             defaultValue={config['day']}
             type={'number'}
@@ -113,7 +113,7 @@ class PerSettings extends React.Component<Props, State> {
             onClick={this.onDelete}
             uppercase={false}
           >
-            Delete
+            {__('Delete')}
           </Button>
 
           <Button
@@ -122,7 +122,7 @@ class PerSettings extends React.Component<Props, State> {
             onClick={this.onSave}
             uppercase={false}
           >
-            Save
+            {__('Save')}
           </Button>
         </ModalFooter>
       </CollapseContent>

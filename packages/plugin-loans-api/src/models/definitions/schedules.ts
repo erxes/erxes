@@ -34,6 +34,10 @@ export interface ISchedule {
   didTotal: number;
   surplus?: number;
 
+  scheduleDidPayment?: number;
+  scheduleDidInterest?: number;
+  scheduleDidStatus?: 'done' | 'less' | 'pending';
+
   transactionIds?: string[];
   isDefault: boolean;
 }
@@ -121,6 +125,30 @@ export const scheduleSchema = schemaHooksWrapper(
       optional: true
     }),
     surplus: field({ type: Number, min: 0, label: 'Surplus', optional: true }),
+    scheduleDidPayment: field({
+      type: Number,
+      min: 0,
+      label: 'scheduleDidPayment',
+      optional: true
+    }),
+    scheduleDidInterest: field({
+      type: Number,
+      min: 0,
+      label: 'scheduleDidInterest',
+      optional: true
+    }),
+    scheduleDidStatus: field({
+      type: String,
+      enum: [
+        SCHEDULE_STATUS.DONE,
+        SCHEDULE_STATUS.LESS,
+        SCHEDULE_STATUS.PENDING
+      ],
+      min: 0,
+      label: 'scheduleDidInterest',
+      default: SCHEDULE_STATUS.PENDING,
+      optional: true
+    }),
 
     transactionIds: field({
       type: [String],

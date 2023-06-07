@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import {
-  __,
   Alert,
   Button,
   confirm,
@@ -13,6 +12,7 @@ import {
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -80,7 +80,7 @@ class DetailInfo extends React.Component<Props> {
           <InfoWrapper>
             <Name>{dayjs(periodLock.date).format('ll')}</Name>
             <ModalTrigger
-              title="Edit basic info"
+              title={__('Edit basic info')}
               trigger={<Icon icon="edit" />}
               size="lg"
               content={content}

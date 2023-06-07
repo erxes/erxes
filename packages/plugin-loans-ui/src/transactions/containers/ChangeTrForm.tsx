@@ -8,6 +8,7 @@ import React from 'react';
 import ChangeTrForm from '../components/ChangeTrForm';
 import { mutations } from '../graphql';
 import { ITransaction } from '../types';
+import { __ } from 'coreui/utils';
 
 type Props = {
   transaction: ITransaction;
@@ -44,7 +45,9 @@ class TransactionFromContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully changed transaction`}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

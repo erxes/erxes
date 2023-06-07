@@ -118,5 +118,17 @@ export async function checkConfig({
     config: { $regex: `.*"${fieldName}":"${detail[fieldName]}".*` }
   }).sort({ createdAt: -1 });
 
+  if (config) {
+    const params = JSON.parse(config.params || '{}');
+    for (const [key, value] of Object.entries(params)) {
+      if (typeof value === 'string') {
+        if (value.match(/^{{ .* }}$/)) {
+          params[key] = detail[value.replace(/{{ | }}/g, '')];
+        }
+      }
+    }
+    config.params = JSON.stringify(params);
+  }
+
   return config;
 }
