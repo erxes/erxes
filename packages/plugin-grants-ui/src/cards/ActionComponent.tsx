@@ -12,6 +12,7 @@ import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { FormColumn, FormWrapper, LinkButton } from '@erxes/ui/src/styles/main';
 import { ListItem, RemoveRow, Row } from './styles';
 import { SelectCardType, SelectStage } from './common';
+import Attribution from '@erxes/ui-automations/src/containers/forms/actions/Attribution';
 type Props = {
   action: string;
   initialProps: any;
@@ -30,6 +31,13 @@ class CardActionComponent extends React.Component<Props, State> {
     this.state = {
       params: props.initialProps || {}
     };
+  }
+
+  componentDidMount(): void {
+    if (this.props.action === 'createRelatedCard') {
+      const sourceType = this.props?.source?.type || '';
+      this.handleChange(sourceType, 'sourceType');
+    }
   }
 
   handleChange = (value, name: string) => {
@@ -242,7 +250,15 @@ class CardActionComponent extends React.Component<Props, State> {
             <CollapseContent title="Settings" compact>
               <BoardSelect {...updateProps} />
               <FormGroup>
-                <ControlLabel required>{__('Name')}</ControlLabel>
+                <Row>
+                  <ControlLabel required>{__('Name')}</ControlLabel>
+                  <Attribution
+                    triggerType={`cards:${params['type']}`}
+                    inputName="name"
+                    config={params}
+                    setConfig={params => this.props.onChange(params)}
+                  />
+                </Row>
                 <FormControl
                   name="name"
                   value={params?.name}
