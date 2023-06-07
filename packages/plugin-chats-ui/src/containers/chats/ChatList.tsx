@@ -25,7 +25,7 @@ const ChatListContainer = (props: FinalProps) => {
   const { currentUser, isWidget } = props;
   const { loading, error, data, refetch } = useQuery(gql(queries.chats));
 
-  if (isWidget && isWidget) {
+  if (isWidget) {
     refetch();
   }
 
