@@ -203,6 +203,8 @@ export class StorePayAPI extends BaseAPI {
         path: `merchant/loan/check/${invoiceNumber}`
       });
 
+      console.log('checkInvoice Store pay', res);
+
       if (!res.value) {
         return PAYMENT_STATUS.PENDING;
       }
