@@ -123,12 +123,10 @@ export default class ConversationDetail extends React.Component<Props> {
       });
 
       if (dmConfig) {
-        return (
-          <DmWorkArea {...this.props} content={content} dmConfig={dmConfig} />
-        );
+        return <DmWorkArea {...this.props} dmConfig={dmConfig} />;
       }
 
-      return <DmWorkArea content={content} {...this.props} />;
+      return <DmWorkArea {...this.props} />;
     }
 
     if (loading) {
