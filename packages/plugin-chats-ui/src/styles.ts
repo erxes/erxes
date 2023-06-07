@@ -147,7 +147,7 @@ export const WidgetChatWrapper = styled.div`
 export const WidgetChatWindowWrapper = styled.div`
   position: relative;
   width: 350px;
-  max-height: 400px;
+  height: 400px;
   margin: 0 ${dimensions.coreSpacing / 2}px;
   display: flex;
   flex-direction: column;
