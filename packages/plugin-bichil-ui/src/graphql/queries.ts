@@ -128,29 +128,34 @@ employee {
   }
 }
       employeeId 
-totalWorkHours 
-totalWorkedHours 
-mainSalary 
-bonus 
-addition 
-appointment 
-kpi 
-vacation 
-totalAddition 
-lateHoursDeduction 
-resultDeduction 
-totalDeduction 
-totalSalary 
-preliminarySalary
-receivable 
-ndsh 
-hhoat 
-mainDeduction
-biSan
-phoneCharge
-taxReceivable
-salaryOnHand
+      totalWorkHours
+      totalWorkedHours
+      mainSalary
+      adequateSalary
+      kpi
+      onAddition
+      bonus
+      vacation
+      addition
+      totalAddition
+      lateHoursDeduction
+      resultDeduction
+      totalDeduction
+      totalSalary
+      preliminarySalary
+      kpiDeduction
+      onDeduction
+      bonusDeduction
+      vacationDeduction
+      ndsh
+      hhoat
+      mainDeduction
+      salaryOnHand
+      receivable
+      biSan
+      toSendBank
 title
+
 `;
 
 const bichilSalaryReport = `

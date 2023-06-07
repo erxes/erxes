@@ -81,25 +81,29 @@ const types = `
     totalWorkHours: Float
     totalWorkedHours: Float
     mainSalary: Float
-    bonus: Float
-    addition: Float
-    appointment: Float
+    adequateSalary: Float
     kpi: Float
+    onAddition: Float
+    bonus: Float
     vacation: Float
+    addition: Float
     totalAddition: Float
     lateHoursDeduction: Float
     resultDeduction: Float
     totalDeduction: Float
     totalSalary: Float
     preliminarySalary: Float
-    receivable: Float
+    kpiDeduction: Float
+    onDeduction: Float
+    bonusDeduction: Float
+    vacationDeduction: Float
     ndsh: Float
     hhoat: Float
     mainDeduction: Float
-    biSan: Float
-    phoneCharge: Float
-    taxReceivable: Float
     salaryOnHand: Float
+    receivable: Float
+    biSan: Float
+    toSendBank: Float
   }
 
   type BichilSalaryReportsListResponse {

@@ -28,8 +28,9 @@ const SalaryForm = (props: Props) => {
 
   const onChangeFile = (e: any) => {
     const f = e.currentTarget.files[0];
-    if (f.type !== 'text/csv') {
-      return Alert.error('Please choose a csv file');
+
+    if (f.name.split('.').pop() !== 'xlsx') {
+      return Alert.error('Please choose a excel file');
     }
 
     setFile(f);
@@ -54,8 +55,8 @@ const SalaryForm = (props: Props) => {
       return Alert.error('Please choose a file');
     }
 
-    if (file.type !== 'text/csv') {
-      return Alert.error('Please choose a csv file');
+    if (file.name.split('.').pop() !== 'xlsx') {
+      return Alert.error('Please choose a excel file');
     }
 
     props.handleSubmit(title, file);
