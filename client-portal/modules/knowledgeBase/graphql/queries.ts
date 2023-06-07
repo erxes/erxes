@@ -82,6 +82,7 @@ export const articleDetailQuery = `
     knowledgeBaseArticleDetail(_id: $_id) {
       _id
       title
+      viewCount
       summary
       content
       status

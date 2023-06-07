@@ -193,7 +193,7 @@ class SingleArticle extends React.Component<Props, { reaction: string }> {
           <Avatar
             date={article.modifiedDate}
             user={article.createdUser}
-            viewCount={article.viewCount}
+            viewCount={article.viewCount || 0}
           />
 
           <hr />

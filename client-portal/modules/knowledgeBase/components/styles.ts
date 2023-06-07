@@ -105,6 +105,8 @@ const Avatars = styled.div`
     height: 24px;
     border-radius: 50%;
     overflow: hidden;
+    flex-shrink: 0;
+    object-fit: cover;
 
     &:first-child {
       margin-left: 0;
@@ -125,6 +127,7 @@ const Avatars = styled.div`
     
     > div {
       width: 250px;
+      margin-right: ${dimensions.unitSpacing}px;
     }
 
     .darker {
