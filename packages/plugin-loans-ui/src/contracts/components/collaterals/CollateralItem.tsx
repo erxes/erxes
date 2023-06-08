@@ -1,4 +1,5 @@
-import { __, Chooser, FormControl, Icon, ModalTrigger } from '@erxes/ui/src';
+import { Chooser, FormControl, Icon, ModalTrigger } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';

@@ -13,7 +13,7 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Contracts',
+      text: 'Loan Contract',
       url: '/erxes-plugin-loan/contract-list',
       icon: 'icon-medal',
       location: 'mainNavigation',

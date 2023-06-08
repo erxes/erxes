@@ -9,7 +9,7 @@ export const initBroker = async cl => {
 
 export const sendMessageBroker = async (
   args: ISendMessageArgs,
-  name: 'core' | 'cards' | 'reactions' | 'contacts' | 'products'
+  name: 'core' | 'cards' | 'reactions' | 'contacts' | 'products' | 'forms'
 ): Promise<any> => {
   return sendMessage({
     client,

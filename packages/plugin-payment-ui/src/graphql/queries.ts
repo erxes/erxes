@@ -23,12 +23,6 @@ const paymentsTotalCountQuery = gql`
   }
 `;
 
-const checkInvoice = gql`
-  query checkInvoice($paymentId: String!, $invoiceId: String!) {
-    checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
-  }
-`;
-
 const invoicesFields = `
     _id
     amount
@@ -111,7 +105,6 @@ export default {
   payments,
   paymentsTotalCountQuery,
   paymentConfigQuery,
-  checkInvoice,
   invoices,
   invoicesTotalCount,
 

@@ -122,6 +122,8 @@ export class MonpayAPI extends BaseAPI {
         params: { uuid: invoice.apiResponse.uuid }
       });
 
+      console.log('checkInvoice Mon pay', res);
+
       switch (res.code) {
         case 0:
           return PAYMENT_STATUS.PAID;

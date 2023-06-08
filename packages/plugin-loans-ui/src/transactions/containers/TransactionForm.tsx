@@ -7,7 +7,7 @@ import { IInvoice } from '../../invoices/types';
 import TransactionForm from '../components/TransactionForm';
 import { mutations } from '../graphql';
 import { ITransaction } from '../types';
-
+import { __ } from 'coreui/utils';
 type Props = {
   transaction: ITransaction;
   invoice?: IInvoice;
@@ -55,7 +55,9 @@ class TransactionFromContainer extends React.Component<FinalProps> {
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

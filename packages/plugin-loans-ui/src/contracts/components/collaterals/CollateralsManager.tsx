@@ -1,5 +1,4 @@
 import {
-  __,
   Alert,
   Button,
   EmptyState,
@@ -12,6 +11,7 @@ import React from 'react';
 import { Add, CollateralTableWrapper, FormContainer } from '../../styles';
 import { ICollateralData } from '../../types';
 import CollateralItem from './CollateralItem';
+import { __ } from 'coreui/utils';
 
 type Props = {
   onChangeCollateralsData: (collateralsData: ICollateralData[]) => void;
@@ -97,7 +97,7 @@ class CollateralForm extends React.Component<Props, State> {
           <thead>
             <tr>
               <th>{__('Insurance type')}</th>
-              <th>{__('Insurance amount')}</th>
+              <th>{__('Insurance Amount')}</th>
               <th>{__('Collateral')}</th>
               <th>{__('Cost')}</th>
               <th>{__('Percent')}</th>
@@ -181,7 +181,7 @@ class CollateralForm extends React.Component<Props, State> {
             icon="times-circle"
             uppercase={false}
           >
-            Cancel
+            {__('Cancel')}
           </Button>
 
           <Button
@@ -190,7 +190,7 @@ class CollateralForm extends React.Component<Props, State> {
             icon="check-circle"
             uppercase={false}
           >
-            Save
+            {__('Save')}
           </Button>
         </ModalFooter>
       </>

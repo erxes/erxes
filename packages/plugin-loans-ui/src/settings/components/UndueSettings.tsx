@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   MainStyleTitle as Title,
   Wrapper,
@@ -11,12 +10,13 @@ import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import PerSettings from './PerUndueBonus';
 import Sidebar from './Sidebar';
+import { __ } from 'coreui/utils';
 
 function Header() {
   return (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title="Гэрээнд алданги тооцохгүй үеүүдийг тохируулах тохиргооны хэсэг"
+      title={__('Loan not calc undue settings')}
       description=""
     />
   );
@@ -98,7 +98,7 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Ebarimt config') }
+      { title: __('Loan config') }
     ];
 
     const actionButtons = (
@@ -108,7 +108,7 @@ class GeneralSettings extends React.Component<Props, State> {
         icon="plus"
         uppercase={false}
       >
-        New config
+        {__('New config')}
       </Button>
     );
 

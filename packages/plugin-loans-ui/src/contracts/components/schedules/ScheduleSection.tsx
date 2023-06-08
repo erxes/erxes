@@ -1,4 +1,5 @@
-import { __, Box, Icon, Alert, confirm } from '@erxes/ui/src';
+import { Box, Icon, Alert, confirm } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import React from 'react';
 
 import SchedulesList from '../../containers/Schedules';
@@ -25,14 +26,14 @@ function ScheduleSection({
   currentUser
 }: Props) {
   const onRegenSchedules = () =>
-    confirm('Are you sure Regenerate Schedule?')
+    confirm(__('Are you sure Regenerate Schedule?'))
       .then(() => regenSchedules(contractId))
       .catch(error => {
         Alert.error(error.message);
       });
 
   const onFixSchedules = () =>
-    confirm('Are you sure Fix Schedule?')
+    confirm(__('Are you sure Fix Schedule?'))
       .then(() => fixSchedules && fixSchedules(contractId))
       .catch(error => {
         Alert.error(error.message);

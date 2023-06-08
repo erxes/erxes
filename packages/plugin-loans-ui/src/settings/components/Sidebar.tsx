@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   MainStyleTopHeader as TopHeader,
   Sidebar as LeftSidebar,
@@ -7,6 +6,7 @@ import {
 } from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { __ } from 'coreui/utils';
 
 class Sidebar extends React.Component {
   renderListItem(url: string, text: string) {
@@ -32,7 +32,7 @@ class Sidebar extends React.Component {
             block={true}
             uppercase={false}
           >
-            Back to Settings
+            {__('Back to Settings')}
           </Button>
         </Link>
       </TopHeader>
@@ -45,11 +45,11 @@ class Sidebar extends React.Component {
         <List id="SettingsSidebar">
           {this.renderListItem(
             '/erxes-plugin-loan/undue-settings',
-            'Loan not calc undue settings'
+            __('Loan not calc undue settings')
           )}
           {this.renderListItem(
             '/erxes-plugin-loan/holiday-settings',
-            'Holiday configure'
+            __('Holiday configs')
           )}
         </List>
       </LeftSidebar>
