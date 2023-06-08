@@ -1,4 +1,5 @@
 import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -15,7 +16,9 @@ class Widget extends React.Component<{}> {
         overlay={<WidgetPopover autoOpenTab="Keyboard" />}
       >
         <NotifButton>
-          <Icon icon="phone" size={20} />
+          <Tip text={__('Call')} placement="bottom">
+            <Icon icon="phone" size={20} />
+          </Tip>
         </NotifButton>
       </OverlayTrigger>
     );
