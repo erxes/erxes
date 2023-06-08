@@ -1,12 +1,12 @@
-import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
-import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
-import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-
 import { AddContent, AddRow } from '../../styles/item';
+
 import AssignedUsers from './AssignedUsers';
+import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
+import { IField } from '@erxes/ui/src/types';
+import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
 import PipelineLabels from './PipelineLabels';
+import React from 'react';
+import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
 
 type Props = {
   object: any;
@@ -33,7 +33,7 @@ function GenerateAddFormFields(props: Props) {
   }) => {
     const field = customFieldsData.find(c => c.field === _id);
 
-    //check nested logics and clear field value
+    // check nested logics and clear field value
     for (const f of customFields) {
       const logics = f.logics || [];
 
@@ -151,8 +151,9 @@ function GenerateAddFormFields(props: Props) {
             return null;
           }
         }
+
         return (
-          <AddRow>
+          <AddRow key={index}>
             <AddContent>
               <GenerateField
                 field={field}
