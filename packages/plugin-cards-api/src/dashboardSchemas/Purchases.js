@@ -93,13 +93,13 @@ cube(`Purchases`, {
       title: `Pipeline Name`
     },
 
-    dealCustomField: {
+    purchaseCustomField: {
       sql: `${PurchasesCustomfieldsdata.customfieldsdataField}`,
       type: `string`,
       title: 'Fields Name'
     },
 
-    dealCustomFieldValue: {
+    purchaseCustomFieldValue: {
       sql: `${PurchasesCustomfieldsdata.customfieldsdataStringvalue}`,
       type: `string`,
       title: 'Field Value'

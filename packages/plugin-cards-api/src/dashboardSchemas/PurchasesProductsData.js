@@ -73,6 +73,12 @@ cube(`PurchasesProductsdata`, {
       title: `currency`
     },
 
+    productsdataTickUsed: {
+      sql: `${CUBE}.\`productsData.tickUsed\``,
+      type: `boolean`,
+      title: `Tick used`
+    },
+
     productsdataId: {
       sql: `${CUBE}.\`productsData._id\``,
       type: `string`,

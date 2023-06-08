@@ -1,7 +1,7 @@
 const { tableSchema } = require('../tablePrefix');
 
-cube(`PurchasessCustomfieldsdata`, {
-  sql: `SELECT * FROM ${tableSchema()}.\`purchasess_customFieldsData\``,
+cube(`PurchasesCustomfieldsdata`, {
+  sql: `SELECT * FROM ${tableSchema()}.\`purchases_customFieldsData\``,
 
   joins: {
     Fields: {

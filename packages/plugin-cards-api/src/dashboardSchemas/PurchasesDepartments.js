@@ -20,17 +20,13 @@ cube(`PurchasesDepartments`, {
   dimensions: {
     _id: {
       sql: `CONCAT(${CUBE}._id)`,
-
       type: `string`,
-
       primaryKey: true
     },
 
     departmentIds: {
       sql: `${Departments}.\`title\``,
-
       type: `string`,
-
       title: 'Title'
     }
   },
