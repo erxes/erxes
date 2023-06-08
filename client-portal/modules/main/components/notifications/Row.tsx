@@ -1,11 +1,11 @@
-import { CreatedDate, InfoSection } from '../../../styles/main';
+import { AvatarSection, CreatedUser } from "../../../styles/notifications";
+import { CreatedDate, InfoSection } from "../../../styles/main";
 
-import { INotification } from '../../../types';
-import React from 'react';
-import classNames from 'classnames';
-import dayjs from 'dayjs';
-import NameCard from '../../../common/nameCard/NameCard';
-import { AvatarSection, CreatedUser } from '../../../styles/notifications';
+import { INotification } from "../../../types";
+import NameCard from "../../../common/nameCard/NameCard";
+import React from "react";
+import classNames from "classnames";
+import dayjs from "dayjs";
 
 type Props = {
   notification: INotification;
@@ -27,15 +27,15 @@ const Row = (props: Props) => {
   const renderCreatedUser = () => {
     const { createdUser, content } = notification;
 
-    let name = 'system';
+    let name = "system";
 
     if (createdUser) {
       name = createdUser.details
-        ? createdUser.details.fullName || ''
+        ? createdUser.details.fullName || ""
         : createdUser.username || createdUser.email;
     }
 
-    const getCardType = (content.split(' ')[0] || '').toLocaleLowerCase();
+    const getCardType = (content.split(" ")[0] || "").toLocaleLowerCase();
 
     const createTitle = `has updated ${getCardType}`;
     return (
@@ -52,9 +52,9 @@ const Row = (props: Props) => {
       </AvatarSection>
       <InfoSection>
         {renderCreatedUser()}
-        <b>{notification.content || 'New notification'}</b>
+        <p>{notification.content || "New notification"}</p>
         <CreatedDate>
-          {dayjs(notification.createdAt).format('DD MMM YYYY, HH:mm')}
+          {dayjs(notification.createdAt).format("DD MMM YYYY, HH:mm")}
         </CreatedDate>
       </InfoSection>
     </li>

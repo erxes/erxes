@@ -5,6 +5,7 @@ body {
   font-family: 'Open Sans', sans-serif;
   line-height: 1.5;
   color: #444;
+  position: relative;
 }
 
 a,

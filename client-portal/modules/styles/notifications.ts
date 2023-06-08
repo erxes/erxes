@@ -1,39 +1,23 @@
 import { colors, dimensions, typography } from '.';
+
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const NotificationWrapper = styled.div`
   position: relative;
-  padding-bottom: 30px;
   border-top: 1px solid ${colors.borderPrimary};
 `;
 
-const NotificationSeeAll = styled.div`
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  border-top: 1px solid ${colors.borderPrimary};
+const NotificationFooter = styled.div`
   height: 30px;
-
+  padding: 0 ${dimensions.coreSpacing}px;
   font-size: 13px !important;
   color: rgb(23, 133, 252) !important;
+  border-top: 1px solid ${colors.borderPrimary};
 
-  a {
-    padding: 5px ${dimensions.coreSpacing}px;
-    display: block;
-    text-align: left;
+  > span {
+    cursor: pointer;
   }
-`;
-
-const MarkAllRead = styled.a`
-  position: relative;
-  cursor: pointer;
-
-  font-size: 13px !important;
-  color: rgb(23, 133, 252) !important;
-
-  padding: 5px ${dimensions.coreSpacing}px;
-  float: right;
 `;
 
 const CreatedUser = styledTS<{ isList?: boolean }>(styled.div)`
@@ -63,9 +47,7 @@ const TabContainer = styledTS<{ grayBorder?: boolean; full?: boolean }>(
   justify-content: ${props => props.full && 'space-evenly'};
   flex-shrink: 0;
   height: ${dimensions.headerSpacing}px;
-
-  font-size: 0.675rem !important;
-
+  font-size: 13px !important;
 `;
 
 const TabCaption = styled.span`
@@ -105,9 +87,8 @@ const TabCaption = styled.span`
 `;
 
 export {
-  NotificationSeeAll,
   NotificationWrapper,
-  MarkAllRead,
+  NotificationFooter,
   CreatedUser,
   AvatarSection,
   TabCaption,
