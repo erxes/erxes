@@ -4,6 +4,7 @@ import { mutations, queries } from "../graphql";
 
 import Detail from "../components/Detail";
 import React from "react";
+import Spinner from "../../common/Spinner";
 import { capitalize } from "../../common/utils";
 import { confirm } from "../../utils";
 
@@ -53,9 +54,15 @@ function DetailContainer({ _id, type, ...props }: Props) {
     }
   );
 
-  if (cardQueryLoading || commentsQueryLoading) return null;
+  if (cardQueryLoading || commentsQueryLoading) {
+    return <Spinner objective={true} />;
+  }
 
-  const item = data[`clientPortal${capitalize(type)}`];
+  const item =
+    type === "ticket"
+      ? data[`clientPortal${capitalize(type)}`]
+      : data[`${type}Detail`];
+
   const comments = commentsQuery?.clientPortalComments || [];
 
   const handleSubmit = (values: { content: string }) => {
