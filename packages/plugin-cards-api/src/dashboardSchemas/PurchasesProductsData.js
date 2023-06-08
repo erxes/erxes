@@ -1,7 +1,7 @@
 const { tableSchema } = require('../tablePrefix');
 
-cube(`DealsProductsdata`, {
-  sql: `SELECT * FROM ${tableSchema()}.\`deals_productsData\``,
+cube(`PurchasesProductsdata`, {
+  sql: `SELECT * FROM ${tableSchema()}.\`purchases_productsData\``,
 
   joins: {
     Products: {
@@ -15,11 +15,6 @@ cube(`DealsProductsdata`, {
       sql: `${CUBE}.\`productsData.amount\``,
       type: `sum`,
       title: `Amount sum`
-    },
-
-    count: {
-      type: `count`,
-      title: `Products data count`
     },
 
     productAmountAvg: {
