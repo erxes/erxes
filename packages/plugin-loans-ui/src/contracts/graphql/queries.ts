@@ -35,6 +35,9 @@ const contractFields = `
   riskExpertId
   weekends
   useHoliday
+  useMargin
+  useSkipInterest
+  useDebt
   relContractId
   skipInterestCalcMonth
   dealId
