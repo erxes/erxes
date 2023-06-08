@@ -96,9 +96,8 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
-    const uploadDir = path.join(__dirname, '../uploads');
 
-    const upload = multer({ dest: uploadDir });
+    const upload = multer({ dest: __dirname + '../uploads/' });
 
     app.post(
       '/upload-salary',
