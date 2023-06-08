@@ -6,6 +6,7 @@ import SalaryForm from '../../components/salary/Form';
 
 type Props = {
   closeModal: () => void;
+  successCallback: () => void;
 };
 
 const FormContainer = (props: Props) => {
@@ -29,6 +30,7 @@ const FormContainer = (props: Props) => {
       .then(res => {
         if (!res.error) {
           Alert.success('Successfully uploaded');
+          props.successCallback();
         } else {
           Alert.error(res.error);
         }
