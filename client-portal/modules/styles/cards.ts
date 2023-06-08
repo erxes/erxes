@@ -33,10 +33,7 @@ const CommentContainer = styled.div`
 `;
 
 const Description = styled.div`
-  background: #edeef0;
-  font-size: 13px;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  border-radius: 5px;
+  font-size: 14px;
 `;
 
 const Table = styled.table`
@@ -122,11 +119,12 @@ const DetailHeader = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 
   span {
-    text-transform: uppercase;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
     transition: all ease .3s;
     color: ${colors.colorCoreGray};
+    display: flex;
+    align-items: center;
 
     &:hover {
       color: ${colors.textPrimary};
@@ -138,18 +136,24 @@ const TicketDetailContent = styled.div`
   
 `;
 
-const DetailRow = styled.div`
+const DetailRow = styledTS<{ type?: string }>(styled.div)`
   margin-bottom: ${dimensions.unitSpacing + 5}px;
+  display: ${props => props.type === "row" && 'flex'};
+  align-items: ${props => props.type === "row" && 'center'};
 
   label {
-    font-weight: 600;
+    color: #999;
+    font-weight: 500;
+    text-transform: capitalize;
+    font-size: 13px;
+    margin: 0;
+    width: ${props => props.type === "row" && '120px'};
   }
   
   span {
     display: block;
-    font-size: 12px;
+    font-size: 14px;
     display: flex;
-    font-weight: 300;
     align-items: center;
   }
 `;
@@ -269,7 +273,16 @@ const SelectInput = styled.div`
   }
 `;
 
-const RightSidebar = styled.h6`
+const Card = styledTS<{ fullHeight?: boolean }>(styled.div)`
+  padding: ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  background: ${colors.colorWhite};
+  box-shadow: 0 3px 3px rgba(56,65,74,0.1);
+  border-radius: ${dimensions.unitSpacing}px;
+  height: ${props => props.fullHeight && '100%'};
+`;
+
+const RightSidebar = styled(Card)`
   position: sticky;
   overflow: auto;
   height: 100%;
@@ -312,6 +325,26 @@ const CardTab = styledTS<{baseColor?: string}>(styled.div)`
   }
 `;
 
+const Assignees = styled.div`
+  margin-bottom: ${dimensions.unitSpacing - 2}px;
+  display: flex;
+  align-items: center;
+
+  img {
+    border-radius: 24px;
+    border: 1px solid ${colors.borderPrimary};
+    margin-right: ${dimensions.unitSpacing- 5}px;
+  }
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+
+  > div {
+    margin-right: ${dimensions.coreSpacing + dimensions.coreSpacing}px;
+  }
+`;
+
 export {
   TicketRow,
   TicketLabel,
@@ -333,5 +366,8 @@ export {
   DetailRow,
   GroupList,
   GroupWrapper,
-  CardTab
+  CardTab,
+  Card,
+  FlexRow,
+  Assignees
 };
