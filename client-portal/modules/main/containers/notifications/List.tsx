@@ -1,13 +1,8 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useEffect } from 'react';
-import { mutations } from '../../../user/graphql';
-import Notifications from '../../components/notifications/List';
-import {
-  IUser,
-  NotificationsCountQueryResponse,
-  NotificationsQueryResponse,
-} from '../../../types';
-import { useRouter } from 'next/router';
+import { IUser, NotificationsQueryResponse } from "../../../types";
+import { gql, useMutation, useQuery } from "@apollo/client";
+
+import NotificationList from "../../components/notifications/List";
+import React from "react";
 
 type Props = {
   count: number;
@@ -40,25 +35,44 @@ const notificationsQuery = gql`
       createdAt
       isRead
       title
+      content
+      createdUser {
+        username
+        details {
+          fullName
+          avatar
+        }
+      }
     }
   }
 `;
 
 const markAsReadMutation = gql`
-  mutation ClientPortalNotificationsMarkAsRead($ids: [String]) {
-    clientPortalNotificationsMarkAsRead(_ids: $ids)
+  mutation ClientPortalNotificationsMarkAsRead(
+    $ids: [String]
+    $markAll: Boolean
+  ) {
+    clientPortalNotificationsMarkAsRead(_ids: $ids, markAll: $markAll)
   }
 `;
 
 function NotificationsContainer(props: Props) {
   const [markAsReadMutaion] = useMutation(markAsReadMutation);
 
-  const onClickNotification = (notificationId: string) => {
+  const markAsRead = (ids: string[]) => {
     markAsReadMutaion({
       variables: {
-        ids: [notificationId],
+        ids,
       },
-    })
+    });
+  };
+
+  const markAllAsRead = () => {
+    markAsReadMutaion({
+      variables: {
+        markAll: true,
+      },
+    });
   };
 
   const notificationsResponse = useQuery<NotificationsQueryResponse>(
@@ -66,13 +80,16 @@ function NotificationsContainer(props: Props) {
     {
       skip: !props.currentUser,
       variables: {
-        requireRead: props.requireRead,
         page: 1,
         perPage: 10,
       },
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
     }
   );
+
+  const showNotifications = (requireRead: boolean) => {
+    notificationsResponse.refetch({ requireRead });
+  };
 
   const notifications =
     (notificationsResponse.data &&
@@ -87,11 +104,13 @@ function NotificationsContainer(props: Props) {
     ...props,
     notifications,
     loading: notificationsResponse.loading,
-    onClickNotification,
+    markAsRead,
+    showNotifications,
+    markAllAsRead,
     refetch,
   };
 
-  return <Notifications {...updatedProps} />;
+  return <NotificationList {...updatedProps} />;
 }
 
 export default NotificationsContainer;

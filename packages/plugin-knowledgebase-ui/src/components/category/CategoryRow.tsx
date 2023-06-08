@@ -18,6 +18,7 @@ type Props = {
   isActive: boolean;
   isChild?: boolean;
   isParent?: boolean;
+  queryParams?: any;
 };
 
 class CategoryRow extends React.Component<Props> {
@@ -29,7 +30,7 @@ class CategoryRow extends React.Component<Props> {
   };
 
   renderEditForm(props) {
-    return <CategoryForm {...props} />;
+    return <CategoryForm queryParams={this.props.queryParams} {...props} />;
   }
 
   renderEditAction = () => {

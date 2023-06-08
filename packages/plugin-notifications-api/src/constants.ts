@@ -9,6 +9,12 @@ export const NOTIFICATION_TYPES = {
   DEAL_CHANGE: 'dealChange',
   DEAL_DUE_DATE: 'dealDueDate',
   DEAL_DELETE: 'dealDelete',
+  PURCHASE_ADD: 'purchaseAdd',
+  PURCHASE_REMOVE_ASSIGN: 'purchaseRemoveAssign',
+  PURCHASE_EDIT: 'purchaseEdit',
+  PURCHASE_CHANGE: 'purchaseChange',
+  PURCHASE_DUE_DATE: 'purchaseDueDate',
+  PURCHASE_DELETE: 'purchaseDelete',
   GROWTHHACK_ADD: 'growthHackAdd',
   GROWTHHACK_REMOVE_ASSIGN: 'growthHackRemoveAssign',
   GROWTHHACK_EDIT: 'growthHackEdit',
@@ -41,6 +47,12 @@ export const NOTIFICATION_TYPES = {
     'dealChange',
     'dealDueDate',
     'dealDelete',
+    'purchaseAdd',
+    'purchaseRemoveAssign',
+    'purchaseEdit',
+    'purchaseChange',
+    'purchaseDueDate',
+    'purchaseDelete',
     'growthHackAdd',
     'growthHackRemoveAssign',
     'growthHackEdit',
@@ -62,8 +74,8 @@ export const NOTIFICATION_TYPES = {
     'customerMention',
     'companyMention',
     'plugin',
-    'importDone',
-  ],
+    'importDone'
+  ]
 };
 
 export const NOTIFICATION_MODULES = [
@@ -73,17 +85,17 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'conversationStateChange',
-        text: 'State change',
+        text: 'State change'
       },
       {
         name: 'conversationAssigneeChange',
-        text: 'Assignee change',
+        text: 'Assignee change'
       },
       {
         name: 'conversationAddMessage',
-        text: 'Add message',
-      },
-    ],
+        text: 'Add message'
+      }
+    ]
   },
 
   {
@@ -92,9 +104,9 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'channelMembersChange',
-        text: 'Members change',
-      },
-    ],
+        text: 'Members change'
+      }
+    ]
   },
 
   {
@@ -103,29 +115,60 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'dealAdd',
-        text: 'Assigned a new deal  card',
+        text: 'Assigned a new deal  card'
       },
       {
         name: 'dealRemoveAssign',
-        text: 'Removed from the deal card',
+        text: 'Removed from the deal card'
       },
       {
         name: 'dealEdit',
-        text: 'Deal card edited',
+        text: 'Deal card edited'
       },
       {
         name: 'dealChange',
-        text: 'Moved between stages',
+        text: 'Moved between stages'
       },
       {
         name: 'dealDueDate',
-        text: 'Due date is near',
+        text: 'Due date is near'
       },
       {
         name: 'dealDelete',
-        text: 'Deal card deleted',
+        text: 'Deal card deleted'
+      }
+    ]
+  },
+
+  {
+    name: 'purchases',
+    description: 'Purchases',
+    types: [
+      {
+        name: 'purchaseAdd',
+        text: 'Assigned a new purchase  card'
       },
-    ],
+      {
+        name: 'purchaseRemoveAssign',
+        text: 'Removed from the purchase card'
+      },
+      {
+        name: 'purchaseEdit',
+        text: 'Purchase card edited'
+      },
+      {
+        name: 'purchaseChange',
+        text: 'Moved between stages'
+      },
+      {
+        name: 'purchaseDueDate',
+        text: 'Due date is near'
+      },
+      {
+        name: 'purchaseDelete',
+        text: 'Purchase card deleted'
+      }
+    ]
   },
 
   {
@@ -134,29 +177,29 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'ticketAdd',
-        text: 'Assigned a new ticket  card',
+        text: 'Assigned a new ticket  card'
       },
       {
         name: 'ticketRemoveAssign',
-        text: 'Removed from the ticket card',
+        text: 'Removed from the ticket card'
       },
       {
         name: 'ticketEdit',
-        text: 'Ticket card edited',
+        text: 'Ticket card edited'
       },
       {
         name: 'ticketChange',
-        text: 'Moved between stages',
+        text: 'Moved between stages'
       },
       {
         name: 'ticketDueDate',
-        text: 'Due date is near',
+        text: 'Due date is near'
       },
       {
         name: 'ticketDelete',
-        text: 'Ticket card deleted',
-      },
-    ],
+        text: 'Ticket card deleted'
+      }
+    ]
   },
 
   {
@@ -165,29 +208,29 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'taskAdd',
-        text: 'Assigned a new task  card',
+        text: 'Assigned a new task  card'
       },
       {
         name: 'taskRemoveAssign',
-        text: 'Removed from the task card',
+        text: 'Removed from the task card'
       },
       {
         name: 'taskEdit',
-        text: 'Task card edited',
+        text: 'Task card edited'
       },
       {
         name: 'taskChange',
-        text: 'Moved between stages',
+        text: 'Moved between stages'
       },
       {
         name: 'taskDueDate',
-        text: 'Due date is near',
+        text: 'Due date is near'
       },
       {
         name: 'taskDelete',
-        text: 'Task card deleted',
-      },
-    ],
+        text: 'Task card deleted'
+      }
+    ]
   },
   {
     name: 'customers',
@@ -195,9 +238,9 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'customerMention',
-        text: 'Mention on customer note',
-      },
-    ],
+        text: 'Mention on customer note'
+      }
+    ]
   },
   {
     name: 'companies',
@@ -205,8 +248,8 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'companyMention',
-        text: 'Mention on company note',
-      },
-    ],
-  },
+        text: 'Mention on company note'
+      }
+    ]
+  }
 ];

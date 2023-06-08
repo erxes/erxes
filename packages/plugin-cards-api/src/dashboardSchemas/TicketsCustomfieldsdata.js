@@ -3,11 +3,6 @@ const { tableSchema } = require('../tablePrefix');
 cube(`TicketsCustomfieldsdata`, {
   sql: `SELECT * FROM ${tableSchema()}.\`tickets_customFieldsData\``,
 
-  preAggregations: {
-    // Pre-Aggregations definitions go here
-    // Learn more here: https://cube.dev/docs/caching/pre-aggregations/getting-started
-  },
-
   joins: {
     Fields: {
       sql: `${CUBE}.\`customFieldsData.field\` = ${Fields}._id`,
@@ -43,24 +38,10 @@ cube(`TicketsCustomfieldsdata`, {
       shown: false
     },
 
-    customfieldsdataNumbervalue: {
-      sql: `${CUBE}.\`customFieldsData.numberValue\``,
+    customfieldsdataValue: {
+      sql: `${CUBE}.\`customFieldsData.extraValue\``,
       type: `string`,
-      title: `Customfieldsdata.numbervalue`,
-      shown: false
-    },
-
-    customfieldsdataStringvalue: {
-      sql: `${CUBE}.\`customFieldsData.stringValue\``,
-      type: `string`,
-      title: `Customfieldsdata.stringvalue`,
-      shown: false
-    },
-
-    customfieldsdataDatevalue: {
-      sql: `${CUBE}.\`customFieldsData.dateValue\``,
-      type: `time`,
-      title: `Customfieldsdata.datevalue`,
+      title: `Customfieldsdata.value`,
       shown: false
     }
   },

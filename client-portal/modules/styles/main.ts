@@ -86,7 +86,7 @@ const HeaderLeft = styled.div`
   align-items: center;
 `;
 
-const SupportMenus = styledTS<{ color?: string }>(styled.div)`
+const SupportMenus = styledTS<{ color?: string, baseColor?: string }>(styled.div)`
   display: flex;
   align-items: baseline;
   justify-content: flex-end;
@@ -100,6 +100,8 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
 
   .dropdown-menu {
     width: 210px;
+    right: 0px;
+    left: auto !important;
   }
 
   > button {
@@ -109,7 +111,7 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
 
     &.ghost {
       color: ${(props) =>
-        props.color ? props.color : colors.colorPrimaryDark} !important;
+        props.baseColor ? props.baseColor : colors.textPrimary} !important;
     }
 
     &:focus {
@@ -449,6 +451,7 @@ const FormWrapper = styled.div`
   .customFieldDescription {
     font-size: 13px;
     margin-bottom: 10px;
+    color: ${colors.colorCoreGray};
   }
 
   h4 {
@@ -565,6 +568,11 @@ const NotificationList = styled.ul`
 const InfoSection = styled.div`
   position: relative;
   flex: 1;
+  font-size: 13px;
+
+  p {
+    margin: 0;
+  }
 `;
 
 const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`

@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import CategoryList from '../../components/category/CategoryList';
 import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
 import {
@@ -15,6 +15,7 @@ import {
 type Props = {
   currentCategoryId: string;
   topicId: string;
+  queryParams?: any;
 };
 
 type FinalProps = {
@@ -31,7 +32,8 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     categoriesCountQuery,
     articlesCountQuery,
     removeCategoriesMutation,
-    topicId
+    topicId,
+    queryParams
   } = props;
 
   // remove action
@@ -57,6 +59,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     currentCategoryId,
     topicId,
     categoriesQuery,
+    queryParams,
     categories: categoriesQuery.knowledgeBaseCategories || [],
     loading: categoriesQuery.loading,
     topicsCount: categoriesCountQuery.knowledgeBaseCategoriesTotalCount || 0,

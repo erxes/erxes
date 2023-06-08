@@ -1,5 +1,5 @@
 import client from 'coreui/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { colors } from '../styles';
 import { __ } from '../utils/core';
 import Alert from '../utils/Alert';
