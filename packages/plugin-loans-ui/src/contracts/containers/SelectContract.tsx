@@ -36,7 +36,8 @@ export default ({
   label,
   name,
   customOption,
-  filterParams
+  filterParams,
+  disabled
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -46,6 +47,7 @@ export default ({
   value?: string | string[];
   name: string;
   filterParams: IFilterParams;
+  disabled?: boolean;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : value;
   return (
@@ -58,6 +60,7 @@ export default ({
       onSelect={onSelect}
       customQuery={queries.contracts}
       multi={multi}
+      disabled={disabled}
       filterParams={filterParams}
       customOption={customOption}
     />

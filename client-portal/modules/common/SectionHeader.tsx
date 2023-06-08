@@ -1,7 +1,9 @@
-import React from "react";
-import Link from "next/link";
-import styled from "styled-components";
+import { IKbArticle, IKbCategory, IKbParentCategory } from "../types";
+
 import Icon from "./Icon";
+import Link from "next/link";
+import React from "react";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   margin-bottom: 20px;
@@ -24,7 +26,12 @@ const Wrapper = styled.div`
   }
 `;
 
-const SectionHeader = (props) => {
+type Props = {
+  categories: IKbParentCategory[];
+  selectedCat: IKbCategory;
+};
+
+const SectionHeader = (props: Props) => {
   const { categories, selectedCat } = props;
   let subCats;
 
