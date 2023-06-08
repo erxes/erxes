@@ -1,12 +1,13 @@
-import React from 'react';
-import { useQuery, useSubscription } from 'react-apollo';
-import gql from 'graphql-tag';
-import Component from '../components/Widget';
 import { queries, subscriptions } from '../graphql';
-import { IUser } from '@erxes/ui/src/auth/types';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import { useQuery, useSubscription } from '@apollo/client';
+
 import { Alert } from '@erxes/ui/src/utils';
+import Component from '../components/Widget';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
   currentUser: IUser;
