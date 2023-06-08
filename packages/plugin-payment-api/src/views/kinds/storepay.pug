@@ -6,7 +6,7 @@ mixin storepay(invoice)
         form(method='POST')
             input(type="hidden" name="selectedPaymentId", value=invoice.selectedPaymentId)
             .form-group
-                input.form-control(type='text' name='phone' id='phone' placeholder='Phone')
+                input.form-control(type='text' name='phone' id='phone' placeholder='Phone', value=invoice.phone)
                 button.btn.purple(type='submit') #{__('Submit')}
 
 

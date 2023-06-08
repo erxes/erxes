@@ -89,7 +89,7 @@ const chatQueries = {
 
     const chat = await models.Chats.getChat(chatId);
 
-    if (!getIsSeen(models, chat, user)) {
+    if (await getIsSeen(models, chat, user)) {
       graphqlPubsub.publish('chatUnreadCountChanged', {
         userId: user._id
       });

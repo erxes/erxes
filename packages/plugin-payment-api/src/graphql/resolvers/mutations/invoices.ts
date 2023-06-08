@@ -84,8 +84,16 @@ const mutations = {
     return `${domain}/pl:payment/gateway?params=${base64}`;
   },
 
-  async checkInvoice(_root, { _id }: { _id: string }, { models }: IContext) {
+  async invoicesCheck(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Invoices.checkInvoice(_id);
+  },
+
+  async invoicesRemove(
+    _root,
+    { _ids }: { _ids: string[] },
+    { models }: IContext
+  ) {
+    return models.Invoices.removeInvoices(_ids);
   }
 };
 

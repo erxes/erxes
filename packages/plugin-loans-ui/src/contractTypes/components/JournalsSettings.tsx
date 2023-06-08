@@ -67,7 +67,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.checked);
   };
 
-  renderItem = (key: string, description?: string) => {
+  renderItem = (key: string, description?: string, controlProps?: any) => {
     const { currentMap } = this.state;
 
     return (
@@ -75,6 +75,7 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{JOURNALS_KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
+          {...controlProps}
           defaultValue={currentMap[key]}
           onChange={this.onChangeInput.bind(this, key)}
         />
@@ -112,7 +113,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox>
-        <CollapseContent title="Үндсэн зээл">
+        <CollapseContent title={__('Loan payment')}>
           {this.renderItem('receivable')}
           {this.renderItem('temp')}
           {this.renderItem('giving')}
@@ -124,7 +125,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderCheckbox('mainIsEbarimt')}
         </CollapseContent>
 
-        <CollapseContent title="Хүү">
+        <CollapseContent title={__('Interest')}>
           {this.renderItem('interestReceivable')}
           {this.renderItem('interestGiving')}
           {this.renderItem('interestCalcedReceive')}
@@ -136,12 +137,12 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderCheckbox('extraInterestIsEbarimt')}
         </CollapseContent>
 
-        <CollapseContent title="Даатгал">
+        <CollapseContent title={__('Insurance')}>
           {this.renderItem('insuranceReceivable')}
           {this.renderItem('insuranceGiving')}
         </CollapseContent>
 
-        <CollapseContent title="Алданги">
+        <CollapseContent title={__('Undue')}>
           {this.renderItem('undueStock')}
           {this.renderItem('undueUserEmail')}
           {this.renderCheckbox('undueHasVat')}
@@ -149,12 +150,58 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderCheckbox('undueIsEbarimt')}
         </CollapseContent>
 
-        <CollapseContent title="Бусад">
+        <CollapseContent title={__('Other')}>
           {this.renderItem('otherReceivable')}
           {this.renderItem('feeIncome')}
           {this.renderItem('defaultCustomer')}
           {this.renderItem('userEmail')}
           {this.renderItem('repaymentTemp')}
+        </CollapseContent>
+        <CollapseContent title={__('Classification')}>
+          {this.renderItem('normalExpirationDay', 'Normal /Expiration Day/', {
+            type: 'number'
+          })}
+          {this.renderItem('expiredExpirationDay', 'Expired /Expiration Day/', {
+            type: 'number'
+          })}
+          {this.renderItem('doubtExpirationDay', 'Doubt /Expiration Day/', {
+            type: 'number'
+          })}
+          {this.renderItem(
+            'negativeExpirationDay',
+            'Negative /Expiration Day/',
+            {
+              type: 'number'
+            }
+          )}
+          {this.renderItem('badExpirationDay', 'Bad /Expiration Day/', {
+            type: 'number'
+          })}
+        </CollapseContent>
+        <CollapseContent title={__('Range config')}>
+          {this.renderItem('minInterest', 'Min interest /Month/', {
+            type: 'number'
+          })}
+          {this.renderItem('maxInterest', 'Max interest /Month/', {
+            type: 'number'
+          })}
+          {this.renderItem('defaultInterest', 'Default interest /Month/', {
+            type: 'number'
+          })}
+          {this.renderItem('minTenor', 'Min tenor /Month/', {
+            type: 'number'
+          })}
+          {this.renderItem('maxTenor', 'Max tenor /Month/', {
+            type: 'number'
+          })}
+          {this.renderItem('minAmount', 'Min amount /Month/', {
+            type: 'number',
+            useNumberFormat: true
+          })}
+          {this.renderItem('maxAmount', 'Max amount /Month/', {
+            type: 'number',
+            useNumberFormat: true
+          })}
         </CollapseContent>
       </ContentBox>
     );

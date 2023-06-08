@@ -30,8 +30,8 @@ export const types = `
     apiResponse: JSON
 
     customer: JSON
-
-    pluginData: JSON
+    idOfProvider: String
+    errorDescription: String
   }
 `;
 
@@ -51,10 +51,12 @@ const mutationParams = `
 
 export const mutations = `
   generateInvoiceUrl(${mutationParams}): String
-  checkInvoice(_id:String!): String
+  invoicesCheck(_id:String!): String
+  invoicesRemove(_ids: [String]!): String
 `;
 
 export const queries = `
   invoices(searchValue: String, kind: String, status: String, page: Int, perPage: Int, contentType: String, contentTypeId: String): [Invoice]
   invoicesTotalCount(searchValue: String, kind: String, status: String, contentType: String, contentTypeId: String): invoicesTotalCount
+  invoiceDetail(_id: String!): Invoice
 `;

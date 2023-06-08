@@ -5,7 +5,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './SelectPayments': './src/containers/SelectPayments.tsx',
-    "./invoiceSection": "./src/containers/InvoiceSection.tsx",
+    "./invoiceSection": "./src/containers/invoice/InvoiceSection.tsx",
   },
   routes: {
     url: 'http://localhost:3021/remoteEntry.js',

@@ -74,6 +74,9 @@ export const types = () => `
 
     weekends: [Int]
     useHoliday: Boolean
+    useMargin: Boolean
+    useSkipInterest: Boolean
+    useDebt: Boolean
 
     closeDate: Date
     closeType: String
@@ -186,6 +189,9 @@ const commonFields = `
   riskExpertId: String
   weekends: [Int]
   useHoliday: Boolean
+  useMargin: Boolean
+  useSkipInterest: Boolean
+  useDebt: Boolean
   relContractId: String
   dealId: String
   skipInterestCalcMonth: Float
