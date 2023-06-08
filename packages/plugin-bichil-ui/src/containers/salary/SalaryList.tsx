@@ -89,6 +89,10 @@ export default function ListContainer(props: Props) {
     });
   };
 
+  const refetch = () => {
+    salariesQry.refetch();
+  };
+
   let salaries: any = [];
   let totalCount = 0;
 
@@ -114,6 +118,7 @@ export default function ListContainer(props: Props) {
     totalCount,
     isEmployeeSalary,
     remove,
+    refetch,
     confirmPassword
   };
 

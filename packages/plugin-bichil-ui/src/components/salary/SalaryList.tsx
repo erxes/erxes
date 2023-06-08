@@ -79,7 +79,9 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = formProps => <Form {...formProps} />;
+  const formContent = formProps => (
+    <Form {...formProps} successCallback={props.refetch} />
+  );
 
   const righActionBar = (
     <ModalTrigger
