@@ -164,4 +164,39 @@ export class SocialPayAPI extends BaseAPI {
       throw new Error(e.message);
     }
   }
+
+  async manualCheck(invoice: IInvoiceDocument) {
+    const amount = invoice.amount.toString();
+
+    const data: ISocialPayInvoice = {
+      amount,
+      checksum: hmac256(
+        this.inStoreSPKey,
+        this.inStoreSPTerminal + invoice.identifier + amount
+      ),
+      invoice: invoice.identifier,
+      terminal: this.inStoreSPTerminal
+    };
+
+    try {
+      const { body } = await this.request({
+        path: PAYMENTS.socialpay.actions.invoiceCheck,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data
+      });
+
+      if (body.error) {
+        return body.error.errorDesc;
+      }
+
+      if (body.response.resp_code !== '00') {
+        throw new Error(body.response.resp_desc);
+      }
+
+      return PAYMENT_STATUS.PAID;
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
 }

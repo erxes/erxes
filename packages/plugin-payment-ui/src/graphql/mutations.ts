@@ -68,8 +68,14 @@ const paymentConfigsRemove = gql`
 `;
 
 const checkInvoice = gql`
-  mutation checkInvoice($_id: String!) {
-    checkInvoice(_id: $_id)
+  mutation invoicesCheck($_id: String!) {
+    invoicesCheck(_id: $_id)
+  }
+`;
+
+const removeInvoices = gql`
+  mutation InvoicesRemove($_ids: [String]!) {
+    invoicesRemove(_ids: $_ids)
   }
 `;
 
@@ -79,6 +85,7 @@ export default {
   paymentRemove,
   createInvoice,
   checkInvoice,
+  removeInvoices,
   setPaymentConfig,
 
   paymentConfigsAdd,
