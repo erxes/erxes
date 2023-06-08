@@ -6,45 +6,45 @@ on:
       - dev
       - staging
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/ui-plugin-template/**'
-      - 'packages/ui-cards/**'
-      - 'packages/ui-forms/**'
-      - 'packages/ui-inbox/**'
-      - 'packages/ui-knowledgebase/**'
-      - 'packages/ui-leads/**'
-      - 'packages/ui-log/**'
-      - 'packages/ui-notifications/**'
-      - 'packages/ui-products/**'
-      - 'packages/ui-segments/**'
-      - 'packages/ui-settings/**'
-      - 'packages/ui-team/**'
-      - 'packages/ui-tags/**'
-      - 'packages/ui-block/**'
-      - 'packages/plugin-block-ui/**'
-      - '.github/workflows/plugin-block-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-cards/**"
+      - "packages/ui-forms/**"
+      - "packages/ui-inbox/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/ui-leads/**"
+      - "packages/ui-log/**"
+      - "packages/ui-notifications/**"
+      - "packages/ui-products/**"
+      - "packages/ui-segments/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
+      - "packages/ui-tags/**"
+      - "packages/ui-block/**"
+      - "packages/plugin-block-ui/**"
+      - ".github/workflows/plugin-block-ui.yaml"
   pull_request:
     branches:
       - dev
       - staging
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/ui-plugin-template/**'
-      - 'packages/ui-cards/**'
-      - 'packages/ui-forms/**'
-      - 'packages/ui-inbox/**'
-      - 'packages/ui-knowledgebase/**'
-      - 'packages/ui-leads/**'
-      - 'packages/ui-log/**'
-      - 'packages/ui-notifications/**'
-      - 'packages/ui-products/**'
-      - 'packages/ui-segments/**'
-      - 'packages/ui-settings/**'
-      - 'packages/ui-team/**'
-      - 'packages/ui-tags/**'
-      - 'packages/ui-block/**'
-      - 'packages/plugin-block-ui/**'
-      - '.github/workflows/plugin-block-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-cards/**"
+      - "packages/ui-forms/**"
+      - "packages/ui-inbox/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/ui-leads/**"
+      - "packages/ui-log/**"
+      - "packages/ui-notifications/**"
+      - "packages/ui-products/**"
+      - "packages/ui-segments/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
+      - "packages/ui-tags/**"
+      - "packages/ui-block/**"
+      - "packages/plugin-block-ui/**"
+      - ".github/workflows/plugin-block-ui.yaml"
 
 jobs:
   ui:
@@ -77,7 +77,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
           tar -cf build.tar --directory=packages/plugin-block-ui/.erxes/dist .
           cp build.tar packages/plugin-block-ui/.erxes/dist
