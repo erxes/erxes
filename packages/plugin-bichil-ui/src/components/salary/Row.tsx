@@ -56,6 +56,10 @@ const Row = (props: Props) => {
         <RowTitle>{salary.title || '-'}</RowTitle>
       </td>
 
+      <td key={'employeeId'}>
+        <RowTitle>{salary.employeeId || '-'}</RowTitle>
+      </td>
+
       <td key={'department'}>
         <RowTitle>{branchText || '-'}</RowTitle>
       </td>
