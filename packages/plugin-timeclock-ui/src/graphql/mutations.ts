@@ -108,21 +108,21 @@ const absenceTypeRemove = `
   }`;
 
 const sendScheduleRequest = `
-  mutation sendScheduleRequest($userId: String, $shifts: [ShiftsRequestInput], $scheduleConfigId: String, $totalBreakInMins: Int){
+  mutation sendScheduleRequest($userId: String, $shifts: [ShiftInput], $scheduleConfigId: String, $totalBreakInMins: Int){
     sendScheduleRequest(userId: $userId, shifts: $shifts, scheduleConfigId: $scheduleConfigId, totalBreakInMins: $totalBreakInMins){
       _id
     }
   }`;
 
 const submitSchedule = `
-  mutation submitSchedule($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftsRequestInput], $scheduleConfigId: String, $totalBreakInMins: Int){
+  mutation submitSchedule($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftInput], $scheduleConfigId: String, $totalBreakInMins: Int){
     submitSchedule(branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds, shifts: $shifts, scheduleConfigId: $scheduleConfigId, totalBreakInMins: $totalBreakInMins){
       _id
     }
   }`;
 
 const checkDuplicateScheduleShifts = `
-  mutation checkDuplicateScheduleShifts($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftsRequestInput], $status: String){
+  mutation checkDuplicateScheduleShifts($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftInput], $status: String){
     checkDuplicateScheduleShifts(branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds, shifts: $shifts, status: $status ){
         shifts{
           _id
@@ -210,12 +210,12 @@ const scheduleShiftRemove = `
     scheduleShiftRemove(_id: $_id)
   }`;
 
-const scheduleConfigAdd = `mutation scheduleConfigAdd($scheduleName: String, $lunchBreakInMins: Int, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftsRequestInput]){
+const scheduleConfigAdd = `mutation scheduleConfigAdd($scheduleName: String, $lunchBreakInMins: Int, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftInput]){
   scheduleConfigAdd(scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig){
     _id
   }
 }`;
-const scheduleConfigEdit = `mutation scheduleConfigEdit($_id: String, $scheduleName: String,$lunchBreakInMins: Int, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftsRequestInput]){
+const scheduleConfigEdit = `mutation scheduleConfigEdit($_id: String, $scheduleName: String,$lunchBreakInMins: Int, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftInput]){
   scheduleConfigEdit(_id: $_id, scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig){
     _id
   }
