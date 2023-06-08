@@ -32,6 +32,12 @@ cube(`Users`, {
     username: {
       sql: `username`,
       type: `string`
+    },
+
+    detailsFullname: {
+      sql: `${CUBE}.\`details.fullName\``,
+      type: `string`,
+      title: `Details.fullname`
     }
   }
 });
