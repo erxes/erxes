@@ -273,12 +273,13 @@ const SelectInput = styled.div`
   }
 `;
 
-const Card = styled.div`
+const Card = styledTS<{ fullHeight?: boolean }>(styled.div)`
   padding: ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
   box-shadow: 0 3px 3px rgba(56,65,74,0.1);
   border-radius: ${dimensions.unitSpacing}px;
+  height: ${props => props.fullHeight && '100%'};
 `;
 
 const RightSidebar = styled(Card)`

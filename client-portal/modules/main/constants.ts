@@ -13,6 +13,7 @@ export const typeFilters = [
   { showMode: "Label", setMode: "label" },
   { showMode: "Priority", setMode: "priority" },
   { showMode: "Due Date", setMode: "duedate" },
+  { showMode: "Assigned User", setMode: "user" },
 ];
 
 export const viewModes = [

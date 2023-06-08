@@ -1,11 +1,8 @@
+import { IUser, NotificationsQueryResponse } from '../../../types';
 import { gql, useMutation, useQuery } from '@apollo/client';
+
+import NotificationList from '../../components/notifications/List';
 import React from 'react';
-import Notifications from '../../components/notifications/List';
-import {
-  IUser,
-  NotificationsCountQueryResponse,
-  NotificationsQueryResponse
-} from '../../../types';
 
 type Props = {
   count: number;
@@ -113,7 +110,7 @@ function NotificationsContainer(props: Props) {
     refetch
   };
 
-  return <Notifications {...updatedProps} />;
+  return <NotificationList {...updatedProps} />;
 }
 
 export default NotificationsContainer;
