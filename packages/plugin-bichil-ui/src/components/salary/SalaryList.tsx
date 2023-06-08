@@ -36,7 +36,9 @@ const List = (props: Props) => {
     salaries = [],
     labels = {}
   } = props;
-  const keys = Object.keys(labels).filter(key => key !== 'title');
+  const keys = Object.keys(labels).filter(
+    key => !['title', 'employeeId'].includes(key)
+  );
 
   const renderRow = () => {
     return salaries.map(salary => (
@@ -77,7 +79,9 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = formProps => <Form {...formProps} />;
+  const formContent = formProps => (
+    <Form {...formProps} successCallback={props.refetch} />
+  );
 
   const righActionBar = (
     <ModalTrigger
@@ -110,6 +114,7 @@ const List = (props: Props) => {
       <thead>
         <tr>
           <th>title</th>
+          <th>Ажилтны код</th>
           <th>Салбар/нэгж</th>
           <th>Албан тушаал</th>
           <th>Овог нэр</th>
