@@ -16,9 +16,10 @@ import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import Tags from '@erxes/ui/src/components/Tags';
 import Watch from '../../containers/editForm/Watch';
 import Comment from '../../../comment/components/Comment';
-import { __ } from '@erxes/ui/src/utils';
+import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import PrintActionButton from './PrintDocumentBtn';
+import { Button } from 'react-bootstrap';
 
 type Props = {
   item: IItem;
@@ -117,7 +118,6 @@ class Actions extends React.Component<Props> {
           <Icon icon="copy-1" />
           {__('Copy')}
         </ColorButton>
-
         <ArchiveBtn
           item={item}
           removeItem={removeItem}
@@ -125,7 +125,6 @@ class Actions extends React.Component<Props> {
           sendToBoard={sendToBoard}
           onChangeStage={onChangeStage}
         />
-
         {isEnabled('tags') && (
           <TaggerPopover
             type={TAG_TYPE}

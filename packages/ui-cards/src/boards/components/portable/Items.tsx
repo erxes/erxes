@@ -11,7 +11,6 @@ import { IItem, IOptions } from '../../types';
 
 type IData = {
   options: IOptions;
-  hideExtraButton?: boolean;
 };
 
 type Props = {
