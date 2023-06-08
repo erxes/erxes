@@ -6,7 +6,7 @@ import Component from '../components/Widget';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
