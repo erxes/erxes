@@ -59,6 +59,6 @@ jobs:
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
           cd dist/plugin-rcfa-api/.erxes
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/plugin-rcfa-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/plugin-rcfa-api:${GITHUB_REF#refs/heads/}
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login https://registry.erxes.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker build -t registry.erxes.io/erxes/plugin-rcfa-api:enterprise -f Dockerfile .
+          docker push registry.erxes.io/erxes/plugin-rcfa-api:enterprise
