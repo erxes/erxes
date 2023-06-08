@@ -11,8 +11,8 @@ import Info from '@erxes/ui/src/components/Info';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { queries as calendarQueries } from '../../calendar/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../graphql';
 import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 

@@ -28,7 +28,7 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import jobQueries from '../../job/graphql/queries';
 import Alert from '@erxes/ui/src/utils/Alert';
 import productQueries from '@erxes/ui-products/src/graphql/queries';

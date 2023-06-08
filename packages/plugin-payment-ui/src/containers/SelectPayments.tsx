@@ -1,7 +1,7 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
+import { graphql, ChildProps } from '@apollo/client/react/hoc';
 
 import SelectPayments from '../components/SelectPayments';
 import { queries } from '../graphql';

@@ -121,7 +121,7 @@ class Section extends React.Component<Props> {
       request
     } = this.props;
 
-    if (!_loadash.isEmpty(request) && currentUser._id !== request._id) {
+    if (!_loadash.isEmpty(request) && currentUser._id !== request.requesterId) {
       return null;
     }
 

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Button from '@erxes/ui/src/components/Button';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import queries from '../graphql/queries';
 import React from 'react';
 import { formatValue } from '@erxes/ui/src/utils';
@@ -52,7 +52,7 @@ class PutResponseRow extends React.Component<Props, {}> {
         <td key={'taxType'}>{displayValue(putResponse, 'taxType')}</td>
         <td key={'amount'}>{displayValue(putResponse, 'amount')}</td>
         <td key={'message'}>{displayValue(putResponse, 'message')}</td>
-        <td key={'ReturnBillId'}>{putResponse.sendInfo.returnBillId} </td>
+        <td key={'ReturnBillId'}>{putResponse.sendInfo?.returnBillId} </td>
         <td key={'actions'}>
           {putResponse.contentType === 'deal' && (
             <Button

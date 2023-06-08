@@ -51,8 +51,8 @@ const knowledgeBaseTopics = `
   }
 `;
 const knowledgeBaseArticles = `
-  query knowledgeBaseArticles($categoryIds: [String]) {
-    knowledgeBaseArticles(categoryIds: $categoryIds) {
+  query knowledgeBaseArticles($categoryIds: [String],$perPage:Int) {
+    knowledgeBaseArticles(categoryIds: $categoryIds,perPage:$perPage) {
       _id
       title
       categoryId

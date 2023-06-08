@@ -37,3 +37,8 @@ export type IGrantResponse = {
 export type RequestDetailQueryResponse = {
   grantRequestDetail: { responses: IGrantResponse[] } & IGrantRequest;
 } & QueryResponse;
+
+export type ConfigsQueryResponse = {
+  grantConfigs: any[];
+  grantConfigsTotalCount: number;
+} & QueryResponse;

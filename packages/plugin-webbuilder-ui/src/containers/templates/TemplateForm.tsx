@@ -11,8 +11,8 @@ import { mutations, queries } from '../../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import TemplateForm from '../../components/templates/TemplateForm';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   currentTemplateId?: string;

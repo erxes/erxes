@@ -11,8 +11,8 @@ import { mutations, queries } from '../../graphql';
 
 import FileList from '../../components/file/FileList';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;

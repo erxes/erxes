@@ -96,6 +96,15 @@ export type ClientPortalUserRemoveMutationResponse = {
     variables: { clientPortalUserIds: string[] };
   }) => Promise<any>;
 };
+export type ClientPortalUserAssignCompanyMutationResponse = {
+  clientPortalUserAssignCompany: (mutation: {
+    variables: {
+      userId: string;
+      erxesCompanyId: string;
+      erxesCustomerId: string;
+    };
+  }) => Promise<any>;
+};
 
 export type ClientPortalVerifyUsersMutationResponse = {
   clientPortalUsersVerify: (mutation: {
@@ -117,8 +126,10 @@ export type ClientPortalConfig = {
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;
   dealLabel?: string;
+  purchaseLabel?: string;
   taskPublicBoardId?: string;
   taskPublicPipelineId?: string;
+  taskPublicLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   taskBoardId?: string;
@@ -129,6 +140,9 @@ export type ClientPortalConfig = {
   dealStageId?: string;
   dealBoardId?: string;
   dealPipelineId?: string;
+  purchaseStageId?: string;
+  purchaseBoardId?: string;
+  purchasePipelineId?: string;
   styles?: Styles;
   mobileResponsive?: boolean;
   googleCredentials?: object;
@@ -142,6 +156,7 @@ export type ClientPortalConfig = {
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   dealToggle?: boolean;
+  purchaseToggle?: boolean;
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
   mailConfig?: MailConfig;
@@ -165,6 +180,7 @@ export type Styles = {
   dividerColor?: string;
   baseFont?: string;
   headingFont?: string;
+  __typename?: string;
 };
 
 export type ClientPortalConfigsQueryResponse = {

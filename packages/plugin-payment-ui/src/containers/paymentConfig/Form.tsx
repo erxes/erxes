@@ -2,9 +2,9 @@ import { queries as integrationsQueries } from '@erxes/ui-leads/src/graphql';
 import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import { useState } from 'react';
 
 import ConfigForm from '../../components/paymentConfig/Form';

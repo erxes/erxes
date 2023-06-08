@@ -116,7 +116,7 @@ export type Label = {
   _id: string;
   name: string;
   colorCode: string;
-}
+};
 
 export type Config = {
   _id?: string;
@@ -132,16 +132,27 @@ export type Config = {
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   taskPublicPipelineId?: string;
+  taskPublicLabel?: string;
+  taskPublicBoardId?: string;
   ticketLabel?: string;
+  dealLabel?: string;
+  purchaseLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   ticketStageId?: string;
+  dealStageId?: string;
+  purchaseStageId?: string;
   ticketPipelineId?: string;
+  dealPipelineId?: string;
+  purchasePipelineId?: string;
+  taskPipelineId?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   taskToggle?: boolean;
+  dealToggle?: boolean;
+  purchaseToggle?: boolean;
 
   styles?: {
     bodyColor?: string;
@@ -219,7 +230,7 @@ export interface IUser {
   details?: IUserDetails;
   type: string;
   companyName: string;
-
+  username?: string;
   notificationSettings?: INotifcationSettings;
 }
 
@@ -271,6 +282,16 @@ export interface ITicket {
   };
 }
 
+export type GroupBy = {
+  groupBy: string;
+  setGroupBy: string;
+};
+
+export type ViewMode = {
+  viewMode: string;
+  setViewMode: string;
+};
+
 export interface IKbArticle extends ICommonFields {
   _id: string;
   title: string;
@@ -281,6 +302,7 @@ export interface IKbArticle extends ICommonFields {
   categoryId?: string;
   reactionChoices?: string[];
   createdUser: IUser;
+  viewCount?: number;
 }
 
 export interface INotification {
@@ -290,6 +312,7 @@ export interface INotification {
   link: string;
   isRead: boolean;
   createdAt: Date;
+  createdUser: IUser;
 }
 
 export type Topic = {

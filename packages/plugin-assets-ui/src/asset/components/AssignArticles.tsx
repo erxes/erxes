@@ -1,5 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { Column, FormWrapper, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __, categories } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IAsset } from '../../common/types';
@@ -7,6 +7,7 @@ import {
   KbArticles,
   KbArticlesContainer,
   KbCategories,
+  SelectAssignType,
   TriggerTabs
 } from '../../style';
 import {
@@ -29,6 +30,7 @@ type Props = {
 };
 
 type State = {
+  action: string;
   topicId: string;
   categoriesToShow: string[];
   selectedArticleIds: string[];
@@ -39,6 +41,7 @@ class AssignArticles extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      action: 'add',
       topicId: '',
       categoriesToShow: [],
       selectedArticleIds: props?.selectedArticleIds || []
@@ -55,16 +58,18 @@ class AssignArticles extends React.Component<Props, State> {
   save = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { selectedArticleIds } = this.state;
+    const { selectedArticleIds, action } = this.state;
     const { objects } = this.props;
 
     this.props.save({
       ids: (objects || []).map(asset => asset._id),
       data: {
+        action,
         articleIds: selectedArticleIds
       },
       callback: () => {
         this.setState({
+          action,
           selectedArticleIds: this.props.selectedArticleIds || []
         });
         this.props.closeModal();
@@ -239,21 +244,46 @@ class AssignArticles extends React.Component<Props, State> {
   }
 
   render() {
-    const { closeModal } = this.props;
+    const { closeModal, objects, selectedArticleIds } = this.props;
+
+    const onChangeAction = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      this.setState({ action: value });
+    };
 
     return (
       <form onSubmit={this.save}>
         {this.renderTopics()}
 
-        <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
-            Cancel
-          </Button>
+        <FormWrapper>
+          <Column>
+            {!!objects?.length && !selectedArticleIds?.length && (
+              <SelectAssignType
+                onChange={onChangeAction}
+                value={this.state.action}
+              >
+                <option value="add">Add</option>
+                <option value="subtract">Subtract</option>
+              </SelectAssignType>
+            )}
+          </Column>
+          <Column>
+            <ModalFooter>
+              <Button
+                btnStyle="simple"
+                onClick={closeModal}
+                icon="times-circle"
+              >
+                Cancel
+              </Button>
 
-          <Button type="submit" btnStyle="success" icon={'check-circle'}>
-            Assign
-          </Button>
-        </ModalFooter>
+              <Button type="submit" btnStyle="success" icon={'check-circle'}>
+                Assign
+              </Button>
+            </ModalFooter>
+          </Column>
+        </FormWrapper>
       </form>
     );
   }

@@ -1,6 +1,6 @@
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
@@ -149,6 +149,8 @@ class PerSettings extends React.Component<Props, State> {
     catAccLocMap.push({
       _id: Math.random().toString(),
       category: '',
+      branch: '',
+      department: '',
       account: '',
       location: '',
       moveAccount: '',
@@ -164,9 +166,15 @@ class PerSettings extends React.Component<Props, State> {
 
     const cals: React.ReactNode[] = [];
     cals.push(
-      <FormWrapper>
+      <FormWrapper key={Math.random()}>
         <FormColumn>
           <ControlLabel>Product Category</ControlLabel>
+        </FormColumn>
+        <FormColumn>
+          <ControlLabel>Branch</ControlLabel>
+        </FormColumn>
+        <FormColumn>
+          <ControlLabel>Department</ControlLabel>
         </FormColumn>
         <FormColumn>
           <ControlLabel>Main Account</ControlLabel>
@@ -189,12 +197,13 @@ class PerSettings extends React.Component<Props, State> {
     );
 
     const editMapping = (id, e) => {
-      const index = catAccLocMap.findIndex(i => i.id === id);
+      const index = catAccLocMap.findIndex(i => i._id === id);
 
       const name = e.target.name;
       const value = e.target.value;
+
       const item = {
-        ...(catAccLocMap.find(cal => cal.id === id) || {}),
+        ...(catAccLocMap.find(cal => cal._id === id) || {}),
         [name]: value
       };
 
@@ -215,13 +224,31 @@ class PerSettings extends React.Component<Props, State> {
 
     for (const map of catAccLocMap || []) {
       cals.push(
-        <FormWrapper key={map.id}>
+        <FormWrapper key={map._id}>
           <FormColumn>
             <FormControl
               defaultValue={map.category}
               name="category"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
+              autoFocus={true}
+            />
+          </FormColumn>
+          <FormColumn>
+            <FormControl
+              defaultValue={map.branch}
+              name="branch"
+              onChange={editMapping.bind(this, map._id)}
+              required={false}
+              autoFocus={true}
+            />
+          </FormColumn>
+          <FormColumn>
+            <FormControl
+              defaultValue={map.department}
+              name="department"
+              onChange={editMapping.bind(this, map._id)}
+              required={false}
               autoFocus={true}
             />
           </FormColumn>
@@ -229,7 +256,7 @@ class PerSettings extends React.Component<Props, State> {
             <FormControl
               defaultValue={map.account}
               name="account"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
               autoFocus={true}
             />
@@ -238,7 +265,7 @@ class PerSettings extends React.Component<Props, State> {
             <FormControl
               defaultValue={map.location}
               name="location"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
               autoFocus={true}
             />
@@ -247,7 +274,7 @@ class PerSettings extends React.Component<Props, State> {
             <FormControl
               defaultValue={map.moveAccount}
               name="moveAccount"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
               autoFocus={true}
             />
@@ -256,7 +283,7 @@ class PerSettings extends React.Component<Props, State> {
             <FormControl
               defaultValue={map.moveLocation}
               name="moveLocation"
-              onChange={editMapping.bind(this, map.id)}
+              onChange={editMapping.bind(this, map._id)}
               required={true}
               autoFocus={true}
             />

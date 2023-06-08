@@ -8,8 +8,8 @@ import {
 } from '../messageBroker';
 import { validateRequest } from '../common/utils';
 import { serviceDiscovery } from '../configs';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { doAction, doLogicAfterAction } from '../utils';
+import { IUser, IUserDocument } from '@erxes/api-utils/src/types';
+import { checkConfig, doAction, doLogicAfterAction } from '../utils';
 
 export interface IRequestsModel extends Model<IGrantRequestDocument> {
   getGrantRequest(args: any): Promise<IGrantRequestDocument>;
@@ -19,7 +19,10 @@ export interface IRequestsModel extends Model<IGrantRequestDocument> {
     doc: any,
     user: IUserDocument
   ): Promise<IGrantRequestDocument>;
-  editGrantRequest(doc: any): Promise<IGrantRequestDocument>;
+  editGrantRequest(
+    doc: any,
+    user: IUserDocument
+  ): Promise<IGrantRequestDocument>;
   cancelGrantRequest(
     contentTypeId: string,
     contentType: string
@@ -50,17 +53,45 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
     }
 
     public static async addGrantRequest(doc: any, user: IUserDocument) {
-      const { contentTypeId, contentType, userIds, action } = doc;
-      try {
-        await validateRequest(doc);
-      } catch (e) {
-        throw new Error(e.message);
-      }
+      const {
+        contentTypeId,
+        contentType,
+        userIds,
+        action,
+        scope,
+        params
+      } = doc;
+
+      const config = await checkConfig({
+        subdomain,
+        action,
+        scope,
+        contentType,
+        contentTypeId
+      });
 
       const extendedDoc = {
         ...doc,
+        params: JSON.stringify({
+          sourceType: contentType,
+          ...JSON.parse(params || '{}')
+        }),
         requesterId: user._id
       };
+
+      if (config) {
+        extendedDoc.params = JSON.stringify({
+          type: contentType,
+          itemId: contentTypeId,
+          ...JSON.parse(config.params || '{}')
+        });
+      } else {
+        try {
+          await validateRequest(doc);
+        } catch (e) {
+          throw new Error(e.message);
+        }
+      }
 
       const request = await models.Requests.create({ ...extendedDoc });
 
@@ -87,20 +118,24 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
             link: link
           }
         });
+        sendCoreMessage({
+          subdomain: 'os',
+          action: 'sendMobileNotification',
+          data: {
+            title: `Grant`,
+            body: `${user?.details?.fullName ||
+              user?.details?.shortName} wants ${action}`,
+            receivers: userIds,
+            data: { _id: contentTypeId, type: contentType }
+          }
+        });
       }
 
       return request;
     }
 
-    public static async editGrantRequest(doc) {
-      const {
-        contentTypeId,
-        contentType,
-        userIds,
-        action,
-        params,
-        requesterId
-      } = doc;
+    public static async editGrantRequest(doc, user) {
+      let { contentTypeId, contentType, userIds, scope, action, params } = doc;
       try {
         await validateRequest(doc);
       } catch (e) {
@@ -112,9 +147,27 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         contentType
       });
 
+      if (request.action !== action) {
+        const config = await checkConfig({
+          subdomain,
+          action,
+          scope,
+          contentType,
+          contentTypeId
+        });
+
+        params = JSON.stringify({
+          type: contentType,
+          itemId: contentTypeId,
+          ...JSON.parse(config?.params || '{}')
+        });
+      }
+
+      await this.changeGrantRequester(request._id, userIds, user);
+
       return await models.Requests.updateOne(
         { _id: request._id },
-        { $set: { userIds, action, params, requesterId } }
+        { $set: { userIds, action, params, requesterId: user._id } }
       );
     }
 
@@ -122,7 +175,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       const request = await models.Requests.findOne({ _id: requestId });
 
       if (!request) {
-        return 'Something went wrong';
+        throw new Error('Something went wrong');
       }
 
       const declinedCount = await models.Responses.countDocuments({
@@ -149,7 +202,6 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           request.params,
           requester
         );
-
         await models.Requests.updateOne(
           { _id: request._id },
           { status: 'approved', resolvedAt: new Date() }
@@ -160,8 +212,6 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           request.params,
           requester
         );
-
-        return 'Your grant was successfully ';
       } else {
         await models.Requests.updateOne(
           { _id: request._id },
@@ -201,6 +251,108 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       return 'canceled';
     }
 
+    public static async changeGrantRequester(
+      requestId: string,
+      requesterIds: string[],
+      user: IUserDocument
+    ) {
+      const request = await models.Requests.findOne({ _id: requestId });
+
+      if (!request) {
+        throw new Error('Cannot find request');
+      }
+
+      const newRequesterIds = requesterIds.filter(
+        requesterId => !(request?.userIds || []).includes(requesterId)
+      );
+      const removedRequesterIds = request.userIds.filter(
+        userId => !requesterIds.includes(userId)
+      );
+
+      if (!!removedRequesterIds?.length || !!newRequesterIds.length) {
+        const link = await sendCommonMessage({
+          subdomain,
+          serviceName: request.scope,
+          action: 'getLink',
+          data: {
+            _id: request.contentTypeId,
+            type: request.contentType
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+        if (!!removedRequesterIds?.length) {
+          const responses = await models.Responses.find({
+            requestId: request._id,
+            userId: { $in: removedRequesterIds },
+            status: { $ne: 'waiting' }
+          });
+
+          if (!!responses?.length) {
+            throw new Error(
+              'Cannot remove some requesters from request.Because some requesters are already responded'
+            );
+          }
+
+          await models.Requests.updateOne(
+            { _id: request._id },
+            { $pull: { userIds: { $in: removedRequesterIds } } }
+          );
+
+          await sendNotificationsMessage({
+            subdomain,
+            action: 'send',
+            data: {
+              createdUser: user,
+              receivers: removedRequesterIds,
+              title: `Grant`,
+              action: 'removed from request',
+              content: request.action,
+              notifType: 'plugin'
+            }
+          });
+          sendCoreMessage({
+            subdomain: 'os',
+            action: 'sendMobileNotification',
+            data: {
+              title: `Grant`,
+              body: `${user?.details?.fullName ||
+                user?.details?.shortName} removed ${request.action}`,
+              receivers: removedRequesterIds,
+              data: { _id: request.contentTypeId, type: request.contentType }
+            }
+          });
+        }
+
+        if (!!newRequesterIds?.length) {
+          await sendNotificationsMessage({
+            subdomain,
+            action: 'send',
+            data: {
+              createdUser: user,
+              receivers: newRequesterIds,
+              title: `Grant`,
+              action: 'wants grant',
+              content: request.action,
+              notifType: 'plugin',
+              link: link
+            }
+          });
+          sendCoreMessage({
+            subdomain: 'os',
+            action: 'sendMobileNotification',
+            data: {
+              title: `Grant`,
+              body: `${user?.details?.fullName ||
+                user?.details?.shortName} wants ${request.action}`,
+              receivers: newRequesterIds,
+              data: { _id: request.contentTypeId, type: request.contentType }
+            }
+          });
+        }
+      }
+    }
+
     public static async getGrantActions() {
       const services = await serviceDiscovery.getServices();
       const grantActions: {
@@ -216,8 +368,8 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           type: 'card'
         },
         {
-          label: 'Change Card Type',
-          action: 'changeCardType',
+          label: 'Create Related Card',
+          action: 'createRelatedCard',
           scope: 'cards',
           type: 'card'
         }

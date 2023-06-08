@@ -22,6 +22,7 @@ interface IProps extends IRouterProps {
   bulk: any[];
   emptyBulk: () => void;
   remove: (doc: { invoiceIds: string[] }, emptyBulk: () => void) => void;
+  check: (invoiceId: string) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IInvoice[], containerId: string) => void;
   loading: boolean;
@@ -53,6 +54,7 @@ class List extends React.Component<IProps, State> {
         key={invoice._id}
         invoice={invoice}
         toggleBulk={toggleBulk}
+        check={this.props.check}
         isChecked={bulk.includes(invoice)}
       />
     ));
@@ -141,6 +143,7 @@ class List extends React.Component<IProps, State> {
               <th>{__('Description')}</th>
               <th>{__('Created date')}</th>
               <th>{__('Resolved date')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>

@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 import DayPlans from '../components/DayPlanList';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
@@ -14,7 +14,7 @@ import {
   IDayPlan,
   IDayPlanConfirmParams
 } from '../types';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../graphql';
 import { queries as timeFrameQueries } from '../../settings/graphql';
 import { TimeframeQueryResponse } from '../../settings/types';

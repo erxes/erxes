@@ -73,10 +73,17 @@ const riskFormSaveSubmission = `
   }
 `;
 
+const checkTestScore = `
+  mutation RAIndicatorTestScore($formSubmissions: JSON, $indicatorId: String) {
+    RAIndicatorTestScore(formSubmissions: $formSubmissions, indicatorId: $indicatorId)
+  }
+`;
+
 export default {
   addRiskAssessment,
   editRiskAssessment,
   removeRiskAssessment,
   riskFormSaveSubmission,
-  addBulkAssessment
+  addBulkAssessment,
+  checkTestScore
 };

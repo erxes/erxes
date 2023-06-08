@@ -78,7 +78,7 @@ export interface IUserReport {
   totalHoursOvernight?: number;
 
   totalHoursBreakScheduled?: number;
-  totalHoursBreakActual?: number;
+  totalHoursBreakTaken?: number;
 
   totalMinsLate?: number;
   totalMinsLateToday?: number;
@@ -301,7 +301,7 @@ export type TimeClockMutationResponse = {
     variables: MutationVariables;
   }) => Promise<any>;
   extractAllMsSqlDataMutation: (params: {
-    variables: { startDate: string; endDate: string };
+    variables: { startDate: string; endDate: string; params: any };
   }) => Promise<any>;
 };
 
@@ -321,7 +321,7 @@ export type AbsenceMutationResponse = {
   submitCheckInOutRequestMutation: (params: {
     variables: {
       checkType: string;
-      userId: string;
+      userId?: string;
       checkTime: Date;
     };
   }) => Promise<any>;

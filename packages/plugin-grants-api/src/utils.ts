@@ -27,7 +27,7 @@ export async function doAction(
     return 'success';
   }
 
-  if (action === 'changeCardType') {
+  if (action === 'createRelatedCard') {
     await sendCardsMessage({
       subdomain,
       action: 'createRelatedItem',
@@ -78,3 +78,57 @@ export const doLogicAfterAction = async (
     }
   }
 };
+
+export async function checkConfig({
+  subdomain,
+  scope,
+  action,
+  contentType,
+  contentTypeId
+}) {
+  const models = await generateModels(subdomain);
+  let fieldName = ``;
+
+  const configIds = await models.Configs.find({
+    scope,
+    action,
+    config: { $regex: new RegExp(`.*"type":"${contentType}".*`) }
+  }).distinct('_id');
+
+  if (scope === 'cards') {
+    contentType = `${contentType}s`;
+    fieldName = 'stageId';
+  }
+
+  const detail = await sendCommonMessage({
+    subdomain,
+    serviceName: scope,
+    action: `${contentType}.findOne`,
+    data: { _id: contentTypeId },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  if (!detail) {
+    return null;
+  }
+
+  const config = await models.Configs.findOne({
+    _id: { $in: configIds },
+    config: { $regex: `.*"${fieldName}":"${detail[fieldName]}".*` }
+  }).sort({ createdAt: -1 });
+
+  if (config) {
+    const params = JSON.parse(config.params || '{}');
+    for (const [key, value] of Object.entries(params)) {
+      if (typeof value === 'string') {
+        if (value.match(/^{{ .* }}$/)) {
+          params[key] = detail[value.replace(/{{ | }}/g, '')];
+        }
+      }
+    }
+    config.params = JSON.stringify(params);
+  }
+
+  return config;
+}

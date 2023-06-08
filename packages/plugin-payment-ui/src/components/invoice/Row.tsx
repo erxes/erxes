@@ -1,4 +1,10 @@
-import { Icon } from '@erxes/ui/src/components';
+import {
+  ActionButtons,
+  Button,
+  Icon,
+  ModalTrigger,
+  Tip
+} from '@erxes/ui/src/components';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Label from '@erxes/ui/src/components/Label';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
@@ -7,15 +13,32 @@ import React from 'react';
 
 import { IInvoice } from '../../types';
 import { PAYMENTCONFIGS } from '../constants';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   invoice: IInvoice;
   history: any;
   isChecked: boolean;
   toggleBulk: (invoice: IInvoice, isChecked?: boolean) => void;
+  check: (invoiceId: string) => void;
 };
 
 class Row extends React.Component<Props> {
+  renderCheckAction = () => {
+    const onClick = () => this.props.check(this.props.invoice._id);
+
+    return (
+      <Tip text={__('Check invoice')} placement="top">
+        <Button
+          id="checkInvoice"
+          btnStyle="link"
+          onClick={onClick}
+          icon="invoice"
+        />
+      </Tip>
+    );
+  };
+
   render() {
     const { invoice, history, toggleBulk, isChecked } = this.props;
 
@@ -122,6 +145,11 @@ class Row extends React.Component<Props> {
           ) : (
             '--- --, ----'
           )}
+        </td>
+        <td>
+          <ActionButtons>
+            {invoice.status === 'pending' && this.renderCheckAction()}
+          </ActionButtons>
         </td>
       </tr>
     );

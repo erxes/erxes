@@ -1,6 +1,6 @@
-import { getConfig } from '../../../utils/utils';
+import { getConfig, sendCardInfo } from '../../../utils/utils';
 import { getPostData as getPostDataOrders } from '../../../utils/orders';
-import { getPostData } from '../../../utils/ebarimtData';
+import { getMoveData, getPostData } from '../../../utils/ebarimtData';
 import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
 import { sendRPCMessage } from '../../../messageBrokerErkhet';
@@ -31,6 +31,10 @@ const checkSyncedMutations = {
     });
     const result = JSON.parse(response);
 
+    if (result.status === 'error') {
+      throw new Error(result.message);
+    }
+
     const data = result.data || {};
 
     return (Object.keys(data) || []).map(_id => {
@@ -60,6 +64,7 @@ const checkSyncedMutations = {
     };
 
     const configs = await getConfig(subdomain, 'ebarimtConfig', {});
+    const moveConfigs = await getConfig(subdomain, 'stageInMoveConfig', {});
     const mainConfig = await getConfig(subdomain, 'ERKHET', {});
 
     const deals = await sendCardsMessage({
@@ -71,68 +76,86 @@ const checkSyncedMutations = {
 
     for (const deal of deals) {
       const syncedStageId = configStageId || deal.stageId;
-      if (!Object.keys(configs).includes(syncedStageId)) {
-        result.skipped.push(deal._id);
-        continue;
-      }
+      if (Object.keys(configs).includes(syncedStageId)) {
+        const config = {
+          ...configs[syncedStageId],
+          ...mainConfig
+        };
 
-      const config = {
-        ...configs[syncedStageId],
-        ...mainConfig
-      };
+        const postData = await getPostData(subdomain, config, deal, dateType);
 
-      const postData = await getPostData(subdomain, config, deal, dateType);
+        const response = await sendRPCMessage(
+          'rpc_queue:erxes-automation-erkhet',
+          {
+            action: 'get-response-send-order-info',
+            isEbarimt: false,
+            payload: JSON.stringify(postData),
+            thirdService: true,
+            isJson: true
+          }
+        );
 
-      const response = await sendRPCMessage(
-        'rpc_queue:erxes-automation-erkhet',
-        {
-          action: 'get-response-send-order-info',
-          isEbarimt: false,
-          payload: JSON.stringify(postData),
-          thirdService: true,
-          isJson: true
-        }
-      );
-
-      if (response.message || response.error) {
-        const txt = JSON.stringify({
-          message: response.message,
-          error: response.error
-        });
-        if (config.responseField) {
-          await sendCardsMessage({
-            subdomain,
-            action: 'deals.updateOne',
-            data: {
-              selector: { _id: deal._id },
-              modifier: {
-                $push: {
-                  customFieldsData: [
-                    {
-                      field: config.responseField.replace(
-                        'customFieldsData.',
-                        ''
-                      ),
-                      value: txt,
-                      stringValue: txt
-                    }
-                  ]
-                }
-              }
-            },
-            isRPC: true
+        if (response.message || response.error) {
+          const txt = JSON.stringify({
+            message: response.message,
+            error: response.error
           });
-        } else {
-          console.log(txt);
+          if (config.responseField) {
+            await sendCardInfo(subdomain, deal, config, txt);
+          } else {
+            console.log(txt);
+          }
         }
-      }
 
-      if (response.error) {
-        result.error.push(deal._id);
+        if (response.error) {
+          result.error.push(deal._id);
+          continue;
+        }
+
+        result.success.push(deal._id);
         continue;
       }
 
-      result.success.push(deal._id);
+      if (Object.keys(moveConfigs).includes(syncedStageId)) {
+        const config = {
+          ...moveConfigs[syncedStageId],
+          ...mainConfig
+        };
+
+        const postData = await getMoveData(subdomain, config, deal, dateType);
+
+        const response = await sendRPCMessage(
+          'rpc_queue:erxes-automation-erkhet',
+          {
+            action: 'get-response-inv-movement-info',
+            isEbarimt: false,
+            payload: JSON.stringify(postData),
+            thirdService: true,
+            isJson: true
+          }
+        );
+
+        if (response.message || response.error) {
+          const txt = JSON.stringify({
+            message: response.message,
+            error: response.error
+          });
+          if (config.responseField) {
+            await sendCardInfo(subdomain, deal, config, txt);
+          } else {
+            console.log(txt);
+          }
+        }
+
+        if (response.error) {
+          result.error.push(deal._id);
+          continue;
+        }
+
+        result.success.push(deal._id);
+        continue;
+      }
+      result.skipped.push(deal._id);
     }
 
     return result;

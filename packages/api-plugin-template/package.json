@@ -10,7 +10,6 @@
   "dependencies": {
     "@apollo/federation": "^0.33.8",
     "@sentry/node": "^7.50.0",
-    "apollo-graphql": "^0.9.5",
     "apollo-server-core": "^3.6.1",
     "apollo-server-express": "^3.6.1",
     "body-parser": "^1.17.1",

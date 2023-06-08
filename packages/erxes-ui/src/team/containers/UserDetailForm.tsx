@@ -5,7 +5,8 @@ import {
   UserConverationsQueryResponse,
   UserDetailQueryResponse
 } from '../types';
-import { graphql, useLazyQuery } from 'react-apollo';
+import { useLazyQuery } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../graphql';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -16,7 +17,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import UserDetailForm from '../components/detail/UserDetailForm';
 import UserForm from './UserForm';
 import UserSkillForm from '../components/detail/UserSkillForm';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {

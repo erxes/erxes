@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 import {
   commonPaymentParamDefs,
@@ -67,11 +67,18 @@ const paymentConfigsRemove = gql`
   }
 `;
 
+const checkInvoice = gql`
+  mutation checkInvoice($_id: String!) {
+    checkInvoice(_id: $_id)
+  }
+`;
+
 export default {
   paymentAdd,
   paymentEdit,
   paymentRemove,
   createInvoice,
+  checkInvoice,
   setPaymentConfig,
 
   paymentConfigsAdd,

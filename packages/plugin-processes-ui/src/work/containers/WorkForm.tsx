@@ -6,8 +6,8 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { mutations } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
 import { IWorkDocument } from '../types';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 
 type Props = {
   closeModal: () => void;

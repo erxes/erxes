@@ -1,9 +1,9 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { Alert, Spinner, withProps } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Pos from '../components/Pos';
 import {
   AddPosMutationResponse,

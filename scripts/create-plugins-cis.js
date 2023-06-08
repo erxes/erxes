@@ -2,7 +2,7 @@ const yaml = require('yaml');
 var { resolve } = require('path');
 var fs = require('fs-extra');
 
-const filePath = pathName => {
+const filePath = (pathName) => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
   }
@@ -10,7 +10,7 @@ const filePath = pathName => {
   return resolve(__dirname, '..');
 };
 
-var workflowsPath = fileName => filePath(`./.github/workflows/${fileName}`);
+var workflowsPath = (fileName) => filePath(`./.github/workflows/${fileName}`);
 
 var plugins = [
   { name: 'inbox', ui: true, api: true },
@@ -61,7 +61,8 @@ var plugins = [
   { name: 'khanbank', ui: true, api: true },
   { name: 'productplaces', ui: true, api: true },
   { name: 'ecommerce', api: true },
-  { name: 'grants', api: true, ui: true }
+  { name: 'grants', api: true, ui: true },
+  { name: 'loans', api: true, ui: true }
 ];
 
 const pluginsMap = {};

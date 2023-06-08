@@ -179,7 +179,10 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
       }
 
       try {
-        return await model.RiskIndicators.findByIdAndUpdate(_id, doc);
+        return await model.RiskIndicators.findByIdAndUpdate(_id, {
+          ...doc,
+          modifiedAt: new Date()
+        });
       } catch (e) {
         throw new Error('Something went wrong');
       }

@@ -2,8 +2,8 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import List from '../components/List';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 import queries from '../graphql/queries';
 import { Spinner } from '@erxes/ui/src';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
@@ -53,6 +53,7 @@ const generateQueryParams = queryParams => {
     createdAtTo: queryParams.createdAtTo || undefined,
     closedAtFrom: queryParams.closedAtFrom || undefined,
     closedAtTo: queryParams.closedAtTo || undefined,
+    onlyWaitingMe: ['true'].includes(queryParams?.onlyWaitingMe),
     ...generatePaginationParams(queryParams || {})
   };
 };

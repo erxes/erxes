@@ -19,6 +19,7 @@ interface ContainerBoxType {
   marginY?: number;
   rightBorder?: boolean;
   flexWrap?: boolean;
+  placeContentEnd?: boolean;
 }
 
 export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
@@ -28,13 +29,14 @@ export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
   column ? 'column' : ''};
     gap: ${({ gap }) => (gap ? `${gap}px` : '')};
     place-items: ${({ align }) => (align ? `${align}` : '')};
+    place-content:${({ placeContentEnd }) => (placeContentEnd ? 'end' : '')};
     padding: ${({ horizontal, vertical }) =>
       horizontal && vertical
         ? '10px'
         : `${vertical ? '10px' : '0px'} ${horizontal ? '10px' : '0px'}`};
     justify-content: ${({ spaceBetween }) =>
       spaceBetween ? 'space-between' : ''};
-    justify-content:${({ spaceAround }) => (spaceAround ? 'space-around' : '')}
+    justify-content:${({ spaceAround }) => (spaceAround ? 'space-around' : '')};
     justify-content: ${({ justifyEnd }) => (justifyEnd ? 'end' : '')};
     justify-content: ${({ justifyCenter }) =>
       justifyCenter ? 'center  ' : ''};
@@ -296,4 +298,9 @@ export const KbTreeViewItem = styled.div`
     animation: ${highlight} 0.9s ease;
     box-shadow: 0 0 5px 0 #63d2d6;
   }
+`;
+
+export const SelectAssignType = styled.select`
+  height: 20px;
+  margin-top: 30px;
 `;

@@ -14,7 +14,15 @@ import { SelectActions, generateTeamMemberParams } from '../../common/utils';
 import { IGrantRequest } from '../../common/type';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import CardActionComponent from '../../common/CardAction';
+import CardActionComponent from '../../cards/ActionComponent';
+
+type CheckConfigTypes = {
+  contentType: string;
+  contentTypeId: string;
+  action: string;
+  scope: string;
+};
+
 type Props = {
   contentType: string;
   contentTypeId: string;
@@ -24,9 +32,11 @@ type Props = {
   loading: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   cancelRequest: () => void;
+  checkConfig: (props: CheckConfigTypes) => boolean;
 };
 
 type State = {
+  hasConfig: boolean;
   request: {
     action: string;
     userIds: string[];
@@ -40,6 +50,7 @@ class RequestForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      hasConfig: false,
       request: props.request || {
         scope: '',
         action: '',
@@ -84,11 +95,14 @@ class RequestForm extends React.Component<Props, State> {
       action: request.action,
       initialProps: {
         type: contentType,
-        sourceType: contentType,
         itemId: contentTypeId,
         ...request?.params
       },
-      object,
+      source: {
+        ...object,
+        type: contentType,
+        pipelineId: object.pipeline?._id
+      },
       onChange: params => handleSelect(params, 'params')
     };
 
@@ -99,15 +113,7 @@ class RequestForm extends React.Component<Props, State> {
     return loadDynamicComponent(
       'grantAction',
       {
-        action: request.action,
-        initialProps: {
-          type: contentType,
-          sourceType: contentType,
-          itemId: contentTypeId,
-          ...request?.params
-        },
-        object,
-        onChange: params => handleSelect(params, 'params')
+        ...updatedProps
       },
       false,
       request?.scope
@@ -115,7 +121,7 @@ class RequestForm extends React.Component<Props, State> {
   }
 
   renderContent(props: IFormProps) {
-    const { request } = this.state;
+    const { request, hasConfig } = this.state;
     const { loading, object } = this.props;
 
     const handleSelect = (value, name, scope?) => {
@@ -129,6 +135,21 @@ class RequestForm extends React.Component<Props, State> {
       }
 
       this.setState({ request });
+    };
+
+    const onChangeAction = async (value, name, scope?) => {
+      const { contentType, contentTypeId, checkConfig } = this.props;
+
+      handleSelect(value, name, scope);
+
+      this.setState({
+        hasConfig: await checkConfig({
+          contentType,
+          contentTypeId,
+          action: value,
+          scope
+        })
+      });
     };
 
     return (
@@ -151,10 +172,10 @@ class RequestForm extends React.Component<Props, State> {
             label="Choose Actions"
             name="action"
             initialValue={request.action}
-            onSelect={handleSelect}
+            onSelect={onChangeAction}
           />
         </FormGroup>
-        {this.renderComponent()}
+        {!hasConfig && this.renderComponent()}
         <ModalFooter>
           <Button btnStyle="simple" disabled={loading}>
             {__('Close')}

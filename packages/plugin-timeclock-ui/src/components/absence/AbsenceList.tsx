@@ -16,6 +16,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import { FlexRowLeft, ToggleButton } from '../../styles';
 
 type Props = {
   currentUser: IUser;
@@ -29,6 +30,8 @@ type Props = {
   startTime?: Date;
   loading?: boolean;
   totalCount: number;
+
+  isCurrentUserAdmin: boolean;
 
   solveAbsence: (absenceId: string, status: string) => void;
   submitRequest: (
@@ -49,7 +52,6 @@ type Props = {
   getPagination: (pagination: any) => void;
   showSideBar: (sideBar: boolean) => void;
 };
-
 function AbsenceList(props: Props) {
   const {
     absences,
@@ -61,9 +63,19 @@ function AbsenceList(props: Props) {
     totalCount
   } = props;
 
+  const [isSideBarOpen, setIsOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+  );
+
   const [seeDates, setSeeDates] = useState(
     JSON.parse(localStorage.getItem('seeDates') || 'false')
   );
+
+  const onToggleSidebar = () => {
+    const toggleIsOpen = !isSideBarOpen;
+    setIsOpen(toggleIsOpen);
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+  };
 
   const trigger = (
     <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
@@ -125,6 +137,18 @@ function AbsenceList(props: Props) {
     );
   };
 
+  const actionBarLeft = (
+    <FlexRowLeft>
+      <ToggleButton
+        id="btn-inbox-channel-visible"
+        isActive={isSideBarOpen}
+        onClick={onToggleSidebar}
+      >
+        <Icon icon="subject" />
+      </ToggleButton>
+    </FlexRowLeft>
+  );
+
   const actionBarRight = (
     <>
       <ModalTrigger
@@ -143,6 +167,7 @@ function AbsenceList(props: Props) {
 
   const actionBar = (
     <Wrapper.ActionBar
+      left={actionBarLeft}
       right={actionBarRight}
       hasFlex={true}
       wideSpacing={true}
@@ -337,7 +362,7 @@ function AbsenceList(props: Props) {
   );
 
   getActionBar(actionBar);
-  showSideBar(true);
+  showSideBar(isSideBarOpen);
   getPagination(<Pagination count={totalCount} />);
 
   return content;

@@ -4,45 +4,47 @@ on:
   push:
     branches:
       - dev
+      - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-khanbank/**"
-      - "packages/plugin-khanbank-ui/**"
-      - ".github/workflows/plugin-khanbank-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
+      - 'packages/ui-khanbank/**'
+      - 'packages/plugin-khanbank-ui/**'
+      - '.github/workflows/plugin-khanbank-ui.yaml'
   pull_request:
     branches:
       - dev
+      - staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-khanbank/**"
-      - "packages/plugin-khanbank-ui/**"
-      - ".github/workflows/plugin-khanbank-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
+      - 'packages/ui-khanbank/**'
+      - 'packages/plugin-khanbank-ui/**'
+      - '.github/workflows/plugin-khanbank-ui.yaml'
 
 jobs:
   ui:
@@ -67,7 +69,7 @@ jobs:
           yarn build
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -75,9 +77,9 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
           tar -cf build.tar --directory=packages/plugin-khanbank-ui/.erxes/dist .
           cp build.tar packages/plugin-khanbank-ui/.erxes/dist
           rm -rf packages/plugin-khanbank-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-khanbank-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-khanbank-ui --delete
+          aws s3 sync packages/plugin-khanbank-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-khanbank-ui --delete

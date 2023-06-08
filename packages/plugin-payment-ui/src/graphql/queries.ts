@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 import { paymentConfigFields } from './common';
 
@@ -20,12 +20,6 @@ const paymentsTotalCountQuery = gql`
       byKind
       total
     }
-  }
-`;
-
-const checkInvoice = gql`
-  query checkInvoice($paymentId: String!, $invoiceId: String!) {
-    checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
   }
 `;
 
@@ -111,7 +105,6 @@ export default {
   payments,
   paymentsTotalCountQuery,
   paymentConfigQuery,
-  checkInvoice,
   invoices,
   invoicesTotalCount,
 

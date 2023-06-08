@@ -4,6 +4,7 @@ import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
+  sendLogsMessage,
   sendProductsMessage
 } from './messageBroker';
 import * as moment from 'moment';
@@ -39,6 +40,10 @@ const prepareData = async (
   switch (type) {
     case MODULE_NAMES.DEAL:
       data = await models.Deals.find(boardItemsFilter).lean();
+
+      break;
+    case MODULE_NAMES.PURCHASE:
+      data = await models.Purchases.find(boardItemsFilter).lean();
 
       break;
     case MODULE_NAMES.TASK:
@@ -145,7 +150,7 @@ const fillDealProductValue = async (subdomain, column, item) => {
         break;
 
       case 'productsData.tickUsed':
-        value = productData.tickUsed;
+        value = productData.tickUsed ? 'TRUE' : 'FALSE';
         break;
 
       case 'productsData.isVatApplied':
@@ -221,7 +226,7 @@ const fillValue = async (
       value = createdUser ? createdUser.username : 'user not found';
 
       break;
-    // deal, task, ticket fields
+    // deal, task, purchase ticket fields
     case 'assignedUserIds':
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
@@ -386,6 +391,36 @@ const fillValue = async (
 
       break;
 
+    case 'stageMovedUser':
+      const activities = await sendLogsMessage({
+        subdomain,
+        action: 'activityLogs.findMany',
+        data: {
+          query: {
+            contentId: item._id,
+            action: 'moved'
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const movedUser: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id:
+            activities.length > 0
+              ? activities[activities.length - 1].createdBy
+              : ''
+        },
+        isRPC: true
+      });
+
+      value = movedUser ? movedUser.username : '-';
+
+      break;
+
     default:
       break;
   }
@@ -404,7 +439,6 @@ export default {
     const docs = [] as any;
     const headers = [] as any;
     const excelHeader = [] as any;
-    const productsArray = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -432,6 +466,7 @@ export default {
       for (const item of results) {
         const result = {};
         const productDocs = [] as any;
+        const productsArray = [] as any;
 
         for (const column of headers) {
           if (column.startsWith('customFieldsData')) {

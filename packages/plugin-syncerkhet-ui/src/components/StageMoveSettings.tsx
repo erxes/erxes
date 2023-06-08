@@ -62,6 +62,7 @@ class GeneralSettings extends React.Component<Props, State> {
     return Object.keys(configs).map(key => {
       return (
         <PerSettings
+          key={key}
           configsMap={this.state.configsMap}
           config={configs[key]}
           currentConfigKey={key}

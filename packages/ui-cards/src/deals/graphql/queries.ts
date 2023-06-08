@@ -6,6 +6,7 @@ import {
 } from '../../conformity/graphql/queries';
 
 const commonParams = `
+  $_ids: [String]
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
@@ -29,10 +30,19 @@ const commonParams = `
   $noSkipArchive: Boolean
   $branchIds:[String]
   $departmentIds:[String]
-  ${conformityQueryFields}
+  ${conformityQueryFields},
+  $createdStartDate: Date,
+  $createdEndDate: Date,
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
 `;
 
 const commonParamDefs = `
+  _ids: $_ids,
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
@@ -56,13 +66,22 @@ const commonParamDefs = `
   noSkipArchive: $noSkipArchive
   branchIds: $branchIds,
   departmentIds: $departmentIds,
-  ${conformityQueryFieldDefs}
+  ${conformityQueryFieldDefs},
+  createdStartDate: $createdStartDate,
+  createdEndDate: $createdEndDate,
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
 `;
 
 export const dealFields = `
   products
   productsData
   paymentsData
+  unUsedAmount
   amount
 `;
 
@@ -99,6 +118,7 @@ const deals = `
       ${commonParamDefs}
     ) {
       products
+      unUsedAmount
       amount
       ${commonListFields}
     }

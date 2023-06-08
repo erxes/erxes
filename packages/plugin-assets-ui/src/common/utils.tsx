@@ -22,7 +22,7 @@ import { ASSET_CATEGORY_STATUS_FILTER } from './constant';
 import { CommonFormGroupTypes, IAsset, IAssetCategoryTypes } from './types';
 import { queries as movementQueries } from '../movements/graphql';
 import { queries as movementItemQueries } from '../movements/items/graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 export const DefaultWrapper = ({
   title,
@@ -253,7 +253,11 @@ export const SelectWithAssets = ({
 }: {
   queryParams?: IQueryParams;
   label: string;
-  onSelect: (value: string[] | string, name: string) => void;
+  onSelect: (
+    value: string[] | string,
+    name: string,
+    assetName?: string
+  ) => void;
   multi?: boolean;
   customOption?: IOption;
   initialValue?: string | string[];
@@ -280,6 +284,7 @@ export const SelectWithAssets = ({
 
       list.push({
         label: `${space} ${asset.code} - ${asset.name}`,
+        extraValue: asset.name,
         value: asset._id
       });
     }

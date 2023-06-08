@@ -2,10 +2,10 @@ import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { ButtonMutate, Spinner } from '@erxes/ui/src';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { RiskIndicatortDetailQueryResponse } from '../common/types';
 import { refetchQueries } from '../common/utils';
@@ -14,14 +14,13 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   asssessmentId?: string;
-  indicatorDetail?: RiskIndicatortDetailQueryResponse;
   fieldsSkip?: any;
   closeModal: () => void;
   queryParams: any;
 };
 
 type FinalProps = {
-  object;
+  indicatorDetail: any;
 } & ICommonFormProps &
   IRouterProps &
   Props;

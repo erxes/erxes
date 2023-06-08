@@ -17,6 +17,9 @@ export default {
         case 'deal':
           model = models.Deals;
           break;
+        case 'purchase':
+          model = models.Purchases;
+          break;
         case 'task':
           model = models.Tasks;
         case 'ticket':
