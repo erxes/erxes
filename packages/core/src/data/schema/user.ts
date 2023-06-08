@@ -112,6 +112,8 @@ const commonSelector = `
   branchIds: [String]
   departmentIds: [String]
   unitId: String
+  segment: String
+  segmentData: String
 `;
 
 export const queries = `
