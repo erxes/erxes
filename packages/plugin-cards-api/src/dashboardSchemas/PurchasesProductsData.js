@@ -2,14 +2,12 @@ const { tableSchema } = require('../tablePrefix');
 
 cube(`PurchasesProductsdata`, {
   sql: `SELECT * FROM ${tableSchema()}.\`purchases_productsData\``,
-
   joins: {
     Products: {
       sql: `${CUBE}.\`productsData.productId\` = ${Products}._id`,
       relationship: `belongsTo`
     }
   },
-
   measures: {
     productAmountSum: {
       sql: `${CUBE}.\`productsData.amount\``,
