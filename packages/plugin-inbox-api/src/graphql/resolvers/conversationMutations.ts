@@ -338,7 +338,7 @@ const conversationMutations = {
     const serviceName = integration.kind.split('-')[0];
     const serviceRunning = await isServiceRunning(serviceName);
 
-    if (serviceRunning) {
+    if (serviceRunning && !doc.internal) {
       const payload = {
         integrationId: integration._id,
         conversationId: conversation._id,

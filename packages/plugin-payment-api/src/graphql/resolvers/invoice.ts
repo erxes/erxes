@@ -1,8 +1,6 @@
-import { serviceDiscovery } from './../../configs';
 import { IContext } from '../../connectionResolver';
-import { IInvoice } from '../../models/definitions/invoices';
 import { sendCommonMessage, sendContactsMessage } from '../../messageBroker';
-import { PLUGIN_RESOLVERS_META } from '../../api/constants';
+import { IInvoice } from '../../models/definitions/invoices';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -12,7 +10,7 @@ export default {
   async customer(invoice: IInvoice, {}, { subdomain }: IContext) {
     switch (invoice.customerType) {
       case 'company':
-        const company = await sendContactsMessage({
+        return await sendContactsMessage({
           subdomain,
           action: 'companies.findOne',
           data: { _id: invoice.customerId },
@@ -20,35 +18,16 @@ export default {
           defaultValue: null
         });
 
-        if (!company) {
-          return null;
-        }
-
-        return {
-          name: company.primaryName,
-          email: company.primaryEmail,
-          phone: company.primaryPhone
-        };
       case 'customer':
-        const customer = await sendContactsMessage({
+        return await sendContactsMessage({
           subdomain,
           action: 'customers.findOne',
           data: { _id: invoice.customerId },
           isRPC: true,
           defaultValue: null
         });
-
-        if (!customer) {
-          return null;
-        }
-
-        return {
-          name: `${customer.firstName} ${customer.lastName}`,
-          email: customer.primaryEmail,
-          phone: customer.primaryPhone
-        };
       case 'user':
-        const user = await sendCommonMessage('core', {
+        return await sendCommonMessage('core', {
           subdomain,
           action: 'users.findOne',
           data: { _id: invoice.customerId },
@@ -56,11 +35,6 @@ export default {
           defaultValue: null
         });
 
-        if (!user) {
-          return null;
-        }
-
-        return { name: user.username, email: user.email, phone: '' };
       default:
         return null;
     }
@@ -73,35 +47,41 @@ export default {
     );
   },
 
-  async pluginData(invoice: IInvoice, {}, { subdomain }: IContext) {
-    const [pluginName, collectionName] = invoice.contentType.split(':');
+  idOfProvider(invoice: IInvoice) {
+    const apiResponse: any = invoice.apiResponse || {};
 
-    if (!(await serviceDiscovery.isEnabled(pluginName))) {
-      return null;
+    switch (invoice.paymentKind) {
+      case 'qpay':
+        return apiResponse.invoice_id;
+      case 'socialpay':
+        return invoice.identifier;
+      case 'qpayQuickqr':
+        return apiResponse.id;
+      case 'storepay':
+        return apiResponse.value;
+      case 'monpay':
+        return apiResponse.uuid;
+      default:
+        return 'not supported';
     }
+  },
 
-    const data: any = {};
+  errorDescription(invoice: IInvoice) {
+    const apiResponse: any = invoice.apiResponse || {};
 
-    const meta = PLUGIN_RESOLVERS_META[invoice.contentType];
-
-    if (!meta) {
-      return await sendCommonMessage(pluginName, {
-        subdomain,
-        action: `${collectionName}.findOne`,
-        data: { _id: invoice.contentTypeId },
-        isRPC: true,
-        defaultValue: null
-      });
+    switch (invoice.paymentKind) {
+      case 'qpay':
+        return apiResponse.error && apiResponse.error;
+      case 'socialpay':
+        return apiResponse.error && apiResponse.error;
+      case 'qpayQuickqr':
+        return apiResponse.error && apiResponse.error;
+      case 'storepay':
+        return apiResponse.error && apiResponse.error;
+      case 'monpay':
+        return apiResponse.error && apiResponse.error;
+      default:
+        return;
     }
-
-    data[meta.queryKey] = invoice.contentTypeId;
-
-    return sendCommonMessage(pluginName, {
-      subdomain,
-      action: meta.action,
-      data,
-      isRPC: true,
-      defaultValue: null
-    });
   }
 };

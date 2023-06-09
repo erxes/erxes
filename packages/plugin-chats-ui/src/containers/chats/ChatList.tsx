@@ -7,6 +7,8 @@ import { IUser } from '@erxes/ui/src/auth/types';
 // local
 import Component from '../../components/chats/ChatList';
 import { queries, subscriptions } from '../../graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   chatId?: string;
@@ -20,8 +22,12 @@ type FinalProps = {
 } & Props;
 
 const ChatListContainer = (props: FinalProps) => {
-  const { currentUser } = props;
+  const { currentUser, isWidget } = props;
   const { loading, error, data, refetch } = useQuery(gql(queries.chats));
+
+  if (isWidget) {
+    refetch();
+  }
 
   useSubscription(gql(subscriptions.chatInserted), {
     variables: { userId: currentUser._id },
@@ -31,15 +37,19 @@ const ChatListContainer = (props: FinalProps) => {
   });
 
   if (loading) {
-    return <p>...</p>;
+    return <Spinner objective={true} />;
   }
 
   if (error) {
-    return <p>{error.message}</p>;
+    Alert.error(error.message);
   }
 
   return (
-    <Component {...props} chats={data.chats.list} currentUser={currentUser} />
+    <Component
+      {...props}
+      chats={data.chats.list || []}
+      currentUser={currentUser}
+    />
   );
 };
 

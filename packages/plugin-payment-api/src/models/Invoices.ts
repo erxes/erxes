@@ -17,6 +17,7 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
   checkInvoice(_id: string): Promise<string>;
+  removeInvoices(_ids: string[]): Promise<any>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -49,7 +50,7 @@ export const loadInvoiceClass = (models: IModels) => {
         identifier: doc.identifier || makeInvoiceNo(32)
       });
 
-      const api = new ErxesPayment(payment.config, doc.domain);
+      const api = new ErxesPayment(payment, doc.domain);
 
       try {
         const apiResponse = await api.createInvoice(invoice);
@@ -167,7 +168,7 @@ export const loadInvoiceClass = (models: IModels) => {
         invoice.selectedPaymentId
       );
 
-      const api = new ErxesPayment(payment.config);
+      const api = new ErxesPayment(payment);
 
       api.cancelInvoice(invoice);
 
@@ -189,9 +190,29 @@ export const loadInvoiceClass = (models: IModels) => {
         invoice.selectedPaymentId
       );
 
-      const api = new ErxesPayment(payment.config);
+      const api = new ErxesPayment(payment);
 
-      return await api.checkInvoice(invoice);
+      const status = await api.manualCheck(invoice);
+
+      if (status === 'paid') {
+        invoice.status = status;
+        await invoice.save();
+      }
+
+      return status;
+    }
+
+    public static async removeInvoices(_ids: string[]) {
+      const invoiceIds = await models.Invoices.find({
+        _id: { $in: _ids },
+        status: { $ne: 'paid' }
+      }).distinct('_id');
+
+      await models.Invoices.deleteMany({ _id: { $in: invoiceIds } });
+
+      redisUtils.removeInvoices(_ids);
+
+      return 'removed';
     }
   }
   invoiceSchema.loadClass(Invoices);

@@ -4,6 +4,7 @@ import { mutations, queries } from "../graphql";
 
 import Detail from "../components/Detail";
 import React from "react";
+import Spinner from "../../common/Spinner";
 import { capitalize } from "../../common/utils";
 import { confirm } from "../../utils";
 
@@ -21,6 +22,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
     {
       variables: { _id },
       skip: !_id,
+      context: {
+        headers: {
+          "erxes-app-token": props.config?.erxesAppToken,
+        },
+      },
     }
   );
 
@@ -29,6 +35,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
     {
       variables: { typeId: _id, type },
       skip: !_id,
+      context: {
+        headers: {
+          "erxes-app-token": props.config?.erxesAppToken,
+        },
+      },
     }
   );
 
@@ -37,6 +48,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
       {
         query: gql(queries.clientPortalComments),
         variables: { typeId: _id, type },
+        context: {
+          headers: {
+            "erxes-app-token": props.config?.erxesAppToken,
+          },
+        },
       },
     ],
   });
@@ -48,14 +64,25 @@ function DetailContainer({ _id, type, ...props }: Props) {
         {
           query: gql(queries.clientPortalComments),
           variables: { typeId: _id, type },
+          context: {
+            headers: {
+              "erxes-app-token": props.config?.erxesAppToken,
+            },
+          },
         },
       ],
     }
   );
 
-  if (cardQueryLoading || commentsQueryLoading) return null;
+  if (cardQueryLoading || commentsQueryLoading) {
+    return <Spinner objective={true} />;
+  }
 
-  const item = data[`clientPortal${capitalize(type)}`];
+  const item =
+    type === "ticket"
+      ? data[`clientPortal${capitalize(type)}`]
+      : data[`${type}Detail`];
+
   const comments = commentsQuery?.clientPortalComments || [];
 
   const handleSubmit = (values: { content: string }) => {

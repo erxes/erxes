@@ -23,12 +23,6 @@ const paymentsTotalCountQuery = gql`
   }
 `;
 
-const checkInvoice = gql`
-  query checkInvoice($paymentId: String!, $invoiceId: String!) {
-    checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
-  }
-`;
-
 const invoicesFields = `
     _id
     amount
@@ -75,6 +69,37 @@ const invoicesTotalCount = gql`
   }
 `;
 
+const getInvoice = gql`
+  query InvoiceDetail($_id: String!) {
+    invoiceDetail(_id: $_id) {
+      _id
+      amount
+      apiResponse
+      contentType
+      contentTypeId
+      createdAt
+      customer
+      customerId
+      customerType
+      description
+      email
+      payment {
+        _id
+        createdAt
+        kind
+        name
+      }
+      paymentId
+      paymentKind
+      phone
+      resolvedAt
+      status
+      idOfProvider
+      errorDescription
+    }
+  }
+`;
+
 const paymentConfigQuery = gql`
   query GetPaymentConfig($contentType: String!, $contentTypeId: String!) {
     getPaymentConfig(contentType: $contentType, contentTypeId: $contentTypeId) {
@@ -111,8 +136,8 @@ export default {
   payments,
   paymentsTotalCountQuery,
   paymentConfigQuery,
-  checkInvoice,
   invoices,
+  getInvoice,
   invoicesTotalCount,
 
   paymentConfigsQuery,

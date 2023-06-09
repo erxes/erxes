@@ -302,6 +302,7 @@ export interface IKbArticle extends ICommonFields {
   categoryId?: string;
   reactionChoices?: string[];
   createdUser: IUser;
+  viewCount?: number;
 }
 
 export interface INotification {

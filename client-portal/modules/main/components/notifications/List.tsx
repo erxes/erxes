@@ -1,20 +1,19 @@
-import { INotification, IUser } from '../../../types';
-import { NotificationList } from '../../../styles/main';
-
-import EmptyState from '../../../common/form/EmptyState';
-import Modal from '../../../common/Modal';
-import NotificationDetail from '../../containers/notifications/Detail';
-import React, { useState } from 'react';
-import Row from './Row';
-import Spinner from '../../../common/Spinner';
+import { INotification, IUser } from "../../../types";
 import {
-  NotificationSeeAll,
-  MarkAllRead,
+  NotificationFooter,
   NotificationWrapper,
+  TabCaption,
   TabContainer,
-  TabCaption
-} from '../../../styles/notifications';
-import { __ } from '../../../../utils';
+} from "../../../styles/notifications";
+import React, { useState } from "react";
+
+import EmptyState from "../../../common/form/EmptyState";
+import Modal from "../../../common/Modal";
+import NotificationDetail from "../../containers/notifications/Detail";
+import { NotificationList } from "../../../styles/main";
+import Row from "./Row";
+import Spinner from "../../../common/Spinner";
+import { __ } from "../../../../utils";
 
 type Props = {
   currentUser: IUser;
@@ -34,26 +33,26 @@ const List = (props: Props) => {
     count,
     markAsRead,
     markAllAsRead,
-    showNotifications
+    showNotifications,
   } = props;
 
-  const [currentTab, setCurrentTab] = useState('Recent');
+  const [currentTab, setCurrentTab] = useState("Recent");
   const [showModal, setShowModal] = React.useState(false);
   const [selectedNotificationId, setSelectedNotificationId] = React.useState(
-    ''
+    ""
   );
 
-  const onTabClick = currTab => {
+  const onTabClick = (currTab) => {
     setCurrentTab(currTab);
   };
 
   const recentOnClick = () => {
-    onTabClick('Recent');
+    onTabClick("Recent");
     showNotifications(false);
   };
 
   const unreadOnClick = () => {
-    onTabClick('Unread');
+    onTabClick("Unread");
     showNotifications(true);
   };
 
@@ -86,12 +85,9 @@ const List = (props: Props) => {
           ))}
         </NotificationList>
 
-        <NotificationSeeAll>
-          <span>{__('See all')}</span>
-        </NotificationSeeAll>
-        <MarkAllRead>
-          <span onClick={markAllAsRead}>{__('Mark all as read')}</span>{' '}
-        </MarkAllRead>
+        <NotificationFooter className="d-flex justify-content-end align-items-center">
+          <span onClick={markAllAsRead}>{__("Mark all as read")}</span>{" "}
+        </NotificationFooter>
 
         <Modal
           content={() => (
@@ -100,6 +96,7 @@ const List = (props: Props) => {
               currentUser={props.currentUser}
               afterRemove={() => {
                 setShowModal(false);
+                // tslint:disable-next-line:no-unused-expression
                 props.refetch && props.refetch();
               }}
             />
@@ -115,16 +112,16 @@ const List = (props: Props) => {
     <>
       <TabContainer full={true}>
         <TabCaption
-          className={currentTab === 'Recent' ? 'active' : ''}
+          className={currentTab === "Recent" ? "active" : ""}
           onClick={recentOnClick}
         >
-          {__('Recent')}
+          {__("Recent")}
         </TabCaption>
         <TabCaption
-          className={currentTab === 'Unread' ? 'active' : ''}
+          className={currentTab === "Unread" ? "active" : ""}
           onClick={unreadOnClick}
         >
-          {__('Unread')}
+          {__("Unread")}
         </TabCaption>
       </TabContainer>
       <NotificationWrapper>{renderContent()}</NotificationWrapper>
