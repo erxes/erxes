@@ -21,7 +21,7 @@ type Props = {
     _attachments?: any[],
     replyId?: string
   ) => void;
-  handleActive: (chatId: string) => void;
+  handleActive: (chatId: string, toClose: boolean) => void;
 };
 
 type FinalProps = {
@@ -41,7 +41,7 @@ const WidgetChatWindow = (props: FinalProps) => {
   const handleKeyDown = event => {
     if (event.keyCode === 27) {
       event.preventDefault();
-      props.handleActive(chat._id);
+      props.handleActive(chat._id, false);
     }
   };
 
@@ -66,7 +66,7 @@ const WidgetChatWindow = (props: FinalProps) => {
         <Icon
           icon="times"
           size={24}
-          onClick={() => props.handleActive(chat._id)}
+          onClick={() => props.handleActive(chat._id, true)}
         />
       </WidgetChatWindowHeader>
       <MessageList chatId={chat._id} setReply={setReply} />

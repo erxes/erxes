@@ -136,9 +136,17 @@ const getChatIdByUserIds = `
   }
 `;
 
+const getUnreadChatCount = `
+  query getUnreadChatCount{
+    getUnreadChatCount
+  }
+
+`;
+
 export default {
   chats,
   chatDetail,
   chatMessages,
-  getChatIdByUserIds
+  getChatIdByUserIds,
+  getUnreadChatCount
 };

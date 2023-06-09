@@ -113,7 +113,7 @@ function AppProvider({ children }: Props) {
       : {}) || {};
 
   if (userQuery.loading || response.loading) {
-    return <Spinner />;
+    return null;
   }
 
   return (

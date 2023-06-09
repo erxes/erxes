@@ -9,6 +9,10 @@ export const contractTypeFields = `
   leaseType
   createdAt
   unduePercent
+  undueCalcType
+  useMargin
+  useSkipInterest
+  useDebt
   productCategoryIds
   config
 `;

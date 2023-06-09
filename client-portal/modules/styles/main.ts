@@ -451,6 +451,7 @@ const FormWrapper = styled.div`
   .customFieldDescription {
     font-size: 13px;
     margin-bottom: 10px;
+    color: ${colors.colorCoreGray};
   }
 
   h4 {
@@ -567,6 +568,11 @@ const NotificationList = styled.ul`
 const InfoSection = styled.div`
   position: relative;
   flex: 1;
+  font-size: 13px;
+
+  p {
+    margin: 0;
+  }
 `;
 
 const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`

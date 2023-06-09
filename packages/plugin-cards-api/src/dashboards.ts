@@ -1,27 +1,34 @@
 export default {
   schemaNames: [
     'Deals',
+    'Purchases',
     'Tasks',
     'Tickets',
     'DealsAssigneduser',
+    'PurchasesAssigneduser',
     'TasksAssigneduser',
     'TicketsAssigneduser',
     'DealsLabel',
+    'PurchasesLabel',
     'TasksLabel',
     'TicketsLabel',
     'DealsProductsData',
+    'PurchasesProductsData',
     'DealsCustomfieldsdata',
+    'PurchasesCustomfieldsdata',
     'TasksCustomfieldsdata',
     'TicketsCustomfieldsdata',
     'Pipelines',
     'PipelineLabels',
     'Stages',
     'DealsBranches',
+    'PurchasesBranches',
     'DealsDepartments',
+    'PurchasesDepartments',
     'TicketsBranches',
     'TicketsDepartments',
     'TasksDepartments',
     'TasksBranches'
   ],
-  types: ['Deals', 'Tasks', 'Tickets']
+  types: ['Deals', 'Purchases', 'Tasks', 'Tickets']
 };

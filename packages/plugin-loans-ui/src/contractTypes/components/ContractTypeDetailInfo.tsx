@@ -102,6 +102,19 @@ class DetailInfo extends React.Component<Props> {
                 'Undue percent',
                 (contractType.unduePercent || 0).toLocaleString()
               )}
+              {this.renderRow('Undue calc type', contractType.undueCalcType)}
+              {this.renderRow(
+                'Is use debt',
+                __(contractType.useDebt ? 'Yes' : 'No')
+              )}
+              {this.renderRow(
+                'Is use margin',
+                __(contractType.useMargin ? 'Yes' : 'No')
+              )}
+              {this.renderRow(
+                'Is use skip interest',
+                __(contractType.useSkipInterest ? 'Yes' : 'No')
+              )}
 
               {this.renderRow('Leasing Type', contractType.leaseType)}
               <li>

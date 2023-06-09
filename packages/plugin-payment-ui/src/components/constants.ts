@@ -16,6 +16,7 @@ export const PAYMENTCONFIGS = [
     createModal: QpayForm,
     createUrl: '/settings/payments/createQpay',
     category: 'Payment method',
+    color: 'blue',
     link:
       'mailto:%20info@qpay.mn?subject=QPay%20Registration&body=Dear%20QPay%20Team,%0D%0A%0D%0AI%20would%20like%20to%20'
   },
@@ -29,6 +30,7 @@ export const PAYMENTCONFIGS = [
     createModal: QuickQrForm,
     createUrl: '/settings/payments/createQpay',
     category: 'Payment method',
+    color: 'blue',
     modalSize: 'xl'
   },
   {
@@ -41,6 +43,7 @@ export const PAYMENTCONFIGS = [
     createModal: SocialPayForm,
     createUrl: '/settings/payments/createSocialPay',
     category: 'Payment method',
+    color: 'blue',
     link: 'https://www.golomtbank.com/retail/digital-bank/socialpay'
   },
   {
@@ -52,6 +55,7 @@ export const PAYMENTCONFIGS = [
     createModal: MonpayForm,
     createUrl: '/settings/payments/createMonPay',
     category: 'Payment method',
+    color: 'blue',
     link:
       'mailto:%20Merchantservice@mobifinance.mn?subject=MonPay%20Merchant%20Registration&body=Dear%20MonPay%20Team,%0D%0A%0D%0AI%20would%20like%20to%20'
   },
@@ -64,7 +68,8 @@ export const PAYMENTCONFIGS = [
     logo: 'images/payments/storepay.png',
     createModal: StorepayForm,
     createUrl: '/settings/payments/createStorePay',
-    category: 'Payment method'
+    category: 'Payment method',
+    color: 'blue'
   },
   {
     name: 'Qpay Wechat Pay',
@@ -74,7 +79,8 @@ export const PAYMENTCONFIGS = [
     logo: 'images/payments/wechatpay.png',
     createModal: '',
     createUrl: '/settings/payments/createWechatpay',
-    category: 'Payment method'
+    category: 'Payment method',
+    color: 'green'
   },
   {
     name: 'Paypal',
@@ -84,7 +90,8 @@ export const PAYMENTCONFIGS = [
     logo: 'images/payments/paypal.png',
     createModal: PaypalForm,
     createUrl: '/settings/payments/createPaypal',
-    category: 'Payment method'
+    category: 'Payment method',
+    color: 'blue'
   }
 ];
 
