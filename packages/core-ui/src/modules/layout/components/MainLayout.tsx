@@ -81,7 +81,6 @@ class MainLayout extends React.Component<IProps, State> {
 
       const script = document.createElement('script');
       script.src = 'https://w.office.erxes.io/build/messengerWidget.bundle.js';
-      // script.async = true;
       const entry = document.getElementsByTagName('script')[0];
       (entry as any).parentNode.insertBefore(script, entry);
     }
