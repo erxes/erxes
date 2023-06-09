@@ -65,7 +65,7 @@ class MainLayout extends React.Component<IProps, State> {
       };
     } // end currentUser checking
 
-    if ((window as any).env.REACT_APP_SHOW_MESSENGER) {
+    if (!(window as any).env.REACT_APP_HIDE_MESSENGER) {
       const userDetail = (currentUser && currentUser.details) || {
         firstName: '',
         lastName: ''
