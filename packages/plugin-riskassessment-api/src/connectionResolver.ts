@@ -34,6 +34,8 @@ import {
   loadIndicatorsGroups,
   loadRiskIndicators
 } from './models/RiskIndicator';
+import { IPlanModel, loadPlan } from './models/Plan';
+import { IPlanDocument } from './models/definitions/plan';
 
 export interface IModels {
   RiskIndicators: IRiskIndicatorsModel;
@@ -44,6 +46,7 @@ export interface IModels {
   RiskAssessmentsConfigs: IRiskAssessmentsConfigModel;
   Operations: IOperationsModel;
   IndicatorsGroups: IIndicatorsGroupsModel;
+  Plan: IPlanModel;
 }
 
 export interface IContext extends IMainContext {
@@ -96,6 +99,11 @@ export const loadClasses = (
   models.Operations = db.model<IOperationsDocument, IOperationsModel>(
     'operations',
     loadOperations(models, subdomain)
+  );
+
+  models.Plan = db.model<IPlanDocument, IPlanModel>(
+    'risk_assessments_plan',
+    loadPlan(models, subdomain)
   );
 
   return models;
