@@ -1,5 +1,5 @@
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { ButtonMutate, withProps } from '@erxes/ui/src';
 import productCategoryQueries from '@erxes/ui-products/src/graphql/queries';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
@@ -11,7 +11,7 @@ import React from 'react';
 import ContractTypeForm from '../components/ContractTypeForm';
 import { mutations } from '../graphql';
 import { IContractType } from '../types';
-
+import { __ } from 'coreui/utils';
 type Props = {
   contractType: IContractType;
   getAssociatedContractType?: (contractTypeId: string) => void;
@@ -54,7 +54,9 @@ class ContractTypeFromContainer extends React.Component<FinalProps> {
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

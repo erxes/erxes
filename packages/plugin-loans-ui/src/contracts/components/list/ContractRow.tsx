@@ -17,6 +17,8 @@ function displayValue(contract, name) {
   if (name === 'primaryName') {
     return <FlexItem>{formatValue(contract.primaryName)}</FlexItem>;
   }
+  if (name.includes('Amount'))
+    return formatValue(value ? value?.toLocaleString() : value);
 
   return formatValue(value);
 }
@@ -52,7 +54,7 @@ function ContractRow({ contract, history, isChecked, toggleBulk }: Props) {
       <td key={'tenor'}>{displayValue(contract, 'tenor')}</td>
       <td key={'interestRate'}>{displayValue(contract, 'interestRate')}</td>
       <td key={'repayment'}>{displayValue(contract, 'repayment')}</td>
-      <td key={'scheduleDay'}>{displayValue(contract, 'scheduleDay')}</td>
+      <td key={'scheduleDays'}>{displayValue(contract, 'scheduleDays')}</td>
     </tr>
   );
 }

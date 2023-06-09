@@ -16,13 +16,5 @@
   "Phone number": "Phone number",
   "Submit": "Submit",
   "Please enter your phone number": "Please enter your phone number",
-  "Error: ": "Error: ",
-  "Enter your Storepay registered phone number": "Enter your Storepay registered phone number",
-  "Cannot read property 'createInvoice' of undefined": "Cannot read property 'createInvoice' of undefined",
-  "{\"error\":{\"account_bank_code\":{\"type\":\"STRING\",\"message\":\"String required!\"},\"account_number\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"},\"account_name\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"}},\"message\":{\"account_bank_code\":{\"type\":\"STRING\",\"message\":\"String required!\"},\"account_number\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"},\"account_name\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"}}}": "{\"error\":{\"account_bank_code\":{\"type\":\"STRING\",\"message\":\"String required!\"},\"account_number\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"},\"account_name\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"}},\"message\":{\"account_bank_code\":{\"type\":\"STRING\",\"message\":\"String required!\"},\"account_number\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"},\"account_name\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"}}}",
-  "Payment not found with given id undefined}": "Payment not found with given id undefined}",
-  "Cannot read property 'desc' of undefined": "Cannot read property 'desc' of undefined",
-  "{\"error\":{\"account_number\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"},\"account_name\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"}},\"message\":{\"account_number\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"},\"account_name\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"}}}": "{\"error\":{\"account_number\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"},\"account_name\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"}},\"message\":{\"account_number\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"},\"account_name\":{\"type\":\"REQUIRED\",\"message\":\"Required!\"}}}",
-  "{\"error\":\"MERCHANT_NOTFOUND\",\"message\":\"MERCHANT_NOTFOUND\"}": "{\"error\":\"MERCHANT_NOTFOUND\",\"message\":\"MERCHANT_NOTFOUND\"}",
-  "{\"error\":{\"mcc_code\":{\"type\":\"MAX_LENGTH\",\"message\":\"String max length (4)!\"}},\"message\":{\"mcc_code\":{\"type\":\"MAX_LENGTH\",\"message\":\"String max length (4)!\"}}}": "{\"error\":{\"mcc_code\":{\"type\":\"MAX_LENGTH\",\"message\":\"String max length (4)!\"}},\"message\":{\"mcc_code\":{\"type\":\"MAX_LENGTH\",\"message\":\"String max length (4)!\"}}}"
+  "Enter your Storepay registered phone number": "Enter your Storepay registered phone number"
 }

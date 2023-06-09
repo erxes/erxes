@@ -1,9 +1,10 @@
-import { __, ButtonMutate, withProps } from '@erxes/ui/src';
+import { ButtonMutate, withProps } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import CloseForm from '../../components/detail/CloseForm';
 import { mutations, queries } from '../../graphql';
 import {
@@ -56,7 +57,9 @@ class CloseFromContainer extends React.Component<FinalProps, State> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={__(`You successfully closed this contract`)}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

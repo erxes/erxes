@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FC } from 'react';
-import gql from 'graphql-tag';
-import { useMutation } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import CpLogin from './CpLogin';
 import CurrentUser from './CurrentUser';
 import ChooseProduct from './ChooseProduct';

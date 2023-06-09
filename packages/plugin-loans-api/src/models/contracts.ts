@@ -78,12 +78,6 @@ export const loadContractClass = (models: IModels) => {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.number = await getNumber(models, doc.contractTypeId);
 
-      const { lease, margin } = getLeaseAmount(doc.collateralsData || []);
-      const leaseAmount = lease || doc.leaseAmount || 0;
-      doc.leaseAmount = lease || doc.leaseAmount;
-      doc.marginAmount = margin || doc.marginAmount;
-      doc.feeAmount = (leaseAmount / 100) * 0.5;
-
       doc.insuranceAmount = getInsurancAmount(
         doc.insurancesData || [],
         doc.collateralsData || []
@@ -113,10 +107,6 @@ export const loadContractClass = (models: IModels) => {
       }
 
       doc.startDate = getFullDate(doc.startDate || new Date());
-      const { lease, margin } = getLeaseAmount(doc.collateralsData || []);
-      doc.leaseAmount = lease || doc.leaseAmount;
-      doc.marginAmount = margin || doc.marginAmount;
-      doc.feeAmount = (doc.leaseAmount / 100) * 0.5;
 
       doc.insuranceAmount = getInsurancAmount(
         doc.insurancesData || [],

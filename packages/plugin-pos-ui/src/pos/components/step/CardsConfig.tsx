@@ -4,7 +4,7 @@ import { Alert, Button, __ } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { Block, FlexColumn, FlexItem, FlexRow } from '../../../styles';
 import { IConfigsMap, IPos } from '../../../types';

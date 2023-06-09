@@ -77,6 +77,8 @@ class Actions extends React.Component<Props> {
         ? TAG_TYPES.DEAL
         : options.type === 'task'
         ? TAG_TYPES.TASK
+        : options.type === 'purchase' // Add a new condition for 'purchase'
+        ? TAG_TYPES.PURCHASE
         : TAG_TYPES.TICKET;
 
     const tagTrigger = (
@@ -111,8 +113,7 @@ class Actions extends React.Component<Props> {
         <ChecklistAdd itemId={item._id} type={options.type} />
 
         <Watch item={item} options={options} isSmall={true} />
-
-        <Comment item={item} />
+        {(isEnabled('clientportal') && <Comment item={item} />) || ''}
         <ColorButton onClick={copyItem}>
           <Icon icon="copy-1" />
           {__('Copy')}

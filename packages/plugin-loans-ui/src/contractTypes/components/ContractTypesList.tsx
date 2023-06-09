@@ -1,5 +1,4 @@
 import {
-  __,
   Alert,
   BarItems,
   Button,
@@ -21,7 +20,7 @@ import ContractTypeForm from '../containers/ContractTypeForm';
 import { ContractTypesTableWrapper } from '../styles';
 import { IContractType } from '../types';
 import ContractTypeRow from './ContractTypeRow';
-
+import { __ } from 'coreui/utils';
 interface IProps extends IRouterProps {
   contractTypes: IContractType[];
   loading: boolean;
@@ -146,7 +145,7 @@ class ContractTypesList extends React.Component<IProps, State> {
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
-        Add contractType
+        {__('Add contractType')}
       </Button>
     );
 
@@ -170,7 +169,7 @@ class ContractTypesList extends React.Component<IProps, State> {
             icon="cancel-1"
             onClick={onClick}
           >
-            Delete
+            {__('Delete')}
           </Button>
         </BarItems>
       );
@@ -213,7 +212,7 @@ class ContractTypesList extends React.Component<IProps, State> {
             queryParams={queryParams}
             breadcrumb={[
               { title: __('Settings'), link: '/settings' },
-              { title: 'Contract type' }
+              { title: __('Contract Type') }
             ]}
           />
         }

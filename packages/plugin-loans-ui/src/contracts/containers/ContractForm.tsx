@@ -7,6 +7,7 @@ import { mutations } from '../graphql';
 import { IContract } from '../types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { __ } from 'coreui/utils';
 
 type Props = {
   contract: IContract;
@@ -48,7 +49,9 @@ class ContractFromContainer extends React.Component<FinalProps> {
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

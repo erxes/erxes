@@ -12,9 +12,10 @@ import React from 'react';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
 import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../graphql';
+import { __ } from 'coreui/utils';
 
 type Props = {
   invoice: IInvoice;
@@ -68,7 +69,9 @@ class InvoiceFromContainer extends React.Component<FinalProps> {
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
-        />
+        >
+          {__('Save')}
+        </ButtonMutate>
       );
     };
 

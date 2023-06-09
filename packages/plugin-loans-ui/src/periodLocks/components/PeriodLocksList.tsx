@@ -1,5 +1,4 @@
 import {
-  __,
   Alert,
   BarItems,
   Button,
@@ -13,6 +12,7 @@ import {
   Table,
   Wrapper
 } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
@@ -145,7 +145,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
-        Add periodLock
+        {__('Add periodLock')}
       </Button>
     );
 
@@ -170,7 +170,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
               icon="cancel-1"
               onClick={onClick}
             >
-              Delete
+              {__('Delete')}
             </Button>
           )}
         </BarItems>
@@ -193,7 +193,7 @@ class PeriodLocksList extends React.Component<IProps, State> {
         />
         {can('managePeriodLocks', currentUser) && (
           <ModalTrigger
-            title="New periodLock"
+            title={__('New periodLock')}
             trigger={addTrigger}
             autoOpenKey="showPeriodLockModal"
             content={periodLockForm}

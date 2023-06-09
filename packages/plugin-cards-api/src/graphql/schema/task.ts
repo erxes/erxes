@@ -9,6 +9,7 @@ import {
 
 export const types = ({ contacts, tags }) => `
   type TaskListItem {
+    customPropertiesData:JSON,
     ${commonListTypes}
   }
 
@@ -62,6 +63,14 @@ const listQueryParams = `
     boardIds: [String]
     stageCodes: [String]
     dateRangeFilters:JSON
+    createdStartDate: Date,
+    createdEndDate: Date
+    stateChangedStartDate: Date
+    stateChangedEndDate: Date
+    startDateStartDate: Date
+    startDateEndDate: Date
+    closeDateStartDate: Date
+    closeDateEndDate: Date
     ${conformityQueryFields}
 `;
 

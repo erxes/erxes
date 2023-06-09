@@ -37,6 +37,7 @@ export const loadInsuranceTypeClass = (models: IModels) => {
      * Create a insuranceType
      */
     public static async createInsuranceType(doc: IInsuranceType) {
+      if (!doc.companyId) throw new Error('Company is required');
       return models.InsuranceTypes.create(doc);
     }
 

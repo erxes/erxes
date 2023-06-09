@@ -213,6 +213,7 @@ export interface IMessengerData {
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
   onlineHours?: IOnlineHour[];
+  hideWhenOffline?: boolean;
   links?: ILink;
 }
 

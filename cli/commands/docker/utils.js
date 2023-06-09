@@ -5,11 +5,12 @@ const { log, execCommand, filePath, execCurl } = require('../utils');
 
 require('dotenv').config();
 
+
 const routerConfigDirPath = filePath('./apollo-router-config');
 
 async function createRouterConfigDir() {
   if (!fs.existsSync(routerConfigDirPath)) {
-    await fs.mkdirSync(routerConfigDirPath, { recursive: true, mode: 0o777 });
+    await fs.mkdirSync(routerConfigDirPath,{ recursive: true, mode: 0o777 });
   }
 }
 
@@ -58,7 +59,7 @@ const commonEnvs = configs => {
       (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
     ENABLED_SERVICES_PATH: '/data/enabled-services.js',
     MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
-    SENTRY_DSN: configs.sentry_dsn
+    SENTRY_DSN: configs.sentry_dsn,
   };
 };
 
@@ -133,9 +134,7 @@ const generatePluginBlock = (configs, plugin) => {
       PORT: plugin.port || SERVICE_INTERNAL_PORT || 80,
       API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
-      LOAD_BALANCER_ADDRESS: generateLBaddress(
-        `http://plugin-${plugin.name}-api`
-      ),
+      LOAD_BALANCER_ADDRESS: generateLBaddress(`http://plugin-${plugin.name}-api`),
       ...commonEnvs(configs),
       ...(plugin.extra_env || {})
     },
@@ -176,7 +175,7 @@ const syncUI = async ({ name, image_tag, ui_location }) => {
       s3_location = `https://erxes-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
     } else {
       if (tag === 'dev') {
-        s3_location = `https://erxes-staging-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
+        s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
         s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${tag}`;
       }
@@ -204,7 +203,7 @@ const updateLocales = async () => {
   let s3_location = '';
 
   if (tag === 'dev') {
-    s3_location = `https://erxes-staging-plugins.s3.us-west-2.amazonaws.com`;
+    s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com`;
   } else {
     s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${tag}`;
   }
@@ -493,7 +492,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         ],
         networks: ['erxes']
       },
-      'plugin-core-api': {
+      "plugin-core-api": {
         image: `erxes/core:${(configs.core || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'core-api',
@@ -518,8 +517,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         networks: ['erxes']
       },
       gateway: {
-        image: `erxes/gateway:${(configs.gateway || {}).image_tag ||
-          image_tag}`,
+        image: `erxes/gateway:${(configs.gateway || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'gateway',
           PORT: SERVICE_INTERNAL_PORT,
@@ -530,10 +528,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           ...commonEnvs(configs),
           ...((configs.gateway || {}).extra_env || {})
         },
-        volumes: [
-          './enabled-services.js:/data/enabled-services.js',
-          `${routerConfigDirPath}:/erxes-gateway/dist/gateway/src/apollo-router/temp`
-        ],
+        volumes: ['./enabled-services.js:/data/enabled-services.js', `${routerConfigDirPath}:/erxes-gateway/dist/gateway/src/apollo-router/temp`],
         healthcheck,
         extra_hosts,
         ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
@@ -548,7 +543,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
         networks: ['erxes']
       },
-      'plugin-workers-api': {
+      "plugin-workers-api": {
         image: `erxes/workers:${image_tag}`,
         environment: {
           SERVICE_NAME: 'workers',
@@ -662,7 +657,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   if (configs.image_tag) {
     if (configs.image_tag === 'dev') {
       pluginsMapLocation =
-        'https://erxes-staging-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
+        'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
     } else {
       pluginsMapLocation = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${image_tag}/pluginsMap.js`;
     }
@@ -896,14 +891,10 @@ const update = async ({ serviceNames, noimage, uis }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
-
+  
   for (const name of serviceNames.split(',')) {
     const pluginConfig = (configs.plugins || []).find(p => p.name === name);
-    const image_tag =
-      (pluginConfig && pluginConfig.image_tag) ||
-      (configs[name] && configs[name].image_tag) ||
-      configs.image_tag ||
-      'federation';
+    const image_tag = (pluginConfig && pluginConfig.image_tag) || (configs[name] && configs[name].image_tag) || configs.image_tag || 'federation';
 
     if (!noimage) {
       log(`Updating image ${name}......`);

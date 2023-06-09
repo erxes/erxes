@@ -1,7 +1,7 @@
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import Select from 'react-select-plus';
 import { FormGroup, ControlLabel, __, BarItems, Icon } from '@erxes/ui/src';
 import { Card } from './styles';

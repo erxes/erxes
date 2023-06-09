@@ -1,7 +1,8 @@
 import { paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
-const generateFilter = params => {
+const generateFilter = async (params, models: IModels, user: IUserDocument) => {
   const filter: any = {};
 
   if (params.status) {
@@ -13,7 +14,7 @@ const generateFilter = params => {
   }
 
   if (params.userId) {
-    filter.userId = params.userId;
+    filter.userIds = { $in: params.userId };
   }
 
   if (params.createdAtFrom) {
@@ -27,6 +28,24 @@ const generateFilter = params => {
   }
   if (params.closedAtTo) {
     filter.closedAt = { ...filter.closedAt, $lte: params.closedAtTo };
+  }
+
+  if (params?.onlyWaitingMe) {
+    const requestIds = await models.Requests.find({
+      status: 'waiting',
+      userIds: { $in: [user._id] }
+    }).distinct('_id');
+
+    const responseIds = await models.Responses.find({
+      requestId: { $in: requestIds },
+      userId: user._id
+    }).distinct('requestId');
+
+    const waitinRequestIds = requestIds.filter(
+      requestId => !responseIds.includes(requestId)
+    );
+
+    filter._id = { $in: waitinRequestIds };
   }
 
   return filter;
@@ -50,18 +69,18 @@ const GrantRequestQueries = {
       return null;
     }
   },
-  async grantRequests(_root, args, { models }: IContext) {
+  async grantRequests(_root, args, { models, user }: IContext) {
     const { sortField, sortDirection } = args;
 
-    const filter = generateFilter(args);
+    const filter = await generateFilter(args, models, user);
 
     const sort = generateSort(sortField, sortDirection);
 
     return await paginate(models.Requests.find(filter).sort(sort), args);
   },
 
-  async grantRequestsTotalCount(_root, args, { models }: IContext) {
-    const filter = generateFilter(args);
+  async grantRequestsTotalCount(_root, args, { models, user }: IContext) {
+    const filter = await generateFilter(args, models, user);
 
     return await models.Requests.countDocuments(filter);
   },

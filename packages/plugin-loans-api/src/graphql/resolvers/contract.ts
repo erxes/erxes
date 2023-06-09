@@ -151,7 +151,7 @@ const Contracts = {
         let data: any = contract;
         data.untilDay = getDiffDay(
           new Date(),
-          getNextMonthDay(contract.startDate, contract.scheduleDay)
+          getNextMonthDay(contract.startDate, contract.scheduleDays)
         );
         data.donePercent = 0;
         return data;
@@ -191,6 +191,20 @@ const Contracts = {
       })) > 0
     );
   },
+  async expiredDays(contract: IContractDocument, {}, { models }: IContext) {
+    const today = getFullDate(new Date());
+    const expiredSchedule = await models.Schedules.findOne({
+      contractId: contract._id,
+      scheduleDidStatus: { $ne: SCHEDULE_STATUS.DONE },
+      isDefault: true
+    }).sort({ payDate: 1 });
+
+    const paymentDate = getFullDate(expiredSchedule?.payDate as Date);
+    const days = Math.ceil(
+      (today.getTime() - paymentDate.getTime()) / (1000 * 3600 * 24)
+    );
+    return days > 0 ? days : 0;
+  },
   async loanBalanceAmount(
     contract: IContractDocument,
     {},
@@ -223,7 +237,7 @@ const Contracts = {
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $gte: today },
-      isDefault: true
+      status: SCHEDULE_STATUS.PENDING
     })
       .sort({ payDate: 1 })
       .lean();
@@ -233,19 +247,40 @@ const Contracts = {
       payDate: nextSchedule?.payDate || today
     });
 
-    return calcedInfo.total;
+    return (
+      (calcedInfo.payment || 0) +
+      (calcedInfo.undue || 0) +
+      (calcedInfo.interestEve || 0) +
+      (calcedInfo.interestNonce || 0) +
+      (calcedInfo.insurance || 0) +
+      (calcedInfo.debt || 0)
+    );
   },
   async nextPaymentDate(contract: IContractDocument, {}, { models }: IContext) {
     const today = getFullDate(new Date());
 
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
-      payDate: { $gte: today }
+      payDate: { $gte: today },
+      status: SCHEDULE_STATUS.PENDING
     })
       .sort({ payDate: 1 })
       .lean();
 
     return nextSchedule?.payDate;
+  },
+  async loanTransactionHistory(
+    contract: IContractDocument,
+    {},
+    { models }: IContext
+  ) {
+    const transactions = await models.Transactions.find({
+      contractId: contract._id
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return transactions;
   }
 };
 

@@ -20,8 +20,8 @@ import { FieldsQueryResponse } from '@erxes/ui-forms/src/settings/properties/typ
 import Form from '../components/Form';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
 import { withRouter } from 'react-router-dom';
 

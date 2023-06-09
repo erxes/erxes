@@ -11,6 +11,14 @@ export const CONTRACT_STATUS = {
   ALL: ['draft', 'normal', 'bad', 'closed']
 };
 
+export const UNDUE_CALC_TYPE = {
+  FROMAMOUNT: 'fromAmount',
+  FROMINTEREST: 'fromInterest',
+  FROMTOTALPAYMENT: 'fromTotalPayment',
+  FROMENDAMOUNT: 'fromEndAmount',
+  ALL: ['fromAmount', 'fromInterest', 'fromTotalPayment', 'fromEndAmount']
+};
+
 export const CONTRACT_CLASSIFICATION = {
   NORMAL: 'NORMAL',
   EXPIRED: 'EXPIRED',
@@ -40,8 +48,9 @@ export const SCHEDULE_STATUS = {
   DONE: 'done',
   SKIPPED: 'skipped',
   LESS: 'less',
+  PRE: 'pre',
 
-  ALL: ['pending', 'done', 'skipped', 'less']
+  ALL: ['pending', 'done', 'skipped', 'pre', 'less']
 };
 
 export const LEASE_TYPES = {

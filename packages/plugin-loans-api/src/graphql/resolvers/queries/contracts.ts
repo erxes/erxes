@@ -3,7 +3,6 @@ import { getFullDate } from '../../../models/utils/utils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import redis from '../../../redis';
-import { sendMessageBroker } from '../../../messageBroker';
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;

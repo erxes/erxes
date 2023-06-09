@@ -1,5 +1,4 @@
 import {
-  __,
   Alert,
   Button,
   confirm,
@@ -12,6 +11,7 @@ import {
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Action, Name } from '../../contracts/styles';
 import React from 'react';
@@ -80,7 +80,7 @@ class DetailInfo extends React.Component<Props> {
           <InfoWrapper>
             <Name>{contractType.name}</Name>
             <ModalTrigger
-              title="Edit basic info"
+              title={__('Edit basic info')}
               trigger={<Icon icon="edit" />}
               size="lg"
               content={content}
@@ -101,6 +101,19 @@ class DetailInfo extends React.Component<Props> {
               {this.renderRow(
                 'Undue percent',
                 (contractType.unduePercent || 0).toLocaleString()
+              )}
+              {this.renderRow('Undue calc type', contractType.undueCalcType)}
+              {this.renderRow(
+                'Is use debt',
+                __(contractType.useDebt ? 'Yes' : 'No')
+              )}
+              {this.renderRow(
+                'Is use margin',
+                __(contractType.useMargin ? 'Yes' : 'No')
+              )}
+              {this.renderRow(
+                'Is use skip interest',
+                __(contractType.useSkipInterest ? 'Yes' : 'No')
               )}
 
               {this.renderRow('Leasing Type', contractType.leaseType)}

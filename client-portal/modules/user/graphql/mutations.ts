@@ -19,6 +19,7 @@ const createUser = `
     $email: String,
     $firstName: String,
     $lastName: String,
+    $companyName: String
     $phone: String,
     $type: String,
   ) {
@@ -28,9 +29,35 @@ const createUser = `
       password: $password,
       firstName: $firstName,
       lastName: $lastName,
+      companyName: $companyName
       phone: $phone,
       type: $type,
     )
+  }
+`;
+
+const userEdit = `
+  mutation clientPortalUsersEdit(
+    $_id: String!,
+    $clientPortalId: String,
+    $email: String,
+    $firstName: String,
+    $lastName: String,
+    $phone: String,
+    $username: String,
+  ) {
+    clientPortalUsersEdit(
+      _id: $_id,
+      clientPortalId: $clientPortalId,
+      email: $email,
+      firstName: $firstName,
+      lastName: $lastName,
+      phone: $phone,
+      username: $username,
+    ) {
+      _id
+      email
+    }
   }
 `;
 
@@ -94,6 +121,7 @@ export default {
   login: clientPortalLogin,
   logout,
   createUser,
+  userEdit,
   getCode,
   forgotPassword,
   resetPassword,

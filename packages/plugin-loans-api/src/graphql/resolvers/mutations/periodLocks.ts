@@ -31,7 +31,7 @@ const periodLockMutations = {
 
     await putCreateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         newData: doc,
         ...logData,
@@ -63,7 +63,7 @@ const periodLockMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker,
+      messageBroker(),
       {
         newData: { ...doc },
         updatedDocument: updated,
@@ -102,7 +102,7 @@ const periodLockMutations = {
       const descriptions = gatherDescriptions(logData);
       await putDeleteLog(
         subdomain,
-        messageBroker,
+        messageBroker(),
         {
           ...logData,
           ...descriptions

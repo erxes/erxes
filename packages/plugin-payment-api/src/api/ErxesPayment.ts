@@ -55,6 +55,18 @@ class ErxesPayment {
     }
   }
 
+  async manualCheck(invoice: IInvoiceDocument) {
+    const { payment } = this;
+
+    const api = this[payment.kind];
+
+    try {
+      return await api.manualCheck(invoice);
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
   async cancelInvoice(invoice: IInvoiceDocument) {
     const { payment } = this;
 

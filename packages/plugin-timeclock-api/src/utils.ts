@@ -16,7 +16,8 @@ const dateFormat = 'YYYY-MM-DD';
 const timeFormat = 'HH:mm';
 import {
   findBranchUsers,
-  findDepartmentUsers
+  findDepartmentUsers,
+  returnUnionOfUserIds
 } from './graphql/resolvers/utils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
@@ -51,8 +52,8 @@ const createMsSqlConnection = () => {
   return sequelize;
 };
 
-const findAllTeamMembersWithEmpId = async (subdomain: string) => {
-  const users = await sendCoreMessage({
+const findAllTeamMembersWithEmpId = (subdomain: string) => {
+  return sendCoreMessage({
     subdomain,
     action: 'users.find',
     data: {
@@ -61,8 +62,18 @@ const findAllTeamMembersWithEmpId = async (subdomain: string) => {
     isRPC: true,
     defaultValue: []
   });
+};
 
-  return users;
+const findTeamMembers = (subdomain: string, userIds: string[]) => {
+  return sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: { employeeId: { $exists: true }, _id: { $in: userIds } }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 };
 
 const returnNewTimeLogsFromEmpData = async (
@@ -145,17 +156,37 @@ const createTimelogs = async (
 
 const connectAndQueryTimeLogsFromMsSql = async (
   subdomain: string,
-  startDate: string,
-  endDate: string
+  params: any
 ) => {
   const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
   const sequelize = createMsSqlConnection();
   const models = await generateModels(subdomain);
 
+  const {
+    startDate,
+    endDate,
+    extractAll,
+    branchIds,
+    departmentIds,
+    userIds
+  } = params;
+
   let returnData;
+  let teamMembers;
 
   try {
-    const teamMembers = await findAllTeamMembersWithEmpId(subdomain);
+    if (extractAll) {
+      teamMembers = await findAllTeamMembersWithEmpId(subdomain);
+    } else {
+      const getUserIds = await returnUnionOfUserIds(
+        branchIds,
+        departmentIds,
+        userIds,
+        subdomain
+      );
+      teamMembers = await findTeamMembers(subdomain, getUserIds);
+    }
+
     const teamMembersObject = {};
     const teamEmployeeIds: string[] = [];
 
@@ -182,6 +213,7 @@ const connectAndQueryTimeLogsFromMsSql = async (
     );
   } catch (err) {
     console.error(err);
+    return err;
   }
 
   return returnData;
@@ -189,14 +221,35 @@ const connectAndQueryTimeLogsFromMsSql = async (
 
 const connectAndQueryFromMsSql = async (
   subdomain: string,
-  startDate: string,
-  endDate: string
+  params: any
 ): Promise<ITimeClockDocument[]> => {
-  const sequelize = createMsSqlConnection();
+  const {
+    startDate,
+    endDate,
+    extractAll,
+    branchIds,
+    departmentIds,
+    userIds
+  } = params;
+
   const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
+  const sequelize = createMsSqlConnection();
+
+  let teamMembers;
+
+  if (extractAll) {
+    teamMembers = await findAllTeamMembersWithEmpId(subdomain);
+  } else {
+    const getUserIds = await returnUnionOfUserIds(
+      branchIds,
+      departmentIds,
+      userIds,
+      subdomain
+    );
+    teamMembers = await findTeamMembers(subdomain, getUserIds);
+  }
 
   // find team members with employee Id
-  const teamMembers = await findAllTeamMembersWithEmpId(subdomain);
   const models: IModels = await generateModels(subdomain);
 
   let returnData: ITimeClockDocument[];
@@ -337,7 +390,9 @@ const importDataAndCreateTimeclock = async (
         ...existingTimeclocksDict[timeclock.userId],
         timeclock
       ];
+      continue;
     }
+
     existingTimeclocksDict[timeclock.userId] = [timeclock];
   }
 
@@ -429,7 +484,16 @@ const createUserTimeclock = async (
     }
   }
 
-  return returnUserData;
+  if (!existingTimeclocks) {
+    return returnUserData;
+  }
+
+  const checkExistingTimeclocksAndFilter = filterExistingTimeclocks(
+    returnUserData,
+    existingTimeclocks
+  );
+
+  return checkExistingTimeclocksAndFilter;
 };
 
 const createNewTimeClock = (
@@ -464,10 +528,11 @@ const createNewTimeClock = (
         deviceType: 'faceTerminal'
       };
 
-      if (!checkTimeClockAlreadyExists(newTimeclock, existingTimeclocks)) {
-        return newTimeclock;
-      }
-      return;
+      // if (!checkTimeClockAlreadyExists(newTimeclock, existingTimeclocks)) {
+      //   return newTimeclock;
+      // }
+
+      return newTimeclock;
     }
 
     const deviceSerial = empData[getShiftStartIdx].deviceSerialNo;
@@ -483,9 +548,10 @@ const createNewTimeClock = (
       deviceType: 'faceTerminal'
     };
 
-    if (!checkTimeClockAlreadyExists(newTime, existingTimeclocks)) {
-      return newTime;
-    }
+    // if (!checkTimeClockAlreadyExists(newTime, existingTimeclocks)) {
+    //   return newTime;
+    // }
+    return newTime;
   }
 };
 
@@ -623,6 +689,38 @@ const checkTimeClockAlreadyExists = (
   return alreadyExists;
 };
 
+const filterExistingTimeclocks = (
+  userData: ITimeClock[],
+  existingTimeclocks: ITimeClock[]
+) => {
+  const existingTimeclocksDict: any = {};
+
+  for (const existingTimeclock of existingTimeclocks) {
+    existingTimeclocksDict[
+      existingTimeclock.shiftStart.getTime()
+    ] = existingTimeclock;
+
+    if (existingTimeclock.shiftEnd) {
+      existingTimeclocksDict[
+        existingTimeclock.shiftEnd.getTime()
+      ] = existingTimeclock;
+    }
+  }
+
+  const returnNewTimeclocks: ITimeClock[] = userData.filter(timeclock => {
+    if (
+      timeclock.shiftStart.getTime() in existingTimeclocksDict ||
+      (timeclock.shiftEnd &&
+        timeclock.shiftEnd.getTime() in existingTimeclocksDict)
+    ) {
+      return;
+    }
+    return timeclock;
+  });
+
+  return returnNewTimeclocks;
+};
+
 const findAndUpdateUnfinishedShifts = async (
   models: IModels,
   teamMemberIds: string[],
@@ -733,7 +831,8 @@ const createScheduleObjOfMembers = async (
 
   const totalSchedules = await models.Schedules.find({
     userId: { $in: teamMemberIds },
-    status: { $regex: /Approved/, $options: 'gi' }
+    status: { $regex: /Approved/, $options: 'gi' },
+    $or: [{ createdByRequest: { $exists: false } }, { createdByRequest: false }]
   });
 
   const totalScheduleIds = totalSchedules.map(schedule => schedule._id);

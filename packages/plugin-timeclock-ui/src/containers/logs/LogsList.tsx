@@ -1,7 +1,7 @@
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 import React, { useState } from 'react';
 import LogsList from '../../components/logs/LogsList';
 import { mutations, queries } from '../../graphql';
@@ -15,11 +15,15 @@ import { generateParams } from '../../utils';
 import { dateFormat } from '../../constants';
 import dayjs from 'dayjs';
 import { Alert, confirm } from '@erxes/ui/src/utils';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
   history: any;
   queryParams: any;
   searchValue?: string;
+
+  departments: IDepartment[];
+  branches: IBranch[];
 
   isCurrentUserAdmin: boolean;
 
@@ -52,12 +56,13 @@ const ListContainer = (props: FinalProps) => {
 
   const { list = [], totalCount = 0 } = listTimelogsQuery.timelogsMain;
 
-  const extractTimeLogsFromMsSQL = (start: Date, end: Date) => {
+  const extractTimeLogsFromMsSQL = (start: Date, end: Date, params: any) => {
     setLoading(true);
     extractTimeLogsFromMsSQLMutation({
       variables: {
         startDate: dayjs(start).format(dateFormat),
-        endDate: dayjs(end).format(dateFormat)
+        endDate: dayjs(end).format(dateFormat),
+        ...params
       }
     })
       .then(() => {

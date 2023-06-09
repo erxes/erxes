@@ -82,10 +82,11 @@ class DealItem extends React.PureComponent<Props> {
     const { item } = this.props;
 
     const renderProduct = p => {
-      p.product.quantity = p.quantity;
-      p.product.uom = p.uom;
+      const data: any = { ...p.product };
+      data.quantity = p.quantity;
+      data.uom = p.uom;
 
-      return p.product;
+      return data;
     };
 
     const products = (item.products || [])
@@ -121,6 +122,7 @@ class DealItem extends React.PureComponent<Props> {
         />
 
         <PriceContainer>
+          {renderAmount(item.unUsedAmount || {}, false)}
           {renderAmount(item.amount)}
 
           <Right>

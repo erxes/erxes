@@ -140,6 +140,10 @@ const configClientPortalQueries = {
     return getCards('deal', context, _args);
   },
 
+  async clientPortalPurchase(_root, _args, context: IContext) {
+    return getCards('purchase', context, _args);
+  },
+
   clientPortalTicket(_root, { _id }: { _id: string }, { subdomain }: IContext) {
     return sendCardsMessage({
       subdomain,

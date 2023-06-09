@@ -1,6 +1,6 @@
 import React from 'react';
 import { mutations } from '../../graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import TemplateForm from '../../components/forms/TemplateForm';
 import { IFormProps, IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';

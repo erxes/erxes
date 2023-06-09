@@ -51,7 +51,7 @@ export interface IContract {
   interestRate: number;
   repayment: string;
   startDate: Date;
-  scheduleDay: number;
+  scheduleDays: number[];
   collateralsData?: ICollateralData[];
   insurancesData?: IInsuranceData[];
   ownerId?: string;
@@ -66,6 +66,8 @@ export interface IContract {
   riskExpertId: string;
   customerId: string;
   customerType: string;
+  unduePercent: number;
+  undueCalcType: string;
 
   contractType?: IContractTypeDoc;
   weekends: number[];

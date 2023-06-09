@@ -8,6 +8,10 @@ export const types = () => `
     number: String
     vacancy: Float
     unduePercent: Float
+    undueCalcType: String
+    useMargin: Boolean
+    useSkipInterest: Boolean
+    useDebt: Boolean
     leaseType: String
     createdAt: Date
     productCategoryIds: [String]
@@ -45,6 +49,10 @@ const commonFields = `
   number: String
   vacancy: Float
   unduePercent: Float 
+  undueCalcType: String
+  useMargin: Boolean
+  useSkipInterest: Boolean
+  useDebt: Boolean
   leaseType: String
   createdAt: Date
   productCategoryIds: [String]

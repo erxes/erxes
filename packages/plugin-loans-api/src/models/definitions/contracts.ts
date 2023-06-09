@@ -52,7 +52,7 @@ export interface IContract {
   unduePercent: number;
   repayment: string;
   startDate: Date;
-  scheduleDay: number;
+  scheduleDays: number[];
   insuranceAmount: number;
   /**
    * @property {number} debt loan debit amount it will be chance to lender can pay lower than main payment amount
@@ -85,6 +85,9 @@ export interface IContract {
 
   weekends: number[];
   useHoliday: boolean;
+  useMargin: boolean;
+  useSkipInterest: boolean;
+  useDebt: boolean;
 
   closeDate?: Date;
   closeType?: string;
@@ -94,6 +97,9 @@ export interface IContract {
 
   isExpired?: boolean;
   repaymentDate?: Date;
+  undueCalcType?: string;
+
+  skipInterestCalcMonth?: number;
 
   dealId?: string;
 }
@@ -213,12 +219,12 @@ export const contractSchema = schemaHooksWrapper(
       type: String,
       enum: REPAYMENT_TYPE.map(option => option.value),
       required: true,
-      label: 'Type',
+      label: 'Schedule Type',
       selectOptions: REPAYMENT_TYPE
     }),
     startDate: field({ type: Date, label: 'Rate Start Date' }),
-    scheduleDay: field({
-      type: Number,
+    scheduleDays: field({
+      type: [Number],
       min: 1,
       max: 31,
       label: 'Schedule Day'
@@ -297,7 +303,9 @@ export const contractSchema = schemaHooksWrapper(
     }),
     weekends: field({ type: [Number], label: 'weekend' }),
     useHoliday: field({ type: Boolean, label: 'use holiday' }),
-
+    useMargin: field({ type: Boolean, label: 'use margin' }),
+    useSkipInterest: field({ type: Boolean, label: 'use skip interest' }),
+    useDebt: field({ type: Boolean, label: 'use debt' }),
     closeDate: field({
       type: Date,
       optional: true,
@@ -322,13 +330,22 @@ export const contractSchema = schemaHooksWrapper(
     isExpired: field({
       type: Boolean,
       optional: true,
-      label:
-        'when contract expired of payment date then this field will be true'
+      label: 'Is Expired'
     }),
     repaymentDate: field({
       type: Date,
       optional: true,
-      label: 'contract payment date of schedule'
+      label: 'Repayment'
+    }),
+    undueCalcType: field({
+      type: String,
+      optional: true,
+      label: 'Undue Calc Type'
+    }),
+    skipInterestCalcMonth: field({
+      type: Number,
+      optional: true,
+      label: 'Skip Interest Calc Month'
     }),
     dealId: field({
       type: String,

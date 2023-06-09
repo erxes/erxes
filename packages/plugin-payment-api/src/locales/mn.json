@@ -8,7 +8,13 @@
   "Status": "Tөлөв",
   "pending": "хүлээгдэж байна",
   "Payment method": "Төлбөрийн хэрэгсэл",
+  "Check Social pay app": "Check Social pay app",
+  "Insert phone number": "Утасны дугаараа оруулна уу",
+  "Send": "Илгээх",
   "Error": "Алдаа",
   "Insufficient loan amount": "Insufficient loan amount",
-  "Check Social pay app": "Check Social pay app"
+  "Phone number": "Утасны дугаар",
+  "Submit": "Submit",
+  "Please enter your phone number": "Утасны дугаараа оруулна уу",
+  "Enter your Storepay registered phone number": "Storepay-д бүртгэлтэй утасны дугаараа оруулна уу"
 }

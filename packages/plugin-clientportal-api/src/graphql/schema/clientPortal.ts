@@ -11,6 +11,9 @@ ${
   extend type Ticket @key(fields: "_id") {
     _id: String! @external
   }
+  extend type Purchase @key(fields: "_id") {
+    _id: String! @external
+  }
   extend type Deal @key(fields: "_id") {
     _id: String! @external
   }
@@ -101,6 +104,7 @@ ${
     knowledgeBaseTopicId: String
     ticketLabel: String
     dealLabel: String
+    purchaseLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
     taskPublicLabel: String
@@ -114,6 +118,9 @@ ${
     dealStageId: String
     dealPipelineId: String
     dealBoardId: String
+    purchaseStageId: String
+    purchasePipelineId: String
+    purchaseBoardId: String
     googleCredentials: JSON
     googleClientId: String
     googleClientSecret: String
@@ -133,6 +140,7 @@ ${
     ticketToggle: Boolean,
     taskToggle: Boolean,
     dealToggle: Boolean,
+    purchaseToggle: Boolean,
   }
 
   type Styles {
@@ -190,9 +198,10 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets(priority: [String],labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Ticket]
-    clientPortalDeals: [Deal]
-    clientPortalTasks: [Task]
+    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Ticket]
+    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Deal]
+    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Purchase]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Task]
     clientPortalTicket(_id: String!): Ticket
    `
       : ''
@@ -226,6 +235,7 @@ export const mutations = cardAvailable => `
     ticketLabel: String
     taskLabel: String
     dealLabel: String
+    purchaseLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
     taskPublicLabel: String
@@ -238,6 +248,9 @@ export const mutations = cardAvailable => `
     dealStageId: String
     dealPipelineId: String
     dealBoardId: String
+    purchaseStageId: String
+    purchasePipelineId: String
+    purchaseBoardId: String
     googleCredentials: JSON
     googleClientId: String
     googleClientSecret: String
@@ -250,6 +263,7 @@ export const mutations = cardAvailable => `
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
     dealToggle: Boolean,
+    purchaseToggle: Boolean,
     taskToggle: Boolean,
 
     otpConfig: OTPConfigInput

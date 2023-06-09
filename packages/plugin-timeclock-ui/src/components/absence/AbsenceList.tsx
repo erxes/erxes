@@ -31,6 +31,8 @@ type Props = {
   loading?: boolean;
   totalCount: number;
 
+  isCurrentUserAdmin: boolean;
+
   solveAbsence: (absenceId: string, status: string) => void;
   submitRequest: (
     userId: string,

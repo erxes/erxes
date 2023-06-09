@@ -51,5 +51,5 @@ export const removeDuplicates = async () => {
     });
   });
 
-  console.log('successs');
+  return 'success';
 };

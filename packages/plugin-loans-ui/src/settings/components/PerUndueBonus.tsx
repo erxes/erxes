@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   DateControl,
   CollapseContent,
@@ -11,6 +10,7 @@ import {
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { IConfigsMap } from '../types';
+import { __ } from 'coreui/utils';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -74,7 +74,7 @@ class PerSettings extends React.Component<Props, State> {
         open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
       >
         <FormGroup>
-          <ControlLabel>{'Title'}</ControlLabel>
+          <ControlLabel>{__('Title')}</ControlLabel>
           <FormControl
             defaultValue={config['title']}
             onChange={this.onChangeInput.bind(this, 'title')}
@@ -83,7 +83,7 @@ class PerSettings extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Start Date</ControlLabel>
+          <ControlLabel>{__('Start Date')}</ControlLabel>
           <DateContainer>
             <DateControl
               name="startDate"
@@ -93,7 +93,7 @@ class PerSettings extends React.Component<Props, State> {
           </DateContainer>
         </FormGroup>
         <FormGroup>
-          <ControlLabel>End Date</ControlLabel>
+          <ControlLabel>{__('End Date')}</ControlLabel>
           <DateContainer>
             <DateControl
               name="endDate"
@@ -104,7 +104,7 @@ class PerSettings extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Percent</ControlLabel>
+          <ControlLabel>{__('Percent')}</ControlLabel>
           <FormControl
             defaultValue={config['percent']}
             type="number"
@@ -122,7 +122,7 @@ class PerSettings extends React.Component<Props, State> {
             onClick={this.onDelete}
             uppercase={false}
           >
-            Delete
+            {__('Delete')}
           </Button>
 
           <Button
@@ -131,7 +131,7 @@ class PerSettings extends React.Component<Props, State> {
             onClick={this.onSave}
             uppercase={false}
           >
-            Save
+            {__('Save')}
           </Button>
         </ModalFooter>
       </CollapseContent>

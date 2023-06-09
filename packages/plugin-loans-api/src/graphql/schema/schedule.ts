@@ -7,7 +7,7 @@ export const types = () => `
     totalPayment: Float
   }
 
-  type Schedule {
+  type LoanSchedule {
     _id: String
     contractId: String
     version: String
@@ -53,8 +53,8 @@ const virtualScheduleParams = `
 
 export const queries = `
   virtualSchedules(${virtualScheduleParams}): [VirtualSchedule]
-  cpSchedules(contractId: String!, status: String): [Schedule]
-  schedules(contractId: String!, isFirst: Boolean, year: Float): [Schedule]
+  cpSchedules(contractId: String!, status: String): [LoanSchedule]
+  schedules(contractId: String!, isFirst: Boolean, year: Float): [LoanSchedule]
   scheduleYears(contractId: String!): [ScheduleYear]
 `;
 
