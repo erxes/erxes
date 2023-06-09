@@ -14,10 +14,27 @@ module.exports = {
   menus: [
     {
       text: 'Risk Assessments',
-      to: '/settings/risk-assessments',
+      to: '/settings/risk-indicators',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
       scope: 'riskassessment',
+      action: 'riskAssessmentAll',
+      permissions: ['showRiskAssessment', 'manageRiskAssessment']
+    },
+    {
+      text: 'Operations',
+      to: '/settings/operations',
+      image: '/images/icons/erxes-18.svg',
+      location: 'settings',
+      scope: 'riskassessment',
+      action: 'riskAssessmentAll',
+      permissions: ['showRiskAssessment', 'manageRiskAssessment']
+    },
+    {
+      text: 'Risk Assessments',
+      url: '/risk-assessments',
+      icon: 'icon-followers',
+      location: 'mainNavigation',
       action: 'riskAssessmentAll',
       permissions: ['showRiskAssessment', 'manageRiskAssessment']
     }

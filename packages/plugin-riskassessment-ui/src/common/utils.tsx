@@ -69,7 +69,7 @@ export const DefaultWrapper = ({
   content: JSX.Element;
   sidebar?: JSX.Element;
   isPaginationHide?: boolean;
-  subMenu: { title: string; link: string }[];
+  subMenu?: { title: string; link: string }[];
 }) => {
   if (loading) {
     return <Spinner objective />;

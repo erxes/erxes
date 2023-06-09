@@ -85,11 +85,7 @@ const routes = () => {
         component={configs}
       />
       <Route path="/settings/risk-indicators-groups" exact component={groups} />
-      <Route
-        path="/settings/risk-assessments"
-        exact
-        component={riskAssessments}
-      />
+      <Route path="/risk-assessments" exact component={riskAssessments} />
       <Route path="/settings/operations" exact component={operations} />
     </>
   );
