@@ -23,8 +23,8 @@ export const planSchema = new Schema({
     label: 'Structure Type',
     required: true
   }),
-  structureTypeId: field({
-    type: String,
+  structureTypeIds: field({
+    type: [String],
     label: 'Structure Type Id',
     required: true
   }),

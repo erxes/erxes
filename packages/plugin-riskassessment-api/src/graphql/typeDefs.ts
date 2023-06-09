@@ -20,6 +20,11 @@ import {
   queries as RiskAsessmentQueries,
   types as RiskAsessmentTypes
 } from './schema/riskAssessment';
+import {
+  mutations as PlanMutations,
+  queries as PlanQueries,
+  types as PlanTypes
+} from './schema/plan';
 
 const typeDefs = async _serviceDiscovery => {
   const tagsAvailable = await _serviceDiscovery.isEnabled('tags');
@@ -54,11 +59,13 @@ const typeDefs = async _serviceDiscovery => {
     ${OpearionTypes}
     ${RiskAsessmentTypes}
     ${formSubmissionsType}
+    ${PlanTypes}
     
     extend type Query {
       ${RiskIndicatorsQueries}
       ${OpearionQueries}
       ${RiskAsessmentQueries}
+      ${PlanQueries}
     }
     
     extend type Mutation {
@@ -66,6 +73,7 @@ const typeDefs = async _serviceDiscovery => {
       ${formSubmissionsMutations},
       ${OpearionMutations}
       ${RiskAsessmentMutations}
+      ${PlanMutations}
     }
   `;
 };
