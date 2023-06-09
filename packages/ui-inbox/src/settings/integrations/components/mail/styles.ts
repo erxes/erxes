@@ -110,20 +110,31 @@ const FlexRow = styled.div`
     margin: 2px ${dimensions.unitSpacing}px 2px 0;
     color: ${colors.colorCoreGray};
     align-self: baseline;
+
+    &.from {
+      margin-top: 7px;
+    }
   }
 `;
 
 const ToolBar = styled.div`
+  display: flex;
+  align-items: center;
+
   i {
-    font-size: 18px;
-    color: ${colors.colorLightGray};
+    font-size: 18px !important;
+    color: ${colors.colorLightGray} !important;
+    padding: 0 !important;
   }
 
   label {
+    background: none !important;
     color: ${colors.colorCoreGray};
-    margin-right: 10px;
+    margin-right: 10px !important;
     font-size: 14px;
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
 
     &:hover {
       cursor: pointer;
@@ -234,6 +245,48 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
   }
 `;
 
+const NewEmailHeader = styledTS<{ shrink: boolean }>(styled.h5)`
+  background: ${colors.bgActive};
+  margin-bottom: 0;
+  margin-top: 0;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  width: ${props => (props.shrink ? '260px' : '600px')};
+
+  i {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const WidgetWrapper = styledTS<{ show: boolean }>(styled.div)`
+  position: fixed;
+  bottom: ${dimensions.unitSpacing}px;
+  right: ${dimensions.unitSpacing}px;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  justify-content: flex-end;
+  align-content: flex-end;
+  background: #fff;
+  box-shadow: 0 0 20px 3px rgba(0,0,0,0.15);
+  border-radius: 8px;
+
+  ${props => !props.show && 'display:none;'}
+`;
+
+const UploaderWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  > div {
+    margin: 0;
+  }
+`;
+
 export {
   Attachments,
   FlexRow,
@@ -251,5 +304,8 @@ export {
   ShowReplyButtonWrapper,
   ShowReplies,
   PopoverLinkWrapper,
-  Meta
+  Meta,
+  NewEmailHeader,
+  WidgetWrapper,
+  UploaderWrapper
 };

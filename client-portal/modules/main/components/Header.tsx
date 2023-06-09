@@ -32,7 +32,6 @@ import NameCard from "../../common/nameCard/NameCard";
 import Notifications from "../components/notifications/Notifications";
 import Popup from "reactjs-popup";
 import RegisterContainer from "../../user/containers/Register";
-import SettingsContainer from "../containers/notifications/Settings";
 import { withRouter } from "next/router";
 
 type Props = {
@@ -84,7 +83,7 @@ function Header({
   };
 
   const renderAuth = () => {
-    if (!config.ticketToggle) {
+    if (!config.ticketToggle || !config.taskToggle || !config.dealToggle) {
       return null;
     }
 
@@ -138,7 +137,7 @@ function Header({
           <Dropdown.Menu>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="1"
+              eventKey="0"
             >
               {renderUserFullName(currentUser)}
             </Dropdown.Item>
@@ -146,25 +145,25 @@ function Header({
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
               eventKey="1"
+              href="/profile"
             >
               <div>
                 <Icon icon="user" />
                 My profle
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="1"
+              eventKey="2"
+              href="/settings"
             >
               <div>
                 <Icon icon="settings" />
                 Settings
               </div>
-              <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item eventKey="4" onClick={() => logout()}>
+            <Dropdown.Item eventKey="3" onClick={() => logout()}>
               <Icon icon="logout-1" />
               Logout
             </Dropdown.Item>
@@ -183,7 +182,13 @@ function Header({
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
-              <img src={readFile(config.logo)} />
+              <img
+                src={
+                  config.logo
+                    ? readFile(config.logo)
+                    : "/static/logos/erxes-logo-white.svg"
+                }
+              />
             </Link>
             <HeaderTitle color={getConfigColor(config, "headingColor")}>
               {config.name}
@@ -191,13 +196,22 @@ function Header({
           </HeaderLogo>
           <HeaderLinks>
             {config.publicTaskToggle
-              ? renderMenu("/publicTasks", "Public Task")
+              ? renderMenu(
+                  "/publicTasks",
+                  config.taskPublicLabel || "Public Task"
+                )
               : null}
             {config.ticketToggle && currentUser
               ? renderMenu("/tickets", config.ticketLabel || "Ticket")
               : null}
             {config.dealToggle && currentUser
               ? renderMenu("/deals", config.dealLabel || "Sales pipeline")
+              : null}
+            {config.purchaseToggle && currentUser
+              ? renderMenu(
+                  "/purchases",
+                  config.purchaseLabel || "Purchase pipeline"
+                )
               : null}
             {config.taskToggle && currentUser
               ? renderMenu("/tasks", config.taskLabel || "Task")
@@ -208,7 +222,9 @@ function Header({
               color={getConfigColor(config, "headingColor")}
               baseColor={getConfigColor(config, "baseColor")}
             >
-              {currentUser ? renderCurrentUser() : renderAuth()}
+              {currentUser && Object.keys(currentUser).length !== 0
+                ? renderCurrentUser()
+                : renderAuth()}
             </SupportMenus>
           </HeaderRight>
         </HeaderTop>
@@ -259,16 +275,6 @@ function Header({
         )}
         onClose={() => setResetPassword(false)}
         isOpen={showResetPassword}
-      />
-      <Modal
-        content={() => (
-          <SettingsContainer
-            currentUser={currentUser}
-            saveCallback={() => setShowSettings(false)}
-          />
-        )}
-        onClose={() => setShowSettings(false)}
-        isOpen={showSettings}
       />
     </Head>
   );

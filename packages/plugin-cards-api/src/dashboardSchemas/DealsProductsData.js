@@ -17,6 +17,11 @@ cube(`DealsProductsdata`, {
       title: `Amount sum`
     },
 
+    count: {
+      type: `count`,
+      title: `Products data count`
+    },
+
     productAmountAvg: {
       sql: `${CUBE}.\`productsData.amount\``,
       type: `avg`,
@@ -34,7 +39,7 @@ cube(`DealsProductsdata`, {
       type: `sum`,
       title: `Products quantity`
     },
-    
+
     unitprice: {
       sql: `${Products}.\`unitPrice\``,
       type: `sum`,
@@ -73,6 +78,12 @@ cube(`DealsProductsdata`, {
       sql: `${CUBE}.\`productsData.currency\``,
       type: `string`,
       title: `currency`
+    },
+
+    productsdataTickUsed: {
+      sql: `${CUBE}.\`productsData.tickUsed\``,
+      type: `boolean`,
+      title: `Tick used`
     },
 
     productsdataId: {
