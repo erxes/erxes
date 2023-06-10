@@ -79,9 +79,15 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     }
   }
 
-  const assignUserIds = deal.productsData
-    .filter(item => item.assignUserId)
-    .map(item => item.assignUserId);
+  const assignUserIds = deal.assignedUserIds;
+
+  for (const item of deal.productsData) {
+    if (!item.assignUserId || assignUserIds.includes(item.assignUserId)) {
+      continue;
+    }
+
+    assignUserIds.push(item.assignUserId);
+  }
 
   const assignUsers = await sendCoreMessage({
     subdomain,
@@ -251,6 +257,10 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       billType,
       customerCode,
       description: deal.name,
+      workerEmail:
+        (deal.assignedUserIds.length &&
+          userEmailById[deal.assignedUserIds[0]]) ||
+        undefined,
       details,
       ...payments
     }
