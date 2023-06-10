@@ -14,20 +14,34 @@ import {
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import client from '@erxes/ui/src/apolloClient';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import gql from 'graphql-tag';
 
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 import {
+  AccountBox,
+  AccountItem,
+  AccountTitle,
   Content,
   ImageWrapper,
   MessengerPreview,
   TextWrapper
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Accounts from '../containers/Accounts';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries } from '../graphql';
+
+interface DiscordChannel {
+  id: string;
+  type: number;
+  name: string;
+}
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -36,6 +50,9 @@ type Props = {
 type State = {
   channelIds: string[];
   accountId: string;
+  selectedDiscordChannels: string[];
+  loadingDiscordChannels: boolean;
+  discordChannels: DiscordChannel[];
 };
 
 class Discord extends React.Component<Props, State> {
@@ -44,18 +61,24 @@ class Discord extends React.Component<Props, State> {
 
     this.state = {
       channelIds: [],
-      accountId: ''
+      accountId: '',
+      selectedDiscordChannels: [],
+      loadingDiscordChannels: false,
+      discordChannels: []
     };
   }
 
   generateDoc = (values: { name: string; brandId: string }) => {
-    const { channelIds, accountId } = this.state;
+    const { channelIds, accountId, selectedDiscordChannels } = this.state;
 
     return {
       ...values,
       kind: 'discord',
       channelIds,
-      accountId
+      accountId,
+      data: {
+        discordChannelIds: selectedDiscordChannels
+      }
     };
   };
 
@@ -64,7 +87,87 @@ class Discord extends React.Component<Props, State> {
   };
 
   onSelectAccount = (accountId: string) => {
-    this.setState({ accountId });
+    if (!accountId) {
+      return this.setState({ discordChannels: [], accountId: '' });
+    }
+
+    this.setState({ loadingDiscordChannels: true });
+
+    client
+      .query({
+        query: gql(queries.discordChannels),
+        variables: {
+          accountId
+        }
+      })
+      .then(({ data, loading }: any) => {
+        if (!loading) {
+          this.setState({
+            discordChannels: data.discordChannels,
+            accountId,
+            loadingDiscordChannels: false
+          });
+        }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+        this.setState({ loadingDiscordChannels: false });
+      });
+  };
+
+  onSelectDiscordChannels = (discordChannelId: string) => {
+    const { selectedDiscordChannels } = this.state;
+    if (selectedDiscordChannels.includes(discordChannelId)) {
+      return this.setState({
+        selectedDiscordChannels: selectedDiscordChannels.filter(
+          item => item !== discordChannelId
+        )
+      });
+    }
+
+    this.setState({
+      selectedDiscordChannels: [...selectedDiscordChannels, discordChannelId]
+    });
+  };
+
+  renderDiscordChannels = () => {
+    const { discordChannels, loadingDiscordChannels } = this.state;
+
+    if (loadingDiscordChannels) {
+      return <Spinner objective={true} />;
+    }
+
+    if (discordChannels.length === 0) {
+      return <EmptyState icon="folder-2" text={__('There are no channels')} />;
+    }
+
+    return (
+      <FlexItem>
+        <LeftItem>
+          <AccountBox>
+            <AccountTitle>{__('Discord Channels')}</AccountTitle>
+            {discordChannels.map(channel => (
+              <AccountItem key={channel.id}>
+                {channel.name}
+
+                <Button
+                  btnStyle={
+                    this.state.selectedDiscordChannels.includes(channel.id)
+                      ? 'primary'
+                      : 'simple'
+                  }
+                  onClick={() => this.onSelectDiscordChannels(channel.id)}
+                >
+                  {this.state.selectedDiscordChannels.includes(channel.id)
+                    ? __('Selected')
+                    : __('Select')}
+                </Button>
+              </AccountItem>
+            ))}
+          </AccountBox>
+        </LeftItem>
+      </FlexItem>
+    );
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -92,6 +195,10 @@ class Discord extends React.Component<Props, State> {
                 />
               </LeftItem>
             </FlexItem>
+          </Step>
+
+          <Step img="/images/icons/erxes-04.svg" title="Connect Your Pages">
+            {this.renderDiscordChannels()}
           </Step>
 
           <Step

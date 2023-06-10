@@ -1,5 +1,7 @@
 import { IContext } from '@erxes/api-utils/src/types';
 import { Accounts, Messages } from '../../models';
+import { getGuildChannels } from '../../utils';
+import { getConfig } from '../../messageBroker';
 
 const queries = {
   async discordConversationDetail(
@@ -11,20 +13,24 @@ const queries = {
       inboxConversationId: conversationId
     });
 
-    const convertEmails = emails =>
-      (emails || []).map(item => ({ name: item.name, email: item.address }));
+    const converMessageAddress = messages =>
+      (messages || []).map(item => ({
+        userId: item.address,
+        username: `@${item.name}`
+      }));
 
     return messages.map(message => {
       return {
         _id: message._id,
-        mailData: {
+        messageData: {
           messageId: message.messageId,
-          from: convertEmails(message.from),
-          to: convertEmails(message.to),
-          cc: convertEmails(message.cc),
-          bcc: convertEmails(message.bcc),
+          from: converMessageAddress(message.from),
+          to: converMessageAddress(message.to),
+          cc: converMessageAddress(message.cc),
+          bcc: converMessageAddress(message.bcc),
           subject: message.subject,
-          body: message.body
+          content: message.body,
+          createdAt: message.createdAt
         }
       };
     });
@@ -32,6 +38,20 @@ const queries = {
 
   async discordAccounts(_root, _args, _context: IContext) {
     return Accounts.getAccounts();
+  },
+
+  async discordChannels(_root, { accountId }, _context: IContext) {
+    const account = await Accounts.getAccount({ _id: accountId });
+
+    const botToken = await getConfig('DISCORD_BOT_TOKEN', 'os', '');
+    if (botToken == '') {
+      throw new Error('Missing DISCORD_BOT_TOKEN');
+    }
+    const channels = await getGuildChannels(account.guildId, `Bot ${botToken}`);
+
+    const textChannels = channels.filter(channel => channel.type == 0);
+
+    return textChannels;
   }
 };
 

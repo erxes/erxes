@@ -43,6 +43,7 @@ export interface ICustomer {
   avatar?: string;
   primaryPhone?: string;
   phones?: string[];
+  discordId?: string;
 
   ownerId?: string;
   position?: string;
@@ -187,7 +188,11 @@ export const customerSchema = schemaWrapper(
       optional: true
     }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
-
+    discordId: field({
+      type: String,
+      label: 'Discord User Id',
+      optional: true
+    }),
     phoneValidationStatus: field({
       type: String,
       enum: getEnum('PHONE_VALIDATION_STATUSES'),

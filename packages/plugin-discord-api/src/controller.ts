@@ -1,4 +1,6 @@
 import { sendContactsMessage, sendInboxMessage } from './messageBroker';
+import { loginMiddleware } from './middlewares/loginMiddleware';
+import { redirectMiddleware } from './middlewares/redirectMiddleware';
 import { Customers, Messages } from './models';
 
 const searchMessages = (linkedin, criteria) => {
@@ -111,9 +113,9 @@ const saveMessages = async (linkedin, integration, criteria) => {
 
 // controller for discord
 const init = async app => {
-  app.get('/login', async (req, res) => {
-    res.send('login');
-  });
+  app.get('/login', loginMiddleware);
+
+  app.get('/redirect', redirectMiddleware);
 
   app.post('/receive', async (req, res, next) => {
     try {

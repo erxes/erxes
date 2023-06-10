@@ -4,13 +4,14 @@ const types = `
   type Discord {
     _id: String!
     title: String
-    mailData: JSON
+    messageData: JSON
   }
 `;
 
 const queries = `
   discordConversationDetail(conversationId: String!): [Discord]
   discordAccounts: JSON
+  discordChannels(accountId: String!): JSON
 `;
 
 const mutations = `

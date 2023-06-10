@@ -13,7 +13,14 @@ const accounts = `
   }
 `;
 
+const discordChannels = `
+  query discordChannels($accountId: String!) {
+    discordChannels(accountId: $accountId)
+  }
+`;
+
 export default {
   detail,
-  accounts
+  accounts,
+  discordChannels
 };

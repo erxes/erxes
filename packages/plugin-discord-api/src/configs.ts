@@ -3,6 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import init from './controller';
+import { DiscordBot } from './bot';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -36,8 +37,12 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
 
-    initBroker(options.messageBrokerClient);
+    const bot = new DiscordBot();
+
+    await initBroker(options.messageBrokerClient, bot);
 
     init(app);
+
+    bot.login();
   }
 };

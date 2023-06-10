@@ -7,8 +7,15 @@ class Settings extends React.Component<any> {
 
     return (
       <CollapseContent title="Discord">
-        {renderItem('DISCORD_ACCESS_KEY', '', '', '', 'Key')}
-        {renderItem('DISCORD_ACCESS_TOKEN', '', '', '', 'Token')}
+        {renderItem('DISCORD_CLIENT_ID', '', '', '', 'Discord Client Id')}
+        {renderItem(
+          'DISCORD_CLIENT_SECRET',
+          '',
+          '',
+          '',
+          'Discord Client Secret'
+        )}
+        {renderItem('DISCORD_BOT_TOKEN', '', '', '', 'Discord Bot Token')}
       </CollapseContent>
     );
   }

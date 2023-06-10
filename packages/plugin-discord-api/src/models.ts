@@ -1,9 +1,11 @@
+import { field } from '@erxes/api-utils/src';
 import { Schema, model } from 'mongoose';
 
 export const customerSchema = new Schema({
   inboxIntegrationId: String,
   contactsId: String,
-  email: { type: String, unique: true },
+  discordId: { type: String, unique: true },
+  username: String,
   firstName: String,
   lastName: String
 });
@@ -29,6 +31,7 @@ export const messageSchema = new Schema({
   inboxConversationId: String,
   subject: String,
   messageId: { type: String, unique: true },
+  channelId: String,
   inReplyTo: String,
   references: [String],
   body: String,
@@ -40,7 +43,11 @@ export const messageSchema = new Schema({
 });
 
 export const loadMessageClass = () => {
-  class Message {}
+  class Message {
+    static async getMessages(selector) {
+      return Messages.find(selector);
+    }
+  }
 
   messageSchema.loadClass(Message);
 
@@ -50,11 +57,20 @@ export const loadMessageClass = () => {
 // schema for integration document
 export const integrationSchema = new Schema({
   inboxId: String,
-  accountId: String
+  accountId: String,
+  discordChannelIds: field({
+    type: [String],
+    label: 'Discord channel ids',
+    optional: true
+  })
 });
 
 export const loadIntegrationClass = () => {
-  class Integration {}
+  class Integration {
+    static async getIntegration(selector) {
+      return Integrations.findOne(selector);
+    }
+  }
 
   integrationSchema.loadClass(Integration);
 
@@ -63,7 +79,8 @@ export const loadIntegrationClass = () => {
 
 // schema for integration account
 export const accountSchema = new Schema({
-  name: String
+  name: String,
+  guildId: String
 });
 
 export const loadAccountClass = () => {
@@ -74,6 +91,12 @@ export const loadAccountClass = () => {
 
     static async getAccounts() {
       return Accounts.find({});
+    }
+
+    static async getAccount(selector) {
+      const account = await Accounts.findOne(selector);
+
+      return account;
     }
   }
 
