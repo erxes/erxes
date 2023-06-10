@@ -282,7 +282,7 @@ export type ScheduleMutationVariables = {
 
 export type TimeLogMutationResponse = {
   extractTimeLogsFromMsSQLMutation: (params: {
-    variables: { startDate: string; endDate: string };
+    variables: { startDate: string; endDate: string; params: any };
   }) => Promise<any>;
 
   createTimeClockFromLogMutation: (params: {

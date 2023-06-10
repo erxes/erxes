@@ -278,6 +278,7 @@ const timeclockQueries = {
     { subdomain, user }: IContext
   ) {
     const userId = selectedUser || user._id;
+
     return timeclockReportByUser(
       subdomain,
       userId,
