@@ -49,6 +49,7 @@ export const notificationSchema = new Schema({
     index: true
   })
 });
+
 notificationSchema.index({
   receiver: 1,
   isRead: 1,
