@@ -259,7 +259,12 @@ const NewEmailHeader = styledTS<{ shrink: boolean }>(styled.h5)`
   width: ${props => (props.shrink ? '260px' : '600px')};
 
   i {
-    margin-left: ${dimensions.unitSpacing}px;
+    margin-left: 5px;
+    padding: 5px;
+
+    &:hover {
+      background: ${colors.bgGray};
+    }
   }
 `;
 
