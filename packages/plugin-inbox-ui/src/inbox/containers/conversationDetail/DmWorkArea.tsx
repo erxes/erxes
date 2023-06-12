@@ -84,7 +84,7 @@ const getQueryResultKey = (queryResponse: object, countQuery?: boolean) => {
     ? 'conversationMessagesTotalCount'
     : 'conversationMessages';
 
-  for (const k of Object.keys(queryResponse)) {
+  for (const k of Object.keys(queryResponse || {})) {
     if (k.includes('ConversationMessages')) {
       key = k;
       break;
@@ -241,7 +241,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
         cache.updateQuery(selector, data => {
           const key = getQueryResultKey(data);
-          const messages = data[key] || [];
+          const messages = data ? data[key] : [];
 
           // check duplications
           if (messages.find(m => m._id === message._id)) {
