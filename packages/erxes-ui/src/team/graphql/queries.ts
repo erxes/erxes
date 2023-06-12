@@ -61,6 +61,10 @@ const listParamsDef = `
   $departmentId: String
   $unitId: String
   $branchId: String
+  $departmentIds: [String]
+  $branchIds: [String]
+  $segment: String,
+  $segmentData: String
 `;
 
 const listParamsValue = `
@@ -70,7 +74,11 @@ const listParamsValue = `
   brandIds: $brandIds,
   departmentId: $departmentId,
   unitId: $unitId,
-  branchId: $branchId
+  branchId: $branchId,
+  departmentIds: $departmentIds
+  branchIds:$branchIds
+  segment: $segment,
+  segmentData: $segmentData
 `;
 
 const users = `
@@ -226,6 +234,22 @@ export const branchField = `
   address
   parentId
   supervisorId
+    supervisor {
+          _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
   code
   order
   userIds

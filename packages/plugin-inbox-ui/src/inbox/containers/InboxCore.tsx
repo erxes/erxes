@@ -1,9 +1,9 @@
 import { AppConsumer } from 'coreui/appContext';
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { can, router as routerUtils } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Empty from '../components/Empty';
 import InboxCore from '../components/InboxCore';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';

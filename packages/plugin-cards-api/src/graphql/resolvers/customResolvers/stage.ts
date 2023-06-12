@@ -9,8 +9,60 @@ import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
-  generateTicketCommonFilters
+  generateTicketCommonFilters,
+  generatePurchaseCommonFilters
 } from '../queries/utils';
+
+const getAmountsMap = async (
+  subdomain,
+  models,
+  collection,
+  user,
+  args,
+  stage,
+  tickUsed = true
+) => {
+  const amountsMap = {};
+  const filter = await generateDealCommonFilters(
+    models,
+    subdomain,
+    user._id,
+    { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
+    args.extraParams
+  );
+
+  const amountList = await collection.aggregate([
+    {
+      $match: filter
+    },
+    {
+      $unwind: '$productsData'
+    },
+    {
+      $project: {
+        amount: '$productsData.amount',
+        currency: '$productsData.currency',
+        tickUsed: '$productsData.tickUsed'
+      }
+    },
+    {
+      $match: { tickUsed }
+    },
+    {
+      $group: {
+        _id: '$currency',
+        amount: { $sum: '$amount' }
+      }
+    }
+  ]);
+
+  amountList.forEach(item => {
+    if (item._id) {
+      amountsMap[item._id] = item.amount;
+    }
+  });
+  return amountsMap;
+};
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -28,53 +80,69 @@ export default {
     return [];
   },
 
+  async unUsedAmount(
+    stage: IStageDocument,
+    _args,
+    { user, models, subdomain }: IContext,
+    { variableValues: args }
+  ) {
+    let amountsMap = {};
+
+    if (stage.type === BOARD_TYPES.DEAL) {
+      amountsMap = getAmountsMap(
+        subdomain,
+        models,
+        models.Deals,
+        user,
+        args,
+        stage,
+        false
+      );
+    }
+
+    if (stage.type === BOARD_TYPES.PURCHASE) {
+      amountsMap = getAmountsMap(
+        subdomain,
+        models,
+        models.Purchases,
+        user,
+        args,
+        stage,
+        false
+      );
+    }
+
+    return amountsMap;
+  },
+
   async amount(
     stage: IStageDocument,
     _args,
     { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
-    const amountsMap = {};
+    let amountsMap = {};
 
     if (stage.type === BOARD_TYPES.DEAL) {
-      const filter = await generateDealCommonFilters(
-        models,
+      amountsMap = getAmountsMap(
         subdomain,
-        user._id,
-        { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-        args.extraParams
+        models,
+        models.Deals,
+        user,
+        args,
+        stage
       );
+    }
 
-      const amountList = await models.Deals.aggregate([
-        {
-          $match: filter
-        },
-        {
-          $unwind: '$productsData'
-        },
-        {
-          $project: {
-            amount: '$productsData.amount',
-            currency: '$productsData.currency',
-            tickUsed: '$productsData.tickUsed'
-          }
-        },
-        {
-          $match: { tickUsed: true }
-        },
-        {
-          $group: {
-            _id: '$currency',
-            amount: { $sum: '$amount' }
-          }
-        }
-      ]);
-
-      amountList.forEach(item => {
-        if (item._id) {
-          amountsMap[item._id] = item.amount;
-        }
-      });
+    if (stage.type === BOARD_TYPES.PURCHASE) {
+      amountsMap = getAmountsMap(
+        subdomain,
+        models,
+        models.Purchases,
+        user,
+        args,
+        stage
+      );
     }
 
     return amountsMap;
@@ -86,7 +154,7 @@ export default {
     { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
-    const { Deals, Tickets, Tasks, GrowthHacks } = models;
+    const { Deals, Tickets, Tasks, GrowthHacks, Purchases } = models;
 
     switch (stage.type) {
       case BOARD_TYPES.DEAL: {
@@ -137,6 +205,17 @@ export default {
 
         return GrowthHacks.find(filter).count();
       }
+      case BOARD_TYPES.PURCHASE: {
+        const filter = await generatePurchaseCommonFilters(
+          models,
+          subdomain,
+          user._id,
+          { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
+          args.extraParams
+        );
+
+        return Purchases.find(filter).count();
+      }
     }
   },
 
@@ -158,6 +237,26 @@ export default {
     );
 
     return models.Deals.find(filter).count();
+  },
+
+  /*
+   * Total count of purchase that are created on this stage initially
+   */
+  async initialPurchaseTotalCount(
+    stage: IStageDocument,
+    _args,
+    { user, models, subdomain }: IContext,
+    { variableValues: args }
+  ) {
+    const filter = await generatePurchaseCommonFilters(
+      models,
+      subdomain,
+      user._id,
+      { ...args, initialStageId: stage._id },
+      args.extraParams
+    );
+
+    return models.Purchases.find(filter).count();
   },
 
   /*
@@ -218,6 +317,64 @@ export default {
     return deals.length;
   },
 
+  /*
+   * Total count of purchases that are
+   * 1. created on this stage initially
+   * 2. moved to other stage which has probability other than Lost
+   */
+  async inProcessPurchasesTotalCount(
+    stage: IStageDocument,
+    _args,
+    { models: { Stages } }: IContext
+  ) {
+    const filter = {
+      pipelineId: stage.pipelineId,
+      probability: { $ne: 'Lost' },
+      _id: { $ne: stage._id }
+    };
+
+    const purchases = await Stages.aggregate([
+      {
+        $match: filter
+      },
+      {
+        $lookup: {
+          from: 'purchases',
+          let: { stageId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$stageId', '$$stageId'] },
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'purchases'
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          purchases: 1
+        }
+      },
+      {
+        $unwind: '$purchases'
+      },
+      {
+        $match: {
+          'purchases.initialStageId': stage._id
+        }
+      }
+    ]);
+
+    return purchases.length;
+  },
+
   async stayedDealsTotalCount(
     stage: IStageDocument,
     _args,
@@ -238,6 +395,28 @@ export default {
     );
 
     return models.Deals.find(filter).count();
+  },
+
+  async stayedPurchasesTotalCount(
+    stage: IStageDocument,
+    _args,
+    { user, models, subdomain }: IContext,
+    { variableValues: args }
+  ) {
+    const filter = await generatePurchaseCommonFilters(
+      models,
+      subdomain,
+      user._id,
+      {
+        ...args,
+        initialStageId: stage._id,
+        stageId: stage._id,
+        pipelineId: stage.pipelineId
+      },
+      args.extraParams
+    );
+
+    return models.Purchases.find(filter).count();
   },
 
   /*
@@ -315,6 +494,83 @@ export default {
       const [first, second] = stages;
       result.count = first.currentDealCount - second.currentDealCount;
       result.percent = (second.initialDealCount * 100) / first.initialDealCount;
+    }
+
+    return result;
+  },
+
+  async compareNextStagePurchase(
+    stage: IStageDocument,
+    _args,
+    { models: { Stages } }: IContext
+  ) {
+    const result: { count?: number; percent?: number } = {};
+
+    const { order = 1 } = stage;
+
+    const filter = {
+      order: { $in: [order, order + 1] },
+      probability: { $ne: 'Lost' },
+      pipelineId: stage.pipelineId
+    };
+
+    const stages = await Stages.aggregate([
+      {
+        $match: filter
+      },
+      {
+        $lookup: {
+          from: 'purchases',
+          let: { stageId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$stageId', '$$stageId'] },
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'currentPurchases'
+        }
+      },
+      {
+        $lookup: {
+          from: 'purchases',
+          let: { stageId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$initialStageId', '$$stageId'] },
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'initialPurchases'
+        }
+      },
+      {
+        $project: {
+          order: 1,
+          currentPurchaseCount: { $size: '$currentPurchases' },
+          initialPurchaseCount: { $size: '$initialPurchases' }
+        }
+      },
+      { $sort: { order: 1 } }
+    ]);
+
+    if (stages.length === 2) {
+      const [first, second] = stages;
+      result.count = first.currentPurchaseCount - second.currentPurchaseCount;
+      result.percent =
+        (second.initialPurchaseCount * 100) / first.initialPurchaseCount;
     }
 
     return result;

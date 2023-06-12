@@ -5,6 +5,8 @@ import {
   Stage,
   Deal,
   DealListItem,
+  Purchase,
+  PurchaseListItem,
   Task,
   TaskListItem,
   Ticket,
@@ -15,6 +17,7 @@ import {
 import {
   Board as BoardMutations,
   Deal as DealMutations,
+  Purchase as PurchaseMutations,
   Task as TaskMutations,
   Ticket as TicketMutations,
   GrowthHack as GrowthHackMutations,
@@ -22,9 +25,11 @@ import {
   PipelineLabel as PipelineLabelMutations,
   Checklists as ChecklistMutations
 } from './mutations';
+
 import {
   Board as BoardQueries,
   Deal as DealQueries,
+  Purchase as PurchaseQueries,
   Task as TaskQueries,
   Ticket as TicketQueries,
   GrowthHack as GrowthHackQueries,
@@ -40,6 +45,8 @@ const resolvers: any = {
   Stage,
   Deal,
   DealListItem,
+  Purchase,
+  PurchaseListItem,
   Task,
   TaskListItem,
   Ticket,
@@ -49,6 +56,7 @@ const resolvers: any = {
   Mutation: {
     ...BoardMutations,
     ...DealMutations,
+    ...PurchaseMutations,
     ...TaskMutations,
     ...TicketMutations,
     ...GrowthHackMutations,
@@ -59,6 +67,7 @@ const resolvers: any = {
   Query: {
     ...BoardQueries,
     ...DealQueries,
+    ...PurchaseQueries,
     ...TaskQueries,
     ...TicketQueries,
     ...GrowthHackQueries,

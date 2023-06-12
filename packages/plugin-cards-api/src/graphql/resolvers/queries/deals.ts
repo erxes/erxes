@@ -37,7 +37,8 @@ const dealQueries = {
     };
 
     const getExtraFields = async (item: any) => ({
-      amount: await dealResolvers.amount(item)
+      amount: await dealResolvers.amount(item),
+      unUsedAmount: await dealResolvers.unUsedAmount(item)
     });
 
     const deals = await getItemList(

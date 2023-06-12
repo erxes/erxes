@@ -22,6 +22,18 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'knowledgebase:topics.find',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.KnowledgeBaseTopics.find(query).lean()
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'knowledgebase:topics.count',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
@@ -55,6 +67,17 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: await models.KnowledgeBaseCategories.findOne(query).lean()
+      };
+    }
+  );
+  consumeRPCQueue(
+    'knowledgebase:categories.find',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.KnowledgeBaseCategories.find(query).lean()
       };
     }
   );

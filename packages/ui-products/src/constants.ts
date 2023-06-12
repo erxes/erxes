@@ -269,5 +269,9 @@ export const TAX_TYPES = {
       },
       { value: '507', label: '507 - ашигт малтмалын эцсийн бүтээгдэхүүн' }
     ]
+  },
+  5: {
+    label: 'Inner',
+    options: []
   }
 };

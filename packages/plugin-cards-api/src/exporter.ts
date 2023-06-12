@@ -4,6 +4,7 @@ import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
+  sendLogsMessage,
   sendProductsMessage
 } from './messageBroker';
 import * as moment from 'moment';
@@ -41,6 +42,10 @@ const prepareData = async (
       data = await models.Deals.find(boardItemsFilter).lean();
 
       break;
+    case MODULE_NAMES.PURCHASE:
+      data = await models.Purchases.find(boardItemsFilter).lean();
+
+      break;
     case MODULE_NAMES.TASK:
       data = await models.Tasks.find(boardItemsFilter).lean();
 
@@ -75,10 +80,13 @@ const getCustomFieldsData = async (item, fieldId) => {
 
 const fillDealProductValue = async (subdomain, column, item) => {
   const productsData = item.productsData;
-  let value;
+
+  const productDocs: any[] = [];
 
   for (const productData of productsData) {
     let product;
+    let value;
+    const result = {};
 
     switch (column) {
       case 'productsData.amount':
@@ -142,7 +150,7 @@ const fillDealProductValue = async (subdomain, column, item) => {
         break;
 
       case 'productsData.tickUsed':
-        value = productData.tickUsed;
+        value = productData.tickUsed ? 'TRUE' : 'FALSE';
         break;
 
       case 'productsData.isVatApplied':
@@ -181,9 +189,13 @@ const fillDealProductValue = async (subdomain, column, item) => {
         value = productData.maxQuantity;
         break;
     }
+
+    result[column] = value;
+
+    productDocs.push(result);
   }
 
-  return { value };
+  return productDocs;
 };
 
 const fillValue = async (
@@ -198,7 +210,7 @@ const fillValue = async (
     case 'createdAt':
     case 'closeDate':
     case 'modifiedAt':
-      value = moment(value).format('YYYY-MM-DD HH:mm');
+      value = moment(value).format('YYYY-MM-DD');
 
       break;
     case 'userId':
@@ -214,7 +226,7 @@ const fillValue = async (
       value = createdUser ? createdUser.username : 'user not found';
 
       break;
-    // deal, task, ticket fields
+    // deal, task, purchase ticket fields
     case 'assignedUserIds':
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
@@ -360,6 +372,55 @@ const fillValue = async (
 
       break;
 
+    case 'totalAmount':
+      const productDatas = item.productsData;
+      let totalAmount = 0;
+
+      for (const data of productDatas) {
+        if (data.amount) {
+          totalAmount = totalAmount + data.amount;
+        }
+      }
+
+      value = totalAmount ? totalAmount : '-';
+
+      break;
+
+    case 'totalLabelCount':
+      value = item.labelIds ? item.labelIds.length : '-';
+
+      break;
+
+    case 'stageMovedUser':
+      const activities = await sendLogsMessage({
+        subdomain,
+        action: 'activityLogs.findMany',
+        data: {
+          query: {
+            contentId: item._id,
+            action: 'moved'
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const movedUser: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id:
+            activities.length > 0
+              ? activities[activities.length - 1].createdBy
+              : ''
+        },
+        isRPC: true
+      });
+
+      value = movedUser ? movedUser.username : '-';
+
+      break;
+
     default:
       break;
   }
@@ -404,6 +465,8 @@ export default {
 
       for (const item of results) {
         const result = {};
+        const productDocs = [] as any;
+        const productsArray = [] as any;
 
         for (const column of headers) {
           if (column.startsWith('customFieldsData')) {
@@ -414,13 +477,13 @@ export default {
 
             result[fieldName] = value || '-';
           } else if (column.startsWith('productsData')) {
-            const { value } = await fillDealProductValue(
+            const productItem = await fillDealProductValue(
               subdomain,
               column,
               item
             );
 
-            result[column] = value || '-';
+            productDocs.push(productItem);
           } else {
             const value = await fillValue(models, subdomain, column, item);
 
@@ -428,7 +491,36 @@ export default {
           }
         }
 
-        docs.push(result);
+        if (productDocs.length > 0) {
+          for (let i = 0; i < productDocs.length; i++) {
+            const sortedItem = [] as any;
+
+            for (const productDoc of productDocs) {
+              sortedItem.push(productDoc[i]);
+            }
+
+            productsArray.push(sortedItem);
+          }
+        }
+
+        if (productDocs.length > 0) {
+          let index = 0;
+
+          for (const productElement of productsArray) {
+            const mergedObject = Object.assign({}, ...productElement);
+            if (index === 0) {
+              docs.push({
+                ...result,
+                ...mergedObject
+              });
+              index++;
+            } else {
+              docs.push(mergedObject);
+            }
+          }
+        } else {
+          docs.push(result);
+        }
       }
 
       for (const header of headers) {

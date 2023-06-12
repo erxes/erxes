@@ -8,13 +8,15 @@ module.exports = {
     './importExportUploadForm': './src/components/ColumnChooser',
     './fieldPreview': './src/components/FieldsPreview',
     './formPreview': './src/containers/FieldForm',
-    './contactDetailLeftSidebar': './src/containers/CustomFieldsSection'
+    './contactDetailLeftSidebar': './src/containers/CustomFieldsSection',
+    './relationForm': './src/containers/RelationForm.tsx'
   },
   routes: {
     url: 'http://localhost:3005/remoteEntry.js',
     scope: 'forms',
     module: './routes'
   },
+  relationForm: './relationForm',
   segmentForm: './segmentForm',
   formPreview: './formPreview',
   fieldPreview: './fieldPreview',

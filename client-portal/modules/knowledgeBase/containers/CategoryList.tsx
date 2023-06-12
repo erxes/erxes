@@ -1,10 +1,10 @@
-import React from "react";
-import CategoryList from "../components/CategoryList";
-import { Store } from "../../types";
-import Layout from "../../main/containers/Layout";
-import Search from "../../main/components/Search";
-import { useRouter } from "next/router";
 import ArticleListContainer from "./ArticleList";
+import CategoryList from "../components/CategoryList";
+import Layout from "../../main/containers/Layout";
+import React from "react";
+import Search from "../../main/components/Search";
+import { Store } from "../../types";
+import { useRouter } from "next/router";
 
 function CategoriesContainer() {
   const router = useRouter();
@@ -16,6 +16,7 @@ function CategoriesContainer() {
         <ArticleListContainer
           searchValue={searchValue}
           topicId={props.topic._id}
+          config={props.config}
         />
       );
     }

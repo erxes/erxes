@@ -27,6 +27,14 @@ cube(`Deals`, {
     DealsCustomfieldsdata: {
       sql: `${CUBE}._id = ${DealsCustomfieldsdata}._id`,
       relationship: `belongsTo`
+    },
+    DealsDepartments: {
+      sql: `${CUBE}._id = ${DealsDepartments}._id`,
+      relationship: `belongsTo`
+    },
+    DealsBranches: {
+      sql: `${CUBE}._id = ${DealsBranches}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -99,6 +107,24 @@ cube(`Deals`, {
 
     stageid: {
       sql: `${CUBE}.\`stageId\``,
+      type: `string`,
+      shown: false
+    },
+
+    departmentId: {
+      sql: `${CUBE}.\`departmentId\``,
+      type: `string`,
+      shown: false
+    },
+
+    branchId: {
+      sql: `${CUBE}.\`branchId\``,
+      type: `string`,
+      shown: false
+    },
+
+    assetId: {
+      sql: `${CUBE}.\`assetId\``,
       type: `string`,
       shown: false
     },

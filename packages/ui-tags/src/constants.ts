@@ -11,6 +11,7 @@ export const TAG_TYPES = {
   DEAL: __('cards:deal'),
   TICKET: __('cards:ticket'),
   TASK: __('cards:task'),
+  PURCHASE: __('cards:purchase'),
   DASHBOARD: __('dashboard:dashboard'),
   ALL_LIST: [
     'conversation',
@@ -20,6 +21,7 @@ export const TAG_TYPES = {
     'integration',
     'product',
     'productTemplate',
-    'deal'
+    'deal',
+    'purchase'
   ]
 };

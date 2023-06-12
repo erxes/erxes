@@ -65,6 +65,26 @@ class MainLayout extends React.Component<IProps, State> {
       };
     } // end currentUser checking
 
+    if (!(window as any).env.REACT_APP_HIDE_MESSENGER) {
+      const userDetail = (currentUser && currentUser.details) || {
+        firstName: '',
+        lastName: ''
+      };
+      (window as any).erxesSettings = {
+        messenger: {
+          brand_id: '5fkS4v',
+          email: (currentUser && currentUser.email) || '',
+          firstName: userDetail.firstName,
+          lastName: userDetail.lastName
+        }
+      };
+
+      const script = document.createElement('script');
+      script.src = 'https://w.office.erxes.io/build/messengerWidget.bundle.js';
+      const entry = document.getElementsByTagName('script')[0];
+      (entry as any).parentNode.insertBefore(script, entry);
+    }
+
     if (enabledServices && Object.keys(enabledServices).length !== 0) {
       localStorage.setItem('enabledServices', JSON.stringify(enabledServices));
     }
