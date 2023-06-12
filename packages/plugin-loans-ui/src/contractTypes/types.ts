@@ -32,6 +32,18 @@ export interface IContractConfig {
   feeIncome: string;
   defaultCustomer: string;
   userEmail: string;
+  minInterest: number;
+  maxInterest: number;
+  defaultInterest: number;
+  minTenor: number;
+  maxTenor: number;
+  minAmount: number;
+  maxAmount: number;
+  normalExpirationDay: number;
+  expiredExpirationDay: number;
+  doubtExpirationDay: number;
+  negativeExpirationDay: number;
+  badExpirationDay: number;
 }
 
 export interface IContractTypeDoc {
@@ -46,6 +58,10 @@ export interface IContractTypeDoc {
   productCategoryIds: string[];
   config: IContractConfig;
   unduePercent: number;
+  undueCalcType: string;
+  useMargin: boolean;
+  useDebt: boolean;
+  useSkipInterest: boolean;
 }
 
 export interface IContractType extends IContractTypeDoc {

@@ -51,7 +51,7 @@ const LeftSidebar = (props: Props) => {
           <h3>Chats</h3>
           {renderActions()}
         </SidebarHeader>
-        <ChatList chatId={chatId} hasOptions={true} />
+        <ChatList chatId={chatId} hasOptions={true} isWidget={false} />
       </SidebarWrapper>
     </Sidebar>
   );

@@ -130,5 +130,7 @@
   "Close contract today": "Өнөөдөр хаагдах",
   "Close contract this week": "Энэ долоо хоногт хаагдах",
   "Close contract this month": "Энэ сард хаагдах",
-  "Undue calc type": "Нэмэгдүүлсэн хүү бодох арга"
+  "Undue calc type": "Нэмэгдүүлсэн хүү бодох арга",
+  "Skip Interest Calc /Month/": "Хүү бодохгүй хугацаа/Сар/",
+  "Loan payment": "Үндсэн зээл"
 }

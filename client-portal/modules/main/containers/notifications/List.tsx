@@ -1,12 +1,8 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useEffect } from 'react';
-import { mutations } from '../../../user/graphql';
-import Notifications from '../../components/notifications/List';
-import {
-  IUser,
-  NotificationsCountQueryResponse,
-  NotificationsQueryResponse
-} from '../../../types';
+import { IUser, NotificationsQueryResponse } from "../../../types";
+import { gql, useMutation, useQuery } from "@apollo/client";
+
+import NotificationList from "../../components/notifications/List";
+import React from "react";
 
 type Props = {
   count: number;
@@ -66,16 +62,16 @@ function NotificationsContainer(props: Props) {
   const markAsRead = (ids: string[]) => {
     markAsReadMutaion({
       variables: {
-        ids
-      }
+        ids,
+      },
     });
   };
 
   const markAllAsRead = () => {
     markAsReadMutaion({
       variables: {
-        markAll: true
-      }
+        markAll: true,
+      },
     });
   };
 
@@ -85,9 +81,9 @@ function NotificationsContainer(props: Props) {
       skip: !props.currentUser,
       variables: {
         page: 1,
-        perPage: 10
+        perPage: 10,
       },
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only",
     }
   );
 
@@ -111,10 +107,10 @@ function NotificationsContainer(props: Props) {
     markAsRead,
     showNotifications,
     markAllAsRead,
-    refetch
+    refetch,
   };
 
-  return <Notifications {...updatedProps} />;
+  return <NotificationList {...updatedProps} />;
 }
 
 export default NotificationsContainer;

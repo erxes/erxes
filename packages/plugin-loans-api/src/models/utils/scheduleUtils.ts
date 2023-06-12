@@ -37,6 +37,12 @@ export const scheduleHelper = async (
 
   const dateRange = contract.scheduleDays.sort((a, b) => a - b);
   var mainDate = new Date(startDate);
+
+  var skipInterestCalcDate = addMonths(
+    new Date(currentDate),
+    contract.skipInterestCalcMonth || 0
+  );
+
   var endDate = addMonths(new Date(startDate), contract.tenor);
 
   var dateRanges: Date[] = [];
@@ -86,7 +92,8 @@ export const scheduleHelper = async (
         currentDate,
         payment,
         perHolidays,
-        paymentDates[i]
+        paymentDates[i],
+        skipInterestCalcDate
       );
       currentDate = perMonth.date;
       balance = perMonth.loanBalance;
@@ -114,7 +121,8 @@ export const scheduleHelper = async (
       weekends: contract.weekends,
       useHoliday: contract.useHoliday,
       perHolidays,
-      paymentDates
+      paymentDates,
+      skipInterestCalcDate
     });
 
     for (let i = 0; i < paymentDates.length - salvageTenor; i++) {
@@ -124,7 +132,8 @@ export const scheduleHelper = async (
         currentDate,
         total,
         perHolidays,
-        paymentDates[i]
+        paymentDates[i],
+        skipInterestCalcDate
       );
       currentDate = perMonth.date;
       balance = perMonth.loanBalance;
@@ -150,6 +159,7 @@ export const scheduleHelper = async (
   lastEntry.balance = salvageAmount || 0;
   lastEntry.payment = lastEntry.payment + tempBalance;
   bulkEntries[bulkEntries.length - 1] = lastEntry;
+
   return bulkEntries;
 };
 
@@ -562,6 +572,14 @@ export const generatePendingSchedules = async (
   let index = 0; //this index for while loop for correction future schedules
   let payment = 0;
 
+  const skipInterestCalcDate = addMonths(
+    new Date(getFullDate(contract.startDate)),
+    contract.skipInterestCalcMonth || 0
+  );
+
+  const isSkipInterestCalc =
+    getDiffDay(updatedSchedule.payDate, skipInterestCalcDate) >= 0;
+
   let updatePrevScheduleReactions: any = []; //this updatePrevScheduleReactions variable for transaction reaction
   let updatePrevSchedulesBulk: any = [];
 
@@ -661,21 +679,26 @@ export const generatePendingSchedules = async (
         ));
     }
 
-    const { diffEve, diffNonce } = getDatesDiffMonth(
-      preSchedule.payDate,
-      schedule.payDate
-    );
-    interestEve = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffEve
-    });
+    if (isSkipInterestCalc) {
+      interestEve = 0;
+      interestNonce = 0;
+    } else {
+      const { diffEve, diffNonce } = getDatesDiffMonth(
+        preSchedule.payDate,
+        schedule.payDate
+      );
+      interestEve = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffEve
+      });
 
-    interestNonce = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffNonce
-    });
+      interestNonce = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffNonce
+      });
+    }
 
     payment = schedule.payment || 0;
 
@@ -790,21 +813,29 @@ export const generatePendingSchedules = async (
     diff > (schedule.payment || 0) &&
     index < pendingSchedules.length - 1
   ) {
-    const { diffEve, diffNonce } = getDatesDiffMonth(
-      preSchedule.payDate,
-      schedule.payDate
-    );
-    interestEve = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffEve
-    });
+    if (
+      isSkipInterestCalc &&
+      getDiffDay(schedule.payDate, skipInterestCalcDate) >= 0
+    ) {
+      interestEve = 0;
+      interestNonce = 0;
+    } else {
+      const { diffEve, diffNonce } = getDatesDiffMonth(
+        preSchedule.payDate,
+        schedule.payDate
+      );
+      interestEve = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffEve
+      });
 
-    interestNonce = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffNonce
-    });
+      interestNonce = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffNonce
+      });
+    }
 
     diff = diff - (schedule.payment || 0);
 
@@ -843,20 +874,29 @@ export const generatePendingSchedules = async (
 
   // on lastSchedule
   if (index === pendingSchedules.length - 1) {
-    const { diffEve, diffNonce } = getDatesDiffMonth(
-      preSchedule.payDate,
-      schedule.payDate
-    );
-    interestEve = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffEve
-    });
-    interestNonce = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffNonce
-    });
+    if (
+      isSkipInterestCalc &&
+      getDiffDay(schedule.payDate, skipInterestCalcDate) >= 0
+    ) {
+      interestEve = 0;
+      interestNonce = 0;
+    } else {
+      const { diffEve, diffNonce } = getDatesDiffMonth(
+        preSchedule.payDate,
+        schedule.payDate
+      );
+      interestEve = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffEve
+      });
+      interestNonce = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffNonce
+      });
+    }
+
     diff = diff - (schedule.payment || 0);
 
     changeDoc = {
@@ -880,20 +920,28 @@ export const generatePendingSchedules = async (
       }
     });
   } else {
-    const { diffEve, diffNonce } = getDatesDiffMonth(
-      preSchedule.payDate,
-      schedule.payDate
-    );
-    interestEve = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffEve
-    });
-    interestNonce = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffNonce
-    });
+    if (
+      isSkipInterestCalc &&
+      getDiffDay(schedule.payDate, skipInterestCalcDate) >= 0
+    ) {
+      interestEve = 0;
+      interestNonce = 0;
+    } else {
+      const { diffEve, diffNonce } = getDatesDiffMonth(
+        preSchedule.payDate,
+        schedule.payDate
+      );
+      interestEve = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffEve
+      });
+      interestNonce = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffNonce
+      });
+    }
     payment = schedule.payment || 0;
     if (paymentBalance < 0) {
       payment = payment + paymentBalance;
@@ -928,17 +976,25 @@ export const generatePendingSchedules = async (
   schedule = pendingSchedules[index];
 
   if (schedule) {
-    const diffs = getDatesDiffMonth(preSchedule.payDate, schedule.payDate);
-    interestEve = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffs.diffEve
-    });
-    interestNonce = calcInterest({
-      balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffs.diffNonce
-    });
+    if (
+      isSkipInterestCalc &&
+      getDiffDay(schedule.payDate, skipInterestCalcDate) >= 0
+    ) {
+      interestEve = 0;
+      interestNonce = 0;
+    } else {
+      const diffs = getDatesDiffMonth(preSchedule.payDate, schedule.payDate);
+      interestEve = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffs.diffEve
+      });
+      interestNonce = calcInterest({
+        balance,
+        interestRate: contract.interestRate,
+        dayOfMonth: diffs.diffNonce
+      });
+    }
     changeDoc = { interestEve, interestNonce };
     trReaction.push({
       scheduleId: schedule._id,

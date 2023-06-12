@@ -1,13 +1,14 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { router } from '@erxes/ui/src';
+import { __, router } from '@erxes/ui/src';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import React from 'react';
-import List from '../components/invoice/List';
-import { mutations, queries } from '../graphql';
+import List from '../../components/invoice/List';
+import { mutations, queries } from '../../graphql';
 import {
   InvoicesQueryResponse,
   InvoicesTotalCountQueryResponse
-} from '../types';
+} from '../../types';
+import Alert from '@erxes/ui/src/utils/Alert';
 
 type Props = {
   queryParams: any;
@@ -48,10 +49,47 @@ const InvoiceListContainer = (props: Props) => {
     ]
   });
 
+  const [invoicesRemove] = useMutation(mutations.removeInvoices, {
+    refetchQueries: [
+      {
+        query: queries.invoices,
+        variables: {
+          ...router.generatePaginationParams(props.queryParams || {})
+        }
+      },
+      {
+        query: queries.invoicesTotalCount,
+        variables: {
+          searchValue: queryParams.searchValue,
+          kind: queryParams.kind,
+          status: queryParams.status
+        }
+      }
+    ]
+  });
+
   const checkInvoice = (invoiceId: string) => {
     invoiceCheck({
       variables: {
         _id: invoiceId
+      }
+    })
+      .then(({ data }) => {
+        if (data.invoicesCheck === 'paid') {
+          return Alert.success(__('Invoice is paid'));
+        }
+
+        Alert.warning(data.invoicesCheck);
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  const removeInvoices = (_ids: string[]) => {
+    invoicesRemove({
+      variables: {
+        _ids
       }
     });
   };
@@ -74,6 +112,7 @@ const InvoiceListContainer = (props: Props) => {
     loading: invoicesQuery.loading,
     searchValue: props.queryParams.searchValue || '',
     check: checkInvoice,
+    remove: removeInvoices,
     counts
   };
 
