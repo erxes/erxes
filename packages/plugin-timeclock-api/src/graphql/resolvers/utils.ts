@@ -9,7 +9,6 @@ import {
   IScheduleDocument,
   IShiftDocument,
   IUserAbsenceInfo,
-  IUserReport,
   IUsersReport
 } from '../../models/definitions/timeclock';
 import { customFixDate } from '../../utils';
@@ -175,8 +174,7 @@ export const timeclockReportByUser = async (
   // get 1st of month
   const startOfSelectedMonth = new Date(
     parseFloat(selectedYear),
-    selectedMonthIndex,
-    1
+    selectedMonthIndex
   );
   // start of the next month
   const startOfNextMonth = new Date(
@@ -426,7 +424,10 @@ export const timeclockReportByUser = async (
       totalDaysWorkedSelectedMonth,
       totalHoursBreakTaken,
       totalHoursBreakScheduled,
-      totalHoursBreakSelecteDay
+      totalHoursBreakSelecteDay,
+
+      scheduledShifts: scheduleShiftsSelectedMonth,
+      timeclocks: timeclocksOfSelectedMonth
     };
   }
 
