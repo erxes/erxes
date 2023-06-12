@@ -167,7 +167,7 @@ export default class WorkArea extends React.Component<Props, State> {
   }
 
   renderConversation() {
-    const { currentConversation, conversationMessages } = this.props;
+    const { currentConversation, conversationMessages, content } = this.props;
 
     if (!currentConversation) {
       return null;
@@ -197,6 +197,16 @@ export default class WorkArea extends React.Component<Props, State> {
       );
     }
 
+    if (kind === 'imap') {
+      return (
+        <>
+          {content}
+          {isEnabled('internalnotes') &&
+            this.renderMessages(messages, firstMessage)}
+        </>
+      );
+    }
+
     return this.renderMessages(messages, firstMessage);
   }
 
@@ -223,16 +233,24 @@ export default class WorkArea extends React.Component<Props, State> {
       <TypingIndicator>{typingInfo}</TypingIndicator>
     ) : null;
 
-    const respondBox = (
-      <RespondBox
-        showInternal={isEnabled('internalnotes') ? showInternal : false}
-        conversation={currentConversation}
-        setAttachmentPreview={this.setAttachmentPreview}
-        addMessage={addMessage}
-        refetchMessages={refetchMessages}
-        refetchDetail={refetchDetail}
-      />
-    );
+    const respondBox = () => {
+      const data = (
+        <RespondBox
+          showInternal={isEnabled('internalnotes') ? showInternal : false}
+          conversation={currentConversation}
+          setAttachmentPreview={this.setAttachmentPreview}
+          addMessage={addMessage}
+          refetchMessages={refetchMessages}
+          refetchDetail={refetchDetail}
+        />
+      );
+
+      if (kind === 'imap') {
+        return isEnabled('internalnotes') && data;
+      }
+
+      return data;
+    };
 
     return (
       <>
@@ -245,10 +263,7 @@ export default class WorkArea extends React.Component<Props, State> {
             onScroll={this.onScroll}
           >
             <RenderConversationWrapper>
-              {kind === 'imap' && content}
-              {kind === 'imap'
-                ? isEnabled('internalnotes') && this.renderConversation()
-                : this.renderConversation()}
+              {this.renderConversation()}
             </RenderConversationWrapper>
           </ConversationWrapper>
         </ContentBox>
@@ -256,9 +271,7 @@ export default class WorkArea extends React.Component<Props, State> {
         {currentConversation._id && (
           <ContenFooter>
             {typingIndicator}
-            {kind === 'imap'
-              ? isEnabled('internalnotes') && respondBox
-              : respondBox}
+            {respondBox()}
           </ContenFooter>
         )}
       </>
