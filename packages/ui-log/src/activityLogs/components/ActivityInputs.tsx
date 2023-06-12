@@ -35,7 +35,11 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'newNote'
+      currentTab: isEnabled('internalnotes')
+        ? 'newNote'
+        : isEnabled('clientportal')
+        ? 'newComment'
+        : ''
     };
   }
 
@@ -50,6 +54,16 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     if (currentTab === 'newNote' && isEnabled('internalnotes')) {
       return (
         <NoteForm contentType={contentType} contentTypeId={contentTypeId} />
+      );
+    }
+
+    if (currentTab === 'newComment' && isEnabled('clientportal')) {
+      return (
+        <NoteForm
+          inputType="comment"
+          contentType={contentType}
+          contentTypeId={contentTypeId}
+        />
       );
     }
 
@@ -106,6 +120,9 @@ class ActivityInputs extends React.PureComponent<Props, State> {
           <Tabs>
             {isEnabled('internalnotes') &&
               this.renderTabTitle('newNote', 'file-plus', 'New note')}
+
+            {isEnabled('clientportal') &&
+              this.renderTabTitle('newComment', 'comment-plus', 'New comment')}
 
             {this.renderExtraTab()}
           </Tabs>

@@ -20,12 +20,25 @@ export type InternalNotesAddMutationVariables = {
   mentionedUserIds: string[];
 };
 
+export type CommentAddMutationVariables = {
+  typeId: string;
+  type: string;
+  content: string;
+  userType: string;
+};
+
 export type InternalNotesEditMutationResponse = ({
   variables: InternalNotesEditMutationVariables
 }) => Promise<any>;
 
 export type InternalNotesAddMutationResponse = {
   internalNotesAdd: (params: {
+    variables: InternalNotesAddMutationVariables;
+  }) => Promise<any>;
+};
+
+export type CommentAddMutationResponse = {
+  commentAdd: (params: {
     variables: InternalNotesAddMutationVariables;
   }) => Promise<any>;
 };

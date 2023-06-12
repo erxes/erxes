@@ -22,11 +22,12 @@ function Comment(item) {
   const { loading, data = {} as any } = useQuery(
     gql(queries.clientPortalComments),
     {
-      variables: { typeId: typeId, type: type },
+      variables: { typeId, type },
       fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true
     }
   );
+
   const [clientPortalCommentsRemove] = useMutation(
     gql(mutations.clientPortalCommentsRemove)
   );
@@ -44,13 +45,13 @@ function Comment(item) {
       </ColorButton>
 
       <Modal
-        centered
+        centered={true}
         show={show}
         onHide={handleClose}
         backdrop="static"
         keyboard={false}
       >
-        <Modal.Header closeButton>
+        <Modal.Header closeButton={true}>
           <Modal.Title>{__('Comments')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -64,15 +65,22 @@ function Comment(item) {
                     <CreatedUser>
                       <img
                         src={readFile(
-                          createdUser && createdUser.avatar
-                            ? createdUser?.avatar
-                            : '/static/avatar-colored.svg'
+                          createdUser &&
+                            createdUser.details &&
+                            createdUser.details.avatar
+                            ? createdUser.details.avatar
+                            : '/images/avatar-colored.svg'
                         )}
                         alt="profile"
                       />
                       <div>
                         <CommentContent>
-                          <h5>{`${createdUser?.firstName} ${createdUser?.lastName}`}</h5>
+                          <h5>
+                            {createdUser && createdUser.details
+                              ? createdUser.details.fullName ||
+                                createdUser.username
+                              : createdUser.email || 'Undefined'}
+                          </h5>
                           <div
                             className="comment"
                             dangerouslySetInnerHTML={{
@@ -85,7 +93,6 @@ function Comment(item) {
                           {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
                         </span>
                       </div>
-                      <div className="actions"></div>
                     </CreatedUser>
                   </TicketComment>
                 );
