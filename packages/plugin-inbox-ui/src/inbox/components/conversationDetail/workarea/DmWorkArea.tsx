@@ -233,13 +233,13 @@ export default class WorkArea extends React.Component<Props, State> {
       />
     );
 
-    if (content) {
+    if (content && kind === 'imap') {
       return (
         <>
           <ActionBar currentConversation={currentConversation} />
 
           <ContentBox>
-            <RenderConversationWrapper>
+            <RenderConversationWrapper innerRef={this.node}>
               {content}
               {isEnabled('internalnotes') && this.renderConversation()}
             </RenderConversationWrapper>
