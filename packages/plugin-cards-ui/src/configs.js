@@ -11,7 +11,8 @@ module.exports = {
     './activityLog': './src/activityLogs/activityLog.tsx',
     './automation': './src/automations/automation.tsx',
     './contactDetailRightSidebar': './src/RightSidebar.tsx',
-    './selectRelation': './src/common/SelectRelation.tsx'
+    './selectRelation': './src/common/SelectRelation.tsx',
+    './invoiceDetailRightSection': './src/common/Item.tsx',
   },
   routes: {
     url: 'http://localhost:3003/remoteEntry.js',
@@ -23,6 +24,7 @@ module.exports = {
   activityLog: './activityLog',
   automation: './automation',
   contactDetailRightSidebar: './contactDetailRightSidebar',
+  invoiceDetailRightSection: './invoiceDetailRightSection',
   selectRelation: './selectRelation',
   menus: [
     {
@@ -33,7 +35,7 @@ module.exports = {
       permission: 'showDeals'
     },
     {
-      text: 'Purchase Pipeline',
+      text: 'Purchases Pipeline',
       url: '/purchase',
       icon: 'icon-bag-alt',
       location: 'mainNavigation',
@@ -84,7 +86,7 @@ module.exports = {
       ]
     },
     {
-      text: 'Purchase Pipelines',
+      text: 'Purchases Pipelines',
       to: '/settings/boards/purchase',
       image: '/images/icons/erxes-25.png',
       location: 'settings',
