@@ -30,7 +30,8 @@ export default ({
   value,
   multi = true,
   label,
-  name
+  name,
+  disabled
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -39,6 +40,7 @@ export default ({
   customOption?: IOption;
   value?: string | string[];
   name: string;
+  disabled?: boolean;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : value;
 
@@ -47,6 +49,7 @@ export default ({
       label={label}
       queryName="contractTypes"
       name={name}
+      disabled={disabled}
       initialValue={defaultValue}
       generateOptions={generateContractTypeOptions}
       onSelect={onSelect}

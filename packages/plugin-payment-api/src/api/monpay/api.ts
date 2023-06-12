@@ -1,11 +1,10 @@
 import * as QRCode from 'qrcode';
 
 import { IModels } from '../../connectionResolver';
-
 import { IInvoiceDocument } from '../../models/definitions/invoices';
 import { BaseAPI } from '../base';
-import { IMonpayInvoice } from '../types';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
+import { IMonpayInvoice } from '../types';
 
 export const monpayCallbackHandler = async (models: IModels, data: any) => {
   const { uuid, status, amount = 0 } = data;
@@ -129,6 +128,28 @@ export class MonpayAPI extends BaseAPI {
           return PAYMENT_STATUS.PAID;
         case 23:
           return PAYMENT_STATUS.PENDING;
+        default:
+          return PAYMENT_STATUS.FAILED;
+      }
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
+  async manualCheck(invoice: IInvoiceDocument) {
+    try {
+      const res = await this.request({
+        method: 'GET',
+        headers: this.headers,
+        path: PAYMENTS.monpay.actions.invoiceCheck,
+        params: { uuid: invoice.apiResponse.uuid }
+      });
+
+      switch (res.code) {
+        case 0:
+          return PAYMENT_STATUS.PAID;
+        case 23:
+          return res.info;
         default:
           return PAYMENT_STATUS.FAILED;
       }

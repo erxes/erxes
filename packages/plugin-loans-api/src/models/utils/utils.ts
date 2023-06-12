@@ -63,7 +63,7 @@ export const getFullDate = (date: Date) => {
 export const addMonths = (date, months) => {
   date.setMonth(date.getMonth() + months);
 
-  return date;
+  return new Date(date);
 };
 
 export const getNextMonthDay = (date: Date, days: number[]) => {
@@ -135,10 +135,25 @@ export const calcPerMonthEqual = (
   currentDate: Date,
   payment: number,
   perHolidays: IPerHoliday[],
-  nextDate: Date
+  nextDate: Date,
+  skipInterestCalcDate: Date
 ) => {
   let nextDay = nextDate;
   nextDay = checkNextDay(nextDay, doc.weekends, doc.useHoliday, perHolidays);
+
+  if (getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
+    const loanBalance = balance - payment;
+    const totalPayment = payment;
+
+    return {
+      date: nextDay,
+      loanBalance,
+      calcedInterestEve: 0,
+      calcedInterestNonce: 0,
+      totalPayment
+    };
+  }
+
   const { diffEve, diffNonce } = getDatesDiffMonth(currentDate, nextDay);
 
   const calcedInterestEve = calcInterest({
@@ -172,7 +187,8 @@ export const getEqualPay = async ({
   weekends,
   useHoliday,
   perHolidays,
-  paymentDates
+  paymentDates,
+  skipInterestCalcDate
 }: {
   startDate: Date;
   interestRate: number;
@@ -183,6 +199,7 @@ export const getEqualPay = async ({
   salvage?: number;
   nextDate?: Date;
   paymentDates: Date[];
+  skipInterestCalcDate: Date;
 }) => {
   if (!leaseAmount) {
     return 0;
@@ -195,7 +212,10 @@ export const getEqualPay = async ({
     let nextDay = paymentDates[i];
     nextDay = checkNextDay(nextDay, weekends, useHoliday, perHolidays);
     const dayOfMonth = getDiffDay(currentDate, nextDay);
-    const newRatio = ratio / (1 + (dayOfMonth * (interestRate / 100)) / 365);
+    const isSkipCalc = getDiffDay(nextDay, skipInterestCalcDate) >= 0;
+    const newRatio = isSkipCalc
+      ? 1
+      : ratio / (1 + (dayOfMonth * (interestRate / 100)) / 365);
     mainRatio = mainRatio + newRatio;
     currentDate = nextDay;
     ratio = newRatio;
@@ -209,10 +229,25 @@ export const calcPerMonthFixed = (
   currentDate: Date,
   total: number,
   perHolidays: IPerHoliday[],
-  nextDate?: Date | any
+  nextDate: Date | any,
+  skipInterestCalcDate: Date
 ) => {
   let nextDay = nextDate;
   nextDay = checkNextDay(nextDay, doc.weekends, doc.useHoliday, perHolidays);
+
+  if (getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
+    const loanPayment = total;
+    const loanBalance = balance - loanPayment;
+
+    return {
+      date: nextDay,
+      loanBalance,
+      loanPayment,
+      calcedInterestEve: 0,
+      calcedInterestNonce: 0
+    };
+  }
+
   const { diffEve, diffNonce } = getDatesDiffMonth(currentDate, nextDay);
 
   const calcedInterestEve = calcInterest({

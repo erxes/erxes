@@ -61,7 +61,7 @@ class PurchaseColumn extends React.Component<Props, {}> {
     const { purchases } = this.props;
 
     if (purchases.length === 0) {
-      return <EmptyState icon="piggy-bank" text="No Sales Pipelines" />;
+      return <EmptyState icon="piggy-bank" text="No Purchases Pipelines" />;
     }
 
     const contents = purchases.map((purchase: IPurchase, index: number) => (

@@ -27,6 +27,10 @@ type Props = {
 type State = {
   productCategoryIds: string[];
   leaseType: string;
+  undueCalcType: string;
+  useMargin: boolean;
+  useDebt: boolean;
+  useSkipInterest: boolean;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -36,8 +40,12 @@ class ContractTypeForm extends React.Component<Props, State> {
     const { contractType = {} } = props;
 
     this.state = {
+      undueCalcType: contractType.undueCalcType,
       productCategoryIds: contractType.productCategoryIds,
-      leaseType: contractType.leaseType || 'finance'
+      leaseType: contractType.leaseType || 'finance',
+      useMargin: contractType.useMargin,
+      useDebt: contractType.useDebt,
+      useSkipInterest: contractType.useSkipInterest
     };
   }
 
@@ -58,6 +66,10 @@ class ContractTypeForm extends React.Component<Props, State> {
       number: finalValues.number,
       vacancy: Number(finalValues.vacancy),
       unduePercent: Number(finalValues.unduePercent),
+      undueCalcType: finalValues.undueCalcType,
+      useMargin: this.state.useMargin,
+      useDebt: this.state.useDebt,
+      useSkipInterest: this.state.useSkipInterest,
       leaseType: this.state.leaseType,
       productCategoryIds: this.state.productCategoryIds,
       description: finalValues.description
@@ -65,6 +77,13 @@ class ContractTypeForm extends React.Component<Props, State> {
   };
 
   renderFormGroup = (label, props) => {
+    if (props.type === 'checkbox')
+      return (
+        <FormGroup>
+          <FormControl {...props} />
+          <ControlLabel required={props.required}>{__(label)}</ControlLabel>
+        </FormGroup>
+      );
     return (
       <FormGroup>
         <ControlLabel required={props.required}>{__(label)}</ControlLabel>
@@ -75,7 +94,11 @@ class ContractTypeForm extends React.Component<Props, State> {
 
   onChangeField = e => {
     const name = (e.target as HTMLInputElement).name;
-    const value = (e.target as HTMLInputElement).value;
+    const value =
+      e.target.type === 'checkbox'
+        ? (e.target as HTMLInputElement).checked
+        : (e.target as HTMLInputElement).value;
+
     this.setState({ [name]: value } as any);
   };
 
@@ -119,12 +142,46 @@ class ContractTypeForm extends React.Component<Props, State> {
                 defaultValue: contractType.vacancy || 1,
                 max: 20
               })}
+
+              <FormGroup>
+                <ControlLabel>{__('Allow Product Categories')}</ControlLabel>
+                <Select
+                  className="flex-item"
+                  placeholder={__('Select product categories')}
+                  value={this.state.productCategoryIds}
+                  onChange={onSelectProductCategory}
+                  multi={true}
+                  options={this.props.productCategories.map(category => ({
+                    value: category._id,
+                    label: `${'\u00A0  '.repeat(
+                      (category.order.match(/[/]/gi) || []).length
+                    )}${category.code} - ${category.name}`
+                  }))}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
               {this.renderFormGroup('Undue Percent', {
                 ...formProps,
                 name: 'unduePercent',
                 defaultValue: contractType.unduePercent || '',
                 type: 'number'
               })}
+
+              {/* <FormGroup>
+                <ControlLabel>{__('Contract type')}</ControlLabel>
+                <Select
+                  className="flex-item"
+                  placeholder={__('Contract type')}
+                  value={this.state.productCategoryIds}
+                  onChange={onSelectProductCategory}
+                  multi={true}
+                  options={['loan', 'leasing', 'pawn'].map((category) => ({
+                    value: category,
+                    label: category
+                  }))}
+                />
+              </FormGroup> */}
               <FormGroup>
                 <ControlLabel>{__('Lease Type')}:</ControlLabel>
 
@@ -143,24 +200,61 @@ class ContractTypeForm extends React.Component<Props, State> {
                   ))}
                 </FormControl>
               </FormGroup>
-
               <FormGroup>
-                <ControlLabel>{__('Allow Product Categories')}</ControlLabel>
-                <Select
-                  className="flex-item"
-                  placeholder={__('Select product categories')}
-                  value={this.state.productCategoryIds}
-                  onChange={onSelectProductCategory}
-                  multi={true}
-                  options={this.props.productCategories.map(category => ({
-                    value: category._id,
-                    label: `${'\u00A0  '.repeat(
-                      (category.order.match(/[/]/gi) || []).length
-                    )}${category.code} - ${category.name}`
-                  }))}
-                />
+                <ControlLabel required={true}>
+                  {__('Undue calc type')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="undueCalcType"
+                  componentClass="select"
+                  value={this.state.undueCalcType}
+                  required={true}
+                  onChange={this.onChangeField}
+                >
+                  {[
+                    'fromInterest',
+                    'fromAmount',
+                    'fromTotalPayment',
+                    'fromEndAmount'
+                  ].map((typeName, index) => (
+                    <option key={`undeType${index}`} value={typeName}>
+                      {typeName}
+                    </option>
+                  ))}
+                </FormControl>
               </FormGroup>
-
+              {this.renderFormGroup('Is use debt', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'useDebt',
+                checked: this.state.useDebt,
+                onChange: this.onChangeField
+              })}
+              {this.renderFormGroup('Is use margin amount', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'useMargin',
+                checked: this.state.useMargin,
+                onChange: this.onChangeField
+              })}
+              {this.renderFormGroup('Is use skip interest', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'useSkipInterest',
+                checked: this.state.useSkipInterest,
+                onChange: this.onChangeField
+              })}
+            </FormColumn>
+          </FormWrapper>
+          <FormWrapper>
+            <FormColumn>
               {this.renderFormGroup('Description', {
                 ...formProps,
                 name: 'description',

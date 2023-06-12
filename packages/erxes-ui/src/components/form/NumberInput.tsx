@@ -8,6 +8,10 @@ function NumberInput({ value, onChange, fixed, ...props }: any, ref: any) {
   const currentRef = useRef<HTMLInputElement>(null);
   const [numberValue, setNumberValue] = useState(value || props.defaultValue);
 
+  useEffect(() => {
+    setNumberValue(v => (v !== value ? value : v));
+  }, [value]);
+
   function onChangeValue(e: any) {
     if (e.target.value === '') {
       onChange(e);

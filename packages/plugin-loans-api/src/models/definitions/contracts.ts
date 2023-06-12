@@ -85,6 +85,9 @@ export interface IContract {
 
   weekends: number[];
   useHoliday: boolean;
+  useMargin: boolean;
+  useSkipInterest: boolean;
+  useDebt: boolean;
 
   closeDate?: Date;
   closeType?: string;
@@ -95,6 +98,8 @@ export interface IContract {
   isExpired?: boolean;
   repaymentDate?: Date;
   undueCalcType?: string;
+
+  skipInterestCalcMonth?: number;
 
   dealId?: string;
 }
@@ -298,7 +303,9 @@ export const contractSchema = schemaHooksWrapper(
     }),
     weekends: field({ type: [Number], label: 'weekend' }),
     useHoliday: field({ type: Boolean, label: 'use holiday' }),
-
+    useMargin: field({ type: Boolean, label: 'use margin' }),
+    useSkipInterest: field({ type: Boolean, label: 'use skip interest' }),
+    useDebt: field({ type: Boolean, label: 'use debt' }),
     closeDate: field({
       type: Date,
       optional: true,
@@ -334,6 +341,11 @@ export const contractSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'Undue Calc Type'
+    }),
+    skipInterestCalcMonth: field({
+      type: Number,
+      optional: true,
+      label: 'Skip Interest Calc Month'
     }),
     dealId: field({
       type: String,
