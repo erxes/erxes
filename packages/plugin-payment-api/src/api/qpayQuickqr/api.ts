@@ -156,6 +156,8 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         }
       });
 
+      console.log('checkInvoice QPay quick qr', res);
+
       if (res.invoice_status === 'PAID') {
         return PAYMENT_STATUS.PAID;
       }

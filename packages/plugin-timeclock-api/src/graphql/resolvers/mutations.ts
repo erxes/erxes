@@ -740,19 +740,11 @@ const timeclockMutations = {
   },
 
   async extractAllDataFromMsSQL(_root, params, { subdomain }: IContext) {
-    return await connectAndQueryFromMsSql(subdomain, params);
+    return connectAndQueryFromMsSql(subdomain, params);
   },
 
-  async extractTimeLogsFromMsSQL(
-    _root,
-    { startDate, endDate },
-    { subdomain }: IContext
-  ) {
-    return await connectAndQueryTimeLogsFromMsSql(
-      subdomain,
-      startDate,
-      endDate
-    );
+  async extractTimeLogsFromMsSQL(_root, params, { subdomain }: IContext) {
+    return connectAndQueryTimeLogsFromMsSql(subdomain, params);
   }
 };
 

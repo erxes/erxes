@@ -37,7 +37,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { readFile } from '@erxes/ui/src/utils/core';
+import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -662,23 +662,33 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <EditorFooter>
-        <SpaceBetweenRow>
-          <ToolBar>
-            <Tip text="Attach file" placement="top">
-              <UploaderWrapper>
-                <Uploader
-                  defaultFileList={this.state.attachments || []}
-                  onChange={onChangeAttachment}
-                  text=" "
-                  icon="attach"
-                />
-              </UploaderWrapper>
-            </Tip>
-            {this.renderIcon({
-              text: 'Delete',
-              icon: 'trash-alt',
-              onClick: toggleReply
-            })}
+        <div>
+          {this.renderSubmit('Send', this.onSubmit, 'primary')}
+          {isReply &&
+            this.renderSubmit(
+              'Send and Resolve',
+              onSubmitResolve,
+              'success',
+              'check-circle'
+            )}
+        </div>
+        <ToolBar>
+          <Tip text="Attach file" placement="top">
+            <UploaderWrapper>
+              <Uploader
+                defaultFileList={this.state.attachments || []}
+                onChange={onChangeAttachment}
+                text=" "
+                icon="attach"
+              />
+            </UploaderWrapper>
+          </Tip>
+          {this.renderIcon({
+            text: 'Delete',
+            icon: 'trash-alt',
+            onClick: toggleReply
+          })}
+          {isEnabled('emailtemplates') && (
             <EmailTemplate
               onSelect={this.templateChange}
               totalCount={totalCount}
@@ -686,18 +696,8 @@ class MailForm extends React.Component<Props, State> {
               targets={generateEmailTemplateParams(emailTemplates || [])}
               history={history}
             />
-          </ToolBar>
-          <div>
-            {this.renderSubmit('Send', this.onSubmit, 'primary')}
-            {isReply &&
-              this.renderSubmit(
-                'Send and Resolve',
-                onSubmitResolve,
-                'success',
-                'check-circle'
-              )}
-          </div>
-        </SpaceBetweenRow>
+          )}
+        </ToolBar>
       </EditorFooter>
     );
   }
@@ -734,7 +734,8 @@ class MailForm extends React.Component<Props, State> {
           toolbarLocation="bottom"
           autoFocus={!this.props.isForward}
           autoGrow={true}
-          autoGrowMinHeight={120}
+          autoGrowMinHeight={300}
+          autoGrowMaxHeight={300}
         />
       </MailEditorWrapper>
     );

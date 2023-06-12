@@ -19,6 +19,8 @@ import { dateFormat, timeFormat } from '../../constants';
 import dayjs from 'dayjs';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
+import ExtractForm from './LogsExtractForm';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
   queryParams: any;
@@ -26,9 +28,17 @@ type Props = {
   timelogs: ITimelog[];
   totalCount?: number;
 
+  departments: IDepartment[];
+  branches: IBranch[];
+
   isCurrentUserAdmin: boolean;
 
-  extractTimeLogsFromMsSQL: (startDate: Date, endDate: Date) => void;
+  extractTimeLogsFromMsSQL: (
+    startDate: Date,
+    endDate: Date,
+    params: any
+  ) => void;
+
   createTimeclockFromLog: (userId: string, timelog: Date) => void;
 
   showSideBar: (sideBar: boolean) => void;
@@ -40,7 +50,6 @@ function ReportList(props: Props) {
   const {
     totalCount,
     timelogs,
-    extractTimeLogsFromMsSQL,
     getPagination,
     showSideBar,
     getActionBar,
@@ -59,20 +68,6 @@ function ReportList(props: Props) {
     new Date(localStorage.getItem('endDate') || Date.now())
   );
 
-  const extractTimeLogs = (startDateRange, endDateRange) => {
-    extractTimeLogsFromMsSQL(startDateRange, endDateRange);
-  };
-
-  const onStartDateChange = dateVal => {
-    setStartDate(dateVal);
-    localStorage.setItem('startDate', startDate.toISOString());
-  };
-
-  const onEndDateChange = dateVal => {
-    setEndDate(dateVal);
-    localStorage.setItem('endDate', endDate.toISOString());
-  };
-
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
     setIsOpen(toggleIsOpen);
@@ -85,34 +80,7 @@ function ReportList(props: Props) {
     <></>
   );
 
-  const extractContent = () => (
-    <FlexColumn marginNum={10}>
-      <ControlLabel>Select Date Range</ControlLabel>
-      <CustomRangeContainer>
-        <DateControl
-          required={false}
-          value={startDate}
-          name="startDate"
-          placeholder={'Starting date'}
-          dateFormat={'YYYY-MM-DD'}
-          onChange={onStartDateChange}
-        />
-        <DateControl
-          required={false}
-          value={endDate}
-          name="endDate"
-          placeholder={'Ending date'}
-          dateFormat={'YYYY-MM-DD'}
-          onChange={onEndDateChange}
-        />
-      </CustomRangeContainer>
-      <FlexCenter>
-        <Button onClick={() => extractTimeLogs(startDate, endDate)}>
-          Extract all data
-        </Button>
-      </FlexCenter>
-    </FlexColumn>
-  );
+  const extractContent = () => <ExtractForm {...props} />;
 
   const actionBarLeft = (
     <FlexRowLeft>
