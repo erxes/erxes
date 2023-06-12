@@ -22,6 +22,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
     {
       variables: { _id },
       skip: !_id,
+      context: {
+        headers: {
+          "erxes-app-token": props.config?.erxesAppToken,
+        },
+      },
     }
   );
 
@@ -30,6 +35,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
     {
       variables: { typeId: _id, type },
       skip: !_id,
+      context: {
+        headers: {
+          "erxes-app-token": props.config?.erxesAppToken,
+        },
+      },
     }
   );
 
@@ -38,6 +48,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
       {
         query: gql(queries.clientPortalComments),
         variables: { typeId: _id, type },
+        context: {
+          headers: {
+            "erxes-app-token": props.config?.erxesAppToken,
+          },
+        },
       },
     ],
   });
@@ -49,6 +64,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
         {
           query: gql(queries.clientPortalComments),
           variables: { typeId: _id, type },
+          context: {
+            headers: {
+              "erxes-app-token": props.config?.erxesAppToken,
+            },
+          },
         },
       ],
     }
