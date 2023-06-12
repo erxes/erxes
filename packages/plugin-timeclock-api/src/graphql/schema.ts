@@ -69,7 +69,7 @@ export const types = `
   }
 
   
-  input ShiftsRequestInput {
+  input ShiftInput {
     _id: String
     scheduleConfigId: String
     overnightShift: Boolean
@@ -78,7 +78,7 @@ export const types = `
     shiftEnd: Date
   }
 
-  type ShiftsRequest{
+  type Shift{
     _id: String
     scheduleConfigId: String
     shiftStart: Date
@@ -91,7 +91,7 @@ export const types = `
   type Schedule {
     _id: String!
     user: User
-    shifts: [ShiftsRequest]
+    shifts: [Shift]
     solved: Boolean
     status: String
     scheduleConfigId: String
@@ -104,7 +104,7 @@ export const types = `
     _id: String!
     user: User
     solved: Boolean
-    shifts: [ShiftsRequest]
+    shifts: [Shift]
   }
 
   type IUserAbsenceInfo{ 
@@ -154,6 +154,9 @@ export const types = `
 
     absenceInfo: IUserAbsenceInfo
 
+    scheduledShifts: [Shift]
+    timeclocks: [Timeclock]
+    
     totalHoursWorkedSelectedDay: Float
     totalHoursScheduledSelectedDay: Float
     totalMinsLateSelectedDay: Float
@@ -362,16 +365,16 @@ export const mutations = `
 
   submitCheckInOutRequest(checkType: String,userId: String, checkTime: Date): AbsenceType
   
-  sendScheduleRequest(userId: String, shifts: [ShiftsRequestInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
-  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
-  checkDuplicateScheduleShifts(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], status: String): [DuplicateSchedule]
+  sendScheduleRequest(userId: String, shifts: [ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
+  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
+  checkDuplicateScheduleShifts(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], status: String): [DuplicateSchedule]
 
   solveAbsenceRequest(_id: String, status: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
-  solveShiftRequest(_id: String, status: String): ShiftsRequest
+  solveShiftRequest(_id: String, status: String): Shift
   
-  scheduleConfigAdd(scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
-  scheduleConfigEdit(_id : String ,scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
+  scheduleConfigAdd(scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
+  scheduleConfigEdit(_id : String ,scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
   scheduleConfigRemove(_id : String ): JSON
   
   payDateAdd(dateNums: [Int]): PayDate
@@ -395,5 +398,5 @@ export const mutations = `
   createTimeClockFromLog(userId: String, timelog: Date): Timeclock
 
   extractAllDataFromMsSQL(startDate: String, endDate: String, extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): [Timeclock]
-  extractTimeLogsFromMsSQL(startDate: String, endDate: String): [Timelog]
+  extractTimeLogsFromMsSQL(startDate: String, endDate: String,  extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): [Timelog]
 `;

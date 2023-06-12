@@ -156,17 +156,37 @@ const createTimelogs = async (
 
 const connectAndQueryTimeLogsFromMsSql = async (
   subdomain: string,
-  startDate: string,
-  endDate: string
+  params: any
 ) => {
   const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
   const sequelize = createMsSqlConnection();
   const models = await generateModels(subdomain);
 
+  const {
+    startDate,
+    endDate,
+    extractAll,
+    branchIds,
+    departmentIds,
+    userIds
+  } = params;
+
   let returnData;
+  let teamMembers;
 
   try {
-    const teamMembers = await findAllTeamMembersWithEmpId(subdomain);
+    if (extractAll) {
+      teamMembers = await findAllTeamMembersWithEmpId(subdomain);
+    } else {
+      const getUserIds = await returnUnionOfUserIds(
+        branchIds,
+        departmentIds,
+        userIds,
+        subdomain
+      );
+      teamMembers = await findTeamMembers(subdomain, getUserIds);
+    }
+
     const teamMembersObject = {};
     const teamEmployeeIds: string[] = [];
 
@@ -193,6 +213,7 @@ const connectAndQueryTimeLogsFromMsSql = async (
     );
   } catch (err) {
     console.error(err);
+    return err;
   }
 
   return returnData;
@@ -211,8 +232,8 @@ const connectAndQueryFromMsSql = async (
     userIds
   } = params;
 
-  const sequelize = createMsSqlConnection();
   const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
+  const sequelize = createMsSqlConnection();
 
   let teamMembers;
 

@@ -1,11 +1,12 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import Spinner from '../../components/Spinner';
-import { storeConstantToStore, withProps } from '../../utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import * as gq from '../graphql';
+
+import { storeConstantToStore, withProps } from '../../utils';
+
 import { CurrentUserQueryResponse } from '../types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   currentUserQuery: CurrentUserQueryResponse;
@@ -16,20 +17,10 @@ const withCurrentUser = Component => {
     const { currentUserQuery } = props;
 
     if (currentUserQuery.loading) {
-      return <Spinner />;
+      return null;
     }
 
     const currentUser = currentUserQuery.currentUser;
-
-    // useEffect( () => {
-    //   currentUserQuery.subscribeToMore({
-    //     document: gql(gq.userChanged),
-    //     variables: { userId: currentUser ? currentUser._id : null },
-    //     updateQuery: () => {
-    //       currentUserQuery.refetch();
-    //     }
-    //   });
-    // });
 
     const updatedProps = {
       ...props,
