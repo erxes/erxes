@@ -775,17 +775,19 @@ const findAndUpdateUnfinishedShifts = async (
           newEmpData[getShiftEndIdx].authDateTime
         ).toDate();
 
-        const getDeviceName =
+        const outDevice =
           devicesDictionary[newEmpData[getShiftEndIdx].deviceSerialNo] ||
           newEmpData[getShiftEndIdx].deviceName;
+
+        const outDeviceType = 'faceTerminal';
 
         const updateTimeClock = {
           shiftStart: unfinishedTimeclock.shiftStart,
           shiftEnd: getShiftEnd,
           userId: teamMemberId,
           shiftActive: false,
-          deviceName: getDeviceName,
-          deviceType: unfinishedTimeclock.deviceType + ' x faceTerminal'
+          outDevice,
+          outDeviceType
         };
 
         const updateTimeclockOperation = {

@@ -94,17 +94,16 @@ class Row extends React.Component<Props> {
         <td>
           {timeclock.inDeviceType || returnDeviceTypes(timeclock.deviceType)[0]}
         </td>
+        <td>{timeclock.inDevice || '-'}</td>
         <td>{shiftEndTime}</td>
+        <td>{overNightShift ? 'O' : '-'}</td>
         <td>
           {timeclock.shiftActive
             ? '-'
             : timeclock.outDeviceType ||
               returnDeviceTypes(timeclock.deviceType)[1]}
         </td>
-        <td>{overNightShift ? 'O' : ''}</td>
-        <td>
-          {timeclock.branchName ? timeclock.branchName : timeclock.deviceName}
-        </td>
+        <td>{timeclock.outDevice || '-'}</td>
         <td>
           <TextAlignCenter>
             <ModalTrigger

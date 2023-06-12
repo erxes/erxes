@@ -76,10 +76,14 @@ const ListContainer = (props: FinalProps) => {
       });
   };
 
-  const createTimeclockFromLog = (userId: string, timelog: Date) => {
+  const createTimeclockFromLog = (
+    userId: string,
+    timelog: Date,
+    inDevice?: string
+  ) => {
     confirm('Are you sure to create timeclock from the log?').then(() =>
       createTimeClockFromLogMutation({
-        variables: { userId, timelog }
+        variables: { userId, timelog, inDevice }
       })
         .then(() => Alert.success('Successfully created Timeclock'))
         .catch(e => {

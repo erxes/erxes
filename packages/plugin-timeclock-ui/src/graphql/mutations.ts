@@ -40,8 +40,8 @@ const userFields = `
 `;
 
 const timeclockEdit = `
-  mutation timeclockEdit($_id: String!, $shiftStart: Date, $shiftEnd: Date, $shiftActive: Boolean){
-    timeclockEdit(_id: $_id, shiftStart: $shiftStart, shiftEnd: $shiftEnd, shiftActive: $shiftActive){
+  mutation timeclockEdit($_id: String!, $shiftStart: Date, $shiftEnd: Date, $shiftActive: Boolean, $inDeviceType: String,$inDevice: String $outDeviceType: String,$outDevice: String ){
+    timeclockEdit(_id: $_id, shiftStart: $shiftStart, shiftEnd: $shiftEnd, shiftActive: $shiftActive, inDeviceType: $inDeviceType, inDevice: $inDevice, outDeviceType: $outDeviceType, outDevice: $outDevice){
       _id
     }
   }
@@ -256,8 +256,8 @@ mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String, $extract
 }`;
 
 const createTimeClockFromLog = `
-mutation createTimeClockFromLog($userId: String, $timelog: Date){
-  createTimeClockFromLog(userId: $userId, timelog: $timelog){
+mutation createTimeClockFromLog($userId: String, $timelog: Date, $inDevice: String){
+  createTimeClockFromLog(userId: $userId, timelog: $timelog, inDevice: $inDevice){
     _id
   }
 }`;

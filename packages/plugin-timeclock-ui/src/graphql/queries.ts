@@ -331,6 +331,7 @@ const timeLogsPerUser = `
     timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
       _id
       timelog
+      deviceName
       deviceSerialNo
     }
   }

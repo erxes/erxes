@@ -290,7 +290,7 @@ export type TimeLogMutationResponse = {
   }) => Promise<any>;
 
   createTimeClockFromLogMutation: (params: {
-    variables: { userId: string; timelog: Date };
+    variables: { userId: string; timelog: Date; inDevice?: string };
   }) => Promise<any>;
 };
 
