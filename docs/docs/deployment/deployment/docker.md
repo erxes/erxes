@@ -16,9 +16,9 @@ Docker is an open platform that allows to develop, ship and run applications by 
 You must have an account with your hosting provider prior to doing these steps.
 
 - Choose a server size that corresponds with the **minimum** requirements for installing with **Quickstart**:
-  - **Ubuntu 22.10** installed and running
+  - **Ubuntu 22.10 x64** installed and running
   - **4 CPU**
-  - **minimum 6GB RAM**
+  - **minimum 8GB RAM**
   - ability to to SSH into the server
   - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app. The DNS needs to be pointed to your server. (See below)
 
@@ -54,7 +54,7 @@ If your domain name is **erxes.example.com**, and the **IP address** assigned to
 **Note:** You do not need to create a subdomain called "erxes.example.com", you can use another name of your choice such as "admin.example.com".
 :::
 
-## Log into server as root and create erxes user
+### Log into server as root and create erxes user
 
 Open the terminal or command prompt on your computer. You will need your **IP address**. (In this example, **44.123.32.12**). Type `yes`, when asked if you want to continue connecting.
 
@@ -80,7 +80,7 @@ Grant the **erxes** user adminstrative rights.
 ```bash
 usermod -aG sudo erxes
 ```
-## Allow the "erxes" user to **SSH** into server
+### Allow the "erxes" user to **SSH** into server
 
 open the `sshd_config` file to edit
 
@@ -114,7 +114,7 @@ You have created a new user called, **erxes** and you set-up a basic firewall to
 
 Please continue with the following steps to log in to your server as the **erxes** user.
 
-## Log in to your server as the "erxes" user.
+### Log in to your server as the "erxes" user.
 
 Before you can log into your new server, we need to **add the SSH key** to your **local** computer.
 
@@ -136,147 +136,148 @@ Now you can log into your server as the **erxes** user.
 ssh erxes@your-ip-address
 ```
 
-### Installing prerequisites
+## Installing prerequisites
 
-1. Create `install.sh` file and copy the following script in it.
-
-```
-#!/bin/bash
-echo -e "\e[1mStep 1 $now : Updating \e[0m"
-sudo apt-get update -y
-# nginx install
-echo -e "\e[1mStep 1 $now : Installing Nginx \e[0m"
-sudo apt install nginx -y
-# docker install
-sudo apt update -y
-echo -e "\e[1mStep 1 $now : Installing docker \e[0m"
-sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-apt-cache policy docker-ce
-sudo apt install docker-ce -y
-
-echo -e "\e[1mStep 1 $now : Installing certbot \e[0m"
-sudo apt install certbot python3-certbot-nginx -y
-
-#docker-compose install
-echo -e "\e[1mStep 1 $now : Installing docker compose \e[0m"
-sudo apt-get update -y
-sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-
-sudo usermod -aG docker erxes
-sudo chmod +x /usr/local/bin/docker-compose
-
-echo -e "\e[1mStep 1 $now : Installing nodejs \e[0m"
-#new directory
-sudo apt-get install nodejs -y
-echo -e "\e[1mStep 1 $now : Installing npm \e[0m"
-sudo apt install npm -y
-sudo npm install -g create-erxes-app -y
-```
-
-2. Run the following command to give a permission to `install.sh` file.
+1. Create `install.sh` file using text editors such as nano or vim. Then copy the following script into it. Following content will install nginx, certbot, docker, docker-compose and nodejs into your server.
 
 ```
-sudo chmod +x install.sh
+        #!/bin/bash
+            now=$(date +'%H:%M:%S')
+            echo -e "\e[1mStep 1 $now : updating \e[0m"
+        sudo apt-get update -y
+        # nginx install
+            now=$(date +'%H:%M:%S')
+            echo -e "\e[1mStep 2 $now : installing Nginx\e[0m"
+        sudo apt install nginx -y
+        # docker install
+        sudo apt update -y
+            now=$(date +'%H:%M:%S')
+            echo -e "\e[1mStep 3 $now : installing docker  \e[0m"
+        sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+        apt-cache policy docker-ce
+        sudo apt install docker-ce -y
+            now=$(date +'%H:%M:%S')
+            echo -e "\e[1mStep 4 $now : installing certbot installing\e[0m"
+        sudo apt install certbot python3-certbot-nginx -y
+            now=$(date +'%H:%M:%S')
+            echo -e "\e[1mStep 5 $now : installing docker compose  installing\e[0m"
+        sudo apt-get update -y
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+            now=$(date +'%H:%M:%S')
+            echo -e "\e[1mStep 6 $now : installing nodejs installing\e[0m"
+        curl -sL https://deb.nodesource.com/setup_14.x -o setup_14.sh
+        sudo sh ./setup_14.sh
+        sudo apt-get install nodejs -y
+            now=$(date +'%H:%M:%S')
+            echo -e "\e[1mStep 7 $now : installing awscli installing\e[0m"
+        sudo apt-get install awscli -y
+            now=$(date +'%H:%M:%S')
+            echo -e "\e[1mStep 8 $now : installing npm\e[0m"
+        sudo apt install npm -y
+            now=$(date +'%H:%M:%S')
+            echo -e "\e[1mStep 9 $now : Please enter erxes domain name i.e(https://example.com)\e[0m"
+        sudo npm install -g create-erxes-app -y
 ```
 
-3. Run `install.sh` file using the following command.
+2. Before execute script the use below command to make `install.sh` file executable.
 
-```
-./install.sh
-```
+    ```
+    sudo chmod +x install.sh
+    ```
 
-4 After installing relogin using erxes user.
+3. Execute `install.sh` file simply type `./install.sh` like below.
 
-```
-exit
-```
+    ```
+    ./install.sh
+    ```
 
-```bash
-ssh erxes@your-ip-address
-```
+4. After above steps logout and relogin to your server using `erxes` user. In order to logout from server give following command
 
-4. Creating erxes project. Type the domain to the field says "Please enter your domain (localhost)".
+    ```
+    exit
+    ```
+    **Note** (you might want to enter command few times if you logged in as root user before.)
 
-```
-create-erxes-app erxes
-```
+    There are many ways to connect to your server but in this example we will use `ssh` to log back in use below command.
+    ```
+    ssh erxes@your-ipv4-address
+    ```
+## Starting erxes project
 
-```
-Example: https://erxes-test.com
-```
+1. Below command will trigger erxes installation process.
+    ```
+    create-erxes-app erxes
+    ```
+    After the execution it will ask your erxes domain name
 
-```
-cd erxes
-```
+    **Note** Please use full domain or subdomain names including socket like below
 
-5. Choose deployment method
+    ```
+    https://example.com
+    ```
+2. After above command there will be `erxes` directory includes mentioned files in it `docker-compose.yml, configs.json, package.json, nginx config`. In order to change to `erxes` directory use below command.
+    ```
+    cd /home/erxes/erxes
+    ```
+    In there we need to change erxes package version in `/home/erxes/erxes/package.json` file to <a href="https://www.npmjs.com/package/erxes/v/latest">latest</a> version.
 
-If you want to use docker swarm (default preferred method) run
+3. Now you need to initiate docker swarm mode in order to do that use following command.
 
-```
-docker swarm init
-```
+    **Note** In erxes directory we have docker-compose.yml file even with that we do not use `docker-compose up, docker-compose down, docker-compose restart` commands further.
 
-```
-docker network create --driver=overlay --attachable erxes
-```
+    ```
+    docker swarm init
+    ```
 
-Or if you want to use docker-compose create ```.env``` file with following content
+    ```
+    docker network create --driver=overlay --attachable erxes
+    ```
 
-```
-DEPLOYMENT_METHOD=docker-compose
-```
+4. Before start application services we need to start `databases`. Following command will start database services.
+    ```
+    npm run erxes deploy-dbs
+    ```
 
-6. Start databases
+5. To check database services up use following command it will shows you all running docker services id, name and state etc.
 
-```
-npm run erxes deploy-dbs
-```
+    ```
+    docker ps -a | grep mongo
+    ```
+    wait until all services state become up.
 
-7. Check and initiate mongodb
+6. Now we need to make our mongo have replica set. First we need to enter mongo container then enter mongo instance then execute command following 3 commands will do.
 
-```
-docker ps -a | grep mongo
-```
+    ```
+    docker exec -it <mongo container name> bash
+    ```
 
-```
-docker exec -it <mongo container name> bash
-```
+    ```
+    mongo -u erxes -p <auto generated password in configs.json>
+    ```
 
-```
-mongo -u erxes -p <auto generated password in configs.json>
-```
+    ```
+    rs.initiate();
+    ```
+    **Note** you may want to hit `return or enter` button few times if we done correctly mongo shell will changes into `"RS0: primary"`
 
-```
-rs.initiate();
-```
+    To quit mongo instance and container `run exit command` twice.
 
-Many times, it becomes "RS0: primary".
-These commands are given as a replica set, and when done correctly, the mongo shell changes to "RS0: primary".
+7. Now we need to create `locales` directory in our working directory `/home/erxes/erxes` to do that use following command.
 
-Quit from mongo
-```
-exit
-```
+    ```
+    mkdir locales
+    ```
 
-```
-exit
-```
+8. Start application services like erxes core uis and gateway services we run following command.
 
-8. Start application containers
+    ```
+    npm run erxes up -- --uis
+    ```
+    **Note** After this step ui will be downloaded from AWS:s3 so make sure your server can communicate AWS instances without problem.
 
-```
-npm run erxes up -- --uis
-```
-
-With docker-compose mode
-
-```
-npm run erxes restart gateway
-```
 
 :::note
 
@@ -285,117 +286,359 @@ Containers are generated one by one, so wait until they finish reading. Meanwhil
 ```
 docker ps -a
 ```
+To check docker services use
+```
+docker service ls
+```
+all erxes services needs to be up state
 
-Wait until gateway container status becomes healthy
+Wait until `gateway` container status becomes healthy also gateway container needs to be start at last.
 :::
 
-9. nginx.conf move to /etc/nginx/sites-enabled/
+9. Now we need to setup our web server first we need to configure our nginx.service for erxes to do that we need to move `nginx.conf` generated by `create-app-erxes erxes` locates in `/home/erxes/erxes` to `/etc/nginx/sites-enabled/`. To do that use following command.
 
-```
-sudo mv nginx.conf /etc/nginx/sites-enabled/erxes.conf
-```
+    ```
+    sudo mv nginx.conf /etc/nginx/sites-enabled/erxes.conf
+    ```
 
-10. Test nginx config.
+10. After that we need to test nginx config. To do that use following command.
 
-```
-sudo nginx -t
-```
+    ```
+    sudo nginx -t
+    ```
 
-11. Restart your Nginx.
+    If something goes wrong you can replace `/etc/nginx/sites-enabled/nginx.conf` to following content
 
-```
-sudo service nginx restart
-```
+    ```
+        server {
+            server_name example.com;
+            index index.html;
+            client_max_body_size 50M;
+            client_header_buffer_size 32k;
 
-12. Configure your Free Ssl.
+            location / {
+                    access_log /var/log/nginx/erxes-front.access.log;
+                    error_log /var/log/nginx/erxes-front.error.log;
+                    proxy_pass http://127.0.0.1:3000;
+                    proxy_http_version 1.1;
+                    proxy_redirect off;
+                    proxy_set_header Host $http_host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-Host $host;
+                    proxy_set_header X-Forwarded-Server $host;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+            }
 
-```
-sudo certbot --nginx
-```
+            location /widgets/ {
+                    access_log /var/log/nginx/erxes-widgets.access.log;
+                    error_log /var/log/nginx/erxes-widgets.error.log;
+                    proxy_pass http://127.0.0.1:3200/;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_set_header Host $http_host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_http_version 1.1;
+            }
 
-13. Insert your registered email address.
-14. Please choose redirect option.
+            location /gateway/ {
+                    access_log /var/log/nginx/erxes-api.access.log;
+                    error_log /var/log/nginx/erxes-api.error.log;
+                    proxy_pass http://127.0.0.1:3300/;
+                    proxy_http_version 1.1;
+                    proxy_buffering off;
+                    proxy_redirect off;
+                    proxy_set_header Host $http_host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-Server $host;
+                    proxy_set_header X-Forwarded-Host $host;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection "Upgrade";
+            }
 
-Try typing your domain on your browser to see if it's working.
+            location /mobile-app/ {
+                    access_log /var/log/nginx/erxes-mobile-app.access.log;
+                    error_log /var/log/nginx/erxes-mobile-app.error.log;
+                    proxy_pass http://127.0.0.1:4100/;
+                    proxy_http_version 1.1;
+                    proxy_buffering off;
+                    proxy_redirect off;
+                    proxy_set_header Host $http_host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-Server $host;
+                    proxy_set_header X-Forwarded-Host $host;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection "Upgrade";
+            }
 
-### Adding new plugins
-Update plugins section of the configs.json file
+            location /integrations/ {
+                    access_log /var/log/nginx/erxes-integrations.access.log;
+                    error_log /var/log/nginx/erxes-integrations.error.log;
+                    proxy_pass http://127.0.0.1:3400/;
+                    proxy_http_version 1.1;
+                    proxy_redirect off;
+                    proxy_set_header Host $http_host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-Host $host;
+                    proxy_set_header X-Forwarded-Server $host;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+            }
+            location /dashboard/front {
+                    access_log /var/log/nginx/erxes-integrations.access.log;
+                    error_log /var/log/nginx/erxes-integrations.error.log;
+                    proxy_pass http://127.0.0.1:4200;
+                    proxy_http_version 1.1;
+                    proxy_redirect off;
+                    proxy_set_header Host $http_host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-Host $host;
+                    proxy_set_header X-Forwarded-Server $host;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+            }
 
-```
-"plugins": [
-        {
-            "name": "engages"
-        },
-        {
-            "name": "webbuilder"
-        },
-        {
-            "name": "segments"
-        },
-        {
-            "name": "emailtemplates"
-        },
-        {
-            "name": "inbox"
-        },
-        {
-            "name": "cards"
-        },
-        {
-            "name": "knowledgebase"
+            location /dashboard/api/ {
+                    access_log /var/log/nginx/erxes-integrations.access.log;
+                    error_log /var/log/nginx/erxes-integrations.error.log;
+                    proxy_pass http://127.0.0.1:4300/;
+                    proxy_http_version 1.1;
+                    proxy_redirect off;
+                    proxy_set_header Host $http_host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-Host $host;
+                    proxy_set_header X-Forwarded-Server $host;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+            }
         }
-    ]
+    ```
+
+11. If nginx test shows successful message we need to restart Nginx. To do that use following command.
+
+    ```
+    sudo service nginx restart
+    ```
+
+12. Erxes only works in secure connection to generate free ssl certificate we use `Certbot`. To configure that use following command.
+
+    **Note** you have to point domain A record to your erxes installing machine in order to get certificate without that certbot will not generate certificate.
+
+    ```
+    sudo certbot --nginx
+    ```
+    After this command it will ask your email and subscription accept that then will ask again about `redirect` option. We highly recommend always redirect option for security reasons.
+
+    After that open browser and enjoy our product.
+
+
+## Adding new plugins to erxes
+Adding new plugins to erxes is easy task all you need to is add plugin name under `"plugins:"[{}]` in `/home/erxes/erxes/configs.json` file then run `npm run erxes up -- --uis` command. But for some plugins like dashboard does require some `extra` service we will discuss that in another section.
+Below we have `ideal` configs.json file content that includes every `nessacery configuration lines` for `all plugins`. Please read following contents carefully some lines need some `replacement`.
+
+    ```
+    {
+        "jwt_token_secret": "will be generated in configs.json",
+        "db_server_address": "ipv4 of your machine",
+        "image_tag": "dev",
+        "domain": "https://example.com",
+        "widgets": {
+            "domain": "https://example.com/widgets"
+        },
+        "elasticsearch": {},
+        "essyncer": {},
+        "redis": {
+            "password": "will be generated in configs.json"
+        },
+
+        "mongo": {
+            "username": "erxes",
+            "password": "will be generated in configs.json",
+        },
+        "rabbitmq": {
+            "cookie": "",
+            "user": "erxes",
+            "pass": "will be generated in configs.json",
+            "vhost": ""
+        },
+
+        "plugins": [
+            {
+                "name": "inbox",
+                "extra_env": {
+                    "INTEGRATIONS_MONGO_URL": "will be generated in docker-compose-dbs.yml",
+                    "FB_MONGO_URL": "will be generated in docker-compose-dbs.yml"
+                }
+            },
+            {
+                "name": "cards"
+            },
+            {
+                "name": "contacts"
+            },
+            {
+                "name": "internalnotes"
+            },
+            {
+                "name": "notifications"
+            },
+            {
+                "name": "automations",
+                "db_name": "erxes_automations"
+            },
+            {
+                "name": "products"
+            },
+            {
+                "name": "forms"
+            },
+            {
+                "name": "inventories"
+            },
+            {
+                "name": "segments"
+            },
+            {
+                "name": "tags"
+            },
+            {
+                "name": "engages"
+            },
+            {
+                "name": "logs",
+                "db_name": "erxes_logger"
+            },
+            {
+                "name": "clientportal",
+                "extra_env": {
+                    "JWT_TOKEN_SECRET": ""
+                        }
+            },
+            {
+                "name": "webbuilder"
+            },
+            {
+                "name": "knowledgebase"
+            },
+            {
+                "name": "emailtemplates"
+            },
+            {
+                "name": "integrations",
+                "db_name": "erxes_integrations",
+                "extra_env": {
+                    "ENDPOINT_URL": "https://enterprise.erxes.io"
+                }
+            },
+            {
+                "name": "dashboard"
+            },
+            {
+                "name": "documents"
+            },
+            {
+                "name": "filemanager"
+            },
+            {
+                "name": "facebook",
+                "extra_env": {
+                    "ENDPOINT_URL": "https://enterprise.erxes.io",
+                    "MONGO_URL": "will be generated in docker-compose-dbs.yml"
+                }
+            }
+        ]
+    }
+    ```
+### Adding dashboard plugin
+
+As we mentioned earlier dashboard plugin requires some extra step to install. First we need to generate `certificate for mongobi` to do that use following commands.
+
 ```
+    openssl rand -base64 756 > mongo-key
+    sudo chmod 400 mongo-key && sudo chown 999:999 mongo-key
+    openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem --batch
+    cat key.pem certificate.pem > mongo.pem
+```
+It will generate mongobi certificate.
+After we need to add `mongobi` to configs.json file locates in `/home/erxes/erxes/configs.json` like below.
+
+```
+    "mongo": {
+        "username": "erxes",
+        "password": "will be generated in configs.json",
+    },
+    "mongobi:{},
+```
+At last run `npm run erxes up -- --uis`.
+
+**Note** Everytime we change configs.json we do `npm run erxes up -- --uis` command to apply change.
+
+
 ### Running elasticsearch
 
-```
-cd erxes
-```
+If your server is bigger than our required size you can use erxes with elasticsearch. To do that following steps need to be taken.
 
-Add following lines to configs.json
+1. Go into /home/erxes/erxes
+    ```
+    cd /home/erxes/erxes
+    ```
 
-```
-"essyncer": {},
-"elasticsearch" : {},
-```
+2. Add following lines to configs.json positions does not matter.
 
-Run
+    ```
+    "essyncer": {},
+    "elasticsearch" : {},
+    ```
+3. Then run deploy dbs again with following command.
 
-```
-mkdir elasticsearchData && sudo chown -R 1000:1000 elasticsearchData
-```
+    ```
+    npm run erxes deploy-dbs
+    ```
 
-```
-npm run erxes deploy-dbs
-```
+    ```
+    npm run erxes up -- --uis
+    ```
 
-```
-npm run erxes up
-```
+### Removing erxes
 
-### Overriding default ports
+1. First this is sad but every server need to be tidy following few commands will remove docker stack and dangling containers of swarm.
 
-Update the .env file with following values
+    ```
+    docker stack ls
+    ```
+    will show you stack informations. To leave that use following command.
 
-```
-GATEWAY_PORT=3300
-UI_PORT=3000
-MONGO_PORT=27017
-REDIS_PORT=6379
-RABBITMQ_PORT=5672
-```
+    ```
+    docker stack rm erxes
+    ```
 
-### Removing containers
+2. To remove all dangling containers use following commands.
 
-With docker swarm
+    List and remove all dangling images.
 
-```
-docker stack ls
-docker stack rm erxes
-```
+    ```
+    docker images -f dangling=true
+    docker rmi $(docker images -q -f dangling=true)
+    ```
+    List and remove all dangling containers.
 
-With docker-compose
+    ```
+    docker ps -a -f status=exited
+    docker rm $(docker ps -a -q -f status=exited)
+    ```
 
-```
-docker-compose -f docker-compose.yml down
-```
+    List and remove all dangling volumes
+
+    **Note** volumes might have data in it so do it with your responsibility
+    ```
+    docker volume ls -f dangling=true
+    docker volume rm $(docker volume ls -q -f dangling=true)
+    ```
+## Joining erxes community
+If you have any trouble with installation please create issues in our <a href="https://github.com/erxes/erxes">github</a> or seek help from our community in <a href="https://discord.gg/rPf9FYaA3F">discord</a>
