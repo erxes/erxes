@@ -10,9 +10,8 @@ const ConversationWrapper = styled.div`
 
 const RenderConversationWrapper = styled.div`
   padding: 20px;
-  overflow: auto;
+  overflow: hidden;
   min-height: 100%;
-  height: 100%;
   > div:first-child {
     margin-top: 0;
   }

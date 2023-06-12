@@ -216,6 +216,7 @@ export default class WorkArea extends React.Component<Props, State> {
       this.isMailConversation(kind) ||
       kind === 'lead' ||
       kind === 'booking' ||
+      kind === 'imap' ||
       kind === 'webhook';
 
     const typingIndicator = typingInfo ? (
@@ -233,31 +234,6 @@ export default class WorkArea extends React.Component<Props, State> {
       />
     );
 
-    if (content && kind === 'imap') {
-      return (
-        <>
-          <ActionBar currentConversation={currentConversation} />
-
-          <ContentBox>
-            <RenderConversationWrapper innerRef={this.node}>
-              {content}
-              {isEnabled('internalnotes') && this.renderConversation()}
-            </RenderConversationWrapper>
-          </ContentBox>
-          {isEnabled('internalnotes') && (
-            <RespondBox
-              showInternal={true}
-              conversation={currentConversation}
-              setAttachmentPreview={this.setAttachmentPreview}
-              addMessage={addMessage}
-              refetchMessages={refetchMessages}
-              refetchDetail={refetchDetail}
-            />
-          )}
-        </>
-      );
-    }
-
     return (
       <>
         <ActionBar currentConversation={currentConversation} />
@@ -269,7 +245,10 @@ export default class WorkArea extends React.Component<Props, State> {
             onScroll={this.onScroll}
           >
             <RenderConversationWrapper>
-              {this.renderConversation()}
+              {kind === 'imap' && content}
+              {kind === 'imap'
+                ? isEnabled('internalnotes') && this.renderConversation()
+                : this.renderConversation()}
             </RenderConversationWrapper>
           </ConversationWrapper>
         </ContentBox>
@@ -277,7 +256,9 @@ export default class WorkArea extends React.Component<Props, State> {
         {currentConversation._id && (
           <ContenFooter>
             {typingIndicator}
-            {respondBox}
+            {kind === 'imap'
+              ? isEnabled('internalnotes') && respondBox
+              : respondBox}
           </ContenFooter>
         )}
       </>
