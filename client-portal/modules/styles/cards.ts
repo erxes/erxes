@@ -34,6 +34,10 @@ const CommentContainer = styled.div`
 
 const Description = styled.div`
   font-size: 14px;
+
+  > p {
+    font-size: 14px;
+  }
 `;
 
 const Table = styled.table`
@@ -59,19 +63,14 @@ const Table = styled.table`
 
 const ListHead = styled.div`
   display: flex;
-  background-color: ${colors.bgLight};
-  padding: ${dimensions.unitSpacing + 5}px ${dimensions.coreSpacing}px;
-  border: 1px solid ${colors.borderPrimary};
   margin-bottom: ${dimensions.unitSpacing}px;
-  border-radius: 5px;
 
   > div {
     display: inline-block;
     font-weight: 600;
     flex: 0 0 12%;
-    color: ${colors.colorCoreGray};
     text-transform: uppercase;
-    font-size: 12px;
+    font-size: 11px;
     padding: 0 ${dimensions.unitSpacing - 5}px;
 
     &:first-child {
@@ -81,15 +80,10 @@ const ListHead = styled.div`
   }
 `;
 
-const ListBody = styled.div``;
-
 const ListRow = styled.div`
   display: flex;
-  background: ${colors.colorWhite};
-  margin-bottom: ${dimensions.unitSpacing}px;
-  padding: ${dimensions.unitSpacing + 5}px ${dimensions.coreSpacing}px;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 5px;
+  padding: ${dimensions.unitSpacing + 2}px 0;
+  border-bottom: 1px solid ${colors.borderPrimary};
   cursor: pointer;
   transition: all ease 0.3s;
 
@@ -112,6 +106,10 @@ const ListRow = styled.div`
 
   &:hover {
     background: #f5f5f5;
+  }
+
+  &:last-child {
+    border: 0;
   }
 `;
 
@@ -146,7 +144,7 @@ const DetailRow = styledTS<{ type?: string }>(styled.div)`
     font-weight: 500;
     text-transform: capitalize;
     font-size: 13px;
-    margin: 0;
+    margin: ${props => props.type === "row" ? 0 : '0 0 8px 0'};
     width: ${props => props.type === "row" && '120px'};
   }
   
@@ -296,11 +294,16 @@ const GroupList = styled.div`
 
   .card-header {
     font-size: 14px;
+
+    span {
+      color: #888;
+      margin-left: ${dimensions.unitSpacing - 5}px;
+    }
   }
 `;
 
 const GroupWrapper = styled.div`
-  padding: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
 `;
 
 const CardTab = styledTS<{baseColor?: string}>(styled.div)`
@@ -361,7 +364,6 @@ export {
   DetailHeader,
   FilterGroup,
   ListHead,
-  ListBody,
   ListRow,
   Description,
   TicketComment,

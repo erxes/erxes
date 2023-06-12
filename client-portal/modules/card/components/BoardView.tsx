@@ -49,15 +49,21 @@ function BoardView({
   return (
     <>
       <TabContainers>
-        {stages.map((stage) => (
-          <TabTitle
-            key={stage._id}
-            active={stageId === stage._id}
-            color={getConfigColor(config, "baseColor")}
-          >
-            <Link href={`/${type}s?stageId=${stage._id}`}>{stage.name}</Link>
-          </TabTitle>
-        ))}
+        {stages.map((stage) => {
+          if (stage.itemsTotalCount === 0) {
+            return null;
+          }
+
+          return (
+            <TabTitle
+              key={stage._id}
+              active={stageId === stage._id}
+              color={getConfigColor(config, "baseColor")}
+            >
+              <Link href={`/${type}s?stageId=${stage._id}`}>{stage.name}</Link>
+            </TabTitle>
+          );
+        })}
       </TabContainers>
 
       <Group

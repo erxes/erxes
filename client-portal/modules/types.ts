@@ -231,6 +231,7 @@ export interface IUser {
   type: string;
   companyName: string;
   username?: string;
+  erxesCustomerId?: string;
   notificationSettings?: INotifcationSettings;
 }
 
