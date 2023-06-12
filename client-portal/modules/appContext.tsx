@@ -44,7 +44,6 @@ function AppProvider({ children }: Props) {
     if (userData && userData.clientPortalCurrentUser) {
       setCurrentUser(userData.clientPortalCurrentUser);
     }
-
     if (
       notificationsCountQry.data &&
       notificationsCountQry.data.clientPortalNotificationCount

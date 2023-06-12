@@ -99,7 +99,7 @@ const SupportMenus = styledTS<{ color?: string, baseColor?: string }>(styled.div
   }
 
   .dropdown-menu {
-    width: 210px;
+    min-width: 210px;
     right: -50px;
     left: auto !important;
     top: 35px !important;
@@ -539,7 +539,7 @@ const NotificationList = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;
-  max-height: 450px;
+  max-height: 400px;
   overflow: auto;
 
   li {

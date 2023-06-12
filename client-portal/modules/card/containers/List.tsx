@@ -21,7 +21,8 @@ function ListContainer({ currentUser, type, config, ...props }: Props) {
       fetchPolicy: "network-only",
       variables: {
         pipelineId: config[`${type}PipelineId` || ""],
-        customerIds: [`${currentUser.erxesCustomerId || ""}`],
+        customerIds: currentUser &&
+          currentUser.erxesCustomerId && [`${currentUser.erxesCustomerId}`],
       },
       context: {
         headers: {
