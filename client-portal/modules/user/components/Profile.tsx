@@ -5,7 +5,6 @@ import { IFormProps } from "../../common/types";
 import { IUser } from "../../types";
 import { ModalFooter } from "../../common/form/styles";
 import React from "react";
-import { useRouter } from "next/router";
 
 type Props = {
   currentUser: IUser;
@@ -99,7 +98,7 @@ function Profile({ currentUser, renderButton }: Props) {
                   {...formProps}
                   name="companyName"
                   type="number"
-                  defaultValue={object.phone}
+                  defaultValue={object.companyName}
                 />
               </div>
             )}

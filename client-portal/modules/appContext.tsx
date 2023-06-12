@@ -27,7 +27,11 @@ function AppProvider({ children }: Props) {
   const [currentUser, setCurrentUser] = React.useState(null);
   const [notificationsCount, setNotificationsCount] = React.useState(0);
 
-  const userQuery = useQuery<UserQueryResponse>(gql(queries.currentUser));
+  const { data: userData, loading: userLoading } = useQuery<UserQueryResponse>(
+    gql(queries.currentUser)
+  );
+
+  const response: any = useQuery(gql(clientPortalGetConfig), {});
 
   const notificationsCountQry = useQuery<NotificationsCountQueryResponse>(
     gql(queries.notificationsCountQuery),
@@ -37,8 +41,8 @@ function AppProvider({ children }: Props) {
   );
 
   useEffect(() => {
-    if (userQuery.data && userQuery.data.clientPortalCurrentUser) {
-      setCurrentUser(userQuery.data.clientPortalCurrentUser);
+    if (userData && userData.clientPortalCurrentUser) {
+      setCurrentUser(userData.clientPortalCurrentUser);
     }
 
     if (
@@ -87,14 +91,12 @@ function AppProvider({ children }: Props) {
       unsubscribe2();
     };
   }, [
-    userQuery,
+    userData,
     currentUser,
     notificationsCountQry,
     notificationsCount,
     setNotificationsCount,
   ]);
-
-  const response: any = useQuery(gql(clientPortalGetConfig), {});
 
   const config: Config = response.data
     ? response.data.clientPortalGetConfigByDomain
@@ -107,12 +109,16 @@ function AppProvider({ children }: Props) {
     skip: !config.knowledgeBaseTopicId,
   });
 
+  if (userLoading || response.loading || topicResponse.loading) {
+    return null;
+  }
+
   const topic =
     (topicResponse.data
       ? topicResponse.data.clientPortalKnowledgeBaseTopicDetail
       : {}) || {};
 
-  if (userQuery.loading || response.loading) {
+  if (response.loading) {
     return null;
   }
 

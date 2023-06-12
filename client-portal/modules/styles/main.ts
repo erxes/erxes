@@ -100,8 +100,10 @@ const SupportMenus = styledTS<{ color?: string, baseColor?: string }>(styled.div
 
   .dropdown-menu {
     width: 210px;
-    right: 0px;
+    right: -50px;
     left: auto !important;
+    top: 35px !important;
+    transform: none !important;
   }
 
   > button {
@@ -537,6 +539,8 @@ const NotificationList = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;
+  max-height: 450px;
+  overflow: auto;
 
   li {
     padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;

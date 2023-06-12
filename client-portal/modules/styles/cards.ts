@@ -308,7 +308,7 @@ const CardTab = styledTS<{baseColor?: string}>(styled.div)`
   font-size: 13px;
   background: #f4f4f4;
   border: 1px solid ${colors.borderPrimary};
-  border-radius: ${dimensions.unitSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 2}px;
   color: ${colors.colorCoreGray};
   overflow: hidden;
 
@@ -345,6 +345,13 @@ const FlexRow = styled.div`
   }
 `;
 
+const FilterGroup = styled.div`
+  label {
+    font-size: 14px;
+    margin: 0 5px 0 0;
+  }
+`;
+
 export {
   TicketRow,
   TicketLabel,
@@ -352,6 +359,7 @@ export {
   Table,
   Label,
   DetailHeader,
+  FilterGroup,
   ListHead,
   ListBody,
   ListRow,
