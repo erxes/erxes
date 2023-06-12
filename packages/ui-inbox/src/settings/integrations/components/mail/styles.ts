@@ -92,6 +92,8 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
 
 const EditorFooter = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  display: flex;
+  gap: 15px;
 `;
 
 const Attachments = styled.div`
