@@ -24,6 +24,10 @@ const Header = styledTS<{
     font-size: 1.75rem;
     font-weight: ${typography.fontWeightRegular};
     margin: 30px 0;
+
+    @media (max-width: 700px) {
+      margin: 0 0 ${dimensions.coreSpacing}px 0;
+    }
   }
 
   .modal-content {
@@ -55,6 +59,16 @@ const HeaderTop = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${dimensions.unitSpacing}px;
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    > div {
+      flex: 1;
+      margin-bottom: ${dimensions.coreSpacing}px;
+    }
+   }
 `;
 
 const HeaderLogo = styled.div`
@@ -79,6 +93,11 @@ const HeaderTitle = styledTS<{ color?: string }>(styled.span)`
 
 const HeaderRight = styled.div`
   display: flex;
+
+  @media (max-width: 700px) {
+    width: 100%;
+    justify-content: center;
+  }
 `;
 
 const HeaderLeft = styled.div`
@@ -147,6 +166,10 @@ const WebLink = styled.a`
 
 const HeaderLinks = styled.div`
   text-align: right;
+
+  @media (max-width: 700px) {
+    text-align: left;
+  }
 `;
 
 const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
@@ -183,6 +206,10 @@ const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
 
   &:hover {
     opacity: 1;
+  }
+
+  @media (max-width: 700px) {
+    margin: 0 0 ${dimensions.unitSpacing}px 5px;
   }
 `;
 
@@ -240,6 +267,7 @@ const BottomComponent = styledTS<{ transparent?: boolean; }>(
 
   @media (max-width: 800px) {
     width: 90%;
+    margin: 0 auto;
   }
 `;
 
@@ -414,7 +442,15 @@ const ModalWrapper = styledTS<{ isFull?: boolean }>(styled.div)`
       max-width: ${(props) => (props.isFull ? '900px' : '600px')};
       border-radius: 2px;
       margin: 100px auto;
+
+      @media (max-width: 700px) {
+        width: 90%;
+      }
     }
+
+    @media (max-width: 700px) {
+      overflow-x: hidden;
+     }
   }
 `;
 
@@ -434,6 +470,7 @@ const ModalClose = styled.div`
 
 const HeaderWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
@@ -442,6 +479,16 @@ const HeaderWrapper = styled.div`
     text-transform: uppercase;
     font-size: 18px;
     margin: 0;
+  }
+
+  @media (max-width: 700px) {
+   > div {
+    margin-top: 20px;
+
+    .dropdown {
+      flex: 1;
+    }
+   }
   }
 `;
 

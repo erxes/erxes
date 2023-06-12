@@ -77,6 +77,10 @@ const ListHead = styled.div`
       flex: 0 0 30%;
       text-align: left;
     }
+
+    @media (max-width: 700px) {
+      min-width: 60px;
+    }
   }
 `;
 
@@ -101,6 +105,10 @@ const ListRow = styled.div`
       text-align: left;
       font-weight: 600;
       text-transform: capitalize;
+    }
+
+    @media (max-width: 700px) {
+      min-width: 60px;
     }
   }
 
@@ -304,6 +312,10 @@ const GroupList = styled.div`
 
 const GroupWrapper = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+
+  @media (max-width: 700px) {
+    overflow: auto;
+  }
 `;
 
 const CardTab = styledTS<{baseColor?: string}>(styled.div)`
@@ -353,6 +365,11 @@ const FilterGroup = styled.div`
     font-size: 14px;
     margin: 0 5px 0 0;
   }
+
+  @media (max-width: 700px) {
+    justify-content: space-between;
+    margin-bottom: ${dimensions.unitSpacing}px;
+   }
 `;
 
 export {

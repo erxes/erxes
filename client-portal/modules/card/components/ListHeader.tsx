@@ -106,7 +106,7 @@ export default class ListHeader extends React.Component<Props> {
       <>
         <HeaderWrapper>
           <h4>{this.props.headerLabel}</h4>
-          <div className="d-flex">
+          <div className="d-flex flex-wrap">
             {this.renderFilters()}
 
             <Button
