@@ -20,6 +20,7 @@ import { router } from 'coreui/utils';
 import dayjs from 'dayjs';
 import Sidebar from './SideBar';
 import Tags from '@erxes/ui/src/components/Tags';
+import EmailTemplateRow from './EmailTemplateRow';
 
 type Props = {
   queryParams: any;
@@ -84,42 +85,7 @@ class EmailTemplateList extends React.Component<Props> {
 
   renderRow = () => {
     return this.props.objects.map((object, index) => {
-      const { name, content, createdAt, modifiedAt, createdUser, tags } =
-        object || {};
-
-      return (
-        <Template key={index} isLongName={name.length > 46}>
-          <FormControl componentClass="checkbox" />
-          <h5>{name}</h5>
-          <Tags tags={tags || []} limit={3} />
-          <TemplateBox>
-            <Actions>
-              {this.renderEditAction(object)}
-              <div onClick={this.removeTemplate.bind(this, object)}>
-                <Icon icon="cancel-1" /> Delete
-              </div>
-              {this.renderDuplicateAction(object)}
-            </Actions>
-            <IframePreview>
-              <iframe title="content-iframe" srcDoc={content} />
-            </IframePreview>
-          </TemplateBox>
-          <TemplateInfo>
-            <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
-            <p>{this.renderDate(createdAt, modifiedAt)}</p>
-          </TemplateInfo>
-          <TemplateInfo>
-            <p>Created by</p>
-            {createdUser ? (
-              createdUser.details.fullName && (
-                <p>{createdUser.details.fullName}</p>
-              )
-            ) : (
-              <p>erxes Inc</p>
-            )}
-          </TemplateInfo>
-        </Template>
-      );
+      return <EmailTemplateRow index={index} object={object} />;
     });
   };
 

@@ -13,6 +13,7 @@ import {
   ICommonListProps
 } from '@erxes/ui-settings/src/common/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import Bulk from '@erxes/ui/src/components/Bulk';
 
 export type EmailTemplatesTotalCountQueryResponse = {
   emailTemplatesTotalCount: number;
@@ -55,7 +56,23 @@ class EmailListContainer extends React.Component<Props> {
   };
 
   render() {
-    return <List {...this.props} duplicate={this.duplicate} />;
+    const content = props => {
+      return (
+        <List
+          // {...updatedProps}
+          {...this.props}
+          {...props}
+          {...generatePaginationParams(this.props.queryParams)}
+        />
+      );
+    };
+
+    return (
+      <Bulk
+        content={content}
+        // refetch={this.props.customersMainQuery.refetch}
+      />
+    );
   }
 }
 
