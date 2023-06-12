@@ -1,16 +1,16 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
-const RiskAssessmentPlanQueries = {
+const RiskAssessmentPlansQueries = {
   async riskAssessmentPlans(_root, args, { models }: IContext) {
-    return paginate(models.Plan.find(), args);
+    return paginate(models.Plans.find(), args);
   },
   async riskAssessmentPlansTotalCount(_root, args, { models }: IContext) {
-    return await models.Plan.find({}).count();
+    return await models.Plans.find({}).count();
   },
   async riskAssessmentPlan(_root, { _id }, { models }: IContext) {
-    return await models.Plan.findOne({ _id });
+    return await models.Plans.findOne({ _id });
   }
 };
 
-export default RiskAssessmentPlanQueries;
+export default RiskAssessmentPlansQueries;

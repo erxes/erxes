@@ -21,9 +21,34 @@ query RiskAssessmentPlansTotalCount(${commonParamsDef}) {
 }
 `;
 
+const scheduleTypes = `
+      _id
+      customFieldsData
+      assignedUserIds
+      date
+      groupId
+      indicatorId
+      name
+`;
+
+const planTypes = `
+    _id
+    name
+    structureType
+    structureTypeIds
+    configs
+    createdAt
+    modifiedAt
+`;
+
 const plan = `
 query RiskAssessmentPlan($_id: String) {
-  riskAssessmentPlan(_id: $_id)
+  riskAssessmentPlan(_id: $_id) {
+    ${planTypes},
+    schedules {
+      ${scheduleTypes}
+    }
+  }
 }
 `;
 

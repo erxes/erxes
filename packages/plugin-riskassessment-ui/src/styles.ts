@@ -433,15 +433,23 @@ export const TableRow = styled.tr`
 
 export const PlanCard = styled.div`
   flex: 1;
+  display: flex;
+  justify-content: space-between;
   min-width: 400px;
   box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
   border-radius: 15px;
-  justify-content: center;
   place-items: center;
   cursor: pointer;
   padding: 15px 25px;
   &.active {
     animation: ${highlight} 0.9s ease;
     box-shadow: 0 0 5px 0 #63d2d6;
+  }
+`;
+
+export const PlanContainer = styled.div`
+  height: 100%;
+  > form {
+    height: 100%;
   }
 `;

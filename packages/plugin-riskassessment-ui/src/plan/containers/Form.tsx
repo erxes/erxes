@@ -1,12 +1,22 @@
-import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import {
+  Alert,
+  ButtonMutate,
+  EmptyState,
+  Spinner,
+  confirm
+} from '@erxes/ui/src';
+import {
+  IButtonMutateProps,
+  IRouterProps,
+  QueryResponse
+} from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
-import { queries } from '../graphql';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { EmptyState, Spinner } from '@erxes/ui/src';
+import React from 'react';
 import FormComponent from '../components/Form';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   _id?: string;
@@ -15,7 +25,11 @@ type Props = {
 
 type FinalProps = {
   planQueryResponse: { riskAssessmentPlan: any } & QueryResponse;
-};
+  removeScheduleMutationResponse: any;
+  addScheduleMutationResponse: any;
+  updateScheduleMutationResponse: any;
+} & IRouterProps &
+  Props;
 
 class Form extends React.Component<FinalProps> {
   constructor(props) {
@@ -23,29 +37,109 @@ class Form extends React.Component<FinalProps> {
   }
 
   render() {
-    const { planQueryResponse } = this.props;
+    const {
+      planQueryResponse,
+      removeScheduleMutationResponse,
+      closeModal,
+      history
+    } = this.props;
 
     if (planQueryResponse?.loading) {
       return <Spinner />;
     }
 
-    const renderButton = () => {};
+    if (planQueryResponse?.error) {
+      return (
+        <EmptyState
+          text="Something went wrong"
+          image="/images/actions/24.svg"
+        />
+      );
+    }
+
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      confirmationUpdate,
+      object
+    }: IButtonMutateProps) => {
+      const afterMutate = data => {
+        callback && callback();
+        if (!object && data?.addRiskAssessmentPlan) {
+          const newData = data?.addRiskAssessmentPlan;
+          history.push(`/settings/risk-assessment-plans/edit/${newData._id}`);
+        }
+      };
+
+      let mutation = mutations.addPlan;
+      let successAction = 'added';
+      if (object) {
+        mutation = mutations.updatePlan;
+        successAction = 'updated';
+      }
+      return (
+        <ButtonMutate
+          mutation={mutation}
+          variables={values}
+          callback={afterMutate}
+          isSubmitted={isSubmitted}
+          refetchQueries={object ? refetchQueries(object._id) : []}
+          type="submit"
+          confirmationUpdate={confirmationUpdate}
+          successMessage={`You successfully ${successAction} a ${name}`}
+        />
+      );
+    };
+
+    const removeSchedule = id => {
+      confirm().then(() => {
+        removeScheduleMutationResponse({ variables: { id } })
+          .then(() => {
+            Alert.success('Removed schedule successfully');
+          })
+          .catch(err => {
+            Alert.error(err.message);
+          });
+      });
+    };
 
     const updatedProps = {
-      detail: planQueryResponse?.riskAssessmentPlan
+      ...this.props,
+      detail: planQueryResponse?.riskAssessmentPlan,
+      renderButton,
+      closeModal,
+      removeSchedule
     };
 
     return <FormComponent {...updatedProps} />;
   }
 }
 
+export const refetchQueries = _id => [
+  {
+    query: gql(queries.plan),
+    variables: { _id }
+  }
+];
+
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.plan), {
-      name: 'planQueryResponse',
-      skip: ({ _id }) => !_id,
+    graphql<Props, { riskAssessmentPlan: any } & QueryResponse>(
+      gql(queries.plan),
+      {
+        name: 'planQueryResponse',
+        skip: ({ _id }) => !_id,
+        options: ({ _id }) => ({
+          variables: { _id }
+        })
+      }
+    ),
+    graphql<Props>(gql(mutations.removeSchedule), {
+      name: 'removeScheduleMutationResponse',
       options: ({ _id }) => ({
-        variables: { _id }
+        refetchQueries: refetchQueries(_id)
       })
     })
   )(Form)

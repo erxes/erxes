@@ -1,24 +1,28 @@
-import { gql, useQuery } from '@apollo/client';
-import GenerateAddFormFields from '@erxes/ui-cards/src/boards/components/portable/GenerateAddFormFields';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { gql } from '@apollo/client';
 import {
+  Alert,
   Button,
   ControlLabel,
   DateControl,
   FormControl,
   FormGroup,
   SelectTeamMembers,
-  Spinner,
   Toggle,
   __
 } from '@erxes/ui/src';
+import client from '@erxes/ui/src/apolloClient';
 import { DateContainer, ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { SelectIndicatorGroups, SelectIndicators } from '../../common/utils';
 import { FormContainer } from '../../styles';
+import { CardCustomFields } from '../common/utils';
+import { refetchQueries } from '../containers/Form';
+import { mutations } from '../graphql';
 
 type Props = {
-  plan: any;
+  history: any;
+  schedule: any;
+  planId?: string;
   cardType: string;
   pipelineId: string;
   closeModal: () => void;
@@ -29,42 +33,18 @@ type State = {
   doc: any;
   useGroup: boolean;
 };
-
-function AddCardForm({ type, pipelineId, onChange, customFieldsData, object }) {
-  const { data, loading } = useQuery(gql(formQueries.fields), {
-    variables: {
-      contentType: `cards:${type}`,
-      isVisibleToCreate: true,
-      pipelineId
-    }
-  });
-
-  if (loading) {
-    return <Spinner />;
-  }
-  return (
-    <GenerateAddFormFields
-      object={object}
-      pipelineId={pipelineId}
-      onChangeField={(name, value) => onChange(value, name)}
-      fields={data?.fields}
-      customFieldsData={customFieldsData}
-    />
-  );
-}
-
-class PlanForm extends React.Component<Props, State> {
+class ScheduleForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      doc: props?.plan || {},
+      doc: props?.schedule || {},
       useGroup: props?.doc?.groupId || false
     };
   }
 
   render() {
-    const { onSave, closeModal, cardType, pipelineId } = this.props;
+    const { schedule, planId, closeModal, cardType, pipelineId } = this.props;
     const { useGroup, doc } = this.state;
 
     const handleChange = (value, name) => {
@@ -77,9 +57,28 @@ class PlanForm extends React.Component<Props, State> {
       handleChange(value, name);
     };
 
+    const onDateChange = date => {
+      if (date < new Date()) {
+        return Alert.error('You must select a date after the from today');
+      }
+      handleChange(date, 'date');
+    };
+
     const handleSave = () => {
-      onSave(doc);
-      closeModal();
+      const mutation =
+        typeof schedule._id === 'string'
+          ? mutations.updateSchedule
+          : mutations.addSchedule;
+
+      client
+        .mutate({
+          mutation: gql(mutation),
+          variables: { planId, ...doc },
+          refetchQueries: refetchQueries(planId)
+        })
+        .then(() => {
+          closeModal();
+        });
     };
 
     return (
@@ -113,8 +112,9 @@ class PlanForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__('Assign To')}</ControlLabel>
           <SelectTeamMembers
+            initialValue={doc.assignedUserIds}
             label="Assign To"
-            name="assignUserIds"
+            name="assignedUserIds"
             onSelect={handleChange}
           />
         </FormGroup>
@@ -125,7 +125,7 @@ class PlanForm extends React.Component<Props, State> {
               name="date"
               value={doc.date}
               placeholder="select from date "
-              onChange={e => handleChange(e, 'date')}
+              onChange={onDateChange}
             />
           </DateContainer>
         </FormGroup>
@@ -139,10 +139,10 @@ class PlanForm extends React.Component<Props, State> {
             onChange={onChange}
           />
         </FormGroup>
-        <AddCardForm
+        <CardCustomFields
           type={cardType}
           pipelineId={pipelineId}
-          onChange={handleChange}
+          onChangeField={(name, value) => handleChange(value, name)}
           object={doc}
           customFieldsData={doc.customFieldsData || []}
         />
@@ -160,4 +160,4 @@ class PlanForm extends React.Component<Props, State> {
   }
 }
 
-export default PlanForm;
+export default ScheduleForm;

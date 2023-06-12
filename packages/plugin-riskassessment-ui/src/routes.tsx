@@ -86,7 +86,7 @@ const planForm = props => {
   return (
     <PlanForm
       {...props}
-      _id={props?.match?.id}
+      _id={props?.match?.params?.id}
       queryParams={queryString.parse(props.location.search)}
     />
   );

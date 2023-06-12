@@ -1,29 +1,44 @@
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import { Indicator } from '@erxes/ui-cards/src/boards/styles/stage';
 import {
   Button,
+  Form as CommonForm,
   ControlLabel,
   EmptyState,
   FormControl,
   FormGroup,
+  Icon,
   ModalTrigger,
   Step,
   Steps,
-  __
+  __,
+  colors
 } from '@erxes/ui/src';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
+import {
+  ControlWrapper,
+  StepWrapper
+} from '@erxes/ui/src/components/step/styles';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import {
+  IButtonMutateProps,
+  IFormProps,
+  IRouterProps
+} from '@erxes/ui/src/types';
 import moment from 'moment';
 import React from 'react';
 import Select from 'react-select-plus';
 import { SelectOperations } from '../../common/utils';
-import { FormContainer, PlanCard, RemoveRow } from '../../styles';
+import { FormContainer, PlanCard, PlanContainer } from '../../styles';
 import { CARDTYPES, STRUCTURETYPES } from '../common/constants';
-import PlanForm from './PlanForm';
+import ScheduleForm from './PlanForm';
 
 type Props = {
   detail: any;
-};
+  renderButton: (variables: IButtonMutateProps) => JSX.Element;
+  closeModal: () => void;
+  removeSchedule: (_id: string) => void;
+} & IRouterProps;
 
 type State = {
   plan: { param: any[] } & any;
@@ -37,7 +52,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      plan: props?.detail || {},
+      plan: { ...props?.detail } || {},
       useGroup: false
     };
 
@@ -55,9 +70,13 @@ class Form extends React.Component<Props, State> {
     this.setState({ plan });
   };
 
+  generateDoc() {
+    return this.state.plan;
+  }
+
   renderSelectStructure() {
     const {
-      plan: { structureType }
+      plan: { structureType, structureTypeIds }
     } = this.state;
 
     const content = () => {
@@ -67,6 +86,7 @@ class Form extends React.Component<Props, State> {
             <SelectBranches
               label="Select Branch"
               name="structureTypeIds"
+              initialValue={structureTypeIds}
               onSelect={this.onChange}
             />
           );
@@ -75,6 +95,7 @@ class Form extends React.Component<Props, State> {
             <SelectDepartments
               label="Select Department"
               name="structureTypeIds"
+              initialValue={structureTypeIds}
               onSelect={this.onChange}
             />
           );
@@ -83,6 +104,7 @@ class Form extends React.Component<Props, State> {
             <SelectOperations
               label="Select Operation"
               name="structureTypeIds"
+              initialValue={structureTypeIds}
               onSelect={this.onChange}
               multi
             />
@@ -101,54 +123,78 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderPlanConfig(param) {
+  renderScheduleConfig(schedule) {
     const {
-      plan: { config = {}, params = [], cardType }
+      plan: { configs = {}, schedules = [] }
     } = this.state;
 
     const handleChange = doc => {
-      const updatedParams = params.map(item =>
-        item._id === param._id ? { ...item, ...doc } : item
+      const updatedParams = schedules.map(item =>
+        item._id === schedule._id ? { ...item, ...doc } : item
       );
 
-      this.onChange(updatedParams, 'params');
+      this.onChange(updatedParams, 'schedules');
     };
 
-    const handleRemomve = () => {
-      const updatedParams = params.filter(item => item._id !== param._id);
-      this.onChange(updatedParams, 'params');
+    const handleRemomve = e => {
+      e.stopPropagation();
+      this.props.removeSchedule(schedule._id);
     };
 
     const content = ({ closeModal }) => {
       const updatedProps = {
+        history: this.props.history,
+        planId: this.props.detail._id,
         closeModal,
-        cardType,
-        pipelineId: config.pipelineId,
-        plan: param,
+        cardType: configs.cardType,
+        pipelineId: configs.pipelineId,
+        schedule: schedule,
         onSave: handleChange
       };
 
-      return <PlanForm {...updatedProps} />;
+      return <ScheduleForm {...updatedProps} />;
     };
 
     const trigger = (
-      <PlanCard>
-        <div>
-          <h4>{param.name}</h4>
-          {param?.date ? moment(param?.date).format('lll HH:mm') : '-'}
+      <PlanCard key={schedule._id}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <Icon
+            icon={schedule.status === 'Done' ? 'check-1' : 'loading'}
+            size={24}
+            color={
+              schedule.status === 'Done'
+                ? colors.colorCoreGreen
+                : colors.colorCoreBlue
+            }
+          />
+          <div>
+            <h4>{schedule.name}</h4>
+            {schedule?.date ? moment(schedule?.date).format('lll HH:mm') : '-'}
+          </div>
         </div>
-        <RemoveRow color="red" onClick={handleRemomve} />
+        <Button
+          btnStyle="link"
+          style={{ color: 'red' }}
+          onClick={handleRemomve}
+        >
+          <Icon icon="times-circle" />
+        </Button>
       </PlanCard>
     );
 
     return (
-      <ModalTrigger title={`Edit Plan`} content={content} trigger={trigger} />
+      <ModalTrigger
+        key={schedule._id}
+        title={`Edit Plan`}
+        content={content}
+        trigger={trigger}
+      />
     );
   }
 
-  renderGeneralConfig() {
+  renderGeneralConfig(formProps: IFormProps) {
     const { plan } = this.state;
-    const { config } = plan;
+    const { configs } = plan;
 
     const handleChange = (e: React.FormEvent<HTMLElement>) => {
       const { value, name } = e.currentTarget as HTMLInputElement;
@@ -158,7 +204,7 @@ class Form extends React.Component<Props, State> {
 
     const handleConfigChange = (value, name) => {
       this.setState({
-        plan: { ...plan, config: { ...config, [name]: value } }
+        plan: { ...plan, configs: { ...configs, [name]: value } }
       });
     };
 
@@ -168,7 +214,7 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required>{__('Name')}</ControlLabel>
           <FormControl
             name="name"
-            required
+            defaultValue={plan?.name}
             placeholder="Type a name"
             onChange={handleChange}
           />
@@ -193,18 +239,23 @@ class Form extends React.Component<Props, State> {
               <Select
                 name="type"
                 placeholder={__('Select card type')}
-                value={plan?.cardType}
+                value={configs?.cardType}
                 options={CARDTYPES}
                 multi={false}
-                onChange={props => this.onChange(props?.value, 'cardType')}
+                onChange={props =>
+                  this.onChange(
+                    { ...configs, cardType: props?.value },
+                    'configs'
+                  )
+                }
               />
             </FormGroup>
-            {plan?.cardType && (
+            {configs?.cardType && (
               <BoardSelectContainer
-                type={plan?.cardType}
-                boardId={config?.boardId}
-                pipelineId={config?.pipelineId}
-                stageId={config?.stageId}
+                type={configs?.cardType}
+                boardId={configs?.boardId}
+                pipelineId={configs?.pipelineId}
+                stageId={configs?.stageId}
                 onChangeBoard={value => handleConfigChange(value, 'boardId')}
                 onChangePipeline={value =>
                   handleConfigChange(value, 'pipelineId')
@@ -219,11 +270,11 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderPlansContent() {
+  renderSchedulesContent() {
     const { plan } = this.state;
-    const { params = [] } = plan;
+    const { schedules = [] } = plan;
 
-    if (!params?.length) {
+    if (!schedules?.length) {
       return (
         <EmptyState
           text="Please select general configuration before set plan"
@@ -235,62 +286,114 @@ class Form extends React.Component<Props, State> {
 
     return (
       <FormContainer row gap padding="25px">
-        {params.map(param => this.renderPlanConfig(param))}
+        {schedules.map(schedule => this.renderScheduleConfig(schedule))}
       </FormContainer>
     );
   }
 
   renderAddPlanForm() {
     const { plan } = this.state;
-    const { params = [], config, cardType } = plan;
+    const { schedules = [], configs } = plan;
 
-    if (!config?.pipelineId) {
+    if (!configs?.pipelineId) {
       return null;
     }
     const trigger = <Button>{__('Add')}</Button>;
 
     const content = ({ closeModal }) => {
       const updatedProps = {
+        history: this.props.history,
+        planId: this.props?.detail?._id,
         closeModal,
-        cardType,
-        pipelineId: config.pipelineId,
-        plan: { _id: Math.random() },
+        cardType: configs?.cardType,
+        pipelineId: configs.pipelineId,
+        schedule: { _id: Math.random() },
         onSave: doc =>
-          this.setState({ plan: { ...plan, params: [...params, doc] } })
+          this.setState({ plan: { ...plan, schedules: [...schedules, doc] } })
       };
 
-      return <PlanForm {...updatedProps} />;
+      return <ScheduleForm {...updatedProps} />;
     };
 
     return (
-      <ModalTrigger title="Add Plan" content={content} trigger={trigger} />
+      <ModalTrigger title="Add Schedule" content={content} trigger={trigger} />
     );
   }
 
-  renderContent() {
+  renderContent(formProps: IFormProps) {
+    const { renderButton, detail } = this.props;
     const { plan } = this.state;
-    const { config } = plan;
+    const { configs } = plan;
+
+    const saveSteps = stepNumber => {
+      const fieldName = detail ? detail._id : 'create';
+      const steps = JSON.parse(
+        localStorage.getItem('risk_assessment_plans_active_step') || '{}'
+      );
+
+      const updateSteps = { ...steps, [fieldName]: stepNumber };
+
+      localStorage.setItem(
+        'risk_assessment_plans_active_step',
+        JSON.stringify(updateSteps)
+      );
+    };
+
+    const activeStep = (): number => {
+      const steps = JSON.parse(
+        localStorage.getItem('risk_assessment_plans_active_step') || '{}'
+      );
+
+      const fieldName = detail ? detail._id : 'create';
+
+      console.log('ds');
+
+      return steps[fieldName] || 0;
+    };
 
     return (
-      <Steps>
-        <Step title="General" img="/images/icons/erxes-24.svg">
-          {this.renderGeneralConfig()}
-        </Step>
+      <StepWrapper>
+        <Steps active={activeStep()}>
+          <Step
+            title="General"
+            img="/images/icons/erxes-24.svg"
+            noButton
+            onClick={saveSteps}
+          >
+            {this.renderGeneralConfig(formProps)}
+          </Step>
 
-        <Step
-          title="Plan"
-          img="/images/icons/erxes-21.svg"
-          noButton={!config?.pipelineId}
-          additionalButton={this.renderAddPlanForm()}
-        >
-          {this.renderPlansContent()}
-        </Step>
-      </Steps>
+          <Step
+            title="Schedules"
+            img="/images/icons/erxes-21.svg"
+            noButton={!configs?.pipelineId}
+            additionalButton={this.renderAddPlanForm()}
+            onClick={saveSteps}
+          >
+            {this.renderSchedulesContent()}
+          </Step>
+        </Steps>
+        <ControlWrapper>
+          <Indicator>
+            {__('You are')} {(detail ? 'editing' : 'creating') + ' plan'}
+          </Indicator>
+          {renderButton({
+            ...formProps,
+            text: 'Plan',
+            values: this.generateDoc(),
+            object: detail
+          })}
+        </ControlWrapper>
+      </StepWrapper>
     );
   }
 
   render() {
-    return <StepWrapper>{this.renderContent()}</StepWrapper>;
+    return (
+      <PlanContainer>
+        <CommonForm renderContent={this.renderContent} />
+      </PlanContainer>
+    );
   }
 }
 

@@ -7,23 +7,25 @@ export const validatePlan = async ({
   models: IModels;
   doc: any;
 }) => {
-  if (doc.structureType || doc.structureTypeId) {
+  if (!doc.structureType || !doc?.structureTypeIds?.length) {
     throw new Error('Please specify a structure type');
   }
-  if (doc.indicatorId && doc.groupId) {
-    throw new Error('Please specify a indicator or group');
-  }
 
-  if (doc.params) {
+  if (!doc.configs) {
     throw new Error('No parameters specified for the plan');
+  }
+  const requiredConfigs = ['cardType', 'boardId', 'pipelineId', 'stageId'];
+
+  if (!requiredConfigs.every(item => doc.configs.hasOwnProperty(item))) {
+    throw new Error('Please fill in the required configuration for the plan');
   }
 
   if (
-    await models.Plan.findOne({
+    await models.Plans.findOne({
       structureType: doc.structureType,
-      structureTypeId: doc.structureTypeId
+      structureTypeIds: { $in: doc.structureTypeIds }
     })
   ) {
-    throw new Error('plan already exists');
+    throw new Error('plan already exists with this configuration');
   }
 };

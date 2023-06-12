@@ -1,12 +1,12 @@
-import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import { EmptyState, Spinner } from '@erxes/ui/src';
+import { QueryResponse } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
-import { queries } from '../graphql';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { EmptyState, Spinner } from '@erxes/ui/src';
+import React from 'react';
 import ListComponent from '../components/List';
+import { queries } from '../graphql';
 
 type Props = {
   history: any;
@@ -26,7 +26,7 @@ class List extends React.Component<FinalProps> {
   }
 
   render() {
-    const { plansQueryResponse } = this.props;
+    const { plansQueryResponse, queryParams } = this.props;
 
     if (plansQueryResponse.loading) {
       return <Spinner />;
@@ -37,6 +37,7 @@ class List extends React.Component<FinalProps> {
     }
 
     const updatedProps = {
+      queryParams,
       list: plansQueryResponse?.riskAssessmentPlans || [],
       totalCount: plansQueryResponse.riskAssessmentPlansTotalCount || 0
     };

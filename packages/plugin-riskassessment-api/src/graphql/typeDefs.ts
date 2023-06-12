@@ -16,15 +16,15 @@ import {
   types as OpearionTypes
 } from './schema/operations';
 import {
+  mutations as PlanMutations,
+  queries as PlanQueries,
+  types as PlanTypes
+} from './schema/plans';
+import {
   mutations as RiskAsessmentMutations,
   queries as RiskAsessmentQueries,
   types as RiskAsessmentTypes
 } from './schema/riskAssessment';
-import {
-  mutations as PlanMutations,
-  queries as PlanQueries,
-  types as PlanTypes
-} from './schema/plan';
 
 const typeDefs = async _serviceDiscovery => {
   const tagsAvailable = await _serviceDiscovery.isEnabled('tags');
