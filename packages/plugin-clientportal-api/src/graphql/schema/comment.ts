@@ -1,4 +1,9 @@
 export const types = `
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type ClientPortalComment @key(fields: "_id") {
     _id: String!
     type: String,
@@ -8,7 +13,7 @@ export const types = `
     userType: String,
     content: String
 
-    createdUser: JSON
+    createdUser: User
     createdAt: Date
   }
 `;
