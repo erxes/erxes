@@ -44,7 +44,7 @@ const WidgetContainer = () => {
     <>
       <NotifButton>
         <Tip text={__('New Email')} placement="bottom">
-          <Icon icon="send" size={15} onClick={() => showWidget()} />
+          <Icon icon="envelope-alt" size={20} onClick={() => showWidget()} />
         </Tip>
       </NotifButton>
       <WidgetWrapper show={isWidgetShow === 'true' ? true : false}>
@@ -55,12 +55,7 @@ const WidgetContainer = () => {
             <Icon size={10} icon="cancel" onClick={() => onClose()} />
           </div>
         </NewEmailHeader>
-        <MailForm
-          shrink={shrink}
-          changeShrink={changeShrink}
-          clear={clear}
-          clearOnSubmit={true}
-        />
+        <MailForm shrink={shrink} clear={clear} clearOnSubmit={true} />
       </WidgetWrapper>
     </>
   );
