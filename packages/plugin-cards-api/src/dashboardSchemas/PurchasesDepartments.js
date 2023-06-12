@@ -1,7 +1,7 @@
 const { tableSchema } = require('../tablePrefix');
 
-cube(`TicketsAssigneduser`, {
-  sql: `SELECT * FROM ${tableSchema()}.\`tickets_assignedUserIds\``,
+cube(`PurchasesDepartments`, {
+  sql: `SELECT * FROM ${tableSchema()}.\`purchases_departmentIds\``,
 
   preAggregations: {
     // Pre-Aggregations definitions go here
@@ -9,8 +9,8 @@ cube(`TicketsAssigneduser`, {
   },
 
   joins: {
-    Users: {
-      sql: `CONCAT(${CUBE}.assignedUserIds)= ${Users}._id`,
+    Departments: {
+      sql: `CONCAT(${CUBE}.departmentIds)= ${Departments}._id`,
       relationship: `belongsTo`
     }
   },
@@ -24,15 +24,10 @@ cube(`TicketsAssigneduser`, {
       primaryKey: true
     },
 
-    assigneduserids: {
-      sql: `
-        CASE
-          WHEN ${Users}.\`details.fullName\` IS NULL OR ${Users}.\`details.fullName\` = '' THEN ${Users}.\`username\`
-          ELSE ${Users}.\`details.fullName\`
-        END
-      `,
+    departmentIds: {
+      sql: `${Departments}.\`title\``,
       type: `string`,
-      title: 'Name'
+      title: 'Title'
     }
   },
 

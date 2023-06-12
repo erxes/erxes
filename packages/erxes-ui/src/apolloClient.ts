@@ -74,7 +74,7 @@ const link = split(
 // Creating Apollo-client
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  queryDeduplication: false,
+  queryDeduplication: true,
   link
 });
 

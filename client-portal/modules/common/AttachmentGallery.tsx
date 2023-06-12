@@ -1,17 +1,24 @@
-import { confirm } from "../utils";
 import React, { useState } from "react";
-import styled from "styled-components";
-import { rgba } from "../styles/ecolor";
-import colors from "../styles/colors";
-import { IAttachment } from "./types";
+import styled, { css } from "styled-components";
+
 import Attachment from "./Attachment";
+import { IAttachment } from "./types";
+import colors from "../styles/colors";
+import { confirm } from "../utils";
+import { rgba } from "../styles/ecolor";
+import styledTS from "styled-components-ts";
 
 const List = styled.div`
   margin: 10px 0;
 `;
 
-const Item = styled.div`
+const Item = styledTS<{ hasBackground?: boolean }>(styled.div)`
+  font-size: 12px;
   margin-bottom: 10px;
+
+  h5 {
+    font-size: 15px;
+  }
 `;
 
 const Delete = styled.span`
@@ -35,9 +42,10 @@ const ToggleButton = styled(Delete.withComponent("div"))`
 
 type Props = {
   attachments: IAttachment[];
-  onChange: (attachments: IAttachment[]) => void;
-  removeAttachment: (index: number) => void;
+  onChange?: (attachments: IAttachment[]) => void;
+  removeAttachment?: (index: number) => void;
   limit?: number;
+  hasBackground?: boolean;
 };
 
 function AttachmentsGallery(props: Props) {
@@ -56,15 +64,12 @@ function AttachmentsGallery(props: Props) {
       confirm().then(() => removeAttachment(index));
     };
 
-    const remove = <Delete onClick={onRemove}>Delete</Delete>;
-
     return (
-      <Item key={item.url}>
+      <Item key={item.url} hasBackground={props.hasBackground}>
         <Attachment
           attachment={item}
           attachments={props.attachments}
           index={index}
-          additionalItem={remove}
         />
       </Item>
     );

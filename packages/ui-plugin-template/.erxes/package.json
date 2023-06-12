@@ -5,7 +5,7 @@
     "watch-plugin-src": "node ./scripts/watch-plugin-src.js",
     "build": "webpack --mode production && node scripts/fix-build.js",
     "build:dev": "webpack --mode development",
-    "start": "yarn watch-plugin-src & webpack serve --open --mode development",
+    "start": "yarn watch-plugin-src & webpack serve --mode development",
     "start:live": "webpack serve --open --mode development --live-reload --hot"
   },
   "license": "MIT",
@@ -40,6 +40,7 @@
     "@apollo/client": "~3.7.14",
     "@types/styled-components": "^3.0.0",
     "dayjs": "1.8.15",
+    "graphql": "^15.8.0",
     "lodash.flowright": "3.5.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "query-string": "^5.0.0",

@@ -1,7 +1,7 @@
 const { tableSchema } = require('../tablePrefix');
 
-cube(`TicketsAssigneduser`, {
-  sql: `SELECT * FROM ${tableSchema()}.\`tickets_assignedUserIds\``,
+cube(`PurchasesAssigneduser`, {
+  sql: `SELECT * FROM ${tableSchema()}.\`purchases_assignedUserIds\``,
 
   preAggregations: {
     // Pre-Aggregations definitions go here
@@ -25,12 +25,7 @@ cube(`TicketsAssigneduser`, {
     },
 
     assigneduserids: {
-      sql: `
-        CASE
-          WHEN ${Users}.\`details.fullName\` IS NULL OR ${Users}.\`details.fullName\` = '' THEN ${Users}.\`username\`
-          ELSE ${Users}.\`details.fullName\`
-        END
-      `,
+      sql: `${Users}.\`username\``,
       type: `string`,
       title: 'Name'
     }
