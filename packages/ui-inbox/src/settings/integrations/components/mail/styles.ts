@@ -92,6 +92,8 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
 
 const EditorFooter = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  display: flex;
+  gap: 15px;
 `;
 
 const Attachments = styled.div`
@@ -257,7 +259,12 @@ const NewEmailHeader = styledTS<{ shrink: boolean }>(styled.h5)`
   width: ${props => (props.shrink ? '260px' : '600px')};
 
   i {
-    margin-left: ${dimensions.unitSpacing}px;
+    margin-left: 5px;
+    padding: 5px;
+
+    &:hover {
+      background: ${colors.bgGray};
+    }
   }
 `;
 

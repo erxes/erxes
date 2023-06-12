@@ -1,6 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
 import { Button, ControlLabel, Spinner } from '@erxes/ui/src/components';
 import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -38,6 +39,10 @@ const ticketQuery = gql`
 `;
 
 const Item = ({ invoice }) => {
+  if (!isEnabled('payment')) {
+    return null;
+  }
+
   if (
     !['cards:deal', 'cards:task', 'cards:ticket'].includes(invoice.contentType)
   ) {
