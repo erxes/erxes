@@ -104,18 +104,13 @@ export default withProps<Props>(
 
     graphql<Props, TimeClockQueryResponse>(gql(mutations.timeclockEdit), {
       name: 'timeclockEditMutation',
-      options: ({ timeclockId, shiftStart, shiftEnd, shiftActive }) => ({
-        variables: { _id: timeclockId, shiftStart, shiftEnd, shiftActive },
+      options: () => ({
         refetchQueries: ['timeclocksMain']
       })
     }),
 
     graphql<Props, TimeClockQueryResponse>(gql(mutations.timeclockCreate), {
-      name: 'timeclockCreateMutation',
-      options: ({ userId, shiftStart, shiftEnd, shiftActive }) => ({
-        variables: { userId, shiftStart, shiftEnd, shiftActive },
-        refetchQueries: ['timeclocksMain']
-      })
+      name: 'timeclockCreateMutation'
     }),
 
     graphql<Props, AbsenceMutationResponse>(

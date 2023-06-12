@@ -69,8 +69,8 @@ const timeclockStop = `
 `;
 
 const timeclockCreate = `
-    mutation timeclockCreate($userId: String, $shiftStart: Date, $shiftEnd: Date, $shiftActive: Boolean){
-      timeclockCreate(userId: $userId, shiftStart: $shiftStart, shiftEnd: $shiftEnd, shiftActive: $shiftActive){
+    mutation timeclockCreate($userId: String, $shiftStart: Date, $shiftEnd: Date, $shiftActive: Boolean, $inDeviceType: String, $outDeviceType: String){
+      timeclockCreate(userId: $userId, shiftStart: $shiftStart, shiftEnd: $shiftEnd, shiftActive: $shiftActive, inDeviceType: $inDeviceType, outDeviceType: $outDeviceType){
         _id
       }
     }

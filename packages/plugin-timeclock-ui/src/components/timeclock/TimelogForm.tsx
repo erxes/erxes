@@ -24,7 +24,7 @@ type Props = {
 
   contentProps: any;
 
-  timeclockEdit: (values) => void;
+  timeclockEdit: (values: any) => void;
 };
 export const TimelogForm = (props: Props) => {
   const { timeclock, timelogsPerUser, contentProps, timeclockEdit } = props;
@@ -91,11 +91,24 @@ export const TimelogForm = (props: Props) => {
     const getShiftStart =
       (shiftStartInput === 'pick' ? shiftStart : shiftStartInsert) ||
       timeclock.shiftStart;
+
+    let outDeviceType;
+    let inDeviceType;
+
+    if (
+      shiftStart !== timeclock.shiftStart ||
+      shiftStartInsert !== timeclock.shiftStart
+    ) {
+      inDeviceType = shiftStartInput === 'pick' ? 'log' : 'insert';
+    }
+    outDeviceType = shiftEndInput === 'pick' ? 'log' : 'insert';
+
     if (!shiftEnded) {
       return {
         _id: timeclock._id,
         shiftStart: getShiftStart,
-        shiftActive: true
+        shiftActive: true,
+        inDeviceType
       };
     }
     return {
@@ -174,7 +187,7 @@ export const TimelogForm = (props: Props) => {
               name="startDate"
               placeholder={'Starting date'}
               dateFormat={'YYYY-MM-DD'}
-              timeFormat={true}
+              timeFormat={'HH:mm'}
               onChange={onShiftStartInsertChange}
             />
           </CustomRangeContainer>
@@ -227,7 +240,7 @@ export const TimelogForm = (props: Props) => {
                 name="startDate"
                 placeholder={'Starting date'}
                 dateFormat={'YYYY-MM-DD'}
-                timeFormat={true}
+                timeFormat={'HH:mm'}
                 onChange={onShiftEndInsertChange}
               />
             </CustomRangeContainer>

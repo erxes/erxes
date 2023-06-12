@@ -83,6 +83,10 @@ const timeclocksMain = `
             employeeId
             deviceName
             deviceType
+            inDevice
+            inDeviceType  
+            outDevice
+            outDeviceType
         }
         totalCount
     }

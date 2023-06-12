@@ -118,14 +118,20 @@ export default withProps<Props>(
     graphql<Props, ReportsQueryResponse>(
       gql(mutations.extractTimeLogsFromMsSql),
       {
-        name: 'extractTimeLogsFromMsSQLMutation'
+        name: 'extractTimeLogsFromMsSQLMutation',
+        options: {
+          refetchQueries: ['timelogsMain']
+        }
       }
     ),
 
     graphql<Props, ReportsQueryResponse>(
       gql(mutations.createTimeClockFromLog),
       {
-        name: 'createTimeClockFromLogMutation'
+        name: 'createTimeClockFromLogMutation',
+        options: () => ({
+          refetchQueries: ['timeclocksMain']
+        })
       }
     )
   )(ListContainer)

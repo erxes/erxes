@@ -29,6 +29,13 @@ export const types = `
     branchName: String
     employeeId: String
     deviceType: String
+
+    inDevice: String
+    outDevice: String
+
+    inDeviceType: String
+    outDeviceType: String
+
   }
 
   type Timelog {
@@ -256,12 +263,19 @@ export const types = `
   }
 `;
 
-const params = `
+const timeclockParams = `
   userId: String
   _id: String
   longitude: Float
   latitude: Float
   deviceType: String
+  inDevice: String
+  inDeviceType: String
+  outDevice: String
+  outDeviceType: String
+  shiftStart: Date
+  shiftEnd: Date
+  shiftActive: Boolean
 `;
 
 const queryParams = `
@@ -350,11 +364,11 @@ export const queries = `
 `;
 
 export const mutations = `
-  timeclockStart(${params}): Timeclock
-  timeclockStop(${params}): Timeclock
+  timeclockStart(${timeclockParams}): Timeclock
+  timeclockStop(${timeclockParams}): Timeclock
   timeclockRemove(_id : String): JSON
-  timeclockCreate(userId: String, shiftStart: Date, shiftEnd: Date, shiftActive: Boolean): Timeclock
-  timeclockEdit(_id: String, shiftStart: Date, shiftEnd: Date, shiftActive: Boolean): Timeclock
+  timeclockCreate(${timeclockParams}): Timeclock
+  timeclockEdit(${timeclockParams}): Timeclock
   
   absenceTypeRemove(_id: String): JSON
   absenceTypeAdd(${absenceType_params}): AbsenceType

@@ -12,6 +12,10 @@ export interface ITimeclock {
   employeeId?: number;
   deviceName?: string;
   deviceType?: string;
+  inDevice?: string;
+  outDevice?: string;
+  inDeviceType?: string;
+  outDeviceType?: string;
   branchName?: string;
 }
 export interface ITimelog {

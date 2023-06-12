@@ -91,9 +91,16 @@ class Row extends React.Component<Props> {
         </td>
         <td>{shiftDate}</td>
         <td>{shiftStartTime}</td>
-        <td>{returnDeviceTypes(timeclock.deviceType)[0]}</td>
+        <td>
+          {timeclock.inDeviceType || returnDeviceTypes(timeclock.deviceType)[0]}
+        </td>
         <td>{shiftEndTime}</td>
-        <td>{returnDeviceTypes(timeclock.deviceType)[1]}</td>
+        <td>
+          {timeclock.shiftActive
+            ? '-'
+            : timeclock.outDeviceType ||
+              returnDeviceTypes(timeclock.deviceType)[1]}
+        </td>
         <td>{overNightShift ? 'O' : ''}</td>
         <td>
           {timeclock.branchName ? timeclock.branchName : timeclock.deviceName}

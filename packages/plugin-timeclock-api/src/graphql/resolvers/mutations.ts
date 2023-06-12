@@ -108,7 +108,8 @@ const timeclockMutations = {
         shiftActive: true,
         userId: userId ? `${userId}` : user._id,
         branchName: getBranchName,
-        deviceType: `${deviceType}`
+        deviceType,
+        inDeviceType: deviceType
       });
     } else {
       throw new Error('User not in the coordinate');
@@ -180,6 +181,7 @@ const timeclockMutations = {
         shiftEnd: new Date(),
         shiftActive: false,
         deviceType: getShiftStartDeviceType + ' x ' + deviceType,
+        outDeviceType: 'boom',
         userId: getUserId,
         ...doc
       });

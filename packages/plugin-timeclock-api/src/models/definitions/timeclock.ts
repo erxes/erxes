@@ -9,6 +9,10 @@ export interface ITimeClock {
   branchName?: string;
   deviceName?: string;
   deviceType?: string;
+  inDevice?: string;
+  outDevice?: string;
+  inDeviceType?: string;
+  outDeviceType?: string;
 }
 
 export interface ITimeClockDocument extends ITimeClock, Document {
@@ -177,6 +181,26 @@ export const timeclockSchema = new Schema({
   deviceType: field({
     type: String,
     label: 'Which device used for clock in/out'
+  }),
+  inDevice: field({
+    type: String,
+    label: 'check in device name',
+    optional: true
+  }),
+  outDevice: field({
+    type: String,
+    label: 'check out device name',
+    optional: true
+  }),
+  inDeviceType: field({
+    type: String,
+    label: 'check in device type',
+    optional: true
+  }),
+  outDeviceType: field({
+    type: String,
+    label: 'check out device type',
+    optional: true
   })
 });
 
