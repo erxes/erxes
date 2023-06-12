@@ -96,7 +96,7 @@ const returnNewTimeLogsFromEmpData = async (
     const checkTimeLogAlreadyExists = existingTimeLogs.find(
       existingTimeLog =>
         existingTimeLog.userId === newTimeLog.userId &&
-        existingTimeLog.timelog === newTimeLog.timelog
+        existingTimeLog.timelog?.getTime() === newTimeLog.timelog.getTime()
     );
 
     if (!checkTimeLogAlreadyExists) {
@@ -121,6 +121,20 @@ const createTimelogs = async (
     }
   });
 
+  const existingTimeLogsDict: { [key: string]: ITimeLogDocument[] } = {};
+
+  for (const timelog of existingTimeLogs) {
+    if (timelog.userId in existingTimeLogsDict) {
+      existingTimeLogsDict[timelog.userId] = [
+        ...existingTimeLogsDict[timelog.userId],
+        timelog
+      ];
+      continue;
+    }
+
+    existingTimeLogsDict[timelog.userId] = [timelog];
+  }
+
   const totalTimeLogs: ITimeLog[] = [];
 
   let currentEmpId;
@@ -139,13 +153,14 @@ const createTimelogs = async (
     const currEmpNumber = parseInt(currEmpId, 10);
 
     if (currEmpNumber) {
+      const teamMemberId = teamMembersObj[currEmpNumber];
       currentEmpId = currEmpId;
       const currEmpData = queryData.filter(row => row.ID === currEmpId);
       totalTimeLogs.push(
         ...(await returnNewTimeLogsFromEmpData(
           currEmpData,
           teamMembersObj,
-          existingTimeLogs
+          existingTimeLogsDict[teamMemberId]
         ))
       );
     }

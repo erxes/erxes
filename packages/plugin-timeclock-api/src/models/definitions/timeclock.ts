@@ -20,8 +20,8 @@ export interface ITimeClockDocument extends ITimeClock, Document {
 }
 
 export interface ITimeLog {
-  userId?: string;
-  timelog?: Date;
+  userId: string;
+  timelog: Date;
   deviceSerialNo?: string;
 }
 
