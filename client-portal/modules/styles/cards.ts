@@ -34,6 +34,10 @@ const CommentContainer = styled.div`
 
 const Description = styled.div`
   font-size: 14px;
+
+  > p {
+    font-size: 14px;
+  }
 `;
 
 const Table = styled.table`
@@ -59,37 +63,31 @@ const Table = styled.table`
 
 const ListHead = styled.div`
   display: flex;
-  background-color: ${colors.bgLight};
-  padding: ${dimensions.unitSpacing + 5}px ${dimensions.coreSpacing}px;
-  border: 1px solid ${colors.borderPrimary};
   margin-bottom: ${dimensions.unitSpacing}px;
-  border-radius: 5px;
 
   > div {
     display: inline-block;
     font-weight: 600;
     flex: 0 0 12%;
-    color: ${colors.colorCoreGray};
     text-transform: uppercase;
-    font-size: 12px;
+    font-size: 11px;
     padding: 0 ${dimensions.unitSpacing - 5}px;
 
     &:first-child {
       flex: 0 0 30%;
       text-align: left;
     }
+
+    @media (max-width: 700px) {
+      min-width: 60px;
+    }
   }
 `;
 
-const ListBody = styled.div``;
-
 const ListRow = styled.div`
   display: flex;
-  background: ${colors.colorWhite};
-  margin-bottom: ${dimensions.unitSpacing}px;
-  padding: ${dimensions.unitSpacing + 5}px ${dimensions.coreSpacing}px;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 5px;
+  padding: ${dimensions.unitSpacing + 2}px 0;
+  border-bottom: 1px solid ${colors.borderPrimary};
   cursor: pointer;
   transition: all ease 0.3s;
 
@@ -108,10 +106,18 @@ const ListRow = styled.div`
       font-weight: 600;
       text-transform: capitalize;
     }
+
+    @media (max-width: 700px) {
+      min-width: 60px;
+    }
   }
 
   &:hover {
     background: #f5f5f5;
+  }
+
+  &:last-child {
+    border: 0;
   }
 `;
 
@@ -146,7 +152,7 @@ const DetailRow = styledTS<{ type?: string }>(styled.div)`
     font-weight: 500;
     text-transform: capitalize;
     font-size: 13px;
-    margin: 0;
+    margin: ${props => props.type === "row" ? 0 : '0 0 8px 0'};
     width: ${props => props.type === "row" && '120px'};
   }
   
@@ -296,11 +302,20 @@ const GroupList = styled.div`
 
   .card-header {
     font-size: 14px;
+
+    span {
+      color: #888;
+      margin-left: ${dimensions.unitSpacing - 5}px;
+    }
   }
 `;
 
 const GroupWrapper = styled.div`
-  padding: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+
+  @media (max-width: 700px) {
+    overflow: auto;
+  }
 `;
 
 const CardTab = styledTS<{baseColor?: string}>(styled.div)`
@@ -308,7 +323,7 @@ const CardTab = styledTS<{baseColor?: string}>(styled.div)`
   font-size: 13px;
   background: #f4f4f4;
   border: 1px solid ${colors.borderPrimary};
-  border-radius: ${dimensions.unitSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 2}px;
   color: ${colors.colorCoreGray};
   overflow: hidden;
 
@@ -345,6 +360,18 @@ const FlexRow = styled.div`
   }
 `;
 
+const FilterGroup = styled.div`
+  label {
+    font-size: 14px;
+    margin: 0 5px 0 0;
+  }
+
+  @media (max-width: 700px) {
+    justify-content: space-between;
+    margin-bottom: ${dimensions.unitSpacing}px;
+   }
+`;
+
 export {
   TicketRow,
   TicketLabel,
@@ -352,8 +379,8 @@ export {
   Table,
   Label,
   DetailHeader,
+  FilterGroup,
   ListHead,
-  ListBody,
   ListRow,
   Description,
   TicketComment,

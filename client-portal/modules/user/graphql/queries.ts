@@ -9,6 +9,7 @@ const currentUser = `
       lastName
       companyName
       username
+      erxesCustomerId
       type
 
       company {
