@@ -3,8 +3,137 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
+import { fetchSegment, sendSegmentsMessage } from '../../../messageBroker';
 import { IContext, IModels } from '../../../connectionResolver';
 import { paginate } from '../../utils';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+
+export class Builder {
+  public params: { segment?: string; segmentData?: string };
+  public context;
+  public positiveList: any[];
+  public negativeList: any[];
+  public models: IModels;
+  public subdomain: string;
+
+  private contentType: 'users';
+
+  constructor(
+    models: IModels,
+    subdomain: string,
+    params: { segment?: string; segmentData?: string },
+    context
+  ) {
+    this.contentType = 'users';
+    this.context = context;
+    this.params = params;
+    this.models = models;
+    this.subdomain = subdomain;
+
+    this.positiveList = [];
+    this.negativeList = [];
+
+    this.resetPositiveList();
+    this.resetNegativeList();
+  }
+
+  public resetNegativeList() {
+    this.negativeList = [{ term: { status: 'deleted' } }];
+  }
+
+  public resetPositiveList() {
+    this.positiveList = [];
+
+    if (this.context.commonQuerySelectorElk) {
+      this.positiveList.push(this.context.commonQuerySelectorElk);
+    }
+  }
+
+  // filter by segment
+  public async segmentFilter(segment: any, segmentData?: any) {
+    const selector = await fetchSegment(
+      this.subdomain,
+      segment._id,
+      { returnSelector: true },
+      segmentData
+    );
+
+    this.positiveList = [...this.positiveList, selector];
+  }
+
+  public getRelType() {
+    return 'users';
+  }
+
+  /*
+   * prepare all queries. do not do any action
+   */
+  public async buildAllQueries(): Promise<void> {
+    this.resetPositiveList();
+    this.resetNegativeList();
+
+    // filter by segment data
+    if (this.params.segmentData) {
+      const segment = JSON.parse(this.params.segmentData);
+
+      await this.segmentFilter({}, segment);
+    }
+
+    // filter by segment
+    if (this.params.segment) {
+      const segment = await sendSegmentsMessage({
+        isRPC: true,
+        action: 'findOne',
+        subdomain: this.subdomain,
+        data: { _id: this.params.segment }
+      });
+
+      await this.segmentFilter(segment);
+    }
+  }
+
+  public async runQueries(action = 'search'): Promise<any> {
+    const queryOptions: any = {
+      query: {
+        bool: {
+          must: this.positiveList,
+          must_not: this.negativeList
+        }
+      }
+    };
+
+    let totalCount = 0;
+
+    const totalCountResponse = await fetchEs({
+      subdomain: this.subdomain,
+      action: 'count',
+      index: this.contentType,
+      body: queryOptions,
+      defaultValue: 0
+    });
+
+    totalCount = totalCountResponse.count;
+
+    const response = await fetchEs({
+      subdomain: this.subdomain,
+      action,
+      index: this.contentType,
+      body: queryOptions
+    });
+
+    const list = response.hits.hits.map(hit => {
+      return {
+        _id: hit._id,
+        ...hit._source
+      };
+    });
+
+    return {
+      list,
+      totalCount
+    };
+  }
+}
 
 interface IListArgs {
   page?: number;
@@ -24,11 +153,17 @@ interface IListArgs {
   departmentIds: string[];
   branchIds: string[];
   unitId?: string;
+  segment?: string;
+  segmentData?: string;
 }
 
 const NORMAL_USER_SELECTOR = { role: { $ne: USER_ROLES.SYSTEM } };
 
-const queryBuilder = async (models: IModels, params: IListArgs) => {
+const queryBuilder = async (
+  models: IModels,
+  params: IListArgs,
+  subdomain: string
+) => {
   const {
     searchValue,
     isActive,
@@ -41,7 +176,9 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
     unitId,
     branchId,
     departmentIds,
-    branchIds
+    branchIds,
+    segment,
+    segmentData
   } = params;
 
   const selector: any = {
@@ -105,6 +242,16 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
     selector._id = { $in: userIds };
   }
 
+  if (segment || segmentData) {
+    const qb = new Builder(models, subdomain, { segment, segmentData }, {});
+
+    await qb.buildAllQueries();
+
+    const { list } = await qb.runQueries();
+
+    selector._id = { $in: list.map(l => l._id) };
+  }
+
   return selector;
 };
 
@@ -115,11 +262,11 @@ const userQueries = {
   async users(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector, models }: IContext
+    { userBrandIdsSelector, models, subdomain }: IContext
   ) {
     const selector = {
       ...userBrandIdsSelector,
-      ...(await queryBuilder(models, args)),
+      ...(await queryBuilder(models, args, subdomain)),
       ...NORMAL_USER_SELECTOR
     };
 
@@ -175,11 +322,11 @@ const userQueries = {
   async usersTotalCount(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector, models }: IContext
+    { userBrandIdsSelector, models, subdomain }: IContext
   ) {
     const selector = {
       ...userBrandIdsSelector,
-      ...(await queryBuilder(models, args)),
+      ...(await queryBuilder(models, args, subdomain)),
       ...NORMAL_USER_SELECTOR
     };
 

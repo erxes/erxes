@@ -147,7 +147,7 @@ export const WidgetChatWrapper = styled.div`
 export const WidgetChatWindowWrapper = styled.div`
   position: relative;
   width: 350px;
-  max-height: 400px;
+  height: 400px;
   margin: 0 ${dimensions.coreSpacing / 2}px;
   display: flex;
   flex-direction: column;
@@ -169,7 +169,7 @@ export const WidgetChatWindowHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   background-color: #f9f9f9;
-  padding: 0 ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
   border-bottom: 2px solid ${colors.borderPrimary};
 
   i {
@@ -216,11 +216,17 @@ export const ChatListWrapper = styled.div`
 export const ChatItemWrapper = styledTS<{
   active?: boolean;
   isWidget?: boolean;
+  isSeen?: boolean;
 }>(styled.div)`
   position: relative;
   display: flex;
   align-items: center;
-  background-color: ${props => (props.active ? colors.bgGray : 'initial')};
+  background-color: ${props =>
+    props.isWidget && !props.isSeen
+      ? '#edf2fa'
+      : props.active
+      ? colors.bgGray
+      : 'initial'};
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom: ${props =>
     props.isWidget && `1px solid ${colors.borderPrimary}`};

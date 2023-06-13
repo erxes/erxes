@@ -99,8 +99,8 @@ const queries = {
     return counts;
   },
 
-  async checkInvoice(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Invoices.checkInvoice(_id);
+  async invoiceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Invoices.getInvoice({ _id });
   }
 };
 

@@ -73,6 +73,10 @@ export interface IInvoice {
   customerType: string;
   customer?: any;
   pluginData?: any;
+  paymentKind: string;
+  errorDescription?: string;
+
+  idOfProvider: string;
 }
 
 export interface IPaymentConfig {

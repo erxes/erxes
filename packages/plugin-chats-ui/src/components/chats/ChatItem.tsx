@@ -90,10 +90,16 @@ const ChatItem = (props: FinalProps) => {
     </Popover>
   );
 
+  const isSeen =
+    chat?.lastMessage?.createdUser?._id === currentUser?._id
+      ? true
+      : chat.isSeen;
+
   return (
     <ChatItemWrapper
       active={active}
       isWidget={isWidget}
+      isSeen={isSeen}
       onClick={handleClick}
       onMouseEnter={() => hasOptions && handleMouseEnter()}
       onMouseLeave={() => hasOptions && handleMouseLeave()}
@@ -107,13 +113,7 @@ const ChatItem = (props: FinalProps) => {
         </ChatGroupAvatar>
       )}
 
-      <ChatWrapper
-        isSeen={
-          chat?.lastMessage?.createdUser?._id === currentUser?._id
-            ? true
-            : chat.isSeen
-        }
-      >
+      <ChatWrapper isSeen={isSeen}>
         <p>
           {chat.type === 'direct'
             ? user.details.fullName || user.email

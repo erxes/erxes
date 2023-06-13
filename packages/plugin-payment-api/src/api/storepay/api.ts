@@ -3,7 +3,7 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 import { BaseAPI } from '../../api/base';
 import { IModels } from '../../connectionResolver';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
-import { IInvoiceDocument } from '../../models/definitions/invoices';
+import { IInvoice, IInvoiceDocument } from '../../models/definitions/invoices';
 import redis from '../../redis';
 
 export const storepayCallbackHandler = async (
@@ -201,6 +201,30 @@ export class StorePayAPI extends BaseAPI {
         headers: await this.getHeaders(),
         method: 'GET',
         path: `merchant/loan/check/${invoiceNumber}`
+      });
+
+      console.log('checkInvoice Store pay', res);
+
+      if (!res.value) {
+        return PAYMENT_STATUS.PENDING;
+      }
+
+      return PAYMENT_STATUS.PAID;
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
+  async manualCheck(invoice: IInvoiceDocument) {
+    if (invoice.apiResponse.error) {
+      return invoice.apiResponse.error;
+    }
+
+    try {
+      const res = await this.request({
+        headers: await this.getHeaders(),
+        method: 'GET',
+        path: `merchant/loan/check/${invoice.apiResponse.value}`
       });
 
       if (!res.value) {

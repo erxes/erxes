@@ -88,7 +88,9 @@ export default {
       locales: ['en', 'mn'],
       queryParameter: 'lang',
       directory: __dirname + '/locales',
-      defaultLocale: 'en'
+      defaultLocale: 'en',
+      autoReload: false,
+      updateFiles: false
     });
 
     app.use(i18n.init);

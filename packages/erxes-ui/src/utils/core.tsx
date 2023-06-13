@@ -532,7 +532,7 @@ export function formatValue(value) {
   return value || '-';
 }
 
-export function numberFormatter(value, fixed) {
+export function numberFormatter(value = '', fixed) {
   if (
     fixed &&
     `${value}`.includes('.') &&

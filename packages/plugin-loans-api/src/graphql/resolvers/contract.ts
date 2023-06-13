@@ -268,6 +268,19 @@ const Contracts = {
       .lean();
 
     return nextSchedule?.payDate;
+  },
+  async loanTransactionHistory(
+    contract: IContractDocument,
+    {},
+    { models }: IContext
+  ) {
+    const transactions = await models.Transactions.find({
+      contractId: contract._id
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return transactions;
   }
 };
 
