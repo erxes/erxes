@@ -46,6 +46,7 @@ const itemFields = `
   stageChangedDate
   stage {
     name
+    itemsTotalCount
   }
   labels {
     name

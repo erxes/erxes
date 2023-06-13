@@ -50,10 +50,6 @@ function BoardView({
     <>
       <TabContainers>
         {stages.map((stage) => {
-          if (stage.itemsTotalCount === 0) {
-            return null;
-          }
-
           return (
             <TabTitle
               key={stage._id}

@@ -71,10 +71,6 @@ export default function List({
           ? item.name
           : item._id;
 
-      if (item.itemsTotalCount === 0) {
-        return null;
-      }
-
       return (
         <React.Fragment key={index}>
           <Group groupType={groupType} type={type} id={id} item={item} />
