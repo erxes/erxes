@@ -11,26 +11,19 @@ import {
   CommentContent
 } from '@erxes/ui-settings/src/styles';
 import { ColorButton } from '../../boards/styles/common';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import dayjs from 'dayjs';
-import { queries, mutations } from '../graphql/';
+import { queries } from '../graphql/';
 
 function Comment(item) {
   const typeId = item.item._id;
   const type = item.item.stage.type;
 
-  const { loading, data = {} as any } = useQuery(
-    gql(queries.clientPortalComments),
-    {
-      variables: { typeId, type },
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true
-    }
-  );
-
-  const [clientPortalCommentsRemove] = useMutation(
-    gql(mutations.clientPortalCommentsRemove)
-  );
+  const { data = {} as any } = useQuery(gql(queries.clientPortalComments), {
+    variables: { typeId, type },
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true
+  });
 
   const clientPortalComments = data ? data.clientPortalComments || [] : [];
   const [show, setShow] = useState(false);

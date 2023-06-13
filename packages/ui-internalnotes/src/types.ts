@@ -1,4 +1,5 @@
 import { IUser } from '@erxes/ui/src/auth/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export type IInternalNote = {
   _id: string;
@@ -53,3 +54,22 @@ export type InternalNoteDetailQueryResponse = {
   refetch: () => void;
   subscribeToMore: any;
 };
+
+export type ClientPortalCommentQueryResponse = {
+  clientPortalComments: {
+    _id: string;
+    content: string;
+    createdUser: {
+      _id: string;
+      avatar: string;
+      firstName: string;
+      fullName: string;
+      lastName: string;
+      email: string;
+      username: string;
+    };
+    createdAt: Date;
+    userType: string;
+    type: string;
+  };
+} & QueryResponse;

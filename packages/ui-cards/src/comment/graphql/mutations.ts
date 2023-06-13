@@ -1,13 +1,3 @@
-const clientPortalCommentsRemove = `
-  mutation clientPortalCommentsRemove(
-    $_id: String!
-  ) {
-    clientPortalCommentsRemove(
-      _id: $_id
-    ) 
-  }
-`;
-
 const clientPortalCommentsAdd = `
   mutation clientPortalCommentsAdd(
     $typeId: String!
@@ -27,6 +17,5 @@ const clientPortalCommentsAdd = `
 `;
 
 export default {
-  clientPortalCommentsRemove,
   clientPortalCommentsAdd
 };

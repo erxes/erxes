@@ -4,12 +4,16 @@ import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import Form from '../components/Form';
 import { mutations } from '../graphql';
-import { mutations as commentMutations } from '@erxes/ui-cards/src/comment/graphql';
+import {
+  mutations as commentMutations,
+  queries as commentQueries
+} from '@erxes/ui-cards/src/comment/graphql';
 import {
   InternalNotesAddMutationResponse,
   InternalNotesAddMutationVariables,
   CommentAddMutationResponse,
-  CommentAddMutationVariables
+  CommentAddMutationVariables,
+  ClientPortalCommentQueryResponse
 } from '../types';
 
 type Props = {
@@ -18,7 +22,9 @@ type Props = {
   inputType?: string;
 };
 
-type FinalProps = Props &
+type FinalProps = {
+  clientPortalCommentsQueries: ClientPortalCommentQueryResponse;
+} & Props &
   InternalNotesAddMutationResponse &
   CommentAddMutationResponse;
 
@@ -39,7 +45,8 @@ class FormContainer extends React.Component<
       contentTypeId,
       internalNotesAdd,
       commentAdd,
-      inputType
+      inputType,
+      clientPortalCommentsQueries
     } = this.props;
 
     this.setState({ isLoading: true });
@@ -53,6 +60,7 @@ class FormContainer extends React.Component<
           ...variables
         }
       }).then(() => {
+        clientPortalCommentsQueries.refetch();
         callback();
 
         this.setState({ isLoading: false });
@@ -98,6 +106,12 @@ export default compose(
         refetchQueries: ['activityLogs']
       };
     }
+  }),
+  graphql<Props>(gql(commentQueries.clientPortalComments), {
+    name: 'clientPortalCommentsQueries',
+    options: ({ contentType, contentTypeId }) => ({
+      variables: { type: contentType.slice(6), typeId: contentTypeId }
+    })
   }),
   graphql<Props, CommentAddMutationResponse, CommentAddMutationVariables>(
     gql(commentMutations.clientPortalCommentsAdd),
