@@ -188,7 +188,7 @@ ssh erxes@your-ip-address
     sudo chmod +x install.sh
     ```
 
-3. Execute `install.sh` file simply type `./install.sh` like below.
+3. Execute `install.sh` file.
 
     ```
     ./install.sh
