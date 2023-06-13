@@ -75,9 +75,7 @@ export default class CardDetail extends React.Component<
               <CreatedUser>
                 <img
                   src={readFile(
-                    createdUser &&
-                      createdUser.avatar &&
-                      createdUser?.avatar !== "/images/avatar-colored.svg"
+                    createdUser && createdUser.avatar
                       ? createdUser?.avatar
                       : "/static/avatar-colored.svg"
                   )}
@@ -86,9 +84,7 @@ export default class CardDetail extends React.Component<
                 <div>
                   <CommentContent>
                     <h5>
-                      {createdUser
-                        ? createdUser.fullName || createdUser.username
-                        : createdUser.email || "Undefined"}
+                      {renderUserFullName(createdUser)}
                     </h5>
                     <div
                       className="comment"

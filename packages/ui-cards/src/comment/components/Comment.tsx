@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Modal from 'react-bootstrap/Modal';
-import { __, readFile } from 'coreui/utils';
+import { __, readFile, renderFullName } from 'coreui/utils';
 import {
   SpaceFormsWrapper,
   CommentWrapper,
@@ -67,11 +67,9 @@ function Comment(item) {
                       <div>
                         <CommentContent>
                           <h5>
-                            {createdUser
-                              ? createdUser.fullName ||
-                                createdUser.username ||
-                                createdUser.email
-                              : 'Undefined'}
+                            {createdUser.fullName
+                              ? createdUser.fullName
+                              : renderFullName(createdUser)}
                           </h5>
                           <div
                             className="comment"
