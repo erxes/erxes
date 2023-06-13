@@ -138,7 +138,7 @@ const productQueries = {
       },
       await paginate(
         models.Products.find(filter)
-          .sort({ sort })
+          .sort(sort)
           .lean(),
         pagintationArgs
       ),
