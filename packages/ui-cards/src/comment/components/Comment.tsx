@@ -59,7 +59,7 @@ function Comment(item) {
             <CommentWrapper>
               {clientPortalComments.map(comment => {
                 const { createdUser = {} } = comment;
-                console.log('cre', createdUser);
+
                 return (
                   <TicketComment key={comment._id}>
                     <CreatedUser>
