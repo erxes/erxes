@@ -213,7 +213,7 @@ def put_mappings(index, mapping):
 
     response = client.indices.exists(index=index)
 
-    print('Create index for %s' % index, response)
+    print(f'Create index for {index}', response)
 
     if not response:
         response = client.indices.create(index=index, body={'settings': {'analysis': analysis}})
@@ -230,15 +230,15 @@ def put_mappings(index, mapping):
 
 db_name = pymongo.uri_parser.parse_uri(MONGO_URL)['database']
 
-put_mappings('%s__customers' % db_name, customer_mapping)
-put_mappings('%s__companies' % db_name, company_mapping)
-put_mappings('%s__events' % db_name, event_mapping)
-put_mappings('%s__deals' % db_name, deal_mapping)
-put_mappings('%s__tasks' % db_name, task_mapping)
-put_mappings('%s__tickets' % db_name, ticket_mapping)
-put_mappings('%s__conformities' % db_name, conformity_mapping)
+put_mappings(f'{db_name}__customers', customer_mapping)
+put_mappings(f'{db_name}__companies', company_mapping)
+put_mappings(f'{db_name}__events', event_mapping)
+put_mappings(f'{db_name}__deals', deal_mapping)
+put_mappings(f'{db_name}__tasks', task_mapping)
+put_mappings(f'{db_name}__tickets', ticket_mapping)
+put_mappings(f'{db_name}__conformities', conformity_mapping)
 
-command = 'mongo-connector -m "%s"  -c mongo-connector-config.json --target-url %s' % (MONGO_URL, ELASTICSEARCH_URL)
+command = f'mongo-connector -m "{MONGO_URL}"  -c mongo-connector-config.json --target-url {ELASTICSEARCH_URL}'
 
 print('Starting connector ....', command)
 
