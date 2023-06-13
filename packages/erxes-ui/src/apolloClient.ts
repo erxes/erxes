@@ -78,7 +78,8 @@ const client = new ApolloClient({
       UserDetailsType: {
         merge: true
       }
-    }
+    },
+    addTypename: true
   }),
   queryDeduplication: true,
   link,
