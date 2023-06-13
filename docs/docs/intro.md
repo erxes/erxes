@@ -14,8 +14,8 @@ erxes is an open-source experience operating system (XOS) that enables SaaS prov
 
 :::tip
 
-Can't wait to start using erxes?  
-Get started with erxes with our <a href="https://docs.erxes.io/docs/deployment/" >**Installation guide**</a> ! Try out a <a href="https://xosdemo.erxes.io/" target="_blank">**live demo**</a>!
+Can't wait to start using erxes?
+Get started with erxes with our <a href="https://docs.erxes.io/docs/deployment/deployment/deploymentDocker">**Installation guide**</a> ! Try out a <a href="https://xosdemo.erxes.io/" target="_blank">**live demo**</a>!
 
 :::
 
