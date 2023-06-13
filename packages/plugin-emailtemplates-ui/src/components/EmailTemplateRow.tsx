@@ -11,34 +11,98 @@ import Form from './Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Tags from '@erxes/ui/src/components/Tags';
 import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import dayjs from 'dayjs';
+import { log } from 'console';
 
 type Props = {
   index: number;
   object: any;
+  isChecked?: boolean;
+  toggleBulk: (target: any, toAdd: boolean) => void;
 };
 
-function EmailTemplateRow({ object, index }: Props) {
+function renderForm(props) {
+  return <Form {...props} renderButton={this.props.renderButton} />;
+}
+
+function removeTemplate(object) {
+  this.props.remove(object._id);
+}
+
+function duplicateTemplate(id) {
+  this.props.duplicate(id);
+}
+
+function renderEditAction(object) {
+  const { save } = this.props;
+
+  const content = props => {
+    return renderForm({ ...props, object, save });
+  };
+
+  return (
+    <ModalTrigger
+      enforceFocus={false}
+      title="Edit"
+      size="lg"
+      trigger={
+        <div>
+          <Icon icon="edit" /> Edit
+        </div>
+      }
+      content={content}
+    />
+  );
+}
+
+function renderDuplicateAction(object) {
+  return (
+    <div onClick={duplicateTemplate.bind(this, object._id)}>
+      <Icon icon="copy-1" />
+      Duplicate
+    </div>
+  );
+}
+
+function renderDate(createdAt, modifiedAt) {
+  if (createdAt === modifiedAt) {
+    if (createdAt === null) return '-';
+
+    return dayjs(createdAt).format('DD MMM YYYY');
+  }
+
+  return dayjs(modifiedAt).format('DD MMM YYYY');
+}
+
+function EmailTemplateRow({ object, index, isChecked, toggleBulk }: Props) {
   const { name, content, createdAt, modifiedAt, createdUser, tags } =
     object || {};
 
-  //   const onChange = (e) => {
-  //     if (toggleBulk) {
-  //       toggleBulk(test, e.target.checked);
-  //     }
-  //   };
+  const onChange = e => {
+    if (toggleBulk) {
+      toggleBulk(object, e.target.checked);
+    }
+  };
 
   return (
     <Template key={index} isLongName={name.length > 46}>
-      <FormControl componentClass="checkbox" />
+      <FormControl
+        checked={isChecked}
+        componentClass="checkbox"
+        onChange={onChange}
+      />
       <h5>{name}</h5>
       <Tags tags={tags || []} limit={3} />
       <TemplateBox>
         <Actions>
-          {/* {this.renderEditAction(object)}
-          <div onClick={this.removeTemplate.bind(this, object)}>
+          {/* {renderEditAction(object)} */}
+          <div onClick={removeTemplate.bind(this, object)}>
             <Icon icon="cancel-1" /> Delete
           </div>
-          {this.renderDuplicateAction(object)} */}
+          {renderDuplicateAction(object)}
         </Actions>
         <IframePreview>
           <iframe title="content-iframe" srcDoc={content} />
@@ -46,7 +110,7 @@ function EmailTemplateRow({ object, index }: Props) {
       </TemplateBox>
       <TemplateInfo>
         <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
-        {/* <p>{this.renderDate(createdAt, modifiedAt)}</p> */}
+        <p>{renderDate(createdAt, modifiedAt)}</p>
       </TemplateInfo>
       <TemplateInfo>
         <p>Created by</p>

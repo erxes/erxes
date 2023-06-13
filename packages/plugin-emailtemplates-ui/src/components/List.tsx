@@ -1,32 +1,33 @@
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import List from '@erxes/ui-settings/src/common/components/List';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import {
-  Actions,
-  IframePreview,
-  Template,
-  TemplateBox,
-  Templates,
-  TemplateInfo
-} from '../styles';
+import { Templates } from '../styles';
 import Form from './Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { router } from 'coreui/utils';
-import dayjs from 'dayjs';
 import Sidebar from './SideBar';
-import Tags from '@erxes/ui/src/components/Tags';
 import EmailTemplateRow from './EmailTemplateRow';
+import Button from '@erxes/ui/src/components/Button';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+import { gql } from '@apollo/client';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
 
 type Props = {
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   duplicate: (id: string) => void;
+  toggleBulk: (target: any, toAdd: boolean) => void;
+  bulk: any[];
+  emptyBulk: () => void;
+  type: string;
 } & ICommonListProps;
 
 class EmailTemplateList extends React.Component<Props> {
@@ -34,58 +35,21 @@ class EmailTemplateList extends React.Component<Props> {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  removeTemplate = object => {
-    this.props.remove(object._id);
-  };
-
-  duplicateTemplate = id => {
-    this.props.duplicate(id);
-  };
-
-  renderEditAction = object => {
-    const { save } = this.props;
-
-    const content = props => {
-      return this.renderForm({ ...props, object, save });
-    };
-
-    return (
-      <ModalTrigger
-        enforceFocus={false}
-        title="Edit"
-        size="lg"
-        trigger={
-          <div>
-            <Icon icon="edit" /> Edit
-          </div>
-        }
-        content={content}
-      />
-    );
-  };
-
-  renderDuplicateAction(object) {
-    return (
-      <div onClick={this.duplicateTemplate.bind(this, object._id)}>
-        <Icon icon="copy-1" />
-        Duplicate
-      </div>
-    );
-  }
-
-  renderDate(createdAt, modifiedAt) {
-    if (createdAt === modifiedAt) {
-      if (createdAt === null) return '-';
-
-      return dayjs(createdAt).format('DD MMM YYYY');
-    }
-
-    return dayjs(modifiedAt).format('DD MMM YYYY');
-  }
-
   renderRow = () => {
+    const { toggleBulk, bulk } = this.props;
+
     return this.props.objects.map((object, index) => {
-      return <EmailTemplateRow index={index} object={object} />;
+      const { name, content, createdAt, modifiedAt, createdUser, tags } =
+        object || {};
+
+      return (
+        <EmailTemplateRow
+          index={index}
+          object={object}
+          toggleBulk={toggleBulk}
+          isChecked={bulk.includes(object)}
+        />
+      );
     });
   };
 
@@ -99,7 +63,48 @@ class EmailTemplateList extends React.Component<Props> {
     return <Templates>{this.renderRow()}</Templates>;
   };
 
+  // afterTag = () => {
+  //   this.props.emptyBulk();
+
+  //   if (this.props.refetch) {
+  //     this.props.refetch();
+  //   }
+  // };
+
   render() {
+    const { bulk, type, emptyBulk } = this.props;
+
+    let leftActionBar: React.ReactNode;
+
+    if (bulk.length > 0) {
+      const tagButton = (
+        <Button btnStyle="simple" size="small" icon="tag-alt">
+          Tag
+        </Button>
+      );
+
+      const refetchQuery = {
+        query: gql(queries.customerCounts),
+        variables: { type, only: 'byTag' }
+      };
+
+      leftActionBar = (
+        <BarItems>
+          {/* <Widget customers={bulk} emptyBulk={emptyBulk} /> */}
+
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={'emailtemplates:emailtemplates'}
+              // successCallback={this.afterTag}
+              targets={bulk}
+              trigger={tagButton}
+              refetchQueries={[refetchQuery]}
+            />
+          )}
+        </BarItems>
+      );
+    }
+
     return (
       <List
         formTitle="New email template"
@@ -109,7 +114,7 @@ class EmailTemplateList extends React.Component<Props> {
           { title: __('Email templates') }
         ]}
         title={__('Email templates')}
-        leftActionBar={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/22.svg"
             title="Email templates"
@@ -122,6 +127,7 @@ class EmailTemplateList extends React.Component<Props> {
             )}`}
           />
         }
+        leftActionBar={leftActionBar}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         {...this.props}
