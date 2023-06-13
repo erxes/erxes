@@ -169,7 +169,7 @@ ssh erxes@your-ip-address
             now=$(date +'%H:%M:%S')
             echo -e "\e[1mStep 6 $now : installing nodejs installing\e[0m"
         curl -sL https://deb.nodesource.com/setup_14.x -o setup_14.sh
-        sudo sh ./setup_14.sh
+        sudo chmod +x ./setup_14.sh
         sudo apt-get install nodejs -y
             now=$(date +'%H:%M:%S')
             echo -e "\e[1mStep 7 $now : installing awscli installing\e[0m"
@@ -178,8 +178,17 @@ ssh erxes@your-ip-address
             echo -e "\e[1mStep 8 $now : installing npm\e[0m"
         sudo apt install npm -y
             now=$(date +'%H:%M:%S')
-            echo -e "\e[1mStep 9 $now : Please enter erxes domain name i.e(https://example.com)\e[0m"
+            echo -e "\e[1mStep 9 $now : installing node v14.21.3"
         sudo npm install -g create-erxes-app -y
+        sudo groupadd docker
+
+        sudo usermod -aG docker erxes
+
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+
+        sudo chmod +x /usr/local/bin/docker-compose
+        sudo ./setup_14.sh
 ```
 
 2. Before execute script the use below command to make `install.sh` file executable.
