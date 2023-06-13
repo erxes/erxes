@@ -215,7 +215,7 @@ export default class CardDetail extends React.Component<
           <div className="col-md-12">
             <Card>
               <h4>{item.name}</h4>
-              <FlexRow>
+              <FlexRow className="justify-content-between">
                 <DetailRow>
                   <ControlLabel>Stage</ControlLabel>
                   <span>{stage ? stage.name : "-"}</span>

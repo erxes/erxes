@@ -86,9 +86,25 @@ const TabCaption = styled.span`
   }
 `;
 
+const NotificationSettingsRow = styled.div`
+  font-size: 13px;
+  color: #666;
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  p {
+    margin-bottom: ${dimensions.unitSpacing - 2}px;
+  }
+
+  .react-toggle {
+    margin-right: ${dimensions.unitSpacing}px;
+  }
+`;
+
+
 export {
   NotificationWrapper,
   NotificationFooter,
+  NotificationSettingsRow,
   CreatedUser,
   AvatarSection,
   TabCaption,

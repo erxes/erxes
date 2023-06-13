@@ -1,7 +1,7 @@
+import { CardTab, FilterGroup } from "../../styles/cards";
 import { typeFilters, viewModes } from "../../main/constants";
 
 import Button from "../../common/Button";
-import { CardTab } from "../../styles/cards";
 import { Dropdown } from "react-bootstrap";
 import DropdownToggle from "../../common/DropdownToggle";
 import { HeaderWrapper } from "../../styles/main";
@@ -23,16 +23,7 @@ type Props = {
 
 export default class ListHeader extends React.Component<Props> {
   renderFilters() {
-    const {
-      mode,
-      setMode,
-      baseColor,
-      setShowForm,
-      setViewType,
-      viewType,
-      type,
-      hideHeader,
-    } = this.props;
+    const { mode, setMode, setViewType, viewType, hideHeader } = this.props;
 
     if (hideHeader) {
       return null;
@@ -40,33 +31,22 @@ export default class ListHeader extends React.Component<Props> {
 
     return (
       <>
-        <CardTab baseColor={baseColor} className="d-flex align-items-center">
-          {viewModes.map((item) => (
-            <span
-              className={`d-flex align-items-center justify-content-center ${
-                item.type === viewType ? "active" : ""
-              }`}
-              key={item.type}
-              onClick={() => setViewType(item.type)}
-            >
-              <Icon icon={item.icon} size={15} /> &nbsp; {item.label}
-            </span>
-          ))}
-        </CardTab>
-
         {viewType !== "board" && (
           <Dropdown>
             <Dropdown.Toggle
               as={DropdownToggle}
-              id="dropdown-custom-components"
+              id="dropdown-filter-components"
             >
-              <CardTab>
-                <span
-                  className={`d-flex align-items-center justify-content-center`}
-                >
-                  <Icon icon="filter" size={15} /> &nbsp; {mode}
-                </span>
-              </CardTab>
+              <FilterGroup className="d-flex align-items-center">
+                <label>Filter by</label> &nbsp;
+                <CardTab>
+                  <span
+                    className={`d-flex align-items-center justify-content-center`}
+                  >
+                    <Icon icon="filter" size={15} /> &nbsp; {mode}
+                  </span>
+                </CardTab>
+              </FilterGroup>
             </Dropdown.Toggle>
 
             <Dropdown.Menu>
@@ -85,6 +65,36 @@ export default class ListHeader extends React.Component<Props> {
             </Dropdown.Menu>
           </Dropdown>
         )}
+
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-view-components">
+            <FilterGroup className="d-flex align-items-center">
+              <label>View by</label> &nbsp;
+              <CardTab>
+                <span
+                  className={`d-flex align-items-center justify-content-center`}
+                >
+                  <Icon icon="layers-1" size={15} /> &nbsp; {viewType}
+                </span>
+              </CardTab>
+            </FilterGroup>
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            {viewModes.map((item) => (
+              <Dropdown.Item
+                key={item.type}
+                className="d-flex align-items-center justify-content-between"
+                eventKey="1"
+                onClick={() => {
+                  setViewType(item.type);
+                }}
+              >
+                {item.label}
+              </Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
       </>
     );
   }
@@ -96,7 +106,7 @@ export default class ListHeader extends React.Component<Props> {
       <>
         <HeaderWrapper>
           <h4>{this.props.headerLabel}</h4>
-          <div className="d-flex">
+          <div className="d-flex flex-wrap">
             {this.renderFilters()}
 
             <Button
