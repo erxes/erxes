@@ -59,16 +59,14 @@ function Comment(item) {
             <CommentWrapper>
               {clientPortalComments.map(comment => {
                 const { createdUser = {} } = comment;
-
+                console.log('cre', createdUser);
                 return (
                   <TicketComment key={comment._id}>
                     <CreatedUser>
                       <img
                         src={readFile(
-                          createdUser &&
-                            createdUser.details &&
-                            createdUser.details.avatar
-                            ? createdUser.details.avatar
+                          createdUser && createdUser.avatar
+                            ? createdUser.avatar
                             : '/images/avatar-colored.svg'
                         )}
                         alt="profile"
@@ -76,10 +74,11 @@ function Comment(item) {
                       <div>
                         <CommentContent>
                           <h5>
-                            {createdUser && createdUser.details
-                              ? createdUser.details.fullName ||
-                                createdUser.username
-                              : createdUser.email || 'Undefined'}
+                            {createdUser
+                              ? createdUser.fullName ||
+                                createdUser.username ||
+                                createdUser.email
+                              : 'Undefined'}
                           </h5>
                           <div
                             className="comment"

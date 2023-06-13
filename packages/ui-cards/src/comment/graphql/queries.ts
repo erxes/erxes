@@ -5,12 +5,10 @@ const clientPortalComments = `
       content
       createdUser {
         _id
-        details {
-          avatar
-          firstName
-          fullName
-          lastName
-        }
+        avatar
+        firstName
+        fullName
+        lastName
         email
         username
       }
