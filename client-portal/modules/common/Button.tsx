@@ -60,7 +60,7 @@ const ButtonStyled = styledTS<{
   block?: boolean;
   uppercase?: boolean;
 }>(styled.button)`
-  border-radius: 30px;
+  border-radius: 8px;
   position: relative;
   transition: all 0.3s ease;
   outline: 0;
