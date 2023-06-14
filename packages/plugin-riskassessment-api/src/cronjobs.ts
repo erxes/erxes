@@ -11,7 +11,8 @@ const handleDailyJob = async ({ subdomain }) => {
     date: {
       $gte: NOW.setHours(0, 0, 0, 0),
       $lte: NOW.setHours(23, 59, 59, 999)
-    }
+    },
+    status: 'Waiting'
   });
 
   if (!schedule) {
@@ -28,7 +29,8 @@ const handleDailyJob = async ({ subdomain }) => {
     return;
   }
 
-  const { configs, plannerId, structureType, structureTypeIds } = plan;
+  const { configs, plannerId, structureType } = plan;
+  const { structureTypeIds } = schedule;
 
   const planner = await sendCoreMessage({
     subdomain,
@@ -38,16 +40,20 @@ const handleDailyJob = async ({ subdomain }) => {
     },
     isRPC: true,
     defaultValue: null
+  }).catch(err => {
+    console.log(err.message);
   });
 
   console.log('send request to cards create item');
 
   const newItem = await sendCardsMessage({
     subdomain,
-    action: `${configs.cardType}.create`,
-    data: { name: schedule.name },
+    action: `${configs.cardType}s.create`,
+    data: { name: schedule.name, stageId: configs.stageId },
     isRPC: true,
     defaultValue: null
+  }).catch(err => {
+    console.log(err.message);
   });
 
   if (!newItem) {
@@ -79,6 +85,8 @@ const handleDailyJob = async ({ subdomain }) => {
     data: payload,
     isRPC: true,
     defaultValue: null
+  }).catch(err => {
+    console.log(err.message);
   });
 
   console.log('starting create risk assessment in cards');
@@ -98,6 +106,24 @@ const handleDailyJob = async ({ subdomain }) => {
   await models.RiskAssessments.addBulkRiskAssessment(RAPayload).catch(err => {
     console.log(err.message);
   });
+
+  const countSchedule = await models.Schedules.countDocuments({
+    planId: schedule.planId
+  });
+
+  const countWaitingSchedule = await models.Schedules.countDocuments({
+    planId: schedule.planId,
+    status: 'Waiting'
+  });
+
+  await models.Schedules.updateOne({ _id: schedule._id }, { status: 'Done' });
+
+  if (!!countSchedule && countWaitingSchedule === 0) {
+    await models.Plans.updateOne(
+      { _id: schedule.planId },
+      { status: 'archived' }
+    );
+  }
 
   console.log('connected risk assessment in cards successfully ');
   return 'done';

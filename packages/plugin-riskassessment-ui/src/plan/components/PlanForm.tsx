@@ -11,21 +11,23 @@ import {
   __
 } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
-import { DateContainer, ModalFooter } from '@erxes/ui/src/styles/main';
+import { Columns } from '@erxes/ui/src/styles/chooser';
+import { Column, DateContainer, ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { SelectIndicatorGroups, SelectIndicators } from '../../common/utils';
 import { FormContainer } from '../../styles';
-import { CardCustomFields } from '../common/utils';
-import { refetchQueries } from '../containers/Form';
+import { CardCustomFields, SelectStructure } from '../common/utils';
 import { mutations } from '../graphql';
 
 type Props = {
   history: any;
   schedule: any;
+  plan: any;
   planId?: string;
   cardType: string;
   pipelineId: string;
   closeModal: () => void;
+  refetch: (variables?: any) => Promise<any>;
   onSave: (doc: any) => void;
 };
 
@@ -44,8 +46,17 @@ class ScheduleForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { schedule, planId, closeModal, cardType, pipelineId } = this.props;
+    const {
+      schedule,
+      planId,
+      closeModal,
+      cardType,
+      pipelineId,
+      plan,
+      refetch
+    } = this.props;
     const { useGroup, doc } = this.state;
+    const { structureType } = plan;
 
     const handleChange = (value, name) => {
       this.setState({ doc: { ...doc, [name]: value } });
@@ -73,11 +84,15 @@ class ScheduleForm extends React.Component<Props, State> {
       client
         .mutate({
           mutation: gql(mutation),
-          variables: { planId, ...doc },
-          refetchQueries: refetchQueries(planId)
+          variables: { planId, ...doc }
         })
         .then(() => {
+          Alert.success('Added schedule successfully');
+          refetch();
           closeModal();
+        })
+        .catch(err => {
+          Alert.error(err.message);
         });
     };
 
@@ -109,15 +124,26 @@ class ScheduleForm extends React.Component<Props, State> {
             />
           )}
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Assign To')}</ControlLabel>
-          <SelectTeamMembers
-            initialValue={doc.assignedUserIds}
-            label="Assign To"
-            name="assignedUserIds"
-            onSelect={handleChange}
-          />
-        </FormGroup>
+        <Columns style={{ gap: '20px' }}>
+          <Column>
+            <FormGroup>
+              <ControlLabel>{__('Assign To')}</ControlLabel>
+              <SelectTeamMembers
+                initialValue={doc.assignedUserIds}
+                label="Assign To"
+                name="assignedUserIds"
+                onSelect={handleChange}
+              />
+            </FormGroup>
+          </Column>
+          <Column>
+            <SelectStructure
+              structureType={structureType}
+              structureTypeIds={schedule?.structureTypeIds}
+              onChange={handleChange}
+            />
+          </Column>
+        </Columns>
         <FormGroup>
           <ControlLabel>{__('Date')}</ControlLabel>
           <DateContainer>

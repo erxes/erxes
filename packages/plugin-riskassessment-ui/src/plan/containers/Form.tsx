@@ -85,7 +85,6 @@ class Form extends React.Component<FinalProps> {
           variables={values}
           callback={afterMutate}
           isSubmitted={isSubmitted}
-          refetchQueries={object ? refetchQueries(object._id) : []}
           type="submit"
           confirmationUpdate={confirmationUpdate}
           successMessage={`You successfully ${successAction} a ${name}`}
@@ -97,6 +96,7 @@ class Form extends React.Component<FinalProps> {
       confirm().then(() => {
         removeScheduleMutationResponse({ variables: { id } })
           .then(() => {
+            planQueryResponse.refetch();
             Alert.success('Removed schedule successfully');
           })
           .catch(err => {
@@ -108,6 +108,7 @@ class Form extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       detail: planQueryResponse?.riskAssessmentPlan,
+      refetch: planQueryResponse.refetch,
       renderButton,
       closeModal,
       removeSchedule
@@ -117,13 +118,6 @@ class Form extends React.Component<FinalProps> {
   }
 }
 
-export const refetchQueries = _id => [
-  {
-    query: gql(queries.plan),
-    variables: { _id }
-  }
-];
-
 export default withProps<Props>(
   compose(
     graphql<Props, { riskAssessmentPlan: any } & QueryResponse>(
@@ -132,15 +126,13 @@ export default withProps<Props>(
         name: 'planQueryResponse',
         skip: ({ _id }) => !_id,
         options: ({ _id }) => ({
-          variables: { _id }
+          variables: { _id },
+          fetchPolicy: 'no-cache'
         })
       }
     ),
     graphql<Props>(gql(mutations.removeSchedule), {
-      name: 'removeScheduleMutationResponse',
-      options: ({ _id }) => ({
-        refetchQueries: refetchQueries(_id)
-      })
+      name: 'removeScheduleMutationResponse'
     })
   )(Form)
 );

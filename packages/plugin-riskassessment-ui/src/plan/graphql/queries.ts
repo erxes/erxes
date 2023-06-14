@@ -1,11 +1,13 @@
 import { commonPaginateDef, commonPaginateValue } from '../../common/graphql';
 
 const commonParamsDef = `
-${commonPaginateDef}
+  $isArchived:Boolean,
+  ${commonPaginateDef}
 `;
 
 const commonParamsValue = `
-${commonPaginateValue}
+  isArchived:$isArchived,
+  ${commonPaginateValue}
 `;
 
 const plans = `
@@ -25,17 +27,18 @@ const scheduleTypes = `
       _id
       customFieldsData
       assignedUserIds
+      structureTypeIds
       date
       groupId
       indicatorId
       name
+      status
 `;
 
 const planTypes = `
     _id
     name
     structureType
-    structureTypeIds
     configs
     createdAt
     modifiedAt

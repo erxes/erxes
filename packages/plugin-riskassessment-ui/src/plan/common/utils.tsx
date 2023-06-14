@@ -6,8 +6,14 @@ import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
 import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
-import { Spinner } from '@erxes/ui/src';
+import { ControlLabel, FormGroup, Spinner } from '@erxes/ui/src';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import React from 'react';
+import { SelectOperations } from '../../common/utils';
+
+const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
+
 export function CardCustomFields({
   type,
   pipelineId,
@@ -176,5 +182,63 @@ export function CardCustomFields({
         );
       })}
     </>
+  );
+}
+
+export function SelectStructure({
+  structureType,
+  structureTypeIds,
+  filter,
+  onChange
+}: {
+  structureType: string;
+  structureTypeIds: string[];
+  filter?: any;
+  onChange: (value, name) => void;
+}) {
+  const content = () => {
+    switch (structureType) {
+      case 'branch':
+        return (
+          <SelectBranches
+            label="Select Branch"
+            name="structureTypeIds"
+            filterParams={filter}
+            initialValue={structureTypeIds}
+            onSelect={onChange}
+          />
+        );
+      case 'department':
+        return (
+          <SelectDepartments
+            label="Select Department"
+            name="structureTypeIds"
+            filterParams={filter}
+            initialValue={structureTypeIds}
+            onSelect={onChange}
+          />
+        );
+      case 'operation':
+        return (
+          <SelectOperations
+            label="Select Operation"
+            name="structureTypeIds"
+            filterParams={filter}
+            initialValue={structureTypeIds}
+            onSelect={onChange}
+            multi
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <FormGroup>
+      <ControlLabel>{capitalize(structureType)}</ControlLabel>
+      {content()}
+    </FormGroup>
   );
 }

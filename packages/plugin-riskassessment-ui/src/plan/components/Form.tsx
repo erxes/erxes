@@ -18,8 +18,6 @@ import {
   ControlWrapper,
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import {
   IButtonMutateProps,
   IFormProps,
@@ -28,7 +26,6 @@ import {
 import moment from 'moment';
 import React from 'react';
 import Select from 'react-select-plus';
-import { SelectOperations } from '../../common/utils';
 import { FormContainer, PlanCard, PlanContainer } from '../../styles';
 import { CARDTYPES, STRUCTURETYPES } from '../common/constants';
 import ScheduleForm from './PlanForm';
@@ -38,6 +35,7 @@ type Props = {
   renderButton: (variables: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   removeSchedule: (_id: string) => void;
+  refetch: (variables?: any) => Promise<any>;
 } & IRouterProps;
 
 type State = {
@@ -45,26 +43,28 @@ type State = {
   useGroup: boolean;
 };
 
-const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
-
 class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      plan: { ...props?.detail } || {},
+      plan: props?.detail || {},
       useGroup: false
     };
 
     this.renderContent = this.renderContent.bind(this);
   }
 
+  componentDidUpdate(prevProps: Props) {
+    if (
+      JSON.stringify(prevProps.detail) !== JSON.stringify(this.props.detail)
+    ) {
+      this.setState({ plan: this.props.detail });
+    }
+  }
+
   onChange = (value, name) => {
     const { plan } = this.state;
-
-    if (name === 'structureType') {
-      delete plan?.structureTypeIds;
-    }
     plan[name] = value;
 
     this.setState({ plan });
@@ -74,56 +74,8 @@ class Form extends React.Component<Props, State> {
     return this.state.plan;
   }
 
-  renderSelectStructure() {
-    const {
-      plan: { structureType, structureTypeIds }
-    } = this.state;
-
-    const content = () => {
-      switch (structureType) {
-        case 'branch':
-          return (
-            <SelectBranches
-              label="Select Branch"
-              name="structureTypeIds"
-              initialValue={structureTypeIds}
-              onSelect={this.onChange}
-            />
-          );
-        case 'department':
-          return (
-            <SelectDepartments
-              label="Select Department"
-              name="structureTypeIds"
-              initialValue={structureTypeIds}
-              onSelect={this.onChange}
-            />
-          );
-        case 'operation':
-          return (
-            <SelectOperations
-              label="Select Operation"
-              name="structureTypeIds"
-              initialValue={structureTypeIds}
-              onSelect={this.onChange}
-              multi
-            />
-          );
-
-        default:
-          return null;
-      }
-    };
-
-    return (
-      <FormGroup>
-        <ControlLabel>{capitalize(structureType)}</ControlLabel>
-        {content()}
-      </FormGroup>
-    );
-  }
-
   renderScheduleConfig(schedule) {
+    const { history, detail, refetch, removeSchedule } = this.props;
     const {
       plan: { configs = {}, schedules = [] }
     } = this.state;
@@ -138,13 +90,15 @@ class Form extends React.Component<Props, State> {
 
     const handleRemomve = e => {
       e.stopPropagation();
-      this.props.removeSchedule(schedule._id);
+      removeSchedule(schedule._id);
     };
 
     const content = ({ closeModal }) => {
       const updatedProps = {
-        history: this.props.history,
-        planId: this.props.detail._id,
+        history,
+        refetch,
+        planId: detail._id,
+        plan: this.state.plan,
         closeModal,
         cardType: configs.cardType,
         pipelineId: configs.pipelineId,
@@ -169,15 +123,11 @@ class Form extends React.Component<Props, State> {
           />
           <div>
             <h4>{schedule.name}</h4>
-            {schedule?.date ? moment(schedule?.date).format('lll HH:mm') : '-'}
+            {schedule?.date ? moment(schedule?.date).format('L') : '-'}
           </div>
         </div>
-        <Button
-          btnStyle="link"
-          style={{ color: 'red' }}
-          onClick={handleRemomve}
-        >
-          <Icon icon="times-circle" />
+        <Button btnStyle="link" onClick={handleRemomve}>
+          <Icon icon="times-circle" style={{ color: 'red' }} />
         </Button>
       </PlanCard>
     );
@@ -185,6 +135,7 @@ class Form extends React.Component<Props, State> {
     return (
       <ModalTrigger
         key={schedule._id}
+        size="lg"
         title={`Edit Plan`}
         content={content}
         trigger={trigger}
@@ -192,9 +143,9 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderGeneralConfig(formProps: IFormProps) {
+  renderGeneralConfig() {
     const { plan } = this.state;
-    const { configs } = plan;
+    const { structureType, configs } = plan;
 
     const handleChange = (e: React.FormEvent<HTMLElement>) => {
       const { value, name } = e.currentTarget as HTMLInputElement;
@@ -230,10 +181,8 @@ class Form extends React.Component<Props, State> {
             onChange={props => this.onChange(props?.value, 'structureType')}
           />
         </FormGroup>
-        {plan?.structureType && (
+        {structureType && (
           <>
-            {this.renderSelectStructure()}
-
             <FormGroup>
               <ControlLabel>{__('Card Type')}</ControlLabel>
               <Select
@@ -294,16 +243,19 @@ class Form extends React.Component<Props, State> {
   renderAddPlanForm() {
     const { plan } = this.state;
     const { schedules = [], configs } = plan;
+    const { detail, history, refetch } = this.props;
 
     if (!configs?.pipelineId) {
       return null;
     }
-    const trigger = <Button>{__('Add')}</Button>;
+    const trigger = <Button btnStyle="success">{__('Add')}</Button>;
 
     const content = ({ closeModal }) => {
       const updatedProps = {
-        history: this.props.history,
-        planId: this.props?.detail?._id,
+        history,
+        refetch,
+        planId: detail?._id,
+        plan: this.state.plan,
         closeModal,
         cardType: configs?.cardType,
         pipelineId: configs.pipelineId,
@@ -316,7 +268,12 @@ class Form extends React.Component<Props, State> {
     };
 
     return (
-      <ModalTrigger title="Add Schedule" content={content} trigger={trigger} />
+      <ModalTrigger
+        title="Add Schedule"
+        size="lg"
+        content={content}
+        trigger={trigger}
+      />
     );
   }
 
@@ -346,8 +303,6 @@ class Form extends React.Component<Props, State> {
 
       const fieldName = detail ? detail._id : 'create';
 
-      console.log('ds');
-
       return steps[fieldName] || 0;
     };
 
@@ -360,7 +315,7 @@ class Form extends React.Component<Props, State> {
             noButton
             onClick={saveSteps}
           >
-            {this.renderGeneralConfig(formProps)}
+            {this.renderGeneralConfig()}
           </Step>
 
           <Step

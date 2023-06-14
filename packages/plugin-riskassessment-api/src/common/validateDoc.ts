@@ -7,7 +7,7 @@ export const validatePlan = async ({
   models: IModels;
   doc: any;
 }) => {
-  if (!doc.structureType || !doc?.structureTypeIds?.length) {
+  if (!doc.structureType) {
     throw new Error('Please specify a structure type');
   }
 
@@ -22,8 +22,7 @@ export const validatePlan = async ({
 
   if (
     await models.Plans.findOne({
-      structureType: doc.structureType,
-      structureTypeIds: { $in: doc.structureTypeIds }
+      structureType: doc.structureType
     })
   ) {
     throw new Error('plan already exists with this configuration');

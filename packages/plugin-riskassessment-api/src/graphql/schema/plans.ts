@@ -7,6 +7,8 @@ type PlanSchedule {
     name: String
     indicatorId: String,
     assignedUserIds:[String]
+    structureTypeIds: [String],
+    status:String,
     groupId:String,
     date:Date,
     customFieldsData:JSON
@@ -16,7 +18,6 @@ type Plan {
     _id: String,
     name: String,
     structureType: String,
-    structureTypeIds: [String],
     configs:JSON,
     createdAt: Date,
     modifiedAt: Date
@@ -28,7 +29,6 @@ type Plan {
 const commonMutationsParams = `
     name:String,
     structureType:String,
-    structureTypeIds:[String],
     configs:JSON,
 `;
 
@@ -36,6 +36,7 @@ const commonScheduleParams = `
     planId:String,
     indicatorId:String,
     groupId:String,
+    structureTypeIds:[String],
     date:String,
     assignedUserIds:[String],
     name:String,
@@ -45,7 +46,7 @@ const commonScheduleParams = `
 export const mutations = `
     addRiskAssessmentPlan(${commonMutationsParams}):JSON
     updateRiskAssessmentPlan(_id:String,${commonMutationsParams}):JSON
-    removeRiskAssessmentPlan(_id:String):JSON
+    removeRiskAssessmentPlan(ids:[String]):JSON
 
     addRiskAssessmentPlanSchedule(${commonScheduleParams}):JSON
     updateRiskAssessmentPlanSchedule(_id:String,${commonScheduleParams}):JSON
@@ -53,6 +54,7 @@ export const mutations = `
 `;
 
 const commonQueriesParams = `
+    isArchived:Boolean,
     ${commonPaginateTypes}
     ${commonDateTypes}
 `;

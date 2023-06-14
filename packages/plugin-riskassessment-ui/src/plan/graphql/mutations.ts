@@ -1,14 +1,12 @@
 const commonPlanParams = `
     $name: String,
     $structureType: String,
-    $structureTypeIds: [String],
     $configs: JSON
 `;
 
 const commonPlanParamsDef = `
     name: $name,
     structureType: $structureType,
-    structureTypeIds: $structureTypeIds,
     configs: $configs
 `;
 
@@ -25,8 +23,8 @@ const updatePlan = `
 `;
 
 const removePlan = `
-    mutation RemoveRiskAssessmentPlan($id: String) {
-      removeRiskAssessmentPlan(_id: $id)
+    mutation RemoveRiskAssessmentPlan($ids: [String]) {
+      removeRiskAssessmentPlan(ids: $ids)
     }
 `;
 
@@ -36,17 +34,19 @@ const commonScheduleParams = `
     $groupId: String,
     $date: String,
     $assignedUserIds: [String],
+    $structureTypeIds: [String],
     $name: String,
     $customFieldsData: JSON
 `;
 
 const commonScheduleParamsDef = `
+    name: $name,
     planId: $planId,
     indicatorId: $indicatorId,
     groupId: $groupId,
     date: $date,
     assignedUserIds: $assignedUserIds,
-    name: $name,
+    structureTypeIds: $structureTypeIds,
     customFieldsData: $customFieldsData
 `;
 

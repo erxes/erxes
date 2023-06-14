@@ -4,9 +4,12 @@ import {
   FormControl,
   HeaderDescription,
   ModalTrigger,
+  SortHandler,
   Table,
+  Tip,
   __
 } from '@erxes/ui/src';
+import { setParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { subMenu } from '../../common/constants';
@@ -18,10 +21,13 @@ type Props = {
   list: any[];
   totalCount: number;
   queryParams: any;
+  history: any;
+  removePlans: (ids: string[]) => void;
 };
 
 type State = {
   selectedItems: string[];
+  showFilters: boolean;
 };
 
 class List extends React.Component<Props, State> {
@@ -29,7 +35,8 @@ class List extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedItems: []
+      selectedItems: [],
+      showFilters: false
     };
   }
 
@@ -82,8 +89,14 @@ class List extends React.Component<Props, State> {
               />
             </th>
             <th>{__('Name')}</th>
-            <th>{__('Created At')}</th>
-            <th>{__('Modified At')}</th>
+            <th>
+              <SortHandler sortField="createdAt" />
+              {__('Created At')}
+            </th>
+            <th>
+              <SortHandler sortField="modifiedAt" />
+              {__('Modified At')}
+            </th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
@@ -102,7 +115,19 @@ class List extends React.Component<Props, State> {
   }
 
   render() {
-    const { totalCount } = this.props;
+    const { totalCount, removePlans, queryParams, history } = this.props;
+    const { selectedItems } = this.state;
+
+    const onSelectFilter = (name, value) => {
+      setParams(history, { [name]: value });
+    };
+
+    const isArchived = queryParams?.isArchived === 'true';
+
+    const handleRemove = () => {
+      removePlans(selectedItems);
+      this.setState({ selectedItems: [] });
+    };
 
     const leftActionBar = (
       <HeaderDescription
@@ -114,11 +139,26 @@ class List extends React.Component<Props, State> {
 
     const rightActionBar = (
       <BarItems>
+        {!!selectedItems.length && (
+          <Button btnStyle="danger" onClick={handleRemove}>
+            {__(`Remove (${selectedItems.length})`)}
+          </Button>
+        )}
         <Button btnStyle="success">
           <Link to={`/settings/risk-assessment-plans/add`}>
             {__('Add Plan')}
           </Link>
         </Button>
+        <Tip
+          text={`See ${isArchived ? 'Active' : 'Archived'} Plans`}
+          placement="bottom"
+        >
+          <Button
+            btnStyle="link"
+            icon={isArchived ? 'calendar-alt' : 'archive-alt'}
+            onClick={() => onSelectFilter('isArchived', !isArchived)}
+          />
+        </Tip>
       </BarItems>
     );
 

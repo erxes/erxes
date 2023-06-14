@@ -15,6 +15,7 @@ export type IPlan = {
 export type ISchedule = {
   name: string;
   indicatorId?: string;
+  structureTypeIds: string[];
   assignedUserIds: string[];
   groupId?: string;
   date: string;
@@ -32,8 +33,17 @@ export const schedulesSchema = new Schema({
   _id: field({ pkey: true }),
   planId: field({ type: String, label: 'planId' }),
   name: field({ type: String, label: 'Name' }),
-  indicatorId: field({ type: String, label: 'IndicatorId', optional: true }),
+  indicatorId: field({
+    type: String,
+    label: 'IndicatorId',
+    optional: true
+  }),
   groupId: field({ type: String, label: 'groupId', optional: true }),
+  structureTypeIds: field({
+    type: [String],
+    label: 'Structure Type Ids',
+    required: true
+  }),
   assignedUserIds: field({
     type: [String],
     label: 'AssignUserIds',
@@ -66,11 +76,6 @@ export const plansSchema = new Schema({
   structureType: field({
     type: String,
     label: 'Structure Type',
-    required: true
-  }),
-  structureTypeIds: field({
-    type: [String],
-    label: 'Structure Type Ids',
     required: true
   }),
   configs: field({ type: configSchema, label: 'configs' }),

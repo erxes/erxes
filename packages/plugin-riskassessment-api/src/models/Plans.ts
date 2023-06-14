@@ -21,7 +21,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
         throw new Error(error.message);
       }
 
-      return models.Plans.create({ ...doc, plannerId: user.id });
+      return models.Plans.create({ ...doc, plannerId: user._id });
     }
 
     public static async editPlan(_id, doc) {
@@ -29,6 +29,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
     }
 
     public static async removePlans(ids) {
+      await models.Schedules.deleteMany({ planId: { $in: ids } });
       return models.Plans.deleteMany({ _id: { $in: ids } });
     }
 
@@ -36,7 +37,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       const plan = models.Plans.findOne({ _id: planId });
 
       if (!plan) {
-        throw new Error('cannot find schedule');
+        throw new Error('Cannot find schedule');
       }
 
       if (
@@ -45,7 +46,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
           $or: [{ indicatorId: doc.indicatorId }, { groupId: doc.groupId }]
         })
       ) {
-        throw new Error('cannot add schedule with selected date');
+        throw new Error('Cannot add schedule with selected date');
       }
 
       return await models.Schedules.create({ planId, ...doc });
@@ -54,10 +55,16 @@ export const loadPlans = (models: IModels, subdomain: string) => {
     public static async editSchedule(args: any) {
       const { _id, planId, ...doc } = args;
 
-      return await models.Schedules.findOneAndUpdate(
-        { _id, planId },
+      const updatedSchedule = await models.Schedules.findOneAndUpdate(
+        { _id, planId, status: 'Waiting' },
         { $set: { ...doc } }
       );
+
+      if (!updatedSchedule) {
+        throw new Error('Could not update schedule');
+      }
+
+      return updatedSchedule;
     }
     public static async removeSchedule(_id: string) {
       return await models.Schedules.findByIdAndDelete(_id);
