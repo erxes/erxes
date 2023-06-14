@@ -24,39 +24,47 @@ type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
 };
 
-function renderForm(props) {
-  return <Form {...props} renderButton={this.props.renderButton} />;
-}
+// function renderForm(props) {
+//   return <Form {...props} renderButton={this.props.renderButton} />;
+// }
 
-function removeTemplate(object) {
-  this.props.remove(object._id);
-}
+// function removeTemplate(object) {
+//   this.props.remove(object._id);
+// }
 
 function duplicateTemplate(id) {
   this.props.duplicate(id);
 }
 
-function renderEditAction(object) {
-  const { save } = this.props;
+// function renderEditAction(object) {
+//   const { save } = this.props;
 
-  const content = props => {
-    return renderForm({ ...props, object, save });
-  };
+//   const content = (props) => {
+//     return renderForm({ ...props, object, save });
+//   };
 
-  return (
-    <ModalTrigger
-      enforceFocus={false}
-      title="Edit"
-      size="lg"
-      trigger={
-        <div>
-          <Icon icon="edit" /> Edit
-        </div>
-      }
-      content={content}
-    />
-  );
-}
+//   return (
+//     <ModalTrigger
+//       enforceFocus={false}
+//       title="Edit"
+//       size="lg"
+//       trigger={
+//         <div>
+//           <Icon icon="edit" /> Edit
+//         </div>
+//       }
+//       content={content}
+//     />
+//   );
+// }
+
+// function renderRemoveTemplate(object) {
+//   return (
+//     <div onClick={removeTemplate.bind(this, object)}>
+//       <Icon icon="cancel-1" /> Delete
+//     </div>
+//   );
+// }
 
 function renderDuplicateAction(object) {
   return (
@@ -99,9 +107,7 @@ function EmailTemplateRow({ object, index, isChecked, toggleBulk }: Props) {
       <TemplateBox>
         <Actions>
           {/* {renderEditAction(object)} */}
-          <div onClick={removeTemplate.bind(this, object)}>
-            <Icon icon="cancel-1" /> Delete
-          </div>
+          {/* {renderRemoveTemplate(object)} */}
           {renderDuplicateAction(object)}
         </Actions>
         <IframePreview>
