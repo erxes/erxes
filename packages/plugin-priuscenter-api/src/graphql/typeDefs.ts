@@ -28,18 +28,29 @@ const types = `
 
     ${params}
   }
+
+  type AdWislist {
+    _id: String!
+    cpUserId: String
+    adIds: [String] 
+
+    ads: [Ad]
+  }
 `;
 
 const queries = `
-  ads(limit: Int, skip: Int, priceRange: String, cpUserId: String, ${params}): [Ad]
+  ads(perPage: Int, page: Int, priceRange: String, cpUserId: String, ${params}): [Ad]
   adDetail(_id: String): Ad
   adsTotalCount: Int
+  adWishlist: AdWislist
 `;
 
 const mutations = `
   adsAdd(${params}): Ad
   adsRemove(_id: String!): JSON
   adsEdit(_id: String!, ${params}): Ad
+  adWishlistAdd(_id: String!): AdWislist
+  adWishlistRemove(_id: String!): AdWislist
 `;
 
 const typeDefs = async _serviceDiscovery => {
