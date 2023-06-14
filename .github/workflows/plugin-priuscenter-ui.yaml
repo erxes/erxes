@@ -1,4 +1,4 @@
-name: Plugin webbuilder UI CI
+name: Plugin priuscenter UI CI
 
 on:
   push:
@@ -19,9 +19,9 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
-      - 'packages/ui-webbuilder/**'
-      - 'packages/plugin-webbuilder-ui/**'
-      - '.github/workflows/plugin-webbuilder-ui.yaml'
+      - 'packages/ui-priuscenter/**'
+      - 'packages/plugin-priuscenter-ui/**'
+      - '.github/workflows/plugin-priuscenter-ui.yaml'
   pull_request:
     branches:
       - dev
@@ -40,9 +40,9 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
-      - 'packages/ui-webbuilder/**'
-      - 'packages/plugin-webbuilder-ui/**'
-      - '.github/workflows/plugin-webbuilder-ui.yaml'
+      - 'packages/ui-priuscenter/**'
+      - 'packages/plugin-priuscenter-ui/**'
+      - '.github/workflows/plugin-priuscenter-ui.yaml'
 
 jobs:
   ui:
@@ -59,9 +59,9 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-webbuilder-ui/.erxes
-          cp -r packages/plugin-webbuilder-ui/src packages/plugin-webbuilder-ui/.erxes/plugin-src
-          cd packages/plugin-webbuilder-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-priuscenter-ui/.erxes
+          cp -r packages/plugin-priuscenter-ui/src packages/plugin-priuscenter-ui/.erxes/plugin-src
+          cd packages/plugin-priuscenter-ui
           yarn install
           yarn install-deps
           yarn build
@@ -77,7 +77,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
-          tar -cf build.tar --directory=packages/plugin-webbuilder-ui/.erxes/dist .
-          cp build.tar packages/plugin-webbuilder-ui/.erxes/dist
-          rm -rf packages/plugin-webbuilder-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-webbuilder-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-webbuilder-ui --delete
+          tar -cf build.tar --directory=packages/plugin-priuscenter-ui/.erxes/dist .
+          cp build.tar packages/plugin-priuscenter-ui/.erxes/dist
+          rm -rf packages/plugin-priuscenter-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-priuscenter-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-priuscenter-ui --delete
