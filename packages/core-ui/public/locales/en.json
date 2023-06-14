@@ -2134,5 +2134,6 @@
   "No timezone chosen": "No timezone chosen",
   "Default Timezone": "Default Timezone",
   "This timezone will be calculated if supporters haven't chosen one.": "This timezone will be calculated if supporters haven't chosen one.",
-  "Display Operator Timezone": "Display Operator Timezone"
+  "Display Operator Timezone": "Display Operator Timezone",
+  "Test": "Test"
 }
