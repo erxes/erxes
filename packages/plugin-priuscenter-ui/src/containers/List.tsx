@@ -6,7 +6,8 @@ import List from '../components/List';
 import {
   EditMutationResponse,
   RemoveMutationResponse,
-  AdQueryResponse
+  AdQueryResponse,
+  AdTotalCountQueryResponse
 } from '../types';
 import { mutations, queries } from '../graphql';
 import React from 'react';
@@ -15,20 +16,31 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
+  queryParams: {
+    page: string;
+    perPage: string;
+  };
   history: any;
   typeId: string;
 };
 
 type FinalProps = {
   listQuery: AdQueryResponse;
+  totalCountQuery: AdTotalCountQueryResponse;
 } & Props &
   RemoveMutationResponse &
   EditMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { listQuery, removeMutation, editMutation, history, typeId } = props;
+  const {
+    listQuery,
+    totalCountQuery,
+    removeMutation,
+    editMutation,
+    typeId
+  } = props;
 
-  if (listQuery.loading) {
+  if (listQuery.loading || totalCountQuery.loading) {
     return <Spinner />;
   }
 
@@ -49,7 +61,7 @@ const ListContainer = (props: FinalProps) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={['listQuery']}
+        refetchQueries={['listQuery', 'adsTotalCount']}
       />
     );
   };
@@ -81,12 +93,12 @@ const ListContainer = (props: FinalProps) => {
       })
       .catch(e => Alert.error(e.message));
   };
-
   const updatedProps = {
     ...props,
     ads: listQuery.ads || [],
+    totalCount: totalCountQuery.adsTotalCount || 0,
     typeId,
-    loading: listQuery.loading,
+    loading: listQuery.loading || totalCountQuery.loading,
     remove,
     edit,
     renderButton
@@ -99,11 +111,16 @@ export default withProps<Props>(
   compose(
     graphql<Props, AdQueryResponse, { typeId: string }>(gql(queries.list), {
       name: 'listQuery',
-      options: ({ typeId }) => ({
-        variables: { typeId: typeId || '' },
+      options: ({ queryParams, typeId }) => ({
+        variables: {
+          typeId: typeId || '',
+          page: queryParams?.page ? parseInt(queryParams.page, 10) : 1,
+          perPage: queryParams?.perPage ? parseInt(queryParams.perPage, 10) : 20
+        },
         fetchPolicy: 'network-only'
       })
     }),
+
     graphql(gql(queries.totalCount), {
       name: 'totalCountQuery'
     }),
@@ -111,7 +128,7 @@ export default withProps<Props>(
     graphql(gql(mutations.remove), {
       name: 'removeMutation',
       options: () => ({
-        refetchQueries: ['listQuery']
+        refetchQueries: ['listQuery', 'adsTotalCount']
       })
     }),
 
