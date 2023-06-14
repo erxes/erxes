@@ -2150,5 +2150,6 @@
   "Default Timezone": "Default Timezone",
   "This timezone will be calculated if supporters haven't chosen one.": "This timezone will be calculated if supporters haven't chosen one.",
   "Display Operator Timezone": "Display Operator Timezone",
-  "Test": "Test"
+  "Test": "Test",
+  "Test1": "Test1"
 }
