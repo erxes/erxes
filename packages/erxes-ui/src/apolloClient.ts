@@ -11,6 +11,7 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { __, getEnv } from './utils/core';
 import { createClient } from 'graphql-ws';
+import noIdNestedTypes from './no-id-nested-types';
 
 const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 
@@ -71,25 +72,26 @@ const link = split(
   httpLinkWithMiddleware
 );
 
+const typePolicies = {};
+const mergeAndNoKeyField = { merge: true, keyFields: false };
+for (const noIdNestedType of noIdNestedTypes) {
+  typePolicies[noIdNestedType] = mergeAndNoKeyField;
+}
+
 // Creating Apollo-client
 const client = new ApolloClient({
   cache: new InMemoryCache({
-    typePolicies: {
-      User: {
-        fields: {
-          details: {
-            merge(existing, incoming, { mergeObjects }) {
-              return mergeObjects(existing, incoming);
-            }
-          }
-        }
-      }
-    },
+    typePolicies,
     addTypename: true
   }),
   queryDeduplication: true,
   link,
-  connectToDevTools: true
+  connectToDevTools: true,
+  /* assumeImmutableResults: true. This depends on the fact that Apollo's InMemoryCache's result are immutable.
+    Cache solutions other than InMemoryCache might be mutable. If the cache solution is mutable, then
+    assumeImmutableResults should be set to false.
+  */
+  assumeImmutableResults: true
 });
 
 export default client;
