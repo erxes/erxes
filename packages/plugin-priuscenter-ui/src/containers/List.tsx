@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
+import { graphql } from 'react-apollo';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import {
