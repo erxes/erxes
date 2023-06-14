@@ -75,8 +75,14 @@ const link = split(
 const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies: {
-      UserDetailsType: {
-        merge: true
+      User: {
+        fields: {
+          details: {
+            merge(existing, incoming, { mergeObjects }) {
+              return mergeObjects(existing, incoming);
+            }
+          }
+        }
       }
     },
     addTypename: true
