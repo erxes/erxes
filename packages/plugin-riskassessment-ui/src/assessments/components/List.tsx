@@ -142,7 +142,6 @@ class List extends React.Component<Props, State> {
       content: this.renderContent(),
       leftActionBar,
       rightActionBar,
-      subMenu,
       sidebar: (
         <SideBar history={this.props.history} queryParams={queryParams} />
       ),
