@@ -27,7 +27,7 @@ export default function Avatar({ user = {} as IUser, date, viewCount }: Props) {
         alt={fullName}
         src={avatar ? readFile(avatar) : "/static/avatar-colored.svg"}
       />
-      <div className="detail avatar-info d-flex">
+      <div className="detail avatar-info d-flex flex-wrap">
         <div>
           Written by
           <span>{fullName}</span>

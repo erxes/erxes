@@ -70,7 +70,7 @@ class Sidebar extends React.Component<Props, {}> {
         hasBorder={true}
         header={this.renderSidebarHeader()}
       >
-        <SidebarList noTextColor noBackground>
+        <SidebarList noTextColor={true} noBackground={true}>
           {this.renderItems()}
         </SidebarList>
         {loading && <Spinner />}

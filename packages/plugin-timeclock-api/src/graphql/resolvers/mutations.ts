@@ -106,9 +106,11 @@ const timeclockMutations = {
       timeclock = await models.Timeclocks.createTimeClock({
         shiftStart: new Date(),
         shiftActive: true,
-        userId: userId ? `${userId}` : user._id,
+        userId: getUserId,
         branchName: getBranchName,
-        deviceType: `${deviceType}`
+        deviceType,
+        inDevice: getBranchName,
+        inDeviceType: deviceType
       });
     } else {
       throw new Error('User not in the coordinate');
@@ -143,6 +145,8 @@ const timeclockMutations = {
     const userInfo = await findUser(subdomain, getUserId);
     const branches = await findBranches(subdomain, userInfo.branchIds);
 
+    let outDevice;
+
     for (const branch of branches) {
       // convert into radians
       const branchLong = (branch.coordinate.longitude * Math.PI) / 180;
@@ -166,6 +170,7 @@ const timeclockMutations = {
       // if user's coordinate is within the radius
       if (dist * 1000 <= branch.radius) {
         insideCoordinate = true;
+        outDevice = branch.title;
       }
     }
 
@@ -180,6 +185,8 @@ const timeclockMutations = {
         shiftEnd: new Date(),
         shiftActive: false,
         deviceType: getShiftStartDeviceType + ' x ' + deviceType,
+        outDeviceType: deviceType,
+        outDevice,
         userId: getUserId,
         ...doc
       });
@@ -731,10 +738,16 @@ const timeclockMutations = {
     });
   },
 
-  createTimeClockFromLog(_root, { userId, timelog }, { models }: IContext) {
+  createTimeClockFromLog(
+    _root,
+    { userId, timelog, inDevice },
+    { models }: IContext
+  ) {
     return models.Timeclocks.createTimeClock({
       shiftStart: timelog,
       userId,
+      inDeviceType: 'log',
+      inDevice,
       shiftActive: true
     });
   },

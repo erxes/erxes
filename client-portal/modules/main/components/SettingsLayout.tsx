@@ -1,11 +1,10 @@
 import { Config, IUser } from "../../types";
 import { LeftContent, LeftSidebar } from "../../styles/profile";
-import React, { useState } from "react";
 
 import Dropdown from "react-bootstrap/Dropdown";
 import Icon from "../../common/Icon";
-import Link from "next/link";
 import NameCard from "../../common/nameCard/NameCard";
+import React from "react";
 import { getConfigColor } from "../../common/utils";
 import { renderUserFullName } from "../../utils";
 import { useRouter } from "next/router";

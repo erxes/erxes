@@ -1,12 +1,15 @@
 import { IUser, NotificationsQueryResponse } from "../../../types";
 import { gql, useMutation, useQuery } from "@apollo/client";
 
+import Alert from "../../../utils/Alert";
 import NotificationList from "../../components/notifications/List";
 import React from "react";
+import queries from "../../../user/graphql/queries";
 
 type Props = {
   count: number;
   currentUser: IUser;
+  config: any;
   requireRead?: boolean;
 };
 
@@ -57,7 +60,26 @@ const markAsReadMutation = gql`
 `;
 
 function NotificationsContainer(props: Props) {
-  const [markAsReadMutaion] = useMutation(markAsReadMutation);
+  const [markAsReadMutaion] = useMutation(markAsReadMutation, {
+    refetchQueries: [
+      {
+        query: notificationsQuery,
+        context: {
+          headers: {
+            "erxes-app-token": props.config?.erxesAppToken,
+          },
+        },
+      },
+      {
+        query: gql(queries.notificationsCountQuery),
+        context: {
+          headers: {
+            "erxes-app-token": props.config?.erxesAppToken,
+          },
+        },
+      },
+    ],
+  });
 
   const markAsRead = (ids: string[]) => {
     markAsReadMutaion({
@@ -72,7 +94,13 @@ function NotificationsContainer(props: Props) {
       variables: {
         markAll: true,
       },
-    });
+    })
+      .then(() => {
+        Alert.success("Notifications have been seen");
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
   };
 
   const notificationsResponse = useQuery<NotificationsQueryResponse>(

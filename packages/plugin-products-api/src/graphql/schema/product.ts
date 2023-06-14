@@ -113,8 +113,11 @@ const productsQueryParams = `
   categoryId: String,
   searchValue: String,
   tag: String,
+  ids: [String],
   page: Int,
-  perPage: Int ids: [String],
+  perPage: Int,
+  sortField: String
+  sortDirection: Int
   excludeIds: Boolean,
   pipelineId: String,
   boardId: String,
