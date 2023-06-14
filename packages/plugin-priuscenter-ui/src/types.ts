@@ -26,6 +26,12 @@ export type AdQueryResponse = {
   loading: boolean;
 };
 
+export type AdTotalCountQueryResponse = {
+  adsTotalCount: number;
+  refetch: () => void;
+  loading: boolean;
+};
+
 // mutations
 export type MutationVariables = {
   _id?: string;
