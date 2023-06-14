@@ -88,7 +88,7 @@ class ScheduleForm extends React.Component<Props, State> {
         })
         .then(() => {
           Alert.success('Added schedule successfully');
-          refetch();
+          refetch && refetch();
           closeModal();
         })
         .catch(err => {

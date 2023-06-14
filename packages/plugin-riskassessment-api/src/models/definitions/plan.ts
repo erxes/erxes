@@ -72,7 +72,7 @@ const configSchema = new Schema({
 
 export const plansSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String, label: 'Name', unique: true, required: true }),
+  name: field({ type: String, label: 'Name', required: true }),
   structureType: field({
     type: String,
     label: 'Structure Type',

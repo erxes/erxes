@@ -19,12 +19,4 @@ export const validatePlan = async ({
   if (!requiredConfigs.every(item => doc.configs.hasOwnProperty(item))) {
     throw new Error('Please fill in the required configuration for the plan');
   }
-
-  if (
-    await models.Plans.findOne({
-      structureType: doc.structureType
-    })
-  ) {
-    throw new Error('plan already exists with this configuration');
-  }
 };

@@ -25,7 +25,9 @@ export const loadPlans = (models: IModels, subdomain: string) => {
     }
 
     public static async editPlan(_id, doc) {
-      return models.Plans.findOneAndUpdate(_id, { $set: { ...doc } });
+      return models.Plans.findOneAndUpdate(_id, {
+        $set: { ...doc, modifiedAt: Date.now() }
+      });
     }
 
     public static async removePlans(ids) {
@@ -43,7 +45,11 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       if (
         await models.Schedules.findOne({
           date: doc.date,
-          $or: [{ indicatorId: doc.indicatorId }, { groupId: doc.groupId }]
+          $or: [
+            { indicatorId: doc.indicatorId },
+            { groupId: doc.groupId },
+            { structureTypeIds: { $in: doc.structureTypeIds } }
+          ]
         })
       ) {
         throw new Error('Cannot add schedule with selected date');

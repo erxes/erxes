@@ -108,7 +108,7 @@ class Form extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       detail: planQueryResponse?.riskAssessmentPlan,
-      refetch: planQueryResponse.refetch,
+      refetch: planQueryResponse?.refetch,
       renderButton,
       closeModal,
       removeSchedule
