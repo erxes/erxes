@@ -45,7 +45,7 @@ class EmailListContainer extends React.Component<Props> {
         mutation: gql(mutations.emailTemplatesDuplicate),
         variables: { _id: id }
       })
-      .then(() => {
+      .then((res: any) => {
         Alert.success('Successfully duplicated a template');
 
         this.props.refetch();
@@ -56,11 +56,15 @@ class EmailListContainer extends React.Component<Props> {
   };
 
   render() {
+    const updatedProps = {
+      ...this.props,
+      duplicate: this.duplicate
+    };
+
     const content = props => {
       return (
         <List
-          // {...updatedProps}
-          {...this.props}
+          {...updatedProps}
           {...props}
           {...generatePaginationParams(this.props.queryParams)}
         />

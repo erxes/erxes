@@ -22,72 +22,79 @@ type Props = {
   object: any;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
+  duplicate: (id: string) => void;
 };
 
-// function renderForm(props) {
-//   return <Form {...props} renderButton={this.props.renderButton} />;
-// }
-
-// function removeTemplate(object) {
-//   this.props.remove(object._id);
-// }
-
-function duplicateTemplate(id) {
-  this.props.duplicate(id);
-}
-
-// function renderEditAction(object) {
-//   const { save } = this.props;
-
-//   const content = (props) => {
-//     return renderForm({ ...props, object, save });
-//   };
-
-//   return (
-//     <ModalTrigger
-//       enforceFocus={false}
-//       title="Edit"
-//       size="lg"
-//       trigger={
-//         <div>
-//           <Icon icon="edit" /> Edit
-//         </div>
-//       }
-//       content={content}
-//     />
-//   );
-// }
-
-// function renderRemoveTemplate(object) {
-//   return (
-//     <div onClick={removeTemplate.bind(this, object)}>
-//       <Icon icon="cancel-1" /> Delete
-//     </div>
-//   );
-// }
-
-function renderDuplicateAction(object) {
-  return (
-    <div onClick={duplicateTemplate.bind(this, object._id)}>
-      <Icon icon="copy-1" />
-      Duplicate
-    </div>
-  );
-}
-
-function renderDate(createdAt, modifiedAt) {
-  if (createdAt === modifiedAt) {
-    if (createdAt === null) return '-';
-
-    return dayjs(createdAt).format('DD MMM YYYY');
-  }
-
-  return dayjs(modifiedAt).format('DD MMM YYYY');
-}
-
-function EmailTemplateRow({ object, index, isChecked, toggleBulk }: Props) {
+function EmailTemplateRow({
+  object,
+  index,
+  isChecked,
+  toggleBulk,
+  duplicate
+}: Props) {
   const { name, content, createdAt, modifiedAt, createdUser, tags } =
     object || {};
+
+  // function renderForm(props) {
+  //   return <Form {...props} renderButton={this.props.renderButton} />;
+  // }
+
+  function removeTemplate(object) {
+    this.props.remove(object._id);
+  }
+
+  const duplicateTemplate = id => {
+    duplicate(id);
+  };
+
+  // function renderEditAction(object) {
+  //   const { save } = this.props;
+
+  //   const content = (props) => {
+  //     return renderForm({ ...props, object, save });
+  //   };
+
+  //   return (
+  //     <ModalTrigger
+  //       enforceFocus={false}
+  //       title="Edit"
+  //       size="lg"
+  //       trigger={
+  //         <div>
+  //           <Icon icon="edit" /> Edit
+  //         </div>
+  //       }
+  //       content={content}
+  //     />
+  //   );
+  // }
+
+  const renderRemoveTemplate = object => {
+    return (
+      <div onClick={removeTemplate.bind(this, object)}>
+        <Icon icon="cancel-1" /> Delete
+      </div>
+    );
+  };
+
+  const renderDuplicateAction = object => {
+    return (
+      <div onClick={() => duplicateTemplate(object._id)}>
+        <Icon icon="copy-1" />
+        Duplicate
+      </div>
+    );
+  };
+
+  function renderDate(createdAt, modifiedAt) {
+    if (createdAt === modifiedAt) {
+      if (createdAt === null) return '-';
+
+      return dayjs(createdAt).format('DD MMM YYYY');
+    }
+
+    return dayjs(modifiedAt).format('DD MMM YYYY');
+  }
 
   const onChange = e => {
     if (toggleBulk) {
@@ -107,7 +114,7 @@ function EmailTemplateRow({ object, index, isChecked, toggleBulk }: Props) {
       <TemplateBox>
         <Actions>
           {/* {renderEditAction(object)} */}
-          {/* {renderRemoveTemplate(object)} */}
+          {renderRemoveTemplate(object)}
           {renderDuplicateAction(object)}
         </Actions>
         <IframePreview>

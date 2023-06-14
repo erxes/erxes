@@ -36,7 +36,7 @@ class EmailTemplateList extends React.Component<Props> {
   };
 
   renderRow = () => {
-    const { toggleBulk, bulk } = this.props;
+    const { toggleBulk, bulk, duplicate } = this.props;
 
     return this.props.objects.map((object, index) => {
       const { name, content, createdAt, modifiedAt, createdUser, tags } =
@@ -44,10 +44,12 @@ class EmailTemplateList extends React.Component<Props> {
 
       return (
         <EmailTemplateRow
+          key={index}
           index={index}
           object={object}
           toggleBulk={toggleBulk}
           isChecked={bulk.includes(object)}
+          duplicate={duplicate}
         />
       );
     });
