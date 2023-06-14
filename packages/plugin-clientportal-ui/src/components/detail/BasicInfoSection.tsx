@@ -14,6 +14,7 @@ import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/
 import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -40,24 +41,13 @@ class BasicInfoSection extends React.Component<Props> {
 
     return (
       <>
-        <ModalTrigger
-          dialogClassName="middle"
-          title="Email"
-          trigger={
-            <Button
-              disabled={email ? false : true}
-              size="small"
-              btnStyle={email ? 'primary' : 'simple'}
-            >
-              <Tip text="Send e-mail" placement="top-end">
-                <Icon icon="envelope" />
-              </Tip>
-            </Button>
-          }
-          size="lg"
-          content={content}
-          paddingContent="less-padding"
-          enforceFocus={false}
+        <EmailWidget
+          notWidget={true}
+          disabled={email ? false : true}
+          buttonStyle={email ? 'primary' : 'simple'}
+          emailTo={email}
+          customerId={clientPortalUser._id || undefined}
+          buttonSize="small"
         />
         <ModalTrigger
           dialogClassName="middle"

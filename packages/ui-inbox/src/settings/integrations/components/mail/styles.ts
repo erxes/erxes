@@ -271,14 +271,14 @@ const NewEmailHeader = styledTS<{ shrink: boolean }>(styled.h5)`
 const WidgetWrapper = styledTS<{ show: boolean }>(styled.div)`
   position: fixed;
   bottom: ${dimensions.unitSpacing}px;
-  right: ${dimensions.unitSpacing}px;
+  right: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: column;
   z-index: 9999;
   justify-content: flex-end;
   align-content: flex-end;
   background: #fff;
-  box-shadow: 0 0 20px 3px rgba(0,0,0,0.15);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
   border-radius: 8px;
 
   ${props => !props.show && 'display:none;'}

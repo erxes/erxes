@@ -43,6 +43,7 @@ type Props = {
   emailTemplates: any[] /*change type*/;
   currentUser: IUser;
   fromEmail?: string;
+  emailTo?: string;
   mailData?: IMail;
   clearOnSubmit?: boolean;
   isReply?: boolean;
@@ -98,7 +99,7 @@ class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { isForward, replyAll, mailData = {} as IMail } = props;
+    const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
     const mailWidget = JSON.parse(localStorage.getItem('emailWidgetData'));
 
@@ -118,7 +119,13 @@ class MailForm extends React.Component<Props, State> {
     const sender =
       this.getEmailSender(from.email || props.fromEmail) || mailWidget?.to;
 
-    const to = mailWidget ? mailWidget.to : isForward ? '' : sender;
+    const to = emailTo
+      ? emailTo
+      : mailWidget
+      ? mailWidget.to
+      : isForward
+      ? ''
+      : sender;
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
       (localStorage.getItem(`reply_${mailKey}`) || '').length > 0;
