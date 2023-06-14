@@ -1,12 +1,12 @@
-import { __ } from '@erxes/ui/src/utils/core';
 import {
-  SidebarList,
+  FieldStyle,
   SidebarCounter,
-  FieldStyle
+  SidebarList
 } from '@erxes/ui/src/layout/styles';
-import React from 'react';
 
 import { IClientPortalUser } from '../../types';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -57,7 +57,12 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Code', clientPortalUser.code)}
         {this.renderRow('Email', clientPortalUser.email)}
         {this.renderRow('Phone', clientPortalUser.phone)}
-        {this.renderRow('Client Portal', clientPortalUser.clientPortal.name)}
+        {this.renderRow(
+          'Client Portal',
+          clientPortalUser.clientPortal
+            ? clientPortalUser.clientPortal.name
+            : '-'
+        )}
       </SidebarList>
     );
   }

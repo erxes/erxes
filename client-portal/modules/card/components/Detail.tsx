@@ -1,4 +1,6 @@
 import {
+  Assignees,
+  Card,
   CommentContainer,
   CommentContent,
   CommentWrapper,
@@ -6,12 +8,14 @@ import {
   Description,
   DetailHeader,
   DetailRow,
+  FlexRow,
   Label,
-  RightSidebar,
   TicketComment,
   TicketDetailContent,
 } from "../../styles/cards";
+import { getUserAvatar, renderUserFullName } from "../../utils";
 
+import AttachmentsGallery from "../../common/AttachmentGallery";
 import Button from "../../common/Button";
 import { ControlLabel } from "../../common/form";
 import { IUser } from "../../types";
@@ -20,9 +24,9 @@ import Link from "next/link";
 import PriorityIndicator from "../../common/PriorityIndicator";
 import React from "react";
 import { TextArea } from "../../common/form/styles";
+import { __ } from "../../../utils";
 import dayjs from "dayjs";
 import { readFile } from "../../common/utils";
-import { renderUserFullName } from "../../utils";
 
 type Props = {
   item?: any;
@@ -105,66 +109,76 @@ export default class CardDetail extends React.Component<
     );
   }
 
+  renderAssignedUsers() {
+    const { assignedUsers } = this.props.item || {};
+
+    if (!assignedUsers || assignedUsers.length === 0) {
+      return <span>{__("No one`s assigned yet")}</span>;
+    }
+
+    return assignedUsers.map((user) => (
+      <Assignees key={user._id}>
+        <img
+          alt={renderUserFullName(user)}
+          src={getUserAvatar(user)}
+          width={24}
+          height={24}
+        />
+        <span>{renderUserFullName(user)}</span>
+      </Assignees>
+    ));
+  }
+
   renderDetailInfo() {
     const {
       number,
       createdUser,
       status,
       stage,
-      priority,
       createdAt,
       modifiedAt,
-      modifiedBy,
-      startedDate,
-      endDate,
+      startDate,
+      closeDate,
     } = this.props.item || ({} as any);
 
     return (
       <TicketDetailContent>
-        <DetailRow>
+        <DetailRow type="row">
           <ControlLabel>Number</ControlLabel>
           <span>{number || "-"}</span>
         </DetailRow>
-        <DetailRow>
-          <ControlLabel>Stage</ControlLabel>
-          <span>{stage.name}</span>
-        </DetailRow>
-        <DetailRow>
+        <DetailRow type="row">
           <ControlLabel>Requestor</ControlLabel>
           <span>{renderUserFullName(createdUser || ({} as any))}</span>
         </DetailRow>
-        <DetailRow>
-          <ControlLabel>Assigned users</ControlLabel>
-          <span>{number}</span>
-        </DetailRow>
-        <DetailRow>
+        <DetailRow type="row">
           <ControlLabel>Status</ControlLabel>
           <span>{status}</span>
         </DetailRow>
-        <DetailRow>
-          <ControlLabel>Priority</ControlLabel>
-          <span>
-            <PriorityIndicator value={priority} /> {priority || "Normal"}
-          </span>
-        </DetailRow>
-        <DetailRow>
+        <DetailRow type="row">
           <ControlLabel>Created at</ControlLabel>
           <span>{dayjs(createdAt).format("DD MMM YYYY, HH:mm")}</span>
         </DetailRow>
-        <DetailRow>
+        <DetailRow type="row">
           <ControlLabel>Modified at</ControlLabel>
           <span>{dayjs(modifiedAt).format("DD MMM YYYY, HH:mm")}</span>
         </DetailRow>
-        <DetailRow>
-          <ControlLabel>Start date</ControlLabel>
-          <span>{dayjs(startedDate).format("DD MMM YYYY, HH:mm")}</span>
-        </DetailRow>
-        <DetailRow>
-          <ControlLabel>End date</ControlLabel>
-          <span>{dayjs(endDate).format("DD MMM YYYY, HH:mm")}</span>
+        <DetailRow type="row">
+          <ControlLabel>Assigned users</ControlLabel>
+          <div>{this.renderAssignedUsers()}</div>
         </DetailRow>
       </TicketDetailContent>
     );
+  }
+
+  renderAttachments() {
+    const { attachments } = this.props.item || {};
+
+    if (!attachments || attachments.length === 0) {
+      return <Description>{__("No attachments at the moment!")}</Description>;
+    }
+
+    return <AttachmentsGallery attachments={attachments} />;
   }
 
   render() {
@@ -176,40 +190,87 @@ export default class CardDetail extends React.Component<
       return null;
     }
 
-    const { labels, description } = item;
+    const { labels, description, priority, startDate, closeDate, stage } = item;
+
+    const startedDate = dayjs(startDate).format("YYYY-MM-DD");
+    const endDate = dayjs(closeDate).format("YYYY-MM-DD");
+    const durationDays = dayjs(endDate).diff(dayjs(startedDate), "days");
 
     return (
       <>
         <DetailHeader className="d-flex align-items-center">
           <Link href={`/${type}s`}>
             <span>
-              <Icon icon="leftarrow-3" /> Back
+              <Icon icon="angle-double-left" size={20} /> Back
             </span>
           </Link>
         </DetailHeader>
         <div className="row">
-          <div className="col-md-9">
-            <h4>{item.name}</h4>
-            <DetailRow>
-              <ControlLabel>Labels</ControlLabel>
-              <div className="d-flex" style={{ gap: "5px" }}>
-                {!labels || labels.length === 0 ? (
-                  <span>No labels at the moment!</span>
-                ) : (
-                  (labels || []).map((label) => (
-                    <Label
-                      key={label._id}
-                      lblStyle={"custom"}
-                      colorCode={label.colorCode}
-                    >
-                      {label.name}
-                    </Label>
-                  ))
-                )}
-              </div>
-            </DetailRow>
-            <DetailRow>
-              <ControlLabel>Description</ControlLabel>
+          <div className="col-md-12">
+            <Card>
+              <h4>{item.name}</h4>
+              <FlexRow className="justify-content-between">
+                <DetailRow>
+                  <ControlLabel>Stage</ControlLabel>
+                  <span>{stage ? stage.name : "-"}</span>
+                </DetailRow>
+                <DetailRow>
+                  <ControlLabel>Start date</ControlLabel>
+                  <span>
+                    {startDate
+                      ? dayjs(startDate).format("DD MMM YYYY, HH:mm")
+                      : "-"}
+                  </span>
+                </DetailRow>
+                <DetailRow>
+                  <ControlLabel>Due date</ControlLabel>
+                  <span>
+                    {closeDate
+                      ? dayjs(closeDate).format("DD MMM YYYY, HH:mm")
+                      : "-"}
+                  </span>
+                </DetailRow>
+                <DetailRow>
+                  <ControlLabel>Duration</ControlLabel>
+                  <span>{closeDate ? `${durationDays} days` : "-"}</span>
+                </DetailRow>
+              </FlexRow>
+            </Card>
+          </div>
+          <div className="col-md-5">
+            <ControlLabel>Details</ControlLabel>
+            <Card>
+              <DetailRow type="row">
+                <ControlLabel>Priority</ControlLabel>
+                <span>
+                  <PriorityIndicator value={priority} /> {priority || "Normal"}
+                </span>
+              </DetailRow>
+              <DetailRow type="row">
+                <ControlLabel>Labels</ControlLabel>
+                <div className="d-flex" style={{ gap: "5px" }}>
+                  {!labels || labels.length === 0 ? (
+                    <span>No labels at the moment!</span>
+                  ) : (
+                    (labels || []).map((label) => (
+                      <Label
+                        key={label._id}
+                        lblStyle={"custom"}
+                        colorCode={label.colorCode}
+                      >
+                        {label.name}
+                      </Label>
+                    ))
+                  )}
+                </div>
+              </DetailRow>
+              {this.renderDetailInfo()}
+            </Card>
+          </div>
+
+          <div className="col-md-7">
+            <ControlLabel>Description</ControlLabel>
+            <Card>
               {description ? (
                 <Description
                   dangerouslySetInnerHTML={{ __html: description }}
@@ -217,43 +278,34 @@ export default class CardDetail extends React.Component<
               ) : (
                 <span>No description at the moment!</span>
               )}
-            </DetailRow>
+            </Card>
 
-            <DetailRow>
-              <ControlLabel>Attachments</ControlLabel>
-              <span>No attachments at the moment!</span>
-            </DetailRow>
+            <ControlLabel>Attachments</ControlLabel>
+            <Card> {this.renderAttachments()}</Card>
 
             <ControlLabel>Comments</ControlLabel>
-            <CommentContainer>
-              <TextArea
-                onChange={this.handleChange}
-                placeholder="Write a comment..."
-                value={this.state.content}
-              />
-              {this.state.content.length !== 0 && (
-                <div className="buttons">
-                  <Button
-                    btnStyle="success"
-                    size="small"
-                    icon="message"
-                    onClick={this.createComment.bind(this, email)}
-                  >
-                    Save
-                  </Button>
-                </div>
-              )}
-              {this.renderComments(comments)}
-            </CommentContainer>
-          </div>
-
-          <div className="col-md-3">
-            <RightSidebar>
-              <h6 className="d-flex align-items-center">
-                <Icon icon="info-circle" /> &nbsp; Detail Info
-              </h6>
-              {this.renderDetailInfo()}
-            </RightSidebar>
+            <Card>
+              <CommentContainer>
+                <TextArea
+                  onChange={this.handleChange}
+                  placeholder="Write a comment..."
+                  value={this.state.content}
+                />
+                {this.state.content.length !== 0 && (
+                  <div className="buttons">
+                    <Button
+                      btnStyle="success"
+                      size="small"
+                      icon="message"
+                      onClick={this.createComment.bind(this, email)}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                )}
+                {this.renderComments(comments)}
+              </CommentContainer>
+            </Card>
           </div>
         </div>
       </>

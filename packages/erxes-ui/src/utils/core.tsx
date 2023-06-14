@@ -528,7 +528,7 @@ export function formatValue(value) {
   return value || '-';
 }
 
-export function numberFormatter(value, fixed) {
+export function numberFormatter(value = '', fixed) {
   if (
     fixed &&
     `${value}`.includes('.') &&
@@ -682,17 +682,16 @@ export const generateTree = (
 };
 
 export const removeTypename = (obj?: any[] | any) => {
-  if (Array.isArray(obj)) {
-    return obj.map(item => {
-      delete item.__typename;
+  const deleteType = (e: any) => {
+    const { __typename, ...rest } = e;
+    return rest;
+  };
 
-      return item;
-    });
+  if (Array.isArray(obj)) {
+    return obj.map(item => deleteType(item));
   }
 
-  delete obj.__typename;
-
-  return obj;
+  return deleteType(obj);
 };
 
 export const publicUrl = path => {

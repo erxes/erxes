@@ -137,19 +137,12 @@ function Header({
           <Dropdown.Menu>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="0"
-            >
-              {renderUserFullName(currentUser)}
-            </Dropdown.Item>
-            <Dropdown.Divider />
-            <Dropdown.Item
-              className="d-flex align-items-center justify-content-between"
               eventKey="1"
               href="/profile"
             >
               <div>
                 <Icon icon="user" />
-                My profle
+                {renderUserFullName(currentUser)}
               </div>
             </Dropdown.Item>
             <Dropdown.Item
@@ -182,7 +175,13 @@ function Header({
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
-              <img src={readFile(config.logo)} />
+              <img
+                src={
+                  config.logo
+                    ? readFile(config.logo)
+                    : "/static/logos/erxes-logo-white.svg"
+                }
+              />
             </Link>
             <HeaderTitle color={getConfigColor(config, "headingColor")}>
               {config.name}

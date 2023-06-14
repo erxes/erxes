@@ -19,10 +19,17 @@ const itemFields = `
     email
     username
     details {
+      avatar
       firstName
       lastName
       fullName
     }
+  }
+  attachments {
+    name
+    url
+    type
+    size
   }
   createdUser {
     _id
@@ -39,6 +46,7 @@ const itemFields = `
   stageChangedDate
   stage {
     name
+    itemsTotalCount
   }
   labels {
     name

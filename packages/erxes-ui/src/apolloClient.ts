@@ -73,9 +73,17 @@ const link = split(
 
 // Creating Apollo-client
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
-  queryDeduplication: false,
-  link
+  cache: new InMemoryCache({
+    typePolicies: {
+      UserDetailsType: {
+        merge: true
+      }
+    },
+    addTypename: true
+  }),
+  queryDeduplication: true,
+  link,
+  connectToDevTools: true
 });
 
 export default client;

@@ -343,7 +343,7 @@ export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
   ),
   steps: [
     {
-      title: __('Create your first Sales Board'),
+      title: __('Create your first Purchases Board'),
       description:
         __(
           'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc'
