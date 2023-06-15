@@ -1,5 +1,5 @@
 import { sendRequest } from '@erxes/api-utils/src';
-import { getEnv } from '@erxes/api-utils/src/core';
+import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IAttachment } from '@erxes/api-utils/src/types';
 import * as randomize from 'randomatic';
@@ -157,7 +157,11 @@ const clientPortalUserMutations = {
   ) => {
     const { user, clientPortal } = await models.ClientPortalUsers.login(args);
 
-    return tokenHandler(user, clientPortal, res);
+    const r = await tokenHandler(user, clientPortal, res);
+
+    console.log('r', r);
+
+    return r;
   },
 
   clientPortalFacebookAuthentication: async (
@@ -886,7 +890,7 @@ const clientPortalUserMutations = {
   clientPortalRefreshToken: async (
     _root,
     _args,
-    { models, requestInfo }: IContext
+    { models, requestInfo, res }: IContext
   ) => {
     const authHeader = requestInfo.headers.authorization;
 
@@ -896,7 +900,7 @@ const clientPortalUserMutations = {
 
     const refreshToken = authHeader.replace('Bearer ', '');
 
-    return await jwt.verify(
+    const newToken = await jwt.verify(
       refreshToken,
       process.env.JWT_TOKEN_SECRET || '',
       async (err, decoded) => {
@@ -922,8 +926,21 @@ const clientPortalUserMutations = {
           tokenExpiration: 1,
           refreshTokenExpiration: 7
         };
+        const cookieOptions: any = {};
 
-        return jwt.sign(
+        const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+        if (!['test', 'development'].includes(NODE_ENV)) {
+          cookieOptions.sameSite = 'none';
+        }
+
+        if (tokenExpiration) {
+          cookieOptions.expires = tokenExpiration * 24 * 60 * 60 * 1000;
+        }
+
+        const options = authCookieOptions(cookieOptions);
+
+        const token = jwt.sign(
           { userId: user._id, type: user.type } as any,
           process.env.JWT_TOKEN_SECRET || '',
           {
@@ -931,8 +948,14 @@ const clientPortalUserMutations = {
             expiresIn: '1m'
           }
         );
+
+        res.cookie('client-auth-token', token, options);
+
+        return token;
       }
     );
+
+    return newToken;
   }
 };
 

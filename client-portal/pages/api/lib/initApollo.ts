@@ -76,7 +76,7 @@ function create(
   const errorLink = onError(({ graphQLErrors, operation, forward }) => {
     if (graphQLErrors) {
       for (const err of graphQLErrors) {
-        if (err.message === 'token expired') {
+        if (err.message === 'token expired' || err.extensions.code === "SUBREQUEST_HTTP_ERROR") {
           const observable = new Observable<FetchResult<Record<string, any>>>(
             (observer) => {
               // used an annonymous function for using an async function
