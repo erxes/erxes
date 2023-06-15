@@ -67,7 +67,5 @@ export const tokenHandler = async (
 
   res.cookie('client-auth-token', token, options);
 
-  console.log('refreshToken', refreshToken);
-
   return { refreshToken };
 };
