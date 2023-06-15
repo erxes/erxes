@@ -213,20 +213,24 @@ function ReportList(props: Props) {
           >
             <Icon icon="subject" />
           </ToggleButton>
-          <ToggleButton
-            style={{ width: 'auto' }}
-            isActive={showDepartment}
-            onClick={toggleShowDepartment}
-          >
-            <ControlLabel>{__('Department')}</ControlLabel>
-          </ToggleButton>
-          <ToggleButton
-            style={{ width: 'auto' }}
-            isActive={showBranch}
-            onClick={toggleShowBranch}
-          >
-            <ControlLabel>{__('Branch')}</ControlLabel>
-          </ToggleButton>
+          {reportType === 'Сүүлд' && (
+            <>
+              <ToggleButton
+                style={{ width: 'auto' }}
+                isActive={showDepartment}
+                onClick={toggleShowDepartment}
+              >
+                <ControlLabel>{__('Department')}</ControlLabel>
+              </ToggleButton>
+              <ToggleButton
+                style={{ width: 'auto' }}
+                isActive={showBranch}
+                onClick={toggleShowBranch}
+              >
+                <ControlLabel>{__('Branch')}</ControlLabel>
+              </ToggleButton>
+            </>
+          )}
         </FlexRowEven>
         <FilterItem>
           <FormGroup>

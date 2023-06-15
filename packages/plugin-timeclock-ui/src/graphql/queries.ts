@@ -211,7 +211,12 @@ const timeclockReports = `
             
                 deviceName
                 deviceType
-            
+                
+                inDevice
+                inDeviceType
+                outDevice
+                outDeviceType
+
                 scheduledStart
                 scheduledEnd
                 scheduledDuration

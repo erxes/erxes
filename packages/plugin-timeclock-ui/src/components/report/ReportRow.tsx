@@ -124,16 +124,18 @@ const ReportRow = (
 
 const renderScheduleShiftInfo = scheduledShift => {
   const getInDevice =
-    returnDeviceTypes(scheduledShift.deviceType)[0] &&
+    scheduledShift.inDevice ||
+    (returnDeviceTypes(scheduledShift.deviceType)[0] &&
     returnDeviceTypes(scheduledShift.deviceType)[0].includes('faceTerminal')
       ? scheduledShift.deviceName
-      : scheduledShift.deviceType;
+      : scheduledShift.deviceType);
 
   const getOutDevice =
-    returnDeviceTypes(scheduledShift.deviceType)[1] &&
+    scheduledShift.outDevice ||
+    (returnDeviceTypes(scheduledShift.deviceType)[1] &&
     returnDeviceTypes(scheduledShift.deviceType)[1].includes('faceTerminal')
       ? scheduledShift.deviceName
-      : scheduledShift.deviceType;
+      : scheduledShift.deviceType);
 
   return (
     <>

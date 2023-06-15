@@ -131,6 +131,11 @@ export const types = `
     deviceName: String
     deviceType: String
 
+    inDevice: String
+    inDeviceType: String
+    outDevice: String
+    outDeviceType: String
+
     scheduledStart: Date
     scheduledEnd: Date
     scheduledDuration:String
