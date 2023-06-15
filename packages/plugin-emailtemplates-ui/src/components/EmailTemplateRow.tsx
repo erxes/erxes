@@ -12,7 +12,6 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Tags from '@erxes/ui/src/components/Tags';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
 import { log } from 'console';
@@ -25,6 +24,7 @@ type Props = {
   remove: (_id: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   duplicate: (id: string) => void;
+  save: () => void;
 };
 
 function EmailTemplateRow({
@@ -34,7 +34,8 @@ function EmailTemplateRow({
   toggleBulk,
   duplicate,
   remove,
-  renderButton
+  renderButton,
+  save
 }: Props) {
   const { name, content, createdAt, modifiedAt, createdUser, tags } =
     object || {};
@@ -48,10 +49,12 @@ function EmailTemplateRow({
   };
 
   const renderEditAction = object => {
-    // const { save } = this.props;
+    const save = props => {
+      save;
+    };
 
     const content = props => {
-      return renderForm({ ...props, object });
+      return renderForm({ ...props, object, save });
     };
 
     return (

@@ -11,13 +11,11 @@ import { router } from 'coreui/utils';
 import Sidebar from './SideBar';
 import EmailTemplateRow from './EmailTemplateRow';
 import Button from '@erxes/ui/src/components/Button';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui-contacts/src/customers/graphql';
 import { gql } from '@apollo/client';
-import Widget from '@erxes/ui-engage/src/containers/Widget';
 
 type Props = {
   queryParams: any;
@@ -36,7 +34,14 @@ class EmailTemplateList extends React.Component<Props> {
   };
 
   renderRow = () => {
-    const { toggleBulk, bulk, duplicate, remove, renderButton } = this.props;
+    const {
+      toggleBulk,
+      bulk,
+      duplicate,
+      remove,
+      renderButton,
+      save
+    } = this.props;
 
     return this.props.objects.map((object, index) => {
       const { name, content, createdAt, modifiedAt, createdUser, tags } =
@@ -52,6 +57,7 @@ class EmailTemplateList extends React.Component<Props> {
           duplicate={duplicate}
           remove={remove}
           renderButton={renderButton}
+          save={save}
         />
       );
     });
