@@ -157,11 +157,7 @@ const clientPortalUserMutations = {
   ) => {
     const { user, clientPortal } = await models.ClientPortalUsers.login(args);
 
-    const r = await tokenHandler(user, clientPortal, res);
-
-    console.log('r', r);
-
-    return r;
+    return tokenHandler(user, clientPortal, res);
   },
 
   clientPortalFacebookAuthentication: async (
