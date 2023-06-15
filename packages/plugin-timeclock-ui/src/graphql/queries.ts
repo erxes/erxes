@@ -222,6 +222,10 @@ const timeclockReports = `
                 totalHoursOvertime
                 totalHoursOvernight
               }
+
+              branchTitles
+              departmentTitles
+              
               totalMinsLate
               totalAbsenceMins
               totalMinsWorked
