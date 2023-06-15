@@ -79,16 +79,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           />
         </FormGroup>
 
-        {isEnabled('tags') && (
-          <TaggerPopover
-            type={'emailtemplates:emailtemplates'}
-            trigger={tagTrigger}
-            refetchQueries={['emailTemplateCountsByTags']}
-            targets={[object]}
-            singleSelect={true}
-          />
-        )}
-
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
           <EditorCK

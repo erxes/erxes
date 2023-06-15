@@ -22,6 +22,8 @@ type Props = {
   object: any;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
+  remove: (_id: string) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   duplicate: (id: string) => void;
 };
 
@@ -30,48 +32,48 @@ function EmailTemplateRow({
   index,
   isChecked,
   toggleBulk,
-  duplicate
+  duplicate,
+  remove,
+  renderButton
 }: Props) {
   const { name, content, createdAt, modifiedAt, createdUser, tags } =
     object || {};
 
-  // function renderForm(props) {
-  //   return <Form {...props} renderButton={this.props.renderButton} />;
-  // }
-
-  function removeTemplate(object) {
-    this.props.remove(object._id);
-  }
+  const renderForm = props => {
+    return <Form {...props} renderButton={renderButton} />;
+  };
 
   const duplicateTemplate = id => {
     duplicate(id);
   };
 
-  // function renderEditAction(object) {
-  //   const { save } = this.props;
+  const renderEditAction = object => {
+    // const { save } = this.props;
 
-  //   const content = (props) => {
-  //     return renderForm({ ...props, object, save });
-  //   };
+    const content = props => {
+      return renderForm({ ...props, object });
+    };
 
-  //   return (
-  //     <ModalTrigger
-  //       enforceFocus={false}
-  //       title="Edit"
-  //       size="lg"
-  //       trigger={
-  //         <div>
-  //           <Icon icon="edit" /> Edit
-  //         </div>
-  //       }
-  //       content={content}
-  //     />
-  //   );
-  // }
+    return (
+      <ModalTrigger
+        enforceFocus={false}
+        title="Edit"
+        size="lg"
+        trigger={
+          <div>
+            <Icon icon="edit" /> Edit
+          </div>
+        }
+        content={content}
+      />
+    );
+  };
 
   const renderRemoveTemplate = object => {
+    const onClick = () => remove(object._id);
+
     return (
-      <div onClick={removeTemplate.bind(this, object)}>
+      <div onClick={onClick}>
         <Icon icon="cancel-1" /> Delete
       </div>
     );
@@ -113,7 +115,7 @@ function EmailTemplateRow({
       <Tags tags={tags || []} limit={3} />
       <TemplateBox>
         <Actions>
-          {/* {renderEditAction(object)} */}
+          {renderEditAction(object)}
           {renderRemoveTemplate(object)}
           {renderDuplicateAction(object)}
         </Actions>
