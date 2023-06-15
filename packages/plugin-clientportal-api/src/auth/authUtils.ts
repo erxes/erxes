@@ -10,13 +10,11 @@ export const createJwtToken = (payload: any, clientPortal?: IClientPortal) => {
   };
 
   const token = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
-    // expiresIn: `${tokenExpiration}d`
-    expiresIn: '1m'
+    expiresIn: `${tokenExpiration}d`
   });
 
   const refreshToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
-    // expiresIn: `${refreshTokenExpiration}d`
-    expiresIn: '2m'
+    expiresIn: `${refreshTokenExpiration}d`
   });
 
   return { token, refreshToken };

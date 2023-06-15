@@ -22,7 +22,8 @@ export default async function cpUserMiddleware(
       'clientPortalLoginRegister',
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
-      'clientPortalRefreshToken'
+      'clientPortalRefreshToken',
+      'clientPortalKnowledgeBaseTopicDetail'
     ].includes(operationName)
   ) {
     return next();

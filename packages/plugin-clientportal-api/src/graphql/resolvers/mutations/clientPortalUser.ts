@@ -915,13 +915,10 @@ const clientPortalUserMutations = {
           user.clientPortalId
         );
 
-        const {
-          tokenExpiration = 1,
-          refreshTokenExpiration = 7
-        } = clientPortal || {
-          tokenExpiration: 1,
-          refreshTokenExpiration: 7
+        const { tokenExpiration = 1 } = clientPortal || {
+          tokenExpiration: 1
         };
+
         const cookieOptions: any = {};
 
         const NODE_ENV = getEnv({ name: 'NODE_ENV' });
@@ -940,8 +937,7 @@ const clientPortalUserMutations = {
           { userId: user._id, type: user.type } as any,
           process.env.JWT_TOKEN_SECRET || '',
           {
-            // expiresIn: `${tokenExpiration}d`
-            expiresIn: '1m'
+            expiresIn: `${tokenExpiration}d`
           }
         );
 

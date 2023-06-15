@@ -43,8 +43,8 @@ function General({
   manualVerificationConfig,
   passwordVerificationConfig,
   tokenPassMethod = 'cookie',
-  tokenExpiration = '1',
-  refreshTokenExpiration = '7',
+  tokenExpiration = 1,
+  refreshTokenExpiration = 7,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
