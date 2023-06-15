@@ -1,16 +1,16 @@
 export const types = `
   type ClientPortalFieldConfig {
-    fieldId: ID!,
+    fieldId: String,
     allowedClientPortalIds: [String],
     requiredOn: [String]
   }
 `;
 
 export const queries = `
-    clientPortalFieldConfig(fieldId: ID): ClientPortalFieldConfig
+    clientPortalFieldConfig(fieldId: String): ClientPortalFieldConfig
 `;
 
 export const mutations = `
-    clientPortalFieldConfigsEdit(fieldId: ID!, allowedClientPortalIds: [String], requiredOn: [String]): ClientPortalFieldConfig
-    clientPortalFieldConfigsRemove(fieldId: ID!): ClientPortalFieldConfig
+    clientPortalFieldConfigsEdit(fieldId: String!, allowedClientPortalIds: [String], requiredOn: [String]): ClientPortalFieldConfig
+    clientPortalFieldConfigsRemove(fieldId: String!): ClientPortalFieldConfig
 `;
