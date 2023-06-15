@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - cp-auth-method
     paths:
       - 'client-portal/**'
       - '.github/workflows/client_portal.yaml'
@@ -13,6 +14,7 @@ on:
       - develop
       - apm
       - staging
+      - cp-auth-method
     paths:
       - 'client-portal/**'
 
@@ -50,7 +52,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/cp-auth-method')
         run: |
           cd client-portal
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
