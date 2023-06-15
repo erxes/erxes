@@ -4,7 +4,6 @@ import {
   IframePreview,
   Template,
   TemplateBox,
-  Templates,
   TemplateInfo
 } from '../styles';
 import Form from './Form';
@@ -14,7 +13,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
-import { log } from 'console';
 
 type Props = {
   index: number;
@@ -34,8 +32,7 @@ function EmailTemplateRow({
   toggleBulk,
   duplicate,
   remove,
-  renderButton,
-  save
+  renderButton
 }: Props) {
   const { name, content, createdAt, modifiedAt, createdUser, tags } =
     object || {};
@@ -49,12 +46,8 @@ function EmailTemplateRow({
   };
 
   const renderEditAction = object => {
-    const save = props => {
-      save;
-    };
-
     const content = props => {
-      return renderForm({ ...props, object, save });
+      return renderForm({ ...props, object });
     };
 
     return (

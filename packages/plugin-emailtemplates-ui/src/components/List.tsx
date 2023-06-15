@@ -14,8 +14,8 @@ import Button from '@erxes/ui/src/components/Button';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
 import { gql } from '@apollo/client';
+import { queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -43,24 +43,19 @@ class EmailTemplateList extends React.Component<Props> {
       save
     } = this.props;
 
-    return this.props.objects.map((object, index) => {
-      const { name, content, createdAt, modifiedAt, createdUser, tags } =
-        object || {};
-
-      return (
-        <EmailTemplateRow
-          key={index}
-          index={index}
-          object={object}
-          toggleBulk={toggleBulk}
-          isChecked={bulk.includes(object)}
-          duplicate={duplicate}
-          remove={remove}
-          renderButton={renderButton}
-          save={save}
-        />
-      );
-    });
+    return this.props.objects.map((object, index) => (
+      <EmailTemplateRow
+        key={index}
+        index={index}
+        object={object}
+        toggleBulk={toggleBulk}
+        isChecked={bulk.includes(object)}
+        duplicate={duplicate}
+        remove={remove}
+        renderButton={renderButton}
+        save={save}
+      />
+    ));
   };
 
   searchHandler = event => {
@@ -73,16 +68,8 @@ class EmailTemplateList extends React.Component<Props> {
     return <Templates>{this.renderRow()}</Templates>;
   };
 
-  // afterTag = () => {
-  //   this.props.emptyBulk();
-
-  //   if (this.props.refetch) {
-  //     this.props.refetch();
-  //   }
-  // };
-
   render() {
-    const { bulk, type, emptyBulk } = this.props;
+    const { bulk } = this.props;
 
     let leftActionBar: React.ReactNode;
 
@@ -94,18 +81,14 @@ class EmailTemplateList extends React.Component<Props> {
       );
 
       const refetchQuery = {
-        query: gql(queries.customerCounts),
-        variables: { type, only: 'byTag' }
+        query: gql(queries.emailTemplates)
       };
 
       leftActionBar = (
         <BarItems>
-          {/* <Widget customers={bulk} emptyBulk={emptyBulk} /> */}
-
           {isEnabled('tags') && (
             <TaggerPopover
               type={'emailtemplates:emailtemplates'}
-              // successCallback={this.afterTag}
               targets={bulk}
               trigger={tagButton}
               refetchQueries={[refetchQuery]}
