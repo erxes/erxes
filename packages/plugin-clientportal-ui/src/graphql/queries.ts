@@ -259,7 +259,7 @@ const clientPortalComments = `
 `;
 
 const fieldConfig = `
-query ClientPortalFieldConfig($fieldId: String) {
+query ClientPortalFieldConfig($fieldId: ID) {
   clientPortalFieldConfig(fieldId: $fieldId) {
     allowedClientPortalIds
     fieldId

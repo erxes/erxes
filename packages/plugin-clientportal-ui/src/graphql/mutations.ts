@@ -223,7 +223,7 @@ mutation ClientPortalUsersChangeVerificationStatus($status: ClientPortalUserVeri
 `;
 
 const editFields = `
-mutation ClientPortalFieldConfigsEdit($fieldId: String!, $allowedClientPortalIds: [String], $requiredOn: [String]) {
+mutation ClientPortalFieldConfigsEdit($fieldId: ID!, $allowedClientPortalIds: [String], $requiredOn: [String]) {
   clientPortalFieldConfigsEdit(fieldId: $fieldId, allowedClientPortalIds: $allowedClientPortalIds, requiredOn: $requiredOn) {
     allowedClientPortalIds
     fieldId
