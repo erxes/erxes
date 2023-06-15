@@ -523,10 +523,8 @@ function General({
               componentClass="select"
               placeholder="select"
               value={tokenPassMethod}
-              onChange={
-                (e: any) =>
-                  handleFormChange('tokenPassMethod', e.currentTarget.value)
-                // console.log(e.currentTarget.value)
+              onChange={(e: any) =>
+                handleFormChange('tokenPassMethod', e.currentTarget.value)
               }
             >
               <option value="cookie">Cookie</option>
