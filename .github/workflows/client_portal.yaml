@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - staging
     paths:
       - 'client-portal/**'
       - '.github/workflows/client_portal.yaml'
