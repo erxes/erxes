@@ -33,7 +33,6 @@ class FormContainer extends React.Component<
     this.state = { isLoading: false };
   }
 
-  // create internalNote
   create = (variables, callback: () => void) => {
     const {
       contentType,
