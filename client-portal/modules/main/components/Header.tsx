@@ -139,16 +139,9 @@ function Header({
               className="d-flex align-items-center justify-content-between"
               eventKey="1"
             >
-              {renderUserFullName(currentUser)}
-            </Dropdown.Item>
-            <Dropdown.Divider />
-            <Dropdown.Item
-              className="d-flex align-items-center justify-content-between"
-              eventKey="1"
-            >
               <div>
                 <Icon icon="user" />
-                My profle
+                {renderUserFullName(currentUser)}
               </div>
               <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
@@ -163,7 +156,12 @@ function Header({
               <Label lblStyle="simple">Soon</Label>
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item eventKey="4" onClick={() => logout()}>
+            <Dropdown.Item eventKey="3" onClick={() => {
+              if (typeof window !== 'undefined') {
+                sessionStorage.clear()
+              }
+              logout()
+            }}>
               <Icon icon="logout-1" />
               Logout
             </Dropdown.Item>

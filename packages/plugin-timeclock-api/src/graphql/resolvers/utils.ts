@@ -1052,6 +1052,10 @@ export const timeclockReportPivot = async (
 
             deviceType: currUserTimeclock.deviceType,
             deviceName: currUserTimeclock.deviceName,
+            inDevice: currUserTimeclock.inDevice,
+            inDeviceType: currUserTimeclock.inDeviceType,
+            outDevice: currUserTimeclock.outDevice,
+            outDeviceType: currUserTimeclock.outDeviceType,
 
             scheduledStart: scheduleShiftStart,
             scheduledEnd: scheduleShiftEnd,

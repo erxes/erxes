@@ -83,6 +83,10 @@ const timeclocksMain = `
             employeeId
             deviceName
             deviceType
+            inDevice
+            inDeviceType  
+            outDevice
+            outDeviceType
         }
         totalCount
     }
@@ -327,6 +331,7 @@ const timeLogsPerUser = `
     timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
       _id
       timelog
+      deviceName
       deviceSerialNo
     }
   }

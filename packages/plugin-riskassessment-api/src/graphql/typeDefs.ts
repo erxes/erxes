@@ -16,6 +16,11 @@ import {
   types as OpearionTypes
 } from './schema/operations';
 import {
+  mutations as PlanMutations,
+  queries as PlanQueries,
+  types as PlanTypes
+} from './schema/plans';
+import {
   mutations as RiskAsessmentMutations,
   queries as RiskAsessmentQueries,
   types as RiskAsessmentTypes
@@ -54,11 +59,13 @@ const typeDefs = async _serviceDiscovery => {
     ${OpearionTypes}
     ${RiskAsessmentTypes}
     ${formSubmissionsType}
+    ${PlanTypes}
     
     extend type Query {
       ${RiskIndicatorsQueries}
       ${OpearionQueries}
       ${RiskAsessmentQueries}
+      ${PlanQueries}
     }
     
     extend type Mutation {
@@ -66,6 +73,7 @@ const typeDefs = async _serviceDiscovery => {
       ${formSubmissionsMutations},
       ${OpearionMutations}
       ${RiskAsessmentMutations}
+      ${PlanMutations}
     }
   `;
 };

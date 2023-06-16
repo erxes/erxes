@@ -11,7 +11,6 @@ import {
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { subMenu } from '../../common/constants';
 import { DefaultWrapper } from '../../common/utils';
 import Form from '../containers/Form';
 import Row from './Row';
@@ -191,8 +190,7 @@ class List extends React.Component<Props, State> {
       rightActionBar,
       content: this.renderContent(),
       loading,
-      totalCount,
-      subMenu
+      totalCount
     };
 
     return <DefaultWrapper {...updateProps} />;

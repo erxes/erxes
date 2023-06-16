@@ -561,6 +561,11 @@ export const generatePendingSchedules = async (
 
   let preSchedule = updatedSchedule; //current schedule
   let schedule = pendingSchedules[0]; //feature schedule
+
+  if (!schedule) {
+    return;
+  }
+
   let balance = updatedSchedule.balance; //current balance
 
   //must pay payment paid greater than or less than payed
