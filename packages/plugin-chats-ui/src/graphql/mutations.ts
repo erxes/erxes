@@ -38,11 +38,18 @@ const chatAddOrRemoveMember = `
   }
 `;
 
+const chatToggleIsPinned = `
+  mutation chatToggleIsPinned($id: String!) {
+    chatToggleIsPinned(_id: $id)
+  }
+`;
+
 export default {
   chatMessageAdd,
   chatAdd,
   chatRemove,
   chatMarkAsRead,
   chatMakeOrRemoveAdmin,
-  chatAddOrRemoveMember
+  chatAddOrRemoveMember,
+  chatToggleIsPinned
 };

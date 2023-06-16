@@ -155,6 +155,25 @@ const chatMutations = {
     return seen;
   },
 
+  chatToggleIsPinned: async (_root, { _id }, { models }) => {
+    const chat = await models.Chats.findOne({ _id });
+    console.log(chat, 'message:', _id);
+
+    if (chat) {
+      graphqlPubsub.publish('chatInserted', {
+        userId: chat.createdUser?._id
+      });
+
+      await models.Chats.updateOne(
+        { _id },
+        { $set: { isPinned: !chat.isPinned } }
+      );
+
+      return !chat.isPinned;
+    }
+    return false;
+  },
+
   chatMessageAdd: async (_root, args, { models, user }) => {
     if (!args.content) {
       throw new Error('Content is required');
@@ -210,17 +229,21 @@ const chatMutations = {
 
   chatMessageToggleIsPinned: async (_root, { _id }, { models }) => {
     const message = await models.ChatMessages.findOne({ _id });
+    console.log(message, 'message:', _id);
 
-    graphqlPubsub.publish('chatMessageInserted', {
-      chatId: message.chatId
-    });
+    if (message) {
+      graphqlPubsub.publish('chatMessageInserted', {
+        chatId: message.chatId
+      });
 
-    await models.ChatMessages.updateOne(
-      { _id },
-      { $set: { isPinned: !message.isPinned } }
-    );
+      await models.ChatMessages.updateOne(
+        { _id },
+        { $set: { isPinned: !message.isPinned } }
+      );
 
-    return !message.isPinned;
+      return !message.isPinned;
+    }
+    return false;
   },
 
   chatAddOrRemoveMember: async (
