@@ -56,7 +56,7 @@ const queries = {
   ) {
     const selector = generateFilterQuery(params);
 
-    return paginate(models.Invoices.find(selector).sort({ createdAt: 1 }), {
+    return paginate(models.Invoices.find(selector).sort({ createdAt: -1 }), {
       ...params
     });
   },
