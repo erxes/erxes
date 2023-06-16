@@ -1,4 +1,6 @@
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { IModels, generateModels } from '../connectionResolver';
+import { sendMessageBroker } from '../messageBroker';
 import {
   CONTRACT_STATUS,
   SCHEDULE_STATUS
@@ -36,9 +38,24 @@ export async function checkContractScheduleAnd(subdomain: string) {
     .lean();
 
   if (!loanContracts.length) return;
-
+  const isEnabledClientportal = await isEnabled('clientportal');
   //then there's is contracts now resolve schedules
   for await (let contract of loanContracts) {
+    isEnabledClientportal &&
+      sendMessageBroker(
+        {
+          subdomain,
+          data: {
+            receivers: contract.customerId,
+            title: `Мэдэгдэл`,
+            content: `${contract.number} гэрээний эргэн төлөлт өнөөдөр тул та хугцаандаа эргэн төлөлт өө хийнэ үү`,
+            notifType: 'system',
+            link: ''
+          },
+          action: 'sendNotification'
+        },
+        'clientportal'
+      );
     //get unresolved schedules
     const unresolvedSchedules = await models.Schedules.find({
       contractId: contract._id,

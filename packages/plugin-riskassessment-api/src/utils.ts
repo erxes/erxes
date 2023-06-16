@@ -514,3 +514,13 @@ export const roundResult = (number, places = 2) => {
   fixed = Math.floor(fixed / 100); // chop off last 2 digits
   return fixed / Math.pow(10, places);
 };
+
+export const generateSort = (sortField, sortDirection) => {
+  let sort: any = { createdAt: -1 };
+
+  if (sortField && sortDirection) {
+    sort = {};
+    sort = { [sortField]: sortDirection };
+  }
+  return sort;
+};

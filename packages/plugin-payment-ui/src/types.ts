@@ -72,7 +72,6 @@ export interface IInvoice {
   status: string;
   customerType: string;
   customer?: any;
-  pluginData?: any;
   paymentKind: string;
   errorDescription?: string;
 

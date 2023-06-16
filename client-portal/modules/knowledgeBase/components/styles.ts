@@ -244,6 +244,7 @@ const ArticleWrapper = styled.div`
   transition: 0.4s;
   width: 100%;
   height: 100%;
+  overflow-x: auto;
 
   > h4 {
     color: #036;

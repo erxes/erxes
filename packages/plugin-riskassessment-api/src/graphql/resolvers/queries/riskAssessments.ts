@@ -1,6 +1,7 @@
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext, IModels } from '../../../connectionResolver';
 import { statusColors } from '../../../constants';
+import { generateSort } from '../../../utils';
 import { RiskAssessmentGroupParams } from '../types';
 
 const generateFilter = async (params, models: IModels) => {
@@ -77,16 +78,6 @@ const generateFilter = async (params, models: IModels) => {
   }
 
   return filter;
-};
-
-const generateSort = (sortField, sortDirection) => {
-  let sort: any = { createdAt: -1 };
-
-  if (sortField && sortDirection) {
-    sort = {};
-    sort = { [sortField]: sortDirection };
-  }
-  return sort;
 };
 
 const RiskAssessmentQueries = {

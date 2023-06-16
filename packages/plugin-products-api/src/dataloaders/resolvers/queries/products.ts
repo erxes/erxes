@@ -26,20 +26,24 @@ const productQueries = {
       boardId,
       segment,
       segmentData,
+      sortField,
+      sortDirection,
       ...pagintationArgs
     }: {
-      ids: string[];
-      excludeIds: boolean;
-      type: string;
-      categoryId: string;
-      searchValue: string;
+      ids?: string[];
+      excludeIds?: boolean;
+      type?: string;
+      categoryId?: string;
+      searchValue?: string;
       tag: string;
-      page: number;
-      perPage: number;
-      pipelineId: string;
-      boardId: string;
-      segment: string;
-      segmentData: string;
+      page?: number;
+      perPage?: number;
+      sortField?: string;
+      sortDirection?: number;
+      pipelineId?: string;
+      boardId?: string;
+      segment?: string;
+      segmentData?: string;
     },
     { commonQuerySelector, models, subdomain, user }: IContext
   ) {
@@ -111,6 +115,11 @@ const productQueries = {
       filter._id = { $in: list.map(l => l._id) };
     }
 
+    let sort: any = { code: 1 };
+    if (sortField) {
+      sort = { [sortField]: sortDirection || 1 };
+    }
+
     return afterQueryWrapper(
       subdomain,
       'products',
@@ -129,7 +138,7 @@ const productQueries = {
       },
       await paginate(
         models.Products.find(filter)
-          .sort('code')
+          .sort(sort)
           .lean(),
         pagintationArgs
       ),

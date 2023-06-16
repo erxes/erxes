@@ -55,6 +55,7 @@ function CheckoutForm(props: Props) {
   const [shiftStart, setShiftStart] = useState(null);
   const [shiftStartInsert, setShiftStartInsert] = useState(requestedTime);
 
+  const [selectedTimeclock, setSelectedTimeclock] = useState(new Date());
   const [selectedTimeclockId, setSelectedTimeclockId] = useState(null);
   const [selectedTimeclockActive, setSelectedTimeclockActive] = useState(false);
 
@@ -98,6 +99,8 @@ function CheckoutForm(props: Props) {
 
     return filterShiftsOfThatDay.map(timeclock => ({
       value: timeclock._id,
+      shiftEnd: timeclock.shiftEnd,
+      shiftStart: timeclock.shiftStart,
       shiftActive: timeclock.shiftActive,
       label: returnDateTimeFormatted(timeclock, 'timeclock')
     }));
@@ -132,6 +135,7 @@ function CheckoutForm(props: Props) {
   };
 
   const onSelectTimeclock = selectedTime => {
+    setSelectedTimeclock(selectedTime.shiftEnd);
     setSelectedTimeclockId(selectedTime.value);
     setSelectedTimeclockActive(selectedTime.shiftActive);
   };
@@ -149,7 +153,17 @@ function CheckoutForm(props: Props) {
       Alert.error('Please pick timeclock from the list');
       return false;
     }
+    //  check in request, when requested shift start is greater than shift end
+    if (
+      pickTimeclockType === 'pick' &&
+      !isCheckOutRequest &&
+      dayjs(requestedTime) >= dayjs(selectedTimeclock)
+    ) {
+      Alert.error(' Please choose shift end later than requested time');
+      return false;
+    }
 
+    // check out requet
     if (pickTimeclockType === 'insert' && isCheckOutRequest) {
       if (
         shiftStartInput === 'insert' &&
@@ -168,15 +182,16 @@ function CheckoutForm(props: Props) {
   };
 
   const onSaveBtn = () => {
-    // check out request
-    if (isCheckOutRequest) {
-      if (checkInput()) {
+    if (checkInput()) {
+      // check out request
+      if (isCheckOutRequest) {
         if (pickTimeclockType === 'pick' && selectedTimeclockId) {
           // edit concurrent timeclock
           editTimeclock({
             _id: selectedTimeclockId,
             shiftEnd: requestedTime,
-            shiftActive: false
+            shiftActive: false,
+            outDeviceType: 'request'
           });
           successfulSubmit();
           return;
@@ -185,27 +200,31 @@ function CheckoutForm(props: Props) {
         createTimeclock({
           shiftStart:
             shiftStartInput === 'pick' ? shiftStart : shiftStartInsert,
-          shiftEnd: requestedTime
+          shiftEnd: requestedTime,
+          inDeviceType: 'insert',
+          outDeviceType: 'request'
         });
         successfulSubmit();
-      }
-    } else {
-      // check in request
-      if (pickTimeclockType === 'pick' && checkInput() && selectedTimeclockId) {
-        editTimeclock({
-          _id: selectedTimeclockId,
+      } else {
+        // check in request
+        if (pickTimeclockType === 'pick' && selectedTimeclockId) {
+          editTimeclock({
+            _id: selectedTimeclockId,
+            shiftStart: requestedTime,
+            shiftActive: selectedTimeclockActive,
+            inDeviceType: 'request'
+          });
+          successfulSubmit();
+          return;
+        }
+        // insert new active timeclock
+        createTimeclock({
           shiftStart: requestedTime,
-          shiftActive: selectedTimeclockActive
+          shiftActive: true,
+          inDeviceType: 'request'
         });
         successfulSubmit();
-        return;
       }
-      // insert new active timeclock
-      createTimeclock({
-        shiftStart: requestedTime,
-        shiftActive: true
-      });
-      successfulSubmit();
     }
   };
 

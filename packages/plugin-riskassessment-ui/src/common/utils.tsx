@@ -1,3 +1,5 @@
+import { gql, useQuery } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import {
@@ -9,7 +11,6 @@ import {
   EmptyState,
   FormControl,
   FormGroup,
-  generateTree,
   Icon,
   Pagination,
   SelectWithSearch,
@@ -17,7 +18,8 @@ import {
   Spinner,
   Tip,
   Wrapper,
-  __
+  __,
+  generateTree
 } from '@erxes/ui/src';
 import {
   ColorPick,
@@ -28,11 +30,8 @@ import {
 import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
 import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { useQuery } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
@@ -48,7 +47,7 @@ import { queries as riskIndicatorsGroupQueries } from '../indicator/groups/graph
 import { OperationTypes } from '../operations/common/types';
 import { queries as operationQueries } from '../operations/graphql';
 import { FormContainer, FormGroupRow } from '../styles';
-import { calculateMethods, COLORS } from './constants';
+import { COLORS, calculateMethods } from './constants';
 import { CustomFormGroupProps } from './types';
 
 export const DefaultWrapper = ({
@@ -70,7 +69,7 @@ export const DefaultWrapper = ({
   content: JSX.Element;
   sidebar?: JSX.Element;
   isPaginationHide?: boolean;
-  subMenu: { title: string; link: string }[];
+  subMenu?: { title: string; link: string }[];
 }) => {
   if (loading) {
     return <Spinner objective />;
@@ -333,7 +332,8 @@ export const SelectOperations = ({
   customOption,
   skip,
   operation,
-  onSelect
+  onSelect,
+  filterParams
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -344,6 +344,7 @@ export const SelectOperations = ({
   name: string;
   skip?: string[];
   operation?: OperationTypes;
+  filterParams?: { ids: string[] };
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
@@ -359,7 +360,10 @@ export const SelectOperations = ({
         space = '\u00A0 \u00A0 '.repeat(foundedString.length);
       }
 
-      list.push({ label: `${space} ${operation.name}`, value: operation._id });
+      list.push({
+        label: `${space} ${operation.name}`,
+        value: operation._id
+      });
     }
 
     if (skip) {
@@ -377,6 +381,7 @@ export const SelectOperations = ({
       generateOptions={generateOptions}
       onSelect={onSelect}
       customQuery={operationQueries.operations}
+      filterParams={filterParams}
       customOption={
         customOption ? customOption : { value: '', label: 'Choose a Operation' }
       }

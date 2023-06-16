@@ -2,15 +2,7 @@ import React, { useState } from 'react';
 import { ITimelog } from '../../types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Button from '@erxes/ui/src/components/Button';
-import {
-  CustomRangeContainer,
-  FlexCenter,
-  FlexColumn,
-  FlexRowLeft,
-  ToggleButton
-} from '../../styles';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
+import { FlexRowLeft, ToggleButton } from '../../styles';
 import Table from '@erxes/ui/src/components/table';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -39,7 +31,11 @@ type Props = {
     params: any
   ) => void;
 
-  createTimeclockFromLog: (userId: string, timelog: Date) => void;
+  createTimeclockFromLog: (
+    userId: string,
+    timelog: Date,
+    inDevice?: string
+  ) => void;
 
   showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
@@ -144,7 +140,11 @@ function ReportList(props: Props) {
                   <Button
                     btnStyle="link"
                     onClick={() =>
-                      createTimeclockFromLog(timelog.user._id, timelog.timelog)
+                      createTimeclockFromLog(
+                        timelog.user._id,
+                        timelog.timelog,
+                        timelog.deviceName
+                      )
                     }
                     icon="clock-eight"
                   />

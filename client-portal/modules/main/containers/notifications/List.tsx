@@ -1,12 +1,15 @@
-import { IUser, NotificationsQueryResponse } from '../../../types';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { IUser, NotificationsQueryResponse } from "../../../types";
+import { gql, useMutation, useQuery } from "@apollo/client";
 
-import NotificationList from '../../components/notifications/List';
-import React from 'react';
+import Alert from "../../../utils/Alert";
+import NotificationList from "../../components/notifications/List";
+import React from "react";
+import queries from "../../../user/graphql/queries";
 
 type Props = {
   count: number;
   currentUser: IUser;
+  config: any;
   requireRead?: boolean;
 };
 
@@ -57,22 +60,47 @@ const markAsReadMutation = gql`
 `;
 
 function NotificationsContainer(props: Props) {
-  const [markAsReadMutaion] = useMutation(markAsReadMutation);
+  const [markAsReadMutaion] = useMutation(markAsReadMutation, {
+    refetchQueries: [
+      {
+        query: notificationsQuery,
+        context: {
+          headers: {
+            "erxes-app-token": props.config?.erxesAppToken,
+          },
+        },
+      },
+      {
+        query: gql(queries.notificationsCountQuery),
+        context: {
+          headers: {
+            "erxes-app-token": props.config?.erxesAppToken,
+          },
+        },
+      },
+    ],
+  });
 
   const markAsRead = (ids: string[]) => {
     markAsReadMutaion({
       variables: {
-        ids
-      }
+        ids,
+      },
     });
   };
 
   const markAllAsRead = () => {
     markAsReadMutaion({
       variables: {
-        markAll: true
-      }
-    });
+        markAll: true,
+      },
+    })
+      .then(() => {
+        Alert.success("Notifications have been seen");
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
   };
 
   const notificationsResponse = useQuery<NotificationsQueryResponse>(
@@ -81,9 +109,9 @@ function NotificationsContainer(props: Props) {
       skip: !props.currentUser,
       variables: {
         page: 1,
-        perPage: 10
+        perPage: 10,
       },
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only",
     }
   );
 
@@ -107,7 +135,7 @@ function NotificationsContainer(props: Props) {
     markAsRead,
     showNotifications,
     markAllAsRead,
-    refetch
+    refetch,
   };
 
   return <NotificationList {...updatedProps} />;

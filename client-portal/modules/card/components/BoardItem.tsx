@@ -15,11 +15,12 @@ import { useRouter } from "next/router";
 
 type Props = {
   items: any;
+  item: any;
   type: string;
   stageId: string;
 };
 
-function BoardItem({ items, type, stageId }: Props) {
+function BoardItem({ items, item, type, stageId }: Props) {
   const router = useRouter();
   const activeStageId = (router.query as any).stageId || stageId;
 

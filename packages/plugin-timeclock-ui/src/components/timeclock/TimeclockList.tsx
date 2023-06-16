@@ -323,9 +323,10 @@ function List(props: Props) {
           <th>{__('Shift date')}</th>
           <th>{__('Check In')}</th>
           <th>{__('In Device')}</th>
+          <th>{__('Location')}</th>
           <th>{__('Check Out')}</th>
-          <th>{__('Out Device')}</th>
           <th>{__('Overnight')}</th>
+          <th>{__('Out Device')}</th>
           <th>{__('Location')}</th>
           <th>
             <TextAlignCenter>{__('Action')}</TextAlignCenter>
