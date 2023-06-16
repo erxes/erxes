@@ -88,7 +88,7 @@ class ContractForm extends React.Component<Props, State> {
       feeAmount: contract.feeAmount || 0,
       tenor: contract.tenor || 0,
       unduePercent: contract.unduePercent || 0,
-      undueCalcType: contract.undueCalcType || 'fromInterest',
+      undueCalcType: contract.undueCalcType,
       interestRate: contract.interestRate || 0,
       interestMonth: (contract.interestRate || 0) / 12,
       repayment: contract.repayment || 'fixed',

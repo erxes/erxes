@@ -45,6 +45,11 @@ export interface IClientPortal {
   styles?: IStyles;
   mobileResponsive?: boolean;
 
+  // auth
+  tokenExpiration?: number;
+  refreshTokenExpiration?: number;
+  tokenPassMethod?: 'cookie' | 'header';
+
   otpConfig?: IOTPConfig;
   mailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
@@ -230,5 +235,31 @@ export const clientPortalSchema = new Schema({
       smsContent: field({ type: String, optional: true })
     },
     optional: true
+  }),
+
+  tokenExpiration: field({
+    type: Number,
+    optional: true,
+    default: 1,
+    label: 'Token expiration',
+    min: 1,
+    max: 7
+  }),
+
+  refreshTokenExpiration: field({
+    type: Number,
+    optional: true,
+    default: 7,
+    min: 1,
+    max: 30,
+    label: 'Refresh token expiration'
+  }),
+
+  tokenPassMethod: field({
+    type: String,
+    optional: true,
+    default: 'cookie',
+    label: 'Token pass method',
+    enum: ['cookie', 'header']
   })
 });

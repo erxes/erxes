@@ -156,7 +156,12 @@ function Header({
               </div>
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item eventKey="3" onClick={() => logout()}>
+            <Dropdown.Item eventKey="3" onClick={() => {
+              if (typeof window !== 'undefined') {
+                sessionStorage.clear()
+              }
+              logout()
+            }}>
               <Icon icon="logout-1" />
               Logout
             </Dropdown.Item>
