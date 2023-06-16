@@ -4,13 +4,12 @@ import { capitalize, getConfigColor } from "../../common/utils";
 import { duedateFilter, priorityFilter } from "../../main/constants";
 
 import BoardView from "./BoardView";
-import { Card } from "react-bootstrap";
 import Detail from "../containers/Detail";
+import EmptyState from "../../common/form/EmptyState";
 import Form from "../containers/Form";
 import Group from "../containers/Group";
 import { GroupList } from "../../styles/cards";
 import ListHeader from "./ListHeader";
-import { renderUserFullName } from "../../utils";
 import { useRouter } from "next/router";
 
 type Props = {
@@ -33,12 +32,16 @@ export default function List({
   const router = useRouter();
   const { itemId, stageId } = router.query as any;
 
+  const activeStages =
+    stages.length !== 0 && stages.filter((s) => s.itemsTotalCount !== 0);
+  const currentStage =
+    (activeStages || []).length !== 0 ? activeStages[0] : null;
+  const activeId = stageId ? stageId : currentStage ? currentStage._id : "";
+
   const [mode, setMode] = useState("stage");
   const [viewType, setViewType] = useState("list");
   const [showForm, setShowForm] = useState(false);
-  const [activeStageId, setStageId] = useState(
-    stageId ? stageId : stages && stages.length !== 0 ? stages[0]._id : ""
-  );
+  const [activeStageId, setStageId] = useState(activeId);
 
   useEffect(() => {
     // tslint:disable-next-line:no-unused-expression
@@ -59,7 +62,7 @@ export default function List({
 
   const renderGroup = (items, groupType: string) => {
     if (!items || items.length === 0) {
-      return null;
+      return <EmptyState icon="ban" text="No cards" size="small" />;
     }
 
     return (items || []).map((item, index) => {
@@ -69,12 +72,9 @@ export default function List({
           : item._id;
 
       return (
-        <GroupList key={index}>
-          <Card.Header>
-            {groupType === "user" ? renderUserFullName(item) : item.name}
-          </Card.Header>
-          <Group groupType={groupType} type={type} id={id} />
-        </GroupList>
+        <React.Fragment key={index}>
+          <Group groupType={groupType} type={type} id={id} item={item} />
+        </React.Fragment>
       );
     });
   };

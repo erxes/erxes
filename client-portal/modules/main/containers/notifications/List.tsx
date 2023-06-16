@@ -7,6 +7,7 @@ import React from 'react';
 type Props = {
   count: number;
   currentUser: IUser;
+  config: any;
   requireRead?: boolean;
 };
 
@@ -57,7 +58,26 @@ const markAsReadMutation = gql`
 `;
 
 function NotificationsContainer(props: Props) {
-  const [markAsReadMutaion] = useMutation(markAsReadMutation);
+  const [markAsReadMutaion] = useMutation(markAsReadMutation, {
+    refetchQueries: [
+      {
+        query: notificationsQuery,
+        context: {
+          headers: {
+            'erxes-app-token': props.config?.erxesAppToken
+          }
+        }
+      },
+      {
+        query: gql(queries.notificationsCountQuery),
+        context: {
+          headers: {
+            'erxes-app-token': props.config?.erxesAppToken
+          }
+        }
+      }
+    ]
+  });
 
   const markAsRead = (ids: string[]) => {
     markAsReadMutaion({

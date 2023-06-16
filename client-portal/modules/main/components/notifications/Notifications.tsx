@@ -9,17 +9,15 @@ type Props = {
 };
 
 const List = (props: Props) => {
-  const { config, count, currentUser } = props;
+  const { count, config, currentUser } = props;
 
   const [currentTab, setCurrentTab] = React.useState("Recent");
-
-  const tabTitles = ["Recent", "Unread"];
-
   const requireRead = currentTab === "Unread";
 
   return (
     <>
       <Notifications
+        config={config}
         count={count}
         currentUser={currentUser}
         requireRead={requireRead}
