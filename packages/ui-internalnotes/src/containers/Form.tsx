@@ -5,28 +5,16 @@ import { graphql } from '@apollo/client/react/hoc';
 import Form from '../components/Form';
 import { mutations } from '../graphql';
 import {
-  mutations as commentMutations,
-  queries as commentQueries
-} from '@erxes/ui-cards/src/comment/graphql';
-import {
   InternalNotesAddMutationResponse,
-  InternalNotesAddMutationVariables,
-  CommentAddMutationResponse,
-  CommentAddMutationVariables,
-  ClientPortalCommentQueryResponse
+  InternalNotesAddMutationVariables
 } from '../types';
 
 type Props = {
   contentType: string;
   contentTypeId: string;
-  inputType?: string;
 };
 
-type FinalProps = {
-  clientPortalCommentsQueries: ClientPortalCommentQueryResponse;
-} & Props &
-  InternalNotesAddMutationResponse &
-  CommentAddMutationResponse;
+type FinalProps = Props & InternalNotesAddMutationResponse;
 
 class FormContainer extends React.Component<
   FinalProps,
@@ -40,44 +28,21 @@ class FormContainer extends React.Component<
 
   // create internalNote
   create = (variables, callback: () => void) => {
-    const {
-      contentType,
-      contentTypeId,
-      internalNotesAdd,
-      commentAdd,
-      inputType,
-      clientPortalCommentsQueries
-    } = this.props;
+    const { contentType, contentTypeId, internalNotesAdd } = this.props;
 
     this.setState({ isLoading: true });
 
-    if (inputType === 'comment') {
-      commentAdd({
-        variables: {
-          type: contentType.slice(6),
-          typeId: contentTypeId,
-          userType: 'team',
-          ...variables
-        }
-      }).then(() => {
-        clientPortalCommentsQueries.refetch();
-        callback();
+    internalNotesAdd({
+      variables: {
+        contentType,
+        contentTypeId,
+        ...variables
+      }
+    }).then(() => {
+      callback();
 
-        this.setState({ isLoading: false });
-      });
-    } else {
-      internalNotesAdd({
-        variables: {
-          contentType,
-          contentTypeId,
-          ...variables
-        }
-      }).then(() => {
-        callback();
-
-        this.setState({ isLoading: false });
-      });
-    }
+      this.setState({ isLoading: false });
+    });
   };
 
   render() {
@@ -106,22 +71,5 @@ export default compose(
         refetchQueries: ['activityLogs']
       };
     }
-  }),
-  graphql<Props>(gql(commentQueries.clientPortalComments), {
-    name: 'clientPortalCommentsQueries',
-    options: ({ contentType, contentTypeId }) => ({
-      variables: { type: contentType.slice(6), typeId: contentTypeId }
-    })
-  }),
-  graphql<Props, CommentAddMutationResponse, CommentAddMutationVariables>(
-    gql(commentMutations.clientPortalCommentsAdd),
-    {
-      name: 'commentAdd',
-      options: () => {
-        return {
-          refetchQueries: ['activityLogs']
-        };
-      }
-    }
-  )
+  })
 )(FormContainer);

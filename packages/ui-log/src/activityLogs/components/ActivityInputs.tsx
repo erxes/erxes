@@ -3,6 +3,7 @@ import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import Icon from '@erxes/ui/src/components/Icon';
 import NoteForm from '@erxes/ui-internalnotes/src/containers/Form';
+import CommentForm from '@erxes/ui-cards/src/comment/containers/Form';
 import React from 'react';
 import { WhiteBoxRoot } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils';
@@ -59,11 +60,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
 
     if (currentTab === 'newComment' && isEnabled('clientportal')) {
       return (
-        <NoteForm
-          inputType="comment"
-          contentType={contentType}
-          contentTypeId={contentTypeId}
-        />
+        <CommentForm contentType={contentType} contentTypeId={contentTypeId} />
       );
     }
 
