@@ -9,7 +9,6 @@ const fieldMutations = {
     args: IFieldConfig,
     { models }: IContext
   ) {
-    console.log('clientPortalFieldConfigsEdit', args);
     return models.FieldConfigs.createOrUpdate(args);
   }
 };

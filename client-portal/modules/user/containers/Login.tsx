@@ -21,7 +21,12 @@ function LoginContainer(props: Props) {
   const browser = detect();
 
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-    const callbackResponse = () => {
+    const callbackResponse = (data) => {
+      if (data.clientPortalLogin && typeof window !== 'undefined') {
+        const { token, refreshToken } = data.clientPortalLogin;
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('refreshToken', refreshToken);
+      }
       window.location.href = "/";
     };
 

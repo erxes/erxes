@@ -94,6 +94,10 @@ export const commonFields = `
     emailContent
     smsContent
   }
+
+  tokenExpiration
+  refreshTokenExpiration
+  tokenPassMethod
 `;
 
 export const basicFields = `
