@@ -3,10 +3,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import Form from '@erxes/ui-internalnotes/src/components/Form';
-import {
-  mutations as commentMutations,
-  queries as commentQueries
-} from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   CommentAddMutationResponse,
   CommentAddMutationVariables,
@@ -73,14 +70,14 @@ class FormContainer extends React.Component<
 }
 
 export default compose(
-  graphql<Props>(gql(commentQueries.clientPortalComments), {
+  graphql<Props>(gql(queries.clientPortalComments), {
     name: 'clientPortalCommentsQueries',
     options: ({ contentType, contentTypeId }) => ({
       variables: { type: contentType.slice(6), typeId: contentTypeId }
     })
   }),
   graphql<Props, CommentAddMutationResponse, CommentAddMutationVariables>(
-    gql(commentMutations.clientPortalCommentsAdd),
+    gql(mutations.clientPortalCommentsAdd),
     {
       name: 'commentAdd'
     }

@@ -1,5 +1,4 @@
 import { QueryResponse } from '@erxes/ui/src/types';
-import { InternalNotesAddMutationVariables } from '@erxes/ui-internalnotes/src/types';
 
 export interface IChecklistDoc {
   contentType: string;
@@ -88,25 +87,33 @@ export type CommentAddMutationVariables = {
 
 export type CommentAddMutationResponse = {
   commentAdd: (params: {
-    variables: InternalNotesAddMutationVariables;
+    variables: CommentAddMutationVariables;
   }) => Promise<any>;
 };
 
+export type ICommentCreatedUser = {
+  _id: string;
+  avatar: string;
+  firstName: string;
+  fullName: string;
+  lastName: string;
+  email: string;
+  username: string;
+};
+
+export type IClientPortalComment = {
+  _id: string;
+  content: string;
+  createdUser: ICommentCreatedUser;
+  createdAt: Date;
+  userType: string;
+  type: string;
+};
+
 export type ClientPortalCommentQueryResponse = {
-  clientPortalComments: {
-    _id: string;
-    content: string;
-    createdUser: {
-      _id: string;
-      avatar: string;
-      firstName: string;
-      fullName: string;
-      lastName: string;
-      email: string;
-      username: string;
-    };
-    createdAt: Date;
-    userType: string;
-    type: string;
-  };
+  clientPortalComments: IClientPortalComment[];
 } & QueryResponse;
+
+export type CommentRemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
