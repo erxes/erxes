@@ -22,6 +22,7 @@ export const generateProducts = async (
   const productIds = productsData
     .filter(pd => pd.productId)
     .map(pd => pd.productId);
+
   const allProducts = await sendProductsMessage({
     subdomain,
     action: 'find',
