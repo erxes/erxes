@@ -294,14 +294,6 @@ export default {
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
-
-          for (const header of headers) {
-            if (header.startsWith('customFieldsData')) {
-              excelHeader.push(header.split('.')[1]);
-            } else {
-              excelHeader.push(header);
-            }
-          }
         } else {
           headers.push(column);
         }
