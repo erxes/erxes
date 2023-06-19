@@ -23,12 +23,12 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
       const product = await models.Products.getProduct({ _id: productId });
 
-      if (!product.uomId) {
+      if (!product.uom) {
         throw new Error('has not uom');
       }
 
       return {
-        data: await models.Uoms.findOne({ _id: product.uomId }).lean(),
+        data: await models.Uoms.findOne({ _id: product.uom }).lean(),
         status: 'success'
       };
     }

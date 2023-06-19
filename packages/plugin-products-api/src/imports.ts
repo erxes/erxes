@@ -132,7 +132,7 @@ export default {
             }
             break;
 
-          case 'subUoms.uomId':
+          case 'subUoms.uom':
             {
               subUomNames = value.split(',');
             }
@@ -144,12 +144,13 @@ export default {
             }
             break;
 
-          case 'uomId':
+          case 'uom':
             {
-              const uom = await models.Uoms.findOne({
-                $or: [{ name: value }, { code: value }]
-              }).lean();
-              doc.uomId = uom ? uom._id : '';
+              const defaultUom = await models.ProductsConfigs.getConfig(
+                'defaultUOM',
+                ''
+              );
+              doc.uom = value || defaultUom;
             }
             break;
 
@@ -189,7 +190,7 @@ export default {
 
         subUoms.push({
           id: Math.random(),
-          uomId: uom._id,
+          uom,
           ratio: Number(ratios[ind] || 1)
         });
         ind += 1;
