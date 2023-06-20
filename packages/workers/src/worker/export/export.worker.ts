@@ -227,7 +227,7 @@ connect()
 
     let finalResponse = {
       exportLink: result.file,
-      total: result.rowIndex - 1,
+      total: totalCount,
       status: 'success',
       uploadType: UPLOAD_SERVICE_TYPE,
       errorMsg: '',
@@ -237,7 +237,7 @@ connect()
     if (result.error) {
       finalResponse = {
         exportLink: result.file,
-        total: result.rowIndex - 1,
+        total: totalCount,
         status: 'failed',
         uploadType: UPLOAD_SERVICE_TYPE,
         errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`,
