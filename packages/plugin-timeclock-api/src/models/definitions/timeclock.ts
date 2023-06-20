@@ -160,6 +160,8 @@ export const timeLogSchema = new Schema({
   timelog: field({ type: Date, label: 'Shift starting time', index: true })
 });
 
+timeLogSchema.index({ userId: 1, timelog: 1, deviceSerialNo: 1 });
+
 export const timeclockSchema = new Schema({
   _id: field({ pkey: true }),
   userId: field({ type: String, label: 'User', index: true }),
@@ -204,6 +206,13 @@ export const timeclockSchema = new Schema({
   })
 });
 
+timeclockSchema.index({
+  userId: 1,
+  shiftStart: 1,
+  shiftEnd: 1,
+  shiftActive: 1
+});
+
 export const absenceTypeSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Absence type', index: true }),
@@ -226,6 +235,8 @@ export const absenceTypeSchema = new Schema({
     label: 'whether absence type is shift request'
   })
 });
+
+absenceTypeSchema.index({ name: 1, requestType: 1 });
 
 export const absenceSchema = new Schema({
   _id: field({ pkey: true }),
@@ -273,6 +284,8 @@ export const absenceSchema = new Schema({
   })
 });
 
+absenceSchema.index({ userId: 1, startTime: 1, endTime: 1 });
+
 export const scheduleSchema = new Schema({
   _id: field({ pkey: true }),
   userId: field({ type: String, label: 'User', index: true }),
@@ -310,6 +323,8 @@ export const scheduleSchema = new Schema({
     optional: true
   })
 });
+
+scheduleSchema.index({ userId: 1, solved: 1, status: 1 });
 
 export const scheduleShiftSchema = new Schema({
   _id: field({ pkey: true }),
@@ -396,6 +411,8 @@ export const deviceConfigSchema = new Schema({
     label: 'whether extract from the device'
   })
 });
+
+deviceConfigSchema.index({ serialNo: 1 });
 
 export const reportCheckSchema = new Schema({
   _id: field({ pkey: true }),

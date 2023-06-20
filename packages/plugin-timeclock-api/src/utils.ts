@@ -1128,6 +1128,7 @@ const returnSupervisedUsers = async (
 const generateFilter = async (
   params: any,
   subdomain: string,
+  models: IModels,
   type: string,
   user: IUserDocument
 ) => {
@@ -1141,6 +1142,18 @@ const generateFilter = async (
     isCurrentUserAdmin
   } = params;
 
+  let scheduleFilter = {};
+  let userIdsGiven: boolean = false;
+
+  //  if schedule status is not set, return empty list
+  if (type === 'schedule' && !scheduleStatus) {
+    return [{}, false];
+  }
+
+  if (branchIds || departmentIds || userIds) {
+    userIdsGiven = true;
+  }
+
   const totalUserIds: string[] = await generateCommonUserIds(
     subdomain,
     userIds,
@@ -1148,10 +1161,12 @@ const generateFilter = async (
     departmentIds
   );
 
-  const models = await generateModels(subdomain);
+  // user Ids given but no common user was found
+  if (userIdsGiven && !totalUserIds.length) {
+    return [{}, false];
+  }
 
-  let scheduleFilter = {};
-
+  // if current user is not admin, return supervised users
   const totalSupervisedUsers = !isCurrentUserAdmin
     ? await returnSupervisedUsers(user, subdomain)
     : [];
@@ -1160,10 +1175,6 @@ const generateFilter = async (
     scheduleFilter = {
       userId: { $in: totalSupervisedUsers.map(usr => usr._id) }
     };
-  }
-
-  if (type === 'schedule' && !scheduleStatus) {
-    return [scheduleFilter, false];
   }
 
   if (scheduleStatus) {
@@ -1197,21 +1208,15 @@ const generateFilter = async (
   );
 
   let returnFilter: any = { _id: { $in: [...scheduleIds] }, ...scheduleFilter };
-  let userIdsGiven: boolean = false;
-  let commonUserFound: boolean = true;
 
   const timeFields = returnTimeFieldsFilter(type, params);
 
-  if (branchIds || departmentIds || userIds) {
-    userIdsGiven = true;
-  }
-
   if (totalUserIds.length > 0) {
     if (type === 'schedule') {
-      returnFilter = { ...returnFilter, userId: { $in: [...totalUserIds] } };
+      returnFilter = { userId: { $in: [...totalUserIds] }, ...returnFilter };
     } else {
       returnFilter = {
-        $and: [{ $or: timeFields }, { userId: { $in: [...totalUserIds] } }]
+        $and: [{ userId: { $in: [...totalUserIds] } }, { $or: timeFields }]
       };
     }
   }
@@ -1229,12 +1234,7 @@ const generateFilter = async (
     };
   }
 
-  // user Ids given but no related data was found
-  if (userIdsGiven && !totalUserIds.length) {
-    commonUserFound = false;
-  }
-
-  return [returnFilter, commonUserFound];
+  return [returnFilter, true];
 };
 
 const returnTimeFieldsFilter = (type: string, queryParams: any) => {

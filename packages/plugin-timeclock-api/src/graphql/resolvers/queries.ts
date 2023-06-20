@@ -23,7 +23,7 @@ import { sendCoreMessage } from '../../messageBroker';
 const timeclockQueries = {
   async absences(_root, queryParams, { models, subdomain, user }: IContext) {
     return models.Absences.find(
-      await generateFilter(queryParams, subdomain, 'absence', user)
+      await generateFilter(queryParams, subdomain, models, 'absence', user)
     );
   },
 
@@ -103,6 +103,7 @@ const timeclockQueries = {
     const [selector, commonUserFound] = await generateFilter(
       queryParams,
       subdomain,
+      models,
       'timeclock',
       user
     );
@@ -148,6 +149,7 @@ const timeclockQueries = {
     const [selector, commonUserFound] = await generateFilter(
       queryParams,
       subdomain,
+      models,
       'timelog',
       user
     );
@@ -189,22 +191,24 @@ const timeclockQueries = {
     const [selector, commonUserFound] = await generateFilter(
       queryParams,
       subdomain,
+      models,
       'schedule',
       user
     );
-
-    const totalCount = models.Schedules.count(selector);
 
     // if there's no common user, return empty list
     if (!commonUserFound) {
       return { list: [], totalCount: 0 };
     }
 
+    const totalCount = models.Schedules.count(selector);
+
     const list = paginate(models.Schedules.find(selector), {
       perPage: queryParams.perPage,
       page: queryParams.page
     });
 
+    console.log(selector);
     return { list, totalCount };
   },
 
@@ -236,6 +240,7 @@ const timeclockQueries = {
     const [selector, commonUserFound] = await generateFilter(
       queryParams,
       subdomain,
+      models,
       'absence',
       user
     );

@@ -213,8 +213,8 @@ export const timeclockReportByUser = async (
   // get the schedule data of selected month
   const totalSchedulesOfUser = await models.Schedules.find({
     userId,
-    status: 'Approved',
-    solved: true
+    solved: true,
+    status: 'Approved'
   });
 
   const totalScheduleIds = totalSchedulesOfUser.map(schedule => schedule._id);
