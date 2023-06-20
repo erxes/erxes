@@ -40,7 +40,7 @@ const command = async () => {
       let uom = product.sku
 
       if (product.uomId) {
-        const uomWithId = await Uoms.find({ _id: product.uomId });
+        const uomWithId = allUoms.find(u => u._id === product.uomId) || {};
         if (uomWithId.code) {
           uom = uomWithId.code
         }
@@ -50,8 +50,37 @@ const command = async () => {
         uom = defaultUom || ''
       }
 
+      if (!uom) {
+        console.log(`warning(main uom): productCode: "${product.code}"`)
+      }
+
       if (!allUomCodes.includes(uom)) {
         allUomCodes.push(uom);
+      }
+
+      let subUoms = [];
+      if (product.subUoms && product.subUoms.length) {
+        for (const subUom of product.subUoms) {
+          const subUomWithId = allUoms.find(u => u._id === subUom.uomId) || {};
+
+          if (subUomWithId.code && subUom.ratio) {
+            subUoms.push({ uom: subUomWithId.code, ratio: subUom.ratio })
+            continue;
+          }
+
+          if (subUom.uom && subUom.ratio) {
+            subUoms.push({ uom: subUom.uom, ratio: subUom.ratio })
+            continue;
+          }
+
+          if (subUom.ratio) {
+            subUoms.push({ ...subUom })
+            console.log(`warning(subUom): productCode: "${product.code}", uomId: "${subUom.uomId}", uom: "${subUom.uom}" ratio: ${subUom.ratio}`)
+            continue
+          }
+
+          console.log(`warning(subUom - no ratio): productCode: "${product.code}", uomId: "${subUom.uomId}", uom: "${subUom.uom}" ratio: ${subUom.ratio}`)
+        }
       }
 
       bulkUpdateOps.push({
@@ -61,7 +90,8 @@ const command = async () => {
           },
           update: {
             $set: {
-              uom
+              uom,
+              subUoms
             }
           }
         }
