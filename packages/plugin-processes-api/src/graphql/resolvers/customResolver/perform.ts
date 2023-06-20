@@ -8,17 +8,38 @@ export default {
     return models.Performs.findOne({ _id });
   },
 
+  async needProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
+    const needProducts = perform.needProducts || [];
+
+    const { productById } = await getProductAndUoms(subdomain, needProducts);
+
+    for (let need of needProducts) {
+      need.product = productById[need.productId] || {};
+      need.uom = (productById[need.productId] || {}).uom;
+    }
+
+    return needProducts;
+  },
+  async resultProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
+    const resultProducts = perform.resultProducts || [];
+
+    const { productById } = await getProductAndUoms(subdomain, resultProducts);
+
+    for (const result of resultProducts) {
+      result.product = productById[result.productId] || {};
+      result.uom = (productById[result.productId] || {}).uom;
+    }
+
+    return resultProducts;
+  },
   async inProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
     const inProducts = perform.inProducts || [];
 
-    const { productById, uomById } = await getProductAndUoms(
-      subdomain,
-      inProducts
-    );
+    const { productById } = await getProductAndUoms(subdomain, inProducts);
 
     for (let need of inProducts) {
       need.product = productById[need.productId] || {};
-      need.uom = uomById[need.uomId] || {};
+      need.uom = (productById[need.productId] || {}).uom;
     }
 
     return inProducts;
@@ -26,14 +47,11 @@ export default {
   async outProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
     const outProducts = perform.outProducts || [];
 
-    const { productById, uomById } = await getProductAndUoms(
-      subdomain,
-      outProducts
-    );
+    const { productById } = await getProductAndUoms(subdomain, outProducts);
 
     for (const result of outProducts) {
       result.product = productById[result.productId] || {};
-      result.uom = uomById[result.uomId] || {};
+      result.uom = (productById[result.productId] || {}).uom;
     }
 
     return outProducts;

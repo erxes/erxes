@@ -93,7 +93,7 @@ const reserveRemsMutations = {
               branchId,
               departmentId,
               productId: product._id,
-              uomId: product.uomId,
+              uom: product.uom,
               remainder,
               createdAt: now,
               createBy: user._id

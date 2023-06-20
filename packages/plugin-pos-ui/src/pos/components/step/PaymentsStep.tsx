@@ -123,9 +123,9 @@ class PaymentsStep extends React.Component<Props, State> {
     };
 
     const removePayment = () => {
-      pos.paymentTypes =
+      const paymentTypes =
         (pos.paymentTypes || []).filter(m => m._id !== paymentType._id) || [];
-      onChange('pos', pos);
+      onChange('pos', { ...pos, paymentTypes });
     };
 
     const getTipText = type => {
