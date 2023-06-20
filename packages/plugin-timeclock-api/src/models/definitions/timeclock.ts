@@ -96,6 +96,7 @@ export interface IShift {
   configShiftStart?: string;
   configShiftEnd?: string;
   scheduleConfigId?: string;
+  lunchBreakInMins?: number;
 }
 
 export interface IShiftDocument extends IShift, Document {
@@ -349,12 +350,14 @@ export const scheduleShiftSchema = new Schema({
     type: Boolean,
     label: 'to be sure of whether shift occurs overnight'
   }),
-
+  lunchBreakInMins: field({
+    type: Number,
+    label: 'lunch break of the shift'
+  }),
   chosenScheduleConfigId: field({
     type: String,
     label: '_id of a chosen schedule config when creating schedule'
   }),
-
   solved: field({
     type: Boolean,
     default: false,

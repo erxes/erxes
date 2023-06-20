@@ -243,16 +243,12 @@ const deviceConfigRemove = `mutation deviceConfigRemove($_id: String){
 
 const extractAllDataFromMsSQL = `
 mutation extractAllDataFromMsSQL($startDate: String, $endDate: String, $extractAll: Boolean, $branchIds: [String], $departmentIds: [String],$userIds: [String]){
-  extractAllDataFromMsSQL(startDate: $startDate, endDate: $endDate, extractAll: $extractAll, branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds){
-    _id
-  }
+  extractAllDataFromMsSQL(startDate: $startDate, endDate: $endDate, extractAll: $extractAll, branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds)
 }`;
 
 const extractTimeLogsFromMsSql = `
 mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String, $extractAll: Boolean, $branchIds: [String], $departmentIds: [String],$userIds: [String]){
-  extractTimeLogsFromMsSQL(startDate: $startDate, endDate: $endDate, extractAll: $extractAll, branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds){
-    _id
-  }
+  extractTimeLogsFromMsSQL(startDate: $startDate, endDate: $endDate, extractAll: $extractAll, branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds)
 }`;
 
 const createTimeClockFromLog = `

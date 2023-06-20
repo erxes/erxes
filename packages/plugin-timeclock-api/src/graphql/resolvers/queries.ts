@@ -208,7 +208,6 @@ const timeclockQueries = {
       page: queryParams.page
     });
 
-    console.log(selector);
     return { list, totalCount };
   },
 
@@ -454,6 +453,5 @@ const timeclockQueries = {
 };
 
 moduleRequireLogin(timeclockQueries);
-// checkPermission(timeclockQueries, 'timeclocksMain', 'showTimeclocks');
 
 export default timeclockQueries;

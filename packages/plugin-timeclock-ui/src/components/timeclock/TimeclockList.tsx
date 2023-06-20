@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import { ITimeclock } from '../../types';
 import Row from './TimeclockRow';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -28,6 +28,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { prepareCurrentUserOption } from '../../utils';
+import * as dayjs from 'dayjs';
 
 type Props = {
   currentUser: IUser;
@@ -178,13 +179,24 @@ function List(props: Props) {
     localStorage.setItem('endDate', endDate.toISOString());
   };
 
+  const checkDateRange = () => {
+    if ((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > 8) {
+      Alert.error('Please choose date range less than 9 days');
+      return false;
+    }
+
+    return true;
+  };
+
   const extractAllData = () => {
-    extractAllMsSqlData(startDate, endDate, {
-      branchIds: selectedBranches,
-      departmentIds: selectedDepartments,
-      userIds: currUserIds,
-      extractAll: extractType === 'All team members'
-    });
+    if (checkDateRange()) {
+      extractAllMsSqlData(startDate, endDate, {
+        branchIds: selectedBranches,
+        departmentIds: selectedDepartments,
+        userIds: currUserIds,
+        extractAll: extractType === 'All team members'
+      });
+    }
   };
   const extractContent = contentProps => (
     <FlexColumnCustom marginNum={10}>
