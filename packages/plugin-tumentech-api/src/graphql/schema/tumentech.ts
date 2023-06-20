@@ -177,6 +177,10 @@ type ProductCarCategories {
   carCategories: JSON
 }
 
+type ParticipantsTotalCount {
+  dealId: String
+  count: Int
+}
 type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   _id: String!
   driverId: String!
@@ -267,7 +271,7 @@ export const queries = `
 
   participants(page: Int, perPage: Int, driverId: String, dealId: String, status: String): [Participant]
   participantDetail(_id: String!): Participant
-  participantsTotalCount(driverId: String, dealId: String, status: String): Int
+  participantsTotalCount(driverId: String, dealIds: [String]!, status: String): [ParticipantsTotalCount]
 
   
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
