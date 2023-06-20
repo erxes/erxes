@@ -31,9 +31,20 @@ const participantQueries = {
   },
 
   participantsTotalCount: async (_root, params, { models }: IContext) => {
-    const qry = await generateFilterQuery(params);
+    const { dealIds } = params;
 
-    return models.Participants.find(qry).count();
+    if (!dealIds) {
+      return models.Participants.find().count();
+    }
+
+    return dealIds.map(async (dealId: any) => {
+      const qry = await generateFilterQuery({ ...params, dealId });
+
+      return {
+        dealId,
+        count: models.Participants.find(qry).count()
+      };
+    });
   },
 
   participantDetail: async (_root, { _id }, { models }: IContext) => {
