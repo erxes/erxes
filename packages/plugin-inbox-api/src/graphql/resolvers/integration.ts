@@ -8,6 +8,9 @@ export default {
     return models.Integrations.findOne({ _id });
   },
   brand(integration: IIntegrationDocument) {
+    if (!integration.brandId) {
+      return null;
+    }
     return (
       integration.brandId && {
         __typename: 'Brand',
@@ -31,7 +34,10 @@ export default {
   },
 
   async tags(integration: IIntegrationDocument) {
-    return (integration.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+    return (integration.tagIds || []).map(_id => ({
+      __typename: 'Tag',
+      _id
+    }));
   },
 
   websiteMessengerApps(
