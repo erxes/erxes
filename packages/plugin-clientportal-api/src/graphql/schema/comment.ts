@@ -8,7 +8,7 @@ export const types = `
     userType: String,
     content: String
 
-    createdUser: User
+    createdUser: ClientPortalUser
     createdAt: Date
   }
 `;
