@@ -9,8 +9,10 @@ import {
 import {
   customFixDate,
   findAllTeamMembersWithEmpId,
+  findTeamMembers,
   generateCommonUserIds,
   generateFilter,
+  returnDepartmentsBranchesDict,
   returnSupervisedUsers
 } from '../../utils';
 import { IReport } from '../../models/definitions/timeclock';
@@ -190,6 +192,7 @@ const timeclockQueries = {
       'schedule',
       user
     );
+
     const totalCount = models.Schedules.count(selector);
 
     // if there's no common user, return empty list
@@ -304,32 +307,45 @@ const timeclockQueries = {
     { subdomain, user }: IContext
   ) {
     let filterGiven = false;
+    let totalTeamMemberIds;
+    let totalMembers;
+
+    const totalBranchIdsOfMembers: string[] = [];
+    const totalDeptIdsOfMembers: string[] = [];
+
+    type Structure = {
+      departmentIds: string[];
+      branchIds: string[];
+    };
+
+    const usersStructure: { [userId: string]: Structure } = {};
+
     if (userIds || branchIds || departmentIds) {
       filterGiven = true;
     }
-    const teamMemberIdsFromFilter = await generateCommonUserIds(
-      subdomain,
-      userIds,
-      branchIds,
-      departmentIds
-    );
+
+    if (filterGiven) {
+      totalTeamMemberIds = await generateCommonUserIds(
+        subdomain,
+        userIds,
+        branchIds,
+        departmentIds
+      );
+
+      totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
+    } else {
+      if (isCurrentUserAdmin) {
+        // return all team member ids
+        totalMembers = await findAllTeamMembersWithEmpId(subdomain);
+        totalTeamMemberIds = totalMembers.map(usr => usr._id);
+      } else {
+        // return supervisod users including current user
+        totalMembers = await returnSupervisedUsers(user, subdomain);
+        totalTeamMemberIds = totalMembers.map(usr => usr._id);
+      }
+    }
 
     const returnReport: IReport[] = [];
-
-    const totalSupervisedUserIds = await returnSupervisedUsers(
-      user._id,
-      subdomain
-    );
-
-    const totalUserIds = (await findAllTeamMembersWithEmpId(subdomain)).map(
-      returnedUser => returnedUser._id
-    );
-
-    const totalTeamMemberIds = filterGiven
-      ? teamMemberIdsFromFilter
-      : isCurrentUserAdmin
-      ? totalUserIds
-      : totalSupervisedUserIds;
 
     switch (reportType) {
       case 'Урьдчилсан' || 'Preliminary':
@@ -349,16 +365,62 @@ const timeclockQueries = {
 
         break;
       case 'Сүүлд' || 'Final':
+        const paginatedTeamMembers = paginateArray(totalMembers, perPage, page);
+        const paginatedTeamMemberIds = paginatedTeamMembers.map(e => e._id);
+
+        for (const teamMember of paginatedTeamMembers) {
+          if (teamMember.branchIds) {
+            totalBranchIdsOfMembers.push(...teamMember.branchIds);
+          }
+
+          if (teamMember.departmentIds) {
+            totalDeptIdsOfMembers.push(...teamMember.departmentIds);
+          }
+
+          usersStructure[teamMember._id] = {
+            branchIds: teamMember.branchIds ? teamMember.branchIds : [],
+            departmentIds: teamMember.departmentIds
+              ? teamMember.departmentIds
+              : []
+          };
+        }
+
+        const structuresDict = await returnDepartmentsBranchesDict(
+          subdomain,
+          totalBranchIdsOfMembers,
+          totalDeptIdsOfMembers
+        );
+
         const reportFinal: any = await timeclockReportFinal(
           subdomain,
-          paginateArray(totalTeamMemberIds, perPage, page),
+          paginatedTeamMemberIds,
           startDate,
           endDate,
           false
         );
+
         for (const userId of Object.keys(reportFinal)) {
+          const userBranchIds = usersStructure[userId].branchIds;
+          const userDepartmentIds = usersStructure[userId].departmentIds;
+          const branchTitles: string[] = [];
+          const departmentTitles: string[] = [];
+
+          for (const userBranchId of userBranchIds) {
+            if (structuresDict[userBranchId]) {
+              branchTitles.push(structuresDict[userBranchId]);
+            }
+          }
+
+          for (const userDeptId of userDepartmentIds) {
+            if (structuresDict[userDeptId]) {
+              departmentTitles.push(structuresDict[userDeptId]);
+            }
+          }
+
           returnReport.push({
-            groupReport: [{ userId, ...reportFinal[userId] }]
+            groupReport: [
+              { userId, branchTitles, departmentTitles, ...reportFinal[userId] }
+            ]
           });
         }
         break;

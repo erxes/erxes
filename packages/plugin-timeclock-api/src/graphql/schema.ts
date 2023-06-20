@@ -131,6 +131,11 @@ export const types = `
     deviceName: String
     deviceType: String
 
+    inDevice: String
+    inDeviceType: String
+    outDevice: String
+    outDeviceType: String
+
     scheduledStart: Date
     scheduledEnd: Date
     scheduledDuration:String
@@ -145,6 +150,10 @@ export const types = `
   type UserReport{
     user: User
     scheduleReport: [ScheduleReport]
+    
+    branchTitles: [String]
+    departmentTitles: [String]
+
     totalMinsLate: Float
     totalAbsenceMins: Int
     totalMinsWorked: Int

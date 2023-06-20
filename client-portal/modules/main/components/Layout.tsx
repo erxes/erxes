@@ -38,7 +38,9 @@ function Layout({
         baseColor={getConfigColor(config, "baseColor")}
         bodyColor={getConfigColor(config, "bodyColor")}
       >
-        <Container>{children({ config, topic })}</Container>
+        <Container large={true}>
+          {children({ config, topic, currentUser })}
+        </Container>
       </MainContent>
 
       <div dangerouslySetInnerHTML={{ __html: config.footerHtml || "" }} />

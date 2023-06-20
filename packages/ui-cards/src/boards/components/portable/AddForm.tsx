@@ -128,12 +128,12 @@ class AddForm extends React.Component<Props, State> {
     const { saveItem, closeModal, callback } = this.props;
     let { fields } = this.props;
 
-    if (!stageId) {
-      return Alert.error('No stage');
-    }
-
     if (!name && !cardId) {
       return Alert.error('Please enter name or select card');
+    }
+
+    if (!stageId) {
+      return Alert.error('No stage');
     }
 
     fields = fields.filter(field => {
