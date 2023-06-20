@@ -37,7 +37,9 @@ import Tip from '@erxes/ui/src/components/Tip';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 import Uploader from '@erxes/ui/src/components/Uploader';
+import Attachment from '@erxes/ui/src/components/Attachment';
 import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
+import { IAttachment } from '@erxes/ui/src/types';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -667,45 +669,62 @@ class MailForm extends React.Component<Props, State> {
       this.setState({ attachments });
     };
 
+    const removeAttachment = (index: number) => {
+      const attachments = [...this.state.attachments];
+
+      attachments.splice(index, 1);
+
+      this.setState({ attachments });
+
+      onChangeAttachment(attachments);
+    };
+
     return (
-      <EditorFooter>
-        <div>
-          {this.renderSubmit('Send', this.onSubmit, 'primary')}
-          {isReply &&
-            this.renderSubmit(
-              'Send and Resolve',
-              onSubmitResolve,
-              'success',
-              'check-circle'
-            )}
-        </div>
-        <ToolBar>
-          <Tip text="Attach file" placement="top">
-            <UploaderWrapper>
-              <Uploader
-                defaultFileList={this.state.attachments || []}
-                onChange={onChangeAttachment}
-                text=" "
-                icon="attach"
-              />
-            </UploaderWrapper>
-          </Tip>
-          {this.renderIcon({
-            text: 'Delete',
-            icon: 'trash-alt',
-            onClick: toggleReply
-          })}
-          {isEnabled('emailtemplates') && (
-            <EmailTemplate
-              onSelect={this.templateChange}
-              totalCount={totalCount}
-              fetchMoreEmailTemplates={fetchMoreEmailTemplates}
-              targets={generateEmailTemplateParams(emailTemplates || [])}
-              history={history}
+      <div>
+        <UploaderWrapper>
+          <Attachment
+            attachment={this.state.attachments[0] || ({} as IAttachment)}
+            attachments={this.state.attachments || ([] as IAttachment[])}
+            removeAttachment={removeAttachment}
+            withoutPreview={true}
+          />
+        </UploaderWrapper>
+        <EditorFooter>
+          <div>
+            {this.renderSubmit('Send', this.onSubmit, 'primary')}
+            {isReply &&
+              this.renderSubmit(
+                'Send and Resolve',
+                onSubmitResolve,
+                'success',
+                'check-circle'
+              )}
+          </div>
+          <ToolBar>
+            <Uploader
+              defaultFileList={this.state.attachments || []}
+              onChange={onChangeAttachment}
+              icon="attach"
+              noText={true}
+              noPreview={true}
             />
-          )}
-        </ToolBar>
-      </EditorFooter>
+            {this.renderIcon({
+              text: 'Delete',
+              icon: 'trash-alt',
+              onClick: toggleReply
+            })}
+            {isEnabled('emailtemplates') && (
+              <EmailTemplate
+                onSelect={this.templateChange}
+                totalCount={totalCount}
+                fetchMoreEmailTemplates={fetchMoreEmailTemplates}
+                targets={generateEmailTemplateParams(emailTemplates || [])}
+                history={history}
+              />
+            )}
+          </ToolBar>
+        </EditorFooter>
+      </div>
     );
   }
 

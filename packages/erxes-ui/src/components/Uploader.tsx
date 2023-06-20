@@ -10,6 +10,8 @@ import Spinner from './Spinner';
 import AttachmentsGallery from './AttachmentGallery';
 import Icon from './Icon';
 import { Meta } from './Attachment';
+import Tip from './Tip';
+import { FlexCenter } from '../styles/main';
 
 const LoadingContainer = styled.div`
   margin: 10px 0;
@@ -76,6 +78,14 @@ const UploadBtnWithIcon = styled.div`
   }
 `;
 
+const UploadIconBtn = styled.div`
+  i {
+    font-size: 18px;
+    color: ${colors.colorLightGray};
+    padding: 0;
+  }
+`;
+
 type Props = {
   defaultFileList: IAttachment[];
   onChange: (attachments: IAttachment[]) => void;
@@ -86,6 +96,8 @@ type Props = {
   text?: string;
   icon?: string;
   warningText?: string;
+  noText?: boolean;
+  noPreview?: boolean;
 };
 
 type State = {
@@ -165,10 +177,37 @@ class Uploader extends React.Component<Props, State> {
   };
 
   renderUploadButton() {
-    const { multiple, single, text, accept, icon, warningText } = this.props;
+    const {
+      multiple,
+      single,
+      text,
+      accept,
+      icon,
+      warningText,
+      noText
+    } = this.props;
 
     if (single && this.state.attachments.length > 0) {
       return null;
+    }
+
+    if (noText) {
+      return (
+        <UploadIconBtn>
+          <label>
+            <Tip text={__('Attach file')} placement="top">
+              <Icon icon={icon || 'attach'} />
+            </Tip>
+
+            <input
+              type="file"
+              multiple={multiple}
+              onChange={this.handleFileInput}
+              accept={accept || ''}
+            />
+          </label>
+        </UploadIconBtn>
+      );
     }
 
     if (!icon) {
@@ -210,7 +249,7 @@ class Uploader extends React.Component<Props, State> {
   }
 
   render() {
-    const { limit = 4, onChange } = this.props;
+    const { limit = 4, onChange, noPreview } = this.props;
     const { attachments, loading } = this.state;
 
     return (
@@ -221,12 +260,14 @@ class Uploader extends React.Component<Props, State> {
             {__('Uploading')}...
           </LoadingContainer>
         )}
-        <AttachmentsGallery
-          attachments={attachments}
-          limit={limit}
-          onChange={onChange}
-          removeAttachment={this.removeAttachment}
-        />
+        {!noPreview && (
+          <AttachmentsGallery
+            attachments={attachments}
+            limit={limit}
+            onChange={onChange}
+            removeAttachment={this.removeAttachment}
+          />
+        )}
         {this.renderUploadButton()}
       </>
     );

@@ -124,9 +124,8 @@ const ToolBar = styled.div`
   align-items: center;
 
   i {
-    font-size: 18px !important;
-    color: ${colors.colorLightGray} !important;
-    padding: 0 !important;
+    font-size: 18px;
+    color: ${colors.colorLightGray};
   }
 
   label {
@@ -247,7 +246,7 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
   }
 `;
 
-const NewEmailHeader = styledTS<{ shrink: boolean }>(styled.h5)`
+const NewEmailHeader = styled.h5`
   background: ${colors.bgActive};
   margin-bottom: 0;
   margin-top: 0;
@@ -256,7 +255,7 @@ const NewEmailHeader = styledTS<{ shrink: boolean }>(styled.h5)`
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  width: ${props => (props.shrink ? '260px' : '600px')};
+  width: 100%;
 
   i {
     margin-left: 5px;
@@ -268,7 +267,7 @@ const NewEmailHeader = styledTS<{ shrink: boolean }>(styled.h5)`
   }
 `;
 
-const WidgetWrapper = styledTS<{ show: boolean }>(styled.div)`
+const WidgetWrapper = styledTS<{ show: boolean; shrink: boolean }>(styled.div)`
   position: fixed;
   bottom: ${dimensions.unitSpacing}px;
   right: ${dimensions.coreSpacing}px;
@@ -280,18 +279,16 @@ const WidgetWrapper = styledTS<{ show: boolean }>(styled.div)`
   background: #fff;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
   border-radius: 8px;
+  width: ${props => (props.shrink ? '260px' : '600px')};
 
   ${props => !props.show && 'display:none;'}
 `;
 
 const UploaderWrapper = styled.div`
+  max-height: 100px;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
-  justify-content: center;
-  align-items: center;
-
-  > div {
-    margin: 0;
-  }
 `;
 
 export {

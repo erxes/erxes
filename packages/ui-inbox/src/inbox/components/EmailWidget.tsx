@@ -104,8 +104,11 @@ class Widget extends React.Component<Props, State> {
             </Tip>
           </NotifButton>
         )}
-        <WidgetWrapper show={isWidgetShow === 'true' ? true : false}>
-          <NewEmailHeader shrink={isShrink} onClick={changeShrink}>
+        <WidgetWrapper
+          shrink={isShrink}
+          show={isWidgetShow === 'true' ? true : false}
+        >
+          <NewEmailHeader onClick={changeShrink}>
             {__('New Email')}
             <div>
               <Icon size={10} icon={shrink === 'true' ? 'plus' : 'minus'} />
