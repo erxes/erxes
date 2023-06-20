@@ -82,10 +82,10 @@ class BoardSelectContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
+    const { boardsQuery, pipelinesQuery, stagesQuery, boardId } = this.props;
 
     const boards = boardsQuery.boards || [];
-    const pipelines = pipelinesQuery.pipelines || [];
+    const pipelines = boardId ? pipelinesQuery.pipelines : [];
     const stages = stagesQuery.stages || [];
 
     const extendedProps = {
