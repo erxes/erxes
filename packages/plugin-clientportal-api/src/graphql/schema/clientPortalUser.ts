@@ -49,6 +49,7 @@ type VerificationRequest {
     _id: String!
     createdAt: Date
     modifiedAt: Date
+    fullName: String
     firstName: String
     lastName: String
     phone: String
