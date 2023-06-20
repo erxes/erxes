@@ -305,15 +305,15 @@ function List(props: Props) {
     />
   );
 
-  const compareUserName = (a, b) => {
-    if (a.employeeUserName < b.employeeUserName) {
-      return -1;
-    }
-    if (a.employeeUserName > b.employeeUserName) {
-      return 1;
-    }
-    return 0;
-  };
+  // const compareUserName = (a, b) => {
+  //   if (a.employeeUserName < b.employeeUserName) {
+  //     return -1;
+  //   }
+  //   if (a.employeeUserName > b.employeeUserName) {
+  //     return 1;
+  //   }
+  //   return 0;
+  // };
 
   const content = (
     <Table>
@@ -334,7 +334,7 @@ function List(props: Props) {
         </tr>
       </thead>
       <tbody>
-        {timeclocks.sort(compareUserName).map(timeclock => {
+        {timeclocks.map(timeclock => {
           return (
             <Row
               key={timeclock._id}

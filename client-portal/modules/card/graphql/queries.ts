@@ -123,7 +123,16 @@ const clientPortalComments = `
     clientPortalComments(typeId: $typeId, type: $type) {
       _id
       content
-      createdUser 
+      createdUser {
+        _id
+        email
+        username
+        details {
+          firstName
+          lastName
+          fullName
+        }
+      }
       createdAt
       userType
       type

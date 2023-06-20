@@ -472,6 +472,8 @@ export interface IUserExportReport {
   firstName?: string;
   lastName?: string;
   branchName?: string;
+  employeeId?: string;
+
   position?: string;
   totalDaysWorked?: number;
   totalHoursWorked?: string;
@@ -486,9 +488,23 @@ export interface IUserExportReport {
   totalHoursBreakScheduled?: string;
   totalHoursBreakTaken?: string;
 
-  totalMinsLate?: string;
-
   absenceInfo?: IUserAbsenceInfo;
+
+  totalMinsLate?: number | string;
+  totalAbsenceMins?: number;
+
+  totalHoursWorkedSelectedDay?: number;
+  totalHoursScheduledSelectedDay?: number;
+  totalHoursAbsentSelectedDay?: number;
+  totalMinsLateSelectedDay?: number;
+
+  totalHoursWorkedSelectedMonth?: number;
+  totalHoursScheduledSelectedMonth?: number;
+  totalHoursAbsentSelectedMonth?: number;
+  totalMinsLateSelectedMonth?: number;
+
+  totalDaysScheduledSelectedMonth?: number;
+  totalDaysWorkedSelectedMonth?: number;
 
   scheduleReport?: IScheduleReport[];
 }
