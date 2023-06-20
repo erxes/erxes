@@ -5,17 +5,19 @@ import { Model } from 'mongoose';
 import * as randomize from 'randomatic';
 import * as sha256 from 'sha256';
 
-import { createJwtToken } from '../auth/authUtils';
 import { IModels } from '../connectionResolver';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
 import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendAfterMutation, sendSms } from '../utils';
-import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
-  clientPortalUserSchema,
+  IClientPortal,
+  IClientPortalDocument
+} from './definitions/clientPortal';
+import {
   INotifcationSettings,
   IUser,
-  IUserDocument
+  IUserDocument,
+  clientPortalUserSchema
 } from './definitions/clientPortalUser';
 import { DEFAULT_MAIL_CONFIG } from './definitions/constants';
 import { handleContacts, putActivityLog } from './utils';
@@ -84,7 +86,9 @@ export interface IUserModel extends Model<IUserDocument> {
   refreshTokens(
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
-  login(args: ILoginParams): { token: string; refreshToken: string };
+  login(
+    args: ILoginParams
+  ): { user: IUserDocument; clientPortal: IClientPortal };
   imposeVerificationCode({
     codeLength,
     clientPortalId,
@@ -801,7 +805,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       this.updateSession(user._id);
 
-      return createJwtToken({ userId: user._id, type: user.type });
+      return {
+        user,
+        clientPortal: cp
+      };
     }
 
     public static async invite(

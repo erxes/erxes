@@ -243,6 +243,10 @@ const integrationMutations = {
       }
     }
 
+    if (doc.channelIds && doc.channelIds.length === 0) {
+      throw new Error('Channel must be chosen');
+    }
+
     const integration = await models.Integrations.createExternalIntegration(
       modifiedDoc,
       user._id
