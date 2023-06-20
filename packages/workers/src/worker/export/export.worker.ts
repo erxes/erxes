@@ -162,6 +162,7 @@ connect()
     const totalIterations = Math.ceil(totalCount / perPage);
 
     let docs = [] as any;
+    let percentage = 0;
 
     for (let page = 1; page <= totalIterations; page++) {
       const response = await messageBroker().sendRPCMessage(
@@ -177,6 +178,15 @@ connect()
           },
           timeout: 5 * 60 * 1000
         }
+      );
+
+      percentage = Number(
+        ((((page - 1) * perPage) / totalCount) * 100).toFixed(2)
+      );
+
+      await models.ExportHistory.updateOne(
+        { _id: exportHistoryId },
+        { $set: { percentage } }
       );
 
       docs = docs.concat(response ? response.docs || [] : []);
@@ -220,7 +230,8 @@ connect()
       total: result.rowIndex - 1,
       status: 'success',
       uploadType: UPLOAD_SERVICE_TYPE,
-      errorMsg: ''
+      errorMsg: '',
+      percentage: 100
     };
 
     if (result.error) {
@@ -229,7 +240,8 @@ connect()
         total: result.rowIndex - 1,
         status: 'failed',
         uploadType: UPLOAD_SERVICE_TYPE,
-        errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`
+        errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`,
+        percentage: 100
       };
     }
 
