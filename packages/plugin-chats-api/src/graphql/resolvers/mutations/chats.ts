@@ -174,6 +174,24 @@ const chatMutations = {
     return false;
   },
 
+  chatToggleIsWithNotification: async (_root, { _id }, { models }) => {
+    const chat = await models.Chats.findOne({ _id });
+
+    if (chat) {
+      graphqlPubsub.publish('chatInserted', {
+        userId: chat.createdUser?._id
+      });
+
+      await models.Chats.updateOne(
+        { _id },
+        { $set: { isWithNotification: !chat.isWithNotification } }
+      );
+
+      return !chat.isWithNotification;
+    }
+    return false;
+  },
+
   chatMessageAdd: async (_root, args, { models, user }) => {
     if (!args.content) {
       throw new Error('Content is required');
