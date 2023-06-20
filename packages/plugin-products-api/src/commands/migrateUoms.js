@@ -103,6 +103,7 @@ const command = async () => {
         bulkCounter = bulkCounter + 1;
         console.log(`updated ${bulkCounter * 1000}...`);
         await Products.bulkWrite(bulkUpdateOps);
+        bulkUpdateOps = [];
         counter = 0;
       }
     }
