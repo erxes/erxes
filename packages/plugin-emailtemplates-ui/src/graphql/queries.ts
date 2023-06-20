@@ -9,6 +9,7 @@ const emailTemplates = `
       createdAt
       status
       modifiedAt
+      tagIds
       ${
         isEnabled('tags')
           ? `tags {

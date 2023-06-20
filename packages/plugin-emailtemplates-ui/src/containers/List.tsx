@@ -71,12 +71,7 @@ class EmailListContainer extends React.Component<Props> {
       );
     };
 
-    return (
-      <Bulk
-        content={content}
-        // refetch={this.props.customersMainQuery.refetch}
-      />
-    );
+    return <Bulk content={content} />;
   }
 }
 

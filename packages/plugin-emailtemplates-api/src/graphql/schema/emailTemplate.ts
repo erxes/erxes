@@ -20,6 +20,7 @@ export const types = ({ tags }) => `
     createdAt: Date
     modifiedAt: Date
     createdUser: User
+    tagIds: [String]
     ${tags ? 'tags: [Tag]' : ''}
   }
 `;
