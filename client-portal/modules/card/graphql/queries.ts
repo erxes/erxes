@@ -125,13 +125,12 @@ const clientPortalComments = `
       content
       createdUser {
         _id
+        avatar
+        firstName
+        fullName
+        lastName
         email
         username
-        details {
-          firstName
-          lastName
-          fullName
-        }
       }
       createdAt
       userType
