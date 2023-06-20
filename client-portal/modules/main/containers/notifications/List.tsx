@@ -1,6 +1,5 @@
-import { IUser, NotificationsQueryResponse } from "../../../types";
-import { gql, useMutation, useQuery } from "@apollo/client";
-
+import { IUser, NotificationsQueryResponse } from '../../../types';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import Alert from "../../../utils/Alert";
 import NotificationList from "../../components/notifications/List";
 import React from "react";
@@ -84,8 +83,8 @@ function NotificationsContainer(props: Props) {
   const markAsRead = (ids: string[]) => {
     markAsReadMutaion({
       variables: {
-        ids,
-      },
+        ids
+      }
     });
   };
 
@@ -109,9 +108,9 @@ function NotificationsContainer(props: Props) {
       skip: !props.currentUser,
       variables: {
         page: 1,
-        perPage: 10,
+        perPage: 10
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only'
     }
   );
 
@@ -135,7 +134,7 @@ function NotificationsContainer(props: Props) {
     markAsRead,
     showNotifications,
     markAllAsRead,
-    refetch,
+    refetch
   };
 
   return <NotificationList {...updatedProps} />;
