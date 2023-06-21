@@ -7,6 +7,7 @@ import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import {
   customerSchema,
+  IAddress,
   ICustomer,
   ICustomerDocument
 } from './definitions/customers';
@@ -134,6 +135,11 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   saveVisitorContactInfo(
     doc: IVisitorContactInfoParams
   ): Promise<ICustomerDocument>;
+
+  updateAddresses(
+    _id: string,
+    addresses: IAddress[]
+  ): Promise<ICustomerDocument | null>;
 }
 
 export const loadCustomerClass = (models: IModels, subdomain: string) => {
@@ -987,6 +993,26 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       );
 
       return models.Customers.find({ _id: { $in: customerIds } });
+    }
+
+    public static async updateAddresses(_id: string, addresses: IAddress[]) {
+      const doc = addresses.map((address: IAddress) => {
+        const modifiedDoc: any = { ...address };
+        modifiedDoc.locationPoint = {
+          type: 'Point',
+          coordinates: [address.lng, address.lat]
+        };
+        return modifiedDoc;
+      });
+
+      await models.Customers.updateOne(
+        { _id },
+        {
+          $set: { addresses: doc }
+        }
+      );
+
+      return models.Customers.findOne({ _id });
     }
   }
 

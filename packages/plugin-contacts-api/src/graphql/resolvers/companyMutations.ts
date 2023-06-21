@@ -3,6 +3,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { ICompany } from '../../models/definitions/companies';
 import { MODULE_NAMES } from '../../constants';
 import { IContext } from '../../connectionResolver';
+import { IAddress } from '../../models/definitions/customers';
 
 interface ICompaniesEdit extends ICompany {
   _id: string;
@@ -168,11 +169,20 @@ const companyMutations = {
     { models: { Companies } }: IContext
   ) {
     return Companies.mergeCompanies(companyIds, companyFields);
+  },
+
+  companiesEditAddresses(
+    _root,
+    { _id, addresses }: { _id: string; addresses: IAddress[] },
+    { models: { Companies } }: IContext
+  ) {
+    return Companies.updateAddresses(_id, addresses);
   }
 };
 
 checkPermission(companyMutations, 'companiesAdd', 'companiesAdd');
 checkPermission(companyMutations, 'companiesEdit', 'companiesEdit');
+checkPermission(companyMutations, 'companiesEditAddresses', 'companiesEdit');
 checkPermission(companyMutations, 'companiesEditByField', 'companiesEdit');
 checkPermission(companyMutations, 'companiesRemove', 'companiesRemove');
 checkPermission(companyMutations, 'companiesMerge', 'companiesMerge');

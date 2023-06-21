@@ -152,6 +152,30 @@ const customerCounts = `
   }
 `;
 
+export const addressFields = `
+lat
+lng
+
+isPrimary
+
+fullAddress
+description
+
+country
+countryCode
+city
+district
+quarter
+road
+state
+postcode
+houseNumber
+
+osmId
+osmType
+boundingbox
+`;
+
 const customerDetail = `
   query customerDetail($_id: String!) {
     customerDetail(_id: $_id) {
@@ -172,6 +196,14 @@ const customerDetail = `
         _id
         primaryName
         website
+      }
+
+      addresses {
+        ${addressFields}
+      }
+
+      primaryAddress {
+        ${addressFields}
       }
     }
   }

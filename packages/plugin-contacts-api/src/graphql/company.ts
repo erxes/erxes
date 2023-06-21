@@ -29,8 +29,9 @@ export const types = tagsEnabled => `
     primaryEmail: String
     phones: [String]
     primaryPhone: String
-    primaryAddress: JSON
-    addresses: [JSON]
+    
+    primaryAddress: Address
+    addresses: [Address]
 
     businessType: String
     description: String
@@ -95,7 +96,6 @@ const commonFields = `
   primaryEmail: String,
   emails: [String],
 
-  primaryAddress: JSON,
   addresses: [JSON],
 
   size: Int,
@@ -122,4 +122,6 @@ export const mutations = `
   companiesEditByField(selector: JSON, doc: JSON): Company
   companiesRemove(companyIds: [String]): [String]
   companiesMerge(companyIds: [String], companyFields: JSON) : Company
+
+  companiesEditAddresses(_id: String!, addresses: [JSON]): Company
 `;

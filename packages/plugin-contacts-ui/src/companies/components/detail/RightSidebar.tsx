@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { pluginsOfCompanySidebar } from 'coreui/pluginUtils';
 import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
+import AddressSection from '../../../address/containers/AddressSection';
 
 type Props = {
   company: ICompany;
@@ -32,11 +33,25 @@ export default class RightSidebar extends React.Component<Props> {
     );
   }
 
+  renderAddress = () => {
+    if (!isEnabled('osm')) {
+      return null;
+    }
+
+    const { company } = this.props;
+    const { addresses = [] } = company;
+
+    return (
+      <AddressSection _id={company._id} addresses={addresses} type="company" />
+    );
+  };
+
   render() {
     const { company } = this.props;
 
     return (
       <Sidebar>
+        {this.renderAddress()}
         <CustomerSection
           mainType="company"
           mainTypeId={company._id}

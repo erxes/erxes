@@ -30,25 +30,26 @@ export interface IVisitorContact {
 export interface IVisitorContactDocument extends IVisitorContact, Document {}
 
 export interface IAddress {
-  id: string; // lng_lat || random
-  location: {
-    type: string;
-    coordinates: number[];
-  };
-  address: {
-    countryCode: string;
-    country: string;
-    postCode: string;
-    city: string;
-    city_district: string;
-    suburb: string;
-    road: string;
-    street: string;
-    building: string;
-    number: string;
-    other: string;
-  };
-  short: string;
+  lat: number;
+  lng: number;
+  isPrimary?: boolean;
+
+  fullAddress?: string;
+  description?: string;
+
+  country?: string;
+  countryCode?: string;
+  city?: string;
+  district?: string;
+  quarter?: string;
+  road?: string;
+  state?: string;
+  postcode?: string;
+  houseNumber?: string;
+
+  osmId?: string;
+  osmType?: string;
+  boundingbox?: string[];
 }
 
 export interface ICustomer {
@@ -65,7 +66,6 @@ export interface ICustomer {
   avatar?: string;
   primaryPhone?: string;
   phones?: string[];
-  primaryAddress?: IAddress;
   addresses?: IAddress[];
 
   ownerId?: string;
@@ -138,6 +138,66 @@ export const locationSchema = new Schema(
   },
   { _id: false }
 );
+
+export const addressSchema = new Schema(
+  {
+    lat: field({ type: Number, label: 'Latitude', optional: true }),
+    lng: field({ type: Number, label: 'Longitude', optional: true }),
+    isPrimary: field({ type: Boolean, label: 'Is primary', optional: true }),
+
+    fullAddress: field({
+      type: String,
+      label: 'Full address',
+      optional: true
+    }),
+    description: field({
+      type: String,
+      label: 'Description',
+      optional: true
+    }),
+    country: field({ type: String, label: 'Country', optional: true }),
+    countryCode: field({
+      type: String,
+      label: 'Country code',
+      optional: true
+    }),
+    city: field({ type: String, label: 'City', optional: true }),
+    district: field({ type: String, label: 'District', optional: true }),
+    quarter: field({ type: String, label: 'Quarter', optional: true }),
+    road: field({ type: String, label: 'Road', optional: true }),
+    state: field({ type: String, label: 'State', optional: true }),
+    postcode: field({ type: String, label: 'Postcode', optional: true }),
+    houseNumber: field({
+      type: String,
+      label: 'House number',
+      optional: true
+    }),
+
+    osmId: field({ type: String, label: 'Osm id', optional: true }),
+    osmType: field({ type: String, label: 'Osm type', optional: true }),
+    boundingbox: field({
+      type: [String],
+      label: 'Bounding box',
+      optional: true
+    }),
+
+    locationPoint: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        optional: true
+      },
+      coordinates: {
+        type: [Number],
+        optional: true
+      },
+      required: false
+    }
+  },
+  { _id: false }
+);
+
+addressSchema.index({ locationPoint: '2dsphere' });
 
 export const visitorContactSchema = new Schema(
   {
@@ -212,12 +272,16 @@ export const customerSchema = schemaWrapper(
     }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
 
-    primaryAddress: field({
-      type: Object,
-      label: 'Primary Address',
-      optional: true
+    // primaryAddress: field({
+    //   type: Object,
+    //   label: 'Primary Address',
+    //   optional: true
+    // }),
+    addresses: field({
+      type: [addressSchema],
+      optional: true,
+      label: 'Addresses'
     }),
-    addresses: field({ type: [Object], optional: true, label: 'Addresses' }),
 
     phoneValidationStatus: field({
       type: String,

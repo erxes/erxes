@@ -1,4 +1,4 @@
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IAddress, ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
@@ -46,6 +46,8 @@ export interface ICompanyDoc {
   code?: string;
   location?: string;
   score?: number;
+
+  addresses?: IAddress[];
 }
 
 export interface ICompany extends ICompanyDoc {

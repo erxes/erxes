@@ -8,6 +8,31 @@ export const types = (tagsEnabled, inboxEnabled) => `
     status: String!
   }
 
+  type Address {
+    lat: Float
+    lng: Float
+
+    isPrimary: Boolean
+   
+    fullAddress: String
+    description: String
+    
+    country: String
+    countryCode: String
+    city: String
+    district: String
+    quarter: String
+    road: String
+    state: String
+    postcode: String
+    houseNumber: String
+
+    osmId: String
+    osmType: String
+    boundingbox: [String]
+  }
+
+
   type Customer @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     state: String
@@ -27,8 +52,8 @@ export const types = (tagsEnabled, inboxEnabled) => `
     emails: [String]
     primaryPhone: String
     phones: [String]
-    primaryAddress: JSON
-    addresses: [JSON]
+    primaryAddress: Address
+    addresses: [Address]
 
     phone: String
     tagIds: [String]
@@ -113,7 +138,6 @@ const fields = `
   emails: [String]
   primaryPhone: String
   phones: [String]
-  primaryAddress: JSON
   addresses: [JSON]
   ownerId: String
   position: String
@@ -141,4 +165,6 @@ export const mutations = `
   customersVerify(verificationType:String!): String
   customersChangeVerificationStatus(customerIds: [String], type: String!, status: String!): [Customer]
   customersChangeStateBulk(_ids: [String]!, value: String!): JSON
+
+  customersEditAddresses(_id: String!, addresses: [JSON]): Customer
 `;

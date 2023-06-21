@@ -4,6 +4,7 @@ import {
 } from '@erxes/ui-cards/src/conformity/graphql/queries';
 
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { addressFields } from '../../customers/graphql/queries';
 
 export const companyFields = `
   _id
@@ -42,6 +43,10 @@ export const companyFields = `
   customFieldsData
   trackedData
   tagIds
+  addresses {
+    ${addressFields}
+  }
+
   ${
     isEnabled('tags')
       ? `

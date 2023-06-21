@@ -18,6 +18,29 @@ export interface ICustomerLinks {
   github?: string;
 }
 
+export interface IAddress {
+  lat: number;
+  lng: number;
+  isPrimary?: boolean;
+
+  fullAddress?: string;
+  description?: string;
+
+  country?: string;
+  countryCode?: string;
+  city?: string;
+  district?: string;
+  quarter?: string;
+  road?: string;
+  state?: string;
+  postcode?: string;
+  houseNumber?: string;
+
+  osmId?: string;
+  osmType?: string;
+  boundingbox?: string[];
+}
+
 export interface ICustomerDoc {
   firstName?: string;
   middleName?: string;
@@ -31,6 +54,8 @@ export interface ICustomerDoc {
   state?: string;
   ownerId?: string;
   position?: string;
+  primaryAddress?: IAddress;
+  addresses?: IAddress[];
   location?: {
     userAgent?: string;
     country?: string;
