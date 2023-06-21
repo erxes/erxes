@@ -57,7 +57,6 @@ type Props = {
   products: IProduct[];
   paymentsData?: IPaymentsData;
   closeModal: () => void;
-  uom: string[];
   currencies: string[];
   currentProduct?: string;
   dealQuery: IDeal;
@@ -325,7 +324,6 @@ class ProductForm extends React.Component<Props, State> {
                 productsData={productsData}
                 onChangeProductsData={onChangeProductsData}
                 updateTotal={this.updateTotal}
-                uom={this.props.uom}
                 currencies={this.props.currencies}
                 currentProduct={currentProduct}
                 onChangeDiscount={this.setDiscount}
@@ -557,7 +555,7 @@ class ProductForm extends React.Component<Props, State> {
   };
 
   renderBulkProductChooser() {
-    const { productsData } = this.props;
+    const { productsData, dealQuery } = this.props;
 
     const productOnChange = (products: IProduct[]) => {
       this.clearFilter();
@@ -578,7 +576,7 @@ class ProductForm extends React.Component<Props, State> {
             : 0,
           amount: 0,
           currency,
-          tickUsed: true,
+          tickUsed: dealQuery.stage?.defaultTick === false ? false : true, // undefined or null then true
           maxQuantity: 0,
           product,
           quantity: 1,

@@ -60,7 +60,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
     }
 
     /*
-     * Common helper for objects like deal, task, ticket and growth hack etc ...
+     * Common helper for objects like deal, purchase ,task, ticket and growth hack etc ...
      */
 
     public static async labelObject({
@@ -106,7 +106,10 @@ export const loadPipelineLabelClass = (models: IModels) => {
      * Update pipeline label
      */
     public static async updatePipelineLabel(_id: string, doc: IPipelineLabel) {
-      const isUnique = await models.PipelineLabels.validateUniqueness({ ...doc }, _id);
+      const isUnique = await models.PipelineLabels.validateUniqueness(
+        { ...doc },
+        _id
+      );
 
       if (!isUnique) {
         throw new Error('Label duplicated');
@@ -127,7 +130,9 @@ export const loadPipelineLabelClass = (models: IModels) => {
         throw new Error('Label not found');
       }
 
-      const pipeline = await models.Pipelines.getPipeline(pipelineLabel.pipelineId);
+      const pipeline = await models.Pipelines.getPipeline(
+        pipelineLabel.pipelineId
+      );
 
       const { collection } = getCollection(models, pipeline.type);
 

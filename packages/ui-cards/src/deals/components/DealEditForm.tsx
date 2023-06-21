@@ -1,6 +1,5 @@
 import { IDeal, IDealParams, IPaymentsData } from '../types';
 import { IEditFormContent, IItem, IOptions } from '../../boards/types';
-
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditForm from '../../boards/components/editForm/EditForm';
 import { Flex } from '@erxes/ui/src/styles/main';
@@ -9,6 +8,7 @@ import { IProduct } from '@erxes/ui-products/src/types';
 import Left from '../../boards/components/editForm/Left';
 import PortableTasks from '../../tasks/components/PortableTasks';
 import PortableTickets from '../../tickets/components/PortableTickets';
+import PortablePurchase from '../../purchases/components/PortablePurchases';
 import ProductSection from './ProductSection';
 import React from 'react';
 import Sidebar from '../../boards/components/editForm/Sidebar';
@@ -40,6 +40,7 @@ type Props = {
 
 type State = {
   amount: any;
+  unUsedAmount: any;
   products: IProduct[];
   productsData: any;
   paymentsData: IPaymentsData;
@@ -56,13 +57,21 @@ export default class DealEditForm extends React.Component<Props, State> {
 
     this.state = {
       amount: item.amount || {},
+      unUsedAmount: item.unUsedAmount || {},
       productsData: item.products ? item.products.map(p => ({ ...p })) : [],
       // collecting data for ItemCounter component
       products: item.products
         ? item.products.map(p => {
             p.product.quantity = p.quantity;
-            p.product.uom = p.uom;
-
+            if (p.product.uom !== p.uom) {
+              p.product.subUoms = Array.from(
+                new Set([
+                  ...(p.product.subUoms || []),
+                  { uom: p.product.uom, ratio: 1 }
+                ])
+              );
+              p.product.uom = p.uom;
+            }
             return p.product;
           })
         : [],
@@ -72,22 +81,30 @@ export default class DealEditForm extends React.Component<Props, State> {
     };
   }
 
-  renderAmount = () => {
-    const { amount } = this.state;
-
+  amountHelper = (title, amount) => {
     if (Object.keys(amount).length === 0) {
       return null;
     }
 
     return (
       <HeaderContentSmall>
-        <ControlLabel>Amount</ControlLabel>
+        <ControlLabel>{__(title)}</ControlLabel>
         {Object.keys(amount).map(key => (
           <p key={key}>
             {amount[key].toLocaleString()} {key}
           </p>
         ))}
       </HeaderContentSmall>
+    );
+  };
+
+  renderAmount = () => {
+    const { amount, unUsedAmount } = this.state;
+    return (
+      <>
+        {this.amountHelper('Un used Amount', unUsedAmount)}
+        {this.amountHelper('Amount', amount)}
+      </>
     );
   };
 
@@ -106,6 +123,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     const { saveItem } = this.props;
     const products: IProduct[] = [];
     const amount: any = {};
+    const unUsedAmount: any = {};
     const filteredProductsData: any = [];
 
     productsData.forEach(data => {
@@ -113,10 +131,18 @@ export default class DealEditForm extends React.Component<Props, State> {
       if (data.product) {
         if (data.currency) {
           // calculating item amount
-          if (!amount[data.currency]) {
-            amount[data.currency] = data.amount || 0;
+          if (data.tickUsed) {
+            if (!amount[data.currency]) {
+              amount[data.currency] = data.amount || 0;
+            } else {
+              amount[data.currency] += data.amount || 0;
+            }
           } else {
-            amount[data.currency] += data.amount || 0;
+            if (!unUsedAmount[data.currency]) {
+              unUsedAmount[data.currency] = data.amount || 0;
+            } else {
+              unUsedAmount[data.currency] += data.amount || 0;
+            }
           }
         }
         // collecting data for ItemCounter component
@@ -135,7 +161,13 @@ export default class DealEditForm extends React.Component<Props, State> {
     });
 
     this.setState(
-      { productsData: filteredProductsData, products, amount, paymentsData },
+      {
+        productsData: filteredProductsData,
+        products,
+        amount,
+        unUsedAmount,
+        paymentsData
+      },
       () => {
         saveItem({ productsData, paymentsData }, updatedItem => {
           this.setState({ updatedItem });
@@ -205,6 +237,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       <>
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
+        <PortablePurchase mainType="deal" mainTypeId={item._id} />
         {pluginsOfItemSidebar(item, 'deal')}
       </>
     );
@@ -266,7 +299,6 @@ export default class DealEditForm extends React.Component<Props, State> {
   render() {
     const extendedProps = {
       ...this.props,
-      amount: this.renderAmount,
       sidebar: this.renderProductSection,
       formContent: this.renderFormContent,
       beforePopupClose: this.beforePopupClose,

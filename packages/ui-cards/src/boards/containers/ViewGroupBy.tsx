@@ -2,10 +2,10 @@ import * as compose from 'lodash.flowright';
 
 import React, { Component } from 'react';
 import { IOptions, IPipeline, StagesQueryResponse } from '../types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { withProps } from '@erxes/ui/src/utils';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 import styled from 'styled-components';
 import { PRIORITIES } from '../constants';

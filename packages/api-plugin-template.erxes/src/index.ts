@@ -25,6 +25,7 @@ import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import * as ws from 'ws';
+
 import {
   getService,
   getServices,
@@ -517,6 +518,16 @@ async function startServer() {
           async args => ({
             status: 'success',
             data: await exporter.prepareExportData(args)
+          })
+        );
+      }
+
+      if (exporter.getExportDocs) {
+        consumeRPCQueue(
+          `${configs.name}:exporter:getExportDocs`,
+          async args => ({
+            status: 'success',
+            data: await exporter.getExportDocs(args)
           })
         );
       }

@@ -2,6 +2,7 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from '@erxes/ui-cards/src/conformity/graphql/queries';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 export const commonFields = `
   _id
@@ -19,6 +20,7 @@ export const commonFields = `
   knowledgeBaseTopicId
   ticketLabel
   dealLabel
+  purchaseLabel
   taskPublicPipelineId
   taskPublicBoardId
   taskPublicLabel
@@ -32,6 +34,9 @@ export const commonFields = `
   dealStageId
   dealPipelineId
   dealBoardId
+  purchaseStageId
+  purchasePipelineId
+  purchaseBoardId
   styles {
     bodyColor
     headerColor
@@ -62,6 +67,7 @@ export const commonFields = `
   ticketToggle
   taskToggle
   dealToggle
+  purchaseToggle
   otpConfig {
     smsTransporterType
     content
@@ -88,6 +94,10 @@ export const commonFields = `
     emailContent
     smsContent
   }
+
+  tokenExpiration
+  refreshTokenExpiration
+  tokenPassMethod
 `;
 
 export const basicFields = `
@@ -227,6 +237,7 @@ const clientPortalUserDetail = `
   query clientPortalUserDetail($_id: String!) {
     clientPortalUserDetail(_id: $_id) {
       ${clientPortalUserFields}
+      ${isEnabled('forum') ? 'forumSubscriptionEndsAfter' : ''}
       customer {
         firstName
         lastName

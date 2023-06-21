@@ -1,18 +1,3 @@
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { ISelectedOption } from '@erxes/ui/src/types';
-import { isEnabled, __ } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import { OverlayTrigger } from 'react-bootstrap';
-import Select from 'react-select-plus';
-
 import {
   Block,
   BlockRow,
@@ -21,7 +6,22 @@ import {
   IconWrap,
   ToggleWrap
 } from '../../styles';
+import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
+import React, { useState } from 'react';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
+
+import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { ClientPortalConfig } from '../../types';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ISelectedOption } from '@erxes/ui/src/types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { OverlayTrigger } from 'react-bootstrap';
+import Select from 'react-select-plus';
+import Toggle from '@erxes/ui/src/components/Toggle';
 
 type Props = {
   topics: ITopic[];
@@ -63,6 +63,7 @@ function General({
   ticketLabel,
   taskLabel,
   dealLabel,
+  purchaseLabel,
   taskStageId,
   taskPipelineId,
   taskBoardId,
@@ -72,12 +73,16 @@ function General({
   dealStageId,
   dealPipelineId,
   dealBoardId,
+  purchaseStageId,
+  purchasePipelineId,
+  purchaseBoardId,
   fetchPipelines,
   handleFormChange,
   kbToggle,
   publicTaskToggle,
   taskToggle,
   dealToggle,
+  purchaseToggle,
   ticketToggle
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
@@ -223,20 +228,14 @@ function General({
 
     return (
       <>
-        <FormGroup>
-          {/* <ControlLabel>Task public board</ControlLabel> */}
-          {/* <p>{__('Public task board')}</p> */}
-          {/* {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
-           */}
-          {renderControl({
-            label: 'Public tasks',
-            subtitle: 'Shown name on menu',
-            formValueName: 'taskPublicLabel',
-            formValue: taskPublicLabel,
-            placeholder: 'Please enter a label for public task'
-          })}
-        </FormGroup>
-        <FlexContent>
+        {renderControl({
+          label: 'Public tasks',
+          subtitle: 'Shown name on menu',
+          formValueName: 'taskPublicLabel',
+          formValue: taskPublicLabel,
+          placeholder: 'Please enter a label for Public Task'
+        })}
+        <div>
           <FormGroup>
             <ControlLabel>Task public board</ControlLabel>
             <p>{__('Public task board')}</p>
@@ -247,7 +246,7 @@ function General({
             <p>{__('Public task pipeline')}</p>
             {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
           </FormGroup>
-        </FlexContent>
+        </div>
       </>
     );
   };
@@ -405,6 +404,28 @@ function General({
             </>,
             'dealToggle',
             dealToggle || false
+          )}
+
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'purchases',
+            <>
+              {renderControl({
+                label: 'Purchases',
+                subtitle: 'Shown name on menu',
+                formValueName: 'purchaseLabel',
+                formValue: purchaseLabel,
+                placeholder: 'Please enter a label for Purchase'
+              })}
+              {renderBoardSelect({
+                type: 'purchase',
+                stageId: purchaseStageId,
+                pipelineId: purchasePipelineId,
+                boardId: purchaseBoardId
+              })}
+            </>,
+            'purchaseToggle',
+            purchaseToggle || false
           )}
 
         {isEnabled('cards') &&

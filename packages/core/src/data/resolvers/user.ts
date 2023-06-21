@@ -31,8 +31,12 @@ export default {
     }).lean();
   },
 
-  async permissionActions(user: IUserDocument, _args, { subdomain }: IContext) {
-    return getUserActionsMap(subdomain, user);
+  async permissionActions(
+    user: IUserDocument,
+    _args,
+    { subdomain, models: { Permissions } }: IContext
+  ) {
+    return getUserActionsMap(subdomain, user, query => Permissions.find(query));
   },
 
   async configs(_user, _args, { models }: IContext) {

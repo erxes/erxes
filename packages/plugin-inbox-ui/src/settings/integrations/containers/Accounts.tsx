@@ -16,8 +16,8 @@ import { IFormProps } from '@erxes/ui/src/types';
 import Info from '@erxes/ui/src/components/Info';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   kind: IntegrationTypes;
