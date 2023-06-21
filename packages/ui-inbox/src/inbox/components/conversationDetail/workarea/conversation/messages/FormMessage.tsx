@@ -23,6 +23,14 @@ import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
 import ReactToPrint, { PrintContextConsumer } from 'react-to-print';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+import { Count, ImageWrapper } from '@erxes/ui/src/styles/main';
+import { readFile } from '@erxes/ui/src/utils/core';
+import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
 
 type Props = {
   message: IMessage;
@@ -113,6 +121,43 @@ export default class FormMessage extends React.Component<Props, {}> {
     );
   }
 
+  renderProductData = field => {
+    if (!field.value.hasOwnProperty('product')) {
+      return <FormMessageInput>{this.displayValue(field)}</FormMessageInput>;
+    }
+
+    const { product, quantity } = field.value;
+
+    const imageUrl = product.attachment ? product.attachment.url : '';
+
+    return (
+      <div style={{ display: 'flex' }}>
+        <img
+          src={readFile(imageUrl)}
+          style={{
+            width: '100px',
+            height: '100px',
+            borderRadius: '8px'
+          }}
+        />
+        <SidebarList className="no-link">
+          <li>
+            <FieldStyle>{__('Product name')}</FieldStyle>
+            <SidebarCounter>{product.name}</SidebarCounter>
+          </li>
+          <li>
+            <FieldStyle>{__('Quantity')}</FieldStyle>
+            <SidebarCounter>{quantity}</SidebarCounter>
+          </li>
+          <li>
+            <FieldStyle>{__('Sub total')} </FieldStyle>
+            <SidebarCounter>{product.unitPrice * quantity}</SidebarCounter>
+          </li>
+        </SidebarList>
+      </div>
+    );
+  };
+
   renderField(field) {
     return (
       <ErrorBoundary>
@@ -124,6 +169,8 @@ export default class FormMessage extends React.Component<Props, {}> {
               </ControlLabel>
               {field.type === 'multiSelect' ? (
                 this.renderMultiSelect(field.value)
+              ) : field.type === 'productCategory' ? (
+                this.renderProductData(field)
               ) : (
                 <FormMessageInput>{this.displayValue(field)}</FormMessageInput>
               )}

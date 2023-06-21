@@ -11,6 +11,7 @@ import {
   IFieldError,
   ILocationOption,
   IObjectListConfig,
+  IProduct,
 } from '../types';
 
 import Datetime from '@nateradebaugh/react-datetime';
@@ -21,6 +22,7 @@ import ObjectList from './ObjectList';
 import { __ } from '../../utils';
 import { connection } from '../connection';
 import uploadHandler from '../../uploadHandler';
+import Product from './Product';
 
 type Props = {
   field: IField;
@@ -447,58 +449,15 @@ export default class Field extends React.Component<Props, State> {
   renderProduct(field: IField) {
     const { products = [] } = field;
 
-    const { value } = this.state;
-
-    const onChangeQty = (e: React.FormEvent<HTMLInputElement>) => {
-      const { value: qty } = e.currentTarget;
-
-      this.setState({ qty: Number(qty) });
-
-      if (this.props.onQtyChange) {
-        this.props.onQtyChange(Number(qty));
-      }
-    };
-
-    const onChangeProduct = (e: React.FormEvent<HTMLSelectElement>) => {
-      const { value: productId } = e.currentTarget;
-      const product = products.find(({ _id }) => _id === productId);
+    const onChangeProduct = (quantity: number, product?: IProduct) => {
       if (!product) {
         return;
       }
 
-      this.setState({ value: `${product.name} - ${product.unitPrice * (this.state.qty || 1)}` });
-      this.onChange(e.currentTarget.value);
+      this.onChange({product, quantity});
     };
 
-    const placeHolder: string = String(__('quantity'));
-
-    return (
-      <>
-        <select
-          onChange={onChangeProduct}
-          className="form-control"
-          id={field._id}
-        >
-          <option>-</option>
-          {products.map(({ _id, name, unitPrice }) => (
-            <option key={_id} value={_id}>
-              {`${name} - ${unitPrice * (this.state.qty || 1)} `}
-            </option>
-          ))}
-        </select>
-
-        {value && value.length > 0 && (
-          <input
-            type="number"
-            min={1}
-            value={this.state.qty || 1}
-            onChange={onChangeQty}
-            placeholder={placeHolder}
-            className="form-control"
-          />
-        )}
-      </>
-    );
+    return <Product products={products as any} onChange={onChangeProduct} />;
   }
 
   renderObjectList(objectListConfigs: any, attrs: any) {
