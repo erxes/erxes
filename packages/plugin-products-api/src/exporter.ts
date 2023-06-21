@@ -104,9 +104,9 @@ export const fillValue = async (
         item.barcodes && item.barcodes.length ? item.barcodes.join(',') : '';
       break;
 
-    case 'uomId':
+    case 'uom':
       const uom = await models.Uoms.findOne({
-        _id: item.uomId
+        _id: item.uom
       }).lean();
 
       value = uom?.name || '-';
@@ -137,11 +137,11 @@ const fillProductSubUomValue = async (models: IModels, column, item) => {
 
     switch (column) {
       case 'subUoms.code':
-        uom = (await models.Uoms.findOne({ _id: subUom.uomId })) || {};
+        uom = (await models.Uoms.findOne({ _id: subUom.uom })) || {};
         value = uom.code;
         break;
       case 'subUoms.name':
-        uom = (await models.Uoms.findOne({ _id: subUom.uomId })) || {};
+        uom = (await models.Uoms.findOne({ _id: subUom.uom })) || {};
         value = uom.name;
         break;
       case 'subUoms.subratio':
