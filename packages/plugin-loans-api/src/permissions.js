@@ -13,6 +13,7 @@ module.exports = {
           'contractsClose',
           'contractsRemove',
           'showContracts',
+          'manageContracts',
           'manageSchedule',
           'showCollaterals',
           'manageLoanConfigs',
@@ -80,6 +81,10 @@ module.exports = {
       {
         name: 'showContracts',
         description: 'Show Contracts'
+      },
+      {
+        name: 'manageContracts',
+        description: 'Manage Contracts'
       },
       {
         name: 'manageSchedule',

@@ -143,6 +143,7 @@ export interface IShift {
   shiftStart: Date;
   shiftEnd: Date;
   scheduleConfigId: string;
+  lunchBreakInMins?: number;
 }
 
 export interface IShiftSchedule {

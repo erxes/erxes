@@ -238,7 +238,8 @@ function ScheduleForm(props: Props) {
     return {
       shiftStart: shift.shiftStart,
       shiftEnd: shift.shiftEnd,
-      scheduleConfigId: shift.scheduleConfigId
+      scheduleConfigId: shift.scheduleConfigId,
+      lunchBreakInMins: shift.lunchBreakInMins
     };
   });
 

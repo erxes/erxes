@@ -13,7 +13,7 @@ import {
 } from '../../../models/definitions/invoices';
 
 const invoiceMutations = {
-  invoicesAdd: async (
+  loanInvoicesAdd: async (
     _root,
     doc: IInvoice,
     { user, models, subdomain }: IContext
@@ -46,7 +46,7 @@ const invoiceMutations = {
    * Updates a invoice
    */
 
-  invoicesEdit: async (
+  loanInvoicesEdit: async (
     _root,
     { _id, ...doc }: IInvoiceDocument,
     { models, user, subdomain }: IContext
@@ -82,7 +82,7 @@ const invoiceMutations = {
    * Removes invoices
    */
 
-  invoicesRemove: async (
+  loanInvoicesRemove: async (
     _root,
     { invoiceIds }: { invoiceIds: string[] },
     { models, user, subdomain }: IContext
@@ -113,8 +113,8 @@ const invoiceMutations = {
   }
 };
 
-checkPermission(invoiceMutations, 'invoicesAdd', 'manageInvoices');
-checkPermission(invoiceMutations, 'invoicesEdit', 'manageInvoices');
-checkPermission(invoiceMutations, 'invoicesRemove', 'manageInvoices');
+checkPermission(invoiceMutations, 'loanInvoicesAdd', 'manageInvoices');
+checkPermission(invoiceMutations, 'loanInvoicesEdit', 'manageInvoices');
+checkPermission(invoiceMutations, 'loanInvoicesRemove', 'manageInvoices');
 
 export default invoiceMutations;
