@@ -11,7 +11,6 @@ import AttachmentsGallery from './AttachmentGallery';
 import Icon from './Icon';
 import { Meta } from './Attachment';
 import Tip from './Tip';
-import { FlexCenter } from '../styles/main';
 
 const LoadingContainer = styled.div`
   margin: 10px 0;

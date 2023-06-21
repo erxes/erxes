@@ -8,16 +8,6 @@ import React from 'react';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { bustIframe } from 'modules/common/utils';
 import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
-
-const TopBar = styled.div`
-  z-index: 2;
-  height: 100%;
-
-  > div {
-    height: 100%;
-  }
-`;
 
 const MainBar = asyncComponent(() =>
   import(/* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar')
@@ -144,7 +134,7 @@ class MainLayout extends React.Component<IProps, State> {
           <MainWrapper navCollapse={this.state.navCollapse}>
             <MainBar />
 
-            <TopBar>{children}</TopBar>
+            {children}
           </MainWrapper>
           <DetectBrowser />
         </Layout>
