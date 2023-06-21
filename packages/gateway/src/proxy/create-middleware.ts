@@ -49,7 +49,9 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
   app.use(
     '/',
     createProxyMiddleware({
-      target: NODE_ENV === 'production' ? core.address : 'http://localhost:3300'
+      target:
+        NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
+      onProxyReq
     })
   );
 }
