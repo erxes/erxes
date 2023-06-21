@@ -761,18 +761,22 @@ const timeclockMutations = {
         'extractAllDataFromMsSQL'
       );
 
-      console.log(checkIfExtractingAlready);
       if (checkIfExtractingAlready) {
+        await redis.del('extractAllDataFromMsSQL');
         return {
           message:
             'Someone else is extracting\nPlease wait for few mins and try again'
         };
       }
 
-      console.log('heereee');
       await redis.set('extractAllDataFromMsSQL', {});
       const waitForQuery = await connectAndQueryFromMsSql(subdomain, params);
-      await redis.del('extractAllDataFromMsSQL');
+
+      // wait for 10s to delete queue
+      setTimeout(async () => {
+        await redis.del('extractAllDataFromMsSQL');
+      }, 5000);
+
       return waitForQuery;
     } catch (error) {
       await redis.del('extractAllDataFromMsSQL');

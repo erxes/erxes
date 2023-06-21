@@ -80,8 +80,6 @@ const ListContainer = (props: FinalProps) => {
           return;
         }
 
-        Alert.success(res.data.extractAllDataFromMsSQL);
-
         setLoading(false);
         timeclocksMainQuery.refetch();
         Alert.success('Successfully extracted data');
