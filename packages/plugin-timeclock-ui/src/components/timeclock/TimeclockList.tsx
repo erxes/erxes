@@ -170,18 +170,22 @@ function List(props: Props) {
   );
 
   const onStartDateChange = dateVal => {
-    setStartDate(dateVal);
-    localStorage.setItem('startDate', startDate.toISOString());
+    if (checkDateRange(dateVal, endDate)) {
+      setStartDate(dateVal);
+      localStorage.setItem('startDate', startDate.toISOString());
+    }
   };
 
   const onEndDateChange = dateVal => {
-    setEndDate(dateVal);
-    localStorage.setItem('endDate', endDate.toISOString());
+    if (checkDateRange(startDate, dateVal)) {
+      setEndDate(dateVal);
+      localStorage.setItem('endDate', endDate.toISOString());
+    }
   };
 
-  const checkDateRange = () => {
-    if ((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) > 8) {
-      Alert.error('Please choose date range less than 9 days');
+  const checkDateRange = (start: Date, end: Date) => {
+    if ((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24) > 8) {
+      Alert.error('Please choose date range within 8 days');
       return false;
     }
 
@@ -189,7 +193,7 @@ function List(props: Props) {
   };
 
   const extractAllData = () => {
-    if (checkDateRange()) {
+    if (checkDateRange(startDate, endDate)) {
       extractAllMsSqlData(startDate, endDate, {
         branchIds: selectedBranches,
         departmentIds: selectedDepartments,

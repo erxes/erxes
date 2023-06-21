@@ -762,7 +762,6 @@ const timeclockMutations = {
       );
 
       if (checkIfExtractingAlready) {
-        await redis.del('extractAllDataFromMsSQL');
         return {
           message:
             'Someone else is extracting\nPlease wait for few mins and try again'
