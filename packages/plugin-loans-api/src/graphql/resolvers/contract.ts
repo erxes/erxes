@@ -232,6 +232,7 @@ const Contracts = {
     {},
     { models, subdomain }: IContext
   ) {
+    console.log('1111111111111', contract);
     const today = getFullDate(new Date());
 
     const nextSchedule = await models.Schedules.findOne({
@@ -242,11 +243,22 @@ const Contracts = {
       .sort({ payDate: 1 })
       .lean();
 
+    console.log(nextSchedule, '222222222');
+
     const calcedInfo = await getCalcedAmounts(models, subdomain, {
       contractId: contract._id,
       payDate: nextSchedule?.payDate || today
     });
-
+    console.log(
+      calcedInfo,
+      '333333333333',
+      (calcedInfo.payment || 0) +
+        (calcedInfo.undue || 0) +
+        (calcedInfo.interestEve || 0) +
+        (calcedInfo.interestNonce || 0) +
+        (calcedInfo.insurance || 0) +
+        (calcedInfo.debt || 0)
+    );
     return (
       (calcedInfo.payment || 0) +
       (calcedInfo.undue || 0) +
