@@ -1,8 +1,9 @@
 import { IUser, NotificationsQueryResponse } from '../../../types';
 import { gql, useMutation, useQuery } from '@apollo/client';
-
+import Alert from '../../../utils/Alert';
 import NotificationList from '../../components/notifications/List';
 import React from 'react';
+import queries from '../../../user/graphql/queries';
 
 type Props = {
   count: number;

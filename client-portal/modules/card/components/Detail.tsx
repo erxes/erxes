@@ -83,7 +83,9 @@ export default class CardDetail extends React.Component<
                 />
                 <div>
                   <CommentContent>
-                    <h5>{`${createdUser?.firstName} ${createdUser?.lastName}`}</h5>
+                    <h5>
+                      {renderUserFullName(createdUser)}
+                    </h5>
                     <div
                       className="comment"
                       dangerouslySetInnerHTML={{ __html: comment.content }}
