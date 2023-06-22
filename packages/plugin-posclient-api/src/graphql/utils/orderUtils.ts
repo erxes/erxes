@@ -19,6 +19,8 @@ import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { isValidBarcode } from './otherUtils';
 import { IProductDocument } from '../../models/definitions/products';
+import { checkLoyalties } from './loyalties';
+import { checkPricing } from './pricing';
 
 interface IDetailItem {
   count: number;
@@ -399,7 +401,28 @@ const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
   return;
 };
 
+const checkPrices = async (subdomain, preparedDoc, config) => {
+  const { type } = preparedDoc;
+
+  if (ORDER_TYPES.SALES.includes(type)) {
+    preparedDoc = await checkLoyalties(subdomain, preparedDoc);
+    preparedDoc = await checkPricing(subdomain, preparedDoc, config);
+    return preparedDoc;
+  }
+
+  if (ORDER_TYPES.OUT.includes(type)) {
+    for (const item of preparedDoc.items || []) {
+      item.discountPercent = 100;
+      item.discountAmount = item.count * item.unitPrice;
+      item.unitPrice = 0;
+    }
+  }
+
+  return preparedDoc;
+};
+
 export const prepareOrderDoc = async (
+  subdomain: string,
   doc: IOrderInput,
   config: IConfigDocument,
   models: IModels
@@ -533,7 +556,7 @@ export const prepareOrderDoc = async (
     }
   }
 
-  return { ...doc, items };
+  return await checkPrices(subdomain, { ...doc, items }, config);
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {

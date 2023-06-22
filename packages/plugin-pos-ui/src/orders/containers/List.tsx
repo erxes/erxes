@@ -186,7 +186,8 @@ const generateParams = ({ queryParams }) => ({
   userId: queryParams.userId,
   customerId: queryParams.customerId,
   customerType: queryParams.customerType,
-  posId: queryParams.posId
+  posId: queryParams.posId,
+  types: queryParams.types && queryParams.types.split(',')
 });
 
 export default withProps<Props>(

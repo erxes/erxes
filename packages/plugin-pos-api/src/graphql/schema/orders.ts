@@ -107,6 +107,7 @@ const queryParams = `
   customerType: String
   posId: String
   posToken: String
+  types: [String]
 `;
 
 export const queries = `

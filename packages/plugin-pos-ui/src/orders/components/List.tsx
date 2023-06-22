@@ -138,6 +138,9 @@ class Orders extends React.Component<IProps, {}> {
                 <SortHandler sortField={'posName'} label={__('Pos')} />
               </th>
               <th>
+                <SortHandler sortField={'type'} label={__('Type')} />
+              </th>
+              <th>
                 <SortHandler sortField={'user'} label={__('User')} />
               </th>
               <th>Үйлдлүүд</th>
