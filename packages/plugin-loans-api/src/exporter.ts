@@ -5,13 +5,34 @@ import * as moment from 'moment';
 const prepareData = async (
   models: IModels,
   _subdomain: string,
-  _query: any
+  query: any
 ): Promise<any[]> => {
+  const { page, perPage } = query;
+
+  const skip = (page - 1) * perPage;
+
   let data: any[] = [];
 
   const productsFilter: any = {};
 
-  data = await models.Contracts.find(productsFilter).lean();
+  data = await models.Contracts.find(productsFilter)
+    .skip(skip)
+    .limit(perPage)
+    .lean();
+
+  return data;
+};
+
+const prepareDataCount = async (
+  models: IModels,
+  _subdomain: string,
+  _query: any
+): Promise<any> => {
+  let data = 0;
+
+  const productsFilter: any = {};
+
+  data = await models.Contracts.find(productsFilter).count();
 
   return data;
 };
@@ -41,10 +62,38 @@ export default {
 
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
+
+    const { columnsConfig } = data;
+
+    let totalCount = 0;
+    const headers = [] as any;
+    const excelHeader = [] as any;
+
+    try {
+      const results = await prepareDataCount(models, subdomain, data);
+
+      totalCount = results;
+
+      for (const column of columnsConfig) {
+        headers.push(column);
+      }
+
+      for (const header of headers) {
+        excelHeader.push(header);
+      }
+    } catch (e) {
+      return {
+        error: e.message
+      };
+    }
+    return { totalCount, excelHeader };
+  },
+
+  getExportDocs: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
     const { columnsConfig } = data;
     const docs = [] as any;
     const headers = [] as any;
-    const excelHeader = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -64,12 +113,9 @@ export default {
 
         docs.push(result);
       }
-      for (const header of headers) {
-        excelHeader.push(header);
-      }
     } catch (e) {
       return { error: e.message };
     }
-    return { docs, excelHeader };
+    return { docs };
   }
 };
