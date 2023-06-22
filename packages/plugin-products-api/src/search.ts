@@ -12,9 +12,7 @@ const search = async ({ subdomain, data: { value } }) => {
           'code',
           'name',
           'unitPrice',
-          'productCount',
           'description',
-          'supply',
           'status',
           'categoryId'
         ]

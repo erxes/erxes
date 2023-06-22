@@ -231,6 +231,8 @@ export interface IUser {
   type: string;
   companyName: string;
   username?: string;
+  erxesCustomerId?: string;
+  avatar?: string;
   notificationSettings?: INotifcationSettings;
 }
 
@@ -302,6 +304,7 @@ export interface IKbArticle extends ICommonFields {
   categoryId?: string;
   reactionChoices?: string[];
   createdUser: IUser;
+  viewCount?: number;
 }
 
 export interface INotification {

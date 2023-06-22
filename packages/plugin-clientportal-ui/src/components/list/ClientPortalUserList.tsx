@@ -222,17 +222,17 @@ class ClientportalUserList extends React.Component<IProps, State> {
           });
 
       const onClickConfirm = e => {
-        const type = e.currentTarget.id;
+        const kind = e.currentTarget.id;
         confirm(
           `This action forces the ${
             bulk.length > 1 ? "users'" : "user's"
-          }  ${type} to be verified. Do you want to continue?`
+          }  ${kind} to be verified. Do you want to continue?`
         )
           .then(() => {
-            this.verifyUsers(type, bulk);
+            this.verifyUsers(kind, bulk);
           })
-          .catch(e => {
-            Alert.error(e.message);
+          .catch(error => {
+            Alert.error(error.message);
           });
       };
 

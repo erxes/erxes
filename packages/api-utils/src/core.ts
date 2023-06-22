@@ -381,7 +381,7 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
 
 export const authCookieOptions = (options: any = {}) => {
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const twoWeek = 14 * 24 * 3600 * 1000; // 14 days
+  const maxAge = options.expires || 14 * 24 * 60 * 60 * 1000;
 
   const secure = !['test', 'development'].includes(NODE_ENV);
 
@@ -391,8 +391,8 @@ export const authCookieOptions = (options: any = {}) => {
 
   const cookieOptions = {
     httpOnly: true,
-    expires: new Date(Date.now() + twoWeek),
-    maxAge: twoWeek,
+    expires: new Date(Date.now() + maxAge),
+    maxAge,
     secure,
     ...options
   };

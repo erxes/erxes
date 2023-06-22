@@ -45,27 +45,6 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       return product;
     }
 
-    static async checkUOM(doc) {
-      if (doc.uomId) {
-        return doc.uomId;
-      }
-
-      const configs = await models.ProductsConfigs.find({
-        code: { $in: ['isRequireUOM', 'defaultUOM'] }
-      }).lean();
-
-      const isRequireUOM = (configs.find(c => c.code === 'isRequireUOM') || {})
-        .value;
-      const defaultUOM = (configs.find(c => c.code === 'defaultUOM') || {})
-        .value;
-
-      if (isRequireUOM && defaultUOM) {
-        return defaultUOM;
-      }
-
-      return '';
-    }
-
     static async checkCodeDuplication(code: string) {
       const product = await models.Products.findOne({
         code,
@@ -121,7 +100,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
-      doc.uomId = await this.checkUOM(doc);
+      doc.uom = await models.Uoms.checkUOM(doc);
 
       return models.Products.create(doc);
     }
@@ -151,7 +130,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
           isRPC: true
         });
       }
-      doc.uomId = await this.checkUOM(doc);
+      doc.uom = await models.Uoms.checkUOM(doc);
       await models.Products.updateOne({ _id }, { $set: doc });
 
       return await models.Products.findOne({ _id }).lean();
@@ -272,7 +251,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         mergedIds: productIds,
         name,
         type,
-        uomId: await this.checkUOM(productFields),
+        uom: await models.Uoms.checkUOM({ ...productFields }),
         description,
         categoryId,
         vendorId
