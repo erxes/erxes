@@ -240,7 +240,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
         cache.updateQuery(selector, data => {
           const key = getQueryResultKey(data || {});
-          const messages = data[key] || [];
+          const messages = data?.[key] || [];
 
           // check duplications
           if (messages.find(m => m._id === message._id)) {

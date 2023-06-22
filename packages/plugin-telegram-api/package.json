@@ -1,0 +1,13 @@
+{
+  "name": "@erxes/plugin-telegram-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-telegram-api/.erxes && node src"
+  },
+  "dependencies": {
+    "telegraf": "^4.12.2"
+  }
+}
