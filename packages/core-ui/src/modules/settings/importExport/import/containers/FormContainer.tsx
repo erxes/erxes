@@ -26,6 +26,7 @@ class FormContainer extends React.Component<FinalProps, State> {
       importHistoriesCreate({
         variables: doc
       }).then(() => {
+        // comment
         window.location.href = `/settings/importHistories?type=${contentTypes[0].contentType}`;
       });
     };
