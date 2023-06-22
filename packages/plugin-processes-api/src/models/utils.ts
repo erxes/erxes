@@ -190,7 +190,7 @@ export const getResultProductsFromFlow = async (
           _id: Math.random().toString(),
           productId: config.productId,
           quantity: config.quantity || 1,
-          uomId: config.uomId || ''
+          uom: config.uom || ''
         }
       ];
     }
@@ -268,7 +268,7 @@ export const getNeedProductsFromFlow = async (
           _id: Math.random().toString(),
           productId: config.productId,
           quantity: config.quantity || 1,
-          uomId: config.uomId || ''
+          uom: config.uom || ''
         });
       }
     }

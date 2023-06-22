@@ -5,15 +5,14 @@ export const types = `
     departmentId: String
     productId: String
     count: Float
-    uomId: String
+    uom: String
     modifiedAt: Date
   }
 
   type RemainderCount {
     _id: String
     remainder: Float
-    uomId: String
-    uom: JSON
+    uom: String
   }
 
   type RemainderProduct @key(fields: "_id") {
@@ -21,8 +20,7 @@ export const types = `
     name: String
     code: String
     type: String
-    uom: Uom
-    uomId: String
+    uom: String
     category: ProductCategory
     categoryId: String
     remainder: Float
@@ -48,7 +46,7 @@ export const queries = `
     departmentId: String,
     branchId: String,
     productId: String,
-    uomId: String
+    uom: String
   ): RemainderCount
   remainderProducts(
     departmentId: String,

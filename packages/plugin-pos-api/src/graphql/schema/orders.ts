@@ -63,7 +63,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     name: String
     code: String
     type: String
-    sku: String
+    uom: String
     unitPrice: Float
     categoryId: String
     createdAt: Date,

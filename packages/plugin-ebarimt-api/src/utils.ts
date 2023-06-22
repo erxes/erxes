@@ -147,7 +147,7 @@ const arrangeTaxType = async (deal, productsById, billType) => {
       discount: productData.discount,
       productCode: product.code,
       productName: product.name,
-      sku: product.sku || 'ш',
+      uom: product.uom || 'ш',
       productId: productData.productId
     };
 

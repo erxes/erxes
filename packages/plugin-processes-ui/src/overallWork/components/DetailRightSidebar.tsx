@@ -78,12 +78,12 @@ class DetailRightSidebar extends React.Component<Props, State> {
                             ? `${data.product.code} - ${data.product.name}`
                             : ''}
                         </td>
-                        <td>{data.mainUom ? `${data.mainUom.code}` : ''}</td>
+                        <td>{data.mainUom || ''}</td>
                         <td>{data.mainQuantity}</td>
                         <td>{data.reserveRem}</td>
                         <td>{data.liveRem}</td>
                         <td>{data.liveRem - data.quantity}</td>
-                        <td>{data.uom ? `${data.uom.code}` : ''}</td>
+                        <td>{data.uom || ''}</td>
                         <td>{data.quantity}</td>
                       </tr>
                     ))}
@@ -118,14 +118,14 @@ class DetailRightSidebar extends React.Component<Props, State> {
                             ? `${data.product.code} - ${data.product.name}`
                             : ''}
                         </td>
-                        <td>{data.mainUom ? `${data.mainUom.code}` : ''}</td>
+                        <td>{data.mainUom || ''}</td>
                         <td>{data.mainQuantity}</td>
                         <td>{data.reserveRem}</td>
                         <td>{data.liveRem}</td>
                         <td>
                           {data.quantity + data.reserveRem - data.liveRem}
                         </td>
-                        <td>{data.uom ? `${data.uom.code}` : ''}</td>
+                        <td>{data.uom || ''}</td>
                         <td>{data.quantity}</td>
                       </tr>
                     ))}

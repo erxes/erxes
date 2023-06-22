@@ -128,8 +128,7 @@ export const getCalcedAmounts = async (
     debt: number;
     payment: number;
     preSchedule: any;
-  };
-  result = {
+  } = {
     undue: 0,
     interestEve: 0,
     interestNonce: 0,
