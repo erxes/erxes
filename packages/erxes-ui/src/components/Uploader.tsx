@@ -253,12 +253,13 @@ class Uploader extends React.Component<Props, State> {
 
     return (
       <>
-        {loading && (
+        {loading && !noPreview && (
           <LoadingContainer>
             <Spinner objective={true} size={18} />
             {__('Uploading')}...
           </LoadingContainer>
         )}
+        {loading && noPreview && <Spinner size={18} />}
         {!noPreview && (
           <AttachmentsGallery
             attachments={attachments}

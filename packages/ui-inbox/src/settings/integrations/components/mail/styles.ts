@@ -280,6 +280,7 @@ const WidgetWrapper = styledTS<{ show: boolean; shrink: boolean }>(styled.div)`
   box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
   border-radius: 8px;
   width: ${props => (props.shrink ? '260px' : '600px')};
+  overflow: hidden;
 
   ${props => !props.show && 'display:none;'}
 `;
@@ -289,6 +290,25 @@ const UploaderWrapper = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
+`;
+
+const WidgetButton = styled.div`
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  position: relative;
+  transition: all 0.3s ease;
+  color: ${colors.textSecondary};
+
+  span {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    padding: 3px;
+    min-width: 18px;
+    min-height: 18px;
+    line-height: 12px;
+  }
 `;
 
 export {
@@ -311,5 +331,6 @@ export {
   Meta,
   NewEmailHeader,
   WidgetWrapper,
-  UploaderWrapper
+  UploaderWrapper,
+  WidgetButton
 };

@@ -1,12 +1,14 @@
 import React from 'react';
 import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
-import { NotifButton } from '@erxes/ui-notifications/src/components/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import { WidgetWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
-import { NewEmailHeader } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
+import {
+  NewEmailHeader,
+  WidgetButton
+} from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 
 type Props = {
   notWidget?: boolean;
@@ -53,12 +55,8 @@ class Widget extends React.Component<Props, State> {
     };
 
     const hideWidget = () => {
-      setTimeout(() => {
-        this.setState({ show: true });
-        this.setState({ shrink: 'false' });
-        localStorage.setItem('emailWidgetShrink', 'false');
-      }, 10);
-
+      this.setState({ show: false, shrink: 'false' });
+      localStorage.setItem('emailWidgetShrink', 'false');
       localStorage.setItem('emailWidgetShow', 'false');
     };
 
@@ -68,15 +66,13 @@ class Widget extends React.Component<Props, State> {
     };
 
     const showWidget = () => {
-      this.setState({ shrink: 'false' });
-      this.setState({ show: !show });
-      this.setState({ clear: false });
-
+      this.setState({ shrink: 'false', show: !show, clear: false });
       localStorage.setItem('emailWidgetShrink', 'false');
       localStorage.setItem('emailWidgetShow', show ? 'true' : 'false');
     };
 
-    const isWidgetShow = localStorage.getItem('emailWidgetShow');
+    const isWidgetShow =
+      localStorage.getItem('emailWidgetShow') === 'true' ? true : false;
     const isShrink = shrink === 'true' ? true : false;
 
     return (
@@ -94,7 +90,7 @@ class Widget extends React.Component<Props, State> {
             {buttonText && buttonText}
           </Button>
         ) : (
-          <NotifButton>
+          <WidgetButton>
             <Tip text={__('New Email')} placement="bottom">
               <Icon
                 icon="envelope-alt"
@@ -102,12 +98,9 @@ class Widget extends React.Component<Props, State> {
                 onClick={() => showWidget()}
               />
             </Tip>
-          </NotifButton>
+          </WidgetButton>
         )}
-        <WidgetWrapper
-          shrink={isShrink}
-          show={isWidgetShow === 'true' ? true : false}
-        >
+        <WidgetWrapper shrink={isShrink} show={isWidgetShow}>
           <NewEmailHeader onClick={changeShrink}>
             {__('New Email')}
             <div>
