@@ -48,11 +48,6 @@ export const TimelogForm = (props: Props) => {
   const [shiftStartInput, setShiftStartInput] = useState('');
   const [shiftEndInput, setShiftEndInput] = useState('');
 
-  const onShiftStartChange = selectedTime => {
-    setInDevice(selectedTime.deviceName);
-    setShiftStart(selectedTime.value);
-  };
-
   const onShiftStartInsertChange = date => {
     setShiftStartInsert(date);
   };
@@ -179,44 +174,18 @@ export const TimelogForm = (props: Props) => {
             timeclock.user.details &&
             timeclock.user.details.fullName}
         </div>
-        <FlexRow>
-          <ControlLabel>Shift Start</ControlLabel>
-          <FlexRowEven>
-            <div>Pick from time logs</div>
-            <FormControl
-              rows={2}
-              name="shiftStartInput"
-              componentClass="radio"
-              options={['pick', 'insert'].map(el => ({
-                value: el
-              }))}
-              inline={true}
-              onChange={toggleShiftStartInput}
-            />
-            <div>Insert custom date</div>
-          </FlexRowEven>
-        </FlexRow>
+        <ControlLabel>Shift Start</ControlLabel>
 
-        <ToggleDisplay display={shiftStartInput === 'pick'}>
-          <Select
-            placeholder="Shift start"
-            onChange={onShiftStartChange}
-            value={shiftStart}
-            options={timelogsPerUser && generateSelectOptions()}
+        <CustomRangeContainer>
+          <DateControl
+            value={shiftStartInsert}
+            name="startDate"
+            placeholder={'Starting date'}
+            dateFormat={'YYYY-MM-DD'}
+            timeFormat={'HH:mm'}
+            onChange={onShiftStartInsertChange}
           />
-        </ToggleDisplay>
-        <ToggleDisplay display={shiftStartInput === 'insert'}>
-          <CustomRangeContainer>
-            <DateControl
-              value={shiftStartInsert}
-              name="startDate"
-              placeholder={'Starting date'}
-              dateFormat={'YYYY-MM-DD'}
-              timeFormat={'HH:mm'}
-              onChange={onShiftStartInsertChange}
-            />
-          </CustomRangeContainer>
-        </ToggleDisplay>
+        </CustomRangeContainer>
 
         <FlexRow>
           <ControlLabel>Shift Ended</ControlLabel>
@@ -232,23 +201,7 @@ export const TimelogForm = (props: Props) => {
         </FlexRow>
 
         <ToggleDisplay display={shiftEnded}>
-          <FlexRow>
-            <ControlLabel>Shift End</ControlLabel>
-            <FlexRowEven>
-              <div>Pick from time logs</div>
-              <FormControl
-                rows={2}
-                name="shiftEndInput"
-                componentClass="radio"
-                options={['pick', 'insert'].map(el => ({
-                  value: el
-                }))}
-                inline={true}
-                onChange={toggleShiftEndInput}
-              />
-              <div>Insert custom date</div>
-            </FlexRowEven>
-          </FlexRow>
+          <ControlLabel>Shift End</ControlLabel>
 
           <ToggleDisplay display={shiftEndInput === 'pick'}>
             <Select
@@ -258,18 +211,16 @@ export const TimelogForm = (props: Props) => {
               options={timelogsPerUser && generateSelectOptions()}
             />
           </ToggleDisplay>
-          <ToggleDisplay display={shiftEndInput === 'insert'}>
-            <CustomRangeContainer>
-              <DateControl
-                value={shiftEndInsert}
-                name="startDate"
-                placeholder={'Starting date'}
-                dateFormat={'YYYY-MM-DD'}
-                timeFormat={'HH:mm'}
-                onChange={onShiftEndInsertChange}
-              />
-            </CustomRangeContainer>
-          </ToggleDisplay>
+          <CustomRangeContainer>
+            <DateControl
+              value={shiftEndInsert}
+              name="startDate"
+              placeholder={'Starting date'}
+              dateFormat={'YYYY-MM-DD'}
+              timeFormat={'HH:mm'}
+              onChange={onShiftEndInsertChange}
+            />
+          </CustomRangeContainer>
         </ToggleDisplay>
 
         <FlexCenter style={{ marginTop: '10px' }}>
