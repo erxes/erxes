@@ -33,7 +33,7 @@ const Product = (props: Props) => {
 
   return (
     <>
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex', alignItems:"center" }}>
         <div
           style={{
             width: selectedProduct && selectedProduct.attachment ? '30%' : '0',

@@ -457,7 +457,7 @@ export default class Field extends React.Component<Props, State> {
       this.onChange({product, quantity});
     };
 
-    return <Product products={products as any} onChange={onChangeProduct} />;
+    return <Product products={products as any} onChange={onChangeProduct as any} />;
   }
 
   renderObjectList(objectListConfigs: any, attrs: any) {

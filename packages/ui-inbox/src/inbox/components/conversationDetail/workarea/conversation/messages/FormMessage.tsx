@@ -6,7 +6,8 @@ import {
   CellWrapper,
   FormTable,
   FieldWrapper,
-  FormMessageInput
+  FormMessageInput,
+  ProductItem
 } from '../styles';
 import {
   PreviewTitle,
@@ -31,6 +32,7 @@ import {
 import { Count, ImageWrapper } from '@erxes/ui/src/styles/main';
 import { readFile } from '@erxes/ui/src/utils/core';
 import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
+import { Table } from '@erxes/ui/src/components';
 
 type Props = {
   message: IMessage;
@@ -131,30 +133,29 @@ export default class FormMessage extends React.Component<Props, {}> {
     const imageUrl = product.attachment ? product.attachment.url : '';
 
     return (
-      <div style={{ display: 'flex' }}>
-        <img
-          src={readFile(imageUrl)}
-          style={{
-            width: '100px',
-            height: '100px',
-            borderRadius: '8px'
-          }}
-        />
-        <SidebarList className="no-link">
-          <li>
-            <FieldStyle>{__('Product name')}</FieldStyle>
-            <SidebarCounter>{product.name}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Quantity')}</FieldStyle>
-            <SidebarCounter>{quantity}</SidebarCounter>
-          </li>
-          <li>
-            <FieldStyle>{__('Sub total')} </FieldStyle>
-            <SidebarCounter>{product.unitPrice * quantity}</SidebarCounter>
-          </li>
+      <ProductItem>
+        {imageUrl && <img src={readFile(imageUrl)} />}
+        <SidebarList className="no-link flex">
+          <Table>
+            <thead>
+              <tr>
+                <th style={{ width: '40%' }}>{__('Product name')}</th>
+                <th style={{ width: '20%' }}>{__('Unit price')}</th>
+                <th style={{ width: '20%' }}>{__('Quantity')}</th>
+                <th style={{ width: '20%' }}>{__('Sub total')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{product.name}</td>
+                <td align="right">{product.unitPrice}</td>
+                <td align="right">{quantity}</td>
+                <td>{product.unitPrice * quantity}</td>
+              </tr>
+            </tbody>
+          </Table>
         </SidebarList>
-      </div>
+      </ProductItem>
     );
   };
 
