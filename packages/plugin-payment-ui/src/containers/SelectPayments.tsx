@@ -2,46 +2,92 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql, ChildProps } from '@apollo/client/react/hoc';
-
+import { useQuery, useMutation } from '@apollo/client';
 import SelectPayments from '../components/SelectPayments';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 import { PaymentsQueryResponse } from '../types';
 
 type Props = {
-  defaultValue: string[];
   isRequired?: boolean;
   description?: string;
-  onChange: (value: string[]) => void;
+  contentType: string;
+  contentTypeId?: string;
+  isSubmitted?: boolean;
+
+  afterSave?: () => void;
 };
 
-type FinalProps = {
-  paymentsQuery: PaymentsQueryResponse;
-} & Props;
-
-const SelectPaymentsContainer = (props: ChildProps<FinalProps>) => {
+const SelectPaymentsContainer = (props: Props) => {
   const [paymentIds, setPaymentIds] = React.useState<string[]>([]);
 
-  const { paymentsQuery } = props;
+  const { data, loading, error } = useQuery<PaymentsQueryResponse>(
+    queries.payments,
+    {
+      fetchPolicy: 'network-only',
+      variables: {
+        status: 'active'
+      }
+    }
+  );
 
-  if (paymentsQuery.loading) {
+  const { data: currentConfigData, loading: currentConfigLoading } = useQuery(
+    queries.paymentConfigQuery,
+    {
+      variables: {
+        contentType: props.contentType,
+        contentTypeId: props.contentTypeId
+      }
+    }
+  );
+
+  const [addMutation] = useMutation(mutations.paymentConfigsAdd);
+  const [editMutation] = useMutation(mutations.paymentConfigsEdit);
+
+  if (loading || currentConfigLoading) {
     return <Spinner objective={true} />;
   }
 
-  const payments = paymentsQuery.payments || [];
+  const payments = (data && data.payments) || [];
+  const currentConfig =
+    (currentConfigData && currentConfigData.getPaymentConfig) || null;
+
+  const save = () => {
+    if (currentConfig) {
+      return editMutation({
+        variables: {
+          _id: currentConfig._id,
+          paymentIds
+        }
+      }).then(() => {
+        if (props.afterSave) {
+          props.afterSave();
+        }
+      });
+    }
+
+    return addMutation({
+      variables: {
+        contentType: props.contentType,
+        contentTypeId: props.contentTypeId,
+        paymentIds
+      }
+    }).then(() => {
+      if (props.afterSave) {
+        props.afterSave();
+      }
+    });
+  };
 
   const updatedProps = {
     ...props,
-    payments
+    payments,
+    currentConfig,
+    selectedPaymentIds: paymentIds,
+    setPaymentIds,
+    save
   };
 
   return <SelectPayments {...updatedProps} />;
 };
 
-export default compose(
-  graphql<PaymentsQueryResponse>(queries.payments, {
-    name: 'paymentsQuery',
-    options: () => ({
-      variables: { status: 'active' }
-    })
-  })
-)(SelectPaymentsContainer);
+export default SelectPaymentsContainer;
