@@ -27,7 +27,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       code: doc.code,
       productId: doc.id,
       uom: doc.measure_unit_code,
-      subUoms: product.subUoms,
+      subUoms: product?.subUoms,
       barcodes: doc.barcodes ? doc.barcodes.split(',') : [],
       categoryId: productCategory ? productCategory._id : product.categoryId,
       categoryCode: productCategory
