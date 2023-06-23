@@ -542,21 +542,6 @@ const conversationMutations = {
         },
         user
       );
-
-      if (await serviceDiscovery.isEnabled('zerocodeai')) {
-        // const messagesCount = await models.ConversationMessages.count({ conversationId: conversation._id });
-        // const messages = await models.ConversationMessages.find({ conversationId: conversation._id }).sort({ createdAt: -1 }).limit(messagesCount / 10);
-
-        sendCommonMessage({
-          subdomain,
-          serviceName: 'zerocodeai',
-          action: 'analyze',
-          data: {
-            conversation,
-            messages: [{ content: 'muu' }, { content: 'sain' }]
-          }
-        });
-      }
     }
 
     serverTiming.endTime('putLog');
