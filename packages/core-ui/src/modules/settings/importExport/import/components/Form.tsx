@@ -164,6 +164,16 @@ class Form extends React.Component<Props, State> {
     return <></>;
   };
 
+  renderNextButton = () => {
+    const { attachments, contentTypes } = this.state;
+    for (const contentType of contentTypes) {
+      if (attachments[contentType.contentType]) {
+        return <StepButton next={true}>Next</StepButton>;
+      }
+    }
+    return <></>;
+  };
+
   renderAssociateForm = () => {
     if (this.state.type === 'multi') {
       const { attachments, contentTypes } = this.state;
@@ -199,6 +209,8 @@ class Form extends React.Component<Props, State> {
 
     for (const contentType of contentTypes) {
       if (attachments[contentType.contentType]) {
+        console.log(contentType, 'contentTypeee');
+
         const attachment = attachments[contentType.contentType];
 
         result.push(
@@ -239,7 +251,7 @@ class Form extends React.Component<Props, State> {
                 contentTypes={contentTypes}
               />
             </Step>
-            <Step title="Upload">
+            <Step title="Upload" additionalButton={this.renderNextButton()}>
               <FileUpload
                 onChangeAttachment={this.onChangeAttachment}
                 contentTypes={contentTypes}
