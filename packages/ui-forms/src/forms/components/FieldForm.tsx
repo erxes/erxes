@@ -52,8 +52,6 @@ class FieldForm extends React.Component<Props, State> {
 
     const { field } = props;
 
-    // const { __typename, ...restOfField } = field as any;
-
     const selectedOption = field.associatedField && {
       value: field.associatedField._id,
       label: field.associatedField.text
