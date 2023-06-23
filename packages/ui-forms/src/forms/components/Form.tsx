@@ -253,7 +253,7 @@ class Form extends React.Component<Props, State> {
         {currentField && (
           <FieldForm
             mode={currentMode || 'create'}
-            field={currentField as any}
+            field={currentField}
             fields={fields}
             numberOfPages={numberOfPages || 1}
             onSubmit={this.onFieldSubmit}
