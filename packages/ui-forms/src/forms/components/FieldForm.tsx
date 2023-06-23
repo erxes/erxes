@@ -52,6 +52,8 @@ class FieldForm extends React.Component<Props, State> {
 
     const { field } = props;
 
+    // const { __typename, ...restOfField } = field as any;
+
     const selectedOption = field.associatedField && {
       value: field.associatedField._id,
       label: field.associatedField.text
@@ -166,7 +168,6 @@ class FieldForm extends React.Component<Props, State> {
     value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) {
     const { field } = this.state;
-
     field[attributeName] = value;
 
     this.setState({ field });

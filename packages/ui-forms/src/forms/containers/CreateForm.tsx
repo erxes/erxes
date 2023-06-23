@@ -7,7 +7,7 @@ import {
   FieldsBulkAddAndEditMutationResponse,
   IFormData
 } from '../types';
-import { Alert, removeTypename, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IField, IRouterProps } from '@erxes/ui/src/types';
 
 import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
@@ -84,8 +84,8 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
 
         .then(() => {
           fields.forEach(f => {
-            const { __typename, ...rest } = f;
-            return rest;
+            delete f.contentType;
+            delete f.__typename;
           });
 
           fieldsBulkAddAndEditMutation({
