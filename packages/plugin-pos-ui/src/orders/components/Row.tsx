@@ -81,6 +81,7 @@ class PutResponseRow extends React.Component<Props> {
           {order.posName || ''}
           {order.origin === 'kiosk' ? '*' : ''}
         </td>
+        <td key={'type'}>{order.type || ''}</td>
         <td key={'user'}>{order.user ? order.user.email : ''}</td>
         <td key={'actions'} onClick={onClick}>
           <Button
