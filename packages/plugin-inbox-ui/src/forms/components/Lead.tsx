@@ -31,6 +31,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   integration?: ILeadIntegration;
+  integrationId?: string;
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
@@ -46,6 +47,8 @@ type Props = {
     visibility?: string;
     departmentIds?: string[];
   }) => void;
+  onChildProcessFinished?: (component: string) => void;
+  waitUntilFinish?: (obj: any) => void;
 };
 
 type State = {
@@ -98,7 +101,7 @@ type State = {
 class Lead extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    //ILeadIntegration
+    // ILeadIntegration
     const integration = props.integration || ({} as any);
 
     const { leadData = {} as ILeadData } = integration;
@@ -136,7 +139,7 @@ class Lead extends React.Component<Props, State> {
         title: form.title || 'Form Title',
         description: form.description || 'Form Description',
         buttonText: form.buttonText || 'Send',
-        fields: [],
+        fields: form.fields || [],
         type: form.type || '',
         numberOfPages: form.numberOfPages || 1
       },
@@ -158,6 +161,12 @@ class Lead extends React.Component<Props, State> {
       departmentIds: integration.departmentIds || [],
       visibility: integration.visibility || 'public'
     };
+  }
+
+  componentDidUpdate(_prevProps, prevState) {
+    if (prevState.formData !== this.state.formData) {
+      this.setState({ formData: this.state.formData });
+    }
   }
 
   handleSubmit = (e: React.FormEvent) => {
@@ -404,13 +413,17 @@ class Lead extends React.Component<Props, State> {
                   brand={brand}
                   theme={theme}
                   language={language}
-                  formData={formData}
+                  formData={this.state.formData}
                   isRequireOnce={isRequireOnce}
                   saveAsCustomer={saveAsCustomer}
                   channelIds={channelIds}
                   visibility={visibility}
                   departmentIds={departmentIds}
+                  integrationId={this.props.integrationId}
+                  isSubmitted={this.props.isReadyToSaveForm}
                   onChange={this.onChange}
+                  onChildProcessFinished={this.props.onChildProcessFinished}
+                  waitUntilFinish={this.props.waitUntilFinish}
                 />
               </Step>
 
