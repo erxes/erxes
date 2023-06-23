@@ -11,7 +11,7 @@ import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
-import { debug, serviceDiscovery, graphqlPubsub } from '../../configs';
+import { debug, graphqlPubsub } from '../../configs';
 import {
   sendContactsMessage,
   sendCardsMessage,
