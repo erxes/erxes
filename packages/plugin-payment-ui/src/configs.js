@@ -6,6 +6,7 @@ module.exports = {
     './routes': './src/routes.tsx',
     './SelectPayments': './src/containers/SelectPayments.tsx',
     "./invoiceSection": "./src/containers/invoice/InvoiceSection.tsx",
+    "./paymentConfig": "./src/containers/paymentConfig/Form.tsx",
   },
   routes: {
     url: 'http://localhost:3021/remoteEntry.js',
@@ -13,6 +14,7 @@ module.exports = {
     module: './routes'
   },
   extendFormOptions: './SelectPayments',
+  invoiceSection: './invoiceSection',
   menus: [
     {
       text: 'Invoices',
@@ -29,7 +31,7 @@ module.exports = {
       scope: 'payment',
       action: "paymentsAll",
       permissions: ['showPayments']
-    }
+    },
   ],
   dealRightSidebarSection: [
     {

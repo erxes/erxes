@@ -19,8 +19,6 @@ const Container = (props: Props) => {
     return <Spinner />;
   }
 
-  console.log('data', data);
-
   return <Detail invoice={data.invoiceDetail} />;
 };
 

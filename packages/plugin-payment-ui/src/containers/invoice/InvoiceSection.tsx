@@ -7,14 +7,19 @@ import { queries } from '../../graphql';
 import { InvoicesQueryResponse } from '../../types';
 
 type Props = {
-  dealId: string;
+  contentType: string;
+  contentTypeId: string;
 };
 
 function InvoiceSecitonContainer(props: Props) {
-  const { dealId } = props;
+  const { contentType, contentTypeId } = props;
+
+  if (!contentType || !contentTypeId) {
+    return null;
+  }
 
   const invoicesQuery = useQuery<InvoicesQueryResponse>(queries.invoices, {
-    variables: { contentType: 'cards:deals', contentTypeId: dealId },
+    variables: { contentType, contentTypeId },
     fetchPolicy: 'network-only'
   });
 
@@ -37,6 +42,18 @@ function InvoiceSecitonContainer(props: Props) {
   return <InvoiceSection {...updatedProps} />;
 }
 
-export default ({ id }: { id: string }) => {
-  return <InvoiceSecitonContainer dealId={id} />;
+export default args => {
+  let { contentTypeId, contentType } = args;
+  const { mainType, mainTypeId } = args;
+  if (['deal', 'task', 'company'].includes(mainType)) {
+    contentType = `cards:${mainType}s`;
+    contentTypeId = mainTypeId;
+  }
+
+  return (
+    <InvoiceSecitonContainer
+      contentTypeId={contentTypeId}
+      contentType={contentType}
+    />
+  );
 };
