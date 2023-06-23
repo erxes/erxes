@@ -162,6 +162,10 @@ export type ClientPortalConfig = {
   mailConfig?: MailConfig;
   manualVerificationConfig?: ManualVerificationConfig;
   passwordVerificationConfig?: PasswordVerificationConfig;
+
+  tokenExpiration?: number;
+  refreshTokenExpiration?: number;
+  tokenPassMethod: 'cookie' | 'header';
 };
 
 export type Styles = {

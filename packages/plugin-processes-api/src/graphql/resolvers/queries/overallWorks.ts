@@ -429,18 +429,6 @@ const overallWorkQueries = {
       overallWork.resultProducts = resultData;
     }
 
-    const uoms = await sendProductsMessage({
-      subdomain,
-      action: 'uoms.find',
-      data: {},
-      isRPC: true
-    });
-
-    const uomById = {};
-    for (const uom of uoms) {
-      uomById[uom._id] = uom;
-    }
-
     overallWork.needProducts =
       getProductsData(overallWork.needProducts || []) || [];
 
@@ -451,16 +439,14 @@ const overallWorkQueries = {
       subdomain,
       overallWork.needProducts,
       overallWork.key.inBranchId,
-      overallWork.key.inDepartmentId,
-      uomById
+      overallWork.key.inDepartmentId
     );
 
     overallWork.resultProductsData = await getProductsDataOnOwork(
       subdomain,
       overallWork.resultProducts,
       overallWork.key.outBranchId,
-      overallWork.key.outDepartmentId,
-      uomById
+      overallWork.key.outDepartmentId
     );
 
     return overallWork;

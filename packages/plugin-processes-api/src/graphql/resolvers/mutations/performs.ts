@@ -34,7 +34,7 @@ const editQuantity = async (
     const keyProductsByProductId = {};
     for (const data of oldPerform[keyProducts]) {
       keyProductsByProductId[data.productId] = {
-        uomId: data.uomId,
+        uom: data.uom,
         diffCount: data.quantity
       };
     }
@@ -46,7 +46,7 @@ const editQuantity = async (
           multiplier * (oldData.diffCount - updatedData.quantity);
       } else {
         keyProductsByProductId[updatedData.productId] = {
-          uomId: updatedData.uomId,
+          uom: updatedData.uom,
           diffCount: -1 * multiplier * updatedData.quantity
         };
       }
@@ -86,7 +86,7 @@ const editQuantity = async (
       departmentId: oldPerform[keyDepartmentId],
       productsData: (oldPerform[keyProducts] || []).map(ip => ({
         productId: ip.productId,
-        uomId: ip.uomId,
+        uom: ip.uom,
         diffCount: 1 * multiplier * ip.quantity
       }))
     }
@@ -100,7 +100,7 @@ const editQuantity = async (
       departmentId: newPerform[keyDepartmentId],
       productsData: (newPerform[keyProducts] || []).map(ip => ({
         productId: ip.productId,
-        uomId: ip.uomId,
+        uom: ip.uom,
         diffCount: -1 * multiplier * ip.quantity
       }))
     }
@@ -134,7 +134,7 @@ const performMutations = {
         departmentId: doc.inDepartmentId,
         productsData: (doc.inProducts || []).map(ip => ({
           productId: ip.productId,
-          uomId: ip.uomId,
+          uom: ip.uom,
           diffCount: -1 * ip.quantity
         }))
       }
@@ -149,7 +149,7 @@ const performMutations = {
         departmentId: doc.outDepartmentId,
         productsData: (doc.outProducts || []).map(op => ({
           productId: op.productId,
-          uomId: op.uomId,
+          uom: op.uom,
           diffCount: op.quantity
         }))
       }
@@ -229,7 +229,7 @@ const performMutations = {
         departmentId: perform.inDepartmentId,
         productsData: (perform.inProducts || []).map(data => ({
           productId: data.productId,
-          uomId: data.uomId,
+          uom: data.uom,
           diffCount: data.quantity
         }))
       }
@@ -244,7 +244,7 @@ const performMutations = {
         departmentId: perform.outDepartmentId,
         productsData: (perform.outProducts || []).map(data => ({
           productId: data.productId,
-          uomId: data.uomId,
+          uom: data.uom,
           diffCount: -1 * data.quantity
         }))
       }

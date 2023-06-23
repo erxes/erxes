@@ -147,7 +147,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       code: detail.productCode,
       barCode: detail.barcode || this.defaultGScode,
       name: detail.productName,
-      measureUnit: detail.sku || 'ш',
+      measureUnit: detail.uom || 'ш',
       qty: format_number(detail.count),
       unitPrice: format_number(detail.amount / detail.count),
       totalAmount: format_number(detail.amount),

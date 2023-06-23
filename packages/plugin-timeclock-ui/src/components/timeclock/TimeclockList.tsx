@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import { ITimeclock } from '../../types';
 import Row from './TimeclockRow';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -28,6 +28,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { prepareCurrentUserOption } from '../../utils';
+import * as dayjs from 'dayjs';
 
 type Props = {
   currentUser: IUser;
@@ -169,22 +170,37 @@ function List(props: Props) {
   );
 
   const onStartDateChange = dateVal => {
-    setStartDate(dateVal);
-    localStorage.setItem('startDate', startDate.toISOString());
+    if (checkDateRange(dateVal, endDate)) {
+      setStartDate(dateVal);
+      localStorage.setItem('startDate', startDate.toISOString());
+    }
   };
 
   const onEndDateChange = dateVal => {
-    setEndDate(dateVal);
-    localStorage.setItem('endDate', endDate.toISOString());
+    if (checkDateRange(startDate, dateVal)) {
+      setEndDate(dateVal);
+      localStorage.setItem('endDate', endDate.toISOString());
+    }
+  };
+
+  const checkDateRange = (start: Date, end: Date) => {
+    if ((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24) > 8) {
+      Alert.error('Please choose date range within 8 days');
+      return false;
+    }
+
+    return true;
   };
 
   const extractAllData = () => {
-    extractAllMsSqlData(startDate, endDate, {
-      branchIds: selectedBranches,
-      departmentIds: selectedDepartments,
-      userIds: currUserIds,
-      extractAll: extractType === 'All team members'
-    });
+    if (checkDateRange(startDate, endDate)) {
+      extractAllMsSqlData(startDate, endDate, {
+        branchIds: selectedBranches,
+        departmentIds: selectedDepartments,
+        userIds: currUserIds,
+        extractAll: extractType === 'All team members'
+      });
+    }
   };
   const extractContent = contentProps => (
     <FlexColumnCustom marginNum={10}>
@@ -305,15 +321,15 @@ function List(props: Props) {
     />
   );
 
-  const compareUserName = (a, b) => {
-    if (a.employeeUserName < b.employeeUserName) {
-      return -1;
-    }
-    if (a.employeeUserName > b.employeeUserName) {
-      return 1;
-    }
-    return 0;
-  };
+  // const compareUserName = (a, b) => {
+  //   if (a.employeeUserName < b.employeeUserName) {
+  //     return -1;
+  //   }
+  //   if (a.employeeUserName > b.employeeUserName) {
+  //     return 1;
+  //   }
+  //   return 0;
+  // };
 
   const content = (
     <Table>
@@ -334,7 +350,7 @@ function List(props: Props) {
         </tr>
       </thead>
       <tbody>
-        {timeclocks.sort(compareUserName).map(timeclock => {
+        {timeclocks.map(timeclock => {
           return (
             <Row
               key={timeclock._id}

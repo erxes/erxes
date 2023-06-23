@@ -8,9 +8,16 @@ import { returnDeviceTypes } from '../../utils';
 type Props = {
   reportType: string;
   report: IReport;
+  showBranch: boolean;
+  showDepartment: boolean;
 };
 
-const ReportRow = (userReport: IUserReport, reportType: string) => {
+const ReportRow = (
+  userReport: IUserReport,
+  reportType: string,
+  showDepartment: boolean,
+  showBranch: boolean
+) => {
   switch (reportType) {
     case 'Урьдчилсан':
       return (
@@ -28,6 +35,10 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
     case 'Сүүлд':
       return (
         <tr key={Math.random()}>
+          {showDepartment && (
+            <td>{userReport.departmentTitles?.join(',\n') || '-'}</td>
+          )}
+          {showBranch && <td>{userReport.branchTitles?.join(',\n') || '-'}</td>}
           <td>{userReport.user.employeeId}</td>
           <td>{userReport.user.details?.lastName || '-'}</td>
           <td>{userReport.user.details?.firstName || '-'}</td>
@@ -113,16 +124,18 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
 
 const renderScheduleShiftInfo = scheduledShift => {
   const getInDevice =
-    returnDeviceTypes(scheduledShift.deviceType)[0] &&
+    scheduledShift.inDevice ||
+    (returnDeviceTypes(scheduledShift.deviceType)[0] &&
     returnDeviceTypes(scheduledShift.deviceType)[0].includes('faceTerminal')
       ? scheduledShift.deviceName
-      : scheduledShift.deviceType;
+      : scheduledShift.deviceType);
 
   const getOutDevice =
-    returnDeviceTypes(scheduledShift.deviceType)[1] &&
+    scheduledShift.outDevice ||
+    (returnDeviceTypes(scheduledShift.deviceType)[1] &&
     returnDeviceTypes(scheduledShift.deviceType)[1].includes('faceTerminal')
       ? scheduledShift.deviceName
-      : scheduledShift.deviceType;
+      : scheduledShift.deviceType);
 
   return (
     <>
@@ -155,10 +168,12 @@ const renderScheduleShiftInfo = scheduledShift => {
 };
 
 const ReportList = (props: Props) => {
-  const { report, reportType } = props;
+  const { report, reportType, showDepartment, showBranch } = props;
   return (
     <tbody>
-      {report.groupReport.map(userReport => ReportRow(userReport, reportType))}
+      {report.groupReport.map(userReport =>
+        ReportRow(userReport, reportType, showDepartment, showBranch)
+      )}
     </tbody>
   );
 };
