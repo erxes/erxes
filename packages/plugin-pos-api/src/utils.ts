@@ -511,7 +511,7 @@ const syncInventoriesRem = async ({
         departmentId: newOrder.departmentId,
         productsData: (newOrder.items || []).map(item => ({
           productId: item.productId,
-          uomId: item.uomId,
+          uom: item.uom,
           diffCount: -1 * item.count
         }))
       }
@@ -527,7 +527,7 @@ const syncInventoriesRem = async ({
         departmentId: newOrder.departmentId,
         productsData: (newOrder.items || []).map(item => ({
           productId: item.productId,
-          uomId: item.uomId,
+          uom: item.uom,
           diffCount: item.count
         }))
       }

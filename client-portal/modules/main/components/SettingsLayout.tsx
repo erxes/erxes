@@ -50,7 +50,12 @@ function SettingsLayout({
           <div className="list">
             {renderMenu("dashboard", "/profile", "My profle")}
             {renderMenu("settings", "/settings", "Settings")}
-            <Dropdown.Item onClick={() => logout()}>
+            <Dropdown.Item onClick={() => {
+                if (typeof window !== 'undefined') {
+                  sessionStorage.clear()
+                }
+              logout()
+            }}>
               <Icon icon="sign-out-alt" size={18} /> &nbsp; Logout
             </Dropdown.Item>
           </div>

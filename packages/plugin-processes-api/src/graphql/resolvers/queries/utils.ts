@@ -9,8 +9,7 @@ export const getProductsDataOnOwork = async (
   subdomain: string,
   productsData: IOverallProductsData[],
   branchId: string,
-  departmentId: string,
-  uomById: any
+  departmentId: string
 ) => {
   if (!productsData.length) {
     return [];
@@ -68,15 +67,14 @@ export const getProductsDataOnOwork = async (
   const result: any[] = [];
   for (const data of productsData) {
     const product = productById[data.productId];
-    const ratio = getRatio(product, data.uomId);
+    const ratio = getRatio(product, data.uom);
     const perData: any = {
       productId: data.productId,
-      uomId: data.uomId,
+      uom: data.uom,
       quantity: data.quantity,
-      uom: uomById[data.uomId],
       reserveRem: reserveRemByProductId[data.productId] || 0,
       liveRem: liveRemByProductId[data.productId] || 0,
-      mainUom: uomById[product.uomId],
+      mainUom: product.uom,
       mainQuantity: ratio ? data.quantity / ratio : NaN,
       product
     };

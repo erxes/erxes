@@ -208,6 +208,7 @@ export const getEqualPay = async ({
   let currentDate = getFullDate(startDate);
   let mainRatio = 0;
   let ratio = 1;
+
   for (let i = 0; i < paymentDates.length; i++) {
     let nextDay = paymentDates[i];
     nextDay = checkNextDay(nextDay, weekends, useHoliday, perHolidays);
@@ -220,6 +221,7 @@ export const getEqualPay = async ({
     currentDate = nextDay;
     ratio = newRatio;
   }
+
   return Math.round((leaseAmount - (salvage || 0) * ratio) / mainRatio);
 };
 
@@ -328,25 +330,27 @@ export const getUnduePercent = async (
   date: Date,
   contract: IContractDocument
 ): Promise<number> => {
-  const holidayConfig: any = await sendMessageBroker(
-    {
-      subdomain,
-      action: 'configs.findOne',
-      data: {
-        query: {
-          code: 'undueConfig'
-        }
+  const holidayConfig: any =
+    (await sendMessageBroker(
+      {
+        subdomain,
+        action: 'configs.findOne',
+        data: {
+          query: {
+            code: 'undueConfig'
+          }
+        },
+        isRPC: true,
+        defaultValue: {}
       },
-      isRPC: true
-    },
-    'core'
-  );
+      'core'
+    )) || {};
 
   const ruledUndueConfigs = Object.values<{
     startDate: Date;
     endDate: Date;
     percent: number;
-  }>(holidayConfig?.value)
+  }>(holidayConfig.value || {})
     .filter((conf: any) => conf.startDate < date && date < conf.endDate)
     .sort((a: any, b: any) =>
       a.endDate < b.endDate
@@ -358,7 +362,7 @@ export const getUnduePercent = async (
         : -1
     );
 
-  if (!!ruledUndueConfigs && ruledUndueConfigs.length > 0) {
+  if (ruledUndueConfigs && ruledUndueConfigs.length) {
     return ruledUndueConfigs[0].percent;
   }
 
@@ -369,15 +373,18 @@ export const getUnduePercent = async (
   }).lean();
 
   if (contractType?.unduePercent > 0) return contractType?.unduePercent / 100;
+
   return 0.2;
 };
 
 export const getChanged = (old, anew) => {
   const diff = {};
+
   for (const key of Object.keys(anew)) {
     if (old[key] !== anew[key]) {
       diff[key] = old[key];
     }
   }
+
   return diff;
 };

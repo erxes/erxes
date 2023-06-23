@@ -3,7 +3,7 @@ import { IProductsDataDocument } from './jobs';
 export interface IOverallProductsData {
   productId: string;
   quantity: number;
-  uomId: string;
+  uom: string;
 }
 
 export interface IOverallWork {

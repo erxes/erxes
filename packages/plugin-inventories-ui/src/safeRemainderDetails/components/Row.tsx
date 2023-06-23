@@ -91,7 +91,7 @@ export default function Row(props: Props) {
       <td>
         <FinanceAmount>{displayNumber(preCount)}</FinanceAmount>
       </td>
-      <td>{uom && uom.name}</td>
+      <td>{uom}</td>
 
       <td>
         <FormControl

@@ -41,6 +41,7 @@ const contractFields = `
   relContractId
   skipInterestCalcMonth
   dealId
+  nextPayment
 `;
 
 const listParamsDef = `

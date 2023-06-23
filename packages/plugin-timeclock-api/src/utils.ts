@@ -15,7 +15,9 @@ import { Sequelize, QueryTypes } from 'sequelize';
 const dateFormat = 'YYYY-MM-DD';
 const timeFormat = 'HH:mm';
 import {
+  findBranches,
   findBranchUsers,
+  findDepartments,
   findDepartmentUsers,
   returnUnionOfUserIds
 } from './graphql/resolvers/utils';
@@ -73,6 +75,17 @@ const findTeamMembers = (subdomain: string, userIds: string[]) => {
     },
     isRPC: true,
     defaultValue: []
+  });
+};
+
+const findTeamMember = (subdomain: string, userId: string[]) => {
+  return sendCoreMessage({
+    subdomain,
+    action: 'users.findOne',
+    data: {
+      _id: userId
+    },
+    isRPC: true
   });
 };
 
@@ -1047,16 +1060,37 @@ const createTeamMembersObject = async (subdomain: any, userIds: string[]) => {
   return teamMembersObject;
 };
 
+const returnDepartmentsBranchesDict = async (
+  subdomain: any,
+  branchIds: string[],
+  departmentIds: string[]
+): Promise<{ [_id: string]: string }> => {
+  const dictionary: { [_id: string]: string } = {};
+
+  const branches = await findBranches(subdomain, branchIds);
+  const departments = await findDepartments(subdomain, departmentIds);
+
+  for (const branch of branches) {
+    dictionary[branch._id] = branch.title;
+  }
+
+  for (const department of departments) {
+    dictionary[department._id] = department.title;
+  }
+
+  return dictionary;
+};
+
 const returnSupervisedUsers = async (
-  currentUserId: string,
+  currentUser: IUserDocument,
   subdomain: string
-) => {
+): Promise<IUserDocument[]> => {
   const supervisedDepartmenIds = (
     await sendCoreMessage({
       subdomain,
       action: `departments.find`,
       data: {
-        supervisorId: currentUserId
+        supervisorId: currentUser._id
       },
       isRPC: true,
       defaultValue: []
@@ -1068,20 +1102,24 @@ const returnSupervisedUsers = async (
       subdomain,
       action: `branches.find`,
       data: {
-        supervisorId: currentUserId
+        query: {
+          supervisorId: currentUser._id
+        }
       },
       isRPC: true,
       defaultValue: []
     })
   ).map(branch => branch._id);
 
-  const findTotalSupervisedUsers: string[] = [];
+  const findTotalSupervisedUsers: IUserDocument[] = [];
 
   findTotalSupervisedUsers.push(
-    ...(await findDepartmentUsers(subdomain, supervisedDepartmenIds)).map(
-      departmentUser => departmentUser._id
-    ),
-    currentUserId
+    ...(await findDepartmentUsers(subdomain, supervisedDepartmenIds))
+  );
+
+  findTotalSupervisedUsers.push(
+    ...(await findBranchUsers(subdomain, supervisedBranchIds)),
+    currentUser
   );
 
   return findTotalSupervisedUsers;
@@ -1090,6 +1128,7 @@ const returnSupervisedUsers = async (
 const generateFilter = async (
   params: any,
   subdomain: string,
+  models: IModels,
   type: string,
   user: IUserDocument
 ) => {
@@ -1103,6 +1142,18 @@ const generateFilter = async (
     isCurrentUserAdmin
   } = params;
 
+  let scheduleFilter = {};
+  let userIdsGiven: boolean = false;
+
+  //  if schedule status is not set, return empty list
+  if (type === 'schedule' && !scheduleStatus) {
+    return [{}, false];
+  }
+
+  if (branchIds || departmentIds || userIds) {
+    userIdsGiven = true;
+  }
+
   const totalUserIds: string[] = await generateCommonUserIds(
     subdomain,
     userIds,
@@ -1110,22 +1161,20 @@ const generateFilter = async (
     departmentIds
   );
 
-  const models = await generateModels(subdomain);
+  // user Ids given but no common user was found
+  if (userIdsGiven && !totalUserIds.length) {
+    return [{}, false];
+  }
 
-  let scheduleFilter = {};
-
+  // if current user is not admin, return supervised users
   const totalSupervisedUsers = !isCurrentUserAdmin
-    ? await returnSupervisedUsers(user._id, subdomain)
+    ? await returnSupervisedUsers(user, subdomain)
     : [];
 
   if (!isCurrentUserAdmin) {
     scheduleFilter = {
-      userId: { $in: totalSupervisedUsers }
+      userId: { $in: totalSupervisedUsers.map(usr => usr._id) }
     };
-  }
-
-  if (type === 'schedule' && !scheduleStatus) {
-    return [scheduleFilter, false];
   }
 
   if (scheduleStatus) {
@@ -1159,21 +1208,15 @@ const generateFilter = async (
   );
 
   let returnFilter: any = { _id: { $in: [...scheduleIds] }, ...scheduleFilter };
-  let userIdsGiven: boolean = false;
-  let commonUserFound: boolean = true;
 
   const timeFields = returnTimeFieldsFilter(type, params);
 
-  if (branchIds || departmentIds || userIds) {
-    userIdsGiven = true;
-  }
-
   if (totalUserIds.length > 0) {
     if (type === 'schedule') {
-      returnFilter = { ...returnFilter, userId: { $in: [...totalUserIds] } };
+      returnFilter = { userId: { $in: [...totalUserIds] }, ...returnFilter };
     } else {
       returnFilter = {
-        $and: [{ $or: timeFields }, { userId: { $in: [...totalUserIds] } }]
+        $and: [{ userId: { $in: [...totalUserIds] } }, { $or: timeFields }]
       };
     }
   }
@@ -1181,7 +1224,9 @@ const generateFilter = async (
   if (!userIdsGiven && type !== 'schedule') {
     returnFilter = {};
     if (!isCurrentUserAdmin) {
-      returnFilter = { userId: { $in: totalSupervisedUsers } };
+      returnFilter = {
+        userId: { $in: totalSupervisedUsers.map(usr => usr._id) }
+      };
     }
     returnFilter = {
       ...returnFilter,
@@ -1189,12 +1234,7 @@ const generateFilter = async (
     };
   }
 
-  // user Ids given but no related data was found
-  if (userIdsGiven && !totalUserIds.length) {
-    commonUserFound = false;
-  }
-
-  return [returnFilter, commonUserFound];
+  return [returnFilter, true];
 };
 
 const returnTimeFieldsFilter = (type: string, queryParams: any) => {
@@ -1353,5 +1393,8 @@ export {
   findAllTeamMembersWithEmpId,
   createTeamMembersObject,
   customFixDate,
-  returnSupervisedUsers
+  returnSupervisedUsers,
+  findTeamMembers,
+  findTeamMember,
+  returnDepartmentsBranchesDict
 };

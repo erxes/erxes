@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import {
   Button,
   ControlLabel,
@@ -15,7 +13,7 @@ import {
   RightMenuContainer,
   TabContent
 } from '../../styles';
-
+import Select from 'react-select-plus';
 import Datetime from '@nateradebaugh/react-datetime';
 import { IQueryParams } from '@erxes/ui/src/types';
 import RTG from 'react-transition-group';
@@ -24,6 +22,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import SelectPos from './SelectPos';
+import { ALLOW_TYPES } from '../../constants';
 
 const SelectCustomers = asyncComponent(
   () =>
@@ -96,6 +95,7 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   onSelect = (values: string[] | string, key: string) => {
+    console.log(values, key);
     const { filterParams } = this.state;
     this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
   };
@@ -238,6 +238,20 @@ export default class RightMenu extends React.Component<Props, State> {
           onSelect={this.onSelect}
           customOption={{ value: '', label: '...Clear user filter' }}
           multi={false}
+        />
+
+        <Select
+          name={'types'}
+          multi={true}
+          placeholder={__('Choose types')}
+          value={filterParams.types}
+          onChange={types => {
+            this.onSelect(
+              (types || []).map(t => t.value),
+              'types'
+            );
+          }}
+          options={ALLOW_TYPES}
         />
 
         {this.renderRange('created')}

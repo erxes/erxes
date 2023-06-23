@@ -16,6 +16,7 @@ import {
 
 import * as admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
+
 export const getConfig = async (
   code: string,
   subdomain: string,

@@ -31,8 +31,8 @@ const commonVariables = `
 `;
 
 const invoicesAdd = `
-  mutation invoicesAdd(${commonFields}) {
-    invoicesAdd(${commonVariables}) {
+  mutation loanInvoicesAdd(${commonFields}) {
+    loanInvoicesAdd(${commonVariables}) {
       _id
       ${invoiceFields}
       ${invoiceOtherFields}
@@ -41,8 +41,8 @@ const invoicesAdd = `
 `;
 
 const invoicesEdit = `
-  mutation invoicesEdit($_id: String!, ${commonFields}) {
-    invoicesEdit(_id: $_id, ${commonVariables}) {
+  mutation loanInvoicesEdit($_id: String!, ${commonFields}) {
+    loanInvoicesEdit(_id: $_id, ${commonVariables}) {
       _id
       ${invoiceFields}
       ${invoiceOtherFields}
@@ -51,8 +51,8 @@ const invoicesEdit = `
 `;
 
 const invoicesRemove = `
-  mutation invoicesRemove($invoiceIds: [String]) {
-    invoicesRemove(invoiceIds: $invoiceIds)
+  mutation loanInvoicesRemove($invoiceIds: [String]) {
+    loanInvoicesRemove(invoiceIds: $invoiceIds)
   }
 `;
 
