@@ -6,7 +6,8 @@ import {
   CellWrapper,
   FormTable,
   FieldWrapper,
-  FormMessageInput
+  FormMessageInput,
+  ProductItem
 } from '../styles';
 import {
   PreviewTitle,
@@ -23,6 +24,15 @@ import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
 import ReactToPrint, { PrintContextConsumer } from 'react-to-print';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+import { Count, ImageWrapper } from '@erxes/ui/src/styles/main';
+import { readFile } from '@erxes/ui/src/utils/core';
+import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
+import { Table } from '@erxes/ui/src/components';
 
 type Props = {
   message: IMessage;
@@ -113,6 +123,42 @@ export default class FormMessage extends React.Component<Props, {}> {
     );
   }
 
+  renderProductData = field => {
+    if (!field.value.hasOwnProperty('product')) {
+      return <FormMessageInput>{this.displayValue(field)}</FormMessageInput>;
+    }
+
+    const { product, quantity } = field.value;
+
+    const imageUrl = product.attachment ? product.attachment.url : '';
+
+    return (
+      <ProductItem>
+        {imageUrl && <img src={readFile(imageUrl)} />}
+        <SidebarList className="no-link flex">
+          <Table>
+            <thead>
+              <tr>
+                <th style={{ width: '40%' }}>{__('Product name')}</th>
+                <th style={{ width: '20%' }}>{__('Unit price')}</th>
+                <th style={{ width: '20%' }}>{__('Quantity')}</th>
+                <th style={{ width: '20%' }}>{__('Sub total')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{product.name}</td>
+                <td align="right">{product.unitPrice}</td>
+                <td align="right">{quantity}</td>
+                <td>{product.unitPrice * quantity}</td>
+              </tr>
+            </tbody>
+          </Table>
+        </SidebarList>
+      </ProductItem>
+    );
+  };
+
   renderField(field) {
     return (
       <ErrorBoundary>
@@ -124,6 +170,8 @@ export default class FormMessage extends React.Component<Props, {}> {
               </ControlLabel>
               {field.type === 'multiSelect' ? (
                 this.renderMultiSelect(field.value)
+              ) : field.type === 'productCategory' ? (
+                this.renderProductData(field)
               ) : (
                 <FormMessageInput>{this.displayValue(field)}</FormMessageInput>
               )}

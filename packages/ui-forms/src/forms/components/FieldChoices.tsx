@@ -1,6 +1,6 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { FieldWrapper, Options } from '../styles';
 
@@ -114,20 +114,13 @@ function FieldChoices(props: Props) {
         icon="map-marker"
       />
       <FieldChoice {...props} type="html" text={__('HTML')} icon="code" />
-      {isEnabled('products') && props.type === 'lead' && (
-        <FieldChoice
-          {...props}
-          type="productCategory"
-          text={__('Product/Service')}
-          icon="shoppingcart"
-        />
-      )}
       <FieldChoice
         {...props}
         type="objectList"
         text={__('Object List')}
         icon="sort-amount-down"
       />
+      {loadDynamicComponent('extendFormFieldChoice', props, true)}
     </Options>
   );
 }
