@@ -1,27 +1,43 @@
-import React from 'react';
-import { FormGroup } from 'react-bootstrap';
-
-import { IPaymentDocument, IPaymentConfig } from '../types';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import { ControlLabel } from '@erxes/ui/src/components/form';
+import { __ } from '@erxes/ui/src/utils';
+import React from 'react';
 import Select from 'react-select-plus';
+import styled from 'styled-components';
+
+import { IPaymentDocument } from '../types';
+
+const LeftContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const Row = styled.div`
+  display: flex;
+
+  .Select {
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+    margin-left: 10px;
+    align-self: baseline;
+  }
+`;
 
 type Props = {
   payments: IPaymentDocument[];
   isRequired?: boolean;
   description?: string;
-  currentConfig?: IPaymentConfig;
-  selectedPaymentIds: string[];
-  isSubmitted?: boolean;
-  setPaymentIds: (paymentIds: string[]) => void;
-  save: () => void;
+  defaultValue?: string[];
+  onChange: (value: string[]) => void;
 };
 
-function SelectPayments(props: Props) {
-  const [isSubmitted, setIsSubmitted] = React.useState(false);
-
-  const generateOptions = (array: IPaymentDocument[] = []): IOption[] => {
+class SelectPayments extends React.Component<Props, {}> {
+  generateOptions(array: IPaymentDocument[] = []): IOption[] {
     return array.map(item => {
       const payment = item || ({} as IPaymentDocument);
 
@@ -30,43 +46,40 @@ function SelectPayments(props: Props) {
         label: `${payment.kind}: ${payment.name}`
       };
     });
+  }
+
+  onChangePayment = values => {
+    const { onChange } = this.props;
+
+    onChange(values.map(item => item.value) || []);
   };
 
-  const onChange = entries => {
-    props.setPaymentIds(entries.map(entry => entry.value));
-  };
+  render() {
+    const { payments, defaultValue } = this.props;
 
-  const { payments } = props;
-
-  React.useEffect(() => {
-    if (props.currentConfig) {
-      props.setPaymentIds(props.currentConfig.paymentIds);
-    }
-
-    if (props.isSubmitted && !isSubmitted) {
-      setIsSubmitted(true);
-      props.save();
-    }
-  }, [props.currentConfig, props.isSubmitted]);
-
-  return (
-    <FormGroup>
-      <ControlLabel required={props.isRequired}>Payments</ControlLabel>
-      <p>
-        {props.description
-          ? props.description
-          : __('Select payments that you want to use ')}
-      </p>
-
-      <Select
-        multi={true}
-        options={generateOptions(payments)}
-        value={props.selectedPaymentIds}
-        onChange={onChange}
-        isDisabled={props.isSubmitted}
-      />
-    </FormGroup>
-  );
+    return (
+      <FormGroup>
+        <ControlLabel required={this.props.isRequired}>Payments</ControlLabel>
+        <p>
+          {' '}
+          {this.props.description
+            ? this.props.description
+            : __('Select payments that you want to use ')}
+        </p>
+        <Row>
+          <LeftContent>
+            <Select
+              placeholder={__('Select payments')}
+              value={defaultValue}
+              onChange={this.onChangePayment}
+              options={this.generateOptions(payments)}
+              multi={true}
+            />
+          </LeftContent>
+        </Row>
+      </FormGroup>
+    );
+  }
 }
 
 export default SelectPayments;
