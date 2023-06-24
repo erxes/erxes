@@ -75,7 +75,7 @@ export const PAYMENTCONFIGS = [
   {
     name: 'pocket',
     description:
-      'Pocket is a service with no additional interest or fees, where you pay in installments for the goods and services you purchase.',
+      'Pocket is an online payment tool that enables all types of payments, transfers and transactions. A feature of easy and quick identification of transactions between users of the Pocket application and payment calculations by reading the Pocket QR code without any commission.',
     isAvailable: true,
     kind: 'pocket',
     logo: 'images/payments/pocket.png',
