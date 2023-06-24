@@ -153,7 +153,7 @@ const OptionStep = (props: Props) => {
 
     return (
       <>
-        {loadDynamicComponent('extendFormOptions', {
+        {loadDynamicComponent('paymentConfig', {
           contentType: 'inbox:integrations',
           contentTypeId: props.integrationId,
           isSubmitted: props.isSubmitted,
