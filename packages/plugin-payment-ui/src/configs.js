@@ -13,7 +13,7 @@ module.exports = {
     scope: 'payment',
     module: './routes'
   },
-  extendFormOptions: './SelectPayments',
+  extendFormOptions: './paymentConfig',
   invoiceSection: './invoiceSection',
   menus: [
     {
