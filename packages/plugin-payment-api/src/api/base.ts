@@ -29,6 +29,7 @@ export class BaseAPI {
 
       return res;
     } catch (e) {
+      console.error('error ', e);
       throw new Error(e.message);
     }
   }

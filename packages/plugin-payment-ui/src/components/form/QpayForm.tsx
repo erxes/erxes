@@ -122,7 +122,7 @@ class QpayConfigForm extends React.Component<Props, State> {
 
           {this.props.metaData.link && (
             <a href={this.props.metaData.link} target="_blank" rel="noreferrer">
-              {__('Apply for a QPay')}
+              {__('Contact with QPay')}
             </a>
           )}
         </SettingsContent>
