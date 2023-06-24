@@ -210,7 +210,7 @@ class PaymentsStep extends React.Component<Props, State> {
           <LeftItem>
             {isEnabled('payment') && (
               <>
-                {loadDynamicComponent('extendFormOptions', {
+                {loadDynamicComponent('selectPayments', {
                   defaultValue: pos.paymentIds || [],
                   onChange: (ids: string[]) => this.onChangePayments(ids)
                 })}
