@@ -1,5 +1,6 @@
 import MonpayForm from './form/MonpayForm';
 import PaypalForm from './form/PaypalForm';
+import PocketForm from './form/PocketForm';
 import QpayForm from './form/QpayForm';
 import QuickQrForm from './form/QuickQrForm';
 import SocialPayForm from './form/SocialPayForm';
@@ -72,6 +73,18 @@ export const PAYMENTCONFIGS = [
     color: 'blue'
   },
   {
+    name: 'pocket',
+    description:
+      'Pocket is a service with no additional interest or fees, where you pay in installments for the goods and services you purchase.',
+    isAvailable: true,
+    kind: 'pocket',
+    logo: 'images/payments/pocket.png',
+    createModal: PocketForm,
+    createUrl: '/settings/payments/createPocket',
+    category: 'Payment method',
+    color: 'red'
+  },
+  {
     name: 'Qpay Wechat Pay',
     description: 'Receive payments in Mongolia through the WeChat Pay',
     isAvailable: false,
@@ -101,6 +114,7 @@ export const PAYMENT_KINDS = {
   SOCIALPAY: 'socialpay',
   MONPAY: 'monpay',
   STOREPAY: 'storepay',
+  POCKET: 'pocket',
   WECHATPAY: 'wechatpay',
   PAYPAL: 'paypal',
 
@@ -109,6 +123,7 @@ export const PAYMENT_KINDS = {
     'socialpay',
     'monpay',
     'storepay',
+    'pocket',
     'wechatpay',
     'paypal',
     'qpayQuickqr'

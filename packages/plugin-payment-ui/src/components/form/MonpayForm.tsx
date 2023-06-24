@@ -105,7 +105,7 @@ class MonpayConfigForm extends React.Component<Props, State> {
 
           {this.props.metaData.link && (
             <a href={this.props.metaData.link} target="_blank" rel="noreferrer">
-              {__('Apply for a Monpay')}
+              {__('Contact with Monpay')}
             </a>
           )}
         </SettingsContent>

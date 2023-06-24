@@ -8,7 +8,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 
-import { IPaymentDocument, IStorepayConfig } from '../../types';
+import { IPaymentDocument, IPocketConfig } from '../../types';
 import { PAYMENT_KINDS } from '../constants';
 import { SettingsContent } from './styles';
 
@@ -21,58 +21,47 @@ type Props = {
 
 type State = {
   paymentName: string;
-  merchantUsername: string;
-  merchantPassword: string;
+  pocketMerchant: string;
 
-  appUsername: string;
-  appPassword: string;
-
-  storeId: string;
+  pocketClientId: string;
+  pocketClientSecret: string;
 };
 
-class StorepayConfigForm extends React.Component<Props, State> {
+class PocketConfigForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     const { payment } = this.props;
     const { name = '', config } = payment || ({} as IPaymentDocument);
     const {
-      storeId,
-      merchantPassword,
-      merchantUsername,
-      appUsername,
-      appPassword
-    } = config || ({} as IStorepayConfig);
+      pocketMerchant = '',
+      pocketClientId = '',
+      pocketClientSecret = ''
+    } = config || ({} as IPocketConfig);
 
     this.state = {
       paymentName: name,
-      storeId,
-      merchantPassword,
-      merchantUsername,
-      appUsername,
-      appPassword
+      pocketMerchant,
+      pocketClientId,
+      pocketClientSecret
     };
   }
 
   generateDoc = (values: {
     paymentName: string;
-    storeId: string;
-    merchantPassword: string;
-    merchantUsername: string;
-    appUsername: string;
-    appPassword: string;
+    pocketMerchant: string;
+    pocketClientId: string;
+    pocketClientSecret: string;
   }) => {
     const { payment } = this.props;
     const generatedValues = {
       name: values.paymentName,
-      kind: PAYMENT_KINDS.STOREPAY,
+      kind: PAYMENT_KINDS.POCKET,
       status: 'active',
       config: {
-        storeId: values.storeId,
-        merchantPassword: values.merchantPassword,
-        merchantUsername: values.merchantUsername,
-        appUsername: values.appUsername,
-        appPassword: values.appPassword
+        pocketMerchant: values.pocketMerchant,
+        pocketClientId: values.pocketClientId,
+        pocketClientSecret: values.pocketClientSecret
       }
     };
 
@@ -110,38 +99,28 @@ class StorepayConfigForm extends React.Component<Props, State> {
     const { isSubmitted } = formProps;
     const {
       paymentName,
-      storeId,
-      merchantPassword,
-      merchantUsername,
-      appUsername,
-      appPassword
+      pocketMerchant,
+      pocketClientId,
+      pocketClientSecret
     } = this.state;
 
     const values = {
       paymentName,
-      storeId,
-      merchantPassword,
-      merchantUsername,
-      appUsername,
-      appPassword
+      pocketMerchant,
+      pocketClientId,
+      pocketClientSecret
     };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
           {this.renderItem('paymentName', 'Name')}
-          {this.renderItem('storeId', 'Store id')}
-          {this.renderItem('merchantUsername', 'Merchant username')}
-          {this.renderItem('merchantPassword', 'Merchant password', '', true)}
-          {this.renderItem('appUsername', 'App username')}
-          {this.renderItem('appPassword', 'App password', '', true)}
+          {this.renderItem('pocketMerchant', 'Merchant')}
+          {this.renderItem('pocketClientId', 'Client ID')}
+          {this.renderItem('pocketClientSecret', 'Client secret', '', true)}
 
-          <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLScxZItJ5egDhNqSOMTj6np6d9yrb5zW9micqvqxHFcyhsRszg/viewform"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {__('Contact with storepay')}
+          <a href="https://pocket.mn/" target="_blank" rel="noreferrer">
+            {__('Go to website pocket')}
           </a>
         </SettingsContent>
 
@@ -155,7 +134,7 @@ class StorepayConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'storepay',
+            name: 'pocket',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal
@@ -170,4 +149,4 @@ class StorepayConfigForm extends React.Component<Props, State> {
   }
 }
 
-export default StorepayConfigForm;
+export default PocketConfigForm;
