@@ -204,6 +204,10 @@ export default class RightMenu extends React.Component<Props, State> {
 
     const { queryParams, onSelect } = this.props;
 
+    if (typeof kind === 'undefined') {
+      return null;
+    }
+
     if (queryParams[kind] !== formattedDate) {
       onSelect(formattedDate, kind);
     }
@@ -247,6 +251,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
   renderFilter() {
     const { queryParams, onSelect, extraFilter, options } = this.props;
+    const { dateRangeType, dateRange } = this.state;
 
     const priorityValues = PRIORITIES.map(p => ({
       label: p,
@@ -329,7 +334,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
         <Select
           placeholder={__('Choose date range type')}
-          value={this.dateRangeType() || this.state.dateRangeType}
+          value={this.dateRangeType() || dateRangeType}
           options={daterangeValues}
           name="daterangeType"
           onChange={this.onTypeChange}
@@ -339,9 +344,9 @@ export default class RightMenu extends React.Component<Props, State> {
           <DateControl
             value={this.startDateValue()}
             required={false}
-            name={this.state.dateRange.startDate}
+            name={dateRange.startDate}
             onChange={date =>
-              this.onChangeRangeFilter(this.state.dateRange.startDate, date)
+              this.onChangeRangeFilter(dateRange.startDate, date)
             }
             placeholder={'Start date'}
             dateFormat={'YYYY-MM-DD'}
@@ -350,11 +355,9 @@ export default class RightMenu extends React.Component<Props, State> {
           <DateControl
             value={this.endDateValue()}
             required={false}
-            name={this.state.dateRange.endDate}
+            name={dateRange.endDate}
             placeholder={'End date'}
-            onChange={date =>
-              this.onChangeRangeFilter(this.state.dateRange.endDate, date)
-            }
+            onChange={date => this.onChangeRangeFilter(dateRange.endDate, date)}
             dateFormat={'YYYY-MM-DD'}
           />
         </CustomRangeContainer>
