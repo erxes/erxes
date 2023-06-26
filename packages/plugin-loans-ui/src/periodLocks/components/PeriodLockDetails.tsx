@@ -1,11 +1,20 @@
 import dayjs from 'dayjs';
-import { Wrapper } from '@erxes/ui/src';
+import { EmptyState, Wrapper } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 
-import { IPeriodLockDetail } from '../types';
+import { IGeneral, IPeriodLockDetail } from '../types';
 import DetailInfo from './PeriodLockDetailInfo';
+import {
+  CollateralColumn,
+  CollateralField,
+  CollateralTableWrapper,
+  ItemLabel,
+  ItemValue,
+  RowCollateral,
+  ScrollTableColls
+} from '../../contracts/styles';
 
 type Props = {
   periodLock: IPeriodLockDetail;
@@ -41,8 +50,54 @@ class ContractDetails extends React.Component<Props, State> {
       { title }
     ];
 
+    const renderRow = value => {
+      return (
+        <td style={{ padding: 10 }}>
+          <ItemValue>{value || '-'}</ItemValue>
+        </td>
+      );
+    };
+
+    const renderCollateral = (general: IGeneral) => {
+      const { amount, generalNumber, payDate } = general;
+      return (
+        <tr>
+          {renderRow(generalNumber)}
+          {renderRow(Number(amount || 0).toLocaleString())}
+
+          {renderRow(new Date(payDate).toLocaleString())}
+        </tr>
+      );
+    };
+
     const content = () => {
-      return <></>;
+      return (
+        <ScrollTableColls>
+          <CollateralTableWrapper>
+            <thead>
+              <tr>
+                <td style={{ padding: 10 }}>
+                  <ItemLabel>{__('number')}</ItemLabel>
+                </td>
+                <td style={{ padding: 10 }}>
+                  <ItemLabel>{__('Amount')}</ItemLabel>
+                </td>
+                <td style={{ padding: 10 }}>
+                  <ItemLabel>{__('Date')}</ItemLabel>
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              {periodLock.generals?.map((general, index) =>
+                renderCollateral(general)
+              )}
+            </tbody>
+            {periodLock.generals?.length === 0 && (
+              <EmptyState icon="list-ul" text="No items" />
+            )}
+          </CollateralTableWrapper>
+        </ScrollTableColls>
+      );
     };
 
     return (

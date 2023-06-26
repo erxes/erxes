@@ -109,6 +109,7 @@ export const contractsMain = `
     contractsMain(${listParamsValue}) {
       list {
         ${contractFields}
+        nextPayment
       }
       totalCount
     }
@@ -159,6 +160,7 @@ export const contractDetailFields = `
     closeType
   }
   hasTransaction
+  nextPayment
 `;
 
 export const contractDetail = `

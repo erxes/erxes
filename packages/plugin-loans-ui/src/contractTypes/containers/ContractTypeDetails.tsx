@@ -52,7 +52,7 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
     contractTypesRemove({ variables: { contractTypeIds: [id] } })
       .then(() => {
         Alert.success('You successfully deleted a contract');
-        history.push('/contract-types');
+        history.push('/erxes-plugin-loan/contract-types');
       })
       .catch(e => {
         Alert.error(e.message);
