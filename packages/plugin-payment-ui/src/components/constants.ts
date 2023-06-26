@@ -1,4 +1,3 @@
-import GolomtForm from './form/GolomtForm';
 import MonpayForm from './form/MonpayForm';
 import PaypalForm from './form/PaypalForm';
 import PocketForm from './form/PocketForm';
