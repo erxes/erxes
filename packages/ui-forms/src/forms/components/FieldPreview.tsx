@@ -3,6 +3,7 @@ import { IField, ILocationOption } from '@erxes/ui/src/types';
 import { FieldItem } from '../styles';
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import React from 'react';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   field: IField;
@@ -20,6 +21,10 @@ class FieldPreview extends React.Component<Props, {}> {
         onClick(field);
       }
     };
+
+    if (field.type === 'productCategory' && !isEnabled('products')) {
+      return <p>Products service is not enabled</p>;
+    }
 
     return (
       <FieldItem
