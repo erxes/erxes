@@ -6,6 +6,7 @@ import tripsQuery from './trips';
 import tumentechQuery from './tumentech';
 import topupsQuery from './topups';
 import accountsQuery from './accounts';
+import tumentechDealsQuery from './tumentechDeal';
 
 export default {
   ...tumentechQuery,
@@ -15,5 +16,6 @@ export default {
   ...placesQuery,
   ...tripsQuery,
   ...topupsQuery,
-  ...accountsQuery
+  ...accountsQuery,
+  ...tumentechDealsQuery
 };

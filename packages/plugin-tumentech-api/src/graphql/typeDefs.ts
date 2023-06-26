@@ -21,6 +21,11 @@ import {
   types as tripTypes
 } from './schema/trips';
 import {
+  mutations as tumentechDealMutations,
+  queries as tumentechDealQueries,
+  types as tumentechDealTypes
+} from './schema/tumentechDeal';
+import {
   mutations as tumentechMutations,
   queries as tumentechQueries,
   types as tumentechTypes
@@ -61,6 +66,7 @@ const typeDefs = async serviceDiscovery => {
     ${routeTypes}
     ${directionTypes}
     ${tripTypes(isEnabled)}
+    ${tumentechDealTypes}
     ${accountTypes(isEnabled)}
     
     extend type Query {
@@ -69,6 +75,7 @@ const typeDefs = async serviceDiscovery => {
       ${directionQueries}
       ${routeQueries}
       ${tripQueries}
+      ${tumentechDealQueries}
       ${accountQueries}
     }
     
@@ -78,6 +85,7 @@ const typeDefs = async serviceDiscovery => {
       ${directionMutations}
       ${routeMutations}
       ${tripMutations}
+      ${tumentechDealMutations}
       ${accountMutations}
     }
   `;
