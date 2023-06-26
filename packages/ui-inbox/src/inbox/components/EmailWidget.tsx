@@ -18,6 +18,7 @@ type Props = {
   buttonText?: string;
   customerId?: string;
   buttonSize?: string;
+  type?: string;
 };
 
 type State = {
@@ -32,19 +33,82 @@ class Widget extends React.Component<Props, State> {
 
     this.state = {
       shrink: localStorage.getItem('emailWidgetShrink') || 'false',
-      show: true,
+      show: JSON.parse(localStorage.getItem('emailWidgetShow'))?.show || false,
       clear: false
     };
   }
-  render() {
-    const { shrink, show, clear } = this.state;
+
+  changeState = (state: boolean) => {
+    this.setState({
+      shrink: 'false',
+      show: state,
+      clear: false
+    });
+    localStorage.setItem(
+      'emailWidgetShow',
+      JSON.stringify({
+        type: this.props.type || 'widget',
+        show: state
+      })
+    );
+    localStorage.setItem('emailWidgetShrink', 'false');
+  };
+
+  showWidget = () => {
+    const { type = 'widget' } = this.props;
+    const storageData = JSON.parse(localStorage.getItem('emailWidgetShow'));
+
+    if ((storageData ? storageData.show : false) === false) {
+      this.changeState(true);
+    }
+    if (
+      (storageData ? storageData.show : false) === true &&
+      storageData.type === type
+    ) {
+      this.changeState(false);
+    }
+  };
+
+  renderTrigger() {
     const {
-      notWidget,
-      buttonStyle,
       disabled,
-      buttonText,
-      buttonSize
+      type = 'widget',
+      buttonStyle,
+      buttonSize,
+      buttonText
     } = this.props;
+
+    if (type !== 'widget') {
+      return (
+        <Button
+          btnStyle={buttonStyle ? buttonStyle : 'primary'}
+          onClick={() => this.showWidget()}
+          disabled={disabled}
+          size={buttonSize}
+        >
+          <Tip text="Send e-mail" placement="top-end">
+            <Icon icon="envelope-alt" />
+          </Tip>{' '}
+          {buttonText && buttonText}
+        </Button>
+      );
+    }
+
+    return (
+      <WidgetButton>
+        <Tip text={__('New Email')} placement="bottom">
+          <Icon
+            icon="envelope-alt"
+            size={20}
+            onClick={() => this.showWidget()}
+          />
+        </Tip>
+      </WidgetButton>
+    );
+  }
+
+  renderContent() {
+    const { shrink, clear } = this.state;
 
     const changeShrink = () => {
       this.setState({ shrink: shrink === 'true' ? 'false' : 'true' });
@@ -55,9 +119,15 @@ class Widget extends React.Component<Props, State> {
     };
 
     const hideWidget = () => {
-      this.setState({ show: false, shrink: 'false' });
+      this.setState({ show: true, shrink: 'false' });
       localStorage.setItem('emailWidgetShrink', 'false');
-      localStorage.setItem('emailWidgetShow', 'false');
+      localStorage.setItem(
+        'emailWidgetShow',
+        JSON.stringify({
+          type: this.props.type || 'widget',
+          show: false
+        })
+      );
     };
 
     const onClose = () => {
@@ -65,56 +135,47 @@ class Widget extends React.Component<Props, State> {
       this.setState({ clear: true });
     };
 
-    const showWidget = () => {
-      this.setState({ shrink: 'false', show: !show, clear: false });
-      localStorage.setItem('emailWidgetShrink', 'false');
-      localStorage.setItem('emailWidgetShow', show ? 'true' : 'false');
-    };
-
     const isWidgetShow =
-      localStorage.getItem('emailWidgetShow') === 'true' ? true : false;
+      JSON.parse(localStorage.getItem('emailWidgetShow')) || {};
     const isShrink = shrink === 'true' ? true : false;
 
     return (
+      <WidgetWrapper shrink={isShrink} show={isWidgetShow.show}>
+        <NewEmailHeader onClick={changeShrink}>
+          {__('New Email')}
+          <div>
+            <Icon size={10} icon={shrink === 'true' ? 'plus' : 'minus'} />
+            <Icon size={10} icon="cancel" onClick={() => onClose()} />
+          </div>
+        </NewEmailHeader>
+        <MailForm
+          {...this.props}
+          shrink={isShrink}
+          clear={clear}
+          clearOnSubmit={true}
+        />
+      </WidgetWrapper>
+    );
+  }
+
+  renderWidget() {
+    const { type = 'widget' } = this.props;
+
+    const isWidgetShow =
+      JSON.parse(localStorage.getItem('emailWidgetShow')) || {};
+
+    if (window.location.href.includes('contacts/details')) {
+      return <>{type === isWidgetShow.type && this.renderContent()}</>;
+    }
+
+    return this.renderContent();
+  }
+
+  render() {
+    return (
       <>
-        {notWidget ? (
-          <Button
-            btnStyle={buttonStyle ? buttonStyle : 'primary'}
-            onClick={() => showWidget()}
-            disabled={disabled}
-            size={buttonSize}
-          >
-            <Tip text="Send e-mail" placement="top-end">
-              <Icon icon="envelope-alt" />
-            </Tip>{' '}
-            {buttonText && buttonText}
-          </Button>
-        ) : (
-          <WidgetButton>
-            <Tip text={__('New Email')} placement="bottom">
-              <Icon
-                icon="envelope-alt"
-                size={20}
-                onClick={() => showWidget()}
-              />
-            </Tip>
-          </WidgetButton>
-        )}
-        <WidgetWrapper shrink={isShrink} show={isWidgetShow}>
-          <NewEmailHeader onClick={changeShrink}>
-            {__('New Email')}
-            <div>
-              <Icon size={10} icon={shrink === 'true' ? 'plus' : 'minus'} />
-              <Icon size={10} icon="cancel" onClick={() => onClose()} />
-            </div>
-          </NewEmailHeader>
-          <MailForm
-            {...this.props}
-            shrink={isShrink}
-            clear={clear}
-            clearOnSubmit={true}
-          />
-        </WidgetWrapper>
+        {this.renderTrigger()}
+        {this.renderWidget()}
       </>
     );
   }

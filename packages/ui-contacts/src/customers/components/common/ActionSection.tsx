@@ -19,6 +19,7 @@ import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx
 import TargetMerge from './TargetMerge';
 import Tip from '@erxes/ui/src/components/Tip';
 import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   coc: ICustomer | ICompany;
@@ -29,6 +30,7 @@ type Props = {
   changeState?: (value: string) => void;
   isSmall?: boolean;
 };
+
 class ActionSection extends React.Component<Props, { customerState: string }> {
   constructor(props) {
     super(props);
@@ -46,14 +48,17 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
 
     return (
       <>
-        <EmailWidget
-          notWidget={true}
-          disabled={primaryEmail ? false : true}
-          buttonStyle={primaryEmail ? 'primary' : 'simple'}
-          emailTo={primaryEmail}
-          customerId={cocType === 'customer' ? coc._id : undefined}
-          buttonSize="small"
-        />
+        {isEnabled('engages') && (
+          <EmailWidget
+            notWidget={true}
+            disabled={primaryEmail ? false : true}
+            buttonStyle={primaryEmail ? 'primary' : 'simple'}
+            emailTo={primaryEmail}
+            customerId={cocType === 'customer' ? coc._id : undefined}
+            buttonSize="small"
+            type="action"
+          />
+        )}
         <ModalTrigger
           dialogClassName="middle"
           title={`Send SMS to (${primaryPhone})`}
