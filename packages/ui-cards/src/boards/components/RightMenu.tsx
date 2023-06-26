@@ -139,6 +139,66 @@ export default class RightMenu extends React.Component<Props, State> {
     });
   };
 
+  startDateValue = () => {
+    const { queryParams } = this.props;
+
+    if (queryParams.createdStartDate) {
+      return queryParams.createdStartDate;
+    }
+
+    if (queryParams.stateChangedStartDate) {
+      return queryParams.stateChangedStartDate;
+    }
+
+    if (queryParams.startDateStartDate) {
+      return queryParams.startDateStartDate;
+    }
+
+    if (queryParams.closeDateStartDate) {
+      return queryParams.closeDateStartDate;
+    }
+  };
+
+  endDateValue = () => {
+    const { queryParams } = this.props;
+
+    if (queryParams.createdEndDate) {
+      return queryParams.createdEndDate;
+    }
+
+    if (queryParams.stateChangedEndDate) {
+      return queryParams.stateChangedEndDate;
+    }
+
+    if (queryParams.startDateEndDate) {
+      return queryParams.startDateEndDate;
+    }
+
+    if (queryParams.closeDateEndDate) {
+      return queryParams.closeDateEndDate;
+    }
+  };
+
+  dateRangeType = () => {
+    const { queryParams } = this.props;
+
+    if (queryParams.createdStartDate || queryParams.createdEndDate) {
+      return 'createdAt';
+    }
+
+    if (queryParams.stateChangedStartDate || queryParams.stateChangedEndDate) {
+      return 'stageChangedDate';
+    }
+
+    if (queryParams.startDateStartDate || queryParams.startDateEndDate) {
+      return 'startDate';
+    }
+
+    if (queryParams.closeDateStartDate || queryParams.closeDateEndDate) {
+      return 'closeDate';
+    }
+  };
+
   onChangeRangeFilter = (kind: string, date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
 
@@ -188,7 +248,10 @@ export default class RightMenu extends React.Component<Props, State> {
   renderFilter() {
     const { queryParams, onSelect, extraFilter, options } = this.props;
 
-    const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
+    const priorityValues = PRIORITIES.map(p => ({
+      label: p,
+      value: p
+    }));
     const daterangeValues = DATERANGES.map(p => ({
       label: p.name,
       value: p.value
@@ -253,7 +316,9 @@ export default class RightMenu extends React.Component<Props, State> {
           queryParams={queryParams}
           name="labelIds"
           onSelect={onSelect}
-          filterParams={{ pipelineId: queryParams.pipelineId || '' }}
+          filterParams={{
+            pipelineId: queryParams.pipelineId || ''
+          }}
           multi={true}
           customOption={{ value: '', label: 'No label chosen' }}
         />
@@ -264,7 +329,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
         <Select
           placeholder={__('Choose date range type')}
-          value={this.state.dateRangeType}
+          value={this.dateRangeType() || this.state.dateRangeType}
           options={daterangeValues}
           name="daterangeType"
           onChange={this.onTypeChange}
@@ -272,7 +337,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
         <CustomRangeContainer>
           <DateControl
-            value={queryParams[this.state.dateRange.startDate]}
+            value={this.startDateValue()}
             required={false}
             name={this.state.dateRange.startDate}
             onChange={date =>
@@ -283,7 +348,7 @@ export default class RightMenu extends React.Component<Props, State> {
           />
 
           <DateControl
-            value={queryParams[this.state.dateRange.endDate]}
+            value={this.endDateValue()}
             required={false}
             name={this.state.dateRange.endDate}
             placeholder={'End date'}
