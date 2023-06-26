@@ -139,27 +139,30 @@ export const generateExtraFilters = async (filter, extraParams) => {
   }
 
   if (createdStartDate || createdEndDate) {
-    filter.createdAt = { $gte: createdStartDate, $lte: createdEndDate };
+    filter.createdAt = {
+      $gte: new Date(createdStartDate),
+      $lte: new Date(createdEndDate)
+    };
   }
 
   if (stateChangedStartDate || stateChangedEndDate) {
     filter.stageChangedDate = {
-      $gte: stateChangedStartDate,
-      $lte: stateChangedEndDate
+      $gte: new Date(stateChangedStartDate),
+      $lte: new Date(stateChangedEndDate)
     };
   }
 
   if (startDateStartDate || startDateEndDate) {
     filter.startDate = {
-      $gte: startDateStartDate,
-      $lte: startDateEndDate
+      $gte: new Date(startDateStartDate),
+      $lte: new Date(startDateEndDate)
     };
   }
 
   if (closeDateStartDate || closeDateEndDate) {
     filter.closeDate = {
-      $gte: closeDateStartDate,
-      $lte: closeDateEndDate
+      $gte: new Date(closeDateStartDate),
+      $lte: new Date(closeDateEndDate)
     };
   }
 
@@ -597,24 +600,27 @@ export const calendarFilters = async (models: IModels, filter, args) => {
   }
 
   if (createdStartDate || createdEndDate) {
-    filter.createdAt = { $gte: createdStartDate, $lte: createdEndDate };
+    filter.createdAt = {
+      $gte: new Date(createdStartDate),
+      $lte: new Date(createdEndDate)
+    };
   }
   if (stateChangedStartDate || stateChangedEndDate) {
     filter.stageChangedDate = {
-      $gte: stateChangedStartDate,
-      $lte: stateChangedEndDate
+      $gte: new Date(stateChangedStartDate),
+      $lte: new Date(stateChangedEndDate)
     };
   }
   if (startDateStartDate || startDateEndDate) {
     filter.startDate = {
-      $gte: startDateStartDate,
-      $lte: startDateEndDate
+      $gte: new Date(startDateStartDate),
+      $lte: new Date(startDateEndDate)
     };
   }
   if (closeDateStartDate || closeDateEndDate) {
     filter.closeDate = {
-      $gte: closeDateStartDate,
-      $lte: closeDateEndDate
+      $gte: new Date(closeDateStartDate),
+      $lte: new Date(closeDateEndDate)
     };
   }
 
