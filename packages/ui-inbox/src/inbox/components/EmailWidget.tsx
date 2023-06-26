@@ -11,7 +11,6 @@ import {
 } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 
 type Props = {
-  notWidget?: boolean;
   disabled?: boolean;
   emailTo?: string;
   buttonStyle?: string;
@@ -23,7 +22,6 @@ type Props = {
 
 type State = {
   shrink: string;
-  show: boolean;
   clear: boolean;
 };
 
@@ -33,7 +31,6 @@ class Widget extends React.Component<Props, State> {
 
     this.state = {
       shrink: localStorage.getItem('emailWidgetShrink') || 'false',
-      show: JSON.parse(localStorage.getItem('emailWidgetShow'))?.show || false,
       clear: false
     };
   }
@@ -41,7 +38,6 @@ class Widget extends React.Component<Props, State> {
   changeState = (state: boolean) => {
     this.setState({
       shrink: 'false',
-      show: state,
       clear: false
     });
     localStorage.setItem(
@@ -57,14 +53,12 @@ class Widget extends React.Component<Props, State> {
   showWidget = () => {
     const { type = 'widget' } = this.props;
     const storageData = JSON.parse(localStorage.getItem('emailWidgetShow'));
+    const storageDataShow = storageData ? storageData.show : false;
 
-    if ((storageData ? storageData.show : false) === false) {
+    if (storageDataShow === false) {
       this.changeState(true);
     }
-    if (
-      (storageData ? storageData.show : false) === true &&
-      storageData.type === type
-    ) {
+    if (storageDataShow === true && storageData.type === type) {
       this.changeState(false);
     }
   };
@@ -119,7 +113,7 @@ class Widget extends React.Component<Props, State> {
     };
 
     const hideWidget = () => {
-      this.setState({ show: true, shrink: 'false' });
+      this.setState({ shrink: 'false' });
       localStorage.setItem('emailWidgetShrink', 'false');
       localStorage.setItem(
         'emailWidgetShow',

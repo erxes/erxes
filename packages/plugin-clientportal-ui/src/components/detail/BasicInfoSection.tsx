@@ -9,8 +9,6 @@ import { Actions } from '@erxes/ui/src/styles/main';
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { IClientPortalUser } from '../../types';
-import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
-import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
@@ -27,22 +25,11 @@ class BasicInfoSection extends React.Component<Props> {
     const { clientPortalUser } = this.props;
     const { phone, email } = clientPortalUser;
 
-    const content = props => (
-      <MailBox>
-        <MailForm
-          fromEmail={email}
-          customerId={clientPortalUser._id || undefined}
-          closeModal={props.closeModal}
-        />
-      </MailBox>
-    );
-
     const smsForm = props => <SmsForm {...props} phone={phone} />;
 
     return (
       <>
         <EmailWidget
-          notWidget={true}
           disabled={email ? false : true}
           buttonStyle={email ? 'primary' : 'simple'}
           emailTo={email}

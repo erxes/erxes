@@ -50,7 +50,6 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
       <>
         {isEnabled('engages') && (
           <EmailWidget
-            notWidget={true}
             disabled={primaryEmail ? false : true}
             buttonStyle={primaryEmail ? 'primary' : 'simple'}
             emailTo={primaryEmail}

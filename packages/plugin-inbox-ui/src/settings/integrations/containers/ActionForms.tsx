@@ -25,12 +25,12 @@ class ActionForms extends React.Component<Props, {}> {
     return (
       <>
         <EmailWidget
-          notWidget={true}
           disabled={user.email ? false : true}
           buttonStyle={user.email ? 'primary' : 'simple'}
           emailTo={user.email}
           customerId={user._id || undefined}
           buttonSize="small"
+          type="action"
         />
 
         <ModalTrigger

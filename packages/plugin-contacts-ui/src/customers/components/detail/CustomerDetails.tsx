@@ -40,7 +40,6 @@ class CustomerDetails extends React.Component<Props> {
     return (
       <EmailWidget
         buttonStyle="link"
-        notWidget={true}
         emailTo={customer.primaryEmail}
         buttonText={__('New email')}
         type="tab"
