@@ -102,6 +102,14 @@ const commonQueryParams = `
   number: String
   branchIds: [String]
   departmentIds: [String]
+  createdStartDate: Date
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
 `;
 
 const listQueryParams = `

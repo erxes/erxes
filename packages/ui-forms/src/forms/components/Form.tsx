@@ -4,7 +4,7 @@ import { IForm, IFormData } from '../types';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Description } from '@erxes/ui-settings/src/styles';
 import FieldChoices from './FieldChoices';
-import FieldForm from '../containers/FieldForm';
+import FieldForm from '../components/FieldForm';
 import FieldsPreview from './FieldsPreview';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
