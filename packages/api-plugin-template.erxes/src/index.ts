@@ -101,7 +101,7 @@ app.disable('x-powered-by');
 
 app.use(cors());
 
-app.use(cookieParser());
+// app.use(cookieParser());
 
 // for health checking
 app.get('/health', async (_req, res) => {

@@ -13,6 +13,8 @@ import TimeEditForm from '../../containers/timeclock/TimeEditForm';
 import { TextAlignCenter } from '../../styles';
 
 type Props = {
+  isCurrentUserAdmin: boolean;
+
   history?: any;
   timelogsPerUser?: ITimelog[];
   timeclock: ITimeclock;

@@ -1,5 +1,5 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { loadDynamicComponent, router, __ } from '@erxes/ui/src/utils';
+import { router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Table from '@erxes/ui/src/components/table';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -170,16 +170,6 @@ function ReportList(props: Props) {
   };
 
   const content = () => {
-    // custom report for bichil-globus
-    const bichilTable = loadDynamicComponent('bichilReportTable', {
-      reportType,
-      queryParams
-    });
-
-    if (bichilTable) {
-      return bichilTable;
-    }
-
     return (
       <Table>
         <thead>{renderTableHead()}</thead>
@@ -251,14 +241,6 @@ function ReportList(props: Props) {
     );
   };
   const renderExportBtn = () => {
-    const bichilExportReportBtn = loadDynamicComponent(
-      'bichilExportReportBtn',
-      { queryParams }
-    );
-
-    if (bichilExportReportBtn) {
-      return bichilExportReportBtn;
-    }
     return (
       <div>
         <Button onClick={exportReport}>Export</Button>

@@ -32,7 +32,6 @@ type Props = {
   configType: string;
   absenceType?: IAbsenceType;
   scheduleConfig?: IScheduleConfig;
-  deviceConfig?: IDeviceConfig;
   holiday?: IAbsence;
   payDate?: IPayDates;
   loading?: boolean;
@@ -42,7 +41,7 @@ type Props = {
 };
 
 function ConfigForm(props: Props) {
-  const { renderButton, scheduleConfig, deviceConfig } = props;
+  const { renderButton, scheduleConfig } = props;
   const { absenceType, holiday, payDate } = props;
 
   const [requestTime, setRequestTime] = useState(
@@ -62,10 +61,6 @@ function ConfigForm(props: Props) {
   );
   const [attachmentRequired, setAttachRequired] = useState(
     (absenceType && absenceType.attachRequired) || false
-  );
-
-  const [deviceExtractRequired, setDeviceExtractRequired] = useState(
-    (deviceConfig && deviceConfig.extractRequired) || false
   );
 
   const defaultStartTime = new Date(
@@ -147,9 +142,6 @@ function ConfigForm(props: Props) {
   };
   const toggleAttachRequired = e => {
     setAttachRequired(e.target.checked);
-  };
-  const toggleDeviceExtractRequired = e => {
-    setDeviceExtractRequired(e.target.checked);
   };
 
   const onConfigDateChange = (dateNum: string, newDate: Date) => {
@@ -270,17 +262,6 @@ function ConfigForm(props: Props) {
         });
 
         return returnVariables;
-
-      case 'deviceConfig':
-        if (deviceConfig) {
-          values._id = deviceConfig._id;
-        }
-        return {
-          _id: values._id,
-          deviceName: values.deviceName,
-          serialNo: values.serialNo,
-          extractRequired: deviceExtractRequired
-        };
     }
   };
 
@@ -293,57 +274,10 @@ function ConfigForm(props: Props) {
         return <Form renderContent={renderHolidayContent} />;
       case 'Schedule':
         return <Form renderContent={renderScheduleContent} />;
-      case 'Devices':
-        return <Form renderContent={renderDevicesContent} />;
       // Absence
       default:
         return <Form renderContent={renderAbsenceContent} />;
     }
-  };
-
-  const renderDevicesContent = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
-
-    return (
-      <FlexColumn marginNum={20}>
-        <ControlLabel required={true}>Device Name</ControlLabel>
-        <FormControl
-          {...formProps}
-          name="deviceName"
-          defaultValue={deviceConfig && deviceConfig.deviceName}
-          required={true}
-          autoFocus={true}
-        />
-
-        <ControlLabel required={true}>Serial No.</ControlLabel>
-        <FormControl
-          {...formProps}
-          name="serialNo"
-          defaultValue={deviceConfig && deviceConfig.serialNo}
-          required={true}
-        />
-
-        <FlexRow>
-          <ControlLabel>Extract from device</ControlLabel>
-          <FormControl
-            name="extractRequired"
-            defaultChecked={deviceExtractRequired}
-            componentClass="checkbox"
-            onChange={toggleDeviceExtractRequired}
-          />
-        </FlexRow>
-
-        <FlexCenter style={{ marginTop: '10px' }}>
-          {renderButton({
-            name: 'deviceConfig',
-            values: generateDoc(values, 'deviceConfig'),
-            isSubmitted,
-            callback: closeModal || afterSave,
-            object: deviceConfig || null
-          })}
-        </FlexCenter>
-      </FlexColumn>
-    );
   };
 
   const renderAbsenceContent = (formProps: IFormProps) => {

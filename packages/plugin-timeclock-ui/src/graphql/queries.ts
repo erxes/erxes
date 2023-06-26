@@ -323,30 +323,6 @@ const scheduleConfigs = `
 
 `;
 
-const deviceConfigs = `
-query deviceConfigs (${listParamsDef}){
-  deviceConfigs(${listParamsValue}) {
-    list {
-      _id 
-      deviceName
-      serialNo
-      extractRequired
-    }
-    totalCount
-  }
-}`;
-
-const timeLogsPerUser = `
-  query timeLogsPerUser($userId: String, $startDate: String, $endDate: String){
-    timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
-      _id
-      timelog
-      deviceName
-      deviceSerialNo
-    }
-  }
-`;
-
 const timeclockBranches = `
 query timeclockBranches($searchValue: String){
   timeclockBranches(searchValue: $searchValue){
@@ -373,7 +349,6 @@ export default {
   timeclocksPerUser,
 
   timelogsMain,
-  timeLogsPerUser,
 
   schedulesMain,
   requestsMain,
@@ -384,7 +359,6 @@ export default {
   holidays,
 
   scheduleConfigs,
-  deviceConfigs,
 
   timeclockBranches,
   timeclockDepartments

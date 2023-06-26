@@ -1,7 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { checkPermission } from '@erxes/api-utils/src';
-import { redis } from '../../configs';
 import {
   IAbsence,
   ISchedule,
@@ -17,11 +16,7 @@ import {
   findUser,
   returnUnionOfUserIds
 } from './utils';
-import dayjs = require('dayjs');
-import {
-  connectAndQueryFromMsSql,
-  connectAndQueryTimeLogsFromMsSql
-} from '../../utils';
+import * as dayjs from 'dayjs';
 import { fixDate } from '@erxes/api-utils/src';
 
 interface ITimeClockEdit extends ITimeClock {
@@ -707,26 +702,6 @@ const timeclockMutations = {
     return newScheduleConfig;
   },
 
-  async deviceConfigAdd(_root, doc: IDeviceConfig, { models }: IContext) {
-    return await models.DeviceConfigs.createDeviceConfig(doc);
-  },
-
-  async deviceConfigEdit(
-    _root,
-    { _id, ...doc }: IDeviceConfigDocument,
-    { models }: IContext
-  ) {
-    await models.DeviceConfigs.updateDeviceConfig(_id, doc);
-  },
-
-  async deviceConfigRemove(
-    _root,
-    { _id }: IDeviceConfigDocument,
-    { models }: IContext
-  ) {
-    return models.DeviceConfigs.removeDeviceConfig(_id);
-  },
-
   checkReport(_root, doc, { models, user }: IContext) {
     const getUserId = doc.userId || user._id;
     return models.ReportChecks.createReportCheck({
@@ -739,52 +714,6 @@ const timeclockMutations = {
     return models.Schedules.updateSchedule(scheduleId, {
       scheduleChecked: true
     });
-  },
-
-  createTimeClockFromLog(
-    _root,
-    { userId, timelog, inDevice },
-    { models }: IContext
-  ) {
-    return models.Timeclocks.createTimeClock({
-      shiftStart: timelog,
-      userId,
-      inDeviceType: 'log',
-      inDevice,
-      shiftActive: true
-    });
-  },
-
-  async extractAllDataFromMsSQL(_root, params, { subdomain }: IContext) {
-    try {
-      const checkIfExtractingAlready = await redis.get(
-        'extractAllDataFromMsSQL'
-      );
-
-      if (checkIfExtractingAlready) {
-        return {
-          message:
-            'Someone else is extracting\nPlease wait for few mins and try again'
-        };
-      }
-
-      await redis.set('extractAllDataFromMsSQL', {});
-      const waitForQuery = await connectAndQueryFromMsSql(subdomain, params);
-
-      // wait for 10s to delete queue
-      setTimeout(async () => {
-        await redis.del('extractAllDataFromMsSQL');
-      }, 5000);
-
-      return waitForQuery;
-    } catch (error) {
-      await redis.del('extractAllDataFromMsSQL');
-      return error;
-    }
-  },
-
-  async extractTimeLogsFromMsSQL(_root, params, { subdomain }: IContext) {
-    return connectAndQueryTimeLogsFromMsSql(subdomain, params);
   }
 };
 

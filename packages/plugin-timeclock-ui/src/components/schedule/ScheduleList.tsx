@@ -403,8 +403,8 @@ function ScheduleList(props: Props) {
 
     const scheduleChecked =
       scheduleOfMember.scheduleChecked || !scheduleOfMember.submittedByAdmin
-        ? 'Танилцсан'
-        : 'Танилцаагүй';
+        ? 'checked'
+        : '-';
 
     const totalDaysScheduled = new Set(
       scheduleOfMember.shifts.map(shift =>

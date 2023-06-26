@@ -77,7 +77,6 @@ const ListContainer = (props: FinalProps) => {
     createTimeclock,
     editTimeclock,
     solveAbsence,
-    timelogsPerUser: listTimeLogsPerUser.timeLogsPerUser || [],
     timeclocksPerUser: listTimeclocksPerUser.timeclocksPerUser || []
   };
 
@@ -88,14 +87,6 @@ export default withProps<Props>(
   compose(
     graphql<Props, TimeClockQueryResponse>(gql(queries.timeclocksPerUser), {
       name: 'listTimeclocksPerUser',
-      options: ({ userId, startDate, endDate }) => ({
-        variables: { userId, startDate, endDate },
-        fetchPolicy: 'network-only'
-      })
-    }),
-
-    graphql<Props, TimeClockQueryResponse>(gql(queries.timeLogsPerUser), {
-      name: 'listTimeLogsPerUser',
       options: ({ userId, startDate, endDate }) => ({
         variables: { userId, startDate, endDate },
         fetchPolicy: 'network-only'

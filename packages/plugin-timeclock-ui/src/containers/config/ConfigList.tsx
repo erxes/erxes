@@ -10,14 +10,12 @@ import {
   ConfigMutationResponse,
   PayDatesQueryResponse,
   HolidaysQueryResponse,
-  ScheduleConfigQueryResponse,
-  DeviceConfigsQueryResponse
+  ScheduleConfigQueryResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { generateParams } from '../../utils';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
@@ -51,7 +49,6 @@ type FinalProps = {
   listPayDatesQuery: PayDatesQueryResponse;
   listHolidaysQuery: HolidaysQueryResponse;
   listScheduleConfigsQuery: ScheduleConfigQueryResponse;
-  listDeviceConfigsQuery: DeviceConfigsQueryResponse;
 } & Props &
   ConfigMutationResponse;
 
@@ -65,8 +62,7 @@ const ListContainer = (props: FinalProps) => {
     listAbsenceTypesQuery,
     listPayDatesQuery,
     listHolidaysQuery,
-    listScheduleConfigsQuery,
-    listDeviceConfigsQuery
+    listScheduleConfigsQuery
   } = props;
 
   const renderButton = ({
@@ -95,12 +91,6 @@ const ListContainer = (props: FinalProps) => {
         : mutations.scheduleConfigAdd;
     }
 
-    if (name === 'deviceConfig') {
-      mutation = object
-        ? mutations.deviceConfigEdit
-        : mutations.deviceConfigAdd;
-    }
-
     return (
       <ButtonMutate
         mutation={mutation}
@@ -118,9 +108,6 @@ const ListContainer = (props: FinalProps) => {
           },
           {
             query: gql(queries.scheduleConfigs)
-          },
-          {
-            query: gql(queries.deviceConfigs)
           }
         ]}
         isSubmitted={isSubmitted}
@@ -183,16 +170,11 @@ const ListContainer = (props: FinalProps) => {
     });
   };
 
-  const { list = [], totalCount = 0 } =
-    listDeviceConfigsQuery.deviceConfigs || {};
-
   const updatedProps = {
     ...props,
-    deviceConfigs: list,
-    deviceConfigsTotalCount: totalCount,
     scheduleConfigs: listScheduleConfigsQuery.scheduleConfigs,
     holidays: listHolidaysQuery.holidays,
-    absenceTypes: listAbsenceTypesQuery.absenceTypes,
+    absenceTypes: listAbsenceTypesQuery.absenceTypes || [],
     payDates: listPayDatesQuery.payDates || [],
     removeAbsenceType,
     removeHoliday,
@@ -228,14 +210,6 @@ export default withProps<Props>(
     graphql<Props, PayDatesQueryResponse>(gql(queries.scheduleConfigs), {
       name: 'listScheduleConfigsQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-
-    graphql<Props, PayDatesQueryResponse>(gql(queries.deviceConfigs), {
-      name: 'listDeviceConfigsQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),
@@ -281,15 +255,6 @@ export default withProps<Props>(
           refetchQueries: ['scheduleConfigs']
         })
       }
-    ),
-    graphql<Props, ConfigMutationResponse>(gql(mutations.deviceConfigRemove), {
-      name: 'removeDeviceConfigMutation',
-      options: ({ deviceConfigId }) => ({
-        variables: {
-          _id: deviceConfigId
-        },
-        refetchQueries: ['deviceConfigs']
-      })
-    })
+    )
   )(ListContainer)
 );

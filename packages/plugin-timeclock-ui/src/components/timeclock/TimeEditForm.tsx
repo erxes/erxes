@@ -91,6 +91,7 @@ export const TimeEditForm = (props: Props) => {
 
   const checkInput = () => {
     if (
+      shiftEnded &&
       shiftStartInsert &&
       shiftEndInsert &&
       new Date(shiftEndInsert).getTime() < new Date(shiftStartInsert).getTime()
@@ -135,19 +136,22 @@ export const TimeEditForm = (props: Props) => {
             <div>Ended</div>
           </FlexRowEven>
         </FlexRow>
+        {shiftEnded && (
+          <>
+            <ControlLabel>Shift End</ControlLabel>
 
-        <ControlLabel>Shift End</ControlLabel>
-
-        <CustomRangeContainer>
-          <DateControl
-            value={shiftEndInsert}
-            name="startDate"
-            placeholder={'Starting date'}
-            dateFormat={'YYYY-MM-DD'}
-            timeFormat={'HH:mm'}
-            onChange={onShiftEndInsertChange}
-          />
-        </CustomRangeContainer>
+            <CustomRangeContainer>
+              <DateControl
+                value={shiftEndInsert}
+                name="startDate"
+                placeholder={'Starting date'}
+                dateFormat={'YYYY-MM-DD'}
+                timeFormat={'HH:mm'}
+                onChange={onShiftEndInsertChange}
+              />
+            </CustomRangeContainer>
+          </>
+        )}
 
         <FlexCenter style={{ marginTop: '10px' }}>
           <Button btnStyle="primary" onClick={editTimeClock}>

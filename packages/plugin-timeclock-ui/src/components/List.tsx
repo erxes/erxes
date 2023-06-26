@@ -11,7 +11,6 @@ import ReportList from '../containers/report/ReportList';
 import ScheduleList from '../containers/schedule/ScheduleList';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IScheduleConfig } from '../types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {

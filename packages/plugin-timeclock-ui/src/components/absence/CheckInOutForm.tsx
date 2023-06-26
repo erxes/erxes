@@ -12,7 +12,7 @@ import {
   TextAlignRight,
   CustomRangeContainer
 } from '../../styles';
-import { IAbsence, ITimeclock, ITimelog } from '../../types';
+import { IAbsence, ITimeclock } from '../../types';
 import dayjs from 'dayjs';
 import { dateDayFormat, dateFormat } from '../../constants';
 import Button from '@erxes/ui/src/components/Button';
@@ -21,7 +21,6 @@ import { timeFormat } from '../../constants';
 
 type Props = {
   timeclocksPerUser: ITimeclock[];
-  timelogsPerUser: ITimelog[];
 
   absenceRequest: IAbsence;
   timeType: string;
@@ -36,7 +35,6 @@ type Props = {
 function CheckoutForm(props: Props) {
   const {
     timeclocksPerUser,
-    timelogsPerUser,
     timeType,
     absenceRequest,
     editTimeclock,
@@ -51,7 +49,7 @@ function CheckoutForm(props: Props) {
   const { closeModal } = contentProps;
 
   const [pickTimeclockType, setPickTimeclockType] = useState('');
-  const [shiftStartInput, setShiftStartInput] = useState(null);
+  const [shiftStartInput, setShiftStartInput] = useState('insert');
   const [shiftStart, setShiftStart] = useState(null);
   const [shiftStartInsert, setShiftStartInsert] = useState(requestedTime);
 
@@ -116,16 +114,6 @@ function CheckoutForm(props: Props) {
       }));
   };
 
-  const generateTimelogOptions = () => {
-    // time log options only occur for picking shift start for check out request
-    return timelogsPerUser
-      .filter(log => log.timelog < requestedTime)
-      .map((log: ITimelog) => ({
-        value: log.timelog,
-        label: returnDateTimeFormatted(log, 'timelog')
-      }));
-  };
-
   const generateRadioOptions = () => {
     const options = ['pick', 'insert'];
 
@@ -138,10 +126,6 @@ function CheckoutForm(props: Props) {
     setSelectedTimeclock(selectedTime.shiftEnd);
     setSelectedTimeclockId(selectedTime.value);
     setSelectedTimeclockActive(selectedTime.shiftActive);
-  };
-
-  const onShiftStartChange = (selectedTime: any) => {
-    setShiftStart(selectedTime.value);
   };
 
   const onShiftStartInsertChange = timeVal => {
@@ -282,17 +266,16 @@ function CheckoutForm(props: Props) {
       >
         <FlexRow>
           <ControlLabel>Choose shift start</ControlLabel>
+
           <FlexRowEven>
-            <CustomWidthDiv width={120}>
-              <TextAlignRight>Pick from time logs</TextAlignRight>
-            </CustomWidthDiv>
             <FormControl
               rows={2}
               name="shiftStartInput"
               componentClass="radio"
-              options={['pick', 'insert'].map(el => ({
+              options={['insert'].map(el => ({
                 value: el
               }))}
+              defaultChecked={true}
               inline={true}
               onChange={toggleShiftStartInput}
             />
@@ -300,14 +283,6 @@ function CheckoutForm(props: Props) {
           </FlexRowEven>
         </FlexRow>
 
-        <ToggleDisplay display={shiftStartInput === 'pick'}>
-          <Select
-            placeholder="Pick shift start"
-            onChange={onShiftStartChange}
-            value={shiftStart}
-            options={timelogsPerUser && generateTimelogOptions()}
-          />
-        </ToggleDisplay>
         <ToggleDisplay display={shiftStartInput === 'insert'}>
           <CustomRangeContainer>
             <DateControl
