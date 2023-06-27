@@ -423,5 +423,5 @@ export const mutations = `
   createTimeClockFromLog(userId: String, timelog: Date, inDevice: String): Timeclock
 
   extractAllDataFromMsSQL(startDate: String, endDate: String, extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): JSON
-  extractTimeLogsFromMsSQL(startDate: String, endDate: String,  extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): [Timelog]
+  extractTimeLogsFromMsSQL(startDate: String, endDate: String,  extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): JSON
 `;
