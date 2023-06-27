@@ -1,6 +1,7 @@
 export const PRODUCT_TYPE_CHOISES = {
   product: 'Product',
-  service: 'Service'
+  service: 'Service',
+  unique: 'Unique'
 };
 
 export const PRODUCT_CATEGORIES_STATUS = ['active', 'disabled', 'archived'];

@@ -25,11 +25,11 @@ export const notificationSchema = new Schema({
   _id: field({ pkey: true }),
   notifType: field({
     type: String,
-    enum: NOTIFICATION_TYPES.ALL,
+    enum: NOTIFICATION_TYPES.ALL
   }),
   action: field({
     type: String,
-    optional: true,
+    optional: true
   }),
   title: field({ type: String }),
   link: field({ type: String }),
@@ -41,11 +41,22 @@ export const notificationSchema = new Schema({
   date: field({
     type: Date,
     default: Date.now,
+    index: true
   }),
   isRead: field({
     type: Boolean,
     default: false,
-  }),
+    index: true
+  })
+});
+
+notificationSchema.index({
+  receiver: 1,
+  isRead: 1,
+  title: 1,
+  notifType: 1,
+  contentType: 1,
+  date: 1
 });
 
 export interface IConfig {
@@ -64,7 +75,7 @@ export const configSchema = new Schema({
   user: field({ type: String }),
   notifType: field({
     type: String,
-    enum: NOTIFICATION_TYPES.ALL,
+    enum: NOTIFICATION_TYPES.ALL
   }),
-  isAllowed: field({ type: Boolean }),
+  isAllowed: field({ type: Boolean })
 });

@@ -463,7 +463,7 @@ const NavItem = styledTS<{ isMoreItem?: boolean }>(styled.div)`
     }
   }
 
-  @media screen and (max-height: 870px){
+  @media screen and (max-height: 720px){
     &.more-2 {
       position: fixed;
       bottom: 160px;

@@ -1,23 +1,24 @@
-import { colors } from '@erxes/ui/src/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Button from '@erxes/ui/src/components/Button';
 import {
-  TicketLabel,
-  TicketContent,
-  TicketComment,
+  CommentContent,
   CommentWrapper,
   CreatedUser,
-  CommentContent
+  TicketComment,
+  TicketContent,
+  TicketLabel
 } from './styles';
-import dayjs from 'dayjs';
+import { __, readFile } from '@erxes/ui/src/utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
+import { colors } from '@erxes/ui/src/styles';
+import dayjs from 'dayjs';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { readFile, __ } from '@erxes/ui/src/utils';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 
 type Props = {
   comments: any[];
@@ -164,7 +165,7 @@ export default class Container extends React.Component<Props, State> {
     };
 
     const trigger = (
-      <TriggerButton onClick={() => console.log('clicking')}>
+      <TriggerButton>
         <Icon icon="comment-1" />
         {__('Comments')}
       </TriggerButton>

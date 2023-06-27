@@ -205,6 +205,7 @@ const WithQuery = withProps<WithQueryProps>(
           assignedToMe: queryParams.assignedToMe,
           branchIds: queryParams.branchIds,
           departmentIds: queryParams.departmentIds,
+          segment: queryParams.segment,
           segmentData: queryParams.segmentData
         },
         context: {

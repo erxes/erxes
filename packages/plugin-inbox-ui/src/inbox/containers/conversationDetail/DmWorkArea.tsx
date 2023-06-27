@@ -33,6 +33,7 @@ type Props = {
   currentId?: string;
   refetchDetail: () => void;
   dmConfig?: DmConfig;
+  content?: any;
 };
 
 type FinalProps = {
@@ -83,7 +84,7 @@ const getQueryResultKey = (queryResponse: object, countQuery?: boolean) => {
     ? 'conversationMessagesTotalCount'
     : 'conversationMessages';
 
-  for (const k of Object.keys(queryResponse)) {
+  for (const k of Object.keys(queryResponse || {})) {
     if (k.includes('ConversationMessages')) {
       key = k;
       break;
@@ -134,7 +135,7 @@ class WorkArea extends React.Component<FinalProps, State> {
         document: gql(subscriptions.conversationMessageInserted),
         variables: { _id: currentId },
         updateQuery: (prev, { subscriptionData }) => {
-          let message = subscriptionData.data.conversationMessageInserted;
+          const message = subscriptionData.data.conversationMessageInserted;
           const kind = currentConversation.integration.kind;
 
           if (!prev) {
@@ -239,8 +240,8 @@ class WorkArea extends React.Component<FinalProps, State> {
         };
 
         cache.updateQuery(selector, data => {
-          const key = getQueryResultKey(data);
-          const messages = data[key] || [];
+          const key = getQueryResultKey(data || {});
+          const messages = data ? data[key] : [];
 
           // check duplications
           if (messages.find(m => m._id === message._id)) {

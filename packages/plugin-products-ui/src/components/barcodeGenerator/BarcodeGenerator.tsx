@@ -11,6 +11,7 @@ import { __ } from '@erxes/ui/src/utils';
 import LeftSidebar from './LeftSidebar';
 import { BarcodeContentWrapper } from '../../styles';
 import { BarcodeConfig, IProduct } from '../../types';
+import { dateToShortStr } from '@erxes/ui/src/utils/core';
 
 type Props = {
   barcode: string;
@@ -194,15 +195,15 @@ const BarcodeGenerator = (props: Props) => {
     { title: __('Barcode Generator') }
   ];
 
+  const shortStr = dateToShortStr(config.date, 92, 'h');
+
   const content = (
     <>
       <BarcodeContentWrapper id="barcodePrintable">
         <div id="barcode">
           <Barcode
             type="EAN13"
-            value={`${barcode}${
-              config.isDate ? '_' + Math.floor(config.date / 1000) : ''
-            }`}
+            value={`${barcode}${config.isDate ? '_' + shortStr : ''}`}
             fontSize={config.barcodeFontSize}
             width={config.barWidth}
             height={config.barHeight}
@@ -210,9 +211,7 @@ const BarcodeGenerator = (props: Props) => {
         </div>
         <div id="qrcode">
           <QRCode
-            value={`${barcode}${
-              config.isDate ? '_' + Math.floor(config.date / 1000) : ''
-            }`}
+            value={`${barcode}${config.isDate ? '_' + shortStr : ''}`}
             size={config.qrSize}
             level="Q"
           />
