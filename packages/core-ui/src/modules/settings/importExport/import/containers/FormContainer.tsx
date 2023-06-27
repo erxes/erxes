@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import Form from '../components/Form';
@@ -21,7 +21,15 @@ class FormContainer extends React.Component<FinalProps, State> {
     const { importHistoriesCreate } = this.props;
 
     const addImportHistory = doc => {
-      const { contentTypes } = doc;
+      const { contentTypes, files } = doc;
+
+      if (contentTypes.length === 0) {
+        return Alert.error('The object you want to import must be chosen');
+      }
+
+      if (typeof files[contentTypes[0].contentType] === 'undefined') {
+        return Alert.error('The upload files must be chosen');
+      }
 
       importHistoriesCreate({
         variables: doc
