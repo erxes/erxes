@@ -136,7 +136,12 @@ class Form extends React.Component<Props, State> {
     );
 
     return (
-      <ModalTrigger title="Add category" trigger={trigger} content={content} />
+      <ModalTrigger
+        title="Add category"
+        trigger={trigger}
+        size="lg"
+        content={content}
+      />
     );
   }
 

@@ -23,6 +23,7 @@ import {
 import { IProductCategory } from '../types';
 import { PRODUCT_CATEGORY_STATUSES } from '../constants';
 import { ICategory } from '@erxes/ui/src/utils/categories';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   categories: IProductCategory[];
@@ -33,6 +34,7 @@ type Props = {
 
 type State = {
   attachment?: IAttachment;
+  maskType?: string;
 };
 
 class CategoryForm extends React.Component<Props, State> {
@@ -43,7 +45,8 @@ class CategoryForm extends React.Component<Props, State> {
     const attachment = category.attachment || undefined;
 
     this.state = {
-      attachment
+      attachment,
+      maskType: category.maskType
     };
   }
 
@@ -66,6 +69,15 @@ class CategoryForm extends React.Component<Props, State> {
     this.setState({ attachment: files ? files[0] : undefined });
   };
 
+  renderMask = () => {
+    const { maskType } = this.state;
+    if (!maskType) {
+      return null;
+    }
+
+    return <>fgdd</>;
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, category, categories } = this.props;
     const { values, isSubmitted } = formProps;
@@ -77,14 +89,17 @@ class CategoryForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel>Parent Category</ControlLabel>
+
           <FormControl
             {...formProps}
-            name="name"
-            defaultValue={object.name}
-            autoFocus={true}
-            required={true}
-          />
+            name="parentId"
+            componentClass="select"
+            defaultValue={object.parentId}
+          >
+            <option value="" />
+            {generateCategoryOptions(categories, object._id)}
+          </FormControl>
         </FormGroup>
 
         <FormGroup>
@@ -98,9 +113,39 @@ class CategoryForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel required={true}>Name</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="name"
+            defaultValue={object.name}
+            autoFocus={true}
+            required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Meta</ControlLabel>
           <FormControl {...formProps} name="meta" defaultValue={object.meta} />
         </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Mask type</ControlLabel>
+          <FormControl
+            {...formProps}
+            componentClass="select"
+            name="maskType"
+            defaultValue={object.maskType}
+            onChange={option => {
+              this.setState({ maskType: option.value });
+            }}
+          >
+            <option value="">{__('Any')}</option>
+            <option value="soft">{__('Soft')}</option>
+            <option value="hard">{__('Hard')}</option>
+          </FormControl>
+        </FormGroup>
+
+        {this.renderMask()}
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
@@ -140,21 +185,6 @@ class CategoryForm extends React.Component<Props, State> {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-
-        <FormGroup>
-          <ControlLabel>Parent Category</ControlLabel>
-
-          <FormControl
-            {...formProps}
-            name="parentId"
-            componentClass="select"
-            defaultValue={object.parentId}
-          >
-            <option value="" />
-            {generateCategoryOptions(categories, object._id)}
-          </FormControl>
-        </FormGroup>
-
         <ModalFooter>
           <Button
             btnStyle="simple"

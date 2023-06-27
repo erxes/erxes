@@ -39,6 +39,8 @@ export const types = (tagsAvailable, contactsAvailable) => `
     status: String
     isRoot: Boolean
     productCount: Int
+    maskType: String
+    mask: JSON
   }
 
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -97,6 +99,8 @@ const productCategoryParams = `
   parentId: String,
   attachment: AttachmentInput,
   status: String
+  maskType: String
+  mask: JSON
 `;
 
 const productsQueryParams = `

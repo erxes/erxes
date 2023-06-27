@@ -27,6 +27,13 @@ export const PRODUCT_CATEGORY_STATUSES = {
   ALL: ['active', 'disabled', 'archived']
 };
 
+export const PRODUCT_CATEGORY_MASK_TYPES = {
+  ANY: 'any',
+  SOFT: 'soft',
+  HARD: 'hard',
+  ALL: ['any', 'soft', 'hard']
+};
+
 export interface ISubUom {
   uom: string;
   ratio: number;
@@ -73,6 +80,8 @@ export interface IProductCategory {
   parentId?: string;
   attachment?: any;
   status?: string;
+  maskType?: string;
+  mask?: any;
 }
 
 export interface IProductCategoryDocument extends IProductCategory, Document {
@@ -179,6 +188,13 @@ export const productCategorySchema = schemaWrapper(
       type: Date,
       default: new Date(),
       label: 'Created at'
-    })
+    }),
+    maskType: field({
+      type: String,
+      optional: true,
+      label: 'Mask type',
+      enum: PRODUCT_CATEGORY_MASK_TYPES.ALL
+    }),
+    mask: field({ type: Object, label: 'Mask' })
   })
 );

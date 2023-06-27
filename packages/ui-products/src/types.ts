@@ -56,6 +56,8 @@ export interface IProductCategory {
   productCount: number;
   isRoot: boolean;
   meta: string;
+  maskType: string;
+  mask: any;
 }
 
 export type MutationVariables = {
