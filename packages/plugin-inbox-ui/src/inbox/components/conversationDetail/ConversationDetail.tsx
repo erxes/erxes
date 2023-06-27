@@ -104,6 +104,10 @@ export default class ConversationDetail extends React.Component<Props> {
         }
 
         if (content) {
+          if (currentConversation.integration.kind === 'imap') {
+            return <DmWorkArea content={content} {...this.props} />;
+          }
+
           return (
             <WorkArea
               currentConversation={currentConversation}
