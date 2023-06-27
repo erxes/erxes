@@ -8,15 +8,21 @@ const tumentechDealsQuery = {
     {
       dealId,
       page,
-      perPage
+      perPage,
+      dealIds
     }: {
       dealId?: string;
+      dealIds?: string;
       page?: number;
       perPage?: number;
     },
     { models }: IContext
   ) => {
     const filter: any = {};
+
+    if (dealIds) {
+      filter.dealIds = { $in: dealIds.split(',') };
+    }
 
     if (dealId) {
       filter.dealIds = dealId;
@@ -41,7 +47,7 @@ const tumentechDealsQuery = {
     { _id }: { _id: string },
     { models }: IContext
   ) => {
-    return models.TumentechDeals.getTumentechDeal({ _id });
+    return models.TumentechDeals.getTumentechDeal(_id);
   }
 };
 

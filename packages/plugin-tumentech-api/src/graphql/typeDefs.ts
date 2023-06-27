@@ -66,7 +66,7 @@ const typeDefs = async serviceDiscovery => {
     ${routeTypes}
     ${directionTypes}
     ${tripTypes(isEnabled)}
-    ${tumentechDealTypes}
+    ${tumentechDealTypes(isEnabled)}
     ${accountTypes(isEnabled)}
     
     extend type Query {

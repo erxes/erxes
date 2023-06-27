@@ -9,7 +9,7 @@ import {
 } from './definitions/tumentechDeal';
 
 export interface ITumentechDealModel extends Model<ITumentechDealDocument> {
-  getTumentechDeal(doc: any): ITumentechDealDocument;
+  getTumentechDeal(_id: string): ITumentechDealDocument;
   createTumentechDeal(doc: ITumentechDeal): ITumentechDealDocument;
   updateTumentechDeal(doc: ITumentechDealEdit): ITumentechDealDocument;
   removeTumentechDeal(_id: string): ITumentechDealDocument;
@@ -17,8 +17,8 @@ export interface ITumentechDealModel extends Model<ITumentechDealDocument> {
 
 export const loadTumentechDealClass = (models: IModels) => {
   class TumentechDeal {
-    public static async getTumentechDeal(doc: any) {
-      const tumentechDeal = await models.TumentechDeals.findOne(doc);
+    public static async getTumentechDeal(_id: string) {
+      const tumentechDeal = await models.TumentechDeals.findOne({ _id });
 
       if (!tumentechDeal) {
         throw new Error('Deal not found');
@@ -32,10 +32,6 @@ export const loadTumentechDealClass = (models: IModels) => {
     }
 
     public static async updateTumentechDeal(doc: ITumentechDealEdit) {
-      const route = await models.TumentechDeals.getTumentechDeal({
-        _id: doc._id
-      });
-
       await models.TumentechDeals.updateOne(
         { _id: doc._id },
         { $set: { ...doc } }
@@ -46,5 +42,6 @@ export const loadTumentechDealClass = (models: IModels) => {
   }
 
   tumentechDealSchema.loadClass(TumentechDeal);
+
   return tumentechDealSchema;
 };

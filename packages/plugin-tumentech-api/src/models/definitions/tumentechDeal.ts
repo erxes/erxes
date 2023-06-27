@@ -10,6 +10,11 @@ export interface ITumentechDeal {
   requiredCarCategoryIds: string[];
   productCategoryId: string;
   productSubCategoryId: string;
+  tripStartedDate: Date;
+  tripFinishedData: Date;
+  estimatedCloseDate: Date;
+  trackingData: [number];
+  geometry: string;
   createdAt: Date;
 }
 
@@ -35,6 +40,27 @@ export const tumentechDealSchema = schemaHooksWrapper(
     productSubCategoryId: field({
       type: String,
       label: 'Product sub category Id'
+    }),
+    tripStartedDate: field({
+      type: Date,
+      label: 'Trip started date'
+    }),
+    tripFinishedData: field({
+      type: Date,
+      label: 'Trip finished date'
+    }),
+
+    estimatedCloseDate: field({
+      type: Date,
+      label: 'Estimated close date'
+    }),
+    trackingData: field({
+      type: [Number],
+      label: 'Tracking data'
+    }),
+    geometry: field({
+      type: String,
+      label: 'Geometry Id'
     }),
     createdAt: field({ type: Date, label: 'Created at' })
   }),
