@@ -137,19 +137,12 @@ function Header({
           <Dropdown.Menu>
             <Dropdown.Item
               className="d-flex align-items-center justify-content-between"
-              eventKey="0"
-            >
-              {renderUserFullName(currentUser)}
-            </Dropdown.Item>
-            <Dropdown.Divider />
-            <Dropdown.Item
-              className="d-flex align-items-center justify-content-between"
               eventKey="1"
               href="/profile"
             >
               <div>
                 <Icon icon="user" />
-                My profle
+                {renderUserFullName(currentUser)}
               </div>
             </Dropdown.Item>
             <Dropdown.Item
@@ -163,7 +156,12 @@ function Header({
               </div>
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item eventKey="3" onClick={() => logout()}>
+            <Dropdown.Item eventKey="3" onClick={() => {
+              if (typeof window !== 'undefined') {
+                sessionStorage.clear()
+              }
+              logout()
+            }}>
               <Icon icon="logout-1" />
               Logout
             </Dropdown.Item>

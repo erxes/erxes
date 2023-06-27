@@ -46,6 +46,7 @@ const itemFields = `
   stageChangedDate
   stage {
     name
+    itemsTotalCount
   }
   labels {
     name
@@ -122,7 +123,15 @@ const clientPortalComments = `
     clientPortalComments(typeId: $typeId, type: $type) {
       _id
       content
-      createdUser 
+      createdUser {
+        _id
+        avatar
+        firstName
+        fullName
+        lastName
+        email
+        username
+      }
       createdAt
       userType
       type

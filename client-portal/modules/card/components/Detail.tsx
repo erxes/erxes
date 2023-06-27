@@ -83,7 +83,9 @@ export default class CardDetail extends React.Component<
                 />
                 <div>
                   <CommentContent>
-                    <h5>{`${createdUser?.firstName} ${createdUser?.lastName}`}</h5>
+                    <h5>
+                      {renderUserFullName(createdUser)}
+                    </h5>
                     <div
                       className="comment"
                       dangerouslySetInnerHTML={{ __html: comment.content }}
@@ -209,7 +211,7 @@ export default class CardDetail extends React.Component<
           <div className="col-md-12">
             <Card>
               <h4>{item.name}</h4>
-              <FlexRow>
+              <FlexRow className="justify-content-between">
                 <DetailRow>
                   <ControlLabel>Stage</ControlLabel>
                   <span>{stage ? stage.name : "-"}</span>

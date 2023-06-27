@@ -522,6 +522,16 @@ async function startServer() {
           })
         );
       }
+
+      if (exporter.getExportDocs) {
+        consumeRPCQueue(
+          `${configs.name}:exporter:getExportDocs`,
+          async args => ({
+            status: 'success',
+            data: await exporter.getExportDocs(args)
+          })
+        );
+      }
     }
 
     if (automations) {

@@ -2,10 +2,9 @@ import { sendRequest } from '@erxes/api-utils/src';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IAttachment } from '@erxes/api-utils/src/types';
-
 import * as randomize from 'randomatic';
 
-import { createJwtToken } from '../../../auth/authUtils';
+import { tokenHandler } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
 import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
@@ -13,6 +12,8 @@ import { IUser } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
 import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
+import * as jwt from 'jsonwebtoken';
+
 export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
@@ -130,20 +131,7 @@ const clientPortalUserMutations = {
     const optConfig = clientPortal.otpConfig;
 
     if (args.phoneOtp && optConfig && optConfig.loginWithOTP) {
-      const cookieOptions: any = {};
-
-      const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-
-      if (!['test', 'development'].includes(NODE_ENV)) {
-        cookieOptions.sameSite = 'none';
-      }
-
-      const options = authCookieOptions(cookieOptions);
-      const { token } = createJwtToken({ userId: user._id });
-
-      res.cookie('client-auth-token', token, options);
-
-      return 'loggedin';
+      return tokenHandler(user, clientPortal, res);
     }
 
     return 'verified';
@@ -165,29 +153,17 @@ const clientPortalUserMutations = {
   clientPortalLogin: async (
     _root,
     args: ILoginParams,
-    { models, requestInfo, res }: IContext
+    { models, res }: IContext
   ) => {
-    const { token } = await models.ClientPortalUsers.login(args);
+    const { user, clientPortal } = await models.ClientPortalUsers.login(args);
 
-    const cookieOptions: any = {};
-
-    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-
-    if (!['test', 'development'].includes(NODE_ENV)) {
-      cookieOptions.sameSite = 'none';
-    }
-
-    const options = authCookieOptions(cookieOptions);
-
-    res.cookie('client-auth-token', token, options);
-
-    return 'loggedin';
+    return tokenHandler(user, clientPortal, res);
   },
 
   clientPortalFacebookAuthentication: async (
     _root,
     args: any,
-    { subdomain, models, requestInfo, res }: IContext
+    { subdomain, models, res }: IContext
   ) => {
     const { clientPortalId, accessToken } = args;
 
@@ -265,23 +241,11 @@ const clientPortalUserMutations = {
         );
       }
 
-      const { token } = await createJwtToken({
-        userId: user._id,
-        type: 'customer'
-      });
+      const clientPortal = await models.ClientPortals.getConfig(
+        user.clientPortalId
+      );
 
-      const cookieOptions: any = {};
-
-      const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-
-      if (!['test', 'development'].includes(NODE_ENV)) {
-        cookieOptions.sameSite = 'none';
-      }
-
-      const options = authCookieOptions(cookieOptions);
-
-      res.cookie('client-auth-token', token, options);
-      return 'loggedin';
+      return tokenHandler(user, clientPortal, res);
     } catch (e) {
       throw new Error(e.message);
     }
@@ -443,33 +407,17 @@ const clientPortalUserMutations = {
       );
     }
 
-    const { token } = await createJwtToken({
-      userId: user._id,
-      type: 'customer'
-    });
+    const clientPortal = await models.ClientPortals.getConfig(
+      user.clientPortalId
+    );
 
-    const cookieOptions: any = {};
-
-    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-
-    if (!['test', 'development'].includes(NODE_ENV)) {
-      cookieOptions.sameSite = 'none';
-    }
-
-    const options = authCookieOptions(cookieOptions);
-
-    res.cookie('client-auth-token', token, options);
-    return 'loggedin';
+    return tokenHandler(user, clientPortal, res);
   },
 
   /*
    * Logout
    */
-  async clientPortalLogout(
-    _root,
-    _args,
-    { requestInfo, res, cpUser, models }: IContext
-  ) {
+  async clientPortalLogout(_root, _args, { res, cpUser, models }: IContext) {
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     const options: any = {
@@ -933,6 +881,73 @@ const clientPortalUserMutations = {
     await models.ClientPortalUsers.update({ _id }, { $set: doc });
 
     return models.ClientPortalUsers.findOne({ _id });
+  },
+
+  clientPortalRefreshToken: async (
+    _root,
+    _args,
+    { models, requestInfo, res }: IContext
+  ) => {
+    const authHeader = requestInfo.headers.authorization;
+
+    if (!authHeader) {
+      throw new Error('Invalid refresh token');
+    }
+
+    const refreshToken = authHeader.replace('Bearer ', '');
+
+    const newToken = await jwt.verify(
+      refreshToken,
+      process.env.JWT_TOKEN_SECRET || '',
+      async (err, decoded) => {
+        if (err) {
+          throw new Error('Invalid refresh token');
+        }
+
+        const { userId } = decoded as any;
+        const user = await models.ClientPortalUsers.findOne({ _id: userId });
+
+        if (!user) {
+          throw new Error('User not found');
+        }
+
+        const clientPortal = await models.ClientPortals.getConfig(
+          user.clientPortalId
+        );
+
+        const { tokenExpiration = 1 } = clientPortal || {
+          tokenExpiration: 1
+        };
+
+        const cookieOptions: any = {};
+
+        const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+        if (!['test', 'development'].includes(NODE_ENV)) {
+          cookieOptions.sameSite = 'none';
+        }
+
+        if (tokenExpiration) {
+          cookieOptions.expires = tokenExpiration * 24 * 60 * 60 * 1000;
+        }
+
+        const options = authCookieOptions(cookieOptions);
+
+        const token = jwt.sign(
+          { userId: user._id, type: user.type } as any,
+          process.env.JWT_TOKEN_SECRET || '',
+          {
+            expiresIn: `${tokenExpiration}d`
+          }
+        );
+
+        res.cookie('client-auth-token', token, options);
+
+        return token;
+      }
+    );
+
+    return newToken;
   }
 };
 

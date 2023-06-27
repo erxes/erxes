@@ -1,5 +1,5 @@
 import { __ } from '@erxes/ui/src/utils/core';
-import AssignBox from '../../containers/AssignBox';
+import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
