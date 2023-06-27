@@ -106,6 +106,11 @@ const returnNewTimeLogsFromEmpData = async (
       deviceSerialNo: empDataRow.deviceSerialNo && empDataRow.deviceSerialNo
     };
 
+    if (!existingTimeLogs) {
+      returnData.push(newTimeLog);
+      continue;
+    }
+
     const checkTimeLogAlreadyExists = existingTimeLogs.find(
       existingTimeLog =>
         existingTimeLog.userId === newTimeLog.userId &&

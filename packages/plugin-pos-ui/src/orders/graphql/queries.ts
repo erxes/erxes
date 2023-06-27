@@ -16,6 +16,7 @@ const listParamsDef = `
   $customerId: String
   $customerType: String
   $posId: String
+  $types: [String]
 `;
 
 const listParamsValue = `
@@ -33,6 +34,7 @@ const listParamsValue = `
   customerId: $customerId
   customerType: $customerType
   posId: $posId
+  types: $types
 `;
 
 export const orderFields = `

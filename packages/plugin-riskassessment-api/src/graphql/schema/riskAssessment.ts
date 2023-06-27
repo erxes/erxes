@@ -113,6 +113,7 @@ const commonParams = `
     sortDirection:Int
     tagIds:[String]
     groupIds:[String]
+    customFieldsValues:[String]
 `;
 
 const commonFormSubmitParams = `

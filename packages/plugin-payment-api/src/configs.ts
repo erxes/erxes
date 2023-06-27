@@ -1,6 +1,7 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as express from 'express';
 import * as path from 'path';
+import * as cookieParser from 'cookie-parser';
 
 import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
@@ -63,6 +64,8 @@ export default {
 
     return context;
   },
+
+  middlewares: [cookieParser()],
 
   onServerInit: async options => {
     mainDb = options.db;

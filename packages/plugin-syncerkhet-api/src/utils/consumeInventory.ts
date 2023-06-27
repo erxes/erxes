@@ -6,7 +6,8 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
     subdomain,
     action: 'findOne',
     data: { code: old_code },
-    isRPC: true
+    isRPC: true,
+    defaultValue: {}
   });
 
   if ((action === 'update' && old_code) || action === 'create') {
@@ -25,7 +26,8 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       unitPrice: doc.unit_price,
       code: doc.code,
       productId: doc.id,
-      sku: doc.measure_unit_code,
+      uom: doc.measure_unit_code,
+      subUoms: product?.subUoms,
       barcodes: doc.barcodes ? doc.barcodes.split(',') : [],
       categoryId: productCategory ? productCategory._id : product.categoryId,
       categoryCode: productCategory
@@ -36,33 +38,20 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       taxType: doc.vat_type || '',
       taxCode: doc.vat_type_code || ''
     };
-    ``;
 
-    const uoms = await sendProductsMessage({
-      subdomain,
-      action: 'uoms.find',
-      data: {
-        code: { $in: [doc.measure_unit_code, doc.sub_measure_unit_code] }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
+    if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {
+      let subUoms = (product || {}).subUoms || [];
+      const subUomCodes = subUoms.map(u => u.uom);
 
-    if (uoms.length) {
-      const uom = uoms.find(uom => uom.code === doc.measure_unit_code);
-      if (uom) {
-        document.uomId = uom._id;
+      if (subUomCodes.includes(doc.sub_measure_unit_code)) {
+        subUoms = subUoms.filter(u => u.uom !== doc.sub_measure_unit_code);
       }
+      subUoms.unshift({
+        uom: doc.sub_measure_unit_code,
+        ratio: doc.ratio_measure_unit
+      });
 
-      const subUom = uoms.find(uom => uom.code === doc.sub_measure_unit_code);
-      if (subUom) {
-        document.subUoms = [
-          {
-            uomId: subUom._id,
-            ratio: doc.ratio_measure_unit || 1
-          }
-        ];
-      }
+      document.subUoms = subUoms;
     }
 
     if (product) {

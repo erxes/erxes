@@ -50,14 +50,14 @@ export default {
       return latestNeedProducts;
     }
 
-    const { productById, uomById } = await getProductAndUoms(
+    const { productById } = await getProductAndUoms(
       subdomain,
       latestNeedProducts
     );
 
     for (const need of latestNeedProducts || []) {
       need.product = productById[need.productId] || {};
-      need.uom = uomById[need.uomId] || {};
+      need.uom = (productById[need.productId] || {}).uom;
     }
 
     return latestNeedProducts;
@@ -70,14 +70,14 @@ export default {
       return latestResultProducts;
     }
 
-    const { productById, uomById } = await getProductAndUoms(
+    const { productById } = await getProductAndUoms(
       subdomain,
       latestResultProducts
     );
 
     for (const result of latestResultProducts) {
       result.product = productById[result.productId] || {};
-      result.uom = uomById[result.uomId] || {};
+      result.uom = (productById[result.productId] || {}).uom;
     }
 
     return latestResultProducts;

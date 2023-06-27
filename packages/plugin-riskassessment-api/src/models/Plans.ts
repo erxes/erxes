@@ -42,19 +42,6 @@ export const loadPlans = (models: IModels, subdomain: string) => {
         throw new Error('Cannot find schedule');
       }
 
-      if (
-        await models.Schedules.findOne({
-          date: doc.date,
-          $or: [
-            { indicatorId: doc.indicatorId },
-            { groupId: doc.groupId },
-            { structureTypeIds: { $in: doc.structureTypeIds } }
-          ]
-        })
-      ) {
-        throw new Error('Cannot add schedule with selected date');
-      }
-
       return await models.Schedules.create({ planId, ...doc });
     }
 

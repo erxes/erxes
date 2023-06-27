@@ -10,8 +10,7 @@ export const types = `
     preCount: Float,
     count: Float,
     status: String,
-    uom: Uom,
-    uomId: String,
+    uom: String,
 
     modifiedAt: Date,
     modifiedBy: String
