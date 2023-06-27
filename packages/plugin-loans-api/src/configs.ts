@@ -7,6 +7,7 @@ import forms from './forms';
 import imports from './imports';
 import exporter from './exporter';
 import * as permissions from './permissions';
+import payment from './payment';
 import { checkContractScheduleAnd } from './cronjobs/contractCronJobs';
 
 export let debug;
@@ -50,6 +51,7 @@ export default {
     documents,
     forms,
     imports,
-    exporter
+    exporter,
+    payment
   }
 };
