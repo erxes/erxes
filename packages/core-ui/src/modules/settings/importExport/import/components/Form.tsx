@@ -164,16 +164,6 @@ class Form extends React.Component<Props, State> {
     return <></>;
   };
 
-  // renderNextButton = () => {
-  //   const { attachments, contentTypes } = this.state;
-  //   for (const contentType of contentTypes) {
-  //     if (attachments[contentType.contentType]) {
-  //       return <StepButton next={true}>Next</StepButton>;
-  //     }
-  //   }
-  //   return <></>;
-  // };
-
   renderAssociateForm = () => {
     if (this.state.type === 'multi') {
       const { attachments, contentTypes } = this.state;
