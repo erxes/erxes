@@ -76,7 +76,7 @@ export class SocialPayAPI extends BaseAPI {
 
   async createInvoice(invoice: IInvoiceDocument) {
     const amount = invoice.amount.toString();
-    let path = PAYMENTS.socialpay.actions.invoiceQr;
+    const path = PAYMENTS.socialpay.actions.invoiceQr;
 
     const data: ISocialPayInvoice = {
       amount,
@@ -88,14 +88,15 @@ export class SocialPayAPI extends BaseAPI {
       terminal: this.inStoreSPTerminal
     };
 
-    if (invoice.phone) {
-      data.phone = invoice.phone;
-      path = PAYMENTS.socialpay.actions.invoicePhone;
-      data.checksum = hmac256(
-        this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice.identifier + amount + invoice.phone
-      );
-    }
+    // TODO: add phone number back
+    // if (invoice.phone) {
+    //   data.phone = invoice.phone;
+    //   path = PAYMENTS.socialpay.actions.invoicePhone;
+    //   data.checksum = hmac256(
+    //     this.inStoreSPKey,
+    //     this.inStoreSPTerminal + invoice.identifier + amount + invoice.phone
+    //   );
+    // }
 
     try {
       const { header, body } = await this.request({
