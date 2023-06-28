@@ -7,6 +7,7 @@ import { queries, subscriptions } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { uniqArray } from '../../../inbox/utils'
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
@@ -30,7 +31,37 @@ type FinalProps = {
   updateCountsForNewMessage: () => void;
 } & Props;
 
-class ConversationListContainer extends React.PureComponent<FinalProps> {
+class ConversationListContainer extends React.PureComponent<FinalProps, { conversations: IConversation[] }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      conversations: []
+    }
+  }
+
+  componentWillReceiveProps(nextProps: FinalProps): void {
+    const { conversationsQuery, queryParams, history } = nextProps;
+    const { queryParams: { brandId, channelId, tag }} = this.props;
+    
+    // reset limit when page count increased
+    if(brandId !== queryParams.brandId || channelId !== queryParams.channelId || tag !== queryParams.tag) {
+      routerUtils.setParams(history, { limit: 10 });
+    }
+
+    // filtering local state with query params and concating with new conversations.
+    if (conversationsQuery && !conversationsQuery.loading) {
+      const filterConversation = this.state.conversations.filter(item => 
+        (!queryParams.brandId || item.integration.brand._id === queryParams.brandId)
+        && (!queryParams.channelId || item.integration.channels.filter(channel => channel._id === queryParams.channelId))
+        && (!queryParams.tag || (item.tagIds && item.tagIds.indexOf(queryParams.tag) > -1 ))
+        && (!queryParams.integrationType || item.integration.kind === queryParams.integrationType))
+      this.setState({
+        conversations: uniqArray([...filterConversation, ...conversationsQuery.conversations])
+      });
+    }
+  }
+
   componentWillMount() {
     const {
       currentUser,
@@ -56,8 +87,6 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
   render() {
     const { history, conversationsQuery, totalCountQuery } = this.props;
 
-    const conversations = conversationsQuery.conversations || [];
-
     // on change conversation
     const onChangeConversation = conversation => {
       routerUtils.setParams(history, { _id: conversation._id });
@@ -67,7 +96,7 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      conversations,
+      conversations: this.state.conversations,
       onChangeConversation,
       totalCount,
       loading: conversationsQuery.loading
@@ -90,7 +119,8 @@ const ConversationListContainerWithRefetch = props => (
 
 const generateOptions = queryParams => ({
   ...queryParams,
-  limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10
+  limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
+  perPage: queryParams.perPage ? parseInt(queryParams.perPage) : 10
 });
 
 export default withProps<Props>(

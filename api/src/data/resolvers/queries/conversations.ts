@@ -45,9 +45,11 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
+    const skip = (params.limit || 0) - (params.perPage || 0);
     return Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
-      .limit(params.limit || 0);
+      .skip(skip)
+      .limit(params.perPage || 10)
   },
 
   /**

@@ -18,6 +18,7 @@ export const paramsDef = `
 `;
 const listParamsDef = `
   $limit: Int
+  $perPage: Int
   $ids: [String]
   ${paramsDef}
 `;
@@ -39,6 +40,7 @@ export const paramsValue = `
 
 const listParamsValue = `
   limit: $limit
+  perPage: $perPage
   ids: $ids
   ${paramsValue}
 `;
