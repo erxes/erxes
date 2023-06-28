@@ -388,3 +388,24 @@ export const getTransportData = async (req, res, subdomain) => {
     response: { status: 'success', result: list }
   });
 };
+
+export const updateTrackingData = async (req, res, subdomain) => {
+  const models = await generateModels(subdomain);
+
+  const { tripId, trackingData } = req.body;
+
+  models.Trips.updateTracking(
+    tripId,
+    trackingData.map(item => {
+      return {
+        lat: item.lat,
+        lng: item.lng,
+        trackedDate: new Date(item.trackedDate)
+      };
+    })
+  );
+
+  return res.json({
+    response: { status: 'success' }
+  });
+};
