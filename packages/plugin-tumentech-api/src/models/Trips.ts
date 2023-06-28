@@ -70,7 +70,7 @@ export const loadTripClass = (models: IModels) => {
       await models.Trips.getTrip({ _id });
 
       await models.Trips.updateOne(
-        { _id: _id },
+        { _id },
         {
           $push: {
             trackingData: {
