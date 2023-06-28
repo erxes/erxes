@@ -36,9 +36,12 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
       const link = document.createElement('link');
       link.id = 'favicon';
       link.rel = 'shortcut icon';
-      link.href = getThemeItem('favicon')
-        ? readFile(getThemeItem('favicon'))
-        : '/favicon.png';
+
+      const favicon = getThemeItem('favicon');
+      link.href =
+        favicon && typeof favicon === 'string'
+          ? readFile(favicon)
+          : '/favicon.png';
 
       document.head.appendChild(link);
     }
