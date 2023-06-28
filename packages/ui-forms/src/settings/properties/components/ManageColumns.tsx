@@ -1,13 +1,15 @@
+import { Footer } from '@erxes/ui-cards/src/boards/styles/item';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import SortableList from '@erxes/ui/src/components/SortableList';
 import { colors } from '@erxes/ui/src/styles';
 import { ScrollWrapper } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import styled from 'styled-components';
+
 import { IConfigColumn } from '../types';
-import { Footer } from '@erxes/ui-cards/src/boards/styles/item';
 
 const Header = styled.div`
   display: flex;
@@ -42,6 +44,7 @@ type Props = {
 type State = {
   columns: IConfigColumn[];
   importType: string;
+  searchValue: string;
 };
 
 class ManageColumns extends React.Component<Props, State> {
@@ -60,7 +63,8 @@ class ManageColumns extends React.Component<Props, State> {
 
     this.state = {
       columns: props.columns,
-      importType: 'csv'
+      importType: 'csv',
+      searchValue: ''
     };
   }
 
@@ -89,6 +93,11 @@ class ManageColumns extends React.Component<Props, State> {
     this.setState({ columns });
   };
 
+  search = e => {
+    const searchValue = e.target.value;
+    this.setState({ searchValue });
+  };
+
   render() {
     const { type, contentType } = this.props;
 
@@ -113,16 +122,26 @@ class ManageColumns extends React.Component<Props, State> {
 
     return (
       <form onSubmit={this.onSubmit}>
+        <FormGroup>
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={this.search}
+            value={this.state.searchValue}
+          />
+        </FormGroup>
         <Header>
           <span>{__('Column name')}</span>
           <span>{__('Visible')}</span>
         </Header>
+
         <ScrollWrapper calcHeight="320">
           <SortableList
             fields={this.state.columns}
             child={child}
             onChangeFields={this.onChangeColumns}
             isModal={true}
+            searchValue={this.state.searchValue}
           />
         </ScrollWrapper>
         <Footer>

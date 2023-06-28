@@ -131,7 +131,7 @@ class BasicInfoSection extends React.Component<Props> {
   }
 
   renderDropdown() {
-    const { remove } = this.props;
+    const { remove, clientPortalUser } = this.props;
 
     const onClick = () =>
       confirm()

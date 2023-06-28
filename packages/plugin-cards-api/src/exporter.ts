@@ -17,17 +17,75 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { contentType, segmentData } = query;
+  const { contentType, segmentData, page, perPage } = query;
 
   let data: any[] = [];
 
   const type = contentType.split(':')[1];
+  const skip = (page - 1) * perPage;
 
   const boardItemsFilter: any = {};
   let itemIds = [];
 
   if (segmentData.conditions) {
     itemIds = await fetchSegment(
+      subdomain,
+      '',
+      { scroll: true, page, perPage },
+      segmentData
+    );
+
+    boardItemsFilter._id = { $in: itemIds };
+  }
+
+  switch (type) {
+    case MODULE_NAMES.DEAL:
+      data = await models.Deals.find(boardItemsFilter)
+        .skip(skip)
+        .limit(perPage)
+        .lean();
+
+      break;
+    case MODULE_NAMES.PURCHASE:
+      data = await models.Purchases.find(boardItemsFilter)
+        .skip(skip)
+        .limit(perPage)
+        .lean();
+
+      break;
+    case MODULE_NAMES.TASK:
+      data = await models.Tasks.find(boardItemsFilter)
+        .skip(skip)
+        .limit(perPage)
+        .lean();
+
+      break;
+    case MODULE_NAMES.TICKET:
+      data = await models.Tickets.find(boardItemsFilter)
+        .skip(skip)
+        .limit(perPage)
+        .lean();
+      break;
+  }
+
+  return data;
+};
+
+const prepareDataCount = async (
+  models: IModels,
+  subdomain: string,
+  query: any
+): Promise<any> => {
+  const { contentType, segmentData } = query;
+
+  const type = contentType.split(':')[1];
+
+  let data = 0;
+
+  const boardItemsFilter: any = {};
+
+  if (segmentData.conditions) {
+    const itemIds = await fetchSegment(
       subdomain,
       '',
       { scroll: true, page: 1, perPage: 10000 },
@@ -39,19 +97,19 @@ const prepareData = async (
 
   switch (type) {
     case MODULE_NAMES.DEAL:
-      data = await models.Deals.find(boardItemsFilter).lean();
+      data = await models.Deals.find(boardItemsFilter).count();
 
       break;
     case MODULE_NAMES.PURCHASE:
-      data = await models.Purchases.find(boardItemsFilter).lean();
+      data = await models.Purchases.find(boardItemsFilter).count();
 
       break;
     case MODULE_NAMES.TASK:
-      data = await models.Tasks.find(boardItemsFilter).lean();
+      data = await models.Tasks.find(boardItemsFilter).count();
 
       break;
     case MODULE_NAMES.TICKET:
-      data = await models.Tickets.find(boardItemsFilter).lean();
+      data = await models.Tickets.find(boardItemsFilter).count();
       break;
   }
 
@@ -436,9 +494,59 @@ export default {
 
     const { columnsConfig } = data;
 
-    const docs = [] as any;
+    let totalCount = 0;
     const headers = [] as any;
     const excelHeader = [] as any;
+
+    try {
+      const results = await prepareDataCount(models, subdomain, data);
+
+      totalCount = results;
+
+      for (const column of columnsConfig) {
+        if (column.startsWith('customFieldsData')) {
+          const fieldId = column.split('.')[1];
+          const field = await sendFormsMessage({
+            subdomain,
+            action: 'fields.findOne',
+            data: {
+              query: {
+                _id: fieldId
+              }
+            },
+            isRPC: true
+          });
+
+          headers.push(`customFieldsData.${field.text}.${fieldId}`);
+        } else if (column.startsWith('productsData')) {
+          headers.push(column);
+        } else {
+          headers.push(column);
+        }
+      }
+
+      for (const header of headers) {
+        if (header.startsWith('customFieldsData')) {
+          excelHeader.push(header.split('.')[1]);
+        } else {
+          excelHeader.push(header);
+        }
+      }
+    } catch (e) {
+      return {
+        error: e.message
+      };
+    }
+    return { totalCount, excelHeader };
+  },
+
+  getExportDocs: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { columnsConfig } = data;
+
+    const docs = [] as any;
+    const headers = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -522,17 +630,9 @@ export default {
           docs.push(result);
         }
       }
-
-      for (const header of headers) {
-        if (header.startsWith('customFieldsData')) {
-          excelHeader.push(header.split('.')[1]);
-        } else {
-          excelHeader.push(header);
-        }
-      }
     } catch (e) {
       return { error: e.message };
     }
-    return { docs, excelHeader };
+    return { docs };
   }
 };

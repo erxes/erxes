@@ -503,6 +503,11 @@ export const initBroker = async options => {
     data: await exporter.prepareExportData(args)
   }));
 
+  consumeRPCQueue('core:exporter:getExportDocs', async args => ({
+    status: 'success',
+    data: await exporter.getExportDocs(args)
+  }));
+
   return client;
 };
 

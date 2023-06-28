@@ -98,6 +98,7 @@ const ListRow = styled.div`
     font-size: 14px;
     gap: 5px;
     flex-wrap: wrap;
+    word-break: break-word;
     padding: 0 ${dimensions.unitSpacing - 5}px;
 
     &:first-child {
