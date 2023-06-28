@@ -145,7 +145,11 @@ class StageItem extends React.Component<Props> {
         {(['deal', 'purchase'].includes(type) && (
           <FormControl
             componentClass="checkbox"
-            checked={stage.defaultTick === undefined ? true : stage.defaultTick}
+            checked={
+              stage.defaultTick === undefined || stage.defaultTick === null
+                ? true
+                : stage.defaultTick
+            }
             name="defaultTick"
             placeholder={__('defaultTick')}
             autoFocus={true}
