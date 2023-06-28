@@ -82,13 +82,6 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     products: [PosProduct],
     totalCount: Float,
   }
-
-  type CheckOrderResponse {
-    orderId: String
-    isSynced: Boolean
-    syncedDate: Date
-    syncedBillNumber: String
-  }
 `;
 
 const queryParams = `

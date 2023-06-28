@@ -73,7 +73,8 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
           syncedOrders.forEach(item => {
             syncedOrderInfos[item._id] = {
               syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || ''
+              syncedDate: item.syncedDate || '',
+              syncedCustomer: item.syncedCustomer || ''
             };
           });
 

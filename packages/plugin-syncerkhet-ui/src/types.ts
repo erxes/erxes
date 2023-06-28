@@ -80,3 +80,9 @@ export type PosListQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type OrderDetailQueryResponse = {
+  posOrderDetail: any;
+  loading: boolean;
+  refetch: () => void;
+};
