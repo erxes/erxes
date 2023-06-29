@@ -11,7 +11,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
 import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import LeftSidebar from './LeftSidebar';
-import React, { useEffect } from 'react';
+import React from 'react';
 import RightSidebar from './RightSidebar';
 import { TabTitle } from '@erxes/ui/src/components/tabs';
 import Widget from '@erxes/ui-engage/src/containers/Widget';
@@ -38,12 +38,14 @@ class CustomerDetails extends React.Component<Props> {
     }
 
     return (
-      <EmailWidget
-        buttonStyle="link"
-        emailTo={customer.primaryEmail}
-        buttonText={__('New email')}
-        type="tab"
-      />
+      (isEnabled('engages') || isEnabled('imap')) && (
+        <EmailWidget
+          buttonStyle="link"
+          emailTo={customer.primaryEmail}
+          buttonText={__('New email')}
+          type="tab"
+        />
+      )
     );
   };
 

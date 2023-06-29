@@ -13,6 +13,7 @@ import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -29,13 +30,16 @@ class BasicInfoSection extends React.Component<Props> {
 
     return (
       <>
-        <EmailWidget
-          disabled={email ? false : true}
-          buttonStyle={email ? 'primary' : 'simple'}
-          emailTo={email}
-          customerId={clientPortalUser._id || undefined}
-          buttonSize="small"
-        />
+        {(isEnabled('engages') || isEnabled('imap')) && (
+          <EmailWidget
+            disabled={email ? false : true}
+            buttonStyle={email ? 'primary' : 'simple'}
+            emailTo={email}
+            customerId={clientPortalUser._id || undefined}
+            buttonSize="small"
+            type="action"
+          />
+        )}
         <ModalTrigger
           dialogClassName="middle"
           title={`Send SMS to (${phone})`}

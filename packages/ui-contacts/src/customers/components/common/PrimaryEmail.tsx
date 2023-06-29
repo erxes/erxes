@@ -4,6 +4,8 @@ import colors from '@erxes/ui/src/styles/colors';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const MailTo = styled.a`
   display: flex;
@@ -25,9 +27,20 @@ const Status = styledTS<{ verified: boolean }>(styled.span)`
   border-radius: 9px;
   font-size: 11px;
   line-height: 18px;
+  margin-left: 5px;
+  display: inline-flex;
+  justify-content: center;
 `;
 
-function PrimaryEmail({ email, status }: { email?: string; status?: string }) {
+function PrimaryEmail({
+  customerId,
+  email,
+  status
+}: {
+  customerId: string;
+  email?: string;
+  status?: string;
+}) {
   const renderStatus = () => {
     if (status) {
       return (
@@ -41,17 +54,31 @@ function PrimaryEmail({ email, status }: { email?: string; status?: string }) {
     return null;
   };
 
-  return (
-    <>
-      {email ? (
-        <MailTo href={`mailto:${email}`}>
-          {email}
-          {renderStatus()}
-        </MailTo>
-      ) : (
-        '-'
-      )}
-    </>
+  const renderEmail = () => {
+    return (
+      <>
+        {email ? (
+          <EmailWidget
+            buttonStyle={email ? 'primary' : 'simple'}
+            emailTo={email}
+            buttonSize="small"
+            type={`link-${customerId}`}
+            emailStatus={renderStatus}
+          />
+        ) : (
+          '-'
+        )}
+      </>
+    );
+  };
+
+  return isEnabled('engages') || isEnabled('imap') ? (
+    renderEmail()
+  ) : (
+    <MailTo href={`mailto:${email}`}>
+      {email}
+      {renderStatus()}
+    </MailTo>
   );
 }
 

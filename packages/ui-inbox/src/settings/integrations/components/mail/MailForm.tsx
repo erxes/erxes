@@ -705,7 +705,7 @@ class MailForm extends React.Component<Props, State> {
               defaultFileList={this.state.attachments || []}
               onChange={onChangeAttachment}
               icon="attach"
-              noText={true}
+              showOnlyIcon={true}
               noPreview={true}
             />
             {this.renderIcon({

@@ -48,7 +48,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
 
     return (
       <>
-        {isEnabled('engages') && (
+        {(isEnabled('engages') || isEnabled('imap')) && (
           <EmailWidget
             disabled={primaryEmail ? false : true}
             buttonStyle={primaryEmail ? 'primary' : 'simple'}

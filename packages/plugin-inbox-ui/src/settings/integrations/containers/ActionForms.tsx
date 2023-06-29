@@ -8,6 +8,7 @@ import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   user: IUser;
@@ -24,14 +25,16 @@ class ActionForms extends React.Component<Props, {}> {
 
     return (
       <>
-        <EmailWidget
-          disabled={user.email ? false : true}
-          buttonStyle={user.email ? 'primary' : 'simple'}
-          emailTo={user.email}
-          customerId={user._id || undefined}
-          buttonSize="small"
-          type="action"
-        />
+        {(isEnabled('engages') || isEnabled('imap')) && (
+          <EmailWidget
+            disabled={user.email ? false : true}
+            buttonStyle={user.email ? 'primary' : 'simple'}
+            emailTo={user.email}
+            customerId={user._id || undefined}
+            buttonSize="small"
+            type="action"
+          />
+        )}
 
         <ModalTrigger
           dialogClassName="middle"

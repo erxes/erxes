@@ -7,7 +7,8 @@ import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
 import {
   NewEmailHeader,
-  WidgetButton
+  WidgetButton,
+  Link
 } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
   customerId?: string;
   buttonSize?: string;
   type?: string;
+  emailStatus?: () => void;
 };
 
 type State = {
@@ -52,13 +54,13 @@ class Widget extends React.Component<Props, State> {
 
   showWidget = () => {
     const { type = 'widget' } = this.props;
-    const storageData = JSON.parse(localStorage.getItem('emailWidgetShow'));
-    const storageDataShow = storageData ? storageData.show : false;
+    const storageShow = JSON.parse(localStorage.getItem('emailWidgetShow'));
+    const storageWidgetShow = storageShow ? storageShow.show : false;
 
-    if (storageDataShow === false) {
+    if (storageWidgetShow === false) {
       this.changeState(true);
     }
-    if (storageDataShow === true && storageData.type === type) {
+    if (storageWidgetShow === true && storageShow.type === type) {
       this.changeState(false);
     }
   };
@@ -69,10 +71,12 @@ class Widget extends React.Component<Props, State> {
       type = 'widget',
       buttonStyle,
       buttonSize,
-      buttonText
+      buttonText,
+      emailTo,
+      emailStatus
     } = this.props;
 
-    if (type !== 'widget') {
+    if (type === 'action' || type === 'tab') {
       return (
         <Button
           btnStyle={buttonStyle ? buttonStyle : 'primary'}
@@ -85,6 +89,15 @@ class Widget extends React.Component<Props, State> {
           </Tip>{' '}
           {buttonText && buttonText}
         </Button>
+      );
+    }
+
+    if (type.includes('link')) {
+      return (
+        <Link onClick={() => this.showWidget()}>
+          {emailTo}
+          {emailStatus()}{' '}
+        </Link>
       );
     }
 
@@ -135,8 +148,8 @@ class Widget extends React.Component<Props, State> {
 
     return (
       <WidgetWrapper shrink={isShrink} show={isWidgetShow.show}>
-        <NewEmailHeader onClick={changeShrink}>
-          {__('New Email')}
+        <NewEmailHeader>
+          <span onClick={changeShrink}>{__('New Email')}</span>
           <div>
             <Icon size={10} icon={shrink === 'true' ? 'plus' : 'minus'} />
             <Icon size={10} icon="cancel" onClick={() => onClose()} />
@@ -158,8 +171,12 @@ class Widget extends React.Component<Props, State> {
     const isWidgetShow =
       JSON.parse(localStorage.getItem('emailWidgetShow')) || {};
 
-    if (window.location.href.includes('contacts/details')) {
-      return <>{type === isWidgetShow.type && this.renderContent()}</>;
+    if (window.location.href.includes('contacts')) {
+      if (isWidgetShow.type === type) {
+        return this.renderContent();
+      }
+
+      return null;
     }
 
     return this.renderContent();

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import colors from '../styles/colors';
 import { rgba } from '../styles/ecolor';
 import { IAttachment } from '../types';
@@ -12,8 +13,16 @@ import Icon from './Icon';
 import { Meta } from './Attachment';
 import Tip from './Tip';
 
-const LoadingContainer = styled.div`
-  margin: 10px 0;
+const LoadingContainer = styledTS<{ showOnlyIcon?: boolean }>(styled.div)`
+  ${props =>
+    props.showOnlyIcon
+      ? `
+  height: 20px;
+  width: 20px;
+  position: relative;
+  margin-left: 8px;
+  `
+      : `margin: 10px 0;
   background: ${colors.bgActive};
   border-radius: 4px;
   display: flex;
@@ -23,7 +32,7 @@ const LoadingContainer = styled.div`
   > div {
     height: 80px;
     margin-right: 7px;
-  }
+  }`}
 `;
 
 const UploadBtn = styled.div`
@@ -95,7 +104,7 @@ type Props = {
   text?: string;
   icon?: string;
   warningText?: string;
-  noText?: boolean;
+  showOnlyIcon?: boolean;
   noPreview?: boolean;
 };
 
@@ -183,14 +192,14 @@ class Uploader extends React.Component<Props, State> {
       accept,
       icon,
       warningText,
-      noText
+      showOnlyIcon
     } = this.props;
 
     if (single && this.state.attachments.length > 0) {
       return null;
     }
 
-    if (noText) {
+    if (showOnlyIcon) {
       return (
         <UploadIconBtn>
           <label>
@@ -247,28 +256,50 @@ class Uploader extends React.Component<Props, State> {
     );
   }
 
-  render() {
+  renderPreview() {
     const { limit = 4, onChange, noPreview } = this.props;
-    const { attachments, loading } = this.state;
+    const { attachments } = this.state;
+
+    if (noPreview) {
+      return null;
+    }
+    return (
+      <AttachmentsGallery
+        attachments={attachments}
+        limit={limit}
+        onChange={onChange}
+        removeAttachment={this.removeAttachment}
+      />
+    );
+  }
+
+  renderLoader() {
+    const { showOnlyIcon, noPreview } = this.props;
+
+    if (noPreview) {
+      return (
+        <LoadingContainer showOnlyIcon={showOnlyIcon}>
+          <Spinner size={18} />
+        </LoadingContainer>
+      );
+    }
+
+    return (
+      <LoadingContainer>
+        <Spinner objective={true} size={18} />
+        {__('Uploading')}...
+      </LoadingContainer>
+    );
+  }
+
+  render() {
+    const { loading } = this.state;
 
     return (
       <>
-        {loading && !noPreview && (
-          <LoadingContainer>
-            <Spinner objective={true} size={18} />
-            {__('Uploading')}...
-          </LoadingContainer>
-        )}
-        {loading && noPreview && <Spinner size={18} />}
-        {!noPreview && (
-          <AttachmentsGallery
-            attachments={attachments}
-            limit={limit}
-            onChange={onChange}
-            removeAttachment={this.removeAttachment}
-          />
-        )}
-        {this.renderUploadButton()}
+        {loading && this.renderLoader()}
+        {this.renderPreview()}
+        {!loading && this.renderUploadButton()}
       </>
     );
   }

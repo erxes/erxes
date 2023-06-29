@@ -265,6 +265,10 @@ const NewEmailHeader = styled.h5`
       background: ${colors.bgGray};
     }
   }
+
+  span {
+    flex: 1;
+  }
 `;
 
 const WidgetWrapper = styledTS<{ show: boolean; shrink: boolean }>(styled.div)`
@@ -311,6 +315,10 @@ const WidgetButton = styled.div`
   }
 `;
 
+const Link = styled.a`
+  cursor: pointer;
+`;
+
 export {
   Attachments,
   FlexRow,
@@ -332,5 +340,6 @@ export {
   NewEmailHeader,
   WidgetWrapper,
   UploaderWrapper,
-  WidgetButton
+  WidgetButton,
+  Link
 };
