@@ -1,18 +1,14 @@
-import { initBroker } from './messageBroker';
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import afterMutations from './aftermutations';
-import {
-  createCustomer,
-  getCustomer,
-  getCustomerByCardCode,
-  updateCustomer
-} from './api/erxesApi';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
-import * as permissions from './permissions';
-import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as cookieParser from 'cookie-parser';
+import afterMutations from './aftermutations';
+import { generateModels } from './connectionResolver';
+import dacRouter from './dacRouter';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
+import { initBroker } from './messageBroker';
+import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import * as permissions from './permissions';
+import * as bodyParser from 'body-parser';
 
 export let mainDb;
 export let debug;
@@ -36,20 +32,20 @@ export default {
     permissions
   },
 
-  getHandlers: [
-    {
-      path: `/customer`,
-      method: getCustomer
-    },
-    {
-      path: `/customerId`,
-      method: getCustomerByCardCode
-    }
-  ],
-  postHandlers: [
-    { path: `/customer`, method: createCustomer },
-    { path: `/customerUpdate`, method: updateCustomer }
-  ],
+  // getHandlers: [
+  //   {
+  //     path: `/customer`,
+  //     method: getCustomer
+  //   },
+  //   {
+  //     path: `/customerId`,
+  //     method: getCustomerByCardCode
+  //   }
+  // ],
+  // postHandlers: [
+  //   { path: `/customer`, method: createCustomer },
+  //   { path: `/customerUpdate`, method: updateCustomer }
+  // ],
 
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -63,8 +59,9 @@ export default {
 
     return context;
   },
-  middlewares: [cookieParser(), cpUserMiddleware],
+  middlewares: [cookieParser(), cpUserMiddleware, bodyParser.json()],
   onServerInit: async options => {
+    const { app } = options;
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
@@ -72,5 +69,10 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
+
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
+
+    app.use(dacRouter);
   }
 };
