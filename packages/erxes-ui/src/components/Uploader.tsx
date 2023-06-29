@@ -299,7 +299,7 @@ class Uploader extends React.Component<Props, State> {
       <>
         {loading && this.renderLoader()}
         {this.renderPreview()}
-        {!loading && this.renderUploadButton()}
+        {this.renderUploadButton()}
       </>
     );
   }

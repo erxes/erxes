@@ -72,9 +72,11 @@ function PrimaryEmail({
     );
   };
 
-  return isEnabled('engages') || isEnabled('imap') ? (
-    renderEmail()
-  ) : (
+  if (isEnabled('engages') || isEnabled('imap')) {
+    return renderEmail();
+  }
+
+  return (
     <MailTo href={`mailto:${email}`}>
       {email}
       {renderStatus()}
