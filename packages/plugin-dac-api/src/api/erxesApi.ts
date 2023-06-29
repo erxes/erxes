@@ -43,7 +43,6 @@ export const getCustomer = async (req, res, subdomain) => {
   customFields.vehicle = vehicle;
 
   const fieldIds = (customer.customFieldsData || []).map(d => d.field);
-  console.log('++++++++++++++++');
 
   const fields = await sendCommonMessage({
     subdomain: 'os',

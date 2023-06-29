@@ -1,6 +1,6 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+// import { sendRequest } from '@erxes/api-utils/src/requests';
 import redis from '../redis';
-
+import * as requestify from 'requestify';
 export class DacApi {
   private apiUrl: string;
 
@@ -19,9 +19,8 @@ export class DacApi {
     }
 
     try {
-      const { access_token, expires_in } = await sendRequest({
+      const r = await requestify.request(`${this.apiUrl}/mobile/token`, {
         method: 'POST',
-        url: `${this.apiUrl}/mobile/token`,
         headers: {
           'Content-Type': 'application/json'
         },
@@ -30,6 +29,10 @@ export class DacApi {
           password: process.env.ORCHARD_PASSWORD
         }
       });
+
+      const responseBody = r.getBody();
+
+      const { access_token, expires_in } = responseBody;
 
       await redis.set(
         'dac_token',
@@ -53,15 +56,26 @@ export class DacApi {
     const url = `${this.apiUrl}/mobile/api/v1/${path}`;
 
     try {
-      const res = await sendRequest({
-        url,
+      const res = await requestify.request(url, {
         headers,
+        params: options.query,
         ...options
       });
 
-      return res;
+      const responseBody = res.getBody();
+
+      return responseBody;
     } catch (e) {
-      return JSON.parse(e.message);
+      if (e.code === 401) {
+        await redis.del('dac_token');
+        return this.sendRequestToDac(options);
+      }
+
+      if (e.code === 400) {
+        return JSON.parse(e.body);
+      }
+
+      return JSON.parse(e.body);
     }
   }
 }
