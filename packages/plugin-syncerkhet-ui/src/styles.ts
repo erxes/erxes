@@ -16,3 +16,22 @@ export const ContentBox = styled.div`
   max-width: 96%;
   margin: 0 auto;
 `;
+
+export const FinanceAmount = styled.div`
+  float: right;
+`;
+
+export const FlexRow = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+
+  > div:first-child {
+    padding-right: ${dimensions.coreSpacing}px;
+  }
+`;
+
+export const DetailRow = styled(FlexRow)`
+  justify-content: space-around;
+`;

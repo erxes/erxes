@@ -10,6 +10,7 @@ interface IGeneralRow {
 export interface IGeneral {
   contractId?: string;
   customerId?: string;
+  customerCode?: string;
   transactionId?: string;
   description?: string;
   payDate: Date;
@@ -38,6 +39,12 @@ export const generalSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'Contract',
+      index: true
+    }),
+    customerCode: field({
+      type: String,
+      optional: true,
+      label: 'Customer Code',
       index: true
     }),
     transactionId: field({

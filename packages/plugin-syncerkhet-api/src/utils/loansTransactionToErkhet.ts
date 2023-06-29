@@ -42,6 +42,7 @@ export const loansTransactionToErkhet = async (
         date: new Date(row.payDate).toISOString().slice(0, 10),
         amount: dtl.amount,
         side: dtl.side,
+        customer: row.customerCode,
         bill_number: row.generalNumber,
         description: row.description
       });

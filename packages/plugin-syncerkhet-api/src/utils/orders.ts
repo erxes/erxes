@@ -106,6 +106,34 @@ export const getPostData = async (subdomain, pos, order) => {
     payments[pos.erkhetConfig.defaultPay] = sumSaleAmount;
   }
 
+  let customerCode = '';
+  const customerType = order.customerType || 'customer';
+  if (customerType === 'company') {
+    customerCode = customerCode = (
+      (await sendContactsMessage({
+        subdomain,
+        action: 'companies.findOne',
+        data: {
+          _id: order.customerId
+        },
+        isRPC: true,
+        defaultValue: {}
+      })) || {}
+    ).code;
+  } else {
+    customerCode = (
+      (await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: {
+          _id: order.customerId
+        },
+        isRPC: true,
+        defaultValue: {}
+      })) || {}
+    ).code;
+  }
+
   const orderInfos = [
     {
       date: getPureDate(order.paidDate)
@@ -123,17 +151,7 @@ export const getPostData = async (subdomain, pos, order) => {
         ? true
         : false,
       billType: order.billType,
-      customerCode: (
-        (await sendContactsMessage({
-          subdomain,
-          action: 'customers.findOne',
-          data: {
-            _id: order.customerId
-          },
-          isRPC: true,
-          defaultValue: {}
-        })) || {}
-      ).code,
+      customerCode,
       description: `${pos.name}`,
       number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
       details,

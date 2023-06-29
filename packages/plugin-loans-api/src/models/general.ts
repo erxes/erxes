@@ -15,12 +15,18 @@ export const loadGeneralClass = (models: IModels) => {
      */
     public static async createGeneral(
       transactions: ITransactionDocument[],
-      periodLockId: string
+      periodLockId: string,
+      subdomain: string
     ) {
       const generals: any[] = [];
 
       for await (let mur of transactions) {
-        let general = await generateFinance(mur, models, periodLockId);
+        let general = await generateFinance(
+          mur,
+          models,
+          periodLockId,
+          subdomain
+        );
         generals.push(general);
       }
       var res = await models.General.insertMany(generals);
@@ -33,5 +39,9 @@ export const loadGeneralClass = (models: IModels) => {
 };
 
 export interface IGeneralModel extends Model<IGeneralDocument> {
-  createGeneral(transactions: ITransactionDocument[], periodLockId: string);
+  createGeneral(
+    transactions: ITransactionDocument[],
+    periodLockId: string,
+    subdomain: string
+  );
 }
