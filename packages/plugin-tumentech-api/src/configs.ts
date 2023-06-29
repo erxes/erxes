@@ -14,7 +14,7 @@ import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 import segments from './segments';
-import { getTransportData } from './utils';
+import { getTransportData, updateTrackingData } from './utils';
 
 export let debug;
 export let graphqlPubsub;
@@ -39,6 +39,10 @@ export default {
     {
       path: `/transports`,
       method: getTransportData
+    },
+    {
+      path: `/tracking`,
+      method: updateTrackingData
     }
   ],
 

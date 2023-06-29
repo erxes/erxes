@@ -6,7 +6,28 @@ export default async function cpUserMiddleware(
   _res: Response,
   next: NextFunction
 ) {
-  const token = req.cookies['client-auth-token'];
+  const { body } = req;
+
+  const operationName = body.operationName && body.operationName.split('__')[0];
+
+  if (
+    [
+      'clientPortalLogin',
+      'clientPortalLoginRegister',
+      'clientPortalRefreshToken',
+      'clientPortalGetConfigByDomain',
+      'clientPortalRefreshToken',
+      'clientPortalKnowledgeBaseTopicDetail'
+    ].includes(operationName)
+  ) {
+    return next();
+  }
+
+  const authHeader = req.headers.authorization;
+
+  const token = req.cookies['client-auth-token']
+    ? req.cookies['client-auth-token']
+    : authHeader && authHeader.split(' ')[1];
 
   if (!token) {
     return next();

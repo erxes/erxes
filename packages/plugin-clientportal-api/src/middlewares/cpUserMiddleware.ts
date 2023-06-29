@@ -18,6 +18,13 @@ export default async function cpUserMiddleware(
 
   if (
     [
+      'clientPortalGetLast',
+      'clientPortalGetConfigs',
+      'clientPortalGetConfig',
+      'clientPortalConfigsTotalCount',
+      'clientPortalConfigUpdate',
+      'clientPortalRemove',
+      'clientPortalGetAllowedFields',
       'clientPortalLogin',
       'clientPortalLoginRegister',
       'clientPortalRefreshToken',
@@ -35,8 +42,6 @@ export default async function cpUserMiddleware(
     ? req.cookies['client-auth-token']
     : authHeader && authHeader.split(' ')[1];
 
-  console.log('token', token);
-
   if (!token) {
     return next();
   }
@@ -51,8 +56,6 @@ export default async function cpUserMiddleware(
     const { userId } = verifyResult;
 
     const userDoc = await models.ClientPortalUsers.findOne({ _id: userId });
-
-    console.log('userDoc', userDoc);
 
     if (!userDoc) {
       return next();
