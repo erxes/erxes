@@ -1,5 +1,4 @@
 import Configs from './models';
-import * as Random from 'meteor-random';
 
 export const getConfigs = async () => {
   const configsMap = {};
