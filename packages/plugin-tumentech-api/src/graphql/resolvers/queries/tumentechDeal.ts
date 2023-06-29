@@ -44,9 +44,13 @@ const tumentechDealsQuery = {
 
   tumentechDealDetail: async (
     _root,
-    { _id }: { _id: string },
+    { _id, dealId }: { _id: string; dealId?: string },
     { models }: IContext
   ) => {
+    if (dealId) {
+      return models.TumentechDeals.getTumentechDeal(_id, dealId);
+    }
+
     return models.TumentechDeals.getTumentechDeal(_id);
   }
 };

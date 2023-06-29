@@ -61,7 +61,7 @@ const tumentechDealMutations = {
     doc: ITumentechDealEdit,
     { models }: IContext
   ) => {
-    const oldDoc = await models.TumentechDeals.getTumentechDeal(doc._id);
+    const oldDoc = await models.TumentechDeals.getTumentechDeal(doc._id, '');
 
     if (
       doc.startPlaceId !== oldDoc.startPlaceId ||

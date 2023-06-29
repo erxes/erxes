@@ -32,7 +32,7 @@ export const types = ({ cards }) => `
 
 export const queries = `
     tumentechDeals(page: Int, perPage: Int, dealIds: [String]): TumentechDealsResponse
-    tumentechDealDetail(_id: String!): TumentechDeal
+    tumentechDealDetail(_id: String, dealId: String): TumentechDeal
 `;
 
 const params = `
