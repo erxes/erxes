@@ -9,7 +9,16 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   const storepayBtn = document.getElementById('storepayBtn');
   const storepayInput = document.getElementById('storepayInput');
   const loader = document.querySelector('.loader');
+  const deeplink = document.getElementById('deeplink');
 
+  deeplink.href = ""
+  deeplink.innerHTML = "";
+    
+  let isMobile = false;
+
+  if (/Mobi/.test(navigator.userAgent)) {
+    isMobile = true;
+  }
   image.src = '';
 
   storepayBtn.style.display = 'none';
@@ -75,7 +84,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   const { apiResponse } = data.invoice;
 
   if (data.invoice._id) {
-    intervalId = setInterval(async function() {
+    intervalId = setInterval(async function () {
       const response = await fetch(`${prefix}/pl:payment/checkInvoice`, {
         method: 'POST',
         body: JSON.stringify({ invoiceId: data.invoice._id }),
@@ -115,7 +124,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     responseText.style.display = 'block';
     responseText.innerHTML = 'Утасны дугаараа оруулна уу';
 
-    storepayBtn.addEventListener('click', function() {
+    storepayBtn.addEventListener('click', function () {
       onStorePayClick(paymentObj, invoiceObj, prefix);
     });
   }
@@ -139,7 +148,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     checkButton.style.display = 'block';
     alertBlock.style.display = 'none';
 
-    checkButton.addEventListener('click', function() {
+    checkButton.addEventListener('click', function () {
       fetch(`${prefix}/pl:payment/gateway/manualCheck`, {
         method: 'POST',
         body: JSON.stringify({ invoiceId: data.invoice._id }),
@@ -172,6 +181,14 @@ async function onPaymentClick(payment, invoiceData, prefix) {
         });
     });
   }
+  console.log('isMobile', isMobile)
+  if (apiResponse.deeplink && isMobile) {
+    deeplink.href = apiResponse.deeplink;
+    deeplink.target = '_blank';
+    deeplink.innerHTML = `Open in ${paymentObj.kind}`;
+  }
+
+
 
   amount.innerHTML =
     invoiceObj.amount.toLocaleString(undefined, {
