@@ -51,6 +51,7 @@ const command = async () => {
       }
 
       if (!uom) {
+        uom = 'PC'
         console.log(`warning(main uom): productCode: "${product.code}"`)
       }
 
