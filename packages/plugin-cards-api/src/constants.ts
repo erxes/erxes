@@ -351,3 +351,129 @@ export const CARD_PROPERTIES_INFO = {
     }
   ]
 };
+
+export const NOTIFICATION_MODULES = [
+  {
+    name: 'deals',
+    description: 'Deals',
+    types: [
+      {
+        name: 'dealAdd',
+        text: 'Assigned a new deal  card'
+      },
+      {
+        name: 'dealRemoveAssign',
+        text: 'Removed from the deal card'
+      },
+      {
+        name: 'dealEdit',
+        text: 'Deal card edited'
+      },
+      {
+        name: 'dealChange',
+        text: 'Moved between stages'
+      },
+      {
+        name: 'dealDueDate',
+        text: 'Due date is near'
+      },
+      {
+        name: 'dealDelete',
+        text: 'Deal card deleted'
+      }
+    ]
+  },
+
+  {
+    name: 'purchases',
+    description: 'Purchases',
+    types: [
+      {
+        name: 'purchaseAdd',
+        text: 'Assigned a new purchase  card'
+      },
+      {
+        name: 'purchaseRemoveAssign',
+        text: 'Removed from the purchase card'
+      },
+      {
+        name: 'purchaseEdit',
+        text: 'Purchase card edited'
+      },
+      {
+        name: 'purchaseChange',
+        text: 'Moved between stages'
+      },
+      {
+        name: 'purchaseDueDate',
+        text: 'Due date is near'
+      },
+      {
+        name: 'purchaseDelete',
+        text: 'Purchase card deleted'
+      }
+    ]
+  },
+
+  {
+    name: 'tickets',
+    description: 'Tickets',
+    types: [
+      {
+        name: 'ticketAdd',
+        text: 'Assigned a new ticket  card'
+      },
+      {
+        name: 'ticketRemoveAssign',
+        text: 'Removed from the ticket card'
+      },
+      {
+        name: 'ticketEdit',
+        text: 'Ticket card edited'
+      },
+      {
+        name: 'ticketChange',
+        text: 'Moved between stages'
+      },
+      {
+        name: 'ticketDueDate',
+        text: 'Due date is near'
+      },
+      {
+        name: 'ticketDelete',
+        text: 'Ticket card deleted'
+      }
+    ]
+  },
+
+  {
+    name: 'tasks',
+    description: 'Tasks',
+    types: [
+      {
+        name: 'taskAdd',
+        text: 'Assigned a new task  card'
+      },
+      {
+        name: 'taskRemoveAssign',
+        text: 'Removed from the task card'
+      },
+      {
+        name: 'taskEdit',
+        text: 'Task card edited'
+      },
+      {
+        name: 'taskChange',
+        text: 'Moved between stages'
+      },
+      {
+        name: 'taskDueDate',
+        text: 'Due date is near'
+      },
+      {
+        name: 'taskDelete',
+        text: 'Task card deleted'
+      }
+    ]
+  }
+];

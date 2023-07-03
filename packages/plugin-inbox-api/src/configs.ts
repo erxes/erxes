@@ -26,6 +26,7 @@ import automations from './automations';
 import cronjobs from './cronjobs/conversations';
 import dashboards from './dashboards';
 import webhookMiddleware from './middlewares/webhookMiddleware';
+import { NOTIFICATION_MODULES } from './constants';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -56,7 +57,8 @@ export default {
     automations,
     cronjobs,
     permissions,
-    dashboards
+    dashboards,
+    notificationModules: NOTIFICATION_MODULES
   },
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
