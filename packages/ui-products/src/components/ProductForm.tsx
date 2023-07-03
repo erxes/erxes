@@ -409,7 +409,7 @@ class Form extends React.Component<Props, State> {
                   defaultValue={object.categoryId}
                   required={true}
                 >
-                  {generateCategoryOptions(productCategories)}
+                  {generateCategoryOptions(productCategories, '', true)}
                 </FormControl>
 
                 {this.renderFormTrigger(trigger)}

@@ -62,5 +62,47 @@ export default {
       contentType: `products:product`,
       canHide: false,
       isDefinedByErxes: true
-    }))
+    })),
+
+  groupsFilter: async ({ subdomain, data: { config } }) => {
+    const { categoryId, isChosen } = config;
+    if (!categoryId) {
+      return {};
+    }
+
+    const models = await generateModels(subdomain);
+    const category = await models.ProductCategories.findOne({
+      _id: categoryId
+    }).lean();
+
+    const categories = await models.ProductCategories.find({
+      order: { $regex: new RegExp(category.order) }
+    }).lean();
+
+    return {
+      $and: [
+        { contentType: 'products:product' },
+        {
+          $or: [
+            {
+              $and: [
+                { 'config.categories': { $exists: true } },
+                {
+                  'config.categories': {
+                    $in: categories.map(c => c._id)
+                  }
+                }
+              ]
+            },
+            { 'config.categories': { $exists: false } },
+            {
+              'config.categories': {
+                $size: 0
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
 };

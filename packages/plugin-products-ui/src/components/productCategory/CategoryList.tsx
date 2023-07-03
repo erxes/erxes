@@ -118,7 +118,7 @@ class List extends React.Component<IProps> {
         >
           <Link to={`?categoryId=${category._id}`}>
             {space}
-            {name}
+            {category.code} - {name}
           </Link>
           <ActionButtons>
             {this.renderEditAction(category)}

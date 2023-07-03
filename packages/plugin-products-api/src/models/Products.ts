@@ -130,7 +130,11 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
           isRPC: true
         });
       }
-      doc.uom = await models.Uoms.checkUOM(doc);
+
+      if (doc.code) {
+        doc.uom = await models.Uoms.checkUOM(doc);
+      }
+
       await models.Products.updateOne({ _id }, { $set: doc });
 
       return await models.Products.findOne({ _id }).lean();

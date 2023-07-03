@@ -23,6 +23,7 @@ import {
 import { IProductCategory } from '../types';
 import { PRODUCT_CATEGORY_STATUSES } from '../constants';
 import { ICategory } from '@erxes/ui/src/utils/categories';
+import CategoryMask from '../containers/CategoryMask';
 import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -35,6 +36,9 @@ type Props = {
 type State = {
   attachment?: IAttachment;
   maskType?: string;
+  mask: any;
+  parentId: string;
+  code: string;
 };
 
 class CategoryForm extends React.Component<Props, State> {
@@ -46,14 +50,17 @@ class CategoryForm extends React.Component<Props, State> {
 
     this.state = {
       attachment,
-      maskType: category.maskType
+      maskType: category.maskType,
+      mask: category.mask,
+      parentId: category.parentId,
+      code: category.code
     };
   }
 
   generateDoc = (values: { _id?: string; attachment?: IAttachment }) => {
     const { category } = this.props;
     const finalValues = values;
-    const { attachment } = this.state;
+    const { attachment, maskType, mask, parentId, code } = this.state;
 
     if (category) {
       finalValues._id = category._id;
@@ -61,6 +68,10 @@ class CategoryForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      maskType,
+      mask,
+      parentId,
+      code,
       attachment
     };
   };
@@ -69,17 +80,100 @@ class CategoryForm extends React.Component<Props, State> {
     this.setState({ attachment: files ? files[0] : undefined });
   };
 
+  onChange = e => {
+    const { categories } = this.props;
+
+    const name = e.target.name;
+    const value = e.target.value;
+    const initMask = code => {
+      const { mask } = this.state;
+      const values = (mask?.values || []).filter(v => v.title !== 'category');
+      values.unshift({
+        id: 'category',
+        title: 'category',
+        len: code.length,
+        static: code
+      });
+      this.setState({ mask: { ...mask, values } });
+    };
+
+    this.setState(
+      {
+        [name]: value
+      } as any,
+      () => {
+        if (name === 'parentId') {
+          const parentCategory = categories.find(c => c._id === value);
+          this.setState({ maskType: parentCategory?.maskType });
+        }
+        if (['code', 'maskType'].includes(name) && this.state.maskType) {
+          initMask(name === 'code' ? value : this.state.code);
+        }
+      }
+    );
+  };
+
+  generateMaskTypes = () => {
+    const { categories } = this.props;
+    const { parentId } = this.state;
+    const parentCategory = categories.find(c => c._id === parentId);
+
+    if (parentCategory?.maskType === 'hard') {
+      return <option value="hard">{__('Hard: Заавал удамших')}</option>;
+    }
+
+    if (parentCategory?.maskType === 'soft') {
+      return (
+        <>
+          <option value="soft">{__('Soft: Удамших албагүй')}</option>
+          <option value="hard">{__('Hard: Заавал удамших')}</option>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <option value="">{__('Any: No mask')}</option>
+        <option value="soft">{__('Soft: Удамших албагүй')}</option>
+        <option value="hard">{__('Hard: Заавал удамших')}</option>
+      </>
+    );
+  };
+
   renderMask = () => {
-    const { maskType } = this.state;
+    const { categories, category } = this.props;
+    const { maskType, mask, parentId, code } = this.state;
+
     if (!maskType) {
       return null;
     }
 
-    return <>fgdd</>;
+    const parentCategory = categories.find(c => c._id === parentId);
+
+    const changeCode = (code: string) => {
+      this.setState({ code });
+    };
+
+    const changeMask = (mask: any) => {
+      this.setState({ mask });
+    };
+
+    return (
+      <CategoryMask
+        parentCategory={parentCategory}
+        categoryId={category?._id}
+        code={code}
+        maskType={maskType}
+        mask={mask}
+        changeCode={changeCode}
+        changeMask={changeMask}
+      />
+    );
   };
 
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, category, categories } = this.props;
+    const { maskType, parentId } = this.state;
     const { values, isSubmitted } = formProps;
     const object = category || ({} as IProductCategory);
 
@@ -95,10 +189,11 @@ class CategoryForm extends React.Component<Props, State> {
             {...formProps}
             name="parentId"
             componentClass="select"
-            defaultValue={object.parentId}
+            defaultValue={parentId}
+            onChange={this.onChange}
           >
             <option value="" />
-            {generateCategoryOptions(categories, object._id)}
+            {generateCategoryOptions(categories, object._id, true)}
           </FormControl>
         </FormGroup>
 
@@ -109,8 +204,24 @@ class CategoryForm extends React.Component<Props, State> {
             name="code"
             defaultValue={object.code}
             required={true}
+            onChange={this.onChange}
           />
         </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Mask type</ControlLabel>
+          <FormControl
+            {...formProps}
+            componentClass="select"
+            name="maskType"
+            defaultValue={maskType}
+            onChange={this.onChange}
+          >
+            {this.generateMaskTypes()}
+          </FormControl>
+        </FormGroup>
+
+        {this.renderMask()}
 
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
@@ -127,25 +238,6 @@ class CategoryForm extends React.Component<Props, State> {
           <ControlLabel>Meta</ControlLabel>
           <FormControl {...formProps} name="meta" defaultValue={object.meta} />
         </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Mask type</ControlLabel>
-          <FormControl
-            {...formProps}
-            componentClass="select"
-            name="maskType"
-            defaultValue={object.maskType}
-            onChange={option => {
-              this.setState({ maskType: option.value });
-            }}
-          >
-            <option value="">{__('Any')}</option>
-            <option value="soft">{__('Soft')}</option>
-            <option value="hard">{__('Hard')}</option>
-          </FormControl>
-        </FormGroup>
-
-        {this.renderMask()}
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
