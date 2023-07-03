@@ -128,8 +128,7 @@ export const getCalcedAmounts = async (
     debt: number;
     payment: number;
     preSchedule: any;
-  };
-  result = {
+  } = {
     undue: 0,
     interestEve: 0,
     interestNonce: 0,
@@ -197,27 +196,37 @@ export const getCalcedAmounts = async (
       contract
     );
 
-    result.undue = await calcUndue(
-      preSchedule,
-      contract,
-      unduePercent,
-      getDiffDay(prePayDate, trDate)
-    );
+    result.undue =
+      (preSchedule.undue || 0) -
+      (preSchedule.didUndue || 0) +
+      (await calcUndue(
+        preSchedule,
+        contract,
+        unduePercent,
+        getDiffDay(prePayDate, trDate)
+      ));
+
     if (isSkipInterestCalc) {
       result.interestEve = 0;
       result.interestNonce = 0;
     } else {
       const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
-      result.interestEve = calcInterest({
-        balance: preSchedule.balance,
-        interestRate: contract.interestRate,
-        dayOfMonth: diffEve
-      });
-      result.interestNonce = calcInterest({
-        balance: preSchedule.balance,
-        interestRate: contract.interestRate,
-        dayOfMonth: diffNonce
-      });
+      result.interestEve =
+        (preSchedule.interestEve || 0) -
+        (preSchedule.didInterestEve || 0) +
+        calcInterest({
+          balance: preSchedule.balance,
+          interestRate: contract.interestRate,
+          dayOfMonth: diffEve
+        });
+      result.interestNonce =
+        (preSchedule.interestNonce || 0) -
+        (preSchedule.didInterestNonce || 0) +
+        calcInterest({
+          balance: preSchedule.balance,
+          interestRate: contract.interestRate,
+          dayOfMonth: diffNonce
+        });
     }
 
     result.insurance = preSchedule.insurance;
@@ -590,7 +599,8 @@ export const trAfterSchedule = async (
 
   // closed contract
   if (!pendingSchedules || !pendingSchedules.length) {
-    throw new Error('transaction is closed');
+    await betweenScheduled(models, contract, tr, preSchedule, pendingSchedules);
+    return;
   }
 
   const nextSchedule = pendingSchedules[0];

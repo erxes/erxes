@@ -48,9 +48,6 @@ const List = (props: IProps) => {
 
   const renderRow = () => {
     const onClickRow = invoiceId => {
-      console.log('onClickRow', invoiceId);
-
-      // if (!showModal) {
       setCurrentInvoiceId(invoiceId);
 
       setShowModal(!showModal);
@@ -80,18 +77,11 @@ const List = (props: IProps) => {
     props.remove(invoiceIds, props.emptyBulk);
   };
 
-  // const renderCount = () => {
-  //   return <Count>
-  //       {props.counts} Invoice{props.counts > 1 && 's'}
-  //     </Count>;
-  // }
-
   const search = e => {
     if (timer.current) {
       clearTimeout(timer.current);
     }
 
-    // const searchValue = e.target.value;
     setSearchValue(e.target.value);
 
     timer.current = setTimeout(() => {

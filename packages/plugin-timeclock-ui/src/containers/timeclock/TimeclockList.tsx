@@ -71,7 +71,15 @@ const ListContainer = (props: FinalProps) => {
         ...params
       }
     })
-      .then(() => {
+      .then(res => {
+        const returnMsg = res.data.extractAllDataFromMsSQL.message;
+
+        if (returnMsg) {
+          Alert.info(returnMsg);
+          setLoading(false);
+          return;
+        }
+
         setLoading(false);
         timeclocksMainQuery.refetch();
         Alert.success('Successfully extracted data');

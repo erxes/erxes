@@ -236,7 +236,7 @@ export const calculateFormResponses = async ({
         .map(item => {
           if (item.match(/=/g)) {
             const label = item?.substring(0, item.indexOf('=')).trim();
-            const value = parseInt(
+            const value = Number(
               item.substring(item?.indexOf('=') + 1, item.length)
             );
             if (!Number.isNaN(value)) {
@@ -256,12 +256,12 @@ export const calculateFormResponses = async ({
       );
       switch (calculateMethod) {
         case 'Multiply':
-          sumNumber *= parseInt(fieldValue?.value || 0);
+          sumNumber *= Number(fieldValue?.value || 0);
           break;
         case 'Addition':
         case 'Average':
         case 'ByPercent':
-          sumNumber += parseInt(fieldValue?.value || 0);
+          sumNumber += Number(fieldValue?.value || 0);
           break;
       }
       submissions.push({

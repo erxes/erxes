@@ -1,7 +1,7 @@
 import { IContext } from '../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { checkPermission } from '@erxes/api-utils/src';
-
+import { redis } from '../../configs';
 import {
   IAbsence,
   ISchedule,
@@ -467,7 +467,8 @@ const timeclockMutations = {
         scheduleId: schedule._id,
         shiftStart: shift.shiftStart,
         shiftEnd: shift.shiftEnd,
-        scheduleConfigId: shift.scheduleConfigId
+        scheduleConfigId: shift.scheduleConfigId,
+        lunchBreakInMins: shift.lunchBreakInMins
       });
     });
 
@@ -485,7 +486,9 @@ const timeclockMutations = {
       subdomain
     );
 
-    const filterApprovedSchedules = status ? { status, solved: true } : {};
+    const filterApprovedSchedules = status
+      ? { status, solved: true }
+      : { status: { $ne: 'Rejected' } };
 
     const totalSchedules = await models.Schedules.find({
       userId: { $in: scheduledUserIds },
@@ -753,7 +756,31 @@ const timeclockMutations = {
   },
 
   async extractAllDataFromMsSQL(_root, params, { subdomain }: IContext) {
-    return connectAndQueryFromMsSql(subdomain, params);
+    try {
+      const checkIfExtractingAlready = await redis.get(
+        'extractAllDataFromMsSQL'
+      );
+
+      if (checkIfExtractingAlready) {
+        return {
+          message:
+            'Someone else is extracting\nPlease wait for few mins and try again'
+        };
+      }
+
+      await redis.set('extractAllDataFromMsSQL', {});
+      const waitForQuery = await connectAndQueryFromMsSql(subdomain, params);
+
+      // wait for 10s to delete queue
+      setTimeout(async () => {
+        await redis.del('extractAllDataFromMsSQL');
+      }, 5000);
+
+      return waitForQuery;
+    } catch (error) {
+      await redis.del('extractAllDataFromMsSQL');
+      return error;
+    }
   },
 
   async extractTimeLogsFromMsSQL(_root, params, { subdomain }: IContext) {

@@ -9,7 +9,6 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
   ModalTrigger,
   Toggle
 } from '@erxes/ui/src';
@@ -36,13 +35,6 @@ export const SelectValue = styled.div`
   margin-left: -7px;
   padding-left: 25px;
 `;
-
-const content = (option): React.ReactNode => (
-  <>
-    <Icon icon={option.avatar} />
-    &nbsp;&nbsp;{option.label}
-  </>
-);
 
 type Props = {
   onChange: (name: 'pos' | 'slots' | 'allowTypes', value: any) => void;
@@ -486,14 +478,15 @@ class GeneralStep extends React.Component<Props, State> {
     const { allowTypes } = this.state;
 
     const onChange = (i: number, option) => {
+      const newTypes = [...allowTypes];
       const preChosenInd = allowTypes.indexOf(option.value);
       if (preChosenInd >= 0) {
-        allowTypes[preChosenInd] = '';
+        newTypes[preChosenInd] = '';
       }
 
-      allowTypes[i] = option.value;
-      this.setState({ allowTypes }, () => {
-        this.props.onChange('allowTypes', allowTypes);
+      newTypes[i] = option.value;
+      this.setState({ allowTypes: newTypes }, () => {
+        this.props.onChange('allowTypes', newTypes);
       });
     };
 

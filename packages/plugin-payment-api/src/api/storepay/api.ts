@@ -203,8 +203,6 @@ export class StorePayAPI extends BaseAPI {
         path: `merchant/loan/check/${invoiceNumber}`
       });
 
-      console.log('checkInvoice Store pay', res);
-
       if (!res.value) {
         return PAYMENT_STATUS.PENDING;
       }
@@ -247,6 +245,11 @@ export class StorePayAPI extends BaseAPI {
           mobileNumber
         }
       });
+
+      const { msgList = [], status } = res;
+      if (status === 'Failed' && msgList.length > 0) {
+        throw new Error(msgList[0].code);
+      }
 
       if (!res.value || res.value === 0) {
         throw new Error('Insufficient loan amount');

@@ -4,5 +4,6 @@ export const types = `
     isSynced: Boolean
     syncedDate: Date
     syncedBillNumber: String
+    syncedCustomer: String
   }
 `;

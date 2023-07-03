@@ -11,7 +11,6 @@ export interface IProduct {
   categoryCode?: string;
   type?: string;
   description?: string;
-  sku?: string;
   unitPrice?: number;
   code: string;
   barcodes: string[];
@@ -20,15 +19,12 @@ export interface IProduct {
   attachment?: any;
   attachmentMore?: any[];
   status?: string;
-  supply?: string;
-  productCount?: number;
-  minimiumCount?: number;
   vendorId?: string;
   vendorCode?: string;
 
   mergedIds?: string[];
 
-  uomId?: string;
+  uom?: string;
   subUoms?: any[];
 }
 
@@ -42,11 +38,10 @@ export interface IProductsData {
   productId: string;
   quantity: number;
   amount?: number;
-  uomId: string;
+  uom: string;
   series?: string[];
 
   product?: IProduct;
-  uom?: IUom;
 }
 
 export interface IProductsDataDocument extends IProductsData {}
@@ -109,7 +104,7 @@ export const productsDataSchema = new Schema({
   productId: field({ type: String, label: 'Product' }),
   quantity: field({ type: Number, label: 'Quantity' }),
   amount: field({ type: Number, optional: true, label: 'Quantity' }),
-  uomId: field({ type: String, label: 'UOM' }),
+  uom: field({ type: String, label: 'UOM' }),
   proportion: field({ type: Number, optional: true }),
   branchId: field({ type: String, optional: true, label: 'Branch' }),
   departmentId: field({ type: String, optional: true, label: 'Department' }),

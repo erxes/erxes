@@ -94,6 +94,10 @@ export const commonFields = `
     emailContent
     smsContent
   }
+
+  tokenExpiration
+  refreshTokenExpiration
+  tokenPassMethod
 `;
 
 export const basicFields = `
@@ -261,7 +265,7 @@ const clientPortalComments = `
 `;
 
 const fieldConfig = `
-query ClientPortalFieldConfig($fieldId: ID) {
+query ClientPortalFieldConfig($fieldId: String) {
   clientPortalFieldConfig(fieldId: $fieldId) {
     allowedClientPortalIds
     fieldId

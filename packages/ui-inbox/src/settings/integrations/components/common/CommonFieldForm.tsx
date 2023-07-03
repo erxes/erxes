@@ -9,12 +9,14 @@ import React from 'react';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
 import { __ } from '@erxes/ui/src/utils';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type CommonTypes = {
   name: string;
   brandId: string;
   channelIds: string[];
   webhookData: any;
+  isSubmitted: boolean;
 };
 
 type Props = {
@@ -26,7 +28,8 @@ type Props = {
   webhookData: any;
   onSubmit: (
     id: string,
-    { name, brandId, channelIds, data }: IntegrationMutationVariables
+    { name, brandId, channelIds, data }: IntegrationMutationVariables,
+    callback: () => void
   ) => void;
   closeModal: () => void;
 };
@@ -39,7 +42,8 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
       name: props.name || '',
       brandId: props.brandId || '',
       channelIds: props.channelIds || [],
-      webhookData: props.webhookData || {}
+      webhookData: props.webhookData || {},
+      isSubmitted: false
     };
   }
 
@@ -54,7 +58,6 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
     const onChangeWebhookData = e => {
       webhookData[e.target.name] = e.target.value;
-
       this.setState({
         webhookData: { ...webhookData }
       });
@@ -117,18 +120,21 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     const saveIntegration = e => {
       e.preventDefault();
 
-      let data;
+      this.setState({ isSubmitted: true });
+
+      let data: any;
 
       switch (this.props.integrationKind) {
         case 'webhook': {
           data = webhookData;
-
           break;
         }
       }
 
-      onSubmit(integrationId, { name, brandId, channelIds, data });
-      closeModal();
+      onSubmit(integrationId, { name, brandId, channelIds, data }, () => {
+        this.setState({ isSubmitted: false });
+        closeModal();
+      });
     };
 
     return (
@@ -145,6 +151,11 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
         {this.renderScript()}
 
+        {loadDynamicComponent('integrationEditForm', {
+          integrationId,
+          isSubmitted: this.state.isSubmitted
+        })}
+
         <SelectBrand
           isRequired={true}
           defaultValue={brandId}
@@ -153,7 +164,6 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
             'Which specific Brand does this integration belong to?'
           )}
         />
-
         <SelectChannels
           defaultValue={channelIds}
           isRequired={true}

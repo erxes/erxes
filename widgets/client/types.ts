@@ -206,7 +206,7 @@ export interface IProduct {
   type: string;
   categoryId: string;
   description: string;
-  sku: string;
+  uom: string;
   code: string;
   unitPrice: number;
   customFieldsData?: any;
@@ -215,8 +215,5 @@ export interface IProduct {
 
   attachment?: any;
   attachmentMore?: any[];
-  supply: string;
-  productCount: number;
-  minimiumCount: number;
   category: IProductCategory;
 }

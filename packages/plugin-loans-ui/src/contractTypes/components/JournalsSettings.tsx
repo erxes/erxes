@@ -72,7 +72,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>{JOURNALS_KEY_LABELS[key]}</ControlLabel>
+        <ControlLabel>{key}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
           {...controlProps}
@@ -114,48 +114,36 @@ class GeneralSettings extends React.Component<Props, State> {
     const content = (
       <ContentBox>
         <CollapseContent title={__('Loan payment')}>
-          {this.renderItem('receivable')}
-          {this.renderItem('temp')}
-          {this.renderItem('giving')}
-          {this.renderItem('tempDebt')}
-
-          {this.renderItem('mainUserEmail')}
-          {this.renderCheckbox('mainHasVat')}
-          {this.renderCheckbox('mainHasCitytax')}
-          {this.renderCheckbox('mainIsEbarimt')}
+          {this.renderItem('transAccount')}
+          {this.renderItem('normalAccount')}
+          {this.renderItem('expiredAccount')}
+          {this.renderItem('doubtfulAccount')}
+          {this.renderItem('negativeAccount')}
+          {this.renderItem('badAccount')}
         </CollapseContent>
 
         <CollapseContent title={__('Interest')}>
-          {this.renderItem('interestReceivable')}
-          {this.renderItem('interestGiving')}
-          {this.renderItem('interestCalcedReceive')}
-          {this.renderItem('interestIncome')}
-
-          {this.renderItem('extraInterestUserEmail')}
+          {this.renderItem('interestAccount')}
           {this.renderCheckbox('extraInterestHasVat')}
           {this.renderCheckbox('extraInterestHasCitytax')}
           {this.renderCheckbox('extraInterestIsEbarimt')}
         </CollapseContent>
 
         <CollapseContent title={__('Insurance')}>
-          {this.renderItem('insuranceReceivable')}
-          {this.renderItem('insuranceGiving')}
+          {this.renderItem('insuranceAccount')}
         </CollapseContent>
 
         <CollapseContent title={__('Undue')}>
-          {this.renderItem('undueStock')}
-          {this.renderItem('undueUserEmail')}
+          {this.renderItem('undueAccount')}
           {this.renderCheckbox('undueHasVat')}
           {this.renderCheckbox('undueHasCitytax')}
           {this.renderCheckbox('undueIsEbarimt')}
         </CollapseContent>
 
         <CollapseContent title={__('Other')}>
+          {this.renderItem('debtAccount')}
           {this.renderItem('otherReceivable')}
           {this.renderItem('feeIncome')}
-          {this.renderItem('defaultCustomer')}
-          {this.renderItem('userEmail')}
-          {this.renderItem('repaymentTemp')}
         </CollapseContent>
         <CollapseContent title={__('Classification')}>
           {this.renderItem('normalExpirationDay', 'Normal /Expiration Day/', {

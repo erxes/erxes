@@ -14,6 +14,7 @@ export let mainDb;
 export let debug;
 export let graphqlPubsub;
 export let serviceDiscovery;
+export let redis;
 
 export default {
   name: 'timeclock',
@@ -70,7 +71,7 @@ export default {
     initBroker(options.messageBrokerClient);
 
     graphqlPubsub = options.pubsubClient;
-
+    redis = options.redis;
     debug = options.debug;
   }
 };

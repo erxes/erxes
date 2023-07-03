@@ -1,10 +1,11 @@
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext, IModels } from '../../../connectionResolver';
 import { statusColors } from '../../../constants';
+import { sendCardsMessage } from '../../../messageBroker';
 import { generateSort } from '../../../utils';
 import { RiskAssessmentGroupParams } from '../types';
 
-const generateFilter = async (params, models: IModels) => {
+const generateFilter = async (params, models: IModels, subdomain: string) => {
   let filter: any = {};
 
   if (params.cardType) {
@@ -77,12 +78,33 @@ const generateFilter = async (params, models: IModels) => {
     filter.statusColor = statusColors[params.status];
   }
 
+  if (!!params?.customFieldsValues?.length) {
+    const cardTypes = filter.cardType ? [filter.cardType] : ['ticket', 'task'];
+    let cardIds: string[] = [];
+
+    for (const cardType of cardTypes) {
+      await sendCardsMessage({
+        subdomain,
+        action: `${cardType}s.find`,
+        data: {
+          'customFieldsData.value': { $in: params.customFieldsValues }
+        },
+        isRPC: true,
+        defaultValue: []
+      }).then(data => {
+        cardIds = [...cardIds, ...data.map(item => item._id)];
+      });
+    }
+
+    filter.cardId = { $in: cardIds };
+  }
+
   return filter;
 };
 
 const RiskAssessmentQueries = {
-  async riskAssessments(_root, params, { models }: IContext) {
-    const filter = await generateFilter(params, models);
+  async riskAssessments(_root, params, { models, subdomain }: IContext) {
+    const filter = await generateFilter(params, models, subdomain);
 
     const { sortField, sortDirection } = params;
     const sort = generateSort(sortField, sortDirection);
@@ -90,8 +112,12 @@ const RiskAssessmentQueries = {
     return paginate(models.RiskAssessments.find(filter).sort(sort), params);
   },
 
-  async riskAssessmentsTotalCount(_root, params, { models }: IContext) {
-    const filter = await generateFilter(params, models);
+  async riskAssessmentsTotalCount(
+    _root,
+    params,
+    { models, subdomain }: IContext
+  ) {
+    const filter = await generateFilter(params, models, subdomain);
     return await models.RiskAssessments.countDocuments(filter);
   },
   async riskAssessmentDetail(_root, { id, ...params }, { models }: IContext) {

@@ -45,7 +45,8 @@ const generateFilterPosQuery = async (
     customerId,
     customerType,
     posId,
-    posToken
+    posToken,
+    types
   } = params;
 
   if (search) {
@@ -98,15 +99,6 @@ const generateFilterPosQuery = async (
     query.paidDate = paidQry;
   }
 
-  if (paidDate === 'today') {
-    const now = new Date();
-
-    const startDate = getToday(now);
-    const endDate = getTomorrow(now);
-
-    query.paidDate = { $gte: startDate, $lte: endDate };
-  }
-
   const createdQry: any = {};
   if (createdStartDate) {
     createdQry.$gte = getPureDate(createdStartDate);
@@ -116,6 +108,19 @@ const generateFilterPosQuery = async (
   }
   if (Object.keys(createdQry).length) {
     query.createdAt = createdQry;
+  }
+
+  if (types && types.length) {
+    query.type = { $in: types };
+  }
+
+  if (paidDate === 'today' || !Object.keys(query).length) {
+    const now = new Date();
+
+    const startDate = getToday(now);
+    const endDate = getTomorrow(now);
+
+    query.paidDate = { $gte: startDate, $lte: endDate };
   }
 
   return query;

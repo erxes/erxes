@@ -116,6 +116,7 @@ const schedulesMain = `
             solved
             status
             scheduleConfigId
+            lunchBreakInMins
           }
           scheduleConfigId
           solved
@@ -211,7 +212,12 @@ const timeclockReports = `
             
                 deviceName
                 deviceType
-            
+                
+                inDevice
+                inDeviceType
+                outDevice
+                outDeviceType
+
                 scheduledStart
                 scheduledEnd
                 scheduledDuration
@@ -222,6 +228,10 @@ const timeclockReports = `
                 totalHoursOvertime
                 totalHoursOvernight
               }
+
+              branchTitles
+              departmentTitles
+              
               totalMinsLate
               totalAbsenceMins
               totalMinsWorked

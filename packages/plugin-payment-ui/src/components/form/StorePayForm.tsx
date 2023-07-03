@@ -141,7 +141,7 @@ class StorepayConfigForm extends React.Component<Props, State> {
             target="_blank"
             rel="noreferrer"
           >
-            {__('Apply for storepay')}
+            {__('Contact with storepay')}
           </a>
         </SettingsContent>
 

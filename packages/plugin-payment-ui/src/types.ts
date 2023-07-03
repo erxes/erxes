@@ -42,6 +42,12 @@ export interface IStorepayConfig {
   storeId: string;
 }
 
+export interface IPocketConfig {
+  merchant: string;
+  clientId: string;
+  clientSecret: string;
+}
+
 export interface IPaymentDocument extends IPayment, Document {
   _id: string;
 }

@@ -9,8 +9,6 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IPerform, PerformDetailQueryResponse } from '../types';
 import { mutations, queries } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { UomsQueryResponse } from '@erxes/ui-products/src/types';
-import productsQueries from '@erxes/ui-products/src/graphql/queries';
 import { IOverallWorkDet } from '../../overallWork/types';
 
 type Props = {
@@ -23,7 +21,6 @@ type Props = {
 
 type FinalProps = {
   performDetailQuery: PerformDetailQueryResponse;
-  uomsQuery: UomsQueryResponse;
 } & Props;
 
 class PerformFormContainer extends React.Component<
@@ -42,17 +39,9 @@ class PerformFormContainer extends React.Component<
   }
 
   render() {
-    const {
-      overallWorkDetail,
-      max,
-      performDetailQuery,
-      uomsQuery
-    } = this.props;
+    const { overallWorkDetail, max, performDetailQuery } = this.props;
 
-    if (
-      (performDetailQuery && performDetailQuery.loading) ||
-      uomsQuery.loading
-    ) {
+    if (performDetailQuery && performDetailQuery.loading) {
       return <Spinner />;
     }
 
@@ -93,11 +82,8 @@ class PerformFormContainer extends React.Component<
       );
     };
 
-    const allUoms = uomsQuery.uoms || [];
-
     const updatedProps = {
       ...this.props,
-      allUoms,
       perform,
       renderButton
     };
@@ -131,9 +117,6 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       }),
       skip: props => !props.perform || !props.perform._id
-    }),
-    graphql<Props, UomsQueryResponse>(gql(productsQueries.uoms), {
-      name: 'uomsQuery'
     })
   )(PerformFormContainer)
 );

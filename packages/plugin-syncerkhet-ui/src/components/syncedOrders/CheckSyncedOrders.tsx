@@ -100,8 +100,10 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       'Total Amount',
       'Created At',
       'Paid At',
+      'Synced',
       'Synced Date',
       'Synced bill Number',
+      'Synced customer',
       'Sync Actions'
     ];
     const Content = (

@@ -73,7 +73,7 @@ const commonFields = `
 `;
 
 export const mutations = `
-  invoicesAdd(${commonFields}): LoanInvoice
-  invoicesEdit(_id: String!, ${commonFields}): LoanInvoice
-  invoicesRemove(invoiceIds: [String]): [String]
+  loanInvoicesAdd(${commonFields}): LoanInvoice
+  loanInvoicesEdit(_id: String!, ${commonFields}): LoanInvoice
+  loanInvoicesRemove(invoiceIds: [String]): [String]
 `;

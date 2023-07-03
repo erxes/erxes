@@ -39,16 +39,16 @@ export default function Group({ items, item, type, groupType }: Props) {
       <GroupWrapper>
         <ListHead className="head">
           <div>Subject</div>
-          {type === "ticket" && <div>Number</div>}
           <div>Created date</div>
           <div>Stage changed date</div>
           <div>Start date</div>
           <div>Close date</div>
+          <div>Staging</div>
           <div>Labels</div>
         </ListHead>
         <div>
           {(items || []).map((card) => {
-            const { labels } = card;
+            const { stage = {}, labels } = card;
 
             return (
               <ListRow
@@ -57,7 +57,6 @@ export default function Group({ items, item, type, groupType }: Props) {
                 onClick={() => router.push(`/${type}s?itemId=${card._id}`)}
               >
                 <div className="base-color">{card.name}</div>
-                {type === "ticket" && <div>{card.number || "-"}</div>}
                 <div>{dayjs(card.createdAt).format("MMM D YYYY")}</div>
                 <div>
                   {card.stageChangedDate
@@ -76,6 +75,8 @@ export default function Group({ items, item, type, groupType }: Props) {
                     ? dayjs(card.closeDate).format("MMM D YYYY")
                     : "-"}
                 </div>
+
+                <div className="base-color">{stage.name}</div>
 
                 <div>
                   {(labels || []).map((label) => (

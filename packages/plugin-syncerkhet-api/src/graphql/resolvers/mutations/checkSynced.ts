@@ -43,7 +43,8 @@ const checkSyncedMutations = {
         _id,
         isSynced: res.isSynced,
         syncedDate: res.date,
-        syncedBillNumber: res.bill_number
+        syncedBillNumber: res.bill_number,
+        syncedCustomer: res.customer
       };
     });
   },

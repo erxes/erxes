@@ -36,6 +36,20 @@ export const findBranches = async (subdomain: string, branchIds: string[]) => {
   return branches;
 };
 
+export const findDepartments = async (
+  subdomain: string,
+  departmentIds: string[]
+) => {
+  const branches = await sendCoreMessage({
+    subdomain,
+    action: 'departments.find',
+    data: { _id: { $in: departmentIds } },
+    isRPC: true
+  });
+
+  return branches;
+};
+
 export const findUser = async (subdomain: string, userId: string) => {
   const user = await sendCoreMessage({
     subdomain,
@@ -133,6 +147,7 @@ export const createScheduleShiftsByUserIds = async (
             shiftStart: shift.shiftStart,
             shiftEnd: shift.shiftEnd,
             scheduleConfigId: shift.scheduleConfigId,
+            lunchBreakInMins: shift.lunchBreakInMins,
             solved: true,
             status: 'Approved'
           }
@@ -199,8 +214,8 @@ export const timeclockReportByUser = async (
   // get the schedule data of selected month
   const totalSchedulesOfUser = await models.Schedules.find({
     userId,
-    status: 'Approved',
-    solved: true
+    solved: true,
+    status: 'Approved'
   });
 
   const totalScheduleIds = totalSchedulesOfUser.map(schedule => schedule._id);
@@ -702,9 +717,12 @@ export const timeclockReportFinal = async (
 
     // calculate total break time from schedules of an user
     const totalBreakOfSchedulesInHrs =
-      currUserSchedules.reduce(
-        (partialBreakSum, userSchedule) =>
-          partialBreakSum + (userSchedule.totalBreakInMins || 0),
+      currUserScheduleShifts.reduce(
+        (partialBreakSum, userScheduleShift) =>
+          partialBreakSum +
+          (userScheduleShift.lunchBreakInMins ||
+            scheduleShiftConfigsMap[userScheduleShift.scheduleConfigId] ||
+            0),
         0
       ) / 60;
 
