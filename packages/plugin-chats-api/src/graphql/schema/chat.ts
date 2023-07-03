@@ -72,9 +72,7 @@ export const types = () => `
     lastMessage: ChatMessage
     participantUsers: [ChatUser]
     createdUser: User
-    createdAt: Date,
-    isPinned: Boolean
-    isWithNotification: Boolean
+    createdAt: Date
   }
 
   type ChatResponse {
@@ -129,8 +127,6 @@ export const mutations = `
   chatRemove(_id: String!): JSON
   chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String
   chatMarkAsRead(_id : String!) : String
-  chatToggleIsPinned(_id: String!): Boolean
-  chatToggleIsWithNotification(_id: String!): Boolean
   
   chatMessageAdd(chatId: String!, relatedId: String, attachments: [JSON], content: String, mentionedUserIds: [String]): ChatMessage
   chatMessageRemove(_id: String!): JSON
