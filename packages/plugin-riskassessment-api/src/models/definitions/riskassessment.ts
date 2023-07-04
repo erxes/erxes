@@ -14,6 +14,7 @@ export interface IRiskAssessmentsDocument
     Document {
   _id: string;
   indicatorId: string[];
+  permittedUserIds: string[];
   groupId: string;
   branchIds: string[];
   departmentIds: string[];
@@ -77,6 +78,12 @@ export const riskAssessmentsSchema = new Schema({
   indicatorId: field({
     type: String,
     label: 'Risk indicator Id'
+  }),
+  permittedUserIds: field({
+    type: [String],
+    label: 'Permitted User Ids',
+    optional: true,
+    default: undefined
   }),
   groupId: field({ type: String, label: 'Indicator Group Id' }),
   isSplittedUsers: field({ type: Boolean, label: 'Is Splitted Team Members' }),

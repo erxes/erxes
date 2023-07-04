@@ -38,6 +38,7 @@ export type RiskAssessmentTypes = {
   totalScore: string;
   createdAt: string;
   closedAt: string;
+  permittedUserIds: string[];
 };
 
 export type IndicatorSubmissions = {
