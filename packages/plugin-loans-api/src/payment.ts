@@ -12,7 +12,7 @@ export default {
         });
         if (contract) {
           await models.Transactions.createTransaction(subdomain, {
-            payDate: data.resolvedAt,
+            payDate: data.resolvedAt || new Date(),
             total: data.amount,
             contractId: contract._id,
             customerId: contract?.customerId,

@@ -10,9 +10,12 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { returnDeviceTypes } from '../../utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import TimelogForm from '../../containers/timeclock/TimelogForm';
+import TimeEditForm from '../../containers/timeclock/TimeEditForm';
 import { TextAlignCenter } from '../../styles';
 
 type Props = {
+  isCurrentUserAdmin: boolean;
+
   history?: any;
   timelogsPerUser?: ITimelog[];
   timeclock: ITimeclock;

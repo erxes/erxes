@@ -113,7 +113,7 @@ export class SocialPayAPI extends BaseAPI {
       if (body.response.desc.includes('socialpay-payment')) {
         const qrData = await QRCode.toDataURL(body.response.desc);
 
-        return { qrData };
+        return { qrData, deeplink: body.response.desc };
       } else {
         return { text: 'Invoice has sent to SocialPay app' };
       }

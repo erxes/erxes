@@ -9,7 +9,7 @@ mixin modal()
             div(class='loader')
               p #{__('Please wait...')}
             img(src="", alt="qr code", class="qr", id="qr-code", style="display: block; margin: auto; border-radius: 8px;")
-
+            a(id="deeplink", style="color: white; text-decoration: underline;")
             h3(id="apiResponse")
             br
             
@@ -18,7 +18,7 @@ mixin modal()
             
             input(type="tel", placeholder="Phone number", id='storepayInput')
             button(id="storepayBtn", type='button', class='btn btn-primary' style='background-color: white; border-color: grey; color: black;') #{__('Submit')}
-
+            
             div#error.alert.alert-danger(role='alert', style='display: none;')
             div#apiMessage.alert.alert-success(role='alert', style='display: none;')
 

@@ -321,16 +321,6 @@ function List(props: Props) {
     />
   );
 
-  // const compareUserName = (a, b) => {
-  //   if (a.employeeUserName < b.employeeUserName) {
-  //     return -1;
-  //   }
-  //   if (a.employeeUserName > b.employeeUserName) {
-  //     return 1;
-  //   }
-  //   return 0;
-  // };
-
   const content = (
     <Table>
       <thead>
@@ -353,6 +343,7 @@ function List(props: Props) {
         {timeclocks.map(timeclock => {
           return (
             <Row
+              isCurrentUserAdmin={isCurrentUserAdmin}
               key={timeclock._id}
               timeclock={timeclock}
               removeTimeclock={removeTimeclock}

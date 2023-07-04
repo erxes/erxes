@@ -103,7 +103,6 @@ export class MonpayAPI extends BaseAPI {
       }
 
       const { result } = res;
-
       const qrData = await QRCode.toDataURL(result.qrcode);
 
       return { ...result, qrData };
