@@ -1,0 +1,85 @@
+name: Plugin viber UI CI
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+    paths:
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-cards/**"
+      - "packages/ui-forms/**"
+      - "packages/ui-inbox/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/ui-leads/**"
+      - "packages/ui-log/**"
+      - "packages/ui-notifications/**"
+      - "packages/ui-products/**"
+      - "packages/ui-segments/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
+      - "packages/ui-tags/**"
+      - "packages/ui-viber/**"
+      - "packages/plugin-viber-ui/**"
+      - ".github/workflows/plugin-viber-ui.yaml"
+  pull_request:
+    branches:
+      - dev
+      - staging
+    paths:
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-cards/**"
+      - "packages/ui-forms/**"
+      - "packages/ui-inbox/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/ui-leads/**"
+      - "packages/ui-log/**"
+      - "packages/ui-notifications/**"
+      - "packages/ui-products/**"
+      - "packages/ui-segments/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
+      - "packages/ui-tags/**"
+      - "packages/ui-viber/**"
+      - "packages/plugin-viber-ui/**"
+      - ".github/workflows/plugin-viber-ui.yaml"
+
+jobs:
+  ui:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 14.20.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.20.x
+
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-viber-ui/.erxes
+          cp -r packages/plugin-viber-ui/src packages/plugin-viber-ui/.erxes/plugin-src
+          cd packages/plugin-viber-ui
+          yarn install
+          yarn install-deps
+          yarn build
+
+      - name: Configure AWS credentials
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
+        run: |
+          tar -cf build.tar --directory=packages/plugin-viber-ui/.erxes/dist .
+          cp build.tar packages/plugin-viber-ui/.erxes/dist
+          rm -rf packages/plugin-viber-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-viber-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-viber-ui --delete

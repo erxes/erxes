@@ -246,7 +246,7 @@ const Contracts = {
       payDate: { $lte: today }
     }).lean();
 
-    return schedules.reduce((a, b) => a + b.didPayment, 0);
+    return schedules.reduce((a, b) => a + b.didPayment, 0) || 0;
   },
 
   async nextPayment(

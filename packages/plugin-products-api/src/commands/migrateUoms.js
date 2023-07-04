@@ -29,7 +29,7 @@ const command = async () => {
 
 
   try {
-    const defaultUomId = (await Configs.find({ code: 'defaultUOM' }).toArray() || [{}])[0].value;
+    const defaultUomId = ((await Configs.find({ code: 'defaultUOM' }).toArray() || [{}])[0] || {}).value;
     const allUoms = await Uoms.find({}).toArray();
     const defaultUom = (allUoms.find(u => u._id === defaultUomId) || {}).code;
 
@@ -51,6 +51,7 @@ const command = async () => {
       }
 
       if (!uom) {
+        uom = 'PC'
         console.log(`warning(main uom): productCode: "${product.code}"`)
       }
 
@@ -145,5 +146,5 @@ const command = async () => {
 
   process.exit();
 };
-command();
 
+command();

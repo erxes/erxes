@@ -22,16 +22,17 @@ export const getGqlString = doc => {
 export const getSubMenu = () => {
   const subMenu = [{ title: 'Payments', link: '/settings/payments' }];
 
-  if (
-    subMenu.findIndex(m => m.link === '/payment/configs') === -1 &&
-    isEnabled('products') &&
-    isEnabled('inbox')
-  ) {
-    subMenu.push({
-      title: 'Form Integration Configs',
-      link: '/payment/configs'
-    });
-  }
+  // TODO: add this back when component changed for any plugins
+  // if (
+  //   subMenu.findIndex(m => m.link === '/payment/configs') === -1 &&
+  //   isEnabled('products') &&
+  //   isEnabled('inbox')
+  // ) {
+  //   subMenu.push({
+  //     title: 'Plugins Configs',
+  //     link: '/payment/configs'
+  //   });
+  // }
 
   return subMenu;
 };

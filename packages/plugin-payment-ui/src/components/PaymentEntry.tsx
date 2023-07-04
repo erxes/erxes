@@ -79,7 +79,7 @@ function renderCreate(kind: string) {
     <Component {...props} renderButton={renderButton} metaData={meta} />
   );
 
-  const size = meta.modalSize || 'sm';
+  const size = meta.modalSize || 'lg';
 
   return (
     <ModalTrigger

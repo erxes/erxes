@@ -46,6 +46,9 @@ export const formDetailQuery = (isProductsEnabled: boolean) => `
               _id
               name
               unitPrice
+              attachment {
+                url
+              }
             }
           `
             : ''

@@ -22,6 +22,7 @@ import tags from './tags';
 import exporter from './exporter';
 import cronjobs from './cronjobs/common';
 import dashboards from './dashboards';
+import { NOTIFICATION_MODULES } from './constants';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -57,7 +58,8 @@ export default {
     tags,
     permissions,
     documents,
-    dashboards
+    dashboards,
+    notificationModules: NOTIFICATION_MODULES
   },
 
   apolloServerContext: async (context, req, res) => {

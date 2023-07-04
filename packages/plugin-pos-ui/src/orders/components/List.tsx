@@ -87,7 +87,7 @@ class Orders extends React.Component<IProps, {}> {
     );
 
     const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
-    const otherPayTitles = (Object.keys(summary) || [])
+    const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
       .filter(a => !['_id'].includes(a))
       .filter(a => !staticKeys.includes(a))
       .sort();

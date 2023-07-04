@@ -3,6 +3,8 @@ const chatMessageInserted = `
     chatMessageInserted(chatId: $chatId) {
       _id
       content
+      attachments
+      mentionedUserIds
       createdUser {
         _id
         email

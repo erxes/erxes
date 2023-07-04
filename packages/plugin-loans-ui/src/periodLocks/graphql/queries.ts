@@ -47,6 +47,7 @@ export const periodLocksMain = `
 `;
 
 export const periodLockDetailFields = `
+  generals
 `;
 
 export const periodLockDetail = `
