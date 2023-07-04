@@ -1,13 +1,7 @@
 import { Add } from "../../../styles/products";
 
 import { __ } from "../../../../utils";
-import {
-  Config,
-  IPaymentsData,
-  IProduct,
-  IProductCategory,
-  IProductData
-} from "../../../types";
+import { Config, IProduct, IProductData } from "../../../types";
 
 import Button from "../../../common/Button";
 
@@ -16,34 +10,18 @@ import React from "react";
 import Table from "../../../common/Table";
 import EmptyState from "../../../common/form/EmptyState";
 import ProductChooser from "../../containers/product/ProductChooser";
-import { Alert } from "../../../utils";
 import Modal from "../../../common/Modal";
 import { FooterInfo } from "../../../styles/main";
 
 type Props = {
-  saveProductsData?: () => void;
-  onChangePaymentsData?: (paymentsData: IPaymentsData) => void;
-
-  products: IProduct[];
-
+  onChangeProductsData: (productsData: IProductData[]) => void;
   config: Config;
-
-  categories: IProductCategory[];
+  productsData: IProductData[];
 };
 
 type State = {
   totalAmount: number;
-
-  tax: { [currency: string]: { value?: number; percent?: number } };
-  discount: { [currency: string]: { value?: number; percent?: number } };
-  vatPercent: number;
-  changePayData: { [currency: string]: number };
-  tempId: string;
-  categoryId?: string;
-
-  filterValues: any;
-  showProductChooser?: boolean;
-  productsData: IProductData[];
+  showProductChooser: boolean;
 };
 
 class ProductForm extends React.Component<Props, State> {
@@ -52,16 +30,7 @@ class ProductForm extends React.Component<Props, State> {
 
     this.state = {
       totalAmount: 0,
-      discount: {},
-      tax: {},
-      vatPercent: 0,
-      changePayData: {},
-      tempId: "",
-      filterValues: JSON.parse(
-        localStorage.getItem("dealProductFormFilter") || "{}"
-      ),
-      showProductChooser: false,
-      productsData: []
+      showProductChooser: false
     };
   }
 
@@ -69,7 +38,7 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal();
   }
 
-  updateTotal = (productsData = this.state.productsData) => {
+  updateTotal = (productsData = this.props.productsData) => {
     let totalAmount = 0;
 
     productsData.forEach(p => {
@@ -83,27 +52,21 @@ class ProductForm extends React.Component<Props, State> {
     const { totalAmount } = this.state;
     return (
       <div>
-        {totalAmount} <b>MNT</b>
+        {totalAmount.toLocaleString()} <b>MNT</b>
       </div>
     );
   }
 
-  onChangeProductsData = pdata => {
-    this.setState({ productsData: pdata });
-  };
-
   removeProductItem = _id => {
-    const { productsData } = this.state;
-
+    const { productsData, onChangeProductsData } = this.props;
     const removedProductsData = productsData.filter(p => p._id !== _id);
 
-    this.onChangeProductsData(removedProductsData);
-
+    onChangeProductsData(removedProductsData);
     this.updateTotal(removedProductsData);
   };
 
   duplicateProductItem = _id => {
-    const { productsData } = this.state;
+    const { productsData, onChangeProductsData } = this.props;
 
     const productData: any = productsData.find(p => p._id === _id);
 
@@ -112,15 +75,15 @@ class ProductForm extends React.Component<Props, State> {
       _id: Math.random().toString()
     });
 
-    this.onChangeProductsData(productsData);
+    onChangeProductsData(productsData);
 
     for (const pData of productsData) {
-      this.calculatePerProductAmount("discount", pData);
+      this.calculatePerProductAmount(pData);
     }
   };
 
   renderContent() {
-    const { productsData } = this.state;
+    const { productsData } = this.props;
 
     if (productsData.length === 0) {
       return (
@@ -128,18 +91,6 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
-    let filteredProductsData = productsData;
-
-    const { filterValues } = this.state;
-
-    if (filterValues.search) {
-      filteredProductsData = filteredProductsData.filter(
-        p =>
-          p.product &&
-          (p.product.name.includes(filterValues.search) ||
-            p.product.code.includes(filterValues.search))
-      );
-    }
     return (
       <>
         <Table>
@@ -149,12 +100,12 @@ class ProductForm extends React.Component<Props, State> {
               <th>{__("Product / Service")}</th>
               <th style={{ width: "30px" }}>{__("Quantity")}</th>
               <th>{__("Unit price")}</th>
-              <th>{__("")}</th>
+              <th>{__("Amount")}</th>
               <th>{__("")}</th>
             </tr>
           </thead>
           <tbody id="products">
-            {filteredProductsData.map(productData => (
+            {productsData.map(productData => (
               <ProductItem
                 key={productData._id}
                 productData={productData}
@@ -181,7 +132,6 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   calculatePerProductAmount = (
-    type: string,
     productData: IProductData,
     callUpdateTotal = true
   ) => {
@@ -209,7 +159,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderBulkProductChooser() {
-    const { productsData } = this.state;
+    const { productsData, onChangeProductsData } = this.props;
 
     const productOnChange = (products: IProduct[]) => {
       for (const product of products) {
@@ -231,10 +181,10 @@ class ProductForm extends React.Component<Props, State> {
         });
       }
 
-      this.onChangeProductsData(productsData);
+      onChangeProductsData(productsData);
 
       for (const productData of productsData) {
-        this.calculatePerProductAmount("discount", productData);
+        this.calculatePerProductAmount(productData);
       }
     };
 
@@ -242,8 +192,8 @@ class ProductForm extends React.Component<Props, State> {
       <ProductChooser
         {...this.props}
         {...props}
+        selectedProducts={productsData}
         onSaveProducts={productOnChange}
-        categoryId={this.state.categoryId}
       />
     );
 
@@ -255,39 +205,6 @@ class ProductForm extends React.Component<Props, State> {
       />
     );
   }
-
-  onClick = () => {
-    const { saveProductsData } = this.props;
-    const { productsData } = this.state;
-
-    if (productsData.length !== 0) {
-      for (const data of productsData) {
-        if (!data.product) {
-          return Alert.error("Please choose a product");
-        }
-
-        if (!data.unitPrice && data.unitPrice !== 0) {
-          return Alert.error(
-            "Please enter an unit price. It should be a number"
-          );
-        }
-
-        if (!data.currency) {
-          return Alert.error("Please choose a currency");
-        }
-
-        if (
-          data.product.type === "service" &&
-          data.tickUsed &&
-          !data.assignUserId
-        ) {
-          return Alert.error("Please choose a Assigned to any service");
-        }
-      }
-    }
-
-    saveProductsData();
-  };
 
   render() {
     return (

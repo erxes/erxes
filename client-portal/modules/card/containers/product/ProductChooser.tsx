@@ -1,16 +1,9 @@
-import queryString from "query-string";
 import { gql, useQuery } from "@apollo/client";
-import * as compose from "lodash.flowright";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Config, IProduct } from "../../../types";
-import ProductForm from "./ProductForm";
-import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import Chooser from "../../components/product/ProductChooser";
 import { queries } from "../../../card/graphql";
-import { load } from "dotenv/types";
-import EmptyState from "../../../common/form/EmptyState";
 
 type Props = {
   config: Config;
@@ -20,43 +13,42 @@ type Props = {
 };
 
 function ProductChooser(props: Props) {
-  const { config } = props;
+  const [perPage, setPerPage] = useState(20);
+  const [searchValue, setsearchValue] = useState("");
 
-  const [perPage, setPerPage] = useState(0);
-
-  const { error, data, loading, refetch }: any = useQuery(
-    gql(queries.products),
-    {
-      context: {
-        headers: {
-          "erxes-app-token": config?.erxesAppToken
-        }
+  const productsQuery: any = useQuery(gql(queries.products), {
+    variables: {
+      perPage: 20
+    },
+    context: {
+      headers: {
+        "erxes-app-token": props.config?.erxesAppToken
       }
     }
-  );
+  });
 
-  if (loading) {
-    return <EmptyState text="as" />;
-  }
-
-  const search = (searchValue: string, reload?: boolean) => {
+  const search = (value: string, reload?: boolean) => {
     if (!reload) {
-      setPerPage(100);
+      setPerPage(20);
+    } else {
+      setPerPage(perPage + 20);
     }
 
-    setPerPage(perPage + 20);
-
-    refetch({ searchValue, perPage });
+    setsearchValue(value);
   };
 
-  return (
-    <Chooser
-      {...props}
-      perPage={perPage}
-      products={data.products}
-      search={search}
-    />
-  );
+  useEffect(() => {
+    productsQuery.refetch({ searchValue, perPage });
+  }, [perPage, searchValue]);
+
+  const updatedProps = {
+    ...props,
+    perPage,
+    products: productsQuery.data ? productsQuery.data.products : [],
+    search
+  };
+
+  return <Chooser {...updatedProps} />;
 }
 
 export default ProductChooser;

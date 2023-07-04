@@ -2,10 +2,9 @@ import React from "react";
 import FormControl from "../../../common/form/Control";
 import Icon from "../../../common/Icon";
 import { __ } from "../../../../utils";
-import { CenterContent, TypeBox } from "../../../styles/products";
+import { TypeBox } from "../../../styles/products";
 import { IProductData, IProduct } from "../../../types";
 import Tip from "../../../common/Tip";
-import { FooterInfo } from "../../../styles/main";
 
 type Props = {
   productsData?: IProductData[];
@@ -13,7 +12,7 @@ type Props = {
   removeProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
   duplicateProductItem?: (productId: string) => void;
-  calculatePerProductAmount: (type: string, productData: IProductData) => void;
+  calculatePerProductAmount: (productData: IProductData) => void;
   updateTotal?: () => void;
   currentProduct?: IProduct;
 };
@@ -101,7 +100,7 @@ class ProductItem extends React.Component<Props, State> {
       }
 
       if (type !== "uom" && productData) {
-        calculatePerProductAmount(type, productData);
+        calculatePerProductAmount(productData);
       }
 
       if (onChangeProductsData) {
@@ -141,6 +140,7 @@ class ProductItem extends React.Component<Props, State> {
             onChange={this.onChange}
           />
         </td>
+        <td>{productData.amount.toLocaleString()}</td>
 
         <td>
           <Tip text="remove" placement="right">

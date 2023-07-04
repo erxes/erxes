@@ -74,6 +74,7 @@ const clientPortalGetDeal = `
   query dealDetail($_id: String!) {
     dealDetail(_id: $_id) {
       ${itemFields}
+      productsData
     }
   }
 `;
@@ -106,7 +107,7 @@ const clientPortalDeals = `
   query clientPortalDeals($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String]) {
     clientPortalDeals(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds) {
       ${itemFields}
-      products      
+      productsData  
     }
   }
 `;

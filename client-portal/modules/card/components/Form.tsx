@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 
-import { Config, ICustomField, IProduct, IUser, Label } from "../../types";
+import { Config, ICustomField, IUser, Label } from "../../types";
 import React, { useState } from "react";
 
 import Alert from "../../utils/Alert";
@@ -21,7 +21,7 @@ type Props = {
   config: Config;
   departments: string[];
   branches: string[];
-  products: any[];
+  products?: any[];
   labels: Label[];
   type: string;
   closeModal: () => void;
@@ -38,7 +38,7 @@ export default function Form({
   labels,
   config
 }: Props) {
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [productsData, setProductsData] = useState([]);
   const [item, setItem] = useState({} as any);
   const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
 
@@ -56,7 +56,7 @@ export default function Form({
       }
     }
 
-    handleSubmit({ ...item, customFieldsData });
+    handleSubmit({ ...item, customFieldsData, productsData });
   };
 
   const onCustomFieldsDataChange = ({ _id, value }) => {
@@ -141,9 +141,9 @@ export default function Form({
   function renderProductSection() {
     return (
       <ProductSection
+        productsData={productsData}
         config={config}
-        products={products}
-        saveProducts={setSelectedProducts}
+        onChangeProductsData={setProductsData}
       />
     );
   }

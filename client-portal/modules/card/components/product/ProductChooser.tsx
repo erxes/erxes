@@ -48,23 +48,13 @@ class ProductChooser extends React.Component<Props, State> {
     };
   }
 
-  // componentWillUnmount() {
-  //   this.props.clearState();
-  // }
+  componentWillReceiveProps(newProps) {
+    const { products, perPage } = newProps;
 
-  // componentWillReceiveProps(newProps) {
-  //   const { products, perPage, newItem } = newProps;
-
-  //   this.setState({
-  //     loadmore: products.length === perPage && products.length > 0
-  //   });
-
-  //   const { resetAssociatedItem } = this.props;
-
-  //   if (newItem) {
-  //     this.setState({ products: [...this.state.datas, newItem] }, () => {});
-  //   }
-  // }
+    this.setState({
+      loadmore: products.length === perPage && products.length > 0
+    });
+  }
 
   handleChange = (type, data) => {
     const { selectedProducts } = this.state;
