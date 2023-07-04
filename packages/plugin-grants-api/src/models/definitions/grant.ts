@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface IGrantRequest {
@@ -53,6 +53,12 @@ export const grantSchema = new Schema({
   userIds: field({ type: [String], label: 'Members seeking grant' }),
   action: field({ type: String, label: 'Grant action' }),
   params: field({ type: String, label: 'Grant params' }),
+  activeStatus: field({
+    type: String,
+    label: 'Active status',
+    enum: ['active', 'archived'],
+    default: 'active'
+  }),
   status: field({
     type: String,
     label: 'request status',
