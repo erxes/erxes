@@ -36,6 +36,10 @@ cube(`Tickets`, {
     TicketsBranches: {
       sql: `${CUBE}._id = ${TicketsBranches}._id`,
       relationship: `belongsTo`
+    },
+    Users: {
+      sql: `CONCAT(${CUBE}.userId)= ${Users}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -56,6 +60,17 @@ cube(`Tickets`, {
       sql: `description`,
       type: `string`,
       shown: false
+    },
+
+    userid: {
+      sql: `
+        CASE
+          WHEN ${Users}.\`details.fullName\` IS NULL OR ${Users}.\`details.fullName\` = '' THEN ${Users}.\`username\`
+          ELSE ${Users}.\`details.fullName\`
+        END
+      `,
+      type: `string`,
+      title: `Created User`
     },
 
     initialstageid: {

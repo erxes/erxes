@@ -28,7 +28,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { prepareCurrentUserOption } from '../../utils';
-import * as dayjs from 'dayjs';
 
 type Props = {
   currentUser: IUser;
@@ -320,16 +319,6 @@ function List(props: Props) {
       wideSpacing={true}
     />
   );
-
-  // const compareUserName = (a, b) => {
-  //   if (a.employeeUserName < b.employeeUserName) {
-  //     return -1;
-  //   }
-  //   if (a.employeeUserName > b.employeeUserName) {
-  //     return 1;
-  //   }
-  //   return 0;
-  // };
 
   const content = (
     <Table>

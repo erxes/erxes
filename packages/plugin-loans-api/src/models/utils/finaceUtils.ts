@@ -1,4 +1,5 @@
 import { IModels } from '../../connectionResolver';
+import { sendMessageBroker } from '../../messageBroker';
 import { CONTRACT_CLASSIFICATION } from '../definitions/constants';
 import { IContractTypeDocument } from '../definitions/contractTypes';
 import { IContractDocument } from '../definitions/contracts';
@@ -7,11 +8,39 @@ import { ITransactionDocument } from '../definitions/transactions';
 export async function generateFinance(
   tr: ITransactionDocument,
   models: IModels,
-  periodLockId: string
+  periodLockId: string,
+  subdomain: string
 ) {
   const contract = await models.Contracts.findOne({ _id: tr.contractId }).lean<
     IContractDocument
   >();
+
+  let customerCode = '';
+
+  if (contract?.customerType == 'customer') {
+    const customer = await sendMessageBroker(
+      {
+        action: 'customers.findOne',
+        data: { _id: tr.customerId },
+        subdomain,
+        isRPC: true
+      },
+      'contacts'
+    );
+
+    customerCode = customer?.code;
+  } else {
+    const company = await sendMessageBroker(
+      {
+        action: 'customers.findOne',
+        data: { _id: tr.customerId },
+        subdomain,
+        isRPC: true
+      },
+      'contacts'
+    );
+    customerCode = company?.code;
+  }
 
   const contractType = await models.ContractTypes.findOne({
     _id: contract?.contractTypeId
@@ -22,7 +51,8 @@ export async function generateFinance(
     tr,
     contract,
     contractType?.config,
-    periodLockId
+    periodLockId,
+    customerCode
   );
 
   return financeTransaction;
@@ -76,7 +106,8 @@ function fillTransaction(
   tr: ITransactionDocument,
   contract: IContractDocument,
   config: any,
-  periodLockId: string
+  periodLockId: string,
+  customerCode: string
 ) {
   var dtl: {
     amount: number;
@@ -135,6 +166,7 @@ function fillTransaction(
   return {
     contractId: tr.contractId,
     customerId: tr.customerId,
+    customerCode: customerCode,
     periodLockId: periodLockId,
     transactionId: tr._id,
     description: tr.description,
