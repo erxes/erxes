@@ -303,8 +303,8 @@ export const readFile = (value: string): string => {
   if (
     !value ||
     urlParser.isValidURL(value) ||
-    value.includes('http') ||
-    value.startsWith('/')
+    (typeof value === 'string' && value.includes('http')) ||
+    (typeof value === 'string' && value.startsWith('/'))
   ) {
     return value;
   }

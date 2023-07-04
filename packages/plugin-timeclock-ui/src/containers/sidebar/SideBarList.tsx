@@ -4,6 +4,8 @@ import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
+  isCurrentUserAdmin: boolean;
+
   history: any;
   currentUser: IUser;
   branches: IBranch[];

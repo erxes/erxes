@@ -504,6 +504,7 @@ export const getCards = async (
     action: `${type}s.find`,
     data: {
       _id: { $in: cardIds },
+      status: { $regex: '^((?!archived).)*$', $options: 'i' },
       stageId: oneStageId ? oneStageId : { $in: stageIds },
       ...(args?.priority && { priority: { $in: args?.priority || [] } }),
       ...(args?.labelIds && { labelIds: { $in: args?.labelIds || [] } }),
