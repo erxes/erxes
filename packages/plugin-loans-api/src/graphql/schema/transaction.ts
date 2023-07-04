@@ -9,6 +9,8 @@ const typeFields = `
   insurance: Float,
   debt: Float,
   total: Float,
+  balance: Float,
+  closeAmount: Float,
 `;
 export const types = `
   type TransactionPreInfo {

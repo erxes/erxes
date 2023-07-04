@@ -128,6 +128,8 @@ export const getCalcedAmounts = async (
     debt: number;
     payment: number;
     preSchedule: any;
+    balance: number;
+    closeAmount: number;
   } = {
     undue: 0,
     interestEve: 0,
@@ -136,7 +138,9 @@ export const getCalcedAmounts = async (
     debt: 0,
     payment: 0,
     total: 0,
-    preSchedule: undefined
+    preSchedule: undefined,
+    balance: 0,
+    closeAmount: 0
   };
 
   if (!doc.contractId) {
@@ -186,6 +190,8 @@ export const getCalcedAmounts = async (
 
   const prePayDate = getFullDate(preSchedule.payDate);
   result.preSchedule = preSchedule;
+
+  result.balance = preSchedule.balance;
 
   // closed contract
   if (!nextSchedule) {
@@ -703,6 +709,11 @@ export const removeTrAfterSchedule = async (
         }
       });
     }
+  }
+
+  if (tr.contractReaction) {
+    const { _id, ...otherData } = tr.contractReaction;
+    await models.Contracts.updateOne({ _id: _id }, { $set: otherData });
   }
 
   if (bulkOps && bulkOps.length) {

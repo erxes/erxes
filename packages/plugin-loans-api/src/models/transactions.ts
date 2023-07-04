@@ -377,11 +377,15 @@ export const loadTransactionClass = (models: IModels) => {
         interestEve = 0,
         interestNonce = 0,
         insurance = 0,
-        debt = 0
+        debt = 0,
+        balance = 0
       } = paymentInfo;
 
       paymentInfo.total =
         payment + undue + interestEve + interestNonce + insurance + debt;
+
+      paymentInfo.closeAmount =
+        balance + undue + interestEve + interestNonce + insurance + debt;
 
       return paymentInfo;
     }
