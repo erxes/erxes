@@ -4,6 +4,8 @@ import { serviceDiscovery } from './configs';
 import { afterMutationHandlers } from './afterMutations';
 import { beforeResolverHandlers } from './beforeResolvers';
 import { getConfig } from './utils';
+import { getPostDataCommon } from './commonUtils';
+import { PutData } from './models/utils';
 
 let client;
 
@@ -92,6 +94,87 @@ export const initBroker = async cl => {
           },
           { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config }
         )
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'ebarimt:putresponses.putDatas',
+    async ({
+      subdomain,
+      data: { contentType, contentId, orderInfo, config }
+    }) => {
+      const models = await generateModels(subdomain);
+      // orderInfo = {
+      //   number: string /unique in day/,
+      //   date:
+      //     date.toISOString().split('T')[0] +
+      //     ' ' +
+      //     date.toTimeString().split(' ')[0],
+      //   orderId: =contentId,
+      //   hasVat: boolean,
+      //   hasCitytax: boolean,
+      //   billType: 1 | 3,
+      //   customerCode: string [7],
+      //   customerName: string,
+      //   description: string,
+      //   details: [{
+      //     productId: string
+      //     amount: number,
+      //     count: number,
+      //     discount?: number
+      //   }],
+      //   cashAmount: number,
+      //   nonCashAmount: number
+      // };
+
+      // config = {
+      //   districtName: string,
+      //   vatPercent?: number,
+      //   cityTaxPercent?: number
+      //   defaultGSCode?: string *
+      //   companyRD: string
+      // }
+
+      const ebarimtDatas = await getPostDataCommon(
+        subdomain,
+        config,
+        contentType,
+        contentId,
+        orderInfo
+      );
+      const ebarimtResponses: any[] = [];
+
+      for (const ebarimtData of ebarimtDatas) {
+        let ebarimtResponse;
+
+        if (config.skipPutData || ebarimtData.inner) {
+          const putData = new PutData({
+            ...config,
+            ...ebarimtData,
+            config,
+            models
+          });
+          ebarimtResponse = {
+            _id: Math.random(),
+            billId: 'Түр баримт',
+            ...(await putData.generateTransactionInfo()),
+            registerNo: config.companyRD || ''
+          };
+        } else {
+          ebarimtResponse = await models.PutResponses.putData(
+            ebarimtData,
+            config
+          );
+        }
+        if (ebarimtResponse._id) {
+          ebarimtResponses.push(ebarimtResponse);
+        }
+      }
+
+      return {
+        status: 'success',
+        data: ebarimtResponses
       };
     }
   );
