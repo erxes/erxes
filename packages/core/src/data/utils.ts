@@ -291,7 +291,7 @@ export const checkFile = async (models: IModels, file, source?: string) => {
   const buffer = await fs.readFileSync(file.path);
 
   // determine file type using magic numbers
-  let ft = fileType(buffer);
+  const ft = fileType(buffer);
 
   const unsupportedMimeTypes = [
     'text/csv',

@@ -20,8 +20,7 @@ import {
   EditorActions,
   EditorWrapper,
   FileName,
-  PreviewImg,
-  UploaderWrapper
+  PreviewImg
 } from '../styles';
 import VoiceRecorder from './voice/VoiceRecorder';
 import { IAttachment } from '@erxes/ui/src/types';

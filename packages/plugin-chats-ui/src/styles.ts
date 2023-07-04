@@ -731,15 +731,6 @@ export const EditorWrapper = styled.div`
   }
 `;
 
-export const UploaderWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  > div {
-    margin: 0;
-  }
-`;
 /**
  * ChatEditor - END
  */
