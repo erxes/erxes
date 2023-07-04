@@ -9,7 +9,9 @@ const generateFilter = async (
   user: IUserDocument,
   subdomain: string
 ) => {
-  const filter: any = {};
+  const filter: any = {
+    $or: [{ activeStatus: { $exists: false } }, { activeStatus: 'active' }]
+  };
 
   if (params.status) {
     filter.status = params.status;
@@ -34,6 +36,10 @@ const generateFilter = async (
   }
   if (params.closedAtTo) {
     filter.closedAt = { ...filter.closedAt, $lte: params.closedAtTo };
+  }
+  if (params?.archived) {
+    delete filter.$or;
+    filter.activeStatus = params?.archived ? 'archived' : 'active';
   }
 
   if (params?.onlyWaitingMe) {
@@ -63,7 +69,7 @@ const generateFilter = async (
     if (request) {
       const contentTypeIds = await models.Requests.find({
         contentType,
-        activeStatus: 'active'
+        $or: [{ activeStatus: { $exists: false } }, { activeStatus: 'active' }]
       }).distinct('contentTypeId');
       const query = { _id: { $in: contentTypeIds } };
 

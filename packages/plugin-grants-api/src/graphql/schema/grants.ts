@@ -73,7 +73,8 @@ const commonParams = `
   closedAtFrom:String
   closedAtTo:String,
   onlyWaitingMe:Boolean,
-  contentFilter:ContentTypeFilter
+  contentFilter:ContentTypeFilter,
+  archived:Boolean
 `;
 
 export const queries = `
@@ -109,7 +110,7 @@ export const mutations = `
     editGrantRequest(${commonRequestMutationParams}):JSON
     responseGrantRequest( description:String, response:String, requestId:String):JSON
     cancelGrantRequest(contentType:String,contentTypeId:String):JSON,
-    removeGrantRequest(ids:[String]):JSON
+    removeGrantRequests(ids:[String]):JSON
     addGrantConfig(${commonConfigMutationParams}):GrantConfig
     editGrantConfig(_id:String,${commonConfigMutationParams}):GrantConfig
     removeGrantConfig(_id:String):JSON
