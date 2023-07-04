@@ -1,5 +1,7 @@
 // Settings
 
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const configs = `
   query configsGetValue($code: String!) {
     configsGetValue(code: $code)
@@ -123,10 +125,70 @@ const checkSyncOrders = `
   }
 `;
 
+const posOrderDetail = `
+  query posOrderDetail($_id: String) {
+    posOrderDetail(_id: $_id) {
+      _id
+      createdAt
+      status
+      paidDate
+      number
+      customerId
+      customerType
+      cashAmount
+      mobileAmount
+      paidAmounts
+      totalAmount
+      finalAmount
+      shouldPrintEbarimt
+      printedEbarimt
+      billType
+      billId
+      registerNumber
+      oldBillId
+      type
+      userId
+      items
+      posToken
+
+      syncedErkhet
+
+      posName
+      origin
+      user {
+        _id
+        email
+      }
+      convertDealId
+      ${
+        isEnabled('contacts')
+          ? `
+        customer {
+          _id
+          code
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+        }
+      `
+          : ``
+      }
+      syncErkhetInfo
+      putResponses
+      deliveryInfo
+      deal
+      dealLink
+    }
+  }
+`;
+
 export default {
   configs,
   checkSyncDeals,
   checkSyncDealsTotalCount,
   checkSyncOrdersTotalCount,
-  checkSyncOrders
+  checkSyncOrders,
+
+  posOrderDetail
 };

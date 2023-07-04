@@ -9,7 +9,27 @@ export interface IPeriodLock extends IPeriodLockDoc {
   _id: string;
 }
 
-export interface IPeriodLockDetail extends IPeriodLock {}
+interface IGeneralRow {
+  amount: number;
+  account: string;
+  side: 'kt' | 'dt';
+}
+
+export interface IGeneral {
+  contractId?: string;
+  customerId?: string;
+  transactionId?: string;
+  description?: string;
+  payDate: Date;
+  generalNumber: string;
+  amount?: number;
+  periodLockId: string;
+  dtl?: IGeneralRow[];
+}
+
+export interface IPeriodLockDetail extends IPeriodLock {
+  generals: IGeneral[];
+}
 
 // mutation types
 

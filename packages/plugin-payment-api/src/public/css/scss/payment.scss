@@ -9,7 +9,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  margin-bottom: 2rem;
   
   h4 {
     font-weight: 500;
@@ -25,20 +25,29 @@
   }
 
   .warning {
-    background: #EFEFEF;
+    background-color: #fffbe6;
+    border: 1px solid #ffe58f;
     border-radius: 8px;
-    color: #727272;
+    margin: 0;
+    padding: 8px 12px;
+    color: rgba(0, 0, 0, 0.88);
     width: 80%;
-    padding: 15px;
-    margin-top: 25px;
-
+    margin-top: 1rem;
+    font-size: 14px;
+    i{
+      float: left;
+      font-size: 18px;
+      line-height: 20px;
+      color: #faad14;
+    }
     p {
-      font-size: 7px;
+      font-size: 14px;
       margin: 0;
       text-align: center;
     }
   }
 }
+
 .payment-name {
   p {
     color: #000;
@@ -135,7 +144,12 @@
 }
 
 .paymentContainer {
-  padding: 0 30px 20px;
+  padding: 20px 30px;
+  height: 50vh;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-around;
 }
 
 h3 {
@@ -163,9 +177,19 @@ h3 {
 .button {
   border: none;
   background: none;
+  overflow: hidden;
+  img{
+    width: 80px;
+    opacity: 1;
+    transition: all ease-in-out 0.3s;
+  }
   &:hover {
     box-shadow: none;
     cursor: pointer;
+    img{
+      opacity: 0.8;
+      scale: 1.1;
+    }
   }
 }
 

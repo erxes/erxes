@@ -246,6 +246,11 @@ export class StorePayAPI extends BaseAPI {
         }
       });
 
+      const { msgList = [], status } = res;
+      if (status === 'Failed' && msgList.length > 0) {
+        throw new Error(msgList[0].code);
+      }
+
       if (!res.value || res.value === 0) {
         throw new Error('Insufficient loan amount');
       }

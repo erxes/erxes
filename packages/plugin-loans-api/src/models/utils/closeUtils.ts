@@ -9,7 +9,7 @@ export const getCloseInfo = async (
   models: IModels,
   memoryStorage,
   contract: IContractDocument,
-  date: Date
+  date: Date = new Date()
 ) => {
   const closeDate = getFullDate(date);
   const contractId = contract._id;
