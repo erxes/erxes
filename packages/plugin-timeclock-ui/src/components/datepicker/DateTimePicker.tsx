@@ -1,7 +1,5 @@
 import React from 'react';
 import Datetime from '@nateradebaugh/react-datetime';
-import Button from '@erxes/ui/src/components/Button';
-import Tip from '@erxes/ui/src/components/Tip';
 import dayjs from 'dayjs';
 
 type Props = {

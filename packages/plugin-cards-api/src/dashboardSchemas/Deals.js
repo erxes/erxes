@@ -35,6 +35,10 @@ cube(`Deals`, {
     DealsBranches: {
       sql: `${CUBE}._id = ${DealsBranches}._id`,
       relationship: `belongsTo`
+    },
+    Users: {
+      sql: `CONCAT(${CUBE}.userId)= ${Users}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -60,6 +64,17 @@ cube(`Deals`, {
     name: {
       sql: `name`,
       type: `string`
+    },
+
+    userid: {
+      sql: `
+        CASE
+          WHEN ${Users}.\`details.fullName\` IS NULL OR ${Users}.\`details.fullName\` = '' THEN ${Users}.\`username\`
+          ELSE ${Users}.\`details.fullName\`
+        END
+      `,
+      type: `string`,
+      title: `Created User`
     },
 
     reltypecustomer: {
