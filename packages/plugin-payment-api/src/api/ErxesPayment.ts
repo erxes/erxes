@@ -8,6 +8,7 @@ import { SocialPayAPI } from './socialpay/api';
 import { StorePayAPI } from './storepay/api';
 import { WechatPayAPI } from './wechatpay/api';
 import { PocketAPI } from './pocket/api';
+import * as QRCode from 'qrcode';
 
 class ErxesPayment {
   public socialpay: SocialPayAPI;
@@ -37,6 +38,9 @@ class ErxesPayment {
 
   async createInvoice(invoice: IInvoiceDocument) {
     const { payment } = this;
+
+    // return { qrData: await QRCode.toDataURL('test') };
+
     const api = this[payment.kind];
 
     try {
