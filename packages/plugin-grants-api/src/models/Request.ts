@@ -1,15 +1,15 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
-import { IGrantRequestDocument, grantSchema } from './definitions/grant';
+import { validateRequest } from '../common/utils';
+import { serviceDiscovery } from '../configs';
 import { IModels } from '../connectionResolver';
 import {
   sendCommonMessage,
   sendCoreMessage,
   sendNotificationsMessage
 } from '../messageBroker';
-import { validateRequest } from '../common/utils';
-import { serviceDiscovery } from '../configs';
-import { IUser, IUserDocument } from '@erxes/api-utils/src/types';
 import { checkConfig, doAction, doLogicAfterAction } from '../utils';
+import { IGrantRequestDocument, grantSchema } from './definitions/grant';
 
 export interface IRequestsModel extends Model<IGrantRequestDocument> {
   getGrantRequest(args: any): Promise<IGrantRequestDocument>;
@@ -83,6 +83,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         extendedDoc.params = JSON.stringify({
           type: contentType,
           itemId: contentTypeId,
+          sourceType: contentType,
           ...JSON.parse(config.params || '{}')
         });
       } else {
