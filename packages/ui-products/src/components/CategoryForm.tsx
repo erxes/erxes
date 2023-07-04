@@ -50,10 +50,10 @@ class CategoryForm extends React.Component<Props, State> {
 
     this.state = {
       attachment,
-      maskType: category.maskType,
-      mask: category.mask,
-      parentId: category.parentId,
-      code: category.code
+      maskType: category.maskType || '',
+      mask: category.mask || {},
+      parentId: category.parentId || '',
+      code: category.code || ''
     };
   }
 
@@ -85,6 +85,7 @@ class CategoryForm extends React.Component<Props, State> {
 
     const name = e.target.name;
     const value = e.target.value;
+
     const initMask = code => {
       const { mask } = this.state;
       const values = (mask?.values || []).filter(v => v.title !== 'category');
@@ -97,17 +98,27 @@ class CategoryForm extends React.Component<Props, State> {
       this.setState({ mask: { ...mask, values } });
     };
 
+    const { maskType, parentId } = this.state;
+    const parentCategory = categories.find(c => c._id === value);
     this.setState(
       {
         [name]: value
       } as any,
       () => {
         if (name === 'parentId') {
-          const parentCategory = categories.find(c => c._id === value);
-          this.setState({ maskType: parentCategory?.maskType });
+          this.setState({
+            maskType: parentCategory?.maskType || '',
+            mask: parentCategory?.mask || {}
+          });
         }
-        if (['code', 'maskType'].includes(name) && this.state.maskType) {
-          initMask(name === 'code' ? value : this.state.code);
+        if (['code', 'maskType'].includes(name) && maskType) {
+          if (
+            !(parentId && parentCategory && parentCategory.maskType === 'hard')
+          ) {
+            initMask(name === 'code' ? value : this.state.code);
+          } else {
+            this.setState({ mask: parentCategory?.mask || {} });
+          }
         }
       }
     );
@@ -159,15 +170,32 @@ class CategoryForm extends React.Component<Props, State> {
     };
 
     return (
-      <CategoryMask
-        parentCategory={parentCategory}
-        categoryId={category?._id}
-        code={code}
-        maskType={maskType}
-        mask={mask}
-        changeCode={changeCode}
-        changeMask={changeMask}
-      />
+      <>
+        {(parentCategory && parentCategory.maskType === 'soft' && (
+          <>
+            <ControlLabel>Is similar of parent</ControlLabel>
+            <FormControl
+              name="isSimilar"
+              componentClass="checkbox"
+              defaultChecked={mask.isSimilar}
+              onChange={(e: any) =>
+                this.setState({
+                  mask: { ...mask, isSimilar: e.target.checked }
+                })
+              }
+            />
+          </>
+        )) || <></>}
+        <CategoryMask
+          parentCategory={parentCategory}
+          categoryId={category?._id}
+          code={code}
+          maskType={maskType}
+          mask={mask}
+          changeCode={changeCode}
+          changeMask={changeMask}
+        />
+      </>
     );
   };
 

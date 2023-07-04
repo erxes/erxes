@@ -26,7 +26,6 @@ type Props = {
 };
 
 type State = {
-  isDagah: boolean;
   activePerVal: any;
   currentLen: number;
   type: string;
@@ -39,7 +38,6 @@ class CategoryMask extends React.Component<Props, State> {
     const category = props.category || ({} as ICategory);
 
     this.state = {
-      isDagah: true,
       activePerVal: {},
       currentLen: 1,
       type: ''
@@ -65,7 +63,7 @@ class CategoryMask extends React.Component<Props, State> {
     return tds;
   };
 
-  renderPerBody(perVal) {
+  renderPerBody(perVal, idEdit) {
     const onDelete = () => {
       const { mask, changeMask } = this.props;
       const values = (mask?.values || []).filter(v => v.id !== perVal.id);
@@ -79,9 +77,12 @@ class CategoryMask extends React.Component<Props, State> {
       <td colSpan={perVal.len || 1}>
         {perVal.static || (
           <>
-            <ActionButton onClick={onDelete}>
-              <Icon icon="trash" />
-            </ActionButton>
+            {(idEdit && (
+              <ActionButton onClick={onDelete}>
+                <Icon icon="trash" />
+              </ActionButton>
+            )) ||
+              ''}
             <ActionButton onClick={onEdit}>
               <Icon icon="pencil" />
             </ActionButton>
@@ -109,7 +110,7 @@ class CategoryMask extends React.Component<Props, State> {
     changeMask({ ...mask, values });
   };
 
-  renderMatch() {
+  renderMatch(isEdit) {
     const { fieldGroups } = this.props;
     const { activePerVal } = this.state;
     const { matches = {} } = activePerVal;
@@ -147,6 +148,7 @@ class CategoryMask extends React.Component<Props, State> {
         <FormColumn>
           <FormControl
             name={o}
+            disabled={!isEdit}
             maxLength={activePerVal.len}
             value={matches[o] || ''}
             onChange={onChange}
@@ -156,12 +158,12 @@ class CategoryMask extends React.Component<Props, State> {
     ));
   }
 
-  renderSubForm() {
+  renderSubForm(isEdit) {
     const { activePerVal } = this.state;
     if (!activePerVal.type) {
       return null;
     }
-
+    console.log(isEdit, 'iiiiiiiiiiiiiiiiiiiiiiiiii');
     const onChange = e => {
       const name = e.target.name;
       const value = e.target.value;
@@ -175,6 +177,7 @@ class CategoryMask extends React.Component<Props, State> {
 
           <FormControl
             name="char"
+            disabled={!isEdit}
             maxLength={activePerVal.len}
             value={activePerVal.char}
             onChange={onChange}
@@ -190,6 +193,7 @@ class CategoryMask extends React.Component<Props, State> {
 
           <FormControl
             name="string"
+            disabled={!isEdit}
             value={activePerVal.string}
             onChange={onChange}
           />
@@ -205,6 +209,7 @@ class CategoryMask extends React.Component<Props, State> {
             <ControlLabel>FieldGroup</ControlLabel>
             <FormControl
               name="fieldGroup"
+              disabled={!isEdit}
               componentClass="select"
               options={[
                 { value: '', label: 'Empty' },
@@ -221,6 +226,7 @@ class CategoryMask extends React.Component<Props, State> {
             <ControlLabel>Field</ControlLabel>
             <FormControl
               name="fieldId"
+              disabled={!isEdit}
               componentClass="select"
               options={[
                 { value: '', label: 'Empty' },
@@ -241,7 +247,7 @@ class CategoryMask extends React.Component<Props, State> {
               onChange={onChange}
             />
           </FormGroup>
-          {this.renderMatch()}
+          {this.renderMatch(isEdit)}
         </>
       );
     }
@@ -259,7 +265,7 @@ class CategoryMask extends React.Component<Props, State> {
     this.setState({ activePerVal: {} });
   };
 
-  renderCurrentConfig() {
+  renderCurrentConfig(isEdit) {
     const { activePerVal } = this.state;
     if (!activePerVal?.id) {
       return null;
@@ -283,6 +289,7 @@ class CategoryMask extends React.Component<Props, State> {
                   name="type"
                   componentClass="select"
                   value={this.state.activePerVal?.type}
+                  disabled={!isEdit}
                   options={[
                     { value: 'char', label: 'Characters' },
                     { value: 'customField', label: 'Custom properties' },
@@ -291,25 +298,29 @@ class CategoryMask extends React.Component<Props, State> {
                   onChange={changeType}
                 />
               </FormGroup>
-              {this.renderSubForm()}
+              {this.renderSubForm(isEdit)}
             </FormColumn>
           </FormWrapper>
-          <Button
-            btnStyle="success"
-            uppercase={false}
-            onClick={this.saveSubForm}
-            icon="add"
-          >
-            Save
-          </Button>
+
+          {(isEdit && (
+            <Button
+              btnStyle="success"
+              uppercase={false}
+              onClick={this.saveSubForm}
+              icon="add"
+            >
+              Save
+            </Button>
+          )) ||
+            ''}
         </SpaceFormsWrapper>
         _________________________________________________
       </>
     );
   }
 
-  renderConfigMask(mask) {
-    const { values } = mask || {};
+  renderConfigMask(mask, isEdit = true) {
+    const { values = [] } = mask || {};
 
     return (
       <>
@@ -319,32 +330,35 @@ class CategoryMask extends React.Component<Props, State> {
           <TableOver>
             <tr>
               {this.renderPerHead(values)}
-              <td rowSpan={2}>
-                <Flex>
-                  <FormControl
-                    name="newMask"
-                    type="number"
-                    defaultValue={this.state.currentLen}
-                    min={0}
-                    max={9}
-                    required={true}
-                    onChange={this.onChangeLen}
-                  />
+              {(isEdit && (
+                <td rowSpan={2}>
+                  <Flex>
+                    <FormControl
+                      name="newMask"
+                      type="number"
+                      defaultValue={this.state.currentLen}
+                      min={0}
+                      max={9}
+                      required={true}
+                      onChange={this.onChangeLen}
+                    />
 
-                  <Button
-                    btnStyle="success"
-                    uppercase={false}
-                    onClick={this.addMask}
-                    icon="add"
-                  />
-                </Flex>
-              </td>
+                    <Button
+                      btnStyle="success"
+                      uppercase={false}
+                      onClick={this.addMask}
+                      icon="add"
+                    />
+                  </Flex>
+                </td>
+              )) ||
+                ''}
             </tr>
 
-            <tr>{(values || []).map(v => this.renderPerBody(v))}</tr>
+            <tr>{(values || []).map(v => this.renderPerBody(v, isEdit))}</tr>
           </TableOver>
 
-          {this.renderCurrentConfig()}
+          {this.renderCurrentConfig(isEdit)}
         </FormGroup>
       </>
     );
@@ -352,23 +366,15 @@ class CategoryMask extends React.Component<Props, State> {
 
   render() {
     const { parentCategory, mask } = this.props;
-    const { isDagah } = this.state;
 
     if (parentCategory && parentCategory.maskType === 'hard') {
-      return this.renderConfigMask(parentCategory.mask);
+      return this.renderConfigMask(parentCategory.mask, false);
     }
 
     if (parentCategory && parentCategory.maskType === 'soft') {
       return (
-        <>
-          <FormControl
-            name="isDagah"
-            componentClass="checkbox"
-            defaultChecked={mask.isDahag}
-          />
-          {(isDagah && this.renderConfigMask(parentCategory.mask)) ||
-            this.renderConfigMask(mask)}
-        </>
+        (mask.isSimilar && this.renderConfigMask(parentCategory.mask, false)) ||
+        this.renderConfigMask(mask)
       );
     }
 
