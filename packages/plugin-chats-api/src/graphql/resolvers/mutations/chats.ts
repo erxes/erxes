@@ -1,4 +1,5 @@
-import { CHAT_TYPE, IChatMessage } from '../../../models/definitions/chat';
+import { CHAT_TYPE } from '../../../models/definitions/chat';
+import * as strip from 'strip';
 import { graphqlPubsub } from '../../../configs';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { sendCoreMessage } from '../../../messageBroker';
@@ -155,16 +156,67 @@ const chatMutations = {
     return seen;
   },
 
+  chatToggleIsPinned: async (_root, { _id }, { models }) => {
+    const chat = await models.Chats.findOne({ _id });
+
+    if (chat) {
+      graphqlPubsub.publish('chatInserted', {
+        userId: chat.createdUser?._id
+      });
+
+      await models.Chats.updateOne(
+        { _id },
+        { $set: { isPinned: !chat.isPinned } }
+      );
+
+      return !chat.isPinned;
+    }
+    return false;
+  },
+
+  chatToggleIsWithNotification: async (_root, { _id }, { models }) => {
+    const chat = await models.Chats.findOne({ _id });
+
+    if (chat) {
+      graphqlPubsub.publish('chatInserted', {
+        userId: chat.createdUser?._id
+      });
+
+      await models.Chats.updateOne(
+        { _id },
+        { $set: { isWithNotification: !chat.isWithNotification } }
+      );
+
+      return !chat.isWithNotification;
+    }
+    return false;
+  },
+
   chatMessageAdd: async (_root, args, { models, user }) => {
     if (!args.content) {
+      throw new Error('Content is required');
+    }
+
+    // <img> tags wrapped inside empty <p> tag should be allowed
+    const contentValid =
+      args.content.indexOf('<img') !== -1 ? true : strip(args.content);
+
+    // if there is no attachments and no content then throw content required error
+    if (args?.attachments.length === 0 && !contentValid) {
       throw new Error('Content is required');
     }
 
     const message = await models.ChatMessages.createChatMessage(args, user._id);
 
     await models.Chats.updateOne(
-      { _id: message.chatId },
-      { $set: { updatedAt: new Date() } }
+      {
+        _id: message.chatId
+      },
+      {
+        $set: {
+          updatedAt: new Date()
+        }
+      }
     );
 
     graphqlPubsub.publish('chatMessageInserted', {
@@ -211,16 +263,19 @@ const chatMutations = {
   chatMessageToggleIsPinned: async (_root, { _id }, { models }) => {
     const message = await models.ChatMessages.findOne({ _id });
 
-    graphqlPubsub.publish('chatMessageInserted', {
-      chatId: message.chatId
-    });
+    if (message) {
+      graphqlPubsub.publish('chatMessageInserted', {
+        chatId: message.chatId
+      });
 
-    await models.ChatMessages.updateOne(
-      { _id },
-      { $set: { isPinned: !message.isPinned } }
-    );
+      await models.ChatMessages.updateOne(
+        { _id },
+        { $set: { isPinned: !message.isPinned } }
+      );
 
-    return !message.isPinned;
+      return !message.isPinned;
+    }
+    return false;
   },
 
   chatAddOrRemoveMember: async (

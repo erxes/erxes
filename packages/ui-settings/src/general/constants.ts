@@ -309,6 +309,21 @@ export const FILE_MIME_TYPES = [
     label: 'MP4 video',
     extension: '.mp4'
   },
+  {
+    value: 'video/webm',
+    label: 'WebM video',
+    extension: '.webm'
+  },
+  {
+    value: 'audio/wav',
+    label: 'WAV audio',
+    extension: '.wav'
+  },
+  {
+    value: 'audio/vnd.wave',
+    label: 'WAV vnd audio',
+    extension: '.wav'
+  },
   // archives
   {
     value: 'application/vnd.rar',
