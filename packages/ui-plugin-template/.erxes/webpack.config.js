@@ -112,6 +112,7 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../../ui-forms/src"),
             path.resolve(__dirname, "../../ui-inbox/src"),
             path.resolve(__dirname, "../../ui-products/src"),
+            path.resolve(__dirname, "../../ui-accounts/src"),
             path.resolve(__dirname, "../../ui-cards/src"),
             path.resolve(__dirname, "../../ui-knowledgebase/src"),
             path.resolve(__dirname, "../../ui-notifications/src"),

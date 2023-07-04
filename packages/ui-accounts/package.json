@@ -1,0 +1,14 @@
+{
+  "name": "@erxes/ui-accounts",
+  "version": "1.0.0",
+  "dependencies": {
+    "@apollo/client": "~3.7.14",
+    "babel-preset-es2015": "^6.24.1",
+    "lodash.flowright": "^3.5.0",
+    "query-string": "^5.0.0",
+    "react": "16.14.0",
+    "react-select-plus": "1.0.0-rc.5",
+    "styled-components": "^3.2.6",
+    "styled-components-ts": "^0.0.14"
+  }
+}
