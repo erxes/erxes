@@ -70,7 +70,6 @@ const Editor = (props: Props) => {
   };
 
   const handleDeleteFile = (url: string) => {
-    console.log(url, 'url');
     const urlArray = url.split('/');
 
     const fileName =
@@ -80,11 +79,9 @@ const Editor = (props: Props) => {
     _loading[url] = true;
 
     setLoading(_loading);
-    console.log('1', urlArray, fileName);
     uploadDeleteHandler({
       fileName,
       afterUpload: ({ status }) => {
-        console.log(status, 'status');
         if (status === 'ok') {
           const remainedAttachments = attachments.filter(a => a.url !== url);
 
