@@ -103,7 +103,7 @@ class MonpayConfigForm extends React.Component<Props, State> {
           {this.renderItem('username', 'Branch username')}
           {this.renderItem('accountId', 'Account ID', '', true)}
 
-          {this.props.metaData.link && (
+          {this.props.metaData && this.props.metaData.link && (
             <a href={this.props.metaData.link} target="_blank" rel="noreferrer">
               {__('Contact with Monpay')}
             </a>

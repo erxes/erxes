@@ -28,6 +28,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { prepareCurrentUserOption } from '../../utils';
+import * as dayjs from 'dayjs';
 
 type Props = {
   currentUser: IUser;
@@ -342,6 +343,7 @@ function List(props: Props) {
         {timeclocks.map(timeclock => {
           return (
             <Row
+              isCurrentUserAdmin={isCurrentUserAdmin}
               key={timeclock._id}
               timeclock={timeclock}
               removeTimeclock={removeTimeclock}

@@ -120,7 +120,7 @@ class QpayConfigForm extends React.Component<Props, State> {
           {this.renderItem('qpayMerchantPassword', 'Password', '', true)}
           {this.renderItem('qpayInvoiceCode', 'Invoice code')}
 
-          {this.props.metaData.link && (
+          {this.props.metaData && this.props.metaData.link && (
             <a href={this.props.metaData.link} target="_blank" rel="noreferrer">
               {__('Contact with QPay')}
             </a>
