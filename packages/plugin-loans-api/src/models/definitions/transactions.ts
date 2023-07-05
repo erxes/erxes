@@ -117,7 +117,7 @@ export const transactionSchema = schemaHooksWrapper(
     total: field({ type: Number, min: 0, label: 'total' }),
     createdAt: field({
       type: Date,
-      default: new Date(),
+      default: () => new Date(),
       label: 'Created at'
     }),
     createdBy: { type: String, optional: true, label: 'created member' },

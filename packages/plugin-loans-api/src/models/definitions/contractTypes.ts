@@ -107,7 +107,7 @@ export const contractTypeSchema = schemaHooksWrapper(
     }),
     createdAt: field({
       type: Date,
-      default: new Date(),
+      default: () => new Date(),
       label: 'Created at'
     }),
     productCategoryIds: field({
