@@ -135,10 +135,14 @@ export const initBroker = async cl => {
       //   defaultGSCode?: string *
       //   companyRD: string
       // }
+      const mainConfig = {
+        ...config,
+        ...(await getConfig(subdomain, 'EBARIMT', {}))
+      };
 
       const ebarimtDatas = await getPostDataCommon(
         subdomain,
-        config,
+        mainConfig,
         contentType,
         contentId,
         orderInfo
@@ -150,7 +154,7 @@ export const initBroker = async cl => {
 
         if (config.skipPutData || ebarimtData.inner) {
           const putData = new PutData({
-            ...config,
+            ...mainConfig,
             ...ebarimtData,
             config,
             models
@@ -159,12 +163,12 @@ export const initBroker = async cl => {
             _id: Math.random(),
             billId: 'Түр баримт',
             ...(await putData.generateTransactionInfo()),
-            registerNo: config.companyRD || ''
+            registerNo: mainConfig.companyRD || ''
           };
         } else {
           ebarimtResponse = await models.PutResponses.putData(
             ebarimtData,
-            config
+            mainConfig
           );
         }
         if (ebarimtResponse._id) {
