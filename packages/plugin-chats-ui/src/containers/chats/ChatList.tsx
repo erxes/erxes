@@ -1,12 +1,12 @@
 import React from 'react';
-import { useQuery, useSubscription } from '@apollo/client';
+import { useQuery, useSubscription, useMutation } from '@apollo/client';
 import { gql } from '@apollo/client';
 // erxes
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 // local
 import Component from '../../components/chats/ChatList';
-import { queries, subscriptions } from '../../graphql';
+import { mutations, queries, subscriptions } from '../../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
 
@@ -22,8 +22,23 @@ type FinalProps = {
 } & Props;
 
 const ChatListContainer = (props: FinalProps) => {
-  const { currentUser, isWidget } = props;
+  const { currentUser, isWidget, chatId } = props;
+  const [togglePinnedChat] = useMutation(gql(mutations.chatToggleIsPinned));
+
   const { loading, error, data, refetch } = useQuery(gql(queries.chats));
+
+  const togglePinned = () => {
+    togglePinnedChat({
+      variables: { id: chatId },
+      refetchQueries: [{ query: gql(queries.chats) }]
+    })
+      .then(data => {
+        console.log(data, 'data');
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
 
   if (isWidget) {
     refetch();
@@ -31,7 +46,7 @@ const ChatListContainer = (props: FinalProps) => {
 
   useSubscription(gql(subscriptions.chatInserted), {
     variables: { userId: currentUser._id },
-    onSubscriptionData: () => {
+    onSubscriptionData: ({ subscriptionData: { data } }) => {
       refetch();
     }
   });
@@ -49,6 +64,7 @@ const ChatListContainer = (props: FinalProps) => {
       {...props}
       chats={data.chats.list || []}
       currentUser={currentUser}
+      togglePinned={togglePinned}
     />
   );
 };

@@ -297,7 +297,8 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'text/csv',
     'image/svg+xml',
     'text/plain',
-    'application/vnd.ms-excel'
+    'application/vnd.ms-excel',
+    'audio/mp3'
   ];
 
   const oldMsOfficeDocs = [
