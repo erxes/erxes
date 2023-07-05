@@ -28,7 +28,7 @@ export interface IRequestsModel extends Model<IGrantRequestDocument> {
     contentType: string
   ): Promise<IGrantRequestDocument>;
   resolveRequest(requestId: string): Promise<IGrantRequestDocument>;
-  removeGrantRequest(ids: string[]): Promise<IGrantRequestDocument>;
+  removeGrantRequests(ids: string[]): Promise<IGrantRequestDocument>;
 }
 
 export const loadRequestsClass = (models: IModels, subdomain: string) => {
@@ -396,7 +396,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
 
       return grantActions;
     }
-    public static async removeGrantRequest(ids: string[]) {
+    public static async removeGrantRequests(ids: string[]) {
       return await models.Requests.updateMany(
         { _id: { $in: ids } },
         { activeStatus: 'archived' }
