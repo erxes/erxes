@@ -15,6 +15,9 @@ const GrantRequestMutations = {
     { models }: IContext
   ) {
     return await models.Requests.cancelGrantRequest(contentTypeId, contentType);
+  },
+  async removeGrantRequests(_root, { ids }, { models }: IContext) {
+    return await models.Requests.removeGrantRequests(ids);
   }
 };
 

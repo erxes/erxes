@@ -48,6 +48,17 @@ export const types = `
     modifiedAt:Date,
   }
 
+  input ContentFilter {
+    name:String,
+    value:String,
+    regex:Boolean
+  }
+
+  input ContentTypeFilter {
+    contentType:String,
+    filters:[ContentFilter]
+  }
+
 `;
 
 const commonParams = `
@@ -61,7 +72,9 @@ const commonParams = `
   createdAtTo:String
   closedAtFrom:String
   closedAtTo:String,
-  onlyWaitingMe:Boolean
+  onlyWaitingMe:Boolean,
+  contentFilter:ContentTypeFilter,
+  archived:Boolean
 `;
 
 export const queries = `
@@ -97,6 +110,7 @@ export const mutations = `
     editGrantRequest(${commonRequestMutationParams}):JSON
     responseGrantRequest( description:String, response:String, requestId:String):JSON
     cancelGrantRequest(contentType:String,contentTypeId:String):JSON,
+    removeGrantRequests(ids:[String]):JSON
     addGrantConfig(${commonConfigMutationParams}):GrantConfig
     editGrantConfig(_id:String,${commonConfigMutationParams}):GrantConfig
     removeGrantConfig(_id:String):JSON

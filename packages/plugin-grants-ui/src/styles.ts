@@ -1,8 +1,8 @@
-import styledTS from 'styled-components-ts';
-import styled from 'styled-components';
 import { colors, dimensions } from '@erxes/ui/src';
-import { highlight } from '@erxes/ui/src/utils/animations';
 import { Column as CommonColumn } from '@erxes/ui/src/styles/main';
+import { highlight } from '@erxes/ui/src/utils/animations';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const SectionContent = styledTS<{}>(styled.div)`
     display:flex;
@@ -139,4 +139,16 @@ export const AssignedMemberCard = styled.div`
 export const Column = styledTS<{ border?: boolean }>(styled(CommonColumn))`
   border-right: ${({ border }) => (border ? '1px solid #ddd' : '')} 
   margin-right: ${dimensions.coreSpacing}px;
+`;
+
+export const DividerBox = styled.span`
+  margin-bottom: ${dimensions.coreSpacing}px;
+  color: ${colors.colorCoreRed};
+  border: 1px solid ${colors.colorCoreRed};
+  border-radius: 2px;
+  padding: 3px 5px;
+  font-size: 8px;
+  display: inline-block;
+  font-weight: bold;
+  text-transform: uppercase;
 `;
