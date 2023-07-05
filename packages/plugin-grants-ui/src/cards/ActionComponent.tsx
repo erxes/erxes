@@ -1,18 +1,18 @@
-import { CollapseContent, Icon } from '@erxes/ui/src';
+import Attribution from '@erxes/ui-automations/src/containers/forms/actions/Attribution';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import { CollapseContent, Icon } from '@erxes/ui/src';
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components/form';
+import { FormColumn, FormWrapper, LinkButton } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
-import { FormColumn, FormWrapper, LinkButton } from '@erxes/ui/src/styles/main';
-import { ListItem, RemoveRow, Row } from './styles';
+import { DividerBox } from '../styles';
 import { SelectCardType, SelectStage } from './common';
-import Attribution from '@erxes/ui-automations/src/containers/forms/actions/Attribution';
+import { ListItem, RemoveRow, Row } from './styles';
 type Props = {
   action: string;
   initialProps: any;
@@ -50,6 +50,7 @@ class CardActionComponent extends React.Component<Props, State> {
 
   renderMoveAction(extraProps: any) {
     const { params } = this.state;
+    const { source } = this.props;
 
     const updateProps = {
       ...extraProps,
@@ -59,7 +60,24 @@ class CardActionComponent extends React.Component<Props, State> {
       onChangeStage: e => this.handleChange(e, 'stageId')
     };
 
-    return <BoardSelect {...updateProps} />;
+    return (
+      <>
+        <BoardSelect {...updateProps} />
+        <DividerBox>{__('ELSE')}</DividerBox>
+        <SelectStage
+          name="declinedStageId"
+          label="Declined Stage"
+          pipelineId={source.pipelineId || null}
+          initialValue={(params?.logics || [])[0]?.targetStageId}
+          onSelect={({ value }) =>
+            this.handleChange(
+              [{ logic: 'declined', targetStageId: value }],
+              'logics'
+            )
+          }
+        />
+      </>
+    );
   }
 
   renderConfigs() {
