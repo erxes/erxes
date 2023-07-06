@@ -6,7 +6,6 @@ import { AppConsumer } from "../../appContext";
 import BoardItem from "../components/BoardItem";
 import Group from "../components/Group";
 import React from "react";
-import Spinner from "../../common/Spinner";
 import { capitalize } from "../../common/utils";
 import { queries } from "../graphql";
 

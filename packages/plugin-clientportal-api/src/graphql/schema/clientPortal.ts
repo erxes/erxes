@@ -301,6 +301,7 @@ export const mutations = cardAvailable => `
         attachments: [AttachmentInput]
         customFieldsData: JSON
         labelIds: [String]
+        productsData: JSON
       ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String
