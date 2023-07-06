@@ -96,6 +96,11 @@ const productQueries = {
           code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
         },
         {
+          code: {
+            $in: [new RegExp(`^${searchValue.replace(/\*/g, '\\S')}.*`, 'gi')]
+          }
+        },
+        {
           barcodes: {
             $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
           }
