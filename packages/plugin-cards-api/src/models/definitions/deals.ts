@@ -13,6 +13,7 @@ export interface IProductData extends Document {
   unitPricePercent: number;
   taxPercent?: number;
   tax?: number;
+  name?: string;
   vatPercent?: number;
   discountPercent?: number;
   discount?: number;
@@ -44,6 +45,7 @@ export const productDataSchema = new Schema(
   {
     _id: field({ pkey: true }),
     productId: field({ type: String, esType: 'keyword' }), // Product
+    name: field({ type: String, esType: 'name' }), // Product name
     uom: field({ type: String, esType: 'keyword' }), // Units of measurement
     currency: field({ type: String, esType: 'keyword' }), // Currency
     quantity: field({ type: Number, label: 'Quantity' }), // Quantity

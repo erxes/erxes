@@ -11,7 +11,7 @@ import {
   FlexRow,
   Label,
   TicketComment,
-  TicketDetailContent,
+  TicketDetailContent
 } from "../../styles/cards";
 import { getUserAvatar, renderUserFullName } from "../../utils";
 
@@ -46,11 +46,11 @@ export default class CardDetail extends React.Component<
     super(props);
 
     this.state = {
-      content: "",
+      content: ""
     };
   }
 
-  handleChange = (e) => {
+  handleChange = e => {
     this.setState({ content: e.target.value });
   };
 
@@ -67,7 +67,7 @@ export default class CardDetail extends React.Component<
   renderComments(comments) {
     return (
       <CommentWrapper>
-        {comments.map((comment) => {
+        {comments.map(comment => {
           const { createdUser = {} } = comment;
 
           return (
@@ -83,9 +83,7 @@ export default class CardDetail extends React.Component<
                 />
                 <div>
                   <CommentContent>
-                    <h5>
-                      {renderUserFullName(createdUser)}
-                    </h5>
+                    <h5>{renderUserFullName(createdUser)}</h5>
                     <div
                       className="comment"
                       dangerouslySetInnerHTML={{ __html: comment.content }}
@@ -118,7 +116,7 @@ export default class CardDetail extends React.Component<
       return <span>{__("No one`s assigned yet")}</span>;
     }
 
-    return assignedUsers.map((user) => (
+    return assignedUsers.map(user => (
       <Assignees key={user._id}>
         <img
           alt={renderUserFullName(user)}
@@ -131,6 +129,17 @@ export default class CardDetail extends React.Component<
     ));
   }
 
+  renderProductsInfo() {
+    const { productsData } = this.props.item;
+    return productsData.map(product => {
+      return (
+        <span key={product._id}>
+          {product.name}&nbsp;<b>({product.quantity} PC)</b>
+        </span>
+      );
+    });
+  }
+
   renderDetailInfo() {
     const {
       number,
@@ -140,7 +149,7 @@ export default class CardDetail extends React.Component<
       createdAt,
       modifiedAt,
       startDate,
-      closeDate,
+      closeDate
     } = this.props.item || ({} as any);
 
     return (
@@ -168,6 +177,10 @@ export default class CardDetail extends React.Component<
         <DetailRow type="row">
           <ControlLabel>Assigned users</ControlLabel>
           <div>{this.renderAssignedUsers()}</div>
+        </DetailRow>
+        <DetailRow type="row">
+          <ControlLabel>Products & Service</ControlLabel>
+          <div>{this.renderProductsInfo()}</div>
         </DetailRow>
       </TicketDetailContent>
     );
@@ -254,7 +267,7 @@ export default class CardDetail extends React.Component<
                   {!labels || labels.length === 0 ? (
                     <span>No labels at the moment!</span>
                   ) : (
-                    (labels || []).map((label) => (
+                    (labels || []).map(label => (
                       <Label
                         key={label._id}
                         lblStyle={"custom"}
