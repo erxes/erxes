@@ -51,6 +51,10 @@ type State = {
   subUoms: any[];
   taxType: string;
   taxCode: string;
+  categoryId: string;
+  code: string;
+  category?: IProductCategory;
+  maskStr?: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -68,7 +72,9 @@ class Form extends React.Component<Props, State> {
       uom,
       subUoms,
       taxType,
-      taxCode
+      taxCode,
+      code,
+      categoryId
     } = product;
 
     this.state = {
@@ -82,9 +88,45 @@ class Form extends React.Component<Props, State> {
       uom,
       subUoms: subUoms ? subUoms : [],
       taxType,
-      taxCode
+      taxCode,
+      code: code || '',
+      categoryId
     };
   }
+
+  componentDidMount(): void {
+    this.getMaskStr(this.state.categoryId);
+  }
+
+  getMaskStr = categoryId => {
+    const { code } = this.state;
+    const { productCategories } = this.props;
+
+    const category = productCategories.find(pc => pc._id === categoryId);
+    let maskStr = '';
+
+    if (category && category.mask) {
+      const maskList: any[] = [];
+      for (const value of category.mask.values || []) {
+        if (value.static) {
+          maskList.push(value.static);
+          continue;
+        }
+
+        if (value.type === 'customField' && value.matches) {
+          maskList.push(`(${Object.values(value.matches).join('|')})`);
+        }
+      }
+      maskStr = `${maskList.join('')}\w+`;
+
+      if (maskList.length && !code) {
+        this.setState({ code: maskList[0] });
+      }
+    }
+    this.setState({ maskStr });
+
+    return category;
+  };
 
   generateDoc = (values: {
     _id?: string;
@@ -108,7 +150,9 @@ class Form extends React.Component<Props, State> {
       vendorId,
       description,
       uom,
-      subUoms
+      subUoms,
+      code,
+      categoryId
     } = this.state;
 
     if (product) {
@@ -119,6 +163,8 @@ class Form extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      code,
+      categoryId,
       attachment,
       attachmentMore,
       barcodes,
@@ -136,12 +182,7 @@ class Form extends React.Component<Props, State> {
     );
 
     return (
-      <ModalTrigger
-        title="Add category"
-        trigger={trigger}
-        size="lg"
-        content={content}
-      />
+      <ModalTrigger title="Add category" trigger={trigger} content={content} />
     );
   }
 
@@ -320,6 +361,15 @@ class Form extends React.Component<Props, State> {
     } as any);
   };
 
+  onChangeCateogry = e => {
+    const value = e.target.value;
+
+    this.setState({
+      categoryId: value,
+      category: this.getMaskStr(value)
+    });
+  };
+
   renderContent = (formProps: IFormProps) => {
     const {
       renderButton,
@@ -348,13 +398,53 @@ class Form extends React.Component<Props, State> {
       description,
       barcodeDescription,
       taxType,
-      taxCode
+      taxCode,
+      code,
+      categoryId,
+      maskStr
     } = this.state;
 
     return (
       <>
         <FormWrapper>
           <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Category</ControlLabel>
+              <Row>
+                <FormControl
+                  {...formProps}
+                  name="categoryId"
+                  componentClass="select"
+                  defaultValue={categoryId}
+                  required={true}
+                  onChange={this.onChangeCateogry}
+                >
+                  {generateCategoryOptions(productCategories)}
+                </FormControl>
+
+                {this.renderFormTrigger(trigger)}
+              </Row>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>Code</ControlLabel>
+              <p>
+                Depending on your business type, you may type in a barcode or
+                any other UPC (Universal Product Code). If you don't use UPC,
+                type in any numeric value to differentiate your products. With
+                pattern {maskStr}
+              </p>
+              <FormControl
+                {...formProps}
+                name="code"
+                value={code}
+                required={true}
+                onChange={(e: any) => {
+                  this.setState({ code: e.target.value });
+                }}
+              />
+            </FormGroup>
+
             <FormGroup>
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
@@ -381,39 +471,6 @@ class Form extends React.Component<Props, State> {
                   </option>
                 ))}
               </FormControl>
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel required={true}>Code</ControlLabel>
-              <p>
-                Depending on your business type, you may type in a barcode or
-                any other UPC (Universal Product Code). If you don't use UPC,
-                type in any numeric value to differentiate your products.
-              </p>
-              <FormControl
-                {...formProps}
-                name="code"
-                defaultValue={object.code}
-                autoComplete="off"
-                required={true}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel required={true}>Category</ControlLabel>
-              <Row>
-                <FormControl
-                  {...formProps}
-                  name="categoryId"
-                  componentClass="select"
-                  defaultValue={object.categoryId}
-                  required={true}
-                >
-                  {generateCategoryOptions(productCategories, '', true)}
-                </FormControl>
-
-                {this.renderFormTrigger(trigger)}
-              </Row>
             </FormGroup>
 
             <FormGroup>
