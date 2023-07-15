@@ -517,6 +517,11 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
             submittedField.fieldId
           ].isFlagged = !!submittedField.isFlagged;
         }
+
+        if (!!submittedField?.attachments?.length) {
+          editedSubmittedFields[submittedField.fieldId].attachments =
+            submittedField?.attachments;
+        }
       }
       return {
         fields,

@@ -453,3 +453,9 @@ export const PlanContainer = styled.div`
     height: 100%;
   }
 `;
+
+export const DetailPopoverWrapper = styled.div`
+  .popover {
+    max-width: 550px;
+  }
+`;

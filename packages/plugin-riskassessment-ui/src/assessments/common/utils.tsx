@@ -1,5 +1,6 @@
-import { Button, ControlLabel, dimensions, __ } from '@erxes/ui/src';
+import { Button, ControlLabel, __, dimensions } from '@erxes/ui/src';
 import React from 'react';
+import { Placement } from 'react-bootstrap/Overlay';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import styled from 'styled-components';
@@ -10,6 +11,7 @@ type Props = {
   withoutPopoverTitle?: boolean;
   icon?: string;
   customComponent?: JSX.Element;
+  placement?: Placement;
 };
 
 const PopoverContent = styled.div`
@@ -69,7 +71,7 @@ export class DetailPopOver extends React.Component<Props> {
     return (
       <OverlayTrigger
         trigger={'click'}
-        placement="auto"
+        placement={this.props.placement || 'auto'}
         overlay={this.renderOverlay()}
         rootClose={true}
       >
