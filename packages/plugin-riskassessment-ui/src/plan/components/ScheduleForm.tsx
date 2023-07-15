@@ -29,6 +29,7 @@ type Props = {
   closeModal: () => void;
   refetch: (variables?: any) => Promise<any>;
   onSave: (doc: any) => void;
+  duplicate?: boolean;
 };
 
 type State = {
@@ -53,7 +54,8 @@ class ScheduleForm extends React.Component<Props, State> {
       cardType,
       pipelineId,
       plan,
-      refetch
+      refetch,
+      duplicate
     } = this.props;
     const { useGroup, doc } = this.state;
     const { structureType } = plan;
@@ -69,17 +71,18 @@ class ScheduleForm extends React.Component<Props, State> {
     };
 
     const onDateChange = (date, name) => {
-      // if (date < new Date()) {
-      //   return Alert.error('You must select a date after the from today');
-      // }
+      if (date < new Date()) {
+        return Alert.error('You must select a date after the from today');
+      }
       handleChange(date, name);
     };
 
     const handleSave = () => {
-      const mutation =
-        typeof schedule._id === 'string'
-          ? mutations.updateSchedule
-          : mutations.addSchedule;
+      let mutation = mutations.addSchedule;
+
+      if (typeof schedule._id === 'string' && !duplicate) {
+        mutation = mutations.updateSchedule;
+      }
 
       client
         .mutate({
