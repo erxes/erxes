@@ -63,6 +63,7 @@ const listQueryParams = `
     boardIds: [String]
     stageCodes: [String]
     dateRangeFilters:JSON
+    customFieldsDataFilters:JSON
     createdStartDate: Date,
     createdEndDate: Date
     stateChangedStartDate: Date

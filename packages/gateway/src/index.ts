@@ -53,6 +53,11 @@ const stopRouter = () => {
 
   const app = express();
 
+  // for health check
+  app.get('/health', async (_req, res) => {
+    res.end('ok');
+  });
+
   if (SENTRY_DSN) {
     Sentry.init({
       dsn: SENTRY_DSN,
@@ -98,11 +103,6 @@ const stopRouter = () => {
   await apolloRouter(targets);
 
   applyProxiesCoreless(app, targets);
-
-  // for health check
-  app.get('/health', async (_req, res) => {
-    res.end('ok');
-  });
 
   // The error handler must be before any other error middleware and after all controllers
   app.use(Sentry.Handlers.errorHandler());
