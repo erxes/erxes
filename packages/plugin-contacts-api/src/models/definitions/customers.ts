@@ -65,6 +65,7 @@ export interface ICustomer {
   avatar?: string;
   primaryPhone?: string;
   phones?: string[];
+  discordId?: string;
   primaryAddress?: IAddress;
   addresses?: IAddress[];
 
@@ -211,6 +212,11 @@ export const customerSchema = schemaWrapper(
       optional: true
     }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
+    discordId: field({
+      type: String,
+      label: 'Discord User Id',
+      optional: true
+    }),
 
     primaryAddress: field({
       type: Object,

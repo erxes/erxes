@@ -101,6 +101,7 @@ app.disable('x-powered-by');
 
 app.use(cors());
 
+//@ts-ignore
 app.use(cookieParser());
 
 // for health checking

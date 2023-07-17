@@ -94,7 +94,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
   }
 
   if (action === 'create-or-update-conversation') {
-    const { conversationId, content, owner, updatedAt } = doc;
+    const { conversationId, content, customerId, owner, updatedAt } = doc;
 
     let user;
 
@@ -124,6 +124,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
         content,
         assignedUserId,
         updatedAt,
+        customerId,
         // mark this conversation as unread
         readUserIds: [],
 
