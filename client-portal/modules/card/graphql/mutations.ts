@@ -34,6 +34,7 @@ const clientPortalCreateCard = `
     $description: String
     $priority: String
     $customFieldsData: JSON
+    $productsData: JSON
     $attachments: [AttachmentInput]
     $labelIds: [String]
   ) {
@@ -46,6 +47,7 @@ const clientPortalCreateCard = `
       customFieldsData: $customFieldsData
       attachments: $attachments
       labelIds: $labelIds
+      productsData: $productsData
     ) 
   }
 `;
