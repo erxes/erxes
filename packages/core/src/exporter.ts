@@ -22,21 +22,24 @@ const prepareData = async (
   let itemIds = [];
   const skip = (page - 1) * perPage;
 
+  let data: any[] = [];
+
   if (segmentData.conditions) {
-    itemIds = await fetchSegment(
-      subdomain,
-      '',
-      { scroll: true, page, perPage },
-      segmentData
-    );
+    itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
 
     boardItemsFilter._id = { $in: itemIds };
   }
 
-  return models.Users.find(boardItemsFilter)
-    .skip(skip)
-    .limit(perPage)
-    .lean();
+  if (!segmentData) {
+    data = await models.Users.find(boardItemsFilter)
+      .skip(skip)
+      .limit(perPage)
+      .lean();
+  }
+
+  data = await models.Users.find(boardItemsFilter).lean();
+
+  return data;
 };
 
 const prepareDataCount = async (
