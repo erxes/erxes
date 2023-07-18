@@ -28,7 +28,8 @@ const scheduleTypes = `
       customFieldsData
       assignedUserIds
       structureTypeIds
-      date
+      startDate
+      endDate
       groupId
       indicatorId
       name

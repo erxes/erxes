@@ -1,9 +1,13 @@
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
+import { UploaderWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import {
   Button,
+  CollapseContent,
   ControlLabel,
   FormControl,
   FormGroup,
+  ModalTrigger,
+  Uploader,
   __,
   colors
 } from '@erxes/ui/src';
@@ -13,9 +17,15 @@ import {
   ModalFooter
 } from '@erxes/ui/src/styles/main';
 import { IField } from '@erxes/ui/src/types';
+import { readFile } from '@erxes/ui/src/utils/core';
 import { default as _loadash } from 'lodash';
 import React from 'react';
-import { Padding } from '../../../styles';
+import {
+  DetailPopoverWrapper,
+  Divider,
+  ListItem,
+  Padding
+} from '../../../styles';
 import { DetailPopOver } from '../../common/utils';
 import IndicatorAssessmentHistory from '../containers/IndicatorAssessmentHistory';
 
@@ -35,7 +45,12 @@ type Props = {
 
 type State = {
   submissions: {
-    [key: string]: { value: string; description: string; isFlagged?: boolean };
+    [key: string]: {
+      value: string;
+      description: string;
+      isFlagged?: boolean;
+      attachments?: any;
+    };
   };
 };
 
@@ -57,41 +72,88 @@ class IndicatorForm extends React.Component<Props, State> {
     }
   }
 
-  renderDescriptionField(value, key: string) {
-    const { withDescription } = this.props;
-    if (!withDescription) {
-      return;
-    }
+  renderFieldAdditionalContent(
+    {
+      description,
+      attachments
+    }: {
+      value: string;
+      description: string;
+      isFlagged?: boolean;
+      attachments?: any;
+    },
+    _id: string
+  ) {
+    const { submissions } = this.state;
 
-    const onChangeDescription = e => {
-      const { submissions } = this.state;
-      const { value } = e.currentTarget as HTMLInputElement;
-
-      submissions[key] = {
-        ...submissions[key],
-        description: value
+    const onChange = e => {
+      const { value, name } = e.currentTarget as HTMLInputElement;
+      submissions[_id] = {
+        ...submissions[_id],
+        [name]: value
       };
+      this.setState({ submissions });
+    };
 
+    const onChangeAttachments = e => {
+      for (const att of e) {
+        att.url = readFile(att.url);
+      }
+      submissions[_id] = {
+        ...submissions[_id],
+        attachments: e
+      };
       this.setState({ submissions });
     };
 
     return (
-      <DetailPopOver title="" withoutPopoverTitle icon="comment-alt-edit">
+      <>
         <FormGroup>
           <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             name="description"
             componentClass="textarea"
             placeholder="Type some description"
-            onChange={onChangeDescription}
-            value={value}
+            onChange={onChange}
+            value={description}
           />
         </FormGroup>
-      </DetailPopOver>
+        <UploaderWrapper>
+          <Uploader
+            defaultFileList={attachments || []}
+            onChange={onChangeAttachments}
+          />
+        </UploaderWrapper>
+      </>
+    );
+  }
+
+  renderMoreForm(field, props) {
+    const { submissions } = this.state;
+
+    const content = () => (
+      <>
+        <GenerateField {...props} />
+        {this.renderFieldAdditionalContent(
+          submissions[field._id] || {},
+          field._id
+        )}
+      </>
+    );
+
+    const trigger = (
+      <Button btnStyle="link" icon="ellipsis-h">
+        {__('More')}
+      </Button>
+    );
+
+    return (
+      <ModalTrigger title="Field Form" content={content} trigger={trigger} />
     );
   }
 
   renderField(field: IField) {
+    const { withDescription } = this.props;
     const { submissions } = this.state;
     const handleChange = field => {
       let value = field.value;
@@ -130,23 +192,22 @@ class IndicatorForm extends React.Component<Props, State> {
     }
 
     return (
-      <FormWrapper key={field._id}>
+      <ListItem key={field._id}>
+        <GenerateField {...updateProps} />
         <FormColumn>
-          <GenerateField {...updateProps} />
+          <Button
+            btnStyle="link"
+            icon="flag"
+            iconColor={
+              submissions[field._id]?.isFlagged ? colors.colorCoreRed : ''
+            }
+            onClick={handleFlag}
+          >
+            {submissions[field._id]?.isFlagged ? 'Flagged' : 'Flag'}
+          </Button>
+          {withDescription && this.renderMoreForm(field, updateProps)}
         </FormColumn>
-        <Button
-          btnStyle="link"
-          icon="flag"
-          iconColor={
-            submissions[field._id]?.isFlagged ? colors.colorCoreRed : ''
-          }
-          onClick={handleFlag}
-        />
-        {this.renderDescriptionField(
-          submissions[field._id]?.description || '',
-          field._id
-        )}
-      </FormWrapper>
+      </ListItem>
     );
   }
 
@@ -190,7 +251,12 @@ class IndicatorForm extends React.Component<Props, State> {
           setHistory={setHistory}
         />
         <Padding horizontal>
-          {(fields || []).map(field => this.renderField(field))}
+          {(fields || []).map(field => (
+            <>
+              {this.renderField(field)}
+              <Divider />
+            </>
+          ))}
         </Padding>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal}>

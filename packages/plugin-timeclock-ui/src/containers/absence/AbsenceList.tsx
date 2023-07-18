@@ -138,7 +138,6 @@ const ListContainer = (props: FinalProps) => {
   const submitCheckInOut = (type: string, userId: string, dateVal: Date) => {
     submitCheckInOutRequestMutation({
       variables: {
-        userId,
         checkType: type,
         checkTime: dateVal
       }
