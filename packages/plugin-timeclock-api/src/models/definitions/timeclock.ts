@@ -251,7 +251,11 @@ export const absenceSchema = new Schema({
   }),
 
   reason: field({ type: String, label: 'reason for absence' }),
-  explanation: field({ type: String, label: 'explanation by a team member' }),
+  explanation: field({
+    type: String,
+    optional: true,
+    label: 'explanation by a team member'
+  }),
 
   solved: field({
     type: Boolean,
