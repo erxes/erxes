@@ -10,6 +10,8 @@ import SelectData from "./SelectData";
 import { SelectInput } from "../../styles/cards";
 import Uploader from "../../common/Uploader";
 import { __ } from "../../../utils";
+import DateControl from "../../common/form/DateControl";
+import dayjs from "dayjs";
 
 type Props = {
   field: IField;
@@ -90,7 +92,7 @@ export default class GenerateField extends React.Component<Props, State> {
   renderInput(attrs, hasError?: boolean) {
     const { value } = this.state;
     const checkBoxValues = this.state.checkBoxValues || [];
-    const { type } = this.props.field;
+    const { type, validation } = this.props.field;
 
     attrs.type = "text";
 
@@ -111,6 +113,9 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.checked = checkBoxValues.includes(attrs.option);
     }
 
+    if (validation === "date") {
+      attrs.componentClass = "date";
+    }
     return <FormControl {...attrs} />;
   }
 
@@ -296,6 +301,30 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  // renderDateSelect({ id, value }) {
+  //   const { onValueChange } = this.props;
+  //   const onDateChange = dateVal => {
+  //     if (onValueChange) {
+  //       onValueChange({ _id: id, value: dayjs(dateVal).format("YYYY-MM-DD") });
+  //     }
+  //   };
+
+  //   return (
+  //     <FormControl componentClass="date">
+  //       <div style={{ position: "relative" }}>
+  //         <DateControl
+  //           value={new Date()}
+  //           onChange={onDateChange}
+  //           dateFormat={"YYYY-MM-DD"}
+  //           required={true}
+  //           name="date"
+  //           placeholder="Start date"
+  //         />
+  //       </div>
+  //     </FormControl>
+  //   );
+  // }
+
   renderControl() {
     const { field } = this.props;
     const { type } = field;
@@ -311,6 +340,10 @@ export default class GenerateField extends React.Component<Props, State> {
     if (field.field === "labelIds") {
       return this.renderLabels(attrs);
     }
+
+    // if (field.validation === "date") {
+    //   return this.renderDateSelect(attrs);
+    // }
 
     switch (type) {
       case "select":
