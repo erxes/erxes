@@ -247,8 +247,13 @@ const timeclockMutations = {
     return models.Absences.removeAbsence(_id);
   },
 
-  async sendAbsenceRequest(_root, doc: IAbsence, { models }: IContext) {
-    return models.Absences.createAbsence(doc);
+  async sendAbsenceRequest(
+    _root,
+    { userId, ...doc }: IAbsence,
+    { models, user }: IContext
+  ) {
+    const getUserId = userId ? userId : user._id;
+    return models.Absences.createAbsence({ userId: getUserId, ...doc });
   },
 
   async solveAbsenceRequest(
