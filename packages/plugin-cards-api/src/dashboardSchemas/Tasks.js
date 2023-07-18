@@ -31,6 +31,10 @@ cube(`Tasks`, {
     TasksCustomfieldsdata: {
       sql: `${CUBE}._id = ${TasksCustomfieldsdata}._id`,
       relationship: `belongsTo`
+    },
+    Users: {
+      sql: `CONCAT(${CUBE}.userId)= ${Users}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -51,6 +55,17 @@ cube(`Tasks`, {
       sql: `description`,
       type: `string`,
       shown: false
+    },
+
+    userid: {
+      sql: `
+        CASE
+          WHEN ${Users}.\`details.fullName\` IS NULL OR ${Users}.\`details.fullName\` = '' THEN ${Users}.\`username\`
+          ELSE ${Users}.\`details.fullName\`
+        END
+      `,
+      type: `string`,
+      title: `Created User`
     },
 
     initialstageid: {

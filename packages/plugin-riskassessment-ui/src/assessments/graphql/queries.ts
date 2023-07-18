@@ -70,6 +70,7 @@ const commonField = `
     }
     status
     statusColor
+    permittedUserIds
  `;
 
 const riskAssessments = `

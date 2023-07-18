@@ -120,9 +120,12 @@ const ChatItem = (props: FinalProps) => {
             : chat.name}
         </p>
         <ChatBody>
-          <ChatContent>
-            {draftContent && draftContent.contentBlocks[0].text}
-          </ChatContent>
+          <ChatContent
+            dangerouslySetInnerHTML={{
+              __html:
+                (draftContent && draftContent.contentBlocks?.[0]?.text) || ''
+            }}
+          ></ChatContent>
           <ChatTimestamp>
             {chat.lastMessage &&
               chat.lastMessage.createdAt &&

@@ -42,16 +42,16 @@ export const loadPeriodLockClass = (models: IModels) => {
       const periodLocks = await models.PeriodLocks.create(doc);
 
       const prevLock = await models.PeriodLocks.findOne({
-        data: { $lt: periodLocks.date }
-      }).sort({ date: 1 });
+        date: { $lt: periodLocks.date }
+      }).sort({ date: -1 });
 
       const transactions = await models.Transactions.find({
         payDate: {
           $lte: periodLocks.date,
-          ...(prevLock?.date ? { $gte: prevLock?.date } : {})
+          ...(prevLock?.date ? { $gt: prevLock?.date } : {})
         },
         total: { $gt: 0 },
-        contractId: { $nin: doc.excludeContracts || [] }
+        contractId: { $nin: doc.excludeContracts || [], $exists: true }
       });
 
       const generals = await models.General.createGeneral(
@@ -85,14 +85,14 @@ export const loadPeriodLockClass = (models: IModels) => {
 
       const prevLock = await models.PeriodLocks.findOne({
         date: { $lt: doc.date }
-      }).sort({ date: 1 });
+      }).sort({ date: -1 });
 
       const transactions = await models.Transactions.find({
         payDate: {
           $lte: doc.date,
-          ...(prevLock?.date ? { $gte: prevLock?.date } : {})
+          ...(prevLock?.date ? { $gt: prevLock?.date } : {})
         },
-        contractId: { $nin: doc.excludeContracts || [] }
+        contractId: { $nin: doc.excludeContracts || [], $exists: true }
       });
 
       await models.General.deleteMany({ periodLockId: _id });

@@ -1,4 +1,10 @@
-import { ControlLabel, FormGroup, Toggle, __ } from '@erxes/ui/src';
+import {
+  ControlLabel,
+  FormGroup,
+  SelectTeamMembers,
+  Toggle,
+  __
+} from '@erxes/ui/src';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import React from 'react';
@@ -22,6 +28,8 @@ type State = {
   departmentId: string;
   operationId: string;
   useBulkCreate: boolean;
+  usePrivateRA: boolean;
+  permittedUserIds: string[];
 };
 
 class Form extends React.Component<Props, State> {
@@ -35,7 +43,9 @@ class Form extends React.Component<Props, State> {
       branchId: riskAssessment?.branchId || '',
       departmentId: riskAssessment?.departmentId || '',
       operationId: riskAssessment?.operationId || '',
-      useBulkCreate: false
+      permittedUserIds: riskAssessment?.permittedUserIds || [],
+      useBulkCreate: false,
+      usePrivateRA: riskAssessment?.permittedUserIds?.length || false
     };
   }
 
@@ -85,14 +95,22 @@ class Form extends React.Component<Props, State> {
 
   renderSingleAssessment() {
     const { riskAssessment, cardId, cardType, closeModal } = this.props;
-    const { branchId, departmentId, operationId } = this.state;
+    const {
+      branchId,
+      departmentId,
+      operationId,
+      permittedUserIds
+    } = this.state;
 
     const handleSelect = props => {
       this.props.handleSelect({
         ...props,
         branchId,
         departmentId,
-        operationId
+        operationId,
+        permittedUserIds: !!permittedUserIds?.length
+          ? permittedUserIds
+          : undefined
       });
     };
 
@@ -126,7 +144,7 @@ class Form extends React.Component<Props, State> {
   }
 
   render() {
-    const { useBulkCreate } = this.state;
+    const { useBulkCreate, usePrivateRA, permittedUserIds } = this.state;
 
     const toggleOneByOne = () => {
       if (!useBulkCreate) {
@@ -140,6 +158,10 @@ class Form extends React.Component<Props, State> {
       this.setState({ useBulkCreate: !useBulkCreate });
     };
 
+    const handleSelectUsers = ids => {
+      this.setState({ permittedUserIds: ids });
+    };
+
     return (
       <FormContainer column gap>
         <FormContainer row gap align="center">
@@ -147,7 +169,22 @@ class Form extends React.Component<Props, State> {
           <ControlLabel>
             {__('generate one-by-one assessment with selected structures')}
           </ControlLabel>
+          <Toggle
+            onChange={() => this.setState({ usePrivateRA: !usePrivateRA })}
+            checked={usePrivateRA}
+          />
+          <ControlLabel>{__('Use private risk assessment')}</ControlLabel>
         </FormContainer>
+
+        {usePrivateRA && (
+          <SelectTeamMembers
+            name="permittedUserIds"
+            label="Choose team members"
+            initialValue={permittedUserIds}
+            onSelect={handleSelectUsers}
+            multi={true}
+          />
+        )}
         {useBulkCreate
           ? this.renderBulkAssessment()
           : this.renderSingleAssessment()}

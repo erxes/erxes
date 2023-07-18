@@ -28,7 +28,8 @@ query RiskAssessment($cardId: String, $cardType: String) {
       _id,name
     }
     isSplittedUsers,
-    createdAt
+    createdAt,
+    permittedUserIds
   }
 }
 `;
