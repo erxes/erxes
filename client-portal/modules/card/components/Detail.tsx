@@ -131,13 +131,13 @@ export default class CardDetail extends React.Component<
 
   renderProductsInfo() {
     const { productsData } = this.props.item;
-    return productsData.map(product => {
-      return (
+    if (productsData) {
+      return productsData.map(product => (
         <span key={product._id}>
           {product.name}&nbsp;<b>({product.quantity} PC)</b>
         </span>
-      );
-    });
+      ));
+    }
   }
 
   renderDetailInfo() {
@@ -151,6 +151,8 @@ export default class CardDetail extends React.Component<
       startDate,
       closeDate
     } = this.props.item || ({} as any);
+
+    const { type } = this.props;
 
     return (
       <TicketDetailContent>
@@ -178,10 +180,12 @@ export default class CardDetail extends React.Component<
           <ControlLabel>Assigned users</ControlLabel>
           <div>{this.renderAssignedUsers()}</div>
         </DetailRow>
-        <DetailRow type="row">
-          <ControlLabel>Products & Service</ControlLabel>
-          <div>{this.renderProductsInfo()}</div>
-        </DetailRow>
+        {type === "deal" && (
+          <DetailRow type="row">
+            <ControlLabel>Products & Service</ControlLabel>
+            <div>{this.renderProductsInfo()}</div>
+          </DetailRow>
+        )}
       </TicketDetailContent>
     );
   }
