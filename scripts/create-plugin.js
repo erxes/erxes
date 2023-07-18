@@ -1,8 +1,11 @@
+// Import required modules
 var { resolve } = require('path');
 var fs = require('fs-extra');
 var path = require('path');
 const execSync = require('child_process').exec;
 const { prompt, Select } = require('enquirer');
+
+// Define a helper function to get the file path
 const filePath = pathName => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
@@ -10,6 +13,8 @@ const filePath = pathName => {
 
   return resolve(__dirname, '..');
 };
+
+// Define prompts for user input
 const promptLocation = new Select({
   name: 'location',
   message: 'Where do you want to place the plugin at?',
@@ -43,6 +48,7 @@ const promptBlank = new Select({
   choices: ['yes', 'no']
 });
 
+// Define helper functions
 const capitalizeFirstLetter = value =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -54,6 +60,7 @@ const pluralFormation = type => {
   return type + 's';
 };
 
+// Replace placeholders in a fule with actual values
 const replacer = (fullPath, name) => {
   const JSONBuffer = fs.readFileSync(fullPath);
 
@@ -68,6 +75,7 @@ const replacer = (fullPath, name) => {
   fs.writeFile(fullPath, content);
 };
 
+// Recursively loop through directory files and call replacer for each file 
 const loopDirFiles = async (dir, name) => {
   fs.readdir(dir, (err, files) => {
     if (err) {
@@ -91,6 +99,7 @@ const loopDirFiles = async (dir, name) => {
   });
 };
 
+// Create UI plugin
 var createUi = async (name, location, type) => {
   const dir = filePath('./packages/ui-plugin-template');
   const newDir = filePath(`./packages/plugin-${name}-ui`);
@@ -102,6 +111,7 @@ var createUi = async (name, location, type) => {
     integrationDetail: filePath(`./packages/ui-plugin-template/source-integration-detail`)
   }
 
+   // Copy the UI template files to the new plugin directory
   fs.copySync(
     dir,
     newDir,
@@ -113,9 +123,12 @@ var createUi = async (name, location, type) => {
     fs.copySync(sourceDirs[type], `${newDir}/src`),
     fs.copySync(sourceDirs[type], `${newDir}/.erxes/plugin-src`)
   );
+
+  // Add the plugin into UI configurations
   addIntoUIConfigs(name, location, () => loopDirFiles(newDir, name));
 };
 
+// Create API plugin
 var createApi = async (name, type) => {
   const dir = filePath('./packages/api-plugin-templ');
   const dotErxes = filePath('./packages/api-plugin-template.erxes');
@@ -128,6 +141,7 @@ var createApi = async (name, type) => {
     integration: filePath(`./packages/api-plugin-templ/source-integration`)
   }
 
+  // Copy the API template files to the new plugin directory
   fs.copySync(
     dir,
     newDir,
@@ -140,12 +154,14 @@ var createApi = async (name, type) => {
     fs.copySync(sourceDirs[type], `${newDir}/src`)
   );
 
+  // Replace placeholders in the files
   loopDirFiles(newDir, name);
 
-  // add plugin into configs.json
+  // Add the plugin into API configurations
   addIntoApiConfigs(name);
 };
 
+// Add the plugin into UI configurations
 const addIntoUIConfigs = (name, location, callback) => {
   const menu =
     location === 'main navigation'
@@ -180,6 +196,7 @@ const addIntoUIConfigs = (name, location, callback) => {
   });
 };
 
+// Add the plugin into API configurations
 const addIntoApiConfigs = async name => {
   const configsPath = resolve(__dirname, '..', 'cli/configs.json');
 
@@ -210,14 +227,17 @@ const addIntoApiConfigs = async name => {
   });
 };
 
+// Install UI dependencies
 const installUiDeps = name => {
   return `cd ` + filePath(`packages/plugin-${name}-ui && yarn install-deps`);
 };
 
+// Install API dependendies
 const installApiDeps = name => {
   return `cd ` + filePath(`packages/plugin-${name}-api && yarn install-deps`);
 };
 
+// Install dependencies
 const installDeps = name => {
   execSync(installUiDeps(name), (err, data) => {
     if (err) console.error(err);
@@ -231,7 +251,10 @@ const installDeps = name => {
   });
 };
 
+// Main function
 const main = async () => {
+
+  // Prompt for plugin Name
   const input = await prompt([
     {
       type: 'input',
@@ -239,8 +262,12 @@ const main = async () => {
       message: 'Please enter the plugin name:'
     }
   ]);
+
+  // Prompt for plugin type (General or Integration)
   promptChoice.run().then(type => {
     if (type === 'integration') {
+
+      // If integration, prompt for integration template type
       promptIntegrationChoice.run().then(templateType => {
         const name = input.name;
 
@@ -271,4 +298,5 @@ const main = async () => {
   })
 };
 
+// Call the main function
 main();
