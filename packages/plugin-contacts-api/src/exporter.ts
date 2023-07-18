@@ -30,7 +30,7 @@ const prepareData = async (
     const itemIds = await fetchSegment(
       subdomain,
       '',
-      { scroll: true, page, perPage },
+      { page, perPage },
       segmentData
     );
 
@@ -39,31 +39,48 @@ const prepareData = async (
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
-      data = await models.Companies.find(contactsFilter)
-        .skip(skip)
-        .limit(perPage)
-        .lean();
+      if (!segmentData) {
+        data = await models.Companies.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Companies.find(contactsFilter).lean();
 
       break;
     case 'lead':
-      data = await models.Customers.find(contactsFilter)
-        .skip(skip)
-        .limit(perPage)
-        .lean();
+      if (!segmentData) {
+        data = await models.Customers.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(contactsFilter).lean();
 
       break;
     case 'visitor':
-      data = await models.Customers.find(contactsFilter)
-        .skip(skip)
-        .limit(perPage)
-        .lean();
+      if (!segmentData) {
+        data = await models.Customers.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(contactsFilter).lean();
 
       break;
     case MODULE_NAMES.CUSTOMER:
-      data = await models.Customers.find(contactsFilter)
-        .skip(skip)
-        .limit(perPage)
-        .lean();
+      if (!segmentData) {
+        data = await models.Customers.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(contactsFilter).lean();
+
       break;
   }
 
