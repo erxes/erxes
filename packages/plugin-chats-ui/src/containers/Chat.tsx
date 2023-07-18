@@ -9,19 +9,32 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import Chat from '../components/Chat';
 import { queries } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { currentUser } from '@erxes/ui/src/auth/graphql';
+import { IUser } from '@erxes/ui/src/auth/types';
 
-const ChatContainer = () => {
+type Props = {
+  currentUser: IUser;
+};
+
+const ChatContainer = (props: Props) => {
+  const { currentUser } = props;
   const location = useLocation();
   const { id, userIds, userId } = queryString.parse(location.search);
 
   if (!id && (userIds || userId)) {
-    return <GetChatId userIds={userId ? [userId] : userIds} />;
+    return (
+      <GetChatId
+        userIds={userId ? [userId] : userIds}
+        currentUser={currentUser}
+      />
+    );
   }
 
-  return <Chat chatId={id || ''} />;
+  return <Chat chatId={id || ''} currentUser={currentUser} />;
 };
 
-const GetChatId = (props: { userIds: string[] }) => {
+const GetChatId = (props: { userIds: string[]; currentUser: IUser }) => {
   const { loading, error, data } = useQuery(gql(queries.getChatIdByUserIds), {
     variables: { userIds: props.userIds }
   });
@@ -34,7 +47,10 @@ const GetChatId = (props: { userIds: string[] }) => {
     Alert.error(error.message);
   }
 
-  return <Chat chatId={data.getChatIdByUserIds} />;
+  return (
+    <Chat chatId={data.getChatIdByUserIds} currentUser={props.currentUser} />
+  );
 };
+const WithCurrentUser = withCurrentUser(ChatContainer);
 
-export default ChatContainer;
+export default (props: Props) => <WithCurrentUser {...props} />;

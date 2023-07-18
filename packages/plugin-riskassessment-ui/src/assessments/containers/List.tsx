@@ -1,10 +1,10 @@
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router, withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import { generateParamsIds } from '../../common/utils';
 import ListComponent from '../components/List';
 import { mutations, queries } from '../graphql';

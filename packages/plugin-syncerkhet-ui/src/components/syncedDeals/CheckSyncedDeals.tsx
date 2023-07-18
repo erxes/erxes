@@ -113,6 +113,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
       'Un Synced',
       'Synced Date',
       'Synced bill Number',
+      'Synced Customer',
       'Sync Actions'
     ];
 

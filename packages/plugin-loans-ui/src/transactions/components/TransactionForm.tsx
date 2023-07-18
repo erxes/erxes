@@ -123,7 +123,7 @@ class TransactionForm extends React.Component<Props, State> {
     );
   };
 
-  renderRowTr = (label, fieldName, isFromState) => {
+  renderRowTr = (label, fieldName, isFromState?: any) => {
     const { transaction } = this.props;
     const { paymentInfo } = this.state;
     let trVal = '';
@@ -226,6 +226,13 @@ class TransactionForm extends React.Component<Props, State> {
     };
 
     const onChangeField = e => {
+      if ((e.target as HTMLInputElement).name === 'total') {
+        const value = Number((e.target as HTMLInputElement).value);
+
+        if (value > this.state.paymentInfo.closeAmount) {
+          (e.target as HTMLInputElement).value = this.state.paymentInfo.closeAmount;
+        }
+      }
       this.setState({
         [(e.target as HTMLInputElement).name]: (e.target as HTMLInputElement)
           .value
@@ -271,6 +278,7 @@ class TransactionForm extends React.Component<Props, State> {
                   useNumberFormat
                   fixed={2}
                   name="total"
+                  max={this.state?.paymentInfo?.closeAmount}
                   value={this.state.total}
                   onChange={onChangeField}
                   onClick={this.onFieldClick}

@@ -65,9 +65,8 @@ class List extends React.Component<IProps, State> {
     for (const product of products) {
       const { quantity, uom } = product;
       const productName = product.product ? product.product.name : 'not name';
-      const uomCode = uom ? uom.code : 'not uom';
 
-      result.push(this.renderView(productName, quantity + '/' + uomCode + '/'));
+      result.push(this.renderView(productName, quantity + '/' + uom + '/'));
     }
 
     return result;

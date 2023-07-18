@@ -26,7 +26,7 @@ const productFields = `
 
   description
   unitPrice
-  sku
+  uom
   
   createdAt
   categoryId

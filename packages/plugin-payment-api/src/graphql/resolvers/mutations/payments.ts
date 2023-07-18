@@ -6,9 +6,11 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { IPayment } from '../../../models/definitions/payments';
 import { QPayQuickQrAPI } from '../../../api/qpayQuickqr/api';
+import { PocketAPI } from '../../../api/pocket/api';
+import { getEnv } from '@erxes/api-utils/src/core';
 
 const mutations = {
-  async paymentAdd(_root, doc: IPayment, { models }: IContext) {
+  async paymentAdd(_root, doc: IPayment, { models, subdomain }: IContext) {
     if (doc.kind === 'qpayQuickqr') {
       const api = new QPayQuickQrAPI();
 
@@ -30,7 +32,24 @@ const mutations = {
       }
     }
 
-    return models.Payments.createPayment(doc);
+    const payment = await models.Payments.createPayment(doc);
+
+    if (doc.kind === 'pocket') {
+      const DOMAIN = getEnv({ name: 'DOMAIN' })
+        ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+        : 'http://localhost:4000';
+      const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+      const pocketApi = new PocketAPI(doc.config, domain);
+      try {
+        await pocketApi.resiterWebhook(payment._id);
+      } catch (e) {
+        await models.Payments.removePayment(payment._id);
+        throw new Error(`Error while registering pocket webhook: ${e.message}`);
+      }
+    }
+
+    return payment;
   },
 
   async paymentRemove(_root, { _id }: { _id: string }, { models }: IContext) {

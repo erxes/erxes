@@ -8,7 +8,8 @@ import {
   SelectTeamMembers,
   Tip,
   __,
-  Toggle
+  Toggle,
+  Button
 } from '@erxes/ui/src';
 import {
   ClearableBtn,
@@ -195,6 +196,31 @@ export default function SideBar({ history, queryParams }) {
                 {type.label}
               </SelectBox>
             ))}
+          </SelectBoxContainer>
+        </CustomField>
+        <CustomField
+          label={'Status'}
+          field="archived"
+          clearable={queryParams?.archived}
+        >
+          <SelectBoxContainer>
+            <SelectBox
+              onClick={() =>
+                handleSelect(
+                  ['false', undefined].includes(queryParams?.archived),
+                  'archived'
+                )
+              }
+            >
+              {queryParams?.archived === 'true' ? 'Archived' : 'Active'}
+              <Icon
+                icon={
+                  queryParams?.archived === 'true'
+                    ? 'calendar-alt'
+                    : 'archive-alt'
+                }
+              />
+            </SelectBox>
           </SelectBoxContainer>
         </CustomField>
       </Padding>

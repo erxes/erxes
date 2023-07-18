@@ -196,7 +196,7 @@ RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
       .connect(RABBITMQ_HOST, { noDelay: true })
       .then(
         function(conn) {
-          debugInfo(`Connected to rabbitmq server ${RABBITMQ_HOST}`);
+          console.log(`Connected to rabbitmq server ${RABBITMQ_HOST}`);
 
           conn.on('error', me.reconnect.bind(me, RABBITMQ_HOST));
 
@@ -206,12 +206,12 @@ RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
           });
         },
         function connectionFailed(err) {
-          debugError('Failed to connect to rabbitmq server', err);
+          console.log('Failed to connect to rabbitmq server', err);
           me.reconnect(RABBITMQ_HOST);
         }
       )
       .catch(function(error) {
-        debugError('RabbitMQ: ', error);
+        console.log('RabbitMQ: ', error);
       });
   });
 };

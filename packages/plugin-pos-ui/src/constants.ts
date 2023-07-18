@@ -18,9 +18,12 @@ export const TEXT_COLORS = [
 ];
 
 export const ALLOW_TYPES = [
-  { value: 'eat', label: 'Eat' },
-  { value: 'take', label: 'Take' },
-  { value: 'delivery', label: 'Delivery' }
+  { value: 'eat', label: 'Eat', kind: 'sale' },
+  { value: 'take', label: 'Take', kind: 'sale' },
+  { value: 'delivery', label: 'Delivery', kind: 'sale' },
+  { value: 'loss', label: 'Loss', kind: 'out' },
+  { value: 'spend', label: 'Spend', kind: 'out' },
+  { value: 'reject', label: 'Reject', kind: 'out' }
 ];
 
 export const DISTRICTS = [

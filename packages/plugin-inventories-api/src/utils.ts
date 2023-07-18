@@ -1,9 +1,9 @@
-export const getRatio = (product: any, uomId: string) => {
-  if (product.uomId === uomId) {
+export const getRatio = (product: any, uom: string) => {
+  if (product.uom === uom) {
     return 1;
   }
 
-  const subUom = (product.subUoms || []).find(su => su.uomId === uomId);
+  const subUom = (product.subUoms || []).find(su => su.uom === uom);
   if (!subUom) {
     return 0;
   }

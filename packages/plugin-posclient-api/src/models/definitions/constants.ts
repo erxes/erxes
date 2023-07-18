@@ -22,7 +22,12 @@ export const ORDER_TYPES = {
   EAT: 'eat',
   SAVE: 'save',
   DELIVERY: 'delivery',
-  ALL: ['take', 'eat', 'save', 'delivery']
+  SPEND: 'spend',
+  LOSS: 'loss',
+  REJECT: 'reject',
+  ALL: ['take', 'eat', 'delivery', 'save', 'spend', 'loss', 'reject'],
+  SALES: ['take', 'eat', 'delivery', 'save'],
+  OUT: ['spend', 'loss', 'reject']
 };
 
 export const DEFAULT_SEX_CHOICES = [

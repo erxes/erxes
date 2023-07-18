@@ -7,7 +7,11 @@ import {
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
 import { itemsEdit, publishHelper } from './graphql/resolvers/mutations/utils';
-import { createConformity, notifiedUserIds } from './graphql/utils';
+import {
+  createConformity,
+  notifiedUserIds,
+  sendNotifications
+} from './graphql/utils';
 import { conversationConvertToCard, createBoardItem } from './models/utils';
 import { getCardItem } from './utils';
 
@@ -592,6 +596,15 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await notifiedUserIds(models, data)
+    };
+  });
+
+  consumeRPCQueue('cards:sendNotifications', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await sendNotifications(models, subdomain, data)
     };
   });
 

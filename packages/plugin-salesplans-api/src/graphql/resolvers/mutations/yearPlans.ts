@@ -67,7 +67,7 @@ const yearPlansMutations = {
         departmentId,
         branchId,
         productId: product._id,
-        uomId: product.uomId,
+        uom: product.uom,
         values,
         createdAt: now,
         modifiedAt: now,

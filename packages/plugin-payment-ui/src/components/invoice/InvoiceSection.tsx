@@ -5,7 +5,8 @@ import Label from '@erxes/ui/src/components/Label';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-
+import Modal from 'react-bootstrap/Modal';
+import InvoiceDetail from '../../containers/invoice/Detail';
 import { IInvoice } from '../../types';
 
 export type Props = {
@@ -15,6 +16,10 @@ export type Props = {
 
 export default function Component(props: Props) {
   const { invoices, onReload } = props;
+  const [showModal, setShowModal] = React.useState(false);
+  const [currentInvoiceId, setCurrentInvoiceId] = React.useState<
+    string | undefined
+  >(undefined);
 
   const onRefresh = () => {
     onReload();
@@ -64,7 +69,13 @@ export default function Component(props: Props) {
           </thead>
           <tbody>
             {invoices.map((invoice, index) => (
-              <tr key={index}>
+              <tr
+                key={index}
+                onClick={() => {
+                  setCurrentInvoiceId(invoice._id);
+                  setShowModal(true);
+                }}
+              >
                 <td>{invoice.payment.kind}</td>
                 <td>{invoice.amount.toFixed(2)}</td>
                 {renderStatus(invoice.status)}
@@ -72,6 +83,15 @@ export default function Component(props: Props) {
             ))}
           </tbody>
         </Table>
+
+        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+          <Modal.Header closeButton={true}>
+            <Modal.Title>{__('Invoice detail')}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <InvoiceDetail id={currentInvoiceId || ''} />
+          </Modal.Body>
+        </Modal>
       </div>
     );
   };

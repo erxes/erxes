@@ -36,7 +36,7 @@ export type ISafeRemainderItem = {
   status: string;
   remainderId: string;
   productId: string;
-  uomId: string;
+  uom: string;
   preCount: number;
   count: number;
   branchId: string;

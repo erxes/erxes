@@ -5,7 +5,7 @@ export const PRODUCT_INFO = {
   category: 'Category',
   vendor: 'Vendor',
   description: 'Description',
-  sku: 'Sku',
+  uom: 'UOM',
   productCount: 'Product count',
 
   ALL: [
@@ -15,7 +15,7 @@ export const PRODUCT_INFO = {
     { field: 'category', label: 'Category' },
     { field: 'vendor', label: 'Vendor' },
     { field: 'description', label: 'Description' },
-    { field: 'sku', label: 'Sku' },
+    { field: 'uom', label: 'Uom' },
     { field: 'productCount', label: 'Product count' }
   ]
 };

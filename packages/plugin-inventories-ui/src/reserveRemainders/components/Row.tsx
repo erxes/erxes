@@ -68,7 +68,7 @@ class Row extends React.Component<Props, State> {
         <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
         <td>{department ? `${department.code} - ${department.title}` : ''}</td>
         <td>{product ? `${product.code} - ${product.name}` : ''}</td>
-        <td>{uom ? `${uom.code} - ${uom.name}` : ''}</td>
+        <td>{uom || ''}</td>
         <td>
           <FormControl
             type="number"
@@ -78,7 +78,7 @@ class Row extends React.Component<Props, State> {
           />
         </td>
         <td>
-          <ActionButtons></ActionButtons>
+          <ActionButtons>.</ActionButtons>
         </td>
       </tr>
     );

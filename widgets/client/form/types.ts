@@ -85,7 +85,8 @@ export type FieldValue =
   | string[]
   | IAttachment[]
   | ILocationOption
-  | IObjectListConfig[];
+  | IObjectListConfig[]
+  | object;
 
 export interface IFieldError {
   fieldId?: string;
