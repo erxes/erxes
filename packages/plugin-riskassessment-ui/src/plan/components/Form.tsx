@@ -28,7 +28,8 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { FormContainer, PlanCard, PlanContainer } from '../../styles';
 import { CARDTYPES, STRUCTURETYPES } from '../common/constants';
-import ScheduleForm from './PlanForm';
+import ScheduleForm from './ScheduleForm';
+import { DetailPopOver } from '../../assessments/common/utils';
 
 type Props = {
   detail: any;
@@ -74,6 +75,61 @@ class Form extends React.Component<Props, State> {
     return this.state.plan;
   }
 
+  renderDuplicateForm(props) {
+    const onClick = e => {
+      e.stopPropagation();
+    };
+
+    const trigger = (
+      <Button btnStyle="link" onClick={onClick} icon="files-landscapes-alt">
+        {__('Duplicate')}
+      </Button>
+    );
+
+    const content = ({ closeModal }) => {
+      const updatedProps = {
+        ...props,
+        closeModal,
+        duplicate: true
+      };
+
+      return <ScheduleForm {...updatedProps} />;
+    };
+
+    return (
+      <ModalTrigger
+        size="lg"
+        title="Duplicate Schedule"
+        content={content}
+        trigger={trigger}
+      />
+    );
+  }
+
+  renderEditForm(props) {
+    const trigger = (
+      <Button btnStyle="link" icon="file-edit-alt">
+        {__('Edit')}
+      </Button>
+    );
+    const content = ({ closeModal }) => {
+      const updatedProps = {
+        ...props,
+        closeModal
+      };
+      return <ScheduleForm {...updatedProps} />;
+    };
+
+    return (
+      <ModalTrigger
+        size="lg"
+        title={`Edit Plan`}
+        content={content}
+        trigger={trigger}
+      />
+    );
+  }
+
   renderScheduleConfig(schedule) {
     const { history, detail, refetch, removeSchedule } = this.props;
     const {
@@ -93,23 +149,18 @@ class Form extends React.Component<Props, State> {
       removeSchedule(schedule._id);
     };
 
-    const content = ({ closeModal }) => {
-      const updatedProps = {
-        history,
-        refetch,
-        planId: detail._id,
-        plan: this.state.plan,
-        closeModal,
-        cardType: configs.cardType,
-        pipelineId: configs.pipelineId,
-        schedule: schedule,
-        onSave: handleChange
-      };
-
-      return <ScheduleForm {...updatedProps} />;
+    const updatedProps = {
+      history,
+      refetch,
+      planId: detail._id,
+      plan: this.state.plan,
+      cardType: configs.cardType,
+      pipelineId: configs.pipelineId,
+      schedule: schedule,
+      onSave: handleChange
     };
 
-    const trigger = (
+    return (
       <PlanCard key={schedule._id}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
           <Icon
@@ -123,23 +174,27 @@ class Form extends React.Component<Props, State> {
           />
           <div>
             <h4>{schedule.name}</h4>
-            {schedule?.date ? moment(schedule?.date).format('L') : '-'}
+            {schedule?.startDate
+              ? moment(schedule?.startDate).format('L')
+              : '-'}
           </div>
         </div>
-        <Button btnStyle="link" onClick={handleRemomve}>
-          <Icon icon="times-circle" style={{ color: 'red' }} />
-        </Button>
-      </PlanCard>
-    );
+        <DetailPopOver
+          title=""
+          withoutPopoverTitle
+          icon="ellipsis-v"
+          rootClose={false}
+        >
+          <FormContainer column>
+            {this.renderEditForm(updatedProps)}
+            {this.renderDuplicateForm(updatedProps)}
 
-    return (
-      <ModalTrigger
-        key={schedule._id}
-        size="lg"
-        title={`Edit Plan`}
-        content={content}
-        trigger={trigger}
-      />
+            <Button btnStyle="link" onClick={handleRemomve} icon="times-circle">
+              {__('Remove')}
+            </Button>
+          </FormContainer>
+        </DetailPopOver>
+      </PlanCard>
     );
   }
 

@@ -1,14 +1,15 @@
+import { gql } from '@apollo/client';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import {
   Button,
-  confirm,
   EmptyState,
   FormGroup,
   Spinner,
   Tip,
   Toggle,
-  __
+  __,
+  confirm
 } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -22,20 +23,23 @@ import {
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
-import { calculateMethods, COLORS } from '../../common/constants';
+import { COLORS, calculateMethods } from '../../common/constants';
 import { SelectOperations } from '../../common/utils';
 import { FormContainer, FormContent, Header } from '../../styles';
-import { RiskCalculateLogicType, RiskIndicatorsType } from '../common/types';
+import {
+  RiskCalculateLogicType,
+  RiskCalculateFormsType,
+  RiskIndicatorsType
+} from '../common/types';
 import { SelectTags } from '../common/utils';
 import { mutations } from '../graphql';
 import FormItem from './FormItem';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   indicatorDetail?: RiskIndicatorsType;
@@ -53,7 +57,7 @@ type IRiskIndicatorsStateType = {
   branchIds?: string[];
   forms: any[];
   calculateMethod?: string;
-  calculateLogics?: RiskCalculateLogicType[];
+  calculateLogics?: any[];
   createdAt?: string;
   isWithDescription?: boolean;
   tagIds: string;
@@ -76,23 +80,26 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
   generateDoc(values) {
     const { riskIndicator } = this.state;
+    let { calculateLogics, forms } = riskIndicator;
 
     delete values.logic;
     delete values.value;
     delete values.value2;
 
-    (riskIndicator.forms || []).forEach(formData => {
-      delete formData.__typename;
-      (formData.calculateLogics || []).forEach(
-        logic => delete logic.__typename
-      );
+    forms = (forms || []).map(({ __typename, ...form }) => {
+      return {
+        ...form,
+        calculateLogics: (form?.calculateLogics || []).map(
+          ({ __typename, ...logic }) => logic
+        )
+      };
     });
 
-    (riskIndicator?.calculateLogics || []).forEach(logic => {
-      delete logic.__typename;
-    });
+    calculateLogics = (calculateLogics || []).map(
+      ({ __typename, ...logic }) => logic
+    );
 
-    return { ...values, ...riskIndicator };
+    return { ...values, ...{ ...riskIndicator, forms, calculateLogics } };
   }
 
   renderLogic(
@@ -180,7 +187,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       <FormWrapper style={{ margin: '5px 0' }} key={_id}>
         <FormColumn>
           <FormControl
-            {...formProps}
             name="name"
             type="text"
             value={name}
@@ -191,7 +197,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         <FormColumn>
           <FormControl
             name="logic"
-            {...formProps}
             componentClass="select"
             required
             value={logic}
@@ -210,7 +215,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         <FormColumn>
           <FormContainer row gap align="center">
             <FormControl
-              {...formProps}
               name="value"
               type="number"
               value={value}
@@ -221,7 +225,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
               <>
                 <span>-</span>
                 <FormControl
-                  {...formProps}
                   name="value2"
                   type="number"
                   value={value2}
@@ -386,7 +389,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           ...prev.riskIndicator,
           forms: [
             ...(prev?.riskIndicator?.forms || []),
-            { _id: String(Math.random()) }
+            { _id: String(Math.random()), formId: '', calculateMethod: '' }
           ]
         }
       }));
