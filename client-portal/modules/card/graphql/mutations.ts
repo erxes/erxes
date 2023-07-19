@@ -37,6 +37,8 @@ const clientPortalCreateCard = `
     $productsData: JSON
     $attachments: [AttachmentInput]
     $labelIds: [String]
+    $startDate: Date
+    $closeDate: Date
   ) {
     clientPortalCreateCard(
       type: $type
@@ -48,6 +50,8 @@ const clientPortalCreateCard = `
       attachments: $attachments
       labelIds: $labelIds
       productsData: $productsData
+      startDate: $startDate
+      closeDate: $closeDate
     ) 
   }
 `;

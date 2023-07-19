@@ -11,7 +11,7 @@ import { SelectInput } from "../../styles/cards";
 import Uploader from "../../common/Uploader";
 import { __ } from "../../../utils";
 import DateControl from "../../common/form/DateControl";
-import dayjs from "dayjs";
+import { CustomRangeContainer } from "../../common/form/styles";
 
 type Props = {
   field: IField;
@@ -113,9 +113,6 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.checked = checkBoxValues.includes(attrs.option);
     }
 
-    if (validation === "date") {
-      attrs.componentClass = "date";
-    }
     return <FormControl {...attrs} />;
   }
 
@@ -301,30 +298,34 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  // renderDateSelect({ id, value }) {
-  //   const { onValueChange } = this.props;
-  //   const onDateChange = dateVal => {
-  //     if (onValueChange) {
-  //       onValueChange({ _id: id, value: dayjs(dateVal).format("YYYY-MM-DD") });
-  //     }
-  //   };
+  renderDateSelect = ({ id, validation, value, fieldName }) => {
+    const { onValueChange } = this.props;
 
-  //   return (
-  //     <FormControl componentClass="date">
-  //       <div style={{ position: "relative" }}>
-  //         <DateControl
-  //           value={new Date()}
-  //           onChange={onDateChange}
-  //           dateFormat={"YYYY-MM-DD"}
-  //           required={true}
-  //           name="date"
-  //           placeholder="Start date"
-  //         />
-  //       </div>
-  //     </FormControl>
-  //   );
-  // }
+    const onDateChange = dateVal => {
+      if (onValueChange) {
+        this.setState({ value: dateVal });
 
+        onValueChange({
+          _id: id,
+          value: dateVal
+        });
+      }
+    };
+
+    return (
+      <CustomRangeContainer>
+        <DateControl
+          required={false}
+          value={value}
+          onChange={onDateChange}
+          name={fieldName}
+          placeholder={"Enter date"}
+          dateFormat={"YYYY-MM-DD"}
+          timeFormat={validation === "datetime"}
+        />
+      </CustomRangeContainer>
+    );
+  };
   renderControl() {
     const { field } = this.props;
     const { type } = field;
@@ -333,6 +334,8 @@ export default class GenerateField extends React.Component<Props, State> {
     const attrs = {
       id: field._id,
       value: this.state.value,
+      fieldName: field.field,
+      validation: field.validation,
       onChange: this.onChange,
       name: ""
     };
@@ -341,9 +344,9 @@ export default class GenerateField extends React.Component<Props, State> {
       return this.renderLabels(attrs);
     }
 
-    // if (field.validation === "date") {
-    //   return this.renderDateSelect(attrs);
-    // }
+    if (field.validation === "date" || field.validation === "datetime") {
+      return this.renderDateSelect(attrs);
+    }
 
     switch (type) {
       case "select":
@@ -399,20 +402,22 @@ export default class GenerateField extends React.Component<Props, State> {
     const { field } = this.props;
 
     return (
-      <FormGroup>
-        <ControlLabel ignoreTrans={true} required={field.isRequired}>
-          {field.text}
-        </ControlLabel>
+      <>
+        <FormGroup>
+          <ControlLabel ignoreTrans={true} required={field.isRequired}>
+            {field.text}
+          </ControlLabel>
 
-        {field.description ? (
-          <div
-            className="customFieldDescription"
-            dangerouslySetInnerHTML={{ __html: field.description }}
-          />
-        ) : null}
+          {field.description ? (
+            <div
+              className="customFieldDescription"
+              dangerouslySetInnerHTML={{ __html: field.description }}
+            />
+          ) : null}
 
-        {this.renderControl()}
-      </FormGroup>
+          {this.renderControl()}
+        </FormGroup>
+      </>
     );
   }
 }

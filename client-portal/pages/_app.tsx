@@ -1,4 +1,6 @@
 import "react-select-plus/dist/react-select-plus.css";
+import "@nateradebaugh/react-datetime/css/react-datetime.css";
+    
 import "../styles/globals.css";
 
 import AppProvider, { AppConsumer } from "../modules/appContext";
