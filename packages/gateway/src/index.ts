@@ -16,7 +16,10 @@ import {
 import { initBroker } from './messageBroker';
 import * as cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
-import createErxesProxyMiddleware from './proxy/create-middleware';
+import {
+  applyProxiesCoreless,
+  applyProxyToCore
+} from './proxy/create-middleware';
 import apolloRouter from './apollo-router';
 import { ChildProcess } from 'child_process';
 import { startSubscriptionServer } from './subscription';
@@ -49,6 +52,11 @@ const stopRouter = () => {
   await clearCache();
 
   const app = express();
+
+  // for health check
+  app.get('/health', async (_req, res) => {
+    res.end('ok');
+  });
 
   if (SENTRY_DSN) {
     Sentry.init({
@@ -94,12 +102,7 @@ const stopRouter = () => {
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
   await apolloRouter(targets);
 
-  app.use(createErxesProxyMiddleware(targets));
-
-  // for health check
-  app.get('/health', async (_req, res) => {
-    res.end('ok');
-  });
+  applyProxiesCoreless(app, targets);
 
   // The error handler must be before any other error middleware and after all controllers
   app.use(Sentry.Handlers.errorHandler());
@@ -124,6 +127,9 @@ const stopRouter = () => {
   );
 
   app.use(express.urlencoded({ limit: '15mb', extended: true }));
+
+  // this has to be applied last, just like 404 route handlers are applied last
+  applyProxyToCore(app, targets);
 
   const port = PORT || 4000;
 

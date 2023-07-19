@@ -9,7 +9,7 @@ export interface IProcess {
   branchId: string;
   departmentId: string;
   productId: string;
-  uomId?: string;
+  uom?: string;
   origin: string;
   status: string;
   isSub: boolean;
@@ -32,7 +32,7 @@ export const processSchema = schemaHooksWrapper(
     flow: field({ type: Object, label: 'flow' }),
     date: field({ type: Date, label: 'date' }),
     productId: field({ type: String, label: 'Product', index: true }),
-    uomId: field({ type: String, label: 'Product', index: true }),
+    uom: field({ type: String, label: 'Product', index: true }),
     status: field({ type: String, label: 'Status' }),
     isSub: field({ type: Boolean, optional: true, label: 'Is Sub Process' }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },

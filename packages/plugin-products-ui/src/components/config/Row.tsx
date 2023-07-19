@@ -72,8 +72,8 @@ class Row extends React.Component<Props, State> {
 
     return (
       <tr>
-        <td>{uom.name || ''}</td>
         <td>{uom.code || ''}</td>
+        <td>{uom.name || ''}</td>
         <td>
           <ActionButtons>
             <ActionButtons>

@@ -9,6 +9,8 @@ const typeFields = `
   insurance: Float,
   debt: Float,
   total: Float,
+  balance: Float,
+  closeAmount: Float,
 `;
 export const types = `
   type TransactionPreInfo {
@@ -71,7 +73,7 @@ export const queries = `
   transactionsMain(${queryParams}): TransactionsListResponse
   transactions(${queryParams}): [LoanTransaction]
   transactionDetail(_id: String!): LoanTransaction
-  getPaymentInfo(id: String!, payDate: Date): TransactionPreInfo
+  getPaymentInfo(id: String!, payDate: Date, scheduleDate:Date): TransactionPreInfo
 `;
 
 const commonFields = `

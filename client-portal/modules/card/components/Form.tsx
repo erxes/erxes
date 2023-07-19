@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 
-import { ICustomField, Label } from "../../types";
+import { Config, ICustomField, IUser, Label } from "../../types";
 import React, { useState } from "react";
 
 import Alert from "../../utils/Alert";
@@ -12,13 +12,16 @@ import FormGroup from "../../common/form/Group";
 import { FormWrapper } from "../../styles/main";
 import GenerateField from "./GenerateField";
 import Icon from "../../common/Icon";
+import ProductSection from "./product/ProductSection";
 
 type Props = {
   handleSubmit: (doc) => void;
+  currentUser: IUser;
   customFields: any[];
+  config: Config;
   departments: string[];
   branches: string[];
-  products: string[];
+  products?: any[];
   labels: Label[];
   type: string;
   closeModal: () => void;
@@ -33,14 +36,16 @@ export default function Form({
   products,
   type,
   labels,
+  config
 }: Props) {
+  const [productsData, setProductsData] = useState([]);
   const [item, setItem] = useState({} as any);
   const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
 
   const handleClick = () => {
     for (const field of customFields) {
       const customField =
-        customFieldsData.find((c) => c.field === field._id) || ({} as any);
+        customFieldsData.find(c => c.field === field._id) || ({} as any);
 
       if (field.isRequired) {
         const alert = customField.value;
@@ -51,20 +56,20 @@ export default function Form({
       }
     }
 
-    handleSubmit({ ...item, customFieldsData });
+    handleSubmit({ ...item, customFieldsData, productsData });
   };
 
   const onCustomFieldsDataChange = ({ _id, value }) => {
-    const field = customFieldsData?.find((c) => c.field === _id);
+    const field = customFieldsData?.find(c => c.field === _id);
 
     const systemField = customFields.find(
-      (f) => f._id === _id && f.isDefinedByErxes
+      f => f._id === _id && f.isDefinedByErxes
     );
 
     if (systemField) {
       return setItem({
         ...item,
-        [systemField.field]: value,
+        [systemField.field]: value
       });
     }
 
@@ -75,13 +80,11 @@ export default function Form({
         continue;
       }
 
-      if (
-        logics.findIndex((l) => l.fieldId && l.fieldId.includes(_id)) === -1
-      ) {
+      if (logics.findIndex(l => l.fieldId && l.fieldId.includes(_id)) === -1) {
         continue;
       }
 
-      customFieldsData.forEach((c) => {
+      customFieldsData.forEach(c => {
         if (c.field === f._id) {
           c.value = "";
         }
@@ -97,10 +100,10 @@ export default function Form({
   };
 
   function renderControl({ label, name, placeholder, value = "" }) {
-    const handleChange = (e) => {
+    const handleChange = e => {
       setItem({
         ...item,
-        [name]: e.target.value,
+        [name]: e.target.value
       });
     };
 
@@ -135,6 +138,16 @@ export default function Form({
     });
   }
 
+  function renderProductSection() {
+    return (
+      <ProductSection
+        productsData={productsData}
+        config={config}
+        onChangeProductsData={setProductsData}
+      />
+    );
+  }
+
   return (
     <>
       <DetailHeader className="d-flex align-items-center">
@@ -149,15 +162,18 @@ export default function Form({
             name: "subject",
             label: "Subject",
             value: item.subject,
-            placeholder: "Enter a subject",
+            placeholder: "Enter a subject"
           })}
           {renderControl({
             name: "description",
             label: "Description",
             value: item.description,
-            placeholder: "Enter a description",
+            placeholder: "Enter a description"
           })}
           {renderCustomFields()}
+
+          {type === "deal" && renderProductSection()}
+
           <div className="right">
             <Button
               btnStyle="success"

@@ -7,7 +7,7 @@ export interface ITransactionCreateParams extends ITransaction {
     productId: string;
     count: number;
     preCount: number;
-    uomId: string;
+    uom: string;
     isDebit: boolean;
   }[];
 }

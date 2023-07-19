@@ -29,7 +29,7 @@ export const types = `
     productId: String
     preCount: Float
     count: Float
-    uomId: String
+    uom: String
     isDebit: Boolean
   }
 `;

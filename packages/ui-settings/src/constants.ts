@@ -626,7 +626,7 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'isOnline',
     'leadStatus',
     'relatedIntegrationIds',
-    'subUoms.uomId',
+    'subUoms.uom',
     'subUoms.ratio'
   ]
 };

@@ -83,6 +83,7 @@ export const types = `
     configName: String
     shiftStart: Date
     shiftEnd: Date
+    lunchBreakInMins: Int
   }
 
   type Shift{
@@ -93,6 +94,7 @@ export const types = `
     solved: Boolean
     status: String
     scheduleId: String
+    lunchBreakInMins: Int
   }
 
   type Schedule {
@@ -420,6 +422,6 @@ export const mutations = `
 
   createTimeClockFromLog(userId: String, timelog: Date, inDevice: String): Timeclock
 
-  extractAllDataFromMsSQL(startDate: String, endDate: String, extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): [Timeclock]
-  extractTimeLogsFromMsSQL(startDate: String, endDate: String,  extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): [Timelog]
+  extractAllDataFromMsSQL(startDate: String, endDate: String, extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): JSON
+  extractTimeLogsFromMsSQL(startDate: String, endDate: String,  extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): JSON
 `;
