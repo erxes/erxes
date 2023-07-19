@@ -23,7 +23,8 @@ var plugins = [
   { name: 'bichil', ui: true, api: true },
   { name: 'mobinet', ui: true, api: true },
   { name: 'dac', ui: true, api: true },
-  { name: 'rcfa', ui: true, api: true }
+  { name: 'rcfa', ui: true, api: true },
+  { name: 'syncsaas', ui: true, api: true }
 ];
 
 const pluginsMap = {};
