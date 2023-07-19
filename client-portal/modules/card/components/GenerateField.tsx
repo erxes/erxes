@@ -402,22 +402,20 @@ export default class GenerateField extends React.Component<Props, State> {
     const { field } = this.props;
 
     return (
-      <>
-        <FormGroup>
-          <ControlLabel ignoreTrans={true} required={field.isRequired}>
-            {field.text}
-          </ControlLabel>
+      <FormGroup>
+        <ControlLabel ignoreTrans={true} required={field.isRequired}>
+          {field.text}
+        </ControlLabel>
 
-          {field.description ? (
-            <div
-              className="customFieldDescription"
-              dangerouslySetInnerHTML={{ __html: field.description }}
-            />
-          ) : null}
+        {field.description ? (
+          <div
+            className="customFieldDescription"
+            dangerouslySetInnerHTML={{ __html: field.description }}
+          />
+        ) : null}
 
-          {this.renderControl()}
-        </FormGroup>
-      </>
+        {this.renderControl()}
+      </FormGroup>
     );
   }
 }
