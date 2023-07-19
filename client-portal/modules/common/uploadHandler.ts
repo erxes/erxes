@@ -50,10 +50,10 @@ export const deleteHandler = (params: {
     },
     body: `fileName=${fileName}`,
     credentials: 'include'
-  }).then((response) => {
+  }).then(response => {
     response
       .text()
-      .then((text) => {
+      .then(text => {
         if (!response.ok) {
           return afterUpload({
             status: text
@@ -62,21 +62,28 @@ export const deleteHandler = (params: {
 
         return afterUpload({ status: 'ok' });
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   });
 };
 
-const uploadHandler = (params: Params) => {
+const getURL = () => {
   const { REACT_APP_DOMAIN } = getEnv();
 
+  if (REACT_APP_DOMAIN.includes('localhost')) {
+    return `${REACT_APP_DOMAIN}/upload-file`;
+  }
+  return `${REACT_APP_DOMAIN}/gateway/pl:core/upload-file`;
+};
+
+const uploadHandler = (params: Params) => {
   const {
     files,
     beforeUpload,
     afterUpload,
     afterRead,
-    url = `${REACT_APP_DOMAIN}/upload-file`,
+    url = getURL(),
     kind = 'main',
     responseType = 'text',
     userId,
@@ -129,9 +136,9 @@ const uploadHandler = (params: Params) => {
         credentials: 'include',
         ...(userId ? { headers: { userId } } : {})
       })
-        .then((response) => {
+        .then(response => {
           response[responseType]()
-            .then((text) => {
+            .then(text => {
               if (!response.ok) {
                 return afterUpload({
                   status: 'error',
@@ -145,11 +152,11 @@ const uploadHandler = (params: Params) => {
                 afterUpload({ status: 'ok', response: text, fileInfo });
               }
             })
-            .catch((error) => {
+            .catch(error => {
               Alert.error(error.message);
             });
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     };

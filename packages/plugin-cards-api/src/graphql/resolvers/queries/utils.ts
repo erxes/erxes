@@ -1068,6 +1068,7 @@ export const getItemList = async (
         status: 1,
         branchIds: 1,
         departmentIds: 1,
+        userId: 1,
         ...(extraFields || {})
       }
     }
