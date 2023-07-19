@@ -51,12 +51,8 @@ const List = (props: IProps) => {
     let timeoutId: any = null;
 
     if (searchValue !== props.searchValue) {
-      console.log('searching', searchValue);
       timeoutId = setTimeout(() => {
-        // props.onSearch(searchValue);
         router.removeParams(history, 'page');
-        console.log('searching', searchValue);
-        console.log('ROUTER', router);
         router.setParams(history, { searchValue });
       }, 500);
 
@@ -99,20 +95,6 @@ const List = (props: IProps) => {
 
   const search = e => {
     setSearchValue(e.target.value || '');
-    // if (timer) {
-    //   clearTimeout(timer);
-    // }
-
-    // const value = e.target.value;
-
-    // setSearchValue(value);
-
-    // timer = setTimeout(() => {
-    //   router.removeParams(history, 'page');
-    //   console.log('searching', searchValue);
-    //   console.log('ROUTER', router);
-    //   router.setParams(history, { searchValue: value });
-    // }, 500);
   };
 
   const moveCursorAtTheEnd = e => {
