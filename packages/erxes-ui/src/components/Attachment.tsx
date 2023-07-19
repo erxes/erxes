@@ -124,9 +124,18 @@ class Attachment extends React.Component<Props> {
           </Download>
         </h5>
         <Meta>
-          {attachment.size && (
-            <span>Size: {Math.round(attachment.size / 1000)}kB</span>
-          )}
+          <span>
+            {attachment.size && (
+              <div>
+                {__('Size')}: {Math.round(attachment.size / 1000)}kB
+              </div>
+            )}
+            {attachment.type && (
+              <div>
+                {__('Type')}: {attachment.type}
+              </div>
+            )}
+          </span>
           {this.props.additionalItem}
         </Meta>
       </>
@@ -182,6 +191,20 @@ class Attachment extends React.Component<Props> {
       </audio>
     );
   }
+  renderAudioWavFile(attachment) {
+    return (
+      <audio controls={true}>
+        <source src={attachment.url} type="audio/wav" />
+      </audio>
+    );
+  }
+  renderMp3File(attachment) {
+    return (
+      <audio controls={true}>
+        <source src={attachment.url} type="audio/mpeg" />
+      </audio>
+    );
+  }
 
   renderAttachment = ({ attachment }) => {
     if (!attachment.type) {
@@ -230,6 +253,12 @@ class Attachment extends React.Component<Props> {
       case 'audio':
         filePreview = this.renderAudioFile(attachment);
         break;
+      case 'wav':
+        filePreview = this.renderAudioWavFile(attachment);
+        break;
+      case 'wave':
+        filePreview = this.renderAudioWavFile(attachment);
+        break;
       case 'zip':
       case 'csv':
       case 'doc':
@@ -239,6 +268,8 @@ class Attachment extends React.Component<Props> {
       case 'txt':
       case 'rar':
       case 'mp3':
+        filePreview = this.renderMp3File(attachment);
+        break;
       case 'pdf':
       case 'png':
       case 'xls':
