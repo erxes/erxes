@@ -35,6 +35,7 @@ export interface ITransaction extends ITransactionDoc {
   customer?: ICustomer;
   contract?: IContract;
   invoice?: IInvoiceDoc;
+  ebarimt?: any;
   calcedInfo?: any;
 }
 

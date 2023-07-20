@@ -36,6 +36,8 @@ export interface IContractConfig {
   defaultCustomer: string;
   userEmail: string;
   repaymentTemp: string;
+
+  isAutoSendEBarimt: boolean;
 }
 
 export interface IContractType {
