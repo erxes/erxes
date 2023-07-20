@@ -94,6 +94,9 @@ const commonFields = `
   insurance: Float,
   debt: Float,
   currency:String,
+  isGetEBarimt: Boolean,
+  isOrganization: Boolean,
+  organizationRegister: String,
 `;
 
 const changeFields = `
