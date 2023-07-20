@@ -238,6 +238,7 @@ class Task extends React.Component<Props, State> {
           <FlexBody>
             <ControlLabel>Due date</ControlLabel>
             <FlexContent>{this.renderCloseDate()}</FlexContent>
+            <FlexContent>{this.renderCloseDate()}</FlexContent>
           </FlexBody>
         </FlexContent>
 

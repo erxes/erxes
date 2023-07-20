@@ -100,6 +100,7 @@ class DealItem extends React.PureComponent<Props> {
     const {
       customers,
       companies,
+      startDate,
       closeDate,
       isComplete,
       customProperties
