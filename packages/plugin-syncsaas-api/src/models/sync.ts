@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { ISyncDocument, syncedSaasSchema } from './definitions/sync';
 import { validateDoc } from './utils';
-import { sendContactsMessage } from '../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 import { sendRequest } from '@erxes/api-utils/src';
 import {
   customersAdd as customersAddQueries,
@@ -93,12 +93,12 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       }
 
       if (
-        sync?.customerIds?.includes(customerId) &&
-        (await this.checkSaasCustomer(
+        await this.checkSaasCustomer(
+          mainSubDomain,
           sync.subdomain,
           sync.appToken,
           customerId
-        ))
+        )
       ) {
         return sync;
       }
@@ -161,10 +161,18 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         throw new Error('Somthing went wrong');
       }
 
-      await models.Sync.updateOne(
-        { _id: sync._id },
-        { $addToSet: { customerIds: customer._id } }
-      );
+      await sendCoreMessage({
+        subdomain: mainSubDomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'saasSyncedCustomer',
+          relTypeId: newCustomer._id
+        },
+        isRPC: true
+      });
+
       return await models.Sync.findOne({ _id: sync._id });
     }
 
@@ -195,7 +203,28 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       return customerDoc;
     }
 
-    public static async checkSaasCustomer(subdomain, appToken, customerId) {
+    public static async checkSaasCustomer(
+      mainSubDomain,
+      subdomain,
+      appToken,
+      customerId
+    ) {
+      const [syncedCustomer] = await sendCoreMessage({
+        subdomain: mainSubDomain,
+        action: 'conformities.findConformities',
+        data: {
+          mainType: 'customer',
+          mainTypeId: customerId,
+          relType: 'saasSyncedCustomer'
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (!syncedCustomer) {
+        return false;
+      }
+
       const { data, errors } = await sendRequest({
         url: `https://${subdomain}.app.erxes.io/gateway/graphql`,
         method: 'POST',
@@ -205,7 +234,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         },
         body: {
           query: customerDetailQuery,
-          variables: { _id: customerId }
+          variables: { _id: syncedCustomer?.relTypeId }
         }
       });
 

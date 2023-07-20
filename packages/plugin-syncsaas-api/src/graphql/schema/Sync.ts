@@ -21,7 +21,7 @@ export const queries = `
     syncedSaasList(${commonQueryParams}) :[SyncedSaaS]
     syncedSaasListTotalCount(${commonQueryParams}):Int
     SyncedSaasDetail:SyncedSaaS
-    getSyncedSaas(subdomain:String,customerId:String):JSON
+    getSyncedSaas(subdomain:String,customerId:String):SyncedSaaS
 `;
 
 const commonMutationParams = `
