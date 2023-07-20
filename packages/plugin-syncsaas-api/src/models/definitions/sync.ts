@@ -8,7 +8,6 @@ export interface ISync {
   appToken: string;
   startDate: string;
   expireDate: string;
-  customerIds: string[];
 }
 
 export interface ISyncDocument extends ISync, Document {
@@ -34,6 +33,5 @@ export const syncedSaasSchema = new Schema({
   startDate: field({ type: Date, label: 'Start Date', require: true }),
   expireDate: field({ type: Date, label: 'End Date', require: true }),
   createdAt: field({ type: Date, label: 'Created Date', default: Date.now }),
-  createdUserId: field({ type: String, label: 'Created User Id' }),
-  customerIds: field({ type: [String], label: 'Customer Ids' })
+  createdUserId: field({ type: String, label: 'Created User Id' })
 });
