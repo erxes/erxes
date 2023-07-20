@@ -72,10 +72,10 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Start Date', dayjs(contract.startDate).format('ll'))}
         {this.renderRow('Schedule Days', contract.scheduleDays.join(','))}
         {this.renderRow(
-          'Undue Percent',
+          'Loss Percent',
           (contract.unduePercent || 0).toLocaleString()
         )}
-        {this.renderRow('Undue calc type', contract.undueCalcType)}
+        {this.renderRow('Loss calc type', contract.undueCalcType)}
         {this.renderRow('Debt Limit', (contract.debt || 0).toLocaleString())}
         {this.renderRow(
           'Insurance On Year',

@@ -16,6 +16,7 @@ const commonFields = `
   $createdAt: Date,
   $productCategoryIds: [String],
   $config: JSON,
+  $currency: String,
 `;
 
 const commonVariables = `
@@ -34,6 +35,7 @@ const commonVariables = `
   createdAt: $createdAt,
   productCategoryIds: $productCategoryIds,
   config: $config,
+  currency: $currency,
 `;
 
 const contractTypesAdd = `

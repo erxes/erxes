@@ -9,6 +9,7 @@ const toMoney = value => {
   return new Intl.NumberFormat().format(value);
 };
 
+//document attribute fields
 const fields = [
   { value: 'number', name: 'Contract Number' },
   { value: 'status', name: 'Status' },

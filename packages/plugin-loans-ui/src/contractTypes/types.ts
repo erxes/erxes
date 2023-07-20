@@ -62,6 +62,7 @@ export interface IContractTypeDoc {
   useMargin: boolean;
   useDebt: boolean;
   useSkipInterest: boolean;
+  currency: string;
 }
 
 export interface IContractType extends IContractTypeDoc {
