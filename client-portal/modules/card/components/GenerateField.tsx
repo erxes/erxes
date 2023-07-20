@@ -319,8 +319,8 @@ export default class GenerateField extends React.Component<Props, State> {
           value={value}
           onChange={onDateChange}
           name={fieldName}
-          placeholder={"Enter date"}
-          dateFormat={"YYYY-MM-DD"}
+          placeholder="Enter date"
+          dateFormat={"yyyy-MM-dd"}
           timeFormat={validation === "datetime"}
         />
       </CustomRangeContainer>
