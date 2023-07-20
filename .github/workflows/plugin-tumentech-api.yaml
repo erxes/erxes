@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - staging
+      - tumentech-staging
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
@@ -14,6 +15,7 @@ on:
     branches:
       - dev
       - staging
+      - tumentech-staging
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
@@ -56,7 +58,7 @@ jobs:
           cd dist/main/.erxes/src
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/tumentech-staging' )
         run: |
           cd dist/plugin-tumentech-api/.erxes
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login https://registry.erxes.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
