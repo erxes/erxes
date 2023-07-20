@@ -6,6 +6,7 @@ export const types = () => `
     date: Date
     excludeContracts:[String]
     user: User
+    generals: JSON
   }
 
   type PeriodLocksListResponse {

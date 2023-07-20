@@ -30,7 +30,7 @@ export const types = `
     transactionId: String
     isDebit: Boolean
     count: Float
-    uomId: String
+    uom: String
 
     modifiedAt: Date
   }
@@ -38,7 +38,7 @@ export const types = `
   input InventoriesTransactionProductInput {
     productId: String
     count: Float
-    uomId: String
+    uom: String
     isDebit: Boolean
   }
 `;

@@ -1,9 +1,9 @@
-import { Alert, confirm } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { Alert, EmptyState, confirm } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import FormComponent from '../components/SingleAddForm';
 import { mutations, queries } from '../graphql';
 type Props = {
@@ -34,6 +34,17 @@ class Form extends React.Component<FinalProps> {
       removeRiskAssessment,
       closeModal
     } = this.props;
+
+    if (
+      riskAssessment?.status === 'You does not have permit on risk assessment'
+    ) {
+      return (
+        <EmptyState
+          text={riskAssessment?.status}
+          image="/images/actions/24.svg"
+        />
+      );
+    }
 
     const handleSelect = (doc: any) => {
       if (riskAssessment && riskAssessment.status !== 'In Progress') {

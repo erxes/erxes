@@ -178,7 +178,7 @@ export const importProducts = async (
               $set: {
                 ...product,
                 [`prices.${token}`]: product.unitPrice,
-                sku: product.sku || 'ш',
+                uom: product.uom || 'ш',
                 attachment: attachmentUrlChanger(product.attachment),
                 attachmentMore: (product.attachmentMore || []).map(a =>
                   attachmentUrlChanger(a)

@@ -74,6 +74,7 @@ const clientPortalGetDeal = `
   query dealDetail($_id: String!) {
     dealDetail(_id: $_id) {
       ${itemFields}
+      productsData
     }
   }
 `;
@@ -106,6 +107,7 @@ const clientPortalDeals = `
   query clientPortalDeals($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String]) {
     clientPortalDeals(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds) {
       ${itemFields}
+      productsData  
     }
   }
 `;
@@ -343,6 +345,31 @@ query pipelineAssignedUsers($_id: String!) {
     __typename
   }
 }`;
+
+const productCategories = `
+  query productCategories($status: String) {
+    productCategories(status: $status) {
+      _id
+      name
+      order
+      code
+      parentId
+      description
+      status
+      meta
+      attachment {
+        name
+        url
+        type
+        size
+      }
+
+      isRoot
+      productCount
+    }
+  }
+`;
+
 export default {
   clientPortalGetTicket,
   clientPortalGetDeal,
@@ -359,5 +386,6 @@ export default {
   products,
   pipelineLabels,
   pipelineAssignedUsers,
-  stages
+  stages,
+  productCategories
 };

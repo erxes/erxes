@@ -103,7 +103,6 @@ export class MonpayAPI extends BaseAPI {
       }
 
       const { result } = res;
-
       const qrData = await QRCode.toDataURL(result.qrcode);
 
       return { ...result, qrData };
@@ -120,8 +119,6 @@ export class MonpayAPI extends BaseAPI {
         path: PAYMENTS.monpay.actions.invoiceCheck,
         params: { uuid: invoice.apiResponse.uuid }
       });
-
-      console.log('checkInvoice Mon pay', res);
 
       switch (res.code) {
         case 0:

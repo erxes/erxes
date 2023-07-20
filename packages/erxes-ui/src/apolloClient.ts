@@ -85,12 +85,7 @@ const client = new ApolloClient({
   }),
   queryDeduplication: true,
   link,
-  connectToDevTools: true,
-  /* assumeImmutableResults: true. This depends on the fact that Apollo's InMemoryCache's result are immutable.
-    Cache solutions other than InMemoryCache might be mutable. If the cache solution is mutable, then
-    assumeImmutableResults should be set to false.
-  */
-  assumeImmutableResults: true
+  connectToDevTools: true
 });
 
 export default client;

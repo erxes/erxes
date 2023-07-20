@@ -13,6 +13,7 @@ const commonParams = `
     $createdAtFrom: String,
     $createdAtTo: String,
     $onlyWaitingMe:Boolean
+    $archived: Boolean
 `;
 
 const commonParamsDef = `
@@ -28,6 +29,7 @@ const commonParamsDef = `
     createdAtFrom: $createdAtFrom,
     createdAtTo: $createdAtTo,
     onlyWaitingMe:$onlyWaitingMe
+    archived:$archived
 `;
 
 const requests = `

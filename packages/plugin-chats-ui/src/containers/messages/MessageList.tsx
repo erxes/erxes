@@ -7,14 +7,18 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import Component from '../../components/messages/MessageList';
 import { queries, subscriptions } from '../../graphql';
 import { Alert } from '@erxes/ui/src/utils';
+import { sendDesktopNotification } from '@erxes/ui/src/utils/core';
+import strip from 'strip';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   chatId: string;
   setReply: (message: any) => void;
+  currentUser: IUser;
 };
 
 const MessageListContainer = (props: Props) => {
-  const { chatId } = props;
+  const { chatId, currentUser } = props;
 
   const [page, setPage] = useState<number>(0);
   const [latestMessages, setLatestMessages] = useState<any[]>([]);
@@ -33,15 +37,24 @@ const MessageListContainer = (props: Props) => {
 
   useSubscription(gql(subscriptions.chatMessageInserted), {
     variables: { chatId },
-    onSubscriptionData: ({ subscriptionData }) => {
-      if (!subscriptionData.data) {
+    onSubscriptionData: ({ subscriptionData: { data } }) => {
+      if (!data) {
         return null;
       }
+      const { chatMessageInserted } = data;
+      const { content } = chatMessageInserted;
+      const { mentionedUserIds = [] } = content;
 
-      setLatestMessages([
-        subscriptionData.data.chatMessageInserted,
-        ...latestMessages
-      ]);
+      mentionedUserIds.map((mentionedUserId: string) => {
+        if (currentUser._id === mentionedUserId) {
+          sendDesktopNotification({
+            title: 'You have a new message',
+            content: strip(content || '')
+          });
+        }
+      });
+
+      setLatestMessages([data.chatMessageInserted, ...latestMessages]);
     }
   });
 

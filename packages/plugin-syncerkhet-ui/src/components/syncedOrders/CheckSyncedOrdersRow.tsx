@@ -3,6 +3,8 @@ import { FormControl } from '@erxes/ui/src/components/form';
 import Tip from '@erxes/ui/src/components/Tip';
 import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Detail from '../../containers/PosOrderDetail';
 
 type Props = {
   order: any;
@@ -18,6 +20,13 @@ class Row extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
   }
+
+  modalContent = _props => {
+    const { order } = this.props;
+
+    return <Detail order={order} />;
+  };
+
   render() {
     const { order, toggleBulk, isChecked, isUnsynced, syncedInfo } = this.props;
 
@@ -37,9 +46,10 @@ class Row extends React.Component<Props> {
     };
 
     const onTrClick = () => {};
+
     const { number, createdAt, totalAmount, paidDate } = order;
 
-    return (
+    const trigger = (
       <tr onClick={onTrClick}>
         <td onClick={onClick}>
           <FormControl
@@ -66,6 +76,7 @@ class Row extends React.Component<Props> {
             dayjs(syncedInfo?.syncedDate || '').format('ll')}
         </td>
         <td>{syncedInfo?.syncedBillNumber || ''}</td>
+        <td>{syncedInfo?.syncedCustomer || ''}</td>
         <td>
           {isUnsynced && (
             <Tip text="Sync">
@@ -83,6 +94,16 @@ class Row extends React.Component<Props> {
           )}
         </td>
       </tr>
+    );
+
+    return (
+      <ModalTrigger
+        title={`Order detail`}
+        trigger={trigger}
+        autoOpenKey="showProductModal"
+        content={this.modalContent}
+        size={'lg'}
+      />
     );
   }
 }

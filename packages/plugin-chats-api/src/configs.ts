@@ -4,6 +4,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { NOTIFICATION_MODULES } from '../constants';
 
 export let debug;
 export let graphqlPubsub;
@@ -40,5 +41,7 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: {}
+  meta: {
+    notificationModules: NOTIFICATION_MODULES
+  }
 };

@@ -23,6 +23,7 @@ import {
 } from './verifierUtils';
 import exporter from './exporter';
 import documents from './documents';
+import { NOTIFICATION_MODULES } from './constants';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -59,7 +60,8 @@ export default {
     exporter,
     documents,
     // for fixing permissions
-    permissions
+    permissions,
+    notificationModules: NOTIFICATION_MODULES
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

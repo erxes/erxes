@@ -1,166 +1,30 @@
 extends layout
-include ./kinds/socialpay.pug
-include ./kinds/qpay.pug
-include ./kinds/monpay.pug
-include ./kinds/storepay.pug
-include ./kinds/paypal.pug
-include ./kinds/wechatpay.pug
-include ./kinds/qpayQuickqr.pug
+
+include ./modal.pug
 
 block layout-content
-    .my-layout
-        .header #{__('Payment')}
-        .paymentContainer
-            if invoiceData.description
-                h3 #{__('Description')}
-                .border
-                    strong #{invoiceData.description}
-            h3 #{__('Payment method')}
-            div.View.paymentMethod
-                .row
-                    each val in payments
-                        .col.m6.s12 
-                            form(method="post")
-                                input(type="hidden" name="selectedPaymentId", value=val._id)
-                                input(type="hidden" name="invoiceData", value=invoiceData)
-                                button(type="submit").button
-                                    div.Payment__logo( class=`payments ${val.selected === true && 'active'}`)
-                                        img(src=`${prefix}/pl:payment/static/images/payments/${val.kind}.png`)
-                                        .payment-name  
-                                            p !{val.title}
-                                            span Pay with app
-            .row.flex-reverse 
-                .col.m6.s12 
-                    if invoice
-                        .qr
-                            +#{invoice.paymentKind}(invoice)
-                .col.m6.s12 
-                    .amount
-                        h4 #{__('Amount')}
-                        h2  #{invoiceData.amount.toLocaleString(undefined, {maximumFractionDigits: 2})} ₮
+  .my-layout
+    .header #{__('Payment methods')}
+      h1(style="font-size: 16px; color: grey;") #{__('Choose your payment method')}
+    .paymentContainer
 
-                        if invoiceData && invoiceData.warningText 
-                            .warning 
-                                p #{invoiceData.warningText}
+      //- TODO temporary hide invoice description
+      //- if (invoiceData.description)
+      //-   h3 #{__('Description')}
+      //-   .border
+      //-     strong #{invoiceData.description}
+      each payment in payments
+        button(type='button', data-toggle='modal', data-target='#myModal', onclick=`onPaymentClick('${JSON.stringify(payment)}', '${JSON.stringify(invoiceData)}','${prefix}')`).button
+          img(src=`${prefix}/pl:payment/static/images/payments/${payment.kind}.png`)
+          .payment-name  
+            p !{payment.title}  
+    .block.amount
+      h4 #{__('Payment amount')}
+      h2.amount-total #{invoiceData.amount.toLocaleString(undefined, {maximumFractionDigits: 2})} ₮
+  
+      if invoiceData.warningText 
+        .block.warning
+          i.fa.fa-exclamation-triangle
+          p.warning-text #{invoiceData.warningText}
 
-            if invoice && invoice.apiResponse && invoice.apiResponse.error
-                .error
-                    strong #{__(invoice.apiResponse.error)}
-                script.
-                    const message = {
-                        fromPayment: true,
-                        message:"paymentFailed",
-                        invoiceId: `#{invoice._id}`,
-                        contentType: `#{invoice.contentType}`,
-                        contentTypeId: `#{invoice.contentTypeId}`,
-                    }
-
-                    if(window.opener) {
-                        window.opener.postMessage(message, '*');
-                    }
-                    window.parent.postMessage(message, '*');
-
-        if invoice && invoice.status !== 'paid' && invoice.apiResponse && !invoice.apiResponse.error
-            script.
-                setInterval(() => {
-                    window.fetch(`#{prefix}/pl:payment/checkInvoice`, {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            invoiceId: '#{invoice._id}'
-                        })
-                    }).then(res => res.json())
-                    .then(json => {
-                        if (json.status === 'paid') {
-                            const message = {
-                                fromPayment: true,
-                                message:"paymentSuccessfull",
-                                invoiceId: `#{invoice._id}`,
-                                contentType: `#{invoice.contentType}`,
-                                contentTypeId: `#{invoice.contentTypeId}`,
-                            }
-
-                            if(window.opener) {
-                                window.opener.postMessage(message, '*');
-                            }
-                            window.parent.postMessage(message, '*');
-
-                            if(`#{invoiceData.redirectUri}` && window.confirm('Payment is completed. Do you want to continue?')) {
-                                window.location.href = `#{invoiceData.redirectUri}`;
-                            } else if (window.confirm('Payment is completed. Do you want to close this window?')) {
-                                window.close();                                
-                            }
-                        }
-                    });
-                }, 3000);
-
-        if invoice && invoice.status === 'paid'
-            script.
-                window.fetch(`#{prefix}/pl:payment/checkInvoice`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        invoiceId: '#{invoice._id}'
-                    })
-                }).then(res => res.json())
-                .then(json => {
-
-                    if (json.status === 'paid') {
-                        const message = {
-                            fromPayment: true,
-                            message:"paymentSuccessfull",
-                            invoiceId: `#{invoice._id}`,
-                            contentType: `#{invoice.contentType}`,
-                            contentTypeId: `#{invoice.contentTypeId}`,
-                        }
-
-                        if(window.opener) {
-                            window.opener.postMessage(message, '*');
-                        }
-                        window.parent.postMessage(message, '*');
-
-                        if(`#{invoiceData.redirectUri}` && window.confirm('Payment is completed. Do you want to continue?')) {
-                            window.location.href = `#{invoiceData.redirectUri}`;
-                        } else if (window.confirm('Payment is completed. Do you want to close this window?')) {
-                            window.close();
-                        }
-                    }
-                });
-
-    block extraScript
-        script.
-            (() => {
-                match();
-                })()
-            function match() {
-                const toMatch = [
-                    /Android/i,
-                    /webOS/i,
-                    /iPhone/i,
-                    /iPad/i,
-                    /iPod/i,
-                    /BlackBerry/i,
-                    /Windows Phone/i
-                ];
-                let mobile = toMatch.some((toMatchItem) => {
-                    return navigator.userAgent.match(toMatchItem);
-                });
-                let element = mobile ? document.getElementById("isMobile") : document.getElementById("desktop");
-                AddClass(element, "show")
-            }
-            function AddClass(element, name) {
-                if (element == null) return;
-
-                var i, arr1, arr2;
-                arr1 = element.className.split(" ");
-                arr2 = name.split(" ");
-                for (i = 0; i < arr2.length; i++) {
-                    if (arr1.indexOf(arr2[i]) == -1) {element.className += " " + arr2[i];}
-                }
-            }
+  +modal() 

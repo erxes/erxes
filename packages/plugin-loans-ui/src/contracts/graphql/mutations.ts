@@ -96,6 +96,8 @@ const contractsAdd = `
   mutation contractsAdd(${commonFields}) {
     contractsAdd(${commonVariables}) {
       _id
+      number
+      contractTypeId
       ${contractDetailFields}
     }
   }

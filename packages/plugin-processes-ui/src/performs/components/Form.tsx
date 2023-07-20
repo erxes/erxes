@@ -45,7 +45,6 @@ type Props = {
     props: IButtonMutateProps & { disabled?: boolean }
   ) => JSX.Element;
   closeModal: () => void;
-  allUoms: IUom[];
   perform?: IPerform;
   overallWorkDetail?: IOverallWorkDet;
   max: number;
@@ -294,8 +293,10 @@ class Form extends React.Component<Props, State> {
 
     for (const product of products) {
       const { uom } = product;
-      const productName = product.product ? product.product.name : 'not name';
-      const uomCode = uom ? uom.code : 'not uom';
+      const productName = product.product
+        ? `${product.product.code} - ${product.product.name}`
+        : 'not nameqqq';
+      const uomCode = uom;
 
       result.push(
         this.renderViewInfo(productName, product.quantity * count, uomCode)
@@ -340,10 +341,9 @@ class Form extends React.Component<Props, State> {
         productsData.push({
           _id: Math.random(),
           quantity: 1,
-          uomId: product.uomId,
+          uom: product.uom,
           productId: product._id,
-          product: product,
-          uom: product.uom
+          product: product
         });
       }
 
@@ -398,8 +398,6 @@ class Form extends React.Component<Props, State> {
     productsData: any[],
     stateName: 'inProducts' | 'outProducts'
   ) => {
-    const { allUoms } = this.props;
-
     return (
       <>
         <TableOver>
@@ -418,7 +416,6 @@ class Form extends React.Component<Props, State> {
               return (
                 <PerformDetail
                   key={pd._id}
-                  allUoms={allUoms}
                   productData={pd}
                   productsData={productsData}
                   stateName={stateName}
@@ -436,8 +433,6 @@ class Form extends React.Component<Props, State> {
   };
 
   renderProductsIncome = (productsData: any[]) => {
-    const { allUoms } = this.props;
-
     return (
       <>
         <TableOver>
@@ -456,7 +451,6 @@ class Form extends React.Component<Props, State> {
               return (
                 <PerformDetail
                   key={pd._id}
-                  allUoms={allUoms}
                   productData={pd}
                   productsData={productsData}
                   stateName={'outProducts'}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { IGrantRequest } from '../../common/type';
-import { Button, Icon, Label, ModalTrigger } from '@erxes/ui/src';
+import { Button, FormControl, Icon, Label, ModalTrigger } from '@erxes/ui/src';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import Assignees from '@erxes/ui-cards/src/boards/components/Assignees';
 import Form from '../containers/Form';
@@ -8,6 +8,8 @@ import moment from 'moment';
 
 type Props = {
   request: IGrantRequest;
+  selecteRequests: string[];
+  onChange: (id: string) => void;
 };
 
 class Row extends React.Component<Props> {
@@ -16,7 +18,7 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { request } = this.props;
+    const { request, selecteRequests, onChange } = this.props;
 
     const lblStyle = () => {
       switch (request.status) {
@@ -62,8 +64,19 @@ class Row extends React.Component<Props> {
       />
     );
 
+    const onClick = e => {
+      e.stopPropagation();
+    };
+
     return (
       <tr>
+        <td onClick={onClick}>
+          <FormControl
+            checked={selecteRequests.includes(_id)}
+            componentClass="checkbox"
+            onChange={() => onChange(_id)}
+          />
+        </td>
         <td>{contentType}</td>
         <td>{detail?.name}</td>
         <td>

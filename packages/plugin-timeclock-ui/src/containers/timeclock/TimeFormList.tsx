@@ -12,6 +12,8 @@ import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
   currentUser: IUser;
+  isCurrentUserAdmin: boolean;
+
   departments: IDepartment[];
   branches: IBranch[];
 

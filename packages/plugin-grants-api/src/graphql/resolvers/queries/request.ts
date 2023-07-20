@@ -1,9 +1,17 @@
 import { paginate } from '@erxes/api-utils/src';
-import { IContext, IModels } from '../../../connectionResolver';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { IContext, IModels } from '../../../connectionResolver';
+import { sendCommonMessage } from '../../../messageBroker';
 
-const generateFilter = async (params, models: IModels, user: IUserDocument) => {
-  const filter: any = {};
+const generateFilter = async (
+  params,
+  models: IModels,
+  user: IUserDocument,
+  subdomain: string
+) => {
+  const filter: any = {
+    $or: [{ activeStatus: { $exists: false } }, { activeStatus: 'active' }]
+  };
 
   if (params.status) {
     filter.status = params.status;
@@ -29,6 +37,10 @@ const generateFilter = async (params, models: IModels, user: IUserDocument) => {
   if (params.closedAtTo) {
     filter.closedAt = { ...filter.closedAt, $lte: params.closedAtTo };
   }
+  if (params?.archived) {
+    delete filter.$or;
+    filter.activeStatus = params?.archived ? 'archived' : 'active';
+  }
 
   if (params?.onlyWaitingMe) {
     const requestIds = await models.Requests.find({
@@ -46,6 +58,45 @@ const generateFilter = async (params, models: IModels, user: IUserDocument) => {
     );
 
     filter._id = { $in: waitinRequestIds };
+  }
+
+  if (params?.contentFilter) {
+    const { contentType, filters } = params?.contentFilter;
+    const request = await models.Requests.findOne({
+      contentType,
+      activeStatus: 'active'
+    });
+    if (request) {
+      const contentTypeIds = await models.Requests.find({
+        contentType,
+        $or: [{ activeStatus: { $exists: false } }, { activeStatus: 'active' }]
+      }).distinct('contentTypeId');
+      const query = { _id: { $in: contentTypeIds } };
+
+      const action =
+        request.scope === 'cards'
+          ? `${contentType}s.find`
+          : `${contentType}.find`;
+
+      for (const { regex, name, value } of filters) {
+        if (regex) {
+          query[name] = { $regex: value, $options: 'i' };
+        } else {
+          query[name] = value;
+        }
+      }
+
+      const contents = await sendCommonMessage({
+        subdomain,
+        serviceName: request.scope,
+        action,
+        data: query,
+        isRPC: true,
+        defaultValue: []
+      });
+
+      filter.contentTypeId = { $in: contents.map(content => content?._id) };
+    }
   }
 
   return filter;
@@ -69,18 +120,22 @@ const GrantRequestQueries = {
       return null;
     }
   },
-  async grantRequests(_root, args, { models, user }: IContext) {
+  async grantRequests(_root, args, { models, user, subdomain }: IContext) {
     const { sortField, sortDirection } = args;
 
-    const filter = await generateFilter(args, models, user);
+    const filter = await generateFilter(args, models, user, subdomain);
 
     const sort = generateSort(sortField, sortDirection);
 
     return await paginate(models.Requests.find(filter).sort(sort), args);
   },
 
-  async grantRequestsTotalCount(_root, args, { models, user }: IContext) {
-    const filter = await generateFilter(args, models, user);
+  async grantRequestsTotalCount(
+    _root,
+    args,
+    { models, user, subdomain }: IContext
+  ) {
+    const filter = await generateFilter(args, models, user, subdomain);
 
     return await models.Requests.countDocuments(filter);
   },

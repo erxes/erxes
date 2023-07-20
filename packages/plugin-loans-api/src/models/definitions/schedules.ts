@@ -53,7 +53,7 @@ export const scheduleSchema = schemaHooksWrapper(
     version: field({ type: String, optional: true, label: 'version' }),
     createdAt: field({
       type: Date,
-      default: new Date(),
+      default: () => new Date(),
       label: 'Created at'
     }),
     status: field({

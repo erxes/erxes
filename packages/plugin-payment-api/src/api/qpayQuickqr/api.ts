@@ -121,7 +121,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async createInvoice(invoice: IInvoiceDocument) {
-    return await this.makeRequest({
+    const res = await this.makeRequest({
       method: 'POST',
       path: meta.paths.invoice,
       data: {
@@ -144,6 +144,11 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         ]
       }
     });
+
+    return {
+      ...res,
+      qrData: res.qr_image
+    };
   }
 
   async checkInvoice(invoice: IInvoiceDocument) {
@@ -155,8 +160,6 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           invoice_id: invoice.apiResponse.id
         }
       });
-
-      console.log('checkInvoice QPay quick qr', res);
 
       if (res.invoice_status === 'PAID') {
         return PAYMENT_STATUS.PAID;

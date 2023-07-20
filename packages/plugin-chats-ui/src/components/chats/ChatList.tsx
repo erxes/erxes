@@ -13,6 +13,7 @@ type Props = {
   hasOptions?: boolean;
   isWidget?: boolean;
   handleClickItem?: (chatId: string) => void;
+  togglePinned: () => void;
 };
 
 type State = {
@@ -21,8 +22,6 @@ type State = {
   pinnedChatIds: any;
 };
 
-const LOCALSTORAGE_KEY = 'erxes_pinned_chats';
-
 class ChatList extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -30,12 +29,20 @@ class ChatList extends React.Component<Props, State> {
     this.state = {
       searchValue: '',
       filteredChats: [],
-      pinnedChatIds: JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]')
+      pinnedChatIds:
+        props.chats?.filter((chat: any) => chat.isPinned === true) || []
     };
   }
 
   render() {
-    const { chats, currentUser, chatId, hasOptions, isWidget } = this.props;
+    const {
+      chats,
+      currentUser,
+      chatId,
+      hasOptions,
+      isWidget,
+      togglePinned
+    } = this.props;
 
     const handlePin = (_chatId: string) => {
       if (checkPinned(_chatId)) {
@@ -47,8 +54,7 @@ class ChatList extends React.Component<Props, State> {
 
     const updatePinned = (_chats: any[]) => {
       this.setState({ pinnedChatIds: _chats });
-
-      localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(_chats));
+      togglePinned();
     };
 
     const checkPinned = (_chatId: string) => {
@@ -87,12 +93,12 @@ class ChatList extends React.Component<Props, State> {
             <ChatListWrapper>
               {chats.map(
                 c =>
-                  checkPinned(c._id) && (
+                  c.isPinned && (
                     <ChatItem
                       key={c._id}
                       chat={c}
                       active={c._id === chatId}
-                      isPinned={true}
+                      isPinned={c.isPinned}
                       isWidget={isWidget}
                       hasOptions={hasOptions}
                       handlePin={handlePin}
@@ -106,28 +112,29 @@ class ChatList extends React.Component<Props, State> {
       }
     };
 
-    const renderChats = () => (
-      <>
-        <Title>Recent</Title>
-        <ChatListWrapper>
-          {chats.map(
-            c =>
-              !checkPinned(c._id) && (
-                <ChatItem
-                  key={c._id}
-                  chat={c}
-                  active={c._id === chatId}
-                  isPinned={false}
-                  isWidget={isWidget}
-                  hasOptions={hasOptions}
-                  handlePin={handlePin}
-                  handleClickItem={this.props.handleClickItem}
-                />
-              )
-          )}
-        </ChatListWrapper>
-      </>
-    );
+    const renderChats = () =>
+      this.state.pinnedChatIds.length !== chats.length && (
+        <>
+          <Title>Recent</Title>
+          <ChatListWrapper>
+            {chats.map(
+              c =>
+                !c.isPinned && (
+                  <ChatItem
+                    key={c._id}
+                    chat={c}
+                    active={c._id === chatId}
+                    isPinned={c.isPinned}
+                    isWidget={isWidget}
+                    hasOptions={hasOptions}
+                    handlePin={handlePin}
+                    handleClickItem={this.props.handleClickItem}
+                  />
+                )
+            )}
+          </ChatListWrapper>
+        </>
+      );
 
     const renderFilteredChats = () => {
       return this.state.filteredChats.map(c => (
@@ -135,7 +142,7 @@ class ChatList extends React.Component<Props, State> {
           key={c._id}
           chat={c}
           active={c._id === chatId}
-          isPinned={checkPinned(c._id)}
+          isPinned={c.isPinned}
           isWidget={isWidget}
           hasOptions={hasOptions}
           handlePin={handlePin}

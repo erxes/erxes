@@ -1,3 +1,9 @@
+export interface IRouterProps {
+  history: any;
+  location: any;
+  match: any;
+}
+
 export type Store = {
   currentUser: IUser;
   topic: Topic;
@@ -359,3 +365,74 @@ export type NotificationsQueryResponse = {
 export type NotificationDetailQueryResponse = {
   clientPortalNotificationDetail: INotification;
 };
+
+export interface IProductData {
+  _id: string;
+  productId?: string;
+  product?: IProduct;
+  uom?: string;
+  currency?: string;
+  quantity: number;
+  unitPrice: number;
+  globalUnitPrice: number;
+  unitPricePercent: number;
+  taxPercent?: number;
+  tax: number;
+  vatPercent: number;
+  discountPercent?: number;
+  discount: number;
+  amount: number;
+  tickUsed?: boolean;
+  isVatApplied?: boolean;
+  assignUserId?: string;
+  maxQuantity: number;
+  branchId?: string;
+  departmentId?: string;
+  name?: string;
+  type?: string;
+}
+
+export interface IProductCategory {
+  _id: string;
+  name: string;
+  order: string;
+  code: string;
+  description?: string;
+  attachment?: any;
+  status: string;
+  parentId?: string;
+  createdAt: Date;
+  productCount: number;
+  isRoot: boolean;
+  meta: string;
+}
+export interface IProduct {
+  _id: string;
+  name: string;
+  type: string;
+  categoryId: string;
+  description: string;
+  barcodes: string[];
+  barcodeDescription: string;
+  code: string;
+  unitPrice: number;
+  customFieldsData?: any;
+  createdAt: Date;
+  vendorId?: string;
+
+  attachment?: any;
+  attachmentMore?: any[];
+  category: IProductCategory;
+
+  uom?: string;
+  subUoms?: any[];
+  taxType?: string;
+  taxCode?: string;
+}
+
+export interface IPaymentsData {
+  [key: string]: {
+    currency?: string;
+    amount?: number;
+  };
+}

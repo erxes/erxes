@@ -22,7 +22,6 @@ import DeliveryConfig from './step/DeliveryConfig';
 import EbarimtConfig from './step/EbarimtConfig';
 import ErkhetConfig from './step/ErkhetConfig';
 import GeneralStep from './step/GeneralStep';
-import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import PermissionStep from './step/Permission';
@@ -92,7 +91,9 @@ class Pos extends React.Component<Props, State> {
       cardsConfig: pos.cardsConfig,
       slots: props.slots || [],
       checkRemainder: pos.checkRemainder || false,
-      allowTypes: pos.allowTypes || ALLOW_TYPES.map(at => at.value)
+      allowTypes:
+        pos.allowTypes ||
+        ALLOW_TYPES.filter(at => at.kind === 'sale').map(at => at.value)
     };
   }
 

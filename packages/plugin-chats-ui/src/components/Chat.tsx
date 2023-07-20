@@ -11,13 +11,15 @@ import Editor from '../containers/Editor';
 import ReplyInfo from '../components/ReplyInfo';
 
 import { PageContentWrapper } from '../styles';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   chatId: string;
+  currentUser: IUser;
 };
 
 const Chat = (props: Props) => {
-  const { chatId } = props;
+  const { chatId, currentUser } = props;
   const [reply, setReply] = useState<any>(null);
 
   useEffect(() => setReply(null), [chatId]);
@@ -27,7 +29,11 @@ const Chat = (props: Props) => {
       return (
         <PageContent transparent={false} center={true}>
           <PageContentWrapper>
-            <MessageList chatId={chatId} setReply={setReply} />
+            <MessageList
+              chatId={chatId}
+              setReply={setReply}
+              currentUser={currentUser}
+            />
             <ReplyInfo reply={reply} setReply={setReply} />
             <Editor chatId={chatId} reply={reply} setReply={setReply} />
           </PageContentWrapper>

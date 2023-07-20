@@ -149,6 +149,8 @@ query GetPaymentInfo($id: String!, $payDate: Date) {
     insurance
     debt
     total
+    balance
+    closeAmount
   }
 }
 `;

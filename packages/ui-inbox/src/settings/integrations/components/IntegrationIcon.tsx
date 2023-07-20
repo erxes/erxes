@@ -62,6 +62,9 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'callpro':
         icon = 'phone-volume';
         break;
+      case 'viber':
+        icon = 'viber';
+        break;
       default:
         icon = 'doc-text-inv-1';
     }
