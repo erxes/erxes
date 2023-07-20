@@ -169,7 +169,7 @@ export const mutations = () => `
   clientPortalUsersVerify(userIds: [String]!, type: String): JSON
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): JSON
   clientPortalRefreshToken: String
-  clientPortalGoogleAuthentication(clientPortalId: String, code: String): String
+  clientPortalGoogleAuthentication(clientPortalId: String, code: String): JSON
   clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): JSON
   clientPortalLogout: String
   clientPortalLoginWithPhone(phone: String!, clientPortalId: String!, deviceToken: String): JSON
