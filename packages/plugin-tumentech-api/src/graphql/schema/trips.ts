@@ -11,7 +11,7 @@ input TrackingItemInput {
   trackedDate: Date
 }
 
-type TumentechDeal {
+type TumentechDealInfo {
   deal: Deal
   dealPlace: DealPlace
 }
