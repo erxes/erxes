@@ -54,6 +54,7 @@ export interface ITransaction {
   contractReaction?: any;
   futureDebt?: number;
   debtTenor?: number;
+  currency: string;
   ebarimt?: any;
   isManual?: boolean;
   isGetEBarimt?: boolean;
@@ -162,6 +163,11 @@ export const transactionSchema = schemaHooksWrapper(
       min: 0,
       optional: true,
       label: 'debt Tenor'
+    }),
+    currency: field({
+      type: String,
+      default: 'MNT',
+      label: 'transaction currency of lease'
     }),
     ebarimt: field({
       type: Schema.Types.Mixed,

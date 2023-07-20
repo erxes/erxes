@@ -26,8 +26,10 @@ import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectC
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import { IContractType } from '../../../contractTypes/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
+  currentUser: IUser;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   contract: IContract;
   closeModal: () => void;
@@ -52,6 +54,7 @@ type State = {
   branchId: string;
   unduePercent: number;
   undueCalcType: string;
+  currency: string;
 
   debt: number;
   debtTenor: number;
@@ -113,7 +116,9 @@ class ContractForm extends React.Component<Props, State> {
         (contract.contractType && contract.contractType.leaseType) || 'finance',
       weekends: contract.weekends || [],
       useHoliday: contract.useHoliday || false,
-      relContractId: contract.relContractId || ''
+      relContractId: contract.relContractId || '',
+      currency:
+        contract.currency || this.props.currentUser.configs?.dealCurrency[0]
     };
   }
 
@@ -163,7 +168,8 @@ class ContractForm extends React.Component<Props, State> {
       riskExpertId: this.state.riskExpertId,
       weekends: this.state.weekends.map(week => Number(week)),
       useHoliday: Boolean(this.state.useHoliday),
-      relContractId: this.state.relContractId
+      relContractId: this.state.relContractId,
+      currency: this.state.currency
     };
 
     if (this.state.leaseType === 'salvage') {
@@ -311,7 +317,8 @@ class ContractForm extends React.Component<Props, State> {
       leaseType: (contractTypeObj && contractTypeObj.leaseType) || 'finance',
       useMargin: contractTypeObj.useMargin,
       useSkipInterest: contractTypeObj.useSkipInterest,
-      useDebt: contractTypeObj.useDebt
+      useDebt: contractTypeObj.useDebt,
+      currency: contractTypeObj.currency
     };
 
     if (!this.state.unduePercent) {
@@ -552,6 +559,26 @@ class ContractForm extends React.Component<Props, State> {
                   ))}
                 </FormControl>
               </FormGroup>
+              <FormGroup>
+                <ControlLabel required={true}>{__('Currency')}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="currency"
+                  componentClass="select"
+                  value={this.state.currency}
+                  required={true}
+                  onChange={this.onChangeField}
+                >
+                  {this.props.currentUser.configs?.dealCurrency?.map(
+                    (typeName, index) => (
+                      <option key={index} value={typeName}>
+                        {typeName}
+                      </option>
+                    )
+                  )}
+                </FormControl>
+              </FormGroup>
+
               <FormGroup>
                 <ControlLabel required>{__('Schedule Days')}</ControlLabel>
                 <Select

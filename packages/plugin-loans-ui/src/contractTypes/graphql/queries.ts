@@ -15,6 +15,7 @@ export const contractTypeFields = `
   useDebt
   productCategoryIds
   config
+  currency
 `;
 
 const listParamsDef = `

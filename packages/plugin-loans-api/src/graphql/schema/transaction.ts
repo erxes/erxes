@@ -45,6 +45,7 @@ export const types = `
     customer: Customer,
     company: Company,
     calcedInfo: CalcedInfo
+    currency:String
     ebarimt:JSON
   }
 
@@ -92,9 +93,7 @@ const commonFields = `
   undue: Float,
   insurance: Float,
   debt: Float,
-  isGetEBarimt: Boolean,
-  isOrganization: Boolean,
-  organizationRegister: String,
+  currency:String,
 `;
 
 const changeFields = `

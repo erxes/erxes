@@ -87,6 +87,10 @@ export const loadTransactionClass = (models: IModels) => {
         _id: doc.contractId
       }).lean<IContractDocument>();
 
+      if (!doc.currency && contract?.currency) {
+        doc.currency = contract?.currency;
+      }
+
       if (!contract || !contract._id) {
         return models.Transactions.create({ ...doc });
       }
