@@ -63,16 +63,16 @@ const clientPortalGetTicket = `
 `;
 
 const clientPortalGetTask = `
-  query taskDetail($_id: String!) {
-    taskDetail(_id: $_id) {
+  query taskDetail($_id: String!, $clientPortalCard: Boolean) {
+    taskDetail(_id: $_id, clientPortalCard: $clientPortalCard) {
      ${itemFields}
     }
   }
 `;
 
 const clientPortalGetDeal = `
-  query dealDetail($_id: String!) {
-    dealDetail(_id: $_id) {
+  query dealDetail($_id: String!, $clientPortalCard: Boolean) {
+    dealDetail(_id: $_id, clientPortalCard: $clientPortalCard) {
       ${itemFields}
       productsData
     }
