@@ -10,7 +10,8 @@ type PlanSchedule {
     structureTypeIds: [String],
     status:String,
     groupId:String,
-    date:Date,
+    startDate:Date,
+    endDate:Date,
     customFieldsData:JSON
 }
 
@@ -37,7 +38,8 @@ const commonScheduleParams = `
     indicatorId:String,
     groupId:String,
     structureTypeIds:[String],
-    date:String,
+    startDate:String,
+    endDate:String,
     assignedUserIds:[String],
     name:String,
     customFieldsData:JSON,

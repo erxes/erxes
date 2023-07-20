@@ -29,6 +29,7 @@ type Props = {
   closeModal: () => void;
   refetch: (variables?: any) => Promise<any>;
   onSave: (doc: any) => void;
+  duplicate?: boolean;
 };
 
 type State = {
@@ -53,7 +54,8 @@ class ScheduleForm extends React.Component<Props, State> {
       cardType,
       pipelineId,
       plan,
-      refetch
+      refetch,
+      duplicate
     } = this.props;
     const { useGroup, doc } = this.state;
     const { structureType } = plan;
@@ -68,18 +70,19 @@ class ScheduleForm extends React.Component<Props, State> {
       handleChange(value, name);
     };
 
-    const onDateChange = date => {
+    const onDateChange = (date, name) => {
       if (date < new Date()) {
         return Alert.error('You must select a date after the from today');
       }
-      handleChange(date, 'date');
+      handleChange(date, name);
     };
 
     const handleSave = () => {
-      const mutation =
-        typeof schedule._id === 'string'
-          ? mutations.updateSchedule
-          : mutations.addSchedule;
+      let mutation = mutations.addSchedule;
+
+      if (typeof schedule._id === 'string' && !duplicate) {
+        mutation = mutations.updateSchedule;
+      }
 
       client
         .mutate({
@@ -144,17 +147,34 @@ class ScheduleForm extends React.Component<Props, State> {
             />
           </Column>
         </Columns>
-        <FormGroup>
-          <ControlLabel>{__('Date')}</ControlLabel>
-          <DateContainer>
-            <DateControl
-              name="date"
-              value={doc.date}
-              placeholder="select from date "
-              onChange={onDateChange}
-            />
-          </DateContainer>
-        </FormGroup>
+        <Columns style={{ gap: '20px' }}>
+          <Column>
+            <FormGroup>
+              <ControlLabel>{__('Start Date')}</ControlLabel>
+              <DateContainer>
+                <DateControl
+                  name="startDate"
+                  value={doc.startDate}
+                  placeholder="select from start date "
+                  onChange={date => onDateChange(date, 'startDate')}
+                />
+              </DateContainer>
+            </FormGroup>
+          </Column>
+          <Column>
+            <FormGroup>
+              <ControlLabel>{__('End Date')}</ControlLabel>
+              <DateContainer>
+                <DateControl
+                  name="endDate"
+                  value={doc.endDate}
+                  placeholder="select from end date "
+                  onChange={date => onDateChange(date, 'endDate')}
+                />
+              </DateContainer>
+            </FormGroup>
+          </Column>
+        </Columns>
         <FormGroup>
           <ControlLabel>{__('Name')}</ControlLabel>
           <FormControl
