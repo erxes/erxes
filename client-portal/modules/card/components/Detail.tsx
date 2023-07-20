@@ -27,9 +27,12 @@ import { TextArea } from "../../common/form/styles";
 import { __ } from "../../../utils";
 import dayjs from "dayjs";
 import { readFile } from "../../common/utils";
+import CheckListDetail from "../containers/CheckListDetail";
 
 type Props = {
   item?: any;
+  checklists?: any;
+  config?: any;
   comments?: any;
   currentUser: IUser;
   type: string;
@@ -190,6 +193,20 @@ export default class CardDetail extends React.Component<
     );
   }
 
+  renderCheckLists() {
+    const { checklists, config, type } = this.props;
+
+    const updatedProps = {
+      config,
+      type
+    };
+
+    if (checklists) {
+      checklists.map(c => (
+        <CheckListDetail key={c._id} checklist={c} {...updatedProps} />
+      ));
+    }
+  }
   renderAttachments() {
     const { attachments } = this.props.item || {};
 
@@ -284,6 +301,7 @@ export default class CardDetail extends React.Component<
                 </div>
               </DetailRow>
               {this.renderDetailInfo()}
+              {this.renderCheckLists()}
             </Card>
           </div>
 

@@ -24,9 +24,22 @@ function DetailContainer({ _id, type, ...props }: Props) {
       skip: !_id,
       context: {
         headers: {
-          "erxes-app-token": props.config?.erxesAppToken,
-        },
-      },
+          "erxes-app-token": props.config?.erxesAppToken
+        }
+      }
+    }
+  );
+
+  const { data: checklistsQuery, loading: checklistsQueryLoading } = useQuery(
+    gql(queries.checklists),
+    {
+      variables: { contentType: type, contentTypeId: _id },
+      skip: type !== "task",
+      context: {
+        headers: {
+          "erxes-app-token": props.config?.erxesAppToken
+        }
+      }
     }
   );
 
@@ -37,9 +50,9 @@ function DetailContainer({ _id, type, ...props }: Props) {
       skip: !_id,
       context: {
         headers: {
-          "erxes-app-token": props.config?.erxesAppToken,
-        },
-      },
+          "erxes-app-token": props.config?.erxesAppToken
+        }
+      }
     }
   );
 
@@ -50,11 +63,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
         variables: { typeId: _id, type },
         context: {
           headers: {
-            "erxes-app-token": props.config?.erxesAppToken,
-          },
-        },
-      },
-    ],
+            "erxes-app-token": props.config?.erxesAppToken
+          }
+        }
+      }
+    ]
   });
 
   const [deleteComment] = useMutation(
@@ -66,11 +79,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
           variables: { typeId: _id, type },
           context: {
             headers: {
-              "erxes-app-token": props.config?.erxesAppToken,
-            },
-          },
-        },
-      ],
+              "erxes-app-token": props.config?.erxesAppToken
+            }
+          }
+        }
+      ]
     }
   );
 
@@ -91,8 +104,8 @@ function DetailContainer({ _id, type, ...props }: Props) {
         ...values,
         typeId: item._id,
         type,
-        userType: "client",
-      },
+        userType: "client"
+      }
     });
   };
 
@@ -100,8 +113,8 @@ function DetailContainer({ _id, type, ...props }: Props) {
     confirm().then(() =>
       deleteComment({
         variables: {
-          _id: commentId,
-        },
+          _id: commentId
+        }
       })
     );
   };
@@ -110,9 +123,10 @@ function DetailContainer({ _id, type, ...props }: Props) {
     ...props,
     item,
     type,
+    checklists: checklistsQuery.checklists,
     comments,
     handleSubmit,
-    handleRemoveComment,
+    handleRemoveComment
   };
 
   return <Detail {...updatedProps} />;
