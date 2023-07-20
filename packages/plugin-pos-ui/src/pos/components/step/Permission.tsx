@@ -80,13 +80,11 @@ class PermissionStep extends React.Component<Props, State> {
     const { pos } = this.props;
 
     const onAdminSelect = users => {
-      pos.adminIds = users;
-      this.onChangeFunction(pos);
+      this.onChangeFunction({ ...pos, adminIds: users });
     };
 
     const onCashierSelect = users => {
-      pos.cashierIds = users;
-      this.onChangeFunction(pos);
+      this.onChangeFunction({ ...pos, cashierIds: users });
     };
 
     let cashierIds: any = [];

@@ -12,6 +12,7 @@ const commonParams = `
     $indicatorId: String,
     $operationId: String
     $groupsAssignedUsers:[GroupsAssignedUsers]
+    $permittedUserIds: [String]
 `;
 
 const commonParamsDef = `
@@ -23,6 +24,7 @@ const commonParamsDef = `
     indicatorId: $indicatorId,
     operationId: $operationId
     groupsAssignedUsers:$groupsAssignedUsers
+    permittedUserIds: $permittedUserIds
 `;
 
 const commonFields = `

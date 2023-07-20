@@ -32,7 +32,7 @@ export const safeRemainderItemSchema = schemaHooksWrapper(
     count: field({ type: Number, label: 'Remainder count' }),
 
     status: field({ type: String, label: 'Status' }),
-    uomId: field({ type: String, label: 'UOM ID' }),
+    uom: field({ type: String, label: 'UOM' }),
     modifiedAt: field({
       type: Date,
       default: new Date(),

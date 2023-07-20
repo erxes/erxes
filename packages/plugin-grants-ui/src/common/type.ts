@@ -2,7 +2,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export type IGrantRequest = {
-  _id?: string;
+  _id: string;
   contentTypeId: string;
   contentType: string;
   userIds: string[];

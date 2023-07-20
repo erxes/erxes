@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 /**
  * Global - START
@@ -49,6 +50,18 @@ export const IconButton = styled.button`
     cursor: pointer;
   }
 `;
+
+export const Button = styledTS<{ isRecording: boolean }>(styled.button)`
+         background-color: ${props =>
+           props.isRecording ? colors.colorShadowGray : 'none'};
+  border-radius: 100%;
+  border: none;
+  cursor: pointer;
+  padding: 0 5px;
+  transition: transform 0.3s ease-in-out;
+
+  ${props => props.isRecording && 'transform: scale(1.4)'}
+         `;
 
 export const Title = styled.h5`
   margin: 0;
@@ -137,7 +150,7 @@ export const WidgetPopoverSeeAll = styled.div`
 export const WidgetChatWrapper = styled.div`
   position: fixed;
   bottom: 0;
-  right: 0;
+  right: 100px;
   display: flex;
   z-index: 9999;
   justify-content: flex-end;
@@ -515,7 +528,7 @@ export const MessageContent = styledTS<{ me?: boolean }>(styled.div)`
 export const MessageOption = styled.button`
   background: none;
   display: inline-block;
-  visibility: hidden;
+  visibility: false;
   border-radius: 100%;
   border: 0;
   outline: 0;
@@ -655,6 +668,69 @@ export const FileName = styled.div`
   margin-right: 5px;
   color: ${colors.colorWhite};
 `;
+
+export const EditorActions = styled.div`
+  padding: 10px 20px 20px 20px;
+  text-align: right;
+  position: relative;
+  color: ${colors.colorCoreGray};
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  label {
+    margin: 0 10px 0 0;
+    display: block;
+
+    &:hover {
+      cursor: pointer;
+      color: ${darken(colors.colorCoreGray, 30)};
+    }
+    ${isEnabled('internalnotes') &&
+      `
+      &:first-of-type {
+        position: absolute;
+        left: 20px;
+      }
+    `}
+  }
+
+  i {
+    margin: 0;
+  }
+
+  input[type='file'] {
+    display: none;
+  }
+`;
+
+export const EditorWrapper = styled.div`
+  position: relative;
+  width: 100%;
+
+  > .cke_chrome {
+    border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .cke_bottom {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+
+  .cke_toolgroup {
+    border: 0;
+    margin-left: 3px;
+  }
+
+  .cke_resizer {
+    display: none !important;
+  }
+`;
+
 /**
  * ChatEditor - END
  */

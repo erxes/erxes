@@ -9,6 +9,7 @@ import { generateAllDataLoaders } from './dataLoaders';
 import { initBroker } from './messageBroker';
 import * as permissions from './permissions';
 import tags from './tags';
+import forms from './forms';
 
 export let mainDb;
 export let debug;
@@ -49,6 +50,7 @@ export default {
   meta: {
     afterMutations,
     tags,
-    cronjobs
+    cronjobs,
+    forms
   }
 };

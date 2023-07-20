@@ -70,7 +70,8 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
           syncedDeals.forEach(item => {
             syncedDealInfos[item._id] = {
               syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || ''
+              syncedDate: item.syncedDate || '',
+              syncedCustomer: item.syncedCustomer || ''
             };
           });
           this.setState({ unSyncedDealIds, syncedDealInfos });

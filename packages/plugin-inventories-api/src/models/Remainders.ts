@@ -36,7 +36,7 @@ export interface IRemainderModel extends Model<IRemainderDocument> {
     subdomain: string,
     branchId: string,
     departmentId: string,
-    data: { productId: string; uomId: string; diffCount: number }[]
+    data: { productId: string; uom: string; diffCount: number }[]
   );
   removeRemainder(_id: string): void;
 }
@@ -66,7 +66,7 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       params: IRemainderParams
     ) {
-      const { productId, departmentId, branchId, uomId } = params;
+      const { productId, departmentId, branchId, uom } = params;
       const filter: any = { productId };
 
       if (departmentId) filter.departmentId = departmentId;
@@ -86,16 +86,16 @@ export const loadRemainderClass = (models: IModels) => {
         isRPC: true
       });
 
-      let uom: any = product.uomId;
+      let pUom: any = product.uom;
       const subUom: any =
-        product.subUom.filter((item: any) => item.uomId === uomId) || [];
+        product.subUom.filter((item: any) => item.uom === uom) || [];
 
       if (subUom.length) {
         count = count / subUom.ratio || 1;
-        uom = subUom.uomId;
+        pUom = subUom.uom;
       }
 
-      return { count, uomId: uom };
+      return { count, uom };
     }
 
     public static async getRemainderProducts(
@@ -278,7 +278,7 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       branchId: string,
       departmentId: string,
-      productsData: { productId: string; uomId: string; diffCount: number }[],
+      productsData: { productId: string; uom: string; diffCount: number }[],
       isCensus: false
     ) {
       let bulkOps: {
@@ -305,7 +305,7 @@ export const loadRemainderClass = (models: IModels) => {
 
       for (const data of productsData) {
         const product = productById[data.productId];
-        const ratio = getRatio(product, data.uomId || product.uomId);
+        const ratio = getRatio(product, data.uom || product.uom);
         const diffCount = data.diffCount / (ratio || 1);
         if (!diffCount) {
           continue;

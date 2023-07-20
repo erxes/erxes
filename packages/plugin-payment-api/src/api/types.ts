@@ -23,6 +23,11 @@ export interface IMonpayInvoice {
   callbackUrl: string;
 }
 
+export interface IPocketInvoice {
+  amount: number;
+  info: string;
+}
+
 export interface IMonpayConfig {
   username: string;
   accountId: string;

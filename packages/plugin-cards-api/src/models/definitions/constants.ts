@@ -1,34 +1,3 @@
-export const PRODUCT_TYPES = {
-  PRODUCT: 'product',
-  SERVICE: 'service',
-  ALL: ['product', 'service']
-};
-
-export const PRODUCT_STATUSES = {
-  ACTIVE: 'active',
-  DELETED: 'deleted',
-  ALL: ['active', 'deleted']
-};
-
-export const PRODUCT_TEMPLATE_STATUSES = {
-  ACTIVE: 'active',
-  ARCHIVED: 'archived',
-  ALL: ['active', 'archived']
-};
-export const PRODUCT_CATEGORY_STATUSES = {
-  ACTIVE: 'active',
-  DISABLED: 'disabled',
-  ARCHIVED: 'archived',
-  ALL: ['active', 'disabled', 'archived']
-};
-
-export const PRODUCT_SUPPLY = {
-  UNIQUE: 'unique',
-  LIMITED: 'limited',
-  UNLIMITED: 'unlimited',
-  ALL: ['unique', 'limited', 'unlimited']
-};
-
 export const VISIBLITIES = {
   PUBLIC: 'public',
   PRIVATE: 'private',

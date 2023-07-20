@@ -46,11 +46,18 @@ export interface IChatMessageDocument extends IChatMessage, Document {
 export const chatMessageSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    attachments: field({ type: [attachmentSchema], label: 'attachments' }),
+    attachments: field({
+      type: [attachmentSchema],
+      label: 'attachments'
+    }),
     mentionedUserIds: field({ type: [String] }),
     chatId: field({ type: String, label: 'Connected chat' }),
     relatedId: field({ type: String, label: 'Related message' }),
-    isPinned: field({ type: Boolean, default: false, label: 'Has pinned' }),
+    isPinned: field({
+      type: Boolean,
+      default: false,
+      label: 'Has pinned'
+    }),
     content: field({ type: String, label: 'Content' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     createdBy: field({ type: String, label: 'Created by' })
@@ -74,10 +81,23 @@ export const chatSchema = schemaHooksWrapper(
     description: field({ type: String }),
     visibility: field({ type: String, enum: VISIBILITIES.ALL }),
     type: field({ type: String, enum: CHAT_TYPE.ALL }),
-    isPinned: field({ type: Boolean, default: false, label: 'Has pinned' }),
+    isPinned: field({
+      type: Boolean,
+      default: false,
+      label: 'Has pinned'
+    }),
+    isWithNotification: field({
+      type: Boolean,
+      default: false,
+      label: 'Has notification'
+    }),
     participantIds: field({ type: [String], label: 'User ids' }),
     adminIds: field({ type: [String], label: 'Admin user ids' }),
-    seenInfos: field({ type: [seenSchema], label: 'Seen info', default: [] }),
+    seenInfos: field({
+      type: [seenSchema],
+      label: 'Seen info',
+      default: []
+    }),
     createdAt: field({ type: Date, label: 'Created at' }),
     updatedAt: field({ type: Date, label: 'Updated at' }),
     createdBy: field({ type: String, label: 'Created by' })

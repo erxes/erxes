@@ -29,6 +29,7 @@ type Props = {
 type State = {
   isLoading: boolean;
   isReadyToSaveForm: boolean;
+  mustWait?: any;
   doc?: {
     brandId: string;
     channelIds?: string[];
@@ -54,8 +55,31 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { isLoading: false, isReadyToSaveForm: false };
+    this.state = {
+      isLoading: false,
+      isReadyToSaveForm: false,
+      mustWait: { optionsStep: false }
+    };
   }
+
+  redirect = () => {
+    let canClose = true;
+
+    for (const key in this.state.mustWait) {
+      if (this.state.mustWait[key]) {
+        canClose = false;
+      } else {
+        canClose = true;
+      }
+    }
+
+    if (canClose) {
+      this.props.history.push({
+        pathname: '/forms',
+        search: `?popUpRefetchList=true`
+      });
+    }
+  };
 
   render() {
     const {
@@ -102,10 +126,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           .then(() => {
             Alert.success('You successfully updated a form');
 
-            history.push({
-              pathname: '/forms',
-              search: '?popUpRefetchList=true'
-            });
+            this.redirect();
           })
 
           .catch(error => {
@@ -116,6 +137,11 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       }
     };
 
+    const waitUntilFinish = (obj: any) => {
+      const mustWait = { ...this.state.mustWait, ...obj };
+      this.setState({ mustWait });
+    };
+
     const save = doc => {
       this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
     };
@@ -123,8 +149,18 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       integration: integration ? integration : ({} as any),
+      integrationId: integration._id,
       save,
       afterFormDbSave,
+      waitUntilFinish,
+      onChildProcessFinished: component => {
+        if (this.state.mustWait.hasOwnProperty(component)) {
+          const mustWait = { ...this.state.mustWait };
+          mustWait[component] = false;
+          this.setState({ mustWait });
+        }
+        this.redirect();
+      },
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
       emailTemplates: emailTemplatesQuery

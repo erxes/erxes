@@ -37,6 +37,7 @@ export const loadPaymentClass = (models: IModels) => {
 
       if (!payment) {
         throw new Error(`Payment not found with given id ${_id}}`);
+        return null;
       }
 
       return payment;

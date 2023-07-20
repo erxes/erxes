@@ -123,10 +123,15 @@ const transactionQueries = {
   },
   getPaymentInfo: async (
     _root,
-    { id, payDate },
+    { id, payDate, scheduleDate },
     { models, subdomain }: IContext
   ) => {
-    return models.Transactions.getPaymentInfo(id, payDate, subdomain);
+    return models.Transactions.getPaymentInfo(
+      id,
+      payDate,
+      subdomain,
+      scheduleDate
+    );
   }
 };
 

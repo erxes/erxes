@@ -130,6 +130,8 @@ const prepareHeader = async (
           structure.push('Салбар нэгж');
         }
         final_headers.unshift([['Structure'], ['№', ...structure]]);
+      } else {
+        final_headers.unshift([[''], ['№']]);
       }
 
       for (const header of final_headers) {

@@ -1,5 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import {
   CustomRangeContainer,
@@ -34,6 +34,13 @@ const extractForm = (props: Props) => {
   const [selectedBranches, setBranches] = useState<string[]>([]);
   const [selectedDepartments, setDepartments] = useState<string[]>([]);
 
+  const [startDate, setStartDate] = useState(
+    new Date(localStorage.getItem('startDate') || Date.now())
+  );
+  const [endDate, setEndDate] = useState(
+    new Date(localStorage.getItem('endDate') || Date.now())
+  );
+
   const renderDepartmentOptions = (depts: IDepartment[]) => {
     return depts.map(dept => ({
       value: dept._id,
@@ -66,30 +73,38 @@ const extractForm = (props: Props) => {
     setUserIds(selectedUsers);
   };
 
-  const [startDate, setStartDate] = useState(
-    new Date(localStorage.getItem('startDate') || Date.now())
-  );
-  const [endDate, setEndDate] = useState(
-    new Date(localStorage.getItem('endDate') || Date.now())
-  );
-
   const onStartDateChange = dateVal => {
-    setStartDate(dateVal);
-    localStorage.setItem('startDate', startDate.toISOString());
+    if (checkDateRange(dateVal, endDate)) {
+      setStartDate(dateVal);
+      localStorage.setItem('startDate', startDate.toISOString());
+    }
   };
 
   const onEndDateChange = dateVal => {
-    setEndDate(dateVal);
-    localStorage.setItem('endDate', endDate.toISOString());
+    if (checkDateRange(startDate, dateVal)) {
+      setEndDate(dateVal);
+      localStorage.setItem('endDate', endDate.toISOString());
+    }
   };
 
   const extractAllData = () => {
-    extractTimeLogsFromMsSQL(startDate, endDate, {
-      branchIds: selectedBranches,
-      departmentIds: selectedDepartments,
-      userIds: currUserIds,
-      extractAll: extractType === 'All team members'
-    });
+    if (checkDateRange(startDate, endDate)) {
+      extractTimeLogsFromMsSQL(startDate, endDate, {
+        branchIds: selectedBranches,
+        departmentIds: selectedDepartments,
+        userIds: currUserIds,
+        extractAll: extractType === 'All team members'
+      });
+    }
+  };
+
+  const checkDateRange = (start: Date, end: Date) => {
+    if ((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24) > 8) {
+      Alert.error('Please choose date range within 8 days');
+      return false;
+    }
+
+    return true;
   };
 
   const extractContent = () => (

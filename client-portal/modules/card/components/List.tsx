@@ -8,7 +8,6 @@ import Detail from "../containers/Detail";
 import EmptyState from "../../common/form/EmptyState";
 import Form from "../containers/Form";
 import Group from "../containers/Group";
-import { GroupList } from "../../styles/cards";
 import ListHeader from "./ListHeader";
 import { useRouter } from "next/router";
 

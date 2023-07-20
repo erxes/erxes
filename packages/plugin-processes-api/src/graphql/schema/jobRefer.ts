@@ -19,7 +19,7 @@ export const types = `
     _id: String,
     productId: String,
     quantity: Float,
-    uomId: String,
+    uom: String,
     branchId: String,
     departmentId: String,
     proportion: Float

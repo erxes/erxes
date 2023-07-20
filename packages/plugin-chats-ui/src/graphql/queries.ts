@@ -6,6 +6,7 @@ const chats = `
         name
         type
         isSeen
+        isPinned
         lastMessage {
           content
           createdAt
@@ -19,6 +20,7 @@ const chats = `
             }
             lastSeenMessageId
           }
+          attachments
         }
         createdUser {
           _id

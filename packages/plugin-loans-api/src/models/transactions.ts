@@ -24,7 +24,12 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   updateTransaction(memoryStorage: any, _id: string, doc: ITransaction);
   changeTransaction(_id: string, doc: ITransaction);
   removeTransactions(_ids: string[]);
-  getPaymentInfo(id: string, payDate: Date, subdomain: string);
+  getPaymentInfo(
+    id: string,
+    payDate: Date,
+    subdomain: string,
+    scheduleDate?: Date
+  );
 }
 export const loadTransactionClass = (models: IModels) => {
   class Transaction {
@@ -349,7 +354,7 @@ export const loadTransactionClass = (models: IModels) => {
       }
     }
 
-    public static async getPaymentInfo(id, payDate, subdomain) {
+    public static async getPaymentInfo(id, payDate, subdomain, scheduleDate) {
       const today = getPureDate(new Date(payDate));
 
       const paymentInfo = await getCalcedAmounts(models, subdomain, {
@@ -357,17 +362,30 @@ export const loadTransactionClass = (models: IModels) => {
         payDate: today
       });
 
+      if (scheduleDate) {
+        const schedulePayDate = getPureDate(new Date(scheduleDate));
+        const paymentScheduleInfo = await getCalcedAmounts(models, subdomain, {
+          contractId: id,
+          payDate: schedulePayDate
+        });
+        paymentInfo.payment = paymentScheduleInfo.payment;
+      }
+
       const {
         payment = 0,
         undue = 0,
         interestEve = 0,
         interestNonce = 0,
         insurance = 0,
-        debt = 0
+        debt = 0,
+        balance = 0
       } = paymentInfo;
 
       paymentInfo.total =
         payment + undue + interestEve + interestNonce + insurance + debt;
+
+      paymentInfo.closeAmount =
+        balance + undue + interestEve + interestNonce + insurance + debt;
 
       return paymentInfo;
     }

@@ -53,6 +53,8 @@ export default {
     const models = await generateModels(subdomain);
     const { result, properties } = data;
 
+    const defaultUom = await models.ProductsConfigs.getConfig('defaultUOM', '');
+
     const bulkDoc: any = [];
 
     // Iterating field values
@@ -62,7 +64,6 @@ export default {
       };
 
       let colIndex: number = 0;
-      let barcodes = [];
       let subUomNames = [];
       let ratios = [];
 
@@ -127,29 +128,28 @@ export default {
 
           case 'barcodes':
             {
-              barcodes = value.replace(/\s/g, '').split(',');
-              barcodes = barcodes.filter(br => br);
+              doc.barcodes = value
+                .replace(/\s/g, '')
+                .split(',')
+                .filter(br => br);
             }
             break;
 
-          case 'subUoms.uomId':
+          case 'subUoms.uom':
             {
-              subUomNames = value.split(',');
+              subUomNames = value.replace(/\s/g, '').split(',');
             }
             break;
 
           case 'subUoms.ratio':
             {
-              ratios = value.split(',');
+              ratios = value.replace(/\s/g, '').split(',');
             }
             break;
 
-          case 'uomId':
+          case 'uom':
             {
-              const uom = await models.Uoms.findOne({
-                $or: [{ name: value }, { code: value }]
-              }).lean();
-              doc.uomId = uom ? uom._id : '';
+              doc.uom = value || defaultUom;
             }
             break;
 
@@ -178,18 +178,10 @@ export default {
       let ind = 0;
       const subUoms: any = [];
 
-      for (const uomVal of subUomNames) {
-        const uom = await models.Uoms.findOne({
-          $or: [{ name: uomVal }, { code: uomVal }]
-        }).lean();
-        if (!uom) {
-          ind += 1;
-          continue;
-        }
-
+      for (const uom of subUomNames) {
         subUoms.push({
           id: Math.random(),
-          uomId: uom._id,
+          uom: uom,
           ratio: Number(ratios[ind] || 1)
         });
         ind += 1;

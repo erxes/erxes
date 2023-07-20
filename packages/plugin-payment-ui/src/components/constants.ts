@@ -1,5 +1,6 @@
 import MonpayForm from './form/MonpayForm';
 import PaypalForm from './form/PaypalForm';
+import PocketForm from './form/PocketForm';
 import QpayForm from './form/QpayForm';
 import QuickQrForm from './form/QuickQrForm';
 import SocialPayForm from './form/SocialPayForm';
@@ -72,6 +73,31 @@ export const PAYMENTCONFIGS = [
     color: 'blue'
   },
   {
+    name: 'pocket',
+    description:
+      'Pocket is an online payment tool that enables all types of payments, transfers and transactions. A feature of easy and quick identification of transactions between users of the Pocket application and payment calculations by reading the Pocket QR code without any commission.',
+    isAvailable: true,
+    kind: 'pocket',
+    logo: 'images/payments/pocket.png',
+    createModal: PocketForm,
+    createUrl: '/settings/payments/createPocket',
+    category: 'Payment method',
+    color: 'red'
+  },
+  {
+    name: 'Golomt E-Commerce',
+    description:
+      'Becoming an E-Commerce merchant for online sales and payment we offer products and services 24/7. Accepts most type of domestic and foreign card and provide opportunity to make and receive payment from anywhere',
+    isAvailable: false,
+    kind: 'golomt',
+    logo: 'images/payments/golomt.png',
+    createModal: '',
+    createUrl: '/settings/payments/createGolomt',
+    category: 'Payment method',
+    color: 'blue',
+    link: 'https://www.golomtbank.com/en/cards/8172'
+  },
+  {
     name: 'Qpay Wechat Pay',
     description: 'Receive payments in Mongolia through the WeChat Pay',
     isAvailable: false,
@@ -99,16 +125,20 @@ export const PAYMENT_KINDS = {
   QPAY: 'qpay',
   QPAY_QUICK_QR: 'qpayQuickqr',
   SOCIALPAY: 'socialpay',
+  GOLOMT: 'golomt',
   MONPAY: 'monpay',
   STOREPAY: 'storepay',
+  POCKET: 'pocket',
   WECHATPAY: 'wechatpay',
   PAYPAL: 'paypal',
 
   ALL: [
     'qpay',
     'socialpay',
+    'golomt',
     'monpay',
     'storepay',
+    'pocket',
     'wechatpay',
     'paypal',
     'qpayQuickqr'

@@ -16,19 +16,5 @@ export default {
       },
       isRPC: true
     });
-  },
-
-  async uom(
-    safeRemainderItem: ISafeRemainderItemDocument,
-    _,
-    { subdomain }: IContext
-  ) {
-    return await sendProductsMessage({
-      subdomain,
-      action: 'uoms.findByProductId',
-      data: { productId: safeRemainderItem.productId },
-      isRPC: true,
-      defaultValue: {}
-    });
   }
 };

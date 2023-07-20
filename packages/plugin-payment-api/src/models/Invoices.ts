@@ -74,6 +74,10 @@ export const loadInvoiceClass = (models: IModels) => {
     public static async updateInvoice(_id: string, doc: any) {
       const invoice = await models.Invoices.getInvoice({ _id });
 
+      if (doc.phone) {
+        invoice.phone = doc.phone;
+      }
+
       if (invoice.status !== 'pending') {
         throw new Error('Already settled');
       }
@@ -125,6 +129,21 @@ export const loadInvoiceClass = (models: IModels) => {
 
       if (invoice.selectedPaymentId === doc.selectedPaymentId) {
         await models.Invoices.updateOne({ _id }, { $set: doc });
+
+        if (doc.paymentKind === 'storepay') {
+          const payment = await models.Payments.getPayment(
+            doc.selectedPaymentId
+          );
+          const apiResponse = await new ErxesPayment(
+            payment,
+            doc.domain
+          ).createInvoice(invoice);
+          invoice.apiResponse = apiResponse;
+          invoice.paymentKind = payment.kind;
+          invoice.selectedPaymentId = payment._id;
+
+          await invoice.save();
+        }
 
         return models.Invoices.getInvoice({ _id });
       }
