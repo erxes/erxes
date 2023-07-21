@@ -14,9 +14,10 @@ type Props = {
   config: Config;
   type: string;
   onClose: () => void;
+  publicTask?: boolean;
 };
 
-function DetailContainer({ _id, type, ...props }: Props) {
+function DetailContainer({ _id, type, publicTask, ...props }: Props) {
   const { data, loading: cardQueryLoading } = useQuery(
     gql(queries[`clientPortalGet${capitalize(type)}`]),
     {
@@ -24,9 +25,22 @@ function DetailContainer({ _id, type, ...props }: Props) {
       skip: !_id,
       context: {
         headers: {
-          "erxes-app-token": props.config?.erxesAppToken,
-        },
-      },
+          'erxes-app-token': props.config?.erxesAppToken
+        }
+      }
+    }
+  );
+
+  const { data: checklistsQuery, loading: checklistsQueryLoading } = useQuery(
+    gql(queries.checklists),
+    {
+      variables: { contentType: type, contentTypeId: _id },
+      skip: !_id || !publicTask,
+      context: {
+        headers: {
+          'erxes-app-token': props.config?.erxesAppToken
+        }
+      }
     }
   );
 
@@ -37,9 +51,9 @@ function DetailContainer({ _id, type, ...props }: Props) {
       skip: !_id,
       context: {
         headers: {
-          "erxes-app-token": props.config?.erxesAppToken,
-        },
-      },
+          'erxes-app-token': props.config?.erxesAppToken
+        }
+      }
     }
   );
 
@@ -50,11 +64,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
         variables: { typeId: _id, type },
         context: {
           headers: {
-            "erxes-app-token": props.config?.erxesAppToken,
-          },
-        },
-      },
-    ],
+            'erxes-app-token': props.config?.erxesAppToken
+          }
+        }
+      }
+    ]
   });
 
   const [deleteComment] = useMutation(
@@ -66,11 +80,11 @@ function DetailContainer({ _id, type, ...props }: Props) {
           variables: { typeId: _id, type },
           context: {
             headers: {
-              "erxes-app-token": props.config?.erxesAppToken,
-            },
-          },
-        },
-      ],
+              'erxes-app-token': props.config?.erxesAppToken
+            }
+          }
+        }
+      ]
     }
   );
 
@@ -91,8 +105,8 @@ function DetailContainer({ _id, type, ...props }: Props) {
         ...values,
         typeId: item._id,
         type,
-        userType: "client",
-      },
+        userType: 'client'
+      }
     });
   };
 
@@ -110,7 +124,7 @@ function DetailContainer({ _id, type, ...props }: Props) {
     ...props,
     item,
     type,
-    checklists: checklistsQuery.checklists,
+    checklists: checklistsQuery?.checklists,
     comments,
     handleSubmit,
     handleRemoveComment
