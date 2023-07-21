@@ -4,23 +4,34 @@ title: Architecture
 sidebar_label: Architecture
 ---
 
-erxes’s coding architecture comprises Backend, UI, and Widgets.
+# Architecture Overview
 
-**Backend** part is responsible for ensuring all APIs of different plugins work together smoothly.
+erxes’s coding architecture comprises three main components: Backend, UI, and Widgets.
 
-**UI** part used React, Apollo, and GraphQL and is also responsible for ensuring all API’s UI work together. XOS comes with utility features to help you manage your account:
+##Backend
 
-- System config
-- Permission
+**Backend** partpart is responsible for ensuring smooth communication between different plugins via APIs.
+
+## UI
+
+**UI** part is built using React, Apollo, and GraphQL. It handles the integration and coordination of various API's user interfaces. erxes XOS provides utility features to manage your account, including:
+
+- System configuration
+- Permissions
 - Team members
 - Brands
 - Import & export
-- Application
+- Applications
 - Marketplace
 
-**erxes Widgets** are built with Web Widgets, iOS SDK, Android SDK, React Native SDK - React, React Native, Apollo, GraphQl. It contains the codes that work on the user’s website and mobile application.
+## erxes Widgets
 
-- The database is used for any erxes project.
+**erxes Widgets** are built using Web Widgets, iOS SDK, Android SDK, React Native SDK - React, React Native, Apollo, GraphQl. These widgets contain the code that works on users' websites and mobile applications.
+
+## Database and Dependencies
+
+For any erxes project, the following technologies are used:
+
 - MongoDB 3.6+
 - Redist 3.x+
 - RabbitMQ 3.8.x+
