@@ -4,32 +4,28 @@ title: Installation on Ubuntu
 sidebar_label: Ubuntu
 ---
 
-The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">**Docker**</a> on <a href="https://ubuntu.com/" target="_blank">**Ubuntu**</a>.
+# Installation on Ubuntu using Docker
 
-Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
+This documentation will guide you through the installation of an erxes project using [Docker](https://www.docker.com/) on [Ubuntu](https://ubuntu.com/).
+
+Docker is an open platform that allows you to develop, ship, and run applications using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
 ## Preparing the installation
 
----
+### Prerequisites
 
-erxes installation requires at least four software prerequisites to be already installed on your computer:
+Before installing erxes, ensure that the following software prerequisites are already installed on your computer:
 
 :::caution
-
-Erxes code takes approximately 12GB storage space, make sure you have enough space in your device before going forward.
-
+Erxes code takes approximately 12GB of storage space. Please ensure you have enough space on your device before proceeding.
 :::
-
-### Prerequisites
 
 - **<a href="https://github.com/git-guides/install-git" target="_blank">Git</a>**
 - [**Node.js**](https://nodejs.org): only LTS versions are supported (v14 and v16). Other versions of Node.js may not be compatible with the latest release of erxes. The 14.x version is most recommended by erxes. The easier way to install **<a href="https://github.com/nvm-sh/nvm#installing-and-updating " target="_blank">nvm</a>** is here.
 - [**npm**](https://docs.npmjs.com/cli/v6/commands/npm-install) and [**yarn**](https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable) (latest version) to run the erxes.
-- **<a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04">Docker</a>** (v20.10.14 and higher) The 20.10.14 version is most recommended by erxes. Docker compose (v2.5.0 and higher)
+- **<a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04">Docker</a>** (v20.10.14 and higher) The 20.10.14 version is most recommended by erxes. Docker Compose (v2.5.0 and higher) is also required.
 
 ## Installing erxes
-
----
 
 1. Create an empty folder.
 
@@ -37,13 +33,13 @@ Erxes code takes approximately 12GB storage space, make sure you have enough spa
 mkdir example
 ```
 
-2. In your empty folder, where the new erxes project will be created, and it defines the database and erxes plugins to use.
+2. In your empty folder, where the new erxes project will be created,define the database and erxes plugins to use.
 
 ```
 cd example
 ```
 
-3. Run following command in the folder.
+3. Run the following command in the folder.
 
 ```
 git clone https://github.com/erxes/erxes.git
@@ -51,13 +47,13 @@ git clone https://github.com/erxes/erxes.git
 
 ### Installing dependencies using docker
 
-4. In the folder, create dock directory using following command.
+4. In the folder, create a "dock" directory using following command.
 
 ```
 mkdir dock
 ```
 
-5. Go to the dock folder using following command.
+5. Go to the "dock" folder using the following command.
 
 ```
 cd dock
@@ -65,11 +61,11 @@ cd dock
 
 :::tip
 
-Run sudo nano or sudo vim command to create .yml file.
+Run `sudo nano` or `sudo vim` command to create the .yml file.
 
 :::
 
-6. Create a `docker-compose.yml` file, then copy the following script in the newly created file.
+6. Create a `docker-compose.yml` file, then copy the following script into the newly created file.
 
 ```
 version: '3.6'
@@ -132,25 +128,25 @@ Please find the useful **<a href="https://docs.docker.com/engine/reference/comma
 sudo docker-compose up -d
 ```
 
-8. Go back to erxes folder using following command.
+8. Go back to "erxes' folder using the following command.
 
 ```
 cd ../erxes
 ```
 
-9. Switch a dev branch by using following command.
+9. Switch a "dev" branch by using the following command.
 
 ```
 git checkout dev
 ```
 
-10. In erxes folder, Install node modules by using following command.
+10. In the "erxes" folder, install node modules by using the following command.
 
 ```
 yarn install
 ```
 
-11. Install `pm2` by using following command.
+11. Install `pm2` by using the following command.
 
 ```
 sudo npm install -g pm2
@@ -161,7 +157,7 @@ sudo npm install -g pm2
 ---
 
 :::caution
-Run erxes in erxes/cli directory
+Run erxes in "erxes/cli" directory
 :::
 
 1. Run following command to change the folder.
@@ -170,33 +166,33 @@ Run erxes in erxes/cli directory
 cd cli
 ```
 
-2. Install node modules in the erxes/cli directory.
+2. Install node modules in the "erxes/cli" directory.
 
 ```
 yarn install
 ```
 
-3. Copy `configs.json.sample`, then convert it to `configs.json`.
+3. Copy "configs.json.sample", then convert it to "configs.json".
 
 ```
 cp configs.json.sample configs.json
 ```
 
-4. Run following command to start your erxes project.
+4. Run the following command to start your erxes project.
 
 ```
 ./bin/erxes.js dev
 ```
 
-**If your browser don't automatically jump to localhost:3000, you should check logs by using these commands.**
+**If your browser doesn't automatically jump to localhost:3000, you should check logs by using these commands.**
 
 :::note
 
 Frequently used `pm2` commands on erxes:
 
-- pm2 list - Display all processes status
+- pm2 list - Display all processes' status
 - pm2 kill - Will remove all processes from pm2 list
-- pm2 logs -f - Display all processes logs in streaming (gateway, plugin-name etc.)
+- pm2 logs -f - Display all processes' logs in streaming (gateway, plugin-name etc.)
 - pm2 restart all - Restart all processes
 
 :::
