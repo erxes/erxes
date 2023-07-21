@@ -4,25 +4,33 @@ title: Frequently Asked Questions
 sidebar_label: Frequently Asked Questions
 ---
 
-### What does erxes mean? How do you pronounce it?
+## What does erxes mean? How do you pronounce it?
 
 erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
 
-### What kind of licence erxes has?
+## What kind of licence does erxes have?
 
 Please see the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" target="_blank">**LICENSE**</a> file for licensing information.
 
-### Are these all free? Can we just use it for free?
+## Are these all free? Can we just use it for free?
 
 
-Yes, we’re open-source software, our license is **<a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">AGPLv3</a>** with **<a href="https://github.com/erxes/erxes/tree/master/ee">Enterprise Edition</a>**, which means some of our plugins and code for SaaS are require prior agmeenent and kept private under Enterpise Edition. But the rest are all free for you to install and use for you. 
+Yes, erxes is open-source software, licensed under **<a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">AGPLv3</a>** with **<a href="https://github.com/erxes/erxes/tree/master/ee">Enterprise Edition</a>**. This means some of our plugins and code for SaaS require prior agmeenent and are kept private under the Enterpise Edition. However, the rest of erxes is free for you to install and use.
 Please read more about our license **<a href="https://erxes.io/blog/posts/changing-the-license-to-agplv3-with-the-enterprise-edition">here</a>**.
 
-However, we provides 3 different packages for our clients, which include:
+##Package Options
 
-- A self-hosted version that is suitable for SaaS providers or enterprises operating in highly regulated industries, like insurance, mobile network providers, banking and etc. As it is self-hosted, you must ensure you and your organization have a skilled DevOps person/team to look after the server to maintain the smooth operation of your erxes operating system daily. As an erxes user, you can choose between using the Community Edition, which is entirely free, or paid plan of the Enterprise Edition.
+We offer 3 different packages for our clients, catering to various needs:
 
-- SaaS version that is suitable for small to medium enterprises who want to leave all your tech-related work to us and only focus on your main operation that is non-technical. Pricing is super simple in that you can get access to erxes for free and use it as long as you want as an individual. Then as your business grows, you can only pay for what you need, rather than having a bunch of junk that comes within the package.
+### Self-hosted Version
 
-- An infrastructure version is for is the best choice for starting a platform business. You can white-label the design or change every line of code to make it work for you, and this is where you can leverage erxes core plugins, components, and enterprise features to power your entire platform business that includes some of the very specific, high-level paid plugins
+- The self-hosted version that is suitable for SaaS providers or enterprises operating in highly regulated industries, such as insurance, mobile network providers, banking, etc. It is entirely free with the Community Edition, or you can opt for the paid plan of the Enterprise Edition. Keep in mind that for the self-hosted version, you need to have a skilled DevOps person/team to maintain the smooth operation of your erxes operating system daily.
+
+### SaaS Version
+
+- The SaaS version is designed for small to medium enterprises that want to leave all technical work to us and focus solely on their main operations. You can get access to erxes for free as an individual, and as your business grows, you can pay for the features you need, avoiding unnecessary extras.
+
+### Infrastructure Version
+
+- The infrastructure version is the best choice for starting a platform business. You can white-label the design or modify the code to tailor it to your needs. Here, you can leverage erxes core plugins, components, and enterprise features to power your entire platform business, including specific, high-level paid plugins.
 
