@@ -5,6 +5,7 @@ import {
   Badge,
   BottomComponent,
   Container,
+  HamburgerMenuWrapper,
   Header as Head,
   HeaderLinks,
   HeaderLogo,
@@ -171,79 +172,48 @@ function Header({
         </Dropdown>
 
         {renderNavigationMenu()}
-
       </>
     );
   };
 
-  // const renderNavigationMenu = () => {
-  //   return (
-  //     <Popup
-  //       trigger={<Icon icon="subject" />}
-  //       position="bottom center"
-  //       contentStyle={{ width: '350px' }}
-  //     >
-  //       <HeaderLinks>
-  //         {config.publicTaskToggle
-  //           ? renderMenu(
-  //               '/publicTasks',
-  //               config.taskPublicLabel || 'Public Task'
-  //             )
-  //           : null}
-  //         {config.ticketToggle && currentUser
-  //           ? renderMenu('/tickets', config.ticketLabel || 'Ticket')
-  //           : null}
-  //         {config.dealToggle && currentUser
-  //           ? renderMenu('/deals', config.dealLabel || 'Sales pipeline')
-  //           : null}
-  //         {config.purchaseToggle && currentUser
-  //           ? renderMenu(
-  //               '/purchases',
-  //               config.purchaseLabel || 'Purchase pipeline'
-  //             )
-  //           : null}
-  //         {config.taskToggle && currentUser
-  //           ? renderMenu('/tasks', config.taskLabel || 'Task')
-  //           : null}
-  //       </HeaderLinks>
-  //     </Popup>
-  //   );
-  // };
-
   const renderNavigationMenu = () => {
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-custom-components1">
-          <Icon icon="subject" />
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <HeaderLinks>
-            {config.publicTaskToggle
-              ? renderMenu(
-                  '/publicTasks',
-                  config.taskPublicLabel || 'Public Task'
-                )
-              : null}
+      <HamburgerMenuWrapper>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-custom-components1">
+            <Icon icon="subject" />
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <HeaderLinks
+              backgroundColor={getConfigColor(config, 'headerColor')}
+            >
+              {config.publicTaskToggle
+                ? renderMenu(
+                    '/publicTasks',
+                    config.taskPublicLabel || 'Public Task'
+                  )
+                : null}
 
-            {config.ticketToggle && currentUser
-              ? renderMenu('/tickets', config.ticketLabel || 'Ticket')
-              : null}
+              {config.ticketToggle && currentUser
+                ? renderMenu('/tickets', config.ticketLabel || 'Ticket')
+                : null}
 
-            {config.dealToggle && currentUser
-              ? renderMenu('/deals', config.dealLabel || 'Sales pipeline')
-              : null}
-            {config.purchaseToggle && currentUser
-              ? renderMenu(
-                  '/purchases',
-                  config.purchaseLabel || 'Purchase pipeline'
-                )
-              : null}
-            {config.taskToggle && currentUser
-              ? renderMenu('/tasks', config.taskLabel || 'Task')
-              : null}
-          </HeaderLinks>
-        </Dropdown.Menu>
-      </Dropdown>
+              {config.dealToggle && currentUser
+                ? renderMenu('/deals', config.dealLabel || 'Sales pipeline')
+                : null}
+              {config.purchaseToggle && currentUser
+                ? renderMenu(
+                    '/purchases',
+                    config.purchaseLabel || 'Purchase pipeline'
+                  )
+                : null}
+              {config.taskToggle && currentUser
+                ? renderMenu('/tasks', config.taskLabel || 'Task')
+                : null}
+            </HeaderLinks>
+          </Dropdown.Menu>
+        </Dropdown>
+      </HamburgerMenuWrapper>
     );
   };
 
