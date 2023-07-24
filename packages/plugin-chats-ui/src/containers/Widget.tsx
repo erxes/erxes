@@ -29,21 +29,52 @@ const WdigetListContainer = (props: Props) => {
 
   useSubscription(gql(subscriptions.chatInserted), {
     variables: { userId: currentUser._id },
-    onSubscriptionData: data => {
+    onSubscriptionData: ({ subscriptionData: { data } }) => {
+      refetch();
+    }
+  });
+
+  useSubscription(gql(subscriptions.chatReceivedNotification), {
+    variables: { userId: currentUser._id },
+    onSubscriptionData: (result: any) => {
+      if (!result?.subscriptionData) {
+        return null;
+      }
+      const { subscriptionData } = result;
+      const { data } = subscriptionData;
+      const { chatReceivedNotification } = data;
+      const { content, mentionedUserIds } = chatReceivedNotification;
+
       const { notificationsGetConfigurations } = notificationData;
 
-      notificationsGetConfigurations?.map(notificationsGetConfiguration => {
-        if (
-          notificationsGetConfiguration.isAllowed &&
-          notificationsGetConfiguration.notifType === 'chatReceive'
-        ) {
-          sendDesktopNotification({
-            title: 'Chat recieved',
-            content: strip('')
-          });
-          return;
+      notificationsGetConfigurations?.map(
+        (notificationsGetConfiguration: any) => {
+          if (
+            notificationsGetConfiguration.isAllowed &&
+            notificationsGetConfiguration.notifType === 'chatMention'
+          ) {
+            mentionedUserIds.map((mentionedUserId: string) => {
+              if (currentUser._id === mentionedUserId) {
+                sendDesktopNotification({
+                  title: 'You mentioned in chats',
+                  content: strip(content || '')
+                });
+                return;
+              }
+            });
+          }
+          if (
+            notificationsGetConfiguration.isAllowed &&
+            notificationsGetConfiguration.notifType === 'chatReceive'
+          ) {
+            sendDesktopNotification({
+              title: 'Chat recieved',
+              content: strip(content || '')
+            });
+            return;
+          }
         }
-      });
+      );
     }
   });
 
