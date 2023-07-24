@@ -125,7 +125,7 @@ const ChatItem = (props: FinalProps) => {
               __html:
                 (draftContent && draftContent.contentBlocks?.[0]?.text) || ''
             }}
-          ></ChatContent>
+          />
           <ChatTimestamp>
             {chat.lastMessage &&
               chat.lastMessage.createdAt &&
