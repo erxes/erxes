@@ -39,7 +39,7 @@ const WdigetListContainer = (props: Props) => {
         ) {
           sendDesktopNotification({
             title: 'Chat recieved',
-            content: strip('1111')
+            content: strip('')
           });
           return;
         }
