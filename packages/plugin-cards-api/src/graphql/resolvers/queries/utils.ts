@@ -210,7 +210,8 @@ export const generateCommonFilters = async (
     number,
     branchIds,
     departmentIds,
-    dateRangeFilters
+    dateRangeFilters,
+    customFieldsDataFilters
   } = args;
 
   const isListEmpty = value => {
@@ -399,6 +400,16 @@ export const generateCommonFilters = async (
 
       if (to) {
         filter[name] = { ...filter[name], $lte: new Date(to) };
+      }
+    }
+  }
+
+  if (customFieldsDataFilters) {
+    for (const { value, name } of customFieldsDataFilters) {
+      if (Array.isArray(value) && value?.length) {
+        filter[`customFieldsData.${name}`] = { $in: value };
+      } else {
+        filter[`customFieldsData.${name}`] = value;
       }
     }
   }
@@ -1057,6 +1068,7 @@ export const getItemList = async (
         status: 1,
         branchIds: 1,
         departmentIds: 1,
+        userId: 1,
         ...(extraFields || {})
       }
     }

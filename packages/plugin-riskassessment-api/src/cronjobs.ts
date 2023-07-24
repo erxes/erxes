@@ -8,7 +8,7 @@ const handleDailyJob = async ({ subdomain }) => {
   console.log(`starting daily job of risk assessment schedule at ${NOW}`);
 
   const schedule = await models.Schedules.findOne({
-    date: {
+    startDate: {
       $gte: NOW.setHours(0, 0, 0, 0),
       $lte: NOW.setHours(23, 59, 59, 999)
     },
@@ -70,7 +70,8 @@ const handleDailyJob = async ({ subdomain }) => {
     type: configs.cardType,
     stageId: configs.stageId,
     assignedUserIds: schedule.assignedUserIds,
-    startDate: schedule.date,
+    startDate: schedule.startDate,
+    closeDate: schedule.endDate,
     customeFieldsData: schedule.customeFieldsData,
     processId: Math.random()
   };
@@ -130,5 +131,5 @@ const handleDailyJob = async ({ subdomain }) => {
 };
 
 export default {
-  handleDailyJob
+  handleMinutelyJob: handleDailyJob
 };

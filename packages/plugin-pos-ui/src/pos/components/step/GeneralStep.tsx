@@ -154,9 +154,8 @@ class GeneralStep extends React.Component<Props, State> {
 
   onChangeSwitchMain = e => {
     const { pos } = this.props;
-    pos[e.target.id] = e.target.checked;
 
-    this.onChangeFunction('pos', pos);
+    this.onChangeFunction('pos', { ...pos, [e.target.id]: e.target.checked });
   };
 
   onChangeSwitch = e => {
@@ -173,8 +172,7 @@ class GeneralStep extends React.Component<Props, State> {
 
   onChangePayments = ids => {
     const { pos } = this.props;
-    pos.paymentIds = ids;
-    this.onChangeFunction('pos', pos);
+    this.onChangeFunction('pos', { ...pos, paymentIds: ids });
   };
 
   renderWaitingScreen() {

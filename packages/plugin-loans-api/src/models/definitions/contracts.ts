@@ -102,6 +102,7 @@ export interface IContract {
   skipInterestCalcMonth?: number;
 
   dealId?: string;
+  currency: string;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -179,7 +180,7 @@ export const contractSchema = schemaHooksWrapper(
     createdBy: field({ type: String, label: 'Created By' }),
     createdAt: field({
       type: Date,
-      default: new Date(),
+      default: () => new Date(),
       label: 'Created at'
     }),
     marginAmount: field({
@@ -351,6 +352,11 @@ export const contractSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'contract relation of dealId'
+    }),
+    currency: field({
+      type: String,
+      default: 'MNT',
+      label: 'contract currency of lease'
     })
   }),
   'erxes_contractSchema'

@@ -44,6 +44,7 @@ const commonFields = `
   $dealId: String
 
   $relContractId: String
+  $currency:String
 `;
 
 const commonVariables = `
@@ -90,12 +91,15 @@ const commonVariables = `
   dealId: $dealId
 
   relContractId: $relContractId
+  currency: $currency
 `;
 
 const contractsAdd = `
   mutation contractsAdd(${commonFields}) {
     contractsAdd(${commonVariables}) {
       _id
+      number
+      contractTypeId
       ${contractDetailFields}
     }
   }

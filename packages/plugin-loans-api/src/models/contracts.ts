@@ -140,6 +140,7 @@ export const loadContractClass = (models: IModels) => {
         contractId: doc.contractId,
         payDate: doc.closeDate,
         description: doc.description,
+        currency: contract.currency,
         total: closeInfo.total
       };
       await models.Transactions.createTransaction(subdomain, trDoc);

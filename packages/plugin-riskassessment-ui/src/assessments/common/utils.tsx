@@ -1,5 +1,6 @@
-import { Button, ControlLabel, dimensions, __ } from '@erxes/ui/src';
+import { Button, ControlLabel, __, dimensions } from '@erxes/ui/src';
 import React from 'react';
+import { Placement } from 'react-bootstrap/Overlay';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import styled from 'styled-components';
@@ -10,6 +11,8 @@ type Props = {
   withoutPopoverTitle?: boolean;
   icon?: string;
   customComponent?: JSX.Element;
+  placement?: Placement;
+  rootClose?: boolean;
 };
 
 const PopoverContent = styled.div`
@@ -34,7 +37,7 @@ export class DetailPopOver extends React.Component<Props> {
   renderOverlay() {
     const { title, withoutPopoverTitle } = this.props;
     return (
-      <Popover id="help-popover">
+      <Popover id="help-popover" style={{ zIndex: 1050 }}>
         <PopoverContent>
           {!withoutPopoverTitle && title && <h5>{title}</h5>}
           {this.props.children}
@@ -66,12 +69,14 @@ export class DetailPopOver extends React.Component<Props> {
   }
 
   render() {
+    const { rootClose = true } = this.props;
+
     return (
       <OverlayTrigger
         trigger={'click'}
-        placement="auto"
+        placement={this.props.placement || 'auto'}
         overlay={this.renderOverlay()}
-        rootClose={true}
+        rootClose={rootClose}
       >
         <FormContainer row flex gapBetween={5} align="center">
           {this.renderContent()}

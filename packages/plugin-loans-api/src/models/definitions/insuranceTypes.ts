@@ -33,7 +33,7 @@ export const insuranceTypeSchema = schemaHooksWrapper(
     createdBy: field({ type: String, label: 'Created By' }),
     createdAt: field({
       type: Date,
-      default: new Date(),
+      default: () => new Date(),
       label: 'Created at'
     })
   }),

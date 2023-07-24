@@ -1,10 +1,10 @@
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { EmptyState, Spinner, withCurrentUser } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import {
   RiskAssessmentAssignedMembersQueryResponse,
   RiskAssessmentTypes

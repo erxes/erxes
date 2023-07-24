@@ -1,8 +1,9 @@
-import { colors, dimensions, typography } from '../styles';
-import styled, { css } from 'styled-components';
+import { colors, dimensions, typography } from "../styles";
+import styled, { css } from "styled-components";
 
-import { rgba } from '../styles/ecolor';
-import styledTS from 'styled-components-ts';
+import { rgba } from "../styles/ecolor";
+import styledTS from "styled-components-ts";
+import { Input } from "./form";
 
 const Header = styledTS<{
   color?: string;
@@ -10,12 +11,12 @@ const Header = styledTS<{
   backgroundImage?: string;
   headingSpacing?: boolean;
 }>(styled.div)`
-  padding: ${(props) => (props.headingSpacing ? '30px 30px 80px' : '30px 0')};
-  color: ${(props) => (props.color ? props.color : colors.colorWhite)};
+  padding: ${props => (props.headingSpacing ? "30px 30px 80px" : "30px 0")};
+  color: ${props => (props.color ? props.color : colors.colorWhite)};
   font-size: ${typography.fontSizeBody}px;
-  background-color: ${(props) =>
-    props.background ? props.background : '#f5f8fb'};
-  background-image: ${(props) =>
+  background-color: ${props =>
+    props.background ? props.background : "#f5f8fb"};
+  background-image: ${props =>
     props.backgroundImage && `url(${props.backgroundImage})`};
   position: relative;
   border-radius: 0 0 30px 30px;
@@ -63,12 +64,12 @@ const HeaderTop = styled.div`
   @media (max-width: 700px) {
     flex-direction: column;
     align-items: flex-start;
-    
+
     > div {
       flex: 1;
       margin-bottom: ${dimensions.coreSpacing}px;
     }
-   }
+  }
 `;
 
 const HeaderLogo = styled.div`
@@ -84,7 +85,7 @@ const HeaderLogo = styled.div`
 const HeaderTitle = styledTS<{ color?: string }>(styled.span)`
   margin-left: 10px;
   padding-left: 10px;
-  border-left: 1px solid ${(props) =>
+  border-left: 1px solid ${props =>
     props.color ? props.color : colors.colorWhite};
   font-size: 14px;
   letter-spacing: 1px;
@@ -105,7 +106,9 @@ const HeaderLeft = styled.div`
   align-items: center;
 `;
 
-const SupportMenus = styledTS<{ color?: string, baseColor?: string }>(styled.div)`
+const SupportMenus = styledTS<{ color?: string; baseColor?: string }>(
+  styled.div
+)`
   display: flex;
   align-items: baseline;
   justify-content: flex-end;
@@ -126,12 +129,12 @@ const SupportMenus = styledTS<{ color?: string, baseColor?: string }>(styled.div
   }
 
   > button {
-    color: ${(props) =>
+    color: ${props =>
       props.color ? props.color : colors.colorWhite} !important;
     border: 1px solid transparent;
 
     &.ghost {
-      color: ${(props) =>
+      color: ${props =>
         props.baseColor ? props.baseColor : colors.textPrimary} !important;
     }
 
@@ -145,7 +148,7 @@ const NotificationsBadge = styled.div`
   cursor: pointer;
   position: relative;
   margin-right: ${dimensions.coreSpacing - 5}px;
-  
+
   > span {
     position: absolute;
     right: -5px;
@@ -189,7 +192,7 @@ const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
 
   border-bottom: 2px solid transparent;
 
-  ${(props) =>
+  ${props =>
     props.active &&
     `
     font-weight: 600;
@@ -216,12 +219,11 @@ const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
 const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
   styled.div
 )`
-  background-color: ${(props) =>
-    props.bodyColor ? props.bodyColor : '#f5f8fb'};
+  background-color: ${props => (props.bodyColor ? props.bodyColor : "#f5f8fb")};
   min-height: 60vh;
   padding: 32px 0;
 
-  ${(props) =>
+  ${props =>
     props.baseColor &&
     css`
       .base-color {
@@ -230,15 +232,20 @@ const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
     `};
 `;
 
-const Container = styledTS<{ transparent?: boolean; shrink?: boolean; large?: boolean }>(
-  styled.div
-)`
-  width: ${props => props.large ? dimensions.wrapperWidth + dimensions.coreSpacing : dimensions.wrapperWidth + dimensions.unitSpacing}%;
+const Container = styledTS<{
+  transparent?: boolean;
+  shrink?: boolean;
+  large?: boolean;
+}>(styled.div)`
+  width: ${props =>
+    props.large
+      ? dimensions.wrapperWidth + dimensions.coreSpacing
+      : dimensions.wrapperWidth + dimensions.unitSpacing}%;
   margin: 0 auto;
   position: relative;
   z-index: 3;
 
-  ${(props) =>
+  ${props =>
     !props.shrink &&
     css`
       height: 100%;
@@ -254,9 +261,7 @@ const Container = styledTS<{ transparent?: boolean; shrink?: boolean; large?: bo
   }
 `;
 
-const BottomComponent = styledTS<{ transparent?: boolean; }>(
-  styled.div
-)`
+const BottomComponent = styledTS<{ transparent?: boolean }>(styled.div)`
   width: ${dimensions.wrapperWidth + dimensions.unitSpacing}%;
   margin: 70px auto 0;
   text-align: center;
@@ -275,7 +280,7 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   text-align: center;
   float: left;
   background: ${colors.colorLightBlue};
-  box-shadow: ${(props) =>
+  box-shadow: ${props =>
     props.selected
       ? `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`
       : `0 6px 10px 1px ${rgba(colors.colorCoreGray, 0.08)}`} ;
@@ -284,8 +289,7 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   border-radius: ${dimensions.unitSpacing / 2 - 1}px;
   transition: all 0.25s ease;
   border: 1px solid
-    ${(props) =>
-      props.selected ? colors.colorSecondary : colors.borderPrimary};
+    ${props => (props.selected ? colors.colorSecondary : colors.borderPrimary)};
 
   > a {
     display: block;
@@ -331,7 +335,7 @@ const SearchContainer = styledTS<{ focused: boolean }>(styled.div)`
   width: 80%;
   margin: 0 auto;
 
-  ${(props) =>
+  ${props =>
     props.focused &&
     css`
       i {
@@ -382,7 +386,7 @@ const SearchContainer = styledTS<{ focused: boolean }>(styled.div)`
 const Footer = styledTS<{ color?: string; backgroundImage?: string }>(
   styled.div
 )`
-  background-color: ${(props) =>
+  background-color: ${props =>
     props.color ? props.color : colors.colorPrimary};
   padding: 40px 0;
   color: ${colors.colorWhite};
@@ -439,7 +443,7 @@ const ModalWrapper = styledTS<{ isFull?: boolean }>(styled.div)`
       position: relative;
       z-index: 99;
       width: 60%;
-      max-width: ${(props) => (props.isFull ? '900px' : '600px')};
+      max-width: ${props => (props.isFull ? "900px" : "600px")};
       border-radius: 2px;
       margin: 100px auto;
 
@@ -482,13 +486,13 @@ const HeaderWrapper = styled.div`
   }
 
   @media (max-width: 700px) {
-   > div {
-    margin-top: 20px;
+    > div {
+      margin-top: 20px;
 
-    .dropdown {
-      flex: 1;
+      .dropdown {
+        flex: 1;
+      }
     }
-   }
   }
 `;
 
@@ -529,7 +533,7 @@ const FormWrapper = styled.div`
 
 const Badge = styled.span`
   border-radius: 15px;
-  background-color: ${(props) => props.color};
+  background-color: ${props => props.color};
   font-size: 11px;
   max-width: 50px;
   color: white;
@@ -542,7 +546,7 @@ const NotificationContent = styledTS<{ isList?: boolean }>(styled.div)`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   word-break: break-word;
-  max-width: ${(props) => (props.isList ? '100%' : '270px')};
+  max-width: ${props => (props.isList ? "100%" : "270px")};
 
   > p {
     margin: 0;
@@ -555,7 +559,7 @@ const Content = styledTS<{ isList?: boolean }>(styled.div)`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   word-break: break-word;
-  max-width: ${(props) => (props.isList ? '100%' : '270px')};
+  max-width: ${props => (props.isList ? "100%" : "270px")};
 
   > p {
     margin: 0;
@@ -574,11 +578,218 @@ const NotificationHeader = styled.div`
 
   span {
     color: #f3f6f9;
-    background-color: rgba(243,246,249,.1);
+    background-color: rgba(243, 246, 249, 0.1);
     font-size: 12px;
     padding: 3px 10px;
     border-radius: 6px;
     font-weight: 700;
+  }
+`;
+const SidebarHeader = styledTS<{
+  spaceBottom?: boolean;
+  uppercase?: boolean;
+  bold?: boolean;
+}>(styled.div)`
+  height: ${dimensions.headerSpacing}px;
+  align-items: center;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  text-transform: ${props => props.uppercase && "uppercase"};
+  font-weight: ${props => (props.bold ? "bold" : "500")};
+  display: flex;
+  font-size: ${typography.fontSizeHeading8}px;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0px ${dimensions.coreSpacing}px;
+`;
+
+const SidebarTitle = styledTS<{
+  children: any;
+}>(styled(SidebarHeader.withComponent("h3")))`
+  padding: 0;
+  margin: 0px ${dimensions.coreSpacing}px;
+  text-transform: uppercase;
+  position: relative;
+  `;
+
+const SidebarBox = styledTS<{
+  noBackground?: boolean;
+  noShadow?: boolean;
+  collapsible?: boolean;
+  full?: boolean;
+  noMargin?: boolean;
+}>(styled.div)`
+    background-color: ${props => (props.noBackground ? "" : colors.colorWhite)};
+    margin-bottom: ${props => !props.noMargin && dimensions.unitSpacing}px;
+    box-shadow: ${props =>
+      props.noShadow ? "none" : `0 0 6px 1px ${colors.shadowPrimary}`};
+    padding-bottom: ${props =>
+      props.collapsible ? `${dimensions.unitSpacing}px` : "0"};
+    position: ${props => (props.full ? "initial" : "relative")};
+    justify-content: center;
+    transition: max-height 0.4s;
+    overflow: ${props => (props.collapsible ? "hidden" : "initial")};
+    display: ${props => props.full && "flex"};
+    &:last-child {
+      margin-bottom: 0;
+    }
+  `;
+
+const SectionContainer = styledTS<{ hasShadow?: boolean }>(styled.div)`
+  position: relative;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  box-shadow: ${props => props.hasShadow && "rgb(0 0 0 / 8%) 0px 0px 6px 0px"};
+
+  > div {
+    margin-bottom: 0;
+  }
+  &:last-child {
+    margin-bottom: 0;
+  }
+  ${SidebarBox} {
+    box-shadow: none;
+  }
+  ${SidebarTitle} {
+    height: 40px;
+    cursor: pointer;
+    transition: all ease 0.3s;
+
+    &:hover {
+      color: ${colors.colorSecondary};
+    }
+  }
+`;
+
+const tableHoverColor = "#f5f5f5";
+
+const FormLabel = styled.label`
+  position: relative;
+  display: inline-block;
+  font-weight: normal;
+
+  span {
+    cursor: pointer;
+    display: inline-block;
+  }
+`;
+
+const StyledTable = styledTS<{
+  whiteSpace?: string;
+  alignTop?: boolean;
+  hover?: boolean;
+  bordered?: boolean;
+  striped?: boolean;
+  wideHeader?: boolean;
+}>(styled.table)`
+  ${props => css`
+    width: 100%;
+    max-width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    white-space: ${props.whiteSpace || ""};
+
+    tr {
+      margin: 0 20px;
+    }
+
+    th,
+    td {
+      border-top: 1px solid ${colors.borderPrimary};
+      color: ${colors.textPrimary};
+      padding: ${dimensions.unitSpacing - 2}px;
+      display: table-cell;
+      vertical-align: ${props.alignTop && "top"};
+
+      & ${FormLabel}, & ${Input} {
+        margin: 0px;
+      }
+
+      &:first-child {
+        padding-left: 0;
+      }
+    }
+
+    thead {
+      th,
+      td {
+        text-transform: uppercase;
+        font-size: ${typography.fontSizeUppercase}px;
+      }
+
+      th {
+        background-color: ${colors.colorWhite};
+        margin-left: 20px;
+        position: sticky;
+        z-index: 1;
+        top: 0;
+      }
+    }
+
+    ${props.hover
+      ? `tr:hover td { background-color: ${tableHoverColor}; }`
+      : null} ${props.bordered
+      ? `th, td { border-bottom: 1px solid ${colors.borderPrimary}; }`
+      : null} ${props.striped
+      ? `tr:nth-of-type(odd) td { background-color: ${colors.bgLightPurple}; }`
+      : null} th {
+      border-top: none;
+    }
+
+    th:first-child,
+    td:first-child {
+      border-left: none;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: none;
+      text-align: right;
+    }
+
+    td.with-input {
+      text-align: center;
+    }
+
+    .with-input input {
+      width: 40px;
+      text-align: center;
+      outline: 0;
+      border: 1px solid ${colors.borderDarker};
+      border-radius: 2px;
+      font-size: 12px;
+      height: 24px;
+    }
+
+    @media (min-width: 1170px) {
+      th,
+      td {
+        padding: ${props =>
+            props.wideHeader
+              ? `${dimensions.unitSpacing + 2}px`
+              : `${dimensions.unitSpacing - 2}`}
+          ${dimensions.coreSpacing - 2}px;
+
+        &:last-child {
+          padding-right: ${dimensions.coreSpacing}px;
+        }
+      }
+    }
+  `};
+`;
+
+const TableWrapper = styled.div`
+  table thead tr th {
+    font-size: 10px;
+  }
+`;
+
+const FooterInfo = styled.div`
+  overflow: hidden;
+
+  table {
+    text-align: right;
+    float: right;
+    width: 50%;
+    font-size: 14px;
   }
 `;
 
@@ -631,7 +842,7 @@ const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
   color: ${colors.colorCoreGray};
   padding-top: 3px;
 
-  ${(props) =>
+  ${props =>
     props.isList &&
     css`
       position: absolute;
@@ -641,11 +852,11 @@ const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
 `;
 
 const AuthContainer = styled.div`
-    button {
-      &.border {
-        border: 1px solid ${colors.colorWhite};
-      }
+  button {
+    &.border {
+      border: 1px solid ${colors.colorWhite};
     }
+  }
 `;
 
 export {
@@ -678,5 +889,8 @@ export {
   NotificationHeader,
   InfoSection,
   CreatedDate,
-  AuthContainer
+  AuthContainer,
+  StyledTable,
+  TableWrapper,
+  FooterInfo
 };

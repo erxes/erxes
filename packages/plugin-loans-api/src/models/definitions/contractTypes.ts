@@ -36,6 +36,8 @@ export interface IContractConfig {
   defaultCustomer: string;
   userEmail: string;
   repaymentTemp: string;
+
+  isAutoSendEBarimt: boolean;
 }
 
 export interface IContractType {
@@ -54,6 +56,7 @@ export interface IContractType {
   createdAt: Date;
   productCategoryIds: string[];
   config: IContractConfig;
+  currency: string;
 }
 
 export interface IContractTypeDocument extends IContractType, Document {
@@ -107,14 +110,19 @@ export const contractTypeSchema = schemaHooksWrapper(
     }),
     createdAt: field({
       type: Date,
-      default: new Date(),
+      default: () => new Date(),
       label: 'Created at'
     }),
     productCategoryIds: field({
       type: [String],
       label: 'Allow Product Categories'
     }),
-    config: field({ type: Object })
+    config: field({ type: Object }),
+    currency: field({
+      type: String,
+      default: 'MNT',
+      label: 'contract type currency of lease'
+    })
   }),
   'erxes_contractTypeSchema'
 );

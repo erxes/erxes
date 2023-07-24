@@ -67,6 +67,7 @@ export const transactionOtherFields = `
     debt
     total
   }
+  ebarimt
 `;
 
 const listParamsDef = `
@@ -149,8 +150,16 @@ query GetPaymentInfo($id: String!, $payDate: Date) {
     insurance
     debt
     total
+    balance
+    closeAmount
   }
 }
+`;
+
+export const getCompanyName = `
+  query EbarimtGetCompany($companyRd: String!) {
+    ebarimtGetCompany(companyRD: $companyRd)
+  }
 `;
 
 export default {
@@ -158,5 +167,6 @@ export default {
   transactionsMain,
   transactionCounts,
   transactionDetail,
-  getPaymentInfo
+  getPaymentInfo,
+  getCompanyName
 };
