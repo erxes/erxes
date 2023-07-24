@@ -26,6 +26,11 @@ const MessageListContainer = (props: Props) => {
       variables: { chatId, skip: 0 }
     }
   );
+  const {
+    loading: notificationLoading,
+    error: notificationError,
+    data: notificationData
+  } = useQuery(gql(queries.notificationsGetConfigurations), {});
 
   useEffect(() => {
     refetch();
@@ -78,11 +83,11 @@ const MessageListContainer = (props: Props) => {
     });
   };
 
-  if (loading) {
+  if (loading || notificationLoading) {
     return <Spinner />;
   }
 
-  if (error) {
+  if (error || notificationError) {
     Alert.error(error.message);
   }
 
