@@ -1,13 +1,13 @@
-import { Config, IStage, IUser } from "../../types";
-import React, { useState } from "react";
-import { TabContainers, TabTitle } from "../../styles/tasks";
+import { Config, IStage, IUser } from '../../types';
+import React, { useState } from 'react';
+import { TabContainers, TabTitle } from '../../styles/tasks';
 
-import Detail from "../../card/containers/Detail";
-import Item from "../containers/Item";
-import Link from "next/link";
-import TaskHeader from "./Header";
-import { getConfigColor } from "../../common/utils";
-import { useRouter } from "next/router";
+import Detail from '../../card/containers/Detail';
+import Item from '../containers/Item';
+import Link from 'next/link';
+import TaskHeader from './Header';
+import { getConfigColor } from '../../common/utils';
+import { useRouter } from 'next/router';
 
 type Props = {
   stages: IStage[];
@@ -30,23 +30,24 @@ function PublicTasks({ stages, config, stageId, currentUser }: Props) {
     return (
       <Detail
         _id={itemId}
-        onClose={() => router.push("/publicTasks")}
+        onClose={() => router.push('/publicTasks')}
         currentUser={currentUser}
         config={config}
         type="task"
+        publicTask={true}
       />
     );
   }
 
   return (
     <>
-      <TaskHeader currentUser={currentUser} taskLabel={"Public Task"} />
+      <TaskHeader currentUser={currentUser} taskLabel={'Public Task'} />
       <TabContainers>
-        {stages.map((stage) => (
+        {stages.map(stage => (
           <TabTitle
             key={stage._id}
             active={stageId === stage._id}
-            color={getConfigColor(config, "baseColor")}
+            color={getConfigColor(config, 'baseColor')}
           >
             <Link href={`/publicTasks?stageId=${stage._id}`}>{stage.name}</Link>
           </TabTitle>
