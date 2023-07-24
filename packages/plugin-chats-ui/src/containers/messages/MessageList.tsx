@@ -28,6 +28,11 @@ const MessageListContainer = (props: Props) => {
       variables: { chatId, skip: 0 }
     }
   );
+  const {
+    loading: notificationLoading,
+    error: notificationError,
+    data: notificationData
+  } = useQuery(gql(queries.notificationsGetConfigurations), {});
 
   useEffect(() => {
     refetch();
@@ -42,19 +47,39 @@ const MessageListContainer = (props: Props) => {
         return null;
       }
       const { chatMessageInserted } = data;
-      const { content } = chatMessageInserted;
-      const { mentionedUserIds = [] } = content;
-
-      mentionedUserIds.map((mentionedUserId: string) => {
-        if (currentUser._id === mentionedUserId) {
-          sendDesktopNotification({
-            title: 'You have a new message',
-            content: strip(content || '')
-          });
-        }
-      });
+      const { content, mentionedUserIds } = chatMessageInserted;
+      const { notificationsGetConfigurations } = notificationData;
 
       setLatestMessages([data.chatMessageInserted, ...latestMessages]);
+
+      notificationsGetConfigurations?.map(
+        (notificationsGetConfiguration: any) => {
+          if (
+            notificationsGetConfiguration.isAllowed &&
+            notificationsGetConfiguration.notifType === 'chatMention'
+          ) {
+            mentionedUserIds.map((mentionedUserId: string) => {
+              if (currentUser._id === mentionedUserId) {
+                sendDesktopNotification({
+                  title: 'You mentioned in chats',
+                  content: strip(content || '')
+                });
+                return;
+              }
+            });
+          }
+          if (
+            notificationsGetConfiguration.isAllowed &&
+            notificationsGetConfiguration.notifType === 'chatReceive'
+          ) {
+            sendDesktopNotification({
+              title: 'Chat recieved',
+              content: strip(content || '')
+            });
+            return;
+          }
+        }
+      );
     }
   });
 
@@ -93,11 +118,11 @@ const MessageListContainer = (props: Props) => {
     });
   };
 
-  if (loading) {
+  if (loading || notificationLoading) {
     return <Spinner />;
   }
 
-  if (error) {
+  if (error || notificationError) {
     Alert.error(error.message);
   }
 
