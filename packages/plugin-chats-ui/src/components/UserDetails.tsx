@@ -19,37 +19,39 @@ const UserDetails = (props: FinalProps) => {
 
   const user =
     users.length > 1
-      ? users.filter(u => u._id !== currentUser._id)[0]
-      : users[0];
+      ? users?.filter(u => u._id !== currentUser._id)[0]
+      : users?.[0];
 
-  return (
+  return !user ? (
+    <UserDetailsWrapper></UserDetailsWrapper>
+  ) : (
     <UserDetailsWrapper>
       <Avatar user={user} size={64} />
 
-      <h3>{user?.details?.fullName || user?.email}</h3>
-      <span>{user?.details?.position || '-'}</span>
+      <h3>{user.details?.fullName || user.email}</h3>
+      <span>{user.details?.position || '-'}</span>
       <hr />
       <UserDetailsItem>
         <p>Description</p>
-        <p>{user?.details?.description || '-'}</p>
+        <p>{user.details?.description || '-'}</p>
       </UserDetailsItem>
       <UserDetailsItem>
         <p>Email</p>
-        <p>{user?.email || '-'}</p>
+        <p>{user.email || '-'}</p>
       </UserDetailsItem>
       <UserDetailsItem>
         <p>Phone</p>
-        <p>{user?.details?.operatorPhone || '-'}</p>
+        <p>{user.details?.operatorPhone || '-'}</p>
       </UserDetailsItem>
       <UserDetailsItem>
         <p>Employee ID</p>
-        <p>{user?.employeeId || '-'}</p>
+        <p>{user.employeeId || '-'}</p>
       </UserDetailsItem>
       <UserDetailsItem>
         <p>Departments</p>
         <p>
-          {user?.departments
-            ? user?.departments.map(i => (
+          {user.departments
+            ? user.departments.map(i => (
                 <span key={i.title}>
                   {i.title}
                   <br />
@@ -61,8 +63,8 @@ const UserDetails = (props: FinalProps) => {
       <UserDetailsItem>
         <p>Branches</p>
         <p>
-          {user?.branches
-            ? user?.branches.map(i => (
+          {user.branches
+            ? user.branches.map(i => (
                 <span key={i.title}>
                   {i.title}
                   <br />
