@@ -12,24 +12,27 @@ import {
   Label,
   TicketComment,
   TicketDetailContent
-} from "../../styles/cards";
-import { getUserAvatar, renderUserFullName } from "../../utils";
+} from '../../styles/cards';
+import { getUserAvatar, renderUserFullName } from '../../utils';
 
-import AttachmentsGallery from "../../common/AttachmentGallery";
-import Button from "../../common/Button";
-import { ControlLabel } from "../../common/form";
-import { IUser } from "../../types";
-import Icon from "../../common/Icon";
-import Link from "next/link";
-import PriorityIndicator from "../../common/PriorityIndicator";
-import React from "react";
-import { TextArea } from "../../common/form/styles";
-import { __ } from "../../../utils";
-import dayjs from "dayjs";
-import { readFile } from "../../common/utils";
+import AttachmentsGallery from '../../common/AttachmentGallery';
+import Button from '../../common/Button';
+import { ControlLabel } from '../../common/form';
+import { IUser } from '../../types';
+import Icon from '../../common/Icon';
+import Link from 'next/link';
+import PriorityIndicator from '../../common/PriorityIndicator';
+import React from 'react';
+import { TextArea } from '../../common/form/styles';
+import { __ } from '../../../utils';
+import dayjs from 'dayjs';
+import { readFile } from '../../common/utils';
+import CheckListDetail from '../containers/CheckListDetail';
 
 type Props = {
   item?: any;
+  checklists?: any;
+  config?: any;
   comments?: any;
   currentUser: IUser;
   type: string;
@@ -46,7 +49,7 @@ export default class CardDetail extends React.Component<
     super(props);
 
     this.state = {
-      content: ""
+      content: ''
     };
   }
 
@@ -57,7 +60,7 @@ export default class CardDetail extends React.Component<
   createComment = () => {
     this.props.handleSubmit({ content: this.state.content });
 
-    this.setState({ content: "" });
+    this.setState({ content: '' });
   };
 
   deleteComment = (commentId: string) => {
@@ -77,7 +80,7 @@ export default class CardDetail extends React.Component<
                   src={readFile(
                     createdUser && createdUser.avatar
                       ? createdUser?.avatar
-                      : "/static/avatar-colored.svg"
+                      : '/static/avatar-colored.svg'
                   )}
                   alt="profile"
                 />
@@ -90,8 +93,8 @@ export default class CardDetail extends React.Component<
                     />
                   </CommentContent>
                   <span>
-                    Created at{" "}
-                    {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
+                    Created at{' '}
+                    {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
                   </span>
                 </div>
                 {createdUser?._id === this.props.currentUser._id && (
@@ -113,7 +116,7 @@ export default class CardDetail extends React.Component<
     const { assignedUsers } = this.props.item || {};
 
     if (!assignedUsers || assignedUsers.length === 0) {
-      return <span>{__("No one`s assigned yet")}</span>;
+      return <span>{__('No one`s assigned yet')}</span>;
     }
 
     return assignedUsers.map(user => (
@@ -158,7 +161,7 @@ export default class CardDetail extends React.Component<
       <TicketDetailContent>
         <DetailRow type="row">
           <ControlLabel>Number</ControlLabel>
-          <span>{number || "-"}</span>
+          <span>{number || '-'}</span>
         </DetailRow>
         <DetailRow type="row">
           <ControlLabel>Requestor</ControlLabel>
@@ -170,17 +173,17 @@ export default class CardDetail extends React.Component<
         </DetailRow>
         <DetailRow type="row">
           <ControlLabel>Created at</ControlLabel>
-          <span>{dayjs(createdAt).format("DD MMM YYYY, HH:mm")}</span>
+          <span>{dayjs(createdAt).format('DD MMM YYYY, HH:mm')}</span>
         </DetailRow>
         <DetailRow type="row">
           <ControlLabel>Modified at</ControlLabel>
-          <span>{dayjs(modifiedAt).format("DD MMM YYYY, HH:mm")}</span>
+          <span>{dayjs(modifiedAt).format('DD MMM YYYY, HH:mm')}</span>
         </DetailRow>
         <DetailRow type="row">
           <ControlLabel>Assigned users</ControlLabel>
           <div>{this.renderAssignedUsers()}</div>
         </DetailRow>
-        {type === "deal" && (
+        {type === 'deal' && (
           <DetailRow type="row">
             <ControlLabel>Products & Service</ControlLabel>
             <div>{this.renderProductsInfo()}</div>
@@ -190,11 +193,25 @@ export default class CardDetail extends React.Component<
     );
   }
 
+  renderCheckLists() {
+    const { checklists, config, type } = this.props;
+
+    const updatedProps = {
+      config,
+      type
+    };
+
+    if (checklists) {
+      return checklists.map(c => (
+        <CheckListDetail key={c._id} checklist={c} {...updatedProps} />
+      ));
+    }
+  }
   renderAttachments() {
     const { attachments } = this.props.item || {};
 
     if (!attachments || attachments.length === 0) {
-      return <Description>{__("No attachments at the moment!")}</Description>;
+      return <Description>{__('No attachments at the moment!')}</Description>;
     }
 
     return <AttachmentsGallery attachments={attachments} />;
@@ -211,18 +228,16 @@ export default class CardDetail extends React.Component<
 
     const { labels, description, priority, startDate, closeDate, stage } = item;
 
-    const startedDate = dayjs(startDate).format("YYYY-MM-DD");
-    const endDate = dayjs(closeDate).format("YYYY-MM-DD");
-    const durationDays = dayjs(endDate).diff(dayjs(startedDate), "days");
+    const startedDate = dayjs(startDate).format('YYYY-MM-DD');
+    const endDate = dayjs(closeDate).format('YYYY-MM-DD');
+    const durationDays = dayjs(endDate).diff(dayjs(startedDate), 'days');
 
     return (
       <>
         <DetailHeader className="d-flex align-items-center">
-          <Link href={`/${type}s`}>
-            <span>
-              <Icon icon="angle-double-left" size={20} /> Back
-            </span>
-          </Link>
+          <span onClick={this.props.onClose}>
+            <Icon icon="angle-double-left" size={20} /> Back
+          </span>
         </DetailHeader>
         <div className="row">
           <div className="col-md-12">
@@ -231,27 +246,27 @@ export default class CardDetail extends React.Component<
               <FlexRow className="justify-content-between">
                 <DetailRow>
                   <ControlLabel>Stage</ControlLabel>
-                  <span>{stage ? stage.name : "-"}</span>
+                  <span>{stage ? stage.name : '-'}</span>
                 </DetailRow>
                 <DetailRow>
                   <ControlLabel>Start date</ControlLabel>
                   <span>
                     {startDate
-                      ? dayjs(startDate).format("DD MMM YYYY, HH:mm")
-                      : "-"}
+                      ? dayjs(startDate).format('DD MMM YYYY, HH:mm')
+                      : '-'}
                   </span>
                 </DetailRow>
                 <DetailRow>
                   <ControlLabel>Due date</ControlLabel>
                   <span>
                     {closeDate
-                      ? dayjs(closeDate).format("DD MMM YYYY, HH:mm")
-                      : "-"}
+                      ? dayjs(closeDate).format('DD MMM YYYY, HH:mm')
+                      : '-'}
                   </span>
                 </DetailRow>
                 <DetailRow>
                   <ControlLabel>Duration</ControlLabel>
-                  <span>{closeDate ? `${durationDays} days` : "-"}</span>
+                  <span>{closeDate ? `${durationDays} days` : '-'}</span>
                 </DetailRow>
               </FlexRow>
             </Card>
@@ -262,19 +277,19 @@ export default class CardDetail extends React.Component<
               <DetailRow type="row">
                 <ControlLabel>Priority</ControlLabel>
                 <span>
-                  <PriorityIndicator value={priority} /> {priority || "Normal"}
+                  <PriorityIndicator value={priority} /> {priority || 'Normal'}
                 </span>
               </DetailRow>
               <DetailRow type="row">
                 <ControlLabel>Labels</ControlLabel>
-                <div className="d-flex" style={{ gap: "5px" }}>
+                <div className="d-flex" style={{ gap: '5px' }}>
                   {!labels || labels.length === 0 ? (
                     <span>No labels at the moment!</span>
                   ) : (
                     (labels || []).map(label => (
                       <Label
                         key={label._id}
-                        lblStyle={"custom"}
+                        lblStyle={'custom'}
                         colorCode={label.colorCode}
                       >
                         {label.name}
@@ -284,6 +299,7 @@ export default class CardDetail extends React.Component<
                 </div>
               </DetailRow>
               {this.renderDetailInfo()}
+              {this.renderCheckLists()}
             </Card>
           </div>
 
