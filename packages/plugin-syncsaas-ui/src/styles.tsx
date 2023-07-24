@@ -80,3 +80,10 @@ export const Padding = styledTS<{
           horizontal ? (padding ? `${padding}px` : '10px') : '0px'
         }`}
 `;
+
+export const StepperContainer = styled.div`
+  height: 100%;
+  > form {
+    height: 100%;
+  }
+`;

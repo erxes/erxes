@@ -5,8 +5,7 @@ import {
   FormGroup,
   Icon,
   Tip,
-  __,
-  SidebarList
+  __
 } from '@erxes/ui/src';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';

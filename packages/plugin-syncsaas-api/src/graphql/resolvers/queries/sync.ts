@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 
-const generateFilters = async (params: any) => {
+const generateFilters = async (params: any, models: IModels) => {
   let filter: any = {};
 
   if (params.searchValue) {
@@ -28,17 +28,41 @@ const generateFilters = async (params: any) => {
     }
   }
 
+  if (params?.customerId) {
+    const syncIds = await models.SyncedCustomers.find({
+      customerId: params?.customerId
+    }).distinct('syncId');
+
+    filter._id = { $in: syncIds };
+  }
+
+  if (params?.customerIds) {
+    const syncIds = await models.SyncedCustomers.find({
+      customerId: { $in: params?.customerIds }
+    }).distinct('syncId');
+
+    filter._id = { $in: syncIds };
+  }
+
+  if (params?.excludedCustomerIds) {
+    const syncIds = await models.SyncedCustomers.find({
+      customerId: { $nin: params?.excludedCustomerIds }
+    }).distinct('syncId');
+
+    filter._id = { $in: syncIds };
+  }
+
   return filter;
 };
 
 const syncQueries = {
   async syncedSaasList(_root, params: any, { models }: IContext) {
-    const filter = await generateFilters(params);
+    const filter = await generateFilters(params, models);
 
     return paginate(models.Sync.find(filter), params);
   },
   async syncedSaasListTotalCount(_root, params: any, { models }: IContext) {
-    const filter = await generateFilters(params);
+    const filter = await generateFilters(params, models);
 
     return await models.Sync.countDocuments(filter);
   },

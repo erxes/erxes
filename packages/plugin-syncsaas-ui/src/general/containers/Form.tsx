@@ -1,19 +1,26 @@
-import { ButtonMutate } from '@erxes/ui/src';
+import { Alert, ButtonMutate, EmptyState, Spinner } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import FormComponent from '../components/Form';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import { refetchQueries } from './List';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
+  _id: string;
   queryParams: any;
+  history: any;
   sync: any;
   closeModal: () => void;
 };
 
-type FinalProps = {} & Props;
+type FinalProps = {
+  detailQueryResponse: any;
+  saveConfigMutation: any;
+} & Props;
 
 class Form extends React.Component<FinalProps> {
   constructor(props) {
@@ -21,7 +28,26 @@ class Form extends React.Component<FinalProps> {
   }
 
   render() {
-    const { closeModal, sync } = this.props;
+    const {
+      closeModal,
+      history,
+      detailQueryResponse,
+      saveConfigMutation
+    } = this.props;
+
+    if (detailQueryResponse?.loading) {
+      return <Spinner />;
+    }
+
+    if (!detailQueryResponse && detailQueryResponse?.error) {
+      return <EmptyState image="/images/actions/24.svg" text="Not Found" />;
+    }
+
+    const saveConfig = (_id, config) => {
+      saveConfigMutation({ variables: { _id, config } })
+        .then(() => Alert.success('Config saved successfully'))
+        .catch(error => Alert.error(error.message));
+    };
 
     const renderButton = ({
       text,
@@ -30,11 +56,18 @@ class Form extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
+      const afterMutate = data => {
+        callback && callback();
+        if (!object && data?.addSaasSync) {
+          const newData = data?.addSaasSync;
+          history.push(`/settings/sync-saas/edit/${newData._id}`);
+        }
+      };
       return (
         <ButtonMutate
           mutation={object ? mutations.edit : mutations.add}
           variables={values}
-          callback={callback}
+          callback={afterMutate}
           refetchQueries={refetchQueries(this.props.queryParams)}
           isSubmitted={isSubmitted}
           type="submit"
@@ -48,12 +81,26 @@ class Form extends React.Component<FinalProps> {
 
     const updateProps = {
       renderButton,
-      detail: sync,
-      closeModal
+      detail: detailQueryResponse?.SyncedSaasDetail,
+      closeModal,
+      saveConfig
     };
 
     return <FormComponent {...updateProps} />;
   }
 }
 
-export default withProps<Props>(compose()(Form));
+export default withProps<Props>(
+  compose(
+    graphql<Props>(gql(queries.detail), {
+      name: 'detailQueryResponse',
+      skip: ({ _id }) => !_id,
+      options: ({ _id }) => ({
+        variables: { _id }
+      })
+    }),
+    graphql<Props>(gql(mutations.saveConfig), {
+      name: 'saveConfigMutation'
+    })
+  )(Form)
+);

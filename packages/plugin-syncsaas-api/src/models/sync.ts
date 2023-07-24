@@ -1,7 +1,7 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { ISyncDocument, syncedSaasSchema } from './definitions/sync';
+import { ISyncDocument, syncSaasSchema } from './definitions/sync';
 import { validateDoc } from './utils';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 import { sendRequest } from '@erxes/api-utils/src';
@@ -18,6 +18,7 @@ export interface ISyncModel extends Model<ISyncDocument> {
     { subdomain, customerId },
     mainSubDomain
   ): Promise<ISyncDocument>;
+  getCustomerDoc(customer: any): Promise<any>;
 }
 
 export const loadSyncClass = (models: IModels, subdomain: string) => {
@@ -75,6 +76,14 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
     }
 
     public static async removeSync(_id) {
+      const sync = await models.Sync.findOne({ _id });
+
+      if (!sync) {
+        throw new Error('Cannot find sync');
+      }
+
+      await models.SyncedCustomers.deleteMany({ syncId: _id });
+
       return await models.Sync.findByIdAndDelete(_id);
     }
 
@@ -93,12 +102,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       }
 
       if (
-        await this.checkSaasCustomer(
-          mainSubDomain,
-          sync.subdomain,
-          sync.appToken,
-          customerId
-        )
+        await this.checkSaasCustomer(sync.subdomain, sync.appToken, customerId)
       ) {
         return sync;
       }
@@ -115,29 +119,6 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         throw new Error('Cannot find customer');
       }
 
-      let customerDoc = {};
-
-      for (const key of Object.keys(customer)) {
-        if (
-          [
-            'state',
-            'sex',
-            'emails',
-            'emailValidationStatus',
-            'phones',
-            'phoneValidationStatus',
-            'status',
-            'hasAuthority',
-            'doNotDisturb',
-            'isSubscribed',
-            'relatedIntegrationIds',
-            'deviceTokens'
-          ]
-        ) {
-          customerDoc[key] = customer[key];
-        }
-      }
-
       const { data, errors } = await sendRequest({
         url: `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
         method: 'POST',
@@ -147,7 +128,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         },
         body: {
           query: customersAddQueries,
-          variables: { ...customer }
+          variables: { ...(await this.getCustomerDoc(customer)) }
         }
       });
 
@@ -161,16 +142,10 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         throw new Error('Somthing went wrong');
       }
 
-      await sendCoreMessage({
-        subdomain: mainSubDomain,
-        action: 'conformities.addConformity',
-        data: {
-          mainType: 'customer',
-          mainTypeId: customer._id,
-          relType: 'saasSyncedCustomer',
-          relTypeId: newCustomer._id
-        },
-        isRPC: true
+      await models.SyncedCustomers.create({
+        syncId: sync._id,
+        customerId: customer._id,
+        syncedCustomerId: newCustomer._id
       });
 
       return await models.Sync.findOne({ _id: sync._id });
@@ -193,8 +168,13 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
             'doNotDisturb',
             'isSubscribed',
             'relatedIntegrationIds',
-            'deviceTokens'
-          ]
+            'links',
+            'deviceTokens',
+            'firstName',
+            'lastName',
+            'middleName',
+            'primaryEmail'
+          ].includes(key)
         ) {
           customerDoc[key] = customer[key];
         }
@@ -203,22 +183,12 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       return customerDoc;
     }
 
-    public static async checkSaasCustomer(
-      mainSubDomain,
-      subdomain,
-      appToken,
-      customerId
-    ) {
-      const [syncedCustomer] = await sendCoreMessage({
-        subdomain: mainSubDomain,
-        action: 'conformities.findConformities',
-        data: {
-          mainType: 'customer',
-          mainTypeId: customerId,
-          relType: 'saasSyncedCustomer'
-        },
-        isRPC: true,
-        defaultValue: []
+    public static async checkSaasCustomer(subdomain, appToken, customerId) {
+      const sync = await models.Sync.findOne({ subdomain });
+
+      const syncedCustomer = await models.SyncedCustomers.findOne({
+        sync_id: sync?._id,
+        customerId
       });
 
       if (!syncedCustomer) {
@@ -234,7 +204,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         },
         body: {
           query: customerDetailQuery,
-          variables: { _id: syncedCustomer?.relTypeId }
+          variables: { _id: syncedCustomer?.syncedCustomerId }
         }
       });
 
@@ -248,7 +218,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
     }
   }
 
-  syncedSaasSchema.loadClass(Sync);
+  syncSaasSchema.loadClass(Sync);
 
-  return syncedSaasSchema;
+  return syncSaasSchema;
 };

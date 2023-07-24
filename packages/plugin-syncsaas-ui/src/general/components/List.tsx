@@ -3,14 +3,13 @@ import {
   Button,
   FormControl,
   HeaderDescription,
-  ModalTrigger,
   Table,
   __,
   router
 } from '@erxes/ui/src/';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { DefaultWrapper } from '../../common/utils';
-import Form from '../containers/Form';
 import Row from './Row';
 import SideBar from './Sidebar';
 
@@ -86,16 +85,20 @@ class List extends React.Component<Props, State> {
   renderForm() {
     const { queryParams } = this.props;
 
-    const content = props => <Form {...props} queryParams={queryParams} />;
-    const trigger = <Button btnStyle="success">{__('Add')}</Button>;
-
+    // const content = props => <Form {...props} queryParams={queryParams} />;
     return (
-      <ModalTrigger
-        title="Add New Connnection"
-        content={content}
-        trigger={trigger}
-      />
+      <Link to={`/settings/sync-saas/add`}>
+        <Button btnStyle="success">{__('Add')}</Button>
+      </Link>
     );
+
+    // return (
+    //   <ModalTrigger
+    //     title="Add New Connnection"
+    //     content={content}
+    //     trigger={trigger}
+    //   />
+    // );
   }
 
   renderContent() {

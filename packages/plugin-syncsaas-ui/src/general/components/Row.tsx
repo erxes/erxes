@@ -1,7 +1,8 @@
-import { Button, Icon, ModalTrigger, Tip } from '@erxes/ui/src';
+import { Button, Icon, Tip } from '@erxes/ui/src';
 import moment from 'moment';
 import React from 'react';
-import Form from '../containers/Form';
+import { Link } from 'react-router-dom';
+
 type Props = {
   queryParams: any;
   item: any;
@@ -24,14 +25,20 @@ class Row extends React.Component<Props> {
       e.stopPropagation();
     };
 
-    const trigger = (
+    return (
       <tr>
         <td>{item?.name || ''}</td>
         <td>{item?.subdomain || ''}</td>
         <td>{moment(item?.startDate).format('ll') || '-'}</td>
         <td>{moment(item?.expireDate).format('ll') || '-'}</td>
         <td onClick={onclick}>
-          {' '}
+          <Link to={`/settings/sync-saas/edit/${item._id}`}>
+            <Button btnStyle="link">
+              <Tip text="Edit Sync">
+                <Icon icon="edit" />
+              </Tip>
+            </Button>
+          </Link>
           <Button btnStyle="link" onClick={handleRemove}>
             <Tip placement="bottom" text="Remove Sync">
               <Icon icon="cancel-1" />
@@ -39,24 +46,6 @@ class Row extends React.Component<Props> {
           </Button>
         </td>
       </tr>
-    );
-
-    const content = props => {
-      const updatedProps = {
-        ...props,
-        queryParams,
-        sync: item
-      };
-
-      return <Form {...updatedProps} />;
-    };
-
-    return (
-      <ModalTrigger
-        title="Edit Synced Saas"
-        content={content}
-        trigger={trigger}
-      />
     );
   }
 }

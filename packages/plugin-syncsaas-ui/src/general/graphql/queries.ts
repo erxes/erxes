@@ -28,4 +28,19 @@ query SyncedSaasListTotalCount(${commonParams}) {
 }
 `;
 
-export default { list, totalCount };
+const detail = `
+query SyncedSaasDetail($_id: String!) {
+  SyncedSaasDetail(_id: $_id) {
+    _id
+    name
+    description
+    subdomain
+    appToken
+    startDate
+    expireDate
+    config
+  }
+}
+`;
+
+export default { list, totalCount, detail };

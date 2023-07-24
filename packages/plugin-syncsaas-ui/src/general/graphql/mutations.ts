@@ -33,4 +33,10 @@ const remove = `
     }
 `;
 
-export default { add, edit, remove };
+const saveConfig = `
+mutation SaveSyncedSaasConfig($_id: String, $config: JSON) {
+  saveSyncedSaasConfig(_id: $_id, config: $config)
+}
+`;
+
+export default { add, edit, remove, saveConfig };
