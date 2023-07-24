@@ -1,6 +1,6 @@
-import "reactjs-popup/dist/index.css";
+import 'reactjs-popup/dist/index.css';
 
-import { Alert, renderUserFullName } from "../../utils";
+import { Alert, renderUserFullName } from '../../utils';
 import {
   Badge,
   BottomComponent,
@@ -13,26 +13,25 @@ import {
   HeaderTop,
   LinkItem,
   NotificationsBadge,
-  SupportMenus,
-} from "../../styles/main";
-import { Config, IUser } from "../../types";
-import React, { useState } from "react";
-import { getConfigColor, readFile } from "../../common/utils";
+  SupportMenus
+} from '../../styles/main';
+import { Config, IUser } from '../../types';
+import React, { useState } from 'react';
+import { getConfigColor, readFile } from '../../common/utils';
 
-import Button from "../../common/Button";
-import { Dropdown } from "react-bootstrap";
-import DropdownToggle from "../../common/DropdownToggle";
-import ForgotPasswordContainer from "../../user/containers/ForgotPassword";
-import Icon from "../../common/Icon";
-import Label from "../../common/Label";
-import Link from "next/link";
-import LoginContainer from "../../user/containers/Login";
-import Modal from "../../common/Modal";
-import NameCard from "../../common/nameCard/NameCard";
-import Notifications from "../components/notifications/Notifications";
-import Popup from "reactjs-popup";
-import RegisterContainer from "../../user/containers/Register";
-import { withRouter } from "next/router";
+import Button from '../../common/Button';
+import { Dropdown } from 'react-bootstrap';
+import DropdownToggle from '../../common/DropdownToggle';
+import ForgotPasswordContainer from '../../user/containers/ForgotPassword';
+import Icon from '../../common/Icon';
+import Link from 'next/link';
+import LoginContainer from '../../user/containers/Login';
+import Modal from '../../common/Modal';
+import NameCard from '../../common/nameCard/NameCard';
+import Notifications from '../components/notifications/Notifications';
+import Popup from 'reactjs-popup';
+import RegisterContainer from '../../user/containers/Register';
+import { withRouter } from 'next/router';
 
 type Props = {
   config: Config;
@@ -53,16 +52,16 @@ function Header({
   headerHtml,
   headingSpacing,
   headerBottomComponent,
-  notificationsCount,
+  notificationsCount
 }: Props) {
   const [showlogin, setLogin] = useState(false);
   const [showregister, setRegister] = useState(false);
   const [showResetPassword, setResetPassword] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const onClick = (url) => {
-    if (!currentUser && url.includes("tickets")) {
-      Alert.error("Log in first to create or manage ticket cards");
+  const onClick = url => {
+    if (!currentUser && url.includes('tickets')) {
+      Alert.error('Log in first to create or manage ticket cards');
 
       return setLogin(true);
     }
@@ -73,9 +72,9 @@ function Header({
       <LinkItem
         active={router && router.pathname === url}
         onClick={() => onClick(url)}
-        color={getConfigColor(config, "headingColor")}
+        color={getConfigColor(config, 'headingColor')}
       >
-        <Link href={!currentUser && url.includes("tickets") ? "" : url}>
+        <Link href={!currentUser && url.includes('tickets') ? '' : url}>
           {label}
         </Link>
       </LinkItem>
@@ -120,7 +119,7 @@ function Header({
             </NotificationsBadge>
           }
           position="bottom center"
-          contentStyle={{ width: "350px" }}
+          contentStyle={{ width: '350px' }}
         >
           <Notifications
             count={notificationsCount}
@@ -156,18 +155,95 @@ function Header({
               </div>
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item eventKey="3" onClick={() => {
-              if (typeof window !== 'undefined') {
-                sessionStorage.clear()
-              }
-              logout()
-            }}>
+            <Dropdown.Item
+              eventKey="3"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  sessionStorage.clear();
+                }
+                logout();
+              }}
+            >
               <Icon icon="logout-1" />
               Logout
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
+
+        {renderNavigationMenu()}
+
       </>
+    );
+  };
+
+  // const renderNavigationMenu = () => {
+  //   return (
+  //     <Popup
+  //       trigger={<Icon icon="subject" />}
+  //       position="bottom center"
+  //       contentStyle={{ width: '350px' }}
+  //     >
+  //       <HeaderLinks>
+  //         {config.publicTaskToggle
+  //           ? renderMenu(
+  //               '/publicTasks',
+  //               config.taskPublicLabel || 'Public Task'
+  //             )
+  //           : null}
+  //         {config.ticketToggle && currentUser
+  //           ? renderMenu('/tickets', config.ticketLabel || 'Ticket')
+  //           : null}
+  //         {config.dealToggle && currentUser
+  //           ? renderMenu('/deals', config.dealLabel || 'Sales pipeline')
+  //           : null}
+  //         {config.purchaseToggle && currentUser
+  //           ? renderMenu(
+  //               '/purchases',
+  //               config.purchaseLabel || 'Purchase pipeline'
+  //             )
+  //           : null}
+  //         {config.taskToggle && currentUser
+  //           ? renderMenu('/tasks', config.taskLabel || 'Task')
+  //           : null}
+  //       </HeaderLinks>
+  //     </Popup>
+  //   );
+  // };
+
+  const renderNavigationMenu = () => {
+    return (
+      <Dropdown>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-custom-components1">
+          <Icon icon="subject" />
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <HeaderLinks>
+            {config.publicTaskToggle
+              ? renderMenu(
+                  '/publicTasks',
+                  config.taskPublicLabel || 'Public Task'
+                )
+              : null}
+
+            {config.ticketToggle && currentUser
+              ? renderMenu('/tickets', config.ticketLabel || 'Ticket')
+              : null}
+
+            {config.dealToggle && currentUser
+              ? renderMenu('/deals', config.dealLabel || 'Sales pipeline')
+              : null}
+            {config.purchaseToggle && currentUser
+              ? renderMenu(
+                  '/purchases',
+                  config.purchaseLabel || 'Purchase pipeline'
+                )
+              : null}
+            {config.taskToggle && currentUser
+              ? renderMenu('/tasks', config.taskLabel || 'Task')
+              : null}
+          </HeaderLinks>
+        </Dropdown.Menu>
+      </Dropdown>
     );
   };
 
@@ -184,41 +260,19 @@ function Header({
                 src={
                   config.logo
                     ? readFile(config.logo)
-                    : "/static/logos/erxes-logo-white.svg"
+                    : '/static/logos/erxes-logo-white.svg'
                 }
               />
             </Link>
-            <HeaderTitle color={getConfigColor(config, "headingColor")}>
+            <HeaderTitle color={getConfigColor(config, 'headingColor')}>
               {config.name}
             </HeaderTitle>
           </HeaderLogo>
-          <HeaderLinks>
-            {config.publicTaskToggle
-              ? renderMenu(
-                  "/publicTasks",
-                  config.taskPublicLabel || "Public Task"
-                )
-              : null}
-            {config.ticketToggle && currentUser
-              ? renderMenu("/tickets", config.ticketLabel || "Ticket")
-              : null}
-            {config.dealToggle && currentUser
-              ? renderMenu("/deals", config.dealLabel || "Sales pipeline")
-              : null}
-            {config.purchaseToggle && currentUser
-              ? renderMenu(
-                  "/purchases",
-                  config.purchaseLabel || "Purchase pipeline"
-                )
-              : null}
-            {config.taskToggle && currentUser
-              ? renderMenu("/tasks", config.taskLabel || "Task")
-              : null}
-          </HeaderLinks>
+
           <HeaderRight>
             <SupportMenus
-              color={getConfigColor(config, "headingColor")}
-              baseColor={getConfigColor(config, "baseColor")}
+              color={getConfigColor(config, 'headingColor')}
+              baseColor={getConfigColor(config, 'baseColor')}
             >
               {currentUser && Object.keys(currentUser).length !== 0
                 ? renderCurrentUser()
@@ -232,8 +286,8 @@ function Header({
 
   return (
     <Head
-      background={getConfigColor(config, "headerColor")}
-      color={getConfigColor(config, "headingColor")}
+      background={getConfigColor(config, 'headerColor')}
+      color={getConfigColor(config, 'headingColor')}
       headingSpacing={headingSpacing}
     >
       {renderTopHeader()}
@@ -241,7 +295,7 @@ function Header({
         <h3>
           {config.description
             ? config.description
-            : "What we can help you with"}
+            : 'What we can help you with'}
         </h3>
         {headerBottomComponent && headerBottomComponent}
       </BottomComponent>
