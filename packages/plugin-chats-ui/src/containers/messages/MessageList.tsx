@@ -7,8 +7,6 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import Component from '../../components/messages/MessageList';
 import { queries, subscriptions } from '../../graphql';
 import { Alert } from '@erxes/ui/src/utils';
-import { sendDesktopNotification } from '@erxes/ui/src/utils/core';
-import strip from 'strip';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
@@ -18,7 +16,7 @@ type Props = {
 };
 
 const MessageListContainer = (props: Props) => {
-  const { chatId, currentUser } = props;
+  const { chatId } = props;
 
   const [page, setPage] = useState<number>(0);
   const [latestMessages, setLatestMessages] = useState<any[]>([]);
@@ -46,40 +44,7 @@ const MessageListContainer = (props: Props) => {
       if (!data) {
         return null;
       }
-      const { chatMessageInserted } = data;
-      const { content, mentionedUserIds } = chatMessageInserted;
-      const { notificationsGetConfigurations } = notificationData;
-
       setLatestMessages([data.chatMessageInserted, ...latestMessages]);
-
-      notificationsGetConfigurations?.map(
-        (notificationsGetConfiguration: any) => {
-          if (
-            notificationsGetConfiguration.isAllowed &&
-            notificationsGetConfiguration.notifType === 'chatMention'
-          ) {
-            mentionedUserIds.map((mentionedUserId: string) => {
-              if (currentUser._id === mentionedUserId) {
-                sendDesktopNotification({
-                  title: 'You mentioned in chats',
-                  content: strip(content || '')
-                });
-                return;
-              }
-            });
-          }
-          if (
-            notificationsGetConfiguration.isAllowed &&
-            notificationsGetConfiguration.notifType === 'chatReceive'
-          ) {
-            sendDesktopNotification({
-              title: 'Chat recieved',
-              content: strip(content || '')
-            });
-            return;
-          }
-        }
-      );
     }
   });
 
