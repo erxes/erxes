@@ -14,24 +14,24 @@ class DueDateLabel extends React.Component<IProps> {
   render() {
     const { startDate, closeDate, isComplete } = this.props;
 
-    if (!closeDate) {
-      return null;
-    } else if (!startDate) {
-      return null;
-    }
-
-    const day = dayjs(closeDate).format('MMM DD');
-    const startDay = dayjs(startDate).format('MMM DD');
+    const day = closeDate ? dayjs(closeDate).format('MMM DD') : null;
+    const startDay = startDate ? dayjs(startDate).format('MMM DD') : null;
 
     return (
       <>
-        <StartDateLabel colorName={generateButtonStart(startDate)}>
-          <Icon icon="clock-eight" /> {startDay}
-        </StartDateLabel>
+        {startDate && (
+          <StartDateLabel colorName={generateButtonStart(startDate)}>
+            <Icon icon="clock-eight" /> {startDay}
+          </StartDateLabel>
+        )}
 
-        <CloseDateLabel colorName={generateButtonClass(closeDate, isComplete)}>
-          <Icon icon="clock-eight" /> {day}
-        </CloseDateLabel>
+        {closeDate && (
+          <CloseDateLabel
+            colorName={generateButtonClass(closeDate, isComplete)}
+          >
+            <Icon icon="clock-eight" /> {day}
+          </CloseDateLabel>
+        )}
       </>
     );
   }
