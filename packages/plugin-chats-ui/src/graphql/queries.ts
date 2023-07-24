@@ -144,11 +144,21 @@ const getUnreadChatCount = `
   }
 
 `;
+const notificationsGetConfigurations = `
+  query notificationsGetConfigurations {
+          notificationsGetConfigurations {
+            _id
+            notifType
+            isAllowed
+          }
+        }
+`;
 
 export default {
   chats,
   chatDetail,
   chatMessages,
   getChatIdByUserIds,
-  getUnreadChatCount
+  getUnreadChatCount,
+  notificationsGetConfigurations
 };

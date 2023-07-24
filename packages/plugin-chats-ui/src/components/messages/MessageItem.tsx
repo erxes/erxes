@@ -40,7 +40,7 @@ const MessageItem = (props: FinalProps) => {
 
   const handleMouseEnter = () => {
     if (actionRef && actionRef.current) {
-      let element = actionRef.current;
+      const element = actionRef.current;
 
       if (element && element.style) {
         element.style.visibility = 'visible';
@@ -50,7 +50,7 @@ const MessageItem = (props: FinalProps) => {
 
   const handleMouseLeave = () => {
     if (actionRef && actionRef.current) {
-      let element = actionRef.current;
+      const element = actionRef.current;
 
       if (element && element.style) {
         element.style.visibility = 'hidden';
@@ -60,7 +60,11 @@ const MessageItem = (props: FinalProps) => {
 
   const renderAttachments = () => {
     return (message.attachments || []).map(attachment => (
-      <Attachment key={attachment._id} attachment={attachment || {}} simple />
+      <Attachment
+        key={attachment._id}
+        attachment={attachment || {}}
+        simple={true}
+      />
     ));
   };
 
