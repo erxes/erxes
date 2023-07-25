@@ -4,7 +4,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import React from 'react';
-import { __ } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
 
 type Props = {
   config: any;
