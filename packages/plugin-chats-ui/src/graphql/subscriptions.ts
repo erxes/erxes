@@ -41,6 +41,16 @@ const chatInserted = `
   }
 `;
 
+const chatReceivedNotification = `
+  subscription chatReceivedNotification($userId: String!) {
+    chatReceivedNotification(userId: $userId) {
+      _id
+      content
+      mentionedUserIds
+    }
+  }
+`;
+
 const chatUnreadCountChanged = `
 subscription chatUnreadCountChanged($userId: String!){
   chatUnreadCountChanged(userId: $userId)
@@ -49,5 +59,6 @@ subscription chatUnreadCountChanged($userId: String!){
 export default {
   chatMessageInserted,
   chatInserted,
-  chatUnreadCountChanged
+  chatUnreadCountChanged,
+  chatReceivedNotification
 };

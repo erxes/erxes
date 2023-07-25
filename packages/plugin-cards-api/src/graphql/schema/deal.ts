@@ -128,7 +128,7 @@ const archivedDealsParams = `
  `;
 
 export const queries = `
-  dealDetail(_id: String!): Deal
+  dealDetail(_id: String!, clientPortalCard: Boolean): Deal
   checkDiscount(_id: String!,products:[ProductField]):JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int

@@ -2,6 +2,7 @@ import * as path from 'path';
 
 import {
   Button,
+  ButtonMutate,
   ControlLabel,
   DateControl,
   Form,
@@ -26,13 +27,13 @@ import SelectContracts, {
 import dayjs from 'dayjs';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 
 type Props = {
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
   invoice?: IInvoice;
   closeModal: () => void;
+  isGotEBarimt: boolean;
 };
 
 type State = {
@@ -51,7 +52,7 @@ type State = {
   organizationName?: string;
 };
 
-class TransactionForm extends React.Component<Props, State> {
+class EBarimtForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -83,7 +84,7 @@ class TransactionForm extends React.Component<Props, State> {
     }
 
     return {
-      _id: finalValues._id,
+      id: finalValues._id,
       ...this.state,
       isManual: true,
       payDate: finalValues.payDate,
@@ -200,29 +201,33 @@ class TransactionForm extends React.Component<Props, State> {
     );
   };
 
+  renderButton = ({ name, values, isSubmitted, object }: any) => {
+    const { closeModal } = this.props;
+
+    const afterSave = data => {
+      closeModal();
+    };
+
+    return (
+      <ButtonMutate
+        mutation={mutations.createEBarimtOnTransaction}
+        variables={values}
+        callback={afterSave}
+        refetchQueries={['transactionsMain']}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      >
+        {__('Get')}
+      </ButtonMutate>
+    );
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+    const { closeModal } = this.props;
     const { values, isSubmitted } = formProps;
-
-    const onSelect = (value, name) => {
-      this.setState({ [name]: value } as any);
-    };
-
-    const getPaymentInfo = (
-      contractId,
-      payDate = dayjs()
-        .locale('en')
-        .format('MMM, D YYYY')
-    ) => {
-      client
-        .mutate({
-          mutation: gql(queries.getPaymentInfo),
-          variables: { id: contractId, payDate: payDate }
-        })
-        .then(({ data }) => {
-          this.setState({ paymentInfo: data.getPaymentInfo });
-        });
-    };
 
     const getCompanyName = register => {
       if (register && register.length === 7)
@@ -237,13 +242,6 @@ class TransactionForm extends React.Component<Props, State> {
               organizationName: data?.ebarimtGetCompany?.info?.name
             });
           });
-    };
-
-    const onChangePayDate = value => {
-      if (this.state.contractId && this.state.payDate !== value)
-        getPaymentInfo(this.state.contractId, value);
-
-      this.setState({ payDate: value });
     };
 
     const onChangeField = e => {
@@ -279,78 +277,23 @@ class TransactionForm extends React.Component<Props, State> {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              <FormGroup>
-                <ControlLabel>{__('Pay Date')}</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={false}
-                    name="payDate"
-                    value={this.state.payDate}
-                    onChange={onChangePayDate}
-                  />
-                </DateContainer>
-              </FormGroup>
-
-              <FormGroup>
-                <ControlLabel>{__('Description')}</ControlLabel>
-                <DateContainer>
+              {this.renderRowTr('Total', 'total', true)}
+              {!this.props.isGotEBarimt && (
+                <FormGroup>
+                  <ControlLabel>{__('Is get E-Barimt')}</ControlLabel>
                   <FormControl
                     {...formProps}
-                    required={false}
-                    name="description"
-                    value={this.state.description}
+                    type={'checkbox'}
+                    componentClass="checkbox"
+                    useNumberFormat
+                    fixed={0}
+                    name="isGetEBarimt"
+                    value={this.state.isGetEBarimt}
                     onChange={onChangeField}
+                    onClick={this.onFieldClick}
                   />
-                </DateContainer>
-              </FormGroup>
-
-              <FormGroup>
-                <ControlLabel>{__('Total')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  type={'number'}
-                  useNumberFormat
-                  fixed={2}
-                  name="total"
-                  max={this.state?.paymentInfo?.closeAmount}
-                  value={this.state.total}
-                  onChange={onChangeField}
-                  onClick={this.onFieldClick}
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <ControlLabel>{__('Contract')}</ControlLabel>
-                <SelectContracts
-                  label={__('Choose an contract')}
-                  name="contractId"
-                  initialValue={this.state.contractId}
-                  onSelect={(v, n) => {
-                    onSelect(v, n);
-                    typeof v === 'string' &&
-                      onSelect(Contracts[v].customerId, 'customerId');
-                    if (this.state.contractId !== v)
-                      getPaymentInfo(v, values.payDate);
-                  }}
-                  multi={false}
-                />
-              </FormGroup>
-              {this.renderRowTr('Total', 'total', true)}
-              <FormGroup>
-                <ControlLabel>{__('Is get E-Barimt')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  type={'checkbox'}
-                  componentClass="checkbox"
-                  useNumberFormat
-                  fixed={0}
-                  name="isGetEBarimt"
-                  value={this.state.isGetEBarimt}
-                  onChange={onChangeField}
-                  onClick={this.onFieldClick}
-                />
-              </FormGroup>
+                </FormGroup>
+              )}
               {this.state.isGetEBarimt && (
                 <FormGroup>
                   <ControlLabel>{__('Is organization')}</ControlLabel>
@@ -407,12 +350,13 @@ class TransactionForm extends React.Component<Props, State> {
             {__('Close')}
           </Button>
 
-          {renderButton({
-            name: 'transaction',
-            values: this.generateDoc(values),
-            isSubmitted,
-            object: this.props.transaction
-          })}
+          {!this.props.isGotEBarimt &&
+            this.renderButton({
+              name: 'transaction',
+              values: this.generateDoc(values),
+              isSubmitted,
+              object: this.props.transaction
+            })}
         </ModalFooter>
       </>
     );
@@ -423,4 +367,4 @@ class TransactionForm extends React.Component<Props, State> {
   }
 }
 
-export default TransactionForm;
+export default EBarimtForm;

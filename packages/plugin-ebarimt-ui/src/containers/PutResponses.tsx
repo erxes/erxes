@@ -158,6 +158,8 @@ const generateParams = ({ queryParams }) => ({
   billIdRule: queryParams.billIdRule,
   isLast: queryParams.isLast,
   orderNumber: queryParams.orderNumber,
+  contractNumber: queryParams.contractNumber,
+  transactionNumber: queryParams.transactionNumber,
   dealName: queryParams.dealName,
   pipelineId: queryParams.pipelineId,
   stageId: queryParams.stageId,
