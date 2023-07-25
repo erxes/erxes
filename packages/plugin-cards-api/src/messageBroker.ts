@@ -633,6 +633,29 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeRPCQueue(
+    'cards:pipelines.findOne',
+    async ({ subdomain, data: { _id, stageId } }) => {
+      let pipelineId = _id;
+      const models = await generateModels(subdomain);
+      if (!pipelineId && stageId) {
+        const stage = await models.Stages.findOne({ _id: stageId }).lean();
+        if (stage) {
+          pipelineId = stage.pipelineId;
+        }
+      }
+
+      if (!pipelineId) {
+        return {};
+      }
+
+      return {
+        status: 'success',
+        data: await models.Pipelines.getPipeline(pipelineId)
+      };
+    }
+  );
+
   consumeQueue(
     'cards:pipelinesChanged',
     async ({ subdomain, data: { pipelineId, action, data } }) => {
