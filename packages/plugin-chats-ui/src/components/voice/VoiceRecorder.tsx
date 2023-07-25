@@ -5,7 +5,9 @@ import { Alert, uploadHandler } from '@erxes/ui/src/utils';
 import AudioRecorder from 'audio-recorder-polyfill';
 import mpegEncoder from 'audio-recorder-polyfill/mpeg-encoder';
 import React, { useRef, useState } from 'react';
-import { Button } from '../../styles';
+import { RecordButton, VoiceRecordWrapper } from '../../styles';
+import { __ } from '@erxes/ui/src/utils/core';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   attachments: IAttachment[] | null;
@@ -15,6 +17,7 @@ type Props = {
 const VoiceRecorder = (props: Props) => {
   const { attachments, setAttachments } = props;
   const [isRecording, setIsRecording] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const mediaRecorderRef = useRef<any | null>(null);
 
   const [audioChunks] = useState<BlobPart[]>([]); // eslint-disable-line
@@ -101,6 +104,7 @@ const VoiceRecorder = (props: Props) => {
     uploadHandler({
       files,
       beforeUpload: () => {
+        setIsUploading(true);
         return <Spinner />;
       },
       afterUpload: ({ response, fileInfo }) => {
@@ -108,6 +112,7 @@ const VoiceRecorder = (props: Props) => {
           ...(attachments || []),
           Object.assign({ url: response }, fileInfo)
         ]);
+        setIsUploading(false);
       }
     });
   };
@@ -128,16 +133,29 @@ const VoiceRecorder = (props: Props) => {
   };
 
   return (
-    <div>
-      <Button
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        isRecording={isRecording}
+    <VoiceRecordWrapper>
+      {isUploading && (
+        <>
+          <Spinner />
+          <p>{__('preparing audio')}</p>
+        </>
+      )}
+      {isRecording && <p>{__('recording')}...</p>}
+      <Tip
+        text={
+          isRecording ? __('release to send') : __('press and hold to record')
+        }
       >
-        <Icon icon="microphone-2" size={18} />
-      </Button>
-    </div>
+        <RecordButton
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          isRecording={isRecording}
+        >
+          <Icon icon="microphone-2" size={18} />
+        </RecordButton>
+      </Tip>
+    </VoiceRecordWrapper>
   );
 };
 
