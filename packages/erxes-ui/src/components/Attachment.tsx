@@ -187,21 +187,21 @@ class Attachment extends React.Component<Props> {
   renderAudioFile(attachment) {
     return (
       <audio controls={true}>
-        <source src={attachment.url} type="audio/ogg" />
+        <source src={readFile(attachment.url)} type="audio/ogg" />
       </audio>
     );
   }
   renderAudioWavFile(attachment) {
     return (
       <audio controls={true}>
-        <source src={attachment.url} type="audio/wav" />
+        <source src={readFile(attachment.url)} type="audio/wav" />
       </audio>
     );
   }
   renderMp3File(attachment) {
     return (
       <audio controls={true}>
-        <source src={attachment.url} type="audio/mpeg" />
+        <source src={readFile(attachment.url)} type="audio/mpeg" />
       </audio>
     );
   }

@@ -6263,6 +6263,11 @@ atob@^2.1.1, atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
+audio-recorder-polyfill@0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/audio-recorder-polyfill/-/audio-recorder-polyfill-0.4.1.tgz#4290eca3d8edf49eb6daba59592aacf357b6e5b7"
+  integrity sha512-SS4qVOzuVwlS/tjQdd0uR+9cCKBTkx4jsAdjM+rMNqoTEWf6bMnBSTfv+FO4Zn9ngxviJOxhkgRWWXsAMqM96Q==
+
 autoprefixer@^10.1.0:
   version "10.4.2"
   resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-10.4.2.tgz#25e1df09a31a9fba5c40b578936b90d35c9d4d3b"
