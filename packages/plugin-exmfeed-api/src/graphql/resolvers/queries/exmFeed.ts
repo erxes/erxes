@@ -51,7 +51,8 @@ const exmFeedQueries = {
       type,
       startDate,
       endDate,
-      bravoType
+      bravoType,
+      departmentIds
     },
     { models, user }
   ) => {
@@ -78,6 +79,10 @@ const exmFeedQueries = {
 
     if (contentTypes && contentTypes.length > 0) {
       doc.contentType = { $in: contentTypes };
+    }
+
+    if (departmentIds && departmentIds.length) {
+      doc.departmentIds = { $in: departmentIds };
     }
 
     if (
