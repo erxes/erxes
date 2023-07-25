@@ -28,14 +28,14 @@ export const loadClasses = (
   models = {} as IModels;
 
   models.Sync = db.model<ISyncDocument, ISyncModel>(
-    'synced-saas',
+    'synced_saas',
     loadSyncClass(models, subdomain)
   );
 
   models.SyncedCustomers = db.model<
     ISyncedCustomersDocument,
     Model<ISyncedCustomersDocument>
-  >('synced-saas-customers', syncedCustomersSaas);
+  >('synced_saas_customers', syncedCustomersSaas);
 
   return models;
 };
