@@ -12,6 +12,7 @@ export interface IPosOrderItem {
   bonusVoucherId?: string;
   isPackage?: boolean;
   isTake?: boolean;
+  manufacturedDate?: string;
 }
 export interface IPosOrderItemDocument extends IPosOrderItem, Document {
   _id: string;
@@ -111,7 +112,8 @@ const posOrderItemSchema = schemaHooksWrapper(
       type: Boolean,
       label: 'inner or skip ebarimt',
       default: false
-    })
+    }),
+    manufacturedDate: field({ type: String, label: 'manufactured' })
   }),
   'erxes_posOrderItem'
 );
