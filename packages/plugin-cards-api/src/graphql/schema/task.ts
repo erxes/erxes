@@ -89,7 +89,7 @@ const archivedTasksParams = `
 `;
 
 export const queries = `
-  taskDetail(_id: String!): Task
+  taskDetail(_id: String!, clientPortalCard:Boolean): Task
   tasks(${listQueryParams}): [TaskListItem]
   tasksTotalCount(${listQueryParams}): Int
   archivedTasks(
