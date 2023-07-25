@@ -18,6 +18,7 @@ export interface ISyncedCustomers {
   syncId: string;
   customerId: string;
   syncedCustomerId: string;
+  createdAt: string;
 }
 
 export interface ISyncedCustomersDocument extends ISyncedCustomers, Document {
@@ -51,5 +52,10 @@ export const syncedCustomersSaas = new Schema({
   _id: field({ pkey: true }),
   syncId: field({ type: String, label: 'Sync Id' }),
   customerId: field({ type: String, label: 'Customer Id' }),
-  syncedCustomerId: field({ type: String, label: 'Customer Id' })
+  syncedCustomerId: field({ type: String, label: 'Customer Id' }),
+  createdAt: field({
+    type: Date,
+    label: 'Created Date',
+    default: Date.now
+  })
 });

@@ -14,10 +14,7 @@ export interface ISyncModel extends Model<ISyncDocument> {
   addSync(doc: any, user: any): Promise<ISyncDocument>;
   editSync(_id: string, doc: any): Promise<ISyncDocument>;
   removeSync(_id: string): Promise<ISyncDocument>;
-  getSyncedSaas(
-    { subdomain, customerId },
-    mainSubDomain
-  ): Promise<ISyncDocument>;
+  getSyncedSaas({ subdomain, customerId }, mainSubDomain): Promise<any>;
   getCustomerDoc(customer: any): Promise<any>;
 }
 
@@ -91,7 +88,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       { subdomain, customerId },
       mainSubDomain
     ) {
-      const sync = await models.Sync.findOne({ subdomain });
+      const sync = await models.Sync.findOne({ subdomain }).lean();
 
       if (!sync) {
         throw new Error('Cannot find sync');
@@ -104,6 +101,8 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       if (
         await this.checkSaasCustomer(sync.subdomain, sync.appToken, customerId)
       ) {
+        sync.customerId = customerId;
+
         return sync;
       }
 
@@ -148,7 +147,10 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         syncedCustomerId: newCustomer._id
       });
 
-      return await models.Sync.findOne({ _id: sync._id });
+      const updatedSync = await models.Sync.findOne({ _id: sync._id }).lean();
+
+      updatedSync.customerId = customer._id;
+      return updatedSync;
     }
 
     public static async getCustomerDoc(customer) {

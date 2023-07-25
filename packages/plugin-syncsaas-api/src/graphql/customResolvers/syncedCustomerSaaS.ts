@@ -24,9 +24,10 @@ export default {
     return response ? response : null;
   },
 
-  async syncedCustomerId({ _id }, {}, { models }: IContext) {
+  async syncedCustomerId({ _id, customerId }, args, { models }: IContext) {
     const syncedCustomer = await models.SyncedCustomers.findOne({
-      syncId: _id
+      syncId: _id,
+      customerId
     });
 
     return syncedCustomer ? syncedCustomer.syncedCustomerId : null;
