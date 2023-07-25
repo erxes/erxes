@@ -134,12 +134,7 @@ const VoiceRecorder = (props: Props) => {
 
   return (
     <VoiceRecordWrapper>
-      {isUploading && (
-        <>
-          <Spinner />
-          <p>{__('preparing audio')}</p>
-        </>
-      )}
+      {isUploading && <p>{__('preparing audio')}</p>}
       {isRecording && <p>{__('recording')}...</p>}
       <Tip
         text={
