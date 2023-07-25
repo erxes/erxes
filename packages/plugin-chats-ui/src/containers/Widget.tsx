@@ -2,7 +2,7 @@ import { queries, subscriptions } from '../graphql';
 import { useQuery, useSubscription } from '@apollo/client';
 
 import { Alert } from '@erxes/ui/src/utils';
-import { sendDesktopNotification } from '@erxes/ui/src/utils/core';
+import { isEnabled, sendDesktopNotification } from '@erxes/ui/src/utils/core';
 import Component from '../components/Widget';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
@@ -25,7 +25,9 @@ const WdigetListContainer = (props: Props) => {
     loading: notificationLoading,
     error: notificationError,
     data: notificationData
-  } = useQuery(gql(queries.notificationsGetConfigurations), {});
+  } = useQuery(gql(queries.notificationsGetConfigurations), {
+    skip: !isEnabled('notifications')
+  });
 
   useSubscription(gql(subscriptions.chatInserted), {
     variables: { userId: currentUser._id },
