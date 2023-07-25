@@ -187,7 +187,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       const sync = await models.Sync.findOne({ subdomain });
 
       const syncedCustomer = await models.SyncedCustomers.findOne({
-        sync_id: sync?._id,
+        syncId: sync?._id,
         customerId
       });
 
