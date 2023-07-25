@@ -29,7 +29,7 @@ const commonQueryParams = `
     dateFilters:JSON,
     customerId:String,
     customerIds:[String],
-    excludedCustomerIds:[String]
+    excludeCustomerIds:[String]
 `;
 
 export const queries = `

@@ -44,12 +44,12 @@ const generateFilters = async (params: any, models: IModels) => {
     filter._id = { $in: syncIds };
   }
 
-  if (params?.excludedCustomerIds) {
+  if (params?.excludeCustomerIds) {
     const syncIds = await models.SyncedCustomers.find({
-      customerId: { $nin: params?.excludedCustomerIds }
+      customerId: { $in: params?.excludeCustomerIds }
     }).distinct('syncId');
 
-    filter._id = { $in: syncIds };
+    filter._id = { $nin: syncIds };
   }
 
   return filter;
