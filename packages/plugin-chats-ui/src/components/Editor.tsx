@@ -209,7 +209,7 @@ const Editor = (props: Props) => {
       return (
         <AttachmentIndicator>
           <Attachment>
-            <div>Uploading...</div>
+            Uploading...
             {<SmallLoader />}
           </Attachment>
         </AttachmentIndicator>

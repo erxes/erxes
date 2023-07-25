@@ -59,6 +59,7 @@ export const Button = styledTS<{ isRecording: boolean }>(styled.button)`
   cursor: pointer;
   padding: 0 5px;
   transition: transform 0.3s ease-in-out;
+  margin-right: 5px;
 
   ${props => props.isRecording && 'transform: scale(1.4)'}
          `;
