@@ -1,4 +1,4 @@
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+import { ColorPick, ColorPicker, Flex } from '@erxes/ui/src/styles/main';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 
@@ -10,7 +10,6 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { DateItem } from '../styles';
 import { ExpandWrapper } from '@erxes/ui-settings/src/styles';
-import { Flex } from '@erxes/ui/src/styles/main';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
