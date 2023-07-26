@@ -33,7 +33,7 @@ Erxes code takes approximately 12GB of storage space. Please ensure you have eno
 mkdir example
 ```
 
-2. In your empty folder, where the new erxes project will be created,define the database and erxes plugins to use.
+2. In your empty folder, where the new erxes project will be created, define the database and erxes plugins to use.
 
 ```
 cd example
@@ -47,7 +47,7 @@ git clone https://github.com/erxes/erxes.git
 
 ### Installing dependencies using docker
 
-4. In the folder, create a "dock" directory using following command.
+4. In the folder, create a "dock" directory using the following command.
 
 ```
 mkdir dock
@@ -122,7 +122,7 @@ networks:
 Please find the useful **<a href="https://docs.docker.com/engine/reference/commandline/compose_images/#related-commands" targe="_blank">commands</a>** when you're working on Docker
 :::
 
-7. Run the following command in the folder where above file exists.
+7. Run the following command in the folder where the above file exists.
 
 ```
 sudo docker-compose up -d
@@ -166,13 +166,13 @@ Run erxes in "erxes/cli" directory
 cd cli
 ```
 
-2. Install node modules in the "erxes/cli" directory.
+2. Install `node` modules in the `erxes/cli` directory.
 
 ```
 yarn install
 ```
 
-3. Copy "configs.json.sample", then convert it to "configs.json".
+3. Copy `configs.json.sample`, then convert it to `configs.json`.
 
 ```
 cp configs.json.sample configs.json
@@ -197,7 +197,7 @@ Frequently used `pm2` commands on erxes:
 
 :::
 
-**If you see this screen, you have successfully install erxes XOS. Congratulations** 🎉🎉🎉
+**If you see this screen, you have successfully installed erxes XOS. Congratulations** 🎉🎉🎉
 
 <div align="center">
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/login+screen.png" width="60%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)" ></img>
