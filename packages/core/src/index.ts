@@ -244,7 +244,7 @@ app.post(
   '/delete-file',
   routeErrorHandling(async (req: any, res) => {
     // require login
-    if (!req.user) {
+    if (!req.headers.userid) {
       return res.end('forbidden');
     }
 
