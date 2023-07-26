@@ -62,7 +62,7 @@ const productQueries = {
       });
 
       const product_category_ids = await models.ProductCategories.find(
-        { order: { $regex: new RegExp(category.order) } },
+        { order: { $regex: new RegExp(`^${category.order}`) } },
         { _id: 1 }
       );
       filter.categoryId = { $in: product_category_ids };
