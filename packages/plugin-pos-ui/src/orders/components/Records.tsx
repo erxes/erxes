@@ -16,7 +16,7 @@ import { TableWrapper } from '../../styles';
 import { IOrder } from '../types';
 import HeaderDescription from './MainHead';
 import RightMenu from './RightMenu';
-import Row from './Row';
+import Record from './Record';
 
 interface IProps extends IRouterProps {
   orders: IOrder[];
@@ -32,8 +32,6 @@ interface IProps extends IRouterProps {
   isFiltered: boolean;
   clearFilter: () => void;
   summary: any;
-
-  onReturnBill: (orderId: string) => void;
 }
 
 class Orders extends React.Component<IProps, {}> {
@@ -60,8 +58,7 @@ class Orders extends React.Component<IProps, {}> {
       onSearch,
       isFiltered,
       clearFilter,
-      summary,
-      onReturnBill
+      summary
     } = this.props;
 
     const rightMenuProps = {
@@ -101,52 +98,114 @@ class Orders extends React.Component<IProps, {}> {
           <thead>
             <tr>
               <th>
-                <SortHandler sortField={'number'} label={__('Bill number')} />
-              </th>
-              <th>
-                <SortHandler sortField={'paidDate'} label={__('Date')} />
-              </th>
-              <th>
                 <SortHandler
-                  sortField={'cashAmount'}
-                  label={__('Cash Amount')}
+                  sortField={'created_date'}
+                  label={__('created date')}
                 />
               </th>
               <th>
                 <SortHandler
-                  sortField={'mobileAmount'}
-                  label={__('Mobile Amount')}
+                  sortField={'created_time'}
+                  label={__('created time')}
                 />
               </th>
-              {otherPayTitles.map(key => (
-                <th key={Math.random()}>{__(key)}</th>
-              ))}
               <th>
-                <SortHandler sortField={'totalAmount'} label={__('Amount')} />
+                <SortHandler sortField={'number'} label={__('Number')} />
               </th>
               <th>
-                <SortHandler sortField={'customerId'} label={__('Customer')} />
+                <SortHandler sortField={'pos'} label={__('POS')} />
               </th>
               <th>
-                <SortHandler sortField={'posName'} label={__('Pos')} />
+                <SortHandler sortField={'branch'} label={__('Branch')} />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'department'}
+                  label={__('Department')}
+                />
+              </th>
+              <th>
+                <SortHandler sortField={'cashier'} label={__('Cashier')} />
               </th>
               <th>
                 <SortHandler sortField={'type'} label={__('Type')} />
               </th>
               <th>
-                <SortHandler sortField={'user'} label={__('User')} />
+                <SortHandler sortField={'billType'} label={__('Bill Type')} />
+              </th>
+              <th>
+                <SortHandler sortField={'companyRD'} label={__('Company RD')} />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'customerType'}
+                  label={__('Customer type')}
+                />
+              </th>
+              <th>
+                <SortHandler sortField={'customer'} label={__('Customer')} />
+              </th>
+              <th>
+                <SortHandler sortField={'barcode'} label={__('Barcode')} />
+              </th>
+              <th>
+                <SortHandler sortField={'subBarcode'} label={__('Factor')} />
+              </th>
+              <th>
+                <SortHandler sortField={'code'} label={__('Code')} />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'categoryCode'}
+                  label={__('Category')}
+                />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'subCategoryCode'}
+                  label={__('Sub Category')}
+                />
+              </th>
+              <th>
+                <SortHandler sortField={'name'} label={__('Name')} />
+              </th>
+              <th>
+                <SortHandler sortField={'count'} label={__('Count')} />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'firstPrice'}
+                  label={__('First price')}
+                />
+              </th>
+              <th>
+                <SortHandler sortField={'discount'} label={__('Discount')} />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'discountType'}
+                  label={__('Discount type')}
+                />
+              </th>
+              <th>
+                <SortHandler sortField={'salePrice'} label={__('Sale price')} />
+              </th>
+              <th>
+                <SortHandler sortField={'amount'} label={__('Amount')} />
+              </th>
+              <th>
+                <SortHandler sortField={'payType'} label={__('Payment type')} />
               </th>
               <th>Үйлдлүүд</th>
             </tr>
           </thead>
           <tbody id="orders">
             {(orders || []).map(order => (
-              <Row
+              <Record
                 order={order}
-                key={order._id}
+                key={`${order._id}_${order.items._id}`}
                 history={history}
                 otherPayTitles={otherPayTitles}
-                onReturnBill={onReturnBill}
               />
             ))}
           </tbody>
