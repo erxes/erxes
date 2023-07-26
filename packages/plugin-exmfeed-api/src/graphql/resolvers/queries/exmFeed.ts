@@ -82,7 +82,11 @@ const exmFeedQueries = {
     }
 
     if (departmentIds && departmentIds.length) {
-      doc.departmentIds = { $in: departmentIds };
+      doc.$or = [
+        { departmentIds: { $in: departmentIds } },
+        { departmentIds: { $eq: [] } },
+        { departmentIds: { $size: 0 } }
+      ];
     }
 
     if (contentTypes && contentTypes.includes('event')) {
