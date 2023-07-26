@@ -70,6 +70,12 @@ const pricingPlanQueries = {
         ? { [sortField]: sortDirection }
         : { updatedAt: -1 };
 
+    if (params.findOne) {
+      return models.PricingPlans.find(filter)
+        .sort(sort)
+        .limit(1);
+    }
+
     return paginate(
       models.PricingPlans.find(filter)
         .sort(sort)

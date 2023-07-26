@@ -253,9 +253,9 @@ const pricingQueryParams = `
   totalAmount: String
   productId: String
   quantity: Float
-
   date: Date
 
+  findOne: Boolean
   page: Int
   perPage: Int
   sortField: String
