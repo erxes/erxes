@@ -37,13 +37,18 @@ export const deleteHandler = (params: {
 }) => {
   const { REACT_APP_MAIN_API_DOMAIN } = getEnv();
 
+  let url = `${REACT_APP_MAIN_API_DOMAIN}/gateway/pl:core/delete-file`;
+
+  if(REACT_APP_MAIN_API_DOMAIN.includes('localhost')) {
+    url = `${REACT_APP_MAIN_API_DOMAIN}/pl:core/delete-file`;
+  }
+
   const {
-    url = `${REACT_APP_MAIN_API_DOMAIN}/delete-file`,
     fileName,
     afterUpload
   } = params;
 
-  fetch(`${url}`, {
+  fetch(url, {
     method: 'post',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
