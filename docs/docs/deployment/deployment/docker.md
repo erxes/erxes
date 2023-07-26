@@ -4,29 +4,29 @@ title: Deployment
 sidebar_label: By Docker
 ---
 
-The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">**Docker**</a> on <a href="https://ubuntu.com/" target="_blank">**Ubuntu**</a> in order to use erxes. This the guideline will be dedicated to developers who is about to use erxes for their businesses only. If you want to customize or develop additional plugins on erxes, please go to <a href="https://docs.erxes.io/docs/intro">the developer installation guideline</a>.
+The following documentation will guide you through the installation process of an erxes project using <a href="https://www.docker.com/" target="_blank">**Docker**</a> on <a href="https://ubuntu.com/" target="_blank">**Ubuntu**</a>. This guideline will be dedicated to developers who are about to use erxes for their business purposes only. If you want to customize or develop additional plugins on erxes, please go to <a href="https://docs.erxes.io/docs/intro">the developer installation guideline</a>.
 
-Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
+Docker is an open platform that allows users to develop, ship, and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
 ## Installation video
 <iframe width="560" height="315" src="https://www.youtube.com/embed/Vq2TbSqnWOY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## First steps: Setting up a server with Ubuntu 22.10
 
-You must have an account with your hosting provider prior to doing these steps.
+You must have an account with your host provider prior to completing these steps.
 
 - Choose a server size that corresponds with the **minimum** requirements for installing with **Quickstart**:
   - **Ubuntu 22.10 x64** installed and running
   - **4 CPU**
   - **minimum 8GB RAM**
-  - ability to to SSH into the server
-  - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app. The DNS needs to be pointed to your server. (See below)
+  - Ability to to SSH into the server
+  - If you're using a **subdomain**, then the **subdomain** must be created with your host provider hosting your main domain's website or app. The DNS needs to be directed to your server. (See below)
 
 ### Configure your DNS Records to point at your server
 
-Your server will have an **IP address**. You will need to point your domain name to your new server.
+Your server will have an **IP address**. You will need to direct your domain name to your new server.
 
-- If you are using a **subdomain**, you will need to follow the instructions of updating the `A Records' of the hosting company for your website.
+- If you are using a **subdomain**, you will need to follow the instructions of updating the `A Records' of the host company for your website.
 - If you are NOT using a **subdomain**, then you will need to follow the instructions of your domain name registrar.
 
 :::note Example with a domain called, example.com
@@ -65,7 +65,7 @@ ssh root@your-ip-address
 
 (**Note**: Some people get an error, **WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!**, please see the solution [here](/installation/ubuntu-troubleshooting).)
 
-You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this, run the following commands:
+You don't want to use the **root** user to administer your server. Therefore, everything will be done by the user called **erxes**. To accomplish this, run the following commands:
 
 Add a user called "erxes". When prompted, enter in a **unique** password. You will need to keep this password available, as later operations will require using it.
 
@@ -73,7 +73,7 @@ Add a user called "erxes". When prompted, enter in a **unique** password. You wi
 adduser erxes
 ```
 
-(Finish adding the user simply by pressing the `enter` or `return` key through the questions.)
+(Finish adding the user by simply pressing the `enter` or `return` key through the questions.)
 
 Grant the **erxes** user adminstrative rights.
 
@@ -138,7 +138,7 @@ ssh erxes@your-ip-address
 
 ## Installing prerequisites
 
-1. Create `install.sh` file using text editors such as nano or vim. Then copy the following script into it. Following content will install nginx, certbot, docker, docker-compose and nodejs into your server.
+1. Create `install.sh` file using text editors such as nano or vim. Then copy the following script into it. The following content will install nginx, certbot, docker, docker-compose and nodejs into your server.
 
 ```
         #!/bin/bash
@@ -191,7 +191,7 @@ ssh erxes@your-ip-address
         sudo ./setup_14.sh
 ```
 
-2. Before execute script the use below command to make `install.sh` file executable.
+2. Before executing the script, use the below command to make the `install.sh` file executable.
 
     ```
     sudo chmod +x install.sh
@@ -203,7 +203,7 @@ ssh erxes@your-ip-address
     ./install.sh
     ```
 
-4. After above steps logout and relogin to your server using `erxes` user. In order to logout from server give following command
+4. After the steps above, logout and relogin to your server using `erxes` user. In order to logout from server, enter the following command
 
     ```
     exit
@@ -227,13 +227,13 @@ ssh erxes@your-ip-address
     ```
     https://example.com
     ```
-2. After above command there will be `erxes` directory includes mentioned files in it `docker-compose.yml, configs.json, package.json, nginx config`. In order to change to `erxes` directory use below command.
+2. After the above command there will be `erxes` directory includes mentioned files in it `docker-compose.yml, configs.json, package.json, nginx config`. In order to change to `erxes` directory use below command.
     ```
     cd /home/erxes/erxes
     ```
     In there we need to change erxes package version in `/home/erxes/erxes/package.json` file to <a href="https://www.npmjs.com/package/erxes/v/latest">latest</a> version.
 
-3. Now you need to initiate docker swarm mode in order to do that use following command.
+3. Now you need to initiate docker swarm mode. In order to do that, use the following command.
 
     **Note** In erxes directory we have docker-compose.yml file even with that we do not use `docker-compose up, docker-compose down, docker-compose restart` commands further.
 
@@ -245,7 +245,7 @@ ssh erxes@your-ip-address
     docker network create --driver=overlay --attachable erxes
     ```
 
-4. Before start application services we need to start `databases`. Following command will start database services.
+4. Before starting the application services, we need to start `databases`. The following command will start the database services.
     ```
     npm run erxes deploy-dbs
     ```
@@ -257,7 +257,7 @@ ssh erxes@your-ip-address
     ```
     wait until all services state become up.
 
-6. Now we need to make our mongo have replica set. First we need to enter mongo container then enter mongo instance then execute command following 3 commands will do.
+6. Now we need to make our Mongo have replica set. First we need to enter mongo container then enter mongo instance then execute command following 3 commands will do.
 
     ```
     docker exec -it <mongo container name> bash
