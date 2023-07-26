@@ -4,22 +4,22 @@ title: Deployment
 sidebar_label: By Docker Compose
 ---
 
-# How to deploy Erxes using Docker-compose
+# How to deploy erxes using Docker-compose
 
-In some cases, i.e: local test, already run other services, then we would not need to user docker-swarm, instead we can deploy Erxes using traditional docker-compose.
-
-
-### Perquisite
-
-As usual, to run self-hosted version, you would need a VPS/Dedicated server, with minimum specs: 4 vCores, 6Gb RAM
+In some cases, i.e: local test, already running other services, then we would not need to use docker-swarm; instead we can deploy erxes using traditional docker-compose.
 
 
-Erxes itself packed as docker images, so it would be able to run on any operation system that compatible with Docker, but Unix-like is preferable.
+### Prerequisite
+
+As usual, to run the self-hosted version, you would need a VPS/Dedicated server, with minimum of 4 vCores, 6GB RAM
 
 
-* NodeJS: Erxes has a CLI package to help you create erxes instance easily, this CLI require NodeJS to run, recommend NodeJS 16.x or above.
-* Docker & Docker-compose: To run erxes app.
-* Nginx: To serve Erxes app to public through 80/443 port
+erxes itself is packed as docker images, so it would be able to run on any operating system that is compatible with Docker, but Unix-like systems are preferable.
+
+
+* NodeJS: erxes has a CLI package to help you create erxes instance easily, this CLI require NodeJS to run; recommend NodeJS 16.x or above.
+* Docker & Docker-compose: To run the erxes app.
+* Nginx: To serve erxes app to public through ports 80/443.
 
 
 ### Summarize of the progress
@@ -35,7 +35,7 @@ Erxes itself packed as docker images, so it would be able to run on any operatio
 ## In-depth guide:
 
 
-First, we need to install Erxes CLI, using the following command:
+First, we need to install erxes CLI, using the following command:
 
 ```bash
 npm i -g create-erxes-app
@@ -60,7 +60,7 @@ cd erxes
 Inside this folder, you should pay attention to 2 files: configs.json and .env.
 
 
-configs.json: Contain configurations for Erxes CLI run in the next steps
+configs.json: Contains configurations for erxes CLI run in the next steps
 
 ```json
 cat configs.json
@@ -137,7 +137,7 @@ cat configs.json
 ```
 
 
-.env: Contain configurations to use for docker-compose
+.env: Contains configurations to use for docker-compose
 
 ```yaml
 cat .env
@@ -158,7 +158,7 @@ RABBITMQ_PORT=15675
 You can change the port number as you want
 
 
-nginx.conf: Contain vhost and reserve proxy configuration for Nginx
+nginx.conf: Contains vhost and reserve proxy configuration for Nginx
 
 ```
 cat nginx.conf
@@ -239,14 +239,14 @@ cat nginx.conf
 
 ### Deploy databases instances 
 
-Since Erxes need databases, MongoDB - Redis - Elasticsearch, so we need to have them up first, using this command
+Since erxes needs databases - MongoDB, Redis, Elasticsearch - we need to have them up first, using this command
 
 ```
 npm run erxes deploy-dbs
 ```
 
 
-Wait till mongo is running properly, login to your mongodb container
+Wait until MongoDB is running properly, then login to your MongoDB container
 
 ```bash
 docker exec -it {mongodb-container-id} /bin/bash
@@ -260,15 +260,15 @@ exit
 
 ### Deploy UIs & API
 
-Basically, Erxes app contain 2 parts, UI and API. We had Database up and running properly, now we will deploy Erxes app.
+Basically, the erxes app contain 2 parts, UI and API. We have the Database up and running properly, now we will deploy the erxes app.
 
 ```
 npm run erxes up -- --uis
 ```
 
-This will download UI component of Erxes
+This will download the UI component of erxes
 
-Note: Base on your configs.json file, Erxes CLI will download corresponding modules, and depend on number of modules it would take more time.
+Note: Based on your configs.json file, Erxes CLI will download corresponding modules, and depend on number of modules it would take more time.
 
 
 Then, we run
@@ -278,7 +278,7 @@ npm run erxes up
 ```
 
 
-This will start Erxes API container. You can check Erxes container by using
+This will start erxes API container. You can check the erxes container by using
 
 ```
 docker ps -a
@@ -287,7 +287,7 @@ docker ps -a
 ### Nginx Config
 
 
-Erxes CLI already create for you the example nginx.conf file, which you can use for your vhost config.
+erxes CLI already creates for you the example nginx.conf file, which you can use for your vhost config.
 
 
 ```bash
@@ -295,4 +295,4 @@ sudo mv nginx.conf /etc/nginx/sites-enabled/erxes.conf
 ```
 
 
-Complete, that's how we can deploy Erxes using docker-compose
+That's it! This is how we can deploy erxes using docker-compose.
