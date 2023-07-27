@@ -7,6 +7,10 @@ const SyncSaas = asyncComponent(() =>
   import(/* webpackChunkName: "List - SyncSaas" */ './general/containers/List')
 );
 
+const Detail = asyncComponent(() =>
+  import(/* webpackChunkName: "List - SyncSaas" */ './general/containers/Form')
+);
+
 const syncsaas = ({ history, location }) => {
   return (
     <SyncSaas
@@ -16,10 +20,31 @@ const syncsaas = ({ history, location }) => {
   );
 };
 
+const edit = ({ history, location, match }) => {
+  return (
+    <Detail
+      _id={match.params.id}
+      history={history}
+      queryParams={queryString.parse(location.search)}
+    />
+  );
+};
+
+const add = ({ history, location }) => {
+  return (
+    <Detail
+      history={history}
+      queryParams={queryString.parse(location.search)}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <React.Fragment>
-      <Route path="/sync-saas" exact component={syncsaas} />
+      <Route path="/settings/sync-saas" exact component={syncsaas} />
+      <Route path="/settings/sync-saas/edit/:id" exact component={edit} />
+      <Route path="/settings/sync-saas/add" exact component={add} />
     </React.Fragment>
   );
 };

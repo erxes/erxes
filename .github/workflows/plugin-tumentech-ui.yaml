@@ -7,46 +7,44 @@ on:
       - staging
       - tumentech-staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-tumentech/**"
-      - "packages/plugin-tumentech-ui/**"
-      - ".github/workflows/plugin-tumentech-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-tumentech/**'
+      - 'packages/plugin-tumentech-ui/**'
+      - '.github/workflows/plugin-tumentech-ui.yaml'
   pull_request:
     branches:
       - dev
       - staging
       - tumentech-staging
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-tags/**"
-      - "packages/ui-tumentech/**"
-      - "packages/plugin-tumentech-ui/**"
-      - ".github/workflows/plugin-tumentech-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-tumentech/**'
+      - 'packages/plugin-tumentech-ui/**'
+      - '.github/workflows/plugin-tumentech-ui.yaml'
 
 jobs:
   ui:

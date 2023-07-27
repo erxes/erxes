@@ -1,11 +1,15 @@
-import React from 'react';
 import {
+  BarItems,
+  ControlLabel,
+  DataWithLoader,
+  Icon,
+  Pagination,
   Spinner,
   Wrapper,
-  DataWithLoader,
-  Pagination,
   __
 } from '@erxes/ui/src';
+import React from 'react';
+import { Card } from '../styles';
 
 export const DefaultWrapper = ({
   title,
@@ -59,3 +63,28 @@ export const DefaultWrapper = ({
     />
   );
 };
+
+export function SelectCardType({ handleSelect, params }) {
+  const options = [
+    { value: 'deal', label: 'Deal', icon: 'piggy-bank' },
+    { value: 'task', label: 'Task', icon: 'file-check-alt' },
+    { value: 'ticket', label: 'Ticket', icon: 'ticket' }
+  ];
+
+  return (
+    <BarItems>
+      {options.map(option => {
+        return (
+          <Card
+            key={option.value}
+            className={params?.type === option.value ? 'active' : ''}
+            onClick={() => handleSelect({ value: option.value })}
+          >
+            <Icon icon={option.icon} />
+            <ControlLabel>{option.label}</ControlLabel>
+          </Card>
+        );
+      })}
+    </BarItems>
+  );
+}

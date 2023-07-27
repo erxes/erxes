@@ -9,6 +9,9 @@ const syncMutations = {
   },
   async removeSaasSync(_root, { _id }, { models, subdomain }: IContext) {
     return await models.Sync.removeSync(_id);
+  },
+  async saveSyncedSaasConfig(_root, { _id, config }, { models }: IContext) {
+    return await models.Sync.updateOne({ _id }, { $set: { config } });
   }
 };
 

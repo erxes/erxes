@@ -1,12 +1,21 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
-
+import { afterMutationHandlers } from './afterMutations';
 let client;
 
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeQueue } = client;
+
+  consumeQueue('syncsaas:afterMutation', async ({ subdomain, data }) => {
+    try {
+      await afterMutationHandlers(subdomain, data);
+      return;
+    } catch (e) {
+      console.log('Error in after mutation handler', e);
+    }
+  });
 };
 
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {

@@ -1,5 +1,4 @@
-export const types = `
-    type SyncedSaaS  {
+const commonTypes = `
         _id: String,
         name:String,
         description:String,
@@ -7,21 +6,38 @@ export const types = `
         appToken:String,
         startDate:Date,
         expireDate:Date,
-
+        config:JSON
+        
         organizationDetail:JSON
+`;
+
+export const types = `
+
+    type SyncedSaaS  {
+        ${commonTypes}
     }
+    
+    type CustomerSyncedSaaS  {
+        ${commonTypes},
+        customerId:String,
+        syncedCustomerId:String
+    }
+
 `;
 
 const commonQueryParams = `
     searchValue:String,
-    dateFilters:JSON
+    dateFilters:JSON,
+    customerId:String,
+    customerIds:[String],
+    excludeCustomerIds:[String]
 `;
 
 export const queries = `
     syncedSaasList(${commonQueryParams}) :[SyncedSaaS]
     syncedSaasListTotalCount(${commonQueryParams}):Int
-    SyncedSaasDetail:SyncedSaaS
-    getSyncedSaas(subdomain:String,customerId:String):JSON
+    SyncedSaasDetail(_id:String!):SyncedSaaS
+    getSyncedSaas(subdomain:String,customerId:String):CustomerSyncedSaaS
 `;
 
 const commonMutationParams = `
@@ -37,4 +53,5 @@ export const mutations = `
     addSaasSync(${commonMutationParams}):JSON
     editSaasSync(_id:String,${commonMutationParams}):JSON
     removeSaasSync(_id:String):JSON
+    saveSyncedSaasConfig(_id:String,config:JSON):JSON
 `;

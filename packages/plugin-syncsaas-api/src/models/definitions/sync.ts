@@ -8,14 +8,24 @@ export interface ISync {
   appToken: string;
   startDate: string;
   expireDate: string;
-  customerIds: string[];
 }
 
 export interface ISyncDocument extends ISync, Document {
   _id: string;
 }
 
-export const syncedSaasSchema = new Schema({
+export interface ISyncedCustomers {
+  syncId: string;
+  customerId: string;
+  syncedCustomerId: string;
+  createdAt: string;
+}
+
+export interface ISyncedCustomersDocument extends ISyncedCustomers, Document {
+  _id: string;
+}
+
+export const syncSaasSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Name' }),
@@ -35,5 +45,17 @@ export const syncedSaasSchema = new Schema({
   expireDate: field({ type: Date, label: 'End Date', require: true }),
   createdAt: field({ type: Date, label: 'Created Date', default: Date.now }),
   createdUserId: field({ type: String, label: 'Created User Id' }),
-  customerIds: field({ type: [String], label: 'Customer Ids' })
+  config: field({ type: Schema.Types.Mixed, label: 'config', optional: true })
+});
+
+export const syncedCustomersSaas = new Schema({
+  _id: field({ pkey: true }),
+  syncId: field({ type: String, label: 'Sync Id' }),
+  customerId: field({ type: String, label: 'Customer Id' }),
+  syncedCustomerId: field({ type: String, label: 'Customer Id' }),
+  createdAt: field({
+    type: Date,
+    label: 'Created Date',
+    default: Date.now
+  })
 });

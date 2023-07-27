@@ -394,6 +394,9 @@ export const updateTrackingData = async (req, res, subdomain) => {
 
   const { tripId, trackingData } = req.body;
 
+  console.log('trackingData', trackingData);
+  console.log('tripId', tripId);
+
   models.Trips.updateTracking(
     tripId,
     trackingData.map(item => {

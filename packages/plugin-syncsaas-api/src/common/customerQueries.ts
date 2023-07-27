@@ -1,5 +1,4 @@
 const params = `
-    $state: String,
     $avatar: String,
     $firstName: String,
     $lastName: String,
@@ -20,7 +19,6 @@ const params = `
 `;
 
 const parmasDef = `
-    state: $state,
     avatar: $avatar,
     firstName: $firstName,
     lastName: $lastName,
@@ -41,12 +39,21 @@ const parmasDef = `
 `;
 
 const customersAdd = `
-mutation CustomersAdd(${params}) {
-  customersAdd(${parmasDef}) {
+mutation CustomersAdd($state: String,${params}) {
+  customersAdd(state: $state,${parmasDef}) {
     _id
     email
   }
 }
+`;
+
+const customersEdit = `
+  mutation customersEdit($_id: String!, ${params}) {
+    customersEdit(_id: $_id, ${parmasDef}) {
+        _id
+        email
+    }
+  }
 `;
 
 const customerDetail = `
@@ -57,4 +64,4 @@ const customerDetail = `
   }
 `;
 
-export { customersAdd, customerDetail };
+export { customersAdd, customersEdit, customerDetail };

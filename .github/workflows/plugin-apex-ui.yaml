@@ -1,4 +1,4 @@
-name: Plugin logs UI CI
+name: Plugin apex UI CI
 
 on:
   push:
@@ -19,9 +19,9 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
-      - 'packages/ui-logs/**'
-      - 'packages/plugin-logs-ui/**'
-      - '.github/workflows/plugin-logs-ui.yaml'
+      - 'packages/ui-apex/**'
+      - 'packages/plugin-apex-ui/**'
+      - '.github/workflows/plugin-apex-ui.yaml'
   pull_request:
     branches:
       - dev
@@ -40,9 +40,9 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
-      - 'packages/ui-logs/**'
-      - 'packages/plugin-logs-ui/**'
-      - '.github/workflows/plugin-logs-ui.yaml'
+      - 'packages/ui-apex/**'
+      - 'packages/plugin-apex-ui/**'
+      - '.github/workflows/plugin-apex-ui.yaml'
 
 jobs:
   ui:
@@ -59,9 +59,9 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-logs-ui/.erxes
-          cp -r packages/plugin-logs-ui/src packages/plugin-logs-ui/.erxes/plugin-src
-          cd packages/plugin-logs-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-apex-ui/.erxes
+          cp -r packages/plugin-apex-ui/src packages/plugin-apex-ui/.erxes/plugin-src
+          cd packages/plugin-apex-ui
           yarn install
           yarn install-deps
           yarn build
@@ -77,7 +77,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
-          tar -cf build.tar --directory=packages/plugin-logs-ui/.erxes/dist .
-          cp build.tar packages/plugin-logs-ui/.erxes/dist
-          rm -rf packages/plugin-logs-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-logs-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-logs-ui --delete
+          tar -cf build.tar --directory=packages/plugin-apex-ui/.erxes/dist .
+          cp build.tar packages/plugin-apex-ui/.erxes/dist
+          rm -rf packages/plugin-apex-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-apex-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-apex-ui --delete

@@ -13,7 +13,7 @@ module.exports = {
   menus: [
     {
       text: 'Sync Saas',
-      to: '/sync-saas',
+      to: '/settings/sync-saas',
       image: '/images/icons/erxes-04.svg',
       location: 'settings',
       scope: 'syncsaas',
