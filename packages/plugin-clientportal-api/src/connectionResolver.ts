@@ -26,6 +26,20 @@ import { ICommentModel, loadCommentClass } from './models/Comment';
 import { ICommentDocument } from './models/definitions/comment';
 import { IFieldConfigModel, loadFieldConfigClass } from './models/FieldConfigs';
 import { IFieldConfigDocument } from './models/definitions/fieldConfigs';
+import {
+  IVendorPortalModel,
+  loadVendorPortalClass
+} from './models/VendorPortal';
+import { IVendorPortalDocument } from './models/definitions/vendorPortal';
+import {
+  IVendorCompanyConfigModel,
+  IVendorProductsMappingModel,
+  loadVendorProductsMappingClass
+} from './models/VendorCompanyConfigs';
+import {
+  IVendorCompanyConfigDocument,
+  IVendorProductsMappingDocument
+} from './models/definitions/vendorCompanyConfig';
 
 export interface IModels {
   ClientPortals: IClientPortalModel;
@@ -34,6 +48,10 @@ export interface IModels {
   ClientPortalUserCards: ICPUserCardModel;
   Comments: ICommentModel;
   FieldConfigs: IFieldConfigModel;
+
+  VendorPortals: IVendorPortalModel;
+  VendorCompanyConfigs: IVendorCompanyConfigModel;
+  VendorProducts: IVendorProductsMappingModel;
 }
 
 export interface IContext extends IMainContext {
@@ -76,6 +94,21 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'client_portal_field_configs',
     loadFieldConfigClass(models)
   );
+
+  models.VendorPortals = db.model<IVendorPortalDocument, IVendorPortalModel>(
+    'vendor_portals',
+    loadVendorPortalClass(models)
+  );
+
+  models.VendorCompanyConfigs = db.model<
+    IVendorCompanyConfigDocument,
+    IVendorCompanyConfigModel
+  >('vendor_company_configs', loadVendorPortalClass(models));
+
+  models.VendorProducts = db.model<
+    IVendorProductsMappingDocument,
+    IVendorProductsMappingModel
+  >('vendor_products', loadVendorProductsMappingClass(models));
 
   return models;
 };
