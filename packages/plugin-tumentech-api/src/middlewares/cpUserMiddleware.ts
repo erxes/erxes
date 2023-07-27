@@ -21,13 +21,7 @@ export default async function cpUserMiddleware(
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
       'clientPortalRefreshToken',
-      'clientPortalKnowledgeBaseTopicDetail',
-      'getAccount',
-      'revealPhone',
-      'customerAccountEditDriverGroups',
-      'tumentechInvite',
-      'getEbarimt',
-      'searchDriver'
+      'clientPortalKnowledgeBaseTopicDetail'
     ].includes(operationName)
   ) {
     return next();
