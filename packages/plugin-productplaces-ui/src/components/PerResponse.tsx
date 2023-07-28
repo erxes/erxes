@@ -25,53 +25,51 @@ export default (response, counter?) => {
       ${(counter > 0 && '<div class="splitter"></div>') || ''}
 
       ${`
-            <div>
-              <p>Огноо: ${response.date}</p>
-              ${(response.number && `<p>№: ${response.number}</p>`) || ''}
-              <p>Branch: ${response.branch?.code} - ${
-        response.branch?.title
-      }</p>
-              <p>Department: ${response.department?.code} - ${
-        response.department?.title
-      }</p>
-            </div>
+        <div>
+          <p>Огноо: ${response.date}</p>
+          ${(response.number && `<p>№: ${response.number}</p>`) || ''}
+          <p>
+            Branch: ${response.branch?.code || ''} - ${response.branch?.title ||
+        ''}
+          </p>
+          <p>
+            Department: ${response.department?.code || ''} - ${response
+        .department?.title || ''}
+          </p>
+        </div>
 
+        ${
+          response.customerNo || response.customerName
+            ? `<div>
+            <p><strong>Худалдан авагч:</strong></p>
+            ${response.customerNo ? `<p>ТТД: ${response.customerNo}</p>` : ''}
             ${
-              response.customerNo || response.customerName
-                ? `<div>
-                <p><strong>Худалдан авагч:</strong></p>
-                ${
-                  response.customerNo
-                    ? `<p>ТТД: ${response.customerNo}</p>`
-                    : ''
-                }
-                ${
-                  response.customerName
-                    ? `<p>Нэр: ${response.customerName} </p>`
-                    : ''
-                }
-              </div>`
+              response.customerName
+                ? `<p>Нэр: ${response.customerName} </p>`
                 : ''
             }
+          </div>`
+            : ''
+        }
 
-            <table class="tb" cellpadding="0" cellspacing="0">
-              <thead>
-                <tr class="text-center">
-                  <th>Бараа</th>
-                  <th>Үнэ</th>
-                  <th>Тоо</th>
-                  <th>Дүн</th>
-                </tr>
-              </thead>
-              <tbody>
-              ${getRows(response.pDatas || [])}
-              </tbody>
-            </table>
+        <table class="tb" cellpadding="0" cellspacing="0">
+          <thead>
+            <tr class="text-center">
+              <th>Бараа</th>
+              <th>Үнэ</th>
+              <th>Тоо</th>
+              <th>Дүн</th>
+            </tr>
+          </thead>
+          <tbody>
+          ${getRows(response.pDatas || [])}
+          </tbody>
+        </table>
 
-            <div class="total">
-              <p><label>Бүгд үнэ:</label> ${response.amount}</p>
-            </div>
-          `}
+        <div class="total">
+          <p><label>Бүгд үнэ:</label> ${response.amount}</p>
+        </div>
+      `}
     </div>
     <script>
       window.onbeforeunload = function () {
