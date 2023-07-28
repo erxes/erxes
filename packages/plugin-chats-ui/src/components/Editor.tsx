@@ -24,7 +24,6 @@ import {
 } from '../styles';
 import VoiceRecorder from './voice/VoiceRecorder';
 import { IAttachment } from '@erxes/ui/src/types';
-import Uploader from '@erxes/ui/src/components/Uploader';
 
 type Props = {
   type?: string;
@@ -38,6 +37,7 @@ const Editor = (props: Props) => {
   const [state, setState] = useState({ content: props.reply || '' });
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
   const [loading, setLoading] = useState<object>({});
+  const [uploadLoading, setUploadLoading] = useState<boolean>(false);
   const editorRef = useRef<any>(null);
 
   useEffect(() => {
@@ -101,7 +101,7 @@ const Editor = (props: Props) => {
   };
   const handleFileInput = (event: React.FormEvent<HTMLInputElement>) => {
     const files = event.currentTarget.files;
-
+    setUploadLoading(true);
     uploadHandler({
       files,
       beforeUpload: () => {
@@ -113,6 +113,7 @@ const Editor = (props: Props) => {
           ...attachments,
           Object.assign({ url: response }, fileInfo)
         ]);
+        setUploadLoading(false);
       }
     });
   };
@@ -126,7 +127,7 @@ const Editor = (props: Props) => {
           <Tip text={__('Audio')}>
             <label>
               <Icon icon="audio" />
-              <input type="file" onChange={() => {}} multiple={true} />
+              <input type="file" multiple={true} />
             </label>
           </Tip>
           <Tip text={__('Audio')}>
@@ -191,7 +192,7 @@ const Editor = (props: Props) => {
                 ({Math.round(attachment.size / 1000)}
                 kB)
               </div>
-              {loading[attachment.url] ? (
+              {loading[attachment.url] || uploadLoading ? (
                 <SmallLoader />
               ) : (
                 <Icon
@@ -201,6 +202,16 @@ const Editor = (props: Props) => {
               )}
             </Attachment>
           ))}
+        </AttachmentIndicator>
+      );
+    }
+    if (uploadLoading && attachments.length === 0) {
+      return (
+        <AttachmentIndicator>
+          <Attachment>
+            Uploading...
+            {<SmallLoader />}
+          </Attachment>
         </AttachmentIndicator>
       );
     }

@@ -93,16 +93,16 @@ class DetailInfo extends React.Component<Props> {
             <SidebarList className="no-link">
               {this.renderRow('Code', contractType.code)}
               {this.renderRow('Name', contractType.name || '')}
-              {this.renderRow('Start number', contractType.number || '')}
+              {this.renderRow('Start Number', contractType.number || '')}
               {this.renderRow(
-                'After vacancy',
+                'After vacancy count',
                 (contractType.vacancy || 0).toLocaleString()
               )}
               {this.renderRow(
-                'Undue percent',
+                'Loss percent',
                 (contractType.unduePercent || 0).toLocaleString()
               )}
-              {this.renderRow('Undue calc type', contractType.undueCalcType)}
+              {this.renderRow('Loss calc type', contractType.undueCalcType)}
               {this.renderRow(
                 'Is use debt',
                 __(contractType.useDebt ? 'Yes' : 'No')

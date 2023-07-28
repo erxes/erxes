@@ -18,7 +18,8 @@ export type ISchedule = {
   structureTypeIds: string[];
   assignedUserIds: string[];
   groupId?: string;
-  date: string;
+  startDate: string;
+  endDate: string;
   customFieldsData?: any;
 };
 
@@ -49,7 +50,8 @@ export const schedulesSchema = new Schema({
     label: 'AssignUserIds',
     optional: true
   }),
-  date: field({ type: Date, label: 'Date', required: true }),
+  startDate: field({ type: Date, label: 'Start Date', required: true }),
+  endDate: field({ type: Date, label: 'End Date', required: true }),
   status: field({
     type: String,
     label: 'Status',

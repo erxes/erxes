@@ -223,6 +223,10 @@ const chatMutations = {
       chatMessageInserted: message
     });
 
+    graphqlPubsub.publish('chatReceivedNotification', {
+      chatReceivedNotification: message
+    });
+
     const chat = await models.Chats.getChat(message.chatId);
 
     const recievers = chat.participantIds.filter(i => i !== user._id);

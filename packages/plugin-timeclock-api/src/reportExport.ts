@@ -310,8 +310,8 @@ const extractAndAddIntoSheet = async (
         const rowArray: any = [
           userNum,
           empReport.employeeId,
-          empReport.lastName,
           empReport.firstName,
+          empReport.lastName,
           empReport.position
         ];
 

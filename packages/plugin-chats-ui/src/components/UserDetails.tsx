@@ -19,10 +19,12 @@ const UserDetails = (props: FinalProps) => {
 
   const user =
     users.length > 1
-      ? users.filter(u => u._id !== currentUser._id)[0]
-      : users[0];
+      ? users?.filter(u => u._id !== currentUser._id)[0]
+      : users?.[0];
 
-  return (
+  return !user ? (
+    <UserDetailsWrapper></UserDetailsWrapper>
+  ) : (
     <UserDetailsWrapper>
       <Avatar user={user} size={64} />
 

@@ -49,15 +49,20 @@ const EditorContainer = (props: Props) => {
 
   const sendMessage = (variables, callback: () => void) => {
     const { attachments, mentionedUserIds, content } = variables;
+    let defaultContent = content;
+
     if (!(content || mentionedUserIds || attachments)) {
       return;
     }
 
+    if (!content) {
+      defaultContent = '<p></p>';
+    }
     const relatedId = (reply && reply._id) || null;
 
     addMutation({
       variables: {
-        content,
+        content: defaultContent,
         chatId,
         relatedId,
         attachments,

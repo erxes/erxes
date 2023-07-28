@@ -60,6 +60,10 @@ export const orderFields = `
   userId
   items
   posToken
+  branchId
+  departmentId
+  branch
+  department
 
   syncedErkhet
 
@@ -227,6 +231,22 @@ const coverDetail = `
   }
 `;
 
+const posOrderRecords = `
+  query posOrderRecords(${listParamsDef}) {
+    posOrderRecords(${listParamsValue}) {
+      ${orderFields}
+      customer {
+        _id
+        code
+        primaryPhone
+        firstName
+        primaryEmail
+        lastName
+      }
+    }
+  }
+`;
+
 export default {
   posOrders,
   posOrdersSummary,
@@ -234,5 +254,6 @@ export default {
   posProducts,
   productCategories,
   covers,
-  coverDetail
+  coverDetail,
+  posOrderRecords
 };

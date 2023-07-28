@@ -43,19 +43,21 @@ class Form extends React.Component<Props, State> {
 
   generateDoc(values) {
     const { detail } = this.state;
+    let { calculateLogics, groups } = detail as any;
 
-    (detail.calculateLogics || []).forEach(
-      calculateLogics => delete calculateLogics.__typename
+    calculateLogics = (calculateLogics || []).map(
+      ({ __typename, ...logic }: any) => logic
     );
-
-    (detail.groups || []).forEach((group: any) => {
-      delete group.__typename;
-      (group?.calculateLogics || []).forEach(element => {
-        delete element.__typename;
-      });
+    groups = (groups || []).map(({ __typename, ...group }) => {
+      return {
+        ...group,
+        calculateLogics: (group?.calculateLogics || []).map(
+          ({ __typename, ...logic }: any) => logic
+        )
+      };
     });
 
-    return { ...detail, ...values };
+    return { ...{ ...detail, calculateLogics, groups }, ...values };
   }
 
   renderContent(formProps: IFormProps) {

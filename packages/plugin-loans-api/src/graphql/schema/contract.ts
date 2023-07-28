@@ -92,6 +92,7 @@ export const types = () => `
     loanBalanceAmount:Float
     expiredDays:Float
     loanTransactionHistory:JSON
+    currency:String
   }
 
 
@@ -195,6 +196,7 @@ const commonFields = `
   relContractId: String
   dealId: String
   skipInterestCalcMonth: Float
+  currency:String
 `;
 
 export const mutations = `

@@ -1,4 +1,11 @@
-import { formatValue, FormControl, Icon, ModalTrigger } from '@erxes/ui/src';
+import {
+  Button,
+  ButtonMutate,
+  formatValue,
+  FormControl,
+  Icon,
+  ModalTrigger
+} from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
 import { TrNumberCols, TrRows } from '../../contracts/styles';
@@ -6,6 +13,7 @@ import ChangeTrForm from '../containers/ChangeTrForm';
 import TransactionForm from '../containers/TransactionForm';
 import { ITransaction } from '../types';
 import { __ } from 'coreui/utils';
+import EBarimtForm from './EBarimtForm';
 type Props = {
   transaction: ITransaction;
   history: any;
@@ -60,6 +68,41 @@ function TransactionRow({
     );
   };
 
+  const renderEBarimtBtn = (isGotEBarimt: boolean) => {
+    if (!transaction.calcedInfo || !transaction.contractId) {
+      return null;
+    }
+
+    const ebarimtForm = props => (
+      <EBarimtForm
+        {...props}
+        transaction={transaction}
+        isGotEBarimt={isGotEBarimt}
+      />
+    );
+    return (
+      <>
+        <ModalTrigger
+          title="EBarimt info"
+          trigger={
+            isGotEBarimt ? (
+              <Button btnStyle="success" size="small" icon="document">
+                {__('Got')}
+              </Button>
+            ) : (
+              <Button btnStyle="danger" size="small" icon="print">
+                {__('Get')}
+              </Button>
+            )
+          }
+          size="lg"
+          content={ebarimtForm}
+        />
+        &nbsp; &nbsp;
+      </>
+    );
+  };
+
   const renderEditBrn = () => {
     if (transaction.futureDebt) {
       return null;
@@ -68,6 +111,7 @@ function TransactionRow({
     const trBaseForm = props => (
       <TransactionForm {...props} transaction={transaction} />
     );
+
     return (
       <ModalTrigger
         title={__('Edit basic info')}
@@ -112,6 +156,7 @@ function TransactionRow({
       <TrNumberCols key={'total'}>
         {displayNumber(transaction, 'total')}
       </TrNumberCols>
+      <td key={'hasEbarimt'}>{renderEBarimtBtn(!!transaction.ebarimt)}</td>
       <td key={'manage'}>
         {renderChangeBtn()}
 

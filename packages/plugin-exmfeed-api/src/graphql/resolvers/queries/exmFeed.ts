@@ -51,7 +51,8 @@ const exmFeedQueries = {
       type,
       startDate,
       endDate,
-      bravoType
+      bravoType,
+      departmentIds
     },
     { models, user }
   ) => {
@@ -80,11 +81,11 @@ const exmFeedQueries = {
       doc.contentType = { $in: contentTypes };
     }
 
-    if (
-      contentTypes &&
-      contentTypes.includes('event') &&
-      type === 'recipient'
-    ) {
+    if (departmentIds && departmentIds.length) {
+      doc.departmentIds = { $in: departmentIds };
+    }
+
+    if (contentTypes && contentTypes.includes('event')) {
       doc.$or = [
         { 'eventData.visibility': 'public' },
         {
@@ -94,11 +95,7 @@ const exmFeedQueries = {
       ];
     }
 
-    if (
-      contentTypes &&
-      contentTypes.includes('bravo') &&
-      type === 'recipient'
-    ) {
+    if (contentTypes && contentTypes.includes('bravo')) {
       if (recipientType === 'recieved') {
         doc.recipientIds = { $in: [user._id] };
       } else if (recipientType === 'sent') {

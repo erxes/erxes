@@ -26,7 +26,8 @@ export const types = () => {
       description: String
       contentType: String
       visibility: String
-      department : String
+      department: String
+      departmentIds: [String]
       where: String
       startDate: Date
       endDate: Date
@@ -113,7 +114,7 @@ export const types = () => {
 
 export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
-  exmFeed(contentTypes: [ContentType], isPinned: Boolean, type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int, startDate : String, endDate : String, bravoType : String): ExmFeedResponse
+  exmFeed(contentTypes: [ContentType], isPinned: Boolean, type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int, startDate : String, endDate : String, bravoType : String, departmentIds: [String]): ExmFeedResponse
   exmThanks(limit: Int, skip: Int, type: SourceType): ExmThankResponse
   exmFeedCeremonies(contentType: ContentType, filterType: FilterType): ExmFeedResponse
 `;
@@ -129,7 +130,8 @@ const feedCommonParams = `
   customFieldsData: JSON
   isPinned: Boolean
   createdAt: Date
-  department : String
+  departmentIds: [String]
+  department: String
 `;
 
 const thankCommonParams = `

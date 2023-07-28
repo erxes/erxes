@@ -1,40 +1,40 @@
 export const JOURNALS_KEY_LABELS = {
-  receivable: 'Санхүүгийн тайлангийн авлага',
-  temp: 'Түрээсийн олголтын түр данс',
-  giving: 'Санхүүгийн түрээсийн тооцоогоор өглөг',
-  tempDebt: 'Түр өглөг',
+  otherReceivable: 'Other Receivable',
 
-  mainUserEmail: 'Үндсэн төлбөрт харгалзах эрх бүхий хэрэглэгчийн емэйл',
-  mainHasVat: 'НӨАТ тооцох эсэх',
-  mainHasCitytax: 'НХАТ тооцох эсэх',
-  mainIsEbarimt: 'Ебаримт илгээх эсэх',
-
-  interestReceivable: 'СТүрээсийн хүүгийн авлага',
-  interestGiving: 'Санхүүгийн түрээс хэрэгжээгүй хүүгийн өглөг',
-  interestCalcedReceive: 'Хуримтлуулж тооцсон хүүгийн авлага',
-  interestIncome: 'СТ - н хүүгийн орлого',
-
-  extraInterestUserEmail:
-    'Хугацаа хэтэрсэн хүүнд харгалзах эрх бүхий хэрэглэгчийн емэйл',
-  extraInterestHasVat: 'НӨАТ тооцох эсэх',
-  extraInterestHasCitytax: 'НХАТ тооцох эсэх',
-  extraInterestIsEbarimt: 'Ебаримт илгээх эсэх',
-
-  insuranceReceivable: 'Даатгалын тооцоогоорх авлага',
-  insuranceGiving: 'Даатгалын тооцоогоорх өглөг',
-
-  undueStock: 'Алдангид хамаарах бараа үйлчилгээ',
-  undueUserEmail: 'Алдангид харгалзах эрх бүхий хэрэглэгчийн емэйл',
-  undueHasVat: 'НӨАТ тооцох эсэх',
-  undueHasCitytax: 'НХАТ тооцох эсэх',
-  undueIsEbarimt: 'Ебаримт илгээх эсэх',
-
-  otherReceivable: 'Бусад авлага',
-  feeIncome: 'Шимтгэл орлого',
-  defaultCustomer: 'Бүртгэх шаардлагагүй харилцагч',
-  userEmail: 'Журнал бичилтийн хэрэглэгч емэйл',
-
-  repaymentTemp: 'Эргэн төлөлтийн түр данс'
+  isAmountUseEBarimt: 'is Calc EBarimt from Amount',
+  isInterestUseEBarimt: 'is Calc EBarimt from Interest',
+  isUndueUseEBarimt: 'is Calc EBarimt from Loss',
+  transAccount: 'Transaction Account',
+  normalAccount: 'Normal Loan Account',
+  expiredAccount: 'Expired Loan Account',
+  doubtfulAccount: 'Doubtful Loan Account',
+  negativeAccount: 'Negative Loan Account',
+  badAccount: 'Bad Loan Account',
+  amountHasEBarimt: 'EBarimt calculate from Amount for Journal',
+  interestAccount: 'Interest Account',
+  interestHasEBarimt: 'EBarimt calculate from Interest for Journal',
+  insuranceAccount: 'Insurance Account',
+  debtAccount: 'Debt Account',
+  feeIncomeAccount: 'Fee Account',
+  undueAccount: 'Loss Account',
+  undueHasEBarimt: 'EBarimt calculate from Loss for Journal',
+  eBarimtAccount: 'EBarimt Account',
+  organizationRegister: 'Organization register',
+  normalExpirationDay: 'Normal classification day',
+  expiredExpirationDay: 'Expired classification begin day',
+  doubtExpirationDay: 'Doubtful classification begin day',
+  negativeExpirationDay: 'Negative classification begin day',
+  badExpirationDay: 'Bad classification begin day',
+  minInterest: 'Min interest of month',
+  maxInterest: 'Max interest of month',
+  defaultInterest: 'Default interest of month',
+  minTenor: 'Min tenor',
+  maxTenor: 'Max tenor',
+  minAmount: 'Min amount',
+  maxAmount: 'Max amount',
+  isAutoSendEBarimt: 'Is send e-barimt auto',
+  defaultGSCode: 'DEFAULTGSCODE',
+  isHasVat: 'isHasVat'
 };
 
 // erkhet.role.cashAccount ==== journalConfig.repaymentTemp
