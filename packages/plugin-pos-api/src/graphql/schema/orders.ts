@@ -22,6 +22,10 @@ const posOrderFields = contactsEnabled => `
   items: JSON,
   posToken: String,
   posName: String,
+  branchId: String,
+  departmentId: String,
+  branch: JSON,
+  department: JSON,
   user: User,
   ${
     contactsEnabled
@@ -56,6 +60,10 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     deliveryInfo: JSON
     deal: JSON
     dealLink: String
+  }
+
+  type PosOrderRecord {
+    ${posOrderFields(contactsEnabled)}
   }
 
   type PosProduct {
@@ -109,6 +117,7 @@ export const queries = `
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
   posOrdersTotalCount(${queryParams}): JSON
+  posOrderRecords(${queryParams}): [PosOrderRecord]
 `;
 
 export const mutations = `

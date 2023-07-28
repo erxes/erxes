@@ -10,6 +10,7 @@ import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import React, { useRef, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import InvoiceDetail from '../../containers/invoice/Detail';
+import { withRouter } from 'react-router-dom';
 
 import { IInvoice, InvoicesCount } from '../../types';
 import Row from './Row';
@@ -35,7 +36,7 @@ const List = (props: IProps) => {
   const [searchValue, setSearchValue] = useState(props.searchValue);
   const [showModal, setShowModal] = useState(false);
   const [currentInvoiceId, setCurrentInvoiceId] = useState(null);
-  const timer: any = useRef(null);
+
   const {
     invoices,
     history,
@@ -45,6 +46,21 @@ const List = (props: IProps) => {
     isAllSelected,
     counts
   } = props;
+
+  React.useEffect(() => {
+    let timeoutId: any = null;
+
+    if (searchValue !== props.searchValue) {
+      timeoutId = setTimeout(() => {
+        router.removeParams(history, 'page');
+        router.setParams(history, { searchValue });
+      }, 500);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [searchValue]);
 
   const renderRow = () => {
     const onClickRow = invoiceId => {
@@ -78,18 +94,7 @@ const List = (props: IProps) => {
   };
 
   const search = e => {
-    if (timer.current) {
-      clearTimeout(timer.current);
-    }
-
-    setSearchValue(e.target.value);
-
-    timer.current = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, {
-        searchValue
-      });
-    }, 500);
+    setSearchValue(e.target.value || '');
   };
 
   const moveCursorAtTheEnd = e => {
@@ -209,4 +214,4 @@ const List = (props: IProps) => {
   );
 };
 
-export default List;
+export default withRouter(List);

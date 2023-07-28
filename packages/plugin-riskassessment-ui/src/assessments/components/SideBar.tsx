@@ -31,6 +31,7 @@ import {
   Padding,
   SidebarHeader
 } from '../../styles';
+import { CardFilter } from '../common/utils';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -43,11 +44,6 @@ interface LayoutProps {
 export function SideBar({ history, queryParams }) {
   const generateQueryParamsDate = params => {
     return params ? new Date(parseInt(params)).toString() : '';
-  };
-
-  const handleRiskIndicator = values => {
-    removeParams(history, 'page');
-    setParams(history, { riskIndicatorIds: values });
   };
   const selectStatus = color => {
     removeParams(history, 'page');
@@ -98,7 +94,6 @@ export function SideBar({ history, queryParams }) {
       queryParams.branchIds,
       queryParams.departmentIds,
       queryParams.operationIds,
-      queryParams.cardType,
       queryParams.riskIndicatorIds
     ].every(i => !i);
 
@@ -112,7 +107,6 @@ export function SideBar({ history, queryParams }) {
         'branchIds',
         'departmentIds',
         'operationIds',
-        'cardType',
         'riskIndicatorIds'
       );
     };
@@ -131,12 +125,7 @@ export function SideBar({ history, queryParams }) {
     >
       <Padding>
         <FilterByTags history={history} queryParams={queryParams} />
-        <Box
-          title="Filters by Selection"
-          name="filterBySelection"
-          isOpen
-          extraButtons={renderFiltersSelectionExtraBtn()}
-        >
+        <Box title="Card Filters" name="cardFilters" isOpen>
           <Padding>
             <CustomForm
               label="Card type"
@@ -151,6 +140,21 @@ export function SideBar({ history, queryParams }) {
                 onChange={onChangeCardType}
               />
             </CustomForm>
+            <CardFilter
+              type={queryParams.cardType}
+              onChange={handleSelectStructure}
+              queryParams={queryParams}
+              history={history}
+            />
+          </Padding>
+        </Box>
+        <Box
+          title="Filters by Selection"
+          name="filterBySelection"
+          isOpen
+          extraButtons={renderFiltersSelectionExtraBtn()}
+        >
+          <Padding>
             <CustomForm
               label="Indicators groupg"
               field={'groupIds'}

@@ -57,16 +57,17 @@ export default class ConfigStep extends React.Component<Props, State> {
 
   onSubmitGroup = (group: IProductGroup) => {
     const { groups } = this.state;
+    const newGroups = [...groups];
 
     const index = groups.findIndex(e => e._id === group._id);
 
     if (index !== -1) {
-      groups[index] = group;
+      newGroups[index] = group;
     } else {
-      groups.push(group);
+      newGroups.push(group);
     }
 
-    this.props.onChange('groups', groups);
+    this.props.onChange('groups', newGroups);
   };
 
   renderGroupFormTrigger(trigger: React.ReactNode, group?: IProductGroup) {

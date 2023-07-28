@@ -75,6 +75,13 @@ export const types = `
         groupsAssignedUsers:[GroupsAssignedUsers]
     }
 
+    input CardFilter {
+        name:String,
+        value:String
+        values:[String]
+        regex:Boolean
+    }
+
 `;
 
 const commonMutationParams = `
@@ -116,6 +123,7 @@ const commonParams = `
     tagIds:[String]
     groupIds:[String]
     customFieldsValues:[String]
+    cardFilter:CardFilter
 `;
 
 const commonFormSubmitParams = `

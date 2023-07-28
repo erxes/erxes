@@ -74,6 +74,7 @@ export interface IContract {
   useHoliday: boolean;
   dealId?: string;
   hasTransaction?: boolean;
+  currency: string;
 }
 
 export interface IContractDoc extends IContract {

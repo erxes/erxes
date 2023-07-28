@@ -50,7 +50,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     // must save prev item saved then new item
     configsMap.undueConfig.newUndueConfig = {
-      title: 'New Undue Config',
+      title: 'New Loss Config',
       startDate: new Date(),
       endDate: new Date(),
       percent: 0
@@ -115,12 +115,12 @@ class GeneralSettings extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Undue configs')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Loss configs')} breadcrumb={breadcrumb} />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Undue configs')}</Title>}
+            left={<Title>{__('Loss configs')}</Title>}
             right={actionButtons}
           />
         }

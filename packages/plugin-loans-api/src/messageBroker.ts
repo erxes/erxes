@@ -1,10 +1,46 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
+
+  const { consumeRPCQueue } = client;
+
+  consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Contracts.find(data).lean()
+    };
+  });
+
+  consumeRPCQueue('loans:transactions.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Transactions.find(data).lean()
+    };
+  });
+
+  consumeRPCQueue(
+    'loans:transactions.findAtContracts',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const contracts = await models.Contracts.find(data, { _id: 1 }).lean();
+
+      return {
+        status: 'success',
+        data: await models.Transactions.find({
+          contractId: { $in: contracts.map(c => c._id) }
+        }).lean()
+      };
+    }
+  );
 };
 
 export const sendMessageBroker = async (
@@ -18,6 +54,7 @@ export const sendMessageBroker = async (
     | 'forms'
     | 'clientportal'
     | 'syncerkhet'
+    | 'ebarimt'
 ): Promise<any> => {
   return sendMessage({
     client,

@@ -42,6 +42,7 @@ const contractFields = `
   skipInterestCalcMonth
   dealId
   nextPayment
+  currency
 `;
 
 const listParamsDef = `
