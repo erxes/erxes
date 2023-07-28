@@ -26,6 +26,17 @@ export const sendProductsMessage = async (
   });
 };
 
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
+};
+
 export const sendCardsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

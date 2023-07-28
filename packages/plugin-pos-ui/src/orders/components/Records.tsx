@@ -31,7 +31,6 @@ interface IProps extends IRouterProps {
   onSelect: (values: string[] | string, key: string) => void;
   isFiltered: boolean;
   clearFilter: () => void;
-  summary: any;
 }
 
 class Orders extends React.Component<IProps, {}> {
@@ -57,8 +56,7 @@ class Orders extends React.Component<IProps, {}> {
       onSelect,
       onSearch,
       isFiltered,
-      clearFilter,
-      summary
+      clearFilter
     } = this.props;
 
     const rightMenuProps = {
@@ -76,18 +74,12 @@ class Orders extends React.Component<IProps, {}> {
       </BarItems>
     );
 
-    const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
-    const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
-      .filter(a => !['_id'].includes(a))
-      .filter(a => !staticKeys.includes(a))
-      .sort();
-
     const header = (
       <HeaderDescription
         icon="/images/actions/26.svg"
         title=""
-        summary={summary}
-        staticKeys={staticKeys}
+        summary={{}}
+        staticKeys={[]}
         actionBar={actionBarRight}
       />
     );
@@ -205,7 +197,7 @@ class Orders extends React.Component<IProps, {}> {
                 order={order}
                 key={`${order._id}_${order.items._id}`}
                 history={history}
-                otherPayTitles={otherPayTitles}
+                otherPayTitles={[]}
               />
             ))}
           </tbody>
@@ -223,7 +215,7 @@ class Orders extends React.Component<IProps, {}> {
           />
         }
         mainHead={header}
-        footer={<Pagination count={(summary || {}).count} />}
+        footer={<Pagination count={1000} />}
         content={
           <DataWithLoader
             data={mainContent}
