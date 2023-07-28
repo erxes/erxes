@@ -29,12 +29,13 @@ export default (response, counter?) => {
           <p>Огноо: ${response.date}</p>
           ${(response.number && `<p>№: ${response.number}</p>`) || ''}
           <p>
-            Branch: ${response.branch?.code || ''} - ${response.branch?.title ||
-        ''}
+            Branch:
+            ${response.branch?.code || ''} - ${response.branch?.title || ''}
           </p>
           <p>
-            Department: ${response.department?.code || ''} - ${response
-        .department?.title || ''}
+            Department:
+            ${response.department?.code || ''} - ${response.department?.title ||
+        ''}
           </p>
         </div>
 
