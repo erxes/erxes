@@ -1,10 +1,40 @@
 import { IContext } from '../../connectionResolver';
+import { sendCoreMessage } from '../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.Schedules.findOne({ _id });
+    return models.Plans.findOne({ _id });
   },
-  async schedules({ _id }, {}, { models }: IContext) {
-    return await models.Schedules.find({ planId: _id });
+  async structureDetail(
+    { structureType, structureTypeId },
+    {},
+    { models, subdomain }: IContext
+  ) {
+    switch (structureType) {
+      case 'branch':
+        return await sendCoreMessage({
+          subdomain,
+          action: 'branches.findOne',
+          data: {
+            _id: structureTypeId
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+      case 'department':
+        return await sendCoreMessage({
+          subdomain,
+          action: 'departments.findOne',
+          data: {
+            _id: structureTypeId
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+      case 'operation':
+        return await models.Operations.findOne({ _id: structureTypeId }).lean();
+      default:
+        return null;
+    }
   }
 };
