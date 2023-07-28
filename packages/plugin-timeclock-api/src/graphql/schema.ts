@@ -194,6 +194,7 @@ export const types = `
     totalHoursBreakTaken: Float
     totalHoursBreakScheduled: Float
     totalHoursBreakSelecteDay:Float
+    totalHoursAbsenceSelectedMonth: Float
   }
   
   type Report {
