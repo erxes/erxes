@@ -163,14 +163,12 @@ export const createScheduleShiftsByUserIds = async (
 };
 
 export const timeclockReportByUser = async (
-  subdomain: string,
+  models: IModels,
   userId: string,
   selectedMonth: string,
   selectedYear: string,
   selectedDate?: string
 ) => {
-  const models = await generateModels(subdomain);
-
   let report: any = {
     scheduleReport: [],
     userId,
@@ -258,6 +256,54 @@ export const timeclockReportByUser = async (
       { shiftActive: false }
     ]
   });
+
+  const totalRequestsOfUser = await models.Absences.find({
+    userId,
+    solved: true,
+    checkInOutRequest: { $exists: false },
+    status: { $regex: /Approved/, $options: 'gi' }
+  });
+
+  const requestsOfSelectedMonth = totalRequestsOfUser.filter(
+    req =>
+      dayjs(req.startTime) >= dayjs(startOfSelectedMonth) &&
+      dayjs(req.startTime) < dayjs(startOfNextMonth)
+  );
+
+  const absenceTypeIds = requestsOfSelectedMonth.map(req => req.absenceTypeId);
+  let totalHoursAbsenceSelectedMonth = 0;
+
+  const absenceTypes = await models.AbsenceTypes.find({
+    _id: { $in: absenceTypeIds }
+  });
+
+  for (const request of requestsOfSelectedMonth) {
+    if (request.totalHoursOfAbsence) {
+      totalHoursAbsenceSelectedMonth += parseFloat(request.totalHoursOfAbsence);
+      continue;
+    }
+    // absence by hour
+    if (request.absenceTimeType === 'by hour' && request.endTime) {
+      const getTotalHoursOfAbsence =
+        (new Date(request.endTime).getTime() -
+          new Date(request.startTime).getTime()) /
+        MMSTOHRS;
+
+      totalHoursAbsenceSelectedMonth += getTotalHoursOfAbsence;
+      continue;
+    }
+    // absence by day
+    if (request.absenceTimeType === 'by day' && request.requestDates) {
+      const getAbsenceType = absenceTypes.find(
+        absType => absType._id === request.absenceTypeId
+      );
+
+      const getTotalHoursOfAbsence =
+        request.requestDates.length * (getAbsenceType?.requestHoursPerDay || 0);
+
+      totalHoursAbsenceSelectedMonth += getTotalHoursOfAbsence;
+    }
+  }
 
   let totalHoursWorkedSelectedMonth = 0;
   let totalHoursWorkedSelectedDay = 0;
@@ -440,6 +486,7 @@ export const timeclockReportByUser = async (
       totalHoursBreakTaken,
       totalHoursBreakScheduled,
       totalHoursBreakSelecteDay,
+      totalHoursAbsenceSelectedMonth,
 
       scheduledShifts: scheduleShiftsSelectedMonth,
       timeclocks: timeclocksOfSelectedMonth
