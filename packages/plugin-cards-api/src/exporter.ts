@@ -28,43 +28,55 @@ const prepareData = async (
   let itemIds = [];
 
   if (segmentData.conditions) {
-    itemIds = await fetchSegment(
-      subdomain,
-      '',
-      { scroll: true, page, perPage },
-      segmentData
-    );
+    itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
 
     boardItemsFilter._id = { $in: itemIds };
   }
 
   switch (type) {
     case MODULE_NAMES.DEAL:
-      data = await models.Deals.find(boardItemsFilter)
-        .skip(skip)
-        .limit(perPage)
-        .lean();
+      if (!segmentData) {
+        data = await models.Deals.find(boardItemsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Deals.find(boardItemsFilter).lean();
 
       break;
     case MODULE_NAMES.PURCHASE:
-      data = await models.Purchases.find(boardItemsFilter)
-        .skip(skip)
-        .limit(perPage)
-        .lean();
+      if (!segmentData) {
+        data = await models.Purchases.find(boardItemsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Purchases.find(boardItemsFilter).lean();
 
       break;
     case MODULE_NAMES.TASK:
-      data = await models.Tasks.find(boardItemsFilter)
-        .skip(skip)
-        .limit(perPage)
-        .lean();
+      if (!segmentData) {
+        data = await models.Tasks.find(boardItemsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Tasks.find(boardItemsFilter).lean();
 
       break;
     case MODULE_NAMES.TICKET:
-      data = await models.Tickets.find(boardItemsFilter)
-        .skip(skip)
-        .limit(perPage)
-        .lean();
+      if (!segmentData) {
+        data = await models.Tickets.find(boardItemsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Tickets.find(boardItemsFilter).lean();
+
       break;
   }
 
@@ -633,6 +645,7 @@ export default {
     } catch (e) {
       return { error: e.message };
     }
+
     return { docs };
   }
 };
