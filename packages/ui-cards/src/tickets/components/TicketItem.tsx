@@ -52,6 +52,7 @@ class TicketItem extends React.PureComponent<Props> {
     const {
       customers,
       companies,
+      startDate,
       closeDate,
       isComplete,
       customProperties
@@ -77,7 +78,11 @@ class TicketItem extends React.PureComponent<Props> {
           </Right>
         </PriceContainer>
 
-        <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
+        <DueDateLabel
+          startDate={startDate}
+          closeDate={closeDate}
+          isComplete={isComplete}
+        />
 
         <ItemFooter item={item} />
       </>
