@@ -36,6 +36,8 @@ type Plan {
     closeDate: Date,
     startDate: Date,
     createDate: Date,
+    plannerId:String,
+    planner:User
     
     structureDetail:StructureDetail
 }

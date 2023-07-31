@@ -469,3 +469,32 @@ export const DetailPopoverWrapper = styled.div`
     max-width: 550px;
   }
 `;
+
+export const HeaderContent = styled.div`
+  text-align: center;
+`;
+
+export const FlexRow = styled.div`
+  display: flex;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  padding: 5px 10px 5px 30px;
+  position: relative;
+  align-items: center;
+
+  > label {
+    margin: 0;
+    font-weight: 500;
+    color: ${colors.colorCoreBlack};
+  }
+
+  > *:first-child,
+  input {
+    margin-right: ${dimensions.unitSpacing}px;
+    flex: 3;
+  }
+
+  > *:nth-child(2),
+  > div {
+    flex: 2;
+  }
+`;

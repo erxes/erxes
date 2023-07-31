@@ -9,6 +9,20 @@ const commonParamsValue = `
   isArchived:$isArchived,
   ${commonPaginateValue}
   `;
+
+const commonUserFields = `
+    _id
+    email
+    username
+    isActive
+    details {
+      avatar
+      firstName
+      fullName
+      lastName
+    }
+`;
+
 const planTypes = `
       _id
       name
@@ -20,11 +34,17 @@ const planTypes = `
       createDate
       closeDate
       startDate
+
       structureDetail {
-      _id,
-      title,
-      order,
-      code,
+        _id,
+        title,
+        order,
+        code,
+      }
+
+      plannerId
+      planner {
+        ${commonUserFields}
       }
   `;
 const scheduleTypes = `
@@ -39,16 +59,7 @@ const scheduleTypes = `
         createdAt
 
         assignedUsers {
-          _id
-          email
-          username
-          isActive
-          details {
-            avatar
-            firstName
-            fullName
-            lastName
-          }
+          ${commonUserFields}
         }
   `;
 
