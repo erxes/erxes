@@ -52,8 +52,8 @@ class TicketItem extends React.PureComponent<Props> {
     const {
       customers,
       companies,
-      startDate,
       closeDate,
+      startDate,
       isComplete,
       customProperties
     } = item;
