@@ -1,19 +1,21 @@
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { graphqlPubsub } from './configs';
 import {
   sendCardsMessage,
+  sendCoreMessage,
   sendPricingMessage,
   sendProductsMessage
 } from './messageBroker';
 import { setPlace } from './utils/setPlace';
 import { splitData } from './utils/splitData';
-import { getConfig } from './utils/utils';
+import { getConfig, getCustomer } from './utils/utils';
 
 export default {
   'cards:deal': ['update']
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
-  const { type, action } = params;
+  const { type, action, user } = params;
 
   if (type === 'cards:deal') {
     if (action === 'update') {
@@ -39,11 +41,17 @@ export const afterMutationHandlers = async (subdomain, params) => {
         'dealsProductsDataPlaces',
         {}
       );
+      const printConfigs = await getConfig(
+        subdomain,
+        'dealsProductsDataPrint',
+        {}
+      );
 
       if (
         !(
           Object.keys(splitConfigs).includes(destinationStageId) ||
-          Object.keys(placeConfigs).includes(destinationStageId)
+          Object.keys(placeConfigs).includes(destinationStageId) ||
+          Object.keys(printConfigs).includes(destinationStageId)
         )
       ) {
         return;
@@ -172,6 +180,89 @@ export const afterMutationHandlers = async (subdomain, params) => {
                 modifier: { $set: { productsData: afterPricingData } }
               },
               isRPC: true
+            });
+          }
+          pDatas = afterPricingData;
+        }
+      }
+
+      if (Object.keys(printConfigs).includes(destinationStageId)) {
+        const printConfig = printConfigs[destinationStageId];
+
+        if (printConfig.conditions.length) {
+          const { customerCode, customerName } = await getCustomer(
+            subdomain,
+            deal
+          );
+
+          const branchIds = pDatas.map(pd => pd.branchId);
+          const branches = await sendCoreMessage({
+            subdomain,
+            action: 'branches.find',
+            data: { query: { _id: { $in: branchIds } } },
+            isRPC: true
+          });
+
+          const branchById = {};
+          for (const branch of branches) {
+            branchById[branch._id] = branch;
+          }
+
+          const departmentIds = pDatas.map(pd => pd.departmentId);
+          const departments = await sendCoreMessage({
+            subdomain,
+            action: 'departments.find',
+            data: { _id: { $in: departmentIds } },
+            isRPC: true
+          });
+
+          const departmentById = {};
+          for (const department of departments) {
+            departmentById[department._id] = department;
+          }
+
+          await sendCoreMessage({
+            subdomain,
+            action: 'branches.find',
+            data: {},
+            isRPC: true
+          });
+          const content: any = [];
+
+          for (const condition of printConfig.conditions) {
+            const filteredData = pDatas.filter(
+              pd =>
+                pd.branchId === condition.branchId &&
+                pd.departmentId === condition.departmentId
+            );
+            if (filteredData.length) {
+              content.push({
+                branchId: condition.branchId,
+                branch: branchById[condition.branchId],
+                departmentId: condition.departmentId,
+                department: departmentById[condition.departmentId],
+                date: new Date(),
+                name: deal.name,
+                number: deal.number,
+                customerCode,
+                customerName,
+                pDatas: filteredData.map(fd => ({
+                  ...fd,
+                  product: productById[fd.productId]
+                })),
+                amount: filteredData.reduce((sum, i) => sum + i.amount, 0)
+              });
+            }
+          }
+
+          if (content.length) {
+            await graphqlPubsub.publish('productPlacesResponded', {
+              productPlacesResponded: {
+                userId: user._id,
+                responseId: deal._id,
+                sessionCode: user.sessionCode || '',
+                content
+              }
             });
           }
         }

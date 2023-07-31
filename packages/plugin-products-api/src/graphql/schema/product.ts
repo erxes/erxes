@@ -105,10 +105,6 @@ const productsQueryParams = `
   searchValue: String,
   tag: String,
   ids: [String],
-  page: Int,
-  perPage: Int,
-  sortField: String
-  sortDirection: Int
   excludeIds: Boolean,
   pipelineId: String,
   boardId: String,
@@ -122,8 +118,10 @@ export const queries = `
   productCategoryDetail(_id: String): ProductCategory
   products(
     ${productsQueryParams},
+    page: Int,
     perPage: Int,
-    page: Int
+    sortField: String
+    sortDirection: Int    
   ): [Product]
   productsTotalCount(${productsQueryParams}): Int
   productsGroupCounts(only: String, segment: String, segmentData: String): JSON
