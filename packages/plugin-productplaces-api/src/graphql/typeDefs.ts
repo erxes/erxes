@@ -15,6 +15,13 @@ const typeDefs = async _serviceDiscovery => {
       scope: CacheControlScope
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+    type ProductPlacesResponse {
+      content: JSON
+      responseId: String
+      userId: String
+      sessionCode: String
+    }
   `;
 };
 

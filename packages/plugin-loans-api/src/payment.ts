@@ -10,8 +10,11 @@ export default {
         const contract = await models.Contracts.findOne({
           _id: data.contentTypeId
         });
+
+        //if contract found create transaction
         if (contract) {
           await models.Transactions.createTransaction(subdomain, {
+            currency: contract.currency,
             payDate: data.resolvedAt || new Date(),
             total: data.amount,
             contractId: contract._id,

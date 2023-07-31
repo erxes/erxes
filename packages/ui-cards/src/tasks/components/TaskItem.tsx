@@ -52,6 +52,7 @@ class TaskItem extends React.PureComponent<Props> {
       customers,
       companies,
       closeDate,
+      startDate,
       isComplete,
       customProperties
     } = item;
@@ -76,7 +77,11 @@ class TaskItem extends React.PureComponent<Props> {
           </Right>
         </PriceContainer>
 
-        <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
+        <DueDateLabel
+          startDate={startDate}
+          closeDate={closeDate}
+          isComplete={isComplete}
+        />
 
         <ItemFooter item={item} />
       </>

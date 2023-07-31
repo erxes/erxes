@@ -96,7 +96,7 @@ export const initBroker = async cl => {
       const orderQry: any[] = [];
       for (const category of categories) {
         orderQry.push({
-          order: { $regex: new RegExp(category.order) }
+          order: { $regex: new RegExp(`^${category.order}`) }
         });
       }
 
@@ -176,7 +176,7 @@ export const initBroker = async cl => {
           _id: categoryId
         }).lean();
         const categories = await models.ProductCategories.find({
-          order: { $regex: new RegExp(category.order) }
+          order: { $regex: new RegExp(`^${category.order}`) }
         }).lean();
 
         query.categoryId = { $in: categories.map(c => c._id) };
@@ -204,7 +204,7 @@ export const initBroker = async cl => {
           _id: categoryId
         }).lean();
         const categories = await models.ProductCategories.find({
-          order: { $regex: new RegExp(category.order) }
+          order: { $regex: new RegExp(`^${category.order}`) }
         }).lean();
 
         filter.categoryId = { $in: categories.map(c => c._id) };

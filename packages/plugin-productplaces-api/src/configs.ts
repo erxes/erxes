@@ -15,6 +15,7 @@ export let serviceDiscovery;
 export default {
   name: 'productplaces',
   permissions,
+  hasSubscriptions: true,
   graphql: async sd => {
     serviceDiscovery = sd;
     return {

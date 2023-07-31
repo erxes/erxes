@@ -16,12 +16,14 @@ import React from 'react';
 import { __ } from 'coreui/utils';
 
 import { IContractType, IContractTypeDoc } from '../types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   productCategories: IProductCategory[];
   contractType: IContractType;
   closeModal: () => void;
+  currentUser: IUser;
 };
 
 type State = {
@@ -31,6 +33,7 @@ type State = {
   useMargin: boolean;
   useDebt: boolean;
   useSkipInterest: boolean;
+  currency: string;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -45,7 +48,9 @@ class ContractTypeForm extends React.Component<Props, State> {
       leaseType: contractType.leaseType || 'finance',
       useMargin: contractType.useMargin,
       useDebt: contractType.useDebt,
-      useSkipInterest: contractType.useSkipInterest
+      useSkipInterest: contractType.useSkipInterest,
+      currency:
+        contractType.currency || this.props.currentUser.configs?.dealCurrency[0]
     };
   }
 
@@ -72,7 +77,8 @@ class ContractTypeForm extends React.Component<Props, State> {
       useSkipInterest: this.state.useSkipInterest,
       leaseType: this.state.leaseType,
       productCategoryIds: this.state.productCategoryIds,
-      description: finalValues.description
+      description: finalValues.description,
+      currency: finalValues.currency
     };
   };
 
@@ -161,27 +167,32 @@ class ContractTypeForm extends React.Component<Props, State> {
               </FormGroup>
             </FormColumn>
             <FormColumn>
-              {this.renderFormGroup('Undue Percent', {
+              {this.renderFormGroup('Loss Percent', {
                 ...formProps,
                 name: 'unduePercent',
                 defaultValue: contractType.unduePercent || '',
                 type: 'number'
               })}
 
-              {/* <FormGroup>
-                <ControlLabel>{__('Contract type')}</ControlLabel>
-                <Select
-                  className="flex-item"
-                  placeholder={__('Contract type')}
-                  value={this.state.productCategoryIds}
-                  onChange={onSelectProductCategory}
-                  multi={true}
-                  options={['loan', 'leasing', 'pawn'].map((category) => ({
-                    value: category,
-                    label: category
-                  }))}
-                />
-              </FormGroup> */}
+              <FormGroup>
+                <ControlLabel required={true}>{__('Currency')}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="currency"
+                  componentClass="select"
+                  value={this.state.currency}
+                  required={true}
+                  onChange={this.onChangeField}
+                >
+                  {this.props.currentUser.configs?.dealCurrency?.map(
+                    (typeName, index) => (
+                      <option key={index} value={typeName}>
+                        {typeName}
+                      </option>
+                    )
+                  )}
+                </FormControl>
+              </FormGroup>
               <FormGroup>
                 <ControlLabel>{__('Lease Type')}:</ControlLabel>
 
@@ -202,7 +213,7 @@ class ContractTypeForm extends React.Component<Props, State> {
               </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Undue calc type')}
+                  {__('Loss calc type')}
                 </ControlLabel>
                 <FormControl
                   {...formProps}

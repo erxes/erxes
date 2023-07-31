@@ -55,7 +55,8 @@ const Chat = {
           _id: { $in: chat.participantIds || [] }
         }
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
 
     return users.map(async user => ({
