@@ -45,6 +45,10 @@ type State = {
   description: string;
   total: number;
   paymentInfo: any;
+  isGetEBarimt?: boolean;
+  isOrganization?: boolean;
+  organizationRegister?: string;
+  organizationName?: string;
 };
 
 class TransactionForm extends React.Component<Props, State> {
@@ -81,6 +85,7 @@ class TransactionForm extends React.Component<Props, State> {
     return {
       _id: finalValues._id,
       ...this.state,
+      isManual: true,
       payDate: finalValues.payDate,
       total: Number(this.state.total)
     };
@@ -161,7 +166,7 @@ class TransactionForm extends React.Component<Props, State> {
           {this.renderRowTr('Payment', 'payment')}
           {this.renderRowTr('Interest Eve', 'interestEve')}
           {this.renderRowTr('Interest Nonce', 'interestNonce')}
-          {this.renderRowTr('Undue', 'undue')}
+          {this.renderRowTr('Loss', 'undue')}
           {this.renderRowTr('Insurance', 'insurance')}
           {this.renderRowTr('Debt', 'debt')}
         </>
@@ -219,9 +224,25 @@ class TransactionForm extends React.Component<Props, State> {
         });
     };
 
+    const getCompanyName = register => {
+      if (register && register.length === 7)
+        client
+          .query({
+            query: gql(queries.getCompanyName),
+            variables: { companyRd: register }
+          })
+          .then(({ data }) => {
+            data?.ebarimtGetCompany?.info;
+            this.setState({
+              organizationName: data?.ebarimtGetCompany?.info?.name
+            });
+          });
+    };
+
     const onChangePayDate = value => {
       if (this.state.contractId && this.state.payDate !== value)
         getPaymentInfo(this.state.contractId, value);
+
       this.setState({ payDate: value });
     };
 
@@ -233,9 +254,23 @@ class TransactionForm extends React.Component<Props, State> {
           (e.target as HTMLInputElement).value = this.state.paymentInfo.closeAmount;
         }
       }
+      if (
+        (e.target as HTMLInputElement).name === 'organizationRegister' &&
+        this.state.isOrganization &&
+        this.state.isGetEBarimt
+      ) {
+        if ((e.target as HTMLInputElement).value.length > 7) return;
+        if ((e.target as HTMLInputElement).value.length < 7) {
+          this.setState({ organizationName: '' });
+        }
+        getCompanyName((e.target as HTMLInputElement).value);
+      }
+      const value =
+        e.target.type === 'checkbox'
+          ? (e.target as HTMLInputElement).checked
+          : (e.target as HTMLInputElement).value;
       this.setState({
-        [(e.target as HTMLInputElement).name]: (e.target as HTMLInputElement)
-          .value
+        [(e.target as HTMLInputElement).name]: value
       } as any);
     };
 
@@ -302,6 +337,65 @@ class TransactionForm extends React.Component<Props, State> {
                 />
               </FormGroup>
               {this.renderRowTr('Total', 'total', true)}
+              <FormGroup>
+                <ControlLabel>{__('Is get E-Barimt')}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  type={'checkbox'}
+                  componentClass="checkbox"
+                  useNumberFormat
+                  fixed={0}
+                  name="isGetEBarimt"
+                  value={this.state.isGetEBarimt}
+                  onChange={onChangeField}
+                  onClick={this.onFieldClick}
+                />
+              </FormGroup>
+              {this.state.isGetEBarimt && (
+                <FormGroup>
+                  <ControlLabel>{__('Is organization')}</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    type={'checkbox'}
+                    componentClass="checkbox"
+                    useNumberFormat
+                    fixed={0}
+                    name="isOrganization"
+                    value={this.state.isOrganization}
+                    onChange={onChangeField}
+                    onClick={this.onFieldClick}
+                  />
+                </FormGroup>
+              )}
+              {this.state.isGetEBarimt && this.state.isOrganization && (
+                <FormWrapper>
+                  <FormColumn>
+                    <FormGroup>
+                      <ControlLabel>{__('Organization Register')}</ControlLabel>
+                      <FormControl
+                        {...formProps}
+                        type={'number'}
+                        fixed={2}
+                        name="organizationRegister"
+                        value={this.state.organizationRegister}
+                        onChange={onChangeField}
+                        onClick={this.onFieldClick}
+                      />
+                    </FormGroup>
+                  </FormColumn>
+                  <FormColumn>
+                    <FormGroup>
+                      <ControlLabel>{__('Organization Name')}</ControlLabel>
+                      <FormControl
+                        {...formProps}
+                        disabled
+                        maxLength={7}
+                        value={this.state.organizationName}
+                      />
+                    </FormGroup>
+                  </FormColumn>
+                </FormWrapper>
+              )}
             </FormColumn>
           </FormWrapper>
 

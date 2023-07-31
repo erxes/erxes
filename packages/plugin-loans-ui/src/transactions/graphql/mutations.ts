@@ -7,7 +7,7 @@ const commonFields = `
   $invoiceId: String,
   $description: String,
   $total: Float,
-
+  $isManual: Boolean,
   $payDate: Date,
   $payment: Float,
   $interestEve: Float,
@@ -15,6 +15,9 @@ const commonFields = `
   $undue: Float,
   $insurance: Float,
   $debt: Float,
+  $isGetEBarimt: Boolean,
+  $isOrganization: Boolean,
+  $organizationRegister: String,
 `;
 
 const commonVariables = `
@@ -24,7 +27,7 @@ const commonVariables = `
   invoiceId: $invoiceId,
   description: $description,
   total: $total,
-
+  isManual: $isManual,
   payDate: $payDate,
   payment: $payment,
   interestEve: $interestEve,
@@ -32,6 +35,9 @@ const commonVariables = `
   undue: $undue,
   insurance: $insurance,
   debt: $debt,
+  isGetEBarimt: $isGetEBarimt,
+  isOrganization: $isOrganization,
+  organizationRegister: $organizationRegister,
 `;
 
 const changeFields = `
@@ -92,9 +98,19 @@ const transactionsRemove = `
   }
 `;
 
+const createEBarimtOnTransaction = `
+mutation createEBarimtOnTransaction($id: String!, $isGetEBarimt:Boolean, $isOrganization:Boolean, $organizationRegister:String) {
+  createEBarimtOnTransaction(id: $id, isGetEBarimt: $isGetEBarimt,isOrganization: $isOrganization,organizationRegister: $organizationRegister) {
+    _id
+    ${transactionOtherFields}
+  }
+}
+`;
+
 export default {
   transactionsAdd,
   transactionsEdit,
   transactionsChange,
-  transactionsRemove
+  transactionsRemove,
+  createEBarimtOnTransaction
 };

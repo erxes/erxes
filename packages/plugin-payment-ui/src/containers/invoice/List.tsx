@@ -21,7 +21,10 @@ const InvoiceListContainer = (props: Props) => {
 
   const invoicesQuery = useQuery<InvoicesQueryResponse>(queries.invoices, {
     variables: {
-      ...router.generatePaginationParams(props.queryParams || {})
+      ...router.generatePaginationParams(props.queryParams || {}),
+      searchValue: queryParams.searchValue,
+      kind: queryParams.kind,
+      status: queryParams.status
     },
     fetchPolicy: 'network-only'
   });

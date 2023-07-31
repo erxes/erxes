@@ -1,9 +1,13 @@
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, uploadHandler } from '@erxes/ui/src/utils';
-import React, { useRef, useState } from 'react';
-import { IAttachment } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Button } from '../../styles';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { IAttachment } from '@erxes/ui/src/types';
+import { Alert, uploadHandler } from '@erxes/ui/src/utils';
+import AudioRecorder from 'audio-recorder-polyfill';
+import mpegEncoder from 'audio-recorder-polyfill/mpeg-encoder';
+import React, { useRef, useState } from 'react';
+import { RecordButton, VoiceRecordWrapper } from '../../styles';
+import { __ } from '@erxes/ui/src/utils/core';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   attachments: IAttachment[] | null;
@@ -13,8 +17,16 @@ type Props = {
 const VoiceRecorder = (props: Props) => {
   const { attachments, setAttachments } = props;
   const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const mediaRecorderRef = useRef<any | null>(null);
+
+  const [audioChunks] = useState<BlobPart[]>([]); // eslint-disable-line
   let longPressTimer;
+  let recorder;
+
+  AudioRecorder.encoder = mpegEncoder;
+  AudioRecorder.prototype.mimeType = 'audio/mpeg';
+  window.MediaRecorder = AudioRecorder;
 
   const startRecording = () => {
     setIsRecording(true);
@@ -22,21 +34,22 @@ const VoiceRecorder = (props: Props) => {
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then(stream => {
-        const audioChunks: BlobPart[] = [];
-        mediaRecorderRef.current = new MediaRecorder(stream);
+        recorder = new MediaRecorder(stream);
 
-        mediaRecorderRef.current.addEventListener('dataavailable', event => {
+        mediaRecorderRef.current = recorder;
+
+        recorder.addEventListener('dataavailable', event => {
           audioChunks.push(event.data);
         });
 
-        mediaRecorderRef.current.addEventListener('stop', () => {
+        recorder.start(1000);
+
+        recorder.addEventListener('stop', () => {
           const audioBlob = new Blob(audioChunks, {
-            type: 'audio/mp3'
+            type: 'audio/wav; codecs=opus'
           });
           sendAudio(audioBlob);
         });
-
-        mediaRecorderRef.current.start();
 
         // Stop the recording after 30 seconds
         setTimeout(() => {
@@ -56,14 +69,29 @@ const VoiceRecorder = (props: Props) => {
   };
 
   const stopRecording = (isForceStop: boolean) => {
-    if (mediaRecorderRef.current && isForceStop) {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === 'recording'
+    ) {
       mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => {
+        track.stop();
+        track.enabled = false;
+      });
+      const audioContext = new AudioContext();
+      audioContext.close();
+      const microphone = audioContext.createMediaStreamSource(
+        mediaRecorderRef.current.stream
+      );
+      microphone.disconnect();
+
       setIsRecording(false);
+      recorder = null;
     }
   };
 
   const convertBlobToFileList = (blob: Blob) => {
-    const fileName = 'audio.mp3';
+    const fileName = 'audio.wav';
     const file = new File([blob], fileName, { type: blob.type });
     const fileList = [file];
 
@@ -74,8 +102,9 @@ const VoiceRecorder = (props: Props) => {
     const files: any = convertBlobToFileList(audioBlob);
 
     uploadHandler({
-      files: files,
+      files,
       beforeUpload: () => {
+        setIsUploading(true);
         return <Spinner />;
       },
       afterUpload: ({ response, fileInfo }) => {
@@ -83,6 +112,7 @@ const VoiceRecorder = (props: Props) => {
           ...(attachments || []),
           Object.assign({ url: response }, fileInfo)
         ]);
+        setIsUploading(false);
       }
     });
   };
@@ -103,16 +133,24 @@ const VoiceRecorder = (props: Props) => {
   };
 
   return (
-    <div>
-      <Button
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        isRecording={isRecording}
+    <VoiceRecordWrapper>
+      {isUploading && <p>{__('preparing audio')}</p>}
+      {isRecording && <p>{__('recording')}...</p>}
+      <Tip
+        text={
+          isRecording ? __('release to send') : __('press and hold to record')
+        }
       >
-        <Icon icon="microphone-2" size={18} />
-      </Button>
-    </div>
+        <RecordButton
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          isRecording={isRecording}
+        >
+          <Icon icon="microphone-2" size={18} />
+        </RecordButton>
+      </Tip>
+    </VoiceRecordWrapper>
   );
 };
 

@@ -33,6 +33,10 @@ class Sidebar extends React.Component {
             '/erxes-plugin-product-places/settings/split',
             'Stage in products splits config'
           )}
+          {this.renderListItem(
+            '/erxes-plugin-product-places/settings/print',
+            'Stage in products prints config'
+          )}
         </List>
       </LeftSidebar>
     );

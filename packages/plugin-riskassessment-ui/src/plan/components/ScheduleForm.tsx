@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   ControlLabel,
-  DateControl,
   FormControl,
   FormGroup,
   SelectTeamMembers,
@@ -12,23 +11,23 @@ import {
 } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
 import { Columns } from '@erxes/ui/src/styles/chooser';
-import { Column, DateContainer, ModalFooter } from '@erxes/ui/src/styles/main';
+import { Column, ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { SelectIndicatorGroups, SelectIndicators } from '../../common/utils';
 import { FormContainer } from '../../styles';
+import { IPLan, ISchedule } from '../common/types';
 import { CardCustomFields, SelectStructure } from '../common/utils';
 import { mutations } from '../graphql';
 
 type Props = {
   history: any;
-  schedule: any;
-  plan: any;
-  planId?: string;
+  schedule?: ISchedule;
+  plan: IPLan;
+  refetch: () => void;
   cardType: string;
   pipelineId: string;
   closeModal: () => void;
-  refetch: (variables?: any) => Promise<any>;
-  onSave: (doc: any) => void;
+  duplicate?: boolean;
 };
 
 type State = {
@@ -48,15 +47,15 @@ class ScheduleForm extends React.Component<Props, State> {
   render() {
     const {
       schedule,
-      planId,
       closeModal,
+      refetch,
       cardType,
       pipelineId,
       plan,
-      refetch
+      duplicate
     } = this.props;
     const { useGroup, doc } = this.state;
-    const { structureType } = plan;
+    const { structureType, structureDetail, structureTypeId } = plan;
 
     const handleChange = (value, name) => {
       this.setState({ doc: { ...doc, [name]: value } });
@@ -68,27 +67,24 @@ class ScheduleForm extends React.Component<Props, State> {
       handleChange(value, name);
     };
 
-    const onDateChange = date => {
-      if (date < new Date()) {
-        return Alert.error('You must select a date after the from today');
-      }
-      handleChange(date, 'date');
-    };
-
     const handleSave = () => {
-      const mutation =
-        typeof schedule._id === 'string'
-          ? mutations.updateSchedule
-          : mutations.addSchedule;
+      let mutation = mutations.addSchedule;
+      const isUpdate = typeof schedule?._id === 'string' && !duplicate;
+
+      if (isUpdate) {
+        mutation = mutations.updateSchedule;
+      }
 
       client
         .mutate({
           mutation: gql(mutation),
-          variables: { planId, ...doc }
+          variables: { planId: plan._id, ...doc }
         })
         .then(() => {
-          Alert.success('Added schedule successfully');
           refetch && refetch();
+          Alert.success(
+            `${isUpdate ? 'Updated' : 'Added'} schedule successfully`
+          );
           closeModal();
         })
         .catch(err => {
@@ -126,6 +122,15 @@ class ScheduleForm extends React.Component<Props, State> {
         </FormGroup>
         <Columns style={{ gap: '20px' }}>
           <Column>
+            <SelectStructure
+              name="structureTypeId"
+              structureType={structureType}
+              structureTypeId={schedule?.structureTypeId}
+              onChange={handleChange}
+              filter={{ searchValue: structureDetail?.code || '' }}
+            />
+          </Column>
+          <Column>
             <FormGroup>
               <ControlLabel>{__('Assign To')}</ControlLabel>
               <SelectTeamMembers
@@ -136,25 +141,7 @@ class ScheduleForm extends React.Component<Props, State> {
               />
             </FormGroup>
           </Column>
-          <Column>
-            <SelectStructure
-              structureType={structureType}
-              structureTypeIds={schedule?.structureTypeIds}
-              onChange={handleChange}
-            />
-          </Column>
         </Columns>
-        <FormGroup>
-          <ControlLabel>{__('Date')}</ControlLabel>
-          <DateContainer>
-            <DateControl
-              name="date"
-              value={doc.date}
-              placeholder="select from date "
-              onChange={onDateChange}
-            />
-          </DateContainer>
-        </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Name')}</ControlLabel>
           <FormControl

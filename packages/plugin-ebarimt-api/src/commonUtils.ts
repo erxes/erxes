@@ -70,9 +70,9 @@ export const getPostDataCommon = async (
   contentId,
   orderInfo
 ) => {
-  let billType = '1';
-  let customerCode = '';
-  let customerName = '';
+  let billType = orderInfo.billType || '1';
+  let customerCode = orderInfo.customerCode || '';
+  let customerName = orderInfo.customerName || '';
 
   const productsIds = orderInfo.details.map(item => item.productId);
   const products = await sendProductsMessage({

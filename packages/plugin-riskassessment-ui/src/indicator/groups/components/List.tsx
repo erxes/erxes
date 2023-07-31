@@ -4,14 +4,15 @@ import {
   FormControl,
   HeaderDescription,
   ModalTrigger,
-  router,
   Table,
-  __
+  __,
+  router
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { subMenu } from '../../../common/constants';
 import { DefaultWrapper } from '../../../common/utils';
+import { FlexRow, HeaderContent } from '../../../styles';
 import Sidebar from '../../components/SideBar';
 import { IIndicatorsGroups } from '../common/types';
 import Form from '../containers/Form';
@@ -163,6 +164,14 @@ class List extends React.Component<Props, State> {
         title="Indicators Groups"
         icon="/images/actions/24.svg"
         description=""
+        renderExtra={
+          <FlexRow>
+            <HeaderContent>
+              {__(`Total count`)}
+              <h4>{totalCount || 0}</h4>
+            </HeaderContent>
+          </FlexRow>
+        }
       />
     );
 

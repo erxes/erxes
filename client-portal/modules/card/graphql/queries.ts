@@ -63,16 +63,16 @@ const clientPortalGetTicket = `
 `;
 
 const clientPortalGetTask = `
-  query taskDetail($_id: String!) {
-    taskDetail(_id: $_id) {
+  query taskDetail($_id: String!, $clientPortalCard: Boolean) {
+    taskDetail(_id: $_id, clientPortalCard: $clientPortalCard) {
      ${itemFields}
     }
   }
 `;
 
 const clientPortalGetDeal = `
-  query dealDetail($_id: String!) {
-    dealDetail(_id: $_id) {
+  query dealDetail($_id: String!, $clientPortalCard: Boolean) {
+    dealDetail(_id: $_id, clientPortalCard: $clientPortalCard) {
       ${itemFields}
       productsData
     }
@@ -370,6 +370,34 @@ const productCategories = `
   }
 `;
 
+const checklists = `
+    query checklists($contentType: String, $contentTypeId: String) {
+      checklists( contentType: $contentType, contentTypeId: $contentTypeId  ) {
+        _id
+      }
+    }
+`;
+
+const checklistDetail = `
+  query checklistDetail($_id: String!) {
+    checklistDetail(_id: $_id) {
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+      }
+      percent    
+    }
+  }
+`;
+
 export default {
   clientPortalGetTicket,
   clientPortalGetDeal,
@@ -387,5 +415,7 @@ export default {
   pipelineLabels,
   pipelineAssignedUsers,
   stages,
-  productCategories
+  productCategories,
+  checklists,
+  checklistDetail
 };

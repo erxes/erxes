@@ -1,6 +1,6 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import React from 'react';
-import { FlexWrapper } from './styles';
+import Datetime from "@nateradebaugh/react-datetime";
+import React from "react";
+import { FlexWrapper } from "./styles";
 
 type Props = {
   onChange?: (e: React.FormEvent<HTMLElement>) => void;
@@ -11,13 +11,13 @@ type Props = {
   errors?: any;
   dateFormat?: string;
   required?: boolean;
-  timeFormat?: boolean;
+  timeFormat?: boolean | string;
   registerChild?: (child: any) => void;
 };
 
 class DateControl extends React.Component<Props> {
   static defaultProps = {
-    dateFormat: 'MMM,DD YYYY',
+    dateFormat: "MMM,DD YYYY"
   };
 
   componentDidMount() {
@@ -36,12 +36,12 @@ class DateControl extends React.Component<Props> {
       placeholder,
       dateFormat,
       timeFormat,
-      required,
+      required
     } = this.props;
-    const errorMessage = errors && errors[name || ''];
+    const errorMessage = errors && errors[name || ""];
 
     // cancel custom browser default form validation error
-    const onChange = (e) => {
+    const onChange = e => {
       if (this.props.onChange) {
         this.props.onChange(e);
       }
@@ -49,9 +49,9 @@ class DateControl extends React.Component<Props> {
 
     const inputProps = {
       name,
-      placeholder: placeholder || '',
+      placeholder: placeholder || "",
       required: required || false,
-      autoComplete: 'off',
+      autoComplete: "off"
     };
 
     const attributes = {
@@ -61,7 +61,7 @@ class DateControl extends React.Component<Props> {
       value,
       closeOnSelect: true,
       onChange,
-      utc: true,
+      utc: true
     };
 
     return (

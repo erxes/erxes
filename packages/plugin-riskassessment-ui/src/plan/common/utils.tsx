@@ -6,11 +6,14 @@ import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
 import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
-import { ControlLabel, FormGroup, Spinner } from '@erxes/ui/src';
+import { ControlLabel, FormGroup, Spinner, __ } from '@erxes/ui/src';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import React from 'react';
 import { SelectOperations } from '../../common/utils';
+import { DetailPopOver } from '../../assessments/common/utils';
+import { Attributes } from '@erxes/ui-automations/src/components/forms/actions/styles';
+// import { CARD_ATTRIBUTE_TYPES } from './constants';
 
 const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -187,46 +190,56 @@ export function CardCustomFields({
 
 export function SelectStructure({
   structureType,
+  name,
   structureTypeIds,
+  structureTypeId,
   filter,
-  onChange
+  onChange,
+  multi,
+  label
 }: {
   structureType: string;
-  structureTypeIds: string[];
+  structureTypeIds?: string[];
+  structureTypeId?: string;
+  name: string;
+  label?: string;
   filter?: any;
   onChange: (value, name) => void;
+  multi?: boolean;
 }) {
   const content = () => {
     switch (structureType) {
       case 'branch':
         return (
           <SelectBranches
-            label="Select Branch"
-            name="structureTypeIds"
+            label={`Select ${label || ''} Branch`}
+            name={name}
             filterParams={filter}
-            initialValue={structureTypeIds}
+            initialValue={structureTypeIds || structureTypeId}
             onSelect={onChange}
+            multi={!!multi}
           />
         );
       case 'department':
         return (
           <SelectDepartments
-            label="Select Department"
-            name="structureTypeIds"
+            label={`Select ${label || ''} Department`}
+            name={name}
             filterParams={filter}
-            initialValue={structureTypeIds}
+            initialValue={structureTypeIds || structureTypeId}
             onSelect={onChange}
+            multi={!!multi}
           />
         );
       case 'operation':
         return (
           <SelectOperations
-            label="Select Operation"
-            name="structureTypeIds"
+            label={`Select ${label || ''} Operation`}
+            name={name}
             filterParams={filter}
-            initialValue={structureTypeIds}
+            initialValue={structureTypeIds || structureTypeId}
             onSelect={onChange}
-            multi
+            multi={!!multi}
           />
         );
 

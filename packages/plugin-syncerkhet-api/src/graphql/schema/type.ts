@@ -6,4 +6,10 @@ export const types = `
     syncedBillNumber: String
     syncedCustomer: String
   }
+
+  type erkhetRemainder {
+    _id: String!
+    remainder: Int
+    remainders: [JSON]
+  }
 `;

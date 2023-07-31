@@ -9,16 +9,17 @@ import {
   __
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import _loadash from 'lodash';
 import React from 'react';
 import { subMenu } from '../../common/constants';
 import { ICommonListProps } from '../../common/types';
 import { DefaultWrapper } from '../../common/utils';
+import { FlexRow, HeaderContent } from '../../styles';
 import { RiskIndicatorsType } from '../common/types';
 import Form from '../containers/Form';
 import TableRow from './Row';
 import SideBar from './SideBar';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
@@ -179,7 +180,7 @@ class ListComp extends React.Component<Props, IState> {
   };
 
   render() {
-    const { list, queryParams, refetch } = this.props;
+    const { list, queryParams, totalCount } = this.props;
     const { selectedValue } = this.state;
 
     const rightActionBar = (
@@ -195,6 +196,14 @@ class ListComp extends React.Component<Props, IState> {
         title="Risk Indicators"
         icon="/images/actions/26.svg"
         description=""
+        renderExtra={
+          <FlexRow>
+            <HeaderContent>
+              {__(`Total count`)}
+              <h4>{totalCount || 0}</h4>
+            </HeaderContent>
+          </FlexRow>
+        }
       />
     );
 
