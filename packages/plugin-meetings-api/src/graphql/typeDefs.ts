@@ -3,7 +3,7 @@ import { mutations, queries } from './schema/meeting';
 
 const types = `
   type Meeting {
-    _id: String!
+    _id: String
     title: String
     description: String
     startDate: Date

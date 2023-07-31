@@ -1,6 +1,6 @@
 export const queries = `
   meetings: [Meeting]
-  meetingDetail(companyId: String!): Meeting
+  meetingDetail(_id: String!): Meeting
 `;
 const params = `
   title: String

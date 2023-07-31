@@ -2,18 +2,18 @@ import { IContext } from '../../../messageBroker';
 
 const meetingQueries = {
   async meetings(_root, { userId }, { models }: IContext) {
-    if (!userId) {
-      throw new Error('User id requered');
-    }
+    // if (!userId) {
+    //   throw new Error('User id requered');
+    // }
 
     return await models.Meetings.getMeetings();
   },
-  async meetingDetail(_root, { id }, { models }: IContext) {
-    if (!id) {
-      throw new Error('Meeting id requered');
+  async meetingDetail(_root, { _id }, { models }: IContext) {
+    if (!_id) {
+      return [];
     }
 
-    return await models.Meetings.meetingDetail(id);
+    return await models.Meetings.meetingDetail(_id);
   }
 };
 

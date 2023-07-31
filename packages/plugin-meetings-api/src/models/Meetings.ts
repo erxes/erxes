@@ -5,12 +5,18 @@ import {
 } from './definitions/meeting';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { IUser } from '@erxes/api-utils/src/types';
+import { userInfo } from 'os';
 
 export interface IMeetingModel extends Model<IMeetingDocument> {
-  meetingDetail(companyId: String): Promise<IMeetingDocument>;
+  meetingDetail(_id: String): Promise<IMeetingDocument>;
   getMeetings(): Promise<IMeetingDocument>;
-  createMeeting(args: IMeeting): Promise<IMeetingDocument>;
-  updateMeeting(_id: String, args: IMeeting): Promise<IMeetingDocument>;
+  createMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
+  updateMeeting(
+    _id: String,
+    args: IMeeting,
+    user: IUser
+  ): Promise<IMeetingDocument>;
   removeMeeting(args: IMeeting): Promise<IMeetingDocument>;
 }
 
@@ -26,29 +32,31 @@ export const loadMeetingClass = (model: IModels) => {
       return meetings;
     }
 
-    public static async meetingDetail(companyId: string) {
-      const meeting = await model.Meetings.findOne({ companyId });
+    public static async meetingDetail(_id: string) {
+      const meeting = await model.Meetings.findOne({ _id });
 
       if (!meeting) {
-        throw new Error('Meeting not found');
+        return [];
       }
 
       return meeting;
     }
 
     // create
-    public static async createMeeting(doc) {
+    public static async createMeeting(doc, user) {
       console.log('createMeeting:', doc);
       return await model.Meetings.create({
         ...doc,
-        createdAt: new Date()
+        createdAt: new Date(),
+        createdBy: user._id
       });
     }
     // update
-    public static async updateMeeting(_id: string, doc) {
-      await model.Meetings.updateOne({ _id }, { $set: { ...doc } }).then(err =>
-        console.error(err)
-      );
+    public static async updateMeeting(_id: string, doc, user) {
+      await model.Meetings.updateOne(
+        { _id },
+        { $set: { ...doc, updatedBy: user._id } }
+      ).then(err => console.error(err));
     }
     // remove
     public static async removeMeeting(_id: string) {

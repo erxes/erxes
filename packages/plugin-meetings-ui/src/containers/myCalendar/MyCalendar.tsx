@@ -2,33 +2,35 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import SideBar from '../components/SideBar';
 import {
   EditTypeMutationResponse,
   RemoveTypeMutationResponse,
-  TypeQueryResponse
-} from '../types';
-import { mutations, queries } from '../graphql';
+  MeetingsQueryResponse,
+  IMeeting
+} from '../../types';
+import { mutations, queries } from '../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import SideBar from '../../components/myCalendar/SideBar';
 
 type Props = {
   history: any;
   currentTypeId?: string;
+  queryParams: any;
 };
 
 type FinalProps = {
-  listMeetingsTypeQuery: TypeQueryResponse;
+  meetingQuery: MeetingsQueryResponse;
 } & Props &
   RemoveTypeMutationResponse &
   EditTypeMutationResponse;
 
 const TypesListContainer = (props: FinalProps) => {
-  const { listMeetingsTypeQuery, typesEdit, typesRemove, history } = props;
+  const { meetingQuery, typesEdit, typesRemove, history } = props;
 
-  if (listMeetingsTypeQuery.loading) {
+  if (meetingQuery.loading) {
     return <Spinner />;
   }
 
@@ -66,11 +68,16 @@ const TypesListContainer = (props: FinalProps) => {
       })
       .catch(e => Alert.error(e.message));
   };
+  const moment = require('moment');
+
+  const meetings = meetingQuery.meetings || [];
+  const today = moment(); // Get today's date
+  const tomorrow = moment().add(1, 'day'); // Get tomorrow's date
 
   const updatedProps = {
     ...props,
-    types: listMeetingsTypeQuery.meetingsTypes || [],
-    loading: listMeetingsTypeQuery.loading,
+    meetings: meetingQuery.meetings || [],
+    loading: meetingQuery.loading,
     remove,
     renderButton
   };
@@ -80,16 +87,10 @@ const TypesListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.listMeetingsTypes), {
-      name: 'listMeetingsTypeQuery',
+    graphql(gql(queries.meetings), {
+      name: 'meetingQuery',
       options: () => ({
         fetchPolicy: 'network-only'
-      })
-    }),
-    graphql(gql(mutations.removeType), {
-      name: 'typesRemove',
-      options: () => ({
-        refetchQueries: ['listMeetingsTypeQuery']
       })
     })
   )(TypesListContainer)

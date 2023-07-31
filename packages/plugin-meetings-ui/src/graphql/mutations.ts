@@ -1,12 +1,19 @@
-const add = `
-  mutation meetingssAdd($name: String!, $expiryDate: Date, $typeId:String) {
-    meetingssAdd(name:$name, expiryDate: $expiryDate, typeId:$typeId) {
-      name
-      _id
-      expiryDate
-      typeId
-    }
+const addMeeting = `
+  mutation MeetingAdd($title: String, $description: String, $startDate: Date, $endDate: Date, $location: String, $createdBy: String, $status: String, $participantIds: [String]) {
+  meetingAdd(title: $title, description: $description, startDate: $startDate, endDate: $endDate, location: $location, createdBy: $createdBy, status: $status, participantIds: $participantIds) {
+    _id
+    title
+    description
+    startDate
+    endDate
+    location
+    createdBy
+    createdAt
+    status
+    companyId
+    participantIds
   }
+}
 `;
 
 const remove = `
@@ -15,7 +22,7 @@ const remove = `
   }
   `;
 
-const edit = `
+const editMeeting = `
   mutation meetingssEdit($_id: String!, $name:String, $expiryDate:Date, $checked:Boolean, $typeId:String){
     meetingssEdit(_id: $_id, name: $name, expiryDate:$expiryDate, checked:$checked, typeId:$typeId){
       _id
@@ -47,9 +54,9 @@ const editType = `
 `;
 
 export default {
-  add,
+  addMeeting,
   remove,
-  edit,
+  editMeeting,
   addType,
   removeType,
   editType

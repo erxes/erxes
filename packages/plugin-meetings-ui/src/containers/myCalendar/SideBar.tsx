@@ -1,39 +1,40 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { Alert, confirm, router, withProps } from '@erxes/ui/src/utils';
-import List from '../components/List';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
-  EditMutationResponse,
+  EditTypeMutationResponse,
+  RemoveTypeMutationResponse,
   MeetingsQueryResponse,
-  RemoveMutationResponse
-} from '../types';
-import { mutations, queries } from '../graphql';
+  IMeeting
+} from '../../types';
+import { mutations, queries } from '../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import SideBar from '../../components/myCalendar/SideBar';
 
 type Props = {
   history: any;
-  searchFilter: string;
-
+  currentTypeId?: string;
   queryParams: any;
-  route?: string;
 };
 
 type FinalProps = {
   meetingQuery: MeetingsQueryResponse;
 } & Props &
-  RemoveMutationResponse &
-  EditMutationResponse;
+  RemoveTypeMutationResponse &
+  EditTypeMutationResponse;
 
-const ListContainer = (props: FinalProps) => {
-  const { meetingQuery, removeMutation, editMutation, history } = props;
+const TypesListContainer = (props: FinalProps) => {
+  const { meetingQuery, typesEdit, typesRemove, history } = props;
 
   if (meetingQuery.loading) {
     return <Spinner />;
   }
+
+  // calls gql mutation for edit/add type
   const renderButton = ({
     passedName,
     values,
@@ -43,7 +44,7 @@ const ListContainer = (props: FinalProps) => {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.editMeeting : mutations.addMeeting}
+        mutation={object ? mutations.editType : mutations.addType}
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
@@ -51,15 +52,15 @@ const ListContainer = (props: FinalProps) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={['meetings']}
+        refetchQueries={['listMeetingsTypeQuery']}
       />
     );
   };
 
-  const remove = meetings => {
+  const remove = type => {
     confirm('You are about to delete the item. Are you sure? ')
       .then(() => {
-        removeMutation({ variables: { _id: meetings._id } })
+        typesRemove({ variables: { _id: type._id } })
           .then(() => {
             Alert.success('Successfully deleted an item');
           })
@@ -68,59 +69,30 @@ const ListContainer = (props: FinalProps) => {
       .catch(e => Alert.error(e.message));
   };
 
-  const edit = meetings => {
-    editMutation({
-      variables: {
-        _id: meetings._id,
-        name: meetings.name,
-        checked: meetings.checked,
-        expiryDate: meetings.expiryDate,
-        type: meetings.type
-      }
-    })
-      .then(() => {
-        Alert.success('Successfully updated an item');
-        meetingQuery.refetch();
-      })
-      .catch(e => Alert.error(e.message));
-  };
-
   const updatedProps = {
     ...props,
     meetings: meetingQuery.meetings || [],
-    types: [],
     loading: meetingQuery.loading,
     remove,
-    edit,
     renderButton
   };
-  return <List {...updatedProps} />;
+
+  return <SideBar {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.listMeetingsTypes), {
-      name: 'listMeetingsTypeQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-
     graphql(gql(queries.meetings), {
       name: 'meetingQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql(gql(mutations.remove), {
-      name: 'removeMutation',
+    graphql(gql(mutations.removeType), {
+      name: 'typesRemove',
       options: () => ({
-        refetchQueries: ['listQuery']
+        refetchQueries: ['listMeetingsTypeQuery']
       })
-    }),
-
-    graphql(gql(mutations.editMeeting), {
-      name: 'editMutation'
     })
-  )(ListContainer)
+  )(TypesListContainer)
 );

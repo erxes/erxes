@@ -1,0 +1,216 @@
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Button from '@erxes/ui/src/components/Button';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Datetime from '@nateradebaugh/react-datetime';
+import dayjs from 'dayjs';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import React, { useState } from 'react';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import { IMeeting } from '../../../types';
+import { CustomRangeContainer } from '../../../styles';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+
+type Props = {
+  closeModal?: () => void;
+  afterSave: () => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  meetings?: IMeeting;
+  queryParams: any;
+} & ICommonFormProps;
+
+type IItem = {
+  order?: string;
+  name: string;
+  _id: string;
+};
+
+export const MeetingForm = (props: Props) => {
+  const { meetings, queryParams } = props;
+
+  const [userIds, setUserIds] = useState([]);
+
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+
+  const generateDoc = (values: {
+    _id?: string;
+    name: string;
+    content: string;
+    participantIds: string[];
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    const finalValues = values;
+
+    if (meetings) {
+      finalValues._id = meetings._id;
+    }
+    if (userIds) {
+      finalValues.participantIds = userIds;
+    }
+    if (startDate) {
+      finalValues.startDate = startDate;
+    }
+    if (endDate) {
+      finalValues.endDate = endDate;
+    }
+
+    return {
+      ...finalValues
+    };
+  };
+
+  const generateTagOptions = (types: IItem[]) => {
+    const result: React.ReactNode[] = [];
+
+    for (const type of types) {
+      result.push(
+        <option key={type._id} value={type._id}>
+          {type.name}
+        </option>
+      );
+    }
+
+    return result;
+  };
+
+  const onStartDateChange = dateVal => {
+    setStartDate(dateVal);
+  };
+
+  const onEndDateChange = dateVal => {
+    setEndDate(dateVal);
+  };
+
+  const renderDatePicker = () => {
+    return (
+      <CustomRangeContainer>
+        <DateControl
+          value={startDate || ''}
+          required={false}
+          name="startDate"
+          onChange={onStartDateChange}
+          placeholder={'Start date'}
+          dateFormat={'YYYY-MM-DD'}
+          timeFormat="HH:mm"
+        />
+        <DateControl
+          value={endDate || ''}
+          required={false}
+          name="endDate"
+          placeholder={'End date'}
+          onChange={onEndDateChange}
+          dateFormat={'YYYY-MM-DD'}
+          timeFormat="HH:mm"
+        />
+      </CustomRangeContainer>
+    );
+  };
+
+  const onUserSelect = users => {
+    setUserIds(users);
+  };
+
+  const renderContent = (formProps: IFormProps) => {
+    const { meetings, afterSave, closeModal, renderButton } = props;
+    const { values, isSubmitted } = formProps;
+    const object = meetings || ({} as IMeeting);
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Meeting title</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="title"
+            defaultValue={object.title}
+            type="text"
+            required={true}
+            autoFocus={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={false}>Start and Close date</ControlLabel>
+          {renderDatePicker()}
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Place</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="location"
+            defaultValue={object.location}
+            type="text"
+            required={true}
+            autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <div style={{ marginBottom: '0' }}>
+            <ControlLabel>Team members </ControlLabel>
+            <div style={{ width: '100%' }}>
+              <SelectTeamMembers
+                initialValue={userIds}
+                customField="employeeId"
+                filterParams={{}}
+                queryParams={queryParams}
+                label={'Select team member'}
+                onSelect={onUserSelect}
+                name="userId"
+              />
+            </div>
+          </div>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Description</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="description"
+            defaultValue={object.description}
+            type="text"
+            required={true}
+            autoFocus={true}
+          />
+        </FormGroup>
+        {
+          <FormGroup>
+            <ControlLabel required={true}>Category</ControlLabel>
+
+            <FormControl
+              {...formProps}
+              name="companyId"
+              componentClass="select"
+              defaultValue={object.companyId}
+            >
+              {generateTagOptions([
+                { _id: '1', name: 'Oyu' },
+                { _id: '2', name: 'Mcs' }
+              ])}
+            </FormControl>
+          </FormGroup>
+        }
+
+        <ModalFooter id={'AddTagButtons'}>
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
+            Cancel
+          </Button>
+
+          {renderButton({
+            passedName: 'meetings',
+            values: generateDoc(values),
+            isSubmitted,
+            callback: closeModal || afterSave,
+            object: meetings
+          })}
+        </ModalFooter>
+      </>
+    );
+  };
+
+  return <Form renderContent={renderContent} />;
+};

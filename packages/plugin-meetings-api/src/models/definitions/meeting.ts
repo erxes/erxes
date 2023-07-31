@@ -11,9 +11,11 @@ export interface IMeeting {
   location: string;
 
   createdBy: string;
+  updatedBy: string;
+
   createdAt: Date;
 
-  status: 'scheduled' | 'completed' | 'canceled';
+  status: string;
 
   companyId: string;
 
@@ -34,11 +36,13 @@ export const meetingSchema = new Schema({
   location: field({ type: String }),
 
   createdBy: field({ type: String }),
+  updatedBy: field({ type: String }),
   createdAt: field({
     type: Date,
     default: Date.now,
     label: 'Registered at'
   }),
+  companyId: field({ type: String }),
 
   status: field({
     type: String,

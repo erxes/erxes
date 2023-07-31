@@ -7,11 +7,11 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IMeetings, IType } from '../types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+import { IMeeting } from '../types';
 
 const MeetingsNameStyled = styledTS<{ checked: boolean }>(styled.div).attrs({})`
     color: ${colors.colorCoreBlack};
@@ -31,13 +31,12 @@ const Margin = styledTS(styled.div)`
 `;
 
 type Props = {
-  meetings: IMeetings;
+  meetings: any;
   space: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  meetingss: IMeetings[];
-  remove: (meetings: IMeetings) => void;
-  edit: (meetings: IMeetings) => void;
-  types?: IType[];
+  meetingDetail: IMeeting;
+  remove: (meetings: IMeeting) => void;
+  edit: (meetings: IMeeting) => void;
 };
 
 type State = {
@@ -59,12 +58,10 @@ class Row extends React.Component<Props, State> {
 
   toggleCheck = () => {
     const { edit, meetings } = this.props;
-
-    edit({ _id: meetings._id, checked: !meetings.checked });
   };
 
   render() {
-    const { meetings, renderButton, space, meetingss, types } = this.props;
+    const { meetings, renderButton, space, meetingDetail } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -77,10 +74,10 @@ class Row extends React.Component<Props, State> {
     const content = props => (
       <Form
         {...props}
-        types={types}
+        types={[]}
         meetings={meetings}
         renderButton={renderButton}
-        meetingss={meetingss}
+        meetingss={meetingDetail}
       />
     );
 

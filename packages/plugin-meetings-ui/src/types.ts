@@ -1,27 +1,32 @@
-export interface IMeetings {
+export interface IMeeting {
   _id: string;
-  name?: string;
-  createdAt?: Date;
-  expiryDate?: Date;
-  totalObjectCount?: number;
-  checked?: boolean;
-  typeId?: string;
-  currentType?: IType;
-}
+  title: string;
+  description: string;
 
-export interface IType {
-  _id: string;
-  name: string;
+  startDate: Date;
+  endDate: Date;
+  location: string;
+
+  createdBy: string;
+  createdAt: Date;
+
+  status: string;
+
+  companyId: string;
+
+  participantIds: string[];
 }
 
 // queries
 export type MeetingsQueryResponse = {
-  meetingss: IMeetings[];
+  meetings: IMeeting[];
   refetch: () => void;
   loading: boolean;
 };
-export type TypeQueryResponse = {
-  meetingsTypes: IType[];
+
+// queries
+export type MeetingDetailQueryResponse = {
+  meetingDetail: IMeeting;
   refetch: () => void;
   loading: boolean;
 };

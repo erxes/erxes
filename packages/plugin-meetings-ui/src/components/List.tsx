@@ -1,121 +1,130 @@
 import Button from '@erxes/ui/src/components/Button';
-import { IMeetings, IType } from '../types';
-import Row from './Row';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import Form from './Form';
+import React, { useEffect, useState } from 'react';
+import { MeetingForm } from '../components/myCalendar/meeting/Form';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { IMeeting } from '../types';
+
+import { menuMeeting } from '../contants';
+import { MyCalendarList } from './myCalendar/MyCalendar';
+import SideBar from '../containers/myCalendar/SideBar';
 
 type Props = {
-  meetingss: IMeetings[];
-  types: IType[];
-  typeId?: string;
+  meetings: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  remove: (meetings: IMeetings) => void;
-  edit: (meetings: IMeetings) => void;
+  remove: (meetings: IMeeting) => void;
+  edit: (meetings: IMeeting) => void;
   loading: boolean;
+  searchFilter: string;
+
+  queryParams: any;
+  route?: string;
+  history: string;
 };
 
-function List({
-  meetingss,
-  typeId,
-  types,
-  remove,
-  renderButton,
-  loading,
-  edit
-}: Props) {
+function List(props: Props) {
+  const {
+    meetings,
+    remove,
+    renderButton,
+    loading,
+    edit,
+    searchFilter,
+    queryParams,
+    route,
+    history
+  } = props;
+  const [showSideBar, setShowSideBar] = useState<Boolean>(true);
+  const [component, setComponent] = useState(<div />);
+  const [showCreateMeeting, setShowCreateMeeting] = useState(false);
+
+  const { meetingId } = queryParams;
+  const routePath = location.pathname.split('/').slice(-1)[0];
+  useEffect(() => {
+    switch (routePath) {
+      case 'myMeeting':
+        setComponent(<div>2</div>);
+        break;
+      case 'agendaTemplate':
+        setComponent(<div>1</div>);
+        break;
+      default:
+        setComponent(
+          <MyCalendarList
+            {...props}
+            meetings={meetings}
+            queryParams={queryParams}
+            showCreateMeeting={showCreateMeeting}
+          />
+        );
+    }
+  }, [queryParams]);
+
   const trigger = (
-    <Button id={'AddMeetingsButton'} btnStyle="success" icon="plus-circle">
-      Add Meetings
+    <Button
+      id={'AddMeetingsButton'}
+      btnStyle="success"
+      icon="plus-circle"
+      onClick={() => setShowCreateMeeting(true)}
+    >
+      Create new meetings
     </Button>
   );
 
   const modalContent = props => (
-    <Form
+    <MeetingForm
       {...props}
-      types={types}
+      types={[]}
       renderButton={renderButton}
-      meetingss={meetingss}
+      meetingDetail={meetings}
     />
   );
 
   const actionBarRight = (
     <ModalTrigger
-      title={__('Add meetings')}
+      title={__('Create meetings')}
       trigger={trigger}
       content={modalContent}
       enforceFocus={false}
+      size="xl"
     />
   );
 
-  const title = <Title capitalize={true}>{__('Meetings')}</Title>;
+  const title = !meetingId && (
+    <Title capitalize={true}>{__('My Calendar')}</Title>
+  );
 
   const actionBar = (
     <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
   );
 
-  const content = (
-    <Table>
-      <thead>
-        <tr>
-          <th>{__('Todo')}</th>
-          <th>{__('Expiry Date')}</th>
-          <th>{__('Actions')}</th>
-        </tr>
-      </thead>
-      <tbody id={'MeetingssShowing'}>
-        {meetingss.map(meetings => {
-          return (
-            <Row
-              space={0}
-              key={meetings._id}
-              meetings={meetings}
-              remove={remove}
-              edit={edit}
-              renderButton={renderButton}
-              meetingss={meetingss}
-              types={types}
-            />
-          );
-        })}
-      </tbody>
-    </Table>
-  );
-
-  const SideBarList = asyncComponent(() =>
-    import(
-      /* webpackChunkName: "List - Meetingss" */ '../containers/SideBarList'
-    )
-  );
-
-  const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Meetingss'), link: '/meetingss' }
-  ];
-
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Meetingss')} breadcrumb={breadcrumb} />
+        <Wrapper.Header
+          title={__('Meetings')}
+          submenu={menuMeeting(searchFilter)}
+        />
       }
       actionBar={actionBar}
       content={
         <DataWithLoader
-          data={content}
+          data={component}
           loading={loading}
-          count={meetingss.length}
+          count={1}
           emptyText={__('Theres no meetings')}
           emptyImage="/images/actions/8.svg"
         />
       }
-      leftSidebar={<SideBarList currentTypeId={typeId} />}
+      leftSidebar={
+        showSideBar && <SideBar history={history} queryParams={queryParams} />
+      }
       transparent={true}
       hasBorder
     />

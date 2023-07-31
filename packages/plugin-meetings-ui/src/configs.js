@@ -10,5 +10,12 @@ module.exports = {
     scope: 'meetings',
     module: './routes'
   },
-  menus:[{"text":"Meetingss","url":"/meetingss","icon":"icon-star","location":"mainNavigation"}]
+  menus: [
+    {
+      text: 'Meetings',
+      url: '/meetings/myCalendar',
+      icon: 'icon-star',
+      location: 'mainNavigation'
+    }
+  ]
 };

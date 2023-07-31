@@ -4,15 +4,14 @@ const meetingMutations = {
   // /**
   //  * Creates a new meetings
   //  */
-  async meetingAdd(_root, doc, { models }: IContext) {
-    console.log('jjj', doc);
-    return await models.Meetings.createMeeting(doc);
+  async meetingAdd(_root, doc, { models, user }: IContext) {
+    return await models.Meetings.createMeeting(doc, user);
   },
   // /**
   //  * Edits a new meetings
   //  */
-  async meetingEdit(_root, { _id, doc }, { models }: IContext) {
-    return models.Meetings.updateMeeting(_id, doc);
+  async meetingEdit(_root, { _id, doc }, { models, user }: IContext) {
+    return models.Meetings.updateMeeting(_id, doc, user);
   },
   /**
    * Removes a single meetings

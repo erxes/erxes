@@ -4,18 +4,30 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Meetingss" */ './containers/List')
+  import(/* webpackChunkName: "List - Meetings" */ './containers/List')
 );
 
-const meetingss = ({ location, history }) => {
+const meetings = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
-  const { type } = queryParams;
-
-  return <List typeId={type} history={history} />;
+  const { meetingId } = queryParams;
+  const routePath = location.pathname.split('/').slice(-1)[0];
+  return (
+    <List
+      meetingId={meetingId}
+      searchFilter={location.search}
+      history={history}
+      queryParams={queryParams}
+    />
+  );
 };
 
 const routes = () => {
-  return <Route path="/meetingss/" component={meetingss} />;
+  return (
+    <Route
+      path="/meetings/myCalendar"
+      component={props => meetings({ ...props })}
+    />
+  );
 };
 
 export default routes;
