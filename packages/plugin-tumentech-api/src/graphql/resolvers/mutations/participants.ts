@@ -109,6 +109,10 @@ const participantMutations = {
           continue;
         }
 
+        graphqlPubsub.publish('participantsCountChanged', {
+          participantsCountChanged: customer
+        });
+
         const orderUser = await sendClientPortalMessage({
           subdomain,
           action: 'clientPortalUsers.findOne',
