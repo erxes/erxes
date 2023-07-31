@@ -26,6 +26,8 @@ export type IPLan = {
   startDate: string;
   createDate: string;
   configs: Config;
+  plannerId: string;
+  planner: IUser;
   structureDetail: StructureDetail;
 };
 

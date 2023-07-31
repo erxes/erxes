@@ -36,5 +36,17 @@ export default {
       default:
         return null;
     }
+  },
+
+  async planner({ plannerId }, {}, { subdomain }: IContext) {
+    return await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: {
+        _id: plannerId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
   }
 };

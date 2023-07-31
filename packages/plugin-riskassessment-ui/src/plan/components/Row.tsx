@@ -1,10 +1,12 @@
+import Assignees from '@erxes/ui-cards/src/boards/components/Assignees';
 import { Button, FormControl, Icon, Tip, __ } from '@erxes/ui/src';
 import moment from 'moment';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { IPLan } from '../common/types';
 
 type Props = {
-  plan: any;
+  plan: IPLan;
   selectedItems: string[];
   handleSelect: (id: string) => void;
   queryParams: any;
@@ -31,6 +33,9 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{__(plan.name)}</td>
+        <td>
+          <Assignees users={[plan?.planner]} limit={1} />
+        </td>
         <td>{plan.createdAt ? moment(plan.createdAt).format('lll') : '-'}</td>
         <td>{plan.modifiedAt ? moment(plan.modifiedAt).format('lll') : '-'}</td>
         <td>
