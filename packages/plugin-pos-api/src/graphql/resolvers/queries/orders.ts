@@ -1,6 +1,15 @@
-import { sendProductsMessage } from '../../../messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
-import { getPureDate, getToday, getTomorrow } from '@erxes/api-utils/src/core';
+import {
+  getPureDate,
+  getToday,
+  getTomorrow,
+  shortStrToDate
+} from '@erxes/api-utils/src/core';
 
 export const paginate = (
   collection,
@@ -165,6 +174,7 @@ const queries = {
     );
     return models.PosOrders.find(query).count();
   },
+
   posOrderDetail: async (_root, { _id }, { models, subdomain }: IContext) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     const productIds = order.items.map(i => i.productId);
@@ -416,6 +426,193 @@ const queries = {
         p => !(p.status === 'deleted' && !p.count && !p.amount)
       )
     };
+  },
+
+  posOrderRecords: async (
+    _root,
+    params,
+    { subdomain, models, commonQuerySelector, user }: IContext
+  ) => {
+    const query = await generateFilterPosQuery(
+      models,
+      params,
+      commonQuerySelector,
+      user._id
+    );
+
+    const { perPage = 20, page = 1 } = params;
+
+    const orders = await models.PosOrders.aggregate([
+      { $match: query },
+      { $unwind: '$items' },
+      { $sort: { createdAt: -1 } },
+      { $skip: perPage * (page - 1) },
+      { $limit: perPage }
+    ]);
+
+    const branchIds = orders.map(item => item.branchId);
+    const branches = await sendCoreMessage({
+      subdomain,
+      action: 'branches.find',
+      data: { query: { _id: { $in: branchIds } } },
+      isRPC: true
+    });
+
+    const branchById = {};
+    for (const branch of branches) {
+      branchById[branch._id] = branch;
+    }
+
+    const departmentIds = orders.map(item => item.departmentId);
+    const departments = await sendCoreMessage({
+      subdomain,
+      action: 'departments.find',
+      data: { _id: { $in: departmentIds } },
+      isRPC: true
+    });
+
+    const departmentById = {};
+    for (const department of departments) {
+      departmentById[department._id] = department;
+    }
+
+    const productsIds = orders.map(order => order.items.productId);
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
+      isRPC: true
+    });
+
+    const productById = {};
+    for (const product of products) {
+      productById[product._id] = product;
+    }
+
+    const customerIds = orders
+      .filter(
+        o => o.customerType || ('customer' === 'customer' && o.customerId)
+      )
+      .map(o => o.customerId);
+    const companyIds = orders
+      .filter(o => o.customerType === 'company' && o.customerId)
+      .map(o => o.customerId);
+    const userIds = orders
+      .map(o => o.userId)
+      .concat(
+        orders
+          .filter(o => o.customerType === 'user' && o.customerId)
+          .map(o => o.customerId)
+      );
+
+    const customerById = {};
+    const companyById = {};
+    const userById = {};
+
+    if (customerIds.length) {
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.find',
+        data: { _id: { $in: customerIds } },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      for (const customer of customers) {
+        customerById[customer._id] = customer;
+      }
+    }
+
+    if (companyIds.length) {
+      const companies = await sendContactsMessage({
+        subdomain,
+        action: 'companies.find',
+        data: { _id: { $in: companyIds } },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      for (const company of companies) {
+        companyById[company._id] = company;
+      }
+    }
+
+    const users = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: { query: { _id: { $in: userIds } } },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    for (const user of users) {
+      userById[user._id] = user;
+    }
+
+    const posByToken = {};
+    const poss = await models.Pos.find({
+      token: { $in: orders.map(o => o.posToken) }
+    });
+    for (const pos of poss) {
+      posByToken[pos.token] = pos;
+    }
+
+    for (const order of orders) {
+      order._id = `${order._id}_${order.items._id}`;
+      order.branch = branchById[order.branchId || ''];
+      order.department = departmentById[order.departmentId || ''];
+      order.items.product = productById[order.items.productId || ''];
+      order.items.manufactured = new Date(
+        Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n'))
+      );
+      order.user = userById[order.userId];
+      order.posName = posByToken[order.posToken].name;
+
+      if (order.customerType === 'company') {
+        const company = companyById[order.customerId || ''];
+        if (company) {
+          order.customer = {
+            _id: company._id,
+            code: company.code,
+            primaryPhone: company.primaryPhone,
+            firstName: company.primaryName,
+            primaryEmail: company.primaryEmail,
+            lastName: ''
+          };
+        }
+      }
+
+      if (order.customerType === 'user') {
+        const user = userById[order.customerId];
+        if (user) {
+          order.customer = {
+            _id: user._id,
+            code: user.code,
+            primaryPhone: (user.details && user.details.operatorPhone) || '',
+            firstName: `${user.firstName || ''} ${user.lastName || ''}`,
+            primaryEmail: user.email,
+            lastName: user.username
+          };
+        }
+      }
+
+      if (!order.customerType || order.customerType === 'customer') {
+        const customer = customerById[order.customerId || ''];
+
+        if (customer) {
+          order.customer = {
+            _id: customer._id,
+            code: customer.code,
+            primaryPhone: customer.primaryPhone,
+            firstName: customer.firstName,
+            primaryEmail: customer.primaryEmail,
+            lastName: customer.lastName
+          };
+        }
+      }
+    }
+
+    return orders;
   }
 };
 

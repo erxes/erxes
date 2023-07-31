@@ -3,9 +3,10 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { afterMutationHandlers } from './afterMutations';
 import { beforeResolverHandlers } from './beforeResolvers';
-import { getConfig } from './utils';
+import { getCompany, getConfig } from './utils';
 import { getPostDataCommon } from './commonUtils';
 import { PutData } from './models/utils';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 
 let client;
 
@@ -112,11 +113,9 @@ export const initBroker = async cl => {
       //     ' ' +
       //     date.toTimeString().split(' ')[0],
       //   orderId: =contentId,
-      //   hasVat: boolean,
-      //   hasCitytax: boolean,
-      //   billType: 1 | 3,
-      //   customerCode: string [7],
-      //   customerName: string,
+      //   billType: '1' | '3',
+      //   customerCode?: string [7],
+      //   customerName?: string,
       //   description: string,
       //   details: [{
       //     productId: string
@@ -130,7 +129,9 @@ export const initBroker = async cl => {
 
       // config = {
       //   districtName: string,
+      //   hasVat: boolean;
       //   vatPercent?: number,
+      //   hasCitytax: boolean
       //   cityTaxPercent?: number
       //   defaultGSCode?: string *
       //   companyRD: string
@@ -187,12 +188,16 @@ export const initBroker = async cl => {
     'ebarimt:putresponses.returnBill',
     async ({ subdomain, data: { contentType, contentId, config } }) => {
       const models = await generateModels(subdomain);
+      const mainConfig = {
+        ...(await getConfig(subdomain, 'EBARIMT', {})),
+        ...config
+      };
 
       return {
         status: 'success',
         data: await models.PutResponses.returnBill(
           { contentType, contentId },
-          config
+          mainConfig
         )
       };
     }
@@ -254,6 +259,16 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'ebarimt:putresponses.getCompany',
+    async ({ subdomain, data: { companyRD } }) => {
+      return {
+        status: 'success',
+        data: await getCompany(subdomain, companyRD)
+      };
+    }
+  );
 };
 
 export const sendProductsMessage = async (
@@ -272,6 +287,17 @@ export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'pos',
+    ...args
+  });
+};
+
+export const sendLoansMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'loans',
     ...args
   });
 };

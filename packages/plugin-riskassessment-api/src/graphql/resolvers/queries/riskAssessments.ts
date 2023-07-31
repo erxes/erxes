@@ -110,6 +110,30 @@ const generateFilter = async (
     filter.cardId = { $in: cardIds };
   }
 
+  if (params?.cardFilter && filter.cardType) {
+    const { name, value, values, regex } = params?.cardFilter;
+
+    let cardFilter = {
+      [name]: regex ? { $regex: new RegExp(`^${value}$`, 'i') } : value
+    };
+
+    if (!!values?.length) {
+      cardFilter[name] = { $in: values };
+    }
+
+    const cards = await sendCardsMessage({
+      subdomain,
+      action: `${filter.cardType}s.find`,
+      data: cardFilter,
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const cardIds = cards.map(card => card._id);
+
+    filter.cardId = { $in: cardIds };
+  }
+
   return filter;
 };
 

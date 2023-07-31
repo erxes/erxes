@@ -1,5 +1,5 @@
 import * as compose from 'lodash.flowright';
-import { withProps, ButtonMutate } from '@erxes/ui/src';
+import { withProps, ButtonMutate, withCurrentUser } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import ContractForm from '../components/list/ContractForm';
@@ -28,7 +28,7 @@ class ContractFromContainer extends React.Component<FinalProps> {
       isSubmitted,
       object
     }: IButtonMutateProps) => {
-      const { closeModal, getAssociatedContract } = this.props;
+      const { closeModal, getAssociatedContract, currentUser } = this.props;
 
       const afterSave = data => {
         closeModal();
@@ -74,4 +74,6 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<Props>(compose()(ContractFromContainer));
+export default withCurrentUser(
+  withProps<Props>(compose()(ContractFromContainer))
+);

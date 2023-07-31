@@ -53,7 +53,7 @@ class SchedulesList extends React.Component<IProps> {
               <th>{__('Loan Balance')}</th>
               <th>{__('Loan Payment')}</th>
               <th>{__('Interest')}</th>
-              <th>{__('Undue')}</th>
+              <th>{__('Loss')}</th>
               <th>{__('Insurance')}</th>
               <th>{__('Debt')}</th>
               <th>{__('Total')}</th>

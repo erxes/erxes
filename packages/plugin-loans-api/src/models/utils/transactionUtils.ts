@@ -37,14 +37,10 @@ export const getAOESchedules = async (
   // with skipped of done
   const preSchedule: any = await models.Schedules.findOne({
     contractId: contract._id,
-    $or: [
-      { payDate: { $lt: trDate } },
-      {
-        status: {
-          $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
-        }
-      }
-    ]
+    payDate: { $lt: trDate },
+    status: {
+      $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
+    }
   })
     .sort({ payDate: -1 })
     .lean<IScheduleDocument & any>();
@@ -623,7 +619,7 @@ export const trAfterSchedule = async (
     };
   }
 
-  const prePayDate = getFullDate(preSchedule.payDate);
+  const prePayDate = preSchedule.payDate;
 
   // wrong date
   if (trDate < prePayDate) {

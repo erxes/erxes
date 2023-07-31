@@ -53,6 +53,8 @@ const queryParams = `
   billIdRule: String
   isLast: String
   orderNumber: String
+  contractNumber: String
+  transactionNumber: String
   dealName: String
   pipelineId: String
   stageId: String
@@ -67,4 +69,5 @@ export const queries = `
   putResponsesCount(${queryParams}): Int
   putResponsesAmount(${queryParams}): Float
   getDealLink(_id: String): String
+  ebarimtGetCompany(companyRD: String!): JSON
 `;

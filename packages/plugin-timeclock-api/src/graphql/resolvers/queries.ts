@@ -282,12 +282,12 @@ const timeclockQueries = {
   async timeclockReportByUser(
     _root,
     { selectedUser, selectedMonth, selectedYear, selectedDate },
-    { subdomain, user }: IContext
+    { models, user }: IContext
   ) {
     const userId = selectedUser || user._id;
 
     return timeclockReportByUser(
-      subdomain,
+      models,
       userId,
       selectedMonth,
       selectedYear,

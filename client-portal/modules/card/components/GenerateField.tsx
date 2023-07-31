@@ -10,6 +10,8 @@ import SelectData from "./SelectData";
 import { SelectInput } from "../../styles/cards";
 import Uploader from "../../common/Uploader";
 import { __ } from "../../../utils";
+import DateControl from "../../common/form/DateControl";
+import { CustomRangeContainer } from "../../common/form/styles";
 
 type Props = {
   field: IField;
@@ -90,7 +92,7 @@ export default class GenerateField extends React.Component<Props, State> {
   renderInput(attrs, hasError?: boolean) {
     const { value } = this.state;
     const checkBoxValues = this.state.checkBoxValues || [];
-    const { type } = this.props.field;
+    const { type, validation } = this.props.field;
 
     attrs.type = "text";
 
@@ -296,6 +298,34 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderDateSelect = ({ id, validation, value, fieldName }) => {
+    const { onValueChange } = this.props;
+
+    const onDateChange = dateVal => {
+      if (onValueChange) {
+        this.setState({ value: dateVal });
+
+        onValueChange({
+          _id: id,
+          value: dateVal
+        });
+      }
+    };
+
+    return (
+      <CustomRangeContainer>
+        <DateControl
+          required={false}
+          value={value}
+          onChange={onDateChange}
+          name={fieldName}
+          placeholder="Enter date"
+          dateFormat={"yyyy-MM-dd"}
+          timeFormat={validation === "datetime"}
+        />
+      </CustomRangeContainer>
+    );
+  };
   renderControl() {
     const { field } = this.props;
     const { type } = field;
@@ -304,12 +334,18 @@ export default class GenerateField extends React.Component<Props, State> {
     const attrs = {
       id: field._id,
       value: this.state.value,
+      fieldName: field.field,
+      validation: field.validation,
       onChange: this.onChange,
       name: ""
     };
 
     if (field.field === "labelIds") {
       return this.renderLabels(attrs);
+    }
+
+    if (field.validation === "date" || field.validation === "datetime") {
+      return this.renderDateSelect(attrs);
     }
 
     switch (type) {

@@ -8,6 +8,7 @@ const commonVariables = `
   $customFieldsData: JSON
   $eventData: ExmEventDataInput
   $createdAt: Date
+  $departmentIds: [String]
   $department : String
 `;
 
@@ -21,6 +22,7 @@ const commonParams = `
   customFieldsData: $customFieldsData
   eventData: $eventData
   createdAt: $createdAt
+  departmentIds: $departmentIds
   department : $department
 `;
 

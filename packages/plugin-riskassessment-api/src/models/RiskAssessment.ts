@@ -488,11 +488,12 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       const formIds = forms?.map(form => form.formId);
 
       const query = { contentType: 'form', contentTypeId: { $in: formIds } };
+      const sort = { order: 1 };
 
       const fields = await sendFormsMessage({
         subdomain,
         action: 'fields.find',
-        data: { query },
+        data: { query, sort },
         isRPC: true,
         defaultValue: []
       });
@@ -516,6 +517,11 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           editedSubmittedFields[
             submittedField.fieldId
           ].isFlagged = !!submittedField.isFlagged;
+        }
+
+        if (!!submittedField?.attachments?.length) {
+          editedSubmittedFields[submittedField.fieldId].attachments =
+            submittedField?.attachments;
         }
       }
       return {

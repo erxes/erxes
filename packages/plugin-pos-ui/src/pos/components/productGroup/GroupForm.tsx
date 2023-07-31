@@ -1,9 +1,7 @@
 import Modal from 'react-bootstrap/Modal';
 import React from 'react';
-import Select from 'react-select-plus';
 import { Button, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { IProductCategory } from '@erxes/ui-products/src/types';
 import { IProductGroup } from '../../../types';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
@@ -37,8 +35,8 @@ class GroupForm extends React.Component<Props, State> {
 
   onChangeFunction = (name: any, value: any) => {
     const { group } = this.state;
-    group[name] = value;
-    this.setState({ group });
+
+    this.setState({ group: { ...group, [name]: value } });
   };
 
   onClicksave = () => {
@@ -53,9 +51,6 @@ class GroupForm extends React.Component<Props, State> {
   render() {
     const { mode } = this.props;
     const { group } = this.state;
-
-    const categoryIds = group.categoryIds || [];
-    const excludedCategoryIds = group.excludedCategoryIds || [];
 
     const onChangeName = e => {
       this.onChangeFunction(

@@ -95,6 +95,7 @@ export const loadInvoiceClass = (models: IModels) => {
           invoice.apiResponse = apiResponse;
           invoice.paymentKind = payment.kind;
           invoice.selectedPaymentId = payment._id;
+          invoice.createdAt = new Date();
 
           await invoice.save();
 
@@ -118,6 +119,7 @@ export const loadInvoiceClass = (models: IModels) => {
           invoice.apiResponse = apiResponse;
           invoice.paymentKind = payment.kind;
           invoice.selectedPaymentId = payment._id;
+          invoice.createdAt = new Date();
 
           await invoice.save();
 
@@ -141,6 +143,7 @@ export const loadInvoiceClass = (models: IModels) => {
           invoice.apiResponse = apiResponse;
           invoice.paymentKind = payment.kind;
           invoice.selectedPaymentId = payment._id;
+          invoice.createdAt = new Date();
 
           await invoice.save();
         }
@@ -166,6 +169,7 @@ export const loadInvoiceClass = (models: IModels) => {
         invoice.apiResponse = apiResponse;
         invoice.paymentKind = newPayment.kind;
         invoice.selectedPaymentId = newPayment._id;
+        invoice.createdAt = new Date();
 
         await invoice.save();
 
