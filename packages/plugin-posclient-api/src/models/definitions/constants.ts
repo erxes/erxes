@@ -25,8 +25,9 @@ export const ORDER_TYPES = {
   SPEND: 'spend',
   LOSS: 'loss',
   REJECT: 'reject',
-  ALL: ['take', 'eat', 'delivery', 'save', 'spend', 'loss', 'reject'],
-  SALES: ['take', 'eat', 'delivery', 'save'],
+  BEFORE: 'before',
+  ALL: ['take', 'eat', 'delivery', 'save', 'spend', 'loss', 'reject', 'before'],
+  SALES: ['take', 'eat', 'delivery', 'save', 'before'],
   OUT: ['spend', 'loss', 'reject']
 };
 
