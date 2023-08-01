@@ -127,7 +127,7 @@ const Editor = (props: Props) => {
           <Tip text={__('Audio')}>
             <label>
               <Icon icon="audio" />
-              <input type="file" onChange={() => {}} multiple={true} />
+              <input type="file" multiple={true} />
             </label>
           </Tip>
           <Tip text={__('Audio')}>

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import Select from 'react-select-plus';
 import { IFormProps, IButtonMutateProps } from '@erxes/ui/src/types';
 import { UploadItems } from '../styles';
-import { description, getDepartmentOptions, title } from '../utils';
+import { description, title } from '../utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import GenerateFields from './GenerateFields';
 import Form from '@erxes/ui/src/components/form/Form';
 import Uploader from '@erxes/ui/src/components/Uploader';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
@@ -19,17 +20,22 @@ type Props = {
 export default function PostForm(props: Props) {
   const item = props.item || {};
   const fields = props.fields;
-  const departments = props.departments || {};
 
   const [attachments, setAttachment] = useState(item.attachments || []);
   const [images, setImage] = useState(item.images || []);
   const [customFieldsData, setCustomFieldsData] = useState(
     item.customFieldsData || []
   );
-  const [selectedDepartment, setSelectedDepartment] = useState<any>(null);
+  const [departmentIds, setDepartmentIds] = useState(item?.departmentIds || []);
+  const [branchIds, setBranchIds] = useState(item?.branchIds || []);
+  const [unitId, setUnitId] = useState(item.unitId || '');
 
-  const onChangeDepartment = (option: any) => {
-    setSelectedDepartment(option);
+  const onChangeDepartments = (option: any) => {
+    setDepartmentIds(option);
+  };
+
+  const onChangeBranches = (option: any) => {
+    setBranchIds(option);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -40,13 +46,19 @@ export default function PostForm(props: Props) {
       <>
         {title(formProps, item)}
         {description(formProps, item)}
-        <Select
-          placeholder="Choose one department"
-          name="departmentId"
-          value={selectedDepartment}
-          onChange={onChangeDepartment}
-          multi={false}
-          options={getDepartmentOptions(departments)}
+        <SelectDepartments
+          label="Choose department"
+          name="departmentIds"
+          initialValue={departmentIds}
+          onSelect={onChangeDepartments}
+          multi={true}
+        />
+        <SelectBranches
+          name="branchIds"
+          label="Choose Branches"
+          multi={true}
+          initialValue={branchIds}
+          onSelect={onChangeBranches}
         />
         <GenerateFields
           fields={fields}
@@ -75,7 +87,9 @@ export default function PostForm(props: Props) {
             images,
             attachments,
             customFieldsData,
-            department: selectedDepartment ? selectedDepartment.label : null
+            departmentIds,
+            branchIds,
+            unitId
           },
           isSubmitted,
           callback: closeModal

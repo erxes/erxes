@@ -102,6 +102,8 @@ export const FormContainer = styledTS<{
   padding?: string;
   placeContent?: string;
   flexWrap?: boolean;
+  alignSelf?: string;
+  width?: string;
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
@@ -118,6 +120,8 @@ export const FormContainer = styledTS<{
   justify-content:${({ justify }) => (justify ? justify : '')}; 
   place-content:${({ placeContent }) => (placeContent ? placeContent : '')};
   flex-wrap: ${({ flexWrap }) => (flexWrap ? 'wrap' : '')};
+  align-self:${({ alignSelf }) => (alignSelf ? alignSelf : '')};
+  width:${({ width }) => (width ? width : '')};
   ${({ flex }) =>
     flex
       ? `div {
@@ -431,11 +435,13 @@ export const TableRow = styled.tr`
   }
 `;
 
-export const PlanCard = styled.div`
+export const ScheduleCard = styled.div`
   flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   min-width: 400px;
+  max-width: 400px;
   box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
   border-radius: 15px;
   place-items: center;
@@ -444,6 +450,10 @@ export const PlanCard = styled.div`
   &.active {
     animation: ${highlight} 0.9s ease;
     box-shadow: 0 0 5px 0 #63d2d6;
+  }
+
+  .bottomBarItem {
+    border-top: #aaaaaa3b solid 0.5px;
   }
 `;
 
@@ -457,5 +467,34 @@ export const PlanContainer = styled.div`
 export const DetailPopoverWrapper = styled.div`
   .popover {
     max-width: 550px;
+  }
+`;
+
+export const HeaderContent = styled.div`
+  text-align: center;
+`;
+
+export const FlexRow = styled.div`
+  display: flex;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  padding: 5px 10px 5px 30px;
+  position: relative;
+  align-items: center;
+
+  > label {
+    margin: 0;
+    font-weight: 500;
+    color: ${colors.colorCoreBlack};
+  }
+
+  > *:first-child,
+  input {
+    margin-right: ${dimensions.unitSpacing}px;
+    flex: 3;
+  }
+
+  > *:nth-child(2),
+  > div {
+    flex: 2;
   }
 `;

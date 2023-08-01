@@ -10,6 +10,7 @@ import {
 import * as _loadash from 'lodash';
 import React from 'react';
 import { DefaultWrapper } from '../../common/utils';
+import { FlexRow, HeaderContent } from '../../styles';
 import Row from './Row';
 import { SideBar } from './SideBar';
 
@@ -118,6 +119,14 @@ class List extends React.Component<Props, State> {
         title="Assessments"
         icon="/images/actions/13.svg"
         description=""
+        renderExtra={
+          <FlexRow>
+            <HeaderContent>
+              {__(`Total count`)}
+              <h4>{totalCount || 0}</h4>
+            </HeaderContent>
+          </FlexRow>
+        }
       />
     );
 

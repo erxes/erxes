@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
@@ -51,9 +51,18 @@ export const IconButton = styled.button`
   }
 `;
 
-export const Button = styledTS<{ isRecording: boolean }>(styled.button)`
-         background-color: ${props =>
-           props.isRecording ? colors.colorShadowGray : 'none'};
+export const VoiceRecordWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 ${dimensions.coreSpacing}px;
+`;
+
+export const RecordButton = styledTS<{ isRecording: boolean }>(styled.button)`
+  background-color: ${props =>
+    props.isRecording ? colors.colorShadowGray : 'none'};
   border-radius: 100%;
   border: none;
   cursor: pointer;
@@ -61,8 +70,24 @@ export const Button = styledTS<{ isRecording: boolean }>(styled.button)`
   transition: transform 0.3s ease-in-out;
   margin-right: 5px;
 
-  ${props => props.isRecording && 'transform: scale(1.4)'}
-         `;
+  animation: ${props =>
+    props.isRecording &&
+    css`
+      ${pulse} 1s infinite;
+    `};
+`;
+
+const pulse = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
 
 export const Title = styled.h5`
   margin: 0;

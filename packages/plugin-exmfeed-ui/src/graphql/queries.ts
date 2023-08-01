@@ -43,7 +43,10 @@ const commonFeedFields = `
     goingUserIds
   }
   customFieldsData
+  departmentIds
   department
+  branchIds
+  unitId
 `;
 
 const feed = `

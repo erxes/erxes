@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Select from 'react-select-plus';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { Form, FormControl, Uploader, SelectTeamMembers } from '@erxes/ui/src/';
 import { IFormProps, IButtonMutateProps } from '@erxes/ui/src/types';
@@ -8,6 +7,8 @@ import { title, description, getDepartmentOptions } from '../utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import GenerateFields from './GenerateFields';
 import { __ } from '@erxes/ui/src/utils';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   item?: any;
@@ -18,7 +19,7 @@ type Props = {
 };
 
 export default function EventForm(props: Props) {
-  const { item = {}, fields, departments } = props;
+  const { item = {}, fields } = props;
 
   const [attachments, setAttachment] = useState(item.attachments || []);
   const [images, setImages] = useState(item.images || []);
@@ -34,11 +35,16 @@ export default function EventForm(props: Props) {
     startDate: itemEventData.startDate,
     endDate: itemEventData.endDate
   });
+  const [departmentIds, setDepartmentIds] = useState(item.departmentIds || []);
+  const [branchIds, setBranchIds] = useState(item?.branchIds || []);
+  const [unitId, setUnitId] = useState(item.unitId || '');
 
-  const [selectedDepartment, setSelectedDepartment] = useState<any>(null);
+  const onChangeDepartments = (option: any) => {
+    setDepartmentIds(option);
+  };
 
-  const onChangeDepartment = (option: any) => {
-    setSelectedDepartment(option);
+  const onChangeBranches = (option: any) => {
+    setBranchIds(option);
   };
 
   const onChangeEventData = (key, value) => {
@@ -116,13 +122,21 @@ export default function EventForm(props: Props) {
           value={eventData.where}
           onChange={(e: any) => onChangeEventData('where', e.target.value)}
         />
-        <Select
-          placeholder="Choose one department"
-          name="departmentId"
-          value={selectedDepartment}
-          onChange={onChangeDepartment}
-          multi={false}
-          options={getDepartmentOptions(departments)}
+
+        <SelectDepartments
+          label="Choose department"
+          name="departmentIds"
+          initialValue={departmentIds}
+          onSelect={onChangeDepartments}
+          multi={true}
+        />
+
+        <SelectBranches
+          name="branchIds"
+          label="Choose Branches"
+          multi={true}
+          initialValue={branchIds}
+          onSelect={onChangeBranches}
         />
 
         <GenerateFields
@@ -155,7 +169,9 @@ export default function EventForm(props: Props) {
             recipientIds,
             customFieldsData,
             eventData,
-            department: selectedDepartment ? selectedDepartment.label : null
+            departmentIds,
+            branchIds,
+            unitId
           },
           isSubmitted,
           callback: closeModal

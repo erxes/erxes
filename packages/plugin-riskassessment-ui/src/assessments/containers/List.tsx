@@ -8,6 +8,7 @@ import React from 'react';
 import { generateParamsIds } from '../../common/utils';
 import ListComponent from '../components/List';
 import { mutations, queries } from '../graphql';
+import { generateCardFiltersQueryParams } from '../common/utils';
 
 type Props = {
   queryParams: any;
@@ -85,7 +86,8 @@ export const generateParams = ({ queryParams }) => ({
   departmentIds: generateParamsIds(queryParams.departmentIds),
   operationIds: generateParamsIds(queryParams.operationIds),
   tagIds: generateParamsIds(queryParams.tagIds),
-  groupIds: generateParamsIds(queryParams.groupIds)
+  groupIds: generateParamsIds(queryParams.groupIds),
+  cardFilter: generateCardFiltersQueryParams(queryParams)
 });
 
 const refetchQueries = ({ queryParams }) => {

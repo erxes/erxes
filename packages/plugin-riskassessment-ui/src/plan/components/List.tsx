@@ -14,6 +14,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { subMenu } from '../../common/constants';
 import { DefaultWrapper } from '../../common/utils';
+import { FlexRow, HeaderContent } from '../../styles';
 import Form from '../containers/Form';
 import Row from './Row';
 
@@ -43,7 +44,7 @@ class List extends React.Component<Props, State> {
   renderForm() {
     const trigger = <Button btnStyle="success">{__('Add Plan')}</Button>;
 
-    const content = ({ closeModal }) => <Form closeModal={closeModal} />;
+    const content = () => <Form />;
 
     return (
       <ModalTrigger
@@ -89,6 +90,7 @@ class List extends React.Component<Props, State> {
               />
             </th>
             <th>{__('Name')}</th>
+            <th>{__('Planner')}</th>
             <th>
               <SortHandler sortField="createdAt" />
               {__('Created At')}
@@ -134,6 +136,14 @@ class List extends React.Component<Props, State> {
         title="Plans"
         icon="/images/actions/16.svg"
         description=""
+        renderExtra={
+          <FlexRow>
+            <HeaderContent>
+              {__(`Total count`)}
+              <h4>{totalCount || 0}</h4>
+            </HeaderContent>
+          </FlexRow>
+        }
       />
     );
 

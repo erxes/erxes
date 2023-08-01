@@ -1,6 +1,5 @@
 import { generateModels } from './connectionResolver';
 import { sendCardsMessage } from './messageBroker';
-import { IRiskConformityField } from './models/definitions/common';
 
 export default {
   'cards:ticket': ['create', 'update'],
@@ -9,7 +8,7 @@ export default {
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, object, newData, user } = params;
-  const { customFieldsData, stageId, _id } = object;
+  const { customFieldsData, stageId, _id, branchIds, departmentIds } = object;
   const models = await generateModels(subdomain);
 
   if (
@@ -86,7 +85,15 @@ export const afterMutationHandlers = async (subdomain, params) => {
     const conformity = {
       cardId: _id,
       cardType: type.replace('cards:', '')
-    } as IRiskConformityField;
+    } as any;
+
+    if (!!branchIds?.length) {
+      conformity.branchId = branchIds[0];
+    }
+
+    if (!!departmentIds?.length) {
+      conformity.branchId = departmentIds[0];
+    }
 
     for (const data of customFieldsData) {
       const config = await models.RiskAssessmentsConfigs.findOne({
