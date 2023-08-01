@@ -8,6 +8,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import GenerateFields from './GenerateFields';
 import { __ } from '@erxes/ui/src/utils';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   item?: any;
@@ -35,9 +36,15 @@ export default function EventForm(props: Props) {
     endDate: itemEventData.endDate
   });
   const [departmentIds, setDepartmentIds] = useState(item.departmentIds || []);
+  const [branchIds, setBranchIds] = useState(item?.branchIds || []);
+  const [unitId, setUnitId] = useState(item.unitId || '');
 
   const onChangeDepartments = (option: any) => {
     setDepartmentIds(option);
+  };
+
+  const onChangeBranches = (option: any) => {
+    setBranchIds(option);
   };
 
   const onChangeEventData = (key, value) => {
@@ -124,6 +131,14 @@ export default function EventForm(props: Props) {
           multi={true}
         />
 
+        <SelectBranches
+          name="branchIds"
+          label="Choose Branches"
+          multi={true}
+          initialValue={branchIds}
+          onSelect={onChangeBranches}
+        />
+
         <GenerateFields
           fields={fields}
           customFieldsData={customFieldsData}
@@ -154,7 +169,9 @@ export default function EventForm(props: Props) {
             recipientIds,
             customFieldsData,
             eventData,
-            departmentIds
+            departmentIds,
+            branchIds,
+            unitId
           },
           isSubmitted,
           callback: closeModal

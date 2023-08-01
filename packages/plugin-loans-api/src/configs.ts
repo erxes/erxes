@@ -9,6 +9,7 @@ import exporter from './exporter';
 import * as permissions from './permissions';
 import payment from './payment';
 import { checkContractScheduleAnd } from './cronjobs/contractCronJobs';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
 export let graphqlPubsub;
@@ -27,8 +28,8 @@ export default {
     };
   },
 
-  apolloServerContext: async context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
