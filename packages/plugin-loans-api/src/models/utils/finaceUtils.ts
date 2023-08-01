@@ -45,7 +45,8 @@ export async function generateFinance(
   const contractType = await models.ContractTypes.findOne({
     _id: contract?.contractTypeId
   }).lean<IContractTypeDocument>();
-  if (!contract) throw new Error('aldaa :p');
+  if (!contract)
+    throw new Error('there is not connected transaction with contract');
 
   let financeTransaction = fillTransaction(
     tr,
@@ -113,6 +114,7 @@ function fillTransaction(
     amount: number;
     account: string;
     side: 'debit' | 'credit';
+    currency: string;
   }[] = [];
 
   const account = findAccounts(contract.classification, config);
@@ -121,6 +123,7 @@ function fillTransaction(
     dtl.push({
       amount: tr.payment,
       account: account.paymentAccount,
+      currency: tr.currency,
       side: 'debit'
     });
   }
@@ -128,6 +131,7 @@ function fillTransaction(
   if (interest > 0) {
     dtl.push({
       amount: interest,
+      currency: tr.currency,
       side: 'debit',
       account: account.interestAccount
     });
@@ -136,6 +140,7 @@ function fillTransaction(
   if (tr.undue && tr.undue > 0) {
     dtl.push({
       amount: tr.undue,
+      currency: tr.currency,
       side: 'debit',
       account: account.undueAccount
     });
@@ -144,6 +149,7 @@ function fillTransaction(
   if (tr.debt && tr.debt > 0) {
     dtl.push({
       amount: tr.debt,
+      currency: tr.currency,
       side: 'debit',
       account: account.debtAccount
     });
@@ -152,6 +158,7 @@ function fillTransaction(
   if (tr.insurance && tr.insurance > 0) {
     dtl.push({
       amount: tr.insurance,
+      currency: tr.currency,
       side: 'debit',
       account: account.insuranceAccount
     });
@@ -159,6 +166,7 @@ function fillTransaction(
 
   dtl.push({
     side: 'credit',
+    currency: tr.currency,
     amount: tr.total,
     account: account.transAccount
   });

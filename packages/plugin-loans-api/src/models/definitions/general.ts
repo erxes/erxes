@@ -84,7 +84,9 @@ export const generalSchema = schemaHooksWrapper(
       index: true
     }),
     dtl: field({
-      type: [{ amount: Number, account: String, side: String }],
+      type: [
+        { amount: Number, account: String, side: String, currency: String }
+      ],
       optional: true,
       label: 'Contract',
       index: true
