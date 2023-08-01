@@ -3,6 +3,14 @@ import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
+import { CallRecords } from '../../models/definitions/callRecords';
+import { getEndpoint, getRoomToken } from '../../dailyCo/controller';
+
+const VIDEO_CALL_STATUS = {
+  ONGOING: 'ongoing',
+  END: 'end',
+  ALL: ['ongoing', 'end']
+};
 
 export default {
   /**
@@ -122,20 +130,27 @@ export default {
       return null;
     }
 
-    try {
-      const response = await sendIntegrationsMessage({
-        subdomain,
-        action: 'getDailyActiveRoom',
-        data: {
-          erxesApiConversationId: conversation._id
-        },
-        isRPC: true
-      });
+    const callRecord = await CallRecords.findOne({
+      erxesApiConversationId: conversation._id,
+      status: VIDEO_CALL_STATUS.ONGOING
+    });
 
-      return response;
-    } catch (e) {
-      debug.error(e);
-      return null;
+    const response: {
+      url?: string;
+      name?: string;
+      recordingLinks?: string[];
+    } = {
+      recordingLinks: []
+    };
+
+    if (callRecord) {
+      const ownerToken = await getRoomToken(callRecord.roomName, true);
+      response.url = `${await getEndpoint()}/${
+        callRecord.roomName
+      }?t=${ownerToken}`;
+      response.name = callRecord.roomName;
     }
+
+    return response;
   }
 };
