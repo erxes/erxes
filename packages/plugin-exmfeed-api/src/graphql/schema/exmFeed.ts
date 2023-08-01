@@ -28,6 +28,8 @@ export const types = () => {
       visibility: String
       department: String
       departmentIds: [String]
+      branchIds: [String]
+      unitId: String
       where: String
       startDate: Date
       endDate: Date
@@ -112,9 +114,15 @@ export const types = () => {
   `;
 };
 
+const commonSelector = `
+  branchIds: [String]
+  departmentIds: [String]
+  unitId: String
+`;
+
 export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
-  exmFeed(contentTypes: [ContentType], isPinned: Boolean, type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int, startDate : String, endDate : String, bravoType : String, departmentIds: [String]): ExmFeedResponse
+  exmFeed(contentTypes: [ContentType], isPinned: Boolean, type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int, startDate : String, endDate : String, bravoType : String, ${commonSelector}): ExmFeedResponse
   exmThanks(limit: Int, skip: Int, type: SourceType): ExmThankResponse
   exmFeedCeremonies(contentType: ContentType, filterType: FilterType): ExmFeedResponse
 `;
@@ -132,6 +140,8 @@ const feedCommonParams = `
   createdAt: Date
   departmentIds: [String]
   department: String
+  unitId: String
+  branchIds: [String]
 `;
 
 const thankCommonParams = `

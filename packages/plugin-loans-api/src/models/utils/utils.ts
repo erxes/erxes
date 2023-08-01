@@ -374,7 +374,7 @@ export const getUnduePercent = async (
 
   if (contractType?.unduePercent > 0) return contractType?.unduePercent / 100;
 
-  return 0.2;
+  return 0;
 };
 
 export const getChanged = (old, anew) => {
