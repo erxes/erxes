@@ -455,6 +455,7 @@ class Lead extends React.Component<Props, State> {
                   successImage={successImage}
                   successPreviewStyle={successPreviewStyle}
                   successImageSize={successImageSize}
+                  formData={formData}
                 />
               </Step>
             </Steps>

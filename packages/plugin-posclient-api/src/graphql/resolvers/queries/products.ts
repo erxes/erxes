@@ -65,7 +65,7 @@ const generateFilter = async (
     });
 
     const relatedCategoryIds = await models.ProductCategories.find(
-      { order: { $regex: new RegExp(category.order) } },
+      { order: { $regex: new RegExp(`^${category.order}`) } },
       { _id: 1 }
     );
 

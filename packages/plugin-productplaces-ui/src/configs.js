@@ -2,7 +2,8 @@ module.exports = {
   name: 'productplaces',
   port: 3029,
   exposes: {
-    './routes': './src/routes.tsx'
+    './routes': './src/routes.tsx',
+    "./response": "./src/response.tsx"
   },
   routes: {
     url: 'http://localhost:3029/remoteEntry.js',
@@ -19,5 +20,10 @@ module.exports = {
       action: 'productPlacesConfig',
       permission: "productPlacesConfig",
     },
-  ]
+  ],
+  layout: {
+    url: "http://localhost:3029/remoteEntry.js",
+    scope: "productplaces",
+    module: "./response"
+  }
 };
