@@ -166,7 +166,7 @@ class Attachment extends React.Component<Props> {
       <AttachmentWrapper>
         <ItemInfo>
           <video controls={true} loop={true}>
-            <source src={attachment.url} type="video/mp4" />
+            <source src={readFile(attachment.url)} type="video/mp4" />
             {__('Your browser does not support the video tag')}.
           </video>
         </ItemInfo>
@@ -179,7 +179,7 @@ class Attachment extends React.Component<Props> {
       <ImageWithPreview
         onLoad={this.onLoadImage}
         alt={attachment.url}
-        src={attachment.url}
+        src={readFile(attachment.url)}
       />
     );
   }
