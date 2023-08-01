@@ -72,8 +72,16 @@ const Editor = (props: Props) => {
   const handleDeleteFile = (url: string) => {
     const urlArray = url.split('/');
 
+    //checking cloudFlare url
+    const regexPattern = /imagedelivery\.net/i;
+    const isCloudFlareUploaded = regexPattern.test(url);
+
     const fileName =
-      urlArray.length === 1 ? url : urlArray[urlArray.length - 1];
+      urlArray.length === 1
+        ? url
+        : isCloudFlareUploaded
+        ? urlArray[urlArray.length - 2]
+        : urlArray[urlArray.length - 1];
 
     let _loading = loading;
     _loading[url] = true;
@@ -108,7 +116,12 @@ const Editor = (props: Props) => {
         return;
       },
 
-      afterUpload: ({ response, fileInfo }) => {
+      afterUpload: ({ status, response, fileInfo }) => {
+        if (status !== 'ok') {
+          Alert.error(response.statusText);
+          return setUploadLoading(false);
+        }
+        Alert.success('Success');
         setAttachments([
           ...attachments,
           Object.assign({ url: response }, fileInfo)

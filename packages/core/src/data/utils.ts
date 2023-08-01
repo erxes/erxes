@@ -17,6 +17,7 @@ import { IModels } from '../connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { getService, getServices, redis } from '../serviceDiscovery';
 import { sendContactsMessage } from '../messageBroker';
+import * as request from 'request-promise';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -307,6 +308,15 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'application/vnd.ms-powerpoint'
   ];
 
+  // cloudflare of allowed files
+  const cloudflare_allowed_files = ['png', 'jpeg', 'jpg', 'gif'];
+  const cloudflare_allowed_file_types = [
+    'image/png',
+    'image/jpeg',
+    'image/jpg',
+    'image/gif'
+  ];
+
   // allow csv, svg to be uploaded
   if (!ft && unsupportedMimeTypes.includes(file.type)) {
     return 'ok';
@@ -316,7 +326,20 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     return 'Invalid file type';
   }
 
-  const { mime } = ft;
+  const { mime, ext } = ft;
+
+  const UPLOAD_SERVICE_TYPE = await getConfig(
+    'UPLOAD_SERVICE_TYPE',
+    '',
+    models
+  );
+  if (
+    UPLOAD_SERVICE_TYPE === 'Cloudflare' &&
+    (!cloudflare_allowed_files.includes(ext) ||
+      !cloudflare_allowed_file_types.includes(mime))
+  ) {
+    return 'Invalid file';
+  }
 
   // allow old ms office docs to be uploaded
   if (mime === 'application/x-msi' && oldMsOfficeDocs.includes(file.type)) {
@@ -473,6 +496,51 @@ export const uploadFileAWS = async (
   return IS_PUBLIC === 'true' ? response.Location : fileName;
 };
 
+export const uploadFileCloudflare = async (
+  file: {
+    name: string;
+    path: string;
+    type: string;
+  },
+  forcePrivate: boolean = false,
+  models?: IModels
+): Promise<string> => {
+  const accountId = await getConfig('CLOUDFLARE_ACCOUNT_ID', '', models);
+  const apiToken = await getConfig('CLOUDFLARE_API_TOKEN', '', models);
+
+  const IS_PUBLIC = forcePrivate
+    ? false
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+
+  const options = {
+    method: 'POST',
+    url: `https://api.cloudflare.com/client/v4/accounts/${accountId}/images/v1`,
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      'Content-Type': 'multipart/form-data'
+    },
+    formData: {
+      file: fs.createReadStream(file.path)
+    }
+  };
+
+  const response: any = await new Promise((resolve, reject) => {
+    request(options, function(error, response) {
+      if (error) reject(error);
+      resolve(response.body);
+    });
+  });
+
+  const responseObject = JSON.parse(response);
+  if (responseObject.success === false) {
+    throw new Error(responseObject.errors?.[0]?.message);
+  }
+
+  return IS_PUBLIC === 'true'
+    ? responseObject?.result?.variants?.[0]
+    : file.name;
+};
+
 /*
  * Delete file from amazon s3
  */
@@ -495,6 +563,28 @@ export const deleteFileAWS = async (fileName: string, models?: IModels) => {
   });
 };
 
+/*
+ * Delete file from CloudFlare
+ */
+export const deleteFileCloudFlare = async (fileName: string) => {
+  const accountId = '7c8392aff8ac4518aa06dfa4b6337ef2';
+  const editToken = '0X4mxRLaAunFlnDLoDJl_e-eO80DI9JTKsAvXEfo';
+
+  const options = {
+    method: 'DELETE',
+    url: `https://api.cloudflare.com/client/v4/accounts/${accountId}/images/v1/${fileName}`,
+    headers: {
+      Authorization: `Bearer ${editToken}`
+    }
+  };
+
+  return new Promise((resolve, reject) => {
+    request(options, function(error) {
+      if (error) return reject(error);
+      return resolve('ok');
+    });
+  });
+};
 /*
  * Save file to local disk
  */
@@ -732,6 +822,10 @@ export const uploadFile = async (
     nameOrLink = await uploadFileGCS(file, models);
   }
 
+  if (UPLOAD_SERVICE_TYPE === 'Cloudflare') {
+    nameOrLink = await uploadFileCloudflare(file, false, models);
+  }
+
   if (UPLOAD_SERVICE_TYPE === 'local') {
     nameOrLink = await uploadFileLocal(file);
   }
@@ -761,6 +855,10 @@ export const deleteFile = async (
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     return deleteFileAWS(fileName, models);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === 'Cloudflare') {
+    return deleteFileCloudFlare(fileName);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {

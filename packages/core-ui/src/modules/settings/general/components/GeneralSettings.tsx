@@ -446,6 +446,17 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('AWS_SES_CONFIG_SET')}
         </CollapseContent>
 
+        <CollapseContent title={__('Cloudflare')}>
+          <FormGroup>
+            <ControlLabel>Account Id</ControlLabel>
+            {this.renderItem('CLOUDFLARE_ACCOUNT_ID')}
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Token</ControlLabel>
+            {this.renderItem('CLOUDFLARE_API_TOKEN')}
+          </FormGroup>
+        </CollapseContent>
+
         <CollapseContent title="Google">
           <Info>
             <a
