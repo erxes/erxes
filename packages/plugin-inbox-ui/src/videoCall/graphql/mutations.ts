@@ -1,6 +1,6 @@
 const deleteVideoChatRoom = `
-  mutation integrationsDeleteVideoChatRoom($name: String!) {
-    integrationsDeleteVideoChatRoom(name: $name)
+  mutation conversationDeleteVideoChatRoom($name: String!) {
+    conversationDeleteVideoChatRoom(name: $name)
   }
 `;
 
@@ -14,8 +14,8 @@ const createVideoChatRoom = `
 `;
 
 const saveVideoRecordingInfo = `
-  mutation integrationsSaveVideoRecordingInfo($conversationId: String!, $recordingId: String!) {
-    integrationsSaveVideoRecordingInfo(conversationId: $conversationId, recordingId: $recordingId)
+  mutation conversationSaveVideoRecordingInfo($conversationId: String!, $recordingId: String!) {
+    conversationSaveVideoRecordingInfo(conversationId: $conversationId, recordingId: $recordingId)
   }
 `;
 

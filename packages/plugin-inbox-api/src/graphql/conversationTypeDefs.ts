@@ -259,6 +259,7 @@ export const mutations = `
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
   conversationCreateVideoChatRoom(_id: String!): VideoCallData
+  conversationDeleteVideoChatRoom(name: String!): Boolean
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
   conversationConvertToCard(${convertParams}): String

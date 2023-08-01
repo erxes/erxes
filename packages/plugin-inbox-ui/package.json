@@ -8,6 +8,7 @@
     "tsc": "cd .erxes && yarn tsc"
   },
   "dependencies": {
+    "@daily-co/daily-js":"^0.48.0",
     "bat-draft-js-mention-plugin": "^2.0.1",
     "fuzzysearch-highlight": "^1.0.3",
     "react-to-print": "^2.13.0"
