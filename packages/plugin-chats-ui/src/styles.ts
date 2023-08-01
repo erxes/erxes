@@ -571,12 +571,6 @@ export const MessageAttachmentWrapper = styled.div`
   height: auto;
   overflow: hidden;
   position: relative;
-
-  & img {
-    height: auto;
-    object-fit: contain;
-    right: 0;
-  }
 `;
 /**
  * Messages - END
