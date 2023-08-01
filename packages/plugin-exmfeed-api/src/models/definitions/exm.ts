@@ -24,6 +24,8 @@ export interface IFeed {
   updatedAt: Date;
   department: string;
   departmentIds?: string[];
+  branchIds?: string[];
+  unitId?: string;
 }
 export interface IFeedDocument extends IFeed, Document {
   _id: string;
@@ -120,6 +122,8 @@ export const feedSchema = schemaHooksWrapper(
     }),
     departmentIds: field({ type: [String], label: 'Department Ids' }),
     department: field({ type: String, label: 'Department' }),
+    branchIds: field({ type: [String], label: 'Branch Ids' }),
+    unitId: field({ type: String, label: 'Unit' }),
     ceremonyData: field({ type: ceremonyDataSchema }),
     eventData: field({ type: eventDataSchema }),
     startDate: field({ type: Date }),

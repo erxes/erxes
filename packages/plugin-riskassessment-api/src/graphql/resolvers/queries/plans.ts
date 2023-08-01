@@ -1,5 +1,5 @@
 import { paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { IContext, models } from '../../../connectionResolver';
 import { generateSort } from '../../../utils';
 
 const generateFilters = params => {
@@ -27,6 +27,17 @@ const RiskAssessmentPlansQueries = {
   },
   async riskAssessmentPlan(_root, { _id }, { models }: IContext) {
     return await models.Plans.findOne({ _id });
+  },
+
+  async riskAssessmentSchedules(_root, { planId }, { models }: IContext) {
+    return await models.Schedules.find({ planId });
+  },
+  async riskAssessmentSchedulesTotalCount(
+    _root,
+    { planId },
+    { models }: IContext
+  ) {
+    return await models.Schedules.countDocuments({ planId });
   }
 };
 

@@ -52,7 +52,9 @@ const exmFeedQueries = {
       startDate,
       endDate,
       bravoType,
-      departmentIds
+      departmentIds,
+      branchIds,
+      unitId
     },
     { models, user }
   ) => {
@@ -82,7 +84,19 @@ const exmFeedQueries = {
     }
 
     if (departmentIds && departmentIds.length) {
-      doc.departmentIds = { $in: departmentIds };
+      doc.$or = [
+        { departmentIds: { $in: departmentIds } },
+        { departmentIds: { $eq: [] } },
+        { departmentIds: { $size: 0 } }
+      ];
+    }
+
+    if (branchIds && branchIds.length) {
+      doc.branchIds = { $in: branchIds };
+    }
+
+    if (unitId) {
+      doc.unitId = { $in: unitId };
     }
 
     if (contentTypes && contentTypes.includes('event')) {
