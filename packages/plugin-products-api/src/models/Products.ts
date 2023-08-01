@@ -113,6 +113,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
       if (product.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
+        doc.uom = await models.Uoms.checkUOM(doc);
       }
 
       if (doc.barcodes) {
@@ -130,7 +131,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
           isRPC: true
         });
       }
-      doc.uom = await models.Uoms.checkUOM(doc);
+
       await models.Products.updateOne({ _id }, { $set: doc });
 
       return await models.Products.findOne({ _id }).lean();
