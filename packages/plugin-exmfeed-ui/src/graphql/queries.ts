@@ -45,6 +45,8 @@ const commonFeedFields = `
   customFieldsData
   departmentIds
   department
+  branchIds
+  unitId
 `;
 
 const feed = `

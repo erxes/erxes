@@ -10,6 +10,8 @@ const commonVariables = `
   $createdAt: Date
   $departmentIds: [String]
   $department : String
+  $branchIds: [String]
+  $unitId: String
 `;
 
 const commonParams = `
@@ -24,6 +26,8 @@ const commonParams = `
   createdAt: $createdAt
   departmentIds: $departmentIds
   department : $department
+  branchIds: $branchIds
+  unitId: $unitId
 `;
 
 const addFeed = `

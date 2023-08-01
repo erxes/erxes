@@ -28,6 +28,8 @@ export const types = () => {
       visibility: String
       department: String
       departmentIds: [String]
+      branchIds: [String]
+      unitId: String
       where: String
       startDate: Date
       endDate: Date
