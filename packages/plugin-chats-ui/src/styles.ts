@@ -573,7 +573,6 @@ export const MessageAttachmentWrapper = styled.div`
   position: relative;
 
   & img {
-    width: 100%;
     height: auto;
     object-fit: contain;
     right: 0;
