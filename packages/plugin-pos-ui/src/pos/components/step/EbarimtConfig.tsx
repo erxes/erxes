@@ -40,9 +40,8 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
-    config[code] = value;
 
-    this.setState({ config }, () => {
+    this.setState({ config: { ...config, [code]: value } }, () => {
       this.props.onChange('ebarimtConfig', config);
     });
   };
