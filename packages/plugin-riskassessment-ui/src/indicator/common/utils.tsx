@@ -1,5 +1,5 @@
 import { ITag } from '@erxes/ui-tags/src/types';
-import { router, SelectWithSearch } from '@erxes/ui/src';
+import { generateTree, router, SelectWithSearch } from '@erxes/ui/src';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
 import React from 'react';
@@ -55,15 +55,27 @@ export const SelectTags = ({
   ignoreIds?: string[];
 }) => {
   function generetaOption(array: ITag[] = []): IOption[] {
-    let list: any[] = [];
+    const generateList = () => {
+      let list: any[] = array.map(item => {
+        if (!array.find(dep => dep._id === item.parentId)) {
+          return { ...item, parentId: null };
+        }
+        return item;
+      });
+      if (ignoreIds) {
+        list = list.filter(item => !ignoreIds.includes(item.value));
+      }
+      return list;
+    };
 
-    list = array.map(item => ({ value: item._id, label: item.name }));
+    return generateTree(generateList(), null, (node, level) => ({
+      value: node._id,
+      label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.name}`
+    }));
 
-    if (ignoreIds) {
-      list = list.filter(item => !ignoreIds.includes(item.value));
-    }
+    // list = array.map(item => ({ value: item._id, label: `---${item.name}` }));
 
-    return list;
+    // return list;
   }
   return (
     <SelectWithSearch

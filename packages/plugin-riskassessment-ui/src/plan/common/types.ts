@@ -20,6 +20,8 @@ export type IPLan = {
   name: string;
   structureType: string;
   structureTypeId: string;
+  status: string;
+  tagId: string;
   createdAt: string;
   modifiedAt: string;
   closeDate: string;
