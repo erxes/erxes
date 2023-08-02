@@ -10,6 +10,7 @@ const commonFilterParams = `
   $operationIds:[String]
   $tagIds: [String]
   $ignoreIds:[String]
+  $withChilds: Boolean
 `;
 
 const commonFilterParamsDef = `
@@ -18,6 +19,7 @@ const commonFilterParamsDef = `
   operationIds:$operationIds
   tagIds: $tagIds ,
   ignoreIds:$ignoreIds
+  withChilds: $withChilds
 `;
 
 const list = `

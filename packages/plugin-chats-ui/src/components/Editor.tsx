@@ -108,7 +108,12 @@ const Editor = (props: Props) => {
         return;
       },
 
-      afterUpload: ({ response, fileInfo }) => {
+      afterUpload: ({ status, response, fileInfo }) => {
+        if (status !== 'ok') {
+          Alert.error(response.statusText);
+          return setUploadLoading(false);
+        }
+        Alert.success('Success');
         setAttachments([
           ...attachments,
           Object.assign({ url: response }, fileInfo)

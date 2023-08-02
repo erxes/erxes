@@ -132,6 +132,21 @@ export default function List({
           );
         })}
         {(item.images || []).map((image, index) => {
+          if (image.url.includes('mp4')) {
+            return (
+              <iframe
+                key={index}
+                title="erxesIframe"
+                src={image.url || ''}
+                width="100%"
+                height="360"
+                scrolling="no"
+                frameBorder="0"
+                allowFullScreen={true}
+              />
+            );
+          }
+
           return <img key={index} alt={image.name} src={readFile(image.url)} />;
         })}
         <LikeCommentShare>

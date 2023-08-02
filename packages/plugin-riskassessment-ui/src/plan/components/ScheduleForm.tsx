@@ -110,6 +110,10 @@ class ScheduleForm extends React.Component<Props, State> {
               label="Select Group"
               name="groupId"
               onSelect={handleChange}
+              filterParams={{
+                tagIds: plan?.tagId ? [plan?.tagId] : undefined,
+                withChilds: true
+              }}
             />
           ) : (
             <SelectIndicators
@@ -117,6 +121,10 @@ class ScheduleForm extends React.Component<Props, State> {
               label="Select Indicator"
               name="indicatorId"
               onSelect={handleChange}
+              filterParams={{
+                tagIds: plan?.tagId ? [plan?.tagId] : undefined,
+                withChilds: true
+              }}
             />
           )}
         </FormGroup>

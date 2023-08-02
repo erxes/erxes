@@ -566,16 +566,17 @@ export const MessageOption = styled.button`
   }
 `;
 
-export const MessageAttachmentWrapper = styled.div`
+export const MessageAttachmentWrapper = styledTS<{ isWidget?: boolean }>(
+  styled.div
+)`
   max-width: 560px;
   height: auto;
   overflow: hidden;
   position: relative;
 
   & img {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
+    max-width: ${props => (props.isWidget ? '250px' : '300px')};
+    height: ${props => (props.isWidget ? '200px' : '100%')};
     right: 0;
   }
 `;

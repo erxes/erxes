@@ -435,13 +435,16 @@ export const TableRow = styled.tr`
   }
 `;
 
-export const ScheduleCard = styled.div`
+export const ScheduleCard = styledTS<{
+  minWidth?: string;
+  maxWidth?: string;
+}>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-width: 400px;
-  max-width: 400px;
+  min-width: ${({ minWidth }) => (minWidth ? minWidth : '400px')};
+  max-width: ${({ maxWidth }) => (maxWidth ? maxWidth : '400px')};;
   box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
   border-radius: 15px;
   place-items: center;

@@ -2,7 +2,11 @@ import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendFormsMessage } from '../messageBroker';
+import {
+  sendCommonMessage,
+  sendFormsMessage,
+  sendTagsMessage
+} from '../messageBroker';
 import { validateCalculateMethods, validRiskIndicators } from '../utils';
 import { IRiskIndicatorsField, PaginateField } from './definitions/common';
 import {
@@ -46,15 +50,39 @@ const statusColors = {
   No_Result: '#888'
 };
 
-const generateFilter = (
+const generateIds = async ({
+  subdomain,
+  useSendMessage,
+  params,
+  serviceName,
+  action
+}) => {
+  if (useSendMessage) {
+    const items = await sendCommonMessage({
+      serviceName,
+      subdomain,
+      action,
+      data: params,
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return { $in: items.map(item => item._id) };
+  }
+
+  return params;
+};
+
+const generateFilter = async (
+  subdomain,
   params: {
     _id?: string;
     ids?: string[];
-    tagIds?: string[];
     ignoreIds?: string[];
     branchId?: string;
     departmentId?: string;
     operationId?: string;
+    withChilds?: boolean;
   } & IRiskIndicatorsField &
     PaginateField
 ) => {
@@ -68,8 +96,33 @@ const generateFilter = (
     filter._id = { $in: params.ids };
   }
 
-  if (params.tagIds) {
-    filter.tagIds = { $in: params.tagIds };
+  if (!!params?.tagIds?.length) {
+    let filterParams: any = { $in: params.tagIds };
+
+    if (params.withChilds) {
+      const tags = await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          _id: params.tagIds
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      const orderQuery = tags.map(tag => ({
+        order: { $regex: `^${tag.order}`, $options: 'i' }
+      }));
+
+      filterParams = { $or: orderQuery };
+    }
+
+    filter.tagIds = await generateIds({
+      subdomain,
+      serviceName: 'tags',
+      action: 'find',
+      useSendMessage: params.withChilds,
+      params: filterParams
+    });
   }
 
   if (params.sortFromDate) {
@@ -134,7 +187,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
       } & IRiskIndicatorsField &
         PaginateField
     ) {
-      const filter = generateFilter(params);
+      const filter = await generateFilter(subdomain, params);
       const sort = generateOrderFilters(params);
       return paginate(model.RiskIndicators.find(filter).sort(sort), params);
     }
@@ -145,7 +198,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
       } & IRiskIndicatorsField &
         PaginateField
     ) {
-      const filter = generateFilter(params);
+      const filter = await generateFilter(subdomain, params);
       return await model.RiskIndicators.find(filter).countDocuments();
     }
 
@@ -192,7 +245,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
       _id: string;
       fieldsSkip: any;
     }) {
-      const filter = generateFilter(params);
+      const filter = await generateFilter(subdomain, params);
       const { fieldsSkip } = params;
       if (!filter._id) {
         throw new Error('You must provide a _id parameter');

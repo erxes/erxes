@@ -6,6 +6,7 @@ const commonPlanParams = `
     $startDate:String,
     $closeDate:String,
     $createDate:String,
+    $tagId:String
 `;
 
 const commonPlanParamsDef = `
@@ -16,6 +17,7 @@ const commonPlanParamsDef = `
     startDate:$startDate,
     closeDate:$closeDate,
     createDate:$createDate,
+    tagId:$tagId
 `;
 
 const addPlan = `

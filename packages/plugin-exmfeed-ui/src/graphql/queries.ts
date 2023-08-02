@@ -111,4 +111,52 @@ const departments = `
   }
 `;
 
-export default { feed, thanks, fields, allUsers, departments };
+export const unitField = `
+  _id
+  title
+  description
+  departmentId
+  department {
+    ${departmentField}
+  }
+  supervisorId
+  supervisor {
+      _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
+  code
+  userIds
+  users {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+`;
+
+const unitsMain = `
+  query unitsMain {
+    unitsMain {
+      list {
+        ${unitField}
+      }
+      totalCount
+      totalUsersCount
+    }
+  }
+`;
+
+export default { feed, thanks, fields, allUsers, departments, unitsMain };
