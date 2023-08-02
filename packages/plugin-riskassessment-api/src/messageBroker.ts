@@ -74,6 +74,16 @@ export const sendRiskAssessmentMessage = (
   });
 };
 
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }
