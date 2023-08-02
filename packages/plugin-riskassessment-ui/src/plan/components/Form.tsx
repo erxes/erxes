@@ -19,6 +19,7 @@ import { PlanContainer } from '../../styles';
 import { IPLan, ISchedule } from '../common/types';
 import GeneralConfig from './GeneralContent';
 import SchedulesConfig from './Schedules';
+import PerformanceContent from './PerformanceContent';
 
 type Props = {
   plan: IPLan;
@@ -116,6 +117,7 @@ class Form extends React.Component<Props, State> {
           <Step
             title="General"
             img="/images/icons/erxes-24.svg"
+            noButton={plan.status === 'archived'}
             additionalButton={renderButton({
               ...formProps,
               text: 'Plan',
@@ -135,6 +137,16 @@ class Form extends React.Component<Props, State> {
               onClick={saveSteps}
             >
               {this.renderSchedulesContent()}
+            </Step>
+          )}
+          {plan.status === 'archived' && (
+            <Step
+              img="/images/icons/erxes-33.png"
+              onClick={saveSteps}
+              title="Performance"
+              noButton
+            >
+              <PerformanceContent plan={plan} />
             </Step>
           )}
         </Steps>

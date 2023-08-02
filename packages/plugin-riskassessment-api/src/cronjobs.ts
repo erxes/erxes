@@ -1,18 +1,12 @@
 import { generateModels } from './connectionResolver';
 import { sendCardsMessage } from './messageBroker';
+import { PLAN_STATUSES } from './common/constants';
 
 const handleDailyJob = async ({ subdomain }) => {
   const models = await generateModels(subdomain);
 
   const NOW = new Date();
   console.log(`starting daily job of risk assessment schedule at ${NOW}`);
-
-  console.log({
-    createDate: {
-      $gte: NOW.setHours(0, 0, 0, 0),
-      $lte: NOW.setHours(23, 59, 59, 999)
-    }
-  });
 
   const plan = await models.Plans.findOne({
     createDate: {
@@ -42,6 +36,8 @@ const handleDailyJob = async ({ subdomain }) => {
   };
 
   const { configs, plannerId, structureType } = plan;
+
+  let newItemIds: string[] = [];
 
   for (const schedule of schedules) {
     const payload = {
@@ -75,9 +71,14 @@ const handleDailyJob = async ({ subdomain }) => {
       indicatorId: schedule.indicatorId,
       [`${fieldName}Id`]: schedule.structureTypeId || ''
     }).catch(err => console.log(err.message));
+
+    newItemIds = [...newItemIds, newItem._id];
   }
 
-  await models.Plans.updateOne({ _id: plan._id }, { status: 'archived' });
+  await models.Plans.updateOne(
+    { _id: plan._id },
+    { status: PLAN_STATUSES.ARCHIVED, cardIds: newItemIds }
+  );
 
   return 'done';
 };

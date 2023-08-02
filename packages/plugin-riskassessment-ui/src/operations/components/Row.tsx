@@ -35,7 +35,7 @@ class Row extends React.Component<Props> {
             onClick={handleSelect}
           />
         </td>
-        <td>{__(`${'\u00A0 \u00A0 '.repeat(level)}  ${operation.code}`)}</td>
+        <td>{__(`${'\u00A0 \u00A0 '.repeat(level)} ${operation.code}`)}</td>
         <td>{__(operation.name)}</td>
         <td>{moment(operation.createdAt).format('lll')}</td>
         <td>{moment(operation.modifiedAt).format('lll')}</td>

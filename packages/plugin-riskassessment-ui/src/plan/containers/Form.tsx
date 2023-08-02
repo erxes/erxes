@@ -69,7 +69,7 @@ class Form extends React.Component<FinalProps> {
     };
 
     const renderButton = ({
-      name,
+      text,
       values,
       isSubmitted,
       callback,
@@ -98,7 +98,7 @@ class Form extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           confirmationUpdate={confirmationUpdate}
-          successMessage={`You successfully ${successAction} a ${name}`}
+          successMessage={`You successfully ${successAction} a ${text}`}
         />
       );
     };

@@ -84,7 +84,12 @@ class SchedulesConfig extends React.Component<Props> {
 
   renderAddForm() {
     const { plan, history, refetch } = this.props;
-    const { configs } = plan;
+    const { configs, status } = plan;
+
+    if (plan.status === 'archived') {
+      return null;
+    }
+
     const trigger = <Button btnStyle="success">{__('Add')}</Button>;
 
     const content = ({ closeModal }) => {
@@ -149,14 +154,16 @@ class SchedulesConfig extends React.Component<Props> {
             <Assignees users={schedule?.assignedUsers || []} />
           </FormContainer>
         </FormContainer>
-        <BarItems className="bottomBarItem">
-          {this.renderEditForm(updatedProps)}
-          {this.renderDuplicateForm(updatedProps)}
+        {plan.status !== 'archived' && (
+          <BarItems className="bottomBarItem">
+            {this.renderEditForm(updatedProps)}
+            {this.renderDuplicateForm(updatedProps)}
 
-          <Button btnStyle="link" onClick={handleRemomve} icon="times-circle">
-            {__('Remove')}
-          </Button>
-        </BarItems>
+            <Button btnStyle="link" onClick={handleRemomve} icon="times-circle">
+              {__('Remove')}
+            </Button>
+          </BarItems>
+        )}
       </ScheduleCard>
     );
   }

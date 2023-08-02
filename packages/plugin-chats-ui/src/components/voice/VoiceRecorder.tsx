@@ -107,7 +107,12 @@ const VoiceRecorder = (props: Props) => {
         setIsUploading(true);
         return <Spinner />;
       },
-      afterUpload: ({ response, fileInfo }) => {
+      afterUpload: ({ status, response, fileInfo }) => {
+        if (status !== 'ok') {
+          Alert.error(response.statusText);
+          return setIsUploading(false);
+        }
+        Alert.success('Success');
         setAttachments([
           ...(attachments || []),
           Object.assign({ url: response }, fileInfo)

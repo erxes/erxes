@@ -127,6 +127,7 @@ const commonIndicatorParams = `
     branchIds:[String],
     departmentIds:[String],
     operationIds:[String],
+    withChilds:Boolean,
     ${commonPaginateTypes}
 `;
 

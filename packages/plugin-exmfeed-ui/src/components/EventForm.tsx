@@ -2,24 +2,33 @@ import React, { useState } from 'react';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { Form, FormControl, Uploader, SelectTeamMembers } from '@erxes/ui/src/';
 import { IFormProps, IButtonMutateProps } from '@erxes/ui/src/types';
-import { UploadItems, CustomRangeContainer } from '../styles';
+import {
+  UploadItems,
+  CustomRangeContainer,
+  SelectWrapper,
+  ClearButton
+} from '../styles';
 import { title, description, getDepartmentOptions } from '../utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import GenerateFields from './GenerateFields';
 import { __ } from '@erxes/ui/src/utils';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import Select from 'react-select-plus';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   item?: any;
   closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => any;
   fields: any[];
+  unitList?: any[];
   departments: any[];
 };
 
 export default function EventForm(props: Props) {
   const { item = {}, fields } = props;
+  const unitList = props.unitList || [];
 
   const [attachments, setAttachment] = useState(item.attachments || []);
   const [images, setImages] = useState(item.images || []);
@@ -37,7 +46,7 @@ export default function EventForm(props: Props) {
   });
   const [departmentIds, setDepartmentIds] = useState(item.departmentIds || []);
   const [branchIds, setBranchIds] = useState(item?.branchIds || []);
-  const [unitId, setUnitId] = useState(item.unitId || '');
+  const [unitId, setUnitId] = useState(item?.unitId || '');
 
   const onChangeDepartments = (option: any) => {
     setDepartmentIds(option);
@@ -47,8 +56,24 @@ export default function EventForm(props: Props) {
     setBranchIds(option);
   };
 
+  const onChangeUnit = (option: any) => {
+    setUnitId(option.value);
+  };
+
   const onChangeEventData = (key, value) => {
     setEventData({ ...eventData, [key]: value });
+  };
+
+  const renderClearButton = () => {
+    if (unitId) {
+      return (
+        <ClearButton onClick={() => setUnitId('')}>
+          <Icon icon="times" />
+        </ClearButton>
+      );
+    }
+
+    return null;
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -138,6 +163,21 @@ export default function EventForm(props: Props) {
           initialValue={branchIds}
           onSelect={onChangeBranches}
         />
+
+        <SelectWrapper>
+          <Select
+            name={'unitId'}
+            multi={false}
+            label={'Choose Unit'}
+            value={unitId}
+            onChange={onChangeUnit}
+            options={unitList.map(unit => ({
+              value: unit._id,
+              label: unit.title
+            }))}
+          />
+          {renderClearButton()}
+        </SelectWrapper>
 
         <GenerateFields
           fields={fields}

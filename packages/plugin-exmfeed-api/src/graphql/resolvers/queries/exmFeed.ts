@@ -92,7 +92,11 @@ const exmFeedQueries = {
     }
 
     if (branchIds && branchIds.length) {
-      doc.branchIds = { $in: branchIds };
+      doc.$or = [
+        { branchIds: { $in: branchIds } },
+        { branchIds: { $eq: [] } },
+        { branchIds: { $size: 0 } }
+      ];
     }
 
     if (unitId) {
