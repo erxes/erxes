@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import colors from '../styles/colors';
 import { rgba } from '../styles/ecolor';
 import { IAttachment } from '../types';
@@ -10,9 +11,18 @@ import Spinner from './Spinner';
 import AttachmentsGallery from './AttachmentGallery';
 import Icon from './Icon';
 import { Meta } from './Attachment';
+import Tip from './Tip';
 
-const LoadingContainer = styled.div`
-  margin: 10px 0;
+const LoadingContainer = styledTS<{ showOnlyIcon?: boolean }>(styled.div)`
+  ${props =>
+    props.showOnlyIcon
+      ? `
+  height: 20px;
+  width: 20px;
+  position: relative;
+  margin-left: 8px;
+  `
+      : `margin: 10px 0;
   background: ${colors.bgActive};
   border-radius: 4px;
   display: flex;
@@ -22,7 +32,7 @@ const LoadingContainer = styled.div`
   > div {
     height: 80px;
     margin-right: 7px;
-  }
+  }`}
 `;
 
 const UploadBtn = styled.div`
@@ -76,6 +86,14 @@ const UploadBtnWithIcon = styled.div`
   }
 `;
 
+const UploadIconBtn = styled.div`
+  i {
+    font-size: 18px;
+    color: ${colors.colorLightGray};
+    padding: 0;
+  }
+`;
+
 type Props = {
   defaultFileList: IAttachment[];
   onChange: (attachments: IAttachment[]) => void;
@@ -86,6 +104,8 @@ type Props = {
   text?: string;
   icon?: string;
   warningText?: string;
+  showOnlyIcon?: boolean;
+  noPreview?: boolean;
 };
 
 type State = {
@@ -165,10 +185,37 @@ class Uploader extends React.Component<Props, State> {
   };
 
   renderUploadButton() {
-    const { multiple, single, text, accept, icon, warningText } = this.props;
+    const {
+      multiple,
+      single,
+      text,
+      accept,
+      icon,
+      warningText,
+      showOnlyIcon
+    } = this.props;
 
     if (single && this.state.attachments.length > 0) {
       return null;
+    }
+
+    if (showOnlyIcon) {
+      return (
+        <UploadIconBtn>
+          <label>
+            <Tip text={__('Attach file')} placement="top">
+              <Icon icon={icon || 'attach'} />
+            </Tip>
+
+            <input
+              type="file"
+              multiple={multiple}
+              onChange={this.handleFileInput}
+              accept={accept || ''}
+            />
+          </label>
+        </UploadIconBtn>
+      );
     }
 
     if (!icon) {
@@ -209,24 +256,49 @@ class Uploader extends React.Component<Props, State> {
     );
   }
 
+  renderPreview() {
+    const { limit = 4, onChange, noPreview } = this.props;
+    const { attachments } = this.state;
+
+    if (noPreview) {
+      return null;
+    }
+    return (
+      <AttachmentsGallery
+        attachments={attachments}
+        limit={limit}
+        onChange={onChange}
+        removeAttachment={this.removeAttachment}
+      />
+    );
+  }
+
+  renderLoader() {
+    const { showOnlyIcon, noPreview } = this.props;
+
+    if (noPreview) {
+      return (
+        <LoadingContainer showOnlyIcon={showOnlyIcon}>
+          <Spinner size={18} />
+        </LoadingContainer>
+      );
+    }
+
+    return (
+      <LoadingContainer>
+        <Spinner objective={true} size={18} />
+        {__('Uploading')}...
+      </LoadingContainer>
+    );
+  }
+
   render() {
-    const { limit = 4, onChange } = this.props;
-    const { attachments, loading } = this.state;
+    const { loading } = this.state;
 
     return (
       <>
-        {loading && (
-          <LoadingContainer>
-            <Spinner objective={true} size={18} />
-            {__('Uploading')}...
-          </LoadingContainer>
-        )}
-        <AttachmentsGallery
-          attachments={attachments}
-          limit={limit}
-          onChange={onChange}
-          removeAttachment={this.removeAttachment}
-        />
+        {loading && this.renderLoader()}
+        {this.renderPreview()}
         {this.renderUploadButton()}
       </>
     );
