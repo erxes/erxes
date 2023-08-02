@@ -204,12 +204,12 @@ class Attachment extends React.Component<Props> {
               <div key={i}>
                 <AttachmentInfo>
                   <a href={att.url}>{att.name}</a>
-                  {this.renderFileSize(att.size)}
+                  {this.renderFileSize(att.size || 0)}
                 </AttachmentInfo>
                 <Icon
                   size={10}
                   icon="cancel"
-                  onClick={() => removeAttachment(i)}
+                  onClick={() => removeAttachment && removeAttachment(i)}
                 />
               </div>
             ))}
