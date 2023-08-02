@@ -8,18 +8,21 @@ import Form from '@erxes/ui/src/components/form/Form';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import Select from 'react-select-plus';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
   item?: any;
   closeModal?: () => void;
   fields: any[];
+  unitList?: any[];
   departments: any[];
 };
 
 export default function PostForm(props: Props) {
   const item = props.item || {};
   const fields = props.fields;
+  const unitList = props.unitList || [];
 
   const [attachments, setAttachment] = useState(item.attachments || []);
   const [images, setImage] = useState(item.images || []);
@@ -36,6 +39,10 @@ export default function PostForm(props: Props) {
 
   const onChangeBranches = (option: any) => {
     setBranchIds(option);
+  };
+
+  const onChangeUnit = (option: any) => {
+    setUnitId(option.value);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -59,6 +66,17 @@ export default function PostForm(props: Props) {
           multi={true}
           initialValue={branchIds}
           onSelect={onChangeBranches}
+        />
+        <Select
+          name={'unitId'}
+          multi={false}
+          label={'Choose Unit'}
+          value={unitId}
+          onChange={onChangeUnit}
+          options={unitList.map(unit => ({
+            value: unit._id,
+            label: unit.title
+          }))}
         />
         <GenerateFields
           fields={fields}
