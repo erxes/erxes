@@ -30,6 +30,8 @@ type Plan {
     name: String,
     structureType: String,
     structureTypeId:String,
+    status: String,
+    tagId:String,
     configs:JSON,
     createdAt: Date,
     modifiedAt: Date
@@ -40,6 +42,10 @@ type Plan {
     planner:User
     
     structureDetail:StructureDetail
+    cardIds:[String]
+    cards:JSON
+    dashboard:JSON
+    riskAssessments:[RiskAssessment]
 }
 `;
 
@@ -47,6 +53,7 @@ const commonMutationsParams = `
     name:String,
     structureType:String,
     structureTypeId:String,
+    tagId:String,
     configs:JSON,
     startDate:String,
     closeDate:String,
