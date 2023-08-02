@@ -73,7 +73,6 @@ const ChatItem = (props: FinalProps) => {
       props.handleClickItem(chat._id);
     } else {
       router.setParams(history, { id: chat._id });
-      // history.push(`/erxes-plugin-chat?id=${chat._id}`);
     }
   };
 
