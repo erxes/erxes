@@ -13,10 +13,11 @@ type Props = {
   chatId: string;
   setReply: (message: any) => void;
   currentUser: IUser;
+  isWidget?: boolean;
 };
 
 const MessageListContainer = (props: Props) => {
-  const { chatId } = props;
+  const { chatId, isWidget } = props;
 
   const [page, setPage] = useState<number>(0);
   const [latestMessages, setLatestMessages] = useState<any[]>([]);
@@ -95,6 +96,7 @@ const MessageListContainer = (props: Props) => {
       isAllMessages={chatMessages.length < (page + 1) * 20}
       setReply={props.setReply}
       loadEarlierMessage={loadEarlierMessage}
+      isWidget={isWidget}
     />
   );
 };

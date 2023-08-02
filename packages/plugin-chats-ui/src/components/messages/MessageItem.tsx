@@ -24,6 +24,7 @@ dayjs.extend(calendar);
 type Props = {
   message: any;
   setReply: (text: string) => void;
+  isWidget?: boolean;
 };
 
 type FinalProps = {
@@ -31,7 +32,7 @@ type FinalProps = {
 } & Props;
 
 const MessageItem = (props: FinalProps) => {
-  const { message, currentUser } = props;
+  const { message, currentUser, isWidget } = props;
   const actionRef = useRef<HTMLElement>(null);
 
   const isMe = currentUser._id === message.createdUser._id;
@@ -108,7 +109,7 @@ const MessageItem = (props: FinalProps) => {
             </Tip>
           </MessageBody>
         )}
-        <MessageAttachmentWrapper>
+        <MessageAttachmentWrapper isWidget={isWidget}>
           {renderAttachments()}
         </MessageAttachmentWrapper>
       </MessageWrapper>
