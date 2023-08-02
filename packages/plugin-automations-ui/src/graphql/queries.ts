@@ -31,6 +31,7 @@ export const automationFields = `
     icon
     label
     description
+    isExternalCommunication
   }
   createdAt
   updatedAt

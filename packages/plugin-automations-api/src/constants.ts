@@ -37,10 +37,11 @@ export const UI_ACTIONS = [
     isAvailable: false
   },
   {
-    type: 'externalCommunications',
+    type: 'sendEmail',
+    isExternalCommunication: true,
     icon: 'fast-mail',
-    label: 'External communications',
-    description: 'Send email, SMS or in-app messenger messages to Contacts',
-    isAvailable: false
+    label: 'Send Email',
+    description: 'Send',
+    isAvailable: true
   }
 ];

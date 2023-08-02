@@ -1,3 +1,6 @@
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { SelectTeamMembers } from '@erxes/ui/src';
 export const PROPERTY_FIELD = [
   {
     value: 'size',
@@ -63,3 +66,26 @@ export const PROPERTY_OPERATOR = {
     }
   ]
 };
+
+export const USER_TYPES = [
+  {
+    label: 'Team Member',
+    value: 'team_member',
+    component: SelectTeamMembers
+  },
+  {
+    label: 'Lead',
+    value: 'lead',
+    component: SelectCustomers
+  },
+  {
+    label: 'Customer',
+    value: 'customer',
+    component: SelectCustomers
+  },
+  {
+    label: 'Company',
+    value: 'company',
+    component: SelectCompanies
+  }
+];

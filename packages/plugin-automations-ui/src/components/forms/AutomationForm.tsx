@@ -283,6 +283,7 @@ class AutomationForm extends React.Component<Props, State> {
           icon: a.icon,
           label: a.label,
           description: a.description,
+          isExternalCommunication: a.isExternalCommunication,
           style: jquery(`#action-${a.id}`).attr('style')
         }))
       };
