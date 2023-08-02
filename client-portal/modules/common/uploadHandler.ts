@@ -37,23 +37,28 @@ export const deleteHandler = (params: {
 }) => {
   const { REACT_APP_MAIN_API_DOMAIN } = getEnv();
 
+  let url = `${REACT_APP_MAIN_API_DOMAIN}/gateway/pl:core/delete-file`;
+
+  if(REACT_APP_MAIN_API_DOMAIN.includes('localhost')) {
+    url = `${REACT_APP_MAIN_API_DOMAIN}/pl:core/delete-file`;
+  }
+
   const {
-    url = `${REACT_APP_MAIN_API_DOMAIN}/delete-file`,
     fileName,
     afterUpload
   } = params;
 
-  fetch(`${url}`, {
+  fetch(url, {
     method: 'post',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
     },
     body: `fileName=${fileName}`,
     credentials: 'include'
-  }).then((response) => {
+  }).then(response => {
     response
       .text()
-      .then((text) => {
+      .then(text => {
         if (!response.ok) {
           return afterUpload({
             status: text
@@ -62,21 +67,28 @@ export const deleteHandler = (params: {
 
         return afterUpload({ status: 'ok' });
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   });
 };
 
-const uploadHandler = (params: Params) => {
+const getURL = () => {
   const { REACT_APP_DOMAIN } = getEnv();
 
+  if (REACT_APP_DOMAIN.includes('localhost')) {
+    return `${REACT_APP_DOMAIN}/upload-file`;
+  }
+  return `${REACT_APP_DOMAIN}/gateway/pl:core/upload-file`;
+};
+
+const uploadHandler = (params: Params) => {
   const {
     files,
     beforeUpload,
     afterUpload,
     afterRead,
-    url = `${REACT_APP_DOMAIN}/upload-file`,
+    url = getURL(),
     kind = 'main',
     responseType = 'text',
     userId,
@@ -129,9 +141,9 @@ const uploadHandler = (params: Params) => {
         credentials: 'include',
         ...(userId ? { headers: { userId } } : {})
       })
-        .then((response) => {
+        .then(response => {
           response[responseType]()
-            .then((text) => {
+            .then(text => {
               if (!response.ok) {
                 return afterUpload({
                   status: 'error',
@@ -145,11 +157,11 @@ const uploadHandler = (params: Params) => {
                 afterUpload({ status: 'ok', response: text, fileInfo });
               }
             })
-            .catch((error) => {
+            .catch(error => {
               Alert.error(error.message);
             });
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     };

@@ -47,7 +47,6 @@ export const types = (tagsAvailable, contactsAvailable) => `
     code: String
     type: String
     description: String
-    sku: String
     barcodes: [String]
     barcodeDescription: String
     unitPrice: Float
@@ -60,13 +59,9 @@ export const types = (tagsAvailable, contactsAvailable) => `
     attachment: Attachment
     attachmentMore: [Attachment]
     vendorId: String
-    supply: String
-    productCount: Int
-    minimiumCount: Int
-    uomId: String
+    uom: String
     subUoms: JSON
 
-    uom: Uom
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
     taxType: String
@@ -80,7 +75,6 @@ const productParams = `
   categoryId: String,
   type: String,
   description: String,
-  sku: String,
   barcodes: [String],
   barcodeDescription: String,
   unitPrice: Float,
@@ -88,11 +82,8 @@ const productParams = `
   customFieldsData: JSON,
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
-  supply: String,
-  productCount: Int,
-  minimiumCount: Int,
   vendorId: String,
-  uomId: String,
+  uom: String,
   subUoms: JSON,
   taxType: String,
   taxCode: String,
@@ -113,8 +104,7 @@ const productsQueryParams = `
   categoryId: String,
   searchValue: String,
   tag: String,
-  page: Int,
-  perPage: Int ids: [String],
+  ids: [String],
   excludeIds: Boolean,
   pipelineId: String,
   boardId: String,
@@ -128,8 +118,10 @@ export const queries = `
   productCategoryDetail(_id: String): ProductCategory
   products(
     ${productsQueryParams},
+    page: Int,
     perPage: Int,
-    page: Int
+    sortField: String
+    sortDirection: Int    
   ): [Product]
   productsTotalCount(${productsQueryParams}): Int
   productsGroupCounts(only: String, segment: String, segmentData: String): JSON

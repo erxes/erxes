@@ -17,11 +17,86 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
+  const { contentType, segmentData, page, perPage } = query;
+
+  const type = contentType.split(':')[1];
+  const skip = (page - 1) * perPage;
+
+  let data: any[] = [];
+
+  const contactsFilter: any = {};
+
+  if (segmentData.conditions) {
+    const itemIds = await fetchSegment(
+      subdomain,
+      '',
+      { page, perPage },
+      segmentData
+    );
+
+    contactsFilter._id = { $in: itemIds };
+  }
+
+  switch (type) {
+    case MODULE_NAMES.COMPANY:
+      if (!segmentData) {
+        data = await models.Companies.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Companies.find(contactsFilter).lean();
+
+      break;
+    case 'lead':
+      if (!segmentData) {
+        data = await models.Customers.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(contactsFilter).lean();
+
+      break;
+    case 'visitor':
+      if (!segmentData) {
+        data = await models.Customers.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(contactsFilter).lean();
+
+      break;
+    case MODULE_NAMES.CUSTOMER:
+      if (!segmentData) {
+        data = await models.Customers.find(contactsFilter)
+          .skip(skip)
+          .limit(perPage)
+          .lean();
+      }
+
+      data = await models.Customers.find(contactsFilter).lean();
+
+      break;
+  }
+
+  return data;
+};
+
+const prepareDataCount = async (
+  models: IModels,
+  subdomain: string,
+  query: any
+): Promise<any> => {
   const { contentType, segmentData } = query;
 
   const type = contentType.split(':')[1];
 
-  let data: any[] = [];
+  let data = 0;
 
   const contactsFilter: any = {};
 
@@ -38,19 +113,19 @@ const prepareData = async (
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
-      data = await models.Companies.find(contactsFilter).lean();
+      data = await models.Companies.find(contactsFilter).count();
 
       break;
     case 'lead':
-      data = await models.Customers.find(contactsFilter).lean();
+      data = await models.Customers.find(contactsFilter).count();
 
       break;
     case 'visitor':
-      data = await models.Customers.find(contactsFilter).lean();
+      data = await models.Customers.find(contactsFilter).count();
 
       break;
     case MODULE_NAMES.CUSTOMER:
-      data = await models.Customers.find(contactsFilter).lean();
+      data = await models.Customers.find(contactsFilter).count();
       break;
   }
 
@@ -212,9 +287,57 @@ export default {
 
     const { columnsConfig } = data;
 
-    const docs = [] as any;
+    let totalCount = 0;
     const headers = [] as any;
     const excelHeader = [] as any;
+
+    try {
+      const results = await prepareDataCount(models, subdomain, data);
+
+      totalCount = results;
+
+      for (const column of columnsConfig) {
+        if (column.startsWith('customFieldsData')) {
+          const fieldId = column.split('.')[1];
+          const field = await sendFormsMessage({
+            subdomain,
+            action: 'fields.findOne',
+            data: {
+              query: {
+                _id: fieldId
+              }
+            },
+            isRPC: true
+          });
+
+          headers.push(`customFieldsData.${field.text}.${fieldId}`);
+        } else {
+          headers.push(column);
+        }
+      }
+
+      for (const header of headers) {
+        if (header.startsWith('customFieldsData')) {
+          excelHeader.push(header.split('.')[1]);
+        } else {
+          excelHeader.push(header);
+        }
+      }
+    } catch (e) {
+      return {
+        error: e.message
+      };
+    }
+    return { totalCount, excelHeader };
+  },
+
+  getExportDocs: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { columnsConfig } = data;
+
+    const docs = [] as any;
+    const headers = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -271,17 +394,9 @@ export default {
 
         docs.push(result);
       }
-
-      for (const header of headers) {
-        if (header.startsWith('customFieldsData')) {
-          excelHeader.push(header.split('.')[1]);
-        } else {
-          excelHeader.push(header);
-        }
-      }
     } catch (e) {
       return { error: e.message };
     }
-    return { docs, excelHeader };
+    return { docs };
   }
 };

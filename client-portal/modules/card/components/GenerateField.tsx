@@ -10,6 +10,8 @@ import SelectData from "./SelectData";
 import { SelectInput } from "../../styles/cards";
 import Uploader from "../../common/Uploader";
 import { __ } from "../../../utils";
+import DateControl from "../../common/form/DateControl";
+import { CustomRangeContainer } from "../../common/form/styles";
 
 type Props = {
   field: IField;
@@ -32,11 +34,11 @@ export default class GenerateField extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      ...this.generateState(props),
+      ...this.generateState(props)
     };
   }
 
-  generateState = (props) => {
+  generateState = props => {
     const { field, defaultValue } = props;
 
     const state = { value: defaultValue, checkBoxValues: [] };
@@ -72,7 +74,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
       // remove option from checked list
       if (!isChecked) {
-        checkBoxValues = checkBoxValues.filter((v) => v !== optionValue);
+        checkBoxValues = checkBoxValues.filter(v => v !== optionValue);
       }
 
       this.setState({ checkBoxValues });
@@ -90,11 +92,11 @@ export default class GenerateField extends React.Component<Props, State> {
   renderInput(attrs, hasError?: boolean) {
     const { value } = this.state;
     const checkBoxValues = this.state.checkBoxValues || [];
-    const { type } = this.props.field;
+    const { type, validation } = this.props.field;
 
     attrs.type = "text";
 
-    attrs.onChange = (e) => {
+    attrs.onChange = e => {
       this.setState({ value: e.target.value });
       this.onChange(e, attrs.option);
     };
@@ -138,7 +140,7 @@ export default class GenerateField extends React.Component<Props, State> {
       const { field, onValueChange } = this.props;
 
       if (onValueChange) {
-        const value = ops.map((e) => e.value).toString();
+        const value = ops.map(e => e.value).toString();
         this.setState({ value });
 
         onValueChange({ _id: field._id, value });
@@ -148,7 +150,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <Select
         value={attrs.value}
-        options={options.map((e) => ({ value: e, label: e }))}
+        options={options.map(e => ({ value: e, label: e }))}
         onChange={onChange}
         multi={true}
       />
@@ -174,7 +176,7 @@ export default class GenerateField extends React.Component<Props, State> {
       options = attrs.value.split(",") || [];
     }
 
-    const onChange = (ops) => {
+    const onChange = ops => {
       const { field, onValueChange } = this.props;
 
       if (onValueChange) {
@@ -211,6 +213,7 @@ export default class GenerateField extends React.Component<Props, State> {
       <Uploader
         defaultFileList={value || []}
         onChange={onChangeFile}
+        showUploader={true}
         multiple={true}
         single={false}
       />
@@ -219,7 +222,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderProduct({ id, value }) {
     const { onValueChange, products } = this.props;
-    const onSelect = (e) => {
+    const onSelect = e => {
       if (onValueChange) {
         this.setState({ value: e });
 
@@ -239,7 +242,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderBranch({ id, value }) {
     const { onValueChange, branches } = this.props;
-    const onSelect = (e) => {
+    const onSelect = e => {
       if (onValueChange) {
         this.setState({ value: e });
         onValueChange({ _id: id, value: e });
@@ -257,7 +260,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderLabels(attrs) {
     const { onValueChange, labels } = this.props;
-    const onSelect = (e) => {
+    const onSelect = e => {
       onValueChange({ _id: attrs.id, value: [e.currentTarget.value] });
     };
 
@@ -266,7 +269,7 @@ export default class GenerateField extends React.Component<Props, State> {
         <option key={""} value="">
           Choose option
         </option>
-        {labels.map((label) => (
+        {labels.map(label => (
           <option key={label._id} value={label._id}>
             {label.name}
           </option>
@@ -277,7 +280,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderDepartment({ id, value }) {
     const { onValueChange, departments } = this.props;
-    const onSelect = (e) => {
+    const onSelect = e => {
       if (onValueChange) {
         this.setState({ value: e });
 
@@ -295,6 +298,34 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderDateSelect = ({ id, validation, value, fieldName }) => {
+    const { onValueChange } = this.props;
+
+    const onDateChange = dateVal => {
+      if (onValueChange) {
+        this.setState({ value: dateVal });
+
+        onValueChange({
+          _id: id,
+          value: dateVal
+        });
+      }
+    };
+
+    return (
+      <CustomRangeContainer>
+        <DateControl
+          required={false}
+          value={value}
+          onChange={onDateChange}
+          name={fieldName}
+          placeholder="Enter date"
+          dateFormat={"yyyy-MM-dd"}
+          timeFormat={validation === "datetime"}
+        />
+      </CustomRangeContainer>
+    );
+  };
   renderControl() {
     const { field } = this.props;
     const { type } = field;
@@ -303,12 +334,18 @@ export default class GenerateField extends React.Component<Props, State> {
     const attrs = {
       id: field._id,
       value: this.state.value,
+      fieldName: field.field,
+      validation: field.validation,
       onChange: this.onChange,
-      name: "",
+      name: ""
     };
 
     if (field.field === "labelIds") {
       return this.renderLabels(attrs);
+    }
+
+    if (field.validation === "date" || field.validation === "datetime") {
+      return this.renderDateSelect(attrs);
     }
 
     switch (type) {

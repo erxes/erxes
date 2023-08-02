@@ -7,7 +7,11 @@ import {
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
 import { itemsEdit, publishHelper } from './graphql/resolvers/mutations/utils';
-import { createConformity, notifiedUserIds } from './graphql/utils';
+import {
+  createConformity,
+  notifiedUserIds,
+  sendNotifications
+} from './graphql/utils';
 import { conversationConvertToCard, createBoardItem } from './models/utils';
 import { getCardItem } from './utils';
 
@@ -595,6 +599,15 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('cards:sendNotifications', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await sendNotifications(models, subdomain, data)
+    };
+  });
+
   consumeRPCQueue(
     'cards:getLink',
     async ({ subdomain, data: { _id, type } }) => {
@@ -616,6 +629,29 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'cards:pipelines.findOne',
+    async ({ subdomain, data: { _id, stageId } }) => {
+      let pipelineId = _id;
+      const models = await generateModels(subdomain);
+      if (!pipelineId && stageId) {
+        const stage = await models.Stages.findOne({ _id: stageId }).lean();
+        if (stage) {
+          pipelineId = stage.pipelineId;
+        }
+      }
+
+      if (!pipelineId) {
+        return {};
+      }
+
+      return {
+        status: 'success',
+        data: await models.Pipelines.getPipeline(pipelineId)
       };
     }
   );

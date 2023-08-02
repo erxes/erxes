@@ -4,7 +4,10 @@ import { numberFormatter, numberParser } from '../../utils/core';
 
 let cursorPosition = 0;
 
-function NumberInput({ value, onChange, fixed, ...props }: any, ref: any) {
+function NumberInput(
+  { value, onChange, fixed, max, min, ...props }: any,
+  ref: any
+) {
   const currentRef = useRef<HTMLInputElement>(null);
   const [numberValue, setNumberValue] = useState(value || props.defaultValue);
 
@@ -19,6 +22,10 @@ function NumberInput({ value, onChange, fixed, ...props }: any, ref: any) {
     } else if (/^[0-9.,-]+$/.test(e.target.value)) {
       cursorPosition = e.target.value.length - e.target.selectionStart;
       e.target.value = numberParser(e.target.value, fixed);
+
+      if (e.target.value > max) e.target.value = max;
+      if (min > e.target.value) e.target.value = min;
+
       setNumberValue(e.target.value);
       onChange(e);
     }

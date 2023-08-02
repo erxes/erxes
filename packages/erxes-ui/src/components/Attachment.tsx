@@ -175,9 +175,18 @@ class Attachment extends React.Component<Props> {
           </Download>
         </h5>
         <Meta>
-          {attachment.size && (
-            <span>Size: {this.renderFileSize(attachment.size)}</span>
-          )}
+          <span>
+            {attachment.size && (
+              <div>
+                {__('Size')}: {this.renderFileSize(attachment.size)}
+              </div>
+            )}
+            {attachment.type && (
+              <div>
+                {__('Type')}: {attachment.type}
+              </div>
+            )}
+          </span>
           {this.props.additionalItem}
         </Meta>
       </>
@@ -234,7 +243,7 @@ class Attachment extends React.Component<Props> {
       <AttachmentWrapper>
         <ItemInfo>
           <video controls={true} loop={true}>
-            <source src={attachment.url} type="video/mp4" />
+            <source src={readFile(attachment.url)} type="video/mp4" />
             {__('Your browser does not support the video tag')}.
           </video>
         </ItemInfo>
@@ -247,7 +256,7 @@ class Attachment extends React.Component<Props> {
       <ImageWithPreview
         onLoad={this.onLoadImage}
         alt={attachment.url}
-        src={attachment.url}
+        src={readFile(attachment.url)}
       />
     );
   }
@@ -255,7 +264,21 @@ class Attachment extends React.Component<Props> {
   renderAudioFile(attachment) {
     return (
       <audio controls={true}>
-        <source src={attachment.url} type="audio/ogg" />
+        <source src={readFile(attachment.url)} type="audio/ogg" />
+      </audio>
+    );
+  }
+  renderAudioWavFile(attachment) {
+    return (
+      <audio controls={true}>
+        <source src={readFile(attachment.url)} type="audio/wav" />
+      </audio>
+    );
+  }
+  renderMp3File(attachment) {
+    return (
+      <audio controls={true}>
+        <source src={readFile(attachment.url)} type="audio/mpeg" />
       </audio>
     );
   }
@@ -311,6 +334,12 @@ class Attachment extends React.Component<Props> {
       case 'audio':
         filePreview = this.renderAudioFile(attachment);
         break;
+      case 'wav':
+        filePreview = this.renderAudioWavFile(attachment);
+        break;
+      case 'wave':
+        filePreview = this.renderAudioWavFile(attachment);
+        break;
       case 'zip':
       case 'csv':
       case 'doc':
@@ -320,6 +349,8 @@ class Attachment extends React.Component<Props> {
       case 'txt':
       case 'rar':
       case 'mp3':
+        filePreview = this.renderMp3File(attachment);
+        break;
       case 'pdf':
       case 'png':
       case 'xls':

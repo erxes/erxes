@@ -278,7 +278,7 @@ const WithMailForm = withProps<Props>(
         variables: {
           searchValue: queryParams.emailTemplatesSearch || ''
         },
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'cache-first'
       }),
       skip: !isEnabled('emailtemplates')
     }),
@@ -288,7 +288,7 @@ const WithMailForm = withProps<Props>(
         variables: {
           searchValue: queryParams.emailTemplatesSearch || ''
         },
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'cache-first'
       }),
       skip: !isEnabled('emailtemplates')
     })

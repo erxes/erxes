@@ -87,6 +87,11 @@ ${
     registrationContent : String
   }
 
+  enum TokenPassMethod {
+    cookie
+    header
+  }
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -141,6 +146,10 @@ ${
     taskToggle: Boolean,
     dealToggle: Boolean,
     purchaseToggle: Boolean,
+
+    tokenExpiration: Int
+    refreshTokenExpiration: Int
+    tokenPassMethod: TokenPassMethod
   }
 
   type Styles {
@@ -270,6 +279,9 @@ export const mutations = cardAvailable => `
     mailConfig: MailConfigInput
     manualVerificationConfig: JSON
     passwordVerificationConfig: JSON
+    tokenPassMethod: TokenPassMethod
+    tokenExpiration: Int
+    refreshTokenExpiration: Int
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
@@ -289,6 +301,7 @@ export const mutations = cardAvailable => `
         attachments: [AttachmentInput]
         customFieldsData: JSON
         labelIds: [String]
+        productsData: JSON
       ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String
