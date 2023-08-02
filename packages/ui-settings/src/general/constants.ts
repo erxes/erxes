@@ -40,8 +40,7 @@ export const LANGUAGES = [
 export const SERVICE_TYPES = [
   { label: __('Local'), value: 'local' },
   { label: __('Amazon Web Service'), value: 'AWS' },
-  { label: __('Google Cloud Service'), value: 'GCS' },
-  { label: __('Cloudflare'), value: 'Cloudflare' }
+  { label: __('Google Cloud Service'), value: 'GCS' }
 ];
 
 export const FILE_SYSTEM_TYPES = [
@@ -112,9 +111,6 @@ export const KEY_LABELS = {
   GOOGLE_CLIENT_ID: 'Google Client Id',
   GOOGLE_CLIENT_SECRET: 'Google Client Secret',
   GOOGLE_MAP_API_KEY: 'Google Map Api Key',
-
-  CLOUDFLARE_ACCOUNT_ID: 'Cloudflare Account Id',
-  CLOUDFLARE_TOKEN: 'Cloudflare Api Token',
 
   DAILY_API_KEY: 'Daily api key',
   DAILY_END_POINT: 'Daily end point',

@@ -575,7 +575,8 @@ export const MessageAttachmentWrapper = styledTS<{ isWidget?: boolean }>(
   position: relative;
 
   & img {
-    height: ${props => (props.isWidget ? '300px' : '100%')};
+    max-width: ${props => (props.isWidget ? '250px' : '300px')};
+    height: ${props => (props.isWidget ? '200px' : '100%')};
     right: 0;
   }
 `;
