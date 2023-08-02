@@ -208,3 +208,4 @@ export const orderSchema = schemaHooksWrapper(
 );
 
 orderSchema.index({ posToken: 1, number: 1 }, { unique: true });
+orderSchema.index({ posToken: 1, userId: 1, date: 1 });
