@@ -189,6 +189,7 @@ const queryBuilder = async (
     const fields = [
       { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { employeeId: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { username: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') }
     ];
