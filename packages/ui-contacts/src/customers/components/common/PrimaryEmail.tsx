@@ -35,11 +35,13 @@ const Status = styledTS<{ verified: boolean }>(styled.span)`
 function PrimaryEmail({
   customerId,
   email,
-  status
+  status,
+  showDefault
 }: {
   customerId: string;
   email?: string;
   status?: string;
+  showDefault?: boolean;
 }) {
   const renderStatus = () => {
     if (status) {
@@ -54,11 +56,35 @@ function PrimaryEmail({
     return null;
   };
 
+  if (!showDefault && (isEnabled('engages') || isEnabled('imap'))) {
+    return (
+      <>
+        {email ? (
+          <EmailWidget
+            buttonStyle={email ? 'primary' : 'simple'}
+            emailTo={email}
+            buttonSize="small"
+            type={`link-${customerId}`}
+            emailStatus={renderStatus}
+          />
+        ) : (
+          '-'
+        )}
+      </>
+    );
+  }
+
   return (
-    <MailTo href={`mailto:${email}`}>
-      {email}
-      {renderStatus()}
-    </MailTo>
+    <>
+      {email ? (
+        <MailTo href={`mailto:${email}`}>
+          {email}
+          {renderStatus()}
+        </MailTo>
+      ) : (
+        '-'
+      )}
+    </>
   );
 }
 
