@@ -43,7 +43,7 @@ const StepItem = styledTS<{
   box-shadow: ${props =>
     !props.direction && `0 0 4px ${colors.colorShadowGray}`};
   position: relative;
-  z-index: 5;
+  z-index: 2;
 
   &:before {
     position: absolute;
