@@ -23,6 +23,7 @@ import { loadScheduleClass, IScheduleModel } from './models/schedules';
 import { loadTransactionClass, ITransactionModel } from './models/transactions';
 import { IGeneralModel, loadGeneralClass } from './models/general';
 import { IGeneralDocument } from './models/definitions/general';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   PeriodLocks: IPeriodLockModel;
@@ -41,19 +42,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-};
+export let models: IModels | null = null;
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
@@ -105,3 +94,8 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);

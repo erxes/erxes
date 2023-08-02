@@ -52,7 +52,9 @@ const exmFeedQueries = {
       startDate,
       endDate,
       bravoType,
-      departmentIds
+      departmentIds,
+      branchIds,
+      unitId
     },
     { models, user }
   ) => {
@@ -87,6 +89,18 @@ const exmFeedQueries = {
         { departmentIds: { $eq: [] } },
         { departmentIds: { $size: 0 } }
       ];
+    }
+
+    if (branchIds && branchIds.length) {
+      doc.$or = [
+        { branchIds: { $in: branchIds } },
+        { branchIds: { $eq: [] } },
+        { branchIds: { $size: 0 } }
+      ];
+    }
+
+    if (unitId) {
+      doc.unitId = { $in: unitId };
     }
 
     if (contentTypes && contentTypes.includes('event')) {
