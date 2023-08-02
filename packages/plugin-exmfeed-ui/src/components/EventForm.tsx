@@ -40,7 +40,7 @@ export default function EventForm(props: Props) {
   });
   const [departmentIds, setDepartmentIds] = useState(item.departmentIds || []);
   const [branchIds, setBranchIds] = useState(item?.branchIds || []);
-  const [unitId, setUnitId] = useState(item.unitId || '');
+  const [unitId, setUnitId] = useState(item?.unitId || '');
 
   const onChangeDepartments = (option: any) => {
     setDepartmentIds(option);
