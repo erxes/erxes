@@ -1,15 +1,16 @@
-import React from 'react';
-import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
-import Icon from '@erxes/ui/src/components/Icon';
-import { WidgetWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils';
 import {
+  Link,
   NewEmailHeader,
-  WidgetButton,
-  Link
+  WidgetButton
 } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
+
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { WidgetWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   disabled?: boolean;
