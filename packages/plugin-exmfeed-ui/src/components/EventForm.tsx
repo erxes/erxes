@@ -9,17 +9,20 @@ import GenerateFields from './GenerateFields';
 import { __ } from '@erxes/ui/src/utils';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import Select from 'react-select-plus';
 
 type Props = {
   item?: any;
   closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => any;
   fields: any[];
+  unitList?: any[];
   departments: any[];
 };
 
 export default function EventForm(props: Props) {
   const { item = {}, fields } = props;
+  const unitList = props.unitList || [];
 
   const [attachments, setAttachment] = useState(item.attachments || []);
   const [images, setImages] = useState(item.images || []);
@@ -37,7 +40,7 @@ export default function EventForm(props: Props) {
   });
   const [departmentIds, setDepartmentIds] = useState(item.departmentIds || []);
   const [branchIds, setBranchIds] = useState(item?.branchIds || []);
-  const [unitId, setUnitId] = useState(item.unitId || '');
+  const [unitId, setUnitId] = useState(item?.unitId || '');
 
   const onChangeDepartments = (option: any) => {
     setDepartmentIds(option);
@@ -45,6 +48,10 @@ export default function EventForm(props: Props) {
 
   const onChangeBranches = (option: any) => {
     setBranchIds(option);
+  };
+
+  const onChangeUnit = (option: any) => {
+    setUnitId(option.value);
   };
 
   const onChangeEventData = (key, value) => {
@@ -137,6 +144,18 @@ export default function EventForm(props: Props) {
           multi={true}
           initialValue={branchIds}
           onSelect={onChangeBranches}
+        />
+
+        <Select
+          name={'unitId'}
+          multi={false}
+          label={'Choose Unit'}
+          value={unitId}
+          onChange={onChangeUnit}
+          options={unitList.map(unit => ({
+            value: unit._id,
+            label: unit.title
+          }))}
         />
 
         <GenerateFields
