@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { Form, FormControl, Uploader, SelectTeamMembers } from '@erxes/ui/src/';
 import { IFormProps, IButtonMutateProps } from '@erxes/ui/src/types';
-import { UploadItems, CustomRangeContainer } from '../styles';
+import {
+  UploadItems,
+  CustomRangeContainer,
+  SelectWrapper,
+  ClearButton
+} from '../styles';
 import { title, description, getDepartmentOptions } from '../utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import GenerateFields from './GenerateFields';
@@ -10,6 +15,7 @@ import { __ } from '@erxes/ui/src/utils';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import Select from 'react-select-plus';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   item?: any;
@@ -56,6 +62,18 @@ export default function EventForm(props: Props) {
 
   const onChangeEventData = (key, value) => {
     setEventData({ ...eventData, [key]: value });
+  };
+
+  const renderClearButton = () => {
+    if (unitId) {
+      return (
+        <ClearButton onClick={() => setUnitId('')}>
+          <Icon icon="times" />
+        </ClearButton>
+      );
+    }
+
+    return null;
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -146,17 +164,20 @@ export default function EventForm(props: Props) {
           onSelect={onChangeBranches}
         />
 
-        <Select
-          name={'unitId'}
-          multi={false}
-          label={'Choose Unit'}
-          value={unitId}
-          onChange={onChangeUnit}
-          options={unitList.map(unit => ({
-            value: unit._id,
-            label: unit.title
-          }))}
-        />
+        <SelectWrapper>
+          <Select
+            name={'unitId'}
+            multi={false}
+            label={'Choose Unit'}
+            value={unitId}
+            onChange={onChangeUnit}
+            options={unitList.map(unit => ({
+              value: unit._id,
+              label: unit.title
+            }))}
+          />
+          {renderClearButton()}
+        </SelectWrapper>
 
         <GenerateFields
           fields={fields}

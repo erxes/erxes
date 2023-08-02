@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IFormProps, IButtonMutateProps } from '@erxes/ui/src/types';
-import { UploadItems } from '../styles';
+import { ClearButton, SelectWrapper, UploadItems } from '../styles';
 import { description, title } from '../utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import GenerateFields from './GenerateFields';
@@ -9,6 +9,7 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import Select from 'react-select-plus';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
@@ -45,6 +46,18 @@ export default function PostForm(props: Props) {
     setUnitId(option.value);
   };
 
+  const renderClearButton = () => {
+    if (unitId) {
+      return (
+        <ClearButton onClick={() => setUnitId('')}>
+          <Icon icon="times" />
+        </ClearButton>
+      );
+    }
+
+    return null;
+  };
+
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
     const { renderButton, closeModal } = props;
@@ -67,17 +80,20 @@ export default function PostForm(props: Props) {
           initialValue={branchIds}
           onSelect={onChangeBranches}
         />
-        <Select
-          name={'unitId'}
-          multi={false}
-          label={'Choose Unit'}
-          value={unitId}
-          onChange={onChangeUnit}
-          options={unitList.map(unit => ({
-            value: unit._id,
-            label: unit.title
-          }))}
-        />
+        <SelectWrapper>
+          <Select
+            name={'unitId'}
+            multi={false}
+            label={'Choose Unit'}
+            value={unitId}
+            onChange={onChangeUnit}
+            options={unitList.map(unit => ({
+              value: unit._id,
+              label: unit.title
+            }))}
+          />
+          {renderClearButton()}
+        </SelectWrapper>
         <GenerateFields
           fields={fields}
           customFieldsData={customFieldsData}
