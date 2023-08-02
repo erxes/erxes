@@ -35,6 +35,7 @@ export interface IPasswordVerificationConfig {
 
 export interface IClientPortal {
   _id?: string;
+  isVendor?: boolean;
   name?: string;
   description?: string;
   logo?: string;
@@ -162,6 +163,7 @@ const mailConfigSchema = new Schema(
 
 export const clientPortalSchema = new Schema({
   _id: field({ pkey: true }),
+  isVendor: field({ type: Boolean, default: false }),
   name: field({ type: String }),
   description: field({ type: String, optional: true }),
   url: field({ type: String }),
