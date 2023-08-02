@@ -7,6 +7,7 @@ import GenerateFields from './GenerateFields';
 import Form from '@erxes/ui/src/components/form/Form';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => any;
@@ -25,10 +26,16 @@ export default function PostForm(props: Props) {
   const [customFieldsData, setCustomFieldsData] = useState(
     item.customFieldsData || []
   );
-  const [departmentIds, setDepartmentIds] = useState(item.departmentIds || []);
+  const [departmentIds, setDepartmentIds] = useState(item?.departmentIds || []);
+  const [branchIds, setBranchIds] = useState(item?.branchIds || []);
+  const [unitId, setUnitId] = useState(item.unitId || '');
 
   const onChangeDepartments = (option: any) => {
     setDepartmentIds(option);
+  };
+
+  const onChangeBranches = (option: any) => {
+    setBranchIds(option);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -45,6 +52,13 @@ export default function PostForm(props: Props) {
           initialValue={departmentIds}
           onSelect={onChangeDepartments}
           multi={true}
+        />
+        <SelectBranches
+          name="branchIds"
+          label="Choose Branches"
+          multi={true}
+          initialValue={branchIds}
+          onSelect={onChangeBranches}
         />
         <GenerateFields
           fields={fields}
@@ -73,7 +87,9 @@ export default function PostForm(props: Props) {
             images,
             attachments,
             customFieldsData,
-            departmentIds
+            departmentIds,
+            branchIds,
+            unitId
           },
           isSubmitted,
           callback: closeModal
