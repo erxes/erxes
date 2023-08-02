@@ -75,7 +75,15 @@ export default {
     return await models.RiskAssessments.find({ cardId: { $in: cardIds } });
   },
 
-  async dashboard({ cardIds, configs }, {}, { models, subdomain }: IContext) {
+  async dashboard(
+    { cardIds, configs, status },
+    {},
+    { models, subdomain }: IContext
+  ) {
+    if (status !== PLAN_STATUSES.ARCHIVED) {
+      return null;
+    }
+
     const totalCards = !!cardIds?.length ? cardIds.length : 0;
 
     let averangeAssessment = 0;
