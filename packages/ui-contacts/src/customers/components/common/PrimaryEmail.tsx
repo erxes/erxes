@@ -1,11 +1,11 @@
+import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
 import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import colors from '@erxes/ui/src/styles/colors';
-import React from 'react';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const MailTo = styled.a`
   display: flex;
@@ -53,28 +53,6 @@ function PrimaryEmail({
     }
     return null;
   };
-
-  const renderEmail = () => {
-    return (
-      <>
-        {email ? (
-          <EmailWidget
-            buttonStyle={email ? 'primary' : 'simple'}
-            emailTo={email}
-            buttonSize="small"
-            type={`link-${customerId}`}
-            emailStatus={renderStatus}
-          />
-        ) : (
-          '-'
-        )}
-      </>
-    );
-  };
-
-  if (isEnabled('engages') || isEnabled('imap')) {
-    return renderEmail();
-  }
 
   return (
     <MailTo href={`mailto:${email}`}>
