@@ -117,7 +117,7 @@ class Form extends React.Component<Props, State> {
           <Step
             title="General"
             img="/images/icons/erxes-24.svg"
-            noButton={plan.status === 'archived'}
+            noButton={plan?.status === 'archived'}
             additionalButton={renderButton({
               ...formProps,
               text: 'Plan',
@@ -139,7 +139,7 @@ class Form extends React.Component<Props, State> {
               {this.renderSchedulesContent()}
             </Step>
           )}
-          {plan.status === 'archived' && (
+          {plan?.status === 'archived' && (
             <Step
               img="/images/icons/erxes-33.png"
               onClick={saveSteps}

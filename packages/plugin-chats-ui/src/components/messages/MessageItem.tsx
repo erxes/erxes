@@ -113,7 +113,7 @@ const MessageItem = (props: FinalProps) => {
           {renderAttachments()}
         </MessageAttachmentWrapper>
       </MessageWrapper>
-      {!isMe && <Avatar user={message.createdUser} size={36} />}
+      {!isMe && <Avatar user={message.createdUser} size={36} showTip={true} />}
     </MessageItemWrapper>
   );
 };
