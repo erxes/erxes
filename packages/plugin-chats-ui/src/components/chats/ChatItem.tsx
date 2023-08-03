@@ -23,6 +23,8 @@ import {
   ContextMenuItem
 } from '../../styles';
 
+import * as router from '@erxes/ui/src/utils/router';
+
 dayjs.extend(relativeTime);
 
 type Props = {
@@ -70,7 +72,7 @@ const ChatItem = (props: FinalProps) => {
     if (props.handleClickItem) {
       props.handleClickItem(chat._id);
     } else {
-      history.push(`/erxes-plugin-chat?id=${chat._id}`);
+      router.setParams(history, { id: chat._id });
     }
   };
 
