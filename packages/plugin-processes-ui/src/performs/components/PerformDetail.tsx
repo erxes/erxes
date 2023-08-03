@@ -15,6 +15,7 @@ type Props = {
   hasCost?: boolean;
   isReadSeries?: boolean;
   onChangeState: (value: any) => void;
+  onEnter: () => void;
 };
 
 type State = {};
@@ -125,6 +126,13 @@ class PerformDetail extends React.Component<Props, State> {
     );
   }
 
+  onKeyDown = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      this.props.onEnter();
+    }
+  };
+
   render() {
     const { productData, hasCost } = this.props;
     const { product } = productData;
@@ -156,13 +164,16 @@ class PerformDetail extends React.Component<Props, State> {
           />
         </td>
         <td>
-          <FormControl
-            defaultValue={productData.quantity}
-            type="number"
-            name="quantity"
-            required={true}
-            onChange={this.onChange}
-          />
+          <div className="canFocus">
+            <FormControl
+              defaultValue={productData.quantity}
+              type="number"
+              name="quantity"
+              required={true}
+              onChange={this.onChange}
+              onKeyDown={this.onKeyDown}
+            />
+          </div>
         </td>
         {hasCost && (
           <td>

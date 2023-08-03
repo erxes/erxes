@@ -404,6 +404,18 @@ class Form extends React.Component<Props, State> {
     } as any);
   };
 
+  focusNext = (index: number, length: number) => {
+    let next = index + 1;
+    if (next >= length) {
+      next = 0;
+    }
+
+    document
+      .getElementsByClassName('canFocus')
+      [next].getElementsByTagName('input')[0]
+      .focus();
+  };
+
   renderProducts = (
     title: string,
     productsData: any[],
@@ -423,7 +435,7 @@ class Form extends React.Component<Props, State> {
             </tr>
           </thead>
           <tbody>
-            {productsData.map(pd => {
+            {productsData.map((pd, index) => {
               return (
                 <PerformDetail
                   key={pd._id}
@@ -432,6 +444,7 @@ class Form extends React.Component<Props, State> {
                   stateName={stateName}
                   onChangeState={this.onChangePerView}
                   isReadSeries={stateName === 'inProducts'}
+                  onEnter={() => this.focusNext(index, productsData.length)}
                 />
               );
             })}
@@ -458,7 +471,7 @@ class Form extends React.Component<Props, State> {
             </tr>
           </thead>
           <tbody>
-            {productsData.map(pd => {
+            {productsData.map((pd, index) => {
               return (
                 <PerformDetail
                   key={pd._id}
@@ -467,6 +480,7 @@ class Form extends React.Component<Props, State> {
                   stateName={'outProducts'}
                   hasCost={true}
                   onChangeState={this.onChangePerView}
+                  onEnter={() => this.focusNext(index, productsData.length)}
                 />
               );
             })}
