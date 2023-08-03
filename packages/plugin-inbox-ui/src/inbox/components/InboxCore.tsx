@@ -33,14 +33,6 @@ class Inbox extends React.Component<Props> {
 
     const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
 
-    const content = () => (
-      <MailForm
-        isReply={false}
-        clearOnSubmit={true}
-        source={isEnabled('imap') ? 'inbox' : undefined}
-      />
-    );
-
     return (
       <HeightedWrapper>
         <Header
