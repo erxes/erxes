@@ -8,7 +8,7 @@
     "tsc": "cd .erxes && yarn tsc"
   },
   "dependencies": {
-    "react-copy-to-clipboard": "^5.0.4",
-    "react-markdown": "^7.1.2"
+    "react-copy-to-clipboard": "^5.1.0",
+    "react-markdown": "^8.0.6"
   }
 }
