@@ -160,11 +160,22 @@ class ScreensConfig extends React.Component<
     );
   }
 
+  renderFilterProducts() {
+    const { pos } = this.props;
+    const showType = pos.kitchenScreen.showType;
+    if (showType !== 'filtered') {
+      return <></>;
+    }
+
+    return <></>; // TODO: segment and category filter
+  }
+
   renderKitchen() {
     const { pos } = this.props;
 
-    let kitchenScreen = {
+    let kitchenScreen: IScreenConfig = {
       isActive: false,
+      showType: '',
       type: 'time',
       value: 0
     };
@@ -172,6 +183,7 @@ class ScreensConfig extends React.Component<
     if (pos) {
       kitchenScreen = pos.kitchenScreen || {
         isActive: false,
+        showType: '',
         type: 'time',
         value: 0
       };
@@ -187,11 +199,13 @@ class ScreensConfig extends React.Component<
 
     const onChangeType = e => {
       e.preventDefault();
+      const name = e.target.name;
+      const value = e.target.value;
       this.props.onChange('pos', {
         ...pos,
         kitchenScreen: {
           ...kitchenScreen,
-          type: e.target.value
+          [name]: value
         }
       });
     };
@@ -212,12 +226,37 @@ class ScreensConfig extends React.Component<
       { label: 'Manual', value: 'manual' }
     ];
 
+    const showOptions = [
+      { label: 'All saved orders', value: '' },
+      { label: 'Paid all orders', value: 'paid' },
+      // { label: 'Orders containing certain products', value: 'filtered' },
+      { label: 'Defined orders only', value: 'click' }
+    ];
+
     return (
       <FormGroup>
         <DomainRow>
-          <ControlLabel>Status change</ControlLabel>
+          <ControlLabel>show types</ControlLabel>
           <FormControl
-            name="statusChange"
+            name="showType"
+            componentClass="select"
+            placeholder={__('Select type')}
+            defaultValue={kitchenScreen.showType}
+            onChange={onChangeType}
+            required={true}
+          >
+            {showOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </FormControl>
+          {this.renderFilterProducts}
+          <br />
+
+          <ControlLabel>Status change /leave/</ControlLabel>
+          <FormControl
+            name="type"
             componentClass="select"
             placeholder={__('Select type')}
             defaultValue={kitchenScreen.type}
