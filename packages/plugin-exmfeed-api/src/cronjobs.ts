@@ -132,7 +132,7 @@ export const createCeremonies = async (subdomain: string) => {
     year
   );
 
-  feeds = generateData(feeds, newUsers, FEED_CONTENT_TYPES.POST);
+  feeds = generateData(feeds, newUsers, FEED_CONTENT_TYPES.WELCOME);
 
   if (feeds.length > 0) {
     await models.ExmFeed.insertMany(feeds);
