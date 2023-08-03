@@ -47,7 +47,7 @@ class PerformDetail extends React.Component<Props, State> {
       onChangeState({
         [stateName]: newProductsData
       } as any);
-    }, 500);
+    }, 5);
   };
 
   onChangeInput = e => {
@@ -159,7 +159,7 @@ class PerformDetail extends React.Component<Props, State> {
         <td>{__(productName)}</td>
         <td>
           <FormControl
-            defaultValue={productData.uom}
+            value={productData.uom}
             componentClass="select"
             name="uom"
             options={uoms}
@@ -170,7 +170,7 @@ class PerformDetail extends React.Component<Props, State> {
         <td>
           <div className="canFocus">
             <FormControl
-              defaultValue={productData.quantity}
+              value={productData.quantity}
               type="number"
               name="quantity"
               required={true}
@@ -182,7 +182,7 @@ class PerformDetail extends React.Component<Props, State> {
         {hasCost && (
           <td>
             <FormControl
-              defaultValue={productData.amount || 0}
+              value={productData.amount || 0}
               type="number"
               name="amount"
               required={true}
