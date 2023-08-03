@@ -190,13 +190,13 @@ class Form extends React.Component<Props, State> {
 
       if (field.type === 'productCategory') {
         const formField = fields.find((f) => f._id === key);
-        if (!formField) {
-          continue;
-        }
-        
         const { product, quantity } = field.value as any;
 
-        if (formField.isRequired && field.value) {
+        if (!formField || !product) {
+          continue;
+        }
+
+        if (product && formField.isRequired && field.value) {
           subTotal += product.unitPrice * quantity;
         }
 
