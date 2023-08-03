@@ -11,10 +11,11 @@ import { queries, mutations } from '../../graphql';
 type Props = {
   user: any;
   chatId: string;
+  isAdmin: boolean;
 };
 
 const ParticipantItemContainer = (props: Props) => {
-  const { user, chatId } = props;
+  const { user, chatId, isAdmin } = props;
   const [adminMutation] = useMutation(gql(mutations.chatMakeOrRemoveAdmin));
   const [memberMutation] = useMutation(gql(mutations.chatAddOrRemoveMember));
 
@@ -23,7 +24,9 @@ const ParticipantItemContainer = (props: Props) => {
       .then(() => {
         adminMutation({
           variables: { id: chatId, userId: user._id },
-          refetchQueries: [{ query: gql(queries.chatDetail) }]
+          refetchQueries: [
+            { query: gql(queries.chatDetail), variables: { id: chatId } }
+          ]
         }).catch(error => {
           Alert.error(error.message);
         });
@@ -32,13 +35,17 @@ const ParticipantItemContainer = (props: Props) => {
         Alert.error(error.message);
       });
   };
-
   const addOrRemoveMember = () => {
     confirm()
       .then(() => {
         memberMutation({
           variables: { id: chatId, type: 'remove', userIds: [user._id] },
-          refetchQueries: [{ query: gql(queries.chatDetail) }]
+          refetchQueries: [
+            {
+              query: gql(queries.chatDetail),
+              variables: { id: chatId }
+            }
+          ]
         }).catch(error => {
           Alert.error(error.message);
         });
@@ -53,6 +60,7 @@ const ParticipantItemContainer = (props: Props) => {
       user={user}
       makeOrRemoveAdmin={makeOrRemoveAdmin}
       addOrRemoveMember={addOrRemoveMember}
+      isAdmin={isAdmin}
     />
   );
 };
