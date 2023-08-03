@@ -1,8 +1,9 @@
-import { SelectWrapper } from '@erxes/ui/src/components/form/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+
+import { Attachment } from '@erxes/ui-inbox/src/inbox/styles';
+import { SelectWrapper } from '@erxes/ui/src/components/form/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { Attachment } from '@erxes/ui-inbox/src/inbox/styles';
 
 const AttachmentContainer = styled(Attachment)`
   padding: 3px 8px;
@@ -277,7 +278,7 @@ const WidgetWrapper = styledTS<{ show: boolean; shrink: boolean }>(styled.div)`
   right: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: column;
-  z-index: 9999;
+  z-index: 300;
   justify-content: flex-end;
   align-content: flex-end;
   background: #fff;
