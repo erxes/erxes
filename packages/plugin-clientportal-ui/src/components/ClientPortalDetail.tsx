@@ -5,21 +5,24 @@ import React from 'react';
 import { CONFIG_TYPES } from '../constants';
 import { ClientPortalConfig } from '../types';
 import Form from './Form';
+import Vendors from '../containers/Vendors/List';
 
 type Props = {
   config: ClientPortalConfig;
+  history: any;
   handleUpdate: (doc: ClientPortalConfig) => void;
 };
 
 class ClientPortalDetail extends React.Component<
   Props,
-  { currentTab: string }
+  { currentTab: string; isVendor: boolean }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      currentTab: 'general'
+      currentTab: 'general',
+      isVendor: props.history.location.pathname.includes('vendor')
     };
   }
 
@@ -33,8 +36,13 @@ class ClientPortalDetail extends React.Component<
 
     const commonProps = {
       defaultConfigValues: config,
+      isVendor: this.state.isVendor,
       handleUpdate
     };
+
+    if (currentTab === 'vendors') {
+      return <Vendors queryParams={''} />;
+    }
 
     const TYPE = CONFIG_TYPES[currentTab.toLocaleUpperCase()];
 
@@ -56,6 +64,15 @@ class ClientPortalDetail extends React.Component<
               {__(type.LABEL)}
             </TabTitle>
           ))}
+
+          {this.state.isVendor && (
+            <TabTitle
+              className={currentTab === 'vendors' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'vendors')}
+            >
+              Vendors
+            </TabTitle>
+          )}
         </Tabs>
         {this.renderContent()}
       </>

@@ -16,24 +16,35 @@ class ClientPortal extends React.Component<Props, {}> {
   render() {
     const { loading = false, queryParams, history } = this.props;
 
+    console.log('history', history);
+    console.log('location', this.props.location);
+
+    const location = history.location;
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Client Portal'), link: '/settings/client-portal' }
     ];
 
+    let title = 'Client Portal';
+
+    if (location.pathname.includes('vendor')) {
+      breadcrumb[1].title = __('Vendor Portal');
+      breadcrumb[1].link = '/settings/vendor-portal';
+      title = 'Vendor Portal';
+    }
+
     const count = queryParams._id ? 1 : 0;
 
     return (
       <Wrapper
-        header={
-          <Wrapper.Header title="Client portal" breadcrumb={breadcrumb} />
-        }
+        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
-            title="Client Portal"
+            title={title}
             description={__(
-              'Add unlimited Client Portals with unlimited support to further your growth and accelerate your business'
+              `Add unlimited ${title}s with unlimited support to further your growth and accelerate your business`
             )}
           />
         }
@@ -48,7 +59,7 @@ class ClientPortal extends React.Component<Props, {}> {
             }
             count={count}
             loading={loading}
-            emptyText="Getting Started with Client Portal"
+            emptyText={`Getting Started with ${title}`}
             emptyImage="/images/actions/13.svg"
           />
         }

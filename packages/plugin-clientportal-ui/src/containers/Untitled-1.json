@@ -1,0 +1,245 @@
+{
+  "data": {
+    "configs": [
+      {
+        "_id": "3hjSAqwTv4zR2yhSK",
+        "code": "AWS_BUCKET",
+        "value": "tumentech",
+        "__typename": "Config"
+      },
+      {
+        "_id": "3tkfhNaT6zikqAd9u",
+        "code": "company_industry_types",
+        "value": [
+          "Beverages",
+          "Building Products",
+          "Chemicals",
+          "Construction Materials",
+          "Containers & Packaging",
+          "Distributors",
+          "Electronic Equipment, Instruments & Components",
+          "Energy Equipment & Services",
+          "Food & Staples Retailing",
+          "Hotels, Restaurants & Leisure",
+          "Household Products",
+          "Oil, Gas & Consumable Fuels",
+          "Paper & Forest Products",
+          "Tobacco",
+          "Trading Companies & Distributors",
+          "Transportation Infrastructure",
+          "Transportation",
+          "Mining",
+          "Education",
+          "Manufacturing",
+          "Retail",
+          "Health",
+          "Pharmaceuticals",
+          "Auto Components"
+        ],
+        "__typename": "Config"
+      },
+      {
+        "_id": "9XHZkGNsCSGa5BRH9",
+        "code": "UPLOAD_SERVICE_TYPE",
+        "value": "AWS",
+        "__typename": "Config"
+      },
+      {
+        "_id": "GRWKN2hYwZh5HpykJ",
+        "code": "COMPANY_EMAIL_TEMPLATE_TYPE",
+        "value": "simple",
+        "__typename": "Config"
+      },
+      {
+        "_id": "P22ZdQDSHnKLisC8R",
+        "code": "dealUOM",
+        "value": [],
+        "__typename": "Config"
+      },
+      {
+        "_id": "PkJAi8cLCJNBmXaAw",
+        "code": "social_links",
+        "value": ["facebook", "twitter", "youtube", "website"],
+        "__typename": "Config"
+      },
+      {
+        "_id": "RPitYqQLeWDfZGAJG",
+        "code": "WIDGETS_UPLOAD_FILE_TYPES",
+        "value": "image/gif,image/vnd.microsoft.icon,image/tiff,image/jpeg,image/bmp,image/png,image/svg+xml,image/webp,image/heic,image/heif,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.oasis.opendocument.presentation,application/vnd.oasis.opendocument.spreadsheet,application/vnd.oasis.opendocument.text,application/pdf,application/rtf,text/plain,audio/aac,audio/mpeg,audio/ogg,audio/3gpp,audio/3gpp2,video/mpeg,video/ogg,video/mp4,application/vnd.rar,application/x-tar,application/x-7z-compressed,application/gzip",
+        "__typename": "Config"
+      },
+      {
+        "_id": "S8gEe4nzwWkaNLWEh",
+        "code": "AWS_SES_SECRET_ACCESS_KEY",
+        "value": "UD4ScUEkZCNviNa9BlwL5ie+7sX47I2us3H7e04F",
+        "__typename": "Config"
+      },
+      {
+        "_id": "SxRNCekJLBbE8hAGf",
+        "code": "MESSAGE_PRO_API_KEY",
+        "value": "8ed51c4333813eba878efbd68ade783f",
+        "__typename": "Config"
+      },
+      {
+        "_id": "TSaCAmQX6gr9eDsFC",
+        "code": "THEME_FAVICON",
+        "value": "0.4285209164319075Tumentech_Icon_1.png",
+        "__typename": "Config"
+      },
+      {
+        "_id": "TWXdRBSXz3c9PMb8r",
+        "code": "COMPANY_EMAIL_FROM",
+        "value": "Hello@tumentech.mn",
+        "__typename": "Config"
+      },
+      {
+        "_id": "XeKXL4pRXCE5Hnpg6",
+        "code": "MESSAGE_PRO_PHONE_NUMBER",
+        "value": "72771110",
+        "__typename": "Config"
+      },
+      {
+        "_id": "ZbMsmwcGMBpxQ5nA6",
+        "code": "THEME_LOGO",
+        "value": "0.37147803209659713Tumentech_Icon_1.png",
+        "__typename": "Config"
+      },
+      {
+        "_id": "ZrByEktPRfw35seP3",
+        "code": "GOOGLE_MAP_API_KEY",
+        "value": "AIzaSyBQeuPjh0Leb5AZZw-sYGZc2wsHRBELf8w",
+        "__typename": "Config"
+      },
+      {
+        "_id": "gSF2LmcLv8QAX54MG",
+        "code": "dealCurrency",
+        "value": ["MNT"],
+        "__typename": "Config"
+      },
+      {
+        "_id": "h6Q6hLtDCazq5oMDJ",
+        "code": "THEME_BACKGROUND",
+        "value": "#f06322",
+        "__typename": "Config"
+      },
+      {
+        "_id": "h9ogMpKrn2496M4iL",
+        "code": "AWS_SES_ACCESS_KEY_ID",
+        "value": "AKIA2R7YSZI3GYXPIHSG",
+        "__typename": "Config"
+      },
+      {
+        "_id": "i7MLrikcLgRgLWutf",
+        "code": "EBARIMT",
+        "value": {
+          "companyName": "Түмэн тээх ХХК",
+          "ebarimtUrl": "https://ebarimt.erkhet.biz",
+          "checkCompanyUrl": "https://ebarimt.erkhet.biz/getCompany"
+        },
+        "__typename": "Config"
+      },
+      {
+        "_id": "inM8o8Ffwi2zibpSx",
+        "code": "COMPANY_EMAIL_TEMPLATE",
+        "value": "<!DOCTYPE html>\n<html\n  xmlns=\"http://www.w3.org/1999/xhtml\"\n  xmlns:v=\"urn:schemas-microsoft-com:vml\"\n  xmlns:o=\"urn:schemas-microsoft-com:office:office\"\n>\n  <head>\n    <title></title>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <style type=\"text/css\">\n      #outlook a {\n        padding: 0;\n      }\n\n      .ReadMsgBody {\n        width: 100%;\n      }\n\n      .ExternalClass {\n        width: 100%;\n      }\n\n      .ExternalClass * {\n        line-height: 100%;\n      }\n\n      body {\n        margin: 0;\n        padding: 0;\n        -webkit-text-size-adjust: 100%;\n        -ms-text-size-adjust: 100%;\n        font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial' sans-serif;\n      }\n\n      table,\n      td {\n        border-collapse: collapse;\n        mso-table-lspace: 0pt;\n        mso-table-rspace: 0pt;\n      }\n\n      img {\n        border: 0;\n        height: auto;\n        line-height: 100%;\n        outline: none;\n        text-decoration: none;\n        -ms-interpolation-mode: bicubic;\n      }\n\n      p {\n        display: block;\n        margin: 13px 0;\n      }\n    </style>\n    <!--[if !mso]><!-->\n    <style type=\"text/css\">\n      @media only screen and (max-width: 480px) {\n        @-ms-viewport {\n          width: 320px;\n        }\n        @viewport {\n          width: 320px;\n        }\n      }\n    </style>\n    <!--<![endif]-->\n    <!--[if mso]>\n      <xml>\n        <o:OfficeDocumentSettings> <o:AllowPNG /> <o:PixelsPerInch>96</o:PixelsPerInch> </o:OfficeDocumentSettings>\n      </xml>\n    <![endif]-->\n    <style type=\"text/css\">\n      @media only screen and (min-width: 480px) {\n        .mj-column-per-100,\n        * [aria-labelledby='mj-column-per-100'] {\n          width: 100% !important;\n        }\n      }\n    </style>\n  </head>\n\n  <body>\n    <div>\n      <div style=\"margin:0 auto;max-width:600px;padding: 30px 10px;\">\n        <table\n          role=\"presentation\"\n          cellpadding=\"0\"\n          cellspacing=\"0\"\n          style=\"width:100%\"\n          border=\"0\"\n        >\n          <tbody>\n            <tr>\n              <td\n                style=\"line-height: 1.8;vertical-align:top;font-size:12px;padding:0px;font-family:Arial, Helvetica, sans-serif;font-size: 16px;\"\n              >\n                {{{ content }}}\n              </td>\n            </tr>\n          </tbody>\n        </table>\n      </div>\n    </div>\n  </body>\n</html>",
+        "__typename": "Config"
+      },
+      {
+        "_id": "j6oEjzhJtkqQiDta5",
+        "code": "AWS_SECRET_ACCESS_KEY",
+        "value": "dZr173uS9wLNN7be6ioperHoPAObygKqeT7WyNmL",
+        "__typename": "Config"
+      },
+      {
+        "_id": "jH99YTyDpSFiwv3xQ",
+        "code": "THEME_MOTTO",
+        "value": "Ачаа тээврийн дижитал шилжилт",
+        "__typename": "Config"
+      },
+      {
+        "_id": "k88sXPazX7b32ASnn",
+        "code": "THEME_LOGIN_PAGE_DESCRIPTION",
+        "value": "Ачаа илгээгч, тээвэрчдийг платформ дээр шуурхай холбосноор хоёр талд илүү үр ашигтай хамтын ажиллагааг бий болгоно.  ",
+        "__typename": "Config"
+      },
+      {
+        "_id": "nBy4TeoWWi5wARmwj",
+        "code": "GOOGLE_APPLICATION_CREDENTIALS_JSON",
+        "value": "{   \"type\": \"service_account\",   \"project_id\": \"tumentechapp\",   \"private_key_id\": \"4ee64942d4c325cf08a4009f3ede9ced6da04190\",   \"private_key\": \"-----BEGIN PRIVATE KEY-----\\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCjvExZnT6laA5k\\nRRkZ2LV50TcyeOmAqLp1lBZLN4TUePbk6xIZkTP5glRzc8YNqVBJo34B47pL7QkN\\nPWl6sQ7V/VHZT+RPvdY3dEscRzuwRzhclXAcRq+GnP72cf4HajMxVkHe07uxYnqA\\nJACQQO3iuYnskG31RFQJac/CsvgfMKY1pNyTeLfw1W3nag3q2DU6jMVF1wX3eDyZ\\n14CBSwMunuBA3Gj+5pkpdYPnAJPAjU5UgnWnFNpbQuLSH/6k++lJMYL/9zogxxk+\\nj8j+2x7L2pJLjPrwqEmlNwu5KL8fUbsOoUS0m/UHQUJmLWQP3L9VnHo2TARdlKJb\\nFvCqxwN1AgMBAAECggEAEOfyNDXluttzJ6GbgA0zCRMenBIFqM4DLqfDONyl1PBx\\nLF156XTnhRroEGGtsJ8WVfwmbcMvQFlcXBHGuy8z+nQPsvH/qhzOVRHSEuc8qldi\\n4kBgf92WkGjTyet8O2oY7hOwynVZ8GyxfFtQnunCsOx6aW2CRQGwnFDgwwLgAWGb\\nbOWDU0+bKEc0UI92cdVZJJr9JuicLlC6Ycu2GApdGxMy3B9ImGwkEiqh8Cs4pycO\\nv4cPfTA09hZu/WUsXoKrqEx3wKagoR8rs4rZnyEQWOflz/v8thvl2MbEo0MW7c/O\\nDeNSuJ1TjEGUGeWPhJOrtV1EUPU1TRSS5VFPLHUF8wKBgQDTt+ei+79GRVkHQi3x\\nxhMs3Oj6Hhtqe2kLHc6HfZ1tfyDHO0DaW871t2mgd0WLZOMDC4Eh8hwLkxNG4mta\\nPps4n+b/k4Kci0IZuqRWKoZdHgvGH1TBy/7DS9jzheheQhLsMLJ69iaBmW08cKck\\nrU5Y3g1h23fp9l1tLCldBtSCdwKBgQDF+zwywhRV6YQb2USYvK8UIhaCEyR99bqp\\n7T+zRMTW2+oL22Nzdbxmy9Al/V2yPtxxj6tQ9gWvCVRighhWWkuZU6EboNNFreP/\\n+U2IiG13wDj2r/G0PLtIN3wq5oU7HkzuPa0wthcEYkdLkfOtvaXGk6s0Fuan8gfg\\nAnY8waTYcwKBgEMNd5syx/1lcTDPUOXFqcUHofG1H1G2DCqtIf/fVMCdBrCSn5OI\\niB9iG13q6GehaBRKzHcHysIProdApmdKdLaWTf6bpT4XDLRBXFK93RgYr/nraliG\\nVwVbPDbELjfMDVoogh5XXxKkmOgPdaA0EyAqE2ruqye6ExTEa8U+qIc5AoGAVYD7\\nrrBDOBdyBtT+2zgiJP/T2LmLuRq3U0wzhqjcmi7AFf7aJLNkesDrVHzoSmL7sc/q\\nnTyjl8TfvOuStzioDcAghF4g4KcJITP6WE0TefR6pY+3Q7A28imEZsLIJ5AeiYX5\\nlmAN8MbBI9IU+6Q8RFbiSczaMQ5GeGiXyAWZvCECgYA0Ui6f9PiBgXGsypmyW8mL\\nGqiqM//vpnT6bFPGMqkVZqLv/cawxF4lVjyG3EeUOb67F7ctsDHIulV3Pz0gP48W\\nT+AINvwIfbHbWmM94xQ4jh9tsxtbHjscCACC4SDY7yLVohtJshWcwvT1qg93WtJL\\nW0EVTuww/TrE1VPfEdmv9w==\\n-----END PRIVATE KEY-----\\n\",   \"client_email\": \"firebase-adminsdk-w0i5y@tumentechapp.iam.gserviceaccount.com\",   \"client_id\": \"106359426781378652108\",   \"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\",   \"token_uri\": \"https://oauth2.googleapis.com/token\",   \"auth_provider_x509_cert_url\": \"https://www.googleapis.com/oauth2/v1/certs\",   \"client_x509_cert_url\": \"https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-w0i5y%40tumentechapp.iam.gserviceaccount.com\" }",
+        "__typename": "Config"
+      },
+      {
+        "_id": "pzCesrTqyLcPhQ6mX",
+        "code": "UPLOAD_FILE_TYPES",
+        "value": "image/gif,image/vnd.microsoft.icon,image/tiff,image/jpeg,image/bmp,image/png,image/svg+xml,image/webp,image/heic,image/heif,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.oasis.opendocument.spreadsheet,application/vnd.oasis.opendocument.presentation,application/vnd.oasis.opendocument.text,application/pdf,application/rtf,text/plain,audio/aac,audio/mpeg,audio/ogg,audio/3gpp,audio/3gpp2,video/mpeg,video/ogg,video/mp4,application/vnd.rar,application/x-tar,application/x-7z-compressed,application/gzip",
+        "__typename": "Config"
+      },
+      {
+        "_id": "rpstLKe56zS3uuuqE",
+        "code": "stageInEbarimt",
+        "value": {},
+        "__typename": "Config"
+      },
+      {
+        "_id": "rumxFTdxj582CNdAk",
+        "code": "FILE_SYSTEM_PUBLIC",
+        "value": "false",
+        "__typename": "Config"
+      },
+      {
+        "_id": "v8dmqA4NMqWMzJCXi",
+        "code": "AWS_ACCESS_KEY_ID",
+        "value": "AKIA2R7YSZI3J74UZPPG",
+        "__typename": "Config"
+      },
+      {
+        "_id": "wkbdm8o3frMANbXKz",
+        "code": "AWS_REGION",
+        "value": "us-east-1",
+        "__typename": "Config"
+      },
+      {
+        "_id": "628de5b07ddb200b65dae93e",
+        "code": "secretAccessKey",
+        "value": "UD4ScUEkZCNviNa9BlwL5ie+7sX47I2us3H7e04F",
+        "__typename": "Config"
+      },
+      {
+        "_id": "628de5b07ddb200edadae942",
+        "code": "allowedEmailSkipLimit",
+        "value": "10",
+        "__typename": "Config"
+      },
+      {
+        "_id": "628de5b07ddb203101dae940",
+        "code": "configSet",
+        "value": "",
+        "__typename": "Config"
+      },
+      {
+        "_id": "628de5b07ddb204728dae941",
+        "code": "unverifiedEmailsLimit",
+        "value": "100",
+        "__typename": "Config"
+      },
+      {
+        "_id": "628de5b07ddb205a70dae943",
+        "code": "smsLimit",
+        "value": "0",
+        "__typename": "Config"
+      },
+      {
+        "_id": "628de5b07ddb20644fdae93f",
+        "code": "region",
+        "value": "us-east-1",
+        "__typename": "Config"
+      },
+      {
+        "_id": "628de5b07ddb20f5c0dae93d",
+        "code": "accessKeyId",
+        "value": "AKIA2R7YSZI3GYXPIHSG",
+        "__typename": "Config"
+      }
+    ]
+  }
+}

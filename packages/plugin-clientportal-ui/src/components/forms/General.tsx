@@ -27,6 +27,7 @@ type Props = {
   topics: ITopic[];
   boards: IBoard[];
   pipelines: IPipeline[];
+  isVendor: boolean;
   fetchPipelines: (boardId: string) => void;
   handleFormChange: (name: string, value: string | boolean) => void;
 } & ClientPortalConfig;
@@ -83,7 +84,8 @@ function General({
   taskToggle,
   dealToggle,
   purchaseToggle,
-  ticketToggle
+  ticketToggle,
+  isVendor
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
 
@@ -251,14 +253,16 @@ function General({
     );
   };
 
+  const text = isVendor ? 'Vendor' : 'Client';
+
   const renderMain = () => {
     return (
       <Block>
-        <h4>{__('Client portal')}</h4>
+        <h4>{__(`${text} portal`)}</h4>
         <BlockRow>
           {renderControl({
             required: true,
-            label: 'Client Portal Name',
+            label: `${text} portal name`,
             subtitle: 'Displayed in the header area',
             formValueName: 'name',
             formValue: name,
@@ -298,7 +302,7 @@ function General({
         <ToggleWrap>
           <FormGroup>
             <ControlLabel>Show {title}</ControlLabel>
-            <p>{__('Show in Client Portal')}</p>
+            <p>{__(`Show in ${text} Portal`)}</p>
             <Toggle
               checked={toggle}
               onChange={() => onChangeToggle(toggleName, !toggle)}
@@ -355,6 +359,7 @@ function General({
             kbToggle || false
           )}
         {isEnabled('cards') &&
+          !isVendor &&
           renderFeatureBlock(
             'publicTask',
             renderTaskPipelines(),
@@ -363,6 +368,7 @@ function General({
           )}
 
         {isEnabled('cards') &&
+          !isVendor &&
           renderFeatureBlock(
             'tickets',
             <>

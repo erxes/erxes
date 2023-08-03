@@ -89,10 +89,19 @@ const ListContainer = withProps<ListProps & IRouterProps>(
   compose(
     graphql(gql(queries.getConfigs), {
       name: 'configsQuery',
-      options: ({ queryParams }: { queryParams: any }) => ({
+      options: ({
+        queryParams,
+        history
+      }: {
+        queryParams: any;
+        history: any;
+      }) => ({
         variables: {
           page: queryParams.page,
-          perPage: queryParams.perPage
+          perPage: queryParams.perPage,
+          kind: history.location.pathname.includes('vendor')
+            ? 'vendorPortal'
+            : 'clientPortal'
         }
       })
     }),
@@ -137,7 +146,14 @@ const LastConfigContainer = withProps<ListProps>(
     graphql<Props, ClientPortalGetLastQueryResponse, {}>(
       gql(queries.getConfigLast),
       {
-        name: 'configGetLastQuery'
+        name: 'configGetLastQuery',
+        options: ({ history }: { history: any }) => ({
+          variables: {
+            kind: history.location.pathname.includes('vendor')
+              ? 'vendorPortal'
+              : 'clientPortal'
+          }
+        })
       }
     )
   )(LastConfig)

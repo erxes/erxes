@@ -7,6 +7,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 export const commonFields = `
   _id
   name
+  isVendor
   url
   description
   logo
@@ -176,14 +177,14 @@ export const listParamsValue = `
 `;
 
 const getTotalCount = `
-  query clientPortalConfigsTotalCount {
-    clientPortalConfigsTotalCount
+  query clientPortalConfigsTotalCount($kind: ClientPortalKind) {
+    clientPortalConfigsTotalCount(kind: $kind)
   }
 `;
 
 const getConfigs = `
-  query clientPortalGetConfigs($page: Int, $perPage: Int) {
-    clientPortalGetConfigs(page: $page, perPage: $perPage) {
+  query clientPortalGetConfigs($page: Int, $perPage: Int, $kind: ClientPortalKind) {
+    clientPortalGetConfigs(page: $page, perPage: $perPage, kind: $kind) {
       ${commonFields}
     }
   }
@@ -198,8 +199,8 @@ const getConfig = `
 `;
 
 const getConfigLast = `
-  query clientPortalGetLast {
-    clientPortalGetLast {
+  query clientPortalGetLast($kind: ClientPortalKind) {
+    clientPortalGetLast(kind: $kind) {
       ${commonFields}
     }
   }

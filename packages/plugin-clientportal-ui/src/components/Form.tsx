@@ -13,6 +13,7 @@ import React from 'react';
 type Props = {
   configType: string;
   defaultConfigValues?: ClientPortalConfig;
+  isVendor: boolean;
   handleUpdate: (doc: ClientPortalConfig) => void;
 };
 
@@ -51,7 +52,7 @@ class Form extends React.Component<Props, State> {
     const { formValues } = this.state;
 
     if (!formValues.name) {
-      return Alert.error('Please enter a client portal name');
+      return Alert.error('Please enter a name');
     }
 
     if (formValues.url && !isUrl(formValues.url)) {
@@ -123,6 +124,7 @@ class Form extends React.Component<Props, State> {
   renderContent = () => {
     const commonProps = {
       ...this.state.formValues,
+      isVendor: this.props.isVendor,
       handleFormChange: this.handleFormChange
     };
 

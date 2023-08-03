@@ -23,6 +23,15 @@ module.exports = {
       scope: 'clientportal',
       action: '',
       permissions: []
+    },
+    {
+      text: 'Vendor Portal',
+      to: '/settings/vendor-portal',
+      image: '/images/icons/erxes-32.png',
+      location: 'settings',
+      scope: 'vendorportal',
+      action: '',
+      permissions: []
     }
   ]
 };

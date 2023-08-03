@@ -187,14 +187,19 @@ ${
     baseFont: String
     headingFont: String
   }
+
+  enum ClientPortalKind {
+    clientPortal
+    vendorPortal
+  }
 `;
 
 export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
-  clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
+  clientPortalGetConfigs(page: Int, perPage: Int, kind: ClientPortalKind): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain: ClientPortal
-  clientPortalGetLast: ClientPortal
-  clientPortalConfigsTotalCount: Int
+  clientPortalGetLast(kind:ClientPortalKind): ClientPortal
+  clientPortalConfigsTotalCount(kind: ClientPortalKind): Int
   ${
     formsAvailable
       ? `
@@ -230,6 +235,7 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
 export const mutations = cardAvailable => `
   clientPortalConfigUpdate (
     _id: String
+    isVendor: Boolean
     name: String
     description: String
     logo: String

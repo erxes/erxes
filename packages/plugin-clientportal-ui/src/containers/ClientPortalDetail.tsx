@@ -38,7 +38,13 @@ function ClientPortalDetailContainer({
   }
 
   const handleUpdate = (doc: ClientPortalConfig) => {
-    mutate({ variables: { _id: queryParams._id, ...doc } })
+    mutate({
+      variables: {
+        _id: queryParams._id,
+        isVendor: history.location.pathname.includes('vendor'),
+        ...doc
+      }
+    })
       .then((response = {}) => {
         const { clientPortalConfigUpdate = {} } = response.data || {};
 
@@ -46,7 +52,13 @@ function ClientPortalDetailContainer({
           routerUtils.setParams(history, { _id: clientPortalConfigUpdate._id });
         }
 
-        Alert.success('Successfully updated the Client portal config');
+        Alert.success(
+          `Successfully updated the ${
+            history.location.pathname.includes('vendor')
+              ? 'vendor portal'
+              : 'client portal'
+          } configs.`
+        );
 
         if (closeModal) {
           closeModal();

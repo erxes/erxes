@@ -3,6 +3,7 @@ import { clientPortalUserFields, commonFields } from './queries';
 const createOrUpdateConfig = `
   mutation clientPortalConfigUpdate(
     $_id: String
+    $isVendor: Boolean
     $name: String
     $description: String
     $logo: String
@@ -58,6 +59,7 @@ const createOrUpdateConfig = `
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
+      isVendor: $isVendor,
       name: $name,
       description: $description,
       url: $url,

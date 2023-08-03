@@ -29,10 +29,16 @@ const getByHost = async (models, requestInfo) => {
 const configClientPortalQueries = {
   async clientPortalGetConfigs(
     _root,
-    args: { page?: number; perPage?: number },
+    args: { page?: number; perPage?: number; kind?: string },
     { models }: IContext
   ) {
-    return paginate(models.ClientPortals.find({}), args);
+    const qry: any = {};
+
+    if (args.kind && args.kind === 'vendorPortal') {
+      qry.isVendor = true;
+    }
+
+    return paginate(models.ClientPortals.find(qry), args);
   },
 
   async clientPortalConfigsTotalCount(_root, _args, { models }: IContext) {
@@ -42,8 +48,18 @@ const configClientPortalQueries = {
   /**
    * Get last config
    */
-  clientPortalGetLast(_root, _args, { models }: IContext) {
-    return models.ClientPortals.findOne({}).sort({
+  clientPortalGetLast(
+    _root,
+    { kind }: { kind?: string },
+    { models }: IContext
+  ) {
+    const qry: any = {};
+
+    if (kind && kind === 'vendorPortal') {
+      qry.isVendor = true;
+    }
+
+    return models.ClientPortals.findOne(qry).sort({
       createdAt: -1
     });
   },

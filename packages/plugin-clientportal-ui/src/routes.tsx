@@ -79,6 +79,12 @@ const routes = () => (
       component={clientPortal}
     />
     <Route
+      key="/settings/vendor-portal/"
+      path="/settings/vendor-portal"
+      exact={true}
+      component={clientPortal}
+    />
+    <Route
       key="/settings/client-portal/form"
       path="/settings/client-portal/form"
       component={configsForm}
