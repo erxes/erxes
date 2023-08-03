@@ -147,5 +147,14 @@
   "Max tenor": "Хамгын их хугацаа",
   "Min amount": "Хамгын бага дүн",
   "Max amount": "Хамгын их дүн",
-  "Got": "Авсан"
+  "Got": "Авсан",
+  "isHasVat": "Нөат тооцох эсэх",
+  "Range config": "Хязгаарын тохиргоо",
+  "Margin Amount can not be less than lease Amount": "Худалдаж авах дүн зээлийн дүгээс бага байж болохгүй",
+  "Lease amount must greater than": "Зээлийн дүн бага байна",
+  "Lease amount must less than": "Зээлийн дүн их байна",
+  "Tenor must greater than": "Хугацаа бага байна",
+  "Tenor must less than": "Хугацаа их байна",
+  "Interest must greater than": "Хүү бага байна",
+  "Interest must less than": "Хүү их байна"
 }
