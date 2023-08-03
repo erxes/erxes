@@ -15,7 +15,7 @@ type Props = {
   hasCost?: boolean;
   isReadSeries?: boolean;
   onChangeState: (value: any) => void;
-  onEnter: () => void;
+  onEnter: (val?: number) => void;
 };
 
 type State = {};
@@ -129,6 +129,10 @@ class PerformDetail extends React.Component<Props, State> {
   onKeyDown = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      if (e.shiftKey) {
+        this.props.onEnter(-1);
+        return;
+      }
       this.props.onEnter();
     }
   };
@@ -183,6 +187,7 @@ class PerformDetail extends React.Component<Props, State> {
               name="amount"
               required={true}
               onChange={this.onChange}
+              onKeyDown={this.onKeyDown}
             />
           </td>
         )}

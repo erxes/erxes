@@ -404,10 +404,13 @@ class Form extends React.Component<Props, State> {
     } as any);
   };
 
-  focusNext = (index: number, length: number) => {
-    let next = index + 1;
+  focusNext = (index: number, length: number, val?: number) => {
+    let next = index + (val || 1);
     if (next >= length) {
       next = 0;
+    }
+    if (next < 0) {
+      next = length - 1;
     }
 
     document
@@ -444,7 +447,9 @@ class Form extends React.Component<Props, State> {
                   stateName={stateName}
                   onChangeState={this.onChangePerView}
                   isReadSeries={stateName === 'inProducts'}
-                  onEnter={() => this.focusNext(index, productsData.length)}
+                  onEnter={val =>
+                    this.focusNext(index, productsData.length, val)
+                  }
                 />
               );
             })}
@@ -480,7 +485,9 @@ class Form extends React.Component<Props, State> {
                   stateName={'outProducts'}
                   hasCost={true}
                   onChangeState={this.onChangePerView}
-                  onEnter={() => this.focusNext(index, productsData.length)}
+                  onEnter={val =>
+                    this.focusNext(index, productsData.length, val)
+                  }
                 />
               );
             })}
