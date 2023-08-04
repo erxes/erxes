@@ -17,7 +17,7 @@ import { IModels } from '../connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { getService, getServices, redis } from '../serviceDiscovery';
 import { sendContactsMessage } from '../messageBroker';
-import * as sharp from 'sharp';
+// import * as sharp from 'sharp';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -1062,59 +1062,61 @@ export const resizeImage = async (
   maxWidth: number,
   maxHeight: number
 ) => {
-  const response: any = await new Promise(resolve => {
-    sharp(file['path']).metadata((err, metadata) => {
-      if (err) {
-        console.error('Error reading image metadata:', err);
-        resolve(file);
-      } else {
-        let width = metadata.width;
-        let height = metadata.height;
+  // TODO: implement image resize again
 
-        let scaledWidth = 0;
-        let scaledHeight = 0;
+  // const response: any = await new Promise(resolve => {
+  //   sharp(file['path']).metadata((err, metadata) => {
+  //     if (err) {
+  //       console.error('Error reading image metadata:', err);
+  //       resolve(file);
+  //     } else {
+  //       let width = metadata.width;
+  //       let height = metadata.height;
 
-        if (width && height) {
-          if (maxWidth && width >= maxWidth) {
-            const ratio = maxWidth / width;
-            scaledHeight = Math.floor(height * ratio);
-            scaledWidth = Math.floor(width * ratio);
-          } else if (maxHeight && height >= maxHeight) {
-            const ratio = maxHeight / height;
-            scaledWidth = Math.floor(width * ratio);
-            scaledHeight = Math.floor(height * ratio);
-          }
-        }
-        // Resize image
-        const outputFilePath = file['path'] + 'resizedImage';
+  //       let scaledWidth = 0;
+  //       let scaledHeight = 0;
 
-        if (scaledHeight > 0 && scaledWidth > 0) {
-          sharp(file['path'])
-            .resize(scaledWidth, scaledHeight)
-            .toFile(outputFilePath, err => {
-              if (err) {
-                console.log(err);
-                resolve(file);
-              } else {
-                const buffer = fs.readFileSync(outputFilePath);
-                const newFile = {
-                  size: buffer.length,
-                  type: file['type'],
-                  path: outputFilePath,
-                  name: file['name']
-                } as any;
-                resolve(newFile);
-              }
-            });
-        } else {
-          resolve(file);
-        }
-      }
-    });
-  });
-  if (response) {
-    return response;
-  }
+  //       if (width && height) {
+  //         if (maxWidth && width >= maxWidth) {
+  //           const ratio = maxWidth / width;
+  //           scaledHeight = Math.floor(height * ratio);
+  //           scaledWidth = Math.floor(width * ratio);
+  //         } else if (maxHeight && height >= maxHeight) {
+  //           const ratio = maxHeight / height;
+  //           scaledWidth = Math.floor(width * ratio);
+  //           scaledHeight = Math.floor(height * ratio);
+  //         }
+  //       }
+  //       // Resize image
+  //       const outputFilePath = file['path'] + 'resizedImage';
+
+  //       if (scaledHeight > 0 && scaledWidth > 0) {
+  //         sharp(file['path'])
+  //           .resize(scaledWidth, scaledHeight)
+  //           .toFile(outputFilePath, err => {
+  //             if (err) {
+  //               console.log(err);
+  //               resolve(file);
+  //             } else {
+  //               const buffer = fs.readFileSync(outputFilePath);
+  //               const newFile = {
+  //                 size: buffer.length,
+  //                 type: file['type'],
+  //                 path: outputFilePath,
+  //                 name: file['name']
+  //               } as any;
+  //               resolve(newFile);
+  //             }
+  //           });
+  //       } else {
+  //         resolve(file);
+  //       }
+  //     }
+  //   });
+  // });
+  // if (response) {
+  //   return response;
+  // }
   return file;
 };
 
