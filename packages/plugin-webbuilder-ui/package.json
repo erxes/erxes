@@ -9,8 +9,8 @@
   "dependencies": {
     "add": "^2.0.6",
     "grapejs": "^2.1.2",
-    "grapesjs": "^0.19.4",
-    "grapesjs-preset-webpage": "^0.1.11",
+    "grapesjs": "^0.21.3",
+    "grapesjs-preset-webpage": "^1.0.3",
     "yarn": "^1.22.19"
   }
 }
