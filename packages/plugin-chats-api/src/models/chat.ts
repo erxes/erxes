@@ -12,9 +12,9 @@ import {
 } from './definitions/chat';
 
 export interface IChatModel extends Model<IChatDocument> {
-  getChat(_id: string);
+  getChat(_id: string, userId: string);
   createChat(doc: IChat, createdBy: string): Promise<IChatDocument>;
-  updateChat(_id: string, doc: IChat);
+  updateChat(_id: string, doc: IChat, userId: string);
   removeChat(_id: string);
 }
 export const loadChatClass = models => {
@@ -22,8 +22,11 @@ export const loadChatClass = models => {
     /*
      * Get a chat
      */
-    public static async getChat(_id: string) {
-      const chat = await models.Chats.findOne({ _id });
+    public static async getChat(_id: string, userId: string) {
+      const chat = await models.Chats.findOne({
+        _id,
+        participantIds: { $in: [userId] }
+      });
 
       if (!chat) {
         throw new Error('Chat not found');
@@ -41,10 +44,13 @@ export const loadChatClass = models => {
       });
     }
 
-    public static async updateChat(_id: string, doc: IChat) {
-      await models.Chats.updateOne({ _id }, { $set: doc });
+    public static async updateChat(_id: string, doc: IChat, userId: string) {
+      await models.Chats.updateOne(
+        { _id, participantIds: { $in: [userId] } },
+        { $set: doc }
+      );
 
-      return models.Chats.findOne({ _id });
+      return models.Chats.findOne({ _id, participantIds: { $in: [userId] } });
     }
 
     public static async removeChat(_id: string) {
@@ -80,7 +86,16 @@ export const loadChatMessageClass = models => {
       return chatMessage;
     }
 
-    public static createChatMessage(doc: IChatMessage, createdBy: string) {
+    public static async createChatMessage(
+      doc: IChatMessage,
+      createdBy: string
+    ) {
+      const result = await models.Chats.findOne({
+        _id: doc.chatId,
+        participantIds: { $in: [createdBy] }
+      });
+
+      if (!result) throw new Error('Permission denied');
       return models.ChatMessages.create({
         ...doc,
         createdAt: new Date(),

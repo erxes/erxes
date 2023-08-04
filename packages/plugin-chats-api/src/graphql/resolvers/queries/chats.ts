@@ -38,7 +38,10 @@ const chatQueries = {
     { _id },
     { models, user }: { models: IModels; user: IUserDocument }
   ) => {
-    const chat = models.Chats.findOne({ _id });
+    const chat = models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
 
     graphqlPubsub.publish('chatUnreadCountChanged', {
       userId: user._id
@@ -63,7 +66,7 @@ const chatQueries = {
     });
 
     if (lastMessage) {
-      const chat = await models.Chats.getChat(chatId);
+      const chat = await models.Chats.getChat(chatId, user._id);
 
       const seenInfos = chat.seenInfos || [];
 
@@ -98,7 +101,7 @@ const chatQueries = {
       }
     }
 
-    const chat = await models.Chats.getChat(chatId);
+    const chat = await models.Chats.getChat(chatId, user._id);
 
     if (await getIsSeen(models, chat, user)) {
       graphqlPubsub.publish('chatUnreadCountChanged', {

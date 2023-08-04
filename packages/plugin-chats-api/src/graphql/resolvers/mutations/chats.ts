@@ -76,11 +76,14 @@ const chatMutations = {
   },
 
   chatEdit: async (_root, { _id, ...doc }, { models, user }) => {
-    return models.Chats.updateChat(_id, doc);
+    return models.Chats.updateChat(_id, doc, user);
   },
 
   chatRemove: async (_root, { _id }, { models, user }) => {
-    const chat = await models.Chats.findOne({ _id });
+    const chat = await models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
 
     if (!chat) {
       throw new Error('Chat not found');
@@ -103,7 +106,7 @@ const chatMutations = {
     let seen;
 
     if (lastMessage) {
-      const chat = await models.Chats.getChat(_id);
+      const chat = await models.Chats.getChat(_id, user._id);
 
       const seenInfos = chat.seenInfos || [];
 
@@ -156,8 +159,11 @@ const chatMutations = {
     return seen;
   },
 
-  chatToggleIsPinned: async (_root, { _id }, { models }) => {
-    const chat = await models.Chats.findOne({ _id });
+  chatToggleIsPinned: async (_root, { _id }, { models, user }) => {
+    const chat = await models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
 
     if (chat) {
       graphqlPubsub.publish('chatInserted', {
@@ -174,8 +180,11 @@ const chatMutations = {
     return false;
   },
 
-  chatToggleIsWithNotification: async (_root, { _id }, { models }) => {
-    const chat = await models.Chats.findOne({ _id });
+  chatToggleIsWithNotification: async (_root, { _id }, { models, user }) => {
+    const chat = await models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
 
     if (chat) {
       graphqlPubsub.publish('chatInserted', {
@@ -227,7 +236,7 @@ const chatMutations = {
       chatReceivedNotification: message
     });
 
-    const chat = await models.Chats.getChat(message.chatId);
+    const chat = await models.Chats.getChat(message.chatId, user._id);
 
     const recievers = chat.participantIds.filter(i => i !== user._id);
 
@@ -289,7 +298,7 @@ const chatMutations = {
   ) => {
     await checkChatAdmin(models.Chats, user._id);
 
-    const chat = await models.Chats.getChat(_id);
+    const chat = await models.Chats.getChat(_id, user._id);
 
     if ((chat.participantIds || []).length === 1) {
       if (type === 'remove') {
