@@ -53,7 +53,7 @@ export const uploader = async (req: any, res, next) => {
 
     const detectedType = fileType(fs.readFileSync(file['path']));
     if (detectedType && detectedType.mime.startsWith('image/')) {
-      if (maxHeight && maxWidth) {
+      if (maxHeight || maxWidth) {
         fileResult = await resizeImage(file, maxWidth, maxHeight);
       }
     }

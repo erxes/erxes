@@ -1076,11 +1076,11 @@ export const resizeImage = async (
         let scaledHeight = 0;
 
         if (width && height) {
-          if (width >= maxWidth) {
+          if (maxWidth && width >= maxWidth) {
             const ratio = maxWidth / width;
             scaledHeight = Math.floor(height * ratio);
             scaledWidth = Math.floor(width * ratio);
-          } else if (height >= maxHeight) {
+          } else if (maxHeight && height >= maxHeight) {
             const ratio = maxHeight / height;
             scaledWidth = Math.floor(width * ratio);
             scaledHeight = Math.floor(height * ratio);
