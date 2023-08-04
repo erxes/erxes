@@ -1059,8 +1059,8 @@ export const handleUnsubscription = async (
 
 export const resizeImage = async (
   file: any,
-  maxWidth: number,
-  maxHeight: number
+  _maxWidth: number,
+  _maxHeight: number
 ) => {
   // TODO: implement image resize again
 
