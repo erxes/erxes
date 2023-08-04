@@ -1058,7 +1058,7 @@ export const handleUnsubscription = async (
   }
 };
 
-export const imageResizer = async (
+export const resizeImage = async (
   file: any,
   maxWidth: number,
   maxHeight: number

@@ -5,7 +5,7 @@ import { generateModels } from '../connectionResolver';
 import * as _ from 'underscore';
 import { filterXSS } from 'xss';
 
-import { checkFile, imageResizer, uploadFile } from '../data/utils';
+import { checkFile, resizeImage, uploadFile } from '../data/utils';
 import { debugExternalApi } from '../debuggers';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
@@ -49,7 +49,7 @@ export const uploader = async (req: any, res, next) => {
     const fileResult =
       (maxHeight &&
         maxWidth &&
-        (await imageResizer(file, maxWidth, maxHeight))) ||
+        (await resizeImage(file, maxWidth, maxHeight))) ||
       file;
     // check file ====
     const status = await checkFile(models, file, req.headers.source);
