@@ -3,6 +3,8 @@ import * as formidable from 'formidable';
 import * as request from 'request';
 import { generateModels } from '../connectionResolver';
 import * as _ from 'underscore';
+import * as fileType from 'file-type';
+import * as fs from 'fs';
 import { filterXSS } from 'xss';
 
 import { checkFile, resizeImage, uploadFile } from '../data/utils';
@@ -46,11 +48,16 @@ export const uploader = async (req: any, res, next) => {
 
   form.parse(req, async (_error, _fields, response) => {
     let file = response.file || response.upload;
-    const fileResult =
-      (maxHeight &&
-        maxWidth &&
-        (await resizeImage(file, maxWidth, maxHeight))) ||
-      file;
+
+    let fileResult = file;
+
+    const detectedType = fileType(fs.readFileSync(file['path']));
+    if (detectedType && detectedType.mime.startsWith('image/')) {
+      if (maxHeight && maxWidth) {
+        fileResult = await resizeImage(file, maxWidth, maxHeight);
+      }
+    }
+
     // check file ====
     const status = await checkFile(models, file, req.headers.source);
     if (status === 'ok') {

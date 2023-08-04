@@ -1069,48 +1069,46 @@ export const resizeImage = async (
         console.error('Error reading image metadata:', err);
         resolve(file);
       } else {
-        const detectedType = fileType(fs.readFileSync(file['path']));
+        let width = metadata.width;
+        let height = metadata.height;
 
-        if (detectedType && detectedType.mime.startsWith('image/')) {
-          let width = metadata.width;
-          let height = metadata.height;
-          let scaledWidth = 0;
-          let scaledHeight = 0;
-          if (width && height) {
-            if (width >= maxWidth) {
-              const ratio = maxWidth / width;
-              scaledHeight = Math.floor(height * ratio);
-              scaledWidth = Math.floor(width * ratio);
-            } else if (height >= maxHeight) {
-              const ratio = maxHeight / height;
-              scaledWidth = Math.floor(width * ratio);
-              scaledHeight = Math.floor(height * ratio);
-            }
-          }
-          // Resize image
-          const outputFilePath = file['path'] + 'resizedImage';
+        let scaledWidth = 0;
+        let scaledHeight = 0;
 
-          if (scaledHeight > 0 && scaledWidth > 0) {
-            sharp(file['path'])
-              .resize(scaledWidth, scaledHeight)
-              .toFile(outputFilePath, err => {
-                if (err) {
-                  console.log(err);
-                  resolve(file);
-                } else {
-                  const buffer = fs.readFileSync(outputFilePath);
-                  const newFile = {
-                    size: buffer.length,
-                    type: file['type'],
-                    path: outputFilePath,
-                    name: file['name']
-                  } as File;
-                  resolve(newFile);
-                }
-              });
-          } else {
-            resolve(file);
+        if (width && height) {
+          if (width >= maxWidth) {
+            const ratio = maxWidth / width;
+            scaledHeight = Math.floor(height * ratio);
+            scaledWidth = Math.floor(width * ratio);
+          } else if (height >= maxHeight) {
+            const ratio = maxHeight / height;
+            scaledWidth = Math.floor(width * ratio);
+            scaledHeight = Math.floor(height * ratio);
           }
+        }
+        // Resize image
+        const outputFilePath = file['path'] + 'resizedImage';
+
+        if (scaledHeight > 0 && scaledWidth > 0) {
+          sharp(file['path'])
+            .resize(scaledWidth, scaledHeight)
+            .toFile(outputFilePath, err => {
+              if (err) {
+                console.log(err);
+                resolve(file);
+              } else {
+                const buffer = fs.readFileSync(outputFilePath);
+                const newFile = {
+                  size: buffer.length,
+                  type: file['type'],
+                  path: outputFilePath,
+                  name: file['name']
+                } as File;
+                resolve(newFile);
+              }
+            });
+        } else {
+          resolve(file);
         }
       }
     });

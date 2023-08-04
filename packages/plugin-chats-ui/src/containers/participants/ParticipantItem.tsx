@@ -25,7 +25,8 @@ const ParticipantItemContainer = (props: Props) => {
         adminMutation({
           variables: { id: chatId, userId: user._id },
           refetchQueries: [
-            { query: gql(queries.chatDetail), variables: { id: chatId } }
+            { query: gql(queries.chatDetail), variables: { id: chatId } },
+            { query: gql(queries.chats) }
           ]
         }).catch(error => {
           Alert.error(error.message);
@@ -44,7 +45,8 @@ const ParticipantItemContainer = (props: Props) => {
             {
               query: gql(queries.chatDetail),
               variables: { id: chatId }
-            }
+            },
+            { query: gql(queries.chats) }
           ]
         }).catch(error => {
           Alert.error(error.message);
