@@ -19,12 +19,15 @@ import {
   generateForwardMailContent,
   generatePreviousContents
 } from '../../containers/utils';
+import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 
+import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import EmailTemplate from './emailTemplate/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { IAttachment } from '@erxes/ui/src/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -34,12 +37,9 @@ import MailChooser from './MailChooser';
 import { Meta } from './styles';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
+import Uploader from '@erxes/ui/src/components/Uploader';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import Attachment from '@erxes/ui/src/components/Attachment';
-import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
-import { IAttachment } from '@erxes/ui/src/types';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -175,7 +175,7 @@ class MailForm extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { name, content } = this.state;
+    const { name, content, to } = this.state;
 
     if (prevState.content !== content) {
       localStorage.setItem(name, content);
@@ -183,6 +183,10 @@ class MailForm extends React.Component<Props, State> {
 
     if (prevProps.clear !== this.props.clear) {
       this.clearContent();
+    }
+
+    if (prevProps.emailTo !== this.props.emailTo) {
+      this.setState({ to: this.props.emailTo });
     }
   }
 

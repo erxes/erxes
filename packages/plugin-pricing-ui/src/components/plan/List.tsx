@@ -9,11 +9,12 @@ import Row from '../../containers/plan/Row';
 
 type Props = {
   data: any[];
+  count: number;
   loading: boolean;
 };
 
 export default function List(props: Props) {
-  const { data, loading } = props;
+  const { data, loading, count } = props;
 
   // Functions
   const renderRow = () =>
@@ -40,7 +41,7 @@ export default function List(props: Props) {
   return (
     <DataWithLoader
       loading={loading}
-      count={data ? data.length : 0}
+      count={count}
       data={renderTable()}
       emptyContent={
         <EmptyState
