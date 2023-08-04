@@ -104,6 +104,8 @@ const Editor = (props: Props) => {
     setUploadLoading(true);
     uploadHandler({
       files,
+      maxHeight: 725,
+      maxWidth: 725,
       beforeUpload: () => {
         return;
       },

@@ -18,6 +18,7 @@ type Props = {
   user: any;
   makeOrRemoveAdmin: () => void;
   addOrRemoveMember: () => void;
+  isAdmin: boolean;
 };
 
 type FinalProps = {
@@ -25,7 +26,7 @@ type FinalProps = {
 } & Props;
 
 const ParticipantItem = (props: FinalProps) => {
-  const { user, currentUser } = props;
+  const { user, isAdmin } = props;
   const actionsRef = useRef<HTMLElement>(null);
 
   const handleMouseEnter = () => {
@@ -38,6 +39,28 @@ const ParticipantItem = (props: FinalProps) => {
     if (actionsRef && actionsRef.current) {
       actionsRef.current.style.display = 'none';
     }
+  };
+
+  const renderActionButtons = () => {
+    if (!isAdmin) return null;
+    return (
+      <ChatActions innerRef={actionsRef}>
+        <Tip
+          text={user.isAdmin ? 'Remove as Admin' : 'Make admin'}
+          placement="bottom"
+        >
+          <ChatActionItem onClick={props.makeOrRemoveAdmin}>
+            <Icon icon="shield-slash" size={14} />
+          </ChatActionItem>
+        </Tip>
+
+        <Tip text="Remove user" placement="bottom">
+          <ChatActionItem onClick={props.addOrRemoveMember}>
+            <Icon icon="removeuser" size={14} />
+          </ChatActionItem>
+        </Tip>
+      </ChatActions>
+    );
   };
 
   return (
@@ -55,28 +78,7 @@ const ParticipantItem = (props: FinalProps) => {
           </span>
         </ParticipantDetails>
       </Link>
-      {user.isAdmin && user._id === currentUser._id && (
-        <ChatActions innerRef={actionsRef}>
-          {user.isAdmin ? (
-            <Tip text="Remove as Admin" placement="bottom">
-              <ChatActionItem onClick={props.makeOrRemoveAdmin}>
-                <Icon icon="shield-slash" size={14} />
-              </ChatActionItem>
-            </Tip>
-          ) : (
-            <Tip text="Make admin" placement="bottom">
-              <ChatActionItem onClick={props.makeOrRemoveAdmin}>
-                <Icon icon="shield-slash" size={14} />
-              </ChatActionItem>
-            </Tip>
-          )}
-          <Tip text="Remove user" placement="bottom">
-            <ChatActionItem onClick={props.addOrRemoveMember}>
-              <Icon icon="removeuser" size={14} />
-            </ChatActionItem>
-          </Tip>
-        </ChatActions>
-      )}
+      {renderActionButtons()}
     </ParticipantItemWrapper>
   );
 };
