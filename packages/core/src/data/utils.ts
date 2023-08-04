@@ -18,7 +18,6 @@ import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { getService, getServices, redis } from '../serviceDiscovery';
 import { sendContactsMessage } from '../messageBroker';
 import * as sharp from 'sharp';
-import { File } from 'formidable';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -1103,7 +1102,7 @@ export const resizeImage = async (
                   type: file['type'],
                   path: outputFilePath,
                   name: file['name']
-                } as File;
+                } as any;
                 resolve(newFile);
               }
             });
