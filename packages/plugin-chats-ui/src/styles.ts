@@ -98,7 +98,6 @@ export const Title = styled.h5`
 
 export const ChatActions = styled.div`
   z-index: 1;
-  visibility: hidden;
 
   position: absolute;
   right: ${dimensions.coreSpacing}px;
