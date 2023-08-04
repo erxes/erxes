@@ -61,10 +61,10 @@ class DeliveryConfig extends React.Component<Props, State> {
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
-    config[code] = value;
+    const newConfig = { ...config, [code]: value };
 
-    this.setState({ config }, () => {
-      this.props.onChange('deliveryConfig', config);
+    this.setState({ config: newConfig }, () => {
+      this.props.onChange('deliveryConfig', newConfig);
     });
   };
 

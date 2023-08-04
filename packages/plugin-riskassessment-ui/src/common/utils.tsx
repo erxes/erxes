@@ -140,11 +140,7 @@ export function SelectIndicators({
   initialValue?: string | string[];
   name: string;
   ignoreIds?: string[];
-  filterParams?: {
-    branchIds?: string[];
-    departmentIds?: string[];
-    operationIds?: string[];
-  };
+  filterParams?: any;
 }) {
   function generetaOption(array: RiskIndicatorsType[] = []): IOption[] {
     let list: any[] = [];
@@ -197,11 +193,7 @@ export function SelectIndicatorGroups({
   initialValue?: string | string[];
   name: string;
   ignoreIds?: string[];
-  filterParams?: {
-    branchIds?: string[];
-    departmentIds?: string[];
-    operationIds?: string[];
-  };
+  filterParams?: any;
 }) {
   function generetaOption(array: RiskIndicatorsType[] = []): IOption[] {
     let list: any[] = [];

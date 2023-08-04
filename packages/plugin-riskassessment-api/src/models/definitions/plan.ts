@@ -13,6 +13,7 @@ export type IPlan = {
   createDate: string;
   startDate: string;
   closeDate: string;
+  cardIds: string[];
 };
 
 export type ISchedule = {
@@ -94,6 +95,8 @@ export const plansSchema = new Schema({
   createDate: field({ type: Date, label: 'createDate' }),
   startDate: field({ type: Date, label: 'startDate' }),
   closeDate: field({ type: Date, label: 'closeDate' }),
+  cardIds: field({ type: [String], label: 'Created Card IDs', optional: true }),
+  tagId: field({ type: String, label: 'General Tag Id', optional: true }),
   status: field({
     type: String,
     label: 'Status',

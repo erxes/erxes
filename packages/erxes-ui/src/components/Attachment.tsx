@@ -85,12 +85,54 @@ const AttachmentName = styled.span`
   line-height: 20px;
 `;
 
+const AttachmentsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 10px 20px;
+
+  i {
+    font-size: 10px;
+    margin-left: 15px;
+    cursor: pointer;
+    &:hover {
+      color: #555;
+    }
+  }
+  > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+`;
+
+const AttachmentInfo = styled.div`
+  display: flex;
+  width: calc(100% - 25px);
+
+  > a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 5px;
+    max-height: 20px;
+  }
+`;
+
+const FlexCenter = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
 type Props = {
   attachment: IAttachment;
   scrollBottom?: () => void;
+  removeAttachment?: (index: number) => void;
   additionalItem?: React.ReactNode;
   simple?: boolean;
   large?: boolean;
+  withoutPreview?: boolean;
 
   index?: number;
   attachments?: IAttachment[];
@@ -107,6 +149,15 @@ class Attachment extends React.Component<Props> {
       scrollBottom();
     }
   };
+
+  renderFileSize(size: number) {
+    if (size > 1000000) {
+      return <>({Math.round(size / 1000000)}MB)</>;
+    }
+    if (size > 1000) {
+      return <>({Math.round(size / 1000)}kB)</>;
+    }
+  }
 
   renderOtherInfo = attachment => {
     const name = attachment.name || attachment.url || '';
@@ -127,7 +178,7 @@ class Attachment extends React.Component<Props> {
           <span>
             {attachment.size && (
               <div>
-                {__('Size')}: {Math.round(attachment.size / 1000)}kB
+                {__('Size')}: {this.renderFileSize(attachment.size)}
               </div>
             )}
             {attachment.type && (
@@ -139,6 +190,32 @@ class Attachment extends React.Component<Props> {
           {this.props.additionalItem}
         </Meta>
       </>
+    );
+  };
+
+  renderWithoutPreview = () => {
+    const { attachments, removeAttachment } = this.props;
+
+    return (
+      <FlexCenter>
+        {attachments && (
+          <AttachmentsContainer>
+            {attachments.map((att, i) => (
+              <div key={i}>
+                <AttachmentInfo>
+                  <a href={att.url}>{att.name}</a>
+                  {this.renderFileSize(att.size || 0)}
+                </AttachmentInfo>
+                <Icon
+                  size={10}
+                  icon="cancel"
+                  onClick={() => removeAttachment && removeAttachment(i)}
+                />
+              </div>
+            ))}
+          </AttachmentsContainer>
+        )}
+      </FlexCenter>
     );
   };
 
@@ -211,7 +288,11 @@ class Attachment extends React.Component<Props> {
       return null;
     }
 
-    const { simple } = this.props;
+    const { simple, withoutPreview } = this.props;
+
+    if (withoutPreview) {
+      return this.renderWithoutPreview();
+    }
 
     if (attachment.type.startsWith('image')) {
       if (simple) {

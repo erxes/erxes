@@ -40,7 +40,7 @@ export const types = `
     uom: String
     subUoms: JSON
     category: PosProductCategory
-    remainder: Int
+    remainder: Float
     remainders: [JSON]
   }
 `;

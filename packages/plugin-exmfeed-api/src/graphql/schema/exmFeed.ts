@@ -87,6 +87,7 @@ export const types = () => {
       birthday
       workAnniversary
       publicHoliday
+      welcome
     }
 
     enum RecipientType {

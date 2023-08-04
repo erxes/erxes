@@ -11,10 +11,11 @@ type Props = {
   isAllMessages: boolean;
   setReply: (text: string) => void;
   loadEarlierMessage: () => void;
+  isWidget?: boolean;
 };
 
 const MessageList = (props: Props) => {
-  const { messages, latestMessages, isAllMessages } = props;
+  const { messages, latestMessages, isAllMessages, isWidget } = props;
   const messageListRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -40,10 +41,20 @@ const MessageList = (props: Props) => {
   return (
     <MessageListWrapper innerRef={messageListRef} onScroll={handleScroll}>
       {latestMessages.map(m => (
-        <MessageItem key={m._id} message={m} setReply={props.setReply} />
+        <MessageItem
+          key={m._id}
+          message={m}
+          setReply={props.setReply}
+          isWidget={isWidget}
+        />
       ))}
       {messages.map(m => (
-        <MessageItem key={m._id} message={m} setReply={props.setReply} />
+        <MessageItem
+          key={m._id}
+          message={m}
+          setReply={props.setReply}
+          isWidget={isWidget}
+        />
       ))}
       {!isAllMessages ? (
         <MessageItemWrapper>

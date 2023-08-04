@@ -57,7 +57,7 @@ const PaginationList = styled.ul`
     }
 
     &.active > a {
-      z-index: 3;
+      z-index: 2;
       color: ${colors.colorWhite};
       background-color: ${colors.colorSecondary};
     }

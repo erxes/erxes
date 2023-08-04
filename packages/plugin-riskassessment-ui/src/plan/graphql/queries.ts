@@ -28,12 +28,14 @@ const planTypes = `
       name
       structureType
       structureTypeId
+      tagId
       configs
       createdAt
       modifiedAt
       createDate
       closeDate
       startDate
+      status
 
       structureDetail {
         _id,
@@ -81,7 +83,9 @@ query RiskAssessmentPlansTotalCount(${commonParamsDef}) {
 const plan = `
 query RiskAssessmentPlan($_id: String) {
   riskAssessmentPlan(_id: $_id) {
-    ${planTypes}
+    ${planTypes},
+    cardIds
+    dashboard
   }
 }
 `;

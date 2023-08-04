@@ -292,9 +292,11 @@ const chatMutations = {
     const chat = await models.Chats.getChat(_id);
 
     if ((chat.participantIds || []).length === 1) {
-      await models.Chats.removeChat(_id);
+      if (type === 'remove') {
+        await models.Chats.removeChat(_id);
 
-      return 'Chat removed';
+        return 'Chat removed';
+      }
     }
 
     // while user is removing himself or herself
