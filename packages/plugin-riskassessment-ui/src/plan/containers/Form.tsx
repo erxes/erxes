@@ -15,19 +15,18 @@ import {
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import React from 'react';
+import { ScheduleQueryResponse } from '../common/types';
 import FormComponent from '../components/Form';
 import { mutations, queries } from '../graphql';
 
 type Props = {
   _id?: string;
-  closeModal: () => void;
 };
 
 type FinalProps = {
   planQueryResponse: { riskAssessmentPlan: any } & QueryResponse;
   removeScheduleMutationResponse: any;
-  addScheduleMutationResponse: any;
-  updateScheduleMutationResponse: any;
+  schedulesQueryResponse: ScheduleQueryResponse;
 } & IRouterProps &
   Props;
 
@@ -40,7 +39,7 @@ class Form extends React.Component<FinalProps> {
     const {
       planQueryResponse,
       removeScheduleMutationResponse,
-      closeModal,
+      schedulesQueryResponse,
       history
     } = this.props;
 
@@ -57,8 +56,20 @@ class Form extends React.Component<FinalProps> {
       );
     }
 
+    const removeSchedule = id => {
+      confirm().then(() => {
+        removeScheduleMutationResponse({ variables: { id } })
+          .then(() => {
+            Alert.success('Removed schedule successfully');
+          })
+          .catch(err => {
+            Alert.error(err.message);
+          });
+      });
+    };
+
     const renderButton = ({
-      name,
+      text,
       values,
       isSubmitted,
       callback,
@@ -87,36 +98,33 @@ class Form extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           confirmationUpdate={confirmationUpdate}
-          successMessage={`You successfully ${successAction} a ${name}`}
+          successMessage={`You successfully ${successAction} a ${text}`}
         />
       );
     };
 
-    const removeSchedule = id => {
-      confirm().then(() => {
-        removeScheduleMutationResponse({ variables: { id } })
-          .then(() => {
-            planQueryResponse.refetch();
-            Alert.success('Removed schedule successfully');
-          })
-          .catch(err => {
-            Alert.error(err.message);
-          });
-      });
-    };
-
     const updatedProps = {
       ...this.props,
-      detail: planQueryResponse?.riskAssessmentPlan,
+      plan: planQueryResponse?.riskAssessmentPlan,
       refetch: planQueryResponse?.refetch,
       renderButton,
-      closeModal,
-      removeSchedule
+      schedule: {
+        removeSchedule,
+        refetch: schedulesQueryResponse?.refetch,
+        list: schedulesQueryResponse?.riskAssessmentSchedules || []
+      }
     };
 
     return <FormComponent {...updatedProps} />;
   }
 }
+
+export const schdulesRefetchQueries = variables => [
+  {
+    query: gql(queries.schedules),
+    variables: { ...variables }
+  }
+];
 
 export default withProps<Props>(
   compose(
@@ -131,8 +139,20 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<Props, ScheduleQueryResponse>(gql(queries.schedules), {
+      name: 'schedulesQueryResponse',
+      skip: ({ _id }) => !_id,
+      options: ({ _id }) => ({
+        variables: {
+          planId: _id
+        }
+      })
+    }),
     graphql<Props>(gql(mutations.removeSchedule), {
-      name: 'removeScheduleMutationResponse'
+      name: 'removeScheduleMutationResponse',
+      options: ({ _id }) => ({
+        refetchQueries: schdulesRefetchQueries({ planId: _id })
+      })
     })
   )(Form)
 );

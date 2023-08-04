@@ -54,4 +54,5 @@ export const mutations = `
 export const queries = `
   covers(startDate: Date, endDate: Date, userId: String, page: Int, perPage: Int): [Cover]
   coverDetail(_id: String!): Cover
+  coverAmounts(_id: String, endDate: Date): JSON
 `;

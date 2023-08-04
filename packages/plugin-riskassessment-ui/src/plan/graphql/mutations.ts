@@ -1,13 +1,23 @@
 const commonPlanParams = `
     $name: String,
     $structureType: String,
+    $structureTypeId:String,
     $configs: JSON
+    $startDate:String,
+    $closeDate:String,
+    $createDate:String,
+    $tagId:String
 `;
 
 const commonPlanParamsDef = `
     name: $name,
     structureType: $structureType,
-    configs: $configs
+    structureTypeId:$structureTypeId,
+    configs: $configs,
+    startDate:$startDate,
+    closeDate:$closeDate,
+    createDate:$createDate,
+    tagId:$tagId
 `;
 
 const addPlan = `
@@ -35,7 +45,7 @@ const commonScheduleParams = `
     $startDate: String,
     $endDate: String,
     $assignedUserIds: [String],
-    $structureTypeIds: [String],
+    $structureTypeId: String,
     $name: String,
     $customFieldsData: JSON
 `;
@@ -48,7 +58,7 @@ const commonScheduleParamsDef = `
     startDate: $startDate,
     endDate: $endDate,
     assignedUserIds: $assignedUserIds,
-    structureTypeIds: $structureTypeIds,
+    structureTypeId: $structureTypeId,
     customFieldsData: $customFieldsData
 `;
 

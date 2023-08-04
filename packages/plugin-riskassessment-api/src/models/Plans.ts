@@ -2,6 +2,8 @@ import { Model } from 'mongoose';
 import { validatePlan } from '../common/validateDoc';
 import { IModels } from '../connectionResolver';
 import { IPlansDocument, plansSchema } from './definitions/plan';
+import { sendCardsMessage } from '../messageBroker';
+import { PLAN_STATUSES } from '../common/constants';
 export interface IPlansModel extends Model<IPlansDocument> {
   addPlan(doc, user): Promise<IPlansDocument>;
   editPlan(_id, doc): Promise<IPlansDocument>;
@@ -62,7 +64,6 @@ export const loadPlans = (models: IModels, subdomain: string) => {
     public static async removeSchedule(_id: string) {
       return await models.Schedules.findByIdAndDelete(_id);
     }
-    public static async archivePlan(_id: string) {}
   }
 
   plansSchema.loadClass(Plans);

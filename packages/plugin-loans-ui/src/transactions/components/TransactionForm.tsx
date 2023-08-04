@@ -247,7 +247,10 @@ class TransactionForm extends React.Component<Props, State> {
     };
 
     const onChangeField = e => {
-      if ((e.target as HTMLInputElement).name === 'total') {
+      if (
+        (e.target as HTMLInputElement).name === 'total' &&
+        this.state.paymentInfo
+      ) {
         const value = Number((e.target as HTMLInputElement).value);
 
         if (value > this.state.paymentInfo.closeAmount) {

@@ -8,11 +8,68 @@ const commonParamsDef = `
 const commonParamsValue = `
   isArchived:$isArchived,
   ${commonPaginateValue}
+  `;
+
+const commonUserFields = `
+    _id
+    email
+    username
+    isActive
+    details {
+      avatar
+      firstName
+      fullName
+      lastName
+    }
 `;
+
+const planTypes = `
+      _id
+      name
+      structureType
+      structureTypeId
+      tagId
+      configs
+      createdAt
+      modifiedAt
+      createDate
+      closeDate
+      startDate
+      status
+
+      structureDetail {
+        _id,
+        title,
+        order,
+        code,
+      }
+
+      plannerId
+      planner {
+        ${commonUserFields}
+      }
+  `;
+const scheduleTypes = `
+        _id
+        customFieldsData
+        assignedUserIds
+        structureTypeId
+        groupId
+        indicatorId
+        name
+        status
+        createdAt
+
+        assignedUsers {
+          ${commonUserFields}
+        }
+  `;
 
 const plans = `
 query RiskAssessmentPlans(${commonParamsDef}) {
-  riskAssessmentPlans(${commonParamsValue})
+  riskAssessmentPlans(${commonParamsValue}){
+    ${planTypes}
+  }
   riskAssessmentPlansTotalCount(${commonParamsValue})
 }
 `;
@@ -23,41 +80,27 @@ query RiskAssessmentPlansTotalCount(${commonParamsDef}) {
 }
 `;
 
-const scheduleTypes = `
-      _id
-      customFieldsData
-      assignedUserIds
-      structureTypeIds
-      startDate
-      endDate
-      groupId
-      indicatorId
-      name
-      status
-`;
-
-const planTypes = `
-    _id
-    name
-    structureType
-    configs
-    createdAt
-    modifiedAt
-`;
-
 const plan = `
 query RiskAssessmentPlan($_id: String) {
   riskAssessmentPlan(_id: $_id) {
     ${planTypes},
-    schedules {
+    cardIds
+    dashboard
+  }
+}
+`;
+
+const schedules = `
+  query RiskAssessmentSchedules($planId: String) {
+    riskAssessmentSchedules(planId: $planId){
       ${scheduleTypes}
     }
   }
-}
 `;
 
 export default {
   plans,
   totalCount,
-  plan
+  plan,
+  schedules
 };

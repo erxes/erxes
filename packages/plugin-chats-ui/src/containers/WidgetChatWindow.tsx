@@ -50,11 +50,7 @@ const WidgetChatWindowContainer = (props: Props) => {
   };
 
   if (loading) {
-    return (
-      <Sidebar wide={true}>
-        <Spinner />
-      </Sidebar>
-    );
+    return null;
   }
 
   if (error) {

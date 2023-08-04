@@ -139,7 +139,7 @@ const generateFilter = async (
       _id: jobCategoryId
     }).lean();
     const categories = await models.JobCategories.find(
-      { order: { $regex: new RegExp(category.order) } },
+      { order: { $regex: new RegExp(`^${category.order}`) } },
       { _id: 1 }
     ).lean();
     const jobRefers = await models.JobRefers.find({

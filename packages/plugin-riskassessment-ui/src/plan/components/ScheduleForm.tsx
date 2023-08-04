@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   ControlLabel,
-  DateControl,
   FormControl,
   FormGroup,
   SelectTeamMembers,
@@ -12,23 +11,22 @@ import {
 } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
 import { Columns } from '@erxes/ui/src/styles/chooser';
-import { Column, DateContainer, ModalFooter } from '@erxes/ui/src/styles/main';
+import { Column, ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { SelectIndicatorGroups, SelectIndicators } from '../../common/utils';
 import { FormContainer } from '../../styles';
+import { IPLan, ISchedule } from '../common/types';
 import { CardCustomFields, SelectStructure } from '../common/utils';
 import { mutations } from '../graphql';
 
 type Props = {
   history: any;
-  schedule: any;
-  plan: any;
-  planId?: string;
+  schedule?: ISchedule;
+  plan: IPLan;
+  refetch: () => void;
   cardType: string;
   pipelineId: string;
   closeModal: () => void;
-  refetch: (variables?: any) => Promise<any>;
-  onSave: (doc: any) => void;
   duplicate?: boolean;
 };
 
@@ -49,16 +47,15 @@ class ScheduleForm extends React.Component<Props, State> {
   render() {
     const {
       schedule,
-      planId,
       closeModal,
+      refetch,
       cardType,
       pipelineId,
       plan,
-      refetch,
       duplicate
     } = this.props;
     const { useGroup, doc } = this.state;
-    const { structureType } = plan;
+    const { structureType, structureDetail, structureTypeId } = plan;
 
     const handleChange = (value, name) => {
       this.setState({ doc: { ...doc, [name]: value } });
@@ -70,28 +67,24 @@ class ScheduleForm extends React.Component<Props, State> {
       handleChange(value, name);
     };
 
-    const onDateChange = (date, name) => {
-      if (date < new Date()) {
-        return Alert.error('You must select a date after the from today');
-      }
-      handleChange(date, name);
-    };
-
     const handleSave = () => {
       let mutation = mutations.addSchedule;
+      const isUpdate = typeof schedule?._id === 'string' && !duplicate;
 
-      if (typeof schedule._id === 'string' && !duplicate) {
+      if (isUpdate) {
         mutation = mutations.updateSchedule;
       }
 
       client
         .mutate({
           mutation: gql(mutation),
-          variables: { planId, ...doc }
+          variables: { planId: plan._id, ...doc }
         })
         .then(() => {
-          Alert.success('Added schedule successfully');
           refetch && refetch();
+          Alert.success(
+            `${isUpdate ? 'Updated' : 'Added'} schedule successfully`
+          );
           closeModal();
         })
         .catch(err => {
@@ -117,6 +110,10 @@ class ScheduleForm extends React.Component<Props, State> {
               label="Select Group"
               name="groupId"
               onSelect={handleChange}
+              filterParams={{
+                tagIds: plan?.tagId ? [plan?.tagId] : undefined,
+                withChilds: true
+              }}
             />
           ) : (
             <SelectIndicators
@@ -124,10 +121,23 @@ class ScheduleForm extends React.Component<Props, State> {
               label="Select Indicator"
               name="indicatorId"
               onSelect={handleChange}
+              filterParams={{
+                tagIds: plan?.tagId ? [plan?.tagId] : undefined,
+                withChilds: true
+              }}
             />
           )}
         </FormGroup>
         <Columns style={{ gap: '20px' }}>
+          <Column>
+            <SelectStructure
+              name="structureTypeId"
+              structureType={structureType}
+              structureTypeId={schedule?.structureTypeId}
+              onChange={handleChange}
+              filter={{ searchValue: structureDetail?.code || '' }}
+            />
+          </Column>
           <Column>
             <FormGroup>
               <ControlLabel>{__('Assign To')}</ControlLabel>
@@ -137,41 +147,6 @@ class ScheduleForm extends React.Component<Props, State> {
                 name="assignedUserIds"
                 onSelect={handleChange}
               />
-            </FormGroup>
-          </Column>
-          <Column>
-            <SelectStructure
-              structureType={structureType}
-              structureTypeIds={schedule?.structureTypeIds}
-              onChange={handleChange}
-            />
-          </Column>
-        </Columns>
-        <Columns style={{ gap: '20px' }}>
-          <Column>
-            <FormGroup>
-              <ControlLabel>{__('Start Date')}</ControlLabel>
-              <DateContainer>
-                <DateControl
-                  name="startDate"
-                  value={doc.startDate}
-                  placeholder="select from start date "
-                  onChange={date => onDateChange(date, 'startDate')}
-                />
-              </DateContainer>
-            </FormGroup>
-          </Column>
-          <Column>
-            <FormGroup>
-              <ControlLabel>{__('End Date')}</ControlLabel>
-              <DateContainer>
-                <DateControl
-                  name="endDate"
-                  value={doc.endDate}
-                  placeholder="select from end date "
-                  onChange={date => onDateChange(date, 'endDate')}
-                />
-              </DateContainer>
             </FormGroup>
           </Column>
         </Columns>

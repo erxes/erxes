@@ -56,45 +56,31 @@ class PaymentsStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  onChangeSwitch = e => {
-    const { pos } = this.props;
-
-    if (pos[e.target.id]) {
-      pos[e.target.id].isActive = e.target.checked;
-    } else {
-      pos[e.target.id] = { isActive: e.target.checked };
-    }
-
-    this.onChangeFunction('pos', pos);
-  };
-
   onChangePayments = ids => {
     const { pos } = this.props;
-    pos.paymentIds = ids;
-    this.onChangeFunction('pos', pos);
+    this.onChangeFunction('pos', { ...pos, paymentIds: ids });
   };
 
   onChangeInput = e => {
     const { pos } = this.props;
-    pos[e.target.id] = (e.currentTarget as HTMLInputElement).value;
-    this.onChangeFunction('pos', pos);
+    this.onChangeFunction('pos', {
+      ...pos,
+      [e.target.id]: (e.currentTarget as HTMLInputElement).value
+    });
   };
 
   onClickAddPayments = () => {
     const { pos, onChange } = this.props;
+    const paymentTypes = [...(pos.paymentTypes || [])];
 
-    if (!pos.paymentTypes) {
-      pos.paymentTypes = [];
-    }
-
-    pos.paymentTypes.push({
+    paymentTypes.push({
       _id: Math.random().toString(),
       type: '',
       title: '',
       icon: ''
     });
 
-    onChange('pos', pos);
+    onChange('pos', { ...pos, paymentTypes });
   };
 
   selectItemRenderer = (option): React.ReactNode => {
@@ -105,10 +91,11 @@ class PaymentsStep extends React.Component<Props, State> {
     const { pos, onChange } = this.props;
 
     const editPayment = (name, value) => {
-      pos.paymentTypes = (pos.paymentTypes || []).map(p =>
+      let paymentTypes = [...(pos.paymentTypes || [])];
+      paymentTypes = (paymentTypes || []).map(p =>
         p._id === paymentType._id ? { ...p, [name]: value } : p
       );
-      onChange('pos', pos);
+      onChange('pos', { ...pos, paymentTypes });
     };
 
     const onChangeInput = e => {

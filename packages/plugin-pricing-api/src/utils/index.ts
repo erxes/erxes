@@ -13,8 +13,8 @@ import { getAllowedProducts } from './product';
 import { Plan, CalculatedRule, OrderItem } from '../types';
 
 // Finding valid discounts
-export const getMainConditions: any = (branchId, departmentId) => {
-  const now = dayjs(new Date());
+export const getMainConditions: any = (branchId?, departmentId?, date?) => {
+  const now = dayjs(date || new Date());
   const nowISO = now.toISOString();
 
   return {

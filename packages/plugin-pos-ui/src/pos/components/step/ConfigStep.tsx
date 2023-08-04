@@ -57,16 +57,17 @@ export default class ConfigStep extends React.Component<Props, State> {
 
   onSubmitGroup = (group: IProductGroup) => {
     const { groups } = this.state;
+    const newGroups = [...groups];
 
     const index = groups.findIndex(e => e._id === group._id);
 
     if (index !== -1) {
-      groups[index] = group;
+      newGroups[index] = group;
     } else {
-      groups.push(group);
+      newGroups.push(group);
     }
 
-    this.props.onChange('groups', groups);
+    this.props.onChange('groups', newGroups);
   };
 
   renderGroupFormTrigger(trigger: React.ReactNode, group?: IProductGroup) {
@@ -159,9 +160,7 @@ export default class ConfigStep extends React.Component<Props, State> {
 
       this.setState({ mappings });
 
-      pos.catProdMappings = mappings;
-
-      onChange('pos', pos);
+      onChange('pos', { ...pos, catProdMappings: mappings });
     };
 
     const removeMapping = (_id: string) => {
@@ -169,9 +168,7 @@ export default class ConfigStep extends React.Component<Props, State> {
 
       this.setState({ mappings: excluded });
 
-      pos.catProdMappings = excluded;
-
-      onChange('pos', pos);
+      onChange('pos', { ...pos, catProdMappings: excluded });
     };
 
     return (
@@ -190,16 +187,14 @@ export default class ConfigStep extends React.Component<Props, State> {
     const initialCategoryIds = values;
     this.setState({ initialCategoryIds });
 
-    pos.initialCategoryIds = initialCategoryIds;
-    onChange('pos', pos);
+    onChange('pos', { ...pos, initialCategoryIds });
   };
 
   onChangekioskExclude = (name, ids) => {
     const { pos, onChange } = this.props;
     this.setState({ [name]: ids } as any);
 
-    pos[name] = ids;
-    onChange('pos', pos);
+    onChange('pos', { ...pos, [name]: ids });
   };
 
   render() {

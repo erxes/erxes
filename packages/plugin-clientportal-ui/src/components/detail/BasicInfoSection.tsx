@@ -9,13 +9,12 @@ import { Actions } from '@erxes/ui/src/styles/main';
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { IClientPortalUser } from '../../types';
-import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
-import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
+import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -28,39 +27,20 @@ class BasicInfoSection extends React.Component<Props> {
     const { clientPortalUser } = this.props;
     const { phone, email } = clientPortalUser;
 
-    const content = props => (
-      <MailBox>
-        <MailForm
-          fromEmail={email}
-          customerId={clientPortalUser._id || undefined}
-          closeModal={props.closeModal}
-        />
-      </MailBox>
-    );
-
     const smsForm = props => <SmsForm {...props} phone={phone} />;
 
     return (
       <>
-        <ModalTrigger
-          dialogClassName="middle"
-          title="Email"
-          trigger={
-            <Button
-              disabled={email ? false : true}
-              size="small"
-              btnStyle={email ? 'primary' : 'simple'}
-            >
-              <Tip text="Send e-mail" placement="top-end">
-                <Icon icon="envelope" />
-              </Tip>
-            </Button>
-          }
-          size="lg"
-          content={content}
-          paddingContent="less-padding"
-          enforceFocus={false}
-        />
+        {(isEnabled('engages') || isEnabled('imap')) && (
+          <EmailWidget
+            disabled={email ? false : true}
+            buttonStyle={email ? 'primary' : 'simple'}
+            emailTo={email}
+            customerId={clientPortalUser._id || undefined}
+            buttonSize="small"
+            type="action"
+          />
+        )}
         <ModalTrigger
           dialogClassName="middle"
           title={`Send SMS to (${phone})`}

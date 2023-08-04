@@ -1,7 +1,8 @@
 export const menuPos = [
   { title: 'Pos Orders', link: '/pos-orders' },
   { title: 'Pos Covers', link: '/pos-covers' },
-  { title: 'Pos Items', link: '/pos-order-items' }
+  { title: 'Pos by Items', link: '/pos-order-items' },
+  { title: 'Pos Items', link: '/pos-order-records' }
 ];
 
 export const TEXT_COLORS = [
@@ -23,7 +24,8 @@ export const ALLOW_TYPES = [
   { value: 'delivery', label: 'Delivery', kind: 'sale' },
   { value: 'loss', label: 'Loss', kind: 'out' },
   { value: 'spend', label: 'Spend', kind: 'out' },
-  { value: 'reject', label: 'Reject', kind: 'out' }
+  { value: 'reject', label: 'Reject', kind: 'out' },
+  { value: 'before', label: 'Before', kind: 'sale' }
 ];
 
 export const DISTRICTS = [
