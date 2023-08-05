@@ -9,6 +9,7 @@
     "build": "yarn tsc -p tsconfig.prod.json && node fix-build.js"
   },
   "dependencies": {
+    "@apollo/client": "~3.7.14",
     "@apollo/rover": "^0.13.0",
     "@graphql-tools/schema": "^9.0.16",
     "@sentry/node": "^7.50.0",
@@ -16,11 +17,9 @@
     "dotenv": "^10.0.0",
     "erxes-api-utils": "^0.0.34",
     "erxes-telemetry": "^1.0.4",
-    "esm": "^3.2.25",
     "express": "^4.17.2",
-    "federation-subscription-tools": "^0.1.0",
-    "react": "^16.14.0",
     "graphql": "^15.8.0",
+    "graphql-parse-resolve-info": "^4.13.0",
     "graphql-redis-subscriptions": "^2.4.2",
     "graphql-subscriptions": "^2.0.0",
     "graphql-ws": "5.5.5",
