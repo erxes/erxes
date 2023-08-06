@@ -62,7 +62,7 @@ export const coverSchema = schemaHooksWrapper(
     status: field({ type: String, default: 'new', label: 'Status' }),
     beginDate: field({ type: Date, label: 'Begin date' }),
     endDate: field({ type: Date, label: 'End date' }),
-    description: field({ type: String, label: 'Description' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
     userId: field({ type: String, label: 'User' }),
     details: field({ type: [coverDetailSchema], label: 'Details' }),
     createdAt: field({ type: Date, label: 'Created' }),
