@@ -40,10 +40,9 @@ const coverParams = `
   status: String
   beginDate: Date
   endDate: Date
-  description: Date
+  description: String
   userId: String
   details: JSON
-  note: String
 `;
 
 export const mutations = `

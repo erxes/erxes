@@ -79,9 +79,19 @@ const getStatus = (config, buttonType, doc, order?) => {
     return ORDER_STATUSES.COMPLETE;
   }
 
-  let status = order ? order.status : ORDER_STATUSES.NEW || ORDER_STATUSES.NEW;
-
   const type = config.kitchenScreen.showType;
+
+  if (order && order.status) {
+    if ([ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status)) {
+      const newItems =
+        doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
+      if (newItems.length) {
+        return ORDER_STATUSES.REDOING;
+      }
+    }
+
+    return order.status;
+  }
 
   if (type === 'click' && buttonType !== 'order') {
     return ORDER_STATUSES.COMPLETE;
@@ -89,17 +99,6 @@ const getStatus = (config, buttonType, doc, order?) => {
 
   if (type === 'paid' && !order.paidDate) {
     return ORDER_STATUSES.PENDING;
-  }
-
-  if (
-    order &&
-    [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status || '')
-  ) {
-    const newItems =
-      doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
-    if (newItems.length) {
-      status = ORDER_STATUSES.REDOING;
-    }
   }
 
   return ORDER_STATUSES.NEW;
