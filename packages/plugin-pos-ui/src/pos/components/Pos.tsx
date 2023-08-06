@@ -27,6 +27,7 @@ import React from 'react';
 import PermissionStep from './step/Permission';
 import PaymentsStep from './step/PaymentsStep';
 import { ALLOW_TYPES } from '../../constants';
+import ScreensConfig from './step/Screens';
 
 type Props = {
   pos?: IPos;
@@ -353,6 +354,18 @@ class Pos extends React.Component<Props, State> {
                   onChange={this.onChange}
                   uiOptions={uiOptions}
                   logoPreviewUrl={logoPreviewUrl}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-14.svg"
+                title={'Screens Config'}
+                onClick={this.onStepClick}
+                noButton={true}
+              >
+                <ScreensConfig
+                  onChange={this.onChange}
+                  pos={pos}
+                  checkRemainder={checkRemainder}
                 />
               </Step>
               <Step

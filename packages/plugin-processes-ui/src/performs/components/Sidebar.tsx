@@ -116,7 +116,7 @@ class PerformSidebar extends React.Component<Props, State> {
   runFilter = () => {
     const { filterParams } = this.state;
 
-    router.setParams(this.props.history, { ...filterParams });
+    router.setParams(this.props.history, { ...filterParams, page: 1 });
   };
 
   renderSpec() {

@@ -30,7 +30,9 @@ import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   currentUser: IUser;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  renderButton: (
+    props: IButtonMutateProps & { disabled: boolean }
+  ) => JSX.Element;
   contract: IContract;
   closeModal: () => void;
 };
@@ -73,6 +75,14 @@ type State = {
   weekends: number[];
   useHoliday: boolean;
   relContractId?: string;
+  config?: {
+    maxAmount: number;
+    minAmount: number;
+    maxTenor: number;
+    minTenor: number;
+    maxInterest: number;
+    minInterest: number;
+  };
 };
 
 class ContractForm extends React.Component<Props, State> {
@@ -235,6 +245,7 @@ class ContractForm extends React.Component<Props, State> {
   onChangeWithSalvage = e => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
+
     this.setState({ [name]: value } as any);
 
     if (this.state.leaseType === 'finance') {
@@ -318,7 +329,8 @@ class ContractForm extends React.Component<Props, State> {
       useMargin: contractTypeObj.useMargin,
       useSkipInterest: contractTypeObj.useSkipInterest,
       useDebt: contractTypeObj.useDebt,
-      currency: contractTypeObj.currency
+      currency: contractTypeObj.currency,
+      config: contractTypeObj?.config
     };
 
     if (!this.state.unduePercent) {
@@ -375,6 +387,66 @@ class ContractForm extends React.Component<Props, State> {
     this.setState({
       relContractId: value
     });
+  };
+
+  checkValidation = (): any => {
+    const errors: any = {};
+
+    function errorWrapper(text: string) {
+      return <label style={{ color: 'red' }}>{text}</label>;
+    }
+
+    if (
+      this.state.useMargin &&
+      this.state.marginAmount < this.state.leaseAmount
+    )
+      errors.marginAmount = errorWrapper(
+        'Margin Amount can not be less than lease Amount'
+      );
+
+    if (
+      this.state.config &&
+      this.state.leaseAmount < this.state.config.minAmount
+    )
+      errors.leaseAmount = errorWrapper(
+        `${__('Lease amount must greater than')} ${this.state.config.minAmount}`
+      );
+
+    if (
+      this.state.config &&
+      this.state.leaseAmount > this.state.config.maxAmount
+    )
+      errors.leaseAmount = errorWrapper(
+        `${__('Lease amount must less than')} ${this.state.config.maxAmount}`
+      );
+
+    if (this.state.config && this.state.tenor < this.state.config.minTenor)
+      errors.tenor = errorWrapper(
+        `${__('Tenor must greater than')} ${this.state.config.minTenor}`
+      );
+
+    if (this.state.config && this.state.tenor > this.state.config.maxTenor)
+      errors.tenor = errorWrapper(
+        `${__('Tenor must less than')} ${this.state.config.maxTenor}`
+      );
+
+    if (
+      this.state.config &&
+      this.state.interestMonth < this.state.config.minInterest
+    )
+      errors.interestMonth = errorWrapper(
+        `${__('Interest must greater than')} ${this.state.config.minInterest}`
+      );
+
+    if (
+      this.state.config &&
+      this.state.interestMonth > this.state.config.maxInterest
+    )
+      errors.interestMonth = errorWrapper(
+        `${__('Interest must less than')} ${this.state.config.maxInterest}`
+      );
+
+    return errors;
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -465,6 +537,7 @@ class ContractForm extends React.Component<Props, State> {
                   useNumberFormat: true,
                   fixed: 2,
                   value: this.state.marginAmount || 0,
+                  errors: this.checkValidation(),
                   onChange: this.onChangeWithSalvage,
                   onClick: this.onFieldClick
                 })}
@@ -476,6 +549,7 @@ class ContractForm extends React.Component<Props, State> {
                 useNumberFormat: true,
                 fixed: 2,
                 value: this.state.leaseAmount || 0,
+                errors: this.checkValidation(),
                 onChange: this.onChangeWithSalvage,
                 onClick: this.onFieldClick
               })}
@@ -497,6 +571,7 @@ class ContractForm extends React.Component<Props, State> {
                 name: 'tenor',
                 useNumberFormat: true,
                 value: this.state.tenor || 0,
+                errors: this.checkValidation(),
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
               })}
@@ -509,6 +584,7 @@ class ContractForm extends React.Component<Props, State> {
                 value: this.state.interestMonth || 0,
                 useNumberFormat: true,
                 fixed: 2,
+                errors: this.checkValidation(),
                 onChange: this.onChangeInterest,
                 onClick: this.onFieldClick
               })}
@@ -739,6 +815,7 @@ class ContractForm extends React.Component<Props, State> {
           {renderButton({
             name: 'contract',
             values: this.generateDoc(values),
+            disabled: !!Object.keys(this.checkValidation()).length,
             isSubmitted,
             object: this.props.contract
           })}

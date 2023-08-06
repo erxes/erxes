@@ -54,10 +54,10 @@ class ErkhetConfig extends React.Component<
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
-    config[code] = value;
+    const newConfig = { ...config, [code]: value };
 
-    this.setState({ config }, () => {
-      this.props.onChange('erkhetConfig', config);
+    this.setState({ config: newConfig }, () => {
+      this.props.onChange('erkhetConfig', newConfig);
     });
   };
 

@@ -97,7 +97,7 @@ class Widget extends React.Component<Props, State> {
       return (
         <Link onClick={() => this.showWidget()}>
           {emailTo}
-          {emailStatus()}{' '}
+          {emailStatus && emailStatus()}{' '}
         </Link>
       );
     }

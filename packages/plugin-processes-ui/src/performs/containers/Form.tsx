@@ -76,7 +76,9 @@ class PerformFormContainer extends React.Component<
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully added a ${name}`}
+          successMessage={`You successfully ${
+            values._id ? 'updated' : 'added'
+          } a ${name}`}
           disabled={disabled}
         />
       );

@@ -13,6 +13,7 @@ export interface ICoverDetail {
   _id?: string;
   paidType: string;
   paidSummary: ICoverSummary[];
+  calcSummary: number;
   paidDetail: any;
 }
 

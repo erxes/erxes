@@ -26,8 +26,9 @@ class ContractFromContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      object
-    }: IButtonMutateProps) => {
+      object,
+      disabled
+    }: IButtonMutateProps & { disabled: boolean }) => {
       const { closeModal, getAssociatedContract, currentUser } = this.props;
 
       const afterSave = data => {
@@ -46,6 +47,7 @@ class ContractFromContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
+          disabled={disabled}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}

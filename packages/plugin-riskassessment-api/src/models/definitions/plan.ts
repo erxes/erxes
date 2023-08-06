@@ -89,7 +89,6 @@ export const plansSchema = new Schema({
     label: 'General Structure Id',
     required: true
   }),
-  planId: field({ type: String, label: 'PlanId', required: true }),
   configs: field({ type: configSchema, label: 'configs' }),
   createdAt: field({ type: Date, label: 'createdAt', default: Date.now }),
   modifiedAt: field({ type: Date, label: 'modifiedAt', default: Date.now }),
