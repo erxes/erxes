@@ -92,6 +92,7 @@ const getStatus = (config, buttonType, doc, order?) => {
   }
 
   if (
+    order &&
     [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status || '')
   ) {
     const newItems =
