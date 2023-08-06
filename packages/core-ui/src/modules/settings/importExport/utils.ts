@@ -14,6 +14,8 @@ export const renderText = value => {
       return 'Tasks';
     case 'lead':
       return 'Leads';
+    case 'pos':
+      return 'Pos';
     default:
       return value;
   }
@@ -40,6 +42,8 @@ export const renderIcon = contentType => {
     case 'user':
       return 'user-square';
 
+    case 'pos':
+      return 'server-alt';
     default:
       return 'users-alt';
   }
