@@ -48,7 +48,7 @@ const coverParams = `
 export const mutations = `
   coversAdd(${coverParams}): Cover
   coversEdit(_id: String!, ${coverParams}): Cover
-  coversRemove(_id: String!): String
+  coversRemove(_id: String!): JSON
   coversConfirm(_id: String!): Cover
 `;
 
