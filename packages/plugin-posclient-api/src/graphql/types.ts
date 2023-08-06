@@ -54,4 +54,5 @@ export interface IOrderInput {
   deliveryInfo?: any;
   origin?: string;
   slotCode?: string;
+  dueDate?: Date;
 }

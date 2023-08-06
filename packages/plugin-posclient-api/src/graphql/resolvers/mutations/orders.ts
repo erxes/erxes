@@ -195,6 +195,7 @@ const ordersEdit = async (
     posToken: config.token,
     departmentId: config.departmentId,
     taxInfo: getTaxInfo(config),
+    dueDate: doc.dueDate,
     status
   });
 

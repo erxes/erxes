@@ -63,7 +63,8 @@ const addEditParams = `
   registerNumber: String,
   slotCode: String,
   origin: String,
-  dueDate: Date
+  dueDate: Date,
+  status: String
 `;
 
 export const types = `
