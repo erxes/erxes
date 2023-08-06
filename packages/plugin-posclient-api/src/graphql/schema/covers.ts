@@ -28,6 +28,7 @@ export const types = `
     createdBy: String
     modifiedAt: Date
     modifiedBy: String
+    note: String
 
     user: User
     createdUser:  User
@@ -42,6 +43,7 @@ const coverParams = `
   description: Date
   userId: String
   details: JSON
+  note: String
 `;
 
 export const mutations = `
