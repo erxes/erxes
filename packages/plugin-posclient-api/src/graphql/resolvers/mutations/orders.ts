@@ -82,7 +82,19 @@ const getStatus = (config, buttonType, doc, order?) => {
   const type = config.kitchenScreen.showType;
 
   if (order && order.status) {
-    if ([ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status)) {
+    if (
+      type === 'paid' &&
+      order.status === ORDER_STATUSES.PENDING &&
+      doc.paidDate
+    ) {
+      return ORDER_STATUSES.NEW;
+    }
+
+    if (
+      [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status) &&
+      doc.items &&
+      doc.items.length
+    ) {
       const newItems =
         doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
       if (newItems.length) {
@@ -97,7 +109,7 @@ const getStatus = (config, buttonType, doc, order?) => {
     return ORDER_STATUSES.COMPLETE;
   }
 
-  if (type === 'paid' && !order.paidDate) {
+  if (type === 'paid' && (!order || !order.paidDate)) {
     return ORDER_STATUSES.PENDING;
   }
 
@@ -466,7 +478,13 @@ const orderMutations = {
             $set: {
               ...doc,
               paidDate: now,
-              modifiedAt: now
+              modifiedAt: now,
+              status: getStatus(
+                config,
+                '',
+                { ...order, paidDate: now },
+                { ...order }
+              )
             }
           }
         );
@@ -674,7 +692,13 @@ const orderMutations = {
               billType,
               registerNumber,
               paidDate: now,
-              modifiedAt: now
+              modifiedAt: now,
+              status: getStatus(
+                config,
+                '',
+                { ...order, paidDate: now },
+                { ...order }
+              )
             }
           }
         );
@@ -913,7 +937,13 @@ const orderMutations = {
         {
           $set: {
             paidDate: now,
-            modifiedAt: now
+            modifiedAt: now,
+            status: getStatus(
+              config,
+              '',
+              { ...order, paidDate: now },
+              { ...order }
+            )
           }
         }
       );
