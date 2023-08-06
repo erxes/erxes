@@ -55,4 +55,5 @@ export interface IOrderInput {
   origin?: string;
   slotCode?: string;
   dueDate?: Date;
+  buttonType?: string;
 }

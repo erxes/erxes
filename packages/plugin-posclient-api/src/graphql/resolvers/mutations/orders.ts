@@ -1,12 +1,13 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { graphqlPubsub } from '../../../configs';
+import { IModels } from '../../../connectionResolver';
 import {
   sendCardsMessage,
   sendCoreMessage,
   sendInboxMessage,
   sendPosMessage
 } from '../../../messageBroker';
-import { IConfig } from '../../../models/definitions/configs';
+import { IConfig, IConfigDocument } from '../../../models/definitions/configs';
 import {
   BILL_TYPES,
   ORDER_ITEM_STATUSES,
@@ -14,6 +15,7 @@ import {
   ORDER_TYPES
 } from '../../../models/definitions/constants';
 import { IPaidAmount } from '../../../models/definitions/orders';
+import { IPosUserDocument } from '../../../models/definitions/posUsers';
 import { PutData } from '../../../models/PutData';
 import { IContext, IOrderInput } from '../../types';
 import {
@@ -72,9 +74,49 @@ const getTaxInfo = (config: IConfig) => {
   };
 };
 
+const getStatus = (config, buttonType, doc, order?) => {
+  if (!(config && config.kitchenScreen && config.kitchenScreen.isActive)) {
+    return ORDER_STATUSES.COMPLETE;
+  }
+
+  let status = order ? order.status : ORDER_STATUSES.NEW || ORDER_STATUSES.NEW;
+
+  const type = config.kitchenScreen.showType;
+
+  if (type === 'click' && buttonType !== 'order') {
+    return ORDER_STATUSES.COMPLETE;
+  }
+
+  if (type === 'paid' && !order.paidDate) {
+    return ORDER_STATUSES.PENDING;
+  }
+
+  if (
+    [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status || '')
+  ) {
+    const newItems =
+      doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
+    if (newItems.length) {
+      status = ORDER_STATUSES.REDOING;
+    }
+  }
+
+  return ORDER_STATUSES.NEW;
+};
+
 const ordersAdd = async (
   doc: IOrderInput,
-  { posUser, config, models, subdomain }
+  {
+    posUser,
+    config,
+    models,
+    subdomain
+  }: {
+    posUser: IPosUserDocument;
+    config: IConfigDocument;
+    models: IModels;
+    subdomain: string;
+  }
 ) => {
   const { totalAmount, type, customerId, customerType, branchId } = doc;
   if (!posUser && !doc.customerId) {
@@ -104,6 +146,8 @@ const ordersAdd = async (
   try {
     let preparedDoc = await prepareOrderDoc(subdomain, doc, config, models);
 
+    const status = getStatus(config, doc.buttonType, doc);
+
     const order = await models.Orders.createOrder({
       ...doc,
       ...orderDoc,
@@ -111,7 +155,8 @@ const ordersAdd = async (
       branchId: doc.branchId || config.branchId,
       posToken: config.token,
       departmentId: config.departmentId,
-      taxInfo: getTaxInfo(config)
+      taxInfo: getTaxInfo(config),
+      status
     });
 
     for (const item of preparedDoc.items) {
@@ -153,7 +198,17 @@ const ordersAdd = async (
 
 const ordersEdit = async (
   doc: IOrderEditParams,
-  { posUser, config, models, subdomain }
+  {
+    posUser,
+    config,
+    models,
+    subdomain
+  }: {
+    posUser: IPosUserDocument;
+    config: IConfigDocument;
+    models: IModels;
+    subdomain: string;
+  }
 ) => {
   const order = await models.Orders.getOrder(doc._id);
 
@@ -169,17 +224,7 @@ const ordersEdit = async (
 
   await updateOrderItems(doc._id, preparedDoc.items, models);
 
-  let status = order.status;
-
-  if (
-    [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status || '')
-  ) {
-    const newItems =
-      doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
-    if (newItems.length) {
-      status = ORDER_STATUSES.REDOING;
-    }
-  }
+  let status = getStatus(config, doc.buttonType, doc, order);
 
   const updatedOrder = await models.Orders.updateOrder(doc._id, {
     deliveryInfo: doc.deliveryInfo,

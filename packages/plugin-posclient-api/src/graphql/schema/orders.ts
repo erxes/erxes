@@ -64,7 +64,8 @@ const addEditParams = `
   slotCode: String,
   origin: String,
   dueDate: Date,
-  status: String
+  status: String,
+  buttonType: String
 `;
 
 export const types = `
