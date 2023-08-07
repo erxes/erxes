@@ -57,10 +57,10 @@
     "nodemailer": "^4.1.3",
     "server-timing": "^3.3.2",
     "sha256": "^0.2.0",
-    "sharp": "^0.32.4",
     "stream-array": "^1.1.2",
     "ts-node": "^10.7.0",
     "validator": "^9.0.0",
-    "xlsx-populate": "^1.20.1"
+    "xlsx-populate": "^1.20.1",
+    "jimp":"^0.22.10"
   }
 }
