@@ -64,17 +64,21 @@ export default function List({
     const createdUser = item.createdUser || {};
 
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const matches = item.description.match(urlRegex);
+
     let links = [];
     let updatedDescription = '';
 
-    if (matches) {
-      updatedDescription = matches.reduce(
-        (prevDescription, link) => prevDescription.replace(link, ''),
-        item.description
-      );
+    if (item.description) {
+      const matches = item.description.match(urlRegex);
 
-      links = matches;
+      if (matches) {
+        updatedDescription = matches.reduce(
+          (prevDescription, link) => prevDescription.replace(link, ''),
+          item.description
+        );
+
+        links = matches;
+      }
     }
 
     return (
