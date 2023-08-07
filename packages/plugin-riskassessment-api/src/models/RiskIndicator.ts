@@ -38,6 +38,7 @@ export interface IRiskIndicatorsModel extends Model<IRiskIndicatorsDocument> {
   removeRiskIndicatorUnusedForms(
     ids: string[]
   ): Promise<IRiskIndicatorsDocument>;
+  duplicateRiskIndicator(_id: string): Promise<IRiskIndicatorsDocument>;
 }
 
 const statusColors = {
@@ -178,7 +179,7 @@ const generateOrderFilters = (params: IRiskIndicatorsField & PaginateField) => {
   return filter;
 };
 
-export const loadRiskIndicators = (model: IModels, subdomain: string) => {
+export const loadRiskIndicators = (models: IModels, subdomain: string) => {
   class RiskIndicatorClass {
     public static async riskIndicators(
       params: {
@@ -189,7 +190,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
     ) {
       const filter = await generateFilter(subdomain, params);
       const sort = generateOrderFilters(params);
-      return paginate(model.RiskIndicators.find(filter).sort(sort), params);
+      return paginate(models.RiskIndicators.find(filter).sort(sort), params);
     }
     public static async riskIndicatorsTotalCount(
       params: {
@@ -199,7 +200,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
         PaginateField
     ) {
       const filter = await generateFilter(subdomain, params);
-      return await model.RiskIndicators.find(filter).countDocuments();
+      return await models.RiskIndicators.find(filter).countDocuments();
     }
 
     public static async riskIndicatorAdd(params: IRiskIndicatorsField) {
@@ -209,7 +210,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
         throw new Error(e.message);
       }
 
-      return model.RiskIndicators.create({ ...params });
+      return models.RiskIndicators.create({ ...params });
     }
 
     public static async riskIndicatorRemove(_ids: string[]) {
@@ -217,7 +218,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
         throw new Error('Please select a list of risk assessment IDs');
       }
       try {
-        return await model.RiskIndicators.deleteMany({ _id: { $in: _ids } });
+        return await models.RiskIndicators.deleteMany({ _id: { $in: _ids } });
       } catch (e) {
         throw new Error(e.message);
       }
@@ -232,7 +233,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
       }
 
       try {
-        return await model.RiskIndicators.findByIdAndUpdate(_id, {
+        return await models.RiskIndicators.findByIdAndUpdate(_id, {
           ...doc,
           modifiedAt: new Date()
         });
@@ -241,6 +242,35 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
       }
     }
 
+    public static async duplicateRiskIndicator(_id: string) {
+      const indicator = await models.RiskIndicators.findOne({ _id }).lean();
+      if (!indicator) {
+        throw new Error('Could not find indicator');
+      }
+
+      const { name, forms } = indicator;
+
+      for (const form of forms || []) {
+        const newForm = await sendFormsMessage({
+          subdomain,
+          action: 'duplicate',
+          data: { formId: form.formId },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        form.formId = newForm._id;
+      }
+
+      indicator.name = `${name}-copied`;
+
+      indicator.createdAt = new Date();
+      indicator.modifiedAt = new Date();
+
+      delete indicator._id;
+
+      return await models.RiskIndicators.create({ ...indicator });
+    }
     public static async riskIndicatorDetail(params: {
       _id: string;
       fieldsSkip: any;
@@ -251,7 +281,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
         throw new Error('You must provide a _id parameter');
       }
 
-      return await model.RiskIndicators.findOne(filter).select(fieldsSkip);
+      return await models.RiskIndicators.findOne(filter).select(fieldsSkip);
     }
 
     public static async removeRiskIndicatorUnusedForms(ids: string[]) {
