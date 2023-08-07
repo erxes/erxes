@@ -51,11 +51,7 @@ export const deleteHandler = (params: {
 }) => {
   const { REACT_APP_API_URL } = getEnv();
 
-  let url = `${REACT_APP_API_URL}/gateway/pl:core/delete-file`;
-
-  if (REACT_APP_API_URL.includes('localhost')) {
-    url = `${REACT_APP_API_URL}/pl:core/delete-file`;
-  }
+  const url = `${REACT_APP_API_URL}/pl:core/delete-file`;
 
   const { fileName, afterUpload } = params;
 

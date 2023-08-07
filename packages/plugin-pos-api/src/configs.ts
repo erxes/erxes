@@ -16,7 +16,8 @@ import automations from './automations';
 import forms from './forms';
 import segments from './segments';
 import dashboards from './dashboards';
-
+import imports from './imports';
+import exporter from './exporter';
 export let debug;
 export let graphqlPubsub;
 export let mainDb;
@@ -63,6 +64,8 @@ export default {
     automations,
     forms,
     segments,
-    dashboards
+    dashboards,
+    imports,
+    exporter
   }
 };
