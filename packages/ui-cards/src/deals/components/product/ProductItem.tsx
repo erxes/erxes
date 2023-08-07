@@ -186,7 +186,7 @@ class ProductItem extends React.Component<Props, State> {
     if (product) {
       content = (
         <div>
-          {product.name} <Icon icon="pen-1" />
+          {product.code} - {product.name} <Icon icon="pen-1" />
         </div>
       );
     }
