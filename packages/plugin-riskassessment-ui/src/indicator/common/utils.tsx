@@ -1,7 +1,7 @@
+import { gql } from '@apollo/client';
 import { ITag } from '@erxes/ui-tags/src/types';
 import { generateTree, router, SelectWithSearch } from '@erxes/ui/src';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
 import React from 'react';
 import { tags as tagsQuery } from '../../common/graphql';
 import { generateParamsIds } from '../../common/utils';
@@ -16,7 +16,8 @@ export const generateParams = ({ queryParams }) => {
     sortDirection: Number(queryParams.sortDirection) || undefined,
     sortFromDate: queryParams.from || undefined,
     sortToDate: queryParams.to || undefined,
-    tagIds: generateParamsIds(queryParams?.tagIds || [])
+    tagIds: generateParamsIds(queryParams?.tagIds || []),
+    withChilds: true
   };
 };
 
