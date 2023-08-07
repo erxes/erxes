@@ -48,7 +48,7 @@ class MonpayConfigForm extends React.Component<Props, State> {
     const { payment } = this.props;
     const generatedValues = {
       name: values.paymentName,
-      kind: this.props.metaData.kind,
+      kind: PAYMENT_KINDS.MONPAY,
       status: 'active',
       config: {
         username: values.username,
