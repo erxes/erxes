@@ -25,7 +25,6 @@ export const types = `
     icon: String
     label: String
     description: String
-    isExternalCommunication:Boolean
   }
 
   type Automation {
@@ -100,7 +99,6 @@ export const types = `
     icon: String
     label: String
     description: String
-    isExternalCommunication:Boolean
   }
 `;
 

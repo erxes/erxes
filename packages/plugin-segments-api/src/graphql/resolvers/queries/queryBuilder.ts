@@ -1,20 +1,20 @@
-import * as _ from 'underscore';
 import {
   fetchByQuery,
   fetchEs,
   fetchEsWithScroll
 } from '@erxes/api-utils/src/elasticsearch';
+import * as _ from 'underscore';
 
 import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
 
+import { serviceDiscovery } from '../../../configs';
+import { IModels } from '../../../connectionResolver';
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
 } from '../../../constants';
-import { ICondition, ISegment } from '../../../models/definitions/segments';
-import { serviceDiscovery } from '../../../configs';
-import { IModels } from '../../../connectionResolver';
 import { sendCoreMessage, sendMessage } from '../../../messageBroker';
+import { ICondition, ISegment } from '../../../models/definitions/segments';
 
 type IOptions = {
   returnAssociated?: { mainType: string; relType: string };
@@ -39,15 +39,18 @@ export const isInSegment = async (
 ): Promise<boolean> => {
   options.returnCount = true;
   options.defaultMustSelector = [
-    {
-      match: {
-        _id: idToCheck
-      }
-    }
+    // {
+    //   match: {
+    //     _id: idToCheck
+    //   }
+    // }
   ];
 
   const segment = await models.Segments.getSegment(segmentId);
+  console.log({ segment });
   const count = await fetchSegment(models, subdomain, segment, options);
+
+  console.log({ count });
 
   return count > 0;
 };

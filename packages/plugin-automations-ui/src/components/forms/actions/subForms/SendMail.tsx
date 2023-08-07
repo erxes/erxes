@@ -2,6 +2,7 @@ import React from 'react';
 import {
   BarItems,
   Button,
+  Chip,
   ControlLabel,
   EmptyState,
   FormControl,
@@ -11,173 +12,21 @@ import {
   SelectTeamMembers,
   Spinner,
   __,
+  colors,
   withProps
 } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import * as compose from 'lodash.flowright';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { TemplateWrapper } from '../styles';
-import dayjs from 'dayjs';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { BackIcon } from '../../../../styles';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Select from 'react-select-plus';
-import { USER_TYPES } from '../constants';
+import { RECIPIENT_TYPES } from '../constants';
 import { IAction } from '@erxes/ui-automations/src/types';
-
-type EmailTemplatesProps = {
-  searchValue: string;
-  handleSelect: (id: string) => void;
-  templateId?: string;
-};
-
-type FinalEmailTemplatesProps = {
-  emailTemplatesQuery: { emailTemplates: any[] } & QueryResponse;
-} & EmailTemplatesProps;
-
-const emailTemplatesQuery = `
-  query emailTemplates($page: Int, $perPage: Int, $searchValue: String) {
-    emailTemplates(page: $page, perPage: $perPage, searchValue: $searchValue) {
-      _id
-      name
-      content
-      createdAt
-      status
-      modifiedAt
-      createdUser {
-        _id
-        username
-        details {
-          fullName
-          avatar
-        }
-      }
-    }
-  }
-`;
-
-class EmailTemplatesComponent extends React.Component<
-  FinalEmailTemplatesProps
-> {
-  constructor(props) {
-    super(props);
-  }
-
-  renderDate(createdAt, modifiedAt) {
-    if (createdAt === modifiedAt) {
-      if (createdAt === null) return '-';
-
-      return dayjs(createdAt).format('DD MMM YYYY');
-    }
-
-    return dayjs(modifiedAt).format('DD MMM YYYY');
-  }
-
-  renderView(content) {
-    const trigger = (
-      <div>
-        <Icon icon="eye" /> View
-      </div>
-    );
-    const form = () => {
-      return (
-        <TemplateWrapper.IframePreview height="800px">
-          <iframe title="content-iframe" srcDoc={content} />
-        </TemplateWrapper.IframePreview>
-      );
-    };
-
-    return (
-      <ModalTrigger
-        content={form}
-        trigger={trigger}
-        hideHeader
-        title=""
-        size="lg"
-      />
-    );
-  }
-
-  renderTemplate({ _id, name, createdAt, modifiedAt, createdUser, content }) {
-    const { templateId } = this.props;
-    console.log({ templateId, dsad: 'dasdsdas' });
-    return (
-      <TemplateWrapper.Template
-        key={_id}
-        className={templateId === _id ? 'active' : ''}
-      >
-        <h5>{name}</h5>
-        <TemplateWrapper.TemplateBox>
-          <TemplateWrapper.Actions>
-            {this.renderView(content)}
-            <div onClick={this.props.handleSelect.bind(this, _id)}>
-              <Icon icon="clicker" /> Select
-            </div>
-          </TemplateWrapper.Actions>
-          <TemplateWrapper.IframePreview pointerEvent="none" width="200%">
-            <iframe title="content-iframe" srcDoc={content} />
-          </TemplateWrapper.IframePreview>
-        </TemplateWrapper.TemplateBox>
-        <TemplateWrapper.TemplateInfo>
-          <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
-          <p>{this.renderDate(createdAt, modifiedAt)}</p>
-        </TemplateWrapper.TemplateInfo>
-        <TemplateWrapper.TemplateInfo>
-          <p>Created by</p>
-          {createdUser ? (
-            createdUser.details.fullName && (
-              <p>{createdUser.details.fullName}</p>
-            )
-          ) : (
-            <p>erxes Inc</p>
-          )}
-        </TemplateWrapper.TemplateInfo>
-      </TemplateWrapper.Template>
-    );
-  }
-
-  render() {
-    const { emailTemplatesQuery } = this.props;
-    const { emailTemplates, loading } = emailTemplatesQuery;
-
-    if (loading) {
-      return <Spinner />;
-    }
-
-    if (!emailTemplates?.length) {
-      return (
-        <EmptyState
-          size="small"
-          text="Not Found"
-          image="/images/actions/5.svg"
-        />
-      );
-    }
-
-    return (
-      <>
-        {emailTemplates.map(emailTemplate =>
-          this.renderTemplate(emailTemplate)
-        )}
-      </>
-    );
-  }
-}
-
-const SelectEmailTemplates = withProps<EmailTemplatesProps>(
-  compose(
-    graphql<EmailTemplatesProps>(gql(emailTemplatesQuery), {
-      name: 'emailTemplatesQuery',
-      options: ({ searchValue }) => ({
-        variables: { searchValue }
-      })
-    })
-  )(EmailTemplatesComponent)
-);
+import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
+import SelectEmailTemplates from '@erxes/ui-emailtemplates/src/containers/SelectEmailtTemplate';
+import AddTemplateForm from '@erxes/ui-emailtemplates/src/containers/Form';
 
 type Props = {
-  action: any;
+  activeAction: any;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   closeModal: () => void;
 };
@@ -194,32 +43,85 @@ class SendMail extends React.Component<Props, State> {
 
     this.state = {
       searchValue: '',
-      config: props?.action?.config || null
+      config: props?.activeAction?.config || null
     };
   }
 
-  selectedUserTypeComponent(type, onSelect) {
+  renderCustomMailInput() {
+    const { config } = this.state;
+
+    const onChange = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
+      if (
+        e.key === 'Enter' &&
+        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+      ) {
+        this.setState({
+          config: {
+            ...config,
+            customMails: (config?.customMails || []).concat(value)
+          }
+        });
+        e.currentTarget.value = '';
+      }
+    };
+
+    const removeMail = mail => {
+      this.setState({
+        config: {
+          ...config,
+          customMails: (config?.customMails || []).filter(
+            value => value !== mail
+          )
+        }
+      });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>{__('Custom Mail')}</ControlLabel>
+        <DrawerDetail>
+          {(config?.customMails || []).map(customMail => (
+            <Chip
+              key={customMail}
+              onClick={removeMail.bind(this, customMail)}
+              frontContent={<Avatar src="/images/avatar-colored.svg" />}
+            >
+              {customMail}
+            </Chip>
+          ))}
+          <FormControl onKeyPress={onChange} />
+        </DrawerDetail>
+      </FormGroup>
+    );
+  }
+
+  renderRecipientTypeComponent(type, onSelect) {
     if (!type) {
       return null;
     }
 
-    const { component, name, label } = USER_TYPES.find(
-      uType => uType.value === type
+    const { component, value, label, name } = RECIPIENT_TYPES.find(
+      rType => rType.value === type
     ) as any;
+
+    if (value === 'customMail') {
+      return this.renderCustomMailInput();
+    }
 
     const Component = component;
 
     return (
       <FormGroup>
         <ControlLabel>{__(label)}</ControlLabel>
-        <Component name={`${name}Ids`} label={label} onSelect={onSelect} />
+        <Component name={name} label={label} onSelect={onSelect} />
       </FormGroup>
     );
   }
 
   renderConfig() {
     const { config } = this.state;
-    const { addAction, action, closeModal } = this.props;
+    const { addAction, activeAction, closeModal } = this.props;
 
     const onBackAction = () => {
       this.setState({ config: null });
@@ -235,8 +137,20 @@ class SendMail extends React.Component<Props, State> {
       this.setState({ config: { ...config, [name]: value } });
     };
 
+    const onChangeReciepentType = (value, name) => {
+      const keys = RECIPIENT_TYPES.filter(rType => rType.value !== value).map(
+        rType => rType.name
+      );
+
+      const updatedConfig = Object.fromEntries(
+        Object.entries(config).filter(([key]) => !!keys.includes(key))
+      );
+      this.setState({ config: updatedConfig });
+      onSelect(value, name);
+    };
+
     const onAddAction = () => {
-      addAction(action, action.id, config);
+      addAction(activeAction, activeAction.id, config);
       closeModal();
     };
 
@@ -252,6 +166,7 @@ class SendMail extends React.Component<Props, State> {
             initialValue={config?.fromUserId}
             label="Select from user"
             onSelect={onSelect}
+            multi={false}
           />
         </FormGroup>
 
@@ -273,21 +188,39 @@ class SendMail extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('User types')}</ControlLabel>
+          <ControlLabel>{__('Recipient types')}</ControlLabel>
           <Select
-            options={USER_TYPES}
-            name="userType"
-            value={config?.userType}
-            onChange={e => onSelect(e.value, 'userType')}
+            options={RECIPIENT_TYPES}
+            name="recipientType"
+            value={config?.recipientType}
+            onChange={e => onChangeReciepentType(e.value, 'recipientType')}
           />
         </FormGroup>
-        {this.selectedUserTypeComponent(config.userType, onSelect)}
+        {this.renderRecipientTypeComponent(config.recipientType, onSelect)}
         <ModalFooter>
           <Button btnStyle="success" onClick={onAddAction}>
             {__('Save')}
           </Button>
         </ModalFooter>
       </DrawerDetail>
+    );
+  }
+
+  renderAddTemplate() {
+    const trigger = (
+      <Button btnStyle="success" icon="plus-circle">
+        {__('Add new email template')}
+      </Button>
+    );
+    const content = props => <AddTemplateForm {...props} />;
+
+    return (
+      <ModalTrigger
+        title="Add New "
+        content={content}
+        trigger={trigger}
+        size="lg"
+      />
     );
   }
 
@@ -308,8 +241,6 @@ class SendMail extends React.Component<Props, State> {
       this.setState({ config: { ...config, templateId: id } });
     };
 
-    console.log(config?.templateId);
-
     if (config?.templateId) {
       return this.renderConfig();
     }
@@ -317,14 +248,15 @@ class SendMail extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Type a search')}</ControlLabel>
+          <ControlLabel>{__('Search')}</ControlLabel>
           <BarItems>
             <FormControl
               name="searchValue"
+              placeholder="type a search"
               value={searchValue}
               onChange={onSearch}
             />
-            <Button btnStyle="success">{__('Add')}</Button>
+            {this.renderAddTemplate()}
           </BarItems>
         </FormGroup>
         <SelectEmailTemplates

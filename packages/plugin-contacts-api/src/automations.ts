@@ -151,6 +151,29 @@ export default {
       });
     }
   },
+  getReciepentsEmails: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { type, config } = data;
+
+    const contactTypes = {
+      leads: {
+        model: models.Customers,
+        filter: { _id: { $in: config.leadIds } }
+      },
+      customers: {
+        model: models.Customers,
+        filter: { _id: { $in: config.customerIds } }
+      },
+      companies: {
+        model: models.Companies,
+        filter: { _id: { $in: config.companyIds } }
+      }
+    };
+
+    const { model, filter } = contactTypes[type];
+
+    return model.find(filter).map(contact => contact?.primaryEmail);
+  },
   constants: {
     triggers: [
       {

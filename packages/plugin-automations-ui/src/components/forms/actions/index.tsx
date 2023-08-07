@@ -10,6 +10,7 @@ import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 import { renderDynamicComponent } from '../../../utils';
 import ExternalCommunications from './subForms/ExternamCommunications';
+import SendMail from './subForms/SendMail';
 type Props = {
   onSave: () => void;
   closeModal: () => void;
@@ -21,7 +22,7 @@ type Props = {
 
 const renderExtraContent = props => {
   const {
-    activeAction: { type, isExternalCommunication }
+    activeAction: { type }
   } = props;
 
   const response = {
@@ -29,7 +30,8 @@ const renderExtraContent = props => {
     delay: <Delay {...props} />,
     setProperty: <SetProperty {...props} />,
     if: <IfForm {...props} />,
-    customCode: <CustomCode {...props} />
+    customCode: <CustomCode {...props} />,
+    sendEmail: <SendMail {...props} />
   };
 
   const Component = renderDynamicComponent(
@@ -42,10 +44,6 @@ const renderExtraContent = props => {
 
   if (Component) {
     response[type] = Component;
-  }
-
-  if (isExternalCommunication) {
-    response[type] = <ExternalCommunications {...props} />;
   }
 
   ({ response, props });

@@ -1,10 +1,10 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { setTimeout } from 'timers';
-import { receiveTrigger } from './utils';
-import { serviceDiscovery } from './configs';
 import { playWait } from './actions';
+import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
+import { receiveTrigger } from './utils';
 
 let client;
 
@@ -67,6 +67,17 @@ export const sendSegmentsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'segments',
+    ...args
+  });
+};
+
+export const sendEmailTemplateMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'emailtemplates',
     ...args
   });
 };

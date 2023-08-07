@@ -1,7 +1,8 @@
 export const ACTIONS = {
   WAIT: 'delay',
   IF: 'if',
-  SET_PROPERTY: 'setProperty'
+  SET_PROPERTY: 'setProperty',
+  SEND_EMAIL: 'sendEmail'
 };
 
 export const UI_ACTIONS = [
@@ -38,10 +39,20 @@ export const UI_ACTIONS = [
   },
   {
     type: 'sendEmail',
-    isExternalCommunication: true,
     icon: 'fast-mail',
     label: 'Send Email',
     description: 'Send',
     isAvailable: true
+  }
+];
+
+export const EMAIL_RECIEPENTS_TYPES = [
+  {
+    type: 'teamMember',
+    fieldName: 'teamMemberIds'
+  },
+  {
+    type: 'customMail',
+    fieldName: 'customMails'
   }
 ];
