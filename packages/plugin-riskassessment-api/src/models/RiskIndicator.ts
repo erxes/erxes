@@ -2,12 +2,12 @@ import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { sendCommonMessage, sendFormsMessage } from '../messageBroker';
 import {
-  sendCommonMessage,
-  sendFormsMessage,
-  sendTagsMessage
-} from '../messageBroker';
-import { validateCalculateMethods, validRiskIndicators } from '../utils';
+  getFilterTagIds,
+  validRiskIndicators,
+  validateCalculateMethods
+} from '../utils';
 import { IRiskIndicatorsField, PaginateField } from './definitions/common';
 import {
   IIndicatorsGroupsDocument,
@@ -101,29 +101,10 @@ const generateFilter = async (
     let filterParams: any = { $in: params.tagIds };
 
     if (params.withChilds) {
-      const tags = await sendTagsMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          _id: params.tagIds
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-      const orderQuery = tags.map(tag => ({
-        order: { $regex: `^${tag.order}`, $options: 'i' }
-      }));
-
-      filterParams = { $or: orderQuery };
+      filterParams = { $in: await getFilterTagIds(subdomain, params.tagIds) };
     }
 
-    filter.tagIds = await generateIds({
-      subdomain,
-      serviceName: 'tags',
-      action: 'find',
-      useSendMessage: params.withChilds,
-      params: filterParams
-    });
+    filter.tagIds = filterParams;
   }
 
   if (params.sortFromDate) {
