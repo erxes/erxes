@@ -52,14 +52,14 @@ const exmFeedQueries = {
       type,
       startDate,
       endDate,
-      bravoType,
-      departmentIds
+      bravoType
     },
     { models, user, subdomain }
   ) => {
     const filter: any = {};
     const orConditions: any = [];
-    const andConditions: any = [];
+
+    const departmentIds = user.departmentIds;
 
     const units = await sendCoreMessage({
       subdomain,
@@ -84,14 +84,31 @@ const exmFeedQueries = {
     const unitIds = units.map(unit => unit._id);
     const branchIds = branches.map(branch => branch._id);
 
+    const unitCondition = [
+      { unitId: { $exists: false } },
+      { unitId: null },
+      { unitId: '' }
+    ];
+
     if (unitIds && unitIds.length > 0) {
-      orConditions.push(
-        { unitId: { $in: unitIds } },
-        { unitId: { $exists: false } },
-        { unitId: null },
-        { unitId: '' }
-      );
+      orConditions.push({ unitId: { $in: unitIds } });
+
+      // if (branchIds && branchIds.length === 0) {
+      //   orConditions.push({ branchIds: { $in: branchIds } });
+      // }
     }
+
+    // if (unitIds && unitIds.length > 0 && branchIds && branchIds.length === 0) {
+    //   orConditions.push(
+    //     { unitId: { $in: unitIds } },
+    //     { unitId: { $exists: false } },
+    //     { unitId: null },
+    //     { unitId: '' },
+
+    //     { branchIds: { $eq: [] } },
+    //     { branchIds: { $size: 0 } }
+    //   );
+    // }
 
     if (branchIds && branchIds.length > 0) {
       orConditions.push(
@@ -101,13 +118,13 @@ const exmFeedQueries = {
       );
     }
 
-    if (departmentIds && departmentIds.length > 0) {
-      filter.$or = [
-        { $in: departmentIds },
-        { departmentIds: { $eq: [] } },
-        { departmentIds: { $size: 0 } }
-      ];
-    }
+    // if (departmentIds && departmentIds.length > 0) {
+    //   orConditions.push(
+    //     { $in: departmentIds },
+    //     { departmentIds: { $eq: [] } },
+    //     { departmentIds: { $size: 0 } }
+    //   );
+    // }
 
     if (orConditions.length > 0) {
       filter.$or = orConditions;
