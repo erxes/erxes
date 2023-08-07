@@ -1,6 +1,6 @@
 import { DocumentNode, GraphQLResolveInfo } from 'graphql';
 import { merge } from 'lodash';
-import { gql, createHttpLink, execute, from, toPromise, GraphQLRequest, FetchResult, ApolloLink } from '@apollo/client';
+import { gql, createHttpLink, execute, from, toPromise, GraphQLRequest, FetchResult, ApolloLink } from '@apollo/client/core';
 import { onError } from '@apollo/client/link/error';
 import { setContext } from "@apollo/client/link/context";
 import {

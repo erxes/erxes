@@ -18,7 +18,7 @@ import { supergraphPath } from '../apollo-router/paths';
 import * as fs from 'fs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { apolloRouterPort } from '../apollo-router';
-import { gql } from '@apollo/client';
+import { gql } from '@apollo/client/core';
 
 let disposable: Disposable;
 
