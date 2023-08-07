@@ -64,17 +64,21 @@ export default function List({
     const createdUser = item.createdUser || {};
 
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const matches = item.description.match(urlRegex);
+
     let links = [];
     let updatedDescription = '';
 
-    if (matches) {
-      updatedDescription = matches.reduce(
-        (prevDescription, link) => prevDescription.replace(link, ''),
-        item.description
-      );
+    if (item.description) {
+      const matches = item.description.match(urlRegex);
 
-      links = matches;
+      if (matches) {
+        updatedDescription = matches.reduce(
+          (prevDescription, link) => prevDescription.replace(link, ''),
+          item.description
+        );
+
+        links = matches;
+      }
     }
 
     return (
@@ -163,16 +167,15 @@ export default function List({
         {(item.images || []).map((image, index) => {
           if (image.url.includes('mp4')) {
             return (
-              <iframe
+              <video
                 key={index}
-                title="erxesIframe"
-                src={image.url || ''}
                 width="100%"
-                height="360"
-                scrolling="no"
-                frameBorder="0"
-                allowFullScreen={true}
-              />
+                height="100%"
+                controls={true}
+                autoPlay={true}
+              >
+                <source src={readFile(image.url)} type="video/mp4" />
+              </video>
             );
           }
 
