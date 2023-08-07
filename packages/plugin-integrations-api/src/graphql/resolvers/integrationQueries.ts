@@ -44,6 +44,10 @@ const integrationQueries = {
   // app.get('/configs', async (req, res) => {
   async integrationsGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
+  },
+
+  async integrationsVideoCallUsageStatus(_root, _args, { models }: IContext) {
+    return {};
   }
 };
 

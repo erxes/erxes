@@ -9,9 +9,9 @@ export const queries = `
   integrationsGetIntegrations(kind: String): JSON
   integrationsGetIntegrationDetail(erxesApiId: String): JSON
   integrationsGetConfigs: JSON
+  integrationsVideoCallUsageStatus: JSON
 `;
 
 export const mutations = `
   integrationsUpdateConfigs(configsMap: JSON!): JSON
-
 `;
