@@ -149,13 +149,13 @@ class Orders extends React.Component<IProps, {}> {
               <th>
                 <SortHandler
                   sortField={'categoryCode'}
-                  label={__('Category')}
+                  label={__('Category code')}
                 />
               </th>
               <th>
                 <SortHandler
-                  sortField={'subCategoryCode'}
-                  label={__('Sub Category')}
+                  sortField={'categoryName'}
+                  label={__('Category name')}
                 />
               </th>
               <th>
