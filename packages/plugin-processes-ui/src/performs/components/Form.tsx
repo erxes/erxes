@@ -17,7 +17,7 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { SelectTeamMembers } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import { AddTrigger, TableOver } from '../../styles';
 import {
@@ -33,7 +33,7 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IPerform } from '../types';
-import { IProduct, IUom } from '@erxes/ui-products/src/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import { IProductsData } from '../../types';
 import { JOB_TYPE_CHOISES } from '../../constants';
 import { queries } from '../../job/graphql';
@@ -991,7 +991,7 @@ class Form extends React.Component<Props, State> {
                 onSelect={userIds =>
                   this.setStateWrapper({ assignedUserIds: userIds as string[] })
                 }
-                multi={true}
+                multi={false}
               />
             </FormGroup>
           </FormColumn>

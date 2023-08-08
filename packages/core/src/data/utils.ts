@@ -1,23 +1,25 @@
-import * as AWS from 'aws-sdk';
 import utils from '@erxes/api-utils/src';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import * as AWS from 'aws-sdk';
 import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
+import * as Handlebars from 'handlebars';
+import * as jimp from 'jimp';
+import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
+import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
+import {
+  sendCommonMessage,
+  sendContactsMessage,
+  sendLogsMessage
+} from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
-import * as _ from 'underscore';
-import * as Handlebars from 'handlebars';
-import * as nodemailer from 'nodemailer';
-import { sendCommonMessage, sendLogsMessage } from '../messageBroker';
-import { IModels } from '../connectionResolver';
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { getService, getServices, redis } from '../serviceDiscovery';
-import { sendContactsMessage } from '../messageBroker';
-import * as jimp from 'jimp';
 export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;

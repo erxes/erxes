@@ -25,13 +25,20 @@ type FinalProps = {
   listQuery: RiskIndicatorsListQueryResponse;
   totalCountQuery: RiskIndicatorsTotalCountQueryResponse;
   removeMutation: any;
+  duplicateMutation: any;
 } & Props &
   ICommonListProps &
   IRouterProps &
   ICommonFormProps;
 class ListContainer extends React.Component<FinalProps> {
   render() {
-    const { removeMutation, listQuery, totalCountQuery, history } = this.props;
+    const {
+      removeMutation,
+      duplicateMutation,
+      listQuery,
+      totalCountQuery,
+      history
+    } = this.props;
 
     const { riskIndicators, loading, error } = listQuery;
 
@@ -52,6 +59,18 @@ class ListContainer extends React.Component<FinalProps> {
       });
     };
 
+    const duplicate = _id => {
+      confirm().then(() => {
+        duplicateMutation({ variables: { _id } })
+          .then(() => {
+            listQuery.refetch();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
+    };
+
     const updatedProps = {
       ...this.props,
       list: riskIndicators,
@@ -59,7 +78,8 @@ class ListContainer extends React.Component<FinalProps> {
       refetch: listQuery.refetch,
       loading,
       remove,
-      history
+      history,
+      duplicate
     };
 
     return <List {...updatedProps} />;
@@ -88,6 +108,9 @@ export default withProps<Props>(
     }),
     graphql(gql(mutations.riskIndicatorUpdate), {
       name: 'editMutation'
+    }),
+    graphql(gql(mutations.duplicate), {
+      name: 'duplicateMutation'
     })
   )(ListContainer)
 );

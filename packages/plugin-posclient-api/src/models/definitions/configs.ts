@@ -109,8 +109,8 @@ const ebarimtConfigSchema = new Schema(
 
 export const configSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String, label: 'Name' }),
-  description: field({ type: String, label: 'Description' }),
+  name: field({ type: String, unique: true, label: 'Name' }),
+  description: field({ type: String, optional: true, label: 'Description' }),
   pdomain: field({ type: String, optional: true, label: 'Domain' }),
   userId: field({ type: String, optional: true, label: 'Created by' }),
   createdAt: getDateFieldDefinition('Created at'),

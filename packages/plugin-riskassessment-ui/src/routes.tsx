@@ -9,6 +9,12 @@ const RiskIndicators = asyncComponent(() =>
   )
 );
 
+const RiskIndicator = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Detail - Riskindicator" */ './indicator/containers/Form'
+  )
+);
+
 const ConfigList = asyncComponent(() =>
   import(/* webpackChunkName: "List - Configs" */ './configs/containers/List')
 );
@@ -41,6 +47,16 @@ const riskIndicators = props => {
   return (
     <RiskIndicators
       {...props}
+      queryParams={queryString.parse(props.location.search)}
+    />
+  );
+};
+
+const riskIndicator = props => {
+  return (
+    <RiskIndicator
+      {...props}
+      _id={props?.match?.params?.id}
       queryParams={queryString.parse(props.location.search)}
     />
   );
@@ -100,6 +116,19 @@ const routes = () => {
         exact
         component={riskIndicators}
       />
+
+      <Route
+        path="/settings/risk-indicators/add"
+        exact
+        component={riskIndicator}
+      />
+
+      <Route
+        path="/settings/risk-indicators/detail/:id"
+        exact
+        component={riskIndicator}
+      />
+
       <Route
         path="/settings/risk-indicators-configs"
         exact
