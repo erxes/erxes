@@ -87,7 +87,7 @@ const MessageListContainer = (props: Props) => {
     Alert.error(error.message);
   }
 
-  const chatMessages = (data && data.chatMessages.list) || [];
+  const chatMessages = (data && data.chatMessages?.list) || [];
 
   return (
     <Component

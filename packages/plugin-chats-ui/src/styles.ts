@@ -98,7 +98,6 @@ export const Title = styled.h5`
 
 export const ChatActions = styled.div`
   z-index: 1;
-  visibility: hidden;
 
   position: absolute;
   right: ${dimensions.coreSpacing}px;
@@ -250,6 +249,7 @@ export const ChatListWrapper = styled.div`
   padding-left: 0;
   margin: 0;
   margin-bottom: 0.5em;
+  z-index: 0;
 `;
 
 export const ChatItemWrapper = styledTS<{
@@ -282,6 +282,7 @@ export const ChatItemWrapper = styledTS<{
     cursor: pointer;
     transition: 0.2s;
   }
+  z-index: 0
 `;
 
 export const ChatGroupAvatar = styled.div`

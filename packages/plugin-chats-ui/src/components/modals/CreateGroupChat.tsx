@@ -7,6 +7,8 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import * as router from '@erxes/ui/src/utils/router';
 
+import { useHistory } from 'react-router-dom';
+
 type Props = {
   closeModal: () => void;
   startGroupChat: (name: string, userIds: string[]) => void;
@@ -15,6 +17,7 @@ type Props = {
 const CreateGroupChat = (props: Props) => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
+  const history = useHistory();
 
   const [userIds, setUserIds] = useState(queryParams.userIds || []);
   const [name, setName] = useState('');
@@ -22,6 +25,7 @@ const CreateGroupChat = (props: Props) => {
   const handleSubmit = () => {
     props.startGroupChat(name, userIds);
     router.removeParams(history, 'userIds');
+    router.removeParams(history, 'limit');
     props.closeModal();
 
     setUserIds([]);

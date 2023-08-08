@@ -15,6 +15,7 @@ type Props = {
   hasCost?: boolean;
   isReadSeries?: boolean;
   onChangeState: (value: any) => void;
+  onEnter: (val?: number) => void;
 };
 
 type State = {};
@@ -46,7 +47,7 @@ class PerformDetail extends React.Component<Props, State> {
       onChangeState({
         [stateName]: newProductsData
       } as any);
-    }, 500);
+    }, 5);
   };
 
   onChangeInput = e => {
@@ -125,6 +126,17 @@ class PerformDetail extends React.Component<Props, State> {
     );
   }
 
+  onKeyDown = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        this.props.onEnter(-1);
+        return;
+      }
+      this.props.onEnter();
+    }
+  };
+
   render() {
     const { productData, hasCost } = this.props;
     const { product } = productData;
@@ -147,7 +159,7 @@ class PerformDetail extends React.Component<Props, State> {
         <td>{__(productName)}</td>
         <td>
           <FormControl
-            defaultValue={productData.uom}
+            value={productData.uom}
             componentClass="select"
             name="uom"
             options={uoms}
@@ -156,22 +168,26 @@ class PerformDetail extends React.Component<Props, State> {
           />
         </td>
         <td>
-          <FormControl
-            defaultValue={productData.quantity}
-            type="number"
-            name="quantity"
-            required={true}
-            onChange={this.onChange}
-          />
+          <div className="canFocus">
+            <FormControl
+              value={productData.quantity}
+              type="number"
+              name="quantity"
+              required={true}
+              onChange={this.onChange}
+              onKeyDown={this.onKeyDown}
+            />
+          </div>
         </td>
         {hasCost && (
           <td>
             <FormControl
-              defaultValue={productData.amount || 0}
+              value={productData.amount || 0}
               type="number"
               name="amount"
               required={true}
               onChange={this.onChange}
+              onKeyDown={this.onKeyDown}
             />
           </td>
         )}

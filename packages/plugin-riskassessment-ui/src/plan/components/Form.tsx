@@ -15,7 +15,7 @@ import {
 } from '@erxes/ui/src/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { PlanContainer } from '../../styles';
+import { CommonFormContainer } from '../../styles';
 import { IPLan, ISchedule } from '../common/types';
 import GeneralConfig from './GeneralContent';
 import SchedulesConfig from './Schedules';
@@ -117,7 +117,7 @@ class Form extends React.Component<Props, State> {
           <Step
             title="General"
             img="/images/icons/erxes-24.svg"
-            noButton={plan.status === 'archived'}
+            noButton={plan?.status === 'archived'}
             additionalButton={renderButton({
               ...formProps,
               text: 'Plan',
@@ -139,7 +139,7 @@ class Form extends React.Component<Props, State> {
               {this.renderSchedulesContent()}
             </Step>
           )}
-          {plan.status === 'archived' && (
+          {plan?.status === 'archived' && (
             <Step
               img="/images/icons/erxes-33.png"
               onClick={saveSteps}
@@ -156,7 +156,7 @@ class Form extends React.Component<Props, State> {
 
   render() {
     return (
-      <PlanContainer>
+      <CommonFormContainer>
         <PageHeader>
           <BarItems>
             <Link to={`/settings/risk-assessment-plans`}>
@@ -167,7 +167,7 @@ class Form extends React.Component<Props, State> {
           </BarItems>
         </PageHeader>
         <CommonForm renderContent={this.renderContent} />
-      </PlanContainer>
+      </CommonFormContainer>
     );
   }
 }

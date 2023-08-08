@@ -168,7 +168,7 @@ export default function EventForm(props: Props) {
           <Select
             name={'unitId'}
             multi={false}
-            label={'Choose Unit'}
+            placeholder={'Choose Unit'}
             value={unitId}
             onChange={onChangeUnit}
             options={unitList.map(unit => ({

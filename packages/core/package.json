@@ -60,6 +60,7 @@
     "stream-array": "^1.1.2",
     "ts-node": "^10.7.0",
     "validator": "^9.0.0",
-    "xlsx-populate": "^1.20.1"
+    "xlsx-populate": "^1.20.1",
+    "jimp":"^0.22.10"
   }
 }

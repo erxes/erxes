@@ -80,9 +80,41 @@ export const commonFields = `
   }
 `;
 
+const pricingParamsDefs = `
+  $status: String
+  $prioritizeRule: String
+  $branchId: String
+  $departmentId: String  
+  $totalAmount: String
+  $productId: String
+  $quantity: Float
+  $date: Date
+  $findOne: Boolean
+  $page: Int
+  $perPage: Int
+  $sortField: String
+  $sortDirection: Int
+`;
+
+const pricingParamsValues = `
+  status: $status
+  prioritizeRule: $prioritizeRule
+  branchId: $branchId
+  departmentId: $departmentId
+  totalAmount: $totalAmount
+  productId: $productId
+  quantity: $quantity
+  date: $date
+  findOne: $findOne
+  page: $page
+  perPage: $perPage
+  sortField: $sortField
+  sortDirection: $sortDirection
+`;
+
 const pricingPlans = `
-  query PricingPlans($status: String) {
-    pricingPlans(status: $status) {
+  query PricingPlans(${pricingParamsDefs}) {
+    pricingPlans(${pricingParamsValues}) {
       _id
       name
       status
@@ -104,6 +136,12 @@ const pricingPlans = `
   }
 `;
 
+const pricingPlansCount = `
+  query pricingPlansCount(${pricingParamsDefs}) {
+    pricingPlansCount(${pricingParamsValues})
+  }
+`;
+
 const pricingPlanDetail = `
   query PricingPlanDetail($id: String) {
     pricingPlanDetail(id: $id) {
@@ -115,5 +153,6 @@ const pricingPlanDetail = `
 
 export default {
   pricingPlans,
+  pricingPlansCount,
   pricingPlanDetail
 };

@@ -460,7 +460,7 @@ export const ScheduleCard = styledTS<{
   }
 `;
 
-export const PlanContainer = styled.div`
+export const CommonFormContainer = styled.div`
   height: 100%;
   > form {
     height: 100%;

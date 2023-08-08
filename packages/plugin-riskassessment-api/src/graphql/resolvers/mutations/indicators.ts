@@ -32,6 +32,9 @@ const RiskIndicatorsMutations = {
     return await models.RiskIndicators.removeRiskIndicatorUnusedForms(formIds);
   },
 
+  async duplicateRiskIndicator(_root, { _id }, { models }: IContext) {
+    return await models.RiskIndicators.duplicateRiskIndicator(_id);
+  },
   async addRiskIndicatorsGroups(_root, params, { models }: IContext) {
     return await models.IndicatorsGroups.addGroup(params);
   },

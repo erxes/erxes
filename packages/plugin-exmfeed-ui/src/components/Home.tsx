@@ -31,6 +31,14 @@ export default function Home(props: Props) {
       );
     }
 
+    if (currentTab === 'welcome') {
+      return (
+        <>
+          <List queryParams={queryParams} contentType={currentTab} />
+        </>
+      );
+    }
+
     return (
       <>
         <Form contentType={currentTab} />
@@ -75,6 +83,12 @@ export default function Home(props: Props) {
             onClick={() => onClickTab('publicHoliday')}
           >
             Public holiday
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'welcome' ? 'active' : ''}
+            onClick={() => onClickTab('welcome')}
+          >
+            Welcome
           </TabTitle>
         </Tabs>
         <TabContent>{renderTabContent()}</TabContent>

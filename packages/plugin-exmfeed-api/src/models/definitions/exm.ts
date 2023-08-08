@@ -92,13 +92,15 @@ export const FEED_CONTENT_TYPES = {
   BIRTHDAY: 'birthday',
   WORK_ANNIVARSARY: 'workAnniversary',
   PUBLIC_HOLIDAY: 'publicHoliday',
+  WELCOME: 'welcome',
   ALL: [
     'post',
     'event',
     'bravo',
     'birthday',
     'workAnniversary',
-    'publicHoliday'
+    'publicHoliday',
+    'welcome'
   ]
 };
 

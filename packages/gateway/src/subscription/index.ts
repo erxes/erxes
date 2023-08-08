@@ -1,8 +1,6 @@
-const { makeSubscriptionSchema } = require('esm')(module)(
-  'federation-subscription-tools'
-);
 import { useServer } from 'graphql-ws/lib/use/ws';
 import {
+  DocumentNode,
   execute,
   ExecutionArgs,
   getOperationAST,
@@ -12,7 +10,7 @@ import {
   validate
 } from 'graphql';
 import * as ws from 'ws';
-import ApolloRouterDataSource from './ApolloRouterDataSource';
+import SubscriptionResolver from './SubscriptionResolver';
 import { Disposable, SubscribeMessage } from 'graphql-ws';
 import genTypeDefsAndResolvers from './genTypeDefsAndResolvers';
 import * as http from 'http';
@@ -20,22 +18,35 @@ import { supergraphPath } from '../apollo-router/paths';
 import * as fs from 'fs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { apolloRouterPort } from '../apollo-router';
+import { gql } from '@apollo/client/core';
 
 let disposable: Disposable;
+
+export function makeSubscriptionSchema({ typeDefs, resolvers }: any) {
+  if (!typeDefs || !resolvers) {
+    throw new Error(
+      'Both `typeDefs` and `resolvers` are required to make the executable subscriptions schema.'
+    );
+  }
+  const supergraph = fs.readFileSync(supergraphPath).toString();
+
+  const supergraphTypeDefs = gql(supergraph);
+
+  return makeExecutableSchema({
+    typeDefs: [
+      ...((supergraphTypeDefs && [supergraphTypeDefs]) as DocumentNode[]),
+      typeDefs
+    ],
+    resolvers
+  });
+}
 
 export async function startSubscriptionServer(
   httpServer: http.Server
 ): Promise<Disposable | undefined> {
-  const supergraph = fs.readFileSync(supergraphPath).toString();
-
   const wsServer = new ws.Server({
     server: httpServer,
     path: '/graphql'
-  });
-
-  const superGraphScheme = makeExecutableSchema({
-    typeDefs: supergraph,
-    resolvers: {}
   });
 
   const typeDefsResolvers = await genTypeDefsAndResolvers();
@@ -47,7 +58,6 @@ export async function startSubscriptionServer(
   const { typeDefs, resolvers } = typeDefsResolvers;
 
   const schema = makeSubscriptionSchema({
-    gatewaySchema: superGraphScheme,
     typeDefs,
     resolvers
   });
@@ -55,7 +65,9 @@ export async function startSubscriptionServer(
   if (disposable) {
     try {
       await disposable.dispose();
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   disposable = useServer(
@@ -63,13 +75,10 @@ export async function startSubscriptionServer(
       execute,
       subscribe,
       context: (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
-        // Instantiate and initialize the GatewayDataSource subclass
-        const gatewayDataSource = new ApolloRouterDataSource(
-          `http://localhost:${apolloRouterPort}`
+        const gatewayDataSource = new SubscriptionResolver(
+          `http://localhost:${apolloRouterPort}`,
+          ctx
         );
-        gatewayDataSource.initialize({ context: ctx, cache: undefined });
-
-        // Return the complete context for the request
         return { dataSources: { gatewayDataSource } };
       },
       onSubscribe: async (
