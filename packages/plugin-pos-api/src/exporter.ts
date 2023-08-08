@@ -48,14 +48,18 @@ const prepareDataCount = async (
   const { segmentData } = query;
 
   let data = 0;
+
   const filter: any = {};
 
-  if (segmentData && Object.keys(segmentData).length) {
-    if (segmentData.conditions) {
-      const itemIds = await fetchSegment(subdomain, '', {}, segmentData);
+  if (segmentData.conditions) {
+    const itemIds = await fetchSegment(
+      subdomain,
+      '',
+      { scroll: true, page: 1, perPage: 10000 },
+      segmentData
+    );
 
-      filter._id = { $in: itemIds };
-    }
+    filter._id = { $in: itemIds };
   }
 
   data = await models.PosOrders.find(filter).count();
@@ -80,22 +84,24 @@ export const fillValue = async (
         subdomain,
         action: 'branches.findOne',
         data: {
-          _id: order.branchId
+          _id: order.branchId || ''
         },
         isRPC: true,
         defaultValue: {}
       });
-      value = `${branch.code || ''} - ${branch.title || ''}`;
+      value = branch ? `${branch.code || ''} - ${branch.title || ''}` : '';
       break;
     case 'departmentId':
       const department = await sendCoreMessage({
         subdomain,
         action: 'departments.findOne',
-        data: { _id: order.departmentId },
+        data: { _id: order.departmentId || '' },
         isRPC: true,
         defaultValue: {}
       });
-      value = `${department.code || ''} - ${department.title}`;
+      value = department
+        ? `${department.code || ''} - ${department.title}`
+        : '';
       break;
     case 'customerId':
       if (order.customerId) {
@@ -229,7 +235,7 @@ export const fillValue = async (
 };
 
 const fillPosOrderItemValue = async (subdomain, column, order) => {
-  const items = order.items;
+  const items = order.items || [];
 
   const itemsDocs: any[] = [];
   const productsById = {};
@@ -433,11 +439,13 @@ export default {
           }
         }
 
-        if (Object.keys(orderItemsDocs || {}).length > 0) {
-          for (let i = 0; i < 4; i++) {
+        if (Object.keys(orderItemsDocs || {}).length > 0 && itemsLen) {
+          for (let i = 0; i < itemsLen; i++) {
             const itemDocs = {};
             for (const itemCol of Object.keys(orderItemsDocs)) {
-              itemDocs[itemCol] = orderItemsDocs[itemCol][i][itemCol];
+              itemDocs[itemCol] = ((orderItemsDocs[itemCol] || [])[i] || {})[
+                itemCol
+              ];
             }
             docs.push({ ...itemDocs, ...result });
           }
