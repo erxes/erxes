@@ -126,6 +126,7 @@ class List extends React.Component<IProps, State> {
               <th>{__('StartAt')}</th>
               <th>{__('EndAt')}</th>
               <th>{__('Count')}</th>
+              <th>{__('Description')}</th>
               <th>{__('In products')}</th>
               <th>{__('Out products')}</th>
               <th>{__('In Branch')}</th>
