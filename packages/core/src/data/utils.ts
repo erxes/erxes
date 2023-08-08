@@ -20,6 +20,7 @@ import {
 } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { getService, getServices, redis } from '../serviceDiscovery';
+
 export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
