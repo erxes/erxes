@@ -56,9 +56,6 @@ const exmFeedQueries = {
     },
     { models, user, subdomain }
   ) => {
-    const filter: any = {};
-    const orConditions: any = [];
-
     const departmentIds = user.departmentIds;
 
     const units = await sendCoreMessage({
@@ -74,15 +71,13 @@ const exmFeedQueries = {
     const branches = await sendCoreMessage({
       subdomain,
       action: 'branches.find',
-      data: {
-        userIds: user._id
-      },
+      data: { query: { userIds: user._id } },
       isRPC: true,
       defaultValue: []
     });
 
-    const unitIds = units.map(unit => unit._id);
-    const branchIds = branches.map(branch => branch._id);
+    const unitIds = units.map(unit => unit._id) || [];
+    const branchIds = branches.map(branch => branch._id) || [];
 
     const unitCondition = [
       { unitId: { $exists: false } },
@@ -90,45 +85,65 @@ const exmFeedQueries = {
       { unitId: '' }
     ];
 
-    if (unitIds && unitIds.length > 0) {
-      orConditions.push({ unitId: { $in: unitIds } });
+    const branchCondition = [
+      { branchIds: { $eq: [] } },
+      { branchIds: { $size: 0 } }
+    ];
 
-      // if (branchIds && branchIds.length === 0) {
-      //   orConditions.push({ branchIds: { $in: branchIds } });
-      // }
-    }
+    const departmentCondition = [
+      { branchIds: { $eq: [] } },
+      { branchIds: { $size: 0 } }
+    ];
 
-    // if (unitIds && unitIds.length > 0 && branchIds && branchIds.length === 0) {
-    //   orConditions.push(
-    //     { unitId: { $in: unitIds } },
-    //     { unitId: { $exists: false } },
-    //     { unitId: null },
-    //     { unitId: '' },
-
-    //     { branchIds: { $eq: [] } },
-    //     { branchIds: { $size: 0 } }
-    //   );
-    // }
-
-    if (branchIds && branchIds.length > 0) {
-      orConditions.push(
-        { branchIds: { $in: branchIds } },
-        { branchIds: { $eq: [] } },
-        { branchIds: { $size: 0 } }
-      );
-    }
-
-    // if (departmentIds && departmentIds.length > 0) {
-    //   orConditions.push(
-    //     { $in: departmentIds },
-    //     { departmentIds: { $eq: [] } },
-    //     { departmentIds: { $size: 0 } }
-    //   );
-    // }
-
-    if (orConditions.length > 0) {
-      filter.$or = orConditions;
-    }
+    const filter: any = {
+      $or: [
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            { unitId: { $in: unitIds } },
+            { departmentIds: { $in: departmentIds } }
+          ]
+        },
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            {
+              $or: unitCondition
+            }
+          ]
+        },
+        {
+          $and: [
+            { unitId: { $in: unitIds } },
+            {
+              $or: branchCondition
+            }
+          ]
+        },
+        {
+          $and: [
+            { departmentIds: { $in: departmentIds } },
+            {
+              $or: departmentCondition
+            }
+          ]
+        },
+        {
+          $and: [
+            {
+              $or: branchCondition
+            },
+            {
+              $or: unitCondition
+            },
+            {
+              $or: departmentCondition
+            }
+          ]
+        },
+        { createdBy: user._id }
+      ]
+    };
 
     if (startDate && endDate) {
       filter.createdAt = {
@@ -154,13 +169,13 @@ const exmFeedQueries = {
     }
 
     if (contentTypes && contentTypes.includes('event')) {
-      filter.$or = [
+      filter.$or.push(
         { 'eventData.visibility': 'public' },
         {
           'eventData.visibility': 'private',
           recipientIds: { $in: [user._id] }
         }
-      ];
+      );
     }
 
     if (contentTypes && contentTypes.includes('bravo')) {
@@ -169,15 +184,11 @@ const exmFeedQueries = {
       } else if (recipientType === 'sent') {
         filter.createdBy = user._id;
       } else {
-        filter.$or = [
+        filter.$or(
           { recipientIds: { $in: [user._id] } },
           { createdBy: user._id }
-        ];
+        );
       }
-    }
-
-    if (type === 'createdByMe') {
-      filter.createdBy = user._id;
     }
 
     if (isPinned !== undefined) {
