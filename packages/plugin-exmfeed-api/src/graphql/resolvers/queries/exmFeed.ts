@@ -173,7 +173,8 @@ const exmFeedQueries = {
         { 'eventData.visibility': 'public' },
         {
           'eventData.visibility': 'private',
-          recipientIds: { $in: [user._id] }
+          recipientIds: { $in: [user._id] },
+          createdBy: { $in: user._id }
         }
       );
     }
