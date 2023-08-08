@@ -65,9 +65,9 @@ export default class FilterList extends React.PureComponent<Props, State> {
           query: gql(queries[queryName]),
           variables
         })
-        .then(({ data }: any) => {
+        .then(({ data, loading }: any) => {
           if (this.mounted) {
-            this.setState({ fields: data[dataName] });
+            this.setState({ fields: data[dataName], loading });
           }
         })
         .catch(e => {
