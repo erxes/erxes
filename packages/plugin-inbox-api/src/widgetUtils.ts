@@ -172,7 +172,7 @@ export const solveSubmissions = async (
 
   const submissionsGrouped = groupSubmissions(args.submissions);
 
-  let response: {};
+  let response: any;
 
   try {
     response = await sendContactsMessage({
