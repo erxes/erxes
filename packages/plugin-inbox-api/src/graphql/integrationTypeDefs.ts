@@ -208,6 +208,7 @@ export const queries = `
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String, formLoadType: String): integrationsTotalCount
+  integrationsVideoCallUsageStatus: JSON
 `;
 
 export const mutations = `
