@@ -17,8 +17,7 @@ import { IModels } from '../connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { getService, getServices, redis } from '../serviceDiscovery';
 import { sendContactsMessage } from '../messageBroker';
-// import * as sharp from 'sharp';
-
+import * as jimp from 'jimp';
 export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
@@ -294,6 +293,8 @@ export const checkFile = async (models: IModels, file, source?: string) => {
   // determine file type using magic numbers
   const ft = fileType(buffer);
 
+  console.log('FILE TYPEeeeeeeee', ft);
+
   const unsupportedMimeTypes = [
     'text/csv',
     'image/svg+xml',
@@ -307,6 +308,8 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'application/vnd.ms-excel',
     'application/vnd.ms-powerpoint'
   ];
+
+  console.log('FILE TYPE', file.type);
 
   // allow csv, svg to be uploaded
   if (!ft && unsupportedMimeTypes.includes(file.type)) {
@@ -443,6 +446,7 @@ export const uploadFileAWS = async (
   const s3 = await createAWS(models);
 
   // generate unique name
+
   const fileName = `${AWS_PREFIX}${Math.random()}${file.name.replace(
     / /g,
     ''
@@ -1059,65 +1063,29 @@ export const handleUnsubscription = async (
 
 export const resizeImage = async (
   file: any,
-  _maxWidth: number,
-  _maxHeight: number
+  maxWidth?: number,
+  maxHeight?: number
 ) => {
-  // TODO: implement image resize again
+  try {
+    let image = await jimp.read(`${file.path}`);
 
-  // const response: any = await new Promise(resolve => {
-  //   sharp(file['path']).metadata((err, metadata) => {
-  //     if (err) {
-  //       console.error('Error reading image metadata:', err);
-  //       resolve(file);
-  //     } else {
-  //       let width = metadata.width;
-  //       let height = metadata.height;
+    if (!image) {
+      throw new Error('Error reading image');
+    }
 
-  //       let scaledWidth = 0;
-  //       let scaledHeight = 0;
+    if (maxWidth && image.getWidth() > maxWidth) {
+      image = image.resize(maxWidth, jimp.AUTO);
+    } else if (maxHeight && image.getHeight() > maxHeight) {
+      image = image.resize(jimp.AUTO, maxHeight);
+    }
 
-  //       if (width && height) {
-  //         if (maxWidth && width >= maxWidth) {
-  //           const ratio = maxWidth / width;
-  //           scaledHeight = Math.floor(height * ratio);
-  //           scaledWidth = Math.floor(width * ratio);
-  //         } else if (maxHeight && height >= maxHeight) {
-  //           const ratio = maxHeight / height;
-  //           scaledWidth = Math.floor(width * ratio);
-  //           scaledHeight = Math.floor(height * ratio);
-  //         }
-  //       }
-  //       // Resize image
-  //       const outputFilePath = file['path'] + 'resizedImage';
+    await image.writeAsync(file.path);
 
-  //       if (scaledHeight > 0 && scaledWidth > 0) {
-  //         sharp(file['path'])
-  //           .resize(scaledWidth, scaledHeight)
-  //           .toFile(outputFilePath, err => {
-  //             if (err) {
-  //               console.log(err);
-  //               resolve(file);
-  //             } else {
-  //               const buffer = fs.readFileSync(outputFilePath);
-  //               const newFile = {
-  //                 size: buffer.length,
-  //                 type: file['type'],
-  //                 path: outputFilePath,
-  //                 name: file['name']
-  //               } as any;
-  //               resolve(newFile);
-  //             }
-  //           });
-  //       } else {
-  //         resolve(file);
-  //       }
-  //     }
-  //   });
-  // });
-  // if (response) {
-  //   return response;
-  // }
-  return file;
+    return file;
+  } catch (error) {
+    console.error(error);
+    return file;
+  }
 };
 
 export const getEnv = utils.getEnv;
