@@ -33,6 +33,57 @@ const coverQueries = {
 
   async coverDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return await models.Covers.findOne({ _id }).lean();
+  },
+
+  async coverAmounts(
+    _root,
+    { _id, endDate }: { _id: string; endDate: Date },
+    { models, posUser, config }: IContext
+  ) {
+    if (endDate > new Date()) {
+      throw new Error('Must be a date forward from now');
+    }
+
+    const filter: any = { posToken: config.token, userId: posUser._id };
+    if (_id) {
+      filter._id = { $ne: _id };
+    }
+
+    let lastCover = await models.Covers.findOne(filter)
+      .sort({ endDate: -1 })
+      .lean();
+    if (!lastCover) {
+      lastCover = {};
+    }
+
+    const startDate = lastCover.endDate;
+    const orderFilter: any = { posToken: config.token, userId: posUser._id };
+    if (startDate) {
+      orderFilter.paidDate = { $gte: startDate, $lte: endDate };
+    } else {
+      orderFilter.paidDate = { $lte: endDate };
+    }
+
+    const orders = await models.Orders.find(orderFilter).lean();
+
+    const result: any = { startDate, endDate };
+
+    for (const order of orders) {
+      if (order.cashAmount) {
+        result.cashAmount = (result.cashAmount || 0) + order.cashAmount;
+      }
+
+      if (order.mobileAmount) {
+        result.mobileAmount = (result.mobileAmount || 0) + order.mobileAmount;
+      }
+
+      for (const paidAmount of order.paidAmounts || []) {
+        result[paidAmount.type] =
+          (result[paidAmount.type] || 0) + paidAmount.amount;
+      }
+    }
+
+    return result;
   }
 };
 

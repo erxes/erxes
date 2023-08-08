@@ -4,7 +4,8 @@ import {
   formatValue,
   FormControl,
   Icon,
-  ModalTrigger
+  ModalTrigger,
+  Tip
 } from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
@@ -59,7 +60,11 @@ function TransactionRow({
       <>
         <ModalTrigger
           title="Edit amounts info"
-          trigger={<Icon icon="calcualtor" />}
+          trigger={
+            <Tip text="Calculator" placement="left">
+              <Icon icon="calcualtor" />
+            </Tip>
+          }
           size="lg"
           content={trAmountForm}
         />
@@ -86,13 +91,13 @@ function TransactionRow({
           title="EBarimt info"
           trigger={
             isGotEBarimt ? (
-              <Button btnStyle="success" size="small" icon="document">
-                {__('Got')}
-              </Button>
+              <Tip text="See Info" placement="left">
+                <Icon icon="print" />
+              </Tip>
             ) : (
-              <Button btnStyle="danger" size="small" icon="print">
-                {__('Get')}
-              </Button>
+              <Tip text="Get Ebarimt" placement="left">
+                <Icon icon="invoice" />
+              </Tip>
             )
           }
           size="lg"
@@ -115,7 +120,11 @@ function TransactionRow({
     return (
       <ModalTrigger
         title={__('Edit basic info')}
-        trigger={<Icon icon="edit" />}
+        trigger={
+          <Tip text="Edit" placement="left">
+            <Icon icon="edit" />
+          </Tip>
+        }
         size="lg"
         content={trBaseForm}
       />
@@ -156,10 +165,10 @@ function TransactionRow({
       <TrNumberCols key={'total'}>
         {displayNumber(transaction, 'total')}
       </TrNumberCols>
-      <td key={'hasEbarimt'}>{renderEBarimtBtn(!!transaction.ebarimt)}</td>
       <td key={'manage'}>
         {renderChangeBtn()}
 
+        {renderEBarimtBtn(!!transaction.ebarimt)}
         {renderEditBrn()}
       </td>
     </TrRows>

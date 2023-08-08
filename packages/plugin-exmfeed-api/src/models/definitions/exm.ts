@@ -92,13 +92,15 @@ export const FEED_CONTENT_TYPES = {
   BIRTHDAY: 'birthday',
   WORK_ANNIVARSARY: 'workAnniversary',
   PUBLIC_HOLIDAY: 'publicHoliday',
+  WELCOME: 'welcome',
   ALL: [
     'post',
     'event',
     'bravo',
     'birthday',
     'workAnniversary',
-    'publicHoliday'
+    'publicHoliday',
+    'welcome'
   ]
 };
 
@@ -123,7 +125,7 @@ export const feedSchema = schemaHooksWrapper(
     departmentIds: field({ type: [String], label: 'Department Ids' }),
     department: field({ type: String, label: 'Department' }),
     branchIds: field({ type: [String], label: 'Branch Ids' }),
-    unitId: field({ type: String, label: 'Unit' }),
+    unitId: field({ type: String, label: 'Unit', optional: true }),
     ceremonyData: field({ type: ceremonyDataSchema }),
     eventData: field({ type: eventDataSchema }),
     startDate: field({ type: Date }),

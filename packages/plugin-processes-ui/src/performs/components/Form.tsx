@@ -17,7 +17,7 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { SelectTeamMembers } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import { AddTrigger, TableOver } from '../../styles';
 import {
@@ -33,7 +33,7 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IPerform } from '../types';
-import { IProduct, IUom } from '@erxes/ui-products/src/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import { IProductsData } from '../../types';
 import { JOB_TYPE_CHOISES } from '../../constants';
 import { queries } from '../../job/graphql';
@@ -239,11 +239,22 @@ class Form extends React.Component<Props, State> {
     ) {
       return false;
     }
-    if (overallWorkDet.type === 'move' && !inProducts.length) {
-      return false;
+    if (overallWorkDet.type === 'move') {
+      if (!inProducts.length) {
+        return false;
+      }
+      if (
+        !(
+          (overallWorkDet.key.inBranchId &&
+            overallWorkDet.key.inDepartmentId) ||
+          (overallWorkDet.key.outBranchId && overallWorkDet.key.outDepartmentId)
+        )
+      ) {
+        return false;
+      }
     }
     if (
-      ['job', 'end', 'move'].includes(overallWorkDet.type) &&
+      ['job', 'end'].includes(overallWorkDet.type) &&
       !(
         overallWorkDet.key.inBranchId &&
         overallWorkDet.key.inDepartmentId &&
@@ -393,6 +404,21 @@ class Form extends React.Component<Props, State> {
     } as any);
   };
 
+  focusNext = (index: number, length: number, val?: number) => {
+    let next = index + (val || 1);
+    if (next >= length) {
+      next = 0;
+    }
+    if (next < 0) {
+      next = length - 1;
+    }
+
+    document
+      .getElementsByClassName('canFocus')
+      [next].getElementsByTagName('input')[0]
+      .focus();
+  };
+
   renderProducts = (
     title: string,
     productsData: any[],
@@ -412,7 +438,7 @@ class Form extends React.Component<Props, State> {
             </tr>
           </thead>
           <tbody>
-            {productsData.map(pd => {
+            {productsData.map((pd, index) => {
               return (
                 <PerformDetail
                   key={pd._id}
@@ -421,6 +447,9 @@ class Form extends React.Component<Props, State> {
                   stateName={stateName}
                   onChangeState={this.onChangePerView}
                   isReadSeries={stateName === 'inProducts'}
+                  onEnter={val =>
+                    this.focusNext(index, productsData.length, val)
+                  }
                 />
               );
             })}
@@ -447,7 +476,7 @@ class Form extends React.Component<Props, State> {
             </tr>
           </thead>
           <tbody>
-            {productsData.map(pd => {
+            {productsData.map((pd, index) => {
               return (
                 <PerformDetail
                   key={pd._id}
@@ -456,6 +485,9 @@ class Form extends React.Component<Props, State> {
                   stateName={'outProducts'}
                   hasCost={true}
                   onChangeState={this.onChangePerView}
+                  onEnter={val =>
+                    this.focusNext(index, productsData.length, val)
+                  }
                 />
               );
             })}
@@ -581,7 +613,7 @@ class Form extends React.Component<Props, State> {
       return (
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{__(`In Branch`)}</ControlLabel>
+            <ControlLabel>{__(`Send Branch`)}</ControlLabel>
             <SelectBranches
               label="Choose branch"
               name="inBranchId"
@@ -595,7 +627,7 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__(`In Department`)}</ControlLabel>
+            <ControlLabel>{__(`Send Department`)}</ControlLabel>
             <SelectDepartments
               label="Choose department"
               name="inDepartmentId"
@@ -637,7 +669,7 @@ class Form extends React.Component<Props, State> {
       return (
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{__(`Out Branch`)}</ControlLabel>
+            <ControlLabel>{__(`Receipt Branch`)}</ControlLabel>
             <SelectBranches
               label="Choose branch"
               name="outBranchId"
@@ -651,7 +683,7 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__(`Out Department`)}</ControlLabel>
+            <ControlLabel>{__(`Receipt Department`)}</ControlLabel>
             <SelectDepartments
               label="Choose department"
               name="outDepartmentId"
@@ -674,13 +706,13 @@ class Form extends React.Component<Props, State> {
       <FormColumn>
         <FormGroup>
           <ControlLabel>
-            {__(`Out Branch`)}:{' '}
+            {__(`Receipt Branch`)}:{' '}
             {this.renderLocLabel(overallWorkDetail.outBranch)}
           </ControlLabel>
         </FormGroup>
         <FormGroup>
           <ControlLabel>
-            {__(`Out Department`)}:{' '}
+            {__(`Receipt Department`)}:{' '}
             {this.renderLocLabel(overallWorkDetail.outDepartment)}
           </ControlLabel>
         </FormGroup>
@@ -959,7 +991,7 @@ class Form extends React.Component<Props, State> {
                 onSelect={userIds =>
                   this.setStateWrapper({ assignedUserIds: userIds as string[] })
                 }
-                multi={true}
+                multi={false}
               />
             </FormGroup>
           </FormColumn>

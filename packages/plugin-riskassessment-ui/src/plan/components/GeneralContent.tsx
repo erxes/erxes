@@ -13,6 +13,8 @@ import Select from 'react-select-plus';
 import { FormContainer } from '../../styles';
 import { CARDTYPES, STRUCTURETYPES } from '../common/constants';
 import { SelectStructure } from '../common/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { SelectTags } from '../../indicator/common/utils';
 type Props = {
   onChange: (value, name) => void;
   plan: any;
@@ -76,6 +78,17 @@ class GeneralConfig extends React.Component<Props, State> {
           onChange={onChange}
           multi={false}
         />
+        {isEnabled('tags') && (
+          <FormGroup>
+            <ControlLabel>{__('Tags')}</ControlLabel>
+            <SelectTags
+              name="tagId"
+              label="Choose Tags"
+              initialValue={plan.tagId}
+              onSelect={onChange}
+            />
+          </FormGroup>
+        )}
         {structureType && (
           <>
             <FormGroup>

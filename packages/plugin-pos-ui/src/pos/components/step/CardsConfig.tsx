@@ -48,16 +48,19 @@ class CardsConfig extends React.Component<Props, State> {
     e.preventDefault();
     const { cardsConfig } = this.state;
 
-    cardsConfig.newCardsConfig = {
-      branchId: '',
-      boardId: '',
-      pipelineId: '',
-      stageId: '',
-      assignedUserIds: [],
-      deliveryMapField: ''
-    };
-
-    this.setState({ cardsConfig });
+    this.setState({
+      cardsConfig: {
+        ...cardsConfig,
+        newCardsConfig: {
+          branchId: '',
+          boardId: '',
+          pipelineId: '',
+          stageId: '',
+          assignedUserIds: [],
+          deliveryMapField: ''
+        }
+      }
+    });
   };
 
   delete = (currentConfigKey: string) => {

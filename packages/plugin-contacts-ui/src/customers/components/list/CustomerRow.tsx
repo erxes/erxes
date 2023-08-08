@@ -88,15 +88,6 @@ function displayValue(customer, name, index) {
     );
   }
 
-  if (name === 'primaryEmail') {
-    return (
-      <PrimaryEmail
-        email={value}
-        status={customer.emailValidationStatus || ''}
-      />
-    );
-  }
-
   if (name === 'primaryPhone') {
     return (
       <PrimaryPhone
@@ -183,13 +174,27 @@ function CustomerRow({
           onChange={onChange}
         />
       </td>
-      {(columnsConfig || []).map(({ name }, i) => (
-        <td key={i}>
-          <ClickableRow onClick={onTrClick}>
-            {displayValue(customer, name, index)}
-          </ClickableRow>
-        </td>
-      ))}
+      {(columnsConfig || []).map(({ name }, i) => {
+        if (name === 'primaryEmail') {
+          return (
+            <td key={i}>
+              <PrimaryEmail
+                customerId={customer._id}
+                email={_.get(customer, name)}
+                status={customer.emailValidationStatus || ''}
+              />
+            </td>
+          );
+        }
+
+        return (
+          <td key={i}>
+            <ClickableRow onClick={onTrClick}>
+              {displayValue(customer, name, index)}
+            </ClickableRow>
+          </td>
+        );
+      })}
       <td onClick={onTrClick}>
         <Tags tags={tags || []} limit={3} />
       </td>

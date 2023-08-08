@@ -56,18 +56,6 @@ class PaymentsStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  onChangeSwitch = e => {
-    const { pos } = this.props;
-
-    if (pos[e.target.id]) {
-      pos[e.target.id].isActive = e.target.checked;
-    } else {
-      pos[e.target.id] = { isActive: e.target.checked };
-    }
-
-    this.onChangeFunction('pos', pos);
-  };
-
   onChangePayments = ids => {
     const { pos } = this.props;
     this.onChangeFunction('pos', { ...pos, paymentIds: ids });
