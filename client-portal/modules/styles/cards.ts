@@ -295,7 +295,7 @@ const RightSidebar = styled(Card)`
 
 const GroupList = styled.div`
   margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
-  border-radius: 12px;
+  border-radius: 0 0 12px 12px;
   border: 1px solid ${colors.borderDarker};
   background: ${colors.colorWhite};
 
@@ -325,6 +325,8 @@ const GroupBoxWrapper = styled.div`
   }
 
   border-radius: 12px;
+
+  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const CardTab = styledTS<{ baseColor?: string }>(styled.div)`

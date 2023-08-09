@@ -39,7 +39,7 @@ export default function Group({ items, item, type, groupType }: Props) {
 
   return (
     <GroupBoxWrapper>
-      <Box title={boxTitle}>
+      <Box title={boxTitle} hasShadow={false}>
         <GroupList>
           <GroupWrapper>
             <ListHead className="head">

@@ -13,6 +13,7 @@ type BoxProps = {
   collapsible?: boolean;
   isOpen?: boolean;
   titleChildren?: React.ReactNode;
+  hasShadow?: boolean;
 };
 
 type BoxState = {
@@ -76,8 +77,9 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const { isOpen } = this.state;
     const { children, title, collapsible, titleChildren } = this.props;
 
+    const shadow = this.props.hasShadow || false;
     return (
-      <SectionContainer hasShadow={true}>
+      <SectionContainer hasShadow={shadow}>
         <Title onClick={this.toggle}>
           {title}
           {titleChildren}
