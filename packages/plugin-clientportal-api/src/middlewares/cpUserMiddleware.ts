@@ -26,6 +26,8 @@ export default async function cpUserMiddleware(
       'clientPortalRemove',
       'clientPortalGetAllowedFields',
       'clientPortalLogin',
+      'clientPortalLogout',
+      'clientPortalLoginWithPhone',
       'clientPortalRegister',
       'clientPortalVerifyOTP',
       'clientPortalRefreshToken',

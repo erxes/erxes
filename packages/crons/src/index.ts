@@ -62,7 +62,7 @@ initBroker({ RABBITMQ_HOST, redis })
     });
 
     // every day at 04hour:20min:20sec
-    schedule.scheduleJob('20 20 20 * * *', async () => {
+    schedule.scheduleJob('20 12 4 * * *', async () => {
       console.log('every day ....', services);
 
       await sendMessage(subdomain, 'handleDailyJob', services);

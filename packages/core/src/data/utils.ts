@@ -20,6 +20,7 @@ import {
 } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { getService, getServices, redis } from '../serviceDiscovery';
+
 export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
@@ -295,8 +296,6 @@ export const checkFile = async (models: IModels, file, source?: string) => {
   // determine file type using magic numbers
   const ft = fileType(buffer);
 
-  console.log('FILE TYPEeeeeeeee', ft);
-
   const unsupportedMimeTypes = [
     'text/csv',
     'image/svg+xml',
@@ -310,8 +309,6 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'application/vnd.ms-excel',
     'application/vnd.ms-powerpoint'
   ];
-
-  console.log('FILE TYPE', file.type);
 
   // allow csv, svg to be uploaded
   if (!ft && unsupportedMimeTypes.includes(file.type)) {

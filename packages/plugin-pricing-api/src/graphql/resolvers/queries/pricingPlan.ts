@@ -15,7 +15,11 @@ const generateFilter = async (subdomain, models, params) => {
     departmentId,
     date,
     productId,
-    prioritizeRule
+    prioritizeRule,
+    isQuantityEnabled,
+    isPriceEnabled,
+    isExpiryEnabled,
+    isRepeatEnabled
   } = params;
   const filter: any = { status: 'active' };
 
@@ -27,6 +31,19 @@ const generateFilter = async (subdomain, models, params) => {
 
   if (departmentId) {
     filter.departmentIds = { $in: [departmentId] };
+  }
+
+  if (isQuantityEnabled !== undefined) {
+    filter.isQuantityEnabled = isQuantityEnabled;
+  }
+  if (isPriceEnabled !== undefined) {
+    filter.isPriceEnabled = isPriceEnabled;
+  }
+  if (isExpiryEnabled !== undefined) {
+    filter.isExpiryEnabled = isExpiryEnabled;
+  }
+  if (isRepeatEnabled !== undefined) {
+    filter.isRepeatEnabled = isRepeatEnabled;
   }
 
   if (date) {

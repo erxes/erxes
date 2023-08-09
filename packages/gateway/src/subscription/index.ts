@@ -65,7 +65,9 @@ export async function startSubscriptionServer(
   if (disposable) {
     try {
       await disposable.dispose();
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   disposable = useServer(
