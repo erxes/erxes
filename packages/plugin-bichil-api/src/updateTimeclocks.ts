@@ -29,7 +29,7 @@ export const removeAndUpdateTimeclocks = async params => {
 
   console.log('Connected to mongo server');
 
-  db = client.db('bichil') as Db;
+  db = client.db('erxes') as Db;
 
   const agg = await db.collection('timeclocks').aggregate([
     {
