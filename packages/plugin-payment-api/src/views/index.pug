@@ -18,10 +18,21 @@ block layout-content
           img(src=`${prefix}/pl:payment/static/images/payments/${payment.kind}.png`)
           .payment-name  
             p !{payment.title}  
+
+    if monpayCouponEnabled
+      .monpay-coupon(id='monpay-coupon')
+        input(type='text', placeholder='Enter coupon code', id='coupon-input')
+        br
+        button(type='button', onclick=`onCouponClick('${JSON.stringify(invoiceData)}','${prefix}')`, class='btn btn-primary') #{__('Apply coupon')}
+      p(id='coupon-response')
+    
+        
     .block.amount
       h4 #{__('Payment amount')}
-      h2.amount-total #{invoiceData.amount.toLocaleString(undefined, {maximumFractionDigits: 2})} ₮
-  
+      h2.amount-total(id='payment-amount') #{invoiceData.amount.toLocaleString(undefined, {maximumFractionDigits: 2})} ₮
+
+    
+
       if invoiceData.warningText 
         .block.warning
           i.fa.fa-exclamation-triangle

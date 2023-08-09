@@ -1,3 +1,5 @@
+const { doc } = require('prettier');
+
 async function onPaymentClick(payment, invoiceData, prefix) {
   const modalContent = document.querySelector('.modal-content');
   const image = document.getElementById('qr-code');
@@ -11,9 +13,9 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   const loader = document.querySelector('.loader');
   const deeplink = document.getElementById('deeplink');
 
-  deeplink.href = ""
-  deeplink.innerHTML = "";
-    
+  deeplink.href = '';
+  deeplink.innerHTML = '';
+
   let isMobile = false;
 
   if (/Mobi/.test(navigator.userAgent)) {
@@ -84,7 +86,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   const { apiResponse } = data.invoice;
 
   if (data.invoice._id) {
-    intervalId = setInterval(async function () {
+    intervalId = setInterval(async function() {
       const response = await fetch(`${prefix}/pl:payment/checkInvoice`, {
         method: 'POST',
         body: JSON.stringify({ invoiceId: data.invoice._id }),
@@ -124,7 +126,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     responseText.style.display = 'block';
     responseText.innerHTML = 'Утасны дугаараа оруулна уу';
 
-    storepayBtn.addEventListener('click', function () {
+    storepayBtn.addEventListener('click', function() {
       onStorePayClick(paymentObj, invoiceObj, prefix);
     });
   }
@@ -148,7 +150,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     checkButton.style.display = 'block';
     alertBlock.style.display = 'none';
 
-    checkButton.addEventListener('click', function () {
+    checkButton.addEventListener('click', function() {
       fetch(`${prefix}/pl:payment/gateway/manualCheck`, {
         method: 'POST',
         body: JSON.stringify({ invoiceId: data.invoice._id }),
@@ -181,17 +183,18 @@ async function onPaymentClick(payment, invoiceData, prefix) {
         });
     });
   }
-  console.log('isMobile', isMobile)
+
   if (apiResponse.deeplink && isMobile) {
     deeplink.href = apiResponse.deeplink;
     deeplink.target = '_blank';
     deeplink.innerHTML = `Open in ${paymentObj.kind}`;
   }
 
-
+  let amountValue = data.invoice.amount - data.invoice.couponAmount;
+  amountValue = amountValue < 0 ? 0 : amountValue;
 
   amount.innerHTML =
-    invoiceObj.amount.toLocaleString(undefined, {
+    amountValue.toLocaleString(undefined, {
       maximumFractionDigits: 2,
     }) + ' ₮';
 
@@ -237,4 +240,48 @@ async function onStorePayClick(payment, invoice, prefix) {
     responseText.style.display = 'block';
     responseText.innerHTML = apiResponse.text;
   }
+}
+
+async function onCouponClick(invoiceData, prefix) {
+  const url = `${prefix}/pl:payment/gateway/monpay/coupon`;
+
+  const body = {
+    invoiceData: JSON.parse(invoiceData),
+    couponCode: document.getElementById('coupon-input').value,
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (response.status !== 200) {
+    const responseText = document.getElementById('coupon-response');
+    responseText.style.display = 'block';
+    responseText.innerHTML = 'Купон хүчингүй байна';
+    return;
+  }
+
+  const { invoice } = await response.json();
+
+  // if coupon applied hide coupon input
+  if (invoice.couponCode && invoice.couponAmount) {
+    document.getElementById('monpay-coupon').style.display = 'none';
+  }
+
+  // update invoice amount
+
+  let amount = invoice.amount - invoice.couponAmount;
+
+  if (amount < 0) {
+    amount = 0;
+  }
+
+  document.getElementById('payment-amount').innerHTML =
+    amount.toLocaleString(undefined, {
+      maximumFractionDigits: 2,
+    }) + ' ₮';
 }

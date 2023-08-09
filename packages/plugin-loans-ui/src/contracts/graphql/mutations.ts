@@ -158,6 +158,24 @@ const fixSchedules = `
   }
 `;
 
+const changeClassification = `
+  mutation ClassificationsAdd($classifications: JSON) {
+    classificationsAdd(classifications: $classifications) {
+      _id
+      description
+      invDate
+      classification
+      total
+      newClassification
+      dtl {
+        amount
+        contractId
+        currency
+      }
+    }
+  }
+`;
+
 export default {
   contractsAdd,
   contractsEdit,
@@ -166,5 +184,6 @@ export default {
   regenSchedules,
   fixSchedules,
   contractsClose,
-  getProductsData
+  getProductsData,
+  changeClassification
 };

@@ -75,6 +75,7 @@ export interface IContract {
   dealId?: string;
   hasTransaction?: boolean;
   currency: string;
+  expiredDays?: number;
 }
 
 export interface IContractDoc extends IContract {
