@@ -6,6 +6,7 @@ import invoiceQueries from './invoices';
 import scheduleQueries from './schedules';
 import transactionQueries from './transactions';
 import collateralQueries from './collaterals';
+import classificationQueries from './classification';
 
 export default {
   ...periodLockQueries,
@@ -15,5 +16,6 @@ export default {
   ...invoiceQueries,
   ...scheduleQueries,
   ...transactionQueries,
-  ...collateralQueries
+  ...collateralQueries,
+  ...classificationQueries
 };

@@ -53,6 +53,12 @@ const ContractTypeDetails = asyncComponent(() =>
   )
 );
 
+const ClassificationList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "ContractTypeDetails" */ './classificationHistory/containers/ClassificationList'
+  )
+);
+
 const contractLists = ({ location, history }) => {
   return (
     <ContractList
@@ -113,6 +119,15 @@ const insuranceTypesLists = ({ location, history }) => {
 const contractTypesLists = ({ location, history }) => {
   return (
     <ContractTypesList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const classificationHistoryList = ({ location, history }) => {
+  return (
+    <ClassificationList
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -181,6 +196,10 @@ const LoanRoutes = () => {
       <Route
         path="/erxes-plugin-loan/periodLock-details/:id"
         component={periodLockDetail}
+      />
+      <Route
+        path="/erxes-plugin-loan/classificationHistory"
+        component={classificationHistoryList}
       />
     </React.Fragment>
   );
