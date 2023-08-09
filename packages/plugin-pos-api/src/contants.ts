@@ -19,9 +19,9 @@ export const POS_ORDER_INFO = {
   registerNumber: 'Register number',
   oldbillId: 'Old bill id',
   type: 'Order type',
-  branchId: 'Branch id',
-  departmentId: 'Department id',
-  userId: 'User id',
+  branch: 'Branch',
+  department: 'Department',
+  userId: 'Created user',
   synced: 'Synced',
   posToken: 'Pos token',
   subToken: 'Sub token',
@@ -53,7 +53,7 @@ export const POS_ORDER_INFO = {
     { field: 'type', label: 'Order type' },
     { field: 'branchId', label: 'Branch id' },
     { field: 'departmentId', label: 'Department id' },
-    { field: 'userId', label: 'User id' },
+    { field: 'userId', label: 'Created User' },
     { field: 'synced', label: 'Synced' },
     { field: 'posToken', label: 'Pos token' },
     { field: 'subToken', label: 'Sub token' },
@@ -68,14 +68,50 @@ export const POS_ORDER_INFO = {
 export const EXTEND_FIELDS = [
   {
     _id: Math.random(),
-    name: 'branchId',
-    label: 'branchId',
+    name: 'items.productCategoryCode',
+    label: 'product Category Code',
     type: 'string'
   },
   {
     _id: Math.random(),
-    name: 'number',
-    label: 'Number',
+    name: 'items.productCategoryName',
+    label: 'product Category Name',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'items.amount',
+    label: 'Amount',
+    type: 'number'
+  },
+  {
+    _id: Math.random(),
+    name: 'items.productCode',
+    label: 'Product code',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'items.productName',
+    label: 'Product name',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'items.barcode',
+    label: 'Barcode',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'paymentType',
+    label: 'Payment type',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'pos',
+    label: 'POS',
     type: 'string'
   }
 ];

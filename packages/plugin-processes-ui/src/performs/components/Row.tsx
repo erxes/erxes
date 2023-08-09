@@ -56,7 +56,8 @@ class Row extends React.Component<Props> {
       inBranch,
       inDepartment,
       outBranch,
-      outDepartment
+      outDepartment,
+      description
     } = perform;
 
     const onTrClick = () => {};
@@ -74,6 +75,7 @@ class Row extends React.Component<Props> {
         <td>{this.displayDate(startAt)}</td>
         <td>{this.displayDate(endAt)}</td>
         <td>{count}</td>
+        <td>{description}</td>
         <td>{inProductsLen}</td>
         <td>{outProductsLen}</td>
         <td>{this.displayLoc(inBranch)}</td>
