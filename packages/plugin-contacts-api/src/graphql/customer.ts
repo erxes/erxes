@@ -93,6 +93,7 @@ const queryParams = `
   birthDate: Date
   dateFilters: String
   segmentData: String
+  emailValidationStatus:String
   ${conformityQueryFields}
 `;
 

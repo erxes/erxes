@@ -1,34 +1,35 @@
-import React from 'react';
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import { IAction } from '@erxes/ui-automations/src/types';
+import AddTemplateForm from '@erxes/ui-emailtemplates/src/containers/Form';
+import SelectEmailTemplates from '@erxes/ui-emailtemplates/src/containers/SelectEmailtTemplate';
 import {
   BarItems,
   Button,
   Chip,
   ControlLabel,
-  EmptyState,
   FormControl,
   FormGroup,
+  HelpPopover,
   Icon,
   ModalTrigger,
   SelectTeamMembers,
-  Spinner,
-  __,
-  colors,
-  withProps
+  __
 } from '@erxes/ui/src';
-import { DrawerDetail } from '@erxes/ui-automations/src/styles';
-import { BackIcon } from '../../../../styles';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Select from 'react-select-plus';
-import { RECIPIENT_TYPES } from '../constants';
-import { IAction } from '@erxes/ui-automations/src/types';
 import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
-import SelectEmailTemplates from '@erxes/ui-emailtemplates/src/containers/SelectEmailtTemplate';
-import AddTemplateForm from '@erxes/ui-emailtemplates/src/containers/Form';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import Select from 'react-select-plus';
+import { BackIcon } from '../../../../styles';
+import { renderDynamicComponent } from '../../../../utils';
+import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
+import { StepImg } from '@erxes/ui/src/components/step/styles';
 
 type Props = {
   activeAction: any;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   closeModal: () => void;
+  emailRecipientsConst: any[];
+  triggerType: string;
 };
 
 type State = {
@@ -49,7 +50,6 @@ class SendMail extends React.Component<Props, State> {
 
   renderCustomMailInput() {
     const { config } = this.state;
-
     const onChange = e => {
       const { value } = e.currentTarget as HTMLInputElement;
       if (
@@ -96,32 +96,95 @@ class SendMail extends React.Component<Props, State> {
     );
   }
 
+  renderAttrubutionInput() {
+    const { triggerType } = this.props;
+    const { config } = this.state;
+
+    const onChange = updatedConfig => {
+      this.setState({
+        config: updatedConfig
+      });
+    };
+
+    return (
+      <>
+        <PlaceHolderInput
+          config={config}
+          triggerType={triggerType}
+          inputName="triggerAttributionMails"
+          label="Trigger Attribution Mails"
+          attrType="user"
+          onChange={onChange}
+          additionalContent={
+            <HelpPopover>
+              This type does not include (From Mail) and (Not Verified mails)
+            </HelpPopover>
+          }
+        />
+      </>
+    );
+  }
+
   renderRecipientTypeComponent(type, onSelect) {
     if (!type) {
       return null;
     }
 
-    const { component, value, label, name } = RECIPIENT_TYPES.find(
-      rType => rType.value === type
-    ) as any;
+    const { config } = this.state;
+    const { emailRecipientsConst } = this.props;
+    const { serviceName, label, name } =
+      (emailRecipientsConst.find(rType => rType.type === type) as any) || {};
 
-    if (value === 'customMail') {
-      return this.renderCustomMailInput();
+    if (serviceName) {
+      return renderDynamicComponent(
+        {
+          componentType: 'selectReciepents',
+          type,
+          value: config[name],
+          label,
+          name,
+          onSelect
+        },
+        `${serviceName}:${type}`
+      );
     }
 
-    const Component = component;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{__(label)}</ControlLabel>
-        <Component name={name} label={label} onSelect={onSelect} />
-      </FormGroup>
-    );
+    switch (type) {
+      case 'customMail':
+        return this.renderCustomMailInput();
+      case 'triggerAttributionMails':
+        return this.renderAttrubutionInput();
+      case 'teamMember':
+        return (
+          <FormGroup>
+            <ControlLabel>{__(label)}</ControlLabel>
+            <SelectTeamMembers
+              name={name}
+              initialValue={config[name]}
+              label={label}
+              onSelect={onSelect}
+              filterParams={{
+                excludeIds: true,
+                ids: [config.fromUserId],
+                status: 'Verified'
+              }}
+            />
+          </FormGroup>
+        );
+      default:
+        return null;
+    }
   }
 
   renderConfig() {
     const { config } = this.state;
-    const { addAction, activeAction, closeModal } = this.props;
+    const {
+      addAction,
+      activeAction,
+      closeModal,
+      emailRecipientsConst,
+      triggerType
+    } = this.props;
 
     const onBackAction = () => {
       this.setState({ config: null });
@@ -137,10 +200,12 @@ class SendMail extends React.Component<Props, State> {
       this.setState({ config: { ...config, [name]: value } });
     };
 
+    const onChangeConfig = rConf => {};
+
     const onChangeReciepentType = (value, name) => {
-      const keys = RECIPIENT_TYPES.filter(rType => rType.value !== value).map(
-        rType => rType.name
-      );
+      const keys = emailRecipientsConst
+        .filter(rType => rType.type !== value)
+        .map(rType => rType.name);
 
       const updatedConfig = Object.fromEntries(
         Object.entries(config).filter(([key]) => !!keys.includes(key))
@@ -166,34 +231,33 @@ class SendMail extends React.Component<Props, State> {
             initialValue={config?.fromUserId}
             label="Select from user"
             onSelect={onSelect}
+            filterParams={{
+              status: 'Verified'
+            }}
             multi={false}
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>{'Sender'}</ControlLabel>
-          <FormControl
-            name="sender"
-            defaultValue={config?.sender}
-            onChange={onChange}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{'Email Subject'}</ControlLabel>
-          <FormControl
-            name="subject"
-            defaultValue={config?.subject}
-            onChange={onChange}
-          />
-        </FormGroup>
+        <PlaceHolderInput
+          inputName="subject"
+          label="Email Subject"
+          config={config}
+          onChange={onChangeConfig}
+          onKeyPress={onChange}
+          triggerType={triggerType}
+        />
         <FormGroup>
           <ControlLabel>{__('Recipient types')}</ControlLabel>
           <Select
-            options={RECIPIENT_TYPES}
+            options={(emailRecipientsConst || []).map(eR => ({
+              value: eR.type,
+              label: eR.label
+            }))}
             name="recipientType"
             value={config?.recipientType}
-            onChange={e => onChangeReciepentType(e.value, 'recipientType')}
+            onChange={e =>
+              onChangeReciepentType(e?.value || '', 'recipientType')
+            }
           />
         </FormGroup>
         {this.renderRecipientTypeComponent(config.recipientType, onSelect)}

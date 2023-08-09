@@ -155,24 +155,32 @@ export default {
     const models = await generateModels(subdomain);
     const { type, config } = data;
 
+    const commonFilter = {
+      emailValidationStatus: 'valid'
+    };
+
     const contactTypes = {
-      leads: {
+      lead: {
         model: models.Customers,
-        filter: { _id: { $in: config.leadIds } }
+        filter: { ...commonFilter, _id: { $in: config.leadIds }, state: 'lead' }
       },
-      customers: {
+      customer: {
         model: models.Customers,
-        filter: { _id: { $in: config.customerIds } }
+        filter: {
+          ...commonFilter,
+          _id: { $in: config.customerIds },
+          state: 'customer'
+        }
       },
-      companies: {
+      company: {
         model: models.Companies,
-        filter: { _id: { $in: config.companyIds } }
+        filter: { ...commonFilter, _id: { $in: config.companyIds } }
       }
     };
 
     const { model, filter } = contactTypes[type];
 
-    return model.find(filter).map(contact => contact?.primaryEmail);
+    return await model.find(filter).distinct('primaryEmail');
   },
   constants: {
     triggers: [
@@ -199,6 +207,23 @@ export default {
         label: 'Company',
         description:
           'Start with a blank workflow that enralls and is triggered off company'
+      }
+    ],
+    emailReciepentTypes: [
+      {
+        type: 'lead',
+        name: 'leadIds',
+        label: 'Leads'
+      },
+      {
+        type: 'customer',
+        name: 'customerIds',
+        label: 'Customers'
+      },
+      {
+        type: 'company',
+        name: 'companyIds',
+        label: 'Company'
       }
     ]
   }

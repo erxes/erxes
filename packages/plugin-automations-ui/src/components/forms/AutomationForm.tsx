@@ -1,9 +1,12 @@
-import { jsPlumb } from 'jsplumb';
-import jquery from 'jquery';
-import RTG from 'react-transition-group';
-import React from 'react';
-import { AutomationConstants } from '../../types';
+import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
+import { Alert, __ } from 'coreui/utils';
+import jquery from 'jquery';
+import { jsPlumb } from 'jsplumb';
+import React from 'react';
+import RTG from 'react-transition-group';
 import {
   ActionBarButtonsWrapper,
   AutomationFormContainer,
@@ -17,11 +20,12 @@ import {
   ZoomActions,
   ZoomIcon
 } from '../../styles';
-import { ScrolledContent } from '@erxes/ui-automations/src/styles';
-import { Alert, __ } from 'coreui/utils';
-import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
-import { IAutomation, IAutomationNote, ITrigger } from '../../types';
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import {
+  AutomationConstants,
+  IAutomation,
+  IAutomationNote,
+  ITrigger
+} from '../../types';
 import {
   connection,
   connectorHoverStyle,
@@ -36,24 +40,24 @@ import {
   yesEndPoint
 } from '../../utils';
 
-import TemplateForm from '../../containers/forms/TemplateForm';
-import ActionDetailForm from './actions/ActionDetailForm';
-import ActionsForm from '../../containers/forms/actions/ActionsForm';
-import Button from '@erxes/ui/src/components/Button';
-import Confirmation from '../../containers/forms/Confirmation';
 import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
-import Form from '@erxes/ui/src/components/form/Form';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Histories from '../../components/histories/Wrapper';
+import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import Modal from 'react-bootstrap/Modal';
-import NoteFormContainer from '../../containers/forms/NoteForm';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import TriggerDetailForm from './triggers/TriggerDetailForm';
-import TriggerForm from '../../containers/forms/triggers/TriggerForm';
+import { FormControl } from '@erxes/ui/src/components/form';
+import Form from '@erxes/ui/src/components/form/Form';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Modal from 'react-bootstrap/Modal';
+import { Link } from 'react-router-dom';
+import Histories from '../../components/histories/Wrapper';
+import Confirmation from '../../containers/forms/Confirmation';
+import NoteFormContainer from '../../containers/forms/NoteForm';
+import TemplateForm from '../../containers/forms/TemplateForm';
+import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import TriggerForm from '../../containers/forms/triggers/TriggerForm';
+import ActionDetailForm from './actions/ActionDetailForm';
+import TriggerDetailForm from './triggers/TriggerDetailForm';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -741,7 +745,12 @@ class AutomationForm extends React.Component<Props, State> {
     } = this.state;
 
     const {
-      constants: { triggersConst, actionsConst, propertyTypesConst }
+      constants: {
+        triggersConst,
+        actionsConst,
+        propertyTypesConst,
+        emailRecipientsConst
+      }
     } = this.props;
 
     const onBack = () => this.setState({ showTrigger: false });
@@ -790,6 +799,7 @@ class AutomationForm extends React.Component<Props, State> {
               triggerType={getTriggerType(actions, triggers, activeAction.id)}
               actionsConst={actionsConst}
               propertyTypesConst={propertyTypesConst}
+              emailRecipientsConst={emailRecipientsConst}
             />
           </>
         );

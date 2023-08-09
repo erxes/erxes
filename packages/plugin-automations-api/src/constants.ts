@@ -49,10 +49,17 @@ export const UI_ACTIONS = [
 export const EMAIL_RECIEPENTS_TYPES = [
   {
     type: 'teamMember',
-    fieldName: 'teamMemberIds'
+    name: 'teamMemberIds',
+    label: 'Team Members'
   },
   {
     type: 'customMail',
-    fieldName: 'customMails'
+    name: 'customMails',
+    label: 'Custom Mails'
+  },
+  {
+    type: 'triggerAttributionMails',
+    name: 'triggerAttributionMails',
+    label: 'Trigger Attribution Mails'
   }
 ];

@@ -4,7 +4,7 @@ import {
   TriggerType
 } from './models/definitions/automaions';
 
-import { ACTIONS, EMAIL_RECIEPENTS_TYPES } from './constants';
+import { ACTIONS } from './constants';
 import {
   EXECUTION_STATUS,
   IExecAction,
@@ -12,16 +12,11 @@ import {
 } from './models/definitions/executions';
 
 import { getActionsMap } from './helpers';
-import {
-  sendCommonMessage,
-  sendCoreMessage,
-  sendEmailTemplateMessage,
-  sendSegmentsMessage
-} from './messageBroker';
+import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
 import { debugBase } from '@erxes/api-utils/src/debuggers';
-import { serviceDiscovery } from './configs';
 import { IModels } from './connectionResolver';
+import { sendEmail } from './common/emailUtils';
 
 export const getEnv = ({
   name,
@@ -148,54 +143,13 @@ export const executeActions = async (
     }
 
     if (action.type === ACTIONS.SEND_EMAIL) {
-      const config = action.config;
-      const {
-        templateId,
-        fromUserId,
-        subject,
-        recipientType,
-        customMails
-      } = config;
-
-      const template = await sendEmailTemplateMessage({
-        subdomain,
-        action: 'findOne',
-        data: {
-          _id: templateId
-        },
-        isRPC: true,
-        defaultValue: null
-      });
-
-      const fromUser = await sendCoreMessage({
-        subdomain,
-        action: 'users.findOne',
-        data: {
-          _id: fromUserId
-        },
-        isRPC: true
-      });
-
-      let payload = {
-        fromEmail: fromUser.email,
-        toEmails: await getReciepentEmails({
-          subdomain,
-          type: recipientType,
-          config
-        }),
-        title: subject,
-        customHtml: template.content
-      };
-
       try {
-        const { fromEmail, toEmails, title } = await sendCoreMessage({
+        actionResponse = await sendEmail({
           subdomain,
-          action: 'sendEmail',
-          data: { ...payload },
-          isRPC: true
+          target: execution.target,
+          triggerType,
+          config: action.config
         });
-
-        console.log(fromEmail, toEmails, title);
       } catch (err) {
         actionResponse = err.messsage;
       }
@@ -413,60 +367,4 @@ export const receiveTrigger = async ({
       }
     }
   }
-};
-
-const getReciepentEmails = async ({ subdomain, config, type }) => {
-  let reciepentTypes = [...EMAIL_RECIEPENTS_TYPES];
-
-  const services = await serviceDiscovery.getServices();
-
-  for (const serviceName of services) {
-    const service = await serviceDiscovery.getService(serviceName, true);
-    const meta = service.config?.meta || {};
-
-    if (meta?.automaions?.emailReciepentTypes) {
-      const { emailReciepentTypes } = meta?.automaions;
-
-      reciepentTypes = [
-        ...reciepentTypes,
-        ...emailReciepentTypes.map(eTR => ({ ...eTR, serviceName }))
-      ];
-    }
-  }
-
-  const reciepentType: any = reciepentTypes.find(
-    reciepentType => reciepentType.type === type
-  );
-
-  const fieldName = reciepentType?.fieldName || '';
-
-  if (reciepentType?.type === 'teamMember') {
-    const users = await sendCoreMessage({
-      subdomain,
-      action: 'users.find',
-      data: {
-        query: {
-          _id: { $in: config[fieldName] || [] }
-        }
-      }
-    });
-
-    return users.map(user => user.email);
-  }
-
-  if (reciepentType?.serviceName) {
-    const { serviceName } = reciepentType;
-
-    return sendCommonMessage({
-      subdomain,
-      serviceName,
-      action: 'automations.getReciepentsEmails',
-      data: {
-        type,
-        config
-      }
-    });
-  }
-
-  return config[type];
 };

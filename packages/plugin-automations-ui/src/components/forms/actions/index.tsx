@@ -9,7 +9,6 @@ import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 import { renderDynamicComponent } from '../../../utils';
-import ExternalCommunications from './subForms/ExternamCommunications';
 import SendMail from './subForms/SendMail';
 type Props = {
   onSave: () => void;

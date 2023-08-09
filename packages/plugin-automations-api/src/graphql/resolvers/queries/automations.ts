@@ -3,11 +3,11 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
+import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
+import { EMAIL_RECIEPENTS_TYPES, UI_ACTIONS } from '../../../constants';
 import { sendSegmentsMessage } from '../../../messageBroker';
 import { ITrigger } from '../../../models/definitions/automaions';
-import { serviceDiscovery } from '../../../configs';
-import { UI_ACTIONS } from '../../../constants';
 
 interface IListArgs {
   status: string;
@@ -208,11 +208,18 @@ const automationQueries = {
       triggerTypesConst: string[];
       actionsConst: any[];
       propertyTypesConst: Array<{ value: string; label: string }>;
+      emailRecipientsConst: Array<{
+        type: string;
+        name: string;
+        label: string;
+        serviceName?: string;
+      }>;
     } = {
       triggersConst: [],
       triggerTypesConst: [],
       actionsConst: [...UI_ACTIONS],
-      propertyTypesConst: []
+      propertyTypesConst: [],
+      emailRecipientsConst: [...EMAIL_RECIEPENTS_TYPES]
     };
 
     for (const serviceName of services) {
@@ -221,7 +228,11 @@ const automationQueries = {
 
       if (meta && meta.automations && meta.automations.constants) {
         const pluginConstants = meta.automations.constants || {};
-        const { triggers = [], actions = [] } = pluginConstants;
+        const {
+          triggers = [],
+          actions = [],
+          emailReciepentTypes = []
+        } = pluginConstants;
 
         for (const trigger of triggers) {
           constants.triggersConst.push(trigger);
@@ -234,6 +245,13 @@ const automationQueries = {
 
         for (const action of actions) {
           constants.actionsConst.push(action);
+        }
+
+        for (const emailReciepentType of emailReciepentTypes) {
+          constants.emailRecipientsConst.push({
+            ...emailReciepentType,
+            serviceName
+          });
         }
       }
     }
