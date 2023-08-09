@@ -326,7 +326,7 @@ const GroupBoxWrapper = styled.div`
 
   border-radius: 12px;
 
-  border-bottom: 1px solid ${colors.borderPrimary};
+  border-top: 1px solid ${colors.borderPrimary};
 `;
 
 const CardTab = styledTS<{ baseColor?: string }>(styled.div)`
