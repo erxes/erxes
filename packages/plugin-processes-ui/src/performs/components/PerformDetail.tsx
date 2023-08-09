@@ -176,6 +176,7 @@ class PerformDetail extends React.Component<Props, State> {
               required={true}
               onChange={this.onChange}
               onKeyDown={this.onKeyDown}
+              onFocus={e => (e.target as any).select()}
             />
           </div>
         </td>
