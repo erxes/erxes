@@ -128,7 +128,7 @@ const orderAdd = async (models, lastDoc, config) => {
     return order;
   } catch (e) {
     if (e.message.includes(`E11000 duplicate key error`)) {
-      await orderAdd(models, lastDoc, config);
+      return await orderAdd(models, lastDoc, config);
     } else {
       throw new Error(e.message);
     }
