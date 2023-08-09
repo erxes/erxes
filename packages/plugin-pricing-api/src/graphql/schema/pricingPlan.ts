@@ -106,6 +106,8 @@ export const types = () => `
     updatedAt: Date,
     updatedBy: String,
     updatedUser: User
+
+    productIds: [String]
   }
 
   input QuantityRuleInput {
@@ -260,6 +262,11 @@ const pricingQueryParams = `
   perPage: Int
   sortField: String
   sortDirection: Int
+
+  isQuantityEnabled: Boolean
+  isPriceEnabled: Boolean
+  isExpiryEnabled: Boolean
+  isRepeatEnabled: Boolean
 `;
 
 export const queries = `
