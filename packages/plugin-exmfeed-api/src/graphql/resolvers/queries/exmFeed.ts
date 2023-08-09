@@ -185,7 +185,7 @@ const exmFeedQueries = {
       } else if (recipientType === 'sent') {
         filter.createdBy = user._id;
       } else {
-        filter.$or(
+        filter.$or.push(
           { recipientIds: { $in: [user._id] } },
           { createdBy: user._id }
         );
