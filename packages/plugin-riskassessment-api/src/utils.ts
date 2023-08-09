@@ -1,12 +1,14 @@
+import { serviceDiscovery } from './configs';
 import { IModels, models } from './connectionResolver';
 import {
   sendCardsMessage,
   sendCoreMessage,
-  sendFormsMessage
+  sendFormsMessage,
+  sendTagsMessage
 } from './messageBroker';
 
 export const validRiskIndicators = async params => {
-  if (!params.tagIds) {
+  if (serviceDiscovery.isEnabled('tags') && !params?.tagIds?.length) {
     throw new Error('Please select some tags');
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {
@@ -23,13 +25,15 @@ export const validRiskIndicators = async params => {
     throw new Error('Please add a form to the risk assessment');
   }
 
+  if (forms?.length === 1) {
+    await validateCalculateMethods(forms[0]);
+  }
+
   for (const form of forms) {
     if (!form.formId) {
       throw new Error('Please build a form');
     }
-    if (!form.calculateMethod) {
-      throw new Error('Provide a calculate method on form');
-    }
+
     if (forms.length > 1) {
       if (!form.percentWeight) {
         throw new Error('Provide a percent weight on form');
@@ -48,19 +52,17 @@ export const validRiskIndicators = async params => {
 
 export const validateCalculateMethods = async params => {
   if (!params.calculateMethod) {
-    throw new Error(
-      'You must specify calculate method of general configuration'
-    );
+    throw new Error('You must specify calculate method');
   }
-  if (!params.calculateLogics.length) {
+  if (!params.calculateLogics?.length) {
     throw new Error('You must specify at least one metric');
   }
   for (const calculateLogic of params.calculateLogics || []) {
-    if (!calculateLogic.logic) {
-      throw new Error('You must specify metric logic');
-    }
     if (!calculateLogic.name) {
       throw new Error('You must specify metric name');
+    }
+    if (!calculateLogic.logic) {
+      throw new Error('You must specify metric logic');
     }
     if (!calculateLogic.value) {
       throw new Error('You must specify metric value ');
@@ -147,7 +149,7 @@ export const checkAllUsersSubmitted = async (
   const assignedUsers = await getAsssignedUsers(subdomain, cardId, cardType);
 
   const assignedUserIds = assignedUsers.map(usr => usr._id);
-  const submissions = await model.RiksFormSubmissions.find({
+  const submissions = await model.RiskFormSubmissions.find({
     cardId,
     formId: { $in: formIds },
     userId: { $in: assignedUserIds }
@@ -209,14 +211,17 @@ export const calculateFormResponses = async ({
   responses,
   fields,
   calculateMethod,
+  generalcalculateMethod,
   filter
 }: {
   responses: { [key: string]: { value: number; description: string } };
   fields: any[];
   calculateMethod: string;
+  generalcalculateMethod?: string;
   filter: any;
 }) => {
   let sumNumber = 0;
+  let scoreAviable = 0;
   const submissions: any = [];
 
   if (calculateMethod === 'Multiply') {
@@ -232,7 +237,7 @@ export const calculateFormResponses = async ({
         .map(item => {
           if (item.match(/=/g)) {
             const label = item?.substring(0, item.indexOf('=')).trim();
-            const value = parseInt(
+            const value = Number(
               item.substring(item?.indexOf('=') + 1, item.length)
             );
             if (!Number.isNaN(value)) {
@@ -241,16 +246,23 @@ export const calculateFormResponses = async ({
           }
         }, [])
         .filter(item => item);
+
+      if (generalcalculateMethod === 'ByPercent') {
+        const scores = optValues.map(option => option.value);
+        scoreAviable += Math.max(...scores);
+      }
+
       const fieldValue = optValues.find(
         option => option.label.trim() === String(response.value).trim()
       );
       switch (calculateMethod) {
         case 'Multiply':
-          sumNumber *= parseInt(fieldValue?.value || 0);
+          sumNumber *= Number(fieldValue?.value || 0);
           break;
         case 'Addition':
         case 'Average':
-          sumNumber += parseInt(fieldValue?.value || 0);
+        case 'ByPercent':
+          sumNumber += Number(fieldValue?.value || 0);
           break;
       }
       submissions.push({
@@ -276,8 +288,7 @@ export const calculateFormResponses = async ({
     const fieldCount = fields?.length || 1;
     sumNumber = sumNumber / fieldCount;
   }
-
-  return { submissions, sumNumber };
+  return { submissions, sumNumber, scoreAviable };
 };
 
 export const getFieldsGroupByForm = async ({
@@ -342,7 +353,7 @@ export const riskAssessmentIndicator = async ({
     await getAsssignedUsers(subdomain, cardId, cardType)
   ).map(user => user._id);
 
-  const submissions = await models.RiksFormSubmissions.find({
+  const submissions = await models.RiskFormSubmissions.find({
     cardId,
     riskAssessmentId,
     riskIndicatorId,
@@ -368,6 +379,21 @@ export const calculateResult = async ({
   resultScore,
   filter
 }) => {
+  if (!calculateLogics?.length) {
+    return await collection.findOneAndUpdate(
+      { ...filter },
+      {
+        $set: {
+          status: 'No Result',
+          statusColor: '#888',
+          resultScore: roundResult(resultScore),
+          closedAt: Date.now()
+        }
+      },
+      { new: true }
+    );
+  }
+
   for (const { name, value, value2, logic, color } of calculateLogics || []) {
     let operator = logic.substring(1, 2);
     if (operator === '≈') {
@@ -429,7 +455,8 @@ export const getIndicatorSubmissions = async ({
   cardId,
   cardType,
   assessmentId,
-  indicatorId
+  indicatorId,
+  params
 }: {
   models: IModels;
   subdomain;
@@ -437,6 +464,7 @@ export const getIndicatorSubmissions = async ({
   cardType?: string;
   assessmentId: string;
   indicatorId: string;
+  params?: any;
 }) => {
   let match: any = { assessmentId, indicatorId };
 
@@ -444,7 +472,11 @@ export const getIndicatorSubmissions = async ({
     match = { ...match, cardType, cardId };
   }
 
-  const submissions = await models.RiksFormSubmissions.aggregate([
+  if (params?.showFlagged) {
+    match.isFlagged = true;
+  }
+
+  const submissions = await models.RiskFormSubmissions.aggregate([
     {
       $match: match
     },
@@ -482,4 +514,32 @@ export const roundResult = (number, places = 2) => {
   fixed += 44; // round down on anything less than x.xxx56
   fixed = Math.floor(fixed / 100); // chop off last 2 digits
   return fixed / Math.pow(10, places);
+};
+
+export const generateSort = (sortField, sortDirection) => {
+  let sort: any = { createdAt: -1 };
+
+  if (sortField && sortDirection) {
+    sort = {};
+    sort = { [sortField]: sortDirection };
+  }
+  return sort;
+};
+
+export const getFilterTagIds = async (subdomain, ids) => {
+  let tagIds: string[] = [];
+  for (const _id of ids) {
+    const childrenIds = (
+      await sendTagsMessage({
+        subdomain,
+        action: 'withChilds',
+        data: { query: { _id }, fields: { _id: 1 } },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(child => child._id);
+    tagIds = [...tagIds, ...childrenIds];
+  }
+
+  return tagIds;
 };

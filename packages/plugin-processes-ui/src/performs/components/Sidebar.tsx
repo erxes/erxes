@@ -11,7 +11,8 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __, router } from '@erxes/ui/src/utils';
+import { router } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { MenuFooter, SidebarFilters } from '../../styles';
 import { SidebarList as List } from '@erxes/ui/src/layout';
@@ -115,7 +116,7 @@ class PerformSidebar extends React.Component<Props, State> {
   runFilter = () => {
     const { filterParams } = this.state;
 
-    router.setParams(this.props.history, { ...filterParams });
+    router.setParams(this.props.history, { ...filterParams, page: 1 });
   };
 
   renderSpec() {

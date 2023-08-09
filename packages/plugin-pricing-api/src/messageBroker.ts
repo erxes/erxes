@@ -68,21 +68,19 @@ export const initBroker = async cl => {
       const allowedProductIds = await getAllowedProducts(
         subdomain,
         plan,
-        productIds
+        productIds || []
       );
 
       const rules = plan.quantityRules || [];
-
-      if (allowedProductIds.length > 0 && rules.length > 0) {
-        const firstRule = rules[0];
-
-        if (firstRule.discountValue > discountValue) {
-          discountValue = firstRule.discountValue;
-          value = firstRule.value;
-          adjustType = firstRule.priceAdjustType;
-          adjustFactor = firstRule.priceAdjustFactor;
-        }
+      if (!(allowedProductIds.length > 0 && rules.length > 0)) {
+        continue;
       }
+
+      const firstRule = rules[0];
+      discountValue = firstRule.discountValue;
+      value = firstRule.value;
+      adjustType = firstRule.priceAdjustType;
+      adjustFactor = firstRule.priceAdjustFactor;
 
       for (const allowProductId of allowedProductIds) {
         const product = productsById[allowProductId];

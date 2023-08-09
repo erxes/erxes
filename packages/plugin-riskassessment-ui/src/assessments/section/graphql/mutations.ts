@@ -12,6 +12,7 @@ const commonParams = `
     $indicatorId: String,
     $operationId: String
     $groupsAssignedUsers:[GroupsAssignedUsers]
+    $permittedUserIds: [String]
 `;
 
 const commonParamsDef = `
@@ -23,6 +24,7 @@ const commonParamsDef = `
     indicatorId: $indicatorId,
     operationId: $operationId
     groupsAssignedUsers:$groupsAssignedUsers
+    permittedUserIds: $permittedUserIds
 `;
 
 const commonFields = `
@@ -73,10 +75,17 @@ const riskFormSaveSubmission = `
   }
 `;
 
+const checkTestScore = `
+  mutation RAIndicatorTestScore($formSubmissions: JSON, $indicatorId: String) {
+    RAIndicatorTestScore(formSubmissions: $formSubmissions, indicatorId: $indicatorId)
+  }
+`;
+
 export default {
   addRiskAssessment,
   editRiskAssessment,
   removeRiskAssessment,
   riskFormSaveSubmission,
-  addBulkAssessment
+  addBulkAssessment,
+  checkTestScore
 };

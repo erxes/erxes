@@ -4,6 +4,7 @@ import { field, schemaHooksWrapper } from './utils';
 export interface IPos {
   name: string;
   description?: string;
+  pdomain?: string;
   userId: string;
   createdAt: Date;
   productDetails?: string;
@@ -69,6 +70,7 @@ export const posSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     description: field({ type: String, label: 'Description', optional: true }),
+    pdomain: field({ type: String, optional: true, label: 'Domain' }),
     userId: field({ type: String, optional: true, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     productDetails: field({ type: [String], label: 'Product fields' }),
@@ -167,6 +169,14 @@ export const posSlotSchema = schemaHooksWrapper(
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
     posId: field({ type: String, label: 'Pos' })
+  }),
+  'erxes_pos_slot'
+);
+
+export const posCoverKindValueSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    code: field({ type: String, label: 'Code' })
   }),
   'erxes_pos_slot'
 );

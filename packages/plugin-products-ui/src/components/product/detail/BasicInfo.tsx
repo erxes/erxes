@@ -130,11 +130,7 @@ class BasicInfo extends React.Component<Props> {
       name,
       type,
       category,
-      supply,
-      productCount,
-      minimiumCount,
       unitPrice,
-      sku,
       barcodes,
       attachment,
       vendor,
@@ -161,12 +157,8 @@ class BasicInfo extends React.Component<Props> {
           {this.renderView('Type', type)}
           {this.renderView('Category', category ? category.name : '')}
           {this.renderView('Unit price', (unitPrice || 0).toLocaleString())}
-          {this.renderView('Sku', sku)}
           {this.renderBarcodes(barcodes)}
           {this.renderVendor(vendor)}
-          {this.renderView('Supply', supply)}
-          {this.renderView('Product count', productCount)}
-          {this.renderView('Minimium product count', minimiumCount)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
         <ProductContent

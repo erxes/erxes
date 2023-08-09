@@ -1,126 +1,72 @@
-import {
-  IButtonMutateProps,
-  IFormProps,
-  ILocationOption
-} from '@erxes/ui/src/types';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { FormGroup } from 'react-bootstrap';
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IPaymentConfig } from '../../types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Select from 'react-select-plus';
+import { IPaymentDocument, IPaymentConfig } from '../../types';
+import { IOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
-import { ILeadIntegration } from '@erxes/ui-leads/src/types';
-import SelectPayments from '../../containers/SelectPayments';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import Select from 'react-select-plus';
 
 type Props = {
-  config?: IPaymentConfig;
-  excludeIds?: string[];
-  integrations: ILeadIntegration[];
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
-  closeModal: () => void;
+  payments: IPaymentDocument[];
+  isRequired?: boolean;
+  description?: string;
+  currentConfig?: IPaymentConfig;
+  selectedPaymentIds: string[];
+  isSubmitted?: boolean;
+  setPaymentIds: (paymentIds: string[]) => void;
+  save: () => void;
 };
 
-const ConfigForm = (props: Props) => {
-  const { config, integrations, excludeIds = [] } = props;
+function SelectPayments(props: Props) {
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
 
-  const [paymentIds, setPaymentIdes] = useState<string[]>(
-    (config && config.paymentIds) || []
-  );
+  const generateOptions = (array: IPaymentDocument[] = []): IOption[] => {
+    return array.map(item => {
+      const payment = item || ({} as IPaymentDocument);
 
-  const [contentTypeId, setContentTypeId] = useState<string>(
-    (config && config.contentTypeId) || ''
-  );
+      return {
+        value: payment._id,
+        label: `${payment.kind}: ${payment.name}`
+      };
+    });
+  };
 
-  useEffect(() => {}, [contentTypeId]);
+  const onChange = entries => {
+    props.setPaymentIds(entries.map(entry => entry.value));
+  };
 
-  const generateDoc = () => {
-    const finalValues: any = {};
+  const { payments } = props;
 
-    if (config) {
-      finalValues._id = config._id;
+  React.useEffect(() => {
+    if (props.currentConfig) {
+      props.setPaymentIds(props.currentConfig.paymentIds);
     }
 
-    finalValues.paymentIds = paymentIds;
-    finalValues.contentType = 'inbox:integrations';
-    finalValues.contentTypeId = contentTypeId;
+    if (props.isSubmitted && !isSubmitted) {
+      setIsSubmitted(true);
+      props.save();
+    }
+  }, [props.currentConfig, props.isSubmitted]);
 
-    return {
-      ...finalValues
-    };
-  };
+  return (
+    <FormGroup>
+      <ControlLabel required={props.isRequired}>Payments</ControlLabel>
+      <p>
+        {props.description
+          ? props.description
+          : __('Select payments that you want to use ')}
+      </p>
 
-  const onChangeIntegraiton = e => {
-    setContentTypeId(e.target.value);
-  };
+      <Select
+        multi={true}
+        options={generateOptions(payments)}
+        value={props.selectedPaymentIds}
+        onChange={onChange}
+        isDisabled={props.isSubmitted}
+      />
+    </FormGroup>
+  );
+}
 
-  const onChangePayments = (values: string[]) => {
-    setPaymentIdes(values);
-  };
-
-  const renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = props;
-    const { isSubmitted } = formProps;
-
-    const integrationsFiltered = integrations.filter(
-      integration => !excludeIds.includes(integration._id)
-    );
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel required={true}>Integrations</ControlLabel>
-          {!config && <p> {__('Select Integration ')}</p>}
-          <FormControl
-            {...formProps}
-            name="integrationId"
-            componentClass="select"
-            placeholder={__('Select Lead Integration')}
-            defaultValue={config && config.contentTypeId}
-            onChange={onChangeIntegraiton}
-            required={true}
-            disabled={config ? true : false}
-          >
-            <option />
-            {integrationsFiltered.map(integration => (
-              <option key={integration._id} value={integration._id}>
-                {integration.name}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-
-        {contentTypeId && (
-          <SelectPayments
-            defaultValue={paymentIds}
-            description="Select payment methods for this integration"
-            isRequired={true}
-            onChange={onChangePayments}
-          />
-        )}
-
-        <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
-            Close
-          </Button>
-
-          {renderButton({
-            passedName: 'configs',
-            values: generateDoc(),
-            isSubmitted,
-            callback: closeModal,
-            object: config
-          })}
-        </ModalFooter>
-      </>
-    );
-  };
-
-  return <Form renderContent={renderContent} />;
-};
-
-export default ConfigForm;
+export default SelectPayments;

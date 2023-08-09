@@ -174,14 +174,18 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
             loadComponent(section.scope, section.component)
           );
 
-          return (
-            <Component
-              key={Math.random()}
-              id={object._id}
-              mainType={type}
-              mainTypeId={object._id}
-            />
-          );
+          const updatedProps = {
+            key: Math.random(),
+            id: object._id,
+            mainType: type,
+            mainTypeId: object._id
+          };
+
+          if (section?.withDetail) {
+            updatedProps['object'] = object;
+          }
+
+          return <Component {...updatedProps} />;
         });
       }}
     />
@@ -319,7 +323,7 @@ export const pluginsOfTopNavigations = () => {
             <CustomComponent
               scope={menu.scope}
               component={menu.component}
-              isTopNav
+              isTopNav={true}
             />
           </React.Fragment>
         );
@@ -372,7 +376,7 @@ export const pluginRouters = () => {
 };
 
 export const pluginsOfCustomerSidebar = (customer: any) => {
-  //check - ICustomer
+  // check - ICustomer
   return renderPluginSidebar(
     'customerRightSidebarSection',
     'customer',
@@ -381,7 +385,7 @@ export const pluginsOfCustomerSidebar = (customer: any) => {
 };
 
 export const pluginsOfCompanySidebar = (company: any) => {
-  //check - ICompany
+  // check - ICompany
   return renderPluginSidebar('companyRightSidebarSection', 'company', company);
 };
 
@@ -473,4 +477,10 @@ export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
       }}
     />
   );
+};
+
+export const pluginsOfWebhooks = () => {
+  const plugins = (window as any).plugins.filter(p => p.webhookActions) || [];
+
+  return plugins;
 };

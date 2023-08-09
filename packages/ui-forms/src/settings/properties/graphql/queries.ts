@@ -52,12 +52,15 @@ const commonFields = `
     logicOperator
     logicValue
   }
+
+  relationType
 `;
 
 const commonFieldsGroups = `
   name
   ${genericFields}
   isMultiple
+  alwaysOpen
   parentId
   config
 

@@ -6,8 +6,6 @@ import styledTS from 'styled-components-ts';
 
 const FolderItemRow = styledTS<{
   isActive?: boolean;
-  isParent?: boolean;
-  isChild: boolean | undefined;
 }>(styled.li)`
   position: relative;
   background: ${props => props.isActive && colors.colorSecondary};
@@ -16,7 +14,7 @@ const FolderItemRow = styledTS<{
   list-style: none;
 
   > div {
-    padding: ${props => (props.isParent ? '10px 0' : '10px 0 10px 35px')};
+    padding: ${() => '10px 0 10px 20px'};
     display: flex;
 
     > a {

@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import SmsDeliveries from '../components/SmsDeliveries';
 import { queries } from '../graphql/index';
 import { SmsDeliveriesQueryResponse } from '../types';

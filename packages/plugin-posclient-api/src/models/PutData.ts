@@ -80,7 +80,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       code: detail.inventoryCode,
       barCode: detail.barcode || this.defaultGScode,
       name: product.name,
-      measureUnit: product.sku || 'ш',
+      measureUnit: product.uom || 'ш',
       qty: formatNumber(detail.count),
       unitPrice: formatNumber(detail.amount / (detail.count || 1)),
       totalAmount: formatNumber(detail.amount),
@@ -118,7 +118,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     return { stocks, sumAmount, vatAmount, citytaxAmount };
   }
 
-  private async generateTransactionInfo() {
+  public async generateTransactionInfo() {
     const {
       stocks,
       sumAmount,

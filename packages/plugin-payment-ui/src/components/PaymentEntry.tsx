@@ -2,16 +2,13 @@ import { ButtonMutate } from '@erxes/ui/src/components';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __, getEnv } from '@erxes/ui/src/utils';
 import React from 'react';
 
 import { getGqlString, getRefetchQueries } from '../containers/utils';
 import { mutations } from '../graphql';
 import { ByKindTotalCount } from '../types';
-import { PAYMENT_KINDS, PAYMENTCONFIGS } from './constants';
-import MonpayForm from './form/MonpayForm';
-import QpayForm from './form/QpayForm';
-import SocialPayForm from './form/SocialPayForm';
+import { PAYMENTCONFIGS } from './constants';
 import { Box, PaymentItem, Ribbon, Type } from './styles';
 
 type Props = {
@@ -68,34 +65,30 @@ function renderCreate(kind: string) {
 
   const trigger = <button>+ {__('Add')}</button>;
 
-  let formContent;
-
-  switch (kind) {
-    case PAYMENT_KINDS.QPAY:
-      formContent = props => (
-        <QpayForm {...props} renderButton={renderButton} />
-      );
-      break;
-    case PAYMENT_KINDS.SOCIALPAY:
-      formContent = props => (
-        <SocialPayForm {...props} renderButton={renderButton} />
-      );
-      break;
-    case PAYMENT_KINDS.MONPAY:
-      formContent = props => (
-        <MonpayForm {...props} renderButton={renderButton} />
-      );
-      break;
-    default:
-      formContent = () => null;
-      break;
-  }
-
-  const meta = PAYMENTCONFIGS.find(p => p.kind === kind);
+  const meta: any = PAYMENTCONFIGS.find(p => p.kind === kind);
 
   const title = meta ? `Add ${meta.name}` : 'Add payment config';
 
-  return <ModalTrigger title={title} trigger={trigger} content={formContent} />;
+  if (!meta || !meta.isAvailable) {
+    return null;
+  }
+
+  const Component = meta.createModal;
+
+  const formContent = props => (
+    <Component {...props} renderButton={renderButton} metaData={meta} />
+  );
+
+  const size = meta.modalSize || 'lg';
+
+  return (
+    <ModalTrigger
+      title={title}
+      trigger={trigger}
+      size={size}
+      content={formContent}
+    />
+  );
 }
 
 function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
@@ -104,7 +97,10 @@ function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
   return (
     <PaymentItem key={name} className={getClassName(kind)}>
       <Box onClick={() => toggleBox(kind)} isInMessenger={inMessenger}>
-        <img alt="logo" src={logo} />
+        <img
+          alt="logo"
+          src={`${getEnv().REACT_APP_API_URL}/pl:payment/static/${logo}`}
+        />
         <h5>
           {name} {getCount(kind, paymentsCount)}
         </h5>

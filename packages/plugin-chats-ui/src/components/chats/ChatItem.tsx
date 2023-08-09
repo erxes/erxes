@@ -23,6 +23,8 @@ import {
   ContextMenuItem
 } from '../../styles';
 
+import * as router from '@erxes/ui/src/utils/router';
+
 dayjs.extend(relativeTime);
 
 type Props = {
@@ -48,9 +50,9 @@ const ChatItem = (props: FinalProps) => {
 
   const users: any[] = chat.participantUsers || [];
   const user: any =
-    users.length > 1
-      ? users.filter(u => u._id !== currentUser._id)[0]
-      : users[0];
+    users?.length > 1
+      ? users?.filter(u => u._id !== currentUser._id)[0]
+      : users?.[0];
   const draftContent: any =
     chat.lastMessage && convertFromHTML(chat.lastMessage.content);
 
@@ -70,7 +72,7 @@ const ChatItem = (props: FinalProps) => {
     if (props.handleClickItem) {
       props.handleClickItem(chat._id);
     } else {
-      history.push(`/erxes-plugin-chat?id=${chat._id}`);
+      router.setParams(history, { id: chat._id });
     }
   };
 
@@ -90,10 +92,16 @@ const ChatItem = (props: FinalProps) => {
     </Popover>
   );
 
+  const isSeen =
+    chat?.lastMessage?.createdUser?._id === currentUser?._id
+      ? true
+      : chat.isSeen;
+
   return (
     <ChatItemWrapper
       active={active}
       isWidget={isWidget}
+      isSeen={isSeen}
       onClick={handleClick}
       onMouseEnter={() => hasOptions && handleMouseEnter()}
       onMouseLeave={() => hasOptions && handleMouseLeave()}
@@ -102,27 +110,24 @@ const ChatItem = (props: FinalProps) => {
         <Avatar user={user} size={36} />
       ) : (
         <ChatGroupAvatar>
-          <Avatar user={users[0]} size={24} />
-          <Avatar user={users[1]} size={24} />
+          <Avatar user={users?.[0]} size={24} />
+          <Avatar user={users?.[1]} size={24} />
         </ChatGroupAvatar>
       )}
 
-      <ChatWrapper
-        isSeen={
-          chat?.lastMessage?.createdUser?._id === currentUser?._id
-            ? true
-            : chat.isSeen
-        }
-      >
+      <ChatWrapper isSeen={isSeen}>
         <p>
           {chat.type === 'direct'
-            ? user.details.fullName || user.email
+            ? user?.details.fullName || user?.email
             : chat.name}
         </p>
         <ChatBody>
-          <ChatContent>
-            {draftContent && draftContent.contentBlocks[0].text}
-          </ChatContent>
+          <ChatContent
+            dangerouslySetInnerHTML={{
+              __html:
+                (draftContent && draftContent.contentBlocks?.[0]?.text) || ''
+            }}
+          />
           <ChatTimestamp>
             {chat.lastMessage &&
               chat.lastMessage.createdAt &&

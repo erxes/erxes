@@ -23,12 +23,12 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
       const product = await models.Products.getProduct({ _id: productId });
 
-      if (!product.uomId) {
+      if (!product.uom) {
         throw new Error('has not uom');
       }
 
       return {
-        data: await models.Uoms.findOne({ _id: product.uomId }).lean(),
+        data: await models.Uoms.findOne({ _id: product.uom }).lean(),
         status: 'success'
       };
     }
@@ -72,21 +72,38 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'products:categories.withChilds',
-    async ({ subdomain, data: { _id } }) => {
+    async ({ subdomain, data: { _id, ids } }) => {
       const models = await generateModels(subdomain);
-      const category = await models.ProductCategories.findOne({ _id }).lean();
-
-      if (!category) {
+      const categoryIds = _id ? [_id] : ids || [];
+      if (!categoryIds.length) {
         return {
           data: [],
           status: 'success'
         };
       }
 
+      const categories = await models.ProductCategories.find({
+        _id: { $in: categoryIds }
+      }).lean();
+
+      if (!categories.length) {
+        return {
+          data: [],
+          status: 'success'
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const category of categories) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${category.order}`) }
+        });
+      }
+
       return {
         data: await models.ProductCategories.find({
-          order: { $regex: new RegExp(category.order) },
-          status: { $nin: ['disabled', 'archived'] }
+          status: { $nin: ['disabled', 'archived'] },
+          $or: orderQry
         })
           .sort({ order: 1 })
           .lean(),
@@ -159,7 +176,7 @@ export const initBroker = async cl => {
           _id: categoryId
         }).lean();
         const categories = await models.ProductCategories.find({
-          order: { $regex: new RegExp(category.order) }
+          order: { $regex: new RegExp(`^${category.order}`) }
         }).lean();
 
         query.categoryId = { $in: categories.map(c => c._id) };
@@ -169,7 +186,7 @@ export const initBroker = async cl => {
         data: await models.Products.find(query, fields || {})
           .sort(sort)
           .skip(skip || 0)
-          .limit(limit || 100)
+          .limit(limit || 10000)
           .lean(),
         status: 'success'
       };
@@ -187,7 +204,7 @@ export const initBroker = async cl => {
           _id: categoryId
         }).lean();
         const categories = await models.ProductCategories.find({
-          order: { $regex: new RegExp(category.order) }
+          order: { $regex: new RegExp(`^${category.order}`) }
         }).lean();
 
         filter.categoryId = { $in: categories.map(c => c._id) };

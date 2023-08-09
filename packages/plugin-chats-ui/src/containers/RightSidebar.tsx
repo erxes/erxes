@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 // erxes
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Spinner from '@erxes/ui/src/components/Spinner';
 // local
 import Component from '../components/RightSidebar';
 import { queries } from '../graphql';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   chatId: string;
@@ -32,7 +33,7 @@ const RightSidebarContainer = (props: Props) => {
   }
 
   if (error) {
-    return <p>{error.message}</p>;
+    Alert.error(error.message);
   }
 
   if (data.chatDetail) {

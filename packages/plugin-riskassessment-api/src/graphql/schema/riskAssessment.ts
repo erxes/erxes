@@ -25,7 +25,8 @@ export const types = `
         department: Department
         operationId:String,
         operation:Operation,
-        isSplittedUsers:Boolean
+        isSplittedUsers:Boolean,
+        permittedUserIds:[String]
     }
 
     type RiskAssessmentDetail  {
@@ -74,6 +75,13 @@ export const types = `
         groupsAssignedUsers:[GroupsAssignedUsers]
     }
 
+    input CardFilter {
+        name:String,
+        value:String
+        values:[String]
+        regex:Boolean
+    }
+
 `;
 
 const commonMutationParams = `
@@ -85,6 +93,7 @@ const commonMutationParams = `
     branchId:String
     departmentId:String
     groupsAssignedUsers:[GroupsAssignedUsers]
+    permittedUserIds:[String]
 `;
 
 export const mutations = `
@@ -113,6 +122,8 @@ const commonParams = `
     sortDirection:Int
     tagIds:[String]
     groupIds:[String]
+    customFieldsValues:[String]
+    cardFilter:CardFilter
 `;
 
 const commonFormSubmitParams = `
@@ -127,7 +138,7 @@ export const queries = `
 
     riskAssessmentsTotalCount(${commonParams}):Int
 
-    riskAssessmentDetail(id:String):JSON
+    riskAssessmentDetail(id:String,showFlagged:Boolean):JSON
 
     riskAssessmentFormSubmissionDetail(${commonFormSubmitParams}):JSON
     
@@ -141,5 +152,5 @@ export const queries = `
 
     riskAssessmentGroups(riskAssessmentId:String,groupIds:[String] ):JSON
     
-    indicatorsAssessmentHistory(indicatorId:String):[IndicatorAssessment]
+    indicatorsAssessmentHistory(indicatorId:String,branchId:String,departmentId:String,operationId:String):[IndicatorAssessment]
 `;

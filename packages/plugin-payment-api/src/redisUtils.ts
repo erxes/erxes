@@ -33,7 +33,7 @@ const getInvoiceStatus = async invoiceId => {
     }
   }
 
-  return invoices[invoiceId] ? invoices[invoiceId].status : 'settled';
+  return invoices[invoiceId] ? invoices[invoiceId].status : 'paid';
 };
 
 const removeInvoice = async invoiceId => {
@@ -45,4 +45,20 @@ const removeInvoice = async invoiceId => {
   await redis.set('invoiceStatuses', JSON.stringify(invoices));
 };
 
-export default { updateInvoiceStatus, getInvoiceStatus, removeInvoice };
+const removeInvoices = async invoiceIds => {
+  const response = await redis.get('invoiceStatuses');
+  const invoices = JSON.parse(response || '{}');
+
+  for (const _id of invoiceIds) {
+    delete invoices[_id];
+  }
+
+  await redis.set('invoiceStatuses', JSON.stringify(invoices));
+};
+
+export default {
+  updateInvoiceStatus,
+  getInvoiceStatus,
+  removeInvoice,
+  removeInvoices
+};

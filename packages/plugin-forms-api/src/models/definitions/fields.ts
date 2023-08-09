@@ -89,6 +89,8 @@ export interface IField extends IVisibility {
   pageNumber?: number;
   showInCard?: boolean;
   productCategoryId?: string;
+
+  relationType?: string;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -101,6 +103,7 @@ export interface IFieldGroup extends IVisibility {
   parentId?: string;
   order?: number;
   isDefinedByErxes?: boolean;
+  alwaysOpen?: boolean;
   description?: string;
   lastUpdatedUserId?: string;
   code?: string;
@@ -221,6 +224,11 @@ export const fieldSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Product category'
+    }),
+    relationType: field({
+      type: String,
+      optional: true,
+      label: 'Relation type'
     })
   })
 );
@@ -255,6 +263,11 @@ export const fieldGroupSchema = schemaWrapper(
       type: Boolean,
       default: true,
       label: 'Is group visible in detail'
+    }),
+    alwaysOpen: field({
+      type: Boolean,
+      default: false,
+      label: 'Always open'
     }),
     config: { type: Object },
 

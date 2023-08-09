@@ -20,7 +20,7 @@ interface IAttachment {
 }
 
 export interface ISubUom {
-  uomId: string;
+  uom: string;
   ratio: number;
 }
 interface IProductCommonFields {
@@ -38,7 +38,6 @@ export interface IPrice {
 export interface IProduct extends IProductCommonFields {
   categoryId?: string;
   type?: string;
-  sku?: string;
   barcodes?: string[];
   barcodeDescription?: string;
   prices: IPrice;
@@ -49,7 +48,7 @@ export interface IProduct extends IProductCommonFields {
   vendorCode?: string;
   mergedIds?: string[];
   attachmentMore?: IAttachment[];
-  uomId?: string;
+  uom?: string;
   subUoms?: ISubUom[];
   taxType?: string;
   taxCode?: string;
@@ -75,7 +74,7 @@ export interface IProductCategoryDocument extends IProductCategory, Document {
 
 const subUomSchema = new Schema({
   _id: field({ pkey: true }),
-  uomId: field({ type: String, label: 'Sub unit of measurement' }),
+  uom: field({ type: String, label: 'Sub unit of measurement' }),
   ratio: field({ type: Number, label: 'ratio of sub uom to main uom' })
 });
 
@@ -90,6 +89,11 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'Barcodes',
       index: true
+    }),
+    barcodeDescription: field({
+      type: String,
+      optional: true,
+      label: 'Barcode Description'
     }),
     description: field({ type: String, optional: true, label: 'Description' }),
     attachment: field({ type: attachmentSchema }),
@@ -106,13 +110,7 @@ export const productSchema = schemaWrapper(
       label: 'Tags',
       index: true
     }),
-    sku: field({
-      type: String,
-      optional: true,
-      label: 'Stock keeping unit',
-      default: 'ш'
-    }),
-    uomId: field({
+    uom: field({
       type: String,
       optional: true,
       label: 'Main unit of measurement'

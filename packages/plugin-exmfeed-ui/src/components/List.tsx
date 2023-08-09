@@ -63,6 +63,24 @@ export default function List({
   const renderItem = (item: any) => {
     const createdUser = item.createdUser || {};
 
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+    let links = [];
+    let updatedDescription = '';
+
+    if (item.description) {
+      const matches = item.description.match(urlRegex);
+
+      if (matches) {
+        updatedDescription = matches.reduce(
+          (prevDescription, link) => prevDescription.replace(link, ''),
+          item.description
+        );
+
+        links = matches;
+      }
+    }
+
     return (
       <div key={item._id}>
         <HeaderFeed>
@@ -118,7 +136,22 @@ export default function List({
         </HeaderFeed>
         <TextFeed>
           <b dangerouslySetInnerHTML={{ __html: item.title }} />
-          <p dangerouslySetInnerHTML={{ __html: item.description }} />
+          <p dangerouslySetInnerHTML={{ __html: updatedDescription }} />
+          {links.map((link, index) => {
+            return (
+              <iframe
+                key={index}
+                width="640"
+                height="390"
+                src={String(link)
+                  .replace('watch?v=', 'embed/')
+                  .replace('share/', 'embed/')}
+                title="Video"
+                frameBorder="0"
+                allowFullScreen={true}
+              />
+            );
+          })}
         </TextFeed>
         {(item.attachments || []).map((a, index) => {
           return (
@@ -132,6 +165,20 @@ export default function List({
           );
         })}
         {(item.images || []).map((image, index) => {
+          if (image.url.includes('mp4')) {
+            return (
+              <video
+                key={index}
+                width="100%"
+                height="100%"
+                controls={true}
+                autoPlay={true}
+              >
+                <source src={readFile(image.url)} type="video/mp4" />
+              </video>
+            );
+          }
+
           return <img key={index} alt={image.name} src={readFile(image.url)} />;
         })}
         <LikeCommentShare>

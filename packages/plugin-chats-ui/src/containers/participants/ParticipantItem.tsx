@@ -1,6 +1,6 @@
 import React from 'react';
-import { useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
 import confirm from '@erxes/ui/src/utils/confirmation/confirm';
@@ -11,10 +11,11 @@ import { queries, mutations } from '../../graphql';
 type Props = {
   user: any;
   chatId: string;
+  isAdmin: boolean;
 };
 
 const ParticipantItemContainer = (props: Props) => {
-  const { user, chatId } = props;
+  const { user, chatId, isAdmin } = props;
   const [adminMutation] = useMutation(gql(mutations.chatMakeOrRemoveAdmin));
   const [memberMutation] = useMutation(gql(mutations.chatAddOrRemoveMember));
 
@@ -23,7 +24,10 @@ const ParticipantItemContainer = (props: Props) => {
       .then(() => {
         adminMutation({
           variables: { id: chatId, userId: user._id },
-          refetchQueries: [{ query: gql(queries.chatDetail) }]
+          refetchQueries: [
+            { query: gql(queries.chatDetail), variables: { id: chatId } },
+            { query: gql(queries.chats) }
+          ]
         }).catch(error => {
           Alert.error(error.message);
         });
@@ -32,13 +36,18 @@ const ParticipantItemContainer = (props: Props) => {
         Alert.error(error.message);
       });
   };
-
   const addOrRemoveMember = () => {
     confirm()
       .then(() => {
         memberMutation({
           variables: { id: chatId, type: 'remove', userIds: [user._id] },
-          refetchQueries: [{ query: gql(queries.chatDetail) }]
+          refetchQueries: [
+            {
+              query: gql(queries.chatDetail),
+              variables: { id: chatId }
+            },
+            { query: gql(queries.chats) }
+          ]
         }).catch(error => {
           Alert.error(error.message);
         });
@@ -53,6 +62,7 @@ const ParticipantItemContainer = (props: Props) => {
       user={user}
       makeOrRemoveAdmin={makeOrRemoveAdmin}
       addOrRemoveMember={addOrRemoveMember}
+      isAdmin={isAdmin}
     />
   );
 };

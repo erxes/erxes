@@ -28,9 +28,7 @@ export default async function downloadPlugins(): Promise<void> {
 
   await Promise.all(
     services.map(async service => {
-      const url = `${service.address}/dashboard`;
-
-      console.log(url);
+      const url = `${service.address}/subscriptionPlugin.js`;
       const fileName = `${service.name}.js`;
       const downloader = new (Downloader as any)({
         url,
@@ -45,7 +43,7 @@ export default async function downloadPlugins(): Promise<void> {
         );
       } catch (e) {
         console.error(
-          `${service.name} subscription plugin download from ${url} to ${fileName} failed.`,
+          `${service.name} subscription plugin download from ${url} to ${fileName} failed. ${e.message}`,
           e
         );
       }

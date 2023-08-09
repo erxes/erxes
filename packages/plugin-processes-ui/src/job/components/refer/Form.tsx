@@ -11,7 +11,7 @@ import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { DURATION_TYPES, JOB_TYPE_CHOISES } from '../../../constants';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IJobCategory, IJobRefer } from '../../types';
@@ -23,14 +23,12 @@ import {
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { TableOver } from '../../../styles';
-import { IConfigsMap, IProduct, IUom } from '@erxes/ui-products/src/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 import { IProductsData } from '../../../types';
 
 type Props = {
   jobRefer?: IJobRefer;
   jobCategories: IJobCategory[];
-  uoms?: IUom[];
-  configsMap?: IConfigsMap;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -131,7 +129,7 @@ class Form extends React.Component<Props, State> {
         if (formType !== 'uom') {
           product[formType] = Number(value);
         } else {
-          product.uomId = value;
+          product.uom = value;
         }
       }
 
@@ -163,27 +161,22 @@ class Form extends React.Component<Props, State> {
 
   renderProductModal = (type: 'needProducts' | 'resultProducts') => {
     const productOnChange = (products: IProduct[]) => {
-      const { uoms, configsMap } = this.props;
-
       const currentProducts = this.state[type];
       const currentProductIds = currentProducts.map(p => p.productId);
       const chosenProductIds = products.map(p => p._id);
-      const defaultUom = (configsMap || {}).defaultUOM || '';
 
       for (const product of products.filter(
         p => !currentProductIds.includes(p._id)
       ) || []) {
         const productId = product ? product._id : '';
-        const uomId = product.uomId ? product.uomId : defaultUom;
-        const uom = (uoms || []).find(e => e._id === uomId);
+        const uom = product.uom || '';
 
         const inputData = {
           _id: Math.random().toString(),
           productId,
           quantity: 1,
-          uomId,
-          product,
-          uom
+          uom,
+          product
         };
 
         currentProducts.push(inputData);
@@ -234,7 +227,6 @@ class Form extends React.Component<Props, State> {
         ? this.state.needProducts
         : this.state.resultProducts;
 
-    const { uoms, configsMap } = this.props;
     const { jobType } = this.state;
 
     products.sort();
@@ -261,23 +253,13 @@ class Form extends React.Component<Props, State> {
           </thead>
           <tbody>
             {products.map(product => {
-              const subUoms =
-                product.product && product.product.subUoms
-                  ? product.product.subUoms || []
-                  : [];
-              const defaultUomId =
-                product.product && product.product.uomId
-                  ? product.product.uomId
-                  : (configsMap || {}).defaultUOM;
-
-              const productUoms = subUoms.map(e => e.uomId);
-              const mergedUoms = [...productUoms, defaultUomId];
-
-              const filtered: any[] =
-                mergedUoms.map(e => {
-                  const uomOne = (uoms || []).find(u => u._id === e);
-                  return uomOne;
-                }) || [];
+              const uoms = Array.from(
+                new Set([
+                  product.uom,
+                  product.product.uom,
+                  ...product.product.subUoms.map(su => su.uom)
+                ])
+              ).filter(u => u);
 
               return (
                 <tr>
@@ -305,7 +287,7 @@ class Form extends React.Component<Props, State> {
                   <td>
                     <FormControl
                       componentClass="select"
-                      value={product.uomId}
+                      value={product.uom}
                       onChange={this.onChange.bind(
                         this,
                         product._id,
@@ -313,10 +295,9 @@ class Form extends React.Component<Props, State> {
                         'uom'
                       )}
                     >
-                      <option value="" />
-                      {(filtered || []).map(u => (
-                        <option key={u._id} value={u._id}>
-                          {u.name}
+                      {uoms.map(u => (
+                        <option key={u} value={u}>
+                          {u}
                         </option>
                       ))}
                     </FormControl>

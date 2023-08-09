@@ -24,7 +24,7 @@ type Props = {
 
   contentProps: any;
 
-  timeclockEdit: (values) => void;
+  timeclockEdit: (values: any) => void;
 };
 export const TimelogForm = (props: Props) => {
   const { timeclock, timelogsPerUser, contentProps, timeclockEdit } = props;
@@ -36,14 +36,20 @@ export const TimelogForm = (props: Props) => {
     timeclock.shiftStart
   );
 
+  const [inDevice, setInDevice] = useState(null);
+  const [outDevice, setOutDevice] = useState(null);
+
   const [shiftEnd, setShiftEnd] = useState(timeclock.shiftEnd);
-  const [shiftEndInsert, setShiftEndInsert] = useState(timeclock.shiftEnd);
+  const [shiftEndInsert, setShiftEndInsert] = useState(
+    timeclock.shiftEnd || timeclock.shiftStart
+  );
 
   const [shiftEnded, setShiftEnded] = useState(!timeclock.shiftActive);
   const [shiftStartInput, setShiftStartInput] = useState('');
   const [shiftEndInput, setShiftEndInput] = useState('');
 
   const onShiftStartChange = selectedTime => {
+    setInDevice(selectedTime.deviceName);
     setShiftStart(selectedTime.value);
   };
 
@@ -56,13 +62,15 @@ export const TimelogForm = (props: Props) => {
   };
 
   const onShiftEndChange = selectedTime => {
+    setOutDevice(selectedTime.deviceName);
     setShiftEnd(selectedTime.value);
   };
 
   const generateSelectOptions = () => {
     return timelogsPerUser.map(timelog => ({
       value: timelog.timelog,
-      label: dayjs(timelog.timelog).format(dateAndTimeFormat)
+      label: dayjs(timelog.timelog).format(dateAndTimeFormat),
+      deviceName: timelog.deviceName
     }));
   };
 
@@ -91,18 +99,48 @@ export const TimelogForm = (props: Props) => {
     const getShiftStart =
       (shiftStartInput === 'pick' ? shiftStart : shiftStartInsert) ||
       timeclock.shiftStart;
+
+    let outDeviceType;
+    let inDeviceType;
+
+    let inDeviceName;
+    let outDeviceName;
+
+    if (
+      shiftStart !== timeclock.shiftStart ||
+      shiftStartInsert !== timeclock.shiftStart
+    ) {
+      inDeviceType = shiftStartInput === 'pick' ? 'log' : 'insert';
+      inDeviceName = inDevice;
+    }
+
     if (!shiftEnded) {
       return {
         _id: timeclock._id,
         shiftStart: getShiftStart,
-        shiftActive: true
+        shiftActive: true,
+        inDevice: inDeviceName,
+        inDeviceType
       };
     }
+
+    if (
+      shiftEnd !== timeclock.shiftEnd ||
+      shiftEndInsert !== timeclock.shiftEnd
+    ) {
+      outDeviceType = shiftEndInput === 'pick' ? 'log' : 'insert';
+      outDeviceName = outDevice;
+    }
+
     return {
       _id: timeclock._id,
       shiftStart: getShiftStart,
       shiftEnd: shiftEndInput === 'pick' ? shiftEnd : shiftEndInsert,
-      shiftActive: !shiftEnded
+      shiftActive: !shiftEnded,
+      inDeviceType,
+      inDevice: inDeviceName,
+      outDeviceType,
+      outDevice: outDeviceName
     };
   };
 
@@ -134,7 +172,6 @@ export const TimelogForm = (props: Props) => {
   };
 
   const renderTimelogForm = (formProps: IFormProps) => {
-    const { values } = formProps;
     return (
       <FlexColumn marginNum={20}>
         <div>
@@ -175,7 +212,7 @@ export const TimelogForm = (props: Props) => {
               name="startDate"
               placeholder={'Starting date'}
               dateFormat={'YYYY-MM-DD'}
-              timeFormat={true}
+              timeFormat={'HH:mm'}
               onChange={onShiftStartInsertChange}
             />
           </CustomRangeContainer>
@@ -184,7 +221,6 @@ export const TimelogForm = (props: Props) => {
         <FlexRow>
           <ControlLabel>Shift Ended</ControlLabel>
           <FlexRowEven>
-            {/* <div>Active</div> */}
             <FormControl
               name="shiftActive"
               defaultChecked={shiftEnded}
@@ -229,7 +265,7 @@ export const TimelogForm = (props: Props) => {
                 name="startDate"
                 placeholder={'Starting date'}
                 dateFormat={'YYYY-MM-DD'}
-                timeFormat={true}
+                timeFormat={'HH:mm'}
                 onChange={onShiftEndInsertChange}
               />
             </CustomRangeContainer>

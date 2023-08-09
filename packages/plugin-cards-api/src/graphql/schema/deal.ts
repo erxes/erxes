@@ -10,6 +10,7 @@ import {
 export const types = ({ contacts, tags }) => `
   type DealListItem @key(fields: "_id") {
     products: JSON
+    unUsedAmount: JSON
     amount: JSON
     customFieldsData: JSON
     ${commonListTypes}
@@ -17,6 +18,7 @@ export const types = ({ contacts, tags }) => `
 
   type Deal @key(fields: "_id") {
     _id: String!
+    unUsedAmount: JSON
     amount: JSON
 
     ${
@@ -89,6 +91,17 @@ const commonQueryParams = `
   number: String
   branchIds: [String]
   departmentIds: [String]
+  boardIds: [String]
+  stageCodes: [String]
+  dateRangeFilters:JSON,
+  createdStartDate: Date,
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
 `;
 
 const listQueryParams = `
@@ -115,7 +128,7 @@ const archivedDealsParams = `
  `;
 
 export const queries = `
-  dealDetail(_id: String!): Deal
+  dealDetail(_id: String!, clientPortalCard: Boolean): Deal
   checkDiscount(_id: String!,products:[ProductField]):JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
@@ -141,4 +154,7 @@ export const mutations = `
   dealsWatch(_id: String, isAdd: Boolean): Deal
   dealsCopy(_id: String!, proccessId: String): Deal
   dealsArchive(stageId: String!, proccessId: String): String
+  dealsCreateProductsData(proccessId: String, dealId: String, docs: JSON): JSON
+  dealsEditProductData(proccessId: String, dealId: String, dataId: String, doc: JSON): JSON
+  dealsDeleteProductData(proccessId: String, dealId: String, dataId: String): JSON
 `;

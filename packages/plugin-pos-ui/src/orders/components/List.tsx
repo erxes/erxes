@@ -10,6 +10,7 @@ import {
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import { menuPos } from '../../constants';
 
 import { TableWrapper } from '../../styles';
 import { IOrder } from '../types';
@@ -32,14 +33,8 @@ interface IProps extends IRouterProps {
   clearFilter: () => void;
   summary: any;
 
-  onSyncErkhet: (orderId: string) => void;
   onReturnBill: (orderId: string) => void;
 }
-
-export const menuPos = [
-  { title: 'Pos Orders', link: '/pos-orders' },
-  { title: 'Pos Items', link: '/pos-order-items' }
-];
 
 class Orders extends React.Component<IProps, {}> {
   private timer?: NodeJS.Timer = undefined;
@@ -66,7 +61,6 @@ class Orders extends React.Component<IProps, {}> {
       isFiltered,
       clearFilter,
       summary,
-      onSyncErkhet,
       onReturnBill
     } = this.props;
 
@@ -86,7 +80,7 @@ class Orders extends React.Component<IProps, {}> {
     );
 
     const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
-    const otherPayTitles = (Object.keys(summary) || [])
+    const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
       .filter(a => !['_id'].includes(a))
       .filter(a => !staticKeys.includes(a))
       .sort();
@@ -137,6 +131,9 @@ class Orders extends React.Component<IProps, {}> {
                 <SortHandler sortField={'posName'} label={__('Pos')} />
               </th>
               <th>
+                <SortHandler sortField={'type'} label={__('Type')} />
+              </th>
+              <th>
                 <SortHandler sortField={'user'} label={__('User')} />
               </th>
               <th>Үйлдлүүд</th>
@@ -149,7 +146,6 @@ class Orders extends React.Component<IProps, {}> {
                 key={order._id}
                 history={history}
                 otherPayTitles={otherPayTitles}
-                onSyncErkhet={onSyncErkhet}
                 onReturnBill={onReturnBill}
               />
             ))}

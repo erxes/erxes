@@ -2,41 +2,48 @@ import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { CustomRow, Margin, RowField } from '../../styles';
-
-import { IBranch } from '@erxes/ui/src/team/types';
 import Tip from '@erxes/ui/src/components/Tip';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { FlexRowLeft, ToggleButton } from '../../styles';
+
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import ScheduleForm from './ScheduleForm';
-import { ISchedule, IScheduleConfig } from '../../types';
+import { ISchedule, IScheduleConfig, IShift } from '../../types';
 import dayjs from 'dayjs';
-import { dateFormat, timeFormat } from '../../constants';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import SortableList from '@erxes/ui/src/components/SortableList';
 import {
-  DropIcon,
-  PropertyListTable,
-  PropertyTableHeader,
-  PropertyTableRow
-} from '@erxes/ui-forms/src/settings/properties/styles';
-import Collapse from 'react-bootstrap/Collapse';
-import { CustomCollapseRow } from '../../styles';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+  dateFormat,
+  dateOfTheMonthFormat,
+  dayOfTheWeekFormat,
+  timeFormat
+} from '../../constants';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { isEnabled, router } from '@erxes/ui/src/utils/core';
+import Table from '@erxes/ui/src/components/table';
+import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import Select from 'react-select-plus';
 
 type Props = {
-  scheduleOfMembers: any;
+  currentUser: IUser;
+  isCurrentUserAdmin: boolean;
+  isCurrentUserSupervisor?: boolean;
+
   queryParams: any;
   history: any;
-  branchesList: IBranch[];
+
+  departments: IDepartment[];
+  branches: IBranch[];
+
+  scheduleOfMembers: ISchedule[];
   scheduleConfigs: IScheduleConfig[];
   totalCount: number;
+
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
   submitRequest: (
     userId: any,
     filledShifts: any,
+    totalBreakInMins?: number | string,
     selectedScheduleConfigId?: string
   ) => void;
   submitSchedule: (
@@ -44,9 +51,12 @@ type Props = {
     departmentIds: any,
     userIds: any,
     filledShifts: any,
+    totalBreakInMins?: number | string,
     selectedScheduleConfigId?: string
   ) => void;
   removeScheduleShifts: (_id: string, type: string) => void;
+
+  checkDuplicateScheduleShifts: (values: any) => any;
 
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
@@ -55,44 +65,87 @@ type Props = {
 
 function ScheduleList(props: Props) {
   const {
+    history,
     scheduleOfMembers,
     totalCount,
+    queryParams,
     solveSchedule,
-    solveShift,
     removeScheduleShifts,
     getActionBar,
     showSideBar,
-    getPagination
+    getPagination,
+    isCurrentUserSupervisor
   } = props;
+
+  const [selectedScheduleStatus, setScheduleStatus] = useState(
+    router.getParam(history, 'scheduleStatus') || ''
+  );
+  const [showRemoveBtn, setShowRemoveBtn] = useState(false);
+
+  const [isSideBarOpen, setIsOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+  );
+
+  const onToggleSidebar = () => {
+    const toggleIsOpen = !isSideBarOpen;
+    setIsOpen(toggleIsOpen);
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+  };
+
+  const { startDate, endDate } = queryParams;
+  let lastColumnIdx = 1;
+
+  type Column = {
+    columnNo: number;
+    dateField: string;
+    text: string;
+    backgroundColor: string;
+    date?: Date;
+  };
+
+  const daysAndDatesHeaders: Column[] = [];
+
+  const prepareTableHeaders = () => {
+    let startRange = dayjs(startDate);
+    const endRange = dayjs(endDate);
+
+    let columnNo = 1;
+
+    while (startRange <= endRange) {
+      const backgroundColor =
+        startRange.toDate().getDay() === 0 || startRange.toDate().getDay() === 6
+          ? '#f4c1bc'
+          : 'white';
+
+      daysAndDatesHeaders.push({
+        columnNo,
+        dateField: startRange.format(dateOfTheMonthFormat),
+        text: startRange.format(dateOfTheMonthFormat),
+        backgroundColor,
+        date: startRange.toDate()
+      });
+
+      columnNo += 1;
+      startRange = startRange.add(1, 'day');
+    }
+
+    lastColumnIdx = columnNo;
+  };
 
   const trigger = (
     <Button btnStyle="success" icon="plus-circle">
-      Create Request - Per Employee
-    </Button>
-  );
-
-  const adminTrigger = (
-    <Button btnStyle="success" icon="plus-circle">
-      Create Request - Admin
+      Create Schedule Request - Employee
     </Button>
   );
 
   const adminConfigTrigger = (
     <Button btnStyle="primary" icon="plus-circle">
-      Schedule Configuration - Admin
+      Create Schedule - Admin
     </Button>
   );
 
   const modalContent = ({ closeModal }) => (
     <ScheduleForm modalContentType={''} closeModal={closeModal} {...props} />
-  );
-
-  const adminModalContent = ({ closeModal }) => (
-    <ScheduleForm
-      modalContentType={'admin'}
-      closeModal={closeModal}
-      {...props}
-    />
   );
 
   const adminConfigContent = ({ closeModal }) => {
@@ -105,29 +158,77 @@ function ScheduleList(props: Props) {
     );
   };
 
+  const filterSchedules = (schedules: ISchedule[]) => {
+    switch (selectedScheduleStatus) {
+      case 'Rejected':
+        return schedules.filter(
+          schedule =>
+            schedule.solved &&
+            schedule.status?.toLocaleLowerCase() === 'rejected'
+        );
+      case 'Pending':
+        return schedules.filter(schedule => !schedule.solved);
+      default:
+        return schedules.filter(
+          schedule =>
+            schedule.solved &&
+            schedule.status?.toLocaleLowerCase() === 'approved'
+        );
+    }
+  };
+
+  const onSelectScheduleStatus = e => {
+    setScheduleStatus(e.value);
+    router.setParams(history, { scheduleStatus: e.value });
+  };
+
+  const actionBarLeft = (
+    <FlexRowLeft>
+      <ToggleButton
+        id="btn-inbox-channel-visible"
+        isActive={isSideBarOpen}
+        onClick={onToggleSidebar}
+      >
+        <Icon icon="subject" />
+      </ToggleButton>
+      <div style={{ width: '20%' }}>
+        <Select
+          value={selectedScheduleStatus}
+          onChange={onSelectScheduleStatus}
+          placeholder="Select Schedule"
+          multi={false}
+          options={['Approved', 'Rejected', 'Pending'].map(el => ({
+            value: el,
+            label: el
+          }))}
+        />
+      </div>
+    </FlexRowLeft>
+  );
+
   const actionBarRight = (
     <>
       <ModalTrigger
         title={__('Send schedule request')}
+        size="lg"
         trigger={trigger}
         content={modalContent}
       />
-      <ModalTrigger
-        title={__('Create schedule - Admin')}
-        trigger={adminTrigger}
-        content={adminModalContent}
-      />
-      <ModalTrigger
-        size="lg"
-        title={__('Schedule config - Admin')}
-        trigger={adminConfigTrigger}
-        content={adminConfigContent}
-      />
+
+      {isCurrentUserSupervisor && (
+        <ModalTrigger
+          size="lg"
+          title={__('Schedule config - Admin')}
+          trigger={adminConfigTrigger}
+          content={adminConfigContent}
+        />
+      )}
     </>
   );
 
   const actionBar = (
     <Wrapper.ActionBar
+      left={actionBarLeft}
       right={actionBarRight}
       hasFlex={true}
       wideSpacing={true}
@@ -138,195 +239,265 @@ function ScheduleList(props: Props) {
     removeScheduleShifts(_id, type);
   };
 
-  const ListShiftContent = shifts => {
-    return shifts.map(shift => (
-      <PropertyTableRow key="">
-        <RowField>
-          <CustomRow key={shift.shiftEnd} marginNum={10}>
-            {new Date(shift.shiftStart).toDateString().split(' ')[0] +
-              '\t' +
-              dayjs(shift.shiftStart).format(dateFormat)}
-          </CustomRow>
-        </RowField>
-        <RowField>
-          <CustomRow key={shift.shiftEnd} marginNum={10}>
-            {dayjs(shift.shiftStart).format(timeFormat)}
-          </CustomRow>
-        </RowField>
-        <RowField>
-          <CustomRow key={shift.shiftEnd} marginNum={10}>
-            {dayjs(shift.shiftEnd).format(timeFormat)}
-          </CustomRow>
-        </RowField>
-        <RowField>
-          <CustomRow key={shift.shiftEnd} marginNum={10}>
-            {new Date(shift.shiftEnd).toLocaleDateString() !==
-            new Date(shift.shiftStart).toLocaleDateString()
-              ? 'O'
-              : '-'}
-          </CustomRow>
-        </RowField>
-        <RowField>
-          {shift.solved ? (
-            <CustomRow marginNum={10}>{__(shift.status)}</CustomRow>
-          ) : (
-            <CustomRow marginNum={3}>
-              <Button
-                size="small"
-                btnStyle="success"
-                onClick={() => solveShift(shift._id, 'Approved')}
-              >
-                Approve
-              </Button>
-              <Button
-                size="small"
-                btnStyle="danger"
-                onClick={() => solveShift(shift._id, 'Rejected')}
-              >
-                Reject
-              </Button>
-            </CustomRow>
+  const renderTableHeaders = () => {
+    prepareTableHeaders();
+    return (
+      <thead>
+        <tr>
+          <th
+            rowSpan={2}
+            style={{ border: '1px solid #EEE' }}
+            onMouseOver={() => setShowRemoveBtn(true)}
+            onMouseLeave={() => setShowRemoveBtn(false)}
+          >
+            {''}
+          </th>
+          {selectedScheduleStatus === 'Pending' && (
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Action')}
+            </th>
           )}
-        </RowField>
-        <RowField>
-          <CustomRow marginNum={4} key={shift._id}>
-            <Button
-              size="small"
-              btnStyle="link"
-              onClick={() => removeSchedule(shift._id, 'shift')}
-              icon="times-circle"
-            />
-          </CustomRow>
-        </RowField>
-      </PropertyTableRow>
-    ));
+          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+            {__('Team members')}
+          </th>
+
+          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+            {__('Employee Id')}
+          </th>
+          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+            {__('Total days')}
+          </th>
+          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+            {__('Total hours')}
+          </th>
+          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+            {__('Total Break')}
+          </th>
+          {!isEnabled('bichil') && (
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Member checked')}
+            </th>
+          )}
+          {daysAndDatesHeaders.map(column => {
+            return (
+              <th
+                key={column.dateField}
+                style={{
+                  backgroundColor: column.backgroundColor,
+                  border: '1px solid #EEE'
+                }}
+              >
+                {dayjs(column.date).format(dayOfTheWeekFormat)}
+              </th>
+            );
+          })}
+        </tr>
+        <tr>
+          {daysAndDatesHeaders.map(column => {
+            return (
+              <th
+                key={column.dateField}
+                style={{
+                  backgroundColor: column.backgroundColor,
+                  border: '1px solid #EEE'
+                }}
+              >
+                {column.text}
+              </th>
+            );
+          })}
+        </tr>
+      </thead>
+    );
   };
 
-  const content = (schedule: ISchedule) => {
-    const [collapse, setCollapse] = useState(false);
-    const { details, email } = schedule.user;
-
-    const handleCollapse = () => {
-      setCollapse(!collapse);
+  const renderScheduleShifts = (shiftsOfMember: IShift[], userId: string) => {
+    type ShiftString = {
+      shiftStart: string;
+      shiftEnd: string;
+      backgroundColor: string;
     };
 
-    const name =
-      schedule.user && details && details.fullName ? details.fullName : email;
+    const listShiftsOnCorrectColumn: { [columnNo: number]: ShiftString[] } = [];
 
-    const scheduleChecked =
-      schedule.scheduleChecked || !schedule.submittedByAdmin ? (
-        <Icon icon="checked" color="green" />
-      ) : (
-        <Icon icon="times-circle" color="#F29339" />
+    for (const shift of shiftsOfMember) {
+      const findColumn = daysAndDatesHeaders.find(
+        date =>
+          date.dateField ===
+          dayjs(shift.shiftStart).format(dateOfTheMonthFormat)
       );
 
-    const getScheduleEnd = new Date(schedule.shifts[0].shiftEnd);
-    const getScheduleStart = new Date(schedule.shifts.slice(-1)[0].shiftStart);
+      if (findColumn) {
+        const columnNumber = findColumn.columnNo;
+        const backgroundColor = findColumn.backgroundColor;
 
-    const scheduleStartDate = dayjs(getScheduleStart).format(dateFormat);
-    const scheduleEndDate = dayjs(getScheduleEnd).format(dateFormat);
+        const shiftStart = dayjs(shift.shiftStart).format(timeFormat);
+        const shiftEnd = dayjs(shift.shiftEnd).format(timeFormat);
 
-    const getTotalScheduledDays = Math.ceil(
-      (getScheduleEnd.getTime() - getScheduleStart.getTime()) /
-        (1000 * 3600 * 24)
-    );
+        // if multiple shifts on a single date
+        if (columnNumber in listShiftsOnCorrectColumn) {
+          const prevShifts = listShiftsOnCorrectColumn[columnNumber];
+          listShiftsOnCorrectColumn[columnNumber] = [
+            {
+              shiftStart,
+              shiftEnd,
+              backgroundColor
+            },
+            ...prevShifts
+          ];
+          continue;
+        }
 
-    let getTotalScheduledHours = 0;
+        listShiftsOnCorrectColumn[columnNumber] = [
+          { shiftStart, shiftEnd, backgroundColor }
+        ];
+        continue;
+      }
+    }
 
-    schedule.shifts.forEach(shift => {
-      const shiftStart = new Date(shift.shiftStart);
-      const shiftEnd = new Date(shift.shiftEnd);
+    const listRowOnColumnOrder: any = [];
 
-      getTotalScheduledHours += Math.ceil(
-        (shiftEnd.getTime() - shiftStart.getTime()) / (1000 * 3600)
-      );
-    });
+    for (let i = 1; i < lastColumnIdx; i++) {
+      if (i in listShiftsOnCorrectColumn) {
+        const shiftsOfDay = listShiftsOnCorrectColumn[i].map(shift => {
+          return (
+            <td
+              key={Math.random()}
+              style={{
+                backgroundColor: shift.backgroundColor,
+                border: '1px solid #EEE'
+              }}
+            >
+              <div>{shift.shiftStart}</div>
+              <div>{shift.shiftEnd}</div>
+            </td>
+          );
+        });
+        listRowOnColumnOrder.push(...shiftsOfDay);
+        continue;
+      }
 
-    const status = schedule.solved ? (
-      __(schedule.status || '')
-    ) : (
-      <>
-        <Button
-          disabled={schedule.solved}
-          btnStyle="success"
-          onClick={() => solveSchedule(schedule._id, 'Approved')}
-        >
-          Approve
-        </Button>
-        <Button
-          btnStyle="danger"
-          onClick={() => solveSchedule(schedule._id, 'Rejected')}
-        >
-          Reject
-        </Button>
-      </>
-    );
+      const findBackgroundColor = daysAndDatesHeaders.find(
+        date => date.columnNo === i
+      )?.backgroundColor;
 
-    if (schedule.shifts.length > 0) {
-      const showScheduleChecked = !isEnabled('bichil') ? scheduleChecked : '';
-      return (
-        <div key={schedule._id} style={{ flex: 1 }}>
-          <CustomCollapseRow isChild={false}>
-            <div onClick={handleCollapse}>
-              <DropIcon isOpen={collapse} />
-              {name}
-            </div>
-
-            <div> {showScheduleChecked}</div>
-            <div>{scheduleStartDate}</div>
-            <div>{scheduleEndDate}</div>
-
-            <div>{`Total ${getTotalScheduledDays} days / ${getTotalScheduledHours} hours`}</div>
-
-            {status}
-
-            <Tip text={__('Delete')} placement="top">
-              <Button
-                btnStyle="link"
-                onClick={() => removeSchedule(schedule._id, '')}
-                icon="times-circle"
-              />
-            </Tip>
-          </CustomCollapseRow>
-          <Collapse in={collapse}>
-            <Margin>
-              <PropertyListTable>
-                <PropertyTableHeader>
-                  <ControlLabel>
-                    <b>{__('Shift date')}</b>
-                  </ControlLabel>
-                  <ControlLabel>{__('Shift start')}</ControlLabel>
-                  <ControlLabel>{__('Shift end')}</ControlLabel>
-                  <ControlLabel>{__('Overnight')}</ControlLabel>
-                  <ControlLabel>{__('Shift Status')}</ControlLabel>
-                  <ControlLabel>{__('Actions')}</ControlLabel>
-                </PropertyTableHeader>
-                {ListShiftContent(schedule.shifts)}
-              </PropertyListTable>
-            </Margin>
-          </Collapse>
-        </div>
+      listRowOnColumnOrder.push(
+        <td
+          style={{
+            backgroundColor: '#dddddd',
+            border: '1px solid #EEE'
+          }}
+        />
       );
     }
 
-    return null;
+    return <>{listRowOnColumnOrder}</>;
+  };
+
+  const renderScheduleRow = (scheduleOfMember: ISchedule, user: IUser) => {
+    const { details, email } = user;
+
+    const name = user && details && details.fullName ? details.fullName : email;
+
+    const employeeId = user && user.employeeId ? user.employeeId : '';
+
+    const scheduleChecked =
+      scheduleOfMember.scheduleChecked || !scheduleOfMember.submittedByAdmin
+        ? 'Танилцсан'
+        : 'Танилцаагүй';
+
+    const totalDaysScheduled = new Set(
+      scheduleOfMember.shifts.map(shift =>
+        dayjs(shift.shiftStart).format(dateFormat)
+      )
+    ).size;
+
+    let totalHoursScheduled = 0;
+    let totalBreakInMins = 0;
+
+    scheduleOfMember.shifts.map(shift => {
+      totalHoursScheduled +=
+        (new Date(shift.shiftEnd).getTime() -
+          new Date(shift.shiftStart).getTime()) /
+        (1000 * 3600);
+
+      totalBreakInMins += shift.lunchBreakInMins || 0;
+    });
+
+    const totalBreakInHours = totalBreakInMins / 60;
+
+    if (totalHoursScheduled) {
+      totalHoursScheduled -= totalBreakInHours;
+    }
+
+    return (
+      <tr style={{ textAlign: 'left' }}>
+        <td
+          onMouseOver={() => setShowRemoveBtn(true)}
+          onMouseLeave={() => setShowRemoveBtn(false)}
+          style={{ textAlign: 'center' }}
+        >
+          {showRemoveBtn && (
+            <Tip text={'Remove Schedule'} placement="top">
+              <Button
+                size="small"
+                icon="times-circle"
+                btnStyle="link"
+                onClick={() => removeSchedule(scheduleOfMember._id, 'schedule')}
+              />
+            </Tip>
+          )}
+        </td>
+
+        {selectedScheduleStatus === 'Pending' && (
+          <td>
+            <Button
+              disabled={scheduleOfMember.solved}
+              size="small"
+              btnStyle="success"
+              onClick={() => solveSchedule(scheduleOfMember._id, 'Approved')}
+            >
+              Approve
+            </Button>
+            <Button
+              disabled={scheduleOfMember.solved}
+              size="small"
+              btnStyle="danger"
+              onClick={() => solveSchedule(scheduleOfMember._id, 'Rejected')}
+            >
+              Reject
+            </Button>
+          </td>
+        )}
+        <td>{name}</td>
+        <td>{employeeId}</td>
+        <td>{totalDaysScheduled}</td>
+        <td>{totalHoursScheduled.toFixed(1)}</td>
+        <td>{totalBreakInHours.toFixed(1)}</td>
+        {!isEnabled('bichil') && <td>{scheduleChecked}</td>}
+        {renderScheduleShifts(scheduleOfMember.shifts, user._id)}
+      </tr>
+    );
   };
 
   getActionBar(actionBar);
-  showSideBar(true);
+  showSideBar(isSideBarOpen);
   getPagination(<Pagination count={totalCount} />);
 
-  return (
-    <SortableList
-      fields={scheduleOfMembers}
-      child={schedule => content(schedule)}
-      onChangeFields={() => ''}
-      isModal={true}
-      showDragHandler={false}
-      droppableId="schedule"
-      isDragDisabled={true}
-    />
-  );
+  const content = () => {
+    const getFilteredSchedules = filterSchedules(scheduleOfMembers);
+
+    return (
+      <Table bordered={true} condensed={true} responsive={true}>
+        {renderTableHeaders()}
+        {getFilteredSchedules.map(schedule => {
+          return renderScheduleRow(schedule, schedule.user);
+        })}
+        <tbody>{}</tbody>
+      </Table>
+    );
+  };
+  return content();
 }
 
 export default ScheduleList;

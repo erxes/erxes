@@ -11,8 +11,10 @@ import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 import { CONFIGURATIONS } from '../../constants';
-import { ToggleWrap } from '../../styles';
+import { BlockRow, ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
+import PasswordConfig from './PasswordConfig';
+import { Formgroup } from '@erxes/ui/src/components/form/styles';
 
 type Props = {
   handleFormChange: (name: string, value: any) => void;
@@ -30,10 +32,19 @@ type ControlItem = {
 
 function General({
   googleCredentials,
+  googleClientId,
+  googleRedirectUri,
+  googleClientSecret,
+  facebookAppId,
+  erxesAppToken,
   otpConfig,
   mailConfig,
   name,
   manualVerificationConfig,
+  passwordVerificationConfig,
+  tokenPassMethod = 'cookie',
+  tokenExpiration = 1,
+  refreshTokenExpiration = 7,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -500,8 +511,77 @@ function General({
 
   return (
     <>
+      <CollapseContent title="User Authentication" compact={true} open={false}>
+        <BlockRow>
+          <Formgroup>
+            <ControlLabel>Token pass method</ControlLabel>
+            <p>
+              It is recommended to use cookies, if hosting the client portal on
+              a different domain use bearer token
+            </p>
+            <FormControl
+              componentClass="select"
+              placeholder="select"
+              value={tokenPassMethod}
+              onChange={(e: any) =>
+                handleFormChange('tokenPassMethod', e.currentTarget.value)
+              }
+            >
+              <option value="cookie">Cookie</option>
+              <option value="header">Bearer token</option>
+            </FormControl>
+          </Formgroup>
+
+          <Formgroup>
+            <ControlLabel>Token expiration duration</ControlLabel>
+            <p>
+              In order to be a more secure, it is recommended to set a short
+              expiration duration.
+            </p>
+            <FormControl
+              componentClass="input"
+              placeholder="token expiration duration"
+              type="number"
+              min={1}
+              max={5}
+              value={tokenExpiration}
+              onChange={(e: any) =>
+                handleFormChange(
+                  'tokenExpiration',
+                  Number(e.currentTarget.value)
+                )
+              }
+            />
+          </Formgroup>
+
+          <Formgroup>
+            <ControlLabel>Refresh Token expiration duration</ControlLabel>
+            <p>
+              Refresh token expiration duration can be set to a longer duration.
+            </p>
+            <FormControl
+              componentClass="input"
+              placeholder="refresh token expiration duration"
+              type="number"
+              min={7}
+              max={30}
+              value={refreshTokenExpiration}
+              onChange={(e: any) =>
+                handleFormChange(
+                  'refreshTokenExpiration',
+                  Number(e.currentTarget.value)
+                )
+              }
+            />
+          </Formgroup>
+        </BlockRow>
+      </CollapseContent>
       {renderOtp()}
       {renderMailConfig()}
+      <PasswordConfig
+        config={passwordVerificationConfig}
+        onChange={handleFormChange}
+      />
       {renderManualVerification()}
 
       <CollapseContent
@@ -514,11 +594,46 @@ function General({
           formValueName: 'googleCredentials',
           formValue: googleCredentials
         })}
+        {renderControl({
+          label: 'Google Client Id',
+          formValueName: 'googleClientId',
+          formValue: googleClientId
+        })}
+        {renderControl({
+          label: 'Google Client Secret',
+          formValueName: 'googleClientSecret',
+          formValue: googleClientSecret
+        })}
+        {renderControl({
+          label: 'Google Client Redirect Uri',
+          formValueName: 'googleRedirectUri',
+          formValue: googleRedirectUri
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Facebook Application Credentials')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Facebook App Id',
+          formValueName: 'facebookAppId',
+          formValue: facebookAppId
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Erxes App Token')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Erxes App Token',
+          formValueName: 'erxesAppToken',
+          formValue: erxesAppToken
+        })}
       </CollapseContent>
     </>
   );
 }
-
-//
 
 export default General;

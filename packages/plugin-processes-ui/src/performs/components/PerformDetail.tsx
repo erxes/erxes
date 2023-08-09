@@ -1,7 +1,6 @@
 import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { IUom } from '@erxes/ui-products/src/types';
+import { __ } from 'coreui/utils';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -10,13 +9,13 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import SelectSeries from './../containers/SelectSeries';
 
 type Props = {
-  allUoms: IUom[];
   stateName: 'inProducts' | 'outProducts';
   productData: any;
   productsData: any[];
   hasCost?: boolean;
   isReadSeries?: boolean;
   onChangeState: (value: any) => void;
+  onEnter: (val?: number) => void;
 };
 
 type State = {};
@@ -48,7 +47,7 @@ class PerformDetail extends React.Component<Props, State> {
       onChangeState({
         [stateName]: newProductsData
       } as any);
-    }, 500);
+    }, 5);
   };
 
   onChangeInput = e => {
@@ -127,52 +126,69 @@ class PerformDetail extends React.Component<Props, State> {
     );
   }
 
+  onKeyDown = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        this.props.onEnter(-1);
+        return;
+      }
+      this.props.onEnter();
+    }
+  };
+
   render() {
-    const { productData, hasCost, allUoms } = this.props;
+    const { productData, hasCost } = this.props;
     const { product } = productData;
     const productName = product
       ? `${product.code} - ${product.name}`
       : 'not name';
 
-    const beUomIds = [product.uomId, ...product.subUoms.map(su => su.uomId)];
+    const uoms = Array.from(
+      new Set([
+        productData.uom,
+        product.uom,
+        ...product.subUoms.map(su => su.uom)
+      ])
+    )
+      .filter(u => u)
+      .map(u => ({ value: u, label: u }));
 
     return (
       <tr>
         <td>{__(productName)}</td>
         <td>
           <FormControl
-            defaultValue={productData.uomId}
+            value={productData.uom}
             componentClass="select"
-            name="uomId"
-            options={[
-              ...allUoms
-                .filter(au => (beUomIds || []).includes(au._id))
-                .map(u => ({
-                  value: u._id,
-                  label: `${u.code} - ${u.name}`
-                }))
-            ]}
+            name="uom"
+            options={uoms}
             required={true}
             onChange={this.onChange}
           />
         </td>
         <td>
-          <FormControl
-            defaultValue={productData.quantity}
-            type="number"
-            name="quantity"
-            required={true}
-            onChange={this.onChange}
-          />
+          <div className="canFocus">
+            <FormControl
+              value={productData.quantity}
+              type="number"
+              name="quantity"
+              required={true}
+              onChange={this.onChange}
+              onKeyDown={this.onKeyDown}
+              onFocus={e => (e.target as any).select()}
+            />
+          </div>
         </td>
         {hasCost && (
           <td>
             <FormControl
-              defaultValue={productData.amount || 0}
+              value={productData.amount || 0}
               type="number"
               name="amount"
               required={true}
               onChange={this.onChange}
+              onKeyDown={this.onKeyDown}
             />
           </td>
         )}

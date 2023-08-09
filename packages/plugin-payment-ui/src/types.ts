@@ -21,9 +21,31 @@ export interface ISocialPayConfig {
   inStoreSPKey: string;
 }
 
+export interface IPaypalConfig {
+  paypalMode: 'sandbox' | 'live';
+  paypalClientId: string;
+  paypalClientSecret: string;
+}
+
 export interface IMonpayConfig {
   username: string;
   accountId: string;
+}
+
+export interface IStorepayConfig {
+  merchantUsername: string;
+  merchantPassword: string;
+
+  appUsername: string;
+  appPassword: string;
+
+  storeId: string;
+}
+
+export interface IPocketConfig {
+  merchant: string;
+  clientId: string;
+  clientSecret: string;
 }
 
 export interface IPaymentDocument extends IPayment, Document {
@@ -32,7 +54,7 @@ export interface IPaymentDocument extends IPayment, Document {
 
 export type ByKindTotalCount = {
   qpay: number;
-  socialPay: number;
+  socialpay: number;
 };
 
 export type InvoicesCount = {
@@ -54,9 +76,12 @@ export interface IInvoice {
   phone: string;
   resolvedAt: Date;
   status: string;
-  company?: ICompany;
-  customer?: ICustomer;
-  pluginData?: any;
+  customerType: string;
+  customer?: any;
+  paymentKind: string;
+  errorDescription?: string;
+
+  idOfProvider: string;
 }
 
 export interface IPaymentConfig {

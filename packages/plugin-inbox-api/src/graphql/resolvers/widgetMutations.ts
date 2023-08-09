@@ -1,5 +1,4 @@
 import * as strip from 'strip';
-import { Db, MongoClient } from 'mongodb';
 
 import {
   CONVERSATION_OPERATOR_STATUS,
@@ -23,7 +22,7 @@ import {
   BOT_MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
-import { getEnv, sendRequest } from '@erxes/api-utils/src';
+import { sendRequest } from '@erxes/api-utils/src';
 
 import { solveSubmissions } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversationMutations';
@@ -73,7 +72,7 @@ export const pConversationClientMessageInserted = async (
       {
         _id: conversation.integrationId
       },
-      { _id: 1 }
+      { _id: 1, name: 1 }
     );
   }
 
@@ -99,6 +98,22 @@ export const pConversationClientMessageInserted = async (
     integration,
     channelMemberIds
   });
+
+  if (message.content) {
+    sendCoreMessage({
+      subdomain,
+      action: 'sendMobileNotification',
+      data: {
+        title: integration ? integration.name : 'New message',
+        body: message.content,
+        receivers: channelMemberIds,
+        data: {
+          type: 'conversation',
+          id: conversation._id
+        }
+      }
+    });
+  }
 };
 
 export const getMessengerData = async (
@@ -118,6 +133,17 @@ export const getMessengerData = async (
 
     if (messages) {
       messagesByLanguage = messages[languageCode];
+    }
+
+    if (
+      messengerData &&
+      messengerData.hideWhenOffline &&
+      messengerData.availabilityMethod === 'auto'
+    ) {
+      const isOnline = await models.Integrations.isOnline(integration);
+      if (!isOnline) {
+        messengerData.showChat = false;
+      }
     }
   }
 
@@ -332,31 +358,6 @@ const createFormConversation = async (
         ]
       }
     });
-  }
-
-  if (formId === 'j2maRsaS2J5uJGxgy') {
-    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
-
-    const client = new MongoClient(MONGO_URL);
-
-    await client.connect();
-    const db = client.db() as Db;
-
-    const Blocks = db.collection('blocks');
-
-    const block = await Blocks.findOne({ erxesCustomerId: cachedCustomer._id });
-
-    if (block) {
-      await Blocks.updateOne(
-        { erxesCustomerId: cachedCustomer._id },
-        { $set: { isVerified: 'loading' } }
-      );
-    } else {
-      await Blocks.insert({
-        erxesCustomerId: cachedCustomer._id,
-        isVerified: 'loading'
-      });
-    }
   }
 
   return {
@@ -636,6 +637,7 @@ const widgetMutations = {
 
       if (!company) {
         companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
 
         company = await sendContactsMessage({
           subdomain,
@@ -943,28 +945,6 @@ const widgetMutations = {
           status: 'connected'
         }
       });
-    }
-
-    if (!HAS_BOTENDPOINT_URL && customerId) {
-      try {
-        await sendCoreMessage({
-          subdomain,
-          action: 'sendMobileNotification',
-          data: {
-            title: 'You have a new message',
-            body: conversationContent,
-            customerId,
-            conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId),
-            data: {
-              type: 'messenger',
-              id: conversation._id
-            }
-          }
-        });
-      } catch (e) {
-        debug.error(`Failed to send mobile notification: ${e.message}`);
-      }
     }
 
     await sendToWebhook({

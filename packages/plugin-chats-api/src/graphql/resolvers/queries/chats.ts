@@ -13,13 +13,24 @@ const chatQueries = {
       filter.type = type;
     }
 
-    return {
-      list: await models.Chats.find(filter)
-        .sort({ updatedAt: -1 })
-        .skip(skip || 0)
-        .limit(limit || 10),
-      totalCount: await models.Chats.find(filter).countDocuments()
+    const pinnedChats = await models.Chats.find({
+      ...filter,
+      isPinned: true
+    }).sort({ updatedAt: -1 });
+
+    const nonPinnedChats = await models.Chats.find({
+      ...filter,
+      isPinned: { $ne: true }
+    })
+      .sort({ updatedAt: -1 })
+      .skip(skip || 0)
+      .limit(limit || 10);
+
+    const result = {
+      list: [...pinnedChats, ...nonPinnedChats],
+      totalCount: await models.Chats.countDocuments(filter)
     };
+    return result;
   },
 
   chatDetail: async (
@@ -89,7 +100,7 @@ const chatQueries = {
 
     const chat = await models.Chats.getChat(chatId);
 
-    if (!getIsSeen(models, chat, user)) {
+    if (await getIsSeen(models, chat, user)) {
       graphqlPubsub.publish('chatUnreadCountChanged', {
         userId: user._id
       });

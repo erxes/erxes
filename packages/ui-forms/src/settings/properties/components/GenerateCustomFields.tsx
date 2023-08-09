@@ -1,17 +1,18 @@
-import React from 'react';
+import { Divider, SidebarContent } from '../styles';
+import { IField, ILocationOption } from '@erxes/ui/src/types';
+import { IFieldGroup, LogicParams } from '../types';
+
+import { Alert } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import GenerateField from './GenerateField';
+import Icon from '@erxes/ui/src/components/Icon';
+import { ModalTrigger } from '@erxes/ui/src';
+import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IField, ILocationOption } from '@erxes/ui/src/types';
-import { Alert } from '@erxes/ui/src/utils';
-
-import { Divider, SidebarContent } from '../styles';
-import { IFieldGroup, LogicParams } from '../types';
 import { checkLogic } from '../utils';
-import GenerateField from './GenerateField';
 
 declare const navigator: any;
 
@@ -25,17 +26,21 @@ type Props = {
   object?: any;
   data: any;
   save: (data: { customFieldsData: any }, callback: () => any) => void;
-  saveGroup: (data: any, callback: (error: Error) => void) => void;
+  saveGroup: (
+    data: any,
+    callback: (error: Error) => void,
+    extraValues?: any
+  ) => void;
 };
 
 type State = {
   editing: boolean;
   data: any;
+  extraValues?: any;
   currentLocation: ILocationOption;
 };
 
 class GenerateGroup extends React.Component<Props, State> {
-  s;
   constructor(props: Props) {
     super(props);
 
@@ -87,18 +92,22 @@ class GenerateGroup extends React.Component<Props, State> {
   }
 
   save = () => {
-    const { data } = this.state;
+    const { data, extraValues } = this.state;
     const { saveGroup } = this.props;
 
-    saveGroup(data, error => {
-      if (error) {
-        return Alert.error(error.message);
-      }
+    saveGroup(
+      data,
+      error => {
+        if (error) {
+          return Alert.error(error.message);
+        }
 
-      this.cancelEditing();
+        this.cancelEditing();
 
-      return Alert.success('Success');
-    });
+        return Alert.success('Success');
+      },
+      extraValues
+    );
   };
 
   cancelEditing = () => {
@@ -108,11 +117,14 @@ class GenerateGroup extends React.Component<Props, State> {
     });
   };
 
-  onChange = (index: number, { _id, value }) => {
+  onChange = (
+    index: number,
+    { _id, value, extraValue }: { _id: string; value: any; extraValue?: string }
+  ) => {
     const { fields, isMultiple } = this.props.fieldGroup;
     const fieldGroupId = this.props.fieldGroup._id;
 
-    const { data } = this.state;
+    const { data, extraValues = {} } = this.state;
 
     if (isMultiple) {
       if (!data[fieldGroupId]) {
@@ -149,7 +161,14 @@ class GenerateGroup extends React.Component<Props, State> {
       }
     }
 
-    this.setState({ data, editing: true });
+    const updatedState: any = { data, editing: true };
+
+    if (extraValue) {
+      extraValues[_id] = extraValue;
+      updatedState.extraValues = extraValues;
+    }
+
+    this.setState(updatedState);
   };
 
   onAddGroupInput = () => {
@@ -283,7 +302,7 @@ class GenerateGroup extends React.Component<Props, State> {
                 <GenerateField
                   field={field}
                   key={index}
-                  onValueChange={data => this.onChange(groupDataIndex, data)}
+                  onValueChange={val => this.onChange(groupDataIndex, val)}
                   defaultValue={
                     isMultiple
                       ? groupDataValue[field._id] || ''
@@ -333,7 +352,8 @@ class GenerateGroup extends React.Component<Props, State> {
     });
 
     const saveGroup = (groupData, callback) => {
-      const { customFieldsData, save } = this.props;
+      const { save } = this.props;
+      const { extraValues } = this.state;
 
       const prevData = {};
       (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
@@ -347,7 +367,8 @@ class GenerateGroup extends React.Component<Props, State> {
         {
           customFieldsData: Object.keys(updatedData).map(key => ({
             field: key,
-            value: updatedData[key]
+            value: updatedData[key],
+            extraValue: !!extraValues?.length ? extraValues[key] : undefined
           }))
         },
         callback
@@ -376,11 +397,13 @@ class GenerateGroup extends React.Component<Props, State> {
             };
           }
 
+          const object = this.props.object || {};
+
           return {
             fieldId,
             operator: logic.logicOperator,
             logicValue: logic.logicValue,
-            fieldValue: this.props.object[logic.fieldId || ''],
+            fieldValue: object[logic.fieldId || ''],
             validation: allFields.find(e => e._id === fieldId)?.validation
           };
         });
@@ -418,15 +441,8 @@ class GenerateGroup extends React.Component<Props, State> {
     });
   }
 
-  render() {
-    const { fieldGroup, isDetail } = this.props;
-    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+  modalContent = (fieldGroup: IFieldGroup) => {
     let extraButtons = <></>;
-
-    if (!fieldGroup[isVisibleKey]) {
-      return null;
-    }
-
     if (fieldGroup.isMultiple) {
       extraButtons = (
         <Tip placement="top" text="Add Group Input">
@@ -436,12 +452,78 @@ class GenerateGroup extends React.Component<Props, State> {
         </Tip>
       );
     }
+    return (
+      <Box
+        extraButtons={extraButtons}
+        title={fieldGroup.name}
+        name="showCustomFields"
+        isOpen={true}
+      >
+        {this.renderContent()}
+        {this.renderButtons()}
+        {this.renderChildGroups()}
+      </Box>
+    );
+  };
+
+  render() {
+    const { fieldGroup, isDetail } = this.props;
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+    let extraButtons = <></>;
+    const visibleField = fieldGroup.fields.find(el => el.isVisible === true);
+
+    if (!visibleField) {
+      return null;
+    }
+
+    if (!fieldGroup[isVisibleKey]) {
+      return null;
+    }
+
+    if (fieldGroup.fields.length === 0) {
+      return null;
+    }
+
+    if (fieldGroup.isMultiple) {
+      extraButtons = (
+        <>
+          {
+            <ModalTrigger
+              title={'Edit'}
+              trigger={
+                <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+              }
+              size="xl"
+              content={() => this.modalContent(fieldGroup)}
+            />
+          }
+          <Tip placement="top" text="Add Group Input">
+            <button onClick={this.onAddGroupInput}>
+              <Icon icon="plus-circle" />
+            </button>
+          </Tip>
+        </>
+      );
+    }
+    if (!fieldGroup.isMultiple) {
+      extraButtons = (
+        <ModalTrigger
+          title={'Edit'}
+          trigger={
+            <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+          }
+          size="xl"
+          content={() => this.modalContent(fieldGroup)}
+        />
+      );
+    }
 
     return (
       <Box
         extraButtons={extraButtons}
         title={fieldGroup.name}
         name="showCustomFields"
+        isOpen={fieldGroup.alwaysOpen}
       >
         {this.renderContent()}
         {this.renderButtons()}
@@ -461,9 +543,8 @@ type GroupsProps = {
 };
 
 class GenerateGroups extends React.Component<GroupsProps> {
-  saveGroup = (groupData, callback) => {
+  saveGroup = (groupData, callback, extraValues?) => {
     const { customFieldsData, save } = this.props;
-
     const prevData = {};
     (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
 
@@ -476,7 +557,9 @@ class GenerateGroups extends React.Component<GroupsProps> {
       {
         customFieldsData: Object.keys(updatedData).map(key => ({
           field: key,
-          value: updatedData[key]
+          value: updatedData[key],
+          extraValue:
+            extraValues && extraValues[key] ? extraValues[key] : undefined
         }))
       },
       callback

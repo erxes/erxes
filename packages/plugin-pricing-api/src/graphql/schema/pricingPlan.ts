@@ -106,6 +106,8 @@ export const types = () => `
     updatedAt: Date,
     updatedBy: String,
     updatedUser: User
+
+    productIds: [String]
   }
 
   input QuantityRuleInput {
@@ -244,8 +246,32 @@ export const types = () => `
   }
 `;
 
+const pricingQueryParams = `
+  status: String
+  prioritizeRule: String
+  branchId: String
+  departmentId: String
+  
+  totalAmount: String
+  productId: String
+  quantity: Float
+  date: Date
+
+  findOne: Boolean
+  page: Int
+  perPage: Int
+  sortField: String
+  sortDirection: Int
+
+  isQuantityEnabled: Boolean
+  isPriceEnabled: Boolean
+  isExpiryEnabled: Boolean
+  isRepeatEnabled: Boolean
+`;
+
 export const queries = `
-  pricingPlans(status: String): [PricingPlan]
+  pricingPlans(${pricingQueryParams}): [PricingPlan]
+  pricingPlansCount(${pricingQueryParams}): Int
   pricingPlanDetail(id: String): PricingPlan
 `;
 

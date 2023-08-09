@@ -1,10 +1,11 @@
 import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, confirm } from '@erxes/ui/src/utils';
+import WelcomeList from '../components/WelcomeList';
 
 type Props = {
   queryParams: any;
@@ -58,6 +59,10 @@ export default function ListContainer(props: Props) {
   };
 
   const { list, totalCount } = feedResponse.data.exmFeed || {};
+
+  if (contentType === 'welcome') {
+    return <WelcomeList list={list} totalCount={totalCount} limit={limit} />;
+  }
 
   return (
     <List

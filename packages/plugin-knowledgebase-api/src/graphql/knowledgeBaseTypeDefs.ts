@@ -77,6 +77,7 @@ export const types = `
     firstTopic: KnowledgeBaseTopic
     authors: [User]
     numOfArticles: Float
+    countArticles:Int
   }
 
   type KnowledgeBaseParentCategory {

@@ -1,7 +1,7 @@
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import React from 'react';
 import Table from '@erxes/ui/src/components/table';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { CustomSideContent } from '../../styles';
 import { IOverallWorkDet } from '../types';
 import { IQueryParams } from '@erxes/ui/src/types';
@@ -78,12 +78,12 @@ class DetailRightSidebar extends React.Component<Props, State> {
                             ? `${data.product.code} - ${data.product.name}`
                             : ''}
                         </td>
-                        <td>{data.mainUom ? `${data.mainUom.code}` : ''}</td>
+                        <td>{data.mainUom || ''}</td>
                         <td>{data.mainQuantity}</td>
                         <td>{data.reserveRem}</td>
                         <td>{data.liveRem}</td>
                         <td>{data.liveRem - data.quantity}</td>
-                        <td>{data.uom ? `${data.uom.code}` : ''}</td>
+                        <td>{data.uom || ''}</td>
                         <td>{data.quantity}</td>
                       </tr>
                     ))}
@@ -118,14 +118,14 @@ class DetailRightSidebar extends React.Component<Props, State> {
                             ? `${data.product.code} - ${data.product.name}`
                             : ''}
                         </td>
-                        <td>{data.mainUom ? `${data.mainUom.code}` : ''}</td>
+                        <td>{data.mainUom || ''}</td>
                         <td>{data.mainQuantity}</td>
                         <td>{data.reserveRem}</td>
                         <td>{data.liveRem}</td>
                         <td>
                           {data.quantity + data.reserveRem - data.liveRem}
                         </td>
-                        <td>{data.uom ? `${data.uom.code}` : ''}</td>
+                        <td>{data.uom || ''}</td>
                         <td>{data.quantity}</td>
                       </tr>
                     ))}

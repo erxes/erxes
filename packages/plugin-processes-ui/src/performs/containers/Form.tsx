@@ -1,16 +1,14 @@
 import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Form from '../components/Form';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IPerform, PerformDetailQueryResponse } from '../types';
 import { mutations, queries } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { UomsQueryResponse } from '@erxes/ui-products/src/types';
-import productsQueries from '@erxes/ui-products/src/graphql/queries';
 import { IOverallWorkDet } from '../../overallWork/types';
 
 type Props = {
@@ -23,7 +21,6 @@ type Props = {
 
 type FinalProps = {
   performDetailQuery: PerformDetailQueryResponse;
-  uomsQuery: UomsQueryResponse;
 } & Props;
 
 class PerformFormContainer extends React.Component<
@@ -42,17 +39,9 @@ class PerformFormContainer extends React.Component<
   }
 
   render() {
-    const {
-      overallWorkDetail,
-      max,
-      performDetailQuery,
-      uomsQuery
-    } = this.props;
+    const { overallWorkDetail, max, performDetailQuery } = this.props;
 
-    if (
-      (performDetailQuery && performDetailQuery.loading) ||
-      uomsQuery.loading
-    ) {
+    if (performDetailQuery && performDetailQuery.loading) {
       return <Spinner />;
     }
 
@@ -87,17 +76,16 @@ class PerformFormContainer extends React.Component<
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully added a ${name}`}
+          successMessage={`You successfully ${
+            values._id ? 'updated' : 'added'
+          } a ${name}`}
           disabled={disabled}
         />
       );
     };
 
-    const allUoms = uomsQuery.uoms || [];
-
     const updatedProps = {
       ...this.props,
-      allUoms,
       perform,
       renderButton
     };
@@ -131,9 +119,6 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       }),
       skip: props => !props.perform || !props.perform._id
-    }),
-    graphql<Props, UomsQueryResponse>(gql(productsQueries.uoms), {
-      name: 'uomsQuery'
     })
   )(PerformFormContainer)
 );

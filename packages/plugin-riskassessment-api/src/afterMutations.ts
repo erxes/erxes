@@ -1,16 +1,57 @@
 import { generateModels } from './connectionResolver';
 import { sendCardsMessage } from './messageBroker';
-import { IRiskConformityField } from './models/definitions/common';
 
 export default {
-  'cards:ticket': ['create'],
-  'cards:task': ['create']
+  'cards:ticket': ['create', 'update'],
+  'cards:task': ['create', 'update']
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
-  const { type, action, object } = params;
-  const { customFieldsData, stageId, _id } = object;
+  const { type, action, object, newData, user } = params;
+  const { customFieldsData, stageId, _id, branchIds, departmentIds } = object;
   const models = await generateModels(subdomain);
+
+  if (
+    ['create', 'update'].includes(action) &&
+    (newData?.customFieldsData || []).find(
+      field => field?.extraValue === 'riskAssessmentVisitors'
+    )
+  ) {
+    const contentType = type.replace('cards:', '');
+
+    const oldVisitorIds =
+      customFieldsData.find(
+        field => field?.extraValue === 'riskAssessmentVisitors'
+      )?.value || [];
+
+    const newVisitorIds =
+      (newData?.customFieldsData || []).find(
+        field => field?.extraValue === 'riskAssessmentVisitors'
+      )?.value || [];
+
+    const removedVistorIds = oldVisitorIds.filter(
+      oldVisitorId => !newVisitorIds.includes(oldVisitorId)
+    );
+    const addedVisitorIds = newVisitorIds.filter(
+      newVisitorId => !oldVisitorIds.includes(newVisitorId)
+    );
+
+    await sendCardsMessage({
+      subdomain,
+      action: 'sendNotifications',
+      data: {
+        item: object,
+        user,
+        type: `${contentType}Add`,
+        action: `invited you as visitor`,
+        content: `'${object.name}'.`,
+        contentType,
+        invitedUsers: addedVisitorIds,
+        removedUsers: removedVistorIds
+      },
+      isRPC: true
+    });
+  }
 
   if (action === 'create') {
     const stage = await sendCardsMessage({
@@ -44,7 +85,15 @@ export const afterMutationHandlers = async (subdomain, params) => {
     const conformity = {
       cardId: _id,
       cardType: type.replace('cards:', '')
-    } as IRiskConformityField;
+    } as any;
+
+    if (!!branchIds?.length) {
+      conformity.branchId = branchIds[0];
+    }
+
+    if (!!departmentIds?.length) {
+      conformity.branchId = departmentIds[0];
+    }
 
     for (const data of customFieldsData) {
       const config = await models.RiskAssessmentsConfigs.findOne({

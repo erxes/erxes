@@ -26,7 +26,7 @@ const RiskAssessmentMutations = {
     }
 
     try {
-      await models.RiksFormSubmissions.deleteMany({
+      await models.RiskFormSubmissions.deleteMany({
         assessmentId: { $in: ids }
       });
       await models.RiskAssessmentIndicators.deleteMany({

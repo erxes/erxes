@@ -37,7 +37,7 @@ export default function Row(props: Props) {
       <td>{category ? category.name : ''}</td>
       <td>{(unitPrice || 0).toLocaleString()}</td>
       <td>{(remainder || 0).toLocaleString()}</td>
-      <td>{(uom && uom.name) || ''}</td>
+      <td>{uom || ''}</td>
     </tr>
   );
 }

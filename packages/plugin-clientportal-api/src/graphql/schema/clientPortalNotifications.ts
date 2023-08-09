@@ -60,7 +60,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  clientPortalNotificationsMarkAsRead (_ids: [String]) : String
+  clientPortalNotificationsMarkAsRead (_ids: [String], markAll: Boolean) : String
   clientPortalNotificationsRemove(_ids: [String]) : JSON
 
   clientPortalUserUpdateNotificationSettings(
@@ -69,5 +69,5 @@ export const mutations = `
     configs: [NotificationConfigInput],
   ): ClientPortalUser
 
-    clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean): JSON
+    clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean, eventData: JSON): JSON
 `;

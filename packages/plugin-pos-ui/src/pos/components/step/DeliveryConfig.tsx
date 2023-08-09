@@ -1,6 +1,6 @@
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Select from 'react-select-plus';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
@@ -61,10 +61,10 @@ class DeliveryConfig extends React.Component<Props, State> {
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
-    config[code] = value;
+    const newConfig = { ...config, [code]: value };
 
-    this.setState({ config }, () => {
-      this.props.onChange('deliveryConfig', config);
+    this.setState({ config: newConfig }, () => {
+      this.props.onChange('deliveryConfig', newConfig);
     });
   };
 

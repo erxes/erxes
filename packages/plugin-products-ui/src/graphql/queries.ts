@@ -18,29 +18,11 @@ const productCategoriesCount = `
 
 const productsGroupCounts = `
   query productsGroupCounts(
-    $type: String,
-    $categoryId: String,
-    $tag: String,
-    $searchValue: String,
-    $perPage: Int,
-    $page: Int $ids: [String],
-    $excludeIds: Boolean,
-    $pipelineId: String,
-    $boardId: String,
     $segment: String,
     $segmentData: String,
     $only: String
   ) {
     productsGroupCounts(
-      type: $type,
-      categoryId: $categoryId,
-      tag: $tag,
-      searchValue: $searchValue,
-      perPage: $perPage,
-      page: $page ids: $ids,
-      excludeIds: $excludeIds,
-      pipelineId: $pipelineId,
-      boardId: $boardId,
       segment: $segment,
       segmentData: $segmentData,
       only: $only
@@ -49,8 +31,28 @@ const productsGroupCounts = `
 `;
 
 const productsCount = `
-  query productsTotalCount($type: String, $segment: String, $segmentData: String) {
-    productsTotalCount(type: $type, segment: $segment, segmentData: $segmentData)
+  query productsTotalCount(
+    $type: String,
+    $categoryId: String,
+    $tag: String,
+    $searchValue: String,
+    $excludeIds: Boolean,
+    $pipelineId: String,
+    $boardId: String,
+    $segment: String,
+    $segmentData: String
+  ) {
+    productsTotalCount(
+      type: $type,
+      categoryId: $categoryId,
+      tag: $tag,
+      searchValue: $searchValue,
+      excludeIds: $excludeIds,
+      pipelineId: $pipelineId,
+      boardId: $boardId,
+      segment: $segment,
+      segmentData: $segmentData
+    )
   }
 `;
 
@@ -76,6 +78,18 @@ const uomsTotalCount = productQueries.uomsTotalCount;
 
 const productsConfigs = productQueries.productsConfigs;
 
+// product documents
+const documents = `
+  query documents($page: Int, $perPage: Int, $contentType: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType) {
+      _id
+      contentType
+      name
+      createdAt
+    }
+  }
+`;
+
 export default {
   products,
   productDetail,
@@ -87,5 +101,6 @@ export default {
   productCategoryDetail,
   uoms,
   uomsTotalCount,
-  productsConfigs
+  productsConfigs,
+  documents
 };

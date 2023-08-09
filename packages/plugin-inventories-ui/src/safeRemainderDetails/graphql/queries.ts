@@ -46,7 +46,6 @@ export const safeRemainderItemFields = `
   preCount
   count
   status
-  lastTransactionDate
   remainderId
   modifiedAt
 
@@ -56,12 +55,7 @@ export const safeRemainderItemFields = `
     name
   }
   productId
-  uom {
-    _id
-    code
-    name
-  }
-  uomId
+  uom
 `;
 
 const safeRemainderDetail = `

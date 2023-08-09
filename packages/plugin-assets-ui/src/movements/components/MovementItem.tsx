@@ -7,7 +7,7 @@ import { FormControl, Icon, TextInfo, __ } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { renderFullName } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IMovementItem } from '../../common/types';

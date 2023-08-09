@@ -9,6 +9,9 @@ export interface IExportHistory {
   columnsConfig: string[];
   segmentData: string[];
   name?: string;
+  percentage?: number;
+  uploadType?: string;
+  errorMsg?: string;
 }
 
 export interface IExportHistoryDocument extends IExportHistory, Document {
@@ -22,6 +25,7 @@ export const exportHistorySchema = new Schema({
   contentType: field({ type: String, label: 'Content type' }),
   columnsConfig: field({ type: [String], label: 'Columns config' }),
   exportLink: field({ type: String, label: 'Content type' }),
+  uploadType: field({ type: String, label: 'Upload Service Type' }),
   segmentData: field({ type: Object, label: 'Segment data' }),
   userId: field({ type: String, label: 'Created by' }),
   date: field({ type: Date, label: 'Date of export' }),
@@ -29,6 +33,11 @@ export const exportHistorySchema = new Schema({
     type: String,
     default: 'inProcess',
     label: 'Status'
+  }),
+  percentage: field({ type: Number, default: 0, label: 'Percentage' }),
+  errorMsg: field({
+    type: String,
+    label: 'Error Msgs'
   }),
   total: field({ type: Number, label: 'Total attempts' }),
   name: field({ type: String, label: 'Export name' })

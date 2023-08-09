@@ -22,12 +22,12 @@ import DeliveryConfig from './step/DeliveryConfig';
 import EbarimtConfig from './step/EbarimtConfig';
 import ErkhetConfig from './step/ErkhetConfig';
 import GeneralStep from './step/GeneralStep';
-import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import PermissionStep from './step/Permission';
 import PaymentsStep from './step/PaymentsStep';
 import { ALLOW_TYPES } from '../../constants';
+import ScreensConfig from './step/Screens';
 
 type Props = {
   pos?: IPos;
@@ -92,7 +92,9 @@ class Pos extends React.Component<Props, State> {
       cardsConfig: pos.cardsConfig,
       slots: props.slots || [],
       checkRemainder: pos.checkRemainder || false,
-      allowTypes: pos.allowTypes || ALLOW_TYPES.map(at => at.value)
+      allowTypes:
+        pos.allowTypes ||
+        ALLOW_TYPES.filter(at => at.kind === 'sale').map(at => at.value)
     };
   }
 
@@ -147,6 +149,7 @@ class Pos extends React.Component<Props, State> {
     let doc: any = {
       name: pos.name,
       description: pos.description,
+      pdomain: pos.pdomain,
       erxesAppToken: pos.erxesAppToken,
       productDetails: pos.productDetails || [],
       groups,
@@ -351,6 +354,18 @@ class Pos extends React.Component<Props, State> {
                   onChange={this.onChange}
                   uiOptions={uiOptions}
                   logoPreviewUrl={logoPreviewUrl}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-14.svg"
+                title={'Screens Config'}
+                onClick={this.onStepClick}
+                noButton={true}
+              >
+                <ScreensConfig
+                  onChange={this.onChange}
+                  pos={pos}
+                  checkRemainder={checkRemainder}
                 />
               </Step>
               <Step

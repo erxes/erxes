@@ -5,6 +5,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 // local
 import ChatItem from '../../containers/chats/ChatItem';
 import { Title, ChatListSearch, ChatListWrapper } from '../../styles';
+import LoadMore from '@erxes/ui/src/components/LoadMore';
 
 type Props = {
   chats: any[];
@@ -13,17 +14,28 @@ type Props = {
   hasOptions?: boolean;
   isWidget?: boolean;
   handleClickItem?: (chatId: string) => void;
+  togglePinned: () => void;
+  loadEarlierChat: () => void;
+  loading?: boolean;
+  totalCount?: number;
 };
 
-const LOCALSTORAGE_KEY = 'erxes_pinned_chats';
-
 const ChatList = (props: Props) => {
-  const { chats, currentUser, chatId, hasOptions, isWidget } = props;
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [filteredChats, setFilteredChats] = useState<any[]>([]);
-  const [pinnedChatIds, setPinnedChatIds] = useState<any[]>(
-    JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]')
+  const [searchValue, setSearchValue] = useState('');
+  const [filteredChats, setFilteredChats] = useState([]);
+  const [pinnedChatIds, setPinnedChatIds] = useState(
+    props.chats?.filter((chat: any) => chat.isPinned === true) || []
   );
+
+  const {
+    chats,
+    currentUser,
+    chatId,
+    hasOptions,
+    isWidget,
+    togglePinned,
+    totalCount
+  } = props;
 
   const handlePin = (_chatId: string) => {
     if (checkPinned(_chatId)) {
@@ -35,8 +47,7 @@ const ChatList = (props: Props) => {
 
   const updatePinned = (_chats: any[]) => {
     setPinnedChatIds(_chats);
-
-    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(_chats));
+    togglePinned();
   };
 
   const checkPinned = (_chatId: string) => {
@@ -45,11 +56,12 @@ const ChatList = (props: Props) => {
 
   const handleSearch = (event: any) => {
     setSearchValue(event.target.value);
+
     setFilteredChats(
       chats.filter(item => {
         let name = '';
 
-        if (item.type == 'direct') {
+        if (item.type === 'direct') {
           const users: any[] = item.participantUsers || [];
           const user: any =
             users.length > 1
@@ -73,12 +85,12 @@ const ChatList = (props: Props) => {
           <ChatListWrapper>
             {chats.map(
               c =>
-                checkPinned(c._id) && (
+                c.isPinned && (
                   <ChatItem
                     key={c._id}
                     chat={c}
                     active={c._id === chatId}
-                    isPinned={true}
+                    isPinned={c.isPinned}
                     isWidget={isWidget}
                     hasOptions={hasOptions}
                     handlePin={handlePin}
@@ -92,28 +104,30 @@ const ChatList = (props: Props) => {
     }
   };
 
-  const renderChats = () => (
-    <>
-      <Title>Recent</Title>
-      <ChatListWrapper>
-        {chats.map(
-          c =>
-            !checkPinned(c._id) && (
-              <ChatItem
-                key={c._id}
-                chat={c}
-                active={c._id === chatId}
-                isPinned={false}
-                isWidget={isWidget}
-                hasOptions={hasOptions}
-                handlePin={handlePin}
-                handleClickItem={props.handleClickItem}
-              />
-            )
-        )}
-      </ChatListWrapper>
-    </>
-  );
+  const renderChats = () =>
+    pinnedChatIds.length !== chats.length && (
+      <>
+        <Title>Recent</Title>
+        <ChatListWrapper>
+          {chats.map(
+            c =>
+              !c.isPinned && (
+                <ChatItem
+                  key={c._id}
+                  chat={c}
+                  active={c._id === chatId}
+                  isPinned={c.isPinned}
+                  isWidget={isWidget}
+                  hasOptions={hasOptions}
+                  handlePin={handlePin}
+                  handleClickItem={props.handleClickItem}
+                />
+              )
+          )}
+          <LoadMore all={totalCount} perPage={10} loading={false} />
+        </ChatListWrapper>
+      </>
+    );
 
   const renderFilteredChats = () => {
     return filteredChats.map(c => (
@@ -121,7 +135,7 @@ const ChatList = (props: Props) => {
         key={c._id}
         chat={c}
         active={c._id === chatId}
-        isPinned={checkPinned(c._id)}
+        isPinned={c.isPinned}
         isWidget={isWidget}
         hasOptions={hasOptions}
         handlePin={handlePin}
@@ -136,7 +150,7 @@ const ChatList = (props: Props) => {
         <FormControl
           type="text"
           placeholder="Search Chat"
-          round
+          round={true}
           onChange={handleSearch}
         />
       </ChatListSearch>

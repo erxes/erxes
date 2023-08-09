@@ -1,12 +1,12 @@
-import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
-import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
-import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-
 import { AddContent, AddRow } from '../../styles/item';
+
 import AssignedUsers from './AssignedUsers';
+import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
+import { IField } from '@erxes/ui/src/types';
+import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
 import PipelineLabels from './PipelineLabels';
+import React from 'react';
+import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
 
 type Props = {
   object: any;
@@ -22,10 +22,18 @@ function GenerateAddFormFields(props: Props) {
 
   const { customFieldsData, onChangeField } = props;
 
-  const onCustomFieldsDataChange = ({ _id, value }) => {
+  const onCustomFieldsDataChange = ({
+    _id,
+    value,
+    extraValue
+  }: {
+    _id: string;
+    value: any;
+    extraValue?: string;
+  }) => {
     const field = customFieldsData.find(c => c.field === _id);
 
-    //check nested logics and clear field value
+    // check nested logics and clear field value
     for (const f of customFields) {
       const logics = f.logics || [];
 
@@ -46,12 +54,15 @@ function GenerateAddFormFields(props: Props) {
 
     if (field) {
       field.value = value;
+      if (extraValue) {
+        field.extraValue = extraValue;
+      }
 
       onChangeField('customFieldsData', customFieldsData);
     } else {
       onChangeField('customFieldsData', [
         ...customFieldsData,
-        { field: _id, value }
+        { field: _id, value, extraValue }
       ]);
     }
   };
@@ -124,11 +135,13 @@ function GenerateAddFormFields(props: Props) {
               };
             }
 
+            const object = props.object || {};
+
             return {
               fieldId,
               operator: logic.logicOperator,
               logicValue: logic.logicValue,
-              fieldValue: props.object[logic.fieldId || ''],
+              fieldValue: object[logic.fieldId || ''] || '',
               validation: fields.find(e => e._id === fieldId)?.validation,
               type: field.type
             };
@@ -138,8 +151,9 @@ function GenerateAddFormFields(props: Props) {
             return null;
           }
         }
+
         return (
-          <AddRow>
+          <AddRow key={index}>
             <AddContent>
               <GenerateField
                 field={field}

@@ -22,6 +22,10 @@ const posOrderFields = contactsEnabled => `
   items: JSON,
   posToken: String,
   posName: String,
+  branchId: String,
+  departmentId: String,
+  branch: JSON,
+  department: JSON,
   user: User,
   ${
     contactsEnabled
@@ -32,6 +36,7 @@ const posOrderFields = contactsEnabled => `
   }
   syncedErkhet: Boolean,
   origin: String
+  convertDealId: String
 `;
 
 export const types = ({ contactsEnabled, productsEnabled }) => `
@@ -53,6 +58,12 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     syncErkhetInfo: String
     putResponses: JSON
     deliveryInfo: JSON
+    deal: JSON
+    dealLink: String
+  }
+
+  type PosOrderRecord {
+    ${posOrderFields(contactsEnabled)}
   }
 
   type PosProduct {
@@ -60,7 +71,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     name: String
     code: String
     type: String
-    sku: String
+    uom: String
     unitPrice: Float
     categoryId: String
     createdAt: Date,
@@ -78,13 +89,6 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   type PosProducts {
     products: [PosProduct],
     totalCount: Float,
-  }
-
-  type CheckOrderResponse {
-    orderId: String
-    isSynced: Boolean
-    syncedDate: Date
-    syncedBillNumber: String
   }
 `;
 
@@ -104,6 +108,7 @@ const queryParams = `
   customerType: String
   posId: String
   posToken: String
+  types: [String]
 `;
 
 export const queries = `
@@ -112,6 +117,7 @@ export const queries = `
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
   posOrdersTotalCount(${queryParams}): JSON
+  posOrderRecords(${queryParams}): [PosOrderRecord]
 `;
 
 export const mutations = `

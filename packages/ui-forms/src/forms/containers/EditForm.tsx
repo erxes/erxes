@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert, removeTypename, withProps } from '@erxes/ui/src/utils';
 import {
   BulkEditAndAddMutationVariables,
   EditFormMutationResponse,
@@ -20,8 +20,8 @@ import { FieldsQueryResponse } from '@erxes/ui-forms/src/settings/properties/typ
 import Form from '../components/Form';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
 import { withRouter } from 'react-router-dom';
 
@@ -105,25 +105,12 @@ class EditFormContainer extends React.Component<FinalProps> {
 
           // remove unnecessary fields
           fields = fields.map(f => {
-            delete f.contentType;
-            delete f.__typename;
-            delete f.associatedField;
-
-            if (f.logics && f.logics.length > 0) {
-              f.logics = f.logics.map(l => {
-                delete l.__typename;
-                return l;
-              });
-            }
-
-            if (f.objectListConfigs && f.objectListConfigs.length) {
-              f.objectListConfigs = f.objectListConfigs.map(config => {
-                delete config.__typename;
-                return config;
-              });
-            }
-
-            return f;
+            const { contentType, associatedField, __typename, ...rest } = f;
+            const logics = f.logics?.map(({ __typename: t, ...l }) => l);
+            const objectListConfigs = f.objectListConfigs?.map(
+              ({ __typename: t, ...config }) => config
+            );
+            return { ...rest, logics, objectListConfigs };
           });
 
           const addingFields = fields

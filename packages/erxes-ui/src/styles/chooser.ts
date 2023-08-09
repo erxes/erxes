@@ -12,9 +12,10 @@ const Columns = styled.div`
   height: 100%;
 `;
 
-const Column = styledTS<{ lastChild?: boolean }>(styled.div)`
+const Column = styledTS<{ lastChild?: boolean; width?: string }>(styled.div)`
   flex: ${props => (props.lastChild ? 3 : 4)};
   position: relative;
+  ${props => (props.width ? `width: ${props.width}` : null)}
   margin-left: ${props => props.lastChild && columnSizing};
   padding-left: ${props => props.lastChild && columnSizing};
   border-left: ${props =>

@@ -76,7 +76,8 @@ export const permissionWrapper = (
 
 export const getUserActionsMap = async (
   subdomain: string,
-  user: IUser
+  user: IUser,
+  permissionsFind?: (query: any) => any
 ): Promise<IActionMap> => {
   const key = getKey(user);
   const permissionCache = await redis.get(key);
@@ -86,19 +87,27 @@ export const getUserActionsMap = async (
   if (permissionCache && permissionCache !== '{}') {
     actionMap = JSON.parse(permissionCache);
   } else {
-    const userPermissions = await sendRPCMessage('core:permissions.find', {
-      subdomain,
-      data: {
-        userId: user._id
-      }
-    });
+    const userPermissionQuery = {
+      userId: user._id
+    };
 
-    const groupPermissions = await sendRPCMessage('core:permissions.find', {
-      subdomain,
-      data: {
-        groupId: { $in: user.groupIds }
-      }
-    });
+    const userPermissions = await (permissionsFind
+      ? permissionsFind(userPermissionQuery)
+      : sendRPCMessage('core:permissions.find', {
+          subdomain,
+          data: userPermissionQuery
+        }));
+
+    const groupPermissionQuery = {
+      groupId: { $in: user.groupIds }
+    };
+
+    const groupPermissions = await (permissionsFind
+      ? permissionsFind(groupPermissionQuery)
+      : sendRPCMessage('core:permissions.find', {
+          subdomain,
+          data: groupPermissionQuery
+        }));
 
     actionMap = await userActionsMap(userPermissions, groupPermissions, user);
 

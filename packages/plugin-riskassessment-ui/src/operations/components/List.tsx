@@ -11,7 +11,6 @@ import {
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { subMenu } from '../../common/constants';
 import { DefaultWrapper } from '../../common/utils';
 import Form from '../containers/Form';
 import Row from './Row';
@@ -103,10 +102,11 @@ class List extends React.Component<Props, State> {
   };
 
   renderContent() {
+    const { list } = this.props;
     const { selectedItems } = this.state;
     const handleSelectAll = () => {
       if (!selectedItems.length) {
-        const branchIds = this.props.list.map(branch => branch._id);
+        const branchIds = list.map(branch => branch._id);
         return this.setState({ selectedItems: branchIds });
       }
 
@@ -124,13 +124,11 @@ class List extends React.Component<Props, State> {
     };
 
     const generateList = () => {
-      const list = this.props.list.map(branch => {
-        if (!this.props.list.find(dep => dep._id === branch.parentId)) {
-          branch.parentId = null;
-        }
-        return branch;
-      });
-      return list;
+      return list.map(operation =>
+        !list.find(op => op._id === operation.parentId)
+          ? { ...operation, parent: null }
+          : operation
+      );
     };
 
     return (
@@ -153,6 +151,7 @@ class List extends React.Component<Props, State> {
         <tbody>
           {generateTree(generateList(), null, (operation, level) => (
             <Row
+              key={operation._id}
               operation={operation}
               level={level}
               selectedItems={selectedItems}
@@ -191,8 +190,7 @@ class List extends React.Component<Props, State> {
       rightActionBar,
       content: this.renderContent(),
       loading,
-      totalCount,
-      subMenu
+      totalCount
     };
 
     return <DefaultWrapper {...updateProps} />;

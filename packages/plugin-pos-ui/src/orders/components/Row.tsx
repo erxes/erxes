@@ -11,7 +11,6 @@ type Props = {
   order: IOrder;
   history: any;
   otherPayTitles: string[];
-  onSyncErkhet: (orderId: string) => void;
   onReturnBill: (orderId: string) => void;
 };
 
@@ -33,12 +32,6 @@ class PutResponseRow extends React.Component<Props> {
       </FinanceAmount>
     );
   }
-
-  syncErkhet = e => {
-    const { order, onSyncErkhet } = this.props;
-    e.stopPropagation();
-    onSyncErkhet(order._id);
-  };
 
   returnBill = e => {
     const { order, onReturnBill } = this.props;
@@ -81,17 +74,9 @@ class PutResponseRow extends React.Component<Props> {
           {order.posName || ''}
           {order.origin === 'kiosk' ? '*' : ''}
         </td>
+        <td key={'type'}>{order.type || ''}</td>
         <td key={'user'}>{order.user ? order.user.email : ''}</td>
         <td key={'actions'} onClick={onClick}>
-          <Button
-            btnStyle="success"
-            size="small"
-            icon="external-link-alt"
-            onClick={this.syncErkhet}
-          >
-            {(order.syncedErkhet && 'Resync') || 'Sync'}
-          </Button>
-
           <Button
             btnStyle="warning"
             size="small"

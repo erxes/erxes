@@ -1,7 +1,7 @@
 import * as compose from 'lodash.flowright';
 import Alert from '@erxes/ui/src/utils/Alert';
 import CheckSyncedDeals from '../components/syncedDeals/CheckSyncedDeals';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Bulk } from '@erxes/ui/src/components';
@@ -11,7 +11,7 @@ import {
   CheckSyncedDealsTotalCountQueryResponse,
   ToSyncDealsMutationResponse
 } from '../types';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
@@ -70,7 +70,8 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
           syncedDeals.forEach(item => {
             syncedDealInfos[item._id] = {
               syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || ''
+              syncedDate: item.syncedDate || '',
+              syncedCustomer: item.syncedCustomer || ''
             };
           });
           this.setState({ unSyncedDealIds, syncedDealInfos });

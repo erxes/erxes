@@ -1,6 +1,7 @@
 import React from 'react';
 import moment from 'moment';
-import { __, confirm } from '@erxes/ui/src/utils';
+import { confirm } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import { IPerform } from '../types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -55,7 +56,8 @@ class Row extends React.Component<Props> {
       inBranch,
       inDepartment,
       outBranch,
-      outDepartment
+      outDepartment,
+      description
     } = perform;
 
     const onTrClick = () => {};
@@ -73,6 +75,7 @@ class Row extends React.Component<Props> {
         <td>{this.displayDate(startAt)}</td>
         <td>{this.displayDate(endAt)}</td>
         <td>{count}</td>
+        <td>{description}</td>
         <td>{inProductsLen}</td>
         <td>{outProductsLen}</td>
         <td>{this.displayLoc(inBranch)}</td>

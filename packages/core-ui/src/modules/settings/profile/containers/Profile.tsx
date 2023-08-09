@@ -1,11 +1,11 @@
 import { AppConsumer } from 'appContext';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import UserDetailForm from '@erxes/ui/src/team/containers/UserDetailForm';
 import { mutations, queries } from '@erxes/ui/src/team/graphql';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IUser, IUserDoc } from '../../../auth/types';
 import EditProfileForm from '../components/EditProfileForm';
 import { EditProfileMutationResponse } from '../types';

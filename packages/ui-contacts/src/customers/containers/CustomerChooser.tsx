@@ -12,8 +12,8 @@ import { renderFullName, withProps } from '@erxes/ui/src/utils';
 import CustomerForm from './CustomerForm';
 import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const ConformityChooser = asyncComponent(

@@ -1,10 +1,10 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import SingleIncome from '../../../../components/forms/jobs/subForms/SingleIncome';
 import SingleMove from '../../../../components/forms/jobs/subForms/SingleMove';
 import SingleOutlet from '../../../../components/forms/jobs/subForms/SingleOutlet';
 import React, { useState } from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IJob } from '../../../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';

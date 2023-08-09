@@ -2,10 +2,22 @@ const currentUser = `
   query currentUser {
     clientPortalCurrentUser {
       _id
+      avatar
       email
       phone
       firstName
       lastName
+      companyName
+      username
+      erxesCustomerId
+      type
+
+      company {
+        _id
+        avatar
+        primaryEmail
+        primaryName
+      }
 
       notificationSettings {
         configs {

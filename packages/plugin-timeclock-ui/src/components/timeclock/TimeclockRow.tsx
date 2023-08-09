@@ -10,9 +10,12 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { returnDeviceTypes } from '../../utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import TimelogForm from '../../containers/timeclock/TimelogForm';
+import TimeEditForm from '../../containers/timeclock/TimeEditForm';
 import { TextAlignCenter } from '../../styles';
 
 type Props = {
+  isCurrentUserAdmin: boolean;
+
   history?: any;
   timelogsPerUser?: ITimelog[];
   timeclock: ITimeclock;
@@ -23,23 +26,6 @@ class Row extends React.Component<Props> {
   constructor(props) {
     super(props);
   }
-
-  shiftTrigger = shiftStarted =>
-    shiftStarted ? (
-      <Button id="timeClockButton1" btnStyle={'danger'} icon="plus-circle">
-        End shift
-      </Button>
-    ) : (
-      <>Ended</>
-    );
-
-  shiftBtnTrigger = shiftStarted => (
-    <ModalTrigger
-      title={__('Start shift')}
-      trigger={this.shiftTrigger(shiftStarted)}
-      content={this.modalContent}
-    />
-  );
 
   modalContent = props => (
     <TimeForm
@@ -108,14 +94,19 @@ class Row extends React.Component<Props> {
         </td>
         <td>{shiftDate}</td>
         <td>{shiftStartTime}</td>
-        <td>{returnDeviceTypes(timeclock.deviceType)[0]}</td>
-        <td>{shiftEndTime}</td>
-        <td>{returnDeviceTypes(timeclock.deviceType)[1]}</td>
-        <td>{overNightShift ? 'O' : ''}</td>
         <td>
-          {timeclock.branchName ? timeclock.branchName : timeclock.deviceName}
+          {timeclock.inDeviceType || returnDeviceTypes(timeclock.deviceType)[0]}
         </td>
-        <td>{this.shiftBtnTrigger(timeclock.shiftActive)}</td>
+        <td>{timeclock.inDevice || '-'}</td>
+        <td>{shiftEndTime}</td>
+        <td>{overNightShift ? 'O' : '-'}</td>
+        <td>
+          {timeclock.shiftActive
+            ? '-'
+            : timeclock.outDeviceType ||
+              returnDeviceTypes(timeclock.deviceType)[1]}
+        </td>
+        <td>{timeclock.outDevice || '-'}</td>
         <td>
           <TextAlignCenter>
             <ModalTrigger

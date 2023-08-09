@@ -31,6 +31,7 @@ type State = {
   isMultiple: boolean;
   isVisible: boolean;
   isVisibleInDetail: boolean;
+  alwaysOpen: boolean;
   config: any;
   logics?: IFieldLogic[];
   logicAction?: string;
@@ -42,6 +43,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     let isMultiple = false;
     let isVisible = true;
     let isVisibleInDetail = true;
+    let alwaysOpen = false;
     let config = {};
 
     if (props.group) {
@@ -49,6 +51,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
       isVisible = props.group.isVisible;
       isVisibleInDetail = props.group.isVisibleInDetail;
       config = props.group.config;
+      alwaysOpen = props.group.alwaysOpen;
     }
 
     this.state = {
@@ -56,6 +59,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
       isMultiple,
       isVisible,
       isVisibleInDetail,
+      alwaysOpen,
       logics: props.group && props.group.logics ? props.group.logics : [],
       logicAction: props.group && props.group.logicAction
     };
@@ -84,6 +88,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
       isMultiple: this.state.isMultiple,
       isVisible: this.state.isVisible,
       isVisibleInDetail: this.state.isVisibleInDetail,
+      alwaysOpen: this.state.alwaysOpen,
       config,
       logicAction,
       logics
@@ -95,6 +100,14 @@ class PropertyGroupForm extends React.Component<Props, State> {
       const isMultiple = e.target.checked;
 
       return this.setState({ isMultiple });
+    }
+  };
+
+  alwaysOpenHandler = e => {
+    if (e.target.id === 'alwaysOpen') {
+      const alwaysOpen = e.target.checked;
+
+      return this.setState({ alwaysOpen });
     }
   };
 
@@ -239,10 +252,10 @@ class PropertyGroupForm extends React.Component<Props, State> {
               <option value="" />
               {groups
                 .filter(e => !e.isDefinedByErxes)
-                .map(group => {
+                .map(g => {
                   return (
-                    <option key={group._id} value={group._id}>
-                      {group.name}
+                    <option key={g._id} value={g._id}>
+                      {g.name}
                     </option>
                   );
                 })}
@@ -258,6 +271,22 @@ class PropertyGroupForm extends React.Component<Props, State> {
         ) : (
           <></>
         )}
+
+        <FormGroup>
+          <ControlLabel>{__('Always open')} </ControlLabel>
+          <p>{__('Whether this group is always open in a sidebar')}</p>
+          <div>
+            <Toggle
+              id="alwaysOpen"
+              checked={this.state.alwaysOpen}
+              onChange={this.alwaysOpenHandler}
+              icons={{
+                checked: <span>Checked</span>,
+                unchecked: <span>Unchecked</span>
+              }}
+            />
+          </div>
+        </FormGroup>
 
         <FormGroup>
           <ControlLabel>Multiple</ControlLabel>

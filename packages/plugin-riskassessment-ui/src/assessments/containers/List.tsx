@@ -1,13 +1,14 @@
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router, withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
 import { generateParamsIds } from '../../common/utils';
 import ListComponent from '../components/List';
 import { mutations, queries } from '../graphql';
+import { generateCardFiltersQueryParams } from '../common/utils';
 
 type Props = {
   queryParams: any;
@@ -85,7 +86,8 @@ export const generateParams = ({ queryParams }) => ({
   departmentIds: generateParamsIds(queryParams.departmentIds),
   operationIds: generateParamsIds(queryParams.operationIds),
   tagIds: generateParamsIds(queryParams.tagIds),
-  groupIds: generateParamsIds(queryParams.groupIds)
+  groupIds: generateParamsIds(queryParams.groupIds),
+  cardFilter: generateCardFiltersQueryParams(queryParams)
 });
 
 const refetchQueries = ({ queryParams }) => {

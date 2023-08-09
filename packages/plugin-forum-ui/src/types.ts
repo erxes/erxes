@@ -33,6 +33,20 @@ export interface IPost {
     postsReqCrmApproval: boolean;
   };
   tagIds?: string[];
+  tags?: [
+    {
+      _id: string;
+      colorCode?: string;
+      createdAt?: string;
+      name?: string;
+      objectCount?: number;
+      order?: string;
+      parentId?: string;
+      relatedIds?: string;
+      totalObjectCount?: number;
+      type?: string;
+    }
+  ];
   isFeaturedByAdmin?: boolean;
   isFeaturedByUser?: boolean;
   pollOptions?: [
@@ -45,6 +59,7 @@ export interface IPost {
     }
   ];
   isPollMultiChoice?: boolean;
+  createdById?: string;
   pollEndDate?: string;
   categoryId: string;
   description?: string;

@@ -18,6 +18,7 @@ import { FormContainer } from '../../../styles';
 import { SelectTags } from '../../common/utils';
 import { IIndicatorsGroups } from '../common/types';
 import GroupingIndicators from './GroupingIndicators';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   detail?: IIndicatorsGroups;
@@ -42,19 +43,21 @@ class Form extends React.Component<Props, State> {
 
   generateDoc(values) {
     const { detail } = this.state;
+    let { calculateLogics, groups } = detail as any;
 
-    (detail.calculateLogics || []).forEach(
-      calculateLogics => delete calculateLogics.__typename
+    calculateLogics = (calculateLogics || []).map(
+      ({ __typename, ...logic }: any) => logic
     );
-
-    (detail.groups || []).forEach((group: any) => {
-      delete group.__typename;
-      (group?.calculateLogics || []).forEach(element => {
-        delete element.__typename;
-      });
+    groups = (groups || []).map(({ __typename, ...group }) => {
+      return {
+        ...group,
+        calculateLogics: (group?.calculateLogics || []).map(
+          ({ __typename, ...logic }: any) => logic
+        )
+      };
     });
 
-    return { ...detail, ...values };
+    return { ...{ ...detail, calculateLogics, groups }, ...values };
   }
 
   renderContent(formProps: IFormProps) {
@@ -108,16 +111,18 @@ class Form extends React.Component<Props, State> {
             required
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Tag')}</ControlLabel>
-          <SelectTags
-            name="tagIds"
-            label="Choose Tag"
-            initialValue={detail.tagIds}
-            onSelect={handleSelect}
-            multi
-          />
-        </FormGroup>
+        {isEnabled('tags') && (
+          <FormGroup>
+            <ControlLabel>{__('Tag')}</ControlLabel>
+            <SelectTags
+              name="tagIds"
+              label="Choose Tag"
+              initialValue={detail.tagIds}
+              onSelect={handleSelect}
+              multi
+            />
+          </FormGroup>
+        )}
         <FormWrapper>
           <FormColumn>
             <FormGroup>

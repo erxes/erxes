@@ -1,22 +1,14 @@
-export const types = ({ contacts }) => `
-${
-  contacts
-    ? `
-      extend type Customer @key(fields: "_id") {
-        _id: String! @external
-      }
-
-      extend type Company @key(fields: "_id") {
-        _id: String! @external
-      }
-      `
-    : ''
-}
-
+export const types = `
   type invoicesTotalCount {
     total: Int
     byKind: JSON
     byStatus: JSON
+  }
+
+  enum CustomerType {
+    company
+    customer
+    user
   }
 
   type Invoice @key(fields: "_id") {
@@ -27,7 +19,7 @@ ${
     email: String
     description: String
     status: String
-    companyId: String
+    customerType: CustomerType
     customerId: String
     contentType: String
     contentTypeId: String
@@ -37,15 +29,9 @@ ${
     paymentKind: String
     apiResponse: JSON
 
-    ${
-      contacts
-        ? `
-        customer: Customer
-        company: Company
-        `
-        : ''
-    }
-
+    customer: JSON
+    idOfProvider: String
+    errorDescription: String
     pluginData: JSON
   }
 `;
@@ -56,19 +42,22 @@ const mutationParams = `
   email: String
   description: String
   customerId: String
-  companyId: String
+  customerType: String
   contentType: String
   contentTypeId: String
   redirectUri: String
   paymentIds: [String]
+  warningText: String
 `;
 
 export const mutations = `
   generateInvoiceUrl(${mutationParams}): String
+  invoicesCheck(_id:String!): String
+  invoicesRemove(_ids: [String]!): String
 `;
 
 export const queries = `
-  checkInvoice(_id:String!): String
   invoices(searchValue: String, kind: String, status: String, page: Int, perPage: Int, contentType: String, contentTypeId: String): [Invoice]
   invoicesTotalCount(searchValue: String, kind: String, status: String, contentType: String, contentTypeId: String): invoicesTotalCount
+  invoiceDetail(_id: String!): Invoice
 `;

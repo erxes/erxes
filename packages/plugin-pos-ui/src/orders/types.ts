@@ -23,6 +23,11 @@ export type IOrder = {
   oldBillId: string;
   type: string;
   userId: string;
+  branchId: string;
+  departmentId: string;
+
+  branch: any;
+  department: any;
 
   items: any;
   posToken: string;
@@ -38,16 +43,27 @@ export type IOrder = {
   };
   origin?: string;
   syncedErkhet: boolean;
+  convertDealId: string;
 };
+
+export type IOrderRecord = {} & IOrder;
 
 export type IOrderDet = {
   syncErkhetInfo: string;
   putResponses: any[];
   deliveryInfo: any;
+  deal: any;
+  dealLink?: string;
 } & IOrder;
 
 export type OrdersQueryResponse = {
   posOrders: IOrder[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type OrderRecordsQueryResponse = {
+  posOrderRecords: IOrderRecord[];
   loading: boolean;
   refetch: () => void;
 };
@@ -85,12 +101,6 @@ export type ProductCategoriesQueryResponse = {
 } & QueryResponse;
 
 // mutation
-export type PosOrderSyncErkhetMutationResponse = {
-  posOrderSyncErkhet: (mutation: {
-    variables: { _id: string };
-  }) => Promise<any>;
-};
-
 export type PosOrderReturnBillMutationResponse = {
   posOrderReturnBill: (mutation: {
     variables: { _id: string };
@@ -106,4 +116,65 @@ export type PosOrderChangePaymentsMutationResponse = {
       paidAmounts: any[];
     };
   }) => Promise<any>;
+};
+
+export interface ICoverSummary {
+  _id?: string;
+  kind: string;
+  kindOfVal: number;
+  value: number;
+  amount: number;
+}
+
+export interface ICoverDetail {
+  _id?: string;
+  paidType: string;
+  paidSummary: ICoverSummary[];
+  paidDetail: any;
+}
+
+export type ICover = {
+  _id?: string;
+  posToken: string;
+  status: string;
+  beginDate: Date;
+  endDate: Date;
+  description: string;
+  userId: string;
+  details: ICoverDetail[];
+  createdAt: Date;
+  createdBy: string;
+  modifiedAt: Date;
+  modifiedBy: string;
+  note?: string;
+  posName: string;
+
+  user: IUser;
+  createdUser: IUser;
+  modifiedUser: IUser;
+};
+
+export type CoversQueryResponse = {
+  posCovers: ICover[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type CoverDetailQueryResponse = {
+  posCoverDetail: ICover;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type PosCoverEditNoteMutationResponse = {
+  coversEdit: (mutation: {
+    variables: {
+      _id: string;
+      note: string;
+    };
+  }) => Promise<any>;
+};
+
+export type RemoveCoverMutationResponse = {
+  removeCover: (mutation: { variables: { _id: string } }) => Promise<any>;
 };

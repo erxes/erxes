@@ -10,7 +10,9 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { __, loadDynamicComponent } from '@erxes/ui/src/utils';
+import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
@@ -89,6 +91,15 @@ class FieldForm extends React.Component<Props, State> {
     this.setState({ field });
   };
 
+  onDescChange = e => {
+    const { field } = this.state;
+    const description = e.editor.getData();
+
+    field.description = description;
+
+    this.setState({ field });
+  };
+
   onPropertyGroupChange = e => {
     this.setState({
       group: (e.currentTarget as HTMLInputElement).value
@@ -155,7 +166,6 @@ class FieldForm extends React.Component<Props, State> {
     value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) {
     const { field } = this.state;
-
     field[attributeName] = value;
 
     this.setState({ field });
@@ -385,12 +395,6 @@ class FieldForm extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const desc = e =>
-      this.onFieldChange(
-        'description',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
     const toggle = e =>
       this.onFieldChange(
         'isRequired',
@@ -420,10 +424,29 @@ class FieldForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel htmlFor="description">Field description</ControlLabel>
-            <FormControl
-              id="FieldDescription"
-              value={field.description || ''}
-              onChange={desc}
+            <EditorCK
+              content={field.description || ''}
+              toolbar={[
+                {
+                  name: 'basicstyles',
+                  items: [
+                    'Source',
+                    'Bold',
+                    'Italic',
+                    'NumberedList',
+                    'BulletedList',
+                    'Link',
+                    'Unlink',
+                    '-',
+                    'Image',
+                    'EmojiPanel'
+                  ]
+                }
+              ]}
+              autoGrow={true}
+              autoGrowMinHeight={120}
+              onChange={this.onDescChange}
+              name={`html_${field._id}`}
             />
           </FormGroup>
 
@@ -453,6 +476,11 @@ class FieldForm extends React.Component<Props, State> {
                 onChange={toggle}
               />
             </FlexRow>
+            {isEnabled('payment') && field.type === 'productCategory' && (
+              <p>
+                {__('If you need to enable payment, field must be required!')}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <ControlLabel htmlFor="text" required={false}>

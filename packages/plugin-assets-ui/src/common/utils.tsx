@@ -22,7 +22,7 @@ import { ASSET_CATEGORY_STATUS_FILTER } from './constant';
 import { CommonFormGroupTypes, IAsset, IAssetCategoryTypes } from './types';
 import { queries as movementQueries } from '../movements/graphql';
 import { queries as movementItemQueries } from '../movements/items/graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 export const DefaultWrapper = ({
   title,
@@ -236,7 +236,8 @@ export const generateParams = ({ queryParams }) => ({
   customerId: queryParams?.customerId,
   assetId: queryParams?.assetId,
   parentId: queryParams?.parentId,
-  searchValue: queryParams?.searchValue
+  searchValue: queryParams?.searchValue,
+  onlyCurrent: !!queryParams?.onlyCurrent
 });
 
 export const SelectWithAssets = ({
@@ -252,7 +253,11 @@ export const SelectWithAssets = ({
 }: {
   queryParams?: IQueryParams;
   label: string;
-  onSelect: (value: string[] | string, name: string) => void;
+  onSelect: (
+    value: string[] | string,
+    name: string,
+    assetName?: string
+  ) => void;
   multi?: boolean;
   customOption?: IOption;
   initialValue?: string | string[];
@@ -279,6 +284,7 @@ export const SelectWithAssets = ({
 
       list.push({
         label: `${space} ${asset.code} - ${asset.name}`,
+        extraValue: asset.name,
         value: asset._id
       });
     }
@@ -361,4 +367,14 @@ export const SelectWithAssetCategory = ({
       multi={multi}
     />
   );
+};
+
+export const generateParamsIds = ids => {
+  if (!ids?.length) {
+    return undefined;
+  }
+  if (typeof ids === 'string') {
+    return [ids];
+  }
+  return ids;
 };

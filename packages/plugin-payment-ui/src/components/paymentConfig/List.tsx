@@ -4,13 +4,12 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { isEnabled, __ } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 import ConfigForm from '../../containers/paymentConfig/Form';
 import { getSubMenu } from '../../containers/utils';
 import { IPaymentConfig } from '../../types';
-
 import Row from './Row';
 
 type Props = {
@@ -26,14 +25,12 @@ const List = (props: Props) => {
   const { totalCount, queryParams, loading, configs, remove } = props;
 
   const renderRow = () => {
-    const { configs } = props;
     return configs.map(config => (
       <Row key={config._id} config={config} remove={remove} />
     ));
   };
 
   queryParams.loadingMainQuery = loading;
-  let actionBarLeft: React.ReactNode;
 
   const trigger = (
     <Button btnStyle="success" size="small" icon="plus-circle">
@@ -41,8 +38,8 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = props => (
-    <ConfigForm {...props} excludeIds={configs.map(c => c.contentTypeId)} />
+  const formContent = formProps => (
+    <ConfigForm {...formProps} excludeIds={configs.map(c => c.contentTypeId)} />
   );
 
   const righActionBar = (
@@ -55,9 +52,7 @@ const List = (props: Props) => {
     />
   );
 
-  const actionBar = (
-    <Wrapper.ActionBar right={righActionBar} left={actionBarLeft} />
-  );
+  const actionBar = <Wrapper.ActionBar right={righActionBar} />;
 
   const content = (
     <Table whiteSpace="nowrap" hover={true}>

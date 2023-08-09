@@ -1,4 +1,4 @@
-import { MailBox, UserHeader } from '@erxes/ui-contacts/src/customers/styles';
+import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import { __, renderFullName } from 'coreui/utils';
 
 import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
@@ -11,14 +11,14 @@ import Icon from '@erxes/ui/src/components/Icon';
 import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
 import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import LeftSidebar from './LeftSidebar';
-import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import RightSidebar from './RightSidebar';
 import { TabTitle } from '@erxes/ui/src/components/tabs';
 import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import PrintAction from '@erxes/ui-contacts/src/customers/components/common/PrintAction';
+import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
 
 type Props = {
   customer: ICustomer;
@@ -37,32 +37,15 @@ class CustomerDetails extends React.Component<Props> {
       return null;
     }
 
-    const triggerEmail = (
-      <TabTitle>
-        <Icon icon="envelope-add" /> {__('New email')}
-      </TabTitle>
-    );
-
-    const content = props => (
-      <MailBox>
-        <MailForm
-          fromEmail={customer.primaryEmail}
-          refetchQueries={['activityLogsCustomer']}
-          closeModal={props.closeModal}
-        />
-      </MailBox>
-    );
-
     return (
-      <ModalTrigger
-        dialogClassName="middle"
-        title="Email"
-        trigger={triggerEmail}
-        size="xl"
-        content={content}
-        paddingContent="less-padding"
-        enforceFocus={false}
-      />
+      (isEnabled('engages') || isEnabled('imap')) && (
+        <EmailWidget
+          buttonStyle="link"
+          emailTo={customer.primaryEmail}
+          buttonText={__('New email')}
+          type="tab"
+        />
+      )
     );
   };
 
@@ -121,7 +104,7 @@ class CustomerDetails extends React.Component<Props> {
             contentType="contacts:customer"
             extraTabs={[
               { name: 'inbox:conversation', label: 'Conversation' },
-              { name: 'email', label: 'Email' },
+              { name: 'imap:email', label: 'Email' },
               { name: 'cards:task', label: 'Task' },
               // { name: 'sms', label: 'SMS' },
               { name: 'engages:campaign', label: 'Campaign' }
@@ -142,6 +125,9 @@ class CustomerDetails extends React.Component<Props> {
         mainHead={
           <UserHeader>
             <InfoSection avatarSize={40} customer={customer}>
+              {isEnabled('documents') && (
+                <PrintAction coc={customer} contentType="contacts:customer" />
+              )}
               <ActionSection customer={customer} />
             </InfoSection>
             <LeadState customer={customer} />

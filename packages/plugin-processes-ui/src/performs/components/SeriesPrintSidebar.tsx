@@ -9,7 +9,7 @@ import FormLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Box from '@erxes/ui/src/components/Box';
 import { FormWrapper, DateContainer } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 
 //local
 import { SidebarContent } from '../../styles';

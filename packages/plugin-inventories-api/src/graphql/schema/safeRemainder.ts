@@ -29,7 +29,7 @@ export const types = `
     productId: String
     preCount: Float
     count: Float
-    uomId: String
+    uom: String
     isDebit: Boolean
   }
 `;
@@ -59,12 +59,5 @@ export const mutations = `
     productCategoryId: String
   ): SafeRemainder
   safeRemainderRemove(_id: String!): JSON
-  safeRemainderSubmit(
-    branchId: String,
-    departmentId: String,
-    status: String,
-    contentType: String,
-    contentId: String,
-    products: [SafeRemainderSubmitProduct]
-  ): JSON
+  safeRemainderSubmit( _id: String! ): JSON
 `;

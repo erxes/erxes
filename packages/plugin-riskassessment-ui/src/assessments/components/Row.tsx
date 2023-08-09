@@ -18,6 +18,8 @@ type Props = {
   item: any;
   selecteAssessmentIds: string[];
   handleSelect: (id: string) => void;
+  queryParams: any;
+  history: any;
 };
 
 class Row extends React.Component<Props> {
@@ -43,11 +45,23 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { item, selecteAssessmentIds, handleSelect } = this.props;
+    const {
+      item,
+      selecteAssessmentIds,
+      handleSelect,
+      queryParams,
+      history
+    } = this.props;
 
-    const renderFormSubmitHistory = item => {
+    const renderDetail = item => {
       const content = () => {
-        return <Detail riskAssessment={item} />;
+        return (
+          <Detail
+            riskAssessment={item}
+            queryParams={queryParams}
+            history={history}
+          />
+        );
       };
 
       const trigger = (
@@ -103,7 +117,7 @@ class Row extends React.Component<Props> {
         <td>
           {item?.closedAt ? moment(item?.closedAt).format('ll HH:mm') : '-'}
         </td>
-        <td>{renderFormSubmitHistory(item)}</td>
+        <td>{renderDetail(item)}</td>
       </tr>
     );
   }

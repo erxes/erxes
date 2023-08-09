@@ -1,7 +1,7 @@
 import * as compose from 'lodash.flowright';
 import Alert from '@erxes/ui/src/utils/Alert';
 import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Bulk } from '@erxes/ui/src/components';
@@ -9,9 +9,10 @@ import {
   CheckSyncedMutationResponse,
   CheckSyncedOrdersQueryResponse,
   CheckSyncedOrdersTotalCountQueryResponse,
+  PosListQueryResponse,
   ToSyncOrdersMutationResponse
 } from '../types';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
@@ -25,6 +26,7 @@ type Props = {
 type FinalProps = {
   checkSyncItemsQuery: CheckSyncedOrdersQueryResponse;
   checkSyncedOrdersTotalCountQuery: CheckSyncedOrdersTotalCountQueryResponse;
+  posListQuery: PosListQueryResponse;
 } & Props &
   IRouterProps &
   CheckSyncedMutationResponse &
@@ -49,7 +51,8 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
     const {
       toCheckSynced,
       checkSyncItemsQuery,
-      checkSyncedOrdersTotalCountQuery
+      checkSyncedOrdersTotalCountQuery,
+      posListQuery
     } = this.props;
 
     // remove action
@@ -70,7 +73,8 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
           syncedOrders.forEach(item => {
             syncedOrderInfos[item._id] = {
               syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || ''
+              syncedDate: item.syncedDate || '',
+              syncedCustomer: item.syncedCustomer || ''
             };
           });
 
@@ -104,7 +108,8 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
 
     if (
       checkSyncItemsQuery.loading ||
-      checkSyncedOrdersTotalCountQuery.loading
+      checkSyncedOrdersTotalCountQuery.loading ||
+      posListQuery.loading
     ) {
       return <Spinner />;
     }
@@ -120,7 +125,8 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
       checkSynced,
       unSyncedOrderIds: this.state.unSyncedOrderIds,
       syncedOrderInfos: this.state.syncedOrderInfos,
-      toSyncOrders
+      toSyncOrders,
+      posList: posListQuery.posList
     };
 
     const content = props => <CheckSyncedOrders {...props} {...updatedProps} />;
@@ -138,6 +144,8 @@ const generateParams = ({ queryParams }) => {
     createdStartDate: queryParams.createdStartDate,
     createdEndDate: queryParams.createdEndDate,
     posToken: queryParams.posToken,
+    userId: queryParams.user,
+    posId: queryParams.pos,
     search: queryParams.search,
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined,
@@ -179,6 +187,19 @@ export default withProps<Props>(
       gql(mutations.toSyncOrders),
       {
         name: 'toSyncOrders'
+      }
+    ),
+
+    graphql<{ queryParams: any }, PosListQueryResponse>(
+      gql(`query posList {
+        posList {
+          _id
+          name
+          description
+        }
+      }`),
+      {
+        name: 'posListQuery'
       }
     )
   )(withRouter<IRouterProps>(CheckSyncedOrdersContainer))

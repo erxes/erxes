@@ -24,6 +24,7 @@ dayjs.extend(calendar);
 type Props = {
   message: any;
   setReply: (text: string) => void;
+  isWidget?: boolean;
 };
 
 type FinalProps = {
@@ -31,7 +32,7 @@ type FinalProps = {
 } & Props;
 
 const MessageItem = (props: FinalProps) => {
-  const { message, currentUser } = props;
+  const { message, currentUser, isWidget } = props;
   const actionRef = useRef<HTMLElement>(null);
 
   const isMe = currentUser._id === message.createdUser._id;
@@ -40,7 +41,7 @@ const MessageItem = (props: FinalProps) => {
 
   const handleMouseEnter = () => {
     if (actionRef && actionRef.current) {
-      let element = actionRef.current;
+      const element = actionRef.current;
 
       if (element && element.style) {
         element.style.visibility = 'visible';
@@ -50,7 +51,7 @@ const MessageItem = (props: FinalProps) => {
 
   const handleMouseLeave = () => {
     if (actionRef && actionRef.current) {
-      let element = actionRef.current;
+      const element = actionRef.current;
 
       if (element && element.style) {
         element.style.visibility = 'hidden';
@@ -60,7 +61,11 @@ const MessageItem = (props: FinalProps) => {
 
   const renderAttachments = () => {
     return (message.attachments || []).map(attachment => (
-      <Attachment key={attachment._id} attachment={attachment || {}} simple />
+      <Attachment
+        key={attachment._id}
+        attachment={attachment || {}}
+        simple={true}
+      />
     ));
   };
 
@@ -83,30 +88,32 @@ const MessageItem = (props: FinalProps) => {
             <p>{draftContent.contentBlocks[0].text}</p>
           </MessageReply>
         )}
-        <MessageBody me={isMe}>
-          <Tip placement="top" text="Reply">
-            <MessageOption
-              onClick={() => props.setReply(message)}
-              innerRef={actionRef}
+        {message.content !== '<p></p>' && (
+          <MessageBody me={isMe}>
+            <Tip placement="top" text="Reply">
+              <MessageOption
+                onClick={() => props.setReply(message)}
+                innerRef={actionRef}
+              >
+                <Icon icon="reply" color="secondary" />
+              </MessageOption>
+            </Tip>
+            <Tip
+              placement={isMe ? 'left' : 'right'}
+              text={message.createdAt && dayjs(message.createdAt).calendar()}
             >
-              <Icon icon="reply" color="secondary" />
-            </MessageOption>
-          </Tip>
-          <Tip
-            placement={isMe ? 'left' : 'right'}
-            text={message.createdAt && dayjs(message.createdAt).calendar()}
-          >
-            <MessageContent
-              dangerouslySetInnerHTML={{ __html: message.content || '' }}
-              me={isMe}
-            />
-          </Tip>
-        </MessageBody>
-        <MessageAttachmentWrapper>
+              <MessageContent
+                dangerouslySetInnerHTML={{ __html: message.content || '' }}
+                me={isMe}
+              />
+            </Tip>
+          </MessageBody>
+        )}
+        <MessageAttachmentWrapper isWidget={isWidget}>
           {renderAttachments()}
         </MessageAttachmentWrapper>
       </MessageWrapper>
-      {!isMe && <Avatar user={message.createdUser} size={36} />}
+      {!isMe && <Avatar user={message.createdUser} size={36} showTip={true} />}
     </MessageItemWrapper>
   );
 };

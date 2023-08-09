@@ -1,12 +1,12 @@
 import React from 'react';
 import { queries, mutations } from '../../graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import GroupList from '../../components/permission/GroupList';
 import { RemoveMutationResponse } from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IUserGroupDocument } from '../../types';
 
 type Props = {

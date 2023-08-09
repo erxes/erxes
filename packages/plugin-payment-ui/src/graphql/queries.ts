@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 import { paymentConfigFields } from './common';
 
@@ -23,18 +23,13 @@ const paymentsTotalCountQuery = gql`
   }
 `;
 
-const checkInvoice = gql`
-  query checkInvoice($paymentId: String!, $invoiceId: String!) {
-    checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
-  }
-`;
-
 const invoicesFields = `
     _id
     amount
     contentType
     contentTypeId
     createdAt
+    customerType
     customerId
     description
     email
@@ -45,19 +40,7 @@ const invoicesFields = `
     phone
     resolvedAt
     status
-    company {
-      _id
-      primaryName
-    }
-    customer {
-      _id
-      firstName
-      lastName
-      middleName
-      primaryEmail
-      primaryPhone
-    }
-    pluginData
+    customer
 `;
 
 const invoices = gql`
@@ -82,6 +65,37 @@ const invoicesTotalCount = gql`
       byKind
       byStatus
       total
+    }
+  }
+`;
+
+const getInvoice = gql`
+  query InvoiceDetail($_id: String!) {
+    invoiceDetail(_id: $_id) {
+      _id
+      amount
+      apiResponse
+      contentType
+      contentTypeId
+      createdAt
+      customer
+      customerId
+      customerType
+      description
+      email
+      payment {
+        _id
+        createdAt
+        kind
+        name
+      }
+      paymentId
+      paymentKind
+      phone
+      resolvedAt
+      status
+      idOfProvider
+      errorDescription
     }
   }
 `;
@@ -122,8 +136,8 @@ export default {
   payments,
   paymentsTotalCountQuery,
   paymentConfigQuery,
-  checkInvoice,
   invoices,
+  getInvoice,
   invoicesTotalCount,
 
   paymentConfigsQuery,

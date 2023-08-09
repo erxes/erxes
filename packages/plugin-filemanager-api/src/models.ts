@@ -1,10 +1,14 @@
+import * as Random from 'meteor-random';
 import { Model } from 'mongoose';
 
 import { Document, Schema } from 'mongoose';
+import { IModels } from './connectionResolver';
 
 interface IFolder {
   createdAt: Date;
   createdUserId: string;
+  code: string;
+  order: string;
   name: string;
   parentId: string;
 
@@ -20,6 +24,8 @@ const folderSchema = new Schema({
   createdAt: { type: Date },
   createdUserId: { type: String },
   name: { type: String },
+  code: { type: String },
+  order: { type: String },
   parentId: { type: String },
 
   permissionUserIds: { type: [String] },
@@ -31,8 +37,23 @@ export interface IFolderModel extends Model<IFolderDocument> {
   getFolder(selector): IFolderDocument;
 }
 
-export const loadFolderClass = models => {
+export const loadFolderClass = (models: IModels) => {
   class Folder {
+    public static async generateCode(code?: string) {
+      let generatedCode = code || Random.id().substr(0, 6);
+
+      let prevBrand = await models.Folders.findOne({ code: generatedCode });
+
+      // search until not existing one found
+      while (prevBrand) {
+        generatedCode = Random.id().substr(0, 6);
+
+        prevBrand = await models.Folders.findOne({ code: generatedCode });
+      }
+
+      return generatedCode;
+    }
+
     public static async saveFolder({ _id, doc }) {
       if (_id) {
         await models.Folders.update({ _id }, { $set: doc });
@@ -40,6 +61,12 @@ export const loadFolderClass = models => {
       }
 
       doc.createdAt = new Date();
+      doc.code = await this.generateCode();
+
+      const pf =
+        doc.parentId && (await models.Folders.findOne({ _id: doc.parentId }));
+
+      doc.order = pf ? `${pf.order}${doc.code}/` : `${doc.code}/`;
 
       return models.Folders.create(doc);
     }
@@ -73,6 +100,8 @@ interface IFile {
   contentTypeId?: string;
   documentId?: string;
 
+  relatedFileIds?: string[];
+
   permissionUserIds?: string[];
   permissionUnitId?: string;
 }
@@ -82,19 +111,21 @@ export interface IFileDocument extends IFile, Document {
 }
 
 const fileSchema = new Schema({
-  createdAt: { type: Date },
-  createdUserId: { type: String },
-  name: { type: String },
-  type: { type: String },
-  folderId: { type: String },
-  url: { type: String },
+  createdAt: { type: Date, index: true },
+  createdUserId: { type: String, index: true },
+  name: { type: String, index: true },
+  type: { type: String, index: true },
+  folderId: { type: String, index: true },
+  url: { type: String, index: true },
   info: { type: Object },
-  contentType: { type: String },
-  contentTypeId: { type: String },
+  contentType: { type: String, index: true },
+  contentTypeId: { type: String, index: true },
   documentId: { type: String },
 
-  permissionUserIds: { type: [String] },
-  permissionUnitId: { type: String }
+  relatedFileIds: { type: [String], index: true },
+
+  permissionUserIds: { type: [String], index: true },
+  permissionUnitId: { type: String, index: true }
 });
 
 export interface IFileModel extends Model<IFileDocument> {
@@ -134,7 +165,7 @@ export const loadFileClass = models => {
 // =================== Log ====================================
 interface ILog {
   contentType: 'folder' | 'file';
-  contentTypeId: string;
+  contentTypeId?: string;
   createdAt: Date;
   userId: string;
   description: string;
@@ -170,9 +201,8 @@ export const loadLogClass = models => {
   return logSchema;
 };
 
-// =================== request ====================================
-interface IRequest {
-  type: string;
+// =================== acknowledgement request ====================================
+interface IAckRequest {
   createdAt: Date;
   fromUserId: string;
   toUserId: string;
@@ -181,12 +211,11 @@ interface IRequest {
   description: string;
 }
 
-export interface IRequestDocument extends IRequest, Document {
+export interface IAckRequestDocument extends IAckRequest, Document {
   _id: string;
 }
 
-const requestSchema = new Schema({
-  type: { type: String },
+const ackRequestSchema = new Schema({
   createdAt: { type: Date },
   fromUserId: { type: String },
   toUserId: { type: String },
@@ -195,20 +224,92 @@ const requestSchema = new Schema({
   description: { type: String }
 });
 
-export interface IRequestModel extends Model<IRequestDocument> {
-  createRequest(doc): void;
+export interface IAckRequestModel extends Model<IAckRequestDocument> {
+  createRequest(doc): IAckRequestDocument;
 }
 
-export const loadRequestClass = models => {
-  class Request {
-    public static async createLog(doc) {
+export const loadAckRequestClass = models => {
+  class AckRequest {
+    public static async createRequest(doc) {
       doc.createdAt = new Date();
 
-      return models.Requests.create(doc);
+      return models.AckRequests.create(doc);
     }
   }
 
-  requestSchema.loadClass(Request);
+  ackRequestSchema.loadClass(AckRequest);
 
-  return requestSchema;
+  return ackRequestSchema;
+};
+
+// =================== access request ====================================
+interface IAccessRequest {
+  createdAt: Date;
+  fromUserId: string;
+  fileId: string;
+  status: string;
+  description: string;
+}
+
+export interface IAccessRequestDocument extends IAccessRequest, Document {
+  _id: string;
+}
+
+const accessRequestSchema = new Schema({
+  createdAt: { type: Date },
+  fromUserId: { type: String },
+  status: { type: String },
+  fileId: { type: String },
+  description: { type: String }
+});
+
+export interface IAccessRequestModel extends Model<IAccessRequestDocument> {
+  createRequest(doc): IAckRequestDocument;
+}
+
+export const loadAccessRequestClass = models => {
+  class AccessRequest {
+    public static async createRequest(doc) {
+      doc.createdAt = new Date();
+
+      return models.AccessRequests.create(doc);
+    }
+  }
+
+  accessRequestSchema.loadClass(AccessRequest);
+
+  return accessRequestSchema;
+};
+
+// =================== relations ====================================
+interface IRelation {
+  contentType: string;
+  contentTypeId: string;
+  fileIds: string[];
+}
+
+export interface IRelationDocument extends IRelation, Document {
+  _id: string;
+}
+
+const relationSchema = new Schema({
+  contentType: { type: String },
+  contentTypeId: { type: String },
+  fileIds: { type: [String] }
+});
+
+export interface IRelationModel extends Model<IRelationDocument> {
+  relate(doc): IRelationDocument;
+}
+
+export const loadRelationClass = models => {
+  class Relation {
+    public static async relate(doc) {
+      return models.Relations.create(doc);
+    }
+  }
+
+  relationSchema.loadClass(Relation);
+
+  return relationSchema;
 };

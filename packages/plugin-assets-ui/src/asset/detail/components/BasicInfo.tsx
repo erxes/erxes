@@ -24,10 +24,17 @@ import { IAsset } from '../../../common/types';
 import { AssetContent, ContainerBox } from '../../../style';
 import AssetForm from '../../containers/Form';
 import { Tip } from '@erxes/ui/src';
+import AssignArticles from '../../containers/AssignArticles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   asset: IAsset;
   remove: () => void;
+  assignKbArticles: (doc: {
+    ids: string[];
+    data: any;
+    callback: () => void;
+  }) => void;
   history: any;
 };
 
@@ -104,10 +111,48 @@ class BasicInfo extends React.Component<Props> {
     return <Attachment attachment={item} />;
   };
 
+  renderEditForm() {
+    const content = props => (
+      <AssetForm {...props} asset={this.props.asset || {}} />
+    );
+
+    return (
+      <ModalTrigger
+        title="Edit basic info"
+        trigger={<Icon icon="edit" />}
+        size="lg"
+        content={content}
+      />
+    );
+  }
+
+  renderKbDetail() {
+    const { asset, assignKbArticles } = this.props;
+
+    const content = props => (
+      <AssignArticles
+        {...props}
+        knowledgeData={asset?.knowledgeData}
+        dialogClassName="modal-1000w"
+        assignedArticleIds={asset.kbArticleIds}
+        objects={[asset]}
+        save={assignKbArticles}
+      />
+    );
+
+    return (
+      <ModalTrigger
+        title="Edit Assigned Knowledgebase Articles"
+        content={content}
+        size="xl"
+        trigger={<Icon icon="light-bulb" />}
+      />
+    );
+  }
+
   renderInfo() {
     const { asset, history } = this.props;
 
-    const editForm = props => <AssetForm {...props} asset={asset} />;
     const {
       code,
       name,
@@ -140,12 +185,8 @@ class BasicInfo extends React.Component<Props> {
         <InfoWrapper>
           <Name>{name}</Name>
           <ContainerBox gap={5}>
-            <ModalTrigger
-              title="Edit basic info"
-              trigger={<Icon icon="edit" />}
-              size="lg"
-              content={editForm}
-            />
+            {this.renderEditForm()}
+            {isEnabled('knowledgebase') && this.renderKbDetail()}
           </ContainerBox>
         </InfoWrapper>
 

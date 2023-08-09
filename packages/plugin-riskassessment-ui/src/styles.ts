@@ -102,6 +102,8 @@ export const FormContainer = styledTS<{
   padding?: string;
   placeContent?: string;
   flexWrap?: boolean;
+  alignSelf?: string;
+  width?: string;
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
@@ -118,6 +120,8 @@ export const FormContainer = styledTS<{
   justify-content:${({ justify }) => (justify ? justify : '')}; 
   place-content:${({ placeContent }) => (placeContent ? placeContent : '')};
   flex-wrap: ${({ flexWrap }) => (flexWrap ? 'wrap' : '')};
+  align-self:${({ alignSelf }) => (alignSelf ? alignSelf : '')};
+  width:${({ width }) => (width ? width : '')};
   ${({ flex }) =>
     flex
       ? `div {
@@ -190,14 +194,14 @@ export const Badge = styledTS<{ color?: string }>(styled.div)`
   max-width: 100px;
 `;
 
-export const ColorBox = styledTS<{ color?: string; cursor?: boolean }>(
+export const ColorBox = styledTS<{ color?: string; pointer?: boolean }>(
   styled.div
 )`
   height: 10px;
   width: 10px;
   background-color: ${({ color }) => color}
   border-radius: 15px;
-  ${({ cursor }) => (cursor ? 'cursor:pointer' : '')}
+  ${({ pointer }) => (pointer ? 'cursor:pointer' : '')}
 `;
 
 export const ColorButton = styledTS<{ color?: string }>(styled.div)`
@@ -428,5 +432,72 @@ export const TableRow = styled.tr`
   ,
   td:last-child {
     text-align: -webkit-center;
+  }
+`;
+
+export const ScheduleCard = styledTS<{
+  minWidth?: string;
+  maxWidth?: string;
+}>(styled.div)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: ${({ minWidth }) => (minWidth ? minWidth : '400px')};
+  max-width: ${({ maxWidth }) => (maxWidth ? maxWidth : '400px')};;
+  box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+  border-radius: 15px;
+  place-items: center;
+  cursor: pointer;
+  padding: 15px 25px;
+  &.active {
+    animation: ${highlight} 0.9s ease;
+    box-shadow: 0 0 5px 0 #63d2d6;
+  }
+
+  .bottomBarItem {
+    border-top: #aaaaaa3b solid 0.5px;
+  }
+`;
+
+export const CommonFormContainer = styled.div`
+  height: 100%;
+  > form {
+    height: 100%;
+  }
+`;
+
+export const DetailPopoverWrapper = styled.div`
+  .popover {
+    max-width: 550px;
+  }
+`;
+
+export const HeaderContent = styled.div`
+  text-align: center;
+`;
+
+export const FlexRow = styled.div`
+  display: flex;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  padding: 5px 10px 5px 30px;
+  position: relative;
+  align-items: center;
+
+  > label {
+    margin: 0;
+    font-weight: 500;
+    color: ${colors.colorCoreBlack};
+  }
+
+  > *:first-child,
+  input {
+    margin-right: ${dimensions.unitSpacing}px;
+    flex: 3;
+  }
+
+  > *:nth-child(2),
+  > div {
+    flex: 2;
   }
 `;

@@ -1,19 +1,24 @@
 import {
   attachmentSchema,
   boardSchema,
-  pipelineSchema,
-  stageSchema as boardStageSchema
+  stageSchema as boardStageSchema,
+  pipelineSchema
 } from './models/definitions/boards';
 import {
-  checklistSchema,
-  checklistItemSchema
+  checklistItemSchema,
+  checklistSchema
 } from './models/definitions/checklists';
 import { dealSchema, productDataSchema } from './models/definitions/deals';
-import { growthHackSchema } from './models/definitions/growthHacks';
+import {
+  purchaseSchema,
+  purchaseproductDataSchema
+} from './models/definitions/purchases';
 import {
   pipelineTemplateSchema,
   stageSchema
 } from './models/definitions/pipelineTemplates';
+
+import { growthHackSchema } from './models/definitions/growthHacks';
 import { pipelineLabelSchema } from './models/definitions/pipelineLabels';
 import { taskSchema } from './models/definitions/tasks';
 import { ticketSchema } from './models/definitions/tickets';
@@ -22,6 +27,11 @@ export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Deal',
     contentType: 'deal',
+    icon: 'signal-alt-3'
+  },
+  {
+    text: 'Purchase',
+    contentTypeL: 'purchase',
     icon: 'signal-alt-3'
   },
   {
@@ -111,6 +121,33 @@ export const BOARD_ITEM_EXTENDED_FIELDS = [
     name: 'labelIds',
     label: 'Label',
     type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'totalAmount',
+    label: 'Total Amount',
+    type: 'number'
+  }
+];
+
+export const BOARD_ITEM_EXPORT_EXTENDED_FIELDS = [
+  {
+    _id: Math.random(),
+    name: 'totalAmount',
+    label: 'Total Amount',
+    type: 'number'
+  },
+  {
+    _id: Math.random(),
+    name: 'totalLabelCount',
+    label: 'Total Label Counts',
+    type: 'number'
+  },
+  {
+    _id: Math.random(),
+    name: 'stageMovedUser',
+    label: 'Stage Moved User',
+    type: 'string'
   }
 ];
 
@@ -136,20 +173,24 @@ export const BOARD_BASIC_INFOS = [
 export const MODULE_NAMES = {
   BOARD: 'board',
   BOARD_DEAL: 'dealBoards',
+  BOARD_PURCHASE: 'purchaseBoards',
   BOARD_TASK: 'taskBoards',
   BOARD_TICKET: 'ticketBoards',
   BOARD_GH: 'growthHackBoards',
   PIPELINE_DEAL: 'dealPipelines',
+  PIPELINE_PURCHASE: 'purchasePipelines',
   PIPELINE_TASK: 'taskPipelines',
   PIPELINE_TICKET: 'ticketPipelines',
   PIPELINE_GH: 'growthHackPipelines',
   STAGE_DEAL: 'dealStages',
+  STAGE_PURCHASE: 'purchaseStages',
   STAGE_TASK: 'taskStages',
   STAGE_TICKET: 'ticketStages',
   STAGE_GH: 'growthHackStages',
   CHECKLIST: 'checklist',
   CHECKLIST_ITEM: 'checkListItem',
   DEAL: 'deal',
+  PURCHASE: 'purchase',
   TICKET: 'ticket',
   TASK: 'task',
   PIPELINE_LABEL: 'pipelineLabel',
@@ -168,6 +209,10 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [attachmentSchema, boardSchema]
   },
   {
+    name: MODULE_NAMES.BOARD_PURCHASE,
+    schemas: [attachmentSchema, boardSchema]
+  },
+  {
     name: MODULE_NAMES.BOARD_TASK,
     schemas: [attachmentSchema, boardSchema]
   },
@@ -177,6 +222,10 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   },
   {
     name: MODULE_NAMES.PIPELINE_DEAL,
+    schemas: [pipelineSchema]
+  },
+  {
+    name: MODULE_NAMES.PIPELINE_PURCHASE,
     schemas: [pipelineSchema]
   },
   {
@@ -200,6 +249,10 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [dealSchema, productDataSchema]
   },
   {
+    name: MODULE_NAMES.PURCHASE,
+    schemas: [purchaseSchema, purchaseproductDataSchema]
+  },
+  {
     name: MODULE_NAMES.PIPELINE_LABEL,
     schemas: [pipelineLabelSchema]
   },
@@ -221,6 +274,10 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   },
   {
     name: MODULE_NAMES.STAGE_DEAL,
+    schemas: [boardStageSchema]
+  },
+  {
+    name: MODULE_NAMES.STAGE_PURCHASE,
     schemas: [boardStageSchema]
   },
   {
@@ -294,3 +351,129 @@ export const CARD_PROPERTIES_INFO = {
     }
   ]
 };
+
+export const NOTIFICATION_MODULES = [
+  {
+    name: 'deals',
+    description: 'Deals',
+    types: [
+      {
+        name: 'dealAdd',
+        text: 'Assigned a new deal  card'
+      },
+      {
+        name: 'dealRemoveAssign',
+        text: 'Removed from the deal card'
+      },
+      {
+        name: 'dealEdit',
+        text: 'Deal card edited'
+      },
+      {
+        name: 'dealChange',
+        text: 'Moved between stages'
+      },
+      {
+        name: 'dealDueDate',
+        text: 'Due date is near'
+      },
+      {
+        name: 'dealDelete',
+        text: 'Deal card deleted'
+      }
+    ]
+  },
+
+  {
+    name: 'purchases',
+    description: 'Purchases',
+    types: [
+      {
+        name: 'purchaseAdd',
+        text: 'Assigned a new purchase  card'
+      },
+      {
+        name: 'purchaseRemoveAssign',
+        text: 'Removed from the purchase card'
+      },
+      {
+        name: 'purchaseEdit',
+        text: 'Purchase card edited'
+      },
+      {
+        name: 'purchaseChange',
+        text: 'Moved between stages'
+      },
+      {
+        name: 'purchaseDueDate',
+        text: 'Due date is near'
+      },
+      {
+        name: 'purchaseDelete',
+        text: 'Purchase card deleted'
+      }
+    ]
+  },
+
+  {
+    name: 'tickets',
+    description: 'Tickets',
+    types: [
+      {
+        name: 'ticketAdd',
+        text: 'Assigned a new ticket  card'
+      },
+      {
+        name: 'ticketRemoveAssign',
+        text: 'Removed from the ticket card'
+      },
+      {
+        name: 'ticketEdit',
+        text: 'Ticket card edited'
+      },
+      {
+        name: 'ticketChange',
+        text: 'Moved between stages'
+      },
+      {
+        name: 'ticketDueDate',
+        text: 'Due date is near'
+      },
+      {
+        name: 'ticketDelete',
+        text: 'Ticket card deleted'
+      }
+    ]
+  },
+
+  {
+    name: 'tasks',
+    description: 'Tasks',
+    types: [
+      {
+        name: 'taskAdd',
+        text: 'Assigned a new task  card'
+      },
+      {
+        name: 'taskRemoveAssign',
+        text: 'Removed from the task card'
+      },
+      {
+        name: 'taskEdit',
+        text: 'Task card edited'
+      },
+      {
+        name: 'taskChange',
+        text: 'Moved between stages'
+      },
+      {
+        name: 'taskDueDate',
+        text: 'Due date is near'
+      },
+      {
+        name: 'taskDelete',
+        text: 'Task card deleted'
+      }
+    ]
+  }
+];

@@ -118,7 +118,7 @@ const fieldQueries = {
       query.searchable = searchable;
     }
 
-    let groupIds: string[] = [];
+    const groupIds: string[] = [];
 
     if (isVisibleToCreate !== undefined) {
       query.isVisibleToCreate = isVisibleToCreate;
@@ -134,11 +134,31 @@ const fieldQueries = {
     }
 
     if (pipelineId) {
-      const otherGroupIds: string[] = await models.FieldsGroups.find({
+      const otherGroupIds = await models.FieldsGroups.find({
         'config.boardsPipelines.pipelineIds': { $in: [pipelineId] }
-      }).distinct('_id');
+      })
+        .select({ _id: 1 })
+        .sort({ order: 1 });
 
-      groupIds = groupIds.concat(otherGroupIds);
+      const allFields: any[] = [];
+
+      const fields = await models.Fields.find({
+        ...query,
+        groupId: { $in: groupIds }
+      }).sort({ order: 1 });
+
+      allFields.push(...fields);
+
+      for (const groupId of otherGroupIds) {
+        const groupFields = await models.Fields.find({
+          groupId,
+          ...query
+        }).sort({ order: 1 });
+
+        allFields.push(...groupFields);
+      }
+
+      return allFields;
     }
 
     if (groupIds && groupIds.length > 0) {
@@ -190,6 +210,22 @@ const fieldQueries = {
     }
 
     return field;
+  },
+
+  async fieldsGetRelations(
+    _root,
+    {
+      contentType,
+      isVisibleToCreate
+    }: { contentType: string; isVisibleToCreate: boolean },
+    { models }: IContext
+  ) {
+    return models.Fields.find({
+      contentType,
+      isDefinedByErxes: true,
+      isVisibleToCreate,
+      relationType: { $exists: true }
+    });
   }
 };
 
@@ -237,21 +273,8 @@ const fieldsGroupQueries = {
       query.isDefinedByErxes = isDefinedByErxes;
     }
 
-    const groups = await models.FieldsGroups.find(query);
-
-    return groups
-      .map(group => {
-        if (group.isDefinedByErxes) {
-          group.order = -1;
-        }
-        return group;
-      })
-      .sort((a, b) => {
-        if (a.order && b.order) {
-          return a.order - b.order;
-        }
-        return -1;
-      });
+    const groups = await models.FieldsGroups.find(query).sort({ order: 1 });
+    return groups;
   },
 
   getSystemFieldsGroup(

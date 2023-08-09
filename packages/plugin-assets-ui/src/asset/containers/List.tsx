@@ -1,10 +1,10 @@
 import { Alert, Bulk, Spinner } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import {
   AssetRemoveMutationResponse,
   IAssetCategoryDetailQueryResponse,
@@ -17,7 +17,7 @@ import { queries as categoryQueries } from '../category/graphql';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 
-import { getRefetchQueries } from '../../common/utils';
+import { generateParamsIds, getRefetchQueries } from '../../common/utils';
 
 type Props = {
   queryParams: any;
@@ -67,7 +67,7 @@ class ListContainer extends React.Component<FinalProps> {
     const { queryParams, assetsAssignKbArticles } = this.props;
 
     assetsAssignKbArticles({
-      variables: { ids, ...data, ...generateQueryParams(queryParams) }
+      variables: { ids, ...generateQueryParams(queryParams), ...data }
     })
       .then(() => {
         Alert.success('Success');
@@ -149,6 +149,10 @@ const generateQueryParams = queryParams => {
     searchValue: queryParams?.searchValue,
     type: queryParams?.type,
     irregular: Boolean(queryParams?.irregular),
+    articleIds: generateParamsIds(queryParams?.articleIds),
+    withKnowledgebase: queryParams?.withKnowledge
+      ? queryParams?.withKnowledge === 'true'
+      : undefined,
     ...generatePaginationParams(queryParams || {})
   };
 };
@@ -165,13 +169,7 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.assetsCount), {
       name: 'assetsCount',
       options: ({ queryParams }) => ({
-        variables: {
-          categoryId: queryParams?.categoryId,
-          parentId: queryParams?.parentId,
-          searchValue: queryParams?.searchValue,
-          type: queryParams?.type,
-          ...generatePaginationParams(queryParams || {})
-        },
+        variables: generateQueryParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),

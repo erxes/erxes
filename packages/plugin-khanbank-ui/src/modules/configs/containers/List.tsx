@@ -2,9 +2,9 @@ import { router } from '@erxes/ui/src';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { useMutation, useQuery } from 'react-apollo';
+import { useQuery, useMutation } from '@apollo/client';
 
 import SidebarList from '../../corporateGateway/components/ConfigsList';
 import List from '../components/List';

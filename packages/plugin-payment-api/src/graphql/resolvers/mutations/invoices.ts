@@ -8,21 +8,22 @@ type InvoiceParams = {
   email: string;
   description: string;
   customerId: string;
-  companyId: string;
+  customerType: string;
   contentType: string;
   contentTypeId: string;
   paymentIds: string[];
   redirectUri: string;
+  warningText: string;
 };
 
 const mutations = {
   async generateInvoiceUrl(
     _root,
     params: InvoiceParams,
-    { models, requestInfo, res }: IContext
+    { models, requestInfo, res, subdomain }: IContext
   ) {
-    const MAIN_API_DOMAIN = process.env.DOMAIN
-      ? `${process.env.DOMAIN}/gateway`
+    const domain = getEnv({ name: 'DOMAIN', subdomain })
+      ? `${getEnv({ name: 'DOMAIN', subdomain })}/gateway`
       : 'http://localhost:4000';
 
     const cookies = requestInfo.cookies;
@@ -47,7 +48,7 @@ const mutations = {
           paymentData.amount === params.amount &&
           paymentData.customerId === params.customerId
         ) {
-          return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${dataInCookie}`;
+          return `${domain}/pl:payment/gateway?params=${dataInCookie}`;
         }
       }
     }
@@ -80,7 +81,19 @@ const mutations = {
 
     res.cookie(`paymentData_${params.contentTypeId}`, base64, cookieOptions);
 
-    return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${base64}`;
+    return `${domain}/pl:payment/gateway?params=${base64}`;
+  },
+
+  async invoicesCheck(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Invoices.checkInvoice(_id);
+  },
+
+  async invoicesRemove(
+    _root,
+    { _ids }: { _ids: string[] },
+    { models }: IContext
+  ) {
+    return models.Invoices.removeInvoices(_ids);
   }
 };
 

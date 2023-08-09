@@ -1,3 +1,4 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { sendFormsMessage } from '../messageBroker';
@@ -10,7 +11,11 @@ import {
 export interface IRiskAssessmentsModel extends Model<IRiskAssessmentsDocument> {
   addRiskAssessment(params): Promise<IRiskAssessmentsDocument>;
   addBulkRiskAssessment(params): Promise<IRiskAssessmentsDocument>;
-  riskAssessmentDetail(_id: string): Promise<any>;
+  riskAssessmentDetail(
+    _id: string,
+    params: any,
+    user: IUserDocument
+  ): Promise<any>;
   riskAssessmentFormSubmissionDetail(parmas): Promise<any>;
   editRiskAssessment(_id: string, doc: any): Promise<IRiskAssessmentsDocument>;
   removeRiskAssessment(_id: string);
@@ -197,20 +202,18 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         !riskAssessment.indicatorId
       ) {
         const indicatorIds = await this.getGroupsIndicatorIds(groupId);
-        const riskAssessmentIndicators = await models.RiskAssessmentIndicators.find(
-          { assessmentId: _id }
-        );
+        const RAIndicators = await models.RiskAssessmentIndicators.find({
+          assessmentId: _id
+        });
 
-        const removeIds = riskAssessmentIndicators
-          .filter(
-            assessmentIndicator =>
-              !indicatorIds.includes(assessmentIndicator.indicatorId)
-          )
-          .map(assessmentIndicator => assessmentIndicator._id);
+        const removeIds = RAIndicators.filter(
+          assessmentIndicator =>
+            !indicatorIds.includes(assessmentIndicator.indicatorId)
+        ).map(assessmentIndicator => assessmentIndicator._id);
 
         const addItems = indicatorIds
           .filter(indicatorId =>
-            riskAssessmentIndicators.some(
+            RAIndicators.some(
               riskAssessmentIndicator =>
                 riskAssessmentIndicator.indicatorId !== indicatorId
             )
@@ -227,21 +230,21 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       if (
         indicatorId &&
         !riskAssessment.groupId &&
-        indicatorId !== indicatorId
+        indicatorId !== riskAssessment.indicatorId
       ) {
-        const riskAssessmentIndicator = await models.RiskAssessmentIndicators.findOne(
-          { assessmentId: _id, indicatorId }
+        await models.RiskAssessmentIndicators.updateOne(
+          {
+            assessmentId: riskAssessment._id
+          },
+          {
+            $set: { indicatorId: indicatorId }
+          }
         );
-        riskAssessmentIndicator?.remove();
-        await models.RiskAssessmentIndicators.create({
-          assessmentId: _id,
-          indicatorId
-        });
       }
 
       return await models.RiskAssessments.updateOne(
         { _id },
-        { $set: { ...doc }, $unset: { ...unsetFields } }
+        { $unset: { ...unsetFields }, $set: { ...doc } }
       );
     }
 
@@ -258,7 +261,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         });
       }
 
-      await models.RiksFormSubmissions.deleteMany({
+      await models.RiskFormSubmissions.deleteMany({
         assessmentId: riskAssessment._id
       });
 
@@ -312,7 +315,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
             riskAssessmentIndicatorIds = indicatorIds;
           }
         }
-        const submittedResults = await models.RiksFormSubmissions.aggregate([
+        const submittedResults = await models.RiskFormSubmissions.aggregate([
           {
             $match: {
               assessmentId: { $in: riskAssessmentIds },
@@ -389,11 +392,9 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         throw new Error('Could not find risk assessment');
       }
 
-      let riskAssessmentIndicatorIds = (
-        await models.RiskAssessmentIndicators.find({
-          assessmentId: riskAssessment._id
-        })
-      ).map(riskAssessmentIndicator => riskAssessmentIndicator.indicatorId);
+      let RAIndicatorIds = await models.RiskAssessmentIndicators.find({
+        assessmentId: riskAssessment._id
+      }).distinct('indicatorId');
 
       const { isSplittedUsers, groupId } = riskAssessment;
 
@@ -422,17 +423,17 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           }
         }
 
-        riskAssessmentIndicatorIds = riskAssessmentIndicatorIds.filter(
-          indicatorId => indicatorIds.includes(indicatorId)
+        RAIndicatorIds = RAIndicatorIds.filter(indicatorId =>
+          indicatorIds.includes(indicatorId)
         );
       }
 
       const indicators = await models.RiskIndicators.find({
-        _id: { $in: riskAssessmentIndicatorIds }
+        _id: { $in: RAIndicatorIds }
       }).lean();
 
       for (const indicator of indicators) {
-        const submitted = await models.RiksFormSubmissions.findOne({
+        const submitted = await models.RiskFormSubmissions.findOne({
           assessmentId: riskAssessment._id,
           indicatorId: indicator._id,
           userId
@@ -487,16 +488,17 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       const formIds = forms?.map(form => form.formId);
 
       const query = { contentType: 'form', contentTypeId: { $in: formIds } };
+      const sort = { order: 1 };
 
       const fields = await sendFormsMessage({
         subdomain,
         action: 'fields.find',
-        data: { query },
+        data: { query, sort },
         isRPC: true,
         defaultValue: []
       });
 
-      const submittedFields = await models.RiksFormSubmissions.find({
+      const submittedFields = await models.RiskFormSubmissions.find({
         assessmentId: riskAssessment._id,
         indicatorId,
         userId,
@@ -510,6 +512,17 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           value: submittedField.value,
           description: submittedField.description
         };
+
+        if (submittedField.isFlagged) {
+          editedSubmittedFields[
+            submittedField.fieldId
+          ].isFlagged = !!submittedField.isFlagged;
+        }
+
+        if (!!submittedField?.attachments?.length) {
+          editedSubmittedFields[submittedField.fieldId].attachments =
+            submittedField?.attachments;
+        }
       }
       return {
         fields,
@@ -518,13 +531,20 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       };
     }
 
-    public static async riskAssessmentDetail(_id) {
+    public static async riskAssessmentDetail(_id, params, user) {
       const riskAssessment = await models.RiskAssessments.findOne({
         _id
       }).lean();
 
       if (!riskAssessment) {
         throw new Error('Cannot find assessment');
+      }
+
+      if (
+        !!riskAssessment?.permittedUserIds?.length &&
+        !riskAssessment.permittedUserIds.includes(user?._id)
+      ) {
+        throw new Error('There is no permit on you to see this assessment');
       }
 
       const { cardId, cardType, groupId, indicatorId } = riskAssessment;
@@ -567,7 +587,8 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
               cardId,
               cardType,
               indicatorId: indicatorAssessment.indicatorId,
-              subdomain
+              subdomain,
+              params
             });
             indicatorAssessment.submissions = submissions;
           }
@@ -587,7 +608,8 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           cardId,
           cardType,
           indicatorId: indicatorAssessment.indicatorId,
-          subdomain
+          subdomain,
+          params
         });
 
         assessment.indicatorAssessment = indicatorAssessment;
@@ -619,7 +641,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           indicatorIds = [...indicatorIds, ...group.indicatorIds];
         }
 
-        const result = await models.RiksFormSubmissions.aggregate([
+        const result = await models.RiskFormSubmissions.aggregate([
           {
             $match: {
               cardId,

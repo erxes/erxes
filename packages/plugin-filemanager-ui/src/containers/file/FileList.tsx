@@ -11,8 +11,8 @@ import { mutations, queries } from '../../graphql';
 
 import FileList from '../../components/file/FileList';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
@@ -42,7 +42,7 @@ const FileListContainer = (props: FinalProps) => {
         .then(() => {
           filemanagerFilesQuery.refetch();
 
-          Alert.success('You successfully deleted an file');
+          Alert.success('You successfully deleted a file');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -82,7 +82,17 @@ export default withProps<Props>(
         name: 'filemanagerFilesQuery',
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: {
-            folderId: queryParams._id ? queryParams._id : ''
+            folderId: queryParams._id ? queryParams._id : '',
+            search: queryParams.search,
+            type: queryParams.type,
+            sortField: queryParams.sortField,
+            sortDirection: queryParams.sortDirection
+              ? parseInt(queryParams.sortDirection, 10)
+              : undefined,
+            contentType: queryParams.contentType,
+            contentTypeId: queryParams.contentTypeId,
+            createdAtTo: queryParams.createdAtTo,
+            createdAtFrom: queryParams.createdAtFrom
           }
         })
       }

@@ -1,9 +1,9 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import ProductForm from '../../components/product/ProductForm';
 import React from 'react';
 import { AppConsumer } from 'coreui/appContext';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '../../graphql';
@@ -42,7 +42,6 @@ class ProductFormContainer extends React.Component<Props> {
             ...this.props,
             categories: categories,
             loading: productCategoriesQuery.loading,
-            uom: configs.dealUOM || [],
             currencies: configs.dealCurrency || []
           };
 

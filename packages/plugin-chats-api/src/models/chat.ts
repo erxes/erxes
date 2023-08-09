@@ -36,7 +36,8 @@ export const loadChatClass = models => {
       return models.Chats.create({
         ...doc,
         createdAt: new Date(),
-        createdBy
+        createdBy,
+        updatedAt: new Date()
       });
     }
 

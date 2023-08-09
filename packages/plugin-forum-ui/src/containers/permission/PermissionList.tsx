@@ -2,9 +2,9 @@ import * as compose from 'lodash.flowright';
 
 import PermissionList from '../../components/permission/PermissionList';
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '../../graphql';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 
 type FinalProps = {
   can?: (action: string) => boolean;

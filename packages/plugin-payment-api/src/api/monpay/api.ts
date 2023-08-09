@@ -1,118 +1,13 @@
-import { sendRequest } from '@erxes/api-utils/src';
 import * as QRCode from 'qrcode';
 
 import { IModels } from '../../connectionResolver';
-import { PAYMENT_KINDS, PAYMENT_STATUS } from '../../constants';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
-import { IPaymentDocument } from '../../models/definitions/payments';
-import { IMonpayConfig, IMonpayInvoice } from '../types';
-import { QR_CHECK_URL, QR_GENERATE_URL, TOKEN_URL } from './constants';
+import { BaseAPI } from '../base';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
+import { IMonpayInvoice } from '../types';
 
-export const generateToken = async config => {
-  const { clientId, clientSecret } = config;
-
-  const requestOptions = {
-    url: TOKEN_URL,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: {
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: 'authorization_code',
-      code: 'code'
-    }
-  };
-
-  try {
-    const res = await sendRequest(requestOptions);
-
-    return res.access_token;
-  } catch (e) {
-    throw new Error(e.message);
-  }
-};
-
-export const createInvoice = async (
-  invoice: IInvoiceDocument,
-  payment: IPaymentDocument
-) => {
-  const MAIN_API_DOMAIN = process.env.DOMAIN
-    ? `${process.env.DOMAIN}/gateway`
-    : 'http://localhost:4000';
-
-  const { username, accountId } = payment.config as IMonpayConfig;
-
-  const data: IMonpayInvoice = {
-    amount: invoice.amount,
-    generateUuid: true,
-    displayName: invoice.description || payment.name,
-    callbackUrl: `${MAIN_API_DOMAIN}/pl:payment/callback/${PAYMENT_KINDS.MONPAY}`
-  };
-
-  const requestOptions = {
-    url: QR_GENERATE_URL,
-    method: 'POST',
-    headers: {
-      Authorization:
-        'Basic ' + Buffer.from(`${username}:${accountId}`).toString('base64'),
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
-    },
-    body: data
-  };
-
-  try {
-    const res = await sendRequest(requestOptions);
-
-    if (res.code !== 0) {
-      throw new Error(res.info);
-    }
-
-    const { result } = res;
-
-    const qrData = await QRCode.toDataURL(result.qrcode);
-
-    return { ...result, qrData };
-  } catch (e) {
-    throw new Error(e.message);
-  }
-};
-
-export const checkInvoice = async (
-  invoice: IInvoiceDocument,
-  payment: IPaymentDocument
-) => {
-  const { username, accountId } = payment.config as IMonpayConfig;
-
-  const requestOptions = {
-    url: `${QR_CHECK_URL}?uuid=${invoice.apiResponse.uuid}`,
-    method: 'GET',
-    headers: {
-      Authorization:
-        'Basic ' + Buffer.from(`${username}:${accountId}`).toString('base64'),
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
-    }
-  };
-
-  try {
-    const res = await sendRequest(requestOptions);
-
-    switch (res.code) {
-      case 0:
-        return PAYMENT_STATUS.PAID;
-      case 23:
-        return PAYMENT_STATUS.PENDING;
-      default:
-        return PAYMENT_STATUS.FAILED;
-    }
-  } catch (e) {
-    throw new Error(e.message);
-  }
-};
-
-export const monpayHandler = async (models: IModels, queryParams) => {
-  const { uuid, status, amount = 0 } = queryParams;
+export const monpayCallbackHandler = async (models: IModels, data: any) => {
+  const { uuid, status, amount = 0 } = data;
 
   if (!uuid) {
     throw new Error('uuid is required');
@@ -122,11 +17,14 @@ export const monpayHandler = async (models: IModels, queryParams) => {
     throw new Error('Payment failed');
   }
 
-  const invoice = await models.Invoices.getInvoice({
-    'apiResponse.uuid': uuid
-  });
+  const invoice = await models.Invoices.getInvoice(
+    {
+      'apiResponse.uuid': uuid
+    },
+    true
+  );
 
-  if (invoice.amount !== parseInt(amount)) {
+  if (invoice.amount !== Number(amount)) {
     throw new Error('Payment amount is not correct');
   }
 
@@ -137,10 +35,11 @@ export const monpayHandler = async (models: IModels, queryParams) => {
   }
 
   try {
-    const status = await checkInvoice(invoice, payment);
+    const api = new MonpayAPI(payment.config);
+    const invoiceStatus = await api.checkInvoice(invoice);
 
-    if (status !== PAYMENT_STATUS.PAID) {
-      throw new Error('Payment failed');
+    if (invoiceStatus !== PAYMENT_STATUS.PAID) {
+      return invoice;
     }
 
     await models.Invoices.updateOne(
@@ -148,8 +47,148 @@ export const monpayHandler = async (models: IModels, queryParams) => {
       { $set: { status, resolvedAt: new Date() } }
     );
 
+    invoice.status = status;
+
     return invoice;
   } catch (e) {
     throw new Error(e.message);
   }
 };
+
+export interface IMonpayConfig {
+  username: string;
+  accountId: string;
+}
+
+export class MonpayAPI extends BaseAPI {
+  private username: string;
+  private accountId: string;
+  private headers: any;
+  private domain?: string;
+
+  constructor(config: IMonpayConfig, domain?: string) {
+    super(config);
+
+    this.username = config.username;
+    this.accountId = config.accountId;
+    this.apiUrl = PAYMENTS.monpay.apiUrl;
+    this.domain = domain;
+    this.headers = {
+      Authorization:
+        'Basic ' +
+        Buffer.from(`${this.username}:${this.accountId}`).toString('base64'),
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    };
+  }
+
+  async createInvoice(invoice: IInvoiceDocument) {
+    const data: IMonpayInvoice = {
+      amount: invoice.amount,
+      generateUuid: true,
+      displayName: invoice.description || 'monpay transaction',
+      callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.monpay.kind}`
+    };
+
+    try {
+      const res = await this.request({
+        method: 'POST',
+        headers: this.headers,
+        path: PAYMENTS.monpay.actions.invoiceQr,
+        data
+      });
+
+      if (res.code !== 0) {
+        return { error: 'Failed to create invoice, please try again' };
+      }
+
+      const { result } = res;
+      const qrData = await QRCode.toDataURL(result.qrcode);
+
+      return { ...result, qrData };
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
+  async checkInvoice(invoice: IInvoiceDocument) {
+    try {
+      const res = await this.request({
+        method: 'GET',
+        headers: this.headers,
+        path: PAYMENTS.monpay.actions.invoiceCheck,
+        params: { uuid: invoice.apiResponse.uuid }
+      });
+
+      switch (res.code) {
+        case 0:
+          return PAYMENT_STATUS.PAID;
+        case 23:
+          return PAYMENT_STATUS.PENDING;
+        default:
+          return PAYMENT_STATUS.FAILED;
+      }
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
+  async manualCheck(invoice: IInvoiceDocument) {
+    try {
+      const res = await this.request({
+        method: 'GET',
+        headers: this.headers,
+        path: PAYMENTS.monpay.actions.invoiceCheck,
+        params: { uuid: invoice.apiResponse.uuid }
+      });
+
+      switch (res.code) {
+        case 0:
+          return PAYMENT_STATUS.PAID;
+        case 23:
+          return res.info;
+        default:
+          return PAYMENT_STATUS.FAILED;
+      }
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
+  async couponCheck(couponCode: string) {
+    const loginRes = await this.request({
+      method: 'POST',
+      headers: this.headers,
+      path: PAYMENTS.monpay.actions.branchLogin,
+      data: { username: this.username, password: 'qwerty' }
+    });
+
+    let token = '';
+
+    if (loginRes.code !== 0) {
+      return { error: 'Failed to login' };
+    }
+
+    token = loginRes.result.token;
+
+    try {
+      const res = await this.request({
+        method: 'GET',
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${token}`
+        },
+        path: PAYMENTS.monpay.actions.couponScan,
+        params: { couponCode }
+      });
+
+      if (res.code !== 0) {
+        return { error: 'Coupon is not valid' };
+      }
+
+      return { ...res.result };
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+}

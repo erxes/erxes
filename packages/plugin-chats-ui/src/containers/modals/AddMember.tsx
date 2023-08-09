@@ -1,6 +1,6 @@
 import React from 'react';
-import { useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 // erxes
 import { Alert } from '@erxes/ui/src/utils';
 // local
@@ -10,6 +10,7 @@ import { queries, mutations } from '../../graphql';
 type Props = {
   chatId: string;
   closeModal: () => void;
+  participantUserIds?: string[];
 };
 
 const AddMemberContainer = (props: Props) => {

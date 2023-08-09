@@ -7,12 +7,14 @@ import React from 'react';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 import { __, router } from '@erxes/ui/src/utils';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   history: any;
   queryParams: any;
+  posList?: any[];
 }
 
 interface State {
@@ -22,6 +24,8 @@ interface State {
   createdStartDate: Date;
   createdEndDate: Date;
   search: string;
+  userId: string;
+  posId: string;
 }
 
 class CheckerSidebar extends React.Component<IProps, State> {
@@ -35,7 +39,9 @@ class CheckerSidebar extends React.Component<IProps, State> {
       paidStartDate: queryParams.paidStartDate,
       paidEndDate: queryParams.paidEndDate,
       createdStartDate: queryParams.createdStartDate,
-      createdEndDate: queryParams.createdEndDate
+      createdEndDate: queryParams.createdEndDate,
+      userId: queryParams.user,
+      posId: queryParams.pos
     };
   }
 
@@ -43,6 +49,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
     const {
       posToken,
       search,
+      posId,
+      userId,
       paidStartDate,
       paidEndDate,
       createdStartDate,
@@ -53,6 +61,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
       page: 1,
       posToken,
       search,
+      pos: posId,
+      user: userId,
       paidStartDate,
       paidEndDate,
       createdStartDate,
@@ -107,7 +117,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
   }
 
   render() {
-    const { posToken, search } = this.state;
+    const { posList } = this.props;
+    const { posToken, search, userId, posId } = this.state;
     const onChangePosToken = (e: any) => {
       const token = e.target?.value;
       this.setState({ posToken: token });
@@ -117,6 +128,10 @@ class CheckerSidebar extends React.Component<IProps, State> {
       const value = (e.currentTarget as HTMLInputElement).value;
       const name = (e.currentTarget as HTMLInputElement).name;
       this.setState({ [name]: value } as any);
+    };
+
+    const onUserChange = userId => {
+      this.setState({ userId });
     };
 
     return (
@@ -133,6 +148,36 @@ class CheckerSidebar extends React.Component<IProps, State> {
                 defaultValue={posToken}
                 autoFocus={true}
               />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Created by</ControlLabel>
+              <SelectTeamMembers
+                label="Choose users"
+                name="userId"
+                customOption={{ label: 'Choose user', value: '' }}
+                initialValue={userId || ''}
+                onSelect={onUserChange}
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>POS</ControlLabel>
+              <FormControl
+                name={'posId'}
+                componentClass="select"
+                defaultValue={posId}
+                onChange={onChangeInput}
+              >
+                <option value="">{__('All')}</option>
+                {posList &&
+                  Array.isArray(posList) &&
+                  (posList || []).map(pos => (
+                    <option
+                      key={pos._id}
+                      value={pos._id}
+                    >{`${pos.name} - ${pos.description}`}</option>
+                  ))}
+              </FormControl>
             </FormGroup>
             <FormGroup>
               <ControlLabel>Number</ControlLabel>

@@ -28,6 +28,7 @@ export const riskIndicatorParams = `
     departmentIds,
     branchIds,
     createdAt,
+    modifiedAt,
     isWithDescription
     ${isEnabled('tags') ? `tags{_id,name,colorCode}` : ''}
     

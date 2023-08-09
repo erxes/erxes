@@ -243,6 +243,10 @@ const integrationMutations = {
       }
     }
 
+    if (doc.channelIds && doc.channelIds.length === 0) {
+      throw new Error('Channel must be chosen');
+    }
+
     const integration = await models.Integrations.createExternalIntegration(
       modifiedDoc,
       user._id
@@ -305,14 +309,6 @@ const integrationMutations = {
     const integration = await models.Integrations.getIntegration({ _id });
 
     const doc: any = { name, brandId, data };
-
-    switch (integration.kind) {
-      case 'webhook': {
-        doc.webhookData = data;
-
-        break;
-      }
-    }
 
     await models.Integrations.updateOne({ _id }, { $set: doc });
 

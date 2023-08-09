@@ -1,6 +1,8 @@
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import dayjs from 'dayjs';
 import { IScheduleForm } from './types';
+import { dateFormat } from './constants';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 const timeFormat = 'HH:mm';
 
@@ -52,6 +54,42 @@ export const compareStartAndEndTime = (
 
   return [correctShiftStart, correctShiftEnd, overnightShift];
 };
+export const compareStartAndEndTimeOfSingleDate = (
+  newShiftStart?,
+  newShiftEnd?,
+  shiftDate?
+) => {
+  let overnightShift = false;
+  let correctShiftEnd;
+
+  const shiftDateString = dayjs(shiftDate).format(dateFormat);
+
+  if (
+    dayjs(newShiftEnd).format(timeFormat) <
+    dayjs(newShiftStart).format(timeFormat)
+  ) {
+    correctShiftEnd = dayjs(
+      dayjs(shiftDateString)
+        .add(1, 'day')
+        .toDate()
+        .toLocaleDateString() +
+        ' ' +
+        dayjs(newShiftEnd).format(timeFormat)
+    ).toDate();
+
+    overnightShift = true;
+  } else {
+    correctShiftEnd = dayjs(
+      shiftDateString + ' ' + dayjs(newShiftEnd).format(timeFormat)
+    ).toDate();
+  }
+
+  const correctShiftStart = dayjs(
+    shiftDateString + ' ' + dayjs(newShiftStart).format(timeFormat)
+  ).toDate();
+
+  return [correctShiftStart, correctShiftEnd, overnightShift];
+};
 
 export const generateParams = queryParams => ({
   ...generatePaginationParams(queryParams || {}),
@@ -78,4 +116,24 @@ export const returnDeviceTypes = deviceType => {
   }
 
   return [checkInDevice, checkOutDevice];
+};
+
+export const prepareCurrentUserOption = (currentUser: IUser) => {
+  const includeCustomFieldOnSelectLabel = currentUser.employeeId
+    ? currentUser.employeeId
+    : '';
+
+  const userNameOrEmail =
+    currentUser.details && currentUser.details.fullName
+      ? currentUser.details.fullName
+      : currentUser.email;
+
+  const generateLabel =
+    userNameOrEmail + '\t' + includeCustomFieldOnSelectLabel;
+
+  return {
+    value: currentUser._id,
+    label: generateLabel,
+    avatar: currentUser.details?.avatar
+  };
 };

@@ -19,6 +19,8 @@ import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { isValidBarcode } from './otherUtils';
 import { IProductDocument } from '../../models/definitions/products';
+import { checkLoyalties } from './loyalties';
+import { checkPricing } from './pricing';
 
 interface IDetailItem {
   count: number;
@@ -149,7 +151,8 @@ export const updateOrderItems = async (
       bonusCount: item.bonusCount,
       bonusVoucherId: item.bonusVoucherId,
       isPackage: item.isPackage,
-      isTake: item.isTake
+      isTake: item.isTake,
+      manufacturedDate: item.manufacturedDate
     };
 
     if (itemIds.includes(item._id)) {
@@ -225,9 +228,11 @@ export const prepareEbarimtData = async (
   const details: IDetailItem[] = [];
   const detailsFree: IDetailItem[] = [];
   const details0: IDetailItem[] = [];
+  const detailsInner: (IDetailItem & { itemId: string })[] = [];
   let amountDefault = 0;
   let amountFree = 0;
   let amount0 = 0;
+  let amountInner = 0;
 
   for (const item of items) {
     const product = productsById[item.productId];
@@ -253,6 +258,13 @@ export const prepareEbarimtData = async (
     } else if (product.taxType === '3' && billType === '3') {
       details0.push({ ...stock, barcode: product.taxCode });
       amount0 += amount;
+    } else if (product.taxType === '5') {
+      detailsInner.push({
+        ...stock,
+        barcode: product.taxCode,
+        itemId: item._id
+      });
+      amountInner += amount;
     } else {
       let trueBarcode = '';
       for (const barcode of product.barcodes) {
@@ -322,6 +334,26 @@ export const prepareEbarimtData = async (
     });
   }
 
+  if (detailsInner && detailsInner.length) {
+    if (calcCashAmount > amountInner) {
+      cashAmount = amountInner;
+      calcCashAmount -= amountInner;
+    } else {
+      cashAmount = calcCashAmount;
+      calcCashAmount = 0;
+    }
+    result.push({
+      ...commonOderInfo,
+      hasVat: false,
+      hasCityTax: false,
+      itemIds: detailsInner.map(di => di.itemId),
+      inner: true,
+      details: detailsInner,
+      cashAmount,
+      nonCashAmount: amountInner - cashAmount
+    });
+  }
+
   if (details && details.length) {
     if (calcCashAmount > amountDefault) {
       cashAmount = amountDefault;
@@ -369,7 +401,28 @@ const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
   return;
 };
 
+const checkPrices = async (subdomain, preparedDoc, config) => {
+  const { type } = preparedDoc;
+
+  if (ORDER_TYPES.SALES.includes(type)) {
+    preparedDoc = await checkLoyalties(subdomain, preparedDoc);
+    preparedDoc = await checkPricing(subdomain, preparedDoc, config);
+    return preparedDoc;
+  }
+
+  if (ORDER_TYPES.OUT.includes(type)) {
+    for (const item of preparedDoc.items || []) {
+      item.discountPercent = 100;
+      item.discountAmount = item.count * item.unitPrice;
+      item.unitPrice = 0;
+    }
+  }
+
+  return preparedDoc;
+};
+
 export const prepareOrderDoc = async (
+  subdomain: string,
   doc: IOrderInput,
   config: IConfigDocument,
   models: IModels
@@ -503,7 +556,7 @@ export const prepareOrderDoc = async (
     }
   }
 
-  return { ...doc, items };
+  return await checkPrices(subdomain, { ...doc, items }, config);
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {
@@ -520,7 +573,7 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
     mobileAmount +
     (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
-  if (amount < 0 && paidAmount <= order.totalAmount) {
+  if (amount < 0 && paidAmount < order.totalAmount) {
     throw new Error('Amount less 0');
   }
 

@@ -1,5 +1,7 @@
 // Settings
 
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const configs = `
   query configsGetValue($code: String!) {
     configsGetValue(code: $code)
@@ -47,23 +49,27 @@ const commonOrderParams = `
   $sortDirection: Int,
   $posToken: String,
   $search: String,
-  $paidStartDate: Date
-  $paidEndDate: Date
-  $createdStartDate: Date
-  $createdEndDate: Date
+  $posId: String,
+  $userId: String,
+  $paidStartDate: Date,
+  $paidEndDate: Date,
+  $createdStartDate: Date,
+  $createdEndDate: Date,
 `;
 
 const commonOrderParamDefs = `
   page: $page,
   perPage: $perPage,
-  sortField: $sortField
-  sortDirection: $sortDirection
-  posToken: $posToken
-  search: $search
-  createdStartDate: $createdStartDate
-  createdEndDate: $createdEndDate
-  paidStartDate: $paidStartDate
-  paidEndDate: $paidEndDate
+  sortField: $sortField,
+  sortDirection: $sortDirection,
+  posToken: $posToken,
+  search: $search,
+  posId: $posId,
+  userId: $userId,
+  createdStartDate: $createdStartDate,
+  createdEndDate: $createdEndDate,
+  paidStartDate: $paidStartDate,
+  paidEndDate: $paidEndDate,
 `;
 
 const checkSyncDeals = `
@@ -119,10 +125,70 @@ const checkSyncOrders = `
   }
 `;
 
+const posOrderDetail = `
+  query posOrderDetail($_id: String) {
+    posOrderDetail(_id: $_id) {
+      _id
+      createdAt
+      status
+      paidDate
+      number
+      customerId
+      customerType
+      cashAmount
+      mobileAmount
+      paidAmounts
+      totalAmount
+      finalAmount
+      shouldPrintEbarimt
+      printedEbarimt
+      billType
+      billId
+      registerNumber
+      oldBillId
+      type
+      userId
+      items
+      posToken
+
+      syncedErkhet
+
+      posName
+      origin
+      user {
+        _id
+        email
+      }
+      convertDealId
+      ${
+        isEnabled('contacts')
+          ? `
+        customer {
+          _id
+          code
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+        }
+      `
+          : ``
+      }
+      syncErkhetInfo
+      putResponses
+      deliveryInfo
+      deal
+      dealLink
+    }
+  }
+`;
+
 export default {
   configs,
   checkSyncDeals,
   checkSyncDealsTotalCount,
   checkSyncOrdersTotalCount,
-  checkSyncOrders
+  checkSyncOrders,
+
+  posOrderDetail
 };

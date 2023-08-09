@@ -54,7 +54,7 @@ const transactionDetail = `
           name
         }
         transactionId
-        uomId
+        uom
       }
     }
   }

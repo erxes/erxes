@@ -25,6 +25,9 @@ import webhooks from './webhooks';
 import automations from './automations';
 import cronjobs from './cronjobs/conversations';
 import dashboards from './dashboards';
+import webhookMiddleware from './middlewares/webhookMiddleware';
+import { NOTIFICATION_MODULES } from './constants';
+import payment from './payment';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -54,9 +57,10 @@ export default {
     webhooks,
     automations,
     cronjobs,
-    // for fixing permissions
     permissions,
-    dashboards
+    dashboards,
+    notificationModules: NOTIFICATION_MODULES,
+    payment
   },
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
@@ -133,6 +137,7 @@ export default {
     );
 
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
+    app.post('/webhooks/:id', webhookMiddleware);
 
     initBroker(options.messageBrokerClient);
 

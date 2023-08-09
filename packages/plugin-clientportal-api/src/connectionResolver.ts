@@ -24,6 +24,8 @@ import {
 } from './models/ClientPortalUserCard';
 import { ICommentModel, loadCommentClass } from './models/Comment';
 import { ICommentDocument } from './models/definitions/comment';
+import { IFieldConfigModel, loadFieldConfigClass } from './models/FieldConfigs';
+import { IFieldConfigDocument } from './models/definitions/fieldConfigs';
 
 export interface IModels {
   ClientPortals: IClientPortalModel;
@@ -31,6 +33,7 @@ export interface IModels {
   ClientPortalNotifications: ICPNotificationModel;
   ClientPortalUserCards: ICPUserCardModel;
   Comments: ICommentModel;
+  FieldConfigs: IFieldConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -67,6 +70,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Comments = db.model<ICommentDocument, ICommentModel>(
     'client_portal_comments',
     loadCommentClass(models)
+  );
+
+  models.FieldConfigs = db.model<IFieldConfigDocument, IFieldConfigModel>(
+    'client_portal_field_configs',
+    loadFieldConfigClass(models)
   );
 
   return models;

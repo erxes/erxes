@@ -6,8 +6,8 @@ import { mutations, queries } from '../../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import FileForm from '../../components/file/FileForm';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   file?: IFile;
@@ -28,7 +28,7 @@ const FileFormContainer = (props: FinalProps) => {
       variables
     })
       .then(() => {
-        Alert.success('You successfully add an file');
+        Alert.success('You successfully add a file');
 
         props.closeModal();
       })

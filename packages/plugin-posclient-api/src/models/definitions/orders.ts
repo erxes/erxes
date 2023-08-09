@@ -21,6 +21,7 @@ export interface IOrder {
   modifiedAt?: Date;
   userId?: string;
   paidDate?: Date;
+  dueDate?: Date;
   number?: string;
   customerId?: string;
   customerType?: string;
@@ -41,11 +42,13 @@ export interface IOrder {
   synced?: boolean;
   origin?: string;
   posToken?: string;
+  subToken?: string;
   deliveryInfo?: any;
 
   //posSlot
   slotCode?: string;
   taxInfo?: any;
+  convertDealId?: string;
 }
 
 const commonAttributes = { positive: true, default: 0 };
@@ -78,6 +81,7 @@ export const orderSchema = schemaHooksWrapper(
       index: true
     }),
     paidDate: field({ type: Date, label: 'Paid date' }),
+    dueDate: field({ type: Date, label: 'Due date' }),
     number: field({
       type: String,
       label: 'Order number',
@@ -136,7 +140,7 @@ export const orderSchema = schemaHooksWrapper(
       enum: ORDER_TYPES.ALL,
       default: ORDER_TYPES.EAT
     }),
-    branchId: field({ type: String, label: 'Branch' }),
+    branchId: field({ type: String, optional: true, label: 'Branch' }),
     departmentId: field({ type: String, optional: true, label: 'Branch' }),
     userId: field({
       type: String,
@@ -149,6 +153,12 @@ export const orderSchema = schemaHooksWrapper(
       label: 'synced on erxes'
     }),
     posToken: field({
+      type: String,
+      optional: true,
+      label: 'posToken',
+      index: true
+    }),
+    subToken: field({
       type: String,
       optional: true,
       label: 'If From online posToken',
@@ -187,9 +197,15 @@ export const orderSchema = schemaHooksWrapper(
       optional: true,
       label: 'Slot code'
     }),
-    taxInfo: field({ type: Object, optional: true })
+    taxInfo: field({ type: Object, optional: true }),
+    convertDealId: field({
+      type: String,
+      optional: true,
+      label: 'Converted Deal'
+    })
   }),
   'erxes_orders'
 );
 
 orderSchema.index({ posToken: 1, number: 1 }, { unique: true });
+orderSchema.index({ posToken: 1, userId: 1, date: 1 });

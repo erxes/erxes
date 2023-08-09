@@ -3,6 +3,8 @@ const chatMessageInserted = `
     chatMessageInserted(chatId: $chatId) {
       _id
       content
+      attachments
+      mentionedUserIds
       createdUser {
         _id
         email
@@ -39,7 +41,24 @@ const chatInserted = `
   }
 `;
 
+const chatReceivedNotification = `
+  subscription chatReceivedNotification($userId: String!) {
+    chatReceivedNotification(userId: $userId) {
+      _id
+      content
+      mentionedUserIds
+    }
+  }
+`;
+
+const chatUnreadCountChanged = `
+subscription chatUnreadCountChanged($userId: String!){
+  chatUnreadCountChanged(userId: $userId)
+}`;
+
 export default {
   chatMessageInserted,
-  chatInserted
+  chatInserted,
+  chatUnreadCountChanged,
+  chatReceivedNotification
 };

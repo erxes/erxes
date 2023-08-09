@@ -47,7 +47,9 @@ const bridgesQueries = {
           phones: 1,
           phone: 1,
           tagIds: 1,
-          code: 1
+          code: 1,
+          primaryAddress: 1,
+          addresses: 1
         }
       },
       isRPC: true,
@@ -100,6 +102,7 @@ const bridgesQueries = {
             { email: _id },
             { code: _id },
             { username: _id },
+            { employeeId: _id },
             { 'details.operatorPhone': _id }
           ]
         },

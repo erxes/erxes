@@ -1,5 +1,9 @@
 import { generateModels } from './connectionResolver';
-import { sendCommonMessage } from './messageBroker';
+import {
+  sendCommonMessage,
+  sendContactsMessage,
+  sendFormsMessage
+} from './messageBroker';
 import { serviceDiscovery } from './configs';
 
 const toMoney = value => {
@@ -9,14 +13,38 @@ const toMoney = value => {
   return new Intl.NumberFormat().format(value);
 };
 
+const getCustomFields = async ({ subdomain }) => {
+  const fields = await sendFormsMessage({
+    subdomain,
+    action: 'fields.fieldsCombinedByContentType',
+    isRPC: true,
+    data: {
+      contentType: `products:product`
+    },
+    defaultValue: []
+  });
+
+  return fields
+    .filter(field => !['categoryId', 'code'].includes(field.name))
+    .map(field => ({ value: field.name, name: field.label, type: field.type }));
+};
+
 export default {
-  editorAttributes: async () => {
+  types: [
+    {
+      type: 'products',
+      label: 'Products'
+    }
+  ],
+
+  editorAttributes: async ({ subdomain }) => {
     return [
       { value: 'name', name: 'Name' },
       { value: 'code', name: 'Code' },
       { value: 'price', name: 'Price' },
       { value: 'bulkQuantity', name: 'Bulk quantity' },
-      { value: 'bulkPrice', name: 'Bulk price' }
+      { value: 'bulkPrice', name: 'Bulk price' },
+      ...(await getCustomFields({ subdomain }))
     ];
   },
 
@@ -45,6 +73,7 @@ export default {
           departmentId,
           branchId,
           products: products.map(pr => ({
+            itemId: pr._id,
             productId: pr._id,
             quantity: 1,
             price: pr.unitPrice
@@ -62,8 +91,6 @@ export default {
           if (unitPrice < 0) {
             unitPrice = 0;
           }
-
-          product.unitPrice = unitPrice;
         }
       }
 
@@ -75,6 +102,8 @@ export default {
         defaultValue: [],
         data: {
           prioritizeRule: 'exclude',
+          branchId,
+          departmentId,
           products
         }
       });
@@ -102,6 +131,32 @@ export default {
         '{{ bulkPrice }}',
         toMoney(price)
       );
+
+      if (replacedContent.includes(`{{ vendorId }}`)) {
+        const vendor = await sendContactsMessage({
+          subdomain,
+          action: 'companies.findOne',
+          data: {
+            _id: product.vendorId
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        if (vendor?.primaryName) {
+          replacedContent = replacedContent.replace(
+            /{{ vendorId }}/g,
+            vendor.primaryName
+          );
+        }
+      }
+
+      for (const customFieldData of product.customFieldsData || []) {
+        replacedContent = replacedContent.replace(
+          new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
+          customFieldData.value
+        );
+      }
 
       results.push(replacedContent);
     }

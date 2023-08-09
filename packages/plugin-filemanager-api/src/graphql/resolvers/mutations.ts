@@ -138,11 +138,32 @@ const mutations = {
 
   async filemanagerRequestAcks(
     _root,
-    { fileId, toUserIds, description },
-    { user, models }: IContext
+    { fileId, description },
+    { user, models, subdomain }: IContext
   ) {
-    for (const userId of toUserIds) {
-      const request = await models.Requests.findOne({
+    const file = await models.Files.getFile({ _id: fileId });
+
+    const unit = await sendCoreMessage({
+      subdomain,
+      action: 'units.find',
+      data: {
+        _id: file.permissionUnitId
+      },
+      isRPC: true
+    });
+
+    const totalUserIds = [
+      ...(file.permissionUserIds || []),
+      ...(unit.memberIds || [])
+    ];
+
+    for (const userId of totalUserIds) {
+      // ignore owner
+      if (userId === user._id) {
+        continue;
+      }
+
+      const request = await models.AckRequests.findOne({
         fileId,
         toUserId: userId
       });
@@ -151,8 +172,7 @@ const mutations = {
         continue;
       }
 
-      await models.Requests.createRequest({
-        type: 'ack',
+      await models.AckRequests.createRequest({
         fileId,
         fromUserId: user._id,
         toUserId: userId,
@@ -161,21 +181,166 @@ const mutations = {
       });
     }
 
+    await models.Logs.createLog({
+      contentType: 'file',
+      contentTypeId: file._id,
+      userId: user._id,
+      description: 'Requested acknowledgement'
+    });
+
     return 'ok';
   },
 
   async filemanagerAckRequest(_root, { _id }, { user, models }: IContext) {
-    const request = await models.Requests.findOne({ _id });
+    const request = await models.AckRequests.findOne({ _id });
 
-    if (request && request.toUserId !== user._id) {
+    if (!request || (request && request.toUserId !== user._id)) {
       throw new Error('Permission denied');
     }
 
-    return models.Requests.update({ _id }, { $set: { status: 'acked' } });
+    const response = await models.AckRequests.update(
+      { _id },
+      { $set: { status: 'acked' } }
+    );
+
+    await models.Logs.createLog({
+      contentType: 'file',
+      contentTypeId: request.fileId,
+      userId: user._id,
+      description: `Acknowledged`
+    });
+
+    return response;
+  },
+
+  async filemanagerRequestAccess(
+    _root,
+    { fileId, description },
+    { user, models }: IContext
+  ) {
+    const request = await models.AccessRequests.findOne({
+      fileId,
+      fromUserId: user._id
+    });
+
+    if (request) {
+      return 'already requested';
+    }
+
+    await models.AccessRequests.createRequest({
+      fileId,
+      fromUserId: user._id,
+      description,
+      status: 'requested'
+    });
+
+    await models.Logs.createLog({
+      contentType: 'file',
+      contentTypeId: fileId,
+      userId: user._id,
+      description: 'Access request created'
+    });
+
+    return 'ok';
+  },
+
+  async filemanagerConfirmAccessRequest(
+    _root,
+    { requestId },
+    { user, models }: IContext
+  ) {
+    const request = await models.AccessRequests.findOne({ _id: requestId });
+
+    if (!request) {
+      throw new Error('Not found');
+    }
+
+    const file = await models.Files.getFile({ _id: request.fileId });
+
+    if (file.createdUserId !== user._id) {
+      throw new Error('Permission denied');
+    }
+
+    await models.Logs.createLog({
+      contentType: 'file',
+      contentTypeId: file._id,
+      userId: user._id,
+      description: 'Access request confirmed'
+    });
+
+    await models.Files.update(
+      { _id: file._id },
+      { $push: { permissionUserIds: request.fromUserId } }
+    );
+    await models.AccessRequests.remove({ _id: requestId });
+
+    return 'ok';
+  },
+
+  async filemanagerRelateFiles(
+    _root,
+    { sourceId, targetIds },
+    { user, models }: IContext
+  ) {
+    const file = await models.Files.getFile({ _id: sourceId });
+
+    if (file.createdUserId !== user._id) {
+      throw new Error('Permission denied');
+    }
+
+    await models.Files.update(
+      { _id: sourceId },
+      { $set: { relatedFileIds: targetIds } }
+    );
+
+    return 'ok';
+  },
+
+  async filemanagerRemoveRelatedFiles(
+    _root,
+    { sourceId, targetIds },
+    { user, models }: IContext
+  ) {
+    const file = await models.Files.getFile({ _id: sourceId });
+
+    if (file.createdUserId !== user._id) {
+      throw new Error('Permission denied');
+    }
+
+    for (const targetId of targetIds) {
+      await models.Files.update(
+        { _id: sourceId },
+        { $pull: { relatedFileIds: targetId } }
+      );
+    }
+
+    return 'ok';
+  },
+
+  async filemanagerRelateFilesContentType(
+    _root,
+    { contentType, contentTypeId, fileIds },
+    { models }: IContext
+  ) {
+    const prevRelation = await models.Relations.findOne({
+      contentType,
+      contentTypeId
+    });
+
+    if (prevRelation) {
+      await models.Relations.update(
+        { _id: prevRelation._id },
+        { $set: { fileIds } }
+      );
+    } else {
+      await models.Relations.relate({ contentType, contentTypeId, fileIds });
+    }
+
+    return 'ok';
   }
 };
 
-checkPermission(mutations, 'filemanagerFolderSave', 'showFilemanager');
-checkPermission(mutations, 'filemanagerFolderRemove', 'showFilemanager');
+checkPermission(mutations, 'filemanagerFolderSave', 'filemanagerFolderSave');
+checkPermission(mutations, 'filemanagerFileCreate', 'filemanagerFileCreate');
 
 export default mutations;

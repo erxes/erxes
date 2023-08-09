@@ -5,8 +5,8 @@ import {
 } from '../../types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from '@apollo/client/react/hoc';
+import { gql } from '@apollo/client';
 import { mutations, queries } from '../../graphql';
 import { TimelogForm } from '../../components/timeclock/TimelogForm';
 import React from 'react';
@@ -54,29 +54,18 @@ export default withProps<Props>(
       name: 'listTimeLogsPerUser',
       options: ({ userId, startDate, endDate }) => ({
         variables: {
-          userId: `${userId}`,
-          startDate: `${startDate}`,
-          endDate: `${endDate}`
+          userId,
+          startDate,
+          endDate
         }
       })
     }),
 
     graphql<Props, TimeClockMutationResponse>(gql(mutations.timeclockEdit), {
       name: 'timeclockEditMutation',
-      options: ({
-        timeclockId,
-        timeclockStart,
-        timeclockEnd,
-        timeclockActive
-      }) => ({
-        variables: {
-          _id: timeclockId,
-          shiftStart: timeclockStart,
-          shiftEnd: timeclockEnd,
-          shiftActive: timeclockActive
-        },
+      options: {
         refetchQueries: ['timeclocksMain']
-      })
+      }
     })
   )(ListContainer)
 );

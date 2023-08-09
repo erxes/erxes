@@ -1,15 +1,14 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import List from '../components/List';
 import queryString from 'query-string';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps } from '@erxes/ui/src/types';
 import {
   ListQueryVariables,
   OrdersQueryResponse,
   OrdersSummaryQueryResponse,
-  PosOrderSyncErkhetMutationResponse,
   PosOrderReturnBillMutationResponse
 } from '../types';
 import { mutations, queries } from '../graphql';
@@ -28,7 +27,6 @@ type FinalProps = {
   ordersSummaryQuery: OrdersSummaryQueryResponse;
 } & Props &
   IRouterProps &
-  PosOrderSyncErkhetMutationResponse &
   PosOrderReturnBillMutationResponse;
 
 type State = {
@@ -100,23 +98,6 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     router.removeParams(this.props.history, ...Object.keys(params));
   };
 
-  onSyncErkhet = posId => {
-    const { posOrderSyncErkhet, ordersQuery } = this.props;
-
-    posOrderSyncErkhet({
-      variables: { _id: posId }
-    })
-      .then(() => {
-        // refresh queries
-        ordersQuery.refetch();
-
-        Alert.success('You successfully synced erkhet.');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   onReturnBill = posId => {
     const { posOrderReturnBill, ordersQuery } = this.props;
 
@@ -155,7 +136,6 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
       clearFilter: this.clearFilter,
-      onSyncErkhet: this.onSyncErkhet,
       onReturnBill: this.onReturnBill
     };
 
@@ -186,7 +166,8 @@ const generateParams = ({ queryParams }) => ({
   userId: queryParams.userId,
   customerId: queryParams.customerId,
   customerType: queryParams.customerType,
-  posId: queryParams.posId
+  posId: queryParams.posId,
+  types: queryParams.types && queryParams.types.split(',')
 });
 
 export default withProps<Props>(
@@ -212,12 +193,6 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, PosOrderSyncErkhetMutationResponse, { _id: string }>(
-      gql(mutations.posOrderSyncErkhet),
-      {
-        name: 'posOrderSyncErkhet'
-      }
-    ),
     graphql<Props, PosOrderReturnBillMutationResponse, { _id: string }>(
       gql(mutations.posOrderReturnBill),
       {

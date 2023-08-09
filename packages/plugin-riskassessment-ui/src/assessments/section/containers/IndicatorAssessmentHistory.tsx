@@ -1,15 +1,18 @@
 import { EmptyState, Spinner } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IndicatorAssessmentsQueryResponse } from '../../common/types';
 import AssessmentHistoryComponent from '../components/IndicatorAssessmentHistory';
 import { queries } from '../graphql';
 
 type Props = {
   indicatorId: string;
+  branchId?: string;
+  departmentId?: string;
+  operationId?: string;
   setHistory: (submission: any) => void;
 };
 
@@ -53,9 +56,12 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.indicatorAssessments), {
       name: 'assessmentHistoryQueryResponse',
       skip: ({ indicatorId }) => !indicatorId,
-      options: ({ indicatorId }) => ({
+      options: ({ indicatorId, branchId, departmentId, operationId }) => ({
         variables: {
-          indicatorId
+          indicatorId,
+          branchId,
+          departmentId,
+          operationId
         }
       })
     })

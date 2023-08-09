@@ -10,6 +10,11 @@ import {
   queries as posOrderQueries,
   mutations as posOrderMutations
 } from './schema/orders';
+import {
+  types as posCoverTypes,
+  queries as posCoverQueries,
+  mutations as posCoverMutations
+} from './schema/covers';
 
 const typeDefs = async serviceDiscovery => {
   const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
@@ -18,18 +23,22 @@ const typeDefs = async serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
+    
 
     ${posTypes({ contactsEnabled, productsEnabled })}
     ${posOrderTypes({ contactsEnabled, productsEnabled })}
+    ${posCoverTypes}
 
     extend type Query {
       ${posQueries}
       ${posOrderQueries}
+      ${posCoverQueries}
     }
 
     extend type Mutation {
       ${posMutations}
       ${posOrderMutations}
+      ${posCoverMutations}
     }
   `;
 };

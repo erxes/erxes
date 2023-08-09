@@ -313,6 +313,17 @@ ${props =>
   `}
 `;
 
+const ProductItem = styledTS(styled.div)`
+  display:flex;
+  justify-content: space-between;
+
+  img {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+  }
+`;
+
 export {
   MessageItem,
   MessageBody,
@@ -325,5 +336,6 @@ export {
   CallBox,
   CellWrapper,
   FieldWrapper,
-  FormMessageInput
+  FormMessageInput,
+  ProductItem
 };

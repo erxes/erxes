@@ -16,6 +16,7 @@ const commonParams = `
   $sortField:String
   $tagIds:[String]
   $groupIds:[String]
+  $cardFilter:CardFilter
 `;
 
 const commonParamsDef = ` 
@@ -35,7 +36,8 @@ const commonParamsDef = `
   sortDirection: $sortDirection
   sortField: $sortField
   tagIds:$tagIds 
-  groupIds:$groupIds
+  groupIds:$groupIds,
+  cardFilter:$cardFilter
  `;
 
 const commonField = `
@@ -70,6 +72,7 @@ const commonField = `
     }
     status
     statusColor
+    permittedUserIds
  `;
 
 const riskAssessments = `
@@ -87,8 +90,8 @@ const totalCount = `
 `;
 
 const riskAssessmentDetail = `
-  query RiskAssessmentDetail($id: String) {
-    riskAssessmentDetail(id: $id)
+  query RiskAssessmentDetail($id: String,$showFlagged: Boolean) {
+    riskAssessmentDetail(id: $id,showFlagged: $showFlagged)
   }
 `;
 

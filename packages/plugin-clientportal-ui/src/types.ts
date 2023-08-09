@@ -23,11 +23,18 @@ export type ManualVerificationConfig = {
   verifyCompany: boolean;
 };
 
+export type PasswordVerificationConfig = {
+  verifyByOTP: boolean;
+  emailSubject: string;
+  emailContent: string;
+  smsContent: string;
+};
+
 export interface IVerificationRequest {
   status: string;
   attachments: IAttachment[];
-  description: string;
-  verifiedBy: string;
+  description?: string;
+  verifiedBy?: string;
 }
 
 export interface IClientPortalUserDoc {
@@ -89,6 +96,15 @@ export type ClientPortalUserRemoveMutationResponse = {
     variables: { clientPortalUserIds: string[] };
   }) => Promise<any>;
 };
+export type ClientPortalUserAssignCompanyMutationResponse = {
+  clientPortalUserAssignCompany: (mutation: {
+    variables: {
+      userId: string;
+      erxesCompanyId: string;
+      erxesCustomerId: string;
+    };
+  }) => Promise<any>;
+};
 
 export type ClientPortalVerifyUsersMutationResponse = {
   clientPortalUsersVerify: (mutation: {
@@ -110,8 +126,10 @@ export type ClientPortalConfig = {
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;
   dealLabel?: string;
+  purchaseLabel?: string;
   taskPublicBoardId?: string;
   taskPublicPipelineId?: string;
+  taskPublicLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   taskBoardId?: string;
@@ -122,18 +140,32 @@ export type ClientPortalConfig = {
   dealStageId?: string;
   dealBoardId?: string;
   dealPipelineId?: string;
+  purchaseStageId?: string;
+  purchaseBoardId?: string;
+  purchasePipelineId?: string;
   styles?: Styles;
   mobileResponsive?: boolean;
   googleCredentials?: object;
+  googleClientId?: string;
+  googleRedirectUri?: string;
+  googleClientSecret?: string;
+  facebookAppId?: string;
+  erxesAppToken?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   dealToggle?: boolean;
+  purchaseToggle?: boolean;
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
   mailConfig?: MailConfig;
   manualVerificationConfig?: ManualVerificationConfig;
+  passwordVerificationConfig?: PasswordVerificationConfig;
+
+  tokenExpiration?: number;
+  refreshTokenExpiration?: number;
+  tokenPassMethod: 'cookie' | 'header';
 };
 
 export type Styles = {
@@ -152,6 +184,7 @@ export type Styles = {
   dividerColor?: string;
   baseFont?: string;
   headingFont?: string;
+  __typename?: string;
 };
 
 export type ClientPortalConfigsQueryResponse = {

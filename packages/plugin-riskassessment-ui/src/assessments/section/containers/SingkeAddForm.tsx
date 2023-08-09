@@ -1,9 +1,9 @@
-import { Alert, confirm } from '@erxes/ui/src';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { Alert, EmptyState, confirm } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
 import FormComponent from '../components/SingleAddForm';
 import { mutations, queries } from '../graphql';
 type Props = {
@@ -35,6 +35,17 @@ class Form extends React.Component<FinalProps> {
       closeModal
     } = this.props;
 
+    if (
+      riskAssessment?.status === 'You does not have permit on risk assessment'
+    ) {
+      return (
+        <EmptyState
+          text={riskAssessment?.status}
+          image="/images/actions/24.svg"
+        />
+      );
+    }
+
     const handleSelect = (doc: any) => {
       if (riskAssessment && riskAssessment.status !== 'In Progress') {
         return Alert.error(
@@ -45,7 +56,7 @@ class Form extends React.Component<FinalProps> {
       if (riskAssessment && !doc.groupId && !doc.indicatorId) {
         return confirm().then(() => {
           removeRiskAssessment({
-            variables: { riskAssessmentId: riskAssessment._id }
+            variables: { riskAssessmentId: riskAssessment?._id }
           });
         });
       }
@@ -68,10 +79,22 @@ class Form extends React.Component<FinalProps> {
   }
 }
 
-export const refetchQueries = ({ cardId, cardType }) => [
+export const refetchQueries = ({
+  cardId,
+  cardType,
+  riskAssessmentId
+}: {
+  cardId: string;
+  cardType: string;
+  riskAssessmentId?: string;
+}) => [
   {
     query: gql(queries.riskAssessment),
     variables: { cardId, cardType }
+  },
+  {
+    query: gql(queries.riskAssessmentSubmitForm),
+    variables: { cardId, cardType, riskAssessmentId }
   }
 ];
 
@@ -85,8 +108,12 @@ export default withProps<Props>(
     }),
     graphql<Props>(gql(mutations.editRiskAssessment), {
       name: 'editRiskAssessment',
-      options: ({ cardId, cardType }) => ({
-        refetchQueries: refetchQueries({ cardId, cardType })
+      options: ({ cardId, cardType, riskAssessment }) => ({
+        refetchQueries: refetchQueries({
+          cardId,
+          cardType,
+          riskAssessmentId: riskAssessment?._id
+        })
       })
     }),
     graphql<Props>(gql(mutations.removeRiskAssessment), {

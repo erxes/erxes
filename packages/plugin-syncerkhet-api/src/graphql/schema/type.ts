@@ -4,5 +4,12 @@ export const types = `
     isSynced: Boolean
     syncedDate: Date
     syncedBillNumber: String
+    syncedCustomer: String
+  }
+
+  type erkhetRemainder {
+    _id: String!
+    remainder: Int
+    remainders: [JSON]
   }
 `;

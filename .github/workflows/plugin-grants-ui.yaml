@@ -1,0 +1,85 @@
+name: Plugin grants UI CI
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+    paths:
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-cards/**"
+      - "packages/ui-forms/**"
+      - "packages/ui-inbox/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/ui-leads/**"
+      - "packages/ui-log/**"
+      - "packages/ui-notifications/**"
+      - "packages/ui-products/**"
+      - "packages/ui-segments/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
+      - "packages/ui-tags/**"
+      - "packages/ui-grants/**"
+      - "packages/plugin-grants-ui/**"
+      - ".github/workflows/plugin-grants-ui.yaml"
+  pull_request:
+    branches:
+      - dev
+      - staging
+    paths:
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-cards/**"
+      - "packages/ui-forms/**"
+      - "packages/ui-inbox/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/ui-leads/**"
+      - "packages/ui-log/**"
+      - "packages/ui-notifications/**"
+      - "packages/ui-products/**"
+      - "packages/ui-segments/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
+      - "packages/ui-tags/**"
+      - "packages/ui-grants/**"
+      - "packages/plugin-grants-ui/**"
+      - ".github/workflows/plugin-grants-ui.yaml"
+
+jobs:
+  ui:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 14.20.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.20.x
+
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-grants-ui/.erxes
+          cp -r packages/plugin-grants-ui/src packages/plugin-grants-ui/.erxes/plugin-src
+          cd packages/plugin-grants-ui
+          yarn install
+          yarn install-deps
+          yarn build
+
+      - name: Configure AWS credentials
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        run: |
+          tar -cf build.tar --directory=packages/plugin-grants-ui/.erxes/dist .
+          cp build.tar packages/plugin-grants-ui/.erxes/dist
+          rm -rf packages/plugin-grants-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-grants-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-grants-ui --delete

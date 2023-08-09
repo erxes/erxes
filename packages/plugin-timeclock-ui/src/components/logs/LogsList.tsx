@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { ITimelog } from '../../types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Button from '@erxes/ui/src/components/Button';
-import { CustomRangeContainer, FlexCenter, FlexColumn } from '../../styles';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
+import { FlexRowLeft, ToggleButton } from '../../styles';
 import Table from '@erxes/ui/src/components/table';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -12,6 +10,9 @@ import { __ } from '@erxes/ui/src/utils';
 import { dateFormat, timeFormat } from '../../constants';
 import dayjs from 'dayjs';
 import Tip from '@erxes/ui/src/components/Tip';
+import Icon from '@erxes/ui/src/components/Icon';
+import ExtractForm from './LogsExtractForm';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
   queryParams: any;
@@ -19,8 +20,22 @@ type Props = {
   timelogs: ITimelog[];
   totalCount?: number;
 
-  extractTimeLogsFromMsSQL: (startDate: Date, endDate: Date) => void;
-  createTimeclockFromLog: (userId: string, timelog: Date) => void;
+  departments: IDepartment[];
+  branches: IBranch[];
+
+  isCurrentUserAdmin: boolean;
+
+  extractTimeLogsFromMsSQL: (
+    startDate: Date,
+    endDate: Date,
+    params: any
+  ) => void;
+
+  createTimeclockFromLog: (
+    userId: string,
+    timelog: Date,
+    inDevice?: string
+  ) => void;
 
   showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
@@ -31,12 +46,16 @@ function ReportList(props: Props) {
   const {
     totalCount,
     timelogs,
-    extractTimeLogsFromMsSQL,
     getPagination,
     showSideBar,
     getActionBar,
-    createTimeclockFromLog
+    createTimeclockFromLog,
+    isCurrentUserAdmin
   } = props;
+
+  const [isSideBarOpen, setIsOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+  );
 
   const [startDate, setStartDate] = useState(
     new Date(localStorage.getItem('startDate') || Date.now())
@@ -45,49 +64,30 @@ function ReportList(props: Props) {
     new Date(localStorage.getItem('endDate') || Date.now())
   );
 
-  const extractTimeLogs = (startDateRange, endDateRange) => {
-    extractTimeLogsFromMsSQL(startDateRange, endDateRange);
+  const onToggleSidebar = () => {
+    const toggleIsOpen = !isSideBarOpen;
+    setIsOpen(toggleIsOpen);
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
   };
 
-  const onStartDateChange = dateVal => {
-    setStartDate(dateVal);
-    localStorage.setItem('startDate', startDate.toISOString());
-  };
+  const extractTrigger = isCurrentUserAdmin ? (
+    <Button icon="plus-circle">Extract time logs</Button>
+  ) : (
+    <></>
+  );
 
-  const onEndDateChange = dateVal => {
-    setEndDate(dateVal);
-    localStorage.setItem('endDate', endDate.toISOString());
-  };
+  const extractContent = () => <ExtractForm {...props} />;
 
-  const extractTrigger = <Button icon="plus-circle">Extract time logs</Button>;
-
-  const extractContent = () => (
-    <FlexColumn marginNum={10}>
-      <ControlLabel>Select Date Range</ControlLabel>
-      <CustomRangeContainer>
-        <DateControl
-          required={false}
-          value={startDate}
-          name="startDate"
-          placeholder={'Starting date'}
-          dateFormat={'YYYY-MM-DD'}
-          onChange={onStartDateChange}
-        />
-        <DateControl
-          required={false}
-          value={endDate}
-          name="endDate"
-          placeholder={'Ending date'}
-          dateFormat={'YYYY-MM-DD'}
-          onChange={onEndDateChange}
-        />
-      </CustomRangeContainer>
-      <FlexCenter>
-        <Button onClick={() => extractTimeLogs(startDate, endDate)}>
-          Extract all data
-        </Button>
-      </FlexCenter>
-    </FlexColumn>
+  const actionBarLeft = (
+    <FlexRowLeft>
+      <ToggleButton
+        id="btn-inbox-channel-visible"
+        isActive={isSideBarOpen}
+        onClick={onToggleSidebar}
+      >
+        <Icon icon="subject" />
+      </ToggleButton>
+    </FlexRowLeft>
   );
 
   const actionBarRight = (
@@ -102,6 +102,7 @@ function ReportList(props: Props) {
 
   const actionBar = (
     <Wrapper.ActionBar
+      left={actionBarLeft}
       right={actionBarRight}
       hasFlex={true}
       wideSpacing={true}
@@ -139,7 +140,11 @@ function ReportList(props: Props) {
                   <Button
                     btnStyle="link"
                     onClick={() =>
-                      createTimeclockFromLog(timelog.user._id, timelog.timelog)
+                      createTimeclockFromLog(
+                        timelog.user._id,
+                        timelog.timelog,
+                        timelog.deviceName
+                      )
                     }
                     icon="clock-eight"
                   />
@@ -153,7 +158,7 @@ function ReportList(props: Props) {
   );
 
   getPagination(<Pagination count={totalCount} />);
-  showSideBar(true);
+  showSideBar(isSideBarOpen);
   getActionBar(actionBar);
 
   return content;

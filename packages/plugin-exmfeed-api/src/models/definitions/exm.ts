@@ -6,39 +6,42 @@ export type TExmThank = {
   createdAt?: Date;
 };
 export interface IFeed {
-  title: String;
-  description: String;
-  images: String;
-  attachments: String;
-  isPinned: Boolean;
-  contentType: String;
-  recipientIds: String;
-  customFieldsData: String;
-  ceremonyData: String;
-  eventData: String;
+  title: string;
+  description: string;
+  images: string;
+  attachments: string;
+  isPinned: boolean;
+  contentType: string;
+  recipientIds: string;
+  customFieldsData: string;
+  ceremonyData: string;
+  eventData: string;
   startDate: Date;
   endDate: Date;
-  createdBy: String;
+  createdBy: string;
   createdAt: Date;
-  updatedBy: String;
+  updatedBy: string;
   updatedAt: Date;
-  department: String;
+  department: string;
+  departmentIds?: string[];
+  branchIds?: string[];
+  unitId?: string;
 }
 export interface IFeedDocument extends IFeed, Document {
-  _id: String;
+  _id: string;
 }
 
 export interface IThank {
-  description: String;
-  recipientIds: String;
-  createdBy: String;
+  description: string;
+  recipientIds: string;
+  createdBy: string;
   createdAt: Date;
-  updatedBy: String;
+  updatedBy: string;
   updatedAt: Date;
 }
 
 export interface IThankDocument extends IThank, Document {
-  _id: String;
+  _id: string;
 }
 
 // Mongoose schemas =======================
@@ -89,13 +92,15 @@ export const FEED_CONTENT_TYPES = {
   BIRTHDAY: 'birthday',
   WORK_ANNIVARSARY: 'workAnniversary',
   PUBLIC_HOLIDAY: 'publicHoliday',
+  WELCOME: 'welcome',
   ALL: [
     'post',
     'event',
     'bravo',
     'birthday',
     'workAnniversary',
-    'publicHoliday'
+    'publicHoliday',
+    'welcome'
   ]
 };
 
@@ -105,7 +110,10 @@ export const feedSchema = schemaHooksWrapper(
     title: field({ type: String, label: 'Title' }),
     description: field({ type: String, label: 'Description' }),
     images: field({ type: [attachmentSchema], label: 'Images' }),
-    attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
+    attachments: field({
+      type: [attachmentSchema],
+      label: 'Attachments'
+    }),
     isPinned: field({ type: Boolean }),
     contentType: field({ type: String, enum: FEED_CONTENT_TYPES.ALL }),
     recipientIds: field({ type: [String] }),
@@ -114,7 +122,10 @@ export const feedSchema = schemaHooksWrapper(
       optional: true,
       label: 'Custom fields data'
     }),
+    departmentIds: field({ type: [String], label: 'Department Ids' }),
     department: field({ type: String, label: 'Department' }),
+    branchIds: field({ type: [String], label: 'Branch Ids' }),
+    unitId: field({ type: String, label: 'Unit', optional: true }),
     ceremonyData: field({ type: ceremonyDataSchema }),
     eventData: field({ type: eventDataSchema }),
     startDate: field({ type: Date }),

@@ -8,7 +8,7 @@ import React from 'react';
 import Row from './Row';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'coreui/utils';
 import {
   BarItems,
   FieldStyle,
@@ -65,9 +65,8 @@ class List extends React.Component<IProps, State> {
     for (const product of products) {
       const { quantity, uom } = product;
       const productName = product.product ? product.product.name : 'not name';
-      const uomCode = uom ? uom.code : 'not uom';
 
-      result.push(this.renderView(productName, quantity + '/' + uomCode + '/'));
+      result.push(this.renderView(productName, quantity + '/' + uom + '/'));
     }
 
     return result;
@@ -127,6 +126,7 @@ class List extends React.Component<IProps, State> {
               <th>{__('StartAt')}</th>
               <th>{__('EndAt')}</th>
               <th>{__('Count')}</th>
+              <th>{__('Description')}</th>
               <th>{__('In products')}</th>
               <th>{__('Out products')}</th>
               <th>{__('In Branch')}</th>

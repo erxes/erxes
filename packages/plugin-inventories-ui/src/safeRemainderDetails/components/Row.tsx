@@ -30,7 +30,7 @@ export default function Row(props: Props) {
     if (!date) {
       return null;
     }
-    return moment(date).format('YYYY/MM/DD');
+    return moment(date).format('YYYY/MM/DD HH:mm:ss');
   };
 
   const handleCheckChange = (event: any) => {
@@ -91,7 +91,7 @@ export default function Row(props: Props) {
       <td>
         <FinanceAmount>{displayNumber(preCount)}</FinanceAmount>
       </td>
-      <td>{uom && uom.name}</td>
+      <td>{uom}</td>
 
       <td>
         <FormControl

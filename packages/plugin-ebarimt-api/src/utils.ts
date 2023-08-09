@@ -122,9 +122,11 @@ const arrangeTaxType = async (deal, productsById, billType) => {
   const details: any[] = [];
   const detailsFree: any[] = [];
   const details0: any[] = [];
+  const detailsInner: any[] = [];
   let amount = 0;
   let amountFree = 0;
   let amount0 = 0;
+  let amountInner = 0;
 
   for (const productData of deal.productsData) {
     // not tickUsed product not sent
@@ -145,7 +147,7 @@ const arrangeTaxType = async (deal, productsById, billType) => {
       discount: productData.discount,
       productCode: product.code,
       productName: product.name,
-      sku: product.sku || 'ш',
+      uom: product.uom || 'ш',
       productId: productData.productId
     };
 
@@ -155,6 +157,9 @@ const arrangeTaxType = async (deal, productsById, billType) => {
     } else if (product.taxType === '3' && billType === '3') {
       details0.push({ ...stock, barcode: product.taxCode });
       amount0 += productData.amount;
+    } else if (product.taxType === '5') {
+      detailsInner.push({ ...stock });
+      amountInner += product.amount;
     } else {
       let trueBarcode = '';
       for (const barcode of product.barcodes || []) {
@@ -172,10 +177,40 @@ const arrangeTaxType = async (deal, productsById, billType) => {
     details,
     detailsFree,
     details0,
+    detailsInner,
     amount,
     amountFree,
-    amount0
+    amount0,
+    amountInner
   };
+};
+
+const getCustomerName = customer => {
+  if (!customer) {
+    return '';
+  }
+
+  if (customer.firstName && customer.lastName) {
+    return `${customer.firstName} - ${customer.lastName}`;
+  }
+
+  if (customer.firstName) {
+    return customer.firstName;
+  }
+
+  if (customer.lastName) {
+    return customer.lastName;
+  }
+
+  if (customer.primaryEmail) {
+    return customer.primaryEmail;
+  }
+
+  if (customer.primaryPhone) {
+    return customer.primaryPhone;
+  }
+
+  return '';
 };
 
 export const getPostData = async (subdomain, config, deal) => {
@@ -197,7 +232,7 @@ export const getPostData = async (subdomain, config, deal) => {
       action: 'companies.findActiveCompanies',
       data: {
         selector: { _id: { $in: companyIds } },
-        fields: { _id: 1, code: 1 }
+        fields: { _id: 1, code: 1, primaryName: 1 }
       },
       isRPC: true,
       defaultValue: []
@@ -237,14 +272,30 @@ export const getPostData = async (subdomain, config, deal) => {
         action: 'customers.findActiveCustomers',
         data: {
           selector: { _id: { $in: customerIds } },
-          fields: { _id: 1, code: 1 }
+          fields: {
+            _id: 1,
+            code: 1,
+            firstName: 1,
+            lastName: 1,
+            primaryEmail: 1,
+            primaryPhone: 1
+          }
         },
         isRPC: true,
         defaultValue: []
       });
-      const customer = customers.find(c => c.code && c.code.match(/^\d{8}$/g));
 
-      customerCode = (customer && customer.code) || '';
+      let customer = customers.find(c => c.code && c.code.match(/^\d{8}$/g));
+
+      if (customer) {
+        customerCode = customer.code || '';
+        customerName = getCustomerName(customer);
+      } else {
+        if (customers.length) {
+          customer = customers[0];
+          customerName = getCustomerName(customer);
+        }
+      }
     }
   }
 
@@ -266,9 +317,11 @@ export const getPostData = async (subdomain, config, deal) => {
     details,
     detailsFree,
     details0,
+    detailsInner,
     amount,
     amountFree,
-    amount0
+    amount0,
+    amountInner
   } = await arrangeTaxType(deal, productsById, billType);
 
   const date = new Date();
@@ -330,6 +383,25 @@ export const getPostData = async (subdomain, config, deal) => {
     });
   }
 
+  if (detailsInner && detailsInner.length) {
+    if (calcCashAmount > amountInner) {
+      cashAmount = amountInner;
+      calcCashAmount -= amountInner;
+    } else {
+      cashAmount = calcCashAmount;
+      calcCashAmount = 0;
+    }
+    result.push({
+      ...commonOderInfo,
+      inner: true,
+      hasVat: false,
+      hasCitytax: false,
+      details: detailsInner,
+      cashAmount,
+      nonCashAmount: amountInner - cashAmount
+    });
+  }
+
   if (details && details.length) {
     if (calcCashAmount > amount) {
       cashAmount = amount;
@@ -344,4 +416,21 @@ export const getPostData = async (subdomain, config, deal) => {
     });
   }
   return result;
+};
+
+export const getCompany = async (subdomain, companyRD) => {
+  const config = await getConfig(subdomain, 'EBARIMT', {});
+  const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
+
+  if (!re.test(companyRD)) {
+    return { status: 'notValid' };
+  }
+
+  const info = await sendRequest({
+    url: config.checkCompanyUrl,
+    method: 'GET',
+    params: { regno: companyRD }
+  });
+
+  return { status: 'checked', info };
 };

@@ -1,6 +1,9 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { generateModels, IModels } from './connectionResolver';
-import { BOARD_ITEM_EXTENDED_FIELDS } from './constants';
+import {
+  BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
+  BOARD_ITEM_EXTENDED_FIELDS
+} from './constants';
 import {
   sendCoreMessage,
   sendProductsMessage,
@@ -131,7 +134,9 @@ export const generateFields = async ({ subdomain, data }) => {
     case 'deal':
       schema = models.Deals.schema;
       break;
-
+    case 'purchase':
+      schema = models.Purchases.schema;
+      break;
     case 'task':
       schema = models.Tasks.schema;
       break;
@@ -145,9 +150,13 @@ export const generateFields = async ({ subdomain, data }) => {
     fields = BOARD_ITEM_EXTENDED_FIELDS;
   }
 
+  if (usageType && usageType === 'export') {
+    fields = BOARD_ITEM_EXPORT_EXTENDED_FIELDS;
+  }
+
   if (schema) {
     // generate list using customer or company schema
-    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+    fields = [...(await generateFieldsFromSchema(schema, '')), ...fields];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -200,7 +209,7 @@ export const generateFields = async ({ subdomain, data }) => {
     ]
   ];
 
-  if (type === 'deal' && usageType !== 'export') {
+  if (type === 'deal' || (type === 'purchase' && usageType !== 'export')) {
     const productOptions = await generateProductsOptions(
       subdomain,
       'productsData.productId',
@@ -211,13 +220,19 @@ export const generateFields = async ({ subdomain, data }) => {
     fields = [...fields, ...[productOptions, assignedUserOptions]];
   }
 
-  if (type === 'deal' && usageType === 'export') {
-    const extendFieldsDealExport = [
+  if (type === 'deal' || (type === 'purchase' && usageType === 'export')) {
+    const extendFieldsExport = [
       { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
-      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' }
+      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' },
+      { _id: Math.random(), name: 'productsData.branch', label: 'Branch' },
+      {
+        _id: Math.random(),
+        name: 'productsData.department',
+        label: 'Department'
+      }
     ];
 
-    fields = [...fields, ...extendFieldsDealExport];
+    fields = [...fields, ...extendFieldsExport];
   }
 
   if (usageType === 'export') {

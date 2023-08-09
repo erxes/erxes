@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations as flowMutations } from '../../../flow/graphql';
 import Confirmation from '../../components/forms/confirmation';
 import ConfirmationPopup from '../../components/forms/confirmation/popup';

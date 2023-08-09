@@ -17,7 +17,8 @@ export interface IRiskIndicatorsField {
   name?: string;
   description?: string;
   createdAt?: string;
-  tagIDs?: string[];
+  modifiedAt?: string;
+  tagIds?: string[];
   status?: string;
   calculateMethod?: string;
   calculateLogics?: IRiskIndicatorCalculateLogicsField[];

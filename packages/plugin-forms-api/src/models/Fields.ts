@@ -22,6 +22,7 @@ export interface ITypedListItem {
   numberValue?: number;
   dateValue?: Date;
   locationValue?: ILocationOption;
+  extraValue?: string;
 }
 
 export const isValidDate = value => {
@@ -53,7 +54,8 @@ export interface IFieldModel extends Model<IFieldDocument> {
     field: string,
     value: string,
     type: string,
-    validation?: string
+    validation?: string,
+    extraValue?: string
   ): ITypedListItem;
   prepareCustomFieldsData(
     customFieldsData?: Array<{ field: string; value: any }>
@@ -328,11 +330,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
         // date
         if (validation === 'date') {
+          value = new Date(value);
+
           if (!isValidDate(value)) {
             throwError('Invalid date');
           }
-
-          value = new Date(value);
         }
 
         // objectList
@@ -388,7 +390,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       field: string,
       value: string | number | string[] | ILocationOption,
       type: string,
-      validation?: string
+      validation?: string,
+      extraValue?: string
     ): ITypedListItem {
       let stringValue;
       let numberValue;
@@ -429,7 +432,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         stringValue,
         numberValue,
         dateValue,
-        locationValue
+        locationValue,
+        extraValue
       };
     }
 
@@ -441,7 +445,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
     }
 
     public static async prepareCustomFieldsData(
-      customFieldsData?: Array<{ field: string; value: any }>
+      customFieldsData?: Array<{
+        field: string;
+        value: any;
+        extraValue?: string;
+      }>
     ): Promise<ITypedListItem[]> {
       const result: ITypedListItem[] = [];
 
@@ -451,6 +459,18 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         }).lean();
 
         if (!field) {
+          const group = await models.FieldsGroups.findOne({
+            _id: customFieldData.field
+          }).lean();
+
+          if (group) {
+            result.push({
+              ...customFieldData,
+              stringValue: customFieldData.value
+                ? customFieldData.value.toString()
+                : ''
+            });
+          }
           continue;
         }
 
@@ -465,7 +485,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
             field._id,
             customFieldData.value,
             field ? field.type || '' : '',
-            field?.validation
+            field?.validation,
+            customFieldData?.extraValue
           )
         );
       }
@@ -712,6 +733,7 @@ export const loadGroupClass = (models: IModels) => {
 
           for (const type of types) {
             const contentType = `${serviceName}:${type.type}`;
+            const relations = type.relations || [];
 
             const doc = {
               name: 'Basic information',
@@ -726,6 +748,48 @@ export const loadGroupClass = (models: IModels) => {
               contentType: doc.contentType,
               isDefinedByErxes: true
             });
+
+            if (relations.length > 0) {
+              let relationGroup = await models.FieldsGroups.findOne({
+                contentType,
+                name: 'Relations'
+              });
+
+              if (!relationGroup) {
+                relationGroup = await models.FieldsGroups.create({
+                  name: 'Relations',
+                  contentType: `${contentType}`,
+                  order: 1,
+                  isDefinedByErxes: true,
+                  code: `${contentType}:relations`,
+                  description: `Relations of a ${type.type}`,
+                  isVisible: true
+                });
+              }
+
+              for (const [index, value] of relations.entries()) {
+                const relationField = await models.Fields.findOne({
+                  contentType,
+                  type: value.name
+                });
+
+                if (relationField) {
+                  continue;
+                }
+
+                await models.Fields.create({
+                  contentType,
+                  groupId: relationGroup._id,
+                  text: value.label,
+                  type: value.name,
+                  order: index,
+                  isDefinedByErxes: true,
+                  relationType: value.relationType,
+                  isVisible: false,
+                  isVisibleInDetail: false
+                });
+              }
+            }
 
             if (existingGroup) {
               continue;

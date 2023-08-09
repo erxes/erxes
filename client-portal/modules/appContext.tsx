@@ -1,16 +1,19 @@
-import { gql, useQuery } from '@apollo/client';
-import React, { createContext, useEffect } from 'react';
 import {
   Config,
+  IUser,
   NotificationsCountQueryResponse,
   NotificationsQueryResponse,
   UserQueryResponse,
-} from './types';
-import queries from './user/graphql/queries';
-import { clientPortalGetConfig } from './main/graphql/queries';
-import { getKbTopicQuery } from './knowledgeBase/graphql/queries';
-import subscriptions from './user/graphql/subscriptions';
-import { sendDesktopNotification } from './utils';
+} from "./types";
+import React, { createContext, useEffect } from "react";
+import { gql, useQuery } from "@apollo/client";
+
+import Spinner from "./common/Spinner";
+import { clientPortalGetConfig } from "./main/graphql/queries";
+import { getKbTopicQuery } from "./knowledgeBase/graphql/queries";
+import queries from "./user/graphql/queries";
+import { sendDesktopNotification } from "./utils";
+import subscriptions from "./user/graphql/subscriptions";
 
 const AppContext = createContext({});
 
@@ -24,7 +27,11 @@ function AppProvider({ children }: Props) {
   const [currentUser, setCurrentUser] = React.useState(null);
   const [notificationsCount, setNotificationsCount] = React.useState(0);
 
-  const userQuery = useQuery<UserQueryResponse>(gql(queries.currentUser));
+  const { data: userData, loading: userLoading } = useQuery<UserQueryResponse>(
+    gql(queries.currentUser)
+  );
+
+  const response: any = useQuery(gql(clientPortalGetConfig), {});
 
   const notificationsCountQry = useQuery<NotificationsCountQueryResponse>(
     gql(queries.notificationsCountQuery),
@@ -34,10 +41,9 @@ function AppProvider({ children }: Props) {
   );
 
   useEffect(() => {
-    if (userQuery.data && userQuery.data.clientPortalCurrentUser) {
-      setCurrentUser(userQuery.data.clientPortalCurrentUser);
+    if (userData && userData.clientPortalCurrentUser) {
+      setCurrentUser(userData.clientPortalCurrentUser);
     }
-
     if (
       notificationsCountQry.data &&
       notificationsCountQry.data.clientPortalNotificationCount
@@ -83,10 +89,13 @@ function AppProvider({ children }: Props) {
       unsubscribe();
       unsubscribe2();
     };
-
-  }, [userQuery, currentUser, notificationsCountQry, notificationsCount, setNotificationsCount]);
-
-  const response: any = useQuery(gql(clientPortalGetConfig), {});
+  }, [
+    userData,
+    currentUser,
+    notificationsCountQry,
+    notificationsCount,
+    setNotificationsCount,
+  ]);
 
   const config: Config = response.data
     ? response.data.clientPortalGetConfigByDomain
@@ -99,10 +108,18 @@ function AppProvider({ children }: Props) {
     skip: !config.knowledgeBaseTopicId,
   });
 
+  if (userLoading || response.loading || topicResponse.loading) {
+    return null;
+  }
+
   const topic =
     (topicResponse.data
       ? topicResponse.data.clientPortalKnowledgeBaseTopicDetail
       : {}) || {};
+
+  if (response.loading) {
+    return null;
+  }
 
   return (
     <AppContext.Provider

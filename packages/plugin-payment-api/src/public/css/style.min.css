@@ -69,9 +69,6 @@ hr {
   height: 3px;
   background: #fda50f;
 }
-.divider.red {
-  background: #ec2147;
-}
 .divider.white {
   background: #fff;
   height: 5px;
@@ -236,6 +233,9 @@ input {
   font-size: 100%;
   line-height: 1.15;
   margin: 0;
+}
+input::-moz-placeholder {
+  color: #999;
 }
 input::placeholder {
   color: #999;
@@ -523,6 +523,83 @@ span.red {
   border: 1px solid #ededed;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
+.modal-container {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.modal-content {
+  background-color: #fff;
+  width: 300px;
+  padding: 20px;
+  margin: 100px auto;
+  text-align: center;
+}
+.modal-content .modal-header {
+  padding: 0 0.5rem 1rem;
+}
+.modal-content .modal-body .qr {
+  width: 80%;
+}
+.modal-content #amount {
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0px 0px 2px #2d2d2d;
+}
+.modal-content.storepay-modal input,
+.modal-content.storepay-modal #storepayBtn {
+  width: 100%;
+}
+.modal-content.storepay-modal #storepayBtn {
+  margin-top: 10px;
+}
+#close-btn {
+  margin-top: 20px;
+}
+#myModal {
+  position: fixed;
+  z-index: 9999;
+}
+.qpay-modal {
+  background-image: linear-gradient(to top, #ffffff, #002752);
+}
+.monpay-modal {
+  background-image: linear-gradient(to top, #8f42f9, #00e2fc);
+}
+.socialpay-modal {
+  background-image: linear-gradient(to top, #12a2c3, #3770a5);
+}
+.storepay-modal {
+  background-image: linear-gradient(to top, #00dafa, #0057f9);
+}
+.pocket-modal {
+  background-image: linear-gradient(to top, #000, #f3204c);
+}
+.modal-header .close {
+  color: #fff;
+  opacity: 1;
+}
+@media only screen and (max-width: 768px) {
+  .modal-content {
+    width: 100%;
+    padding: 8px;
+    margin: auto;
+  }
+  .modal-content .modal-header {
+    padding-bottom: 8px;
+  }
+  .modal-content .modal-body {
+    padding: 12px 0 0;
+  }
+  .modal-content .modal-body .btn {
+    padding: 8px 16px;
+    line-height: initial;
+  }
+}
 .info {
   align-items: center;
   justify-content: space-between;
@@ -534,7 +611,7 @@ span.red {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  margin-bottom: 2rem;
 }
 .amount h4 {
   font-weight: 500;
@@ -548,15 +625,24 @@ span.red {
   color: #000;
 }
 .amount .warning {
-  background: #efefef;
+  background-color: #fffbe6;
+  border: 1px solid #ffe58f;
   border-radius: 8px;
-  color: #727272;
+  margin: 0;
+  padding: 8px 12px;
+  color: rgba(0, 0, 0, 0.88);
   width: 80%;
-  padding: 15px;
-  margin-top: 25px;
+  margin-top: 1rem;
+  font-size: 14px;
+}
+.amount .warning i {
+  float: left;
+  font-size: 18px;
+  line-height: 20px;
+  color: #faad14;
 }
 .amount .warning p {
-  font-size: 7px;
+  font-size: 14px;
   margin: 0;
   text-align: center;
 }
@@ -645,7 +731,12 @@ span.red {
   padding: 0;
 }
 .paymentContainer {
-  padding: 0 30px 20px;
+  padding: 20px 30px;
+  height: 50vh;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-around;
 }
 h3 {
   font-size: 12px;
@@ -670,10 +761,20 @@ h3 {
 .button {
   border: none;
   background: none;
+  overflow: hidden;
+}
+.button img {
+  width: 80px;
+  opacity: 1;
+  transition: all ease-in-out 0.3s;
 }
 .button:hover {
   box-shadow: none;
   cursor: pointer;
+}
+.button:hover img {
+  opacity: 0.8;
+  scale: 1.1;
 }
 .isMobile {
   display: none;

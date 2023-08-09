@@ -11,8 +11,16 @@ export type RiskCalculateLogicType = {
   value2?: number;
   logic: string;
   color?: string;
-  __typename?: string;
 };
+
+export type RiskCalculateFormsType = {
+  _id: string;
+  formId: string;
+  calculateMethod: string;
+  percentWeight?: number;
+  calculateLogics?: RiskCalculateLogicType[];
+};
+
 export type RiskIndicatorsType = {
   _id: string;
   operationIds?: string[];
@@ -21,9 +29,10 @@ export type RiskIndicatorsType = {
   description?: string;
   name?: string;
   createdAt?: string;
+  modifiedAt?: string;
   calculateLogics?: [RiskCalculateLogicType];
   calculateMethod?: string;
-  forms?: any[];
+  forms?: RiskCalculateFormsType[];
   tagIds: string[];
   tags: ITag[];
 };

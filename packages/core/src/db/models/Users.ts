@@ -53,6 +53,7 @@ interface IInviteParams {
   email: string;
   password: string;
   groupId: string;
+  brandIds: string[];
 }
 
 interface ILoginParams {
@@ -74,6 +75,7 @@ export interface IUserModel extends Model<IUserDocument> {
     idsToExclude?: string | string[];
     emails?: string[];
     employeeId?: string;
+    username?: string;
   }): never;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -141,10 +143,12 @@ export const loadUserClass = (models: IModels) => {
     public static async checkDuplication({
       email,
       employeeId,
+      username,
       idsToExclude
     }: {
       email?: string;
       employeeId?: string;
+      username?: string;
       idsToExclude?: string;
     }) {
       const query: { [key: string]: any } = {};
@@ -172,6 +176,16 @@ export const loadUserClass = (models: IModels) => {
         // Checking if duplicated
         if (previousEntry) {
           throw new Error('Duplicated Employee Id');
+        }
+      }
+
+      //Checking username
+      if (username) {
+        previousEntry = await models.Users.findOne({ ...query, username });
+
+        // Checking if duplicated
+        if (previousEntry) {
+          throw new Error('Duplicated User Name Id');
         }
       }
     }
@@ -257,6 +271,13 @@ export const loadUserClass = (models: IModels) => {
         operations.$unset = { employeeId: 1 };
       }
 
+      if (doc.username) {
+        await this.checkDuplication({
+          username: doc.username,
+          idsToExclude: _id
+        });
+      }
+
       await models.Users.updateOne({ _id }, operations);
 
       return models.Users.findOne({ _id });
@@ -275,7 +296,12 @@ export const loadUserClass = (models: IModels) => {
     /**
      * Create new user with invitation token
      */
-    public static async invite({ email, password, groupId }: IInviteParams) {
+    public static async invite({
+      email,
+      password,
+      groupId,
+      brandIds
+    }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
@@ -298,7 +324,8 @@ export const loadUserClass = (models: IModels) => {
         password: await this.generatePassword(password),
         registrationToken: token,
         registrationTokenExpires: expires,
-        code: await this.generateUserCode()
+        code: await this.generateUserCode(),
+        brandIds
       });
 
       return token;

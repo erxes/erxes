@@ -1,6 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { calculateMethodsSchema } from './indicator';
 import { field } from './utils';
+import { IAttachment, attachmentSchema } from '@erxes/api-utils/src/types';
 
 export interface IRiskFormSubmissionDocument extends Document {
   _id: string;
@@ -10,6 +11,8 @@ export interface IRiskFormSubmissionDocument extends Document {
   fieldId: string;
   value: Number;
   description: string;
+  isFlagged?: boolean;
+  attachments: IAttachment[];
 }
 
 export const formSubmissionSchema = new Schema({
@@ -27,7 +30,17 @@ export const formSubmissionSchema = new Schema({
   assessmentId: field({ type: String, label: 'risk assessment ID' }),
   fieldId: field({ type: String, label: 'Form Field Id' }),
   value: field({ type: String, lablel: 'Form Field Value' }),
-  description: field({ type: String, label: 'Description', optional: true })
+  description: field({ type: String, label: 'Description', optional: true }),
+  isFlagged: field({
+    type: Boolean,
+    label: 'is field flagged',
+    optional: true
+  }),
+  attachments: field({
+    type: [attachmentSchema],
+    label: 'Attachments',
+    optional: true
+  })
 });
 
 export interface IAssessmentConformitiesDocument extends Document {

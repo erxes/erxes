@@ -1,3 +1,8 @@
+export interface IRouterProps {
+  history: any;
+  location: any;
+  match: any;
+}
 
 export type Store = {
   currentUser: IUser;
@@ -13,7 +18,97 @@ export type Ticket = {
   description?: string;
   requestor: string;
   priority: string;
+  customFieldsData: ICustomField[];
+  attachments: IAttachment[];
+  labelIds: string[];
 };
+
+export type IOption = {
+  label: string;
+  value: string;
+  avatar?: string;
+};
+
+export interface ICustomField {
+  field: string;
+  value: any;
+  stringValue?: string;
+  numberValue?: number;
+  dateValue?: Date;
+  locationValue?: ILocationOption;
+}
+
+export interface IAttachment {
+  name: string;
+  type: string;
+  url: string;
+  size?: number;
+  duration?: number;
+}
+
+export interface IFieldLogic {
+  fieldId?: string;
+  tempFieldId?: string;
+  logicOperator: string;
+  logicValue: string;
+  __typename?: string;
+}
+
+export interface ILocationOption {
+  lat: number;
+  lng: number;
+  description?: string;
+  marker?: string;
+}
+
+export interface IObjectListConfig {
+  key: string;
+  label: string;
+  type: string;
+}
+
+export interface IField {
+  _id: string;
+  key?: string;
+  contentType: string;
+  contentTypeId?: string;
+  type: string;
+  validation?: string;
+  field?: string;
+  text?: string;
+  code?: string;
+  content?: string;
+  description?: string;
+  options?: string[];
+  locationOptions?: ILocationOption[];
+  objectListConfigs?: IObjectListConfig[];
+  isRequired?: boolean;
+  order?: React.ReactNode;
+  canHide?: boolean;
+  isVisible?: boolean;
+  isVisibleInDetail?: boolean;
+  isVisibleToCreate?: boolean;
+  isDefinedByErxes?: boolean;
+  groupId?: string;
+  lastUpdatedUser?: IUser;
+  lastUpdatedUserId?: string;
+  associatedFieldId?: string;
+  column?: number;
+  associatedField?: {
+    _id: string;
+    text: string;
+    contentType: string;
+  };
+  logics?: IFieldLogic[];
+  logicAction?: string;
+  groupName?: string;
+  pageNumber?: number;
+  searchable?: boolean;
+  showInCard?: boolean;
+  keys?: string[];
+  productCategoryId?: string;
+  optionsValues?: string;
+}
 
 export type Task = {
   stageId: string;
@@ -21,6 +116,12 @@ export type Task = {
   description?: string;
   requestor: string;
   priority: string;
+};
+
+export type Label = {
+  _id: string;
+  name: string;
+  colorCode: string;
 };
 
 export type Config = {
@@ -37,15 +138,27 @@ export type Config = {
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   taskPublicPipelineId?: string;
+  taskPublicLabel?: string;
+  taskPublicBoardId?: string;
   ticketLabel?: string;
+  dealLabel?: string;
+  purchaseLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   ticketStageId?: string;
+  dealStageId?: string;
+  purchaseStageId?: string;
+  ticketPipelineId?: string;
+  dealPipelineId?: string;
+  purchasePipelineId?: string;
+  taskPipelineId?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   taskToggle?: boolean;
+  dealToggle?: boolean;
+  purchaseToggle?: boolean;
 
   styles?: {
     bodyColor?: string;
@@ -70,6 +183,9 @@ export type Config = {
     permission?: string;
     viewTicket?: string;
   };
+  googleClientId?: string;
+  facebookAppId?: string;
+  erxesAppToken?: string;
 };
 
 interface ICommonFields {
@@ -120,7 +236,9 @@ export interface IUser {
   details?: IUserDetails;
   type: string;
   companyName: string;
-
+  username?: string;
+  erxesCustomerId?: string;
+  avatar?: string;
   notificationSettings?: INotifcationSettings;
 }
 
@@ -172,6 +290,16 @@ export interface ITicket {
   };
 }
 
+export type GroupBy = {
+  groupBy: string;
+  setGroupBy: string;
+};
+
+export type ViewMode = {
+  viewMode: string;
+  setViewMode: string;
+};
+
 export interface IKbArticle extends ICommonFields {
   _id: string;
   title: string;
@@ -182,6 +310,7 @@ export interface IKbArticle extends ICommonFields {
   categoryId?: string;
   reactionChoices?: string[];
   createdUser: IUser;
+  viewCount?: number;
 }
 
 export interface INotification {
@@ -191,6 +320,7 @@ export interface INotification {
   link: string;
   isRead: boolean;
   createdAt: Date;
+  createdUser: IUser;
 }
 
 export type Topic = {
@@ -235,3 +365,74 @@ export type NotificationsQueryResponse = {
 export type NotificationDetailQueryResponse = {
   clientPortalNotificationDetail: INotification;
 };
+
+export interface IProductData {
+  _id: string;
+  productId?: string;
+  product?: IProduct;
+  uom?: string;
+  currency?: string;
+  quantity: number;
+  unitPrice: number;
+  globalUnitPrice: number;
+  unitPricePercent: number;
+  taxPercent?: number;
+  tax: number;
+  vatPercent: number;
+  discountPercent?: number;
+  discount: number;
+  amount: number;
+  tickUsed?: boolean;
+  isVatApplied?: boolean;
+  assignUserId?: string;
+  maxQuantity: number;
+  branchId?: string;
+  departmentId?: string;
+  name?: string;
+  type?: string;
+}
+
+export interface IProductCategory {
+  _id: string;
+  name: string;
+  order: string;
+  code: string;
+  description?: string;
+  attachment?: any;
+  status: string;
+  parentId?: string;
+  createdAt: Date;
+  productCount: number;
+  isRoot: boolean;
+  meta: string;
+}
+export interface IProduct {
+  _id: string;
+  name: string;
+  type: string;
+  categoryId: string;
+  description: string;
+  barcodes: string[];
+  barcodeDescription: string;
+  code: string;
+  unitPrice: number;
+  customFieldsData?: any;
+  createdAt: Date;
+  vendorId?: string;
+
+  attachment?: any;
+  attachmentMore?: any[];
+  category: IProductCategory;
+
+  uom?: string;
+  subUoms?: any[];
+  taxType?: string;
+  taxCode?: string;
+}
+
+export interface IPaymentsData {
+  [key: string]: {
+    currency?: string;
+    amount?: number;
+  };
+}

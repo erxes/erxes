@@ -34,6 +34,10 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
     margin-left: 10px;
   }
 
+  > button {
+    margin-left: 10px;
+  }
+
   .dropdown {
     display: ${props => (props.isSmall ? 'inline-block' : 'block')};
   }

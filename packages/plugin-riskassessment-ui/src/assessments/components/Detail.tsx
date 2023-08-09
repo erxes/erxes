@@ -6,7 +6,9 @@ import {
   Table,
   Tabs,
   TabTitle,
-  __
+  __,
+  Attachment,
+  Button
 } from '@erxes/ui/src';
 import React from 'react';
 import {
@@ -20,6 +22,7 @@ import {
 } from '../../styles';
 
 import { DetailPopOver } from '../common/utils';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   riskAssessment: any;
@@ -27,6 +30,8 @@ type Props = {
   assignedUsers: any;
   groupAssessment: any;
   indicatorAssessment: any;
+  queryParams: any;
+  history: any;
 };
 
 type State = {
@@ -35,19 +40,61 @@ type State = {
   currentUserId: string;
 };
 
+const isJsonString = value => {
+  try {
+    JSON.parse(value);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
 export function renderSubmission(fields) {
-  return fields.map(field => (
-    <CollapseContent
-      key={field.fieldId}
-      title={`${field?.text}: ${field?.value}`}
-      description={field.description}
-      compact
-    >
-      {(field?.optionsValues?.split('\n') || []).map(value => (
-        <p key={Math.random()}>{__(value)}</p>
-      ))}
-    </CollapseContent>
-  ));
+  return fields.map(field => {
+    const updateProps: any = {
+      key: field.fieldId,
+      description: field.description,
+      compact: true
+    };
+
+    let children;
+
+    if (isJsonString(field.value)) {
+      updateProps.title = field.text;
+
+      const attachments = JSON.parse(field.value);
+
+      children = (
+        <>
+          {attachments.map(attachment => (
+            <Attachment key={Math.random()} attachment={attachment} />
+          ))}
+        </>
+      );
+    } else {
+      updateProps.title = `${field?.text}: ${field?.value}`;
+
+      if (field.isFlagged) {
+        updateProps.beforeTitle = (
+          <Icon
+            icon="flag"
+            color={colors.colorCoreRed}
+            style={{ marginRight: 10, fontSize: 15 }}
+          />
+        );
+      }
+
+      children = (
+        <>
+          {(field?.optionsValues?.split('\n') || []).map(value => (
+            <p key={Math.random()}>{__(value)}</p>
+          ))}
+        </>
+      );
+    }
+
+    return <CollapseContent {...updateProps}>{children}</CollapseContent>;
+  });
 }
 
 class Detail extends React.Component<Props, State> {
@@ -132,6 +179,19 @@ class Detail extends React.Component<Props, State> {
     );
   }
 
+  renderSubmissions(submissions) {
+    const { currentUserId } = this.state;
+
+    if (!currentUserId) {
+      return;
+    }
+
+    const fields =
+      submissions.find(({ _id }) => _id === currentUserId)?.fields || [];
+
+    return <>{renderSubmission(fields)}</>;
+  }
+
   renderAssignedUsers = submissions => {
     const { assignedUsers } = this.props;
     const { currentUserId } = this.state;
@@ -163,11 +223,7 @@ class Detail extends React.Component<Props, State> {
             })}
           </Tabs>
         </TriggerTabs>
-        {currentUserId &&
-          renderSubmission(
-            (submissions.find(({ _id }) => _id === currentUserId) || {})
-              .fields || []
-          )}
+        {currentUserId && this.renderSubmissions(submissions)}
       </>
     );
   };
@@ -266,7 +322,20 @@ class Detail extends React.Component<Props, State> {
   }
 
   render() {
-    const { detail, groupAssessment, indicatorAssessment } = this.props;
+    const {
+      detail,
+      groupAssessment,
+      indicatorAssessment,
+      queryParams,
+      history
+    } = this.props;
+
+    const handleShowFlagged = () => {
+      if (queryParams.showFlagged) {
+        return removeParams(history, 'showFlagged');
+      }
+      setParams(history, { showFlagged: true });
+    };
 
     return (
       <FormContainer column gap>
@@ -290,6 +359,12 @@ class Detail extends React.Component<Props, State> {
           </FormContainer>
           {this.renderUsers()}
         </FormContainer>
+        <Button
+          icon={queryParams.showFlagged ? 'eye-slash' : 'eye'}
+          onClick={handleShowFlagged}
+        >
+          {__('Show only flagged')}
+        </Button>
         {groupAssessment && this.renderGroups()}
         {!groupAssessment?.length &&
           indicatorAssessment &&

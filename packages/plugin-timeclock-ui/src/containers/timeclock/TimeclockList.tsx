@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import List from '../../components/timeclock/TimeclockList';
 import {
@@ -14,10 +14,18 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
 import dayjs from 'dayjs';
 import { generateParams } from '../../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IDepartment, IBranch } from '@erxes/ui/src/team/types';
 
 type Props = {
+  currentUser: IUser;
+  departments: IDepartment[];
+  branches: IBranch[];
+
   queryParams: any;
   history: any;
+  isCurrentUserAdmin: boolean;
+
   timeclockUser?: string;
 
   timeclockId?: string;
@@ -54,15 +62,24 @@ const ListContainer = (props: FinalProps) => {
     });
   };
 
-  const extractAllMsSqlData = (start: Date, end: Date) => {
+  const extractAllMsSqlData = (start: Date, end: Date, params: any) => {
     setLoading(true);
     extractAllMsSqlDataMutation({
       variables: {
         startDate: dayjs(start).format(dateFormat),
-        endDate: dayjs(end).format(dateFormat)
+        endDate: dayjs(end).format(dateFormat),
+        ...params
       }
     })
-      .then(() => {
+      .then(res => {
+        const returnMsg = res.data.extractAllDataFromMsSQL.message;
+
+        if (returnMsg) {
+          Alert.info(returnMsg);
+          setLoading(false);
+          return;
+        }
+
         setLoading(false);
         timeclocksMainQuery.refetch();
         Alert.success('Successfully extracted data');
@@ -92,8 +109,8 @@ export default withProps<Props>(
   compose(
     graphql<Props, TimeClockQueryResponse>(gql(queries.timeclocksMain), {
       name: 'timeclocksMainQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams(queryParams),
+      options: ({ queryParams, isCurrentUserAdmin }) => ({
+        variables: { ...generateParams(queryParams), isCurrentUserAdmin },
         fetchPolicy: 'network-only'
       })
     }),

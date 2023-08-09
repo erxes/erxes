@@ -5,7 +5,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
-import { PAYMENT_KINDS, PAYMENT_STATUS } from '../../../constants';
+import { PAYMENTS, PAYMENT_STATUS } from '../../../api/constants';
 
 interface IParam {
   searchValue?: string;
@@ -56,7 +56,7 @@ const queries = {
   ) {
     const selector = generateFilterQuery(params);
 
-    return paginate(models.Invoices.find(selector).sort({ createdAt: 1 }), {
+    return paginate(models.Invoices.find(selector).sort({ createdAt: -1 }), {
       ...params
     });
   },
@@ -76,7 +76,7 @@ const queries = {
       return models.Invoices.find(query).countDocuments();
     };
 
-    for (const kind of PAYMENT_KINDS.ALL) {
+    for (const kind of PAYMENTS.ALL) {
       const countQueryResult = await count({ paymentKind: kind, ...qry });
       counts.byKind[kind] = !params.kind
         ? countQueryResult
@@ -99,8 +99,8 @@ const queries = {
     return counts;
   },
 
-  async checkInvoice(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Invoices.checkInvoice(_id);
+  async invoiceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Invoices.getInvoice({ _id });
   }
 };
 

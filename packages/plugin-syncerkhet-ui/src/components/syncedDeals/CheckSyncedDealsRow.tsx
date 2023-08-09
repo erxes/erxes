@@ -75,6 +75,7 @@ class Row extends React.Component<Props> {
             dayjs(syncedInfo.syncedDate || '').format('ll')}
         </td>
         <td>{syncedInfo.syncedBillNumber || ''}</td>
+        <td>{syncedInfo.syncedCustomer || ''}</td>
         <td>
           {isUnsynced && (
             <Tip text="Sync">

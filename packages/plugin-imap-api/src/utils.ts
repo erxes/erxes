@@ -99,6 +99,8 @@ const saveMessages = async (
 
   const msgs: any = await searchMessages(imap, criteria);
 
+  console.log(`======== found ${msgs.length} messages`);
+
   for (const msg of msgs) {
     if (
       msg.to &&
@@ -127,7 +129,7 @@ const saveMessages = async (
         subdomain,
         action: 'customers.findOne',
         data: {
-          primaryEmail: from
+          customerPrimaryEmail: from
         },
         isRPC: true
       });
@@ -159,13 +161,18 @@ const saveMessages = async (
 
     let conversationId;
 
+    const $or: any[] = [
+      { references: { $in: [msg.messageId] } },
+      { messageId: { $in: msg.references || [] } }
+    ];
+
+    if (msg.inReplyTo) {
+      $or.push({ messageId: msg.inReplyTo });
+      $or.push({ references: { $in: [msg.inReplyTo] } });
+    }
+
     const relatedMessage = await models.Messages.findOne({
-      $or: [
-        { messageId: msg.inReplyTo },
-        { messageId: { $in: msg.references || [] } },
-        { references: { $in: [msg.messageId] } },
-        { references: { $in: [msg.inReplyTo] } }
-      ]
+      $or
     });
 
     if (relatedMessage) {
@@ -202,7 +209,12 @@ const saveMessages = async (
       cc: msg.cc && msg.cc.value,
       bcc: msg.bcc && msg.bcc.value,
       from: msg.from && msg.from.value,
-      attachments: msg.attachments
+      attachments: msg.attachments.map(({ filename, contentType, size }) => ({
+        filename,
+        type: contentType,
+        size
+      })),
+      type: 'INBOX'
     });
   }
 };
