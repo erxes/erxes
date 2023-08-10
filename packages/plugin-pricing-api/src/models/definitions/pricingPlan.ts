@@ -25,7 +25,7 @@ export interface IPricingPlan {
 
   products: string[];
   productsExcluded: string[];
-  productsBundle: string[];
+  productsBundle: string[][];
   categories: string[];
   categoriesExcluded: string[];
   segments: string[];
@@ -122,7 +122,7 @@ export const pricingPlanSchema = new Schema({
     label: 'Excluded Products'
   }),
   productsBundle: field({
-    type: [String],
+    type: [[String]],
     label: 'Bundle Products'
   }),
   categories: field({

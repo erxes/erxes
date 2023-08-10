@@ -6,11 +6,15 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage } from '../../../messageBroker';
 
 const chatQueries = {
-  chats: async (_root, { type, limit, skip }, { models, user }) => {
+  chats: async (_root, { type, limit, skip, position }, { models, user }) => {
     const filter: any = { participantIds: { $in: [user._id] } };
 
     if (type) {
       filter.type = type;
+    }
+
+    if (position) {
+      filter.position = position;
     }
 
     const pinnedChats = await models.Chats.find({

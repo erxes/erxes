@@ -25,6 +25,10 @@ export interface IPerform {
   inProducts: IProductsData[];
   outProducts: IProductsData[];
   series?: string;
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
 }
 
 export interface IPerformDocument extends IPerform, Document {

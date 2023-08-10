@@ -71,7 +71,7 @@ export const types = () => `
 
     products: [String],
     productsExcluded: [String],
-    productsBundle: [String],
+    productsBundle: [[String]],
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
@@ -170,7 +170,7 @@ export const types = () => `
 
     products: [String],
     productsExcluded: [String],
-    productsBundle: [String],
+    productsBundle: [[String]],
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
@@ -215,7 +215,7 @@ export const types = () => `
 
     products: [String],
     productsExcluded: [String],
-    productsBundle: [String],
+    productsBundle: [[String]],
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
