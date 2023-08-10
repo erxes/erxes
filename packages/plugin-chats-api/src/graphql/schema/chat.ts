@@ -137,6 +137,7 @@ export const mutations = `
   chatMessageRemove(_id: String!): JSON
   chatMakeOrRemoveAdmin(_id: String!, userId: String!): String
   chatMessageToggleIsPinned(_id: String!): Boolean
+  chatForward(chatId: String, userIds:[String], content: String, attachments: [JSON]): ChatMessage
 
   chatTypingInfo(chatId: String!, userId : String!): String
 `;
