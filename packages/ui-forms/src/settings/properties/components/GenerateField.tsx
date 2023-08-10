@@ -513,6 +513,22 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderParentField() {
+    const { field } = this.props;
+
+    if (field.type !== 'parentField') {
+      return null;
+    }
+
+    return (
+      <FormControl
+        type="text"
+        componentClass="input"
+        placeholder="has sub fields"
+      />
+    );
+  }
+
   /**
    * Handle all types of fields changes
    * @param {Object} e - Event object
@@ -695,10 +711,14 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderSelectCategory(attrs);
       }
 
+      case 'parentField': {
+        return this.renderParentField();
+      }
+
       default:
         try {
           const plugins = ((window as any).plugins || []).filter(
-            plugin => plugin['formsExtraFields']
+            plugin => plugin.formsExtraFields
           );
 
           const filteredPlugin = plugins.find(plugin =>
