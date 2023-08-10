@@ -526,14 +526,16 @@ export default class Field extends React.Component<Props, State> {
                   </button>
                 )}
                 {fields.map((subField: IField) => {
+                  const value = values[index]
+                    ? values[index].find((v: any) => v._id === subField._id)
+                    : '';
+
                   return (
-                    <div
-                      key={`${subField._id}-${index}`}
-                      // style={{ padding: '0.5rem' }}
-                    >
+                    <div key={`${subField._id}-${index}`}>
                       <Field
                         key={subField._id}
                         field={subField}
+                        value={value ? value.value : ''}
                         onChange={(e) => {
                           onChangeSubField(subField, index, e);
                         }}

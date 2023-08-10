@@ -1,10 +1,9 @@
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Select from 'react-select-plus';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { IField } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+import Select from 'react-select-plus';
 
 type Props = {
   field?: IField;
@@ -13,12 +12,24 @@ type Props = {
 };
 
 const GroupedField = (props: Props) => {
-  const { field, fields } = props;
+  const { field } = props;
   const [subFieldIds, setSubFieldIds] = React.useState<string[]>(
     field?.subFieldIds || []
   );
 
-  if (props.fields && props.fields.length === 0) {
+  const otherFields = props.fields.filter(f => {
+    if (f.type === 'parentField') {
+      return false;
+    }
+
+    if (f._id === field?._id) {
+      return false;
+    }
+
+    return true;
+  });
+
+  if (otherFields.length === 0) {
     return <p>There are no fields yet.</p>;
   }
 
@@ -34,7 +45,7 @@ const GroupedField = (props: Props) => {
       <p>{__('Please select a subfields')}</p>
       <Select
         placeholder={__('Choose')}
-        options={fields.map(f => ({ label: f.text, value: f._id }))}
+        options={otherFields.map(f => ({ label: f.text, value: f._id }))}
         onChange={(values: any) => {
           props.onChange({
             ...field,

@@ -71,6 +71,8 @@ class Form extends React.Component<Props, State> {
     }
 
     if (nextProps.isReadyToSave && isReadyToSave !== nextProps.isReadyToSave) {
+      console.log('save form', fields);
+      console.log('fff', nextProps.formData?.fields);
       saveForm(
         nextProps.formData
           ? { ...nextProps.formData }
@@ -165,8 +167,10 @@ class Form extends React.Component<Props, State> {
   };
 
   onFieldSubmit = (field: IField) => {
+    console.log('onFieldSubmit', field);
     const { onDocChange } = this.props;
     const { fields, currentMode } = this.state;
+    console.log('currentMode', currentMode);
 
     let selector = { fields, currentField: undefined };
 
@@ -182,6 +186,8 @@ class Form extends React.Component<Props, State> {
         onDocChange(this.state);
       }
     });
+
+    console.log('state', this.state);
   };
 
   onFieldDelete = (field: IField) => {
