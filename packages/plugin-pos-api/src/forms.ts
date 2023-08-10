@@ -38,18 +38,6 @@ export default {
       }
     }
 
-    if (usageType === 'export') {
-      fields = [
-        ...fields,
-        { _id: Math.random(), name: 'posOrder.id', label: 'posOrder Id' },
-        {
-          _id: Math.random(),
-          name: 'posOrder.branchId',
-          label: 'posOrder branchId'
-        }
-      ];
-    }
-
     return fields;
   },
 

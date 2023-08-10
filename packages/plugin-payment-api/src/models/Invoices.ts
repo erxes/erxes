@@ -92,14 +92,20 @@ export const loadInvoiceClass = (models: IModels) => {
           invoice.identifier = doc.identifier || makeInvoiceNo(32);
 
           const apiResponse = await api.createInvoice(invoice);
-          invoice.apiResponse = apiResponse;
-          invoice.paymentKind = payment.kind;
-          invoice.selectedPaymentId = payment._id;
-          invoice.createdAt = new Date();
 
-          await invoice.save();
+          await models.Invoices.updateOne(
+            { _id },
+            {
+              $set: {
+                apiResponse,
+                paymentKind: payment.kind,
+                selectedPaymentId: payment._id,
+                createdAt: new Date()
+              }
+            }
+          );
 
-          return invoice;
+          return models.Invoices.getInvoice({ _id });
         } catch (e) {
           throw new Error(e.message);
         }
@@ -116,14 +122,20 @@ export const loadInvoiceClass = (models: IModels) => {
           invoice.identifier = doc.identifier || makeInvoiceNo(32);
 
           const apiResponse = await api.createInvoice(invoice);
-          invoice.apiResponse = apiResponse;
-          invoice.paymentKind = payment.kind;
-          invoice.selectedPaymentId = payment._id;
-          invoice.createdAt = new Date();
 
-          await invoice.save();
+          await models.Invoices.updateOne(
+            { _id },
+            {
+              $set: {
+                apiResponse,
+                paymentKind: payment.kind,
+                selectedPaymentId: payment._id,
+                createdAt: new Date()
+              }
+            }
+          );
 
-          return invoice;
+          return models.Invoices.getInvoice({ _id });
         } catch (e) {
           throw new Error(e.message);
         }
@@ -140,12 +152,18 @@ export const loadInvoiceClass = (models: IModels) => {
             payment,
             doc.domain
           ).createInvoice(invoice);
-          invoice.apiResponse = apiResponse;
-          invoice.paymentKind = payment.kind;
-          invoice.selectedPaymentId = payment._id;
-          invoice.createdAt = new Date();
 
-          await invoice.save();
+          await models.Invoices.updateOne(
+            { _id },
+            {
+              $set: {
+                apiResponse,
+                paymentKind: payment.kind,
+                selectedPaymentId: payment._id,
+                createdAt: new Date()
+              }
+            }
+          );
         }
 
         return models.Invoices.getInvoice({ _id });
@@ -166,14 +184,18 @@ export const loadInvoiceClass = (models: IModels) => {
           newPayment,
           doc.domain
         ).createInvoice(invoice);
-        invoice.apiResponse = apiResponse;
-        invoice.paymentKind = newPayment.kind;
-        invoice.selectedPaymentId = newPayment._id;
-        invoice.createdAt = new Date();
 
-        await invoice.save();
-
-        return invoice;
+        await models.Invoices.updateOne(
+          { _id },
+          {
+            $set: {
+              apiResponse,
+              paymentKind: newPayment.kind,
+              selectedPaymentId: newPayment._id,
+              createdAt: new Date()
+            }
+          }
+        );
       } catch (e) {
         await models.Invoices.deleteOne({ _id: invoice._id });
         throw new Error(e.message);
