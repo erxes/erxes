@@ -169,7 +169,6 @@ export default class FormMessage extends React.Component<Props, {}> {
   };
 
   renderField(field) {
-    console.log('field', field);
     return (
       <ErrorBoundary key={field._id}>
         <FieldWrapper column={field.column}>
