@@ -17,6 +17,7 @@ import * as React from 'react';
 import Select from 'react-select-plus';
 import { ILog } from '../types';
 import LogRow from './LogRow';
+import { FormControl } from '@erxes/ui/src/components/form';
 
 type Props = {
   history: any;
@@ -33,6 +34,7 @@ type State = {
   perPage?: string;
   userId?: string;
   type?: string;
+  objectId?: string;
 };
 
 type commonProps = {
@@ -134,7 +136,8 @@ class LogList extends React.Component<Props, State> {
       end: qp.end,
       action: qp.action,
       userId: qp.userId,
-      type: qp.type
+      type: qp.type,
+      objectId: qp.objectId
     };
   }
 
@@ -171,14 +174,15 @@ class LogList extends React.Component<Props, State> {
 
   onClick = () => {
     const { history } = this.props;
-    const { start, end, action, userId, type } = this.state;
+    const { start, end, action, userId, type, objectId } = this.state;
 
     router.setParams(history, {
       start,
       end,
       action,
       userId,
-      type
+      type,
+      objectId
     });
   };
 
@@ -237,7 +241,7 @@ class LogList extends React.Component<Props, State> {
   };
 
   renderFilter() {
-    const { action, userId, type } = this.state;
+    const { action, userId, type, objectId } = this.state;
 
     const onUserChange = user => {
       this.setFilter('userId', user);
@@ -271,6 +275,14 @@ class LogList extends React.Component<Props, State> {
             initialValue={userId || ''}
             onSelect={onUserChange}
             multi={false}
+          />
+        </FilterItem>
+        <FilterItem>
+          <FormControl
+            name="objectId"
+            placeholder="Object ID paste"
+            defaultValue={objectId || ''}
+            onChange={e => this.setState({ objectId: (e.target as any).value })}
           />
         </FilterItem>
         <Button
