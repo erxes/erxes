@@ -360,18 +360,6 @@ class Form extends React.Component<Props, State> {
 
     const fields = this.getCurrentFields();
 
-    // const subFieldIds: string[] = [];
-    // fields.forEach((f) => {
-    //   if (f.type === 'parentField') {
-    //     const subIds = f.subFieldIds || [];
-    //     subIds.forEach((id) => {
-    //       subFieldIds.push(id);
-    //     });
-    //   }
-    // });
-
-    // console.log('subFieldIds', subFieldIds);
-
     const errors = currentStatus.errors || [];
     const nonFieldError = errors.find((error) => !error.fieldId);
 
@@ -420,10 +408,6 @@ class Form extends React.Component<Props, State> {
       }
 
       this.showField(field._id);
-
-      // if (subFieldIds.findIndex((id) => id === field._id) > -1) {
-      //   return null;
-      // }
 
       return (
         <Field
