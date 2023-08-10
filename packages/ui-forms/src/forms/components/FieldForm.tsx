@@ -554,7 +554,7 @@ class FieldForm extends React.Component<Props, State> {
 
         <PreviewSection>
           <Preview>
-            <FieldPreview field={field} />
+            <FieldPreview field={field} otherFields={this.props.fields} />
 
             <ShowPreview>
               <Icon icon="eye" /> {__('Field preview')}

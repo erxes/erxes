@@ -32,6 +32,7 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 
 type Props = {
   field: IField;
+  otherFields?: IField[];
   currentLocation?: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
@@ -520,12 +521,19 @@ export default class GenerateField extends React.Component<Props, State> {
       return null;
     }
 
+    const otherFields = this.props.otherFields || [];
+
+    const subFields =
+      otherFields.filter(otherField =>
+        field.subFieldIds?.includes(otherField._id)
+      ) || [];
+
     return (
-      <FormControl
-        type="text"
-        componentClass="input"
-        placeholder="has sub fields"
-      />
+      <>
+        {subFields.map(subField => {
+          return <GenerateField key={subField._id} field={subField} />;
+        })}
+      </>
     );
   }
 
