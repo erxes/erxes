@@ -158,7 +158,6 @@ class FieldForm extends React.Component<Props, State> {
     e.persist();
 
     const { field } = this.state;
-    console.log('onSubmit', field);
 
     this.props.onSubmit(field);
   };
@@ -389,7 +388,6 @@ class FieldForm extends React.Component<Props, State> {
     const { field } = this.state;
 
     const onChange = value => {
-      console.log(value);
       this.setState({ field: value });
     };
 
