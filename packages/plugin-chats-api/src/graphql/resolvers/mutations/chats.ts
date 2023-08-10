@@ -389,6 +389,10 @@ const chatMutations = {
 
         args.chatId = newChat._id;
       }
+
+      if (newChat) {
+        args.chatId = newChat._id;
+      }
     }
 
     const message = await models.ChatMessages.createChatMessage(args, user._id);
