@@ -25,7 +25,30 @@ const totalCount = `
   }
 `;
 
+const emailTemplate = `
+query EmailTemplate($_id: String) {
+  emailTemplate(_id: $_id) {
+    _id
+    name
+    content
+    status
+    createdBy
+    createdAt
+    modifiedAt
+    createdUser {
+        _id
+        username
+        details {
+          fullName
+          avatar
+        }
+    }
+  }
+}
+`;
+
 export default {
   emailTemplates,
+  emailTemplate,
   totalCount
 };

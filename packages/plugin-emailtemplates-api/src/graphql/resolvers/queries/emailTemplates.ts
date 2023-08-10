@@ -57,6 +57,10 @@ const emailTemplateQueries = {
     }
 
     return models.EmailTemplates.find(filter).countDocuments();
+  },
+
+  emailTemplate(_root, { _id }, { models }: IContext) {
+    return models.EmailTemplates.findOne({ _id }).lean();
   }
 };
 
@@ -64,6 +68,13 @@ requireLogin(emailTemplateQueries, 'emailTemplatesTotalCount');
 checkPermission(
   emailTemplateQueries,
   'emailTemplates',
+  'showEmailTemplates',
+  []
+);
+
+checkPermission(
+  emailTemplateQueries,
+  'emailTemplate',
   'showEmailTemplates',
   []
 );

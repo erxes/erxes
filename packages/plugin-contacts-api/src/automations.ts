@@ -1,4 +1,7 @@
-import { setProperty } from '@erxes/api-utils/src/automations';
+import {
+  replacePlaceHolders,
+  setProperty
+} from '@erxes/api-utils/src/automations';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 
@@ -150,6 +153,21 @@ export default {
         relatedItems
       });
     }
+  },
+  replacePlaceHolders: async ({
+    subdomain,
+    data: { target, config, relateivedValueProps }
+  }) => {
+    const models = generateModels(subdomain);
+
+    return await replacePlaceHolders({
+      models,
+      subdomain,
+      getRelatedValue,
+      actionData: config,
+      target,
+      relateivedValueProps
+    });
   },
   getReciepentsEmails: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

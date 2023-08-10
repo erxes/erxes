@@ -39,11 +39,11 @@ export const isInSegment = async (
 ): Promise<boolean> => {
   options.returnCount = true;
   options.defaultMustSelector = [
-    // {
-    //   match: {
-    //     _id: idToCheck
-    //   }
-    // }
+    {
+      match: {
+        _id: idToCheck
+      }
+    }
   ];
 
   const segment = await models.Segments.getSegment(segmentId);

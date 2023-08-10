@@ -1,7 +1,8 @@
 import {
   sendCommonMessage,
   sendCoreMessage,
-  sendEmailTemplateMessage
+  sendEmailTemplateMessage,
+  sendSegmentsMessage
 } from '../messageBroker';
 import { EMAIL_RECIEPENTS_TYPES } from '../constants';
 import { serviceDiscovery } from '../configs';
@@ -9,6 +10,7 @@ import { serviceDiscovery } from '../configs';
 export const generateEmailDoc = async ({
   subdomain,
   target,
+  execution,
   triggerType,
   config
 }) => {
@@ -45,12 +47,14 @@ export const generateEmailDoc = async ({
     isRPC: true,
     defaultValue: {}
   });
+
   const toEmails = await getReciepentEmails({
     subdomain,
     type: recipientType,
     config,
     triggerType,
-    target
+    target,
+    execution
   });
 
   if (!fromUser?.email || !toEmails?.length) {
@@ -72,7 +76,8 @@ export const getReciepentEmails = async ({
   config,
   type,
   triggerType,
-  target
+  target,
+  execution
 }) => {
   let reciepentTypes = [...EMAIL_RECIEPENTS_TYPES];
 
@@ -129,7 +134,7 @@ export const getReciepentEmails = async ({
       };
     }
 
-    const result = await sendCommonMessage({
+    return await sendCommonMessage({
       subdomain,
       serviceName: triggerType.split(':')[0],
       action: 'automations.replacePlaceHolders',
@@ -141,8 +146,32 @@ export const getReciepentEmails = async ({
       isRPC: true,
       defaultValue: {}
     });
+  }
 
-    return result[fieldName].split(', ');
+  if (reciepentType.type === 'segmentBased') {
+    const { triggerConfig } = execution;
+    const [serviceName, contentType] = triggerType.split(':');
+
+    const result = await sendSegmentsMessage({
+      subdomain,
+      action: 'fetchSegment',
+      data: {
+        segmentId: triggerConfig.contentId
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return await sendCommonMessage({
+      subdomain,
+      serviceName,
+      action: 'automations.getReciepentsEmails',
+      data: {
+        type: contentType,
+        config: { [`${contentType}Ids`]: result }
+      },
+      isRPC: true
+    });
   }
 
   if (reciepentType?.serviceName) {
@@ -163,22 +192,36 @@ export const getReciepentEmails = async ({
   return config[type];
 };
 
-export const sendEmail = async ({ subdomain, target, triggerType, config }) => {
-  const data = await generateEmailDoc({
+export const sendEmail = async ({
+  subdomain,
+  target,
+  execution,
+  triggerType,
+  config
+}) => {
+  let data: any = await generateEmailDoc({
     subdomain,
     triggerType,
     target,
-    config
+    config,
+    execution
   });
 
   if (!data) {
     return { error: 'Something went wrong fetching data' };
   }
-  await sendCoreMessage({
-    subdomain,
-    action: 'sendEmail',
-    data,
-    isRPC: true
-  });
+  try {
+    await sendCoreMessage({
+      subdomain,
+      action: 'sendEmail',
+      data,
+      isRPC: true
+    });
+  } catch (error) {
+    data = error.message;
+  }
+
+  delete data?.customHtml;
+
   return data;
 };

@@ -148,7 +148,8 @@ export const executeActions = async (
           subdomain,
           target: execution.target,
           triggerType,
-          config: action.config
+          config: action.config,
+          execution
         });
       } catch (err) {
         actionResponse = err.messsage;

@@ -61,5 +61,10 @@ export const EMAIL_RECIEPENTS_TYPES = [
     type: 'triggerAttributionMails',
     name: 'triggerAttributionMails',
     label: 'Trigger Attribution Mails'
+  },
+  {
+    type: 'segmentBased',
+    name: 'segmentBased',
+    label: 'Trigger Segment Based Mails'
   }
 ];
