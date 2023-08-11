@@ -35,8 +35,7 @@ const EditorContainer = (props: Props) => {
     Alert.error(error.message);
   }
 
-  const { chatDetail } = data;
-  const { participantUsers } = chatDetail;
+  const { participantUsers = [] } = data?.chatDetail || {};
   const mentions = [] as any;
   participantUsers &&
     participantUsers.map((user: any) => {

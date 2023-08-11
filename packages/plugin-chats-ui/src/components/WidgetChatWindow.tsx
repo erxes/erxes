@@ -73,6 +73,7 @@ const WidgetChatWindow = (props: FinalProps) => {
         chatId={chat._id}
         setReply={setReply}
         currentUser={currentUser}
+        isWidget={true}
       />
       <ReplyInfo reply={reply} setReply={setReply} />
       <Editor

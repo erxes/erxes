@@ -1,44 +1,45 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import Box from '@erxes/ui/src/components/Box';
-import Button from '@erxes/ui/src/components/Button';
-import client from '@erxes/ui/src/apolloClient';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import { gql } from '@apollo/client';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PerformDetail from './PerformDetail';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import React from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __ } from 'coreui/utils';
-import { AddTrigger, TableOver } from '../../styles';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { SelectTeamMembers } from '@erxes/ui/src';
+import client from '@erxes/ui/src/apolloClient';
+import Box from '@erxes/ui/src/components/Box';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import {
   DateContainer,
   FormColumn,
   FormWrapper,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
-import {
-  FieldStyle,
-  SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IPerform } from '../types';
-import { IProduct, IUom } from '@erxes/ui-products/src/types';
-import { IProductsData } from '../../types';
+import { confirm } from '@erxes/ui/src/utils';
+import Alert from '@erxes/ui/src/utils/Alert';
+import { __ } from 'coreui/utils';
+import React from 'react';
 import { JOB_TYPE_CHOISES } from '../../constants';
+import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
 import { queries } from '../../job/graphql';
 import { IOverallWorkDet } from '../../overallWork/types';
+import { AddTrigger, TableOver } from '../../styles';
+import { IProductsData } from '../../types';
 import SeriesPrint from '../containers/SeriesPrint';
+import { IPerform } from '../types';
+import PerformDetail from './PerformDetail';
 
 type Props = {
   renderButton: (
@@ -48,6 +49,8 @@ type Props = {
   perform?: IPerform;
   overallWorkDetail?: IOverallWorkDet;
   max: number;
+  confirmPerform: (_id: string, endAt: Date) => void;
+  abortPerform: (_id: string) => void;
 };
 
 type State = {
@@ -128,10 +131,14 @@ class Form extends React.Component<Props, State> {
 
     if (perform) {
       startAt = perform.startAt;
-      endAt = perform.endAt;
       count = perform ? perform.count : 1;
       inProducts = perform.inProducts;
       outProducts = perform.outProducts;
+      if (perform.status === 'confirmed') {
+        endAt = perform.endAt;
+      } else {
+        endAt = new Date();
+      }
     }
 
     this.state = {
@@ -239,9 +246,11 @@ class Form extends React.Component<Props, State> {
     ) {
       return false;
     }
+
     if (overallWorkDet.type === 'move' && !inProducts.length) {
       return false;
     }
+
     if (
       ['job', 'end', 'move'].includes(overallWorkDet.type) &&
       !(
@@ -263,6 +272,48 @@ class Form extends React.Component<Props, State> {
       return false;
     }
     return true;
+  };
+
+  checkSave = () => {
+    const { overallWorkDet, inProducts, outProducts } = this.state;
+
+    if (!inProducts.length && !outProducts.length) {
+      return false;
+    }
+    if (
+      !(
+        (overallWorkDet.key.inBranchId && overallWorkDet.key.inDepartmentId) ||
+        (overallWorkDet.key.outBranchId && overallWorkDet.key.outDepartmentId)
+      )
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  confirm = () => {
+    const { confirmPerform, perform } = this.props;
+    if (!perform) {
+      Alert.info('After saving confirm');
+      return;
+    }
+
+    confirm(__('Confirm this performance?')).then(() => {
+      confirmPerform(perform._id || '', this.state.endAt);
+    });
+  };
+
+  abort = () => {
+    const { abortPerform, perform } = this.props;
+
+    if (!perform || perform.status !== 'confirmed') {
+      Alert.info('After confirming abort');
+      return;
+    }
+
+    confirm(__('Abort this performance?')).then(() => {
+      abortPerform(perform._id || '');
+    });
   };
 
   setStateWrapper = state => {
@@ -393,6 +444,21 @@ class Form extends React.Component<Props, State> {
     } as any);
   };
 
+  focusNext = (index: number, length: number, val?: number) => {
+    let next = index + (val || 1);
+    if (next >= length) {
+      next = 0;
+    }
+    if (next < 0) {
+      next = length - 1;
+    }
+
+    document
+      .getElementsByClassName('canFocus')
+      [next].getElementsByTagName('input')[0]
+      .focus();
+  };
+
   renderProducts = (
     title: string,
     productsData: any[],
@@ -412,7 +478,7 @@ class Form extends React.Component<Props, State> {
             </tr>
           </thead>
           <tbody>
-            {productsData.map(pd => {
+            {productsData.map((pd, index) => {
               return (
                 <PerformDetail
                   key={pd._id}
@@ -421,6 +487,9 @@ class Form extends React.Component<Props, State> {
                   stateName={stateName}
                   onChangeState={this.onChangePerView}
                   isReadSeries={stateName === 'inProducts'}
+                  onEnter={val =>
+                    this.focusNext(index, productsData.length, val)
+                  }
                 />
               );
             })}
@@ -447,7 +516,7 @@ class Form extends React.Component<Props, State> {
             </tr>
           </thead>
           <tbody>
-            {productsData.map(pd => {
+            {productsData.map((pd, index) => {
               return (
                 <PerformDetail
                   key={pd._id}
@@ -456,6 +525,9 @@ class Form extends React.Component<Props, State> {
                   stateName={'outProducts'}
                   hasCost={true}
                   onChangeState={this.onChangePerView}
+                  onEnter={val =>
+                    this.focusNext(index, productsData.length, val)
+                  }
                 />
               );
             })}
@@ -581,7 +653,7 @@ class Form extends React.Component<Props, State> {
       return (
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{__(`In Branch`)}</ControlLabel>
+            <ControlLabel>{__(`Send Branch`)}</ControlLabel>
             <SelectBranches
               label="Choose branch"
               name="inBranchId"
@@ -595,7 +667,7 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__(`In Department`)}</ControlLabel>
+            <ControlLabel>{__(`Send Department`)}</ControlLabel>
             <SelectDepartments
               label="Choose department"
               name="inDepartmentId"
@@ -637,7 +709,7 @@ class Form extends React.Component<Props, State> {
       return (
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{__(`Out Branch`)}</ControlLabel>
+            <ControlLabel>{__(`Receipt Branch`)}</ControlLabel>
             <SelectBranches
               label="Choose branch"
               name="outBranchId"
@@ -651,7 +723,7 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__(`Out Department`)}</ControlLabel>
+            <ControlLabel>{__(`Receipt Department`)}</ControlLabel>
             <SelectDepartments
               label="Choose department"
               name="outDepartmentId"
@@ -674,13 +746,13 @@ class Form extends React.Component<Props, State> {
       <FormColumn>
         <FormGroup>
           <ControlLabel>
-            {__(`Out Branch`)}:{' '}
+            {__(`Receipt Branch`)}:{' '}
             {this.renderLocLabel(overallWorkDetail.outBranch)}
           </ControlLabel>
         </FormGroup>
         <FormGroup>
           <ControlLabel>
-            {__(`Out Department`)}:{' '}
+            {__(`Receipt Department`)}:{' '}
             {this.renderLocLabel(overallWorkDetail.outDepartment)}
           </ControlLabel>
         </FormGroup>
@@ -854,6 +926,41 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  renderConfirmOrAbort() {
+    const { perform } = this.props;
+    if (!perform || !perform._id) {
+      return <></>;
+    }
+
+    if (perform.status === 'confirmed') {
+      return (
+        <Button
+          btnStyle="warning"
+          onClick={this.abort}
+          icon="link-broken"
+          uppercase={false}
+        >
+          Abort
+        </Button>
+      );
+    }
+
+    if (perform.status !== 'confirmed') {
+      return (
+        <Button
+          btnStyle="success"
+          onClick={this.confirm}
+          icon="shield-check"
+          uppercase={false}
+          disabled={!this.checkValidation()}
+        >
+          Confirm
+        </Button>
+      );
+    }
+    return <></>;
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, max, perform } = this.props;
     const { overallWorkDet } = this.state;
@@ -934,21 +1041,7 @@ class Form extends React.Component<Props, State> {
               />
             </FormGroup>
           </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>{__(`End Date`)}</ControlLabel>
-              <DateContainer>
-                <DateControl
-                  name="endAt"
-                  dateFormat="YYYY/MM/DD"
-                  timeFormat={true}
-                  placeholder="Choose date"
-                  value={endAt}
-                  onChange={value => this.onSelectDate(value, 'endAt')}
-                />
-              </DateContainer>
-            </FormGroup>
-          </FormColumn>
+
           <FormColumn>
             <FormGroup>
               <ControlLabel>{__('Assegned To')}</ControlLabel>
@@ -959,7 +1052,7 @@ class Form extends React.Component<Props, State> {
                 onSelect={userIds =>
                   this.setStateWrapper({ assignedUserIds: userIds as string[] })
                 }
-                multi={true}
+                multi={false}
               />
             </FormGroup>
           </FormColumn>
@@ -1003,24 +1096,44 @@ class Form extends React.Component<Props, State> {
         </Box>
 
         <ModalFooter>
-          {this.renderPrintBtn()}
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
-            Close
-          </Button>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>{__(`End Date`)}</ControlLabel>
+                <DateContainer>
+                  <DateControl
+                    name="endAt"
+                    dateFormat="YYYY/MM/DD"
+                    timeFormat={true}
+                    placeholder="Choose date"
+                    value={endAt}
+                    onChange={value => this.onSelectDate(value, 'endAt')}
+                  />
+                </DateContainer>
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              {this.renderPrintBtn()}
+              <Button
+                btnStyle="simple"
+                onClick={closeModal}
+                icon="times-circle"
+                uppercase={false}
+              >
+                Close
+              </Button>
 
-          {renderButton({
-            name: 'Performance',
-            values: this.generateDoc(values),
-            isSubmitted,
-            // callback: closeModal,
-            object: perform,
-            disabled: !this.checkValidation()
-          })}
+              {(!perform || perform.status !== 'confirmed') &&
+                renderButton({
+                  name: 'Performance',
+                  values: this.generateDoc(values),
+                  isSubmitted,
+                  callback: () => {},
+                  disabled: !this.checkSave()
+                })}
+              {this.renderConfirmOrAbort()}
+            </FormColumn>
+          </FormWrapper>
         </ModalFooter>
       </>
     );

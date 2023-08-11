@@ -44,16 +44,11 @@ class PermissionStep extends React.Component<Props, State> {
     const name = keys[1];
     const value = e.target.checked;
 
-    if (!config[type]) {
-      config[type] = { [name]: value };
-    } else {
-      config[type][name] = value;
-    }
+    const newConfig = { ...config, [type]: { ...config[type], [name]: value } };
 
-    this.setState({ config });
-    pos.permissionConfig = config;
+    this.setState({ config: newConfig });
 
-    this.props.onChange('pos', pos);
+    this.props.onChange('pos', { ...pos, permissionConfig: newConfig });
   };
 
   renderToggle(title: string, type: string, name: string) {

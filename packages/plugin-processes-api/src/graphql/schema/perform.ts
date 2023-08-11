@@ -109,4 +109,6 @@ export const mutations = `
   performEdit(_id: String!, ${performParams}): Perform
   performChange(_id: String!, ${performParams}): Perform
   performRemove(_id: String!): JSON
+  performConfirm(_id: String!, endAt: Date): Perform
+  performAbort(_id: String!): Perform
 `;

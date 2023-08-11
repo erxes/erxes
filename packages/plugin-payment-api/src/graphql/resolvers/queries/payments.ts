@@ -95,23 +95,6 @@ const queries = {
     return counts;
   },
 
-  async paymentsCheckMonpayCoupon(
-    _root,
-    args: {
-      paymentId: string;
-      couponCode: string;
-    },
-    { models }: IContext
-  ) {
-    const { paymentId, couponCode } = args;
-
-    const config = await models.Payments.getPayment(paymentId);
-
-    const api = new MonpayAPI(config.config);
-
-    return api.couponCheck(couponCode);
-  },
-
   async qpayGetMerchant(_root, args, { models }: IContext) {
     const api = new QPayQuickQrAPI({
       username: process.env.QUICK_QR_USERNAME || '',

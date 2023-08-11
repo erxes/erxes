@@ -600,6 +600,13 @@ span.red {
     line-height: initial;
   }
 }
+.monpay-coupon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
 .info {
   align-items: center;
   justify-content: space-between;

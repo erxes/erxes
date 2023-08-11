@@ -29,6 +29,7 @@ export type IScreenConfig = {
   type: string;
   value: number;
   contentUrl?: string;
+  showType?: string;
 };
 
 export type IPos = {

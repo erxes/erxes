@@ -10,6 +10,7 @@ import { queries, mutations } from '../../graphql';
 type Props = {
   chatId: string;
   closeModal: () => void;
+  participantUserIds?: string[];
 };
 
 const AddMemberContainer = (props: Props) => {

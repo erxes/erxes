@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import { sendProductsMessage, sendSegmentsMessage } from '../messageBroker';
+import { IPricingPlanDocument } from '../models/definitions/pricingPlan';
 
 /**
  * Get parent orders of products
@@ -43,14 +44,18 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
  */
 export const getAllowedProducts = async (
   subdomain: string,
-  plan: any,
+  plan: IPricingPlanDocument,
   productIds: string[]
 ): Promise<string[]> => {
   switch (plan.applyType) {
     case 'bundle': {
-      let difference = _.difference(plan.productsBundle, productIds);
-      if (difference.length === 0) return [...plan.productsBundle];
-      else return [];
+      let pIds: string[] = [];
+      for (const bundles of plan.productsBundle) {
+        let difference = _.difference(bundles, productIds);
+        if (difference.length === 0)
+          pIds = pIds.concat(_.intersection(productIds, bundles));
+      }
+      return pIds;
     }
 
     case 'product': {

@@ -1,10 +1,10 @@
 import { IContext } from '../../../connectionResolver';
+import * as dayjs from 'dayjs';
 import {
   moduleCheckPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
-import { getMainConditions } from '../../../utils';
 import { getAllowedProducts } from '../../../utils/product';
 import { IPricingPlanDocument } from '../../../models/definitions/pricingPlan';
 
@@ -15,11 +15,71 @@ const generateFilter = async (subdomain, models, params) => {
     departmentId,
     date,
     productId,
-    prioritizeRule
+    prioritizeRule,
+    isQuantityEnabled,
+    isPriceEnabled,
+    isExpiryEnabled,
+    isRepeatEnabled
   } = params;
-  const filter: any = getMainConditions(branchId, departmentId, date);
+  const filter: any = { status: 'active' };
 
   if (status) filter.status = status;
+
+  if (branchId) {
+    filter.branchIds = { $in: [branchId] };
+  }
+
+  if (departmentId) {
+    filter.departmentIds = { $in: [departmentId] };
+  }
+
+  if (isQuantityEnabled !== undefined) {
+    filter.isQuantityEnabled = isQuantityEnabled;
+  }
+  if (isPriceEnabled !== undefined) {
+    filter.isPriceEnabled = isPriceEnabled;
+  }
+  if (isExpiryEnabled !== undefined) {
+    filter.isExpiryEnabled = isExpiryEnabled;
+  }
+  if (isRepeatEnabled !== undefined) {
+    filter.isRepeatEnabled = isRepeatEnabled;
+  }
+
+  if (date) {
+    const now = dayjs(date);
+    const nowISO = now.toISOString();
+    filter.$or = [
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: false
+      },
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: false,
+        startDate: {
+          $lt: nowISO
+        }
+      },
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: true,
+        endDate: {
+          $gt: nowISO
+        }
+      },
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: true,
+        startDate: {
+          $lt: nowISO
+        },
+        endDate: {
+          $gt: nowISO
+        }
+      }
+    ];
+  }
 
   if (prioritizeRule === 'only') {
     filter.isPriority = true;

@@ -7,9 +7,11 @@ type Props = {
   chatId: string;
   closeModal: () => void;
   addOrRemoveMember: (userIds: string[]) => void;
+  participantUserIds?: string[];
 };
 
 const AddMember = (props: Props) => {
+  const { participantUserIds } = props;
   const [userIds, setUserIds] = useState<any>([]);
 
   const handleSubmit = () => {
@@ -18,14 +20,13 @@ const AddMember = (props: Props) => {
 
     setUserIds([]);
   };
-
   return (
     <>
       <h3>Add member</h3>
       <SelectTeamMembers
         label={'Choose team member'}
         name="assignedUserId"
-        initialValue={userIds}
+        initialValue={participantUserIds}
         onSelect={value => setUserIds(value)}
       />
       <br />

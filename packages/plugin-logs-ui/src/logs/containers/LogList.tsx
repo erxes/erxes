@@ -41,6 +41,7 @@ const commonOptions = queryParams => {
     userId: queryParams.userId,
     action: queryParams.action,
     type: queryParams.type,
+    objectId: queryParams.objectId,
     ...generatePaginationParams(queryParams)
   };
 
@@ -58,6 +59,7 @@ export default compose(
         userId: queryParams.userId,
         action: queryParams.action,
         type: queryParams.type,
+        objectId: queryParams.objectId,
         ...generatePaginationParams(queryParams)
       }
     })

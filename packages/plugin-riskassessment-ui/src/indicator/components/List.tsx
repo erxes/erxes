@@ -3,7 +3,6 @@ import {
   Button,
   FormControl,
   HeaderDescription,
-  ModalTrigger,
   SortHandler,
   Table,
   __
@@ -12,12 +11,12 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import _loadash from 'lodash';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { subMenu } from '../../common/constants';
 import { ICommonListProps } from '../../common/types';
 import { DefaultWrapper } from '../../common/utils';
 import { FlexRow, HeaderContent } from '../../styles';
 import { RiskIndicatorsType } from '../common/types';
-import Form from '../containers/Form';
 import TableRow from './Row';
 import SideBar from './SideBar';
 
@@ -32,11 +31,12 @@ type Props = {
     perPage: number;
     searchValue: string;
   }) => void;
+  duplicate: (_id: string) => void;
 } & ICommonListProps &
   IRouterProps;
 
 type IState = {
-  selectedValue: string[];
+  selectedItems: string[];
   perPage: number;
   searchValue: string;
 };
@@ -46,74 +46,48 @@ class ListComp extends React.Component<Props, IState> {
     super(props);
 
     this.state = {
-      selectedValue: [],
+      selectedItems: [],
       perPage: 20,
       searchValue: ''
     };
-    this.selectValue = this.selectValue.bind(this);
+    this.selectItem = this.selectItem.bind(this);
   }
 
-  selectValue(id: string) {
-    const { selectedValue } = this.state;
-    if (selectedValue.includes(id)) {
-      const newSelectedValue = selectedValue.filter(p => p !== id);
-      return this.setState({ selectedValue: newSelectedValue });
+  selectItem(id: string) {
+    const { selectedItems } = this.state;
+    if (selectedItems.includes(id)) {
+      const newSelectedValue = selectedItems.filter(p => p !== id);
+      return this.setState({ selectedItems: newSelectedValue });
     }
-    this.setState({ selectedValue: [...selectedValue, id] });
+    this.setState({ selectedItems: [...selectedItems, id] });
   }
 
   selectAllValue(items) {
     if (
       _loadash.isEqual(
         items.map(object => object._id),
-        this.state.selectedValue
+        this.state.selectedItems
       )
     ) {
-      return this.setState({ selectedValue: [] });
+      return this.setState({ selectedItems: [] });
     }
     const ids = items.map(item => item._id);
-    this.setState({ selectedValue: ids });
+    this.setState({ selectedItems: ids });
   }
 
-  renderForm = props => {
-    return <Form {...props} queryParams={this.props.queryParams} />;
-  };
-
-  rightActionBarTrigger = (
-    <Button btnStyle="success" icon="plus-circle">
-      {__('Add Risk Indicator')}
-    </Button>
-  );
-
-  rightActionBar = (
-    <ModalTrigger
-      title="Add Risk Indicator"
-      enforceFocus={false}
-      trigger={this.rightActionBarTrigger}
-      autoOpenKey="showListFormModal"
-      content={this.renderForm}
-      dialogClassName="transform"
-      size="xl"
-    />
-  );
   handleRemoveBtn = () => {
     const { remove } = this.props;
-    const { selectedValue } = this.state;
-    remove(selectedValue);
-    this.setState({ selectedValue: [] });
+    const { selectedItems } = this.state;
+    remove(selectedItems);
+    this.setState({ selectedItems: [] });
   };
-  RemoveBtn = (
-    <Button btnStyle="danger" icon="cancel-1" onClick={this.handleRemoveBtn}>
-      Remove
-    </Button>
-  );
 
   handleSearch = e => {
     const { value } = e.currentTarget as HTMLInputElement;
 
-    const { perPage, searchValue } = this.state;
+    const { perPage } = this.state;
 
-    this.setState({ searchValue: value, selectedValue: [] });
+    this.setState({ searchValue: value, selectedItems: [] });
 
     setTimeout(() => {
       this.props.refetch({ searchValue: value, perPage });
@@ -132,7 +106,10 @@ class ListComp extends React.Component<Props, IState> {
   };
 
   renderContent = (list: RiskIndicatorsType[]) => {
-    const { selectedValue } = this.state;
+    const { selectedItems } = this.state;
+
+    const { queryParams, duplicate, history } = this.props;
+
     return (
       <Table>
         <thead>
@@ -142,7 +119,7 @@ class ListComp extends React.Component<Props, IState> {
                 <FormControl
                   componentClass="checkbox"
                   checked={_loadash.isEqual(
-                    selectedValue,
+                    selectedItems,
                     list.map(object => object._id)
                   )}
                   onChange={() => this.selectAllValue(list)}
@@ -164,15 +141,16 @@ class ListComp extends React.Component<Props, IState> {
         </thead>
         <tbody>
           {list?.map((item, i) => {
-            return (
-              <TableRow
-                key={i}
-                object={item}
-                selectedValue={selectedValue}
-                onchange={this.selectValue}
-                queryParams={this.props.queryParams}
-              />
-            );
+            const updatedProps = {
+              indicator: item,
+              selectedItems,
+              queryParams,
+              history,
+              handleDuplicate: duplicate,
+              onChange: this.selectItem
+            };
+
+            return <TableRow key={i} {...updatedProps} />;
           })}
         </tbody>
       </Table>
@@ -181,13 +159,25 @@ class ListComp extends React.Component<Props, IState> {
 
   render() {
     const { list, queryParams, totalCount } = this.props;
-    const { selectedValue } = this.state;
+    const { selectedItems } = this.state;
 
     const rightActionBar = (
       <BarItems>
         {<>{this.renderSearchField()}</>}
-        {selectedValue.length > 0 && this.RemoveBtn}
-        {this.rightActionBar}
+        {selectedItems.length > 0 && (
+          <Button
+            btnStyle="danger"
+            icon="cancel-1"
+            onClick={this.handleRemoveBtn}
+          >
+            {__(`Remove (${selectedItems.length})`)}
+          </Button>
+        )}
+        <Button btnStyle="success">
+          <Link to={`/settings/risk-indicators/add`}>
+            {__('Add New Indicator')}
+          </Link>
+        </Button>
       </BarItems>
     );
 

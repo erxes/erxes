@@ -6,9 +6,14 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from '@apollo/client/react/hoc';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IPerform, PerformDetailQueryResponse } from '../types';
+import {
+  IPerform,
+  PerformAbortMutationResponse,
+  PerformConfirmMutationResponse,
+  PerformDetailQueryResponse
+} from '../types';
 import { mutations, queries } from '../graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IOverallWorkDet } from '../../overallWork/types';
 
 type Props = {
@@ -21,7 +26,9 @@ type Props = {
 
 type FinalProps = {
   performDetailQuery: PerformDetailQueryResponse;
-} & Props;
+} & Props &
+  PerformConfirmMutationResponse &
+  PerformAbortMutationResponse;
 
 class PerformFormContainer extends React.Component<
   FinalProps,
@@ -39,7 +46,13 @@ class PerformFormContainer extends React.Component<
   }
 
   render() {
-    const { overallWorkDetail, max, performDetailQuery } = this.props;
+    const {
+      overallWorkDetail,
+      max,
+      performDetailQuery,
+      performConfirm,
+      performAbort
+    } = this.props;
 
     if (performDetailQuery && performDetailQuery.loading) {
       return <Spinner />;
@@ -76,16 +89,44 @@ class PerformFormContainer extends React.Component<
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully added a ${name}`}
+          successMessage={`You successfully ${
+            values._id ? 'updated' : 'added'
+          } a ${name}`}
           disabled={disabled}
         />
       );
     };
 
+    const confirmPerform = (_id: string, endAt: Date) => {
+      performConfirm({
+        variables: { _id, endAt }
+      })
+        .then(() => {
+          Alert.success('You successfully confirmed a performance');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    const abortPerform = (_id: string) => {
+      performAbort({
+        variables: { _id }
+      })
+        .then(() => {
+          Alert.success('You successfully aborted a performance');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const updatedProps = {
       ...this.props,
       perform,
-      renderButton
+      renderButton,
+      confirmPerform,
+      abortPerform
     };
 
     return (
@@ -117,6 +158,34 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       }),
       skip: props => !props.perform || !props.perform._id
-    })
+    }),
+    graphql<Props, PerformConfirmMutationResponse, {}>(
+      gql(mutations.performConfirm),
+      {
+        name: 'performConfirm',
+        options: {
+          refetchQueries: [
+            'performs',
+            'overallWorkDetail',
+            'performsCount',
+            'performDetail'
+          ]
+        }
+      }
+    ),
+    graphql<Props, PerformAbortMutationResponse, {}>(
+      gql(mutations.performAbort),
+      {
+        name: 'performAbort',
+        options: {
+          refetchQueries: [
+            'performs',
+            'overallWorkDetail',
+            'performsCount',
+            'performDetail'
+          ]
+        }
+      }
+    )
   )(PerformFormContainer)
 );

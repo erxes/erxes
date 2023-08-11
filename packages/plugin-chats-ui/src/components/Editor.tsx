@@ -104,11 +104,18 @@ const Editor = (props: Props) => {
     setUploadLoading(true);
     uploadHandler({
       files,
+      maxHeight: 725,
+      maxWidth: 725,
       beforeUpload: () => {
         return;
       },
 
-      afterUpload: ({ response, fileInfo }) => {
+      afterUpload: ({ status, response, fileInfo }) => {
+        if (status !== 'ok') {
+          Alert.error(response.statusText);
+          return setUploadLoading(false);
+        }
+        Alert.success('Success');
         setAttachments([
           ...attachments,
           Object.assign({ url: response }, fileInfo)

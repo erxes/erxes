@@ -160,9 +160,7 @@ export default class ConfigStep extends React.Component<Props, State> {
 
       this.setState({ mappings });
 
-      pos.catProdMappings = mappings;
-
-      onChange('pos', pos);
+      onChange('pos', { ...pos, catProdMappings: mappings });
     };
 
     const removeMapping = (_id: string) => {
@@ -170,9 +168,7 @@ export default class ConfigStep extends React.Component<Props, State> {
 
       this.setState({ mappings: excluded });
 
-      pos.catProdMappings = excluded;
-
-      onChange('pos', pos);
+      onChange('pos', { ...pos, catProdMappings: excluded });
     };
 
     return (
@@ -191,16 +187,14 @@ export default class ConfigStep extends React.Component<Props, State> {
     const initialCategoryIds = values;
     this.setState({ initialCategoryIds });
 
-    pos.initialCategoryIds = initialCategoryIds;
-    onChange('pos', pos);
+    onChange('pos', { ...pos, initialCategoryIds });
   };
 
   onChangekioskExclude = (name, ids) => {
     const { pos, onChange } = this.props;
     this.setState({ [name]: ids } as any);
 
-    pos[name] = ids;
-    onChange('pos', pos);
+    onChange('pos', { ...pos, [name]: ids });
   };
 
   render() {

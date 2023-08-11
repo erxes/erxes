@@ -18,6 +18,10 @@ export interface IInvoice {
   resolvedAt?: Date;
   paymentKind: string;
 
+  // monpay coupon
+  couponCode?: string;
+  couponAmount?: number;
+
   apiResponse?: any;
   identifier: string;
 }
@@ -51,6 +55,12 @@ export const invoiceSchema = schemaHooksWrapper(
       type: String,
       label: 'payment kind',
       enum: PAYMENTS.ALL
+    }),
+    couponCode: field({ type: String, optional: true, label: 'coupon code' }),
+    couponAmount: field({
+      type: Number,
+      optional: true,
+      label: 'coupon amount'
     }),
     customerType: field({
       type: String,
