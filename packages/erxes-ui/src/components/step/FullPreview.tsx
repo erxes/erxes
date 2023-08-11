@@ -100,6 +100,15 @@ class FullPreviewStep extends React.Component<Props, State> {
         fields: [...fields, field],
         currentField: undefined
       };
+    } else if (currentMode === 'update') {
+      const index = fields.map(e => e._id).indexOf(field._id);
+      if (index !== -1) {
+        fields[index] = field;
+      }
+      selector = {
+        fields,
+        currentField: undefined
+      };
     }
 
     this.setState(selector, () => {
