@@ -172,17 +172,25 @@ export const solveSubmissions = async (
 
   const submissionsGrouped = groupSubmissions(args.submissions);
 
-  return sendContactsMessage({
-    subdomain,
-    action: 'updateContactsField',
-    data: {
-      cachedCustomerId,
-      browserInfo,
-      integration,
-      submissionsGrouped,
-      prepareCustomFieldsData: true
-    },
-    isRPC: true,
-    defaultValue: {}
-  });
+  let response: any;
+
+  try {
+    response = await sendContactsMessage({
+      subdomain,
+      action: 'updateContactsField',
+      data: {
+        cachedCustomerId,
+        browserInfo,
+        integration,
+        submissionsGrouped,
+        prepareCustomFieldsData: true
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+  } catch {
+    response = { _id: cachedCustomerId };
+  }
+
+  return response;
 };
