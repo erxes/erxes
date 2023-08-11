@@ -100,9 +100,9 @@ const stopRouter = () => {
   app.use(cors(corsOptions));
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
-  await apolloRouter(targets);
+  apolloRouterProcess = await apolloRouter(targets);
 
-  applyProxiesCoreless(app, targets);
+  await applyProxiesCoreless(app, targets);
 
   // The error handler must be before any other error middleware and after all controllers
   app.use(Sentry.Handlers.errorHandler());
@@ -144,10 +144,24 @@ const stopRouter = () => {
   console.log(`Erxes gateway ready at http://localhost:${port}/graphql`);
 })();
 
+let ignoreSIGTERM = false;
+
+export function startIgnoreSIGTERM() {
+  ignoreSIGTERM = true;
+}
+
+export function stopIgnoreSIGTERM() {
+  ignoreSIGTERM = false;
+}
+
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
   process.on(sig, async () => {
+    if (ignoreSIGTERM && sig === 'SIGTERM') {
+      return;
+    }
+    console.log(`Exiting on signal ${sig}`);
     if (NODE_ENV === 'development') {
-      clearCache();
+      await clearCache();
     }
     if (subscriptionServer) {
       try {

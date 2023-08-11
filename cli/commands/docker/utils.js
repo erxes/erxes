@@ -98,8 +98,8 @@ const healthcheck = {
     '-i',
     `http://localhost:${SERVICE_INTERNAL_PORT}/health`
   ],
-  interval: '1s',
-  start_period: '5s'
+  interval: '30s',
+  start_period: '30s'
 };
 
 const generateLBaddress = address =>
