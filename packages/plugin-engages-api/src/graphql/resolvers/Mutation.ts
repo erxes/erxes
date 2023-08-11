@@ -356,10 +356,14 @@ const engageMutations = {
   ) {
     const { body, customerId, ...doc } = args;
 
+    const customerQuery = customerId
+      ? { _id: customerId }
+      : { primaryEmail: doc.to };
+
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
-      data: { _id: customerId },
+      data: customerQuery,
       isRPC: true
     });
 

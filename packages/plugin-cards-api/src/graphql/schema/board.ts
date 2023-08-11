@@ -56,14 +56,20 @@ export const types = ({ tags }) => `
     departmentIds: [String]
     probability: String
     status: String
+    unUsedAmount: JSON
     amount: JSON
     itemsTotalCount: Int
     compareNextStage: JSON
+    compareNextStagePurchase: JSON
     stayedDealsTotalCount: Int
     initialDealsTotalCount: Int
     inProcessDealsTotalCount: Int
+    stayedPurchasesTotalCount: Int
+    initialPurchasesTotalCount: Int
+    inProcessPurchasesTotalCount: Int
     formId: String
     age: Int
+    defaultTick: Boolean
     ${commonTypes}
   }
 
@@ -85,6 +91,7 @@ export const types = ({ tags }) => `
     ticketUrl: String,
     dealUrl: String,
     taskUrl: String,
+    purchaseUrl:String,
   }
 
   type BoardCount {
@@ -116,7 +123,16 @@ const stageParams = `
   age: Int,
   branchIds: [String]
   departmentIds: [String]
+  segment: String
   segmentData:String
+  createdStartDate: Date
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
 `;
 
 export const queries = `
@@ -185,7 +201,7 @@ export const mutations = `
   pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
   pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
   pipelinesRemove(_id: String!): JSON
-  pipelinesArchive(_id: String!): JSON  
+  pipelinesArchive(_id: String!): JSON
   pipelinesCopied(_id: String!): JSON
 
   stagesUpdateOrder(orders: [OrderItem]): [Stage]

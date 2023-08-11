@@ -134,7 +134,9 @@ export const generateFields = async ({ subdomain, data }) => {
     case 'deal':
       schema = models.Deals.schema;
       break;
-
+    case 'purchase':
+      schema = models.Purchases.schema;
+      break;
     case 'task':
       schema = models.Tasks.schema;
       break;
@@ -207,7 +209,7 @@ export const generateFields = async ({ subdomain, data }) => {
     ]
   ];
 
-  if (type === 'deal' && usageType !== 'export') {
+  if (type === 'deal' || (type === 'purchase' && usageType !== 'export')) {
     const productOptions = await generateProductsOptions(
       subdomain,
       'productsData.productId',
@@ -218,13 +220,19 @@ export const generateFields = async ({ subdomain, data }) => {
     fields = [...fields, ...[productOptions, assignedUserOptions]];
   }
 
-  if (type === 'deal' && usageType === 'export') {
-    const extendFieldsDealExport = [
+  if (type === 'deal' || (type === 'purchase' && usageType === 'export')) {
+    const extendFieldsExport = [
       { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
-      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' }
+      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' },
+      { _id: Math.random(), name: 'productsData.branch', label: 'Branch' },
+      {
+        _id: Math.random(),
+        name: 'productsData.department',
+        label: 'Department'
+      }
     ];
 
-    fields = [...fields, ...extendFieldsDealExport];
+    fields = [...fields, ...extendFieldsExport];
   }
 
   if (usageType === 'export') {

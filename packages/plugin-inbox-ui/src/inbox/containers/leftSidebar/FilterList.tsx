@@ -1,5 +1,5 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import FilterByParams from '@erxes/ui/src/components/FilterByParams';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
@@ -65,9 +65,9 @@ export default class FilterList extends React.PureComponent<Props, State> {
           query: gql(queries[queryName]),
           variables
         })
-        .then(({ data }: any) => {
+        .then(({ data, loading }: any) => {
           if (this.mounted) {
-            this.setState({ fields: data[dataName] });
+            this.setState({ fields: data[dataName], loading });
           }
         })
         .catch(e => {
@@ -80,10 +80,10 @@ export default class FilterList extends React.PureComponent<Props, State> {
       .query({
         query: gql(queries.conversationCounts),
         variables: { ...generateParams({ ...queryParams }), only: counts },
-        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first',
-        context: {
-          fetchOptions: { signal: this.abortController.signal }
-        }
+        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first'
+        // context: {
+        //   fetchOptions: { signal: this.abortController.signal }
+        // }
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         if (this.mounted) {

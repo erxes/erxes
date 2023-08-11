@@ -9,6 +9,7 @@ import {
 
 export const types = ({ contacts, tags }) => `
   type TicketListItem {
+    customPropertiesData:JSON,
     ${commonListTypes}
   }
 
@@ -63,6 +64,16 @@ const listQueryParams = `
   departmentIds: [String]
   boardIds: [String]
   stageCodes: [String]
+  dateRangeFilters:JSON
+  customFieldsDataFilters:JSON
+  createdStartDate: Date,
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
   ${conformityQueryFields}
 `;
 

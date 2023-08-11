@@ -3,7 +3,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
 import { __ } from '@erxes/ui/src/utils';
-import { MEASUREMENTS } from '@erxes/ui-settings/src/general/constants';
 import { IProduct } from '@erxes/ui-products/src/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
@@ -22,13 +21,12 @@ import { IDeal, IDiscountValue, IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '../../graphql';
 import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   advancedView?: boolean;
-  uom: string[];
   currencies: string[];
   productsData?: IProductData[];
   productData: IProductData;
@@ -74,10 +72,10 @@ class ProductItem extends React.Component<Props, State> {
 
   componentDidMount = () => {
     // default select item
-    const { uom, currencies, productData } = this.props;
+    const { currencies, productData } = this.props;
 
-    if (uom.length > 0 && !productData.uom) {
-      this.onChangeField('uom', uom[0], productData._id);
+    if (!productData.uom && productData.product?.uom) {
+      this.onChangeField('uom', productData.product.uom, productData._id);
     }
 
     if (currencies.length > 0 && !productData.currency) {
@@ -188,7 +186,7 @@ class ProductItem extends React.Component<Props, State> {
     if (product) {
       content = (
         <div>
-          {product.name} <Icon icon="pen-1" />
+          {product.code} - {product.name} <Icon icon="pen-1" />
         </div>
       );
     }
@@ -206,7 +204,7 @@ class ProductItem extends React.Component<Props, State> {
         if (isEnabled('loyalties') && this.state.isSelectedVoucher === true) {
           const { confirmLoyalties } = this.props;
           const { discountValue } = this.state;
-          const variables = {};
+          const variables: any = {};
           variables.checkInfo = {
             [product._id]: {
               voucherId: discountValue?.voucherId,
@@ -399,7 +397,6 @@ class ProductItem extends React.Component<Props, State> {
     const {
       advancedView,
       productData,
-      uom,
       currencies,
       duplicateProductItem,
       removeProductItem
@@ -416,6 +413,16 @@ class ProductItem extends React.Component<Props, State> {
     if (!productData.product) {
       return null;
     }
+
+    const uoms = Array.from(
+      new Set([
+        productData.uom,
+        productData.product.uom,
+        ...(productData.product.subUoms || []).map(su => su.uom)
+      ])
+    )
+      .filter(u => u)
+      .map(u => ({ value: u, label: u }));
 
     return (
       <tr key={productData._id}>
@@ -485,7 +492,7 @@ class ProductItem extends React.Component<Props, State> {
           <Amount>
             {(
               productData.quantity * productData.unitPrice -
-              productData.discount
+              (productData.discount || 0)
             ).toLocaleString()}{' '}
           </Amount>
         </td>
@@ -507,7 +514,7 @@ class ProductItem extends React.Component<Props, State> {
             value={productData.uom}
             onChange={this.uomOnChange}
             optionRenderer={selectOption}
-            options={selectConfigOptions(uom, MEASUREMENTS)}
+            options={uoms}
           />
         </td>
         <td>

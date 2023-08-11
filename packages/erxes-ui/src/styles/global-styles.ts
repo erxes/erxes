@@ -52,6 +52,10 @@ a:hover {
 }
 /* override */
 
+.modal {
+  overflow-y: auto;
+}
+
 .modal-backdrop {
   background-color: #30435C;
 } !important
@@ -477,6 +481,21 @@ a:hover {
   max-width: 360px;
 }
 
+.call-popover {
+  right: 15px;
+  left: auto !important;
+  width: 360px;
+  max-width: 360px;
+  position: fixed !important;
+  bottom: 10px;
+  top: auto !important;
+  transform: none !important;
+}
+
+.call-popover .arrow {
+  display: none !important;
+}
+
 /* select  */
 
 .Select-control {
@@ -648,6 +667,14 @@ a:hover {
 
 .Select-noresults {
   padding: 8px 20px;
+}
+
+.Select .Select-input {
+  width: 100%;
+
+  input {
+    width: 100% !important;
+  }
 }
 
 .simple-option .channel-round {

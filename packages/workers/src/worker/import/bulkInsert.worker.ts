@@ -44,7 +44,8 @@ const create = async ({
         user,
         contentType: type,
         useElkSyncer
-      }
+      },
+      timeout: 5 * 60 * 1000 // 5 minutes
     }
   );
 

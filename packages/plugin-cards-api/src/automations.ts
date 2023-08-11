@@ -165,6 +165,9 @@ const getItems = async (
     case 'task':
       model = models.Tasks;
       break;
+    case 'purchase':
+      model = models.Purchases;
+      break;
     case 'ticket':
       model = models.Tickets;
       break;
@@ -265,6 +268,14 @@ export default {
           'Start with a blank workflow that enralls and is triggered off task'
       },
       {
+        type: 'cards:purchase',
+        img: 'automation3.svg',
+        icon: 'file-plus-alt',
+        label: 'Purchase',
+        description:
+          'Start with a blank workflow that enralls and is triggered off purchase'
+      },
+      {
         type: 'cards:ticket',
         img: 'automation3.svg',
         icon: 'file-plus',
@@ -287,6 +298,13 @@ export default {
         icon: 'file-plus-alt',
         label: 'Create task',
         description: 'Create task',
+        isAvailable: true
+      },
+      {
+        type: 'cards:purchase.create',
+        icon: 'file-plus-alt',
+        label: 'Create purchase',
+        description: 'Create purchase',
         isAvailable: true
       },
       {

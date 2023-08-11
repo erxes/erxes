@@ -143,7 +143,16 @@ const commonParams = `
   $assignedToMe: String,
   $branchIds: [String]
   $departmentIds: [String]
+  $segment: String
   $segmentData:String
+  $createdStartDate: Date
+  $createdEndDate: Date
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
 `;
 
 const commonParamDefs = `
@@ -157,7 +166,16 @@ const commonParamDefs = `
   assignedToMe: $assignedToMe,
   branchIds:$branchIds
   departmentIds:$departmentIds
+  segment: $segment
   segmentData:$segmentData
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
 `;
 
 const stageParams = `
@@ -176,11 +194,13 @@ const stageCommon = `
   _id
   name
   order
+  unUsedAmount
   amount
   itemsTotalCount
   pipelineId
   code
   age
+  defaultTick
 `;
 
 const stages = `
@@ -322,9 +342,13 @@ const conversionStages = `
     ) {
       ${stageCommon}
       compareNextStage
+      compareNextStagePurchase
       initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount
+      initialPurchasesTotalCount
+      stayedPurchasesTotalCount
+      inProcessPurchasesTotalCount
     }
   }
 `;
@@ -347,6 +371,7 @@ const boardItemQueryParamsDef = `
   $skip: Int,
   $limit: Int,
   $tagIds: [String],
+  $searchValue: String,
 `;
 
 const boardItemQueryParams = `
@@ -356,6 +381,7 @@ const boardItemQueryParams = `
   skip: $skip,
   limit: $limit,
   tagIds: $tagIds,
+  search: $searchValue,
 `;
 
 const tasks = `
@@ -377,6 +403,14 @@ const tickets = `
 const deals = `
   query deals(${boardItemQueryParamsDef}) {
     deals(${boardItemQueryParams}) {
+      ${cardFields}
+    }
+  }
+`;
+
+const purchases = `
+  query purchases(${boardItemQueryParamsDef}) {
+    purchases(${boardItemQueryParams}) {
       ${cardFields}
     }
   }
@@ -434,5 +468,6 @@ export default {
   tasks,
   boardContentTypeDetail,
   boardLogs,
-  documents
+  documents,
+  purchases
 };

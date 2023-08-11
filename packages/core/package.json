@@ -32,6 +32,7 @@
     "migrateRoutes": "node_modules/.bin/ts-node src/commands/migrateRoutes.ts",
     "migrateFields": "node_modules/.bin/ts-node src/commands/migrateFields.ts",
     "migrateProductCategoriesOrders": "node_modules/.bin/ts-node src/commands/migrateProductCategoriesOrders.ts",
+    "migrateClientPortalUsers": "node_modules/.bin/ts-node src/commands/migrateClientPortalUsers.ts",
     "migrateUserMovements": "node_modules/.bin/ts-node src/commands/migrateUserMovements.ts",
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts"
   },
@@ -59,6 +60,7 @@
     "stream-array": "^1.1.2",
     "ts-node": "^10.7.0",
     "validator": "^9.0.0",
-    "xlsx-populate": "^1.20.1"
+    "xlsx-populate": "^1.20.1",
+    "jimp":"^0.22.10"
   }
 }

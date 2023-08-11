@@ -1,8 +1,8 @@
 import queryString from 'query-string';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import Chooser from '@erxes/ui/src/components/Chooser';
 import { Alert, withProps } from '@erxes/ui/src/utils';
@@ -113,7 +113,8 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
           ) / 100} - ${product.unitPrice}`;
         }
         if (product.code) {
-          return `${product.code} - ${product.name} - ${product.unitPrice}`;
+          return `${product.code} - ${product.name} - ${product.unitPrice ||
+            ''}`;
         }
 
         return product.name;

@@ -210,6 +210,22 @@ const fieldQueries = {
     }
 
     return field;
+  },
+
+  async fieldsGetRelations(
+    _root,
+    {
+      contentType,
+      isVisibleToCreate
+    }: { contentType: string; isVisibleToCreate: boolean },
+    { models }: IContext
+  ) {
+    return models.Fields.find({
+      contentType,
+      isDefinedByErxes: true,
+      isVisibleToCreate,
+      relationType: { $exists: true }
+    });
   }
 };
 
@@ -257,21 +273,8 @@ const fieldsGroupQueries = {
       query.isDefinedByErxes = isDefinedByErxes;
     }
 
-    const groups = await models.FieldsGroups.find(query);
-
-    return groups
-      .map(group => {
-        if (group.isDefinedByErxes) {
-          group.order = -1;
-        }
-        return group;
-      })
-      .sort((a, b) => {
-        if (a.order && b.order) {
-          return a.order - b.order;
-        }
-        return -1;
-      });
+    const groups = await models.FieldsGroups.find(query).sort({ order: 1 });
+    return groups;
   },
 
   getSystemFieldsGroup(

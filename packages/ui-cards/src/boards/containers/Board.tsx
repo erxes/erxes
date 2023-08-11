@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -6,9 +6,13 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { IDateColumn, IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
-import { EMPTY_CONTENT_DEAL, EMPTY_CONTENT_TASK } from '../constants';
+import {
+  EMPTY_CONTENT_DEAL,
+  EMPTY_CONTENT_TASK,
+  EMPTY_CONTENT_PURCHASE
+} from '../constants';
 import { queries } from '../graphql';
 import { RootBack, ScrolledContent, ChartBack } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
@@ -35,10 +39,16 @@ class Board extends React.Component<Props> {
     if (!pipelineDetailQuery || !pipelineDetailQuery.pipelineDetail) {
       const type = options.type;
 
-      if (type === 'deal' || type === 'task') {
+      if (type === 'deal' || type === 'task' || type === 'purchase') {
         return (
           <EmptyContent
-            content={type === 'deal' ? EMPTY_CONTENT_DEAL : EMPTY_CONTENT_TASK}
+            content={
+              type === 'deal'
+                ? EMPTY_CONTENT_DEAL
+                : type === 'task'
+                ? EMPTY_CONTENT_TASK
+                : EMPTY_CONTENT_PURCHASE
+            }
             maxItemWidth="400px"
           />
         );

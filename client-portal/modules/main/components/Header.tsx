@@ -1,32 +1,38 @@
-import Link from 'next/link';
-import { withRouter } from 'next/router';
-import React, { useState } from 'react';
-import Icon from '../../common/Icon';
-import Modal from '../../common/Modal';
-import { getConfigColor, readFile } from '../../common/utils';
+import 'reactjs-popup/dist/index.css';
+
+import { Alert, renderUserFullName } from '../../utils';
 import {
   Badge,
+  BottomComponent,
   Container,
+  HamburgerMenuWrapper,
   Header as Head,
-  HeaderLeft,
   HeaderLinks,
   HeaderLogo,
   HeaderRight,
   HeaderTitle,
   HeaderTop,
   LinkItem,
+  NotificationsBadge,
   SupportMenus
 } from '../../styles/main';
-import { Config, INotification, IUser } from '../../types';
+import { Config, IUser } from '../../types';
+import React, { useState } from 'react';
+import { getConfigColor, readFile } from '../../common/utils';
+
 import Button from '../../common/Button';
+import { Dropdown } from 'react-bootstrap';
+import DropdownToggle from '../../common/DropdownToggle';
+import ForgotPasswordContainer from '../../user/containers/ForgotPassword';
+import Icon from '../../common/Icon';
+import Link from 'next/link';
 import LoginContainer from '../../user/containers/Login';
-import RegisterContainer from '../../user/containers/Register';
-import ResetPasswordContainer from '../../user/containers/ResetPassword';
-import SettingsContainer from '../containers/notifications/Settings';
-import { Alert } from '../../utils';
-import Popup from 'reactjs-popup';
-import 'reactjs-popup/dist/index.css';
+import Modal from '../../common/Modal';
+import NameCard from '../../common/nameCard/NameCard';
 import Notifications from '../components/notifications/Notifications';
+import Popup from 'reactjs-popup';
+import RegisterContainer from '../../user/containers/Register';
+import { withRouter } from 'next/router';
 
 type Props = {
   config: Config;
@@ -54,7 +60,7 @@ function Header({
   const [showResetPassword, setResetPassword] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const onClick = (url) => {
+  const onClick = url => {
     if (!currentUser && url.includes('tickets')) {
       Alert.error('Log in first to create or manage ticket cards');
 
@@ -77,34 +83,137 @@ function Header({
   };
 
   const renderAuth = () => {
-    if (!config.ticketToggle) {
+    if (!config.ticketToggle || !config.taskToggle || !config.dealToggle) {
       return null;
     }
 
     return (
       <>
         <Button
+          className="border"
           btnStyle="link"
           uppercase={false}
           onClick={() => setRegister(true)}
         >
           Sign up
         </Button>
-        {/* <Button
-          btnStyle="primary"
-          uppercase={false}
-          onClick={() => setResetPassword(true)}
-        >
-          Reset password
-        </Button> */}
         <Button
-          btnStyle="warning"
+          btnStyle="ghost"
+          className="ghost"
           uppercase={false}
           onClick={() => setLogin(true)}
         >
-          Login
+          Sign in
         </Button>
       </>
+    );
+  };
+
+  const renderCurrentUser = () => {
+    return (
+      <>
+        <Popup
+          trigger={
+            <NotificationsBadge>
+              {notificationsCount > 0 && <Badge>{notificationsCount}</Badge>}
+              <Icon icon="bell" size={22} />
+            </NotificationsBadge>
+          }
+          position="bottom center"
+          contentStyle={{ width: '350px' }}
+        >
+          <Notifications
+            count={notificationsCount}
+            currentUser={currentUser}
+            config={config}
+          />
+        </Popup>
+
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-custom-components">
+            <NameCard user={currentUser} avatarSize={28} hideUserName={true} />
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            <Dropdown.Item
+              className="d-flex align-items-center justify-content-between"
+              eventKey="1"
+              href="/profile"
+            >
+              <div>
+                <Icon icon="user" />
+                {renderUserFullName(currentUser)}
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item
+              className="d-flex align-items-center justify-content-between"
+              eventKey="2"
+              href="/settings"
+            >
+              <div>
+                <Icon icon="settings" />
+                Settings
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Divider />
+            <Dropdown.Item
+              eventKey="3"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  sessionStorage.clear();
+                }
+                logout();
+              }}
+            >
+              <Icon icon="logout-1" />
+              Logout
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+
+        {renderNavigationMenu()}
+      </>
+    );
+  };
+
+  const renderNavigationMenu = () => {
+    return (
+      <HamburgerMenuWrapper>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-custom-components1">
+            <Icon icon="subject" />
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <HeaderLinks
+              backgroundColor={getConfigColor(config, 'headerColor')}
+            >
+              {config.publicTaskToggle
+                ? renderMenu(
+                    '/publicTasks',
+                    config.taskPublicLabel || 'Public Task'
+                  )
+                : null}
+
+              {config.ticketToggle && currentUser
+                ? renderMenu('/tickets', config.ticketLabel || 'Ticket')
+                : null}
+
+              {config.dealToggle && currentUser
+                ? renderMenu('/deals', config.dealLabel || 'Sales pipeline')
+                : null}
+              {config.purchaseToggle && currentUser
+                ? renderMenu(
+                    '/purchases',
+                    config.purchaseLabel || 'Purchase pipeline'
+                  )
+                : null}
+              {config.taskToggle && currentUser
+                ? renderMenu('/tasks', config.taskLabel || 'Task')
+                : null}
+            </HeaderLinks>
+          </Dropdown.Menu>
+        </Dropdown>
+      </HamburgerMenuWrapper>
     );
   };
 
@@ -113,69 +222,33 @@ function Header({
       return <div dangerouslySetInnerHTML={{ __html: headerHtml }} />;
 
     return (
-      <Container>
-        <HeaderTop>
-          <HeaderRight>
-            <SupportMenus color={getConfigColor(config, 'headingColor')}>
-              {currentUser ? (
-                <>
-                  <>
-                    <Icon icon="user" /> &nbsp;
-                    {currentUser.type === 'company'
-                      ? currentUser.companyName
-                      : currentUser.firstName}
-                  </>
-
-                  <Popup
-                    trigger={
-                      <span title="Notifications" className="notifications">
-                        {notificationsCount > 0 && (
-                          <Badge color={'red'}>{notificationsCount}</Badge>
-                        )}
-                        <Icon icon="bell" />
-                      </span>
-                    }
-                    position="bottom center"
-                    contentStyle={{ width: '350px' }}
-                  >
-                    <Notifications
-                      count={notificationsCount}
-                      currentUser={currentUser}
-                      config={config}
-                    />
-                  </Popup>
-
-                  <span title="Settings" onClick={() => setShowSettings(true)}>
-                    <Icon icon="settings" />
-                  </span>
-
-                  <span title="Log out" onClick={() => logout()}>
-                    <Icon icon="logout" />
-                  </span>
-                </>
-              ) : (
-                renderAuth()
-              )}
-            </SupportMenus>
-          </HeaderRight>
-        </HeaderTop>
+      <Container large={true}>
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
-              <img src={readFile(config.logo)} />
+              <img
+                src={
+                  config.logo
+                    ? readFile(config.logo)
+                    : '/static/logos/erxes-logo-white.svg'
+                }
+              />
             </Link>
             <HeaderTitle color={getConfigColor(config, 'headingColor')}>
               {config.name}
             </HeaderTitle>
           </HeaderLogo>
-          <HeaderLinks>
-            {config.publicTaskToggle
-              ? renderMenu('/tasks', config.taskLabel || 'Task')
-              : null}
-            {config.ticketToggle
-              ? renderMenu('/tickets', config.ticketLabel || 'Ticket')
-              : null}
-          </HeaderLinks>
+
+          <HeaderRight>
+            <SupportMenus
+              color={getConfigColor(config, 'headingColor')}
+              baseColor={getConfigColor(config, 'baseColor')}
+            >
+              {currentUser && Object.keys(currentUser).length !== 0
+                ? renderCurrentUser()
+                : renderAuth()}
+            </SupportMenus>
+          </HeaderRight>
         </HeaderTop>
       </Container>
     );
@@ -188,35 +261,42 @@ function Header({
       headingSpacing={headingSpacing}
     >
       {renderTopHeader()}
-      <Container transparent={true}>
-        <h3>{config.description}</h3>
+      <BottomComponent>
+        <h3>
+          {config.description
+            ? config.description
+            : 'What we can help you with'}
+        </h3>
         {headerBottomComponent && headerBottomComponent}
-      </Container>
+      </BottomComponent>
       <Modal
-        content={() => <LoginContainer />}
+        content={() => (
+          <LoginContainer
+            setLogin={setLogin}
+            setRegister={setRegister}
+            setResetPassword={setResetPassword}
+          />
+        )}
         onClose={() => setLogin(false)}
         isOpen={showlogin}
       />
       <Modal
-        content={() => <RegisterContainer />}
+        content={() => (
+          <RegisterContainer setLogin={setLogin} setRegister={setRegister} />
+        )}
         onClose={() => setRegister(false)}
         isOpen={showregister}
       />
       <Modal
-        content={() => <ResetPasswordContainer />}
-        onClose={() => setResetPassword(false)}
-        isOpen={showResetPassword}
-      />
-
-      <Modal
         content={() => (
-          <SettingsContainer
-            currentUser={currentUser}
-            saveCallback={() => setShowSettings(false)}
+          <ForgotPasswordContainer
+            setLogin={setLogin}
+            clientPortalId={config._id}
+            setResetPassword={setResetPassword}
           />
         )}
-        onClose={() => setShowSettings(false)}
-        isOpen={showSettings}
+        onClose={() => setResetPassword(false)}
+        isOpen={showResetPassword}
       />
     </Head>
   );

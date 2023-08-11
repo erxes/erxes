@@ -7,6 +7,9 @@ import * as fs from 'fs';
 import { execSync } from 'child_process';
 import isSameFile from '../util/is-same-file';
 import * as yaml from 'yaml';
+// import exec from '../util/exec';
+import { startIgnoreSIGTERM, stopIgnoreSIGTERM } from '../index';
+import spawnAsync from '../util/spawnAsync';
 
 const { NODE_ENV, SUPERGRAPH_POLL_INTERVAL_MS } = process.env;
 
@@ -67,11 +70,13 @@ const supergraphComposeOnce = async () => {
       return;
     }
 
-    execSync(
-      `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`,
-      {
-        stdio: 'inherit',
-        encoding: 'utf-8'
+    // await exec(
+    //   `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`
+    // );
+
+    await spawnAsync(
+      "rover", ["supergraph", "compose", "--config", supergraphConfigPath, "--output", supergraphPath, "--elv2-license=accept", "--log=error"], {
+        stdio: 'inherit'
       }
     );
 
@@ -81,11 +86,14 @@ const supergraphComposeOnce = async () => {
   } else {
     const superGraphqlNext = supergraphPath + '.next';
 
-    execSync(
-      `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
-      {
-        stdio: 'inherit'
-      }
+    // await exec(
+    //   `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`
+    // );
+
+    await spawnAsync(
+      "yarn", ["rover", "supergraph", "compose", "--config", supergraphConfigPath, "--output", supergraphPath, "--elv2-license=accept", "--log=error"], {
+      stdio: 'inherit'
+    }
     );
 
     if (
@@ -101,6 +109,7 @@ const supergraphComposeOnce = async () => {
 export default async function supergraphCompose(
   proxyTargets: ErxesProxyTarget[]
 ) {
+  await startIgnoreSIGTERM();
   await createSupergraphConfig(proxyTargets);
   await supergraphComposeOnce();
   if (NODE_ENV === 'development') {
@@ -112,4 +121,6 @@ export default async function supergraphCompose(
       }
     }, Number(SUPERGRAPH_POLL_INTERVAL_MS) || 10_000);
   }
+
+  await stopIgnoreSIGTERM();
 }

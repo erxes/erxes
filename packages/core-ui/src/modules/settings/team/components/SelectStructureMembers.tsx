@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'modules/common/utils';
 import React, { useEffect, useState } from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import Select from 'react-select-plus';
 
 import { queries } from '@erxes/ui/src/team/graphql';

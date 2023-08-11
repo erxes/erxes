@@ -1,3 +1,9 @@
+export interface IRouterProps {
+  history: any;
+  location: any;
+  match: any;
+}
+
 export type Store = {
   currentUser: IUser;
   topic: Topic;
@@ -116,7 +122,7 @@ export type Label = {
   _id: string;
   name: string;
   colorCode: string;
-}
+};
 
 export type Config = {
   _id?: string;
@@ -132,16 +138,27 @@ export type Config = {
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   taskPublicPipelineId?: string;
+  taskPublicLabel?: string;
+  taskPublicBoardId?: string;
   ticketLabel?: string;
+  dealLabel?: string;
+  purchaseLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   ticketStageId?: string;
+  dealStageId?: string;
+  purchaseStageId?: string;
   ticketPipelineId?: string;
+  dealPipelineId?: string;
+  purchasePipelineId?: string;
+  taskPipelineId?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   taskToggle?: boolean;
+  dealToggle?: boolean;
+  purchaseToggle?: boolean;
 
   styles?: {
     bodyColor?: string;
@@ -219,7 +236,9 @@ export interface IUser {
   details?: IUserDetails;
   type: string;
   companyName: string;
-
+  username?: string;
+  erxesCustomerId?: string;
+  avatar?: string;
   notificationSettings?: INotifcationSettings;
 }
 
@@ -271,6 +290,16 @@ export interface ITicket {
   };
 }
 
+export type GroupBy = {
+  groupBy: string;
+  setGroupBy: string;
+};
+
+export type ViewMode = {
+  viewMode: string;
+  setViewMode: string;
+};
+
 export interface IKbArticle extends ICommonFields {
   _id: string;
   title: string;
@@ -281,6 +310,7 @@ export interface IKbArticle extends ICommonFields {
   categoryId?: string;
   reactionChoices?: string[];
   createdUser: IUser;
+  viewCount?: number;
 }
 
 export interface INotification {
@@ -290,6 +320,7 @@ export interface INotification {
   link: string;
   isRead: boolean;
   createdAt: Date;
+  createdUser: IUser;
 }
 
 export type Topic = {
@@ -334,3 +365,83 @@ export type NotificationsQueryResponse = {
 export type NotificationDetailQueryResponse = {
   clientPortalNotificationDetail: INotification;
 };
+
+export interface IProductData {
+  _id: string;
+  productId?: string;
+  product?: IProduct;
+  uom?: string;
+  currency?: string;
+  quantity: number;
+  unitPrice: number;
+  globalUnitPrice: number;
+  unitPricePercent: number;
+  taxPercent?: number;
+  tax: number;
+  vatPercent: number;
+  discountPercent?: number;
+  discount: number;
+  amount: number;
+  tickUsed?: boolean;
+  isVatApplied?: boolean;
+  assignUserId?: string;
+  maxQuantity: number;
+  branchId?: string;
+  departmentId?: string;
+  name?: string;
+  type?: string;
+}
+
+export interface IProductCategory {
+  _id: string;
+  name: string;
+  order: string;
+  code: string;
+  description?: string;
+  attachment?: any;
+  status: string;
+  parentId?: string;
+  createdAt: Date;
+  productCount: number;
+  isRoot: boolean;
+  meta: string;
+}
+export interface IProduct {
+  _id: string;
+  name: string;
+  type: string;
+  categoryId: string;
+  description: string;
+  barcodes: string[];
+  barcodeDescription: string;
+  code: string;
+  unitPrice: number;
+  customFieldsData?: any;
+  createdAt: Date;
+  vendorId?: string;
+
+  attachment?: any;
+  attachmentMore?: any[];
+  category: IProductCategory;
+
+  uom?: string;
+  subUoms?: any[];
+  taxType?: string;
+  taxCode?: string;
+}
+
+export interface IPaymentsData {
+  [key: string]: {
+    currency?: string;
+    amount?: number;
+  };
+}
+
+export interface LogicParams {
+  fieldId: string;
+  operator: string;
+  logicValue: any;
+  validation?: string;
+  fieldValue?: any;
+  type?: string;
+}

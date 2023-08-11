@@ -45,6 +45,11 @@ export interface IClientPortal {
   styles?: IStyles;
   mobileResponsive?: boolean;
 
+  // auth
+  tokenExpiration?: number;
+  refreshTokenExpiration?: number;
+  tokenPassMethod?: 'cookie' | 'header';
+
   otpConfig?: IOTPConfig;
   mailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
@@ -60,11 +65,13 @@ export interface IClientPortal {
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;
   dealLabel?: string;
+  purchaseLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   taskPipelineId?: string;
   taskPublicBoardId?: string;
   taskPublicPipelineId?: string;
+  taskPublicLabel?: string;
   taskBoardId?: string;
   ticketStageId?: string;
   ticketPipelineId?: string;
@@ -72,11 +79,15 @@ export interface IClientPortal {
   dealStageId?: string;
   dealPipelineId?: string;
   dealBoardId?: string;
+  purchaseStageId?: string;
+  purchasePipelineId?: string;
+  purchaseBoardId?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   dealToggle?: boolean;
+  purchaseToggle?: boolean;
   taskToggle?: boolean;
 }
 
@@ -185,8 +196,10 @@ export const clientPortalSchema = new Schema({
   knowledgeBaseTopicId: field({ type: String }),
   ticketLabel: field({ type: String, optional: true }),
   dealLabel: field({ type: String, optional: true }),
+  purchaseLabel: field({ type: String, optional: true }),
   taskPublicBoardId: field({ type: String, optional: true }),
   taskPublicPipelineId: field({ type: String, optional: true }),
+  taskPublicLabel: field({ type: String, optional: true }),
   taskLabel: field({ type: String, optional: true }),
   taskStageId: field({ type: String }),
   taskPipelineId: field({ type: String }),
@@ -197,12 +210,16 @@ export const clientPortalSchema = new Schema({
   dealStageId: field({ type: String }),
   dealPipelineId: field({ type: String }),
   dealBoardId: field({ type: String }),
+  purchaseStageId: field({ type: String }),
+  purchasePipelineId: field({ type: String }),
+  purchaseBoardId: field({ type: String }),
 
   kbToggle: field({ type: Boolean }),
   publicTaskToggle: field({ type: Boolean }),
   ticketToggle: field({ type: Boolean }),
   taskToggle: field({ type: Boolean }),
   dealToggle: field({ type: Boolean }),
+  purchaseToggle: field({ type: Boolean }),
 
   createdAt: field({
     type: Date,
@@ -218,5 +235,31 @@ export const clientPortalSchema = new Schema({
       smsContent: field({ type: String, optional: true })
     },
     optional: true
+  }),
+
+  tokenExpiration: field({
+    type: Number,
+    optional: true,
+    default: 1,
+    label: 'Token expiration',
+    min: 1,
+    max: 7
+  }),
+
+  refreshTokenExpiration: field({
+    type: Number,
+    optional: true,
+    default: 7,
+    min: 1,
+    max: 30,
+    label: 'Refresh token expiration'
+  }),
+
+  tokenPassMethod: field({
+    type: String,
+    optional: true,
+    default: 'cookie',
+    label: 'Token pass method',
+    enum: ['cookie', 'header']
   })
 });

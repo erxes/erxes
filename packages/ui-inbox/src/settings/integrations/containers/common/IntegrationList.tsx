@@ -16,8 +16,8 @@ import { mutations, queries } from '../../graphql';
 import IntegrationList from '../../components/common/IntegrationList';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { integrationsListParams } from '../utils';
 
 type Props = {
@@ -106,9 +106,10 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const editIntegration = (
     id: string,
-    { name, brandId, channelIds, data }: IntegrationMutationVariables
+    { name, brandId, channelIds, data }: IntegrationMutationVariables,
+    callback: () => void
   ) => {
-    if (!name && !brandId) {
+    if (!name || !brandId) {
       Alert.error('Name and brand must be chosen');
 
       return;
@@ -123,6 +124,8 @@ const IntegrationListContainer = (props: FinalProps) => {
         if (result && result._id) {
           Alert.success('Integration has been edited.');
         }
+
+        callback();
       })
       .catch((error: Error) => {
         Alert.error(error.message);

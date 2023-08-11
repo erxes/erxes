@@ -10,9 +10,12 @@ import 'erxes-icon/css/erxes.min.css';
 import '@erxes/ui/src/styles/global-styles.ts';
 import { getEnv, readFile } from 'modules/common/utils';
 import React from 'react';
-import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider } from '@apollo/client';
 import { render } from 'react-dom';
 import { getThemeItem } from '@erxes/ui/src/utils/core';
+
+import { setVerbosity } from 'ts-invariant';
+setVerbosity('warn');
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
@@ -33,9 +36,12 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
       const link = document.createElement('link');
       link.id = 'favicon';
       link.rel = 'shortcut icon';
-      link.href = getThemeItem('favicon')
-        ? readFile(getThemeItem('favicon'))
-        : '/favicon.png';
+
+      const favicon = getThemeItem('favicon');
+      link.href =
+        favicon && typeof favicon === 'string'
+          ? readFile(favicon)
+          : '/favicon.png';
 
       document.head.appendChild(link);
     }

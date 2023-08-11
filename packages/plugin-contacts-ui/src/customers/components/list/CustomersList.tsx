@@ -31,7 +31,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import { __, Alert, confirm, router } from 'coreui/utils';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, withRouter } from 'react-router-dom';
@@ -503,7 +503,7 @@ class CustomersList extends React.Component<IProps, State> {
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Customers"
-              size="lg"
+              size="xl"
               dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={customersMerge}
@@ -574,7 +574,13 @@ class CustomersList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar loadingMainQuery={loading} type={type} />}
+        leftSidebar={
+          <Sidebar
+            loadingMainQuery={loading}
+            type={type}
+            queryParams={queryParams}
+          />
+        }
         content={
           <DataWithLoader
             data={this.renderContent()}

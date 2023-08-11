@@ -91,14 +91,14 @@ export const uploadFileAWS = async (
   rowIndex: any,
   type: string
 ): Promise<{ file: string; rowIndex: number; error: string }> => {
-  const { AWS_BUCKET } = await getFileUploadConfigs();
+  const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
 
   // initialize s3
   const s3 = await createAWS();
 
   const excelData = await generateXlsx(workbook);
 
-  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`;
+  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}.xlsx`;
 
   const response: any = await new Promise(resolve => {
     s3.upload(
@@ -108,7 +108,7 @@ export const uploadFileAWS = async (
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: excelData,
-        ACL: 'public-read'
+        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined
       },
       (err, res) => {
         if (err) {
@@ -119,7 +119,7 @@ export const uploadFileAWS = async (
     );
   });
 
-  const file = response.Location;
+  const file = FILE_SYSTEM_PUBLIC === 'true' ? response.Location : fileName;
   const error = response.error;
 
   return { file, rowIndex, error };
@@ -145,7 +145,7 @@ connect()
 
     const [serviceName, type] = contentType.split(':');
 
-    const { excelHeader, docs } = await messageBroker().sendRPCMessage(
+    const { totalCount, excelHeader } = await messageBroker().sendRPCMessage(
       `${serviceName}:exporter:prepareExportData`,
       {
         subdomain,
@@ -157,6 +157,40 @@ connect()
         timeout: 5 * 60 * 1000
       }
     );
+
+    const perPage = 10;
+    const totalIterations = Math.ceil(totalCount / perPage);
+
+    let docs = [] as any;
+    let percentage = 0;
+
+    for (let page = 1; page <= totalIterations; page++) {
+      const response = await messageBroker().sendRPCMessage(
+        `${serviceName}:exporter:getExportDocs`,
+        {
+          subdomain,
+          data: {
+            contentType,
+            columnsConfig,
+            segmentData,
+            page,
+            perPage
+          },
+          timeout: 5 * 60 * 1000
+        }
+      );
+
+      percentage = Number(
+        ((((page - 1) * perPage) / totalCount) * 100).toFixed(2)
+      );
+
+      await models.ExportHistory.updateOne(
+        { _id: exportHistoryId },
+        { $set: { percentage } }
+      );
+
+      docs = docs.concat(response ? response.docs || [] : []);
+    }
 
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
@@ -193,19 +227,21 @@ connect()
 
     let finalResponse = {
       exportLink: result.file,
-      total: result.rowIndex - 1,
+      total: totalCount,
       status: 'success',
       uploadType: UPLOAD_SERVICE_TYPE,
-      errorMsg: ''
+      errorMsg: '',
+      percentage: 100
     };
 
     if (result.error) {
       finalResponse = {
         exportLink: result.file,
-        total: result.rowIndex - 1,
+        total: totalCount,
         status: 'failed',
         uploadType: UPLOAD_SERVICE_TYPE,
-        errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`
+        errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`,
+        percentage: 100
       };
     }
 

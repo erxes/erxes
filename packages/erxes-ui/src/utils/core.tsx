@@ -176,6 +176,10 @@ export const renderUserFullName = data => {
     return details.fullName;
   }
 
+  if (details && (details.firstName || details.lastName)) {
+    return (data.firstName || '') + ' ' + (data.lastName || '');
+  }
+
   if (data.email || data.username) {
     return data.email || data.username;
   }
@@ -299,8 +303,8 @@ export const readFile = (value: string): string => {
   if (
     !value ||
     urlParser.isValidURL(value) ||
-    value.includes('http') ||
-    value.startsWith('/')
+    (typeof value === 'string' && value.includes('http')) ||
+    (typeof value === 'string' && value.startsWith('/'))
   ) {
     return value;
   }
@@ -528,6 +532,42 @@ export function formatValue(value) {
   return value || '-';
 }
 
+export function numberFormatter(value = '', fixed) {
+  if (
+    fixed &&
+    `${value}`.includes('.') &&
+    `${value}`.split('.')?.[1]?.length > fixed
+  )
+    value = Number(value).toFixed(fixed);
+
+  return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+export function numberParser(value, fixed) {
+  if (value === '-') return '-';
+  if (RegExp('-', 'g').test(value)) {
+    value = value.replace(RegExp('-', 'g'), '');
+    value = `-${value}`;
+  }
+
+  value = value!.replace(/(,*)/g, '');
+
+  if (value?.includes('.')) {
+    var numberValues = value.split('.');
+    numberValues[0] = Number(numberValues[0]);
+
+    if (fixed && numberValues[1].length > fixed) {
+      numberValues[1] = numberValues[1].substring(0, fixed);
+    }
+
+    value = `${numberValues[0]}.${numberValues[1]}`;
+  } else {
+    value = Number(value);
+  }
+
+  return value;
+}
+
 export function isEmptyContent(content: string) {
   // check if a string contains whitespace or empty
   return !/\S/.test(content);
@@ -646,17 +686,16 @@ export const generateTree = (
 };
 
 export const removeTypename = (obj?: any[] | any) => {
-  if (Array.isArray(obj)) {
-    return obj.map(item => {
-      delete item.__typename;
+  const deleteType = (e: any) => {
+    const { __typename, ...rest } = e;
+    return rest;
+  };
 
-      return item;
-    });
+  if (Array.isArray(obj)) {
+    return obj.map(item => deleteType(item));
   }
 
-  delete obj.__typename;
-
-  return obj;
+  return deleteType(obj);
 };
 
 export const publicUrl = path => {

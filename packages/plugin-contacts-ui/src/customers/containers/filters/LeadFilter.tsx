@@ -8,8 +8,8 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 import LeadFilter from '../../components/list/LeadFilter';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationQuery } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { queries } from '@erxes/ui-contacts/src/customers/graphql';
 import { withProps } from '@erxes/ui/src/utils';
@@ -18,10 +18,17 @@ type Props = {
   integrationsQuery?: IntegrationsQueryResponse;
   customersCountQuery?: CountQueryResponse;
   totalCountQuery?: IntegrationsCountQueryResponse;
+
+  queryParams?: any;
 };
 
 function LeadFilterContainer(props: Props) {
-  const { integrationsQuery, totalCountQuery, customersCountQuery } = props;
+  const {
+    integrationsQuery,
+    totalCountQuery,
+    customersCountQuery,
+    queryParams
+  } = props;
 
   const defaultIntegrations = integrationsQuery
     ? integrationsQuery.integrations || []
@@ -39,7 +46,11 @@ function LeadFilterContainer(props: Props) {
       prevIntegrationsQuery &&
       integrationsQuery.integrations !== prevIntegrationsQuery.integrations
     ) {
-      setIntegrations([...integrations, ...integrationsQuery.integrations]);
+      if (!queryParams.searchTarget || !queryParams.searchTarget.length) {
+        setIntegrations([...integrations, ...integrationsQuery.integrations]);
+      } else {
+        setIntegrations(integrationsQuery.integrations);
+      }
     }
 
     prevProp.current = integrationsQuery;
@@ -77,6 +88,7 @@ type WrapperProps = {
   abortController?: any;
   type: string;
   loadingMainQuery: boolean;
+  queryParams?: any;
 };
 
 export default withProps<WrapperProps>(
@@ -85,8 +97,13 @@ export default withProps<WrapperProps>(
       gql(integrationQuery.integrations),
       {
         name: 'integrationsQuery',
-        options: ({ abortController }) => ({
-          variables: { kind: 'lead', perPage: 10, page: 1 },
+        options: ({ abortController, queryParams }) => ({
+          variables: {
+            kind: 'lead',
+            perPage: 10,
+            page: 1,
+            searchValue: queryParams.searchTarget
+          },
           context: {
             fetchOptions: { signal: abortController && abortController.signal }
           }

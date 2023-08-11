@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries as inboxQueries } from '@erxes/ui-inbox/src/inbox/graphql';
 import IntegrationFilter from '../../components/list/IntegrationFilter';

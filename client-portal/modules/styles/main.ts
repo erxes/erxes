@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components';
 
 import { rgba } from '../styles/ecolor';
 import styledTS from 'styled-components-ts';
+import { Input } from './form';
 
 const Header = styledTS<{
   color?: string;
@@ -10,30 +11,65 @@ const Header = styledTS<{
   backgroundImage?: string;
   headingSpacing?: boolean;
 }>(styled.div)`
-  padding: ${(props) => (props.headingSpacing ? '30px 30px 180px' : '30px 0')};
-  color: ${(props) => (props.color ? props.color : colors.colorWhite)};
+  padding: ${props => (props.headingSpacing ? '30px 30px 80px' : '30px 0')};
+  color: ${props => (props.color ? props.color : colors.colorWhite)};
   font-size: ${typography.fontSizeBody}px;
-  background-color: ${(props) =>
+  background-color: ${props =>
     props.background ? props.background : '#f5f8fb'};
-  background-image: ${(props) =>
+  background-image: ${props =>
     props.backgroundImage && `url(${props.backgroundImage})`};
+  position: relative;
+  border-radius: 0 0 30px 30px;
 
   h3 {
     font-size: 1.75rem;
-    font-weight: ${typography.fontWeightLight};
-    margin: 20px 0;
+    font-weight: ${typography.fontWeightRegular};
+    margin: 30px 0;
+
+    @media (max-width: 700px) {
+      margin: 0 0 ${dimensions.coreSpacing}px 0;
+    }
   }
 
   .modal-content {
     background: transparent;
     border: 0;
   }
+
+  &:after, &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: auto;
+    right: 0;
+    bottom: 0;
+    width: 30%;
+    background-image: url('/static/cp_header_bg.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  &:before {
+    left: 0;
+    top: 60%;
+  }
 `;
 
 const HeaderTop = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: ${dimensions.unitSpacing}px;
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+    align-items: flex-start;
+
+    > div {
+      flex: 1;
+      margin-bottom: ${dimensions.coreSpacing}px;
+    }
+  }
 `;
 
 const HeaderLogo = styled.div`
@@ -49,17 +85,20 @@ const HeaderLogo = styled.div`
 const HeaderTitle = styledTS<{ color?: string }>(styled.span)`
   margin-left: 10px;
   padding-left: 10px;
-  border-left: 1px solid ${(props) =>
+  border-left: 1px solid ${props =>
     props.color ? props.color : colors.colorWhite};
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 1px;
   text-transform: capitalize;
 `;
 
 const HeaderRight = styled.div`
   display: flex;
-  flex: 1;
-  flex-direction: column;
+
+  @media (max-width: 700px) {
+    width: 100%;
+    justify-content: center;
+  }
 `;
 
 const HeaderLeft = styled.div`
@@ -67,52 +106,63 @@ const HeaderLeft = styled.div`
   align-items: center;
 `;
 
-const SupportMenus = styledTS<{ color?: string }>(styled.div)`
+const HamburgerMenuWrapper = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+`;
+
+const SupportMenus = styledTS<{ color?: string; baseColor?: string }>(
+  styled.div
+)`
   display: flex;
+  gap:${dimensions.coreSpacing}px;
   align-items: baseline;
   justify-content: flex-end;
+  align-items: center;
   margin-bottom: 10px;
+  position: relative;
 
-  a {
-    margin-left: 10px;
-    letter-spacing: 0.5px;
-    opacity: 0.8;
+  .dropdown {
+    cursor: pointer;
+  }
+
+  .dropdown-menu {
+    min-width: 210px;
+    right: -50px;
+    left: auto !important;
+    top: 35px !important;
+    transform: none !important;
   }
 
   > button {
-    color: ${(props) =>
+    color: ${props =>
       props.color ? props.color : colors.colorWhite} !important;
-  }
+    border: 1px solid transparent;
 
-  span {
-    margin-left: 10px;
-    
-    i {
-      font-size: 18px
+    &.ghost {
+      color: ${props =>
+        props.baseColor ? props.baseColor : colors.textPrimary} !important;
     }
 
-    &:hover {
-      cursor: pointer;
+    &:focus {
+      outline: none;
     }
   }
+`;
 
-  .notifications {
-    position: relative;
+const NotificationsBadge = styled.div`
+  cursor: pointer;
+  position: relative;
+  margin-right: ${dimensions.coreSpacing - 5}px;
 
-    div {
-      border-radius: 15px;
-      background-color: red;
-      font-size: 10px;
-      max-width: 50px;
-      color: white;
-      text-align: center;
-      position: absolute;
-      right: -6px;
-      width: 14px;
-      top: -8px;
-    }
+  > span {
+    position: absolute;
+    right: -5px;
+    left: auto;
+    top: -5px;
+    background: ${colors.colorCoreRed};
+    width: 20px;
+    height: 20px;
   }
-
 `;
 
 const WebLink = styled.a`
@@ -122,18 +172,28 @@ const WebLink = styled.a`
   max-width: 100%;
 `;
 
-const HeaderLinks = styled.div`
-  text-align: right;
+const HeaderLinks = styledTS<{ backgroundColor: string }>(styled.div)`
+  text-align: left;
+  margin-left: ${dimensions.coreSpacing}px;
+  > span {
+    &:hover {
+      opacity: 0.8;
+      color: ${props => props.backgroundColor};
+    }
+  }
+  
+  @media (max-width: 700px) {
+    text-align: right;
+    margin-right: ${dimensions.coreSpacing}px;
+  }
 `;
 
 const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
-  display: inline-block;
+  display: block;
   padding-right: ${dimensions.unitSpacing}px;
   margin-right: ${dimensions.unitSpacing}px;
   font-size: 14px;
   opacity: 0.9;
-  border-right: 1px solid ${(props) =>
-    props.color ? props.color : colors.colorWhite};
   text-transform: capitalize;
   position: relative;
   transition: all ease 0.3s;
@@ -145,14 +205,13 @@ const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
 
   border-bottom: 2px solid transparent;
 
-  ${(props) =>
+  ${props =>
     props.active &&
     `
     font-weight: 600;
     opacity: 1;
 
     &:after {
-      content: '.';
       position absolute;
       bottom: -15px;
       left: 45%;
@@ -163,17 +222,20 @@ const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
   &:hover {
     opacity: 1;
   }
+
+  @media (max-width: 700px) {
+    margin: 0 0 ${dimensions.unitSpacing}px 5px;
+  }
 `;
 
 const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
   styled.div
 )`
-  background-color: ${(props) =>
-    props.bodyColor ? props.bodyColor : '#f5f8fb'};
+  background-color: ${props => (props.bodyColor ? props.bodyColor : '#f5f8fb')};
   min-height: 60vh;
   padding: 32px 0;
 
-  ${(props) =>
+  ${props =>
     props.baseColor &&
     css`
       .base-color {
@@ -182,13 +244,20 @@ const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
     `};
 `;
 
-const Container = styledTS<{ transparent?: boolean; shrink?: boolean }>(
-  styled.div
-)`
-  width: ${dimensions.wrapperWidth}%;
+const Container = styledTS<{
+  transparent?: boolean;
+  shrink?: boolean;
+  large?: boolean;
+}>(styled.div)`
+  width: ${props =>
+    props.large
+      ? dimensions.wrapperWidth + dimensions.coreSpacing
+      : dimensions.wrapperWidth + dimensions.unitSpacing}%;
   margin: 0 auto;
+  position: relative;
+  z-index: 3;
 
-  ${(props) =>
+  ${props =>
     !props.shrink &&
     css`
       height: 100%;
@@ -204,11 +273,26 @@ const Container = styledTS<{ transparent?: boolean; shrink?: boolean }>(
   }
 `;
 
+const BottomComponent = styledTS<{ transparent?: boolean }>(styled.div)`
+  width: ${dimensions.wrapperWidth + dimensions.unitSpacing}%;
+  margin: 70px auto 0;
+  text-align: center;
+
+  @media (max-width: 1200px) {
+    width: 80%;
+  }
+
+  @media (max-width: 800px) {
+    width: 90%;
+    margin: 0 auto;
+  }
+`;
+
 const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   text-align: center;
   float: left;
   background: ${colors.colorLightBlue};
-  box-shadow: ${(props) =>
+  box-shadow: ${props =>
     props.selected
       ? `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`
       : `0 6px 10px 1px ${rgba(colors.colorCoreGray, 0.08)}`} ;
@@ -217,8 +301,7 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   border-radius: ${dimensions.unitSpacing / 2 - 1}px;
   transition: all 0.25s ease;
   border: 1px solid
-    ${(props) =>
-      props.selected ? colors.colorSecondary : colors.borderPrimary};
+    ${props => (props.selected ? colors.colorSecondary : colors.borderPrimary)};
 
   > a {
     display: block;
@@ -261,7 +344,10 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
 
 const SearchContainer = styledTS<{ focused: boolean }>(styled.div)`
   position: relative;
-  ${(props) =>
+  width: 80%;
+  margin: 0 auto;
+
+  ${props =>
     props.focused &&
     css`
       i {
@@ -270,53 +356,49 @@ const SearchContainer = styledTS<{ focused: boolean }>(styled.div)`
     `};
 
   input {
-    border: 1px solid #e2e2e2;
     width: 100%;
-    background: #fff;
+    border: 1px solid #ddd;
+    background: rgba(255,255,255,.9);
     font-size: 18px;
-    border-radius: 5px;
-    padding: 10px 32px 11px 59px;
-    color: #222;
+    border-radius: 100px;
+    padding: 15px 40px 15px 55px;
+    color: ${colors.textSecondary};
     transition: all 0.3s linear;
-
-    &::placeholder {
-      color: rgba(0, 0, 0, 0.6);
-      font-weight: 400;
-    }
 
     &:focus,
     &:active {
       background: ${colors.colorWhite};
-      color: #666;
+      color: ${colors.textSecondary};
+    }
+
+    &::placeholder {
+      color: ${colors.colorLightGray};
+      font-weight: 400;
     }
   }
 
-  input:focus::-webkit-input-placeholder {
-    color: rgba(0, 0, 0, 0.5);
-    font-weight: 400;
-  }
-
   i {
-    font-size: 22px;
-    cursor: pointer;
     position: absolute;
-    top: 10px;
+    color: ${colors.colorCoreLightGray};
+    top: 5px;
   }
 
   i:nth-child(1) {
-    left: 20px;
+    left: ${dimensions.unitSpacing + 5}px;
   }
 
   .icon-times-circle {
     right: 20px;
+    cursor: pointer;
+    z-index: 2;
+    top: ${dimensions.unitSpacing}px;
   }
-
 `;
 
 const Footer = styledTS<{ color?: string; backgroundImage?: string }>(
   styled.div
 )`
-  background-color: ${(props) =>
+  background-color: ${props =>
     props.color ? props.color : colors.colorPrimary};
   padding: 40px 0;
   color: ${colors.colorWhite};
@@ -373,16 +455,24 @@ const ModalWrapper = styledTS<{ isFull?: boolean }>(styled.div)`
       position: relative;
       z-index: 99;
       width: 60%;
-      max-width: ${(props) => (props.isFull ? '900px' : '600px')};
+      max-width: ${props => (props.isFull ? '900px' : '600px')};
       border-radius: 2px;
       margin: 100px auto;
+
+      @media (max-width: 700px) {
+        width: 90%;
+      }
     }
+
+    @media (max-width: 700px) {
+      overflow-x: hidden;
+     }
   }
 `;
 
 const ModalClose = styled.div`
   position: absolute;
-  right: 10px;
+  right: 30px;
   top: 20px;
   width: 30px;
   height: 30px;
@@ -396,34 +486,23 @@ const ModalClose = styled.div`
 
 const HeaderWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
 
-  button {
-    border: 1px solid ${colors.colorWhite};
-    background: transparent;
-    opacity: 0.9;
-    transition: all ease 0.3s;
-
-    &:hover {
-      opacity: 1;
-      background: transparent;
-    }
+  h4 {
+    text-transform: uppercase;
+    font-size: 18px;
+    margin: 0;
   }
 
-  > div:first-child {
-    width: 60%;
-    margin-right: ${dimensions.coreSpacing}px;
+  @media (max-width: 700px) {
+    > div {
+      margin-top: 20px;
 
-    @media (max-width: 1550px) {
-      width: 45%;
-    }
-  }
-
-  .right {
-    @media (max-width: 1140px) {
-      button {
-        margin-bottom: ${dimensions.unitSpacing}px;
+      .dropdown {
+        flex: 1;
       }
     }
   }
@@ -437,6 +516,7 @@ const FormWrapper = styled.div`
   .customFieldDescription {
     font-size: 13px;
     margin-bottom: 10px;
+    color: ${colors.colorCoreGray};
   }
 
   h4 {
@@ -463,9 +543,9 @@ const FormWrapper = styled.div`
   }
 `;
 
-const Badge = styled.div`
+const Badge = styled.span`
   border-radius: 15px;
-  background-color: ${(props) => props.color};
+  background-color: ${props => props.color};
   font-size: 11px;
   max-width: 50px;
   color: white;
@@ -478,7 +558,7 @@ const NotificationContent = styledTS<{ isList?: boolean }>(styled.div)`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   word-break: break-word;
-  max-width: ${(props) => (props.isList ? '100%' : '270px')};
+  max-width: ${props => (props.isList ? '100%' : '270px')};
 
   > p {
     margin: 0;
@@ -491,10 +571,237 @@ const Content = styledTS<{ isList?: boolean }>(styled.div)`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   word-break: break-word;
-  max-width: ${(props) => (props.isList ? '100%' : '270px')};
+  max-width: ${props => (props.isList ? '100%' : '270px')};
 
   > p {
     margin: 0;
+  }
+`;
+
+const NotificationHeader = styled.div`
+  background: ${colors.colorSecondary};
+  padding: ${dimensions.coreSpacing}px;
+  color: ${colors.colorWhite};
+
+  h5 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  span {
+    color: #f3f6f9;
+    background-color: rgba(243, 246, 249, 0.1);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+`;
+const SidebarHeader = styledTS<{
+  spaceBottom?: boolean;
+  uppercase?: boolean;
+  bold?: boolean;
+}>(styled.div)`
+  height: ${dimensions.headerSpacing}px;
+  align-items: center;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  text-transform: ${props => props.uppercase && 'uppercase'};
+  font-weight: ${props => (props.bold ? 'bold' : '500')};
+  display: flex;
+  font-size: ${typography.fontSizeHeading8}px;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0px ${dimensions.coreSpacing}px;
+`;
+
+const SidebarTitle = styledTS<{
+  children: any;
+}>(styled(SidebarHeader.withComponent('h3')))`
+  padding: 0;
+  margin: 0px ${dimensions.coreSpacing}px;
+  text-transform: uppercase;
+  position: relative;
+  `;
+
+const SidebarBox = styledTS<{
+  noBackground?: boolean;
+  noShadow?: boolean;
+  collapsible?: boolean;
+  full?: boolean;
+  noMargin?: boolean;
+}>(styled.div)`
+    background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
+    margin-bottom: ${props => !props.noMargin && dimensions.unitSpacing}px;
+    box-shadow: ${props =>
+      props.noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
+    padding-bottom: ${props =>
+      props.collapsible ? `${dimensions.unitSpacing}px` : '0'};
+    position: ${props => (props.full ? 'initial' : 'relative')};
+    justify-content: center;
+    transition: max-height 0.4s;
+    overflow: ${props => (props.collapsible ? 'hidden' : 'initial')};
+    display: ${props => props.full && 'flex'};
+    &:last-child {
+      margin-bottom: 0;
+    }
+  `;
+
+const SectionContainer = styledTS<{ hasShadow?: boolean }>(styled.div)`
+  position: relative;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  box-shadow: ${props => props.hasShadow && 'rgb(0 0 0 / 8%) 0px 0px 6px 0px'};
+
+  > div {
+    margin-bottom: 0;
+  }
+  &:last-child {
+    margin-bottom: 0;
+  }
+  ${SidebarBox} {
+    box-shadow: none;
+  }
+  ${SidebarTitle} {
+    height: 40px;
+    cursor: pointer;
+    transition: all ease 0.3s;
+
+    &:hover {
+      color: ${colors.colorSecondary};
+    }
+  }
+`;
+
+const tableHoverColor = '#f5f5f5';
+
+const FormLabel = styled.label`
+  position: relative;
+  display: inline-block;
+  font-weight: normal;
+
+  span {
+    cursor: pointer;
+    display: inline-block;
+  }
+`;
+
+const StyledTable = styledTS<{
+  whiteSpace?: string;
+  alignTop?: boolean;
+  hover?: boolean;
+  bordered?: boolean;
+  striped?: boolean;
+  wideHeader?: boolean;
+}>(styled.table)`
+  ${props => css`
+    width: 100%;
+    max-width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    white-space: ${props.whiteSpace || ''};
+
+    tr {
+      margin: 0 20px;
+    }
+
+    th,
+    td {
+      border-top: 1px solid ${colors.borderPrimary};
+      color: ${colors.textPrimary};
+      padding: ${dimensions.unitSpacing - 2}px;
+      display: table-cell;
+      vertical-align: ${props.alignTop && 'top'};
+
+      & ${FormLabel}, & ${Input} {
+        margin: 0px;
+      }
+
+      &:first-child {
+        padding-left: 0;
+      }
+    }
+
+    thead {
+      th,
+      td {
+        text-transform: uppercase;
+        font-size: ${typography.fontSizeUppercase}px;
+      }
+
+      th {
+        background-color: ${colors.colorWhite};
+        margin-left: 20px;
+        position: sticky;
+        z-index: 1;
+        top: 0;
+      }
+    }
+
+    ${props.hover
+      ? `tr:hover td { background-color: ${tableHoverColor}; }`
+      : null} ${props.bordered
+      ? `th, td { border-bottom: 1px solid ${colors.borderPrimary}; }`
+      : null} ${props.striped
+      ? `tr:nth-of-type(odd) td { background-color: ${colors.bgLightPurple}; }`
+      : null} th {
+      border-top: none;
+    }
+
+    th:first-child,
+    td:first-child {
+      border-left: none;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: none;
+      text-align: right;
+    }
+
+    td.with-input {
+      text-align: center;
+    }
+
+    .with-input input {
+      width: 40px;
+      text-align: center;
+      outline: 0;
+      border: 1px solid ${colors.borderDarker};
+      border-radius: 2px;
+      font-size: 12px;
+      height: 24px;
+    }
+
+    @media (min-width: 1170px) {
+      th,
+      td {
+        padding: ${props =>
+            props.wideHeader
+              ? `${dimensions.unitSpacing + 2}px`
+              : `${dimensions.unitSpacing - 2}`}
+          ${dimensions.coreSpacing - 2}px;
+
+        &:last-child {
+          padding-right: ${dimensions.coreSpacing}px;
+        }
+      }
+    }
+  `};
+`;
+
+const TableWrapper = styled.div`
+  table thead tr th {
+    font-size: 10px;
+  }
+`;
+
+const FooterInfo = styled.div`
+  overflow: hidden;
+
+  table {
+    text-align: right;
+    float: right;
+    width: 50%;
+    font-size: 14px;
   }
 `;
 
@@ -502,6 +809,8 @@ const NotificationList = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;
+  max-height: 400px;
+  overflow: auto;
 
   li {
     padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
@@ -533,7 +842,11 @@ const NotificationList = styled.ul`
 const InfoSection = styled.div`
   position: relative;
   flex: 1;
-  padding: 0 ${dimensions.coreSpacing}px;
+  font-size: 13px;
+
+  p {
+    margin: 0;
+  }
 `;
 
 const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
@@ -541,13 +854,21 @@ const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
   color: ${colors.colorCoreGray};
   padding-top: 3px;
 
-  ${(props) =>
+  ${props =>
     props.isList &&
     css`
       position: absolute;
       right: 0;
       top: 5px;
     `}
+`;
+
+const AuthContainer = styled.div`
+  button {
+    &.border {
+      border: 1px solid ${colors.colorWhite};
+    }
+  }
 `;
 
 export {
@@ -566,6 +887,7 @@ export {
   SearchContainer,
   Footer,
   FooterLink,
+  BottomComponent,
   LinkItem,
   ModalWrapper,
   ModalClose,
@@ -573,8 +895,15 @@ export {
   FormWrapper,
   Badge,
   NotificationContent,
+  NotificationsBadge,
   Content,
   NotificationList,
+  NotificationHeader,
   InfoSection,
-  CreatedDate
+  CreatedDate,
+  AuthContainer,
+  StyledTable,
+  TableWrapper,
+  FooterInfo,
+  HamburgerMenuWrapper
 };

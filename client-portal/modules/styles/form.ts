@@ -1,5 +1,6 @@
-import styled from "styled-components";
 import { colors, dimensions } from "../styles";
+
+import styled from "styled-components";
 
 const Input = styled.input`
   margin-bottom: 20px;
@@ -11,17 +12,23 @@ const Input = styled.input`
 
 const LoginFormWrapper = styled.div`
   width: 520px;
-  margin: 50px auto 0;
   background: ${colors.colorWhite};
-  color: #666;
-  padding: 40px ${dimensions.headerSpacing}px;
+  color: ${colors.colorCoreGray};
+  padding: ${dimensions.headerSpacing}px ${dimensions.headerSpacing}px 30px;
   border-radius: ${dimensions.unitSpacing + 5}px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 
   h2 {
     text-align: center;
     font-weight: 500;
-    font-size: 22px;
+    font-size: 24px;
+    color: ${colors.textPrimary};
+  }
+
+  > p {
+    text-align: center;
+    color: ${colors.colorCoreGray};
+    margin: ${dimensions.coreSpacing}px;
   }
 
   input {
@@ -85,6 +92,11 @@ const LoginFormWrapper = styled.div`
       color: #1e87f0;
     }
   }
+
+  @media (max-width: 700px) {
+    width: 100%;
+    padding: 50px 30px 30px;
+   }
 `;
 
 const Error = styled.label`
@@ -94,4 +106,44 @@ const Error = styled.label`
   font-size: 12px;
 `;
 
-export { LoginFormWrapper, Input, Error };
+const WithIconFormControl = styled.div`
+  display: flex;
+  align-items: center;
+  border: 1px solid #DFDFE6;
+  border-radius: 12px;
+
+  > i {
+    padding: 0 0 0 ${dimensions.unitSpacing}px;
+    color: ${colors.colorLightGray};
+  }
+
+  input {
+    border: 0;
+    padding-left: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const SocialLogin = styled.div`
+  button {
+    line-height: 40px;
+    padding: 0 ${dimensions.unitSpacing}px !important;
+    border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px !important;
+    font-size: 12px !important;
+    text-transform: uppercase;
+    height: 40px !important;
+
+    > div {
+      justify-content: center;
+    }
+
+    div {
+      width: auto !important;
+
+      svg {
+        width: 16px;
+      }
+    }
+  }
+`;
+
+export { LoginFormWrapper, Input, Error, SocialLogin, WithIconFormControl };
