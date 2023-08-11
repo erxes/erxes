@@ -16,12 +16,32 @@ const types = `
     _id: String!
     name: String
   }
+
+  type CallsIntegrationDetailResponse {
+    _id: String
+    inboxId: String
+    username: String
+    password: String
+    wsServer: String
+    operatorIds: [String]
+  }
+
+  input CallIntegrationConfigs {
+    _id: String
+    inboxId: String
+    username: String
+    password: String
+    wsServer: String
+    operatorIds: [String]
+  }
 `;
 
 const queries = `
   callss(typeId: String): [Calls]
   callsTypes: [CallsType]
   callssTotalCount: Int
+
+  callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
 `;
 
 const params = `
@@ -38,6 +58,8 @@ const mutations = `
   callsTypesAdd(name:String):CallsType
   callsTypesRemove(_id: String!):JSON
   callsTypesEdit(_id: String!, name:String): CallsType
+
+  callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
 `;
 
 const typeDefs = async _serviceDiscovery => {

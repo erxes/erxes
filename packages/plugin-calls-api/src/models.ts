@@ -14,6 +14,25 @@ export const callsSchema = new Schema({
   typeId: String
 });
 
+export const integrationSchema: Schema<any> = new Schema({
+  inboxId: String,
+  username: String,
+  password: String,
+  wsServer: String,
+  operatorIds: [String]
+});
+
+export const loadIntegrationClass = () => {
+  class Integration {}
+  integrationSchema.loadClass(Integration);
+  return integrationSchema;
+};
+
+export const Integrations = model<any, any>(
+  'calls_integrations',
+  loadIntegrationClass()
+);
+
 export const loadTypeClass = () => {
   class Type {
     public static async getType(_id: string) {

@@ -1,4 +1,4 @@
-import { Callss, Types } from '../../models';
+import { Callss, Types, Integrations } from '../../models';
 import { IContext } from '@erxes/api-utils/src/types';
 
 const callsMutations = {
@@ -34,6 +34,18 @@ const callsMutations = {
 
   async callsTypesEdit(_root, { _id, ...doc }, _context: IContext) {
     return Types.updateType(_id, doc);
+  },
+
+  async callsIntegrationUpdate(_root, { configs }, _context: IContext) {
+    const { inboxId, ...data } = configs;
+    const integration = await Integrations.findOneAndUpdate(
+      { inboxId },
+      { $set: { ...data } },
+      {
+        returnOriginal: false
+      }
+    );
+    return integration;
   }
 };
 

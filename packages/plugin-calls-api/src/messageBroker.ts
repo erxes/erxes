@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
-import { Callss } from './models';
+import { Callss, Integrations } from './models';
 
 let client;
 
@@ -23,6 +23,24 @@ export const initBroker = async cl => {
       data: await Callss.find({})
     };
   });
+
+  consumeRPCQueue(
+    'calls:createIntegration',
+    async (args: ISendMessageArgs): Promise<any> => {
+      const { subdomain, data } = args;
+      const { integrationId, doc } = data;
+      const docData = JSON.parse(doc.data);
+
+      await Integrations.create({
+        inboxId: integrationId,
+        ...docData
+      });
+
+      return {
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (
