@@ -1,5 +1,15 @@
 import { gql } from 'apollo-server-express';
 
+const integrationCommonFields = `
+_id: String
+    inboxId: String
+    username: String
+    password: String
+    phone: String
+    wsServer: String
+    operatorIds: [String]
+`;
+
 const types = `
   type Calls {
     _id: String!
@@ -18,21 +28,11 @@ const types = `
   }
 
   type CallsIntegrationDetailResponse {
-    _id: String
-    inboxId: String
-    username: String
-    password: String
-    wsServer: String
-    operatorIds: [String]
+    ${integrationCommonFields}
   }
 
   input CallIntegrationConfigs {
-    _id: String
-    inboxId: String
-    username: String
-    password: String
-    wsServer: String
-    operatorIds: [String]
+    ${integrationCommonFields}
   }
 `;
 

@@ -94,6 +94,11 @@ class IntegrationForm extends React.Component<Props, State> {
           formProps
         })}
         {this.renderField({
+          label: 'Phone number',
+          fieldName: 'phone',
+          formProps
+        })}
+        {this.renderField({
           label: 'Web socket server',
           fieldName: 'wsServer',
           formProps

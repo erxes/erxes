@@ -3,9 +3,10 @@ const callsIntegrationDetail: string = `
     callsIntegrationDetail(integrationId: $integrationId) {
       _id
       username
-    password
-        wsServer
-        operatorIds
+      password
+      phone
+      wsServer
+      operatorIds
     }
   }
 `;

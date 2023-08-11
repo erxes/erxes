@@ -9,7 +9,7 @@ const IncomingCallContainer = () => {
     gql(subscriptions.phoneCallReceived),
     {
       variables: {
-        userId: '123'
+        userId: 'azkhtHgCPYrEeSyDr'
       }
     }
   );

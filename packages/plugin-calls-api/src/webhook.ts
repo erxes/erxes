@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { graphqlPubsub } from './configs';
 import { sendCommonMessage } from './messageBroker';
+import { Integrations } from './models';
 
 const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
   const subdomain: string = getSubdomain(req);
@@ -10,6 +11,10 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
     const { callId, callerNumber, calledNumber } = req.body;
 
     console.log('incomingCall', callId, callerNumber, calledNumber);
+
+    const integration = await Integrations.findOne({ phone: calledNumber });
+
+    console.log('integration', integration);
 
     let customer = await sendCommonMessage({
       subdomain,
@@ -34,12 +39,17 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
       });
     }
 
-    graphqlPubsub.publish('phoneCallReceived', {
-      phoneCallReceived: {
-        _id: callId,
-        customer,
-        calledNumber
-      }
+    const payload = {
+      _id: callId,
+      customer,
+      calledNumber,
+      integration
+    };
+
+    console.log('payload', payload);
+
+    await graphqlPubsub.publish('phoneCallReceived', {
+      phoneCallReceived: payload
     });
   }
 

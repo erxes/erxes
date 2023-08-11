@@ -14,13 +14,14 @@ interface IProps {
 
 const Component = ({ integration, isSubmitted, saveDoc }) => {
   const [config, setConfig] = useState<any>(integration);
-  const [operatorIds, setOperatorIds] = useState<string[]>([]);
+  const [operatorIds, setOperatorIds] = useState<string[]>(
+    integration.operatorIds || []
+  );
 
   useEffect(() => {
     if (isSubmitted) {
       delete config.__typename;
       saveDoc({ ...config, operatorIds });
-      console.log('saveDoc', { ...config, operatorIds });
     }
   }, [isSubmitted]);
 
@@ -34,8 +35,6 @@ const Component = ({ integration, isSubmitted, saveDoc }) => {
     value: string;
   }) => {
     const onChange = (e: any) => {
-      console.log('onChange', e.target.value);
-      console.log('fieldName', fieldName);
       setConfig({ ...config, [fieldName]: e.target.value });
     };
 
@@ -64,6 +63,11 @@ const Component = ({ integration, isSubmitted, saveDoc }) => {
         label: 'Password',
         fieldName: 'password',
         value: config.password
+      })}
+      {renderField({
+        label: 'Phone number',
+        fieldName: 'phone',
+        value: config.phone
       })}
       {renderField({
         label: 'Web socket server',
@@ -100,12 +104,6 @@ const IntegrationEditForm = (props: IProps) => {
 
   const integration = data.callsIntegrationDetail;
 
-  //   _id: String
-  // inboxId: String
-  // username: String
-  // password: String
-  // wsServer: String
-  // operatorIds: [String]
   return (
     <Component
       isSubmitted={props.isSubmitted}

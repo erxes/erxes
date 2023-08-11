@@ -19,6 +19,7 @@ export const integrationSchema: Schema<any> = new Schema({
   username: String,
   password: String,
   wsServer: String,
+  phone: String,
   operatorIds: [String]
 });
 

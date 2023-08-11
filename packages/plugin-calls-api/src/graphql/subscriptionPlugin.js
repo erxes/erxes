@@ -10,8 +10,12 @@ module.exports = {
       phoneCallReceived: {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('phoneCallReceived'),
-          (payload, variables) => {
-            return payload.phoneCallReceived._id === variables.userId;
+          async (payload, variables) => {
+            const operatorIds = payload.integration.operatorIds || [];
+
+            return operatorIds.includes(variables.userId);
+
+            // return payload.phoneCallReceived._id === variables.userId;
           }
         ),
       },
