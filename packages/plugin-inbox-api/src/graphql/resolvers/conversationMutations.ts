@@ -28,6 +28,29 @@ import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { generateModels, IContext, IModels } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
+import { CallRecords, ICallRecord } from '../../models/definitions/callRecords';
+import {
+  createRoom,
+  deleteRoom,
+  getEndpoint,
+  getRoomToken
+} from '../../dailyCo/controller';
+
+interface IDailyRoomCreateResponse {
+  id: string;
+  name: string;
+  api_created: boolean;
+  privacy: string;
+  url: string;
+  created_at: string;
+  config: object;
+}
+
+const VIDEO_CALL_STATUS = {
+  ONGOING: 'ongoing',
+  END: 'end',
+  ALL: ['ongoing', 'end']
+};
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -613,7 +636,9 @@ const conversationMutations = {
     { _id },
     { user, models, subdomain }: IContext
   ) {
-    let message;
+    let message: any;
+
+    const roomCreateResponse: IDailyRoomCreateResponse = await createRoom();
 
     try {
       const doc = {
@@ -624,29 +649,41 @@ const conversationMutations = {
 
       message = await models.ConversationMessages.addMessage(doc, user._id);
 
-      const videoCallData = await sendIntegrationsMessage({
-        subdomain,
-        action: 'createDailyRoom',
-        data: {
-          erxesApiConversationId: _id,
-          erxesApiMessageId: message._id
-        },
-        isRPC: true
-      });
+      const callRecordData: ICallRecord = {
+        erxesApiConversationId: _id,
+        erxesApiMessageId: message._id,
+        roomName: roomCreateResponse.name,
+        kind: 'daily',
+        privacy: 'private',
+        token: await getRoomToken(roomCreateResponse.name)
+      };
 
-      const updatedMessage = { ...message._doc, videoCallData };
+      const callRecord = await CallRecords.createCallRecord(callRecordData);
 
-      // publish new message to conversation detail
+      const ownerToken = await getRoomToken(roomCreateResponse.name, true);
+
+      const updatedMessage = { ...message._doc };
       publishMessage(models, updatedMessage);
 
-      return videoCallData;
+      return {
+        url: `${await getEndpoint()}/${callRecord.roomName}?t=${ownerToken}`,
+        name: callRecord.roomName,
+        status: VIDEO_CALL_STATUS.ONGOING
+      };
     } catch (e) {
       debug.error(e.message);
-
       await models.ConversationMessages.deleteOne({ _id: message._id });
-
       throw new Error(e.message);
     }
+  },
+
+  async conversationDeleteVideoChatRoom(_, { name }) {
+    await CallRecords.updateOne(
+      { roomName: name },
+      { $set: { status: VIDEO_CALL_STATUS.END } }
+    );
+    await deleteRoom(name);
+    return true;
   },
 
   async changeConversationOperator(

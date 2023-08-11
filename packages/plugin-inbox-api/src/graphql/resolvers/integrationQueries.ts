@@ -301,6 +301,15 @@ const integrationQueries = {
       },
       isRPC: true
     });
+  },
+
+  async integrationsVideoCallUsageStatus(
+    _root,
+    _args,
+    { subdomain }: IContext
+  ) {
+    // TODO: sendRequest to daily.co to get usage status
+    return {};
   }
 };
 

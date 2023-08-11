@@ -1,8 +1,9 @@
-import { debug } from '../../configs';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
+import { CallRecords } from '../../models/definitions/callRecords';
+import { getRoomDetail } from '../../dailyCo/controller';
 
 export default {
   user(message: IMessageDocument) {
@@ -77,20 +78,19 @@ export default {
       return null;
     }
 
-    try {
-      const response = await sendIntegrationsMessage({
-        subdomain,
-        action: 'getDailyRoom',
-        data: {
-          erxesApiMessageId: message._id
-        },
-        isRPC: true
-      });
+    const videoCall = await CallRecords.findOne({
+      erxesApiMessageId: message._id
+    }).lean();
 
-      return response;
-    } catch (e) {
-      debug.error(e);
+    if (!videoCall) {
       return null;
     }
+
+    const room = await getRoomDetail(videoCall.roomName);
+    if (room) {
+      room.url = `${room.url}?t=${videoCall.token}`;
+    }
+
+    return room;
   }
 };
