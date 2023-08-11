@@ -20,7 +20,7 @@ export async function applyProxiesCoreless(
     '^/graphql',
     createProxyMiddleware({
       pathRewrite: { '^/graphql': '/' },
-      target: `http://127.0.0.1:${apolloRouterPort}`,
+      target: `http://localhost:${apolloRouterPort}`,
       onProxyReq
     })
   );
