@@ -87,7 +87,21 @@ const chatMutations = {
     }
 
     if (chat.type === CHAT_TYPE.GROUP) {
-      await checkChatAdmin(models.Chats, user._id);
+      if (chat.participantIds.length > 1) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $pull: {
+              participantIds: { $in: user?._id },
+              adminIds: { $in: user?._id }
+            }
+          }
+        );
+
+        return 'Success';
+      }
+
+      return models.Chats.removeChat(_id);
     }
 
     return models.Chats.removeChat(_id);
@@ -287,8 +301,6 @@ const chatMutations = {
     { _id, userIds, type },
     { models, user }
   ) => {
-    await checkChatAdmin(models.Chats, user._id);
-
     const chat = await models.Chats.getChat(_id);
 
     if ((chat.participantIds || []).length === 1) {
