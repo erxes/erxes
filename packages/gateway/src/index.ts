@@ -100,9 +100,9 @@ const stopRouter = () => {
   app.use(cors(corsOptions));
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
-  await apolloRouter(targets);
+  apolloRouterProcess = await apolloRouter(targets);
 
-  applyProxiesCoreless(app, targets);
+  await applyProxiesCoreless(app, targets);
 
   // The error handler must be before any other error middleware and after all controllers
   app.use(Sentry.Handlers.errorHandler());

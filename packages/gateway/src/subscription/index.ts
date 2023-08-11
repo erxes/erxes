@@ -17,7 +17,7 @@ import * as http from 'http';
 import { supergraphPath } from '../apollo-router/paths';
 import * as fs from 'fs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { apolloRouterPort } from '../apollo-router';
+import { getApolloRouterPort } from '../apollo-router';
 import { gql } from '@apollo/client/core';
 
 let disposable: Disposable;
@@ -73,13 +73,15 @@ export async function startSubscriptionServer(
     } catch (e) { }
   }
 
+  const apolloRouterPort = await getApolloRouterPort();
+
   disposable = useServer(
     {
       execute,
       subscribe,
       context: (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
         const gatewayDataSource = new SubscriptionResolver(
-          `http://localhost:${apolloRouterPort}`, ctx
+          `http://127.0.0.1:${apolloRouterPort}`, ctx
         );
         return { dataSources: { gatewayDataSource } };
       },
