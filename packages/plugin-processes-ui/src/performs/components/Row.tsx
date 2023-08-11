@@ -60,16 +60,10 @@ class Row extends React.Component<Props> {
       description
     } = perform;
 
-    const onTrClick = () => {};
-
-    const onClick = e => {
-      e.stopPropagation();
-    };
-
-    const content = props => <Form {...props} perform={perform} />;
+    const modalContent = props => <Form {...props} perform={perform} />;
 
     return (
-      <tr onClick={onTrClick} key={Math.random()}>
+      <tr key={Math.random()}>
         <td>{(!!overallWorkId).toString()}</td>
         <td>{type}</td>
         <td>{this.displayDate(startAt)}</td>
@@ -84,10 +78,11 @@ class Row extends React.Component<Props> {
         <td>{this.displayLoc(outDepartment)}</td>
 
         <td>{status}</td>
-        <td key={'actions'} onClick={onClick}>
+        <td key={'actions'}>
           <ActionButtons>
             <ModalTrigger
               title={__(`Edit perform`)}
+              autoOpenKey="showProductModal"
               trigger={
                 <Button btnStyle="link">
                   <Tip text={__('Edit')} placement="bottom">
@@ -96,13 +91,15 @@ class Row extends React.Component<Props> {
                 </Button>
               }
               size="xl"
-              content={content}
+              content={modalContent}
             />
-            <Button btnStyle="link" onClick={this.remove}>
-              <Tip text={__('Delete')} placement="bottom">
-                <Icon icon="trash-alt" />
-              </Tip>
-            </Button>
+            {perform.status !== 'confirm' && (
+              <Button btnStyle="link" onClick={this.remove}>
+                <Tip text={__('Delete')} placement="bottom">
+                  <Icon icon="trash-alt" />
+                </Tip>
+              </Button>
+            )}
           </ActionButtons>
         </td>
       </tr>

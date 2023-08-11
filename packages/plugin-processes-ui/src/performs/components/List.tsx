@@ -109,7 +109,7 @@ class List extends React.Component<IProps, State> {
           title={__('Add Performance')}
           size="xl"
           trigger={trigger}
-          autoOpenKey="showProductModal"
+          autoOpenKey="showProductModalz"
           content={modalContent}
         />
       </BarItems>

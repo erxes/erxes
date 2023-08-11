@@ -125,36 +125,6 @@ const performMutations = {
       createdBy: user._id
     });
 
-    // processes in or inventories credit
-    await sendInventoriesMessage({
-      subdomain,
-      action: 'remainders.updateMany',
-      data: {
-        branchId: doc.inBranchId,
-        departmentId: doc.inDepartmentId,
-        productsData: (doc.inProducts || []).map(ip => ({
-          productId: ip.productId,
-          uom: ip.uom,
-          diffCount: -1 * ip.quantity
-        }))
-      }
-    });
-
-    // processes out or inventories debit
-    await sendInventoriesMessage({
-      subdomain,
-      action: 'remainders.updateMany',
-      data: {
-        branchId: doc.outBranchId,
-        departmentId: doc.outDepartmentId,
-        productsData: (doc.outProducts || []).map(op => ({
-          productId: op.productId,
-          uom: op.uom,
-          diffCount: op.quantity
-        }))
-      }
-    });
-
     await putCreateLog(
       models,
       subdomain,
@@ -180,6 +150,11 @@ const performMutations = {
     // to update count status, inProducts, outProducts
 
     const perform = await models.Performs.getPerform(doc._id);
+
+    if (perform.status === 'confirmed') {
+      throw new Error('Cannot be edited because it is confirmed');
+    }
+
     const updatedPerform = await models.Performs.updatePerform(
       doc._id,
       {
@@ -192,8 +167,8 @@ const performMutations = {
       perform
     );
 
-    await editQuantity(subdomain, perform, updatedPerform, 'in');
-    await editQuantity(subdomain, perform, updatedPerform, 'out');
+    // await editQuantity(subdomain, perform, updatedPerform, 'in');
+    // await editQuantity(subdomain, perform, updatedPerform, 'out');
 
     await putUpdateLog(
       models,
@@ -218,7 +193,106 @@ const performMutations = {
     { user, models, subdomain }: IContext
   ) {
     const perform = await models.Performs.getPerform(_id);
+
+    if (perform.status === 'confirmed') {
+      throw new Error('Cannot be deleted because it is confirmed');
+    }
+
     const removeResponse = await models.Performs.removePerform(_id);
+
+    await putDeleteLog(
+      models,
+      subdomain,
+      {
+        type: MODULE_NAMES.PERFORM,
+        object: perform
+      },
+      user
+    );
+
+    return removeResponse;
+  },
+
+  async performConfirm(
+    _root,
+    { _id, endAt }: { _id: string; endAt: Date },
+    { user, models, subdomain }: IContext
+  ) {
+    const perform = await models.Performs.getPerform(_id);
+
+    if (perform.status === 'confirmed') {
+      throw new Error('Already confirmed');
+    }
+
+    // processes in or inventories credit
+    await sendInventoriesMessage({
+      subdomain,
+      action: 'remainders.updateMany',
+      data: {
+        branchId: perform.inBranchId,
+        departmentId: perform.inDepartmentId,
+        productsData: (perform.inProducts || []).map(ip => ({
+          productId: ip.productId,
+          uom: ip.uom,
+          diffCount: -1 * ip.quantity
+        }))
+      }
+    });
+
+    // processes out or inventories debit
+    await sendInventoriesMessage({
+      subdomain,
+      action: 'remainders.updateMany',
+      data: {
+        branchId: perform.outBranchId,
+        departmentId: perform.outDepartmentId,
+        productsData: (perform.outProducts || []).map(op => ({
+          productId: op.productId,
+          uom: op.uom,
+          diffCount: op.quantity
+        }))
+      }
+    });
+
+    const updatedPerform = await models.Performs.updatePerform(
+      _id,
+      {
+        ...perform,
+        endAt,
+        status: 'confirmed',
+        modifiedAt: new Date(),
+        modifiedBy: user._id
+      },
+      perform
+    );
+
+    await putUpdateLog(
+      models,
+      subdomain,
+      {
+        type: MODULE_NAMES.PERFORM,
+        newData: {
+          ...updatedPerform
+        },
+        object: perform,
+        updatedDocument: updatedPerform
+      },
+      user
+    );
+
+    return updatedPerform;
+  },
+
+  async performAbort(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
+    const perform = await models.Performs.getPerform(_id);
+
+    if (perform.status !== 'confirmed') {
+      throw new Error('Cannot be abort because not confirmed');
+    }
 
     // processes in or inventories credit
     await sendInventoriesMessage({
@@ -250,17 +324,35 @@ const performMutations = {
       }
     });
 
-    await putDeleteLog(
+    const updatedPerform = await models.Performs.updatePerform(
+      _id,
+      {
+        ...perform,
+        status: 'draft',
+        modifiedAt: new Date(),
+        modifiedBy: user._id
+      },
+      perform
+    );
+
+    // await editQuantity(subdomain, perform, updatedPerform, 'in');
+    // await editQuantity(subdomain, perform, updatedPerform, 'out');
+
+    await putUpdateLog(
       models,
       subdomain,
       {
         type: MODULE_NAMES.PERFORM,
-        object: perform
+        newData: {
+          ...updatedPerform
+        },
+        object: perform,
+        updatedDocument: updatedPerform
       },
       user
     );
 
-    return removeResponse;
+    return updatedPerform;
   }
 };
 

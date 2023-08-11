@@ -14,7 +14,7 @@ interface ILogQueryParams extends ICommonParams {
   userId?: string;
   page?: number;
   perPage?: number;
-  objectId?: string | { $in: string[] };
+  objectId?: string;
   $or: any[];
   desc?: string;
 }
@@ -30,16 +30,22 @@ const logQueries = {
     return fetchLogs(models, params);
   },
 
-  async getDbSchemaLabels(_root, params: { type: string }, { subdomain }: IContext) {
+  async getDbSchemaLabels(
+    _root,
+    params: { type: string },
+    { subdomain }: IContext
+  ) {
     const [serviceName, moduleName] = params.type.split(':');
 
-    const response = await getDbSchemaLabels(
-      serviceName,
-      { data: { type: moduleName }, subdomain }
-    );
+    const response = await getDbSchemaLabels(serviceName, {
+      data: { type: moduleName },
+      subdomain
+    });
 
-    return response && response.data && Array.isArray(response.data) ? response.data : [];
-  },
+    return response && response.data && Array.isArray(response.data)
+      ? response.data
+      : [];
+  }
 };
 
 checkPermission(logQueries, 'logs', 'viewLogs');

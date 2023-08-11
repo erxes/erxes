@@ -71,7 +71,7 @@ export const types = () => `
 
     products: [String],
     productsExcluded: [String],
-    productsBundle: [String],
+    productsBundle: [[String]],
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
@@ -106,6 +106,8 @@ export const types = () => `
     updatedAt: Date,
     updatedBy: String,
     updatedUser: User
+
+    productIds: [String]
   }
 
   input QuantityRuleInput {
@@ -168,7 +170,7 @@ export const types = () => `
 
     products: [String],
     productsExcluded: [String],
-    productsBundle: [String],
+    productsBundle: [[String]],
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
@@ -213,7 +215,7 @@ export const types = () => `
 
     products: [String],
     productsExcluded: [String],
-    productsBundle: [String],
+    productsBundle: [[String]],
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
@@ -260,6 +262,11 @@ const pricingQueryParams = `
   perPage: Int
   sortField: String
   sortDirection: Int
+
+  isQuantityEnabled: Boolean
+  isPriceEnabled: Boolean
+  isExpiryEnabled: Boolean
+  isRepeatEnabled: Boolean
 `;
 
 export const queries = `

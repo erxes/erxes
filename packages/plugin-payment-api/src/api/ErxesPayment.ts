@@ -8,7 +8,6 @@ import { SocialPayAPI } from './socialpay/api';
 import { StorePayAPI } from './storepay/api';
 import { WechatPayAPI } from './wechatpay/api';
 import { PocketAPI } from './pocket/api';
-import * as QRCode from 'qrcode';
 
 class ErxesPayment {
   public socialpay: SocialPayAPI;
@@ -42,6 +41,12 @@ class ErxesPayment {
     // return { qrData: await QRCode.toDataURL('test') };
 
     const api = this[payment.kind];
+
+    if (invoice.couponAmount) {
+      const amount = invoice.amount - invoice.couponAmount;
+
+      invoice.amount = amount > 0 ? amount : 0;
+    }
 
     try {
       return await api.createInvoice(invoice, payment);
