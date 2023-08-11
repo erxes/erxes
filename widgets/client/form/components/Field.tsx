@@ -811,7 +811,7 @@ export default class Field extends React.Component<Props, State> {
   render() {
     const { field, error } = this.props;
     const { isAttachingFile } = this.state;
-console.log("field", field)
+
     const fieldStyle = () => {
       if (field.column) {
         return {
