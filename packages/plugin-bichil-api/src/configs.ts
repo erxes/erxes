@@ -14,6 +14,7 @@ import * as path from 'path';
 import * as cookieParser from 'cookie-parser';
 import userMiddleware, { checkPermission, handleUpload } from './utils';
 import * as permissions from './permissions';
+import { removeAndUpdateTimeclocks } from './updateTimeclocks';
 
 export let mainDb;
 export let debug;
@@ -88,6 +89,16 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
+      })
+    );
+
+    app.get(
+      '/update-timeclocks',
+      routeErrorHandling(async (req: any, res) => {
+        const { query } = req;
+        const update = await removeAndUpdateTimeclocks(query);
+
+        return res.send(update);
       })
     );
 
