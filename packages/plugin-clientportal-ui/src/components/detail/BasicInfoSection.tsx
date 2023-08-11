@@ -123,6 +123,9 @@ class BasicInfoSection extends React.Component<Props> {
         });
 
     const extendSubscription = props => {
+      if (!isEnabled('forum')) {
+        return null;
+      }
       return (
         <ExtendSubscription {...props} clientPortalUser={clientPortalUser} />
       );
