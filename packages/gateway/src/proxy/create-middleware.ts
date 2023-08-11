@@ -1,7 +1,7 @@
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { ErxesProxyTarget } from './targets';
 import * as dotenv from 'dotenv';
-import { getApolloRouterPort } from '../apollo-router';
+import { apolloRouterPort } from '../apollo-router';
 import { Express } from 'express';
 dotenv.config();
 
@@ -20,7 +20,7 @@ export async function applyProxiesCoreless(
     '^/graphql',
     createProxyMiddleware({
       pathRewrite: { '^/graphql': '/' },
-      target: `http://127.0.0.1:${(await getApolloRouterPort())}`,
+      target: `http://127.0.0.1:${apolloRouterPort}`,
       onProxyReq
     })
   );
