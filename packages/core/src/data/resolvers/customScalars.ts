@@ -33,26 +33,27 @@ export default {
   Date: new GraphQLScalarType({
     name: 'Date',
     description: 'Date custom scalar type',
-    serialize(value) {
-      if (value instanceof Date) {
-        return value.getTime(); // Convert outgoing Date to integer for JSON
-      }
-      throw Error('GraphQL Date Scalar serializer expected a `Date` object');
-    },
     parseValue(value) {
-      if (typeof value === 'number') {
-        return new Date(value); // Convert incoming integer to Date
-      }
-      throw new Error('GraphQL Date Scalar parser expected a `number`');
+      return new Date(value); // value from the client
     },
+    serialize: value => {
+      if (value instanceof Date) {
+        return value;
+      }
+
+      if (value.toISOString) {
+        return value.toISOString();
+      }
+
+      return new Date(value);
+    },
+
     parseLiteral(ast) {
       if (ast.kind === Kind.INT) {
-        // Convert hard-coded AST string to integer and then to Date
-        return new Date(parseInt(ast.value, 10));
+        return parseInt(ast.value, 10); // ast value is always in string format
       }
-      // Invalid hard-coded value (not an integer)
       return null;
-    },
+    }
   }),
 
   JSON: new GraphQLScalarType({
