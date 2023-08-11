@@ -146,8 +146,9 @@ const stopRouter = () => {
 
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
   process.on(sig, async () => {
+    console.log(`Exiting on signal ${sig}`);
     if (NODE_ENV === 'development') {
-      clearCache();
+      await clearCache();
     }
     if (subscriptionServer) {
       try {
