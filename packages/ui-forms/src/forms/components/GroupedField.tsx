@@ -4,6 +4,7 @@ import { IField } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Select from 'react-select-plus';
+import Info from '@erxes/ui/src/components/Info';
 
 type Props = {
   field?: IField;
@@ -43,6 +44,11 @@ const GroupedField = (props: Props) => {
     <FormGroup>
       <ControlLabel>Fields</ControlLabel>
       <p>{__('Please select a subfields')}</p>
+      <Info>
+        {__(
+          'Note: If subfields have logics, they will be ignored. But main field logics will be applied.'
+        )}
+      </Info>
       <Select
         placeholder={__('Choose')}
         options={otherFields.map(f => ({ label: f.text, value: f._id }))}

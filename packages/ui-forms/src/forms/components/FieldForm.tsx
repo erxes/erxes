@@ -508,7 +508,9 @@ class FieldForm extends React.Component<Props, State> {
         {fields.length > 0 && (
           <CollapseContent title={__('Logic')} compact={true}>
             <FieldLogics
-              fields={fields}
+              fields={fields.filter(
+                f => !(field.subFieldIds || []).includes(f._id)
+              )}
               currentField={field}
               onFieldChange={this.onFieldChange}
             />

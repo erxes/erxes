@@ -770,7 +770,12 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   render() {
-    const { field, hasLogic } = this.props;
+    const { field, hasLogic, otherFields = [] } = this.props;
+
+    const subFieldIds = otherFields
+      .filter(f => f.subFieldIds)
+      .map(f => f.subFieldIds)
+      .flat();
 
     return (
       <FormGroup>
@@ -780,6 +785,9 @@ export default class GenerateField extends React.Component<Props, State> {
         {this.renderAddButton()}
 
         {hasLogic && <LogicIndicator>Logic</LogicIndicator>}
+        {subFieldIds.includes(field._id) && (
+          <LogicIndicator>Sub Field</LogicIndicator>
+        )}
         {field.description ? (
           <div dangerouslySetInnerHTML={{ __html: field.description }} />
         ) : null}

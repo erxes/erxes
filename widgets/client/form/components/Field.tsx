@@ -811,7 +811,7 @@ export default class Field extends React.Component<Props, State> {
   render() {
     const { field, error } = this.props;
     const { isAttachingFile } = this.state;
-
+console.log("field", field)
     const fieldStyle = () => {
       if (field.column) {
         return {
@@ -819,9 +819,11 @@ export default class Field extends React.Component<Props, State> {
           display: 'inline-block',
         };
       }
-      return {
-        paddingRight: '0',
-      };
+      if(!field.subFields || field.subFields.length !== 0) {
+        return {
+          paddingRight: '0',
+        }
+      }
     };
 
     return (
