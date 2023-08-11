@@ -33,6 +33,7 @@ import Notifications from '../components/notifications/Notifications';
 import Popup from 'reactjs-popup';
 import RegisterContainer from '../../user/containers/Register';
 import { withRouter } from 'next/router';
+import Label from '../../common/Label';
 
 type Props = {
   config: Config;
