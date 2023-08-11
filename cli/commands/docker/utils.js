@@ -529,7 +529,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           ...((configs.gateway || {}).extra_env || {})
         },
         volumes: ['./enabled-services.js:/data/enabled-services.js', `${routerConfigDirPath}:/erxes-gateway/dist/gateway/src/apollo-router/temp`],
-        healthcheck, // this causes docker to kill the container while rover is running
+        healthcheck,
         extra_hosts,
         ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
         networks: ['erxes']
