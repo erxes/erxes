@@ -412,7 +412,6 @@ const deployDbs = async () => {
 
 const up = async ({ uis, downloadLocales, fromInstaller }) => {
   await cleaning();
-  await createRouterConfigDir();
 
   const configs = await fse.readJSON(filePath('configs.json'));
   const image_tag = configs.image_tag || 'federation';
@@ -861,7 +860,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   log('Deploy ......');
 
   if (isSwarm) {
-    await recreateRouterConfigDir();
 
     await execCommand('docker service rm erxes_gateway', true);
 
@@ -957,7 +955,6 @@ const update = async ({ serviceNames, noimage, uis }) => {
   }
 
   log('Updating gateway ....');
-  await recreateRouterConfigDir();
   await execCommand(`docker service update --force erxes_gateway`);
 };
 
