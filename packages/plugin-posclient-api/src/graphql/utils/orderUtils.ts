@@ -50,13 +50,28 @@ export const generateOrderNumber = async (
   let suffix = '0001';
   let number = `${todayStr}_${beginNumber}${suffix}`;
 
-  const latestOrder = ((await models.Orders.find({
-    number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
-    posToken: config.token
-  })
-    .sort({ number: -1 })
-    .limit(1)
-    .lean()) || [])[0];
+  let latestOrder;
+
+  const latestOrders = await models.Orders.aggregate([
+    {
+      $match: {
+        posToken: config.token,
+        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) }
+      }
+    },
+    {
+      $project: {
+        number: 1,
+        number_len: { $strLenCP: '$number' }
+      }
+    },
+    { $sort: { number_len: -1, number: -1 } },
+    { $limit: 1 }
+  ]);
+
+  if (latestOrders.length) {
+    latestOrder = latestOrders[0];
+  }
 
   if (latestOrder && latestOrder._id) {
     const parts = latestOrder.number.split('_');
