@@ -12,7 +12,7 @@ const onProxyReq = (proxyReq, req: any) => {
   proxyReq.setHeader('userid', req.user ? req.user._id : '');
 };
 
-export function applyProxiesCoreless(
+export async function applyProxiesCoreless(
   app: Express,
   targets: ErxesProxyTarget[]
 ) {
