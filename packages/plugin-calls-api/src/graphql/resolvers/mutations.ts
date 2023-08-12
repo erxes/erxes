@@ -41,7 +41,9 @@ const callsMutations = {
   async callsIntegrationUpdate(_root, { configs }, _context: IContext) {
     const { inboxId, username, password, ...data } = configs;
 
-    const token = generateToken(inboxId, username, password);
+    const token = await generateToken(inboxId, username, password);
+
+    console.log('token', token);
 
     const integration = await Integrations.findOneAndUpdate(
       { inboxId },
