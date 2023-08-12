@@ -16,7 +16,8 @@ const IncomingCallContainer = (props: Props) => {
     {
       variables: {
         userId: currentUser._id
-      }
+      },
+      skip: !currentUser
     }
   );
 
