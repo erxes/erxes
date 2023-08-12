@@ -7,8 +7,6 @@ import * as fs from 'fs';
 import { execSync } from 'child_process';
 import isSameFile from '../util/is-same-file';
 import * as yaml from 'yaml';
-// import exec from '../util/exec';
-import spawnAsync from '../util/spawnAsync';
 
 const { NODE_ENV, SUPERGRAPH_POLL_INTERVAL_MS } = process.env;
 
@@ -69,15 +67,10 @@ const supergraphComposeOnce = async () => {
       return;
     }
 
-    // await exec(
-    //   `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`
-    // );
-
-    await spawnAsync(
-      "rover", ["supergraph", "compose", "--config", supergraphConfigPath, "--output", supergraphPath, "--elv2-license=accept", "--log=error"], {
-        stdio: 'inherit'
-      }
+    await execSync(
+      `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`
     );
+
 
     // Running execSync('rover') causes the container to exit with code 137 later. Make the container quit without waiting for that to happen.
     console.log('Exiting on purpose do not panic.');
@@ -85,14 +78,8 @@ const supergraphComposeOnce = async () => {
   } else {
     const superGraphqlNext = supergraphPath + '.next';
 
-    // await exec(
-    //   `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`
-    // );
-
-    await spawnAsync(
-      "yarn", ["rover", "supergraph", "compose", "--config", supergraphConfigPath, "--output", supergraphPath, "--elv2-license=accept", "--log=error"], {
-      stdio: 'inherit'
-    }
+    await execSync(
+      `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`
     );
 
     if (
