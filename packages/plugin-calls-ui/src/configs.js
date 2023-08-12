@@ -6,6 +6,8 @@ module.exports = {
     './routes': './src/routes.tsx',
     './call': './src/containers/Widget.tsx',
     './incomin-call': './src/containers/IncomingCall.tsx',
+    "./inboxIntegrationForm": "./src/components/IntegrationForm.tsx",
+    "./integrationEditForm": "./src/components/IntegrationEditForm.tsx",
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -28,5 +30,19 @@ module.exports = {
       scope: "calls",
       component: "./incomin-call",
     }
-  ]
+  ],
+
+  inboxIntegrationForm: "./inboxIntegrationForm",
+  invoiceDetailRightSection: "./invoiceDetailRightSection",
+  integrationEditForm: "./integrationEditForm",
+  inboxIntegrations: [
+    {
+      name: "Grand stream",
+      description: "Configure Grand stream device",
+      isAvailable: true,
+      kind: "calls",
+      logo: "/images/integrations/grandstream.png",
+      createModal: "grandstream",
+    },
+  ],
 };

@@ -1,5 +1,7 @@
-import { Callss, Types } from '../../models';
+import { Callss, Types, Integrations } from '../../models';
 import { IContext } from '@erxes/api-utils/src/types';
+import * as jwt from 'jsonwebtoken';
+import { generateToken } from '../../utils';
 
 const callsMutations = {
   /**
@@ -34,6 +36,23 @@ const callsMutations = {
 
   async callsTypesEdit(_root, { _id, ...doc }, _context: IContext) {
     return Types.updateType(_id, doc);
+  },
+
+  async callsIntegrationUpdate(_root, { configs }, _context: IContext) {
+    const { inboxId, username, password, ...data } = configs;
+
+    const token = await generateToken(inboxId, username, password);
+
+    console.log('token', token);
+
+    const integration = await Integrations.findOneAndUpdate(
+      { inboxId },
+      { $set: { ...data, token, username, password } },
+      {
+        returnOriginal: false
+      }
+    );
+    return integration;
   }
 };
 
