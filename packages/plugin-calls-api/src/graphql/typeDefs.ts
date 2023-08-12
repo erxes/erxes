@@ -8,6 +8,7 @@ _id: String
     phone: String
     wsServer: String
     operatorIds: [String]
+    token: String
 `;
 
 const types = `

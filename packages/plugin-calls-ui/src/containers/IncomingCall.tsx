@@ -14,10 +14,11 @@ const IncomingCallContainer = () => {
     }
   );
 
-  console.log('loading', loading);
-  console.log('data', data);
+  const callData = data && data.phoneCallReceived;
 
-  return <IncomingCall />;
+  console.log('callData', callData);
+
+  return <IncomingCall callData={callData} />;
 };
 
 export default IncomingCallContainer;

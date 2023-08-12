@@ -40,13 +40,11 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
     }
 
     const payload = {
-      _id: callId,
       customer,
       calledNumber,
+      callerNumber,
       integration
     };
-
-    console.log('payload', payload);
 
     await graphqlPubsub.publish('phoneCallReceived', {
       phoneCallReceived: payload

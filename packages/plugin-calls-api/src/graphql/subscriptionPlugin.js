@@ -11,11 +11,10 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('phoneCallReceived'),
           async (payload, variables) => {
-            const operatorIds = payload.integration.operatorIds || [];
+            console.log('payload ***********************', payload);
+            const operatorIds = payload.phoneCallReceived.integration.operatorIds || [];
 
             return operatorIds.includes(variables.userId);
-
-            // return payload.phoneCallReceived._id === variables.userId;
           }
         ),
       },

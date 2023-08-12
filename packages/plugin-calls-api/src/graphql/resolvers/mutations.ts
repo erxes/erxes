@@ -1,5 +1,7 @@
 import { Callss, Types, Integrations } from '../../models';
 import { IContext } from '@erxes/api-utils/src/types';
+import * as jwt from 'jsonwebtoken';
+import { generateToken } from '../../utils';
 
 const callsMutations = {
   /**
@@ -37,10 +39,13 @@ const callsMutations = {
   },
 
   async callsIntegrationUpdate(_root, { configs }, _context: IContext) {
-    const { inboxId, ...data } = configs;
+    const { inboxId, username, password, ...data } = configs;
+
+    const token = generateToken(inboxId, username, password);
+
     const integration = await Integrations.findOneAndUpdate(
       { inboxId },
-      { $set: { ...data } },
+      { $set: { ...data, token, username, password } },
       {
         returnOriginal: false
       }

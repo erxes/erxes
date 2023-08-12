@@ -20,7 +20,8 @@ export const integrationSchema: Schema<any> = new Schema({
   password: String,
   wsServer: String,
   phone: String,
-  operatorIds: [String]
+  operatorIds: [String],
+  token: String
 });
 
 export const loadIntegrationClass = () => {

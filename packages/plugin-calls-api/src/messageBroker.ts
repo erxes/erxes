@@ -1,6 +1,7 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { Callss, Integrations } from './models';
+import { generateToken } from './utils';
 
 let client;
 
@@ -31,9 +32,16 @@ export const initBroker = async cl => {
       const { integrationId, doc } = data;
       const docData = JSON.parse(doc.data);
 
+      const { username, password, ...rest } = docData;
+
+      const token = generateToken(integrationId, username, password);
+
       await Integrations.create({
         inboxId: integrationId,
-        ...docData
+        username,
+        password,
+        token,
+        ...rest
       });
 
       return {
