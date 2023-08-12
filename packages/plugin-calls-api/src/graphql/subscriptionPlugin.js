@@ -11,7 +11,6 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('phoneCallReceived'),
           async (payload, variables) => {
-            console.log('payload ***********************', payload);
             const operatorIds = payload.phoneCallReceived.integration.operatorIds || [];
 
             return operatorIds.includes(variables.userId);

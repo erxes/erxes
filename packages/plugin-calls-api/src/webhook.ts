@@ -25,8 +25,6 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
     if (req.body.event === 'incomingCall') {
       const { callId, callerNumber, calledNumber } = req.body;
 
-      console.log('incomingCall', callId, callerNumber, calledNumber);
-
       const integration = await Integrations.findOne({
         inboxId: integrationId,
         phone: calledNumber
@@ -36,8 +34,6 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
         res.status(401).send('Miss configured integration');
         return;
       }
-
-      console.log('integration', integration);
 
       let customer = await sendCommonMessage({
         subdomain,

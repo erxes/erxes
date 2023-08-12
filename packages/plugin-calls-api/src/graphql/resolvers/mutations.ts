@@ -43,8 +43,6 @@ const callsMutations = {
 
     const token = await generateToken(inboxId, username, password);
 
-    console.log('token', token);
-
     const integration = await Integrations.findOneAndUpdate(
       { inboxId },
       { $set: { ...data, token, username, password } },
