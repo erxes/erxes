@@ -6,7 +6,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { NotifButton } from '@erxes/ui-notifications/src/components/styles';
 import WidgetPopover from './WidgetPopover';
 
-class Widget extends React.Component<{}> {
+class Widget extends React.Component<{ currentUser }> {
   render() {
     return (
       <OverlayTrigger
