@@ -579,7 +579,7 @@ export const syncOrderFromClient = async ({
   const syncedResponeIds = (
     (await sendEbarimtMessage({
       subdomain,
-      action: '',
+      action: 'putresponses.find',
       data: {
         query: { _id: { $in: (responses || []).map(resp => resp._id) } }
       },
