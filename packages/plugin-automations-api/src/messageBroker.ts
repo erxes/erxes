@@ -82,6 +82,15 @@ export const sendEmailTemplateMessage = async (
   });
 };
 
+export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'logs',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

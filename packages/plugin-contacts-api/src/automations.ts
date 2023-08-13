@@ -241,7 +241,7 @@ export default {
       {
         type: 'company',
         name: 'companyIds',
-        label: 'Company'
+        label: 'Companies'
       }
     ]
   }

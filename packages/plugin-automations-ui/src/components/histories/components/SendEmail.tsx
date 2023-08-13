@@ -20,9 +20,8 @@ class SendEmail extends React.Component<FinalProps> {
   }
 
   renderContent() {
-    const { action, result } = this.props;
+    const { action } = this.props;
     const { actionConfig } = action;
-    console.log('vhbkjnlml');
 
     return (
       <>

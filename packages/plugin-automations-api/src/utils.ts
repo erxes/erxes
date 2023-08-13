@@ -16,7 +16,7 @@ import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
-import { sendEmail } from './common/emailUtils';
+import { handleEmail } from './common/emailUtils';
 
 export const getEnv = ({
   name,
@@ -144,7 +144,7 @@ export const executeActions = async (
 
     if (action.type === ACTIONS.SEND_EMAIL) {
       try {
-        actionResponse = await sendEmail({
+        actionResponse = await handleEmail({
           subdomain,
           target: execution.target,
           triggerType,

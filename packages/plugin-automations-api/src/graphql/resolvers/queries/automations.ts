@@ -208,18 +208,11 @@ const automationQueries = {
       triggerTypesConst: string[];
       actionsConst: any[];
       propertyTypesConst: Array<{ value: string; label: string }>;
-      emailRecipientsConst: Array<{
-        type: string;
-        name: string;
-        label: string;
-        serviceName?: string;
-      }>;
     } = {
       triggersConst: [],
       triggerTypesConst: [],
       actionsConst: [...UI_ACTIONS],
-      propertyTypesConst: [],
-      emailRecipientsConst: [...EMAIL_RECIEPENTS_TYPES]
+      propertyTypesConst: []
     };
 
     for (const serviceName of services) {
@@ -228,11 +221,7 @@ const automationQueries = {
 
       if (meta && meta.automations && meta.automations.constants) {
         const pluginConstants = meta.automations.constants || {};
-        const {
-          triggers = [],
-          actions = [],
-          emailReciepentTypes = []
-        } = pluginConstants;
+        const { triggers = [], actions = [] } = pluginConstants;
 
         for (const trigger of triggers) {
           constants.triggersConst.push(trigger);
@@ -247,11 +236,20 @@ const automationQueries = {
           constants.actionsConst.push(action);
         }
 
-        for (const emailReciepentType of emailReciepentTypes) {
-          constants.emailRecipientsConst.push({
-            ...emailReciepentType,
-            serviceName
-          });
+        if (!!pluginConstants?.emailReciepentTypes?.length) {
+          const updatedEmailReciepentTypes = pluginConstants.emailReciepentTypes.map(
+            eRT => ({ ...eRT, serviceName })
+          );
+          constants.actionsConst = constants.actionsConst.map(actionConst =>
+            actionConst.type === 'sendEmail'
+              ? {
+                  ...actionConst,
+                  emailRecipientsConst: actionConst.emailRecipientsConst.concat(
+                    updatedEmailReciepentTypes
+                  )
+                }
+              : actionConst
+          );
         }
       }
     }

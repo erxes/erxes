@@ -5,6 +5,29 @@ export const ACTIONS = {
   SEND_EMAIL: 'sendEmail'
 };
 
+export const EMAIL_RECIEPENTS_TYPES = [
+  {
+    type: 'customMail',
+    name: 'customMails',
+    label: 'Custom Mails'
+  },
+  {
+    type: 'attributionMail',
+    name: 'attributionMails',
+    label: 'Attribution Mails'
+  },
+  {
+    type: 'segmentBased',
+    name: 'segmentBased',
+    label: 'Trigger Segment Based Mails'
+  },
+  {
+    type: 'teamMember',
+    name: 'teamMemberIds',
+    label: 'Team Members'
+  }
+];
+
 export const UI_ACTIONS = [
   {
     type: 'if',
@@ -41,30 +64,8 @@ export const UI_ACTIONS = [
     type: 'sendEmail',
     icon: 'fast-mail',
     label: 'Send Email',
-    description: 'Send',
+    description: 'Send Email',
+    emailRecipientsConst: EMAIL_RECIEPENTS_TYPES,
     isAvailable: true
-  }
-];
-
-export const EMAIL_RECIEPENTS_TYPES = [
-  {
-    type: 'teamMember',
-    name: 'teamMemberIds',
-    label: 'Team Members'
-  },
-  {
-    type: 'customMail',
-    name: 'customMails',
-    label: 'Custom Mails'
-  },
-  {
-    type: 'triggerAttributionMails',
-    name: 'triggerAttributionMails',
-    label: 'Trigger Attribution Mails'
-  },
-  {
-    type: 'segmentBased',
-    name: 'segmentBased',
-    label: 'Trigger Segment Based Mails'
   }
 ];
