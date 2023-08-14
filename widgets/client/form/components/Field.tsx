@@ -503,12 +503,12 @@ export default class Field extends React.Component<Props, State> {
 
       subFields.push(newData);
       values.push(newData.map(e => ({ _id: e._id, type: e.type, text: e.text, value: '' })) || []);
-      this.setState({ subFields });
+      this.setState({ subFields, subValues: values });
+      this.onChange(values);
     };
 
     const onRemoveClick = (index: number) => {
       subFields.splice(index, 1);
-      this.setState({ subFields });
 
       values.splice(index, 1);
       this.onChange(values);
