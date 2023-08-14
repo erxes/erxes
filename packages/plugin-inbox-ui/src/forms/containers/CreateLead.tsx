@@ -30,6 +30,7 @@ type Props = {
 type State = {
   isLoading: boolean;
   isReadyToSaveForm: boolean;
+  isIntegrationSubmitted: boolean;
   integrationId?: string;
   mustWait?: any;
   doc?: {
@@ -49,6 +50,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
     this.state = {
       isLoading: false,
       isReadyToSaveForm: false,
+      isIntegrationSubmitted: false,
       mustWait: { optionsStep: false }
     };
   }
@@ -107,7 +109,10 @@ class CreateLeadContainer extends React.Component<Props, State> {
                 integrationsCreateLeadIntegration: { _id }
               }
             }) => {
-              this.setState({ integrationId: _id });
+              this.setState({
+                integrationId: _id,
+                isIntegrationSubmitted: true
+              });
               Alert.success('You successfully added a form');
 
               this.redirect();
@@ -148,6 +153,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       },
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
+      isIntegrationSubmitted: this.state.isIntegrationSubmitted,
       emailTemplates: emailTemplatesQuery
         ? emailTemplatesQuery.emailTemplates || []
         : [],
@@ -155,7 +161,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       integrationId: this.state.integrationId
     };
 
-    return <Lead {...updatedProps} />;
+    return <Lead {...updatedProps} currentMode="create" />;
   }
 }
 
