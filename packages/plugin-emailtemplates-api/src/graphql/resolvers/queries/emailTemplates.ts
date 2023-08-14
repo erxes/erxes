@@ -43,7 +43,10 @@ const emailTemplateQueries = {
   ) {
     const filter = generateFilter(commonQuerySelector, args);
 
-    return paginate(models.EmailTemplates.find(filter), args);
+    return paginate(
+      models.EmailTemplates.find(filter).sort({ createdAt: -1 }),
+      args
+    );
   },
 
   /**
@@ -57,6 +60,10 @@ const emailTemplateQueries = {
     }
 
     return models.EmailTemplates.find(filter).countDocuments();
+  },
+
+  emailTemplate(_root, { _id }, { models }: IContext) {
+    return models.EmailTemplates.findOne({ _id }).lean();
   }
 };
 
@@ -66,6 +73,13 @@ checkPermission(
   'emailTemplates',
   'showEmailTemplates',
   []
+);
+
+checkPermission(
+  emailTemplateQueries,
+  'emailTemplate',
+  'showEmailTemplates',
+  {}
 );
 
 export default emailTemplateQueries;
