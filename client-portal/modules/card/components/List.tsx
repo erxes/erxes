@@ -1,15 +1,15 @@
-import { Config, IUser } from "../../types";
-import React, { useEffect, useState } from "react";
-import { capitalize, getConfigColor } from "../../common/utils";
-import { duedateFilter, priorityFilter } from "../../main/constants";
+import { Config, IUser } from '../../types';
+import React, { useEffect, useState } from 'react';
+import { capitalize, getConfigColor } from '../../common/utils';
+import { duedateFilter, priorityFilter } from '../../main/constants';
 
-import BoardView from "./BoardView";
-import Detail from "../containers/Detail";
-import EmptyState from "../../common/form/EmptyState";
-import Form from "../containers/Form";
-import Group from "../containers/Group";
-import ListHeader from "./ListHeader";
-import { useRouter } from "next/router";
+import BoardView from './BoardView';
+import Detail from '../containers/Detail';
+import EmptyState from '../../common/form/EmptyState';
+import Form from '../containers/Form';
+import Group from '../containers/Group';
+import ListHeader from './ListHeader';
+import { useRouter } from 'next/router';
 
 type Props = {
   currentUser: IUser;
@@ -26,19 +26,19 @@ export default function List({
   stages,
   type,
   pipeLinelabels,
-  pipelineAssignedUsers,
+  pipelineAssignedUsers
 }: Props) {
   const router = useRouter();
   const { itemId, stageId } = router.query as any;
 
   const activeStages =
-    stages.length !== 0 && stages.filter((s) => s.itemsTotalCount !== 0);
+    stages.length !== 0 && stages.filter(s => s.itemsTotalCount !== 0);
   const currentStage =
     (activeStages || []).length !== 0 ? activeStages[0] : null;
-  const activeId = stageId ? stageId : currentStage ? currentStage._id : "";
+  const activeId = stageId ? stageId : currentStage ? currentStage._id : '';
 
-  const [mode, setMode] = useState("stage");
-  const [viewType, setViewType] = useState("list");
+  const [mode, setMode] = useState('stage');
+  const [viewType, setViewType] = useState('list');
   const [showForm, setShowForm] = useState(false);
   const [activeStageId, setStageId] = useState(activeId);
 
@@ -66,7 +66,7 @@ export default function List({
 
     return (items || []).map((item, index) => {
       const id =
-        groupType === "priority" || groupType === "duedate"
+        groupType === 'priority' || groupType === 'duedate'
           ? item.name
           : item._id;
 
@@ -79,7 +79,7 @@ export default function List({
   };
 
   const renderContent = () => {
-    if (viewType === "board") {
+    if (viewType === 'board') {
       return (
         <BoardView
           stages={stages}
@@ -94,16 +94,16 @@ export default function List({
     }
 
     switch (mode) {
-      case "stage":
-        return renderGroup(stages, "stage");
-      case "label":
-        return renderGroup(pipeLinelabels?.pipelineLabels, "label");
-      case "duedate":
-        return renderGroup(duedateFilter, "duedate");
-      case "priority":
-        return renderGroup(priorityFilter, "priority");
-      case "user":
-        return renderGroup(pipelineAssignedUsers.pipelineAssignedUsers, "user");
+      case 'stage':
+        return renderGroup(stages, 'stage');
+      case 'label':
+        return renderGroup(pipeLinelabels?.pipelineLabels, 'label');
+      case 'duedate':
+        return renderGroup(duedateFilter, 'duedate');
+      case 'priority':
+        return renderGroup(priorityFilter, 'priority');
+      case 'user':
+        return renderGroup(pipelineAssignedUsers.pipelineAssignedUsers, 'user');
       default:
         return null;
     }
@@ -117,7 +117,7 @@ export default function List({
     <>
       <ListHeader
         headerLabel={config[`${type}Label`] || `${capitalize(type)}s`}
-        baseColor={getConfigColor(config, "baseColor")}
+        baseColor={getConfigColor(config, 'baseColor')}
         mode={mode}
         type={type}
         viewType={viewType}
