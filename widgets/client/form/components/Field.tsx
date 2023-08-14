@@ -509,8 +509,9 @@ export default class Field extends React.Component<Props, State> {
 
     const onRemoveClick = (index: number) => {
       subFields.splice(index, 1);
-
       values.splice(index, 1);
+      
+      this.setState({ subFields });
       this.onChange(values);
     };
 
