@@ -145,6 +145,7 @@ const queryParams = `
   closeDate: Date
   closeDateType: String
   branchId: String
+  status: String
 `;
 
 export const queries = `

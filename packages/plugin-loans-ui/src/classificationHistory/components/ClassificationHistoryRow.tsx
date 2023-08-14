@@ -47,6 +47,8 @@ function PeriodLockRow(
 
       <td key={'code'}>{displayValue(periodLock, 'invDate')}</td>
       <td key={'total'}>{displayValue(periodLock, 'total')}</td>
+      <td key={'total'}>{displayValue(periodLock, 'classification')}</td>
+      <td key={'total'}>{displayValue(periodLock, 'newClassification')}</td>
 
       <td onClick={onClick}>{}</td>
     </tr>

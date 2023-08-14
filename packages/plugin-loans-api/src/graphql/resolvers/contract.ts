@@ -231,7 +231,8 @@ const Contracts = {
 
     const prevSchedule = await models.Schedules.findOne({
       contractId: contract._id,
-      payDate: { $lte: today }
+      payDate: { $lte: today },
+      'transactionIds.0': { $exists: true }
     }).sort({ payDate: -1 });
 
     if (!prevSchedule) return contract.leaseAmount;

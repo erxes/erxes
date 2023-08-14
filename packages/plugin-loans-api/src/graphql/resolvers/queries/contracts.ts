@@ -12,6 +12,10 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.number = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
   }
 
+  if (params.status) {
+    filter.status = params.status;
+  }
+
   // if (params.ids) {
   //   filter._id = { $in: params.ids };
   // }

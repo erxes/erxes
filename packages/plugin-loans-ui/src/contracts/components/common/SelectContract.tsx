@@ -47,6 +47,7 @@ export default ({
       initialValue={defaultValue}
       generateOptions={generateCustomerOptions}
       onSelect={onSelect}
+      filterParams={{ status: 'normal' }}
       customOption={customOption}
       multi={multi}
     />

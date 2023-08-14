@@ -130,6 +130,15 @@ class ClassificationHistoryList extends React.Component<IProps, State> {
               <th>
                 <SortHandler sortField={'total'} label={__('Total')} />
               </th>
+              <th>
+                <SortHandler sortField={'total'} label={__('Classification')} />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={'total'}
+                  label={__('New Classification')}
+                />
+              </th>
               <th></th>
             </tr>
           </thead>
