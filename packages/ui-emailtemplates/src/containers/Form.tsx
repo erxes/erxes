@@ -6,15 +6,13 @@ import { mutations, queries } from '../graphql';
 import { ButtonMutate } from '@erxes/ui/src/';
 import FormComponent from '../components/Form';
 import { gql } from '@apollo/client';
+
 type Props = {
   object?: IEmailTemplate;
+  params?: any;
 } & ICommonFormProps;
 
-type State = {
-  shit: boolean;
-};
-
-class Form extends React.Component<Props, State> {
+class Form extends React.Component<Props> {
   constructor(props) {
     super(props);
   }
@@ -29,7 +27,6 @@ class Form extends React.Component<Props, State> {
       object
     }: IButtonMutateProps) => {
       const afterMutate = () => {
-        this.setState({ shit: true });
         if (callback) {
           callback();
         }
@@ -49,10 +46,16 @@ class Form extends React.Component<Props, State> {
           variables={values}
           callback={afterMutate}
           isSubmitted={isSubmitted}
-          //   refetchQueries={[
-          //     { query: gql(queries.emailTemplates) },
-          //     'totalCountQuery'
-          //   ]}
+          refetchQueries={[
+            {
+              query: gql(queries.emailTemplates),
+              variables: { ...this.props.params }
+            },
+            {
+              query: gql(queries.totalCount),
+              variables: { ...this.props.params }
+            }
+          ]}
           type="submit"
           confirmationUpdate={confirmationUpdate}
           successMessage={`You successfully ${successAction} a ${name}`}

@@ -91,7 +91,7 @@ class SendMail extends React.Component<Props, State> {
               {customMail}
             </Chip>
           ))}
-          <FormControl onKeyPress={onChange} />
+          <FormControl onKeyPress={onChange} placeholder="type a some email" />
         </DrawerDetail>
       </FormGroup>
     );
@@ -128,6 +128,11 @@ class SendMail extends React.Component<Props, State> {
 
   renderSegmentInput(key, onSelect) {
     const { config } = this.state;
+    const { triggerType } = this.props;
+
+    if (['contacts', 'user'].every(c => !triggerType.includes(c))) {
+      return null;
+    }
 
     return (
       <FormGroup>
@@ -203,8 +208,6 @@ class SendMail extends React.Component<Props, State> {
       this.setState({ config: { ...config, [name]: value } });
     };
 
-    const onChangeConfig = rConf => {};
-
     const onAddAction = () => {
       addAction(activeAction, activeAction.id, config);
       closeModal();
@@ -254,10 +257,17 @@ class SendMail extends React.Component<Props, State> {
   renderAddTemplate() {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add new email template')}
+        {__('Add template')}
       </Button>
     );
-    const content = props => <AddTemplateForm {...props} />;
+    const content = ({ closeModal }) => {
+      const updatedProps = {
+        closeModal,
+        params: { searchValue: this.state.searchValue }
+      };
+
+      return <AddTemplateForm {...updatedProps} />;
+    };
 
     return (
       <ModalTrigger
@@ -310,7 +320,7 @@ class SendMail extends React.Component<Props, State> {
         <SelectEmailTemplates
           searchValue={searchValue}
           handleSelect={selectTemplate}
-          templateId={config?.templateId}
+          selectedTemplateId={config?.templateId}
         />
       </>
     );

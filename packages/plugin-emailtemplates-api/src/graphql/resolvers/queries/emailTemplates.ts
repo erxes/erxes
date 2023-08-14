@@ -43,7 +43,10 @@ const emailTemplateQueries = {
   ) {
     const filter = generateFilter(commonQuerySelector, args);
 
-    return paginate(models.EmailTemplates.find(filter), args);
+    return paginate(
+      models.EmailTemplates.find(filter).sort({ createdAt: -1 }),
+      args
+    );
   },
 
   /**
@@ -76,7 +79,7 @@ checkPermission(
   emailTemplateQueries,
   'emailTemplate',
   'showEmailTemplates',
-  []
+  {}
 );
 
 export default emailTemplateQueries;

@@ -9,7 +9,7 @@ import EmailTemplatesComponent from '../components/SelectEmailTemplate';
 type Props = {
   searchValue: string;
   handleSelect: (id: string) => void;
-  templateId?: string;
+  selectedTemplateId?: string;
 };
 
 type FinalProps = {
@@ -27,7 +27,7 @@ class EmailTemplates extends React.Component<FinalProps> {
       emailTemplatesQuery,
       totalCountQuery,
       handleSelect,
-      templateId
+      selectedTemplateId
     } = this.props;
 
     const { emailTemplates, loading } = emailTemplatesQuery;
@@ -51,7 +51,7 @@ class EmailTemplates extends React.Component<FinalProps> {
       templates: emailTemplates || [],
       totalCount: emailTemplatesTotalCount || 0,
       handleSelect,
-      templateId
+      selectedTemplateId
     };
 
     return <EmailTemplatesComponent {...updatedProps} />;
@@ -63,13 +63,15 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.emailTemplates), {
       name: 'emailTemplatesQuery',
       options: ({ searchValue }) => ({
-        variables: { searchValue }
+        variables: { searchValue },
+        fetchPolicy: 'network-only'
       })
     }),
     graphql<Props>(gql(queries.totalCount), {
       name: 'totalCountQuery',
       options: ({ searchValue }) => ({
-        variables: { searchValue }
+        variables: { searchValue },
+        fetchPolicy: 'network-only'
       })
     })
   )(EmailTemplates)

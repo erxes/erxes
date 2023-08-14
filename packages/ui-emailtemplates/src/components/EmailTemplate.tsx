@@ -14,6 +14,7 @@ type Props = {
   handleSelect?: (_id: string) => void;
   template: any;
   templateId: string;
+  selectedTemplateId?: string;
   onlyPreview?: boolean;
 };
 
@@ -78,11 +79,14 @@ class EmailTemplate extends React.Component<Props> {
   }
 
   render() {
-    const { templateId, template } = this.props;
+    const { selectedTemplateId, template } = this.props;
     const { _id, name, createdAt, modifiedAt, createdUser, content } = template;
 
     return (
-      <Template key={_id} className={templateId === _id ? 'active' : ''}>
+      <Template
+        key={_id}
+        className={selectedTemplateId === _id ? 'active' : ''}
+      >
         <h5>{name}</h5>
         <TemplateBox>
           {this.renderActions()}

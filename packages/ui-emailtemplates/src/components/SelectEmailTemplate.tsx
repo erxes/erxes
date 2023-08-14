@@ -7,7 +7,7 @@ type EmailTemplatesProps = {
   templates: any[];
   totalCount: number;
   handleSelect: (id: string) => void;
-  templateId?: string;
+  selectedTemplateId?: string;
 };
 
 class EmailTemplates extends React.Component<EmailTemplatesProps> {
@@ -24,6 +24,7 @@ class EmailTemplates extends React.Component<EmailTemplatesProps> {
         <TemplateWrapper>
           {templates.map(template => (
             <EmailTemplate
+              key={template._id}
               template={template}
               templateId={template._id}
               handleSelect={handleSelect}
