@@ -22,13 +22,10 @@ import { gql } from '@apollo/client/core';
 
 let disposable: Disposable;
 
-export function makeSubscriptionSchema({
-  typeDefs,
-  resolvers
-}: any) {
+export function makeSubscriptionSchema({ typeDefs, resolvers }: any) {
   if (!typeDefs || !resolvers) {
     throw new Error(
-      "Both `typeDefs` and `resolvers` are required to make the executable subscriptions schema."
+      'Both `typeDefs` and `resolvers` are required to make the executable subscriptions schema.'
     );
   }
   const supergraph = fs.readFileSync(supergraphPath).toString();
@@ -47,8 +44,6 @@ export function makeSubscriptionSchema({
 export async function startSubscriptionServer(
   httpServer: http.Server
 ): Promise<Disposable | undefined> {
-  
-
   const wsServer = new ws.Server({
     server: httpServer,
     path: '/graphql'
@@ -70,7 +65,7 @@ export async function startSubscriptionServer(
   if (disposable) {
     try {
       await disposable.dispose();
-    } catch (e) { }
+    } catch (e) {}
   }
 
   // const apolloRouterPort = await getApolloRouterPort();
@@ -81,7 +76,8 @@ export async function startSubscriptionServer(
       subscribe,
       context: (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
         const gatewayDataSource = new SubscriptionResolver(
-          `http://127.0.0.1:${apolloRouterPort}`, ctx
+          `http://127.0.0.1:${apolloRouterPort}`,
+          ctx
         );
         return { dataSources: { gatewayDataSource } };
       },

@@ -120,6 +120,12 @@ function FieldChoices(props: Props) {
         text={__('Object List')}
         icon="sort-amount-down"
       />
+      <FieldChoice
+        {...props}
+        type="parentField"
+        text={__('Group')}
+        icon="sort-amount-down"
+      />
       {loadDynamicComponent('extendFormFieldChoice', props, true)}
     </Options>
   );

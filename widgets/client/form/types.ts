@@ -49,6 +49,8 @@ export interface IField {
   pageNumber?: number;
   productCategoryId?: string;
   products?: IProduct[];
+  subFieldIds?: string[];
+  subFields?: IField[];
 }
 
 export interface ICallout {

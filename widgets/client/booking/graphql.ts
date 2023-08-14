@@ -98,6 +98,7 @@ const formDetailQuery = `
           name
           unitPrice
         }
+        subFieldIds
       }
     }
   }
