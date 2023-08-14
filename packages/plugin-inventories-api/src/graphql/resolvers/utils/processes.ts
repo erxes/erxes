@@ -11,9 +11,6 @@ export const getProcesses = async (
 ) => {
   const { endDate, beginDate, branchId, departmentId, isDetailed } = params;
 
-  const bDate = new Date(beginDate);
-  const eDate = new Date(endDate);
-
   const performsC1In = await sendProcessesMessage({
     subdomain,
     action: 'performs.aggregate',
@@ -21,7 +18,7 @@ export const getProcesses = async (
       aggregate: [
         {
           $match: {
-            endAt: { $lt: bDate },
+            endAt: { $lt: beginDate },
             status: 'confirmed',
             inBranchId: branchId,
             inDepartmentId: departmentId,
@@ -55,7 +52,7 @@ export const getProcesses = async (
       aggregate: [
         {
           $match: {
-            endAt: { $lt: bDate },
+            endAt: { $lt: beginDate },
             status: 'confirmed',
             outBranchId: branchId,
             outDepartmentId: departmentId,
@@ -89,7 +86,7 @@ export const getProcesses = async (
       aggregate: [
         {
           $match: {
-            endAt: { $gte: bDate, $lte: eDate },
+            endAt: { $gte: beginDate, $lte: endDate },
             status: 'confirmed',
             inBranchId: branchId,
             inDepartmentId: departmentId,
@@ -105,8 +102,8 @@ export const getProcesses = async (
               inDepartmentId: '$inDepartmentId',
               productId: '$inProducts.productId'
             },
-            count: { $sum: '$inProducts.quantity' }
-            // performs: { $push: "$$ROOT" }
+            count: { $sum: '$inProducts.quantity' },
+            performs: { $push: '$$ROOT' }
           }
         }
       ],
@@ -125,7 +122,7 @@ export const getProcesses = async (
       aggregate: [
         {
           $match: {
-            endAt: { $gte: bDate, $lte: eDate },
+            endAt: { $gte: beginDate, $lte: endDate },
             status: 'confirmed',
             outBranchId: branchId,
             outDepartmentId: departmentId,
@@ -261,7 +258,17 @@ export const getProcesses = async (
         productId
       ].values.performs = result[inBranchId].values[inDepartmentId].values[
         productId
-      ].values.performs.concat(row.performs || []);
+      ].values.performs.concat(
+        (row.performs || []).map(p => ({
+          ...p,
+          date: p.endAt,
+          spec: p.description,
+          item: {
+            spend: p.inProducts.quantity,
+            receipt: p.outProducts.quantity
+          }
+        }))
+      );
     }
   }
 
@@ -302,7 +309,17 @@ export const getProcesses = async (
         productId
       ].values.performs = result[outBranchId].values[outDepartmentId].values[
         productId
-      ].values.performs.concat(row.performs || []);
+      ].values.performs.concat(
+        (row.performs || []).map(p => ({
+          ...p,
+          date: p.endAt,
+          spec: p.description,
+          item: {
+            spend: p.inProducts.quantity,
+            receipt: p.outProducts.quantity
+          }
+        }))
+      );
     }
   }
 

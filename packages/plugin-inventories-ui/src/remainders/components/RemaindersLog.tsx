@@ -87,15 +87,15 @@ const RemaindersLog = (props: Props) => {
           </tr>`;
 
           if (params.isDetailed) {
-            for (const perform of values.performs) {
+            for (const perform of values.performs || []) {
               printContentHTML += `<tr class='detail'>
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;${dayjs(perform.endAt).format(
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;${dayjs(perform.date).format(
                   'YYYY-MM-DD HH:mm'
                 )}</td>
-                <td>${perform.description}</td>
+                <td>${perform.spec}</td>
                 <td></td>
-                <td>${(perform.outProducts.quantity || 0).toLocaleString()}</td>
-                <td>${(perform.inProducts.quantity || 0).toLocaleString()}</td>
+                <td>${(perform.items.receipt || 0).toLocaleString()}</td>
+                <td>${(perform.items.spend || 0).toLocaleString()}</td>
                 <td></td>
               </tr>`;
             }

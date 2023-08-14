@@ -132,7 +132,16 @@ const remainderQueries = {
       productById,
       beProductIds
     );
-    // result = await getPosOrders(subdomain, params, result, branch, department, productById, beProductIds)
+
+    result = await getPosOrders(
+      subdomain,
+      params,
+      result,
+      branch,
+      department,
+      productById,
+      beProductIds
+    );
 
     return result;
   }
