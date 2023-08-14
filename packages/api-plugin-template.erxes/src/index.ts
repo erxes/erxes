@@ -544,6 +544,24 @@ async function startServer() {
           })
         );
       }
+      if (automations?.getReciepentsEmails) {
+        consumeRPCQueue(
+          `${configs.name}:automations.getReciepentsEmails`,
+          async args => ({
+            status: 'success',
+            data: await automations.getReciepentsEmails(args)
+          })
+        );
+      }
+      if (automations?.replacePlaceHolders) {
+        consumeRPCQueue(
+          `${configs.name}:automations.replacePlaceHolders`,
+          async args => ({
+            status: 'success',
+            data: await automations.replacePlaceHolders(args)
+          })
+        );
+      }
     }
 
     if (initialSetup) {
