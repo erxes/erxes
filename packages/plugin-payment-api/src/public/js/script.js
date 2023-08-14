@@ -84,6 +84,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   }
 
   const { apiResponse } = data.invoice;
+  console.log(apiResponse);
 
   if (data.invoice._id) {
     intervalId = setInterval(async function() {
@@ -190,8 +191,12 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     deeplink.innerHTML = `Open in ${paymentObj.kind}`;
   }
 
-  let amountValue = data.invoice.amount - data.invoice.couponAmount;
-  amountValue = amountValue < 0 ? 0 : amountValue;
+  let amountValue = data.invoice.amount
+
+  if (data.invoice.couponAmount) {
+    amountValue = data.invoice.amount - data.invoice.couponAmount;
+    amountValue = amountValue < 0 ? 0 : amountValue;
+  }
 
   amount.innerHTML =
     amountValue.toLocaleString(undefined, {
