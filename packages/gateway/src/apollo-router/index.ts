@@ -13,7 +13,7 @@ import {
   downloadsPath
 } from './paths';
 import supergraphCompose from './supergraph-compose';
-import * as getPort from 'get-port';
+// import * as getPort from 'get-port';
 
 const {
   DOMAIN,
@@ -24,17 +24,19 @@ const {
   APOLLO_ROUTER_PORT
 } = process.env;
 
-let _apolloRouterPort: number | undefined;
-export const getApolloRouterPort = async (): Promise<number> => {
-  if(!_apolloRouterPort) {
-    _apolloRouterPort = Number(APOLLO_ROUTER_PORT) || (await getPort());
-  }
-  if(!_apolloRouterPort){
-    throw new Error("Cannot find free port for Apollo Router");
-  }
-  console.log("router port ", _apolloRouterPort);
-  return _apolloRouterPort;
-}
+// let _apolloRouterPort: number | undefined;
+// export const getApolloRouterPort = async (): Promise<number> => {
+  // if(!_apolloRouterPort) {
+  //   _apolloRouterPort = Number(APOLLO_ROUTER_PORT) || (await getPort());
+  // }
+  // if(!_apolloRouterPort){
+  //   throw new Error("Cannot find free port for Apollo Router");
+  // }
+  // console.log("router port ", _apolloRouterPort);
+  // return _apolloRouterPort;
+// }
+
+export const apolloRouterPort = Number(APOLLO_ROUTER_PORT) || 50_000;
 
 
 const downloadRouter = async () => {
@@ -89,7 +91,7 @@ const createRouterConfig = async () => {
       }
     },
     supergraph: {
-      listen: `127.0.0.1:${(await getApolloRouterPort())}`
+      listen: `127.0.0.1:${apolloRouterPort}`
     }
   };
 
