@@ -117,7 +117,7 @@ const useDynamicScript = args => {
     };
 
     element.onerror = () => {
-      console.error(`Dynamic Script Error: ${args.url}`);
+      console.error(`Dynamic Script Error: ${args.url}`, args);
       setReady(false);
       setFailed(true);
     };

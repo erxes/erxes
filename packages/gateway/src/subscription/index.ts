@@ -73,13 +73,15 @@ export async function startSubscriptionServer(
     } catch (e) { }
   }
 
+  // const apolloRouterPort = await getApolloRouterPort();
+
   disposable = useServer(
     {
       execute,
       subscribe,
       context: (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
         const gatewayDataSource = new SubscriptionResolver(
-          `http://localhost:${apolloRouterPort}`, ctx
+          `http://127.0.0.1:${apolloRouterPort}`, ctx
         );
         return { dataSources: { gatewayDataSource } };
       },

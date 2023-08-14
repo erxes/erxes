@@ -12,7 +12,7 @@ const onProxyReq = (proxyReq, req: any) => {
   proxyReq.setHeader('userid', req.user ? req.user._id : '');
 };
 
-export function applyProxiesCoreless(
+export async function applyProxiesCoreless(
   app: Express,
   targets: ErxesProxyTarget[]
 ) {
@@ -20,7 +20,7 @@ export function applyProxiesCoreless(
     '^/graphql',
     createProxyMiddleware({
       pathRewrite: { '^/graphql': '/' },
-      target: `http://localhost:${apolloRouterPort}`,
+      target: `http://127.0.0.1:${apolloRouterPort}`,
       onProxyReq
     })
   );
