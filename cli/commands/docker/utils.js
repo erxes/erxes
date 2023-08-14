@@ -640,9 +640,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
 
   if (configs.image_tag) {
-    if (configs.image_tag === 'dev') {
+    if (['dev', 'staging'].includes(configs.image_tag)) {
       pluginsMapLocation =
-        'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
+        `https://erxes-${configs.image_tag}-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js`;
     } else {
       pluginsMapLocation = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${image_tag}/pluginsMap.js`;
     }
