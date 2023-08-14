@@ -235,6 +235,22 @@ const automationQueries = {
         for (const action of actions) {
           constants.actionsConst.push(action);
         }
+
+        if (!!pluginConstants?.emailReciepentTypes?.length) {
+          const updatedEmailReciepentTypes = pluginConstants.emailReciepentTypes.map(
+            eRT => ({ ...eRT, serviceName })
+          );
+          constants.actionsConst = constants.actionsConst.map(actionConst =>
+            actionConst.type === 'sendEmail'
+              ? {
+                  ...actionConst,
+                  emailRecipientsConst: actionConst.emailRecipientsConst.concat(
+                    updatedEmailReciepentTypes
+                  )
+                }
+              : actionConst
+          );
+        }
       }
     }
 
