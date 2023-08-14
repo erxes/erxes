@@ -4,7 +4,6 @@ import { subscriptions } from '../graphql';
 import { useSubscription, gql } from '@apollo/client';
 import { IUser } from '@erxes/ui/src/auth/types';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { Spinner } from '@erxes/ui/src/components';
 
 type Props = {
   currentUser: IUser;
@@ -12,18 +11,15 @@ type Props = {
 
 const IncomingCallContainer = (props: Props) => {
   const { currentUser } = props;
-  const { data, loading } = useSubscription(
-    gql(subscriptions.phoneCallReceived),
-    {
-      variables: {
-        userId: currentUser ? currentUser._id : ''
-      },
-      skip: !currentUser
-    }
-  );
+  const { data } = useSubscription(gql(subscriptions.phoneCallReceived), {
+    variables: {
+      userId: currentUser ? currentUser._id : ''
+    },
+    skip: !currentUser
+  });
 
-  if (loading) {
-    return <Spinner />;
+  if (!data || !data.phoneCallReceived) {
+    return null;
   }
 
   const callData = data && data.phoneCallReceived;

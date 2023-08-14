@@ -8,6 +8,7 @@ module.exports = {
     './incomin-call': './src/containers/IncomingCall.tsx',
     './inboxIntegrationForm': './src/components/IntegrationForm.tsx',
     './integrationEditForm': './src/components/IntegrationEditForm.tsx',
+    './integrationCustomActions': './src/components/TokenButton.tsx',
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -35,6 +36,7 @@ module.exports = {
   inboxIntegrationForm: './inboxIntegrationForm',
   invoiceDetailRightSection: './invoiceDetailRightSection',
   integrationEditForm: './integrationEditForm',
+  integrationCustomActions: './integrationCustomActions',
   inboxIntegrations: [
     {
       name: 'Grand stream',

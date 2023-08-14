@@ -49,6 +49,36 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'calls:api_to_integrations',
+    async (args: ISendMessageArgs): Promise<any> => {
+      const { data } = args;
+      const { inboxId, action } = data;
+
+      const integration = await Integrations.findOne({ inboxId });
+
+      if (!integration) {
+        return {
+          status: 'failed',
+          data: 'integration not found.'
+        };
+      }
+
+      switch (action) {
+        case 'getConfigs':
+          return {
+            status: 'success',
+            data: integration
+          };
+        default:
+          return {
+            status: 'failed',
+            data: 'action not found.'
+          };
+      }
+    }
+  );
 };
 
 export const sendCommonMessage = async (
