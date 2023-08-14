@@ -1,54 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import dayjs from 'dayjs';
-
-//erxes
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
-
-// local
-import LeftSidebar from './LogLeftSidebar';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
 import { SUBMENU } from '../../constants';
+import LeftSidebar from './LogLeftSidebar';
 
 type Props = {
   params: any;
   remaindersLog: any;
 };
 
-const BarcodeGenerator = (props: Props) => {
+const RemaindersLog = (props: Props) => {
   const { remaindersLog, params } = props;
-
-  const configStored: any = {
-    ...{
-      row: 1,
-      column: 1,
-      width: 80,
-      height: 100,
-      margin: 0,
-      date: Date.now(),
-      isDate: false,
-      isProductName: true,
-      productNameFontSize: 11,
-      isPrice: true,
-      priceFontSize: 11,
-
-      isBarcode: true,
-      isBarcodeDescription: false,
-      barWidth: 2,
-      barHeight: 50,
-      barcodeFontSize: 13,
-      barcodeDescriptionFontSize: 8,
-
-      isQrcode: true,
-      qrSize: 128
-    },
-    ...JSON.parse(
-      localStorage.getItem('erxes_product_barcodeGenerator_config') || '{}'
-    )
-  };
-
-  if (new Date(configStored.date) < new Date()) {
-    configStored.date = Date.now();
-  }
 
   const [printElement, setPrintElement] = useState<any>(null);
 
@@ -252,4 +215,4 @@ const BarcodeGenerator = (props: Props) => {
   );
 };
 
-export default BarcodeGenerator;
+export default RemaindersLog;

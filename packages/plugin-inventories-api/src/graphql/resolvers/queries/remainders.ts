@@ -90,14 +90,23 @@ const remainderQueries = {
       productFilter._id = { $in: productIds };
     }
 
-    const products = await sendProductsMessage({
+    const limit = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: 'count',
       data: { query: productFilter },
       isRPC: true
     });
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: { query: productFilter, limit },
+      isRPC: true
+    });
+
     const beProductIds = products.map(p => p._id);
     const productById = {};
+
     for (const product of products) {
       productById[product._id] = product;
     }

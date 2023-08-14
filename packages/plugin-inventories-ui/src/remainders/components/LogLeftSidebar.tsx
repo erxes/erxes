@@ -1,23 +1,20 @@
-import moment from 'moment';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
 import { SidebarList as List } from '@erxes/ui/src/layout';
-import React from 'react';
-import Datetime from '@nateradebaugh/react-datetime';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-
-//erxes
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Button from '@erxes/ui/src/components/Button';
-import { __, router } from '@erxes/ui/src/utils/core';
+import { router, __ } from '@erxes/ui/src/utils/core';
+import Datetime from '@nateradebaugh/react-datetime';
+import moment from 'moment';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-//local
 import { SidebarFilters } from '../../styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -25,16 +22,24 @@ type Props = {
   handlePrint: () => void;
 };
 
-const LogLeftSidebar = (props: Props) => {
+const LogLeftSidebar = (props: Props, state: { params: any }) => {
   const { handlePrint } = props;
   const history = useHistory();
+  const [filterParams = {}, setFilterParams] = useState<any>(null);
 
-  const categoryId = router.getParam(history, 'categoryId');
-  const productIds = router.getParam(history, 'productIds');
-  const branchId = router.getParam(history, 'branchId');
-  const departmentId = router.getParam(history, 'departmentId');
-  const beginDate = router.getParam(history, 'beginDate');
-  const endDate = router.getParam(history, 'endDate');
+  const categoryId =
+    (filterParams || {}).categoryId || router.getParam(history, 'categoryId');
+  const productIds =
+    (filterParams || {}).productIds || router.getParam(history, 'productIds');
+  const branchId =
+    (filterParams || {}).branchId || router.getParam(history, 'branchId');
+  const departmentId =
+    (filterParams || {}).departmentId ||
+    router.getParam(history, 'departmentId');
+  const beginDate =
+    (filterParams || {}).beginDate || router.getParam(history, 'beginDate');
+  const endDate =
+    (filterParams || {}).endDate || router.getParam(history, 'endDate');
 
   const clearFilter = () => {
     router.setParams(history, {
@@ -48,7 +53,11 @@ const LogLeftSidebar = (props: Props) => {
   };
 
   const setFilter = (key, value) => {
-    router.setParams(history, { [key]: value, page: 1 });
+    setFilterParams({ [key]: value });
+    // router.setParams(history, { [key]: value, page: 1 });
+  };
+  const runFilter = () => {
+    router.setParams(history, { ...filterParams });
   };
 
   return (
@@ -76,11 +85,11 @@ const LogLeftSidebar = (props: Props) => {
             <ControlLabel>{__('Begin Date')}</ControlLabel>
             <Datetime
               inputProps={{ placeholder: 'Click to select a date' }}
-              dateFormat="YYYY MM DD"
-              timeFormat=""
+              dateFormat="YYYY-MM-DD"
+              timeFormat="HH:mm"
               viewMode={'days'}
               closeOnSelect
-              utc
+              utc={true}
               input
               value={beginDate || null}
               onChange={date =>
@@ -92,12 +101,12 @@ const LogLeftSidebar = (props: Props) => {
             <ControlLabel>{__('End Date')}</ControlLabel>
             <Datetime
               inputProps={{ placeholder: 'Click to select a date' }}
-              dateFormat="YYYY MM DD"
-              timeFormat=""
+              dateFormat="YYYY-MM-DD"
+              timeFormat="HH:mm"
               viewMode={'days'}
               closeOnSelect
-              utc
-              input
+              utc={true}
+              input={true}
               value={endDate || null}
               onChange={date =>
                 setFilter('endDate', moment(date).format('YYYY/MM/DD HH:mm'))
@@ -162,6 +171,10 @@ const LogLeftSidebar = (props: Props) => {
           </FormGroup>
         </List>
       </SidebarFilters>
+      <Button btnStyle="success" onClick={runFilter} block>
+        {__('Filter')}
+      </Button>
+      <br />
       <Button btnStyle="primary" onClick={handlePrint} block>
         {__('Print')}
       </Button>
