@@ -246,6 +246,7 @@ export interface ISendMessageArgs {
   action: string;
   data;
   isRPC?: boolean;
+  isMQ?: boolean;
   timeout?: number;
   defaultValue?;
 }
@@ -266,6 +267,7 @@ export const sendMessage = async (
     data,
     defaultValue,
     isRPC,
+    isMQ,
     timeout
   } = args;
 
@@ -289,7 +291,9 @@ export const sendMessage = async (
     throw new Error(`client not found during ${queueName}`);
   }
 
-  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](queueName, {
+  return client[
+    isRPC ? (isMQ ? 'sendRPCMessageMq' : 'sendRPCMessage') : 'sendMessage'
+  ](queueName, {
     subdomain,
     data,
     defaultValue,

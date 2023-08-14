@@ -90,7 +90,7 @@ const fieldMutations = {
     { user, models }: IContext
   ) {
     const { contentType, contentTypeId, addingFields, editingFields } = args;
-    const temp: { [key: string]: string } = {};
+    const tempFieldIdsMap: { [key: string]: string } = {};
     const response: IFieldDocument[] = [];
     const logicalFields: IField[] = [];
 
@@ -114,8 +114,10 @@ const fieldMutations = {
       });
 
       if (tempId) {
-        temp[tempId] = field._id;
+        tempFieldIdsMap[tempId] = field._id;
       }
+
+      response.push(field);
     }
 
     for (const f of logicalFields) {
@@ -123,7 +125,8 @@ const fieldMutations = {
 
       for (const logic of logics) {
         if (f.logics && !logic.fieldId && logic.tempFieldId) {
-          f.logics[logics.indexOf(logic)].fieldId = temp[logic.tempFieldId];
+          f.logics[logics.indexOf(logic)].fieldId =
+            tempFieldIdsMap[logic.tempFieldId];
         }
       }
 
@@ -135,7 +138,7 @@ const fieldMutations = {
       });
 
       if (f.tempFieldId) {
-        temp[f.tempFieldId] = field._id;
+        tempFieldIdsMap[f.tempFieldId] = field._id;
       }
 
       response.push(field);
@@ -146,7 +149,7 @@ const fieldMutations = {
         for (const logic of doc.logics) {
           if (!logic.fieldId && logic.tempFieldId) {
             doc.logics[doc.logics.indexOf(logic)].fieldId =
-              temp[logic.tempFieldId];
+              tempFieldIdsMap[logic.tempFieldId];
           }
         }
       }
@@ -157,6 +160,27 @@ const fieldMutations = {
       });
 
       response.push(field);
+    }
+
+    const parentFields = response.filter(f => f.type === 'parentField');
+
+    for (const f of parentFields) {
+      for (const subFieldId of f.subFieldIds || []) {
+        if (subFieldId.startsWith('temp') && tempFieldIdsMap[subFieldId]) {
+          const indexOfElement = (f.subFieldIds || []).indexOf(subFieldId);
+
+          if (indexOfElement > -1) {
+            const set: any = {};
+            set[`subFieldIds.${indexOfElement}`] = tempFieldIdsMap[subFieldId];
+            await models.Fields.updateOne(
+              { _id: f._id },
+              {
+                $set: set
+              }
+            );
+          }
+        }
+      }
     }
 
     return response;

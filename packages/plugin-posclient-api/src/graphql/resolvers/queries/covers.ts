@@ -49,7 +49,7 @@ const coverQueries = {
       filter._id = { $ne: _id };
     }
 
-    let lastCover = await models.Covers.findOne()
+    let lastCover = await models.Covers.findOne(filter)
       .sort({ endDate: -1 })
       .lean();
     if (!lastCover) {

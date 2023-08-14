@@ -59,7 +59,7 @@ const jobReferMutations = {
       models,
       subdomain,
       {
-        type: MODULE_NAMES.PRODUCT,
+        type: MODULE_NAMES.JOBREFER,
         object: jobRefer,
         newData: { ...doc },
         updatedDocument: updated
@@ -89,7 +89,7 @@ const jobReferMutations = {
       await putDeleteLog(
         models,
         subdomain,
-        { type: MODULE_NAMES.PRODUCT, object: jobRefer },
+        { type: MODULE_NAMES.JOBREFER, object: jobRefer },
         user
       );
     }

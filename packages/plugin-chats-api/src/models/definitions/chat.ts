@@ -17,6 +17,7 @@ export interface IChat {
   participantIds: string[];
   name?: string;
   type: string;
+  featuredImage?: IAttachment;
 }
 
 export interface IChatMessage {
@@ -90,6 +91,10 @@ export const chatSchema = schemaHooksWrapper(
       type: Boolean,
       default: false,
       label: 'Has notification'
+    }),
+    featuredImage: field({
+      type: [attachmentSchema],
+      label: 'Featured image'
     }),
     participantIds: field({ type: [String], label: 'User ids' }),
     adminIds: field({ type: [String], label: 'Admin user ids' }),

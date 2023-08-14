@@ -37,6 +37,7 @@
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts"
   },
   "dependencies": {
+    "agentkeepalive": "^4.3.0",
     "apollo-server-core": "^3.6.1",
     "apollo-server-express": "^3.6.1",
     "apollo-datasource-rest": "^0.5.1",
@@ -53,6 +54,7 @@
     "handlebars": "^4.7.3",
     "helmet": "^3.23.3",
     "json2csv": "^5.0.1",
+    "node-fetch": "^2.6.7",
     "node-schedule": "^1.2.5",
     "nodemailer": "^4.1.3",
     "server-timing": "^3.3.2",

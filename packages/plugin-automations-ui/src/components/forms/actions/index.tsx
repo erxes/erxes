@@ -9,7 +9,7 @@ import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 import { renderDynamicComponent } from '../../../utils';
-
+import SendMail from './subForms/SendMail';
 type Props = {
   onSave: () => void;
   closeModal: () => void;
@@ -29,7 +29,8 @@ const renderExtraContent = props => {
     delay: <Delay {...props} />,
     setProperty: <SetProperty {...props} />,
     if: <IfForm {...props} />,
-    customCode: <CustomCode {...props} />
+    customCode: <CustomCode {...props} />,
+    sendEmail: <SendMail {...props} />
   };
 
   const Component = renderDynamicComponent(

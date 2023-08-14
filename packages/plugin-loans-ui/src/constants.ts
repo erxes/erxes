@@ -19,6 +19,11 @@ export const menuContracts = [
     title: __('PeriodLocks'),
     link: '/erxes-plugin-loan/periodLock-list',
     permission: 'showPeriodLocks'
+  },
+  {
+    title: __('Classification History'),
+    link: '/erxes-plugin-loan/classificationHistory',
+    permission: 'showContracts'
   }
 ];
 

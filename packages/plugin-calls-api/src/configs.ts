@@ -2,6 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
+import webhookReceiver from './webhook';
 
 export let mainDb;
 export let debug;
@@ -10,6 +11,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'calls',
+  hasSubscriptions: true,
   graphql: async sd => {
     serviceDiscovery = sd;
 
@@ -18,6 +20,17 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
+
+  meta: {
+    inboxIntegrations: [
+      {
+        kind: 'calls',
+        label: 'Phone call'
+      }
+    ]
+  },
+
+  postHandlers: [{ path: '/webhook', method: webhookReceiver }],
 
   apolloServerContext: async context => {
     return context;

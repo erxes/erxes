@@ -95,10 +95,14 @@ export type PerformEditMutationResponse = {
   }) => Promise<any>;
 };
 
-export type PerformChangeMutationResponse = {
-  performChange: (mutation: {
-    variables: ICommonParams & { _id: string };
+export type PerformConfirmMutationResponse = {
+  performConfirm: (mutation: {
+    variables: { _id: string; endAt: Date };
   }) => Promise<any>;
+};
+
+export type PerformAbortMutationResponse = {
+  performAbort: (mutation: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type PerformRemoveMutationResponse = {

@@ -65,8 +65,12 @@ export async function startSubscriptionServer(
   if (disposable) {
     try {
       await disposable.dispose();
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
+
+  // const apolloRouterPort = await getApolloRouterPort();
 
   disposable = useServer(
     {
@@ -74,7 +78,7 @@ export async function startSubscriptionServer(
       subscribe,
       context: (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
         const gatewayDataSource = new SubscriptionResolver(
-          `http://localhost:${apolloRouterPort}`,
+          `http://127.0.0.1:${apolloRouterPort}`,
           ctx
         );
         return { dataSources: { gatewayDataSource } };
