@@ -508,7 +508,7 @@ class Form extends React.Component<Props, State> {
           <thead>
             <tr>
               <th>
-                {__('Out Products')} {(productsData || []).length}
+                {__('Receipt Products')} {(productsData || []).length}
               </th>
               <th>{__('UOM')}</th>
               <th>{__('Quantity')}</th>
@@ -544,7 +544,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('In Products', inProducts || [], 'inProducts')}
+        {this.renderProducts('Spend Products', inProducts || [], 'inProducts')}
       </SidebarList>
     );
   }
@@ -554,7 +554,11 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('Out Products', outProducts || [], 'outProducts')}
+        {this.renderProducts(
+          'Receipt Products',
+          outProducts || [],
+          'outProducts'
+        )}
       </SidebarList>
     );
   }
@@ -689,12 +693,13 @@ class Form extends React.Component<Props, State> {
       <FormColumn>
         <FormGroup>
           <ControlLabel>
-            {__(`In Branch`)}: {this.renderLocLabel(overallWorkDetail.inBranch)}
+            {__(`Spend Branch`)}:{' '}
+            {this.renderLocLabel(overallWorkDetail.inBranch)}
           </ControlLabel>
         </FormGroup>
         <FormGroup>
           <ControlLabel>
-            {__(`In Department`)}:{' '}
+            {__(`Spend Department`)}:{' '}
             {this.renderLocLabel(overallWorkDetail.inDepartment)}
           </ControlLabel>
         </FormGroup>

@@ -1,6 +1,7 @@
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -40,6 +41,8 @@ const LogLeftSidebar = (props: Props, state: { params: any }) => {
     (filterParams || {}).beginDate || router.getParam(history, 'beginDate');
   const endDate =
     (filterParams || {}).endDate || router.getParam(history, 'endDate');
+  const isDetailed =
+    (filterParams || {}).isDetailed || router.getParam(history, 'isDetailed');
 
   const clearFilter = () => {
     router.setParams(history, {
@@ -54,10 +57,12 @@ const LogLeftSidebar = (props: Props, state: { params: any }) => {
 
   const setFilter = (key, value) => {
     setFilterParams({ [key]: value });
-    // router.setParams(history, { [key]: value, page: 1 });
   };
   const runFilter = () => {
-    router.setParams(history, { ...filterParams });
+    router.setParams(history, {
+      ...filterParams,
+      isDetailed: filterParams.isDetailed ? true : undefined
+    });
   };
 
   return (
@@ -167,6 +172,15 @@ const LogLeftSidebar = (props: Props, state: { params: any }) => {
               }}
               onSelect={productIds => setFilter('productIds', productIds)}
               multi={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Products</ControlLabel>
+            <FormControl
+              value={isDetailed}
+              name="isDetailed"
+              componentClass="checkbox"
+              onChange={e => setFilter('isDetailed', (e.target as any).checked)}
             />
           </FormGroup>
         </List>

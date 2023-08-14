@@ -293,15 +293,15 @@ class List extends React.Component<IProps> {
                   {'less products'}{' '}
                 </option>
                 <option
-                  key={'wrong In Department'}
-                  value={'wrong In Department'}
+                  key={'wrong Spend Department'}
+                  value={'wrong Spend Department'}
                 >
                   {' '}
-                  {'wrong In Department'}{' '}
+                  {'wrong Spend Department'}{' '}
                 </option>
-                <option key={'wrong In Branch'} value={'wrong In Branch'}>
+                <option key={'wrong Spend Branch'} value={'wrong Spend Branch'}>
                   {' '}
-                  {'wrong In Branch'}{' '}
+                  {'wrong Spend Branch'}{' '}
                 </option>
               </FormControl>
             </FormGroup>

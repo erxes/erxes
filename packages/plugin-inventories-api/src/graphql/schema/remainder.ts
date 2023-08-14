@@ -66,7 +66,8 @@ export const queries = `
     departmentId: String,
     branchId: String,
     beginDate: Date,
-    endDate: Date
+    endDate: Date,
+    isDetailed: Boolean
   ): JSON
 `;
 

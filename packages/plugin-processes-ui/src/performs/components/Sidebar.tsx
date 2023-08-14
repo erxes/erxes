@@ -242,7 +242,7 @@ class PerformSidebar extends React.Component<Props, State> {
               </FormGroup>
               {this.renderSpec()}
               <FormGroup>
-                <ControlLabel>{__('In Branch')}</ControlLabel>
+                <ControlLabel>{__('Spend Branch')}</ControlLabel>
                 <SelectBranches
                   label="Choose branch"
                   name="inBranchId"
@@ -256,7 +256,7 @@ class PerformSidebar extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>{__('In Department')}</ControlLabel>
+                <ControlLabel>{__('Spend Department')}</ControlLabel>
                 <SelectDepartments
                   label="Choose department"
                   name="inDepartmentId"
@@ -272,7 +272,7 @@ class PerformSidebar extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>{__('Out Branch')}</ControlLabel>
+                <ControlLabel>{__('Receipt Branch')}</ControlLabel>
                 <SelectBranches
                   label="Choose branch"
                   name="outBranchId"
@@ -286,7 +286,7 @@ class PerformSidebar extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>{__('Out Department')}</ControlLabel>
+                <ControlLabel>{__('Receipt Department')}</ControlLabel>
                 <SelectDepartments
                   label="Choose department"
                   name="outDepartmentId"

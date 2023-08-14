@@ -65,6 +65,7 @@ const remaindersLog = `
     $branchId: String
     $beginDate: Date
     $endDate: Date
+    $isDetailed: Boolean
   ) {
     remaindersLog(
       categoryId: $categoryId,
@@ -74,6 +75,7 @@ const remaindersLog = `
       branchId: $branchId,
       beginDate: $beginDate,
       endDate: $endDate,
+      isDetailed: $isDetailed,
     )
   }
 `;

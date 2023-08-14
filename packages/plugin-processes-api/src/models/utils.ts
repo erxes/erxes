@@ -61,17 +61,17 @@ const checkBeforeJobs = (
       const beforeSubFlow = subFlowById[beforeConfig.subFlowId];
 
       if (jobConfig.inBranchId !== beforeSubFlow.latestBranchId) {
-        return `${label}wrong In Branch`;
+        return `${label}wrong Spend Branch`;
       }
       if (jobConfig.inDepartmentId !== beforeSubFlow.latestDepartmentId) {
-        return `${label}wrong In Department`;
+        return `${label}wrong Spend Department`;
       }
     } else {
       if (jobConfig.inBranchId !== beforeConfig.outBranchId) {
-        return `${label}wrong In Branch`;
+        return `${label}wrong Spend Branch`;
       }
       if (jobConfig.inDepartmentId !== beforeConfig.outDepartmentId) {
-        return `${label}wrong In Department`;
+        return `${label}wrong Spend Department`;
       }
     }
 

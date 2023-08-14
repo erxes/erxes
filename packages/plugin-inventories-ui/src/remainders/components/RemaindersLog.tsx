@@ -42,8 +42,8 @@ const RemaindersLog = (props: Props) => {
             <th>Code</th>
             <th>Name</th>
             <th>First balance</th>
-            <th>Received</th>
-            <th>Spent</th>
+            <th>Receipt</th>
+            <th>Spend</th>
             <th>Final balance</th>
           </tr>
     `;
@@ -81,12 +81,24 @@ const RemaindersLog = (props: Props) => {
           printContentHTML += `<tr>
             <td colspan="2">${product}</td>
             <td>${(values.begin || 0).toLocaleString()}</td>
-            <td>${(values.in || 0).toLocaleString()}</td>
-            <td>${(values.out || 0).toLocaleString()}</td>
+            <td>${(values.receipt || 0).toLocaleString()}</td>
+            <td>${(values.spend || 0).toLocaleString()}</td>
             <td>${(values.end || 0).toLocaleString()}</td>
           </tr>`;
 
-          for (const perform of values.performs) {
+          if (params.isDetailed) {
+            for (const perform of values.performs) {
+              printContentHTML += `<tr class='detail'>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;${dayjs(perform.endAt).format(
+                  'YYYY-MM-DD HH:mm'
+                )}</td>
+                <td>${perform.description}</td>
+                <td></td>
+                <td>${(perform.outProducts.quantity || 0).toLocaleString()}</td>
+                <td>${(perform.inProducts.quantity || 0).toLocaleString()}</td>
+                <td></td>
+              </tr>`;
+            }
           }
         }
       }
@@ -128,6 +140,11 @@ const RemaindersLog = (props: Props) => {
         table {
           width: 100%;
           max-width: 100%;
+        }
+
+        .detail {
+          color: #444;
+          font-style: italic;
         }
 
         table tr:last-child td {
