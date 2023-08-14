@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@apollo/client": "~3.7.14",
-    "@apollo/rover": "^0.13.0",
     "@graphql-tools/schema": "^9.0.16",
     "@sentry/node": "^7.50.0",
     "apollo-server-errors": "^3.3.1",
@@ -21,6 +20,7 @@
     "erxes-api-utils": "^0.0.34",
     "erxes-telemetry": "^1.0.4",
     "express": "^4.17.2",
+    "get-port": "^5.1.1",
     "graphql": "^15.8.0",
     "graphql-parse-resolve-info": "^4.13.0",
     "graphql-redis-subscriptions": "^2.4.2",
@@ -36,6 +36,7 @@
     "yaml": "^1.10.2"
   },
   "devDependencies": {
+    "@apollo/rover": "^0.13.0",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.4",
     "@types/express": "^4.16.0",

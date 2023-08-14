@@ -1,16 +1,10 @@
-import { gatherDescriptions } from '../../../utils';
-import {
-  checkPermission,
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog
-} from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import messageBroker from '../../../messageBroker';
 import {
   IInsuranceType,
   IInsuranceTypeDocument
 } from '../../../models/definitions/insuranceTypes';
+import { createLog, deleteLog, updateLog } from '../../../logUtils';
 
 const insuranceTypeMutations = {
   insuranceTypesAdd: async (
@@ -33,17 +27,7 @@ const insuranceTypeMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putCreateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await createLog(subdomain, user, logData);
 
     return insuranceType;
   },
@@ -78,17 +62,7 @@ const insuranceTypeMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await updateLog(subdomain, user, logData);
 
     return updated;
   },
@@ -115,16 +89,7 @@ const insuranceTypeMutations = {
         extraParams: { models }
       };
 
-      const descriptions = gatherDescriptions(logData);
-      await putDeleteLog(
-        subdomain,
-        messageBroker(),
-        {
-          ...logData,
-          ...descriptions
-        },
-        user
-      );
+      await deleteLog(subdomain, user, logData);
     }
 
     return insuranceTypeIds;

@@ -149,7 +149,7 @@ router.get('/gateway', async (req, res) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('ascii')
+    Buffer.from(params as string, 'base64').toString('utf8')
   );
 
   const subdomain = getSubdomain(req);
@@ -207,7 +207,7 @@ router.post('/gateway', async (req, res, next) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('ascii')
+    Buffer.from(params as string, 'base64').toString('utf8')
   );
 
   const subdomain = getSubdomain(req);

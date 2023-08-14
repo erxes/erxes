@@ -535,6 +535,10 @@ export const syncOrderFromClient = async ({
 
   const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
 
+  if (!newOrder) {
+    return;
+  }
+
   if (newOrder.customerId) {
     await sendAutomationsMessage({
       subdomain,
@@ -549,19 +553,6 @@ export const syncOrderFromClient = async ({
   await confirmLoyalties(subdomain, newOrder);
 
   await createDealPerOrder({ subdomain, pos, newOrder });
-
-  // return info saved
-  await sendPosclientMessage({
-    subdomain,
-    action: `updateSynced`,
-    data: {
-      status: 'ok',
-      posToken,
-      responseIds: (responses || []).map(resp => resp._id),
-      orderId: order._id
-    },
-    pos
-  });
 
   if (pos.isOnline && newOrder.branchId) {
     const toPos = await models.Pos.findOne({
@@ -584,4 +575,29 @@ export const syncOrderFromClient = async ({
   await syncErkhetRemainder({ subdomain, models, pos, newOrder });
 
   await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
+
+  const syncedResponeIds = (
+    (await sendEbarimtMessage({
+      subdomain,
+      action: 'putresponses.find',
+      data: {
+        query: { _id: { $in: (responses || []).map(resp => resp._id) } }
+      },
+      isRPC: true,
+      defaultValue: []
+    })) || []
+  ).map(r => r._id);
+
+  // return info saved
+  await sendPosclientMessage({
+    subdomain,
+    action: `updateSynced`,
+    data: {
+      status: 'ok',
+      posToken,
+      responseIds: syncedResponeIds,
+      orderId: newOrder._id
+    },
+    pos
+  });
 };
