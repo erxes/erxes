@@ -72,6 +72,7 @@ class FieldsPreview extends React.Component<Props, State> {
           key={field._id}
           onClick={this.props.onFieldClick}
           field={field}
+          otherFields={this.state.fields || []}
         />
       );
     };

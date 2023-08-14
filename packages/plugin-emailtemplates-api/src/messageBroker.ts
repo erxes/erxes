@@ -7,7 +7,7 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue } = client;
 
-  consumeRPCQueue('emailTemplates:find', async ({ subdomain, data }) => {
+  consumeRPCQueue('emailtemplates:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -16,7 +16,7 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('emailTemplates:findOne', async ({ subdomain, data }) => {
+  consumeRPCQueue('emailtemplates:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {

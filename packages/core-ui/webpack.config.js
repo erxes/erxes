@@ -1,4 +1,4 @@
-const webpack = require("webpack");
+const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
@@ -82,7 +82,8 @@ module.exports = (env, args) => {
             path.resolve(__dirname, '../ui-log/src'),
             path.resolve(__dirname, '../ui-internalnotes/src'),
             path.resolve(__dirname, '../ui-leads/src'),
-            path.resolve(__dirname, '../ui-tags/src')
+            path.resolve(__dirname, '../ui-tags/src'),
+            path.resolve(__dirname, '../ui-emailtemplates/src')
           ],
           use: {
             loader: 'babel-loader',
