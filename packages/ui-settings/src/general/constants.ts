@@ -324,6 +324,11 @@ export const FILE_MIME_TYPES = [
     label: 'WAV vnd audio',
     extension: '.wav'
   },
+  {
+    value: 'audio/m4a',
+    label: 'MPEG-4 Audio',
+    extension: '.m4a'
+  },
   // archives
   {
     value: 'application/vnd.rar',
