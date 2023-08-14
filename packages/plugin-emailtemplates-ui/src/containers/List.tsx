@@ -5,7 +5,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { commonListComposer } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
-import { IEmailTemplate } from '../types';
+import { IEmailTemplate } from '@erxes/ui-emailtemplates/src/types';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import {

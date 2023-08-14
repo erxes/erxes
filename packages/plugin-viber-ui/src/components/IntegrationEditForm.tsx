@@ -8,7 +8,7 @@ import mutations from '../graphql/mutations';
 
 interface IProps {
   integrationId: string;
-  isSubmitted: Boolean;
+  isSubmitted: boolean;
 }
 
 const IntegrationEditForm = (props: IProps) => {

@@ -44,7 +44,7 @@ type Props = {
   visibility?: string;
   departmentIds?: string[];
   integrationId?: string;
-  isSubmitted?: boolean;
+  isIntegrationSubmitted?: boolean;
   onFieldEdit?: () => void;
   waitUntilFinish?: (obj: any) => void;
   onChildProcessFinished?: (component: string) => void;
@@ -156,7 +156,7 @@ const OptionStep = (props: Props) => {
         {loadDynamicComponent('paymentConfig', {
           contentType: 'inbox:integrations',
           contentTypeId: props.integrationId,
-          isSubmitted: props.isSubmitted,
+          isSubmitted: props.isIntegrationSubmitted,
           description: __(
             "Choose payment methods you'd like to enable on this form"
           ),

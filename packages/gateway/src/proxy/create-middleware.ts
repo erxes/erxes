@@ -12,6 +12,10 @@ const onProxyReq = (proxyReq, req: any) => {
   proxyReq.setHeader('userid', req.user ? req.user._id : '');
 };
 
+const forbid = (_req, res) => {
+  res.status(403).send();
+};
+
 export async function applyProxiesCoreless(
   app: Express,
   targets: ErxesProxyTarget[]
@@ -27,6 +31,8 @@ export async function applyProxiesCoreless(
 
   for (const target of targets) {
     const path = `^/pl(-|:)${target.name}`;
+
+    app.use(`${path}/rpc`, forbid);
 
     app.use(
       path,
@@ -46,6 +52,7 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
   if (!core) {
     throw new Error('core service not found');
   }
+  app.use('/rpc', forbid);
   app.use(
     '/',
     createProxyMiddleware({
