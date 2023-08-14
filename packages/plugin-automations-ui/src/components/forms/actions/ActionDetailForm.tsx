@@ -9,7 +9,6 @@ type Props = {
   closeModal: () => void;
   actionsConst: any[];
   propertyTypesConst: any[];
-  emailRecipientsConst: any[];
 };
 
 class ActionDetailForm extends React.Component<Props> {
