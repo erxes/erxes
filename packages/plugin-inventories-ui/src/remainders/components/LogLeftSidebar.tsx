@@ -1,34 +1,49 @@
+import moment from 'moment';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
+import { SidebarList as List } from '@erxes/ui/src/layout';
 import React from 'react';
+import Datetime from '@nateradebaugh/react-datetime';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import Tip from '@erxes/ui/src/components/Tip';
+
+//erxes
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Button from '@erxes/ui/src/components/Button';
 import { __, router } from '@erxes/ui/src/utils/core';
-import { SidebarFilters } from '../../styles';
-import { SidebarList as List } from '@erxes/ui/src/layout';
 import { useHistory } from 'react-router-dom';
+//local
+import { SidebarFilters } from '../../styles';
+import Tip from '@erxes/ui/src/components/Tip';
+import Icon from '@erxes/ui/src/components/Icon';
 
 const { Section } = Wrapper.Sidebar;
 
-export default function Sidebar() {
+type Props = {
+  handlePrint: () => void;
+};
+
+const LogLeftSidebar = (props: Props) => {
+  const { handlePrint } = props;
   const history = useHistory();
 
   const categoryId = router.getParam(history, 'categoryId');
+  const productIds = router.getParam(history, 'productIds');
   const branchId = router.getParam(history, 'branchId');
   const departmentId = router.getParam(history, 'departmentId');
+  const beginDate = router.getParam(history, 'beginDate');
+  const endDate = router.getParam(history, 'endDate');
 
   const clearFilter = () => {
     router.setParams(history, {
       categoryId: null,
       branchId: null,
       departmentId: null,
-      beginDate: null,
+      productIds: null,
       endDate: null,
-      productIds: null
+      beginDate: null
     });
   };
 
@@ -41,7 +56,12 @@ export default function Sidebar() {
       <Section.Title>
         {__('Filters')}
         <Section.QuickButtons>
-          {(branchId || departmentId || categoryId) && (
+          {(branchId ||
+            departmentId ||
+            categoryId ||
+            (productIds || []).length ||
+            endDate ||
+            beginDate) && (
             <a href="#cancel" tabIndex={0} onClick={clearFilter}>
               <Tip text={__('Clear filter')} placement="bottom">
                 <Icon icon="cancel-1" />
@@ -52,6 +72,38 @@ export default function Sidebar() {
       </Section.Title>
       <SidebarFilters>
         <List id="SettingsSidebar">
+          <FormGroup>
+            <ControlLabel>{__('Begin Date')}</ControlLabel>
+            <Datetime
+              inputProps={{ placeholder: 'Click to select a date' }}
+              dateFormat="YYYY MM DD"
+              timeFormat=""
+              viewMode={'days'}
+              closeOnSelect
+              utc
+              input
+              value={beginDate || null}
+              onChange={date =>
+                setFilter('beginDate', moment(date).format('YYYY/MM/DD HH:mm'))
+              }
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('End Date')}</ControlLabel>
+            <Datetime
+              inputProps={{ placeholder: 'Click to select a date' }}
+              dateFormat="YYYY MM DD"
+              timeFormat=""
+              viewMode={'days'}
+              closeOnSelect
+              utc
+              input
+              value={endDate || null}
+              onChange={date =>
+                setFilter('endDate', moment(date).format('YYYY/MM/DD HH:mm'))
+              }
+            />
+          </FormGroup>
           <FormGroup>
             <ControlLabel>Branch</ControlLabel>
             <SelectBranches
@@ -94,8 +146,27 @@ export default function Sidebar() {
               multi={false}
             />
           </FormGroup>
+          <FormGroup>
+            <ControlLabel>Products</ControlLabel>
+            <SelectProducts
+              label="Choose product"
+              name="productIds"
+              initialValue={productIds}
+              customOption={{
+                value: '',
+                label: '...Clear product filter'
+              }}
+              onSelect={productIds => setFilter('productIds', productIds)}
+              multi={true}
+            />
+          </FormGroup>
         </List>
       </SidebarFilters>
+      <Button btnStyle="primary" onClick={handlePrint} block>
+        {__('Print')}
+      </Button>
     </Wrapper.Sidebar>
   );
-}
+};
+
+export default LogLeftSidebar;

@@ -23,6 +23,7 @@ export interface IRemaindersParams {
   branchIds?: string[];
   productCategoryId?: string;
   productIds?: string[];
+  searchValue?: string;
 }
 
 export interface IRemainderCount {

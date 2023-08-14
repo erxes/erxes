@@ -9,6 +9,7 @@ import { sendProductsMessage } from '../../../messageBroker';
 interface IParam {
   search: string;
   type: string;
+  status: string;
   startDate: Date;
   endDate: Date;
   inBranchId: string;
@@ -35,6 +36,7 @@ const generateFilter = async (
     outBranchId,
     outDepartmentId,
     type,
+    status,
     jobReferId,
     productCategoryId,
     vendorIds,
@@ -55,6 +57,10 @@ const generateFilter = async (
 
   if (type) {
     selector.type = type;
+  }
+
+  if (status) {
+    selector.status = status;
   }
 
   if (outBranchId) {

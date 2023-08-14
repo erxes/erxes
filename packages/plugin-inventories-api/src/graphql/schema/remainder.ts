@@ -59,6 +59,15 @@ export const queries = `
     sortField: String,
     sortDirection: Int,
   ): RemainderProducts
+  remaindersLog(
+    categoryId: String,
+    productIds: [String],
+    searchValue: String,
+    departmentId: String,
+    branchId: String,
+    beginDate: Date,
+    endDate: Date
+  ): JSON
 `;
 
 export const mutations = `

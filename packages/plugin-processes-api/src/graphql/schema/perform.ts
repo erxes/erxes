@@ -62,6 +62,7 @@ const paginateParams = `
 const qryParams = `
   search: String
   type: String
+  status: String
   startDate: Date
   endDate: Date
   inBranchId: String

@@ -19,7 +19,7 @@ import { SidebarList as List } from '@erxes/ui/src/layout';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { IQueryParams } from '@erxes/ui/src/types';
 import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
-import { JOB_TYPE_CHOISES } from '../../constants';
+import { JOB_TYPE_CHOISES, PERFORM_STATUSES } from '../../constants';
 import Button from '@erxes/ui/src/components/Button';
 import { ScrolledContent } from '../../flow/styles';
 
@@ -300,6 +300,24 @@ class PerformSidebar extends React.Component<Props, State> {
                   }
                   multi={false}
                 />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Status</ControlLabel>
+                <FormControl
+                  name="status"
+                  componentClass="select"
+                  value={filterParams.status}
+                  required={false}
+                  onChange={e =>
+                    this.setFilter('status', (e.target as any).value)
+                  }
+                >
+                  {Object.keys(PERFORM_STATUSES).map(key => (
+                    <option value={key} key={Math.random()}>
+                      {PERFORM_STATUSES[key]}
+                    </option>
+                  ))}
+                </FormControl>
               </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>{__(`Start Date`)}</ControlLabel>

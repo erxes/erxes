@@ -174,7 +174,7 @@ const BarcodeGenerator = (props: Props) => {
               margin-top: 5px;
               font-size: ${config.priceFontSize}px !important;
             ">
-              ${__('Price')}: ${dayjs(config.date).format('YYYY-MM-DD :HH')}
+              ${__('Date')}: ${dayjs(config.date).format('YYYY-MM-DD :HH')}
             </div>
           `;
 

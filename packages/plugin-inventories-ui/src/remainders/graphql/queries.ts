@@ -56,9 +56,32 @@ const remainderProducts = `
   }
 `;
 
+const remaindersLog = `
+  query remaindersLog(
+    $categoryId: String,
+    $productIds: [String]
+    $searchValue: String,
+    $departmentId: String
+    $branchId: String
+    $beginDate: Date
+    $endDate: Date
+  ) {
+    remaindersLog(
+      categoryId: $categoryId,
+      productIds: $productIds,
+      searchValue: $searchValue,
+      departmentId: $departmentId,
+      branchId: $branchId,
+      beginDate: $beginDate,
+      endDate: $endDate,
+    )
+  }
+`;
+
 const productCategories = productQueries.productCategories;
 
 export default {
   remainderProducts,
-  productCategories
+  productCategories,
+  remaindersLog
 };

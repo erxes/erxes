@@ -18,6 +18,7 @@ const detailParamsDef = `
   $startDate: Date
   $endDate: Date
   $type: String
+  $status: String
   $inBranchId: String
   $outBranchId: String
   $inDepartmentId: String
@@ -31,6 +32,7 @@ const detailParamsValue = `
   startDate: $startDate
   endDate: $endDate
   type: $type
+  status: $status
   inBranchId: $inBranchId
   outBranchId: $outBranchId
   inDepartmentId: $inDepartmentId

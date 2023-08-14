@@ -179,6 +179,14 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('pos:orders.aggregate', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.PosOrders.aggregate(data)
+    };
+  });
+
   consumeRPCQueue('pos:configs.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     return {
