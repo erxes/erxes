@@ -144,21 +144,8 @@ const stopRouter = () => {
   console.log(`Erxes gateway ready at http://localhost:${port}/graphql`);
 })();
 
-let ignoreSIGTERM = false;
-
-export function startIgnoreSIGTERM() {
-  ignoreSIGTERM = true;
-}
-
-export function stopIgnoreSIGTERM() {
-  ignoreSIGTERM = false;
-}
-
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
   process.on(sig, async () => {
-    if (ignoreSIGTERM && sig === 'SIGTERM') {
-      return;
-    }
     console.log(`Exiting on signal ${sig}`);
     if (NODE_ENV === 'development') {
       await clearCache();
