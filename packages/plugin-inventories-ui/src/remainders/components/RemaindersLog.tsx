@@ -94,8 +94,8 @@ const RemaindersLog = (props: Props) => {
                 )}</td>
                 <td>${perform.spec}</td>
                 <td></td>
-                <td>${(perform.items.receipt || 0).toLocaleString()}</td>
-                <td>${(perform.items.spend || 0).toLocaleString()}</td>
+                <td>${(perform.item.receipt || 0).toLocaleString()}</td>
+                <td>${(perform.item.spend || 0).toLocaleString()}</td>
                 <td></td>
               </tr>`;
             }
