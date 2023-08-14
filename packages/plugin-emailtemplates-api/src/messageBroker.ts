@@ -17,7 +17,6 @@ export const initBroker = async cl => {
   });
 
   consumeRPCQueue('emailtemplates:findOne', async ({ subdomain, data }) => {
-    console.log({ data });
     const models = await generateModels(subdomain);
 
     return {
