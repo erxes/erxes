@@ -34,7 +34,7 @@ export const initBroker = async cl => {
 
       const { username, password, ...rest } = docData;
 
-      const token = generateToken(integrationId, username, password);
+      const token = await generateToken(integrationId, username, password);
 
       await Integrations.create({
         inboxId: integrationId,
