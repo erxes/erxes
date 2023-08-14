@@ -32,6 +32,7 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 
 type Props = {
   field: IField;
+  otherFields?: IField[];
   currentLocation?: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
@@ -513,6 +514,29 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderParentField() {
+    const { field } = this.props;
+
+    if (field.type !== 'parentField') {
+      return null;
+    }
+
+    const otherFields = this.props.otherFields || [];
+
+    const subFields =
+      otherFields.filter(otherField =>
+        field.subFieldIds?.includes(otherField._id)
+      ) || [];
+
+    return (
+      <>
+        {subFields.map(subField => {
+          return <GenerateField key={subField._id} field={subField} />;
+        })}
+      </>
+    );
+  }
+
   /**
    * Handle all types of fields changes
    * @param {Object} e - Event object
@@ -695,10 +719,14 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderSelectCategory(attrs);
       }
 
+      case 'parentField': {
+        return this.renderParentField();
+      }
+
       default:
         try {
           const plugins = ((window as any).plugins || []).filter(
-            plugin => plugin['formsExtraFields']
+            plugin => plugin.formsExtraFields
           );
 
           const filteredPlugin = plugins.find(plugin =>
@@ -742,7 +770,12 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   render() {
-    const { field, hasLogic } = this.props;
+    const { field, hasLogic, otherFields = [] } = this.props;
+
+    const subFieldIds = otherFields
+      .filter(f => f.subFieldIds)
+      .map(f => f.subFieldIds)
+      .flat();
 
     return (
       <FormGroup>
@@ -752,6 +785,9 @@ export default class GenerateField extends React.Component<Props, State> {
         {this.renderAddButton()}
 
         {hasLogic && <LogicIndicator>Logic</LogicIndicator>}
+        {subFieldIds.includes(field._id) && (
+          <LogicIndicator>Sub Field</LogicIndicator>
+        )}
         {field.description ? (
           <div dangerouslySetInnerHTML={{ __html: field.description }} />
         ) : null}

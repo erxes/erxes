@@ -333,6 +333,7 @@ export const sendPosclientMessage = async (
     lastAction = `posclient:${action}_${pos.token}`;
     serviceName = '';
     args.data.thirdService = true;
+    args.isMQ = true;
   }
 
   args.data.token = pos.token;
