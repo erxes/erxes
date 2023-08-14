@@ -3,11 +3,11 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
-import { EMAIL_RECIEPENTS_TYPES, UI_ACTIONS } from '../../../constants';
 import { sendSegmentsMessage } from '../../../messageBroker';
 import { ITrigger } from '../../../models/definitions/automaions';
+import { serviceDiscovery } from '../../../configs';
+import { UI_ACTIONS } from '../../../constants';
 
 interface IListArgs {
   status: string;

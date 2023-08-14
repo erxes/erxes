@@ -45,8 +45,6 @@ const renderExtraContent = props => {
     response[type] = Component;
   }
 
-  ({ response, props });
-
   return response;
 };
 class DefaultForm extends React.Component<Props> {

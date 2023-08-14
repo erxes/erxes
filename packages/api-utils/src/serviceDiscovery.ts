@@ -9,11 +9,11 @@ const { NODE_ENV, LOAD_BALANCER_ADDRESS, ENABLED_SERVICES_PATH } = process.env;
 
 const isDev = NODE_ENV === 'development';
 
-// if (!ENABLED_SERVICES_PATH) {
-//   throw new Error(
-//     'ENABLED_SERVICES_PATH environment variable is not configured.'
-//   );
-// }
+if (!ENABLED_SERVICES_PATH) {
+  throw new Error(
+    'ENABLED_SERVICES_PATH environment variable is not configured.'
+  );
+}
 
 async function ensureCache() {
   const serviceCount = await redisClient.scard(REDIS_ENABLED_SERVICES_KEY);
