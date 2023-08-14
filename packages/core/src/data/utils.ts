@@ -334,7 +334,9 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'image/jpg',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/pdf'
+    'application/pdf',
+    'image/gif',
+    'audio/mp4'
   ];
 
   const UPLOAD_FILE_TYPES = await getConfig(
