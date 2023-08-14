@@ -8,7 +8,6 @@ export type IAction = {
   isAvailable?: boolean;
   style?: any;
   config?: any;
-  isExternalCommunication?: boolean;
 
   count?: number;
 };

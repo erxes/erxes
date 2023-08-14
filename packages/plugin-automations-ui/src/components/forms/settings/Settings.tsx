@@ -66,7 +66,7 @@ class Settings extends React.Component<Props, State> {
   };
 
   handleSelect = selectedOption => {
-    `Selected: ${selectedOption.label}`;
+    console.log(`Selected: ${selectedOption.label}`);
   };
 
   add = () => {

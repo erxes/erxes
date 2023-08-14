@@ -1,10 +1,10 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { setTimeout } from 'timers';
-import { playWait } from './actions';
-import { serviceDiscovery } from './configs';
-import { generateModels } from './connectionResolver';
 import { receiveTrigger } from './utils';
+import { serviceDiscovery } from './configs';
+import { playWait } from './actions';
+import { generateModels } from './connectionResolver';
 
 let client;
 

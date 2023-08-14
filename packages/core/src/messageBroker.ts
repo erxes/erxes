@@ -596,16 +596,6 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
     ...args
   });
 };
-export const sendEmailTemplateMessage = (
-  args: ISendMessageArgs
-): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'emailtemplates',
-    ...args
-  });
-};
 
 export const fetchSegment = (
   subdomain: string,

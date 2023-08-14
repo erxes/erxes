@@ -3,7 +3,6 @@ import styledTS from 'styled-components-ts';
 import { dimensions, colors } from '@erxes/ui/src/styles';
 import { TriggerBox } from '../../../styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { highlight } from '@erxes/ui/src/utils/animations';
 
 export const ActionFooter = styled.div`
   padding: ${dimensions.unitSpacing}px;

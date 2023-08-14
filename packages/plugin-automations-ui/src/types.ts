@@ -1,6 +1,6 @@
-import { IAction } from '@erxes/ui-automations/src/types';
+import { QueryResponse, MutationVariables, Counts } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { Counts, MutationVariables, QueryResponse } from '@erxes/ui/src/types';
+import { IAction } from '@erxes/ui-automations/src/types';
 
 export type ITrigger = {
   id: string;
@@ -155,7 +155,6 @@ export type AutomationConstants = {
   triggerTypesConst: string[];
   actionsConst: any[];
   propertyTypesConst: any[];
-  emailRecipientsConst: any[];
 };
 
 export type AutomationConstantsQueryResponse = {

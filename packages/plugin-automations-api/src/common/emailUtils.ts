@@ -11,6 +11,7 @@ import { getEnv } from '../utils';
 import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 import { debugError } from '@erxes/api-utils/src/debuggers';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const getEmailRecipientTypes = async () => {
   let reciepentTypes = [...EMAIL_RECIEPENTS_TYPES];
@@ -345,7 +346,11 @@ const sendEmails = async ({
     };
     let headers: { [key: string]: string } = {};
 
-    if (!!AWS_SES_ACCESS_KEY_ID?.length && !!AWS_SES_SECRET_ACCESS_KEY.length) {
+    if (
+      !!AWS_SES_ACCESS_KEY_ID?.length &&
+      !!AWS_SES_SECRET_ACCESS_KEY.length &&
+      (await isEnabled('logs'))
+    ) {
       const emailDelivery = await sendLogsMessage({
         subdomain,
         action: 'emailDeliveries.create',

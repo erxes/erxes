@@ -25,6 +25,7 @@ export const types = `
     icon: String
     label: String
     description: String
+    
   }
 
   type Automation {
