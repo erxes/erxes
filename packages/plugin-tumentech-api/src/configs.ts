@@ -15,6 +15,7 @@ import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 import segments from './segments';
 import { getTransportData, updateTrackingData } from './utils';
+import payment from './payment';
 
 export let debug;
 export let graphqlPubsub;
@@ -76,7 +77,8 @@ export default {
     forms,
     afterMutations,
     exporter,
-    dashboards
+    dashboards,
+    payment
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
