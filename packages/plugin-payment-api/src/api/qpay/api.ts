@@ -124,7 +124,7 @@ export class QpayAPI extends BaseAPI {
         amount: invoice.amount,
         callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?identifier=${invoice.identifier}`
       };
-
+      console.log('data', data);
       const res = await this.request({
         method: 'POST',
         path: PAYMENTS.qpay.actions.invoice,

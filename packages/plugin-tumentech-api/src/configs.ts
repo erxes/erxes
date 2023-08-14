@@ -80,6 +80,7 @@ export default {
     dashboards,
     payment
   },
+
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 

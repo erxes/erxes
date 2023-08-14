@@ -2,10 +2,8 @@ import { sendCardsMessage, sendCoreMessage } from './messageBroker';
 
 export default {
   callback: async ({ subdomain, data }) => {
-    console.log(data, 'data');
-
     //if contract found create transaction
-    if (data.contentType !== 'cards:deals') {
+    if (data.contentType !== 'tumentech:deals') {
       return;
     }
 
@@ -50,10 +48,13 @@ export default {
       defaultValue: null
     });
 
-    console.log(deal, 'deal');
-    console.log(assignedUser, 'assignedUser');
-    console.log(advancePaidStage, 'advancePaidStage');
-    console.log('dispatchPaymentReceivedStage', dispatchPaymentReceivedStage);
+    console.log('deal', deal._id);
+    console.log('assignedUser', assignedUser._id);
+    console.log('advancePaidStage', advancePaidStage._id);
+    console.log(
+      'dispatchPaymentReceivedStage',
+      dispatchPaymentReceivedStage._id
+    );
 
     if (data.description.includes('урьдчилгаа')) {
       await sendCardsMessage({
@@ -61,11 +62,12 @@ export default {
         action: 'editItem',
         data: {
           itemId: deal._id,
-          type: 'deals',
+          type: 'deal',
           stageId: advancePaidStage._id,
           processId: Math.random(),
           user: assignedUser
-        }
+        },
+        isRPC: true
       });
     } else if (data.description.includes('үлдэгдэл')) {
       await sendCardsMessage({
@@ -73,11 +75,13 @@ export default {
         action: 'editItem',
         data: {
           itemId: deal._id,
-          type: 'deals',
+          type: 'deal',
           stageId: dispatchPaymentReceivedStage._id,
           processId: Math.random(),
           user: assignedUser
-        }
+        },
+
+        isRPC: true
       });
     }
     return;
