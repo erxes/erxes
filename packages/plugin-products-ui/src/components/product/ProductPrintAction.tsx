@@ -1,23 +1,24 @@
-import Button from '@erxes/ui/src/components/Button';
+import { gql } from '@apollo/client';
 import client from '@erxes/ui/src/apolloClient';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Dropdown from 'react-bootstrap/Dropdown';
+import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { gql } from '@apollo/client';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { getEnv, __ } from '@erxes/ui/src/utils';
+import Datetime from '@nateradebaugh/react-datetime';
 import WithPermission from 'coreui/withPermission';
-import { __, getEnv } from '@erxes/ui/src/utils';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { queries } from '../../graphql';
 
 import { colors } from '@erxes/ui/src/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 export const ActionItem = styled.button`
   width: 100%;
@@ -69,6 +70,8 @@ type State = {
   width: number;
   branchId: string;
   departmentId: string;
+  date: Date;
+  isDate: boolean;
 };
 
 class BulkDocuments extends React.Component<Props, State> {
@@ -82,6 +85,8 @@ class BulkDocuments extends React.Component<Props, State> {
       showPopup: false,
       copies: 1,
       width: 300,
+      isDate: false,
+      date: new Date(),
       branchId: localStorage.getItem('erxes_products_documents_branchId') || '',
       departmentId:
         localStorage.getItem('erxes_products_documents_departmentId') || ''
@@ -112,7 +117,9 @@ class BulkDocuments extends React.Component<Props, State> {
       copies,
       width,
       branchId,
-      departmentId
+      departmentId,
+      isDate,
+      date
     } = this.state;
 
     window.open(
@@ -120,7 +127,8 @@ class BulkDocuments extends React.Component<Props, State> {
         getEnv().REACT_APP_API_URL
       }/pl:documents/print?_id=${selectedDocumentId}&productIds=${JSON.stringify(
         bulk.map(b => b._id)
-      )}&copies=${copies}&width=${width}&branchId=${branchId}&departmentId=${departmentId}`
+      )}&copies=${copies}&width=${width}&branchId=${branchId}&departmentId=${departmentId}&date=${date}&isDate=${isDate ||
+        ''}`
     );
   };
 
@@ -193,6 +201,32 @@ class BulkDocuments extends React.Component<Props, State> {
               initialValue={this.state.departmentId}
               onSelect={departmentId =>
                 this.onChangeSelect('departmentId', departmentId)
+              }
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Date</ControlLabel>
+            <Datetime
+              inputProps={{ placeholder: 'Click to select a date' }}
+              dateFormat="YYYY-MM-DD"
+              timeFormat="HH:mm"
+              viewMode={'days'}
+              closeOnSelect
+              utc
+              input
+              value={this.state.date || null}
+              onChange={date => this.setState({ date: new Date(date || '') })}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>is Date</ControlLabel>
+            <FormControl
+              componentClass="checkbox"
+              required={true}
+              name="isDate"
+              checked={this.state.isDate}
+              onChange={e =>
+                this.setState({ isDate: (e.target as any).checked })
               }
             />
           </FormGroup>
