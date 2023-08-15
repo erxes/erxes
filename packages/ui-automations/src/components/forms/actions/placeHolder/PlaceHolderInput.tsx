@@ -13,6 +13,7 @@ import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onChange: (config: any) => void;
+  onKeyPress?: (value: string) => void;
   triggerType: string;
   inputName: string;
   label: string;
@@ -24,6 +25,7 @@ type Props = {
   isMulti?: boolean;
   excludeAttr?: boolean;
   customAttributions?: FieldsCombinedByType[];
+  additionalContent?: JSX.Element;
 };
 
 type State = {
@@ -151,6 +153,22 @@ class PlaceHolderInput extends React.Component<Props, State> {
     this.props.onChange(config);
   };
 
+  onKeyPress = e => {
+    const { fieldType } = this.props;
+    if (['select'].includes(fieldType || '')) {
+      return;
+    }
+    const { config } = this.state;
+    const { name } = e.currentTarget as HTMLInputElement;
+
+    if (this.props?.onKeyPress) {
+      config[name] = '';
+      this.setState({ config });
+
+      this.props.onKeyPress(e);
+    }
+  };
+
   renderExtraContent() {
     const plugins: any[] = (window as any).plugins || [];
     const { type = '' } = this.props;
@@ -175,7 +193,13 @@ class PlaceHolderInput extends React.Component<Props, State> {
 
   render() {
     const { config } = this.state;
-    const { options = [], inputName, label, fieldType = 'string' } = this.props;
+    const {
+      options = [],
+      inputName,
+      label,
+      fieldType = 'string',
+      additionalContent
+    } = this.props;
 
     let converted: string = config[inputName] || '';
 
@@ -210,6 +234,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
               {this.renderDate()}
               {this.renderAttribution()}
               {this.renderExtraContent()}
+              {additionalContent}
             </div>
           </div>
 
@@ -217,6 +242,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
             name={inputName}
             value={converted}
             onChange={this.onChange}
+            onKeyPress={this.onKeyPress}
           />
         </FormGroup>
       </BoardHeader>

@@ -413,6 +413,7 @@ class Form extends React.Component<Props, State> {
         <Field
           key={field._id}
           field={field}
+          fields={fields}
           error={fieldError}
           onChange={this.onFieldValueChange}
           onQtyChange={this.onQtyChange}
@@ -509,9 +510,7 @@ class Form extends React.Component<Props, State> {
       src: string;
       width: string;
       height: string;
-    }) => (
-      <iframe src={src} width={width} height={height} scrolling="yes"></iframe>
-    );
+    }) => <iframe src={src} width={width} height={height} scrolling="yes" />;
 
     if (!invoiceLink || currentStatus.status !== 'PAYMENT_PENDING') {
       return null;

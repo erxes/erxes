@@ -11,7 +11,8 @@ const getRelatedValue = async (
   models: IModels,
   subdomain: string,
   target,
-  targetKey
+  targetKey,
+  relateivedValueProps?: any
 ) => {
   if (
     [
@@ -28,6 +29,11 @@ const getRelatedValue = async (
       data: { _id: target[targetKey] },
       isRPC: true
     });
+
+    if (!!relateivedValueProps[targetKey]) {
+      const key = relateivedValueProps[targetKey]?.key;
+      return user[key];
+    }
 
     return (
       (user && ((user.detail && user.detail.fullName) || user.email)) || ''
@@ -49,6 +55,14 @@ const getRelatedValue = async (
       },
       isRPC: true
     });
+
+    if (!!relateivedValueProps[targetKey]) {
+      const { key, filter } = relateivedValueProps[targetKey] || {};
+      return users
+        .filter(user => (filter ? user[filter.key] === filter.value : user))
+        .map(user => user[key])
+        .join(', ');
+    }
 
     return (
       users.map(user => (user.detail && user.detail.fullName) || user.email) ||
@@ -255,6 +269,21 @@ export default {
       execution,
       relatedItems,
       sendCommonMessage
+    });
+  },
+  replacePlaceHolders: async ({
+    subdomain,
+    data: { target, config, relateivedValueProps }
+  }) => {
+    const models = generateModels(subdomain);
+
+    return await replacePlaceHolders({
+      models,
+      subdomain,
+      getRelatedValue,
+      actionData: config,
+      target,
+      relateivedValueProps
     });
   },
   constants: {
