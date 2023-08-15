@@ -24,6 +24,11 @@ import { loadTransactionClass, ITransactionModel } from './models/transactions';
 import { IGeneralModel, loadGeneralClass } from './models/general';
 import { IGeneralDocument } from './models/definitions/general';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
+import {
+  IClassificationModel,
+  loadClassificationClass
+} from './models/classification';
+import { IClassificationDocument } from './models/definitions/classification';
 
 export interface IModels {
   PeriodLocks: IPeriodLockModel;
@@ -35,6 +40,7 @@ export interface IModels {
   FirstSchedules: IScheduleModel;
   Transactions: ITransactionModel;
   General: IGeneralModel;
+  Classification: IClassificationModel;
 }
 
 export interface IContext extends IMainContext {
@@ -51,6 +57,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'loan_period_locks',
     loadPeriodLockClass(models)
   );
+
+  models.Classification = db.model<
+    IClassificationDocument,
+    IClassificationModel
+  >('loan_classification', loadClassificationClass(models));
 
   models.Contracts = db.model<IContractDocument, IContractModel>(
     'loan_contracts',

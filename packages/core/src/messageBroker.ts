@@ -31,7 +31,7 @@ export const initBroker = async options => {
   client = await initBrokerCore(options);
 
   // do not receive messages in crons worker
-  const { consumeQueue, consumeRPCQueue } = client;
+  const { consumeQueue, consumeRPCQueue, consumeRPCQueueMq } = client;
 
   consumeQueue(
     'core:manage-installation-notification',
@@ -506,6 +506,11 @@ export const initBroker = async options => {
   consumeRPCQueue('core:exporter:getExportDocs', async args => ({
     status: 'success',
     data: await exporter.getExportDocs(args)
+  }));
+
+  consumeRPCQueueMq('core:isServiceEnabled', async args => ({
+    status: 'success',
+    data: await serviceDiscovery.isEnabled(args)
   }));
 
   return client;

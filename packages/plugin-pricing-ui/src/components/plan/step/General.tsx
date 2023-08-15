@@ -15,6 +15,8 @@ import {
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import { PricingPlan } from '../../../types';
 import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
+import Button from '@erxes/ui/src/components/Button';
+import { Row } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   formValues: PricingPlan;
@@ -93,16 +95,36 @@ export default function General(props: Props) {
         );
       case 'bundle':
         return (
-          <FormGroup>
-            <FormLabel>{__('Products to bundle')}</FormLabel>
-            <SelectProducts
-              name="products"
-              label="Choose products"
-              initialValue={formValues.productsBundle}
-              onSelect={products => handleState('productsBundle', products)}
-              multi={true}
-            />
-          </FormGroup>
+          <FormWrapper>
+            <FormGroup>
+              <FormLabel>{__('Products to bundle')}</FormLabel>
+              {formValues.productsBundle.map((bundles, index) => {
+                const onChange = productIds => {
+                  formValues.productsBundle[index] = productIds;
+                  handleState('productsBundle', formValues.productsBundle);
+                };
+                return (
+                  <SelectProducts
+                    name="products"
+                    label="Choose products"
+                    initialValue={bundles}
+                    onSelect={onChange}
+                    multi={true}
+                  />
+                );
+              })}
+              <Button
+                onClick={() =>
+                  handleState('productsBundle', [
+                    ...formValues.productsBundle,
+                    []
+                  ])
+                }
+              >
+                +
+              </Button>
+            </FormGroup>
+          </FormWrapper>
         );
       default:
         return;

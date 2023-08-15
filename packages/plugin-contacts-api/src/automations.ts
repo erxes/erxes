@@ -1,4 +1,7 @@
-import { setProperty } from '@erxes/api-utils/src/automations';
+import {
+  replacePlaceHolders,
+  setProperty
+} from '@erxes/api-utils/src/automations';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 
@@ -151,6 +154,52 @@ export default {
       });
     }
   },
+  replacePlaceHolders: async ({
+    subdomain,
+    data: { target, config, relateivedValueProps }
+  }) => {
+    const models = generateModels(subdomain);
+
+    return await replacePlaceHolders({
+      models,
+      subdomain,
+      getRelatedValue,
+      actionData: config,
+      target,
+      relateivedValueProps
+    });
+  },
+  getReciepentsEmails: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { type, config } = data;
+
+    const commonFilter = {
+      emailValidationStatus: 'valid'
+    };
+
+    const contactTypes = {
+      lead: {
+        model: models.Customers,
+        filter: { ...commonFilter, _id: { $in: config.leadIds }, state: 'lead' }
+      },
+      customer: {
+        model: models.Customers,
+        filter: {
+          ...commonFilter,
+          _id: { $in: config.customerIds },
+          state: 'customer'
+        }
+      },
+      company: {
+        model: models.Companies,
+        filter: { ...commonFilter, _id: { $in: config.companyIds } }
+      }
+    };
+
+    const { model, filter } = contactTypes[type];
+
+    return await model.find(filter).distinct('primaryEmail');
+  },
   constants: {
     triggers: [
       {
@@ -176,6 +225,23 @@ export default {
         label: 'Company',
         description:
           'Start with a blank workflow that enralls and is triggered off company'
+      }
+    ],
+    emailReciepentTypes: [
+      {
+        type: 'lead',
+        name: 'leadIds',
+        label: 'Leads'
+      },
+      {
+        type: 'customer',
+        name: 'customerIds',
+        label: 'Customers'
+      },
+      {
+        type: 'company',
+        name: 'companyIds',
+        label: 'Companies'
       }
     ]
   }

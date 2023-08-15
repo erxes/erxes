@@ -32,8 +32,6 @@ export const queries = `
   paymentsCountByType: paymentsTotalCount
   paymentsTotalCount(kind: String, status: String): paymentsTotalCount
 
-  paymentsCheckMonpayCoupon(couponCode: String!, paymentId: String!): JSON
-
   qpayGetMerchant(_id: String!): JSON
 `;
 

@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import Box from '@erxes/ui/src/components/Box';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -29,6 +30,16 @@ export default function Sidebar(props: Props) {
     <Wrapper.Sidebar>
       <Box title={__('Main Info')} name="showMainInfo">
         <SidebarContent>
+          <FormGroup>
+            <ControlLabel>{__('Date')}: </ControlLabel>
+            <br />
+            <span>{dayjs(safeRemainder.date).format('lll') || ''}</span>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Description')}: </ControlLabel>
+            <br />
+            <span>{safeRemainder.description || ''}</span>
+          </FormGroup>
           <FormGroup>
             <ControlLabel>{__('Branch')}: </ControlLabel>
             <br />

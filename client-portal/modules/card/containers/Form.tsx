@@ -1,12 +1,12 @@
-import { Config, IUser, Store } from "../../types";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { mutations, queries } from "../graphql";
+import { Config, ICustomField, IUser, LogicParams, Store } from '../../types';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { mutations, queries } from '../graphql';
 
-import { Alert } from "../../utils";
-import { AppConsumer } from "../../appContext";
-import Form from "../components/Form";
-import React from "react";
-import { capitalize } from "../../common/utils";
+import { Alert } from '../../utils';
+import { AppConsumer } from '../../appContext';
+import Form from '../components/Form';
+import React, { useEffect, useState } from 'react';
+import { capitalize } from '../../common/utils';
 
 type Props = {
   config: Config;
@@ -22,13 +22,14 @@ function FormContainer({
   type,
   ...props
 }: Props) {
+  const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
   const [createItem] = useMutation(gql(mutations.clientPortalCreateCard), {
     refetchQueries: [
       { query: gql(queries[`clientPortal${capitalize(type)}s`]) }
     ]
   });
 
-  const { data: customFields } = useQuery(gql(queries.fields), {
+  const { data: customFields = [] } = useQuery(gql(queries.fields), {
     variables: {
       contentType: `cards:${type}`,
       pipelineId: config[`${type}PipelineId`],
@@ -36,7 +37,7 @@ function FormContainer({
     },
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken
+        'erxes-app-token': config?.erxesAppToken
       }
     }
   });
@@ -47,7 +48,7 @@ function FormContainer({
     },
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken
+        'erxes-app-token': config?.erxesAppToken
       }
     }
   });
@@ -58,7 +59,7 @@ function FormContainer({
     },
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken
+        'erxes-app-token': config?.erxesAppToken
       }
     }
   });
@@ -69,7 +70,7 @@ function FormContainer({
     },
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken
+        'erxes-app-token': config?.erxesAppToken
       }
     }
   });
@@ -77,7 +78,7 @@ function FormContainer({
   const { data: products } = useQuery(gql(queries.products), {
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken
+        'erxes-app-token': config?.erxesAppToken
       }
     }
   });
@@ -101,8 +102,9 @@ function FormContainer({
 
   const updatedProps = {
     ...props,
-    customFields:
-      customFields?.fields.filter(f => f.field !== "description") || [],
+    customFields: customFields.fields || [],
+    customFieldsData,
+    setCustomFieldsData,
     departments: departments?.departments || [],
     branches: branches?.branches || [],
     products: products?.products || [],
@@ -111,7 +113,8 @@ function FormContainer({
     closeModal,
     handleSubmit,
     currentUser,
-    config
+    config,
+    object: useState({})
   };
 
   return <Form {...updatedProps} />;

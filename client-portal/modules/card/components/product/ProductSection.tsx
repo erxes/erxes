@@ -1,9 +1,9 @@
-import { Config, IProductData } from "../../../types";
+import { Config, IProductData } from '../../../types';
 
-import React from "react";
-import Box from "../../../common/Box";
+import React from 'react';
+import Box from '../../../common/Box';
 
-import ProductForm from "./ProductForm";
+import ProductForm from './ProductForm';
 
 type Props = {
   config: Config;
@@ -13,7 +13,7 @@ type Props = {
 
 function ProductSection(props: Props) {
   return (
-    <Box title="Product & Service">
+    <Box title="Product & Service" hasShadow={true}>
       <ProductForm {...props} />
     </Box>
   );

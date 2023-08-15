@@ -133,6 +133,8 @@ class CoverDetail extends React.Component<Props, State> {
           this.displayValue(cover, 'totalAmount')
         )}
 
+        {this.renderRow('Description', cover.description)}
+
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>

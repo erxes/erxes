@@ -35,7 +35,9 @@ type Props = {
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
+  isIntegrationSubmitted?: boolean;
   configs: IConfig[];
+  currentMode: 'create' | 'update' | undefined;
   emailTemplates?: any[] /*change type*/;
   afterFormDbSave: (formId: string) => void;
   save: (params: {
@@ -151,7 +153,7 @@ class Lead extends React.Component<Props, State> {
       isSkip: callout.skip && true,
       carousel: callout.skip ? 'form' : 'callout',
 
-      currentMode: undefined,
+      currentMode: this.props.currentMode || 'create',
       currentField: undefined,
       css: leadData.css || '',
 
@@ -420,7 +422,7 @@ class Lead extends React.Component<Props, State> {
                   visibility={visibility}
                   departmentIds={departmentIds}
                   integrationId={this.props.integrationId}
-                  isSubmitted={this.props.isReadyToSaveForm}
+                  isIntegrationSubmitted={this.props.isIntegrationSubmitted}
                   onChange={this.onChange}
                   onChildProcessFinished={this.props.onChildProcessFinished}
                   waitUntilFinish={this.props.waitUntilFinish}

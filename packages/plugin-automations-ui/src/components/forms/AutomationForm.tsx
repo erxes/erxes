@@ -404,10 +404,15 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleClickOutside = event => {
+    const isInModal = Array.from(event.path).some((element: any) => {
+      return element.classList && element.classList.contains('modal');
+    });
+
     if (
       this.wrapperRef &&
       !this.wrapperRef.contains(event.target) &&
-      this.state.isActionTab
+      this.state.isActionTab &&
+      !isInModal
     ) {
       this.setState({ showDrawer: false });
     }

@@ -6,5 +6,8 @@
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-calls-api/.erxes && node src"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^8.5.1"
   }
 }
