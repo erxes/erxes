@@ -92,7 +92,7 @@ const tumentechDealMutations = {
       e.trackedDate.getTime() / 1000
     ]);
 
-    const existingData = deal.trackingData.find(e => e.carId === carId);
+    const existingData = (deal.trackingData || []).find(e => e.carId === carId);
 
     if (existingData) {
       existingData.list = [...existingData.list, ...newTrackingData];
