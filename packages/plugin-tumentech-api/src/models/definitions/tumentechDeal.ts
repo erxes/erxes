@@ -2,6 +2,13 @@ import { Schema, Document } from 'mongoose';
 
 import { field, schemaHooksWrapper } from './utils';
 
+import { ITrackingItem } from './trips';
+
+export interface ITrackingData {
+  carId: string;
+  list: ITrackingItem[];
+}
+
 export interface ITumentechDeal {
   dealId: string;
   startPlaceId: string;
@@ -13,7 +20,7 @@ export interface ITumentechDeal {
   tripStartedDate: Date;
   tripFinishedData: Date;
   estimatedCloseDate: Date;
-  trackingData: [number];
+  trackingData: ITrackingData[];
   geometry: string;
   createdAt: Date;
 }
@@ -55,9 +62,10 @@ export const tumentechDealSchema = schemaHooksWrapper(
       label: 'Estimated close date'
     }),
     trackingData: field({
-      type: [Number],
+      type: Schema.Types.Mixed,
       label: 'Tracking data'
     }),
+
     geometry: field({
       type: String,
       label: 'Geometry Id'

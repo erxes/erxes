@@ -15,7 +15,7 @@ export const types = ({ cards }) => `
     requiredCarFilter: JSON
     productCategoryId: String
     productSubCategoryId: String
-    trackingData: [TrackingItem]
+    trackingData: [TrackingData]
     geometry: String
     tripStartedDate: Date
     tripFinishedData: Date
@@ -53,4 +53,6 @@ export const mutations = `
     tumentechDealAdd(${params}): TumentechDeal
     tumentechDealEdit(_id: String!, ${params}): TumentechDeal
     tumentechDealRemove(_id: String!): JSON
+
+    tumentechDealAddTrackingData(dealId: String!, carId:String!, trackingData: [TrackingItemInput]): TumentechDeal
 `;

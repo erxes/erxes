@@ -5,6 +5,11 @@ type TrackingItem {
   trackedDate: Date
 }
 
+type TrackingData {
+  carId: String
+  list: [TrackingItem]
+}
+
 input TrackingItemInput {
   lat: Float
   lng: Float

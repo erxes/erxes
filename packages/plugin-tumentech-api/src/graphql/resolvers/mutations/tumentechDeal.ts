@@ -77,6 +77,38 @@ const tumentechDealMutations = {
 
   tumentechDealRemove: (_root, { _id }, { models }: IContext) => {
     return models.TumentechDeals.remove({ _id });
+  },
+
+  tumentechDealAddTrackingData: async (
+    _root,
+    { dealId, carId, trackingData },
+    { models }: IContext
+  ) => {
+    const deal = await models.TumentechDeals.getTumentechDeal('', dealId);
+
+    const newTrackingData = trackingData.map(e => [
+      e.lat,
+      e.lng,
+      e.trackedDate.getTime() / 1000
+    ]);
+
+    const existingData = deal.trackingData.find(e => e.carId === carId);
+
+    if (existingData) {
+      existingData.list = [...existingData.list, ...newTrackingData];
+    } else {
+      deal.trackingData.push({
+        carId,
+        list: newTrackingData
+      });
+    }
+
+    await models.TumentechDeals.updateOne(
+      { _id: deal._id },
+      { $set: { trackingData: deal.trackingData } }
+    );
+
+    return models.TumentechDeals.getTumentechDeal(deal._id);
   }
 };
 
