@@ -1,4 +1,4 @@
-import { IContext } from '../../connectionResolver';
+import { IContext, models } from '../../connectionResolver';
 import { ITrackingItem } from '../../models/definitions/trips';
 import {
   ITumentechDeal,
@@ -49,7 +49,7 @@ const TumentechDeal = {
   async trackingData(
     tumentechDeal,
     _params,
-    { models: { TumentechDeals } }: IContext
+    { models: { TumentechDeals, Cars } }: IContext
   ) {
     const trackingDatas = await TumentechDeals.findOne({
       _id: tumentechDeal._id
@@ -67,9 +67,10 @@ const TumentechDeal = {
 
     const sortedData: ITrackingData[] = [];
 
-    trackingDatas.forEach(trackingData => {
+    trackingDatas.forEach(async trackingData => {
       const obj = {
         carId: trackingData.carId,
+        car: await models.Cars.getCar(trackingData.carId),
         list: sortList(trackingData.list)
       };
 

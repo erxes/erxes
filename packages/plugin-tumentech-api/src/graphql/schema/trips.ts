@@ -7,6 +7,7 @@ type TrackingItem {
 
 type TrackingData {
   carId: String
+  car: Car
   list: [TrackingItem]
 }
 
