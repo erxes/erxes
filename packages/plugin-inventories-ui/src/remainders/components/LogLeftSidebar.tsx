@@ -23,26 +23,26 @@ type Props = {
   handlePrint: () => void;
 };
 
-const LogLeftSidebar = (props: Props, state: { params: any }) => {
+const LogLeftSidebar = (props: Props) => {
   const { handlePrint } = props;
   const history = useHistory();
-  const [filterParams = {}, setFilterParams] = useState<any>(null);
+  const [filterParams, setFilterParams] = useState<any>({
+    categoryId: router.getParam(history, 'categoryId'),
+    productIds: router.getParam(history, 'productIds'),
+    branchId: router.getParam(history, 'branchId'),
+    departmentId: router.getParam(history, 'departmentId'),
+    beginDate: router.getParam(history, 'beginDate'),
+    endDate: router.getParam(history, 'endDate'),
+    isDetailed: router.getParam(history, 'isDetailed')
+  });
 
-  const categoryId =
-    (filterParams || {}).categoryId || router.getParam(history, 'categoryId');
-  const productIds =
-    (filterParams || {}).productIds || router.getParam(history, 'productIds');
-  const branchId =
-    (filterParams || {}).branchId || router.getParam(history, 'branchId');
-  const departmentId =
-    (filterParams || {}).departmentId ||
-    router.getParam(history, 'departmentId');
-  const beginDate =
-    (filterParams || {}).beginDate || router.getParam(history, 'beginDate');
-  const endDate =
-    (filterParams || {}).endDate || router.getParam(history, 'endDate');
-  const isDetailed =
-    (filterParams || {}).isDetailed || router.getParam(history, 'isDetailed');
+  const categoryId = (filterParams || {}).categoryId;
+  const productIds = (filterParams || {}).productIds;
+  const branchId = (filterParams || {}).branchId;
+  const departmentId = (filterParams || {}).departmentId;
+  const beginDate = (filterParams || {}).beginDate;
+  const endDate = (filterParams || {}).endDate;
+  const isDetailed = (filterParams || {}).isDetailed;
 
   const clearFilter = () => {
     router.setParams(history, {
@@ -56,8 +56,9 @@ const LogLeftSidebar = (props: Props, state: { params: any }) => {
   };
 
   const setFilter = (key, value) => {
-    setFilterParams({ [key]: value });
+    setFilterParams({ ...filterParams, [key]: value });
   };
+
   const runFilter = () => {
     router.setParams(history, {
       ...filterParams,
@@ -93,9 +94,7 @@ const LogLeftSidebar = (props: Props, state: { params: any }) => {
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               viewMode={'days'}
-              closeOnSelect
               utc={true}
-              input
               value={beginDate || null}
               onChange={date =>
                 setFilter('beginDate', moment(date).format('YYYY/MM/DD HH:mm'))
@@ -109,9 +108,7 @@ const LogLeftSidebar = (props: Props, state: { params: any }) => {
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               viewMode={'days'}
-              closeOnSelect
               utc={true}
-              input={true}
               value={endDate || null}
               onChange={date =>
                 setFilter('endDate', moment(date).format('YYYY/MM/DD HH:mm'))

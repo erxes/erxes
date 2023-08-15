@@ -24,7 +24,7 @@ const RemaindersLogContainer = (props: Props) => {
     searchValue: queryParams.searchValue,
     departmentId: queryParams.departmentId,
     branchId: queryParams.branchId,
-    isDetailed: queryParams.isDetailed
+    isDetailed: Boolean(queryParams.isDetailed)
   };
   const remaindersLogQuery: any = useQuery(gql(queries.remaindersLog), {
     variables: params,

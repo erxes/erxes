@@ -11,6 +11,7 @@ import {
 } from '../../../models/definitions/remainders';
 import { getPosOrders } from '../utils/posOrders';
 import { getProcesses } from '../utils/processes';
+import { getSafeRemainders } from '../utils/safeRemainders';
 
 const remainderQueries = {
   remainders: async (
@@ -123,6 +124,17 @@ const remainderQueries = {
     });
 
     let result = {};
+
+    result = await getSafeRemainders(
+      models,
+      params,
+      result,
+      branch,
+      department,
+      productById,
+      beProductIds
+    );
+
     result = await getProcesses(
       subdomain,
       params,
@@ -132,7 +144,16 @@ const remainderQueries = {
       productById,
       beProductIds
     );
-    // result = await getPosOrders(subdomain, params, result, branch, department, productById, beProductIds)
+
+    result = await getPosOrders(
+      subdomain,
+      params,
+      result,
+      branch,
+      department,
+      productById,
+      beProductIds
+    );
 
     return result;
   }

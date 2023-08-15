@@ -104,7 +104,7 @@ export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'products',
+    serviceName: 'pos',
     ...args
   });
 };
