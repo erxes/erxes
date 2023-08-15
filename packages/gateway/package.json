@@ -12,6 +12,7 @@
     "@apollo/client": "~3.7.14",
     "@graphql-tools/schema": "^9.0.16",
     "@sentry/node": "^7.50.0",
+    "agentkeepalive": "^4.3.0",
     "apollo-server-errors": "^3.3.1",
     "apollo-server-express": "^3.6.1",
     "cookie-parser": "^1.4.6",

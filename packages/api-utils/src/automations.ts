@@ -7,7 +7,8 @@ export const replacePlaceHolders = async ({
   actionData,
   target,
   isRelated = true,
-  getRelatedValue
+  getRelatedValue,
+  relateivedValueProps
 }: {
   models;
   subdomain: string;
@@ -15,6 +16,7 @@ export const replacePlaceHolders = async ({
   target: any;
   isRelated?: boolean;
   getRelatedValue: any;
+  relateivedValueProps?: any;
 }) => {
   if (actionData) {
     const targetKeys = Object.keys(target);
@@ -25,7 +27,13 @@ export const replacePlaceHolders = async ({
         if (actionData[actionDataKey].includes(`{{ ${targetKey} }}`)) {
           const replaceValue =
             (isRelated &&
-              (await getRelatedValue(models, subdomain, target, targetKey))) ||
+              (await getRelatedValue(
+                models,
+                subdomain,
+                target,
+                targetKey,
+                relateivedValueProps
+              ))) ||
             target[targetKey];
 
           actionData[actionDataKey] = actionData[actionDataKey].replace(
