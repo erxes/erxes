@@ -26,6 +26,7 @@ import { cleanIntegrationKind } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { queries } from '../../graphql/index';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   _id?: string;
@@ -379,6 +380,9 @@ class IntegrationListItem extends React.Component<Props, State> {
         {this.renderExternalData(integration)}
         <td>
           <ActionButtons>
+            {loadDynamicComponent('integrationCustomActions', {
+              ...this.props
+            })}
             {this.renderFetchAction(integration)}
             {this.renderMessengerActions(integration)}
             {this.renderGetAction()}

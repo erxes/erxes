@@ -58,14 +58,11 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'viber:detailIntegration',
+    'viber:integrationDetail',
     async (args: ISendMessageArgs): Promise<any> => {
       const inboxId: string = args.data.inboxId;
 
-      const viberIntegration = await Integrations.findOne(
-        { inboxId: inboxId },
-        'token'
-      );
+      const viberIntegration = await Integrations.findOne({ inboxId }, 'token');
 
       return {
         status: 'success',

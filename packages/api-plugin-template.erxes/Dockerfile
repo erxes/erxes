@@ -1,4 +1,4 @@
-FROM node:14.18.2-alpine
+FROM node:14.21.3-alpine
 WORKDIR /erxes-plugin-api
 RUN chown -R node:node /erxes-plugin-api
 COPY --chown=node:node . /erxes-plugin-api
