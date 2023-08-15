@@ -134,6 +134,12 @@ const generateFilter = async (
     filter.cardId = { $in: cardIds };
   }
 
+  if (params.cardIds) {
+    filter.cardId = {
+      $in: [...(filter?.cardId?.$in || []), ...params.cardIds]
+    };
+  }
+
   return filter;
 };
 
