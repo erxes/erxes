@@ -97,10 +97,12 @@ const tumentechDealMutations = {
     if (existingData) {
       existingData.list = [...existingData.list, ...newTrackingData];
     } else {
-      deal.trackingData.push({
-        carId,
-        list: newTrackingData
-      });
+      deal.trackingData = [
+        {
+          carId,
+          list: newTrackingData
+        }
+      ];
     }
 
     await models.TumentechDeals.updateOne(
