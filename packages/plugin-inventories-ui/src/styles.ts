@@ -200,5 +200,4 @@ export const TableTransactionAdd = styled(Table)`
 export const SidebarFilters = styledTS(styled.div)`
   overflow: hidden;
   padding: 5px 15px 30px 15px;
-  height: 100%;
 `;
