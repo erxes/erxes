@@ -172,23 +172,23 @@ const LogLeftSidebar = (props: Props) => {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Products</ControlLabel>
+            <ControlLabel>Is Detailed</ControlLabel>
             <FormControl
-              value={isDetailed}
+              defaultChecked={isDetailed}
               name="isDetailed"
               componentClass="checkbox"
               onChange={e => setFilter('isDetailed', (e.target as any).checked)}
             />
           </FormGroup>
         </List>
+        <Button btnStyle="success" onClick={runFilter} block>
+          {__('Filter')}
+        </Button>
+        <br />
+        <Button btnStyle="primary" onClick={handlePrint} block>
+          {__('Print')}
+        </Button>
       </SidebarFilters>
-      <Button btnStyle="success" onClick={runFilter} block>
-        {__('Filter')}
-      </Button>
-      <br />
-      <Button btnStyle="primary" onClick={handlePrint} block>
-        {__('Print')}
-      </Button>
     </Wrapper.Sidebar>
   );
 };
