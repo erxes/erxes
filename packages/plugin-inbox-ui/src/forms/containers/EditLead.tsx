@@ -169,7 +169,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       configs: configsQuery.configs || []
     };
 
-    return <Lead {...updatedProps} />;
+    return <Lead {...updatedProps} currentMode="update" />;
   }
 }
 
