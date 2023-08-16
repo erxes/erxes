@@ -1,4 +1,7 @@
-import { setProperty } from '@erxes/api-utils/src/automations';
+import {
+  replacePlaceHolders,
+  setProperty
+} from '@erxes/api-utils/src/automations';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 
@@ -151,6 +154,52 @@ export default {
       });
     }
   },
+  replacePlaceHolders: async ({
+    subdomain,
+    data: { target, config, relatedValueProps }
+  }) => {
+    const models = generateModels(subdomain);
+
+    return await replacePlaceHolders({
+      models,
+      subdomain,
+      getRelatedValue,
+      actionData: config,
+      target,
+      relatedValueProps
+    });
+  },
+  getRecipientsEmails: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { type, config } = data;
+
+    const commonFilter = {
+      emailValidationStatus: 'valid',
+      _id: { $in: config[`${type}Ids`] }
+    };
+
+    const CONTACT_TYPES = {
+      lead: {
+        model: models.Customers,
+        filter: { ...commonFilter, state: 'lead' }
+      },
+      customer: {
+        model: models.Customers,
+        filter: {
+          ...commonFilter,
+          state: 'customer'
+        }
+      },
+      company: {
+        model: models.Companies,
+        filter: { ...commonFilter }
+      }
+    };
+
+    const { model, filter } = CONTACT_TYPES[type];
+
+    return await model.find(filter).distinct('primaryEmail');
+  },
   constants: {
     triggers: [
       {
@@ -176,6 +225,23 @@ export default {
         label: 'Company',
         description:
           'Start with a blank workflow that enralls and is triggered off company'
+      }
+    ],
+    emailRecipientTypes: [
+      {
+        type: 'lead',
+        name: 'leadIds',
+        label: 'Leads'
+      },
+      {
+        type: 'customer',
+        name: 'customerIds',
+        label: 'Customers'
+      },
+      {
+        type: 'company',
+        name: 'companyIds',
+        label: 'Companies'
       }
     ]
   }

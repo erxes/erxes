@@ -71,6 +71,26 @@ export const sendSegmentsMessage = async (
   });
 };
 
+export const sendEmailTemplateMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'emailtemplates',
+    ...args
+  });
+};
+
+export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'logs',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

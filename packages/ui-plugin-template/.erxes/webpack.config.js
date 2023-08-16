@@ -121,6 +121,7 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../../ui-internalnotes/src"),
             path.resolve(__dirname, "../../ui-leads/src"),
             path.resolve(__dirname, "../../ui-tags/src"),
+            path.resolve(__dirname, '../../ui-emailtemplates/src'),
             path.resolve(__dirname, "plugin-src"),
           ],
           use: {

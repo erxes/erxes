@@ -24,7 +24,15 @@ const showOptions = [
 ];
 
 function FieldLogics(props: Props) {
-  const { fields, currentField, onFieldChange } = props;
+  const { currentField, onFieldChange } = props;
+  const subFieldIds = props.fields
+    .filter(f => f.subFieldIds)
+    .map(f => f.subFieldIds)
+    .flat();
+
+  const fields = props.fields.filter(
+    f => f._id !== currentField._id && !subFieldIds.includes(f._id)
+  );
 
   const [logics, setLogics] = useState(
     (currentField.logics || []).map(
@@ -101,7 +109,7 @@ function FieldLogics(props: Props) {
           {logics.map((logic, index) => (
             <FieldLogic
               key={index}
-              fields={fields.filter(field => field._id !== currentField._id)}
+              fields={fields}
               logic={logic}
               onChangeLogic={onChangeLogic}
               removeLogic={removeLogic}
