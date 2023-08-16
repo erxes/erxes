@@ -236,8 +236,8 @@ const automationQueries = {
           constants.actionsConst.push(action);
         }
 
-        if (!!pluginConstants?.emailReciepentTypes?.length) {
-          const updatedEmailReciepentTypes = pluginConstants.emailReciepentTypes.map(
+        if (!!pluginConstants?.emailRecipientTypes?.length) {
+          const updatedEmailRecipIentTypes = pluginConstants.emailRecipientTypes.map(
             eRT => ({ ...eRT, serviceName })
           );
           constants.actionsConst = constants.actionsConst.map(actionConst =>
@@ -245,7 +245,7 @@ const automationQueries = {
               ? {
                   ...actionConst,
                   emailRecipientsConst: actionConst.emailRecipientsConst.concat(
-                    updatedEmailReciepentTypes
+                    updatedEmailRecipIentTypes
                   )
                 }
               : actionConst

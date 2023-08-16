@@ -16,13 +16,10 @@ import {
   __
 } from '@erxes/ui/src';
 import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import Select from 'react-select-plus';
 import { BackIcon } from '../../../../styles';
 import { renderDynamicComponent } from '../../../../utils';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
-import { StepImg } from '@erxes/ui/src/components/step/styles';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 
 type Props = {
@@ -81,23 +78,21 @@ class SendMail extends React.Component<Props, State> {
     return (
       <FormGroup>
         <ControlLabel>{__('Custom Mail')}</ControlLabel>
-        <DrawerDetail>
-          {(config?.customMails || []).map(customMail => (
-            <Chip
-              key={customMail}
-              onClick={removeMail.bind(this, customMail)}
-              frontContent={<Avatar src="/images/avatar-colored.svg" />}
-            >
-              {customMail}
-            </Chip>
-          ))}
-          <FormControl onKeyPress={onChange} placeholder="type a some email" />
-        </DrawerDetail>
+        {(config?.customMails || []).map(customMail => (
+          <Chip
+            key={customMail}
+            onClick={removeMail.bind(this, customMail)}
+            frontContent={<Avatar src="/images/avatar-colored.svg" />}
+          >
+            {customMail}
+          </Chip>
+        ))}
+        <FormControl onKeyPress={onChange} placeholder="enter a some email" />
       </FormGroup>
     );
   }
 
-  renderAttrubutionInput() {
+  renderAttrubutionInput(customAttributions) {
     const { triggerType } = this.props;
     const { config } = this.state;
 
@@ -112,13 +107,16 @@ class SendMail extends React.Component<Props, State> {
         <PlaceHolderInput
           config={config}
           triggerType={triggerType}
-          inputName="atributionMails"
+          inputName="attributionMails"
           label="Attribution Mails"
-          attrType="user"
+          attrTypes={['user', 'contact']}
           onChange={onChange}
+          customAttributions={customAttributions}
           additionalContent={
             <HelpPopover>
-              This type does not include (From Mail) and (Not Verified mails)
+              <br>
+                This type does not include (From Mail) and (Not Verified mails)
+              </br>
             </HelpPopover>
           }
         />
@@ -146,13 +144,16 @@ class SendMail extends React.Component<Props, State> {
     );
   }
 
-  renderRecipientTypeComponent({ serviceName, label, name, type }, onSelect) {
+  renderRecipientTypeComponent(
+    { serviceName, label, name, type, customAttributions },
+    onSelect
+  ) {
     const { config } = this.state;
 
     if (serviceName) {
       return renderDynamicComponent(
         {
-          componentType: 'selectReciepents',
+          componentType: 'selectRecipients',
           type,
           value: config[name],
           label,
@@ -167,7 +168,7 @@ class SendMail extends React.Component<Props, State> {
       case 'customMail':
         return this.renderCustomMailInput();
       case 'attributionMail':
-        return this.renderAttrubutionInput();
+        return this.renderAttrubutionInput(customAttributions);
       case 'segmentBased':
         return this.renderSegmentInput(type, onSelect);
       case 'teamMember':
@@ -246,9 +247,14 @@ class SendMail extends React.Component<Props, State> {
             onKeyPress={onChange}
             triggerType={triggerType}
           />
-          {(emailRecipientsConst || []).map(emailRType =>
-            this.renderRecipientTypeComponent(emailRType, onSelect)
-          )}
+          <FormGroup>
+            <ControlLabel>{__('To Emails')}</ControlLabel>
+            <DrawerDetail>
+              {(emailRecipientsConst || []).map(emailRType =>
+                this.renderRecipientTypeComponent(emailRType, onSelect)
+              )}
+            </DrawerDetail>
+          </FormGroup>
         </DrawerDetail>
       </Common>
     );
