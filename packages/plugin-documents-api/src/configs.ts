@@ -185,7 +185,7 @@ export default {
           if (copies) {
             results = `
              ${results}
-              <div style="margin-right: 20px; margin-bottom: 20px;width: ${width}px;float: left;">
+              <div style="margin-right: 20px; margin-bottom: 20px; width: ${width}mm;float: left;">
                 ${replacedContent}
               </div>
             `;
