@@ -16,7 +16,7 @@ const Components = {
   company: SelectCompanies
 };
 
-class SelectReciepents extends React.Component<Props> {
+class SelectRecipients extends React.Component<Props> {
   constructor(props) {
     super(props);
   }
@@ -48,4 +48,4 @@ class SelectReciepents extends React.Component<Props> {
   }
 }
 
-export default SelectReciepents;
+export default SelectRecipients;
