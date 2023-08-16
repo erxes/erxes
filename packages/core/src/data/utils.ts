@@ -347,7 +347,6 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     if (!defaultMimeTypes.includes(mime)) {
       return 'Invalid configured file type';
     }
-    return 'Invalid configured file type';
   }
 
   return 'ok';
