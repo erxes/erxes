@@ -84,7 +84,8 @@ const tumentechDealMutations = {
     { dealId, carId, trackingData },
     { models }: IContext
   ) => {
-    const deal = await models.TumentechDeals.getTumentechDeal('', dealId);
+    const deal =
+      (await models.TumentechDeals.findOne({ dealId })) || ({} as any);
 
     const newTrackingData = trackingData.map(e => [
       e.lat,

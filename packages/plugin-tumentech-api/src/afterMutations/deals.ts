@@ -275,6 +275,32 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
+    if (stage.code && stage.code === 'dispatchUnloadUnconfirmed') {
+      await notifyDealRelatedUsers(
+        subdomain,
+        process.env.MOBILE_CP_ID || '',
+        deal,
+        {
+          title: 'Буулгалт баталгаажаагүй',
+          content: `Таны ${deal.name} ажлын буулгалт баталгаажсангүй, Та дахин баталгаажуулна уу!`,
+          isMobile: true
+        }
+      );
+    }
+
+    if (stage.code && stage.code === 'dispatchLoadUnconfirmed') {
+      await notifyDealRelatedUsers(
+        subdomain,
+        process.env.MOBILE_CP_ID || '',
+        deal,
+        {
+          title: 'Ачилт баталгаажаагүй',
+          content: `Таны ${deal.name} ажлын ачилт баталгаажсангүй, Та дахин баталгаажуулна уу!`,
+          isMobile: true
+        }
+      );
+    }
+
     if (
       (stage.code && stage.code === 'gone') ||
       stage.code === 'dispatchOngoing'
