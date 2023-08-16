@@ -45,7 +45,7 @@ const stopRouter = () => {
   if (!apolloRouterProcess) {
     return;
   }
-  apolloRouterProcess.kill('SIGTERM');
+  apolloRouterProcess.kill('SIGKILL');
 };
 
 (async () => {
@@ -55,6 +55,8 @@ const stopRouter = () => {
   app.get('/health', async (_req, res) => {
     res.end('ok');
   });
+
+  await publishRefreshEnabledServices();
 
   if (SENTRY_DSN) {
     Sentry.init({
@@ -98,8 +100,6 @@ const stopRouter = () => {
   app.use(cors(corsOptions));
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
-
-  await publishRefreshEnabledServices();
 
   apolloRouterProcess = await apolloRouter(targets);
 
