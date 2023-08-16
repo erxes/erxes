@@ -5,13 +5,15 @@ const attachmentSchema = {
   name: { type: String },
   url: { type: String },
   type: { type: String },
-  size: { type: Number, optional: true }
+  size: { type: Number, optional: true },
+  duration: { type: Number, optional: true }
 };
 export interface IAttachment {
   name: string;
   type: string;
   url: string;
   size?: number;
+  duration?: number;
 }
 export interface IChat {
   participantIds: string[];
