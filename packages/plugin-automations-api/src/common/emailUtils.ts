@@ -409,7 +409,7 @@ const sendEmails = async ({
   const AWS_SES_ACCESS_KEY_ID = configs['AWS_SES_ACCESS_KEY_ID'] || '';
   const AWS_SES_SECRET_ACCESS_KEY = configs['AWS_SES_SECRET_ACCESS_KEY'] || '';
 
-  if (fromEmail || COMPANY_EMAIL_FROM) {
+  if (!fromEmail && !COMPANY_EMAIL_FROM) {
     throw new Error('From Email is required');
   }
 
