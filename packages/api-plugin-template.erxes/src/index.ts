@@ -320,7 +320,8 @@ async function startServer() {
   const messageBrokerClient = await initBroker({
     RABBITMQ_HOST,
     MESSAGE_BROKER_PREFIX,
-    redis
+    redis,
+    app
   });
 
   if (configs.permissions) {
