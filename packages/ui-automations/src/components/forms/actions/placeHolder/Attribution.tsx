@@ -14,6 +14,7 @@ type Props = {
   attributions: FieldsCombinedByType[];
   fieldType?: string;
   attrType?: string;
+  attrTypes?: string[];
   onlySet?: boolean;
 };
 
@@ -53,11 +54,14 @@ export default class Attribution extends React.Component<Props> {
   };
 
   renderContent() {
-    const { attributions, attrType } = this.props;
+    const { attributions, attrType, attrTypes } = this.props;
     let filterAttrs = attributions;
 
     if (attrType && attrType !== 'String') {
       filterAttrs = filterAttrs.filter(f => f.type === attrType);
+    }
+    if (attrTypes?.length) {
+      filterAttrs = filterAttrs.filter(f => attrTypes.includes(f.type));
     }
 
     return (

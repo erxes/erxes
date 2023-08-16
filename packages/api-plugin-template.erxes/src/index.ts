@@ -543,12 +543,12 @@ async function startServer() {
           })
         );
       }
-      if (automations?.getReciepentsEmails) {
+      if (automations?.getRecipientsEmails) {
         consumeRPCQueue(
-          `${configs.name}:automations.getReciepentsEmails`,
+          `${configs.name}:automations.getRecipientsEmails`,
           async args => ({
             status: 'success',
-            data: await automations.getReciepentsEmails(args)
+            data: await automations.getRecipientsEmails(args)
           })
         );
       }

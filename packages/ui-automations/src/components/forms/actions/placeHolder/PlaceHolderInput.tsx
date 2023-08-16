@@ -19,6 +19,7 @@ type Props = {
   label: string;
   type?: string;
   attrType?: string;
+  attrTypes?: string[];
   fieldType?: string;
   config?: any;
   options?: IOption[];
@@ -120,7 +121,13 @@ class PlaceHolderInput extends React.Component<Props, State> {
   };
 
   renderAttribution() {
-    const { excludeAttr, inputName, attrType, fieldType } = this.props;
+    const {
+      excludeAttr,
+      inputName,
+      attrType,
+      attrTypes,
+      fieldType
+    } = this.props;
     if (excludeAttr || fieldType === 'stage') {
       return '';
     }
@@ -134,6 +141,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
         onlySet={this.getOnlySet()}
         fieldType={fieldType}
         attrType={attrType}
+        attrTypes={attrTypes}
         customAttributions={this.props.customAttributions}
       />
     );
