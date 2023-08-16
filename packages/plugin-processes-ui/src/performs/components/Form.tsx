@@ -29,6 +29,7 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { confirm } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { __ } from 'coreui/utils';
 import React from 'react';
 import { JOB_TYPE_CHOISES } from '../../constants';
@@ -39,6 +40,7 @@ import { AddTrigger, TableOver } from '../../styles';
 import { IProductsData } from '../../types';
 import SeriesPrint from '../containers/SeriesPrint';
 import { IPerform } from '../types';
+import FormPrintAction from './FormPrintAction';
 import PerformDetail from './PerformDetail';
 
 type Props = {
@@ -657,7 +659,7 @@ class Form extends React.Component<Props, State> {
       return (
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{__(`Send Branch`)}</ControlLabel>
+            <ControlLabel>{__(`Spend Branch`)}</ControlLabel>
             <SelectBranches
               label="Choose branch"
               name="inBranchId"
@@ -671,7 +673,7 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__(`Send Department`)}</ControlLabel>
+            <ControlLabel>{__(`Spend Department`)}</ControlLabel>
             <SelectDepartments
               label="Choose department"
               name="inDepartmentId"
@@ -902,6 +904,18 @@ class Form extends React.Component<Props, State> {
     window.open(`/processes/seriesNumberPrint/${perform._id}`);
   };
 
+  renderDocuments() {
+    const { perform } = this.props;
+    if (!perform || !perform._id || !perform.series) {
+      return <></>;
+    }
+    if (!isEnabled('documents')) {
+      return <></>;
+    }
+
+    return <FormPrintAction perform={perform} />;
+  }
+
   renderPrintBtn() {
     const { perform } = this.props;
     if (!perform || !perform._id || !perform.series) {
@@ -1117,6 +1131,9 @@ class Form extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
             </FormColumn>
+
+            <FormColumn>{this.renderDocuments()}</FormColumn>
+
             <FormColumn>
               {this.renderPrintBtn()}
               <Button

@@ -178,9 +178,22 @@ const series = `
   }
 `;
 
+// perform documents
+const documents = `
+  query documents($page: Int, $perPage: Int, $contentType: String, $subType: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType, subType: $subType) {
+      _id
+      contentType
+      name
+      createdAt
+    }
+  }
+`;
+
 export default {
   performs,
   performsCount,
   performDetail,
-  series
+  series,
+  documents
 };
