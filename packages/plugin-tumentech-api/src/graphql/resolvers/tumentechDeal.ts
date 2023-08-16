@@ -1,4 +1,4 @@
-import { IContext, models } from '../../connectionResolver';
+import { IContext } from '../../connectionResolver';
 import { ITrackingItem } from '../../models/definitions/trips';
 import {
   ITumentechDeal,
@@ -55,6 +55,8 @@ const TumentechDeal = {
       _id: tumentechDeal._id
     }).distinct('trackingData');
 
+    console.log('trackingDatas', trackingDatas);
+
     const sortList = (trackingData: ITrackingItem[]) => {
       const sorted = trackingData.sort((a, b) => a[2] - b[2]);
 
@@ -67,15 +69,17 @@ const TumentechDeal = {
 
     const sortedData: ITrackingData[] = [];
 
-    trackingDatas.forEach(async trackingData => {
+    for (const trackingData of trackingDatas) {
+      const car = await Cars.findOne({ _id: trackingData.carId });
+
       const obj = {
         carId: trackingData.carId,
-        car: await models.Cars.getCar(trackingData.carId),
+        car,
         list: sortList(trackingData.list)
       };
 
       sortedData.push(obj);
-    });
+    }
 
     return sortedData;
   }
