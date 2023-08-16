@@ -18,19 +18,12 @@ export default {
     });
     if (!deal) return;
 
-    const assignedUser =
-      (deal.assignedUserIds &&
-        deal.assignedUserIds.length > 0 &&
-        (await sendCoreMessage({
-          subdomain,
-          action: 'users.findOne',
-          data: {
-            _id: deal.assignedUserIds[0]
-          },
-          isRPC: true,
-          defaultValue: null
-        }))) ||
-      null;
+    const usr = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { role: 'system' },
+      isRPC: true
+    });
 
     const advancePaidStage = await sendCardsMessage({
       subdomain,
@@ -49,12 +42,12 @@ export default {
     });
 
     console.log('deal', deal._id);
-    console.log('assignedUser', assignedUser._id);
     console.log('advancePaidStage', advancePaidStage._id);
     console.log(
       'dispatchPaymentReceivedStage',
       dispatchPaymentReceivedStage._id
     );
+    console.log('usr', usr);
 
     if (data.description.includes('урьдчилгаа')) {
       await sendCardsMessage({
@@ -65,7 +58,7 @@ export default {
           type: 'deal',
           stageId: advancePaidStage._id,
           processId: Math.random(),
-          user: assignedUser
+          user: usr
         },
         isRPC: true
       });
@@ -78,7 +71,7 @@ export default {
           type: 'deal',
           stageId: dispatchPaymentReceivedStage._id,
           processId: Math.random(),
-          user: assignedUser
+          user: usr
         },
 
         isRPC: true
