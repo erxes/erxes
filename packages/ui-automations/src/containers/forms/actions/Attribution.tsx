@@ -19,6 +19,7 @@ type Props = {
   inputName?: string;
   fieldType?: string;
   attrType?: string;
+  attrTypes?: string[];
   onlySet?: boolean;
   customAttributions?: FieldsCombinedByType[];
 };

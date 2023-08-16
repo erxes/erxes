@@ -4,7 +4,11 @@ import {
 } from '@erxes/api-utils/src/automations';
 import { generateModels, IModels } from './connectionResolver';
 import { itemsAdd } from './graphql/resolvers/mutations/utils';
-import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+import {
+  sendCommonMessage,
+  sendContactsMessage,
+  sendCoreMessage
+} from './messageBroker';
 import { getCollection } from './models/utils';
 
 const getRelatedValue = async (
@@ -12,7 +16,7 @@ const getRelatedValue = async (
   subdomain: string,
   target,
   targetKey,
-  relateivedValueProps?: any
+  relatedValueProps?: any
 ) => {
   if (
     [
@@ -30,8 +34,8 @@ const getRelatedValue = async (
       isRPC: true
     });
 
-    if (!!relateivedValueProps[targetKey]) {
-      const key = relateivedValueProps[targetKey]?.key;
+    if (!!relatedValueProps[targetKey]) {
+      const key = relatedValueProps[targetKey]?.key;
       return user[key];
     }
 
@@ -56,8 +60,8 @@ const getRelatedValue = async (
       isRPC: true
     });
 
-    if (!!relateivedValueProps[targetKey]) {
-      const { key, filter } = relateivedValueProps[targetKey] || {};
+    if (!!relatedValueProps[targetKey]) {
+      const { key, filter } = relatedValueProps[targetKey] || {};
       return users
         .filter(user => (filter ? user[filter.key] === filter.value : user))
         .map(user => user[key])
@@ -108,6 +112,59 @@ const getRelatedValue = async (
     });
 
     return (conversations.map(c => c.content) || []).join(', ');
+  }
+
+  if (['customers', 'companies'].includes(targetKey)) {
+    const relTypeConst = {
+      companies: 'company',
+      customers: 'customer'
+    };
+
+    const contactIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: target.type,
+        mainTypeId: target._id,
+        relTypes: [relTypeConst[targetKey]]
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const upperCasedTargetKey =
+      targetKey.charAt(0).toUpperCase() + targetKey.slice(1);
+
+    const activeContacts = await sendContactsMessage({
+      subdomain,
+      action: `${targetKey}.findActive${upperCasedTargetKey}`,
+      data: { selector: { _id: { $in: contactIds } } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (!!relatedValueProps[targetKey]) {
+      const { key, filter } = relatedValueProps[targetKey] || {};
+      const re = activeContacts
+        .filter(contacts =>
+          filter ? contacts[filter.key] === filter.value : contacts
+        )
+        .map(contacts => contacts[key])
+        .join(', ');
+      return re;
+    }
+
+    return activeContacts
+      .map(contact => {
+        if (targetKey === 'customers') {
+          return `${contact?.firstName || ''} ${contact?.middleName ||
+            ''} ${contact?.lastName || ''}`;
+        }
+        if (targetKey === 'companies') {
+          return contact?.primaryName || '';
+        }
+      })
+      .join(', ');
   }
 
   return false;
@@ -273,7 +330,7 @@ export default {
   },
   replacePlaceHolders: async ({
     subdomain,
-    data: { target, config, relateivedValueProps }
+    data: { target, config, relatedValueProps }
   }) => {
     const models = generateModels(subdomain);
 
@@ -283,7 +340,7 @@ export default {
       getRelatedValue,
       actionData: config,
       target,
-      relateivedValueProps
+      relatedValueProps
     });
   },
   constants: {

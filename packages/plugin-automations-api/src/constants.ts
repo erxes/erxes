@@ -5,7 +5,7 @@ export const ACTIONS = {
   SEND_EMAIL: 'sendEmail'
 };
 
-export const EMAIL_RECIEPENTS_TYPES = [
+export const EMAIL_RECIPIENTS_TYPES = [
   {
     type: 'customMail',
     name: 'customMails',
@@ -65,7 +65,7 @@ export const UI_ACTIONS = [
     icon: 'fast-mail',
     label: 'Send Email',
     description: 'Send Email',
-    emailRecipientsConst: EMAIL_RECIEPENTS_TYPES,
+    emailRecipientsConst: EMAIL_RECIPIENTS_TYPES,
     isAvailable: true
   }
 ];
