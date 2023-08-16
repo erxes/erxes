@@ -100,7 +100,9 @@ export const scrollTo = (element: any, to: number, duration: number) => {
 
     const val = easeInOutQuad(currentTime, start, change, duration);
 
-    element.scrollTop = val;
+    if (element && element.scrollTop !== undefined) {
+      element.scrollTop = val;
+    }
 
     if (currentTime < duration) {
       setTimeout(animateScroll, increment);
