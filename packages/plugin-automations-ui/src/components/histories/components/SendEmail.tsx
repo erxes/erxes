@@ -1,6 +1,5 @@
 import React from 'react';
 import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
-import { QueryResponse } from '@erxes/ui/src/types';
 import {
   ControlLabel,
   FormGroup,
@@ -11,17 +10,14 @@ import {
 } from '@erxes/ui/src';
 import { Columns } from '@erxes/ui/src/styles/chooser';
 import { Column } from '@erxes/ui/src/styles/main';
+import { LabelContainer } from '../styles';
 
 type Props = {
   result: any;
   action: any;
 };
 
-type FinalProps = {
-  emailTemplateQuery: any & QueryResponse;
-} & Props;
-
-class SendEmail extends React.Component<FinalProps> {
+class SendEmail extends React.Component<Props> {
   constructor(props) {
     super(props);
 
@@ -50,6 +46,18 @@ class SendEmail extends React.Component<FinalProps> {
       return 'default';
     };
 
+    const getLabelText = response => {
+      if (response.error) {
+        return response.error;
+      }
+
+      if (response.messageId) {
+        return 'Sent';
+      }
+
+      return '';
+    };
+
     return (
       <li>
         <ul>
@@ -61,18 +69,18 @@ class SendEmail extends React.Component<FinalProps> {
           {`${title || ''}`}
         </ul>
         <ul>
-          <strong>{`To:`}</strong>
-          {responses.map((response, i) => (
-            <>
-              <Tip
-                text={response?.error || response.messageId ? 'Sent' : '' || ''}
-              >
-                <Label key={i} lblStyle={getLabelColor(response)}>
-                  {response?.toEmail || ''}
-                </Label>
-              </Tip>
-            </>
-          ))}
+          <LabelContainer>
+            <strong>{`To:`}</strong>
+            {responses.map((response, i) => (
+              <>
+                <Tip text={getLabelText(response)}>
+                  <Label key={i} lblStyle={getLabelColor(response)}>
+                    {response?.toEmail || ''}
+                  </Label>
+                </Tip>
+              </>
+            ))}
+          </LabelContainer>
         </ul>
       </li>
     );
