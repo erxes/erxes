@@ -62,9 +62,16 @@ export default {
     const models = await generateModels(subdomain);
 
     const results: string[] = [];
-    const productsIds = JSON.parse(productIds || '[]');
+    const copies = JSON.parse(productIds || '[]');
+    const productsIds = copies.map(c => c.id);
+
     const products: IProductDocument[] =
       (await models.Products.find({ _id: { $in: productsIds } }).lean()) || [];
+
+    const productById = {};
+    for (const product of products) {
+      productById[product._id] = product;
+    }
 
     const pricingAvailable = await serviceDiscovery.isEnabled('pricing');
     let quantityRules = {};
@@ -123,7 +130,8 @@ export default {
       });
     }
 
-    for (const product of products) {
+    for (const copyInfo of copies) {
+      const product = productById[copyInfo.id];
       const qtyRule = quantityRules[product._id] || {};
       const { value, price } = qtyRule;
 
@@ -169,6 +177,8 @@ export default {
               </script>
             `
           );
+        } else {
+          replacedContent = replacedContent.replace('{{ barcode }}', '');
         }
       }
 
@@ -208,7 +218,9 @@ export default {
         );
       }
 
-      results.push(replacedContent);
+      for (let i = 0; i < copyInfo.c; i++) {
+        results.push(replacedContent);
+      }
     }
 
     return results;
