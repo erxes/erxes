@@ -25,3 +25,10 @@ export const FilterWrapper = styled.div`
 export const FilterDateItem = styled(FilterItem)`
   z-index: 10;
 `;
+
+export const LabelContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+`;
