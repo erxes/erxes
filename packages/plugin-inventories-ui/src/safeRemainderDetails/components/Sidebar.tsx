@@ -66,13 +66,15 @@ export default function Sidebar(props: Props) {
       <Box title={__('Filters')} name="showFilters">
         <SidebarContent>
           <FormGroup>
-            <ControlLabel>{__('Product')}</ControlLabel>
+            <ControlLabel>{__('Product category')}</ControlLabel>
             <SelectProductCategory
               label="Choose product category"
-              name="selectedProductCategoryId"
-              initialValue={queryParams.productCategoryId}
-              onSelect={(catId: any) => setFilter('productCategoryId', catId)}
-              multi={false}
+              name="selectedProductCategoryIds"
+              initialValue={queryParams.productCategoryIds}
+              onSelect={(catIds: any) =>
+                setFilter('productCategoryIds', catIds)
+              }
+              multi={true}
               customOption={{ value: '', label: 'All products' }}
             />
           </FormGroup>

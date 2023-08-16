@@ -19,7 +19,7 @@ export const types = `
 
 const safeRemainderItemsFilterParams = `
   remainderId: String!,
-  productCategoryId: String,
+  productCategoryIds: [String],
   status: String,
   searchValue: String,
   diffType: String
