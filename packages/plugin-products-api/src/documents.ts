@@ -48,6 +48,7 @@ export default {
       { value: 'bulkQuantity', name: 'Bulk quantity' },
       { value: 'bulkPrice', name: 'Bulk price' },
       { value: 'barcode', name: 'Barcode' },
+      { value: 'barcodeText', name: 'Barcode Text' },
       { value: 'date', name: 'Date' },
       { value: 'barcodeDescription', name: 'Barcode description' },
 
@@ -154,7 +155,10 @@ export default {
         toMoney(price)
       );
 
-      if (content.includes('{{ barcode }}')) {
+      if (
+        content.includes('{{ barcode }}') ||
+        content.includes('{{ barcodeText }}')
+      ) {
         let barcode = (product.barcodes || [])[0] || '';
         let shortStr = '';
         if (barcode) {
@@ -172,13 +176,19 @@ export default {
                 JsBarcode("#barcode${barcode}", "${barcode}${shortStr}", {
                   width: 1,
                   height: 40,
-                  displayValue: true
+                  displayValue: false
                 });
               </script>
             `
           );
+
+          replacedContent = replacedContent.replace(
+            '{{ barcodeText }}',
+            `<span class="barcodeText">${barcode}${shortStr}</span>`
+          );
         } else {
           replacedContent = replacedContent.replace('{{ barcode }}', '');
+          replacedContent = replacedContent.replace('{{ barcodeText }}', '');
         }
       }
 
