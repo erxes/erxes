@@ -170,20 +170,35 @@ const chatMutations = {
     return seen;
   },
 
-  chatToggleIsPinned: async (_root, { _id }, { models }) => {
+  chatToggleIsPinned: async (_root, { _id }, { models, user }) => {
     const chat = await models.Chats.findOne({ _id });
+
+    const isPinnedUser = chat && chat.isPinnedUserIds.includes(user._id);
 
     if (chat) {
       graphqlPubsub.publish('chatInserted', {
         userId: chat.createdUser?._id
       });
 
-      await models.Chats.updateOne(
-        { _id },
-        { $set: { isPinned: !chat.isPinned } }
-      );
+      if (!isPinnedUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $push: { isPinnedUserIds: [user._id] }
+          }
+        );
+      }
 
-      return !chat.isPinned;
+      if (isPinnedUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $pull: { isPinnedUserIds: { $in: [user._id] } }
+          }
+        );
+      }
+
+      return false;
     }
     return false;
   },

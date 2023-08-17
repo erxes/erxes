@@ -89,6 +89,10 @@ export const chatSchema = schemaHooksWrapper(
       default: false,
       label: 'Has pinned'
     }),
+    isPinnedUserIds: field({
+      type: [String],
+      label: 'isPinnedUserIds'
+    }),
     isWithNotification: field({
       type: Boolean,
       default: false,
