@@ -61,6 +61,10 @@ export default {
     {
       label: 'Cards',
       type: 'cards'
+    },
+    {
+      label: 'Cards Stage',
+      type: 'cards:stage'
     }
   ],
 

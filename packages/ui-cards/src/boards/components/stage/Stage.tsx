@@ -24,14 +24,19 @@ import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
 import { OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
 import { Row } from '@erxes/ui-settings/src/styles';
-
+import client from '@erxes/ui/src/apolloClient';
+import { gql } from '@apollo/client';
+import { queries } from '../../graphql';
+import { getEnv } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 type Props = {
+  item: any;
   loadingItems: () => boolean;
   removeStage: (stageId: string) => void;
   index: number;
   stage: IStage;
   length: number;
-  items: IItem[];
+  items: any[];
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   loadMore: () => void;
@@ -43,6 +48,9 @@ type Props = {
 
 type State = {
   showSortOptions: boolean;
+  showPrintOptions: boolean;
+  documents: any[];
+  loading: boolean;
 };
 
 export default class Stage extends React.Component<Props, State> {
@@ -51,12 +59,31 @@ export default class Stage extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-
     this.bodyRef = React.createRef();
 
-    this.state = { showSortOptions: false };
+    this.state = {
+      showSortOptions: false,
+      showPrintOptions: false,
+      documents: [],
+      loading: false
+    };
   }
+  loadDocuments = () => {
+    this.setState({ loading: true });
 
+    client
+      .mutate({
+        mutation: gql(queries.documents),
+        variables: { contentType: 'cards:stage' }
+      })
+      .then(({ data }) => {
+        this.setState({ documents: data.documents });
+        this.setState({ loading: false });
+      })
+      .catch(() => {
+        this.setState({ loading: false });
+      });
+  };
   componentDidMount() {
     // Load items until scroll created
     const handle = setInterval(() => {
@@ -88,10 +115,11 @@ export default class Stage extends React.Component<Props, State> {
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     const { stage, index, length, items, loadingItems } = this.props;
-    const { showSortOptions } = this.state;
+    const { showSortOptions, showPrintOptions } = this.state;
 
     if (
       showSortOptions !== nextState.showSortOptions ||
+      showPrintOptions !== nextState.showPrintOptions ||
       index !== nextProps.index ||
       loadingItems() !== nextProps.loadingItems() ||
       length !== nextProps.length ||
@@ -114,10 +142,109 @@ export default class Stage extends React.Component<Props, State> {
     this.setState({ showSortOptions: !showSortOptions });
   };
 
+  togglePrintOptions = () => {
+    this.setState(prevState => ({
+      showPrintOptions: !prevState.showPrintOptions
+    }));
+  };
+
+  print = _id => {
+    const { items } = this.props;
+    try {
+      const itemsArray = items as any[];
+
+      const groupedData: Record<string, any> = {};
+      itemsArray.forEach(item => {
+        const stageId = item.stage._id;
+        const stageItems = itemsArray.filter(
+          item => item.stage._id === stageId
+        );
+
+        const combinedNames = stageItems.map(item => item.name).join(',');
+
+        if (!groupedData[stageId]) {
+          groupedData[stageId] = {
+            stage: {
+              ...item.stage,
+              status: 'active',
+              order: item.stage.order + 1,
+              type: item.stage.type
+            },
+            amount: {
+              AED: 0
+            },
+            assignedUsers: item.assignedUsers,
+            companies: item.companies,
+            createdAt: item.createdAt,
+            customers: item.customers,
+            hasNotified: item.hasNotified,
+            isComplete: item.isComplete,
+            isWatched: item.isWatched,
+            labels: item.labels,
+            modifiedAt: item.modifiedAt,
+            name: combinedNames,
+            products: [],
+            status: item.status,
+            tagIds: item.tagIds,
+            unUsedAmount: item.unUsedAmount,
+            __typename: item.__typename,
+            _id: item._id
+          };
+        }
+
+        if (item.products) {
+          item.products.forEach(product => {
+            const existingProduct = groupedData[stageId].products.find(
+              p => p.productId === product.productId
+            );
+
+            if (existingProduct) {
+              existingProduct.quantity += product.quantity;
+              existingProduct.amount += product.amount;
+              existingProduct.discount += product.discount;
+              existingProduct.discountPercent += product.discountPercent;
+              existingProduct.globalUnitPrice += product.globalUnitPrice;
+              existingProduct.maxQuantity += product.maxQuantity;
+            } else {
+              groupedData[stageId].products.push({
+                productId: product.productId,
+                amount: product.amount,
+                discount: product.discount,
+                discountPercent: product.discountPercent,
+                globalUnitPrice: product.globalUnitPrice,
+                maxQuantity: product.maxQuantity,
+                quantity: product.quantity
+              });
+            }
+
+            // Update the total amount
+            groupedData[stageId].amount.AED +=
+              product.amount * product.quantity;
+          });
+        }
+      });
+
+      const extractedResults = Object.values(groupedData);
+
+      if (extractedResults.length > 0) {
+        const data = extractedResults[0];
+        const url = `${
+          getEnv().REACT_APP_API_URL
+        }/pl:documents/print?_id=${_id}&itemId=${data._id}&stageId=${
+          data.stage._id
+        }`;
+        window.open(url);
+      } else {
+        return { error: 'No data available.' };
+      }
+    } catch (error) {
+      return { error: error.message };
+    }
+  };
+
   renderPopover() {
     const { stage } = this.props;
-    const { showSortOptions } = this.state;
-
+    const { showSortOptions, showPrintOptions } = this.state;
     const archiveList = () => {
       this.props.archiveList();
       this.onClosePopover();
@@ -138,6 +265,8 @@ export default class Stage extends React.Component<Props, State> {
         <ActionList>
           {showSortOptions ? (
             this.renderSortOptions()
+          ) : showPrintOptions ? (
+            this.renderPrintOptions()
           ) : (
             <>
               <li onClick={archiveItems} key="archive-items">
@@ -149,14 +278,38 @@ export default class Stage extends React.Component<Props, State> {
               <li onClick={removeStage} key="remove-stage">
                 {__('Remove stage')}
               </li>
-
               <Dropdown.Divider />
-
               <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
+              {isEnabled('documents') && (
+                <>
+                  {this.loadDocuments()}
+                  <li onClick={this.togglePrintOptions}>
+                    {__('Print document')}
+                  </li>
+                </>
+              )}
             </>
           )}
         </ActionList>
       </Popover>
+    );
+  }
+
+  renderPrintOptions() {
+    const { showPrintOptions, documents } = this.state;
+    if (!showPrintOptions) {
+      return null;
+    }
+    return (
+      <>
+        <li onClick={this.togglePrintOptions}>Back</li>
+        <Dropdown.Divider />
+        {documents.map(item => (
+          <li key={item._id} onClick={() => this.print(item._id)}>
+            {item.name}
+          </li>
+        ))}
+      </>
     );
   }
 
