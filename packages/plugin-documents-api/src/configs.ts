@@ -185,7 +185,7 @@ export default {
           if (copies) {
             results = `
              ${results}
-              <div style="margin-right: 20px; margin-bottom: 20px; width: ${width}mm;float: left;">
+              <div style="margin-right: 2mm; margin-bottom: 2mm; width: ${width}mm; float: left;">
                 ${replacedContent}
               </div>
             `;
@@ -208,7 +208,7 @@ export default {
           while (i < copies) {
             i++;
             multipliedResults.push(`
-              <div style="margin-right: 20px; margin-bottom: 20px;float: left;">
+              <div style="margin-right: 2mm; margin-bottom: 2mm; float: left;">
               ${results}
               </div>
             `);
@@ -222,7 +222,7 @@ export default {
             /*receipt*/
             html {
               color: #000;
-              font-size: 13px;
+              font-size: 11px;
               font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
             }
 
