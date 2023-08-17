@@ -170,7 +170,7 @@ export default {
               </p>
               <script>
                 JsBarcode("#barcode${barcode}", "${barcode}${shortStr}", {
-                  width: 1.5,
+                  width: 1,
                   height: 40,
                   displayValue: true
                 });

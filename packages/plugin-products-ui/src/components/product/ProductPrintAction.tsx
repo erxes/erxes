@@ -98,7 +98,15 @@ class BulkDocuments extends React.Component<Props, State> {
   }
 
   loadDocuments = () => {
-    this.setState({ loading: true, showPopup: false });
+    this.setState({
+      loading: true,
+      showPopup: false,
+      copyInfos: (this.props.bulk || []).map(b => ({
+        id: b._id,
+        c: 1,
+        product: b
+      }))
+    });
 
     client
       .mutate({
