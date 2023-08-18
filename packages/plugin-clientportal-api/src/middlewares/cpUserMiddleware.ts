@@ -28,6 +28,7 @@ export default async function cpUserMiddleware(
       'clientPortalLogin',
       'clientPortalLogout',
       'clientPortalLoginWithPhone',
+      'clientPortalLoginWithSocialPay',
       'clientPortalRegister',
       'clientPortalVerifyOTP',
       'clientPortalRefreshToken',
