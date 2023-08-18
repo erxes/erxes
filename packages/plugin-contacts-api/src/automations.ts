@@ -156,7 +156,7 @@ export default {
   },
   replacePlaceHolders: async ({
     subdomain,
-    data: { target, config, relateivedValueProps }
+    data: { target, config, relatedValueProps }
   }) => {
     const models = generateModels(subdomain);
 
@@ -166,37 +166,37 @@ export default {
       getRelatedValue,
       actionData: config,
       target,
-      relateivedValueProps
+      relatedValueProps
     });
   },
-  getReciepentsEmails: async ({ subdomain, data }) => {
+  getRecipientsEmails: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { type, config } = data;
 
     const commonFilter = {
-      emailValidationStatus: 'valid'
+      emailValidationStatus: 'valid',
+      _id: { $in: config[`${type}Ids`] }
     };
 
-    const contactTypes = {
+    const CONTACT_TYPES = {
       lead: {
         model: models.Customers,
-        filter: { ...commonFilter, _id: { $in: config.leadIds }, state: 'lead' }
+        filter: { ...commonFilter, state: 'lead' }
       },
       customer: {
         model: models.Customers,
         filter: {
           ...commonFilter,
-          _id: { $in: config.customerIds },
           state: 'customer'
         }
       },
       company: {
         model: models.Companies,
-        filter: { ...commonFilter, _id: { $in: config.companyIds } }
+        filter: { ...commonFilter }
       }
     };
 
-    const { model, filter } = contactTypes[type];
+    const { model, filter } = CONTACT_TYPES[type];
 
     return await model.find(filter).distinct('primaryEmail');
   },
@@ -227,7 +227,7 @@ export default {
           'Start with a blank workflow that enralls and is triggered off company'
       }
     ],
-    emailReciepentTypes: [
+    emailRecipientTypes: [
       {
         type: 'lead',
         name: 'leadIds',
