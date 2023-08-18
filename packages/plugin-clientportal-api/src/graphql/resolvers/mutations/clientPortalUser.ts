@@ -13,6 +13,7 @@ import redis from '../../../redis';
 import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
+import { fetchUserFromSocialpay } from '../../../models/utils';
 
 export interface IVerificationParams {
   userId: string;
@@ -577,19 +578,29 @@ const clientPortalUserMutations = {
       content: '',
       smsTransporterType: '',
       codeLength: 4,
-      loginWithOTP: false
+      loginWithOTP: false,
+      expireAfter: 5
     };
 
     if (!config.loginWithOTP) {
       throw new Error('Login with OTP is not enabled');
     }
 
-    const { userId, phoneCode } = await models.ClientPortalUsers.loginWithPhone(
+    const doc = { phone };
+
+    const user = await models.ClientPortalUsers.loginWithoutPassword(
       subdomain,
       clientPortal,
-      phone,
+      doc,
       deviceToken
     );
+
+    const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
+      clientPortalId: clientPortal._id,
+      codeLength: config.codeLength,
+      phone: user.phone,
+      expireAfter: config.expireAfter
+    });
 
     if (phoneCode) {
       const body =
@@ -599,7 +610,36 @@ const clientPortalUserMutations = {
       await sendSms(subdomain, 'messagePro', phone, body);
     }
 
-    return { userId, message: 'Sms sent' };
+    return { userId: user._id, message: 'Sms sent' };
+  },
+
+  clientPortalLoginWithSocialPay: async (
+    _root,
+    args: { token: string; clientPortalId: string },
+    { models, subdomain, res }: IContext
+  ) => {
+    const { token, clientPortalId } = args;
+
+    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+    const data = await fetchUserFromSocialpay(token);
+    const { FirstName, LastName, MobileNumber, Email, IndividualId } = data;
+
+    const doc = {
+      firstName: FirstName,
+      lastName: LastName,
+      phone: MobileNumber,
+      email: Email,
+      code: IndividualId
+    };
+
+    const user = await models.ClientPortalUsers.loginWithoutPassword(
+      subdomain,
+      clientPortal,
+      doc
+    );
+
+    return tokenHandler(user, clientPortal, res);
   },
 
   clientPortalUsersSendVerificationRequest: async (
