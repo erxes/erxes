@@ -588,7 +588,7 @@ const clientPortalUserMutations = {
 
     const doc = { phone };
 
-    const { user } = await models.ClientPortalUsers.loginWithoutPassword(
+    const user = await models.ClientPortalUsers.loginWithoutPassword(
       subdomain,
       clientPortal,
       doc,
@@ -633,7 +633,7 @@ const clientPortalUserMutations = {
       code: IndividualId
     };
 
-    const { user } = await models.ClientPortalUsers.loginWithoutPassword(
+    const user = await models.ClientPortalUsers.loginWithoutPassword(
       subdomain,
       clientPortal,
       doc

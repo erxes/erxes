@@ -145,7 +145,7 @@ export interface IUserModel extends Model<IUserDocument> {
     clientPortal: IClientPortalDocument,
     doc: any,
     deviceToken?: string
-  ): { user: IUserDocument };
+  ): IUserDocument;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
