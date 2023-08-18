@@ -204,6 +204,16 @@ const exmFeedQueries = {
       filter.customFieldsData = { $elemMatch: { value: bravoType } };
     }
 
+    if (contentTypes && contentTypes.includes('event')) {
+      return {
+        list: await models.ExmFeed.find({ ...filter })
+          .sort({ 'ExmEventData.startDate': -1 })
+          .skip(skip || 0)
+          .limit(limit || 20),
+        totalCount: await models.ExmFeed.find(filter).countDocuments()
+      };
+    }
+
     return {
       list: await models.ExmFeed.find(filter)
         .sort({ createdAt: -1 })
