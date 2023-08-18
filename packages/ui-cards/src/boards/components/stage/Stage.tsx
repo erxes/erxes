@@ -243,7 +243,7 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   renderPopover() {
-    const { stage } = this.props;
+    const { stage, options } = this.props;
     const { showSortOptions, showPrintOptions } = this.state;
     const archiveList = () => {
       this.props.archiveList();
@@ -280,7 +280,7 @@ export default class Stage extends React.Component<Props, State> {
               </li>
               <Dropdown.Divider />
               <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
-              {isEnabled('documents') && (
+              {isEnabled('documents') && options.type === 'deal' && (
                 <>
                   {this.loadDocuments()}
                   <li onClick={this.togglePrintOptions}>
