@@ -198,25 +198,39 @@ const chatMutations = {
         );
       }
 
-      return false;
+      return true;
     }
     return false;
   },
 
-  chatToggleIsWithNotification: async (_root, { _id }, { models }) => {
+  chatToggleIsWithNotification: async (_root, { _id }, { models, user }) => {
     const chat = await models.Chats.findOne({ _id });
+    const muteUser = chat && chat.muteUserIds.includes(user._id);
 
     if (chat) {
       graphqlPubsub.publish('chatInserted', {
         userId: chat.createdUser?._id
       });
 
-      await models.Chats.updateOne(
-        { _id },
-        { $set: { isWithNotification: !chat.isWithNotification } }
-      );
+      if (!muteUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $push: { muteUserIds: [user._id] }
+          }
+        );
+      }
 
-      return !chat.isWithNotification;
+      if (muteUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $pull: { muteUserIds: { $in: [user._id] } }
+          }
+        );
+      }
+
+      return true;
     }
     return false;
   },
@@ -258,7 +272,9 @@ const chatMutations = {
 
     const chat = await models.Chats.getChat(message.chatId);
 
-    const recievers = chat.participantIds.filter(i => i !== user._id);
+    const recievers = chat.participantIds.filter(
+      value => !chat.muteUserIds.includes(value)
+    );
 
     sendCoreMessage({
       subdomain: 'os',

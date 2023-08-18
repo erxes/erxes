@@ -98,6 +98,10 @@ export const chatSchema = schemaHooksWrapper(
       default: false,
       label: 'Has notification'
     }),
+    muteUserIds: field({
+      type: [String],
+      label: 'Mute UserIds'
+    }),
     featuredImage: field({
       type: [attachmentSchema],
       label: 'Featured image'
