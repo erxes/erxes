@@ -28,7 +28,7 @@ export default function Sidebar(props: Props) {
 
   return (
     <Wrapper.Sidebar>
-      <Box title={__('Main Info')} name="showMainInfo">
+      <Box title={__('Main Info')} name="showMainInfo" isOpen={true}>
         <SidebarContent>
           <FormGroup>
             <ControlLabel>{__('Date')}: </ControlLabel>
@@ -63,7 +63,7 @@ export default function Sidebar(props: Props) {
         </SidebarContent>
       </Box>
 
-      <Box title={__('Filters')} name="showFilters">
+      <Box title={__('Filters')} name="showFilters" isOpen={true}>
         <SidebarContent>
           <FormGroup>
             <ControlLabel>{__('Product category')}</ControlLabel>

@@ -3,7 +3,10 @@ import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { sendProductsMessage } from '../messageBroker';
-import { SAFE_REMAINDER_STATUSES } from './definitions/constants';
+import {
+  SAFE_REMAINDER_STATUSES,
+  SAFE_REMAINDER_ITEM_STATUSES
+} from './definitions/constants';
 import {
   ISafeRemainder,
   ISafeRemainderDocument,
@@ -117,6 +120,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
           productId: product._id,
           preCount: live.count || 0,
           count: live.count || 0,
+          status: SAFE_REMAINDER_ITEM_STATUSES.NEW,
           uom: product.uom,
           modifiedAt: new Date(),
           modifiedBy: userId
