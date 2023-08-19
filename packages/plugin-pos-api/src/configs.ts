@@ -64,6 +64,7 @@ export default {
     automations,
     forms,
     segments,
+    permissions,
     dashboards,
     imports,
     exporter

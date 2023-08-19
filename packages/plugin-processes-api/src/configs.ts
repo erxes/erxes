@@ -45,6 +45,7 @@ export default {
   meta: {
     logs: { consumers: logs },
     beforeResolvers,
+    permissions,
     documents
   }
 };
