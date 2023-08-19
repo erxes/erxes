@@ -165,6 +165,11 @@ export const TableOver = styled(Table)`
         text-align: right;
       }
     }
+
+    tr td {
+      padding-top: 0px;
+      padding-bottom: 1px;
+    }
   }
 `;
 

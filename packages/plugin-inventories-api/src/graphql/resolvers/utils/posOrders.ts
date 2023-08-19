@@ -41,7 +41,8 @@ export const getPosOrders = async (
         'aggregate[0].$match.paidDate.$lt = new Date(aggregate[0].$match.paidDate.$lt)'
       ]
     },
-    isRPC: true
+    isRPC: true,
+    defaultValue: []
   });
 
   const performsBet = await sendPosMessage({
@@ -76,7 +77,8 @@ export const getPosOrders = async (
         'aggregate[0].$match.paidDate.$lte = new Date(aggregate[0].$match.paidDate.$lte)'
       ]
     },
-    isRPC: true
+    isRPC: true,
+    defaultValue: []
   });
 
   const defaultVal = {

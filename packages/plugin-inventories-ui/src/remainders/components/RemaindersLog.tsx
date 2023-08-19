@@ -38,14 +38,14 @@ const RemaindersLog = (props: Props) => {
             'YYYY-MM-DD HH:mm'
           )} - ${dayjs(params.endDate).format('YYYY-MM-DD HH:mm')}</span></div>
           <table>
-          <tr>
+          <thead>
             <th>Code</th>
             <th>Name</th>
             <th>First balance</th>
             <th>Receipt</th>
             <th>Spend</th>
             <th>Final balance</th>
-          </tr>
+          </thead>
     `;
 
     for (const branchId of Object.keys(remaindersLog)) {
@@ -147,9 +147,8 @@ const RemaindersLog = (props: Props) => {
           font-style: italic;
         }
 
-        table tr:last-child td {
-          border-bottom: 1px dashed #444;
-
+        table tr td  {
+          border-bottom: 1px solid #eeeeee;
         }
 
         table thead th {
@@ -160,7 +159,7 @@ const RemaindersLog = (props: Props) => {
         }
 
         table tbody tr {
-          padding: 5px;
+          padding: 0px;
           text-align: left;
           border-bottom: 1px solid #444
         }
