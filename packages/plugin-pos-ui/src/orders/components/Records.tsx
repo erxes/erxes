@@ -103,13 +103,16 @@ class Orders extends React.Component<IProps, {}> {
 
     const actionBarRight = (
       <BarItems>
-        <Button
-          icon="export"
-          btnStyle="success"
-          onClick={exportRecord.bind(this.tableHeaders)}
-        >
-          {__(`Export this list`)}
-        </Button>
+        {this.props.count > 0 && (
+          <Button
+            icon="export"
+            btnStyle="success"
+            onClick={exportRecord.bind(this.tableHeaders)}
+          >
+            {__(`Export`)}
+          </Button>
+        )}
+
         <RightMenu {...rightMenuProps} />
       </BarItems>
     );
