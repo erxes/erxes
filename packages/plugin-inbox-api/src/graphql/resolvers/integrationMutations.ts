@@ -310,14 +310,6 @@ const integrationMutations = {
 
     const doc: any = { name, brandId, data };
 
-    switch (integration.kind) {
-      case 'webhook': {
-        doc.webhookData = data;
-
-        break;
-      }
-    }
-
     await models.Integrations.updateOne({ _id }, { $set: doc });
 
     const updated = await models.Integrations.getIntegration({ _id });

@@ -24,7 +24,7 @@ import apolloRouter from './apollo-router';
 import { ChildProcess } from 'child_process';
 import { startSubscriptionServer } from './subscription';
 import { Disposable } from 'graphql-ws';
-import { clearCache } from '@erxes/api-utils/src/serviceDiscovery';
+import { publishRefreshEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 const {
   NODE_ENV,
@@ -49,8 +49,6 @@ const stopRouter = () => {
 };
 
 (async () => {
-  await clearCache();
-
   const app = express();
 
   // for health check
@@ -100,9 +98,12 @@ const stopRouter = () => {
   app.use(cors(corsOptions));
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
-  await apolloRouter(targets);
 
-  applyProxiesCoreless(app, targets);
+  await publishRefreshEnabledServices();
+
+  apolloRouterProcess = await apolloRouter(targets);
+
+  await applyProxiesCoreless(app, targets);
 
   // The error handler must be before any other error middleware and after all controllers
   app.use(Sentry.Handlers.errorHandler());
@@ -128,26 +129,27 @@ const stopRouter = () => {
 
   app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
-  // this has to be applied last, just like 404 route handlers are applied last
-  applyProxyToCore(app, targets);
-
   const port = PORT || 4000;
 
   await new Promise<void>(resolve => httpServer.listen({ port }, resolve));
 
-  await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
+  await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis, app });
 
   await setBeforeResolvers();
   await setAfterMutations();
   await setAfterQueries();
+
+  // this has to be applied last, just like 404 route handlers are applied last
+  applyProxyToCore(app, targets);
 
   console.log(`Erxes gateway ready at http://localhost:${port}/graphql`);
 })();
 
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
   process.on(sig, async () => {
+    console.log(`Exiting on signal ${sig}`);
     if (NODE_ENV === 'development') {
-      clearCache();
+      publishRefreshEnabledServices();
     }
     if (subscriptionServer) {
       try {

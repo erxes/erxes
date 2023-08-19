@@ -28,6 +28,7 @@ type Props = {
   conversationId?: string;
   refetchQueries?: string[];
   fromEmail?: string;
+  emailTo?: string;
   customerId?: string;
   mailData?: IMail;
   isReply?: boolean;

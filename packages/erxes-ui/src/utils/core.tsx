@@ -176,6 +176,10 @@ export const renderUserFullName = data => {
     return details.fullName;
   }
 
+  if (details && (details.firstName || details.lastName)) {
+    return (data.firstName || '') + ' ' + (data.lastName || '');
+  }
+
   if (data.email || data.username) {
     return data.email || data.username;
   }

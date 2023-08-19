@@ -26,7 +26,7 @@ const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
 
   for (const elem of oldArray) {
     if (typeof elem !== 'object') {
-      const found = newArray.find((el) => el === elem);
+      const found = newArray.find(el => el === elem);
 
       /**
        * If removedItems contains the pushing value, then it caused the following error
@@ -41,7 +41,7 @@ const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
   newArray.forEach((elem, index) => {
     // primary data types
     if (typeof elem !== 'object') {
-      const found = oldArray.find((el) => el === elem);
+      const found = oldArray.find(el => el === elem);
 
       if (found) {
         unchangedItems.push(elem);
@@ -79,7 +79,7 @@ const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
     unchanged: unchangedItems,
     changed: changedItems,
     added: addedItems,
-    removed: removedItems,
+    removed: removedItems
   };
 };
 
@@ -87,13 +87,13 @@ const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
  * Shorthand empty value checker
  * @param val Value to check
  */
-const isNull = (val) => val === null || val === undefined || val === '';
+const isNull = val => val === null || val === undefined || val === '';
 
 /**
  * Shorthand empty object checker
  * @param obj Object to check
  */
-const isObjectEmpty = (obj) => {
+const isObjectEmpty = obj => {
   return (
     typeof obj === 'object' &&
     obj &&
@@ -158,7 +158,7 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
   if (newData && !isObjectEmpty(newData)) {
     fieldNames = Object.getOwnPropertyNames(newData);
     // split
-    fieldNames = fieldNames.map<string>((n) => {
+    fieldNames = fieldNames.map<string>(n => {
       if (!nonSchemaNames.includes(n)) {
         return n;
       }
@@ -243,7 +243,7 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
     changed: changedFields,
     unchanged: unchangedFields,
     added: addedFields,
-    removed: removedFields,
+    removed: removedFields
   };
 };
 
@@ -258,7 +258,7 @@ export const receivePutLogCommand = async (models: IModels, params) => {
     description,
     object,
     newData,
-    extraDesc,
+    extraDesc
   } = params;
 
   return models.Logs.createLog({
@@ -270,7 +270,7 @@ export const receivePutLogCommand = async (models: IModels, params) => {
     unicode,
     createdAt: new Date(),
     description,
-    extraDesc,
+    extraDesc
   });
 };
 
@@ -279,7 +279,10 @@ interface IActivityLogList {
   totalCount: number;
 }
 
-export const fetchActivityLogs = async (models: IModels, params): Promise<IActivityLogList> => {
+export const fetchActivityLogs = async (
+  models: IModels,
+  params
+): Promise<IActivityLogList> => {
   const filter: {
     contentType?: string;
     contentId?: any;
@@ -298,23 +301,35 @@ export const fetchActivityLogs = async (models: IModels, params): Promise<IActiv
     return {
       activityLogs: await models.ActivityLogs.find(filter)
         .sort({
-          createdAt: -1,
+          createdAt: -1
         })
         .skip(perPage * (page - 1))
         .limit(perPage),
-      totalCount: await models.ActivityLogs.countDocuments(filter),
+      totalCount: await models.ActivityLogs.countDocuments(filter)
     };
   }
 
   return {
-    activityLogs: await models.ActivityLogs.find(filter).sort({ createdAt: -1 }).lean(),
-    totalCount: await models.ActivityLogs.countDocuments(filter),
-  }
+    activityLogs: await models.ActivityLogs.find(filter)
+      .sort({ createdAt: -1 })
+      .lean(),
+    totalCount: await models.ActivityLogs.countDocuments(filter)
+  };
 };
 
 export const fetchLogs = async (models: IModels, params) => {
-  const { start, end, userId, action, page, perPage, type, desc } = params;
-  const filter: IFilter = {};
+  const {
+    start,
+    end,
+    userId,
+    action,
+    page,
+    perPage,
+    type,
+    desc,
+    objectId
+  } = params;
+  const filter: any = {};
 
   // filter by date
   if (start && end) {
@@ -336,6 +351,9 @@ export const fetchLogs = async (models: IModels, params) => {
   }
   if (desc) {
     filter.description = { $regex: desc, $options: '$i' };
+  }
+  if (objectId) {
+    filter.objectId = objectId;
   }
 
   const _page = Number(page || '1');

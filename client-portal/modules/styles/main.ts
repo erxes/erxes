@@ -1,9 +1,9 @@
-import { colors, dimensions, typography } from "../styles";
-import styled, { css } from "styled-components";
+import { colors, dimensions, typography } from '../styles';
+import styled, { css } from 'styled-components';
 
-import { rgba } from "../styles/ecolor";
-import styledTS from "styled-components-ts";
-import { Input } from "./form";
+import { rgba } from '../styles/ecolor';
+import styledTS from 'styled-components-ts';
+import { Input } from './form';
 
 const Header = styledTS<{
   color?: string;
@@ -11,11 +11,11 @@ const Header = styledTS<{
   backgroundImage?: string;
   headingSpacing?: boolean;
 }>(styled.div)`
-  padding: ${props => (props.headingSpacing ? "30px 30px 80px" : "30px 0")};
+  padding: ${props => (props.headingSpacing ? '30px 30px 80px' : '30px 0')};
   color: ${props => (props.color ? props.color : colors.colorWhite)};
   font-size: ${typography.fontSizeBody}px;
   background-color: ${props =>
-    props.background ? props.background : "#f5f8fb"};
+    props.background ? props.background : '#f5f8fb'};
   background-image: ${props =>
     props.backgroundImage && `url(${props.backgroundImage})`};
   position: relative;
@@ -106,10 +106,15 @@ const HeaderLeft = styled.div`
   align-items: center;
 `;
 
+const HamburgerMenuWrapper = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+`;
+
 const SupportMenus = styledTS<{ color?: string; baseColor?: string }>(
   styled.div
 )`
   display: flex;
+  gap:${dimensions.coreSpacing}px;
   align-items: baseline;
   justify-content: flex-end;
   align-items: center;
@@ -167,16 +172,24 @@ const WebLink = styled.a`
   max-width: 100%;
 `;
 
-const HeaderLinks = styled.div`
-  text-align: right;
-
+const HeaderLinks = styledTS<{ backgroundColor: string }>(styled.div)`
+  text-align: left;
+  margin-left: ${dimensions.coreSpacing}px;
+  > span {
+    &:hover {
+      opacity: 0.8;
+      color: ${props => props.backgroundColor};
+    }
+  }
+  
   @media (max-width: 700px) {
-    text-align: left;
+    text-align: right;
+    margin-right: ${dimensions.coreSpacing}px;
   }
 `;
 
 const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
-  display: inline-block;
+  display: block;
   padding-right: ${dimensions.unitSpacing}px;
   margin-right: ${dimensions.unitSpacing}px;
   font-size: 14px;
@@ -199,7 +212,6 @@ const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
     opacity: 1;
 
     &:after {
-      content: '.';
       position absolute;
       bottom: -15px;
       left: 45%;
@@ -219,7 +231,7 @@ const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
 const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
   styled.div
 )`
-  background-color: ${props => (props.bodyColor ? props.bodyColor : "#f5f8fb")};
+  background-color: ${props => (props.bodyColor ? props.bodyColor : '#f5f8fb')};
   min-height: 60vh;
   padding: 32px 0;
 
@@ -443,7 +455,7 @@ const ModalWrapper = styledTS<{ isFull?: boolean }>(styled.div)`
       position: relative;
       z-index: 99;
       width: 60%;
-      max-width: ${props => (props.isFull ? "900px" : "600px")};
+      max-width: ${props => (props.isFull ? '900px' : '600px')};
       border-radius: 2px;
       margin: 100px auto;
 
@@ -546,7 +558,7 @@ const NotificationContent = styledTS<{ isList?: boolean }>(styled.div)`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   word-break: break-word;
-  max-width: ${props => (props.isList ? "100%" : "270px")};
+  max-width: ${props => (props.isList ? '100%' : '270px')};
 
   > p {
     margin: 0;
@@ -559,7 +571,7 @@ const Content = styledTS<{ isList?: boolean }>(styled.div)`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   word-break: break-word;
-  max-width: ${props => (props.isList ? "100%" : "270px")};
+  max-width: ${props => (props.isList ? '100%' : '270px')};
 
   > p {
     margin: 0;
@@ -593,8 +605,8 @@ const SidebarHeader = styledTS<{
   height: ${dimensions.headerSpacing}px;
   align-items: center;
   border-bottom: 1px solid ${colors.borderPrimary};
-  text-transform: ${props => props.uppercase && "uppercase"};
-  font-weight: ${props => (props.bold ? "bold" : "500")};
+  text-transform: ${props => props.uppercase && 'uppercase'};
+  font-weight: ${props => (props.bold ? 'bold' : '500')};
   display: flex;
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
@@ -604,7 +616,7 @@ const SidebarHeader = styledTS<{
 
 const SidebarTitle = styledTS<{
   children: any;
-}>(styled(SidebarHeader.withComponent("h3")))`
+}>(styled(SidebarHeader.withComponent('h3')))`
   padding: 0;
   margin: 0px ${dimensions.coreSpacing}px;
   text-transform: uppercase;
@@ -618,17 +630,17 @@ const SidebarBox = styledTS<{
   full?: boolean;
   noMargin?: boolean;
 }>(styled.div)`
-    background-color: ${props => (props.noBackground ? "" : colors.colorWhite)};
+    background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
     margin-bottom: ${props => !props.noMargin && dimensions.unitSpacing}px;
     box-shadow: ${props =>
-      props.noShadow ? "none" : `0 0 6px 1px ${colors.shadowPrimary}`};
+      props.noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
     padding-bottom: ${props =>
-      props.collapsible ? `${dimensions.unitSpacing}px` : "0"};
-    position: ${props => (props.full ? "initial" : "relative")};
+      props.collapsible ? `${dimensions.unitSpacing}px` : '0'};
+    position: ${props => (props.full ? 'initial' : 'relative')};
     justify-content: center;
     transition: max-height 0.4s;
-    overflow: ${props => (props.collapsible ? "hidden" : "initial")};
-    display: ${props => props.full && "flex"};
+    overflow: ${props => (props.collapsible ? 'hidden' : 'initial')};
+    display: ${props => props.full && 'flex'};
     &:last-child {
       margin-bottom: 0;
     }
@@ -637,7 +649,7 @@ const SidebarBox = styledTS<{
 const SectionContainer = styledTS<{ hasShadow?: boolean }>(styled.div)`
   position: relative;
   margin-bottom: ${dimensions.unitSpacing}px;
-  box-shadow: ${props => props.hasShadow && "rgb(0 0 0 / 8%) 0px 0px 6px 0px"};
+  box-shadow: ${props => props.hasShadow && 'rgb(0 0 0 / 8%) 0px 0px 6px 0px'};
 
   > div {
     margin-bottom: 0;
@@ -659,7 +671,7 @@ const SectionContainer = styledTS<{ hasShadow?: boolean }>(styled.div)`
   }
 `;
 
-const tableHoverColor = "#f5f5f5";
+const tableHoverColor = '#f5f5f5';
 
 const FormLabel = styled.label`
   position: relative;
@@ -685,7 +697,7 @@ const StyledTable = styledTS<{
     max-width: 100%;
     border-spacing: 0;
     border-collapse: collapse;
-    white-space: ${props.whiteSpace || ""};
+    white-space: ${props.whiteSpace || ''};
 
     tr {
       margin: 0 20px;
@@ -697,7 +709,7 @@ const StyledTable = styledTS<{
       color: ${colors.textPrimary};
       padding: ${dimensions.unitSpacing - 2}px;
       display: table-cell;
-      vertical-align: ${props.alignTop && "top"};
+      vertical-align: ${props.alignTop && 'top'};
 
       & ${FormLabel}, & ${Input} {
         margin: 0px;
@@ -892,5 +904,6 @@ export {
   AuthContainer,
   StyledTable,
   TableWrapper,
-  FooterInfo
+  FooterInfo,
+  HamburgerMenuWrapper
 };

@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { NOTIFICATION_TYPES } from '../../constants';
 import { field } from './utils';
 
 export interface INotification {
@@ -24,8 +23,7 @@ export interface INotificationDocument extends INotification, Document {
 export const notificationSchema = new Schema({
   _id: field({ pkey: true }),
   notifType: field({
-    type: String,
-    enum: NOTIFICATION_TYPES.ALL
+    type: String
   }),
   action: field({
     type: String,
@@ -74,8 +72,7 @@ export const configSchema = new Schema({
   // to whom this config is related
   user: field({ type: String }),
   notifType: field({
-    type: String,
-    enum: NOTIFICATION_TYPES.ALL
+    type: String
   }),
   isAllowed: field({ type: Boolean })
 });

@@ -26,7 +26,8 @@ export default ({
   customOption,
   label,
   name,
-  showAvatar = true
+  showAvatar = true,
+  filterParams
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -36,6 +37,7 @@ export default ({
   initialValue?: string | string[];
   name: string;
   showAvatar?: boolean;
+  filterParams: any;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
@@ -51,6 +53,7 @@ export default ({
       onSelect={onSelect}
       customOption={customOption}
       multi={multi}
+      filterParams={filterParams}
     />
   );
 };

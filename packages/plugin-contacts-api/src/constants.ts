@@ -229,3 +229,26 @@ export const DEVICE_PROPERTIES_INFO = {
     { field: 'agent', label: 'User Agent' }
   ]
 };
+
+export const NOTIFICATION_MODULES = [
+  {
+    name: 'customers',
+    description: 'Customers',
+    types: [
+      {
+        name: 'customerMention',
+        text: 'Mention on customer note'
+      }
+    ]
+  },
+  {
+    name: 'companies',
+    description: 'Companies',
+    types: [
+      {
+        name: 'companyMention',
+        text: 'Mention on company note'
+      }
+    ]
+  }
+];

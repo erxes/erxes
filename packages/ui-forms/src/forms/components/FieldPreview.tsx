@@ -7,6 +7,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   field: IField;
+  otherFields: IField[];
   onClick?: (field: IField) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 };
@@ -34,6 +35,7 @@ class FieldPreview extends React.Component<Props, {}> {
       >
         <GenerateField
           field={field}
+          otherFields={this.props.otherFields}
           hasLogic={hasLogic}
           currentLocation={{ lat: 0, lng: 0 }}
           isPreview={true}

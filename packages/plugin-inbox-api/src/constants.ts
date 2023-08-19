@@ -1,8 +1,12 @@
 import { ruleSchema } from '@erxes/api-utils/src/definitions/common';
 
-import { channelSchema } from "./models/definitions/channels";
+import { channelSchema } from './models/definitions/channels';
 import { responseTemplateSchema } from './models/definitions/responseTemplates';
-import { calloutSchema, integrationSchema, leadDataSchema } from "./models/definitions/integrations";
+import {
+  calloutSchema,
+  integrationSchema,
+  leadDataSchema
+} from './models/definitions/integrations';
 
 export const MODULE_NAMES = {
   CHANNEL: 'channel',
@@ -10,7 +14,7 @@ export const MODULE_NAMES = {
   RESPONSE_TEMPLATE: 'responseTemplate',
   CONVERSATION: 'conversation',
   INTEGRATION: 'integration',
-  SCRIPT: 'script'  
+  SCRIPT: 'script'
 };
 
 export const LOG_MAPPINGS = [
@@ -42,3 +46,34 @@ export const CONVERSATION_INFO = {
     { field: 'count', label: 'Conversations' }
   ]
 };
+
+export const NOTIFICATION_MODULES = [
+  {
+    name: 'conversations',
+    description: 'Conversations',
+    types: [
+      {
+        name: 'conversationStateChange',
+        text: 'State change'
+      },
+      {
+        name: 'conversationAssigneeChange',
+        text: 'Assignee change'
+      },
+      {
+        name: 'conversationAddMessage',
+        text: 'Add message'
+      }
+    ]
+  },
+  {
+    name: 'channels',
+    description: 'Channels',
+    types: [
+      {
+        name: 'channelMembersChange',
+        text: 'Members change'
+      }
+    ]
+  }
+];

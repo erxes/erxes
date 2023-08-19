@@ -1,38 +1,33 @@
-import dayjs from 'dayjs';
-import FilePreview from '@erxes/ui/src/components/FilePreview';
-import React from 'react';
-import { IMessage } from '../../../../../types';
 import {
-  CellWrapper,
-  FormTable,
-  FieldWrapper,
-  FormMessageInput,
-  ProductItem
-} from '../styles';
-import {
-  PreviewTitle,
-  PreviewBody,
   BodyContent,
+  PreviewBody,
+  PreviewTitle,
   PrintButton
 } from '@erxes/ui/src/components/step/preview/styles';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FieldItem } from '@erxes/ui-forms/src/forms/styles';
-import Select from 'react-select-plus';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils';
-import ReactToPrint, { PrintContextConsumer } from 'react-to-print';
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import {
-  FieldStyle,
-  SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
-import { Count, ImageWrapper } from '@erxes/ui/src/styles/main';
-import { readFile } from '@erxes/ui/src/utils/core';
-import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
+  CellWrapper,
+  FieldWrapper,
+  FormMessageInput,
+  FormTable,
+  ProductItem
+} from '../styles';
+import ReactToPrint, { PrintContextConsumer } from 'react-to-print';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import { FieldItem } from '@erxes/ui-forms/src/forms/styles';
+import FilePreview from '@erxes/ui/src/components/FilePreview';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IMessage } from '../../../../../types';
+import React from 'react';
+import Select from 'react-select-plus';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 import { Table } from '@erxes/ui/src/components';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
+import { readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   message: IMessage;
@@ -42,6 +37,19 @@ export default class FormMessage extends React.Component<Props, {}> {
   private componentRef;
 
   displayValue(data) {
+    if (data.type === 'parentField') {
+      const subFields = data.value;
+      if (subFields.length === 0) {
+        return null;
+      }
+
+      return subFields.map(e => {
+        return e.map(e2 => {
+          return this.renderField(e2);
+        });
+      });
+    }
+
     if (typeof data.value === 'object' && 'value' in data.value) {
       data.value = data.value.value;
     }
@@ -73,14 +81,14 @@ export default class FormMessage extends React.Component<Props, {}> {
       return data.value.map(obj => {
         return (
           <>
-            {Object.entries(obj).map(e => {
+            {Object.entries(obj).map((e, index) => {
               const key = e[0];
               const value: any = e[1] || '';
 
               return (
-                <>
+                <React.Fragment key={index}>
                   {key}: {value} <br />
-                </>
+                </React.Fragment>
               );
             })}
             <span>------------------------</span>
@@ -114,6 +122,7 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   renderMultiSelect(value: string) {
     const selectValues = value.split(',');
+
     return (
       <Select
         value={value}
@@ -161,8 +170,8 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   renderField(field) {
     return (
-      <ErrorBoundary>
-        <FieldWrapper key={field._id} column={field.column}>
+      <ErrorBoundary key={field._id}>
+        <FieldWrapper column={field.column}>
           <FieldItem>
             <FormGroup>
               <ControlLabel ignoreTrans={true} required={field.isRequired}>
@@ -200,6 +209,7 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   render() {
     const { formWidgetData, content } = this.props.message;
+
     return (
       <FormTable ref={el => (this.componentRef = el)}>
         <PreviewTitle style={{ backgroundColor: '#6569DF' }}>
