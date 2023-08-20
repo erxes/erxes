@@ -957,6 +957,7 @@ const orderMutations = {
           $set: {
             paidDate: now,
             modifiedAt: now,
+            billType: BILL_TYPES.INNER,
             status: getStatus(
               config,
               '',

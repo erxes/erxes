@@ -166,7 +166,6 @@ const productQueries = {
       segmentData
     });
 
-    console.log(filter);
     let sortParams: any = { code: 1 };
 
     if (sortField) {
