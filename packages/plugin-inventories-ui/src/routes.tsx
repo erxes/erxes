@@ -26,6 +26,12 @@ const safeRemainderDetails = asyncComponent(() =>
   )
 );
 
+const safeRemainderDetailsPrint = asyncComponent(() =>
+  import(
+    /* webpackChunkName: 'List - SafeRemainders' */ './safeRemainderDetails/containers/Print'
+  )
+);
+
 const transactions = asyncComponent(() =>
   import(
     /* webpackChunkName: 'List - Transactions' */ './transactions/containers/List'
@@ -84,6 +90,13 @@ const routes = () => {
         path="/inventories/safe-remainders/details/:id"
         key="/inventories/safe-remainders/details/:id"
         component={safeRemainderDetails}
+      />
+
+      <Route
+        exact={true}
+        path="/inventories/safe-remainders/detailsPrint/:id"
+        key="/inventories/safe-remainders/detailsPrint/:id"
+        component={safeRemainderDetailsPrint}
       />
 
       <Route

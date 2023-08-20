@@ -1,15 +1,16 @@
-import dayjs from 'dayjs';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import Box from '@erxes/ui/src/components/Box';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { router, __ } from '@erxes/ui/src/utils/core';
+import dayjs from 'dayjs';
 import queryString from 'query-string';
 import React from 'react';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import Select from 'react-select-plus';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, router } from '@erxes/ui/src/utils/core';
 import { SidebarContent } from '../../styles';
-import { useHistory, useLocation } from 'react-router-dom';
 
 type Props = {
   safeRemainder: any;
@@ -110,6 +111,13 @@ export default function Sidebar(props: Props) {
           </FormGroup>
         </SidebarContent>
       </Box>
+      <Link
+        to={`/inventories/safe-remainders/detailsPrint/${props.safeRemainder._id}/${location.search}`}
+      >
+        <Button btnStyle="success" icon="check-circle" size="small">
+          {__('Print')}
+        </Button>
+      </Link>
     </Wrapper.Sidebar>
   );
 }
