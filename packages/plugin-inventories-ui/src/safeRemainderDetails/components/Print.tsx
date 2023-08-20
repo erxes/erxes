@@ -260,7 +260,7 @@ export default function List(props: Props) {
           right={
             <>
               <Link
-                to={`/inventories/safe-remainders/details/${props.safeRemainder._id}/?${location.search}`}
+                to={`/inventories/safe-remainders/details/${props.safeRemainder._id}/${location.search}`}
               >
                 <Button btnStyle="success" icon="check-circle" size="small">
                   {__('Back')}
