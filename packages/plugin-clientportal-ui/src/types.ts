@@ -73,6 +73,7 @@ export interface IClientPortalUser extends IClientPortalUserDoc {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;
+  forumSubscriptionEndsAfter?: string;
 }
 
 export type ClientPortalUsersQueryResponse = {
@@ -161,6 +162,10 @@ export type ClientPortalConfig = {
   mailConfig?: MailConfig;
   manualVerificationConfig?: ManualVerificationConfig;
   passwordVerificationConfig?: PasswordVerificationConfig;
+
+  tokenExpiration?: number;
+  refreshTokenExpiration?: number;
+  tokenPassMethod: 'cookie' | 'header';
 };
 
 export type Styles = {
@@ -179,6 +184,7 @@ export type Styles = {
   dividerColor?: string;
   baseFont?: string;
   headingFont?: string;
+  __typename?: string;
 };
 
 export type ClientPortalConfigsQueryResponse = {

@@ -8,6 +8,9 @@ export default {
     return models.Integrations.findOne({ _id });
   },
   brand(integration: IIntegrationDocument) {
+    if (!integration.brandId) {
+      return null;
+    }
     return (
       integration.brandId && {
         __typename: 'Brand',
@@ -31,7 +34,10 @@ export default {
   },
 
   async tags(integration: IIntegrationDocument) {
-    return (integration.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+    return (integration.tagIds || []).map(_id => ({
+      __typename: 'Tag',
+      _id
+    }));
   },
 
   websiteMessengerApps(
@@ -103,5 +109,21 @@ export default {
     }
 
     return { status: 'healthy' };
+  },
+
+  async data(
+    integration: IIntegrationDocument,
+    _args,
+    { subdomain }: IContext
+  ) {
+    const inboxId: string = integration._id;
+
+    return await sendCommonMessage({
+      serviceName: integration.kind,
+      subdomain,
+      action: 'detailIntegration',
+      data: { inboxId },
+      isRPC: true
+    });
   }
 };

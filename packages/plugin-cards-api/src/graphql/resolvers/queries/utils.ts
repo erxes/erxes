@@ -88,7 +88,21 @@ export const getCloseDateByType = (closeDateType: string) => {
 };
 
 export const generateExtraFilters = async (filter, extraParams) => {
-  const { source, userIds, priority, startDate, endDate } = extraParams;
+  const {
+    source,
+    userIds,
+    priority,
+    startDate,
+    endDate,
+    createdStartDate,
+    createdEndDate,
+    stateChangedStartDate,
+    stateChangedEndDate,
+    startDateStartDate,
+    startDateEndDate,
+    closeDateStartDate,
+    closeDateEndDate
+  } = extraParams;
 
   const isListEmpty = value => {
     return value.length === 1 && value[0].length === 0;
@@ -122,6 +136,34 @@ export const generateExtraFilters = async (filter, extraParams) => {
         $lte: new Date(endDate)
       };
     }
+  }
+
+  if (createdStartDate || createdEndDate) {
+    filter.createdAt = {
+      $gte: new Date(createdStartDate),
+      $lte: new Date(createdEndDate)
+    };
+  }
+
+  if (stateChangedStartDate || stateChangedEndDate) {
+    filter.stageChangedDate = {
+      $gte: new Date(stateChangedStartDate),
+      $lte: new Date(stateChangedEndDate)
+    };
+  }
+
+  if (startDateStartDate || startDateEndDate) {
+    filter.startDate = {
+      $gte: new Date(startDateStartDate),
+      $lte: new Date(startDateEndDate)
+    };
+  }
+
+  if (closeDateStartDate || closeDateEndDate) {
+    filter.closeDate = {
+      $gte: new Date(closeDateStartDate),
+      $lte: new Date(closeDateEndDate)
+    };
   }
 
   return filter;
@@ -168,7 +210,8 @@ export const generateCommonFilters = async (
     number,
     branchIds,
     departmentIds,
-    dateRangeFilters
+    dateRangeFilters,
+    customFieldsDataFilters
   } = args;
 
   const isListEmpty = value => {
@@ -361,6 +404,16 @@ export const generateCommonFilters = async (
     }
   }
 
+  if (customFieldsDataFilters) {
+    for (const { value, name } of customFieldsDataFilters) {
+      if (Array.isArray(value) && value?.length) {
+        filter[`customFieldsData.${name}`] = { $in: value };
+      } else {
+        filter[`customFieldsData.${name}`] = value;
+      }
+    }
+  }
+
   const stageChangedDateFilter: any = {};
   if (stageChangedStartDate) {
     stageChangedDateFilter.$gte = new Date(stageChangedStartDate);
@@ -537,13 +590,49 @@ export const generateCommonFilters = async (
 };
 
 export const calendarFilters = async (models: IModels, filter, args) => {
-  const { date, pipelineId } = args;
+  const {
+    date,
+    pipelineId,
+    createdStartDate,
+    createdEndDate,
+    stateChangedStartDate,
+    stateChangedEndDate,
+    startDateStartDate,
+    startDateEndDate,
+    closeDateStartDate,
+    closeDateEndDate
+  } = args;
 
   if (date) {
     const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
 
     filter.closeDate = dateSelector(date);
     filter.stageId = { $in: stageIds };
+  }
+
+  if (createdStartDate || createdEndDate) {
+    filter.createdAt = {
+      $gte: new Date(createdStartDate),
+      $lte: new Date(createdEndDate)
+    };
+  }
+  if (stateChangedStartDate || stateChangedEndDate) {
+    filter.stageChangedDate = {
+      $gte: new Date(stateChangedStartDate),
+      $lte: new Date(stateChangedEndDate)
+    };
+  }
+  if (startDateStartDate || startDateEndDate) {
+    filter.startDate = {
+      $gte: new Date(startDateStartDate),
+      $lte: new Date(startDateEndDate)
+    };
+  }
+  if (closeDateStartDate || closeDateEndDate) {
+    filter.closeDate = {
+      $gte: new Date(closeDateStartDate),
+      $lte: new Date(closeDateEndDate)
+    };
   }
 
   return filter;
@@ -558,7 +647,6 @@ export const generateDealCommonFilters = async (
 ) => {
   args.type = 'deal';
   const { productIds } = extraParams || args;
-
   let filter = await generateCommonFilters(
     models,
     subdomain,
@@ -980,6 +1068,7 @@ export const getItemList = async (
         status: 1,
         branchIds: 1,
         departmentIds: 1,
+        userId: 1,
         ...(extraFields || {})
       }
     }

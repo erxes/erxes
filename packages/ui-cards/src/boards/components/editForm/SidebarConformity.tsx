@@ -1,13 +1,13 @@
 import { IItem, IOptions } from '../../types';
 import TaskTimer, { STATUS_TYPES } from '@erxes/ui/src/components/Timer';
 
+import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
 import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
 import CustomFieldsSection from '../../containers/editForm/CustomFieldsSection';
 import CustomerSection from '@erxes/ui-contacts/src/customers/components/CustomerSection';
 import React from 'react';
 import { RightContent } from '../../styles/item';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
 
 type Props = {
   item: IItem;
@@ -62,6 +62,7 @@ class SidebarConformity extends React.Component<Props> {
         />
 
         {renderItems()}
+
         <CustomFieldsSection item={item} options={options} />
       </RightContent>
     );

@@ -52,6 +52,9 @@ const createOrUpdateConfig = `
     $mailConfig: MailConfigInput
     $manualVerificationConfig: JSON
     $passwordVerificationConfig: JSON
+    $tokenPassMethod: TokenPassMethod
+    $tokenExpiration: Int
+    $refreshTokenExpiration: Int
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -104,6 +107,9 @@ const createOrUpdateConfig = `
       mailConfig: $mailConfig
       manualVerificationConfig: $manualVerificationConfig
       passwordVerificationConfig: $passwordVerificationConfig
+      tokenPassMethod: $tokenPassMethod
+      tokenExpiration: $tokenExpiration
+      refreshTokenExpiration: $refreshTokenExpiration
     ) {
       ${commonFields}
     }

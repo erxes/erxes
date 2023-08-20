@@ -1,28 +1,38 @@
 import dayjs from 'dayjs';
-import { CloseDateLabel } from '../styles/popup';
+import { CloseDateLabel, StartDateLabel } from '../styles/popup';
 import Icon from '@erxes/ui/src/components/Icon';
 import * as React from 'react';
-import { generateButtonClass } from '../utils';
+import { generateButtonClass, generateButtonStart } from '../utils';
 
 type IProps = {
+  startDate?: Date;
   closeDate: Date;
   isComplete?: boolean;
 };
 
 class DueDateLabel extends React.Component<IProps> {
   render() {
-    const { closeDate, isComplete } = this.props;
+    const { startDate, closeDate, isComplete } = this.props;
 
-    if (!closeDate) {
-      return null;
-    }
-
-    const day = dayjs(closeDate).format('MMM DD');
+    const day = closeDate ? dayjs(closeDate).format('MMM DD') : null;
+    const startDay = startDate ? dayjs(startDate).format('MMM DD') : null;
 
     return (
-      <CloseDateLabel colorName={generateButtonClass(closeDate, isComplete)}>
-        <Icon icon="clock-eight" /> {day}
-      </CloseDateLabel>
+      <>
+        {startDate && (
+          <StartDateLabel colorName={generateButtonStart(startDate)}>
+            <Icon icon="clock-eight" /> {startDay}
+          </StartDateLabel>
+        )}
+
+        {closeDate && (
+          <CloseDateLabel
+            colorName={generateButtonClass(closeDate, isComplete)}
+          >
+            <Icon icon="clock-eight" /> {day}
+          </CloseDateLabel>
+        )}
+      </>
     );
   }
 }

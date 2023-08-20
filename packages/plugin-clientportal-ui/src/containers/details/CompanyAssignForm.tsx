@@ -10,7 +10,7 @@ import { mutations, queries } from '../../graphql';
 import CompanyAssignForm from '../../components/detail/CompanyAssignForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {

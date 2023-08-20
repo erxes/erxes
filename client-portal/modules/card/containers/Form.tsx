@@ -1,12 +1,12 @@
-import { Config, IUser, Store } from "../../types";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { mutations, queries } from "../graphql";
+import { Config, ICustomField, IUser, LogicParams, Store } from '../../types';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { mutations, queries } from '../graphql';
 
-import { Alert } from "../../utils";
-import { AppConsumer } from "../../appContext";
-import Form from "../components/Form";
-import React from "react";
-import { capitalize } from "../../common/utils";
+import { Alert } from '../../utils';
+import { AppConsumer } from '../../appContext';
+import Form from '../components/Form';
+import React, { useEffect, useState } from 'react';
+import { capitalize } from '../../common/utils';
 
 type Props = {
   config: Config;
@@ -22,74 +22,75 @@ function FormContainer({
   type,
   ...props
 }: Props) {
+  const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
   const [createItem] = useMutation(gql(mutations.clientPortalCreateCard), {
     refetchQueries: [
-      { query: gql(queries[`clientPortal${capitalize(type)}s`]) },
-    ],
+      { query: gql(queries[`clientPortal${capitalize(type)}s`]) }
+    ]
   });
 
-  const { data: customFields } = useQuery(gql(queries.fields), {
+  const { data: customFields = [] } = useQuery(gql(queries.fields), {
     variables: {
       contentType: `cards:${type}`,
       pipelineId: config[`${type}PipelineId`],
-      isVisibleToCreate: true,
+      isVisibleToCreate: true
     },
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken,
-      },
-    },
+        'erxes-app-token': config?.erxesAppToken
+      }
+    }
   });
 
   const labelsQuery = useQuery(gql(queries.pipelineLabels), {
     variables: {
-      pipelineId: config[`${type}PipelineId`],
+      pipelineId: config[`${type}PipelineId`]
     },
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken,
-      },
-    },
+        'erxes-app-token': config?.erxesAppToken
+      }
+    }
   });
 
   const { data: departments } = useQuery(gql(queries.departments), {
     variables: {
-      withoutUserFilter: true,
+      withoutUserFilter: true
     },
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken,
-      },
-    },
+        'erxes-app-token': config?.erxesAppToken
+      }
+    }
   });
 
   const { data: branches } = useQuery(gql(queries.branches), {
     variables: {
-      withoutUserFilter: true,
+      withoutUserFilter: true
     },
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken,
-      },
-    },
+        'erxes-app-token': config?.erxesAppToken
+      }
+    }
   });
 
   const { data: products } = useQuery(gql(queries.products), {
     context: {
       headers: {
-        "erxes-app-token": config?.erxesAppToken,
-      },
-    },
+        'erxes-app-token': config?.erxesAppToken
+      }
+    }
   });
 
-  const handleSubmit = (doc) => {
+  const handleSubmit = doc => {
     createItem({
       variables: {
         ...doc,
         type,
         stageId: config[`${type}StageId`],
-        email: currentUser.email,
-      },
+        email: currentUser.email
+      }
     }).then(() => {
       Alert.success(`You've successfully created a ${type}`);
 
@@ -101,8 +102,9 @@ function FormContainer({
 
   const updatedProps = {
     ...props,
-    customFields:
-      customFields?.fields.filter((f) => f.field !== "description") || [],
+    customFields: customFields.fields || [],
+    customFieldsData,
+    setCustomFieldsData,
     departments: departments?.departments || [],
     branches: branches?.branches || [],
     products: products?.products || [],
@@ -110,12 +112,15 @@ function FormContainer({
     type,
     closeModal,
     handleSubmit,
+    currentUser,
+    config,
+    object: useState({})
   };
 
   return <Form {...updatedProps} />;
 }
 
-const WithConsumer = (props) => {
+const WithConsumer = props => {
   return (
     <AppConsumer>
       {({ currentUser, config }: Store) => {

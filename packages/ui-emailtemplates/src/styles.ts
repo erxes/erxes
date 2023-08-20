@@ -1,5 +1,6 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { highlight } from '@erxes/ui/src/utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -45,6 +46,29 @@ const IframePreview = styled.div`
     width: 200%;
     height: 300px;
     border: 0;
+  }
+`;
+
+const IframeFullScreen = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  iframe {
+    width: 100%;
+    height: 800px;
+    border: 0;
+  }
+`;
+
+const TemplateWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  overflow: auto;
+  padding: 5px;
+  justify-content: center;
+  > div {
+    min-width: 440px;
   }
 `;
 
@@ -116,6 +140,11 @@ const Template = styledTS<{ isLongName?: boolean }>(styled.div)`
       opacity: 1;
     }
   }
+
+  &.active {
+    animation: ${highlight} 0.9s ease;
+    box-shadow: 0 0 5px 0 #63d2d6;
+  }
 `;
 
 const TemplateInfo = styled.div`
@@ -140,5 +169,7 @@ export {
   TemplateBox,
   Templates,
   IframePreview,
-  TemplateInfo
+  IframeFullScreen,
+  TemplateInfo,
+  TemplateWrapper
 };

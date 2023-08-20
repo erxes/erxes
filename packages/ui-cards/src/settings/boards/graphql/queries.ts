@@ -69,6 +69,7 @@ const stages = `
       status
       code
       age
+      defaultTick
     }
   }
 `;

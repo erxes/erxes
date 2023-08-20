@@ -49,6 +49,7 @@ type VerificationRequest {
     _id: String!
     createdAt: Date
     modifiedAt: Date
+    fullName: String
     firstName: String
     lastName: String
     phone: String
@@ -100,6 +101,11 @@ type VerificationRequest {
     verified
     notVerified
     pending
+  }
+
+  type CPAuthPayload {
+    token: String
+    refreshToken: String
   }
 `;
 
@@ -159,13 +165,16 @@ export const mutations = () => `
   clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
   clientPortalRegister(${userParams}): String
-  clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): String
+  clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): JSON
   clientPortalUsersVerify(userIds: [String]!, type: String): JSON
-  clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String
-  clientPortalGoogleAuthentication(clientPortalId: String, code: String): String
-  clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): String
-  clientPortalLogout: String
+  clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): JSON
   clientPortalLoginWithPhone(phone: String!, clientPortalId: String!, deviceToken: String): JSON
+  clientPortalLoginWithSocialPay(clientPortalId: String!, token: String!) : JSON
+  clientPortalRefreshToken: String
+  clientPortalGoogleAuthentication(clientPortalId: String, code: String): JSON
+  clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): JSON
+  clientPortalLogout: String
+  
   clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!
   clientPortalUsersVerifyPhone(code: String!): String!
 

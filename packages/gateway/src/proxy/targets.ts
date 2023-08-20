@@ -7,7 +7,6 @@ dotenv.config();
 export type ErxesProxyTarget = {
   name: string;
   address: string;
-  pathRegex?: RegExp;
   config: any;
 };
 
@@ -24,8 +23,7 @@ async function getProxyTarget(name: string): Promise<ErxesProxyTarget> {
   return {
     name,
     address: service.address,
-    config: service.config,
-    pathRegex: new RegExp(`^\\/pl(:|-)${name}(?=(\\b|\\/))`, 'i')
+    config: service.config
   };
 }
 
@@ -90,36 +88,22 @@ async function retryEnsureGraphqlEndpointIsUp(target: ErxesProxyTarget) {
 export async function retryGetProxyTargets(): Promise<ErxesProxyTarget[]> {
   try {
     const serviceNames = await getServices();
-    const proxyTargets: ErxesProxyTarget[] = await Promise.all(
-      serviceNames.map(retryGetProxyTarget)
-    );
-    await Promise.all(proxyTargets.map(retryEnsureGraphqlEndpointIsUp));
+
+    const proxyTargets: ErxesProxyTarget[] = [];
+
+    for (const name of serviceNames) {
+      const target = await retryGetProxyTarget(name);
+      proxyTargets.push(target);
+    }
+
+    for (const target of proxyTargets) {
+      await retryEnsureGraphqlEndpointIsUp(target);
+    }
+
     return proxyTargets;
   } catch (e) {
-    console.log(
-      '-----------------------------------------ERRRORR retryGetProxyTargets-------------------------------------------'
-    );
     console.log(e);
     console.error(e);
     process.exit(1);
   }
-}
-
-type ProxyTargetByPath0 = Record<string, ErxesProxyTarget | undefined | null>;
-
-export function proxyConfigByPath0(
-  targets: ErxesProxyTarget[]
-): ProxyTargetByPath0 {
-  const result: ProxyTargetByPath0 = {};
-  for (const target of targets) {
-    if (target.name === 'graphql') {
-      result['graphql'] = target;
-    } else {
-      const path01 = `pl:${target.name}`;
-      const path02 = `pl-${target.name}`;
-      result[path01] = target;
-      result[path02] = target;
-    }
-  }
-  return result;
 }

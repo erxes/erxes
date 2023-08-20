@@ -53,6 +53,14 @@ export const CloseDateLabel = styled(Button)`
   padding: 3px 0;
   line-height: 1em;
   margin-top: 4px;
+  margin-left: 10px;
+`;
+
+export const StartDateLabel = styled(Button)`
+  width: 72px;
+  padding: 3px 0;
+  line-height: 1em;
+  margin-top: 4px;
 `;
 
 export const CheckBoxWrapper = styled.span`

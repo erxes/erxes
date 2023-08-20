@@ -113,7 +113,8 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
           ) / 100} - ${product.unitPrice}`;
         }
         if (product.code) {
-          return `${product.code} - ${product.name} - ${product.unitPrice}`;
+          return `${product.code} - ${product.name} - ${product.unitPrice ||
+            ''}`;
         }
 
         return product.name;

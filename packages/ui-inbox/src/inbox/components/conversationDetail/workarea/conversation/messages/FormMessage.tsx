@@ -1,28 +1,33 @@
-import dayjs from 'dayjs';
-import FilePreview from '@erxes/ui/src/components/FilePreview';
-import React from 'react';
-import { IMessage } from '../../../../../types';
 import {
-  CellWrapper,
-  FormTable,
-  FieldWrapper,
-  FormMessageInput
-} from '../styles';
-import {
-  PreviewTitle,
-  PreviewBody,
   BodyContent,
+  PreviewBody,
+  PreviewTitle,
   PrintButton
 } from '@erxes/ui/src/components/step/preview/styles';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FieldItem } from '@erxes/ui-forms/src/forms/styles';
-import Select from 'react-select-plus';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils';
+import {
+  CellWrapper,
+  FieldWrapper,
+  FormMessageInput,
+  FormTable,
+  ProductItem
+} from '../styles';
 import ReactToPrint, { PrintContextConsumer } from 'react-to-print';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import { FieldItem } from '@erxes/ui-forms/src/forms/styles';
+import FilePreview from '@erxes/ui/src/components/FilePreview';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IMessage } from '../../../../../types';
+import React from 'react';
+import Select from 'react-select-plus';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { Table } from '@erxes/ui/src/components';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
+import { readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   message: IMessage;
@@ -32,6 +37,19 @@ export default class FormMessage extends React.Component<Props, {}> {
   private componentRef;
 
   displayValue(data) {
+    if (data.type === 'parentField') {
+      const subFields = data.value;
+      if (subFields.length === 0) {
+        return null;
+      }
+
+      return subFields.map(e => {
+        return e.map(e2 => {
+          return this.renderField(e2);
+        });
+      });
+    }
+
     if (typeof data.value === 'object' && 'value' in data.value) {
       data.value = data.value.value;
     }
@@ -63,14 +81,14 @@ export default class FormMessage extends React.Component<Props, {}> {
       return data.value.map(obj => {
         return (
           <>
-            {Object.entries(obj).map(e => {
+            {Object.entries(obj).map((e, index) => {
               const key = e[0];
               const value: any = e[1] || '';
 
               return (
-                <>
+                <React.Fragment key={index}>
                   {key}: {value} <br />
-                </>
+                </React.Fragment>
               );
             })}
             <span>------------------------</span>
@@ -104,6 +122,7 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   renderMultiSelect(value: string) {
     const selectValues = value.split(',');
+
     return (
       <Select
         value={value}
@@ -113,10 +132,46 @@ export default class FormMessage extends React.Component<Props, {}> {
     );
   }
 
+  renderProductData = field => {
+    if (!field.value.hasOwnProperty('product')) {
+      return <FormMessageInput>{this.displayValue(field)}</FormMessageInput>;
+    }
+
+    const { product, quantity } = field.value;
+
+    const imageUrl = product.attachment ? product.attachment.url : '';
+
+    return (
+      <ProductItem>
+        {imageUrl && <img src={readFile(imageUrl)} />}
+        <SidebarList className="no-link flex">
+          <Table>
+            <thead>
+              <tr>
+                <th style={{ width: '40%' }}>{__('Product name')}</th>
+                <th style={{ width: '20%' }}>{__('Unit price')}</th>
+                <th style={{ width: '20%' }}>{__('Quantity')}</th>
+                <th style={{ width: '20%' }}>{__('Sub total')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{product.name}</td>
+                <td align="right">{product.unitPrice}</td>
+                <td align="right">{quantity}</td>
+                <td>{product.unitPrice * quantity}</td>
+              </tr>
+            </tbody>
+          </Table>
+        </SidebarList>
+      </ProductItem>
+    );
+  };
+
   renderField(field) {
     return (
-      <ErrorBoundary>
-        <FieldWrapper key={field._id} column={field.column}>
+      <ErrorBoundary key={field._id}>
+        <FieldWrapper column={field.column}>
           <FieldItem>
             <FormGroup>
               <ControlLabel ignoreTrans={true} required={field.isRequired}>
@@ -124,6 +179,8 @@ export default class FormMessage extends React.Component<Props, {}> {
               </ControlLabel>
               {field.type === 'multiSelect' ? (
                 this.renderMultiSelect(field.value)
+              ) : field.type === 'productCategory' ? (
+                this.renderProductData(field)
               ) : (
                 <FormMessageInput>{this.displayValue(field)}</FormMessageInput>
               )}
@@ -152,6 +209,7 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   render() {
     const { formWidgetData, content } = this.props.message;
+
     return (
       <FormTable ref={el => (this.componentRef = el)}>
         <PreviewTitle style={{ backgroundColor: '#6569DF' }}>

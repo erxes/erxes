@@ -32,7 +32,8 @@ const clientPortalMutations = {
       startDate,
       customFieldsData,
       attachments,
-      labelIds
+      labelIds,
+      productsData
     },
     { subdomain, cpUser, models }: IContext
   ) {
@@ -75,7 +76,8 @@ const clientPortalMutations = {
         startDate,
         customFieldsData,
         attachments,
-        labelIds
+        labelIds,
+        productsData
       },
       isRPC: true
     });

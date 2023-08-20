@@ -65,6 +65,15 @@ const listQueryParams = `
   boardIds: [String]
   stageCodes: [String]
   dateRangeFilters:JSON
+  customFieldsDataFilters:JSON
+  createdStartDate: Date,
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
   ${conformityQueryFields}
 `;
 

@@ -66,7 +66,7 @@ export const reorderItemMap = ({
   const current = [...itemMap[source.droppableId]];
   const next = [...itemMap[destination.droppableId]];
 
-  let target = current[source.index];
+  let target: any = { ...current[source.index] };
 
   if (!target && source.item) {
     target = source.item;

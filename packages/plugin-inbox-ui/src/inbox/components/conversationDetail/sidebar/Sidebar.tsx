@@ -13,7 +13,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 const ActionSection = asyncComponent(() =>
   import(
@@ -251,6 +251,12 @@ class Index extends React.Component<IndexProps, IndexState> {
             toggleSection
           })}
           <WebsiteActivity urlVisits={customer.urlVisits || []} />
+
+          {isEnabled('payment') &&
+            loadDynamicComponent('invoiceSection', {
+              contentType: 'inbox:conversations',
+              contentTypeId: conversation._id
+            })}
         </TabContent>
       );
     }

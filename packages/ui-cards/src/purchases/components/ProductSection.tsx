@@ -20,7 +20,7 @@ import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   productsData: IProductData[];
-  products: IProduct[];
+  products: (IProduct & { quantity: number })[];
   paymentsData: IPaymentsData;
   expensesData: IExpensesData[];
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -115,14 +115,14 @@ function ProductSection({
     );
   };
 
-  const renderProduct = (product: IProduct) => {
+  const renderProduct = (product: IProduct & { quantity: number }) => {
     if (product.customFieldsData) {
       return (
         <Tip text={tipItems(product)} placement="bottom">
           {renderProductItem(
             product.name,
             product.quantity,
-            product.uom,
+            product.uom || '',
             product._id
           )}
         </Tip>
@@ -132,7 +132,7 @@ function ProductSection({
     return renderProductItem(
       product.name,
       product.quantity,
-      product.uom,
+      product.uom || '',
       product._id
     );
   };

@@ -5,6 +5,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import Tip from '../Tip';
 
 const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
   display: block;
@@ -54,6 +55,7 @@ type Props = {
   size?: number;
   icon?: React.ReactNode;
   letterCount?: number;
+  showTip?: boolean;
 };
 
 function Element({
@@ -128,11 +130,17 @@ class Avatar extends React.Component<Props> {
       return `${customer.firstName} ${customer.lastName}`;
     }
 
-    return customer.firstName || customer.lastName || customer.name || customer.middleName || null;
+    return (
+      customer.firstName ||
+      customer.lastName ||
+      customer.name ||
+      customer.middleName ||
+      null
+    );
   }
 
   render() {
-    const { user, customer, company, icon } = this.props;
+    const { user, customer, company, icon, showTip } = this.props;
 
     let avatar;
     let fullName;
@@ -152,8 +160,7 @@ class Avatar extends React.Component<Props> {
       avatar = company.avatar;
       fullName = company.primaryName || null;
     }
-
-    return (
+    const renderContent = (
       <AvatarStyled state={customer && customer.state}>
         <Element customer={customer}>
           {avatar ? this.renderImage(avatar) : this.renderInitials(fullName)}
@@ -161,6 +168,8 @@ class Avatar extends React.Component<Props> {
         {icon}
       </AvatarStyled>
     );
+
+    return showTip ? <Tip text={fullName}>{renderContent}</Tip> : renderContent;
   }
 }
 

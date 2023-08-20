@@ -5,20 +5,22 @@ import { Model } from 'mongoose';
 import * as randomize from 'randomatic';
 import * as sha256 from 'sha256';
 
-import { createJwtToken } from '../auth/authUtils';
 import { IModels } from '../connectionResolver';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
 import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendAfterMutation, sendSms } from '../utils';
-import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
-  clientPortalUserSchema,
+  IClientPortal,
+  IClientPortalDocument
+} from './definitions/clientPortal';
+import {
   INotifcationSettings,
   IUser,
-  IUserDocument
+  IUserDocument,
+  clientPortalUserSchema
 } from './definitions/clientPortalUser';
 import { DEFAULT_MAIL_CONFIG } from './definitions/constants';
-import { handleContacts, putActivityLog } from './utils';
+import { handleContacts, handleDeviceToken, putActivityLog } from './utils';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -84,16 +86,20 @@ export interface IUserModel extends Model<IUserDocument> {
   refreshTokens(
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
-  login(args: ILoginParams): { token: string; refreshToken: string };
+  login(
+    args: ILoginParams
+  ): { user: IUserDocument; clientPortal: IClientPortal };
   imposeVerificationCode({
     codeLength,
     clientPortalId,
     phone,
     email,
-    isRessetting
+    isRessetting,
+    expireAfter
   }: {
     codeLength: number;
     clientPortalId: string;
+    expireAfter?: number;
     phone?: string;
     email?: string;
     isRessetting?: boolean;
@@ -128,6 +134,18 @@ export interface IUserModel extends Model<IUserDocument> {
     phone: string,
     deviceToken?: string
   ): Promise<{ userId: string; phoneCode: string }>;
+  loginWithSocialpay(
+    subdomain: string,
+    clientPortal: IClientPortalDocument,
+    user: IUser,
+    deviceToken?: string
+  ): Promise<{ userId: string; phoneCode: string }>;
+  loginWithoutPassword(
+    subdomain: string,
+    clientPortal: IClientPortalDocument,
+    doc: any,
+    deviceToken?: string
+  ): IUserDocument;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -789,19 +807,14 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('Account not verified');
       }
 
-      if (deviceToken) {
-        const deviceTokens: string[] = user.deviceTokens || [];
-
-        if (!deviceTokens.includes(deviceToken)) {
-          deviceTokens.push(deviceToken);
-
-          await user.update({ $set: { deviceTokens } });
-        }
-      }
+      await handleDeviceToken(user, deviceToken);
 
       this.updateSession(user._id);
 
-      return createJwtToken({ userId: user._id, type: user.type });
+      return {
+        user,
+        clientPortal: cp
+      };
     }
 
     public static async invite(
@@ -1048,15 +1061,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('Can not create user');
       }
 
-      if (deviceToken) {
-        const deviceTokens: string[] = user.deviceTokens || [];
-
-        if (!deviceTokens.includes(deviceToken)) {
-          deviceTokens.push(deviceToken);
-
-          await user.update({ $set: { deviceTokens } });
-        }
-      }
+      await handleDeviceToken(user, deviceToken);
 
       this.updateSession(user._id);
 
@@ -1073,6 +1078,40 @@ export const loadClientPortalUserClass = (models: IModels) => {
       });
 
       return { userId: user._id, phoneCode };
+    }
+
+    public static async loginWithoutPassword(
+      subdomain: string,
+      clientPortal: IClientPortalDocument,
+      doc: IUser,
+      deviceToken?: string
+    ) {
+      let user = await models.ClientPortalUsers.findOne({
+        $or: [
+          { email: { $regex: new RegExp(`^${doc.email}$`, 'i') } },
+          { phone: { $regex: new RegExp(`^${doc.phone}$`, 'i') } }
+        ],
+        clientPortalId: clientPortal._id
+      });
+
+      if (!user) {
+        user = await handleContacts({
+          subdomain,
+          models,
+          clientPortalId: clientPortal._id,
+          document: doc
+        });
+      }
+
+      if (!user) {
+        throw new Error('Can not create user');
+      }
+
+      await handleDeviceToken(user, deviceToken);
+
+      this.updateSession(user._id);
+
+      return user;
     }
   }
 

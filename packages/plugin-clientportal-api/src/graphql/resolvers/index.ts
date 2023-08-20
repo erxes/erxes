@@ -1,6 +1,7 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
 import { ClientPortalUser } from './clientPortalUser';
+import ClientPortalNotification from './clientPortalNotification';
 import ClientPortalComment from './comment';
 import Mutation from './mutations';
 import Query from './queries';
@@ -10,6 +11,7 @@ const resolvers: any = {
   Mutation,
   Query,
 
+  ClientPortalNotification,
   ClientPortalUser,
   ClientPortalComment
 };

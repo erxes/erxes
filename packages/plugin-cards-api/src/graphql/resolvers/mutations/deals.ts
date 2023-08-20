@@ -114,43 +114,6 @@ const dealMutations = {
     doc: IItemDragCommonFields,
     { user, models, subdomain }: IContext
   ) {
-    const deal = await models.Deals.getDeal(doc.itemId);
-
-    if (deal.productsData) {
-      const productsData = deal.productsData;
-
-      const stage = await models.Stages.getStage(doc.destinationStageId);
-      const prevStage = await models.Stages.getStage(doc.sourceStageId);
-
-      const productIds = productsData.map(p => p.productId);
-
-      if (stage.probability === 'Won' || prevStage.probability === 'Won') {
-        const products = await sendProductsMessage({
-          subdomain,
-          action: 'find',
-          data: {
-            query: {
-              _id: { $in: productIds },
-              supply: { $ne: 'unlimited' }
-            }
-          },
-          isRPC: true,
-          defaultValue: []
-        });
-
-        const multiplier = stage.probability === 'Won' ? -1 : 1;
-
-        await sendProductsMessage({
-          subdomain,
-          action: 'update',
-          data: {
-            selector: { _id: { $in: products.map(p => p._id) } },
-            modifier: { $inc: { productCount: multiplier } }
-          }
-        });
-      }
-    }
-
     return itemsChange(
       models,
       subdomain,

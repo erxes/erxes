@@ -93,7 +93,15 @@ const commonQueryParams = `
   departmentIds: [String]
   boardIds: [String]
   stageCodes: [String]
-  dateRangeFilters:JSON
+  dateRangeFilters:JSON,
+  createdStartDate: Date,
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
 `;
 
 const listQueryParams = `
@@ -120,7 +128,7 @@ const archivedDealsParams = `
  `;
 
 export const queries = `
-  dealDetail(_id: String!): Deal
+  dealDetail(_id: String!, clientPortalCard: Boolean): Deal
   checkDiscount(_id: String!,products:[ProductField]):JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int

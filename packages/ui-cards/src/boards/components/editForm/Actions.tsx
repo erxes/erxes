@@ -15,7 +15,7 @@ import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import Tags from '@erxes/ui/src/components/Tags';
 import Watch from '../../containers/editForm/Watch';
-import Comment from '../../../comment/components/Comment';
+import Comment from '../../../comment/containers/Comment';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import PrintActionButton from './PrintDocumentBtn';

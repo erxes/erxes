@@ -9,7 +9,6 @@ import { mutations } from '../../graphql';
 
 type Props = {
   advancedView?: boolean;
-  uom: string[];
   currencies: string[];
   productsData?: IProductData[];
   productData: IProductData;

@@ -1,8 +1,9 @@
+import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import redis from '@erxes/api-utils/src/redis';
 import { sendRequest } from '@erxes/api-utils/src/requests';
-
+import { getNextMonth, getToday } from '@erxes/api-utils/src';
 import { IUserDocument } from './../../api-utils/src/types';
 import { graphqlPubsub } from './configs';
 import { generateModels, IContext, IModels } from './connectionResolver';
@@ -14,6 +15,8 @@ import {
 } from './messageBroker';
 
 import * as admin from 'firebase-admin';
+import { CLOSE_DATE_TYPES } from './constants';
+
 export const getConfig = async (
   code: string,
   subdomain: string,
@@ -415,7 +418,7 @@ export const sendAfterMutation = async (
 export const getCards = async (
   type: 'ticket' | 'deal' | 'task' | 'purchase',
   context: IContext,
-  _args: any
+  args: any
 ) => {
   const { subdomain, models, cpUser } = context;
   if (!cpUser) {
@@ -487,12 +490,10 @@ export const getCards = async (
 
   const stageIds = stages.map(stage => stage._id);
 
-  //гоё засаарай АМЖИЛТ kiss
-
   let oneStageId = '';
-  if ('stageId' in _args) {
-    if (stageIds.includes(_args.stageId)) {
-      oneStageId = _args.stageId;
+  if (args.stageId) {
+    if (stageIds.includes(args.stageId)) {
+      oneStageId = args.stageId;
     } else {
       oneStageId = 'noneId';
     }
@@ -503,13 +504,62 @@ export const getCards = async (
     action: `${type}s.find`,
     data: {
       _id: { $in: cardIds },
+      status: { $regex: '^((?!archived).)*$', $options: 'i' },
       stageId: oneStageId ? oneStageId : { $in: stageIds },
-      ...(_args?.priority && { priority: _args?.priority || [] }),
-      ...(_args?.labelIds && { labelIds: _args?.labelIds || [] }),
-      ...(_args?.closeDateType && { closeDateType: _args?.closeDateType }),
-      ...(_args?.userIds && { assignedUserIds: _args?.userIds || [] })
+      ...(args?.priority && { priority: { $in: args?.priority || [] } }),
+      ...(args?.labelIds && { labelIds: { $in: args?.labelIds || [] } }),
+      ...(args?.closeDateType && {
+        closeDate: getCloseDateByType(args.closeDateType)
+      }),
+      ...(args?.userIds && { assignedUserIds: { $in: args?.userIds || [] } })
     },
     isRPC: true,
     defaultValue: []
   });
+};
+
+export const getCloseDateByType = (closeDateType: string) => {
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_DAY) {
+    const tommorrow = moment().add(1, 'days');
+
+    return {
+      $gte: new Date(tommorrow.startOf('day').toISOString()),
+      $lte: new Date(tommorrow.endOf('day').toISOString())
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_WEEK) {
+    const monday = moment()
+      .day(1 + 7)
+      .format('YYYY-MM-DD');
+    const nextSunday = moment()
+      .day(7 + 7)
+      .format('YYYY-MM-DD');
+
+    return {
+      $gte: new Date(monday),
+      $lte: new Date(nextSunday)
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NEXT_MONTH) {
+    const now = new Date();
+    const { start, end } = getNextMonth(now);
+
+    return {
+      $gte: new Date(start),
+      $lte: new Date(end)
+    };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.NO_CLOSE_DATE) {
+    return { $exists: false };
+  }
+
+  if (closeDateType === CLOSE_DATE_TYPES.OVERDUE) {
+    const now = new Date();
+    const today = getToday(now);
+
+    return { $lt: today };
+  }
 };

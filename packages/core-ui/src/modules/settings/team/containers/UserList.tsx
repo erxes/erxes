@@ -75,7 +75,9 @@ export const options = ({ queryParams }: { queryParams: any }): any => {
       brandIds: queryParams.brandIds,
       departmentId: queryParams.departmentId,
       unitId: queryParams.unitId,
-      branchId: queryParams.branchId
+      branchId: queryParams.branchId,
+      segment: queryParams.segment,
+      segmentData: queryParams.segmentData
     },
     fetchPolicy: 'network-only'
   };

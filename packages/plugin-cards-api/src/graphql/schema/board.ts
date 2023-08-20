@@ -123,7 +123,16 @@ const stageParams = `
   age: Int,
   branchIds: [String]
   departmentIds: [String]
+  segment: String
   segmentData:String
+  createdStartDate: Date
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
 `;
 
 export const queries = `

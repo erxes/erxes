@@ -385,7 +385,7 @@ export const ROLE_SETUP_DETAILS = {
         url: '/settings/boards/purchase#showBoardModal=true'
       },
       purchasePipelinesCreate: {
-        name: 'Create a pipeline to be used on your board',
+        name: 'Create a purchase to be used on your board',
         url: '/settings/boards/purchase#showPipelineModal=true'
       },
       purchaseCreate: {

@@ -86,7 +86,6 @@ const Text = styledTS<{ color?: string }>(styled.div)`
   right: 0;
   top: 0;
   width: 100%;
-  z-index: 100;
 `;
 
 type Props = {

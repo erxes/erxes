@@ -49,7 +49,7 @@ export default {
       relations: relations('cards:task')
     },
     {
-      description: 'purchase pipelines',
+      description: 'Purchases',
       type: 'purchase',
       relations: [
         ...relations('cards:purchase'),

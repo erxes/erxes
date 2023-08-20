@@ -1,20 +1,21 @@
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 
-import ClientPortalUserList from '../components/list/ClientPortalUserList';
-import { mutations, queries } from '../graphql';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   ClientPortalUserRemoveMutationResponse,
-  ClientPortalUsersQueryResponse,
   ClientPortalUserTotalCountQueryResponse,
+  ClientPortalUsersQueryResponse,
   ClientPortalVerifyUsersMutationResponse
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import Bulk from '@erxes/ui/src/components/Bulk';
+import ClientPortalUserList from '../components/list/ClientPortalUserList';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
@@ -47,8 +48,6 @@ class ClientportalUserListContainer extends React.Component<FinalProps, State> {
     const {
       clientPortalUsersQuery,
       clientPortalUsersRemove,
-      type,
-      history,
       queryParams,
       clientPortalUserTotalCountQuery
     } = this.props;

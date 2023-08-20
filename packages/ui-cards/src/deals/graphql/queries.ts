@@ -30,7 +30,15 @@ const commonParams = `
   $noSkipArchive: Boolean
   $branchIds:[String]
   $departmentIds:[String]
-  ${conformityQueryFields}
+  ${conformityQueryFields},
+  $createdStartDate: Date,
+  $createdEndDate: Date,
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
 `;
 
 const commonParamDefs = `
@@ -58,7 +66,15 @@ const commonParamDefs = `
   noSkipArchive: $noSkipArchive
   branchIds: $branchIds,
   departmentIds: $departmentIds,
-  ${conformityQueryFieldDefs}
+  ${conformityQueryFieldDefs},
+  createdStartDate: $createdStartDate,
+  createdEndDate: $createdEndDate,
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
 `;
 
 export const dealFields = `

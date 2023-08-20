@@ -60,5 +60,8 @@ export default {
     }
 
     return customFieldsData;
+  },
+  createdUserId(item: { _id: string } & IItemCommonFields) {
+    return item?.userId ? item.userId : null;
   }
 };

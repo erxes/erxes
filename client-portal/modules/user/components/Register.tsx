@@ -1,13 +1,13 @@
-import { LoginFormWrapper, WithIconFormControl } from '../../styles/form';
-import React, { useState } from 'react';
+import { LoginFormWrapper, WithIconFormControl } from "../../styles/form";
+import React, { useState } from "react";
 
-import { Config } from '../../types';
-import Form from '../../common/form/Form';
-import FormControl from '../../common/form/Control';
-import FormGroup from '../../common/form/Group';
-import { IButtonMutateProps } from '../../common/types';
-import Icon from '../../common/Icon';
-import { LOGIN_TYPES } from '../types';
+import { Config } from "../../types";
+import Form from "../../common/form/Form";
+import FormControl from "../../common/form/Control";
+import FormGroup from "../../common/form/Group";
+import { IButtonMutateProps } from "../../common/types";
+import Icon from "../../common/Icon";
+import { LOGIN_TYPES } from "../types";
 
 type Props = {
   config: Config;
@@ -22,11 +22,11 @@ function Register({
   renderButton,
   hasCompany,
   setRegister,
-  setLogin
+  setLogin,
 }: Props) {
   const [type, changeType] = useState(LOGIN_TYPES.CUSTOMER);
 
-  const onChange = e => {
+  const onChange = (e) => {
     changeType(e.target.value);
     e.isDefaultPrevented();
   };
@@ -36,7 +36,7 @@ function Register({
     setLogin(true);
   };
 
-  const renderForm = formProps => {
+  const renderForm = (formProps) => {
     if (type === LOGIN_TYPES.CUSTOMER) {
       return (
         <>
@@ -46,7 +46,7 @@ function Register({
               <FormControl
                 {...formProps}
                 name="firstName"
-                placeholder={'Enter your first name'}
+                placeholder={"First name"}
                 required={true}
               />
             </WithIconFormControl>
@@ -58,7 +58,7 @@ function Register({
               <FormControl
                 {...formProps}
                 name="lastName"
-                placeholder={'Enter your last name'}
+                placeholder={"Last name"}
                 required={true}
               />
             </WithIconFormControl>
@@ -70,7 +70,7 @@ function Register({
               <FormControl
                 {...formProps}
                 name="companyName"
-                placeholder={'Enter your company name'}
+                placeholder={"Company name"}
                 required={true}
               />
             </WithIconFormControl>
@@ -82,7 +82,7 @@ function Register({
               <FormControl
                 {...formProps}
                 name="phone"
-                placeholder={'Enter your phone number'}
+                placeholder={"Phone number"}
               />
             </WithIconFormControl>
           </FormGroup>
@@ -98,7 +98,7 @@ function Register({
             <FormControl
               {...formProps}
               name="companyName"
-              placeholder={'Enter your company name'}
+              placeholder={"Company name"}
               required={true}
             />
           </WithIconFormControl>
@@ -110,7 +110,7 @@ function Register({
             <FormControl
               {...formProps}
               name="companyRegistrationNumber"
-              placeholder={'Company registration number'}
+              placeholder={"Company registration number"}
               required={true}
               type="number"
             />
@@ -120,7 +120,7 @@ function Register({
     );
   };
 
-  const renderContent = formProps => {
+  const renderContent = (formProps) => {
     const { values, isSubmitted } = formProps;
 
     return (
@@ -142,7 +142,7 @@ function Register({
             <FormControl
               {...formProps}
               name="email"
-              placeholder={'Enter your email'}
+              placeholder={"Enter your email"}
               required={true}
             />
           </WithIconFormControl>
@@ -155,7 +155,7 @@ function Register({
               {...formProps}
               name="password"
               type="password"
-              placeholder={'Enter your password'}
+              placeholder={"Enter your password"}
               required={true}
             />
           </WithIconFormControl>
@@ -164,14 +164,14 @@ function Register({
         <FormGroup>
           {renderButton({
             values: { ...values, type, clientPortalId: config._id },
-            isSubmitted
+            isSubmitted,
           })}
         </FormGroup>
 
         <div className="auth-divider" />
 
         <div className="text-center">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <span className="text-link" onClick={onSignin}>
             Sign in
           </span>
@@ -182,8 +182,8 @@ function Register({
 
   return (
     <LoginFormWrapper>
-      <h2>{'Sign up'}</h2>
-      <p>{'Free forever. No credit card needed'}</p>
+      <h2>{"Sign up"}</h2>
+      <p>{"Free forever. No credit card needed"}</p>
       <Form renderContent={renderContent} />
     </LoginFormWrapper>
   );

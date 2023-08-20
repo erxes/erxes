@@ -4,6 +4,13 @@ export const STORAGE_PIPELINE_KEY = 'erxesCurrentPipelineId';
 
 export const PRIORITIES = ['Critical', 'High', 'Medium', 'Low'];
 
+export const DATERANGES = [
+  { name: 'Created date', value: 'createdAt' },
+  { name: 'Stage changed date', value: 'stageChangedDate' },
+  { name: 'Start date', value: 'startDate' },
+  { name: 'Close date', value: 'closeDate' }
+];
+
 export const TEXT_COLORS = [
   '#fff',
   '#fefefe',
@@ -59,23 +66,23 @@ export const EMPTY_CONTENT_DEAL = {
 };
 
 export const EMPTY_CONTENT_PURCHASE = {
-  title: __('Getting Started with Sales Pipeline'),
+  title: __('Getting Started with Purchase'),
   description: __(
     `Drive leads to a successful close with our Kanban-style boards`
   ),
   steps: [
     {
-      title: __('Create Boards and Pipelines'),
+      title: __('Create Boards and purchases Pipeline'),
       description: `${__(
-        'Track your entire sales pipeline from one dashboard'
-      )}${__('You can also restrict access to your sales pipelines')}`,
+        'Track your entire purchases pipeline from one dashboard'
+      )}${__('You can also restrict access to your purchases pipelines')}`,
       url: '/settings/boards/purchase',
-      urlText: __('Go to Board & Pipeline')
+      urlText: __('Go to Board & purchases pipeline')
     },
     {
       title: __('Tip: Choose different views'),
       description: __(
-        'Click on “Boards, Calendar, Conversions” to filter purchases'
+        'Click on “Boards, Calendar, Conversions” to filter purchases pipeline'
       ),
       icon: 'lightbulb-alt'
     }

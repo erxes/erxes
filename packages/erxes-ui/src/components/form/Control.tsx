@@ -12,7 +12,7 @@ import { Column } from '@erxes/ui/src/styles/main';
 import ProgressBar from '../ProgressBar';
 import React from 'react';
 import Textarea from './Textarea';
-import { numberFormatter, numberParser } from '../../utils/core';
+import NumberInput from './NumberInput';
 
 type Props = {
   children?: React.ReactNode;
@@ -211,23 +211,9 @@ class FormControl extends React.Component<Props> {
     }
 
     if (props.type === 'number' && props.useNumberFormat) {
-      const onChangeNumber = e => {
-        if (e.target.value === '') {
-          attributes.onChange(e);
-        } else if (/^[0-9.,]+$/.test(e.target.value)) {
-          e.target.value = numberParser(e.target.value, props.fixed);
-          attributes.onChange(e);
-        }
-      };
-
       return (
         <Column>
-          <Input
-            {...attributes}
-            type={undefined}
-            value={numberFormatter(attributes.value, props.fixed)}
-            onChange={onChangeNumber}
-          />
+          <NumberInput {...attributes} fixed={props.fixed} />
           {errorMessage}
         </Column>
       );

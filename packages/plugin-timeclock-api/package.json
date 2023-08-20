@@ -1,0 +1,16 @@
+{
+  "name": "@erxes/plugin-timeclock-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-timeclock-api/.erxes && node src"
+  },
+  "dependencies": {
+    "dayjs": "1.8.15",
+    "sequelize": "^6.27.0",
+    "tedious": "^15.1.2",
+    "xlsx-populate": "^1.20.1"
+  }
+}

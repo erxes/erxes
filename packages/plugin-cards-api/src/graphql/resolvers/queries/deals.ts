@@ -242,10 +242,15 @@ const dealQueries = {
    */
   async dealDetail(
     _root,
-    { _id }: { _id: string },
+    { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
     { user, models }: IContext
   ) {
     const deal = await models.Deals.getDeal(_id);
+
+    // no need to check permission on cp deal
+    if (clientPortalCard) {
+      return deal;
+    }
 
     return checkItemPermByUser(models, user, deal);
   },

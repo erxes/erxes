@@ -26,7 +26,7 @@ module.exports = {
     },
     {
       text: "Configs of Products",
-      to: "/settings/products-config/",
+      to: "/settings/uoms-manage/",
       image: "/images/icons/erxes-07.svg",
       location: "settings",
       scope: "products",

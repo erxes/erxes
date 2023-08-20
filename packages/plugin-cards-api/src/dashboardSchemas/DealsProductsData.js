@@ -17,6 +17,11 @@ cube(`DealsProductsdata`, {
       title: `Amount sum`
     },
 
+    count: {
+      type: `count`,
+      title: `Products data count`
+    },
+
     productAmountAvg: {
       sql: `${CUBE}.\`productsData.amount\``,
       type: `avg`,

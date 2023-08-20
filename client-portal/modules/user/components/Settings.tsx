@@ -1,11 +1,12 @@
-import { ControlLabel, FormGroup } from "../../common/form";
 import { SettingsContent, SettingsTitle } from "../../styles/profile";
 
 import Button from "../../common/Button";
+import { ControlLabel } from "../../common/form";
 import { IUser } from "../../types";
 import { ModalFooter } from "../../common/form/styles";
+import { NotificationSettingsRow } from "../../styles/notifications";
 import React from "react";
-import ToggleButton from "react-bootstrap/ToggleButton";
+import Toggle from "react-toggle";
 
 type Props = {
   currentUser: IUser;
@@ -13,10 +14,12 @@ type Props = {
 };
 
 function Settings({ currentUser = {} as IUser, onSave }: Props) {
-  const notificationSettings = currentUser.notificationSettings || {
-    receiveByEmail: false,
-    receiveBySms: false,
-  };
+  const notificationSettings = currentUser
+    ? currentUser.notificationSettings
+    : {
+        receiveByEmail: false,
+        receiveBySms: false,
+      };
 
   const [receiveByEmail, setReceiveByEmail] = React.useState(
     notificationSettings.receiveByEmail
@@ -37,31 +40,28 @@ function Settings({ currentUser = {} as IUser, onSave }: Props) {
       <SettingsTitle>User Settings</SettingsTitle>
       <SettingsContent>
         <ControlLabel>{"Notification settings"}</ControlLabel>
-        <FormGroup horizontal={true}>
-          <ToggleButton
-            id="toggle-check"
-            type="checkbox"
-            variant="outline-primary"
-            checked={receiveByEmail}
-            value="1"
-            onChange={(e) => setReceiveByEmail(e.currentTarget.checked)}
-            color="white"
-          >
-            {"  Receive by mail"}
-          </ToggleButton>
-
-          <ToggleButton
-            id="toggle-check"
-            type="checkbox"
-            variant="outline-primary"
-            checked={receiveBySms}
-            value="1"
-            onChange={(e) => setreceiveBySms(e.currentTarget.checked)}
-            color="white"
-          >
-            {"  Receive by SMS"}
-          </ToggleButton>
-        </FormGroup>
+        <NotificationSettingsRow>
+          <p>Receive notification by email</p>
+          <div className="d-flex align-items-center">
+            <Toggle
+              defaultChecked={receiveByEmail}
+              aria-label="No label tag"
+              onChange={() => setReceiveByEmail(!receiveByEmail)}
+            />
+            {receiveByEmail ? "On" : "Off"}
+          </div>
+        </NotificationSettingsRow>
+        <NotificationSettingsRow>
+          <p>Receive notification by SMS</p>
+          <div className="d-flex align-items-center">
+            <Toggle
+              defaultChecked={receiveBySms}
+              aria-label="No label tag"
+              onChange={() => setreceiveBySms(!receiveBySms)}
+            />
+            {receiveBySms ? "On" : "Off"}
+          </div>
+        </NotificationSettingsRow>
         <ModalFooter>
           <Button
             btnStyle="success"

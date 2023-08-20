@@ -90,3 +90,7 @@ export const ActionBox = styledTS<{
       }
     }
   `;
+
+export const Padding = styled.div`
+    padding 10px
+  `;

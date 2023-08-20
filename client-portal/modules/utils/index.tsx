@@ -3,6 +3,7 @@ import * as animations from "./animations";
 import Alert from "./Alert";
 import confirm from "./confirmation/confirm";
 import parseMD from "./parseMd";
+import { readFile } from "../common/utils";
 import toggleCheckBoxes from "./toggleCheckBoxes";
 import urlParser from "./urlParser";
 
@@ -51,9 +52,34 @@ const sendDesktopNotification = (doc: { title: string; content?: string }) => {
   }
 };
 
+const getUserAvatar = (user) => {
+  if (!user) {
+    return "";
+  }
+
+  const details = user.details;
+
+  if (!details || !details.avatar) {
+    return "/static/avatar-colored.svg";
+  }
+
+  return readFile(details.avatar);
+};
+
 const renderUserFullName = (data) => {
   if (!data) {
     return null;
+  }
+
+  if (
+    (data.details && data.details.fullName) ||
+    (data.details && data.details.firstName) ||
+    (data.details && data.details.lastName)
+  ) {
+    return (
+      data.details.fullName ||
+      (data.details.firstName || "") + " " + (data.details.lastName || "")
+    );
   }
 
   if (data.firstName || data.lastName) {
@@ -74,6 +100,7 @@ export {
   confirm,
   toggleCheckBoxes,
   urlParser,
+  getUserAvatar,
   sendDesktopNotification,
   renderUserFullName,
 };

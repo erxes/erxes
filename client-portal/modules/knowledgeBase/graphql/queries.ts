@@ -82,6 +82,7 @@ export const articleDetailQuery = `
     knowledgeBaseArticleDetail(_id: $_id) {
       _id
       title
+      viewCount
       summary
       content
       status
@@ -111,6 +112,7 @@ export const articlesQuery = `
     clientPortalKnowledgeBaseArticles(categoryIds: $categoryIds, searchValue: $searchValue, topicId: $topicId) {
       _id
       title
+      viewCount
       summary
       content
       status

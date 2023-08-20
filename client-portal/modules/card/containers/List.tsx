@@ -19,7 +19,11 @@ function ListContainer({ currentUser, type, config, ...props }: Props) {
     {
       skip: !config[`${type}PipelineId` || ""],
       fetchPolicy: "network-only",
-      variables: { pipelineId: config[`${type}PipelineId` || ""] },
+      variables: {
+        pipelineId: config[`${type}PipelineId` || ""],
+        customerIds: currentUser &&
+          currentUser.erxesCustomerId && [`${currentUser.erxesCustomerId}`],
+      },
       context: {
         headers: {
           "erxes-app-token": config?.erxesAppToken,
@@ -65,7 +69,7 @@ function ListContainer({ currentUser, type, config, ...props }: Props) {
     type,
     config,
     currentUser,
-    stages,
+    stages: stages?.stages || [],
     pipeLinelabels,
     pipelineAssignedUsers,
   };

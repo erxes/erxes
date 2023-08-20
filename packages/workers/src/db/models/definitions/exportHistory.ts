@@ -9,6 +9,7 @@ export interface IExportHistory {
   columnsConfig: string[];
   segmentData: string[];
   name?: string;
+  percentage?: number;
   uploadType?: string;
   errorMsg?: string;
 }
@@ -33,6 +34,7 @@ export const exportHistorySchema = new Schema({
     default: 'inProcess',
     label: 'Status'
   }),
+  percentage: field({ type: Number, default: 0, label: 'Percentage' }),
   errorMsg: field({
     type: String,
     label: 'Error Msgs'

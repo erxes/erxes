@@ -45,6 +45,8 @@ const userEdit = `
     $lastName: String,
     $phone: String,
     $username: String,
+    $avatar: String,
+    $companyName: String
   ) {
     clientPortalUsersEdit(
       _id: $_id,
@@ -54,6 +56,8 @@ const userEdit = `
       lastName: $lastName,
       phone: $phone,
       username: $username,
+      avatar: $avatar,
+      companyName: $companyName,
     ) {
       _id
       email

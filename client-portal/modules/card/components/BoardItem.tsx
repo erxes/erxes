@@ -15,11 +15,14 @@ import { useRouter } from "next/router";
 
 type Props = {
   items: any;
+  item: any;
+  type: string;
+  stageId: string;
 };
 
-function BoardItem({ items }: Props) {
+function BoardItem({ items, item, type, stageId }: Props) {
   const router = useRouter();
-  const { stageId } = router.query as any;
+  const activeStageId = (router.query as any).stageId || stageId;
 
   const renderDate = (date) => {
     if (!date) {
@@ -45,7 +48,7 @@ function BoardItem({ items }: Props) {
         <ItemWrapper
           key={task._id}
           onClick={() =>
-            router.push(`/publicTasks?stageId=${stageId}&itemId=${task._id}`)
+            router.push(`/${type}s?stageId=${activeStageId}&itemId=${task._id}`)
           }
         >
           <Content>

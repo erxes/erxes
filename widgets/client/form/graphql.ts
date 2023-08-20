@@ -1,3 +1,39 @@
+const fieldsFragment = `
+_id
+name
+type
+text
+content
+description
+options
+locationOptions{
+  lat
+  lng
+  description
+}
+objectListConfigs{
+  key
+  label
+  type
+}
+isRequired
+order
+validation
+associatedFieldId
+column
+groupId
+logicAction
+pageNumber
+logics {
+  fieldId
+  logicOperator
+  logicValue
+}
+subFieldIds
+
+`;
+
+
 export const formDetailQuery = (isProductsEnabled: boolean) => `
   query formDetail($_id: String!) {
     formDetail(_id: $_id) {
@@ -9,36 +45,7 @@ export const formDetailQuery = (isProductsEnabled: boolean) => `
       code
 
       fields {
-        _id
-        name
-        type
-        text
-        content
-        description
-        options
-        locationOptions{
-          lat
-          lng
-          description
-        }
-        objectListConfigs{
-          key
-          label
-          type
-        }
-        isRequired
-        order
-        validation
-        associatedFieldId
-        column
-        groupId
-        logicAction
-        pageNumber
-        logics {
-          fieldId
-          logicOperator
-          logicValue
-        }
+        ${fieldsFragment}
         ${
           isProductsEnabled
             ? `
@@ -46,9 +53,15 @@ export const formDetailQuery = (isProductsEnabled: boolean) => `
               _id
               name
               unitPrice
+              attachment {
+                url
+              }
             }
           `
             : ''
+        }
+        subFields {
+          ${fieldsFragment}
         }
       }
     }

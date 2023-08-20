@@ -184,7 +184,7 @@ export const commonItemFieldsSchema = {
   parentId: field({ type: String, optional: true, label: 'Parent Id' }),
   userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
-  order: field({ type: Number }),
+  order: field({ type: Number, index: true }),
   name: field({ type: String, label: 'Name' }),
   startDate: field({ type: Date, label: 'Start date', esType: 'date' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),

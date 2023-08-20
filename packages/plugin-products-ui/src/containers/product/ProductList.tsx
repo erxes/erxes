@@ -105,7 +105,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       queryParams,
       products,
       remove,
-      loading: productsQuery.loading,
+      loading: productsQuery.loading || productsCountQuery.loading,
       searchValue,
       productsCount: productsCountQuery.productsTotalCount || 0,
       currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
@@ -162,6 +162,10 @@ export default withProps<Props>(
       name: 'productsCountQuery',
       options: ({ queryParams }) => ({
         variables: {
+          categoryId: queryParams.categoryId,
+          tag: queryParams.tag,
+          searchValue: queryParams.searchValue,
+          type: queryParams.type,
           segment: queryParams.segment,
           segmentData: queryParams.segmentData
         },

@@ -29,6 +29,14 @@ const commonParams = `
   $noSkipArchive: Boolean
   $branchIds:[String]
   $departmentIds:[String]
+  $createdStartDate: Date
+  $createdEndDate: Date
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
   ${conformityQueryFields}
 `;
 
@@ -56,6 +64,14 @@ const commonParamDefs = `
   noSkipArchive: $noSkipArchive
   branchIds: $branchIds,
   departmentIds: $departmentIds,
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
   ${conformityQueryFieldDefs}
 `;
 

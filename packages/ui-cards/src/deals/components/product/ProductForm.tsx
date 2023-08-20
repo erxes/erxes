@@ -57,7 +57,6 @@ type Props = {
   products: IProduct[];
   paymentsData?: IPaymentsData;
   closeModal: () => void;
-  uom: string[];
   currencies: string[];
   currentProduct?: string;
   dealQuery: IDeal;
@@ -325,7 +324,6 @@ class ProductForm extends React.Component<Props, State> {
                 productsData={productsData}
                 onChangeProductsData={onChangeProductsData}
                 updateTotal={this.updateTotal}
-                uom={this.props.uom}
                 currencies={this.props.currencies}
                 currentProduct={currentProduct}
                 onChangeDiscount={this.setDiscount}

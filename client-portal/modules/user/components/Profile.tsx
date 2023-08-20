@@ -1,11 +1,11 @@
 import { ControlLabel, Form, FormControl, FormGroup } from "../../common/form";
+import { IAttachment, IFormProps } from "../../common/types";
+import React, { useState } from "react";
 import { SettingsContent, SettingsTitle } from "../../styles/profile";
 
-import { IFormProps } from "../../common/types";
 import { IUser } from "../../types";
 import { ModalFooter } from "../../common/form/styles";
-import React from "react";
-import { useRouter } from "next/router";
+import Uploader from "../../common/Uploader";
 
 type Props = {
   currentUser: IUser;
@@ -13,6 +13,18 @@ type Props = {
 };
 
 function Profile({ currentUser, renderButton }: Props) {
+  const dbImage = currentUser ? currentUser.avatar : null;
+
+  const [image, setImage] = useState(
+    dbImage
+      ? ({
+          name: "avatar",
+          type: "img",
+          url: dbImage,
+        } as IAttachment)
+      : null
+  );
+
   const generateDoc = (values) => {
     const { object } = {} as any;
 
@@ -24,7 +36,16 @@ function Profile({ currentUser, renderButton }: Props) {
 
     return {
       ...finalValues,
+      avatar: image ? image.url : null,
     };
+  };
+
+  const onChangeImage = (images) => {
+    if (images && images.length > 0) {
+      setImage(images[0]);
+    } else {
+      setImage(null);
+    }
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -92,17 +113,23 @@ function Profile({ currentUser, renderButton }: Props) {
               />
             </div>
 
-            {object.companyName && (
-              <div>
-                <ControlLabel>Company name</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="companyName"
-                  type="number"
-                  defaultValue={object.phone}
-                />
-              </div>
-            )}
+            <div>
+              <ControlLabel>Company name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="companyName"
+                defaultValue={object.companyName}
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Avatar</ControlLabel>
+            <Uploader
+              defaultFileList={image ? [image] : []}
+              onChange={onChangeImage}
+              showUploader={true}
+            />
           </FormGroup>
 
           <ModalFooter>

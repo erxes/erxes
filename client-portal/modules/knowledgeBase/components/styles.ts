@@ -53,6 +53,8 @@ const CategoryIcon = styled.div`
 `;
 
 const CategoryContent = styledTS<{ color?: string }>(styled.div)`
+  flex: 1;
+
   h5 {
     color: ${(props) => props.color || colors.colorSecondary};
     font-weight: ${typography.fontWeightMedium};
@@ -96,13 +98,15 @@ const Avatars = styled.div`
 
   img {
     background: rgb(240, 240, 240);
-    border: 2px solid rgb(255, 255, 255);
+    border: 1px solid ${colors.borderPrimary};
     margin-left: -12px;
     font-size: 10px;
-    width: 34px;
-    height: 34px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     overflow: hidden;
+    flex-shrink: 0;
+    object-fit: cover;
 
     &:first-child {
       margin-left: 0;
@@ -119,6 +123,12 @@ const Avatars = styled.div`
     color: #888;
     margin-left: 10px;
     font-size: 13px;
+    flex: 1;
+    
+    > div {
+      width: 250px;
+      margin-right: ${dimensions.unitSpacing}px;
+    }
 
     .darker {
       display: inline;
@@ -126,7 +136,8 @@ const Avatars = styled.div`
 
     span {
       color: ${silverGrey};
-      width: auto;
+      margin-left: 5px;
+      font-weight: 500;
     }
   }
 `;
@@ -233,6 +244,7 @@ const ArticleWrapper = styled.div`
   transition: 0.4s;
   width: 100%;
   height: 100%;
+  overflow-x: auto;
 
   > h4 {
     color: #036;
@@ -445,10 +457,7 @@ const CategoryListWrapper = styledTS<{
 `;
 
 const SidebarList = styledTS<{ baseColor?: string }>(styled.div)`
-  height: 100%;
   min-height: 60vh;
-  padding-right: 10px;
-  border-right: 1px solid #e1e1e1;
 
   .item {
     cursor: pointer;
@@ -458,48 +467,93 @@ const SidebarList = styledTS<{ baseColor?: string }>(styled.div)`
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
+    color: #7E8299;
 
     > div {
       display: flex;
       align-items: center;
 
+      > span {
+        width: ${dimensions.coreSpacing}px;
+        color: ${colors.colorCoreGray};
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-right: ${dimensions.unitSpacing}px;
+      }
+
       > h6 {
         margin: 0;
         font-size: 14px;
+        transition: all ease .3s;
       }
 
-      > i {
-        margin-right: 10px;
-        font-size: 16px;
+      .icon-wrapper {
+        margin-right: ${dimensions.unitSpacing}px;
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        border-radius: ${dimensions.unitSpacing}px;
+        border: 1px solid ${props => rgba(props.baseColor ? props.baseColor : colors.colorSecondary, 0.08)};
+        background: ${props => rgba(props.baseColor ? props.baseColor : colors.colorSecondary, 0.08)};
+
+        i {
+          font-size: 13px;
+          transition: all ease .3s;
+          color: ${(props) =>
+            props.baseColor
+              ? props.baseColor
+              : colors.colorSecondary} !important;
+        }
       }
     }
 
     > span {
-      color: #888;
+      color: ${colors.colorCoreGray};
       margin-left: 5px;
+      font-size: 13px;
     }
 
     &.active {
       color: ${(props) => (props.baseColor ? props.baseColor : `#6569df`)};
 
-      h6,
-      i {
-        font-weight: 600;
+      &:hover {
+        h6 {
+          color: ${(props) => (props.baseColor ? props.baseColor : `#6569df`)};
+        }
       }
     }
 
     &:hover {
       h6 {
-        font-weight: 600;
+        color: ${colors.textPrimary};
       }
     }
   }
 `;
 
-const SubCategories = styled.div`
-  padding: 0 0 5px 22px;
-
+const SubCategories = styledTS<{ baseColor?: string }>(styled.div)`
+  margin-bottom: ${dimensions.coreSpacing}px;
+  
   .item {
+    padding: 4px 0 6px ${dimensions.unitSpacing}px;
+    border-radius: ${dimensions.unitSpacing - 2}px;
+    margin: 0;
+
+    &.active {
+      color: ${props => props.baseColor ? props.baseColor : colors.colorSecondary};
+      // background: ${props => rgba(props.baseColor ? props.baseColor : colors.colorSecondary, 0.1)};
+
+      h6, span {
+        color: ${props => props.baseColor ? props.baseColor : colors.textPrimary};
+      }
+    }
+
+    &:hover {
+      background: ${colors.bgActive};
+    }
+    
     > div > i {
       margin-right: 2px !important;
     }
