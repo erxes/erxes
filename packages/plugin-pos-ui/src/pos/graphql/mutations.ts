@@ -32,6 +32,8 @@ const commonFields = `
   $checkRemainder: Boolean
   $permissionConfig: JSON
   $allowTypes: [String]
+  $isCheckRemainder: Boolean
+  $checkExcludeCategoryIds: [String]
 `;
 
 const commonVariables = `
@@ -66,6 +68,8 @@ const commonVariables = `
   checkRemainder: $checkRemainder
   permissionConfig: $permissionConfig
   allowTypes: $allowTypes
+  isCheckRemainder: $isCheckRemainder
+  checkExcludeCategoryIds: $checkExcludeCategoryIds
 `;
 
 const posAdd = `

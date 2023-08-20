@@ -52,6 +52,7 @@ export interface IProduct extends IProductCommonFields {
   subUoms?: ISubUom[];
   taxType?: string;
   taxCode?: string;
+  isCheckRems: { [token: string]: boolean };
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -143,7 +144,12 @@ export const productSchema = schemaWrapper(
     attachmentMore: field({ type: [attachmentSchema] }),
     tokens: field({ type: [String] }),
     taxType: field({ type: String, optional: true, label: 'VAT type' }),
-    taxCode: field({ type: String, optional: true, label: '' })
+    taxCode: field({ type: String, optional: true, label: '' }),
+    isCheckRems: field({
+      type: Object,
+      optional: true,
+      label: 'check remainder by token'
+    })
   })
 );
 

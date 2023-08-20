@@ -69,6 +69,14 @@ export const getProductsData = async (
 ) => {
   const groups = await models.ProductGroups.groups(pos._id);
 
+  let checkExcludeCategoryIds: string[] = [];
+  if (pos.isCheckRemainder && pos.checkExcludeCategoryIds.length) {
+    checkExcludeCategoryIds = await getChildCategories(
+      subdomain,
+      pos.checkExcludeCategoryIds
+    );
+  }
+
   const productGroups: any = [];
 
   for (const group of groups) {
@@ -168,6 +176,15 @@ export const getProductsData = async (
         if (product.unitPrice < 0) {
           product.unitPrice = 0;
         }
+      }
+
+      if (
+        pos.isCheckRemainder &&
+        !checkExcludeCategoryIds.includes(product.categoryId)
+      ) {
+        product.isCheckRem = true;
+      } else {
+        product.isCheckRem = false;
       }
 
       if (!Object.keys(productsByCatId).includes(product.categoryId)) {
