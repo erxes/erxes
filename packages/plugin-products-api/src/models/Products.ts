@@ -1,12 +1,8 @@
-import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
+import { ICustomField } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import * as _ from 'lodash';
 import { IModels } from '../connectionResolver';
-import {
-  sendCardsMessage,
-  sendContactsMessage,
-  sendFormsMessage
-} from '../messageBroker';
+import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
 import {
   IProduct,
   IProductCategory,
@@ -16,6 +12,7 @@ import {
   productSchema,
   PRODUCT_STATUSES
 } from './definitions/products';
+import { checkCodeMask, initCustomField } from '../utils';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -60,6 +57,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
      * Create a product
      */
     public static async createProduct(doc: IProduct) {
+      doc.code = doc.code
+        .replace(/\*/g, '')
+        .replace(/_/g, '')
+        .replace(/ /g, '');
       await this.checkCodeDuplication(doc.code);
 
       if (doc.barcodes) {
@@ -93,14 +94,23 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         doc.vendorId = vendor?._id;
       }
 
-      doc.customFieldsData = await sendFormsMessage({
-        subdomain,
-        action: 'fields.prepareCustomFieldsData',
-        data: doc.customFieldsData,
-        isRPC: true
+      const category = await models.ProductCategories.getProductCatogery({
+        _id: doc.categoryId
       });
 
+      if (!(await checkCodeMask(models, category, doc.code))) {
+        throw new Error('Code is not validate of category mask');
+      }
+
       doc.uom = await models.Uoms.checkUOM(doc);
+
+      doc.customFieldsData = await initCustomField(
+        subdomain,
+        category,
+        doc.code,
+        [],
+        doc.customFieldsData
+      );
 
       return models.Products.create(doc);
     }
@@ -110,6 +120,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
      */
     public static async updateProduct(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
+
+      doc.code = doc.code.replace(/ /g, '');
 
       if (product.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
@@ -125,15 +137,25 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
           .map(bc => bc.replace(/\s/g, ''));
       }
 
-      if (doc.customFieldsData) {
-        // clean custom field values
-        doc.customFieldsData = await sendFormsMessage({
-          subdomain,
-          action: 'fields.prepareCustomFieldsData',
-          data: doc.customFieldsData,
-          isRPC: true
-        });
+      const category = await models.ProductCategories.getProductCatogery({
+        _id: doc.categoryId || product.categoryId
+      });
+
+      if (doc.code) {
+        if (!(await checkCodeMask(models, category, doc.code))) {
+          throw new Error('Code is not validate of category mask');
+        }
+
+        doc.uom = await models.Uoms.checkUOM(doc);
       }
+
+      doc.customFieldsData = await initCustomField(
+        subdomain,
+        category,
+        doc.code || product.code,
+        product.customFieldsData,
+        doc.customFieldsData
+      );
 
       await models.Products.updateOne({ _id }, { $set: doc });
 

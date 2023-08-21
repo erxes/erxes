@@ -108,6 +108,8 @@ const productCategories = `
 
       isRoot
       productCount
+      maskType
+      mask
     }
   }
 `;
