@@ -65,9 +65,10 @@ class List extends React.Component<FinalProps> {
   }
 }
 
-const refetchQueries = () => [
+const refetchQueries = queryParams => [
   {
-    query: gql(queries.plans)
+    query: gql(queries.plans),
+    variables: generateParams(queryParams || {})
   }
 ];
 
@@ -90,8 +91,8 @@ export default withProps<Props>(
     }),
     graphql<Props>(gql(mutations.removePlan), {
       name: 'removePlansMutationsResponse',
-      options: ({}) => ({
-        refetchQueries: refetchQueries()
+      options: ({ queryParams }) => ({
+        refetchQueries: refetchQueries(queryParams)
       })
     })
   )(List)
