@@ -164,6 +164,7 @@ export const getProductsData = async (
         }))
       },
       isRPC: true,
+      isMQ: true,
       defaultValue: {},
       timeout: 50000
     });
