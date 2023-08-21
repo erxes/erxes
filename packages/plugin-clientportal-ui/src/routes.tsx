@@ -45,10 +45,17 @@ const configsForm = ({ location, history }) => {
   return <ClientPortalDetail queryParams={queryParams} history={history} />;
 };
 
-const userDetail = ({ match, history }) => {
+const userDetail = ({ match, location, history }) => {
   const id = match.params.id;
 
-  return <ClientPortalUserDetails id={id} history={history} />;
+  const queryParams = queryString.parse(location.search);
+  return (
+    <ClientPortalUserDetails
+      id={id}
+      history={history}
+      queryParams={queryParams}
+    />
+  );
 };
 
 const companyDetail = ({ match, history }) => {

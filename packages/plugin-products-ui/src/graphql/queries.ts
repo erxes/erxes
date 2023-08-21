@@ -31,8 +31,28 @@ const productsGroupCounts = `
 `;
 
 const productsCount = `
-  query productsTotalCount($type: String, $segment: String, $segmentData: String) {
-    productsTotalCount(type: $type, segment: $segment, segmentData: $segmentData)
+  query productsTotalCount(
+    $type: String,
+    $categoryId: String,
+    $tag: String,
+    $searchValue: String,
+    $excludeIds: Boolean,
+    $pipelineId: String,
+    $boardId: String,
+    $segment: String,
+    $segmentData: String
+  ) {
+    productsTotalCount(
+      type: $type,
+      categoryId: $categoryId,
+      tag: $tag,
+      searchValue: $searchValue,
+      excludeIds: $excludeIds,
+      pipelineId: $pipelineId,
+      boardId: $boardId,
+      segment: $segment,
+      segmentData: $segmentData
+    )
   }
 `;
 

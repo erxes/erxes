@@ -1,7 +1,8 @@
 export const TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
-  ALL: ['product', 'service']
+  UNIQUE: 'unique',
+  ALL: ['product', 'service', 'unique']
 };
 
 export const PRODUCT_CATEGORY_STATUSES = [
@@ -10,19 +11,13 @@ export const PRODUCT_CATEGORY_STATUSES = [
   { label: 'Archived', value: 'archived' }
 ];
 
-export const PRODUCT_SUPPLY = [
-  { label: 'Unlimited', value: 'unlimited' },
-  { label: 'Limited', value: 'limited' },
-  { label: 'Unique', value: 'unique' }
-];
-
 export const PRODUCT_INFO = {
   name: 'Name',
   type: 'Type',
   category: 'Category',
   code: 'Code',
   description: 'Description',
-  sku: 'Sku',
+  uom: 'UOM',
   unitPrice: 'UnitPrice',
   vendor: 'Vendor',
 
@@ -32,7 +27,7 @@ export const PRODUCT_INFO = {
     { field: 'category', label: 'Category' },
     { field: 'code', label: 'Code' },
     { field: 'description', label: 'Description' },
-    { field: 'sku', label: 'Sku' },
+    { field: 'uom', label: 'UOM' },
     { field: 'unitPrice', label: 'UnitPrice' },
     { field: 'vendor', label: 'Vendor' }
   ]

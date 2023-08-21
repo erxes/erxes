@@ -9,7 +9,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {

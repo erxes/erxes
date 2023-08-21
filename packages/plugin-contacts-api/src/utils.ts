@@ -906,6 +906,7 @@ export const updateContactsField = async (
     });
 
     companyDoc.scopeBrandIds = [integration.brandId || ''];
+    companyDoc.names = [companyDoc.primaryName || ''];
 
     if (!company) {
       company = await models.Companies.createCompany(companyDoc);

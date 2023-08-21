@@ -92,6 +92,11 @@ const LoginFormWrapper = styled.div`
       color: #1e87f0;
     }
   }
+
+  @media (max-width: 700px) {
+    width: 100%;
+    padding: 50px 30px 30px;
+   }
 `;
 
 const Error = styled.label`

@@ -2,7 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface ICPUserCard {
-  type: 'deal' | 'task' | 'ticket';
+  type: 'deal' | 'task' | 'ticket' | 'purchase';
   cardId: string;
 }
 

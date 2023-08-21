@@ -55,6 +55,7 @@ export interface IItemCommonFields {
   tagIds?: string[];
   branchIds?: string[];
   departmentIds?: string[];
+  parentId?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -118,6 +119,7 @@ export interface IStage extends ICommonFields {
   status?: string;
   code?: string;
   age?: number;
+  defaultTick?: boolean;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -182,7 +184,7 @@ export const commonItemFieldsSchema = {
   parentId: field({ type: String, optional: true, label: 'Parent Id' }),
   userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
-  order: field({ type: Number }),
+  order: field({ type: Number, index: true }),
   name: field({ type: String, label: 'Name' }),
   startDate: field({ type: Date, label: 'Start date', esType: 'date' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
@@ -376,5 +378,10 @@ export const stageSchema = new Schema({
   canMoveMemberIds: field({ type: [String], label: 'Can move members' }),
   canEditMemberIds: field({ type: [String], label: 'Can edit members' }),
   departmentIds: field({ type: [String], label: 'Departments' }),
+  defaultTick: field({
+    type: Boolean,
+    label: 'Default tick used',
+    optional: true
+  }),
   ...commonFieldsSchema
 });

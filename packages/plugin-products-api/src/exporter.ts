@@ -9,9 +9,29 @@ const prepareData = async (
 ): Promise<any[]> => {
   let data: any[] = [];
 
+  const { page, perPage } = _query;
+  const skip = (page - 1) * perPage;
+
   const productsFilter: any = {};
 
-  data = await models.Products.find(productsFilter).lean();
+  data = await models.Products.find(productsFilter)
+    .skip(skip)
+    .limit(perPage)
+    .lean();
+
+  return data;
+};
+
+const prepareDataCount = async (
+  models: IModels,
+  _subdomain: string,
+  _query: any
+): Promise<any> => {
+  let data = 0;
+
+  const productsFilter: any = {};
+
+  data = await models.Products.find(productsFilter).count();
 
   return data;
 };
@@ -84,9 +104,9 @@ export const fillValue = async (
         item.barcodes && item.barcodes.length ? item.barcodes.join(',') : '';
       break;
 
-    case 'uomId':
+    case 'uom':
       const uom = await models.Uoms.findOne({
-        _id: item.uomId
+        _id: item.uom
       }).lean();
 
       value = uom?.name || '-';
@@ -117,11 +137,11 @@ const fillProductSubUomValue = async (models: IModels, column, item) => {
 
     switch (column) {
       case 'subUoms.code':
-        uom = (await models.Uoms.findOne({ _id: subUom.uomId })) || {};
+        uom = (await models.Uoms.findOne({ _id: subUom.uom })) || {};
         value = uom.code;
         break;
       case 'subUoms.name':
-        uom = (await models.Uoms.findOne({ _id: subUom.uomId })) || {};
+        uom = (await models.Uoms.findOne({ _id: subUom.uom })) || {};
         value = uom.name;
         break;
       case 'subUoms.subratio':
@@ -141,9 +161,57 @@ export default {
 
     const { columnsConfig } = data;
 
-    const docs = [] as any;
+    let totalCount = 0;
     const headers = [] as any;
     const excelHeader = [] as any;
+
+    try {
+      const results = await prepareDataCount(models, subdomain, data);
+
+      totalCount = results;
+
+      for (const column of columnsConfig) {
+        if (column.startsWith('customFieldsData')) {
+          const fieldId = column.split('.')[1];
+          const field = await sendFormsMessage({
+            subdomain,
+            action: 'fields.findOne',
+            data: {
+              query: { _id: fieldId }
+            },
+            isRPC: true
+          });
+
+          headers.push(`customFieldsData.${field.text}.${fieldId}`);
+        } else if (column.startsWith('subUoms')) {
+          headers.push(column);
+        } else {
+          headers.push(column);
+        }
+      }
+
+      for (const header of headers) {
+        if (header.startsWith('customFieldsData')) {
+          excelHeader.push(header.split('.')[1]);
+        } else {
+          excelHeader.push(header);
+        }
+      }
+    } catch (e) {
+      return {
+        error: e.message
+      };
+    }
+    return { totalCount, excelHeader };
+  },
+
+  getExportDocs: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { columnsConfig } = data;
+
+    const docs = [] as any;
+    const headers = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -196,17 +264,9 @@ export default {
 
         docs.push(result);
       }
-
-      for (const header of headers) {
-        if (header.startsWith('customFieldsData')) {
-          excelHeader.push(header.split('.')[1]);
-        } else {
-          excelHeader.push(header);
-        }
-      }
     } catch (e) {
       return { error: e.message };
     }
-    return { docs, excelHeader };
+    return { docs };
   }
 };

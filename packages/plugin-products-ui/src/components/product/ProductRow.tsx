@@ -37,17 +37,7 @@ class Row extends React.Component<Props> {
 
     const content = props => <ProductForm {...props} product={product} />;
 
-    const {
-      code,
-      name,
-      type,
-      category,
-      supply,
-      productCount,
-      minimiumCount,
-      unitPrice,
-      sku
-    } = product;
+    const { code, name, type, category, unitPrice } = product;
 
     return (
       <tr onClick={onTrClick}>
@@ -64,11 +54,7 @@ class Row extends React.Component<Props> {
           <TextInfo>{type}</TextInfo>
         </td>
         <td>{category ? category.name : ''}</td>
-        <td>{supply || ''}</td>
-        <td>{productCount ? productCount : 0}</td>
-        <td>{minimiumCount ? minimiumCount : 0}</td>
         <td>{(unitPrice || 0).toLocaleString()}</td>
-        <td>{sku}</td>
         <td>
           <Tags tags={tags} limit={2} />
         </td>

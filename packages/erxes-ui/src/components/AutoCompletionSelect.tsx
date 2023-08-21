@@ -1,5 +1,5 @@
 import client from '../apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import debounce from 'lodash/debounce';
 import React, { useCallback, useEffect, useState } from 'react';
 import Select from 'react-select-plus';
@@ -134,7 +134,7 @@ function AutoCompletionSelect({
       options: currentFields.added.options.map(item => item.label),
       selectedOption: null
     });
-  }
+  };
 
   const [fields, setFields] = useState<Field>({
     added: {

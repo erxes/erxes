@@ -3,9 +3,11 @@ import { IField, ILocationOption } from '@erxes/ui/src/types';
 import { FieldItem } from '../styles';
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import React from 'react';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   field: IField;
+  otherFields: IField[];
   onClick?: (field: IField) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 };
@@ -21,6 +23,10 @@ class FieldPreview extends React.Component<Props, {}> {
       }
     };
 
+    if (field.type === 'productCategory' && !isEnabled('products')) {
+      return <p>Products service is not enabled</p>;
+    }
+
     return (
       <FieldItem
         hasLogic={hasLogic}
@@ -29,6 +35,7 @@ class FieldPreview extends React.Component<Props, {}> {
       >
         <GenerateField
           field={field}
+          otherFields={this.props.otherFields}
           hasLogic={hasLogic}
           currentLocation={{ lat: 0, lng: 0 }}
           isPreview={true}

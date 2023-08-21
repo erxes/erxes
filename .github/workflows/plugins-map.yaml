@@ -1,0 +1,42 @@
+name: PluginsMap CI
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+    paths:
+      - 'scripts/pluginsMap.js'
+      - '.github/workflows/plugins-map.yaml'
+  pull_request:
+    branches:
+      - dev
+      - staging
+    paths:
+      - 'scripts/pluginsMap.js'
+      - '.github/workflows/plugins-map.yaml'
+
+jobs:
+  ui:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Use Node.js 14.18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.18.x
+
+      - uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        run: |
+          aws s3 cp scripts/pluginsMap.js s3://erxes-${GITHUB_REF#refs/heads/}-plugins

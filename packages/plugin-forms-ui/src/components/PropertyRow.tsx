@@ -124,7 +124,7 @@ class PropertyRow extends React.Component<Props, State> {
 
     if (isGroup) {
       const group: IFieldGroup = data;
-      if (['task', 'ticket', 'deal'].includes(group.contentType)) {
+      if (['task', 'ticket', 'deal', 'purchase'].includes(group.contentType)) {
         size = 'lg';
       }
     }

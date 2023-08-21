@@ -1,7 +1,7 @@
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { queries, mutations } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import FieldConfigForm from '../components/FieldConfigForm';

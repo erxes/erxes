@@ -71,33 +71,13 @@ cube(`Products`, {
       type: `string`
     },
 
-    minimiumcount: {
-      sql: `${CUBE}.\`minimiumCount\``,
-      type: `string`
-    },
-
     name: {
       sql: `name`,
       type: `string`
     },
 
-    productcount: {
-      sql: `${CUBE}.\`productCount\``,
-      type: `string`
-    },
-
-    sku: {
-      sql: `sku`,
-      type: `string`
-    },
-
     status: {
       sql: `status`,
-      type: `string`
-    },
-
-    supply: {
-      sql: `supply`,
       type: `string`
     },
 

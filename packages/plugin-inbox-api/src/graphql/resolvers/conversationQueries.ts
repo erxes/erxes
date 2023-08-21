@@ -307,7 +307,8 @@ const conversationQueries: any = {
       data: {
         query: {
           contentType: 'contacts:customer',
-          isDefinedByErxes: true
+          isDefinedByErxes: true,
+          name: 'Basic information'
         }
       },
       isRPC: true
@@ -333,7 +334,8 @@ const conversationQueries: any = {
       data: {
         query: {
           contentType: 'inbox:conversation',
-          isDefinedByErxes: true
+          isDefinedByErxes: true,
+          name: 'Basic information'
         }
       },
       isRPC: true
@@ -359,7 +361,8 @@ const conversationQueries: any = {
       data: {
         query: {
           contentType: 'contacts:device',
-          isDefinedByErxes: true
+          isDefinedByErxes: true,
+          name: 'Basic information'
         }
       },
       isRPC: true

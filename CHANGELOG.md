@@ -1,3 +1,32 @@
+## [1.2.1](https://github.com/erxes/erxes/compare/1.2.0...1.2.1) (2023-06-06)
+
+
+### Bug Fixes
+
+* **clientportal:** change apollo import ([c090b32](https://github.com/erxes/erxes/commit/c090b32618b053bb2267064e70536c988a63ff66))
+* **clientportal:** update settings ([3b4da72](https://github.com/erxes/erxes/commit/3b4da722290c9d74b684773782535c775f92a056))
+* **coreui:** fix core ui input ([0396524](https://github.com/erxes/erxes/commit/0396524ef392fa953b295130b4ba8e57b7f1680e))
+* **inbox:** facebook messenger text overlapping ([8290402](https://github.com/erxes/erxes/commit/82904020a0854c6d1543f3f9dbc019cfbc8c80ed))
+* **knowledgebase:**  category form([#4400](https://github.com/erxes/erxes/issues/4400)) ([01eaddf](https://github.com/erxes/erxes/commit/01eaddf42f721c2821f39e30f6e06f56ae462efc))
+* **knowledgebase:** category form ([#4404](https://github.com/erxes/erxes/issues/4404)) ([7db8279](https://github.com/erxes/erxes/commit/7db82793f4ec40a359de0e7f685e3d49f8491b37))
+* **knowledgebase:** show selected parent category when add article ([#4398](https://github.com/erxes/erxes/issues/4398)) ([0f12836](https://github.com/erxes/erxes/commit/0f128364b49ee24b6924b2376e3e46b2c57765f3))
+* **modaltrigger:** hotfix ([#4431](https://github.com/erxes/erxes/issues/4431)) ([7ba46e1](https://github.com/erxes/erxes/commit/7ba46e1046ecf884f7fd10dcba6e6505c9fa419e))
+* **navigation:** fix navigation more button  ([06f54a2](https://github.com/erxes/erxes/commit/06f54a2f13d2c02f00053260a66115ca0f837680))
+* trying to mutate immutable array ([c696c71](https://github.com/erxes/erxes/commit/c696c71c30a9b509d86f2e1eb4928f9114a3b2bd))
+
+
+### Performance Improvements
+
+* **clientportal:** huge refactor ([1c44630](https://github.com/erxes/erxes/commit/1c44630700ab1e2e326f2a2ed58f688b837ff37c))
+* **clientportal:** merge cards and some refactor ([7584571](https://github.com/erxes/erxes/commit/758457194039dbd6fc192f3f1ca654143ce3208b))
+* **clientportal:** update cp user ([275dd6e](https://github.com/erxes/erxes/commit/275dd6ebbf36a2c1e362630926e1ed664bfd7944))
+* **clientportal:** Update UI([#4403](https://github.com/erxes/erxes/issues/4403)) ([625f0ac](https://github.com/erxes/erxes/commit/625f0aca54ac83829ce9920cc9e25a899c6c4601))
+
+
+### Reverts
+
+* Revert "try without webpack - singleton" ([df78bf6](https://github.com/erxes/erxes/commit/df78bf60e43e1d3bfa31d2bcd825c3efcc818e3f))
+
 
 
 # [1.2.0](https://github.com/erxes/erxes/compare/1.0.1...1.2.0) (2023-05-01)

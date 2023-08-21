@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+import { useQuery, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import Detail from '../../components/comments/CardDetailAction';

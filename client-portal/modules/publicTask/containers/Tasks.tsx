@@ -2,9 +2,9 @@ import { Config, IUser, Store } from "../../types";
 import { gql, useQuery } from "@apollo/client";
 
 import Layout from "../../main/containers/Layout";
+import PublicTasks from "../components/Tasks";
 import React from "react";
 import Spinner from "../../common/Spinner";
-import Tasks from "../components/Tasks";
 import { withRouter } from "next/router";
 
 type Props = {
@@ -22,7 +22,7 @@ const clientPortalGetTaskStages = `
   }
 `;
 
-function TasksContainer({ config, router, ...props }: Props) {
+function PublicTasksContainer({ config, router, ...props }: Props) {
   const { loading, data } = useQuery(gql(clientPortalGetTaskStages), {
     variables: { configId: config._id },
   });
@@ -49,14 +49,14 @@ function TasksContainer({ config, router, ...props }: Props) {
     stageId,
   };
 
-  return <Tasks {...updatedProps} />;
+  return <PublicTasks {...updatedProps} />;
 }
 
 const WithRouterParams = (props) => {
   return (
     <Layout>
       {(layoutProps: Store) => {
-        return <TasksContainer {...props} {...layoutProps} />;
+        return <PublicTasksContainer {...props} {...layoutProps} />;
       }}
     </Layout>
   );

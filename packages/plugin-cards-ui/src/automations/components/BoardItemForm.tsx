@@ -1,5 +1,5 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IAction } from '@erxes/ui-automations/src/types';
 import { PRIORITIES } from '@erxes/ui-cards/src/boards/constants';
@@ -71,6 +71,10 @@ class BoardItemForm extends React.Component<Props, State> {
 
       case 'cards:ticket.create':
         type = 'ticket';
+        break;
+
+      case 'cards:purchase.create':
+        type = 'purchase';
         break;
     }
 

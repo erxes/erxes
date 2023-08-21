@@ -6,10 +6,10 @@ import {
   router as routerUtils,
   withProps
 } from '@erxes/ui/src/utils';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import Component from '../components/List';
 import mutations from '../graphql/mutations';

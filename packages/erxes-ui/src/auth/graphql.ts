@@ -1,5 +1,3 @@
-import { branchField, departmentField } from '../team/graphql/queries';
-
 export const currentUser = `
   query currentUser {
     currentUser {
@@ -29,13 +27,7 @@ export const currentUser = `
       configs
       configsConstants
       departmentIds
-      departments {
-        ${departmentField}
-      }
       branchIds
-      branches {
-        ${branchField}
-      }
       onboardingHistory {
         _id
         userId

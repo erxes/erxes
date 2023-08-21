@@ -25,6 +25,12 @@ const PortableTickets = asyncComponent(() =>
   )
 );
 
+const PortablePurchases = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "PortablePurchases" */ '@erxes/ui-cards/src/purchases/components/PortablePurchases'
+  )
+);
+
 export default class RightSidebar extends React.Component<Props> {
   render() {
     const { user } = this.props;
@@ -34,6 +40,7 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableTasks mainType="user" mainTypeId={user._id} />
         <PortableDeals mainType="user" mainTypeId={user._id} />
         <PortableTickets mainType="user" mainTypeId={user._id} />
+        <PortablePurchases mainType="user" mainTypeId={user._id} />
       </Sidebar>
     );
   }

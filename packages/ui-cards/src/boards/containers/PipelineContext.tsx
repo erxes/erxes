@@ -1,10 +1,10 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps, router as routerUtils } from '@erxes/ui/src/utils';
 import { UserDetailQueryResponse } from '@erxes/ui/src/auth/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { requestIdleCallback } from 'request-idle-callback';
 import { setTimeout } from 'timers';
 import { mutations, queries, subscriptions } from '../graphql';

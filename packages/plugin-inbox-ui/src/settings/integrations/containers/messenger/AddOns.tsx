@@ -7,7 +7,8 @@ import {
   IWebsiteMessengerApp,
   IntegrationsQueryResponse
 } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { graphql, withApollo } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql, withApollo } from '@apollo/client/react/hoc';
 
 import AddOns from '../../components/messenger/steps/AddOns';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -15,7 +16,6 @@ import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
-import gql from 'graphql-tag';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { withProps } from '@erxes/ui/src/utils';

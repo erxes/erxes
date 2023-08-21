@@ -24,6 +24,26 @@ export default {
       type: 'cards:deal'
     },
     {
+      label: 'Purchase created',
+      action: 'create',
+      type: 'cards:purchase'
+    },
+    {
+      label: 'Purchase updated',
+      action: 'update',
+      type: 'cards:purchase'
+    },
+    {
+      label: 'Purchase deleted',
+      action: 'delete',
+      type: 'cards:purchase'
+    },
+    {
+      label: 'Purchase moved',
+      action: 'createBoardItemMovementLog',
+      type: 'cards:purchase'
+    },
+    {
       label: 'Task created',
       action: 'create',
       type: 'cards:task'

@@ -1,5 +1,5 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import Form from '../components/Form';
 import * as React from 'react';

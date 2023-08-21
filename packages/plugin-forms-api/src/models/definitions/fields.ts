@@ -91,6 +91,8 @@ export interface IField extends IVisibility {
   productCategoryId?: string;
 
   relationType?: string;
+
+  subFieldIds?: string[];
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -229,6 +231,11 @@ export const fieldSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Relation type'
+    }),
+    subFieldIds: field({
+      type: [String],
+      optional: true,
+      label: 'Sub field ids'
     })
   })
 );

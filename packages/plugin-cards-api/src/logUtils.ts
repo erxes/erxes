@@ -1,5 +1,6 @@
 import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
 import { IDealDocument } from './models/definitions/deals';
+import { IPurchaseDocument } from './models/definitions/purchases';
 import { IGrowthHackDocument } from './models/definitions/growthHacks';
 import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
 import {
@@ -40,6 +41,7 @@ export const LOG_ACTIONS = {
 
 type BoardItemDocument =
   | IDealDocument
+  | IPurchaseDocument
   | ITaskDocument
   | ITicketDocument
   | IGrowthHackDocument;
@@ -223,6 +225,42 @@ const gatherDealFieldNames = async (
   return options;
 };
 
+const gatherPurchaseFieldNames = async (
+  models: IModels,
+  subdomain: string,
+  doc: IPurchaseDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
+  let options: LogDesc[] = [];
+
+  if (prevList) {
+    options = prevList;
+  }
+
+  options = await gatherBoardItemFieldNames(models, subdomain, doc, options);
+
+  if (doc.productsData && doc.productsData.length > 0) {
+    options = await gatherNames({
+      foreignKey: 'productId',
+      prevList: options,
+      nameFields: ['name'],
+      items: await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          query: {
+            _id: { $in: doc.productsData.map(p => p.productId) }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    });
+  }
+
+  return options;
+};
+
 const gatherGHFieldNames = async (
   models: IModels,
   subdomain: string,
@@ -336,13 +374,17 @@ const findItemName = async (
   models: IModels,
   { contentType, contentTypeId }: IContentTypeParams
 ): Promise<string> => {
-  const { Deals, Tickets, Tasks, GrowthHacks } = models;
+  const { Deals, Tickets, Tasks, GrowthHacks, Purchases } = models;
 
   let item: any;
   let name: string = '';
 
   if (contentType === ACTIVITY_CONTENT_TYPES.DEAL) {
     item = await Deals.findOne({ _id: contentTypeId });
+  }
+
+  if (contentType === ACTIVITY_CONTENT_TYPES.PURCHASE) {
+    item = await Purchases.findOne({ _id: contentTypeId });
   }
 
   if (contentType === ACTIVITY_CONTENT_TYPES.TASK) {
@@ -376,6 +418,7 @@ const gatherDescriptions = async (
 
   switch (type) {
     case MODULE_NAMES.BOARD_DEAL:
+    case MODULE_NAMES.BOARD_PURCHASE:
     case MODULE_NAMES.BOARD_GH:
     case MODULE_NAMES.BOARD_TASK:
     case MODULE_NAMES.BOARD_TICKET:
@@ -390,6 +433,7 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.PIPELINE_DEAL:
+    case MODULE_NAMES.BOARD_PURCHASE:
     case MODULE_NAMES.PIPELINE_GH:
     case MODULE_NAMES.PIPELINE_TASK:
     case MODULE_NAMES.PIPELINE_TICKET:
@@ -420,6 +464,19 @@ const gatherDescriptions = async (
         );
       }
 
+      break;
+    case MODULE_NAMES.PURCHASE:
+      description = `"${object.name}" has been ${action}d`;
+      extraDesc = await gatherPurchaseFieldNames(models, subdomain, object);
+
+      if (updatedDocument) {
+        extraDesc = await gatherPurchaseFieldNames(
+          models,
+          subdomain,
+          updatedDocument,
+          extraDesc
+        );
+      }
       break;
     case MODULE_NAMES.GROWTH_HACK:
       description = `"${object.name}" has been ${action}d`;
@@ -498,6 +555,7 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.STAGE_DEAL:
+    case MODULE_NAMES.STAGE_PURCHASE:
     case MODULE_NAMES.STAGE_TASK:
     case MODULE_NAMES.STAGE_TICKET:
     case MODULE_NAMES.STAGE_GH:

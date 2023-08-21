@@ -25,6 +25,7 @@ import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import * as ws from 'ws';
+
 import {
   getService,
   getServices,
@@ -319,7 +320,8 @@ async function startServer() {
   const messageBrokerClient = await initBroker({
     RABBITMQ_HOST,
     MESSAGE_BROKER_PREFIX,
-    redis
+    redis,
+    app
   });
 
   if (configs.permissions) {
@@ -520,6 +522,16 @@ async function startServer() {
           })
         );
       }
+
+      if (exporter.getExportDocs) {
+        consumeRPCQueue(
+          `${configs.name}:exporter:getExportDocs`,
+          async args => ({
+            status: 'success',
+            data: await exporter.getExportDocs(args)
+          })
+        );
+      }
     }
 
     if (automations) {
@@ -529,6 +541,24 @@ async function startServer() {
           async args => ({
             status: 'success',
             data: await automations.receiveActions(args)
+          })
+        );
+      }
+      if (automations?.getRecipientsEmails) {
+        consumeRPCQueue(
+          `${configs.name}:automations.getRecipientsEmails`,
+          async args => ({
+            status: 'success',
+            data: await automations.getRecipientsEmails(args)
+          })
+        );
+      }
+      if (automations?.replacePlaceHolders) {
+        consumeRPCQueue(
+          `${configs.name}:automations.replacePlaceHolders`,
+          async args => ({
+            status: 'success',
+            data: await automations.replacePlaceHolders(args)
           })
         );
       }

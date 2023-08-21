@@ -24,7 +24,7 @@ type Props = {
   remove: (brandId: string) => void;
 };
 
-class Brands extends React.Component<Props, {}> {
+class Uoms extends React.Component<Props, {}> {
   renderContent() {
     const { uoms, renderButton, remove } = this.props;
 
@@ -39,8 +39,8 @@ class Brands extends React.Component<Props, {}> {
         <Table>
           <thead>
             <tr>
-              <th>{__('Name')}</th>
               <th>{__('code')}</th>
+              <th>{__('Name')}</th>
               <th>{__('actions')}</th>
             </tr>
           </thead>
@@ -122,4 +122,4 @@ class Brands extends React.Component<Props, {}> {
   }
 }
 
-export default Brands;
+export default Uoms;

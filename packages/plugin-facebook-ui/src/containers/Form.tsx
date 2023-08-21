@@ -1,5 +1,5 @@
 import React from 'react';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { withRouter } from 'react-router-dom';
 
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';

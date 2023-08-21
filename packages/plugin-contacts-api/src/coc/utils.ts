@@ -190,6 +190,7 @@ interface ICommonListArgs {
   conformityIsSaved?: boolean;
   source?: string;
   segmentData?: any;
+  emailValidationStatus?: string;
 }
 
 export class CommonBuilder<IListArgs extends ICommonListArgs> {
@@ -334,6 +335,14 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     });
   }
 
+  public emailValidateFilter(emailValidationStatus: string): void {
+    this.positiveList.push({
+      term: {
+        emailValidationStatus
+      }
+    });
+  }
+
   public getRelType() {
     return this.contentType === 'customers' ? 'customer' : 'company';
   }
@@ -428,6 +437,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     // filter by leadStatus
     if (this.params.leadStatus) {
       this.leadStatusFilter(this.params.leadStatus);
+    }
+
+    if (this.params.emailValidationStatus) {
+      this.emailValidateFilter(this.params.emailValidationStatus);
     }
 
     // If there are ids and form params, returning ids filter only filter by ids

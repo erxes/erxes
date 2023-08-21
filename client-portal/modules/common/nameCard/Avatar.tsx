@@ -1,6 +1,7 @@
 import React from "react";
 import { colors } from "../../styles";
 import { readFile } from "../utils";
+import { renderUserFullName } from "../../utils";
 import { rgba } from "../../styles/ecolor";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
@@ -136,9 +137,8 @@ class Avatar extends React.Component<Props> {
     let fullName;
 
     if (user) {
-      const { details } = user;
-      avatar = details && details.avatar;
-      fullName = details && details.fullName;
+      avatar = user && user.avatar;
+      fullName = renderUserFullName(user);
     }
 
     if (customer) {

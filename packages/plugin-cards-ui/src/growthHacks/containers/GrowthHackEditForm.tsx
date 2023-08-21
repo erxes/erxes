@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IOptions } from '@erxes/ui-cards/src/boards/types';
@@ -10,7 +10,7 @@ import {
   SaveFormSubmissionMutation
 } from '@erxes/ui-forms/src/forms/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import GrowthHackEditForm from '../components/GrowthHackEditForm';
 import { IGrowthHack, IGrowthHackParams } from '../types';
 

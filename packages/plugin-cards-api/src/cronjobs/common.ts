@@ -13,7 +13,8 @@ export const sendNotifications = async (subdomain: string) => {
     deal: models.Deals,
     task: models.Tasks,
     ticket: models.Tickets,
-    all: ['deal', 'task', 'ticket']
+    purchase: models.Purchases,
+    all: ['deal', 'task', 'ticket', 'purchase']
   };
 
   for (const type of collections.all) {

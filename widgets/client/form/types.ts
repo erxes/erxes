@@ -49,6 +49,8 @@ export interface IField {
   pageNumber?: number;
   productCategoryId?: string;
   products?: IProduct[];
+  subFieldIds?: string[];
+  subFields?: IField[];
 }
 
 export interface ICallout {
@@ -85,7 +87,8 @@ export type FieldValue =
   | string[]
   | IAttachment[]
   | ILocationOption
-  | IObjectListConfig[];
+  | IObjectListConfig[]
+  | object;
 
 export interface IFieldError {
   fieldId?: string;

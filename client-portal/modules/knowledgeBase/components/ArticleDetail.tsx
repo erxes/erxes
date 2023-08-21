@@ -1,21 +1,12 @@
-import {
-  ArticleWrapper,
-  Feedback,
-  Modal,
-  PageAnchor,
-  SidebarList,
-} from "./styles";
 import { Col, Container, Row } from "react-bootstrap";
 import { Config, IKbArticle, IKbCategory, Topic } from "../../types";
-import React, { useState } from "react";
 
-import Avatar from "../../common/Avatar";
-import Script from "../../common/Script";
-import Scrollspy from "react-scrollspy";
+import { Card } from "../../styles/cards";
+import React from "react";
 import SectionHeader from "../../common/SectionHeader";
 import SideBar from "./SideBar";
+import { SidebarList } from "./styles";
 import SingleArticle from "./SingleArticle";
-import classNames from "classnames";
 import { getConfigColor } from "../../common/utils";
 
 type Props = {
@@ -35,16 +26,19 @@ function ArticleDetail({ loading, article, category, topic, config }: Props) {
       />
 
       <Row className="category-detail">
-        <Col md={3}>
-          <SidebarList baseColor={getConfigColor(config, "baseColor")}>
-            <SideBar
-              parentCategories={topic.parentCategories}
-              category={category}
-              articleId={article._id}
-            />
-          </SidebarList>
+        <Col md={4}>
+          <Card>
+            <SidebarList baseColor={getConfigColor(config, "baseColor")}>
+              <SideBar
+                parentCategories={topic.parentCategories}
+                category={category}
+                articleId={article._id}
+                config={config}
+              />
+            </SidebarList>
+          </Card>
         </Col>
-        <Col md={9} style={{ display: "flex" }}>
+        <Col md={8}>
           <SingleArticle article={article} loading={loading} config={config} />
         </Col>
       </Row>

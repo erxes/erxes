@@ -9,6 +9,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ISelectedOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import PortableDeals from '../../deals/components/PortableDeals';
+import PortablePurchase from '../../purchases/components/PortablePurchases';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
 import PortableTasks from '../../tasks/components/PortableTasks';
@@ -94,6 +95,7 @@ export default function TicketEditForm(props: Props) {
       <>
         <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
         <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
+        <PortablePurchase mainType="ticket" mainTypeId={props.item._id} />
         {pluginsOfItemSidebar(props.item, 'ticket')}
       </>
     );

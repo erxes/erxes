@@ -45,7 +45,7 @@ const configMutations = {
       }
 
       if (
-        ['dealUOM', 'dealCurrency'].includes(code) &&
+        ['dealCurrency'].includes(code) &&
         (prevConfig.value || '').toString() !==
           (updatedConfig.value || '').toString()
       ) {

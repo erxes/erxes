@@ -1,4 +1,4 @@
-import { generateModels } from "./connectionResolver";
+import { generateModels } from './connectionResolver';
 
 export default {
   generateInternalNoteNotif: async ({ subdomain, data }) => {
@@ -23,6 +23,9 @@ export default {
       case 'task':
         model = models.Tasks;
         break;
+      case 'purchase':
+        model = models.Purchases;
+        break;
       default:
         model = models.Tickets;
         break;
@@ -39,7 +42,7 @@ export default {
     notifDoc.contentType = `${type}`;
     notifDoc.item = card;
 
-    // sendNotificationOfItems on ticket, task and deal
+    // sendNotificationOfItems on ticket, task, purchase and deal
     notifDoc.notifOfItems = true;
 
     return notifDoc;

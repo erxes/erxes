@@ -176,7 +176,7 @@ conformity_mapping = {
 deal_mapping = item_mapping
 task_mapping = item_mapping
 ticket_mapping = item_mapping
-
+purchase_mapping = item_mapping
 event_mapping = {
     'type': {
         'type': 'keyword',
@@ -234,6 +234,7 @@ put_mappings('%s__customers' % db_name, customer_mapping)
 put_mappings('%s__companies' % db_name, company_mapping)
 put_mappings('%s__events' % db_name, event_mapping)
 put_mappings('%s__deals' % db_name, deal_mapping)
+put_mappings('%s__purchases' % db_name, purchase_mapping)
 put_mappings('%s__tasks' % db_name, task_mapping)
 put_mappings('%s__tickets' % db_name, ticket_mapping)
 put_mappings('%s__conformities' % db_name, conformity_mapping)

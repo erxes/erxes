@@ -196,11 +196,7 @@ class List extends React.Component<IProps, State> {
               <th>{__('Name')}</th>
               <th>{__('Type')}</th>
               <th>{__('Category')}</th>
-              <th>{__('Supply')}</th>
-              <th>{__('Product count')}</th>
-              <th>{__('Minimium count')}</th>
               <th>{__('Unit Price')}</th>
-              <th>{__('SKU')}</th>
               <th>{__('Tags')}</th>
               <th>{__('Actions')}</th>
             </tr>

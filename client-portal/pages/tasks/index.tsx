@@ -1,11 +1,11 @@
+import CardList from "../../modules/card/containers/List";
 import Layout from "../../modules/main/containers/Layout";
-import TaskList from "../../modules/tasks/containers/Task";
 
-export default function Category() {
+export default function Tasks() {
   return (
     <Layout>
       {(props) => {
-        return <TaskList {...props} />;
+        return <CardList {...props} type="task" />;
       }}
     </Layout>
   );

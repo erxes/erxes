@@ -9,7 +9,7 @@ import {
 } from '../../../styles';
 import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 import { ITrigger } from '../../../types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { mutations, queries } from '../../../graphql';
 import Icon from '@erxes/ui/src/components/Icon';
 import FormGroup from '@erxes/ui/src/components/form/Group';

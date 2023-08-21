@@ -1,5 +1,5 @@
 import client from 'apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import Button from 'modules/common/components/Button';
 import {
   ControlLabel,

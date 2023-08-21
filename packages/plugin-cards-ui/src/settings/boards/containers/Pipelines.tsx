@@ -25,8 +25,8 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
 import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   boardId: string;

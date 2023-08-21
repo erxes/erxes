@@ -13,7 +13,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 const ActionSection = asyncComponent(() =>
   import(
@@ -52,6 +52,11 @@ const PortableTasks = asyncComponent(() =>
 const PortableTickets = asyncComponent(() =>
   import(
     /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
+  )
+);
+const PortablePurchases = asyncComponent(() =>
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ '@erxes/ui-cards/src/purchases/components/PortablePurchases'
   )
 );
 
@@ -246,6 +251,12 @@ class Index extends React.Component<IndexProps, IndexState> {
             toggleSection
           })}
           <WebsiteActivity urlVisits={customer.urlVisits || []} />
+
+          {isEnabled('payment') &&
+            loadDynamicComponent('invoiceSection', {
+              contentType: 'inbox:conversations',
+              contentTypeId: conversation._id
+            })}
         </TabContent>
       );
     }
@@ -265,6 +276,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         <PortableDeals mainType="customer" mainTypeId={customer._id} />
         <PortableTickets mainType="customer" mainTypeId={customer._id} />
         <PortableTasks mainType="customer" mainTypeId={customer._id} />
+        <PortablePurchases mainType="customer" mainTypeId={customer._id} />
       </>
     );
   }

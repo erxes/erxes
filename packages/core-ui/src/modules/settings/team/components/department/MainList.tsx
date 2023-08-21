@@ -20,7 +20,7 @@ import React from 'react';
 import SettingsSideBar from '../common/SettingsSideBar';
 import Form from '../../containers/department/Form';
 import { queries } from '@erxes/ui/src/team/graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { DescriptionContentRow } from '../common/DescriptionContentRow';
 type Props = {

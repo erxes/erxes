@@ -4,6 +4,7 @@ export const TAG_TYPES = {
   CONVERSATION: __('inbox:conversation'),
   CUSTOMER: __('contacts:customer'),
   ENGAGE_MESSAGE: __('engages:engageMessage'),
+  AUTOMATION: __('automations:automations'),
   COMPANY: __('contacts:company'),
   INTEGRATION: __('inbox:integration'),
   PRODUCT: __('products:product'),
@@ -11,6 +12,7 @@ export const TAG_TYPES = {
   DEAL: __('cards:deal'),
   TICKET: __('cards:ticket'),
   TASK: __('cards:task'),
+  PURCHASE: __('cards:purchase'),
   DASHBOARD: __('dashboard:dashboard'),
   ALL_LIST: [
     'conversation',
@@ -20,6 +22,7 @@ export const TAG_TYPES = {
     'integration',
     'product',
     'productTemplate',
-    'deal'
+    'deal',
+    'purchase'
   ]
 };

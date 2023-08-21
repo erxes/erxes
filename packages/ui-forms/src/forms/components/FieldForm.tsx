@@ -28,6 +28,7 @@ import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
 import LocationOptions from './LocationOptions';
 import ObjectListConfigs from './ObjectListConfigs';
+import GroupedField from './GroupedField';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -166,7 +167,6 @@ class FieldForm extends React.Component<Props, State> {
     value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) {
     const { field } = this.state;
-
     field[attributeName] = value;
 
     this.setState({ field });
@@ -383,18 +383,27 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderGroupedField() {
+    const { fields } = this.props;
+    const { field } = this.state;
+
+    const onChange = value => {
+      this.setState({ field: value });
+    };
+
+    if (field.type !== 'parentField') {
+      return null;
+    }
+
+    return <GroupedField field={field} fields={fields} onChange={onChange} />;
+  }
+
   renderLeftContent() {
-    const { fields, mode, onCancel } = this.props;
+    const { fields } = this.props;
     const { field } = this.state;
 
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
-
-    const groupName = e =>
-      this.onFieldChange(
-        'groupName',
-        (e.currentTarget as HTMLInputElement).value
-      );
 
     const toggle = e =>
       this.onFieldChange(
@@ -455,14 +464,6 @@ class FieldForm extends React.Component<Props, State> {
 
           {this.renderValidation()}
 
-          {this.renderOptions()}
-
-          {this.renderLocationOptions()}
-
-          {this.renderMultipleSelectCheckBox()}
-
-          {this.renderObjectListOptions()}
-
           <FormGroup>
             <FlexRow>
               <ControlLabel htmlFor="description">
@@ -483,19 +484,17 @@ class FieldForm extends React.Component<Props, State> {
               </p>
             )}
           </FormGroup>
-          <FormGroup>
-            <ControlLabel htmlFor="text" required={false}>
-              Group Name
-            </ControlLabel>
-            <p>Use with logic and group multiple fields</p>
-            <FormControl
-              id="GroupName"
-              type="text"
-              value={field.groupName || ''}
-              onChange={groupName}
-              autoFocus={false}
-            />
-          </FormGroup>
+
+          {this.renderGroupedField()}
+
+          {this.renderOptions()}
+          {this.renderGroupName()}
+
+          {this.renderLocationOptions()}
+
+          {this.renderMultipleSelectCheckBox()}
+
+          {this.renderObjectListOptions()}
 
           {this.renderColumn()}
           {loadDynamicComponent('extendFormField', {
@@ -509,48 +508,53 @@ class FieldForm extends React.Component<Props, State> {
         {fields.length > 0 && (
           <CollapseContent title={__('Logic')} compact={true}>
             <FieldLogics
-              fields={fields}
+              fields={fields.filter(
+                f => !(field.subFieldIds || []).includes(f._id)
+              )}
               currentField={field}
               onFieldChange={this.onFieldChange}
             />
           </CollapseContent>
         )}
         {this.renderOptionsValue()}
-
-        <Modal.Footer>
-          <Button
-            btnStyle="simple"
-            type="button"
-            icon="times-circle"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-
-          {this.renderExtraButton()}
-
-          <Button
-            onClick={this.onSubmit}
-            btnStyle="success"
-            icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
-          >
-            {mode === 'update' ? 'Save' : 'Add to Form'}
-          </Button>
-        </Modal.Footer>
       </>
     );
   }
 
   renderContent() {
+    const { mode, onCancel } = this.props;
     const { field } = this.state;
 
     return (
       <FlexItem>
-        <LeftSection>{this.renderLeftContent()}</LeftSection>
+        <LeftSection>
+          {this.renderLeftContent()}
+
+          <Modal.Footer>
+            <Button
+              btnStyle="simple"
+              type="button"
+              icon="times-circle"
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+
+            {this.renderExtraButton()}
+
+            <Button
+              onClick={this.onSubmit}
+              btnStyle="success"
+              icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
+            >
+              {mode === 'update' ? 'Save' : 'Add to Form'}
+            </Button>
+          </Modal.Footer>
+        </LeftSection>
 
         <PreviewSection>
           <Preview>
-            <FieldPreview field={field} />
+            <FieldPreview field={field} otherFields={this.props.fields} />
 
             <ShowPreview>
               <Icon icon="eye" /> {__('Field preview')}
@@ -575,7 +579,8 @@ class FieldForm extends React.Component<Props, State> {
         'companyEmail',
         'companyPhone',
         'html',
-        'productCategory'
+        'productCategory',
+        'parentField'
       ].includes(field.type)
     ) {
       return null;
@@ -640,7 +645,7 @@ class FieldForm extends React.Component<Props, State> {
   renderColumn() {
     const { field } = this.state;
 
-    if (field.type === 'html') {
+    if (['html', 'parentField'].includes(field.type)) {
       return;
     }
 
@@ -703,6 +708,34 @@ class FieldForm extends React.Component<Props, State> {
           autoGrowMinHeight={160}
           onChange={this.onEditorChange}
           name={`html_${field._id}`}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderGroupName() {
+    const { field } = this.state;
+    if (field.type === 'parentField') {
+      return null;
+    }
+
+    const groupName = e =>
+      this.onFieldChange(
+        'groupName',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="text" required={false}>
+          Group Name
+        </ControlLabel>
+        <p>Use with logic and group multiple fields</p>
+        <FormControl
+          id="GroupName"
+          type="text"
+          value={field.groupName || ''}
+          onChange={groupName}
+          autoFocus={false}
         />
       </FormGroup>
     );

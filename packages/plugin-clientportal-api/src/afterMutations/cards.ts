@@ -3,10 +3,11 @@ import { sendCardsMessage } from '../messageBroker';
 import { sendNotification } from '../utils';
 
 export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
-  const { type } = params;
+  const { type, object } = params;
 
   const cardType = type.split(':')[1];
 
+  const prevStageId = object.stageId;
   const card = params.updatedDocument;
   const oldCard = params.object;
   const destinationStageId = card.stageId || '';
@@ -40,9 +41,17 @@ export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
     defaultValue: null
   });
 
+  const prevStage = await sendCardsMessage({
+    subdomain,
+    action: 'stages.findOne',
+    data: { _id: prevStageId },
+    isRPC: true,
+    defaultValue: null
+  });
+
   content = `${cardType.charAt(0).toUpperCase() + cardType.slice(1)} ${
     card.name
-  } has been moved to ${stage.name} stage`;
+  } has been moved from ${prevStage.name} to ${stage.name} stage`;
 
   if (newStatus !== oldStatus && newStatus === 'archived') {
     content = `Your ${cardType} named ${card.name} has been archived`;

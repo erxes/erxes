@@ -7,6 +7,7 @@ const exportHistories = `
         name
         contentType
         date
+        percentage
         status
         user {
           details {

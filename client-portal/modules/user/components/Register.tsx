@@ -46,7 +46,7 @@ function Register({
               <FormControl
                 {...formProps}
                 name="firstName"
-                placeholder={"Enter your first name"}
+                placeholder={"First name"}
                 required={true}
               />
             </WithIconFormControl>
@@ -58,7 +58,19 @@ function Register({
               <FormControl
                 {...formProps}
                 name="lastName"
-                placeholder={"Enter your last name"}
+                placeholder={"Last name"}
+                required={true}
+              />
+            </WithIconFormControl>
+          </FormGroup>
+
+          <FormGroup>
+            <WithIconFormControl>
+              <Icon icon="building" size={26} />
+              <FormControl
+                {...formProps}
+                name="companyName"
+                placeholder={"Company name"}
                 required={true}
               />
             </WithIconFormControl>
@@ -70,7 +82,7 @@ function Register({
               <FormControl
                 {...formProps}
                 name="phone"
-                placeholder={"Enter your phone number"}
+                placeholder={"Phone number"}
               />
             </WithIconFormControl>
           </FormGroup>
@@ -86,7 +98,7 @@ function Register({
             <FormControl
               {...formProps}
               name="companyName"
-              placeholder={"Enter your company name"}
+              placeholder={"Company name"}
               required={true}
             />
           </WithIconFormControl>

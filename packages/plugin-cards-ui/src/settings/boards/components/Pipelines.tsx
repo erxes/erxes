@@ -1,12 +1,12 @@
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
-  EMPTY_CONTENT_TASK_PIPELINE
+  EMPTY_CONTENT_TASK_PIPELINE,
+  EMPTY_CONTENT_PURCHASE_PIPELINE
 } from '@erxes/ui-settings/src/constants';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { Link, withRouter } from 'react-router-dom';
 import { __, router } from 'coreui/utils';
-
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
@@ -22,7 +22,7 @@ import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
-
+import CostForm from './CostForm';
 type Props = {
   type: string;
   pipelines: IPipeline[];
@@ -186,6 +186,18 @@ class Pipelines extends React.Component<Props, State> {
         );
       }
 
+      if (type === 'purchase') {
+        return (
+          <EmptyContent
+            content={
+              type === 'purchase'
+                ? EMPTY_CONTENT_PURCHASE_PIPELINE
+                : EMPTY_CONTENT_TASK_PIPELINE
+            }
+            maxItemWidth="420px"
+          />
+        );
+      }
       return (
         <EmptyState
           text={`Get started on your ${pipelineName.toLowerCase()}`}
@@ -223,6 +235,9 @@ class Pipelines extends React.Component<Props, State> {
           </Button>
         </Link>
       );
+    }
+    if (options && options.modal === 'true') {
+      return <CostForm />;
     }
 
     return null;

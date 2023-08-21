@@ -17,6 +17,7 @@ import * as React from 'react';
 import Select from 'react-select-plus';
 import { ILog } from '../types';
 import LogRow from './LogRow';
+import { FormControl } from '@erxes/ui/src/components/form';
 
 type Props = {
   history: any;
@@ -33,6 +34,7 @@ type State = {
   perPage?: string;
   userId?: string;
   type?: string;
+  objectId?: string;
 };
 
 type commonProps = {
@@ -53,22 +55,26 @@ const moduleOptions = [
   // cards service items
   { value: 'cards:board', label: 'Boards' },
   { value: 'cards:dealBoards', label: 'Deal boards' },
+  { value: 'cards:purchaseBoards', label: 'Purchase boards' },
   { value: 'cards:taskBoards', label: 'Task boards' },
   { value: 'cards:ticketBoards', label: 'Ticket boards' },
   { value: 'cards:growthHackBoards', label: 'Growth hack boards' },
   { value: 'cards:dealPipelines', label: 'Deal pipelines' },
+  { value: 'cards:purchasePipelines', label: 'Purchase pipelines' },
   { value: 'cards:taskPipelines', label: 'Task pipelines' },
   { value: 'cards:ticketPipelines', label: 'Ticket pipelines' },
   { value: 'cards:growthHackPipelines', label: 'Growth hack pipelines' },
   { value: 'cards:checklist', label: 'Checklists' },
   { value: 'cards:checkListItem', label: 'Checklist items' },
   { value: 'cards:deal', label: 'Deals' },
+  { value: 'cards:purchase', label: 'Purchases' },
   { value: 'cards:task', label: 'Tasks' },
   { value: 'cards:ticket', label: 'Tickets' },
   { value: 'cards:pipelineLabel', label: 'Pipeline labels' },
   { value: 'cards:pipelineTemplate', label: 'Pipeline templates' },
   { value: 'cards:growthHack', label: 'Growth hacks' },
   { value: 'cards:dealStages', label: 'Deal stages' },
+  { value: 'cards:purchaseStages', label: 'Purchase stages' },
   { value: 'cards:taskStages', label: 'Task stages' },
   { value: 'cards:ticketStages', label: 'Ticket stages' },
   { value: 'cards:growthHackStages', label: 'Growth hack stages' },
@@ -130,7 +136,8 @@ class LogList extends React.Component<Props, State> {
       end: qp.end,
       action: qp.action,
       userId: qp.userId,
-      type: qp.type
+      type: qp.type,
+      objectId: qp.objectId
     };
   }
 
@@ -167,14 +174,15 @@ class LogList extends React.Component<Props, State> {
 
   onClick = () => {
     const { history } = this.props;
-    const { start, end, action, userId, type } = this.state;
+    const { start, end, action, userId, type, objectId } = this.state;
 
     router.setParams(history, {
       start,
       end,
       action,
       userId,
-      type
+      type,
+      objectId
     });
   };
 
@@ -233,7 +241,7 @@ class LogList extends React.Component<Props, State> {
   };
 
   renderFilter() {
-    const { action, userId, type } = this.state;
+    const { action, userId, type, objectId } = this.state;
 
     const onUserChange = user => {
       this.setFilter('userId', user);
@@ -267,6 +275,14 @@ class LogList extends React.Component<Props, State> {
             initialValue={userId || ''}
             onSelect={onUserChange}
             multi={false}
+          />
+        </FilterItem>
+        <FilterItem>
+          <FormControl
+            name="objectId"
+            placeholder="Object ID paste"
+            defaultValue={objectId || ''}
+            onChange={e => this.setState({ objectId: (e.target as any).value })}
           />
         </FilterItem>
         <Button

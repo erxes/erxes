@@ -69,6 +69,7 @@ const stages = `
       status
       code
       age
+      defaultTick
     }
   }
 `;
@@ -83,10 +84,17 @@ const boardDetail = `
   }
 `;
 
+const costs = `
+  query costs {
+	  costs 
+  }
+`;
+
 export default {
   boards,
   pipelines,
   stages,
   boardGetLast,
-  boardDetail
+  boardDetail,
+  costs
 };

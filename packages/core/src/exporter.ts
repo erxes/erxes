@@ -16,23 +16,57 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { segmentData } = query;
+  const { segmentData, page, perPage } = query;
 
   const boardItemsFilter: any = {};
   let itemIds = [];
+  const skip = (page - 1) * perPage;
+
+  let data: any[] = [];
 
   if (segmentData.conditions) {
-    itemIds = await fetchSegment(
+    itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
+
+    boardItemsFilter._id = { $in: itemIds };
+  }
+
+  if (!segmentData) {
+    data = await models.Users.find(boardItemsFilter)
+      .skip(skip)
+      .limit(perPage)
+      .lean();
+  }
+
+  data = await models.Users.find(boardItemsFilter).lean();
+
+  return data;
+};
+
+const prepareDataCount = async (
+  models: IModels,
+  subdomain: string,
+  query: any
+): Promise<any> => {
+  const { segmentData } = query;
+
+  let data = 0;
+
+  const contactsFilter: any = {};
+
+  if (segmentData.conditions) {
+    const itemIds = await fetchSegment(
       subdomain,
       '',
       { scroll: true, page: 1, perPage: 10000 },
       segmentData
     );
 
-    boardItemsFilter._id = { $in: itemIds };
+    contactsFilter._id = { $in: itemIds };
   }
 
-  return models.Users.find(boardItemsFilter).lean();
+  data = await models.Users.find(contactsFilter).count();
+
+  return data;
 };
 
 const getCustomFieldsData = async (item, fieldId) => {
@@ -106,9 +140,55 @@ export default {
 
     const { columnsConfig } = data;
 
-    const docs = [] as any;
+    let totalCount = 0;
     const headers = [] as any;
     const excelHeader = [] as any;
+
+    try {
+      const results = await prepareDataCount(models, subdomain, data);
+
+      totalCount = results;
+
+      for (const column of columnsConfig) {
+        if (column.startsWith('customFieldsData')) {
+          const fieldId = column.split('.')[1];
+          const field = await sendFormsMessage({
+            subdomain,
+            action: 'fields.findOne',
+            data: {
+              query: { _id: fieldId }
+            },
+            isRPC: true
+          });
+
+          headers.push(`customFieldsData.${field.text}.${fieldId}`);
+        } else {
+          headers.push(column);
+        }
+      }
+
+      for (const header of headers) {
+        if (header.startsWith('customFieldsData')) {
+          excelHeader.push(header.split('.')[1]);
+        } else {
+          excelHeader.push(header);
+        }
+      }
+    } catch (e) {
+      return {
+        error: e.message
+      };
+    }
+    return { totalCount, excelHeader };
+  },
+
+  getExportDocs: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { columnsConfig } = data;
+
+    const docs = [] as any;
+    const headers = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -151,17 +231,9 @@ export default {
 
         docs.push(result);
       }
-
-      for (const header of headers) {
-        if (header.startsWith('customFieldsData')) {
-          excelHeader.push(header.split('.')[1]);
-        } else {
-          excelHeader.push(header);
-        }
-      }
     } catch (e) {
       return { error: e.message };
     }
-    return { docs, excelHeader };
+    return { docs };
   }
 };

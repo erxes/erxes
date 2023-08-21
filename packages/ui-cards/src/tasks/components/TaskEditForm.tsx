@@ -10,6 +10,7 @@ import {
   IOptions
 } from '../../boards/types';
 import PortableDeals from '../../deals/components/PortableDeals';
+import PortablePurchases from '../../purchases/components/PortablePurchases';
 import PortableTickets from '../../tickets/components/PortableTickets';
 import React from 'react';
 import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
@@ -60,6 +61,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
       <>
         <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
         <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
+        <PortablePurchases mainType="task" mainTypeId={this.props.item._id} />
         {pluginsOfItemSidebar(this.props.item, 'task')}
       </>
     );

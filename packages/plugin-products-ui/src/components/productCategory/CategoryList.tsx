@@ -99,10 +99,10 @@ class List extends React.Component<IProps> {
       }
 
       const name = category.isRoot ? (
-        `${category.name} (${category.productCount})`
+        `${category.code} - ${category.name} (${category.productCount})`
       ) : (
         <span>
-          {category.name} ({category.productCount})
+          {category.code} - {category.name} ({category.productCount})
         </span>
       );
 

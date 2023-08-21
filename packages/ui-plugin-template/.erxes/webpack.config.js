@@ -2,9 +2,9 @@ const webpack = require("webpack");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-
 const TerserPlugin = require("terser-webpack-plugin");
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 //   .BundleAnalyzerPlugin;
 const { MFLiveReloadPlugin } = require("@module-federation/fmr");
@@ -29,6 +29,7 @@ const shared = {};
 for (const name of depNames) {
   shared[name] = {
     singleton: true,
+    requiredVersion: deps[name],
   };
 }
 
@@ -64,7 +65,7 @@ module.exports = (env, args) => {
             },
           },
         }),
-      ],
+      ]
     },
 
     resolve: {
@@ -120,6 +121,7 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../../ui-internalnotes/src"),
             path.resolve(__dirname, "../../ui-leads/src"),
             path.resolve(__dirname, "../../ui-tags/src"),
+            path.resolve(__dirname, '../../ui-emailtemplates/src'),
             path.resolve(__dirname, "plugin-src"),
           ],
           use: {
@@ -140,6 +142,9 @@ module.exports = (env, args) => {
     plugins: [
       new webpack.DefinePlugin({
         "process.env": JSON.stringify(process.env),
+      }),      
+      new NodePolyfillPlugin({
+        includeAliases: ['process']
       }),
       new InterpolateHtmlPlugin({
         PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`

@@ -79,6 +79,7 @@ export type PipelineCopyMutation = ({
 }) => Promise<any>;
 
 export type IOption = {
+  modal: string;
   boardName: string;
   pipelineName: string;
   StageItem: any;

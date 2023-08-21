@@ -1,14 +1,14 @@
 import AppProvider, { AppConsumer } from "../../modules/appContext";
 
+import PublicTasks from "../../modules/publicTask/containers/Tasks";
 import React from "react";
-import Tasks from "../../modules/publicTask/containers/Tasks";
 
 export default function Category() {
   return (
     <AppProvider>
       <AppConsumer>
         {({ currentUser }: any) => {
-          return <Tasks currentUser={currentUser} />;
+          return <PublicTasks currentUser={currentUser} />;
         }}
       </AppConsumer>
     </AppProvider>

@@ -127,7 +127,14 @@ const dashBoardQueries = {
       }
     }
 
-    return ['Customers', 'Deals', 'Conversations', 'Tasks', 'Tickets'];
+    return [
+      'Customers',
+      'Deals',
+      'Conversations',
+      'Tasks',
+      'Tickets',
+      'Purchases'
+    ];
   },
 
   async dashboardCountByTags(_root, _params, { models, subdomain }: IContext) {

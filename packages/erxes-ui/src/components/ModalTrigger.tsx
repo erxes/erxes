@@ -24,7 +24,6 @@ type Props = {
   history: any;
   paddingContent?: 'less-padding';
   centered?: boolean;
-  style?: any;
   onExit?: () => void;
   isAnimate?: boolean;
 } & IRouterProps;
@@ -94,7 +93,6 @@ class ModalTrigger extends React.Component<Props, State> {
       onExit,
       paddingContent,
       centered,
-      style,
       isAnimate = false
     } = this.props;
 
@@ -121,7 +119,6 @@ class ModalTrigger extends React.Component<Props, State> {
           onExit={onExit}
           animation={isAnimate}
           centered={centered}
-          style={style}
         >
           {this.renderHeader()}
           <Modal.Body className={paddingContent}>

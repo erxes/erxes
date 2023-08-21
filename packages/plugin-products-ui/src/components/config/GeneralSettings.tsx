@@ -1,4 +1,5 @@
 import {
+  AutoCompletionSelect,
   Button,
   CollapseContent,
   ControlLabel,
@@ -8,8 +9,8 @@ import {
 import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
+import { queries } from '@erxes/ui-products/src/graphql';
 import React from 'react';
-import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
 import { IConfigsMap, IUom } from '../../types';
 import Header from './Header';
@@ -63,10 +64,9 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, checked);
   };
 
-  onChangeCombobox = (code: string, option) => {
-    const value = option.value;
-    this.setState({ defaultUOM: value });
-    this.onChangeConfig(code, value);
+  onChangeUom = ({ selectedOption }) => {
+    this.setState({ defaultUOM: selectedOption });
+    this.onChangeConfig('defaultUOM', selectedOption);
   };
 
   renderCheckbox = (key: string, title?: string, description?: string) => {
@@ -92,10 +92,14 @@ class GeneralSettings extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
-        <Select
-          value={this.state.defaultUOM}
-          onChange={this.onChangeCombobox.bind(this, key)}
-          options={uoms.map(e => ({ value: e._id, label: e.name }))}
+        <AutoCompletionSelect
+          defaultValue={this.state.defaultUOM}
+          defaultOptions={(uoms || []).map(e => e.code)}
+          autoCompletionType="uoms"
+          placeholder="Enter an uom"
+          queryName="uoms"
+          query={queries.uoms}
+          onChange={this.onChangeUom}
         />
       </FormGroup>
     );

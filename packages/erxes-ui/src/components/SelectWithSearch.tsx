@@ -8,8 +8,8 @@ import React from 'react';
 import Select from 'react-select-plus';
 import colors from '../styles/colors';
 import debounce from 'lodash/debounce';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import styled from 'styled-components';
 
 export const SelectValue = styled.div`

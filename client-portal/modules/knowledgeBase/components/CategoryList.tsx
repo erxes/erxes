@@ -69,6 +69,9 @@ class CategoryList extends React.Component<Props> {
     const categoryUrl = `/knowledge-base/category`;
 
     const renderInfo = (cat) => {
+      const getAuthorsCount = cat.authors
+        ? new Set(cat.authors.map((author) => author._id)).size
+        : 0;
       return (
         <Link href={`${categoryUrl}?id=${cat._id}`} passHref={true}>
           <a className="d-flex flex-column align-items-start w-100 h-100 link-color">
@@ -88,7 +91,7 @@ class CategoryList extends React.Component<Props> {
                 <span className="d-flex align-item-center">
                   <Icon icon="users-alt" />
                   &nbsp;
-                  {(cat.authors && cat.authors.length) || 0} authors
+                  {getAuthorsCount} authors
                 </span>
               </div>
             </div>

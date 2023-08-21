@@ -17,6 +17,7 @@
     "babel-preset-gatsby-package": "^0.5.2"
   },
   "dependencies": {
+    "agentkeepalive": "^4.3.0",
     "amqplib": "^0.10.2",
     "crypto": "^1.0.1",
     "debug": "^4.1.1",
@@ -30,6 +31,7 @@
     "meteor-random": "^0.0.3",
     "moment": "^2.18.1",
     "mongoose": "5.7.5",
+    "node-fetch": "^2.6.7",
     "request": "^2.88.0",
     "requestify": "^0.2.5",
     "strip": "^3.0.0"
