@@ -7,7 +7,11 @@ import { serviceDiscovery } from '../../configs';
 const documentQueries = {
   documents(
     _root,
-    { limit, contentType }: { limit: number; contentType: string },
+    {
+      limit,
+      contentType,
+      subType
+    }: { limit: number; contentType: string; subType?: string },
     { models }: IContext
   ) {
     const sort = { date: -1 };
@@ -16,6 +20,10 @@ const documentQueries = {
 
     if (contentType) {
       selector.contentType = contentType;
+    }
+
+    if (subType) {
+      selector.subType = subType;
     }
 
     if (limit) {
@@ -33,7 +41,11 @@ const documentQueries = {
 
   async documentsGetContentTypes(_root, args, { models }: IContext) {
     const services = await serviceDiscovery.getServices();
-    const fieldTypes: Array<{ label: string; contentType: string }> = [
+    const fieldTypes: Array<{
+      label: string;
+      contentType: string;
+      subTypes?: string[];
+    }> = [
       {
         label: 'Team members',
         contentType: 'core:user'
@@ -49,7 +61,8 @@ const documentQueries = {
         for (const type of types) {
           fieldTypes.push({
             label: type.label,
-            contentType: `${type.type}`
+            contentType: `${type.type}`,
+            subTypes: type.subTypes
           });
         }
       }

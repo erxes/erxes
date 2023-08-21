@@ -37,7 +37,7 @@ export default ({
   initialValue?: string | string[];
   name: string;
   showAvatar?: boolean;
-  filterParams: any;
+  filterParams?: any;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 

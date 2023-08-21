@@ -62,24 +62,26 @@ const CustomFieldsSection = (props: FinalProps) => {
 };
 
 const options = () => ({
-  refetchQueries: ['companDetail']
+  refetchQueries: ['productDetail']
 });
 
 export default withProps<Props>(
   compose(
-    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
-      gql(fieldQueries.fieldsGroups),
-      {
-        name: 'fieldsGroupsQuery',
-        options: () => ({
-          variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
-            isDefinedByErxes: false
-          }
-        }),
-        skip: !isEnabled('forms')
-      }
-    ),
+    graphql<
+      Props,
+      FieldsGroupsQueryResponse,
+      { product: IProduct; contentType: string }
+    >(gql(fieldQueries.fieldsGroups), {
+      name: 'fieldsGroupsQuery',
+      options: ({ product }: { product: IProduct }) => ({
+        variables: {
+          contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
+          isDefinedByErxes: false,
+          config: { categoryId: product.categoryId }
+        }
+      }),
+      skip: !isEnabled('forms')
+    }),
     graphql<Props, EditMutationResponse, IProduct>(gql(mutations.productEdit), {
       name: 'editMutation',
       options
