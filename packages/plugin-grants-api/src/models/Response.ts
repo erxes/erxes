@@ -18,6 +18,10 @@ export const loadResponsesClass = (models: IModels, subdomain: string) => {
     public static async responseGrantRequest(doc, user: IUserDocument) {
       const { description, response, requestId } = doc;
 
+      if (await models.Responses.findOne({ userId: user._id, requestId })) {
+        throw new Error('you have already responded');
+      }
+
       const grantResponse = await models.Responses.create({
         userId: user._id,
         description,
