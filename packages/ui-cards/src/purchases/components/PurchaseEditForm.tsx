@@ -44,7 +44,7 @@ type Props = {
 type State = {
   amount: any;
   unUsedAmount: any;
-  products: IProduct[];
+  products: (IProduct & { quantity?: number })[];
   productsData: any;
   paymentsData: IPaymentsData;
   expensesData: any;
