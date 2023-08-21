@@ -489,6 +489,19 @@ const queries = {
       productById[product._id] = product;
     }
 
+    const productCategoryIds = products.map(p => p.categoryId);
+    const productCategories = await sendProductsMessage({
+      subdomain,
+      action: 'categories.find',
+      data: { query: { _id: { $in: productCategoryIds } } },
+      isRPC: true
+    });
+
+    const productCategoryById = {};
+    for (const productCat of productCategories) {
+      productCategoryById[productCat._id] = productCat;
+    }
+
     const customerIds = orders
       .filter(
         o => o.customerType || ('customer' === 'customer' && o.customerId)
@@ -561,7 +574,10 @@ const queries = {
       order._id = `${order._id}_${order.items._id}`;
       order.branch = branchById[order.branchId || ''];
       order.department = departmentById[order.departmentId || ''];
-      order.items.product = productById[order.items.productId || ''];
+      const perProduct = productById[order.items.productId || ''] || {};
+      order.items.product = perProduct;
+      order.items.productCategory =
+        productCategoryById[perProduct.categoryId || ''];
       order.items.manufactured = new Date(
         Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n'))
       );

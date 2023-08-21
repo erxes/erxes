@@ -30,6 +30,7 @@ export interface ICover {
   createdBy: string;
   modifiedAt: Date;
   modifiedBy: string;
+  note?: string;
 }
 
 export interface ICoverDocument extends ICover, Document {
@@ -61,13 +62,14 @@ export const coverSchema = schemaHooksWrapper(
     status: field({ type: String, default: 'new', label: 'Status' }),
     beginDate: field({ type: Date, label: 'Begin date' }),
     endDate: field({ type: Date, label: 'End date' }),
-    description: field({ type: String, label: 'Description' }),
-    userId: field({ type: String, label: 'Assegnee' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    userId: field({ type: String, label: 'User' }),
     details: field({ type: [coverDetailSchema], label: 'Details' }),
     createdAt: field({ type: Date, label: 'Created' }),
     createdBy: field({ type: String, label: 'Created user' }),
     modifiedAt: field({ type: Date, label: 'Modified' }),
-    modifiedBy: field({ type: String, label: 'Modified user' })
+    modifiedBy: field({ type: String, label: 'Modified user' }),
+    note: field({ type: String, optional: true, label: 'Note' })
   }),
   'erxes_pos_slot'
 );

@@ -1,5 +1,6 @@
 import { checkPermission, requireLogin } from '@erxes/api-utils/src';
 import * as moment from 'moment';
+import { sendCoreMessage } from '../../../messageBroker';
 
 const getDateRange = (filterType: string) => {
   return {
@@ -51,17 +52,101 @@ const exmFeedQueries = {
       type,
       startDate,
       endDate,
-      bravoType,
-      departmentIds,
-      branchIds,
-      unitId
+      bravoType
     },
-    { models, user }
+    { models, user, subdomain }
   ) => {
-    const doc: any = {};
+    const departmentIds = user.departmentIds;
+
+    const units = await sendCoreMessage({
+      subdomain,
+      action: 'units.find',
+      data: {
+        userIds: user._id
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const branches = await sendCoreMessage({
+      subdomain,
+      action: 'branches.find',
+      data: { query: { userIds: user._id } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const unitIds = units.map(unit => unit._id) || [];
+    const branchIds = branches.map(branch => branch._id) || [];
+
+    const unitCondition = [
+      { unitId: { $exists: false } },
+      { unitId: null },
+      { unitId: '' }
+    ];
+
+    const branchCondition = [
+      { branchIds: { $eq: [] } },
+      { branchIds: { $size: 0 } }
+    ];
+
+    const departmentCondition = [
+      { branchIds: { $eq: [] } },
+      { branchIds: { $size: 0 } }
+    ];
+
+    const filter: any = {
+      $or: [
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            { unitId: { $in: unitIds } },
+            { departmentIds: { $in: departmentIds } }
+          ]
+        },
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            {
+              $or: unitCondition
+            }
+          ]
+        },
+        {
+          $and: [
+            { unitId: { $in: unitIds } },
+            {
+              $or: branchCondition
+            }
+          ]
+        },
+        {
+          $and: [
+            { departmentIds: { $in: departmentIds } },
+            {
+              $or: departmentCondition
+            }
+          ]
+        },
+        {
+          $and: [
+            {
+              $or: branchCondition
+            },
+            {
+              $or: unitCondition
+            },
+            {
+              $or: departmentCondition
+            }
+          ]
+        },
+        { createdBy: user._id }
+      ]
+    };
 
     if (startDate && endDate) {
-      doc.createdAt = {
+      filter.createdAt = {
         $gte: startDate,
         $lt: endDate
       };
@@ -72,82 +157,59 @@ const exmFeedQueries = {
       contentTypes.includes('publicHoliday') &&
       type === 'recipient'
     ) {
-      doc.createdAt = { $lt: new Date() };
+      filter.createdAt = { $lt: new Date() };
     }
 
     if (title) {
-      doc.title = new RegExp(`.*${title}.*`, 'i');
+      filter.title = new RegExp(`.*${title}.*`, 'i');
     }
 
     if (contentTypes && contentTypes.length > 0) {
-      doc.contentType = { $in: contentTypes };
-    }
-
-    if (departmentIds && departmentIds.length) {
-      doc.$or = [
-        { departmentIds: { $in: departmentIds } },
-        { departmentIds: { $eq: [] } },
-        { departmentIds: { $size: 0 } }
-      ];
-    }
-
-    if (branchIds && branchIds.length) {
-      doc.$or = [
-        { branchIds: { $in: branchIds } },
-        { branchIds: { $eq: [] } },
-        { branchIds: { $size: 0 } }
-      ];
-    }
-
-    if (unitId) {
-      doc.unitId = { $in: unitId };
+      filter.contentType = { $in: contentTypes };
     }
 
     if (contentTypes && contentTypes.includes('event')) {
-      doc.$or = [
+      filter.$or.push(
         { 'eventData.visibility': 'public' },
         {
           'eventData.visibility': 'private',
-          recipientIds: { $in: [user._id] }
+          recipientIds: { $in: [user._id] },
+          createdBy: { $in: user._id }
         }
-      ];
+      );
     }
 
     if (contentTypes && contentTypes.includes('bravo')) {
       if (recipientType === 'recieved') {
-        doc.recipientIds = { $in: [user._id] };
+        filter.recipientIds = { $in: [user._id] };
       } else if (recipientType === 'sent') {
-        doc.createdBy = user._id;
+        filter.createdBy = user._id;
       } else {
-        doc.$or = [
+        filter.$or.push(
           { recipientIds: { $in: [user._id] } },
           { createdBy: user._id }
-        ];
+        );
       }
-    }
-
-    if (type === 'createdByMe') {
-      doc.createdBy = user._id;
     }
 
     if (isPinned !== undefined) {
       if (isPinned) {
-        doc.isPinned = true;
+        filter.isPinned = true;
       } else {
-        doc.isPinned = { $ne: true };
+        filter.isPinned = { $ne: true };
       }
     }
 
     if (bravoType) {
-      doc.customFieldsData = { $elemMatch: { value: bravoType } };
+      filter.customFieldsData = { $elemMatch: { value: bravoType } };
     }
 
     return {
-      list: await models.ExmFeed.find(doc)
+      list: await models.ExmFeed.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip || 0)
         .limit(limit || 20),
-      totalCount: await models.ExmFeed.find(doc).countDocuments()
+      totalCount: await models.ExmFeed.find(filter).countDocuments()
     };
   }
 };

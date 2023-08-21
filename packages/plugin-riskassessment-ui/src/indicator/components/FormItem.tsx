@@ -1,28 +1,21 @@
-import React from 'react';
 import { gql } from '@apollo/client';
-import client from '@erxes/ui/src/apolloClient';
-import { mutations } from '../graphql';
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
 import { ShowPreview } from '@erxes/ui-forms/src/forms/styles';
-import { IField } from '@erxes/ui/src/types';
-import Select from 'react-select-plus';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
 import {
   Button,
-  colors,
-  confirm,
-  ControlLabel,
   Form as CommonForm,
+  ControlLabel,
   FormControl,
   FormGroup,
   Icon,
   ModalTrigger,
   Tip,
-  __
+  __,
+  colors,
+  confirm
 } from '@erxes/ui/src';
+import client from '@erxes/ui/src/apolloClient';
 import {
   ColorPick,
   ColorPicker,
@@ -30,7 +23,13 @@ import {
   FormWrapper,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
-import { calculateMethods, COLORS } from '../../common/constants';
+import { IField, IFormProps } from '@erxes/ui/src/types';
+import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import TwitterPicker from 'react-color/lib/Twitter';
+import Select from 'react-select-plus';
+import { COLORS, calculateMethods } from '../../common/constants';
 import {
   ContentWrapper,
   FormContainer,
@@ -39,6 +38,7 @@ import {
   RemoveRow
 } from '../../styles';
 import { RiskCalculateLogicType } from '../common/types';
+import { mutations } from '../graphql';
 
 type Props = {
   formId?: string;
@@ -310,7 +310,7 @@ class Item extends React.Component<Props, State> {
     );
   }
 
-  renderContent = () => {
+  renderContent = (formProps: IFormProps) => {
     const { doc, totalFormsCount, max } = this.props;
 
     const formTrigger = (
@@ -367,7 +367,7 @@ class Item extends React.Component<Props, State> {
       }
     };
 
-    const content = formProps => (
+    return (
       <div key={doc._id}>
         {totalFormsCount > 1 && (
           <RemoveRow onClick={removeRow.bind(this, doc._id)}>
@@ -407,7 +407,6 @@ class Item extends React.Component<Props, State> {
             size="xl"
             content={this.renderFormContent}
             trigger={formTrigger}
-            style={{ overflow: 'auto' }}
           />
         </FormWrapper>
         {totalFormsCount === 1 && (
@@ -431,12 +430,14 @@ class Item extends React.Component<Props, State> {
         )}
       </div>
     );
-
-    return <CommonForm renderContent={content} />;
   };
 
   render() {
-    return <FormContent>{this.renderContent()}</FormContent>;
+    return (
+      <FormContent>
+        <CommonForm renderContent={this.renderContent} />
+      </FormContent>
+    );
   }
 }
 

@@ -5,13 +5,14 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  BarItems
+  BarItems,
+  Button
 } from '@erxes/ui/src';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { menuPos } from '../../constants';
-
+import { Link } from 'react-router-dom';
 import { TableWrapper } from '../../styles';
 import { IOrder } from '../types';
 import HeaderDescription from './MainHead';
@@ -70,6 +71,11 @@ class Orders extends React.Component<IProps, {}> {
 
     const actionBarRight = (
       <BarItems>
+        <Link to="/settings/exportHistories?type=pos:pos">
+          <Button icon="export" btnStyle="success">
+            {__(`Export`)}
+          </Button>
+        </Link>
         <RightMenu {...rightMenuProps} />
       </BarItems>
     );
@@ -149,13 +155,13 @@ class Orders extends React.Component<IProps, {}> {
               <th>
                 <SortHandler
                   sortField={'categoryCode'}
-                  label={__('Category')}
+                  label={__('Category code')}
                 />
               </th>
               <th>
                 <SortHandler
-                  sortField={'subCategoryCode'}
-                  label={__('Sub Category')}
+                  sortField={'categoryName'}
+                  label={__('Category name')}
                 />
               </th>
               <th>

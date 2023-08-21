@@ -28,6 +28,7 @@ export const types = `
     createdBy: String
     modifiedAt: Date
     modifiedBy: String
+    note: String
 
     user: User
     createdUser:  User
@@ -39,7 +40,7 @@ const coverParams = `
   status: String
   beginDate: Date
   endDate: Date
-  description: Date
+  description: String
   userId: String
   details: JSON
 `;
@@ -47,7 +48,7 @@ const coverParams = `
 export const mutations = `
   coversAdd(${coverParams}): Cover
   coversEdit(_id: String!, ${coverParams}): Cover
-  coversRemove(_id: String!): String
+  coversRemove(_id: String!): JSON
   coversConfirm(_id: String!): Cover
 `;
 

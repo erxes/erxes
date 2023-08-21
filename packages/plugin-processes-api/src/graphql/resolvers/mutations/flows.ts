@@ -29,7 +29,7 @@ const flowMutations = {
       models,
       subdomain,
       {
-        type: MODULE_NAMES.PRODUCT,
+        type: MODULE_NAMES.FLOW,
         newData: {
           ...doc,
           categoryId: flow.categoryId
@@ -59,7 +59,7 @@ const flowMutations = {
       models,
       subdomain,
       {
-        type: MODULE_NAMES.PRODUCT,
+        type: MODULE_NAMES.FLOW,
         object: flow,
         newData: { ...doc },
         updatedDocument: updated
@@ -89,7 +89,7 @@ const flowMutations = {
       await putDeleteLog(
         models,
         subdomain,
-        { type: MODULE_NAMES.PRODUCT, object: flow },
+        { type: MODULE_NAMES.FLOW, object: flow },
         user
       );
     }

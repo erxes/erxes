@@ -5,20 +5,6 @@ const { log, execCommand, filePath, execCurl } = require('../utils');
 
 require('dotenv').config();
 
-
-const routerConfigDirPath = filePath('./apollo-router-config');
-
-async function createRouterConfigDir() {
-  if (!fs.existsSync(routerConfigDirPath)) {
-    await fs.mkdirSync(routerConfigDirPath,{ recursive: true, mode: 0o777 });
-  }
-}
-
-async function recreateRouterConfigDir() {
-  await fs.rmSync(routerConfigDirPath, { recursive: true, force: true });
-  await createRouterConfigDir();
-}
-
 const {
   DEPLOYMENT_METHOD,
   SERVICE_INTERNAL_PORT = 80,
@@ -98,8 +84,8 @@ const healthcheck = {
     '-i',
     `http://localhost:${SERVICE_INTERNAL_PORT}/health`
   ],
-  interval: '1s',
-  start_period: '5s'
+  interval: '30s',
+  start_period: '30s'
 };
 
 const generateLBaddress = address =>
@@ -426,7 +412,6 @@ const deployDbs = async () => {
 
 const up = async ({ uis, downloadLocales, fromInstaller }) => {
   await cleaning();
-  await createRouterConfigDir();
 
   const configs = await fse.readJSON(filePath('configs.json'));
   const image_tag = configs.image_tag || 'federation';
@@ -528,7 +513,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           ...commonEnvs(configs),
           ...((configs.gateway || {}).extra_env || {})
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js', `${routerConfigDirPath}:/erxes-gateway/dist/gateway/src/apollo-router/temp`],
+        volumes: ['./enabled-services.js:/data/enabled-services.js'],
         healthcheck,
         extra_hosts,
         ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
@@ -875,7 +860,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   log('Deploy ......');
 
   if (isSwarm) {
-    await recreateRouterConfigDir();
 
     await execCommand('docker service rm erxes_gateway', true);
 
@@ -971,7 +955,6 @@ const update = async ({ serviceNames, noimage, uis }) => {
   }
 
   log('Updating gateway ....');
-  await recreateRouterConfigDir();
   await execCommand(`docker service update --force erxes_gateway`);
 };
 

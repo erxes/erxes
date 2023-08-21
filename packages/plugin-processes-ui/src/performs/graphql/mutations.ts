@@ -62,13 +62,21 @@ const performEdit = `
   }
 `;
 
-// const performChange = `
-//   mutation performChange($_id: String!, ${commonParamDefs}) {
-//     performChange(_id: $_id, ${commonParams}) {
-//       ${performFields}
-//     }
-//   }
-// `;
+const performConfirm = `
+  mutation performConfirm($_id: String!, $endAt: Date) {
+    performConfirm(_id: $_id, endAt: $endAt) {
+      ${performFields}
+    }
+  }
+`;
+
+const performAbort = `
+  mutation performAbort($_id: String!) {
+    performAbort(_id: $_id) {
+      ${performFields}
+    }
+  }
+`;
 
 const performRemove = `
   mutation performRemove($_id: String!) {
@@ -79,6 +87,7 @@ const performRemove = `
 export default {
   performAdd,
   performEdit,
-  // performChange,
+  performConfirm,
+  performAbort,
   performRemove
 };

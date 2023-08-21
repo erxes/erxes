@@ -39,7 +39,7 @@ export default function FormComponent(props: Props) {
       departmentId,
       date,
       description,
-      categoryId
+      productCategoryId: categoryId
     };
   };
 

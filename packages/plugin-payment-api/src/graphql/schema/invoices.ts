@@ -60,4 +60,5 @@ export const queries = `
   invoices(searchValue: String, kind: String, status: String, page: Int, perPage: Int, contentType: String, contentTypeId: String): [Invoice]
   invoicesTotalCount(searchValue: String, kind: String, status: String, contentType: String, contentTypeId: String): invoicesTotalCount
   invoiceDetail(_id: String!): Invoice
+  invoiceDetailByContent(contentType: String!, contentTypeId: String!): [Invoice]
 `;

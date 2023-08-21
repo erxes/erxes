@@ -1,12 +1,13 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { graphqlPubsub } from '../../../configs';
+import { IModels } from '../../../connectionResolver';
 import {
   sendCardsMessage,
   sendCoreMessage,
   sendInboxMessage,
   sendPosMessage
 } from '../../../messageBroker';
-import { IConfig } from '../../../models/definitions/configs';
+import { IConfig, IConfigDocument } from '../../../models/definitions/configs';
 import {
   BILL_TYPES,
   ORDER_ITEM_STATUSES,
@@ -14,6 +15,7 @@ import {
   ORDER_TYPES
 } from '../../../models/definitions/constants';
 import { IPaidAmount } from '../../../models/definitions/orders';
+import { IPosUserDocument } from '../../../models/definitions/posUsers';
 import { PutData } from '../../../models/PutData';
 import { IContext, IOrderInput } from '../../types';
 import {
@@ -72,9 +74,80 @@ const getTaxInfo = (config: IConfig) => {
   };
 };
 
+const getStatus = (config, buttonType, doc, order?) => {
+  if (!(config && config.kitchenScreen && config.kitchenScreen.isActive)) {
+    return ORDER_STATUSES.COMPLETE;
+  }
+
+  const type = config.kitchenScreen.showType;
+
+  if (order && order.status) {
+    if (
+      type === 'paid' &&
+      order.status === ORDER_STATUSES.PENDING &&
+      doc.paidDate
+    ) {
+      return ORDER_STATUSES.NEW;
+    }
+
+    if (
+      [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status) &&
+      doc.items &&
+      doc.items.length
+    ) {
+      const newItems =
+        doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
+      if (newItems.length) {
+        return ORDER_STATUSES.REDOING;
+      }
+    }
+
+    return order.status;
+  }
+
+  if (type === 'click' && buttonType !== 'order') {
+    return ORDER_STATUSES.COMPLETE;
+  }
+
+  if (type === 'paid' && (!order || !order.paidDate)) {
+    return ORDER_STATUSES.PENDING;
+  }
+
+  return ORDER_STATUSES.NEW;
+};
+
+const orderAdd = async (models, lastDoc, config) => {
+  try {
+    const number = await generateOrderNumber(models, config);
+
+    const order = await models.Orders.createOrder({
+      ...lastDoc,
+      number
+    });
+
+    return order;
+  } catch (e) {
+    if (e.message.includes(`E11000 duplicate key error`)) {
+      return await orderAdd(models, lastDoc, config);
+    } else {
+      throw new Error(e.message);
+    }
+  }
+};
+
 const ordersAdd = async (
   doc: IOrderInput,
-  { posUser, config, models, subdomain }
+  {
+    posUser,
+    config,
+    models,
+    subdomain
+  }: {
+    posUser: IPosUserDocument;
+    config: IConfigDocument;
+    models: IModels;
+    subdomain: string;
+  }
 ) => {
   const { totalAmount, type, customerId, customerType, branchId } = doc;
   if (!posUser && !doc.customerId) {
@@ -89,10 +162,8 @@ const ordersAdd = async (
   }
 
   await validateOrder(models, doc);
-  const number = await generateOrderNumber(models, config);
 
   const orderDoc = {
-    number,
     totalAmount,
     type,
     branchId,
@@ -104,15 +175,20 @@ const ordersAdd = async (
   try {
     let preparedDoc = await prepareOrderDoc(subdomain, doc, config, models);
 
-    const order = await models.Orders.createOrder({
+    const status = getStatus(config, doc.buttonType, doc);
+
+    const lastDoc = {
       ...doc,
       ...orderDoc,
       totalAmount: getTotalAmount(preparedDoc.items),
       branchId: doc.branchId || config.branchId,
       posToken: config.token,
       departmentId: config.departmentId,
-      taxInfo: getTaxInfo(config)
-    });
+      taxInfo: getTaxInfo(config),
+      status
+    };
+
+    const order = await orderAdd(models, lastDoc, config);
 
     for (const item of preparedDoc.items) {
       await models.OrderItems.createOrderItem({
@@ -153,7 +229,17 @@ const ordersAdd = async (
 
 const ordersEdit = async (
   doc: IOrderEditParams,
-  { posUser, config, models, subdomain }
+  {
+    posUser,
+    config,
+    models,
+    subdomain
+  }: {
+    posUser: IPosUserDocument;
+    config: IConfigDocument;
+    models: IModels;
+    subdomain: string;
+  }
 ) => {
   const order = await models.Orders.getOrder(doc._id);
 
@@ -169,17 +255,7 @@ const ordersEdit = async (
 
   await updateOrderItems(doc._id, preparedDoc.items, models);
 
-  let status = order.status;
-
-  if (
-    [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(order.status || '')
-  ) {
-    const newItems =
-      doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
-    if (newItems.length) {
-      status = ORDER_STATUSES.REDOING;
-    }
-  }
+  let status = getStatus(config, doc.buttonType, doc, order);
 
   const updatedOrder = await models.Orders.updateOrder(doc._id, {
     deliveryInfo: doc.deliveryInfo,
@@ -195,6 +271,7 @@ const ordersEdit = async (
     posToken: config.token,
     departmentId: config.departmentId,
     taxInfo: getTaxInfo(config),
+    dueDate: doc.dueDate,
     status
   });
 
@@ -420,7 +497,13 @@ const orderMutations = {
             $set: {
               ...doc,
               paidDate: now,
-              modifiedAt: now
+              modifiedAt: now,
+              status: getStatus(
+                config,
+                '',
+                { ...order, paidDate: now },
+                { ...order }
+              )
             }
           }
         );
@@ -628,7 +711,13 @@ const orderMutations = {
               billType,
               registerNumber,
               paidDate: now,
-              modifiedAt: now
+              modifiedAt: now,
+              status: getStatus(
+                config,
+                '',
+                { ...order, paidDate: now },
+                { ...order }
+              )
             }
           }
         );
@@ -867,7 +956,13 @@ const orderMutations = {
         {
           $set: {
             paidDate: now,
-            modifiedAt: now
+            modifiedAt: now,
+            status: getStatus(
+              config,
+              '',
+              { ...order, paidDate: now },
+              { ...order }
+            )
           }
         }
       );

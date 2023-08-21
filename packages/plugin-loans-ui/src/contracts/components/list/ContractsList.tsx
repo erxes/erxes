@@ -27,6 +27,7 @@ import { can } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
+import ClassificationForm from '../../containers/ClassificationForm';
 // import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
@@ -167,6 +168,12 @@ class ContractsList extends React.Component<IProps, State> {
               </th>
               <th>
                 <SortHandler
+                  sortField={'classification'}
+                  label={__('Classification')}
+                />
+              </th>
+              <th>
+                <SortHandler
                   sortField={'scheduleDays'}
                   label={__('Schedule Day')}
                 />
@@ -206,6 +213,10 @@ class ContractsList extends React.Component<IProps, State> {
             Alert.error(error.message);
           });
 
+      const classificationForm = props => {
+        return <ClassificationForm {...props} contracts={bulk} />;
+      };
+
       actionBarLeft = (
         <BarItems>
           {can('contractsRemove', currentUser) && (
@@ -218,6 +229,18 @@ class ContractsList extends React.Component<IProps, State> {
               {__('Delete')}
             </Button>
           )}
+          <ModalTrigger
+            title={`${__('New transaction')}`}
+            trigger={
+              <Button btnStyle="warning" size="small" icon="cancel-1">
+                {__('Change classification')}
+              </Button>
+            }
+            autoOpenKey="showTransactionModal"
+            size="lg"
+            content={classificationForm}
+            backDrop="static"
+          />
         </BarItems>
       );
     }

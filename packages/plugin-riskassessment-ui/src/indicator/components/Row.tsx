@@ -1,28 +1,17 @@
-import {
-  Button,
-  ButtonMutate,
-  FormControl,
-  Icon,
-  Label,
-  ModalTrigger,
-  Tip
-} from '@erxes/ui/src';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
+import { Button, FormControl, Icon, Label, Tip } from '@erxes/ui/src';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import moment from 'moment';
 import React from 'react';
 import { FormContainer } from '../../styles';
 import { RiskIndicatorsType } from '../common/types';
-import { generateParams } from '../common/utils';
-import { default as Form } from '../containers/Form';
-import { mutations, queries } from '../graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type IProps = {
-  object: RiskIndicatorsType;
-  selectedValue: string[];
-  onchange: (id: string) => void;
+  indicator: RiskIndicatorsType;
+  selectedItems: string[];
+  onChange: (id: string) => void;
   queryParams: any;
+  handleDuplicate: (_id: string) => void;
+  history: any;
 };
 
 const generateDate = (value, formatted?) => {
@@ -33,82 +22,41 @@ const generateDate = (value, formatted?) => {
 };
 
 class TableRow extends React.Component<IProps> {
-  renderDuplicateForm = () => {
-    const { queryParams, object } = this.props;
-    const { _id } = object;
+  renderActions() {
+    const { handleDuplicate, indicator } = this.props;
 
-    const trigger = (
-      <Button btnStyle="link" style={{ padding: '5px' }}>
+    return (
+      <Button
+        btnStyle="link"
+        style={{ padding: '5px' }}
+        onClick={handleDuplicate.bind(this, indicator._id)}
+      >
         <Tip text="Duplicate this risk indicator" placement="bottom">
           <Icon icon="copy" />
         </Tip>
       </Button>
     );
-
-    const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-      const refetchQueries = [
-        {
-          query: gql(queries.list),
-          variables: {
-            ...generateParams({ queryParams })
-          }
-        }
-      ];
-      return (
-        <ButtonMutate
-          mutation={mutations.riskIndicatorAdd}
-          variables={values}
-          isSubmitted={isSubmitted}
-          refetchQueries={refetchQueries}
-          type="submit"
-          successMessage={`Risk Indicator successfully duplicated`}
-        />
-      );
-    };
-
-    const content = props => {
-      const updatedProps = {
-        ...props,
-        asssessmentId: _id,
-        fieldsSkip: { description: 0, name: 0 },
-        queryParams,
-        renderButton
-      };
-      return <Form {...updatedProps} />;
-    };
-
-    return (
-      <ModalTrigger
-        content={content}
-        trigger={trigger}
-        title="Duplicate Risk Indicator"
-        dialogClassName="transform"
-        enforceFocus={false}
-        size="lg"
-      />
-    );
-  };
+  }
 
   render() {
-    const { object, selectedValue, onchange } = this.props;
+    const { indicator, selectedItems, onChange, history } = this.props;
 
-    const { _id, name, modifiedAt, createdAt, tags } = object;
-
-    const generateDoc = values => {
-      return { doc: { ...values }, _id };
-    };
+    const { _id, name, modifiedAt, createdAt, tags } = indicator;
 
     const onclick = e => {
       e.stopPropagation();
     };
 
-    const trigger = (
-      <tr key={_id}>
+    return (
+      <tr
+        key={_id}
+        onClick={() => history.push(`/settings/risk-indicators/detail/${_id}`)}
+      >
         <td onClick={onclick}>
           <FormControl
             componentClass="checkbox"
-            checked={selectedValue.includes(_id)}
-            onChange={() => onchange(_id)}
+            checked={selectedItems.includes(_id)}
+            onChange={() => onChange(_id)}
           />
         </td>
         <td>{name}</td>
@@ -129,27 +77,8 @@ class TableRow extends React.Component<IProps> {
         <Tip text={generateDate(modifiedAt, true)} placement="bottom">
           <td>{generateDate(modifiedAt)}</td>
         </Tip>
-        <td onClick={onclick}>{this.renderDuplicateForm()}</td>
+        <td onClick={onclick}>{this.renderActions()}</td>
       </tr>
-    );
-
-    const contentForm = props => {
-      const updatedProps = {
-        ...this.props,
-        ...props,
-        generateDoc
-      };
-      return <Form {...updatedProps} asssessmentId={_id} />;
-    };
-
-    return (
-      <ModalTrigger
-        title="Edit Risk Indicator"
-        enforceFocus={false}
-        trigger={trigger}
-        content={contentForm}
-        size="lg"
-      />
     );
   }
 }

@@ -721,3 +721,11 @@ span.red {
         }
     }
 }
+// center sub elements
+.monpay-coupon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}

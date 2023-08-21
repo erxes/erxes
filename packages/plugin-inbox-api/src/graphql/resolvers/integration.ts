@@ -121,8 +121,8 @@ export default {
     return await sendCommonMessage({
       serviceName: integration.kind,
       subdomain,
-      action: 'detailIntegration',
-      data: { inboxId },
+      action: 'api_to_integrations',
+      data: { inboxId, action: 'getConfigs' },
       isRPC: true
     });
   }

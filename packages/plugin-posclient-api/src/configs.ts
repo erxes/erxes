@@ -16,6 +16,8 @@ export let debug;
 export let graphqlPubsub;
 export let mainDb;
 export let serviceDiscovery;
+export let app;
+
 dotenv.config();
 
 export default {
@@ -93,6 +95,7 @@ export default {
 
   onServerInit: async options => {
     mainDb = options.db;
+    app = options.app;
 
     initBroker(options.messageBrokerClient);
 

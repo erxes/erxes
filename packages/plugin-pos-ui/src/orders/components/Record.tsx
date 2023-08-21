@@ -94,8 +94,8 @@ class Record extends React.Component<Props> {
             ''}
         </td>
         <td key={'code'}>{order.items?.product?.code || ''}</td>
-        <td key={'category'}>{order.items?.product?.code || ''}</td>
-        <td key={'subCategory'}>{order.items?.product?.code || ''}</td>
+        <td key={'categoryCode'}>{order.items?.productCategory?.code || ''}</td>
+        <td key={'categoryName'}>{order.items?.productCategory?.name || ''}</td>
         <td key={'name'}>{order.items?.product?.name || ''}</td>
         <td key={'count'}>{order.items?.count || 0}</td>
         <td key={'firstPrice'}>
