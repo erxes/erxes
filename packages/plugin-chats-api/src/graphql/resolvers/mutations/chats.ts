@@ -461,7 +461,9 @@ const chatMutations = {
 
     const chat = await models.Chats.getChat(message.chatId);
 
-    const recievers = chat.participantIds.filter(i => i !== user._id);
+    const recievers = chat.participantIds.filter(
+      value => !chat.muteUserIds.includes(value)
+    );
 
     sendCoreMessage({
       subdomain: 'os',

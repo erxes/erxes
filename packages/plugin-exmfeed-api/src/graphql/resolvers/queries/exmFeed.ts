@@ -205,9 +205,30 @@ const exmFeedQueries = {
     }
 
     if (contentTypes && contentTypes.includes('event')) {
+      const currentDate = new Date();
+
+      const events = await models.ExmFeed.find({ contentType: 'event' });
+
+      for (const event of events) {
+        if (event.eventData.endDate < currentDate) {
+          const { _id } = event;
+
+          await models.ExmFeed.updateOne(
+            { _id },
+            {
+              $set: {
+                isPinned: false
+              }
+            }
+          );
+        }
+      }
+
       return {
         list: await models.ExmFeed.find({ ...filter })
-          .sort({ 'ExmEventData.startDate': -1 })
+          .sort({
+            'ExmEventData.startDate': -1
+          })
           .skip(skip || 0)
           .limit(limit || 20),
         totalCount: await models.ExmFeed.find(filter).countDocuments()
