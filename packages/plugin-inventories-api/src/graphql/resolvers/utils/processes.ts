@@ -42,7 +42,8 @@ export const getProcesses = async (
         'aggregate[0].$match.endAt.$lt = new Date(aggregate[0].$match.endAt.$lt)'
       ]
     },
-    isRPC: true
+    isRPC: true,
+    defaultValue: []
   });
 
   const performsC1Out = await sendProcessesMessage({
@@ -76,7 +77,8 @@ export const getProcesses = async (
         'aggregate[0].$match.endAt.$lt = new Date(aggregate[0].$match.endAt.$lt)'
       ]
     },
-    isRPC: true
+    isRPC: true,
+    defaultValue: []
   });
 
   const performsBetIn = await sendProcessesMessage({
@@ -112,7 +114,8 @@ export const getProcesses = async (
         'aggregate[0].$match.endAt.$lte = new Date(aggregate[0].$match.endAt.$lte)'
       ]
     },
-    isRPC: true
+    isRPC: true,
+    defaultValue: []
   });
 
   const performsBetOut = await sendProcessesMessage({
@@ -148,7 +151,8 @@ export const getProcesses = async (
         'aggregate[0].$match.endAt.$lte = new Date(aggregate[0].$match.endAt.$lte)'
       ]
     },
-    isRPC: true
+    isRPC: true,
+    defaultValue: []
   });
 
   const defaultVal = {

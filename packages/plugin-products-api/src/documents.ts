@@ -48,6 +48,7 @@ export default {
       { value: 'bulkQuantity', name: 'Bulk quantity' },
       { value: 'bulkPrice', name: 'Bulk price' },
       { value: 'barcode', name: 'Barcode' },
+      { value: 'barcodeText', name: 'Barcode Text' },
       { value: 'date', name: 'Date' },
       { value: 'barcodeDescription', name: 'Barcode description' },
 
@@ -62,9 +63,16 @@ export default {
     const models = await generateModels(subdomain);
 
     const results: string[] = [];
-    const productsIds = JSON.parse(productIds || '[]');
+    const copies = JSON.parse(productIds || '[]');
+    const productsIds = copies.map(c => c.id);
+
     const products: IProductDocument[] =
       (await models.Products.find({ _id: { $in: productsIds } }).lean()) || [];
+
+    const productById = {};
+    for (const product of products) {
+      productById[product._id] = product;
+    }
 
     const pricingAvailable = await serviceDiscovery.isEnabled('pricing');
     let quantityRules = {};
@@ -123,7 +131,8 @@ export default {
       });
     }
 
-    for (const product of products) {
+    for (const copyInfo of copies) {
+      const product = productById[copyInfo.id];
       const qtyRule = quantityRules[product._id] || {};
       const { value, price } = qtyRule;
 
@@ -146,7 +155,10 @@ export default {
         toMoney(price)
       );
 
-      if (content.includes('{{ barcode }}')) {
+      if (
+        content.includes('{{ barcode }}') ||
+        content.includes('{{ barcodeText }}')
+      ) {
         let barcode = (product.barcodes || [])[0] || '';
         let shortStr = '';
         if (barcode) {
@@ -162,13 +174,21 @@ export default {
               </p>
               <script>
                 JsBarcode("#barcode${barcode}", "${barcode}${shortStr}", {
-                  width: 1.5,
+                  width: 1,
                   height: 40,
-                  displayValue: true
+                  displayValue: false
                 });
               </script>
             `
           );
+
+          replacedContent = replacedContent.replace(
+            '{{ barcodeText }}',
+            `<span class="barcodeText">${barcode}${shortStr}</span>`
+          );
+        } else {
+          replacedContent = replacedContent.replace('{{ barcode }}', '');
+          replacedContent = replacedContent.replace('{{ barcodeText }}', '');
         }
       }
 
@@ -208,7 +228,9 @@ export default {
         );
       }
 
-      results.push(replacedContent);
+      for (let i = 0; i < copyInfo.c; i++) {
+        results.push(replacedContent);
+      }
     }
 
     return results;

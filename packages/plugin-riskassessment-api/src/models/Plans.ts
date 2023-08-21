@@ -34,6 +34,22 @@ export const loadPlans = (models: IModels, subdomain: string) => {
 
     public static async removePlans(ids) {
       await models.Schedules.deleteMany({ planId: { $in: ids } });
+
+      const plans = await models.Plans.find({ _id: { $in: ids } });
+
+      for (const plan of plans) {
+        if (plan.status === PLAN_STATUSES.ARCHIVED && !!plan?.cardIds?.length) {
+          await sendCardsMessage({
+            subdomain,
+            action: `${plan?.configs?.cardType}s.remove`,
+            data: {
+              _ids: plan.cardIds
+            },
+            isRPC: true
+          });
+        }
+      }
+
       return models.Plans.deleteMany({ _id: { $in: ids } });
     }
 

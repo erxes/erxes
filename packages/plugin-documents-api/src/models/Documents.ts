@@ -7,6 +7,7 @@ interface IDocument {
   createdUserId: string;
 
   contentType: string;
+  subType: string;
   name: string;
   content: string;
   replacer: string;
@@ -21,6 +22,7 @@ const documentSchema = new Schema({
   createdUserId: { type: String },
 
   contentType: { type: String },
+  subType: { type: String, optional: true },
   name: { type: String },
   content: { type: String },
   replacer: { type: String }

@@ -68,6 +68,12 @@ export type OrderRecordsQueryResponse = {
   refetch: () => void;
 };
 
+export type OrderRecordsCountQueryResponse = {
+  posOrderRecordsCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type OrderDetailQueryResponse = {
   posOrderDetail: IOrderDet;
   loading: boolean;
