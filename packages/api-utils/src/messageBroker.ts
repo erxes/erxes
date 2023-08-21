@@ -20,14 +20,14 @@ const secureKeepaliveAgent = new Agent.HttpsAgent(httpAgentOptions);
 
 function getHttpAgent(protocol: string, args: any): Agent | Agent.HttpsAgent {
   if (args.timeout && Number(args.timeout)) {
-    const options = { ... httpAgentOptions, timeout: Number(args.timeout)};
-    if(protocol === "http:") {
+    const options = { ...httpAgentOptions, timeout: Number(args.timeout) };
+    if (protocol === 'http:') {
       return new Agent(options);
     } else {
       return new Agent.HttpsAgent(options);
     }
   } else {
-    return protocol === "http:" ? keepaliveAgent : secureKeepaliveAgent;
+    return protocol === 'http:' ? keepaliveAgent : secureKeepaliveAgent;
   }
 }
 
