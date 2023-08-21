@@ -70,7 +70,8 @@ class MessageTypeStep extends React.Component<Props, State> {
               { value: 'contacts:company', label: 'Company contacts' },
               { value: 'cards:deal', label: 'Deal contacts' },
               { value: 'cards:task', label: 'Task contacts' },
-              { value: 'cards:ticket', label: 'Ticket contacts' }
+              { value: 'cards:ticket', label: 'Ticket contacts' },
+              { value: 'cards:purchase', label: 'Purchase contacts' }
             ]}
             onChange={this.onChange.bind(this, 'segmentType')}
           />

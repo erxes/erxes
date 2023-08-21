@@ -296,7 +296,11 @@ class PropertyForm extends React.Component<Props, State> {
     const { type } = this.props;
     const { showInCard } = this.state;
 
-    if (!['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
+    if (
+      !['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
+        type
+      )
+    ) {
       return null;
     }
 

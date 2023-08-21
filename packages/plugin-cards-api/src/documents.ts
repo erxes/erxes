@@ -6,6 +6,7 @@ import {
   sendFormsMessage
 } from './messageBroker';
 import * as _ from 'lodash';
+
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);
 };
@@ -13,7 +14,7 @@ const toMoney = value => {
 const getCustomFields = async ({ subdomain }) => {
   let fields: any[] = [];
 
-  for (const cardType of ['task', 'ticket', 'deal']) {
+  for (const cardType of ['task', 'ticket', 'deal', 'purchase']) {
     let items = await sendFormsMessage({
       subdomain,
       action: 'fields.fieldsCombinedByContentType',
@@ -86,7 +87,9 @@ export default {
     if (stage.type == 'deal') {
       collection = models.Deals;
     }
-
+    if (stage.type == 'purchase') {
+      collection = models.Purchases;
+    }
     if (stage.type == 'ticket') {
       collection = models.Tickets;
     }
@@ -184,7 +187,7 @@ export default {
         const name = await sendContactsMessage({
           subdomain,
           action: 'customers.getCustomerName',
-          data: item,
+          data: { customer: item },
           isRPC: true,
           defaultValue: ''
         });

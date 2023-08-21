@@ -62,30 +62,14 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
 
 const supergraphComposeOnce = async () => {
   if (NODE_ENV === 'production') {
-    // Don't rewrite supergraph schema if it exists. Delete and restart to update the supergraph.graphql
-    if (fs.existsSync(supergraphPath)) {
-      return;
-    }
-
-    execSync(
-      `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`,
-      {
-        stdio: 'inherit',
-        encoding: 'utf-8'
-      }
+    await execSync(
+      `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`
     );
-
-    // Running execSync('rover') causes the container to exit with code 137 later. Make the container quit without waiting for that to happen.
-    console.log('Exiting on purpose do not panic.');
-    process.exit(1);
   } else {
     const superGraphqlNext = supergraphPath + '.next';
 
-    execSync(
-      `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
-      {
-        stdio: 'inherit'
-      }
+    await execSync(
+      `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`
     );
 
     if (

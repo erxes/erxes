@@ -264,10 +264,19 @@ module.exports.devCmd = async program => {
       );
     }
 
+    const intervalMs = Number(program.interval);
+
+    // start everything
+    if (!intervalMs) {
+      await execCommand('pm2 start ecosystem.config.js');
+      return;
+    }
+
+    // or start things one by one with an interval
     if (!program.ignoreCore) {
       log('starting core ....');
       await execCommand('pm2 start ecosystem.config.js --only core');
-      await sleep(30000);
+      await sleep(intervalMs);
     }
 
     for (const plugin of configs.plugins) {
@@ -275,31 +284,31 @@ module.exports.devCmd = async program => {
       await execCommand(
         `pm2 start ecosystem.config.js --only ${plugin.name}-api`
       );
-      await sleep(10000);
+      await sleep(intervalMs);
 
       if (plugin.ui === 'local') {
         await execCommand(
           `pm2 start ecosystem.config.js --only ${plugin.name}-ui`
         );
-        await sleep(10000);
+        await sleep(intervalMs);
       }
     }
 
     if (configs.workers) {
       log('starting workers ....');
       await execCommand('pm2 start ecosystem.config.js --only workers');
-      await sleep(10000);
+      await sleep(intervalMs);
     }
 
     if (configs.dashboard) {
       log('starting workers ....');
       await execCommand('pm2 start ecosystem.config.js --only dashboard');
-      await sleep(10000);
+      await sleep(intervalMs);
     }
 
     log(`starting gateway ....`);
     await execCommand(`pm2 start ecosystem.config.js --only gateway`);
-    await sleep(10000);
+    await sleep(intervalMs);
 
     if (!program.ignoreCoreUI) {
       log('starting coreui ....');

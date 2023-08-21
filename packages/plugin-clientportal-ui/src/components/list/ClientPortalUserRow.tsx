@@ -1,12 +1,11 @@
 import { FormControl } from '@erxes/ui/src/components/form';
+import { IClientPortalUser } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import colors from '@erxes/ui/src/styles/colors';
 import { formatValue } from '@erxes/ui/src/utils';
-import React from 'react';
-
-import { IClientPortalUser } from '../../types';
 
 type Props = {
   index: number;
@@ -125,12 +124,12 @@ class Row extends React.Component<Props> {
           {phone}
         </td>
         <td>{username}</td>
-        <td>{code}</td>
+        <td>{code || '-'}</td>
         <td>{firstName || companyName}</td>
         <td>{lastName}</td>
-
+        <td>{companyName || '-'}</td>
         <td>{type}</td>
-        <td>{clientPortal.name}</td>
+        <td>{clientPortal ? clientPortal.name : '-'}</td>
         <td>
           <Label
             key={clientPortalUser._id}

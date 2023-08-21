@@ -22,11 +22,20 @@ export default {
       esIndex: 'deals'
     },
     {
+      type: 'purchase',
+      description: 'Purchase',
+      esIndex: 'purchases'
+    },
+    {
       type: 'ticket',
       description: 'Ticket',
       esIndex: 'tickets'
     },
-    { type: 'task', description: 'Task', esIndex: 'tasks' }
+    {
+      type: 'task',
+      description: 'Task',
+      esIndex: 'tasks'
+    }
   ],
 
   propertyConditionExtender: async ({ subdomain, data: { condition } }) => {

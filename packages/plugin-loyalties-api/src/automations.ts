@@ -55,7 +55,7 @@ const actionCreate = async ({ models, subdomain, action, execution }) => {
     }
 
     if (
-      ['cards:task', 'cards:deal', 'cards:ticket'].includes(
+      ['cards:task', 'cards:deal', 'cards:ticket', 'cards:purchase'].includes(
         execution.triggerType
       )
     ) {

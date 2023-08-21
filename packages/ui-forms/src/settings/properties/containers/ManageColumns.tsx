@@ -7,8 +7,8 @@ import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/cons
 import { FieldsCombinedByTypeQueryResponse } from '../types';
 import ManageColumns from '../components/ManageColumns';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import queryString from 'query-string';
@@ -19,6 +19,7 @@ type Props = {
   type: string;
   location?: any;
   history?: any;
+  excludedNames?: string[];
   closeModal: () => void;
 };
 
@@ -147,17 +148,19 @@ export default withProps<Props>(
     graphql<
       Props,
       FieldsCombinedByTypeQueryResponse,
-      { contentType: string; isImport?: boolean }
+      { contentType: string; isImport?: boolean; excludedNames?: string[] }
     >(gql(queries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ contentType, type, isImport }) => {
+      options: ({ contentType, type, isImport, excludedNames }) => {
         return {
           variables: {
             contentType: ['lead', 'visitor'].includes(contentType)
               ? 'contacts:customer'
               : contentType,
             usageType: type,
-            excludedNames: renderExcludedNames(isImport)
+            excludedNames: excludedNames
+              ? excludedNames
+              : renderExcludedNames(isImport)
           }
         };
       },

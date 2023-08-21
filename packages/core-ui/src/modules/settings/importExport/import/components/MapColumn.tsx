@@ -26,6 +26,8 @@ class MapColumn extends React.Component<Props, {}> {
         return 'Companies';
       case 'deal':
         return 'Deals';
+      case 'purchase':
+        return 'Purchases';
       case 'ticket':
         return 'Tickets';
       case 'task':
@@ -38,7 +40,7 @@ class MapColumn extends React.Component<Props, {}> {
   renderInfo = () => {
     const { contentType } = this.props;
     const isBoardKind = (contentType?: string) =>
-      ['deal', 'ticket', 'task'].includes(contentType || '');
+      ['deal', 'ticket', 'task', 'purchase'].includes(contentType || '');
 
     if (isBoardKind(contentType)) {
       return (

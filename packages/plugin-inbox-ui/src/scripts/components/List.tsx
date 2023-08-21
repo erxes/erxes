@@ -12,8 +12,8 @@ import React from 'react';
 import List from '@erxes/ui-settings/src/common/components/List';
 import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import Form from '../containers/Form';
 import InstallCode from './InstallCode';
+import Form from '../containers/Form';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

@@ -13,7 +13,7 @@ export function generateBranchOptions(array: IBranch[] = []): IOption[] {
   const generateList = () => {
     const list = array.map(item => {
       if (!array.find(dep => dep._id === item.parentId)) {
-        item.parentId = null;
+        return { ...item, parentId: null };
       }
       return item;
     });

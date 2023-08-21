@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { STATUSES } from '../../constants';
 
 export type IActionsMap = { [key: string]: IAction };
 
@@ -18,6 +19,7 @@ export type TriggerType =
   | 'company'
   | 'deal'
   | 'task'
+  | 'purchase'
   | 'ticket'
   | 'conversation';
 
@@ -25,7 +27,11 @@ export interface ITrigger {
   id: string;
   type: string;
   actionId?: string;
-  config: { contentId: string; reEnrollment: boolean; reEnrollmentRules: string[] };
+  config: {
+    contentId: string;
+    reEnrollment: boolean;
+    reEnrollmentRules: string[];
+  };
   style?: any;
   icon?: string;
   label?: string;
@@ -41,6 +47,7 @@ export interface IAutomation {
   createdBy: string;
   updatedAt: Date;
   updatedBy: string;
+  tagIds: string[];
 }
 
 export interface IAutomationDoc extends IAutomation {
@@ -81,7 +88,7 @@ export const actionSchema = new Schema(
 
 export const automationSchema = new Schema({
   name: { type: String, required: true },
-  status: { type: String, default: 'draft' },
+  status: { type: String, default: STATUSES.DRAFT },
   triggers: { type: [triggerSchema] },
   actions: { type: [actionSchema] },
   createdAt: {
@@ -92,4 +99,5 @@ export const automationSchema = new Schema({
   createdBy: { type: String },
   updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
   updatedBy: { type: String },
+  tagIds: { type: [String], label: 'Tag Ids', optional: true }
 });

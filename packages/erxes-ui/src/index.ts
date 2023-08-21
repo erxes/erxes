@@ -7,7 +7,7 @@ export * from './auth';
 export * from './team';
 export * from './components';
 export * from './styles/eindex';
-export * from './layout';
 export * from './utils';
+export * from './layout';
 
 export { apolloClient, AppConsumer, AppProvider, EditorCK };

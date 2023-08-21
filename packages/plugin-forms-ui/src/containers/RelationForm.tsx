@@ -1,8 +1,8 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IField } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 
 import RelationForm from '../components/RelationForm';
 import queries from '../queries';

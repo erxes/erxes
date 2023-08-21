@@ -1,23 +1,23 @@
-import dayjs from "dayjs";
-import Assignees from "../Assignees";
-import Details from "../Details";
-import DueDateLabel from "../DueDateLabel";
-import Labels from "../label/Labels";
-import EditForm from "../../containers/editForm/EditForm";
-import { ItemDate } from "../../styles/common";
+import dayjs from 'dayjs';
+import Assignees from '../Assignees';
+import Details from '../Details';
+import DueDateLabel from '../DueDateLabel';
+import Labels from '../label/Labels';
+import EditForm from '../../containers/editForm/EditForm';
+import { ItemDate } from '../../styles/common';
 import {
   LastUpdate,
   Left,
   PriceContainer,
   ColumnChild,
   LabelColumn,
-  StageColumn,
-} from "../../styles/item";
-import { IOptions } from "../../types";
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
-import PriorityIndicator from "../editForm/PriorityIndicator";
-import { IDeal } from "../../../deals/types";
+  StageColumn
+} from '../../styles/item';
+import { IOptions } from '../../types';
+import { __ } from '@erxes/ui/src/utils';
+import React from 'react';
+import PriorityIndicator from '../editForm/PriorityIndicator';
+import { IDeal } from '../../../deals/types';
 
 type Props = {
   stageId?: string;
@@ -34,7 +34,7 @@ class ListItemRow extends React.PureComponent<Props> {
       return null;
     }
 
-    return <ItemDate>{dayjs(date).format("lll")}</ItemDate>;
+    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
   }
 
   renderForm = () => {
@@ -59,7 +59,7 @@ class ListItemRow extends React.PureComponent<Props> {
     const { item, groupType } = this.props;
     const { labels, stage } = item;
 
-    if (groupType === "stage") {
+    if (groupType === 'stage') {
       return (
         <LabelColumn>
           {this.checkNull(labels.length > 0, <Labels labels={labels} />)}
@@ -69,7 +69,7 @@ class ListItemRow extends React.PureComponent<Props> {
 
     return (
       <StageColumn>
-        <span>{stage ? stage.name : "-"}</span>
+        <span>{stage ? stage.name : '-'}</span>
       </StageColumn>
     );
   };
@@ -78,7 +78,7 @@ class ListItemRow extends React.PureComponent<Props> {
     const { item, groupType } = this.props;
     const { priority, labels } = item;
 
-    if (groupType === "priority") {
+    if (groupType === 'priority') {
       return (
         <LabelColumn>
           <Labels labels={labels} />
@@ -91,7 +91,7 @@ class ListItemRow extends React.PureComponent<Props> {
         {priority ? (
           <PriorityIndicator isFullBackground={true} value={priority} />
         ) : (
-          "-"
+          '-'
         )}
       </td>
     );
@@ -102,7 +102,7 @@ class ListItemRow extends React.PureComponent<Props> {
       return Component;
     }
 
-    return "-";
+    return '-';
   };
 
   render() {
@@ -115,20 +115,20 @@ class ListItemRow extends React.PureComponent<Props> {
       isComplete,
       labels,
       assignedUsers,
-      products,
+      products
     } = item;
 
     return (
       <>
-        <tr onClick={onClick} key={item._id} style={{ cursor: "pointer" }}>
+        <tr onClick={onClick} key={item._id} style={{ cursor: 'pointer' }}>
           <ColumnChild>
             <h5>{item.name}</h5>
             <LastUpdate>
-              {__("Last updated")}: {this.renderDate(item.modifiedAt)}
+              {__('Last updated')}: {this.renderDate(item.modifiedAt)}
             </LastUpdate>
           </ColumnChild>
           {this.renderStage()}
-          {(groupType === "assignee" || groupType === "dueDate") && (
+          {(groupType === 'assignee' || groupType === 'dueDate') && (
             <LabelColumn>
               {this.checkNull(labels.length > 0, <Labels labels={labels} />)}
             </LabelColumn>
@@ -140,7 +140,7 @@ class ListItemRow extends React.PureComponent<Props> {
               <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
             )}
           </td>
-          {groupType !== "assignee" && (
+          {groupType !== 'assignee' && (
             <td>
               {this.checkNull(
                 assignedUsers.length > 0,
@@ -152,7 +152,7 @@ class ListItemRow extends React.PureComponent<Props> {
               )}
             </td>
           )}
-          {options.type === "deal" && (
+          {options.type === 'deal' && (
             <td>
               {this.checkNull(
                 products > 0,

@@ -114,8 +114,18 @@ const pipelinesUpdateOrder = `
   }
 `;
 
+const costAdd = `
+  mutation manageExpenses($costObjects: [CostObjectInput]) {
+    manageExpenses(costObjects: $costObjects) {
+      name,
+      code
+    }
+  }
+`;
+
 export default {
   boardAdd,
+  costAdd,
   boardEdit,
   boardRemove,
   pipelineAdd,

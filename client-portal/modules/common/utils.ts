@@ -1,6 +1,6 @@
 import { Config } from '../types';
-import { urlParser } from '../utils';
 import { getEnv } from '../../utils/configs';
+import { urlParser } from '../utils';
 
 /**
  * Generate random string
@@ -28,7 +28,7 @@ const getSelector = (name: string) => {
   return document.querySelector(`[name='${name}']`) as any;
 };
 
-export const getValue = (name) => {
+export const getValue = name => {
   const element = getSelector(name);
 
   if (element) {
@@ -58,7 +58,10 @@ export const readFile = (value: string): string => {
 
   const { REACT_APP_DOMAIN } = getEnv();
 
-  return `${REACT_APP_DOMAIN}/read-file?key=${value}`;
+  if (REACT_APP_DOMAIN.includes('localhost')) {
+    return `${REACT_APP_DOMAIN}/read-file?key=${value}`;
+  }
+  return `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
 };
 
 export const reorder = (
@@ -73,3 +76,7 @@ export const reorder = (
 
   return result;
 };
+
+export const capitalize = (word: string) => {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}

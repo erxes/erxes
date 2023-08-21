@@ -43,7 +43,12 @@ class List extends React.Component<IProps> {
     );
 
     return (
-      <ModalTrigger title="Add category" trigger={trigger} content={content} />
+      <ModalTrigger
+        title="Add category"
+        trigger={trigger}
+        size="lg"
+        content={content}
+      />
     );
   }
 
@@ -99,10 +104,10 @@ class List extends React.Component<IProps> {
       }
 
       const name = category.isRoot ? (
-        `${category.name} (${category.productCount})`
+        `${category.code} - ${category.name} (${category.productCount})`
       ) : (
         <span>
-          {category.name} ({category.productCount})
+          {category.code} - {category.name} ({category.productCount})
         </span>
       );
 
@@ -113,7 +118,7 @@ class List extends React.Component<IProps> {
         >
           <Link to={`?categoryId=${category._id}`}>
             {space}
-            {name}
+            {category.code} - {name}
           </Link>
           <ActionButtons>
             {this.renderEditAction(category)}

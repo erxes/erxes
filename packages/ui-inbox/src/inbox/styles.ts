@@ -286,6 +286,11 @@ const Mask = styled.div`
   }
 `;
 
+const MaskText = styled.div`
+  background: #fff;
+  width: 100%;
+`;
+
 const NoHeight = styled.div`
   height: auto;
 `;
@@ -371,6 +376,7 @@ export {
   PreviewImg,
   FileName,
   Mask,
+  MaskText,
   MaskWrapper,
   NoHeight,
   SmallEditor,

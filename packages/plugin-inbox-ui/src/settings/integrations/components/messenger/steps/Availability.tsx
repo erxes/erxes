@@ -22,10 +22,12 @@ type Props = {
       | 'availabilityMethod'
       | 'responseRate'
       | 'showTimezone'
-      | 'timezone',
+      | 'timezone'
+      | 'hideWhenOffline',
     value: string
   ) => void;
   isOnline: boolean;
+  hideWhenOffline?: boolean;
   availabilityMethod?: string;
   timezone?: string;
   responseRate?: string;
@@ -140,6 +142,43 @@ class Availability extends React.Component<Props> {
     );
   }
 
+  renderOfflineOption() {
+    const { availabilityMethod, hideWhenOffline } = this.props;
+
+    if (availabilityMethod === 'manual') {
+      return null;
+    }
+
+    const onChange = e =>
+      this.onChangeFunction('hideWhenOffline', e.target.checked);
+
+    return (
+      <React.Fragment>
+        <FormGroup>
+          <ControlLabel>
+            {__('Hide messenger during offline hours')}
+          </ControlLabel>
+          <Description>
+            {__(
+              "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors."
+            )}
+          </Description>
+
+          <ToggleWrapper>
+            <Toggle
+              checked={hideWhenOffline}
+              onChange={onChange}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </ToggleWrapper>
+        </FormGroup>
+      </React.Fragment>
+    );
+  }
+
   render() {
     const onChange = e =>
       this.onChangeFunction(
@@ -208,6 +247,7 @@ class Availability extends React.Component<Props> {
           </FormGroup>
 
           {this.renderShowTimezone()}
+          {this.renderOfflineOption()}
         </LeftItem>
       </FlexItem>
     );

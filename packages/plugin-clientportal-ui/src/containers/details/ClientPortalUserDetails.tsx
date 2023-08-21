@@ -2,10 +2,10 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import ClientPortalUserDetail from '../../components/detail/ClientPortalUserDetails';
 import { queries } from '../../graphql';
@@ -14,6 +14,7 @@ import { ClientPoratlUserDetailQueryResponse } from '../../types';
 type Props = {
   id: string;
   history: any;
+  queryParams?: any;
 };
 
 type FinalProps = {

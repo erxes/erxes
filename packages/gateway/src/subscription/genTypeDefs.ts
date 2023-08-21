@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client/core';
 import { DocumentNode } from 'graphql';
 
 export default function getTypeDefs(plugins: any[]): DocumentNode {

@@ -22,6 +22,7 @@ import { generateModels } from './connectionResolver';
 
 const MODULE_NAMES = {
   DEAL: 'deal',
+  PURCHASE: 'purchase',
   TICKET: 'ticket',
   TASK: 'task',
   GROWTH_HACK: 'growthHack',
@@ -43,6 +44,7 @@ const findContentItemName = async (
 
   const isCardItem =
     type === MODULE_NAMES.DEAL ||
+    type === MODULE_NAMES.PURCHASE ||
     type === MODULE_NAMES.TASK ||
     type === MODULE_NAMES.TICKET ||
     type === MODULE_NAMES.GROWTH_HACK;

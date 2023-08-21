@@ -5,7 +5,6 @@ import {
   Body,
   Container,
   Header,
-  HeaderAmount,
   Indicator,
   IndicatorItem,
   LoadingContent,
@@ -24,6 +23,7 @@ import { IItem, IOptions, IStage } from '../../types';
 import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
 import { OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
+import { Row } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   loadingItems: () => boolean;
@@ -353,7 +353,10 @@ export default class Stage extends React.Component<Props, State> {
                   </div>
                   {this.renderCtrl()}
                 </StageTitle>
-                <HeaderAmount>{renderAmount(stage.amount)}</HeaderAmount>
+                <Row>
+                  {renderAmount(stage.amount)}
+                  {renderAmount(stage.unUsedAmount, false)}
+                </Row>
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>

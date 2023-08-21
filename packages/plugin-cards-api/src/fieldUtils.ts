@@ -5,6 +5,7 @@ import {
   BOARD_ITEM_EXTENDED_FIELDS
 } from './constants';
 import {
+  sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage,
   sendSegmentsMessage
@@ -30,6 +31,37 @@ const generateProductsOptions = async (
     product => ({
       value: product._id,
       label: `${product.code} - ${product.name}`
+    })
+  );
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
+const generateContactsOptions = async (
+  subdomain: string,
+  name: string,
+  label: string,
+  type: string,
+  params?: any
+) => {
+  const contacts = await sendContactsMessage({
+    subdomain,
+    action: `${name}.find`,
+    data: { ...params, status: { $ne: 'deleted' } },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const options: Array<{ label: string; value: any }> = contacts.map(
+    contact => ({
+      value: contact._id,
+      label: `${contact?.primaryEmail || contact?.primaryName || ''}`
     })
   );
 
@@ -134,7 +166,9 @@ export const generateFields = async ({ subdomain, data }) => {
     case 'deal':
       schema = models.Deals.schema;
       break;
-
+    case 'purchase':
+      schema = models.Purchases.schema;
+      break;
     case 'task':
       schema = models.Tasks.schema;
       break;
@@ -197,17 +231,34 @@ export const generateFields = async ({ subdomain, data }) => {
     'user'
   );
 
+  const customersOptions = await generateContactsOptions(
+    subdomain,
+    'customers',
+    'Customers',
+    'contact',
+    { state: 'customer' }
+  );
+
+  const companiesOptions = await generateContactsOptions(
+    subdomain,
+    'companies',
+    'Companies',
+    'contact'
+  );
+
   fields = [
     ...fields,
     ...[
       createdByOptions,
       modifiedByOptions,
       assignedUserOptions,
-      watchedUserOptions
+      watchedUserOptions,
+      customersOptions,
+      companiesOptions
     ]
   ];
 
-  if (type === 'deal' && usageType !== 'export') {
+  if (type === 'deal' || (type === 'purchase' && usageType !== 'export')) {
     const productOptions = await generateProductsOptions(
       subdomain,
       'productsData.productId',
@@ -218,13 +269,19 @@ export const generateFields = async ({ subdomain, data }) => {
     fields = [...fields, ...[productOptions, assignedUserOptions]];
   }
 
-  if (type === 'deal' && usageType === 'export') {
-    const extendFieldsDealExport = [
+  if (type === 'deal' || (type === 'purchase' && usageType === 'export')) {
+    const extendFieldsExport = [
       { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
-      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' }
+      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' },
+      { _id: Math.random(), name: 'productsData.branch', label: 'Branch' },
+      {
+        _id: Math.random(),
+        name: 'productsData.department',
+        label: 'Department'
+      }
     ];
 
-    fields = [...fields, ...extendFieldsDealExport];
+    fields = [...fields, ...extendFieldsExport];
   }
 
   if (usageType === 'export') {

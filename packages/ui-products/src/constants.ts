@@ -1,19 +1,14 @@
 export const TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
-  ALL: ['product', 'service']
+  UNIQUE: 'unique',
+  ALL: ['product', 'service', 'unique']
 };
 
 export const PRODUCT_CATEGORY_STATUSES = [
   { label: 'Active', value: 'active' },
   { label: 'Disabled', value: 'disabled' },
   { label: 'Archived', value: 'archived' }
-];
-
-export const PRODUCT_SUPPLY = [
-  { label: 'Unlimited', value: 'unlimited' },
-  { label: 'Limited', value: 'limited' },
-  { label: 'Unique', value: 'unique' }
 ];
 
 export const PRODUCT_INFO = {
@@ -23,13 +18,11 @@ export const PRODUCT_INFO = {
   category: 'Category',
   vendor: 'Vendor',
   description: 'Description',
-  sku: 'Sku',
   barcodes: 'Barcodes',
   barcodeDescription: 'Barcode description',
   unitPrice: 'Unit price',
   tags: 'Tags',
   status: 'Status',
-  supply: 'Supply',
   uom: 'Unit of measurement',
   subUoms: 'Sub unit of measurements',
   taxType: 'Tax type',
@@ -42,14 +35,11 @@ export const PRODUCT_INFO = {
     { field: 'category', label: 'Category' },
     { field: 'vendor', label: 'Vendor' },
     { field: 'description', label: 'Description' },
-    { field: 'sku', label: 'Sku' },
-    { field: 'productCount', label: 'Product count' },
     { field: 'barcodes', label: 'Barcodes' },
     { field: 'barcodeDescription', label: 'Barcode description' },
     { field: 'unitPrice', label: 'Unit price' },
     { field: 'tags', label: 'Tags' },
     { field: 'status', label: 'Status' },
-    { field: 'supply', label: 'Supply' },
     { field: 'uom', label: 'Unit of measurement' },
     { field: 'subUoms', label: 'Sub unit of measurements' },
     { field: 'taxType', label: 'Tax type' },

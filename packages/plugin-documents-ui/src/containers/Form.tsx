@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 
@@ -15,10 +15,18 @@ type FinalProps = {
   detailQuery?;
   saveMutation;
   history;
+  getTypesQuery;
 } & Props;
 class Container extends React.Component<FinalProps> {
   render() {
-    const { _id, contentType, detailQuery, saveMutation, history } = this.props;
+    const {
+      _id,
+      getTypesQuery,
+      contentType,
+      detailQuery,
+      saveMutation,
+      history
+    } = this.props;
 
     if (detailQuery && detailQuery.loading) {
       return null;
@@ -40,9 +48,20 @@ class Container extends React.Component<FinalProps> {
         });
     };
 
+    const obj = detailQuery ? detailQuery.documentsDetail || {} : {};
+    const contentTypes = getTypesQuery?.documentsGetContentTypes || [];
+    const subTypes =
+      (
+        contentTypes.find(
+          c => c.contentType === (obj._id ? obj.contentType : contentType)
+        ) || {}
+      ).subTypes || [];
+
     const updatedProps = {
       ...this.props,
-      obj: detailQuery ? detailQuery.documentsDetail || {} : {},
+      obj,
+      contentType: contentType || 'cards',
+      subTypes,
       save
     };
 
@@ -52,6 +71,10 @@ class Container extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
+    graphql<Props>(gql(queries.documentsGetContentTypes), {
+      name: 'getTypesQuery'
+    }),
+
     graphql<Props>(gql(queries.documentsDetail), {
       name: 'detailQuery',
       skip: ({ _id }) => !_id,

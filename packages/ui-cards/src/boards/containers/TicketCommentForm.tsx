@@ -7,8 +7,8 @@ import {
 
 import Form from '@erxes/ui-internalnotes/src/components/Form';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../graphql';
 
 type Props = {

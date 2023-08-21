@@ -3,8 +3,8 @@ import * as compose from 'lodash.flowright';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { IEditorProps } from '@erxes/ui/src/types';
 import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
 

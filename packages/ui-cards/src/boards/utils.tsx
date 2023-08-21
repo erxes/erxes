@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
-import { Amount } from './styles/stage';
+import { Amount, HeaderAmount } from './styles/stage';
 import { IDateColumn } from '@erxes/ui/src/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { ColumnProps, getCommonParams } from './components/Calendar';
 import PriorityIndicator from './components/editForm/PriorityIndicator';
 import { IDraggableLocation, IFilterParams, IItem, IItemMap } from './types';
@@ -66,7 +66,7 @@ export const reorderItemMap = ({
   const current = [...itemMap[source.droppableId]];
   const next = [...itemMap[destination.droppableId]];
 
-  let target = current[source.index];
+  let target: any = { ...current[source.index] };
 
   if (!target && source.item) {
     target = source.item;
@@ -136,19 +136,21 @@ export const getDefaultBoardAndPipelines = () => {
   };
 };
 
-export const renderAmount = (amount = {}) => {
-  if (Object.keys(amount).length === 0) {
-    return null;
+export const renderAmount = (amount = {}, tick = true) => {
+  if (!Object.keys(amount).length) {
+    return <></>;
   }
 
   return (
-    <Amount>
-      {Object.keys(amount).map(key => (
-        <li key={key}>
-          {amount[key].toLocaleString()} <span>{key}</span>
-        </li>
-      ))}
-    </Amount>
+    <HeaderAmount>
+      <Amount unUsed={!tick}>
+        {Object.keys(amount).map(key => (
+          <li key={key}>
+            {amount[key].toLocaleString()} <span>{key}</span>
+          </li>
+        ))}
+      </Amount>
+    </HeaderAmount>
   );
 };
 

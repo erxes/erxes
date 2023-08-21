@@ -67,6 +67,7 @@ export interface IMessengerData {
   links?: ILink;
   showChat?: boolean;
   showLauncher?: boolean;
+  hideWhenOffline?: boolean;
   requireAuth?: boolean;
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
@@ -242,6 +243,7 @@ const messengerDataSchema = new Schema(
     requireAuth: field({ type: Boolean, default: true }),
     showChat: field({ type: Boolean, default: true }),
     showLauncher: field({ type: Boolean, default: true }),
+    hideWhenOffline: field({ type: Boolean, default: false }),
     forceLogoutWhenResolve: field({ type: Boolean, default: false }),
     showVideoCallRequest: field({ type: Boolean, default: false })
   },

@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import ItemChooser from '../../boards/components/portable/ItemChooser';
 import Chooser, { CommonProps } from '@erxes/ui/src/components/Chooser';
 import { Alert, withProps } from '@erxes/ui/src/utils';
@@ -37,7 +37,7 @@ const ConformityChooser = (props: FinalProps) => {
 
   const onSelected = relTypes => {
     const relTypeIds = relTypes.map(item => item._id);
-    const update = proxy => {
+    const update = cache => {
       const variables: any = {
         mainType: data.mainType,
         mainTypeId: data.mainTypeId,
@@ -54,23 +54,11 @@ const ConformityChooser = (props: FinalProps) => {
         query: gql(refetchQuery),
         variables
       };
-
-      // Read the data from our cache for this query.
-      let result;
       const qryName = gql(refetchQuery).definitions[0].name.value;
 
-      try {
-        result = proxy.readQuery(selector);
-
-        // Do not do anything while reading query somewhere else
-      } catch (e) {
-        return;
-      }
-
-      result[qryName] = relTypes;
-
-      // Write our result back to the cache.
-      proxy.writeQuery({ ...selector, data: result });
+      cache.updateQuery(selector, _data => ({
+        [qryName]: relTypes
+      }));
     };
 
     editConformityMutation({

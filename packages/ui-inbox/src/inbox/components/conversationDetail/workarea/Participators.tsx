@@ -51,7 +51,8 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
     const length = participatedUsers.length;
 
     const Trigger = user => {
-      const name = user.details.fullName || user.username || '';
+      const name =
+        (user.details && user.details.fullName) || user.username || '';
 
       return (
         <Tip key={user._id} placement="bottom" text={name}>

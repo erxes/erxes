@@ -48,10 +48,7 @@ export const loadFieldConfigClass = (models: IModels) => {
         fieldId: doc.fieldId
       });
 
-      console.log('config', config);
-
       if (config) {
-        console.log('updating', config);
         await models.FieldConfigs.updateOne(
           { fieldId: doc.fieldId },
           { $set: doc }
@@ -59,8 +56,6 @@ export const loadFieldConfigClass = (models: IModels) => {
 
         return models.FieldConfigs.findOne({ fieldId: doc.fieldId });
       }
-
-      console.log('creating', doc);
 
       return models.FieldConfigs.create(doc);
     }

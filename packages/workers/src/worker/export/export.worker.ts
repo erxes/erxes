@@ -145,7 +145,7 @@ connect()
 
     const [serviceName, type] = contentType.split(':');
 
-    const { excelHeader, docs } = await messageBroker().sendRPCMessage(
+    const { totalCount, excelHeader } = await messageBroker().sendRPCMessage(
       `${serviceName}:exporter:prepareExportData`,
       {
         subdomain,
@@ -157,6 +157,40 @@ connect()
         timeout: 5 * 60 * 1000
       }
     );
+
+    const perPage = 10;
+    const totalIterations = Math.ceil(totalCount / perPage);
+
+    let docs = [] as any;
+    let percentage = 0;
+
+    for (let page = 1; page <= totalIterations; page++) {
+      const response = await messageBroker().sendRPCMessage(
+        `${serviceName}:exporter:getExportDocs`,
+        {
+          subdomain,
+          data: {
+            contentType,
+            columnsConfig,
+            segmentData,
+            page,
+            perPage
+          },
+          timeout: 5 * 60 * 1000
+        }
+      );
+
+      percentage = Number(
+        ((((page - 1) * perPage) / totalCount) * 100).toFixed(2)
+      );
+
+      await models.ExportHistory.updateOne(
+        { _id: exportHistoryId },
+        { $set: { percentage } }
+      );
+
+      docs = docs.concat(response ? response.docs || [] : []);
+    }
 
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
@@ -193,19 +227,21 @@ connect()
 
     let finalResponse = {
       exportLink: result.file,
-      total: result.rowIndex - 1,
+      total: totalCount,
       status: 'success',
       uploadType: UPLOAD_SERVICE_TYPE,
-      errorMsg: ''
+      errorMsg: '',
+      percentage: 100
     };
 
     if (result.error) {
       finalResponse = {
         exportLink: result.file,
-        total: result.rowIndex - 1,
+        total: totalCount,
         status: 'failed',
         uploadType: UPLOAD_SERVICE_TYPE,
-        errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`
+        errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`,
+        percentage: 100
       };
     }
 

@@ -3,6 +3,7 @@ import { NOTIFICATION_TYPES } from '../models/definitions/constants';
 import { IDealDocument } from '../models/definitions/deals';
 import { IGrowthHackDocument } from '../models/definitions/growthHacks';
 import { ITaskDocument } from '../models/definitions/tasks';
+import { IPurchaseDocument } from '../models/definitions/purchases';
 import { ITicketDocument } from '../models/definitions/tickets';
 import { can, checkLogin } from '@erxes/api-utils/src';
 import * as _ from 'underscore';
@@ -48,7 +49,7 @@ export const notifiedUserIds = async (models: IModels, item: any) => {
 };
 
 export interface IBoardNotificationParams {
-  item: IDealDocument;
+  item: IDealDocument | IPurchaseDocument;
   user: IUserDocument;
   type: string;
   action?: string;
@@ -236,6 +237,21 @@ const PERMISSION_MAP = {
     showTemplates: 'showGrowthHackTemplates',
     stagesRemove: 'growthHackStagesRemove',
     itemsSort: 'growthHacksSort'
+  },
+  purchase: {
+    boardsAdd: 'purchaseBoardsAdd',
+    boardsEdit: 'purchaseBoardsEdit',
+    boardsRemove: 'purchaseBoardsRemove',
+    pipelinesAdd: 'purchasePipelinesAdd',
+    pipelinesEdit: 'purchasePipelinesEdit',
+    pipelinesRemove: 'purchasePipelinesRemove',
+    pipelinesArchive: 'purchasePipelinesArchive',
+    pipelinesCopied: 'purchasePipelinesCopied',
+    pipelinesWatch: 'purchasePipelinesWatch',
+    stagesEdit: 'purchaseStagesEdit',
+    stagesRemove: 'purchaseStagesRemove',
+    itemsSort: 'purchasesSort',
+    updateTimeTracking: 'purchaseUpdateTimeTracking'
   }
 };
 
@@ -295,13 +311,13 @@ export const createConformity = async (
 };
 
 interface ILabelParams {
-  item: IDealDocument | ITaskDocument | ITicketDocument;
+  item: IDealDocument | ITaskDocument | ITicketDocument | IPurchaseDocument;
   doc: any;
   user: IUserDocument;
 }
 
 /**
- * Copies pipeline labels alongside deal/task/tickets when they are moved between different pipelines.
+ * Copies pipeline labels alongside deal/task/tickets/purchase when they are moved between different pipelines.
  */
 export const copyPipelineLabels = async (
   models: IModels,
@@ -434,7 +450,12 @@ export const copyChecklists = async (
 };
 
 export const prepareBoardItemDoc = async (
-  item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
+  item:
+    | IDealDocument
+    | ITaskDocument
+    | ITicketDocument
+    | IGrowthHackDocument
+    | IPurchaseDocument,
   collection: string,
   userId: string
 ) => {

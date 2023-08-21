@@ -1,14 +1,14 @@
-import Button from '@erxes/ui/src/components/Button';
-import { Alert } from '@erxes/ui/src/utils';
-import { isEnabled, removeTypename } from '@erxes/ui/src/utils/core';
-import React from 'react';
-
-import { CONFIG_TYPES } from '../constants';
-import General from '../containers/General';
 import { ButtonWrap, Content } from '../styles';
 import { ClientPortalConfig, MailConfig } from '../types';
+import { isEnabled, removeTypename } from '@erxes/ui/src/utils/core';
+
+import { Alert } from '@erxes/ui/src/utils';
 import Appearance from './forms/Appearance';
+import Button from '@erxes/ui/src/components/Button';
+import { CONFIG_TYPES } from '../constants';
 import Config from './forms/Config';
+import General from '../containers/General';
+import React from 'react';
 
 type Props = {
   configType: string;
@@ -66,7 +66,9 @@ class Form extends React.Component<Props, State> {
       return Alert.error('Please choose a Knowledge base topic');
     }
 
-    delete (formValues.styles || ({} as any)).__typename;
+    if (formValues.styles) {
+      formValues.styles = removeTypename(formValues.styles || ({} as any));
+    }
 
     if (formValues.mailConfig) {
       const mailConfig: MailConfig =

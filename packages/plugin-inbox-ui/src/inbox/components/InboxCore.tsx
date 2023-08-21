@@ -33,33 +33,12 @@ class Inbox extends React.Component<Props> {
 
     const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
 
-    const content = () => (
-      <MailForm
-        isReply={false}
-        clearOnSubmit={true}
-        source={isEnabled('imap') ? 'inbox' : undefined}
-      />
-    );
-
-    const sendEmail = (
-      <ModalTrigger
-        dialogClassName="middle"
-        title="Send an Email"
-        trigger={<span>{__('Send an Email')}</span>}
-        size="lg"
-        content={content}
-        paddingContent="less-padding"
-        enforceFocus={false}
-      />
-    );
-
     return (
       <HeightedWrapper>
         <Header
           title={'Conversation'}
           queryParams={queryParams}
           submenu={menuInbox}
-          additionalMenuItem={sendEmail}
         />
         <Contents>
           <Sidebar

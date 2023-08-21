@@ -32,7 +32,9 @@ export default {
         _id: user._id,
         avatar: details.avatar,
         firstName: details.firstName,
-        lastName: details.lastName
+        lastName: details.lastName,
+        fullName: details.fullName,
+        email: user.email
       };
     }
 
@@ -43,8 +45,10 @@ export default {
     return {
       _id: cpUser._id,
       avatar: cpUser.avatar,
+      fullName: `${cpUser.firstName} ${cpUser.lastName}`,
       firstName: cpUser.firstName,
-      lastName: cpUser.lastName
+      lastName: cpUser.lastName,
+      email: cpUser.email
     };
   }
 };

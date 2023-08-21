@@ -102,7 +102,8 @@ export const generateCustomerSelector = async (
           'contacts:company',
           'cards:deal',
           'cards:task',
-          'cards:ticket'
+          'cards:ticket',
+          'cards:purchase'
         ].includes(segment.contentType)
       ) {
         const returnFields = [
@@ -114,7 +115,10 @@ export const generateCustomerSelector = async (
           'customFieldsData'
         ];
 
-        if (segment.contentType === 'cards:deal') {
+        if (
+          segment.contentType === 'cards:deal' ||
+          segment.contentType === 'cards:purchase'
+        ) {
           returnFields.push('productsData');
         }
       }

@@ -597,12 +597,15 @@ const boardQueries = {
   async convertToInfo(
     _root,
     { conversationId }: { conversationId: string },
-    { models: { Deals, Stages, Pipelines, Boards, Tasks, Tickets } }: IContext
+    {
+      models: { Deals, Stages, Pipelines, Boards, Tasks, Tickets, Purchases }
+    }: IContext
   ) {
     const filter = { sourceConversationIds: { $in: [conversationId] } };
     let dealUrl = '';
     let ticketUrl = '';
     let taskUrl = '';
+    let purchaseUrl = '';
 
     const deal = await Deals.findOne(filter).lean();
 
@@ -634,10 +637,21 @@ const boardQueries = {
       ticketUrl = `/ticket/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
     }
 
+    const purchase = await Purchases.findOne(filter).lean();
+
+    if (purchase) {
+      const stage = await Stages.getStage(purchase.stageId);
+      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+      const board = await Boards.getBoard(pipeline.boardId);
+
+      purchaseUrl = `/purchase/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
+    }
+
     return {
       dealUrl,
       ticketUrl,
-      taskUrl
+      taskUrl,
+      purchaseUrl
     };
   },
 
@@ -681,7 +695,7 @@ const boardQueries = {
   },
 
   async boardLogs(_root, args, { subdomain, models }: IContext) {
-    const { Deals, Tasks, GrowthHacks, Tickets, Stages } = models;
+    const { Deals, Tasks, GrowthHacks, Tickets, Stages, Purchases } = models;
     const { action, content, contentType, contentId } = args;
 
     const type = contentType.split(':')[0];
@@ -701,6 +715,9 @@ const boardQueries = {
           break;
         case 'ticket':
           item = await Tickets.getTicket(contentId);
+          break;
+        case 'purchase':
+          item = await Purchases.getPurchase(contentId);
           break;
         default:
           break;
@@ -764,7 +781,7 @@ const boardQueries = {
   async cardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
-    for (const ct of ['deal', 'ticket', 'task']) {
+    for (const ct of ['deal', 'ticket', 'task', 'purchase']) {
       result[ct] = [];
 
       const groups = await sendFormsMessage({

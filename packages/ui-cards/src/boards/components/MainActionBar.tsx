@@ -1,35 +1,36 @@
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { isEnabled, __ } from '@erxes/ui/src/utils/core';
-import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import PipelineWatch from '../containers/PipelineWatch';
 import {
   BarItems,
+  ButtonGroup,
   HeaderButton,
   HeaderLabel,
   HeaderLink,
-  PageHeader,
-  ButtonGroup
+  PageHeader
 } from '../styles/header';
 import { IBoard, IOptions, IPipeline } from '../types';
-import RightMenu from './RightMenu';
-import { GroupByContent } from '../styles/common';
-import Button from '@erxes/ui/src/components/Button';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
 import {
   chartTypes,
-  stackByChart,
-  groupByList,
   groupByGantt,
-  showByTime
+  groupByList,
+  showByTime,
+  stackByChart
 } from '../constants';
+
+import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Filter from '@erxes/ui/src/components/filter/Filter';
+import { GroupByContent } from '../styles/common';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
+import PipelineWatch from '../containers/PipelineWatch';
+import React from 'react';
+import RightMenu from './RightMenu';
 import SelectType from './SelectType';
 import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
-import Filter from '@erxes/ui/src/components/filter/Filter';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -71,6 +72,10 @@ class MainActionBar extends React.Component<Props> {
       let link = `${this.props.link}?id=${board._id}`;
 
       const { pipelines = [] } = board;
+
+      if (pipelines.length === 0) {
+        return null;
+      }
 
       if (pipelines.length > 0) {
         link = `${link}&pipelineId=${pipelines[0]._id}`;
@@ -287,6 +292,16 @@ class MainActionBar extends React.Component<Props> {
               </Link>
             </li>
             {options.type === 'deal' && (
+              <li key="conversion">
+                <Link
+                  to={onFilterClick('conversion')}
+                  className={viewType === 'conversion' ? 'active' : ''}
+                >
+                  {__('Conversion')}
+                </Link>
+              </li>
+            )}
+            {options.type === 'purchase' && (
               <li key="conversion">
                 <Link
                   to={onFilterClick('conversion')}

@@ -15,9 +15,11 @@ import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import Tags from '@erxes/ui/src/components/Tags';
 import Watch from '../../containers/editForm/Watch';
+import Comment from '../../../comment/containers/Comment';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import PrintActionButton from './PrintDocumentBtn';
+import { Button } from 'react-bootstrap';
 
 type Props = {
   item: IItem;
@@ -75,6 +77,8 @@ class Actions extends React.Component<Props> {
         ? TAG_TYPES.DEAL
         : options.type === 'task'
         ? TAG_TYPES.TASK
+        : options.type === 'purchase' // Add a new condition for 'purchase'
+        ? TAG_TYPES.PURCHASE
         : TAG_TYPES.TICKET;
 
     const tagTrigger = (
@@ -109,12 +113,11 @@ class Actions extends React.Component<Props> {
         <ChecklistAdd itemId={item._id} type={options.type} />
 
         <Watch item={item} options={options} isSmall={true} />
-
+        {(isEnabled('clientportal') && <Comment item={item} />) || ''}
         <ColorButton onClick={copyItem}>
           <Icon icon="copy-1" />
           {__('Copy')}
         </ColorButton>
-
         <ArchiveBtn
           item={item}
           removeItem={removeItem}
@@ -122,7 +125,6 @@ class Actions extends React.Component<Props> {
           sendToBoard={sendToBoard}
           onChangeStage={onChangeStage}
         />
-
         {isEnabled('tags') && (
           <TaggerPopover
             type={TAG_TYPE}

@@ -5,6 +5,7 @@ import { List } from '../../styles';
 import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
 import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
+import PortablePurchases from '@erxes/ui-cards/src/purchases/components/PortablePurchases';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { __ } from 'coreui/utils';
@@ -46,6 +47,7 @@ export default class RightSidebar extends React.Component<Props> {
             <PortableDeals mainType="company" mainTypeId={company._id} />
             <PortableTickets mainType="company" mainTypeId={company._id} />
             <PortableTasks mainType="company" mainTypeId={company._id} />
+            <PortablePurchases mainType="company" mainTypeId={company._id} />
           </>
         )}
         {pluginsOfCompanySidebar(company)}

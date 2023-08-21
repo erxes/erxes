@@ -13,8 +13,8 @@ import List from '../../components/entries/List';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   contentType: IContentType;
@@ -69,8 +69,7 @@ export default compose(
     options: ({ contentType, queryParams }) => ({
       variables: {
         contentTypeId: contentType._id || '',
-        ...generatePaginationParams(queryParams),
-        perPage: 60
+        ...generatePaginationParams(queryParams)
       },
       fetchPolicy: 'network-only'
     })

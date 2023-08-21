@@ -102,7 +102,7 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
       <Wrapper>
         <Content>
           <video controls={true} loop={true}>
-            <source src={fileUrl} type="video/mp4" />
+            <source src={readFile(fileUrl)} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </Content>

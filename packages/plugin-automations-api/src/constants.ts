@@ -1,8 +1,32 @@
 export const ACTIONS = {
   WAIT: 'delay',
   IF: 'if',
-  SET_PROPERTY: 'setProperty'
+  SET_PROPERTY: 'setProperty',
+  SEND_EMAIL: 'sendEmail'
 };
+
+export const EMAIL_RECIPIENTS_TYPES = [
+  {
+    type: 'customMail',
+    name: 'customMails',
+    label: 'Custom Mails'
+  },
+  {
+    type: 'attributionMail',
+    name: 'attributionMails',
+    label: 'Attribution Mails'
+  },
+  {
+    type: 'segmentBased',
+    name: 'segmentBased',
+    label: 'Trigger Segment Based Mails'
+  },
+  {
+    type: 'teamMember',
+    name: 'teamMemberIds',
+    label: 'Team Members'
+  }
+];
 
 export const UI_ACTIONS = [
   {
@@ -37,10 +61,17 @@ export const UI_ACTIONS = [
     isAvailable: false
   },
   {
-    type: 'externalCommunications',
+    type: 'sendEmail',
     icon: 'fast-mail',
-    label: 'External communications',
-    description: 'Send email, SMS or in-app messenger messages to Contacts',
-    isAvailable: false
+    label: 'Send Email',
+    description: 'Send Email',
+    emailRecipientsConst: EMAIL_RECIPIENTS_TYPES,
+    isAvailable: true
   }
 ];
+
+export const STATUSES = {
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  ARCHIVED: 'archived'
+};

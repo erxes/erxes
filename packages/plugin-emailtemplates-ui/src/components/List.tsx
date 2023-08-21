@@ -13,10 +13,10 @@ import {
   TemplateBox,
   Templates,
   TemplateInfo
-} from '../styles';
-import Form from './Form';
+} from '@erxes/ui-emailtemplates/src/styles';
+import Form from '@erxes/ui-emailtemplates/src/components/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { router } from 'coreui/utils';
+import { router } from '@erxes/ui/src';
 import dayjs from 'dayjs';
 
 type Props = {

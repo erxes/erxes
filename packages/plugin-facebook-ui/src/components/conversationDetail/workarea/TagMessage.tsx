@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { __ } from '@erxes/ui/src/utils';
-import { Mask } from '@erxes/ui-inbox/src/inbox/styles';
+import { Mask, MaskText } from '@erxes/ui-inbox/src/inbox/styles';
 
 import TaggedMessageModal from './TaggedMessageModal';
 import { FacebookTaggedMessage } from './styles';
@@ -39,7 +39,7 @@ export default class TagMessage extends React.Component<Props, State> {
 
     return (
       <Mask id="mask">
-        <div>
+        <MaskText>
           {__(
             'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
           )}
@@ -50,7 +50,7 @@ export default class TagMessage extends React.Component<Props, State> {
               hideMask={hide}
             />
           </FacebookTaggedMessage>
-        </div>
+        </MaskText>
       </Mask>
     );
   }

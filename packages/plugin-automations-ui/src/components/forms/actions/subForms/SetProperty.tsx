@@ -17,7 +17,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import client from '@erxes/ui/src/apolloClient';
 import { excludedNames } from '../../../../containers/forms/actions/subForms/SetProperty';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 type Props = {
   closeModal: () => void;

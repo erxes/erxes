@@ -4,6 +4,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils/core';
 import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
 import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
+import PurchaseConvertTrigger from '@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger';
 import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -34,6 +35,7 @@ type Props = {
     ticketUrl?: string;
     dealUrl?: string;
     taskUrl?: string;
+    purchaseUrl?: string;
   };
   refetch: () => void;
 };
@@ -83,6 +85,12 @@ export default function ConvertTo(props: Props) {
           </li>
           <li key="task">
             <TaskConvertTrigger {...triggerProps} url={convertToInfo.taskUrl} />
+          </li>
+          <li key="purchase">
+            <PurchaseConvertTrigger
+              {...triggerProps}
+              url={convertToInfo.purchaseUrl}
+            />
           </li>
         </Dropdown.Menu>
       </Dropdown>

@@ -2,6 +2,7 @@ import { CategoryContent, CategoryItem } from "./styles";
 import { Config, IKbArticle } from "../../types";
 
 import Avatar from "../../common/Avatar";
+import { Card } from "../../styles/cards";
 import EmptyContent from "../../common/EmptyContent";
 import Link from "next/link";
 import React from "react";
@@ -24,7 +25,11 @@ class Lists extends React.Component<Props> {
               <h5 className="base-color">{article.title}</h5>
               <p>{article.summary}</p>
 
-              <Avatar date={article.modifiedDate} user={article.createdUser} />
+              <Avatar
+                date={article.modifiedDate}
+                user={article.createdUser}
+                viewCount={article.viewCount || 0}
+              />
             </CategoryContent>
           </CategoryItem>
         </Link>
@@ -36,7 +41,11 @@ class Lists extends React.Component<Props> {
     const { articles, config } = this.props;
 
     if (!articles || articles.length === 0) {
-      return <EmptyContent text="There are no articles!" />;
+      return (
+        <Card fullHeight={true}>
+          <EmptyContent text="There are no articles!" />
+        </Card>
+      );
     }
 
     if (articles && articles.length === 1) {

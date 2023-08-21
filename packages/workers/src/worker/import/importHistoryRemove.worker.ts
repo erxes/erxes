@@ -4,7 +4,8 @@ import {
   removeCustomers,
   removeDeals,
   removeTasks,
-  removeTickets
+  removeTickets,
+  removePurchases
 } from '../../messageBroker';
 
 import { connect } from '../utils';
@@ -32,6 +33,9 @@ connect()
 
       case 'deal':
         await removeDeals(subdomain, result);
+        break;
+      case 'purchase':
+        await removePurchases(subdomain, result);
         break;
       case 'task':
         await removeTasks(subdomain, result);

@@ -4,6 +4,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
 import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
+import PurchaseConvertTrigger from '@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger';
 import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
 import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -36,6 +37,7 @@ type Props = {
     ticketUrl?: string;
     dealUrl?: string;
     taskUrl?: string;
+    purchaseUrl?: string;
   };
   changeStatusComment: () => void;
   replyComment: (
@@ -210,6 +212,12 @@ export default class FacebookComment extends React.Component<
                     <TaskConvertTrigger
                       {...triggerProps}
                       url={convertToInfo.taskUrl}
+                    />
+                  </li>
+                  <li key="purchase">
+                    <PurchaseConvertTrigger
+                      {...triggerProps}
+                      url={convertToInfo.purchaseUrl}
                     />
                   </li>
                 </Dropdown.Menu>

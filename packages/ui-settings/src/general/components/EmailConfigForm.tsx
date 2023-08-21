@@ -1,4 +1,3 @@
-import gql from 'graphql-tag';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -6,7 +5,7 @@ import Info from '@erxes/ui/src/components/Info';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { gql, useQuery } from '@apollo/client';
 import styled from 'styled-components';
 import { queries } from '../graphql';
 

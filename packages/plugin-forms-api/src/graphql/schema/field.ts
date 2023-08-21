@@ -82,6 +82,8 @@ export const fieldsTypes = ({ products }) => `
     locationOptions: [LocationOption]
     objectListConfigs: [ObjectListConfig]
     optionsValues: String
+    subFieldIds: [String]
+    subFields: [Field]
 
     ${
       products
@@ -116,6 +118,7 @@ export const fieldsTypes = ({ products }) => `
     locationOptions: [LocationOptionInput]
     objectListConfigs: [objectListConfigInput]
     optionsValues: String
+    subFieldIds: [String]
     ${fieldCommonFields}
   }
 

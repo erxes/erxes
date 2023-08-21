@@ -27,7 +27,6 @@ import {
   KEY_LABELS,
   LANGUAGES,
   LOG_RETENTION_DURATION,
-  MEASUREMENTS,
   SERVICE_TYPES
 } from '@erxes/ui-settings/src/general/constants';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
@@ -274,15 +273,6 @@ class GeneralSettings extends React.Component<Props, State> {
             />
           </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Unit of measurement</ControlLabel>
-            <Select
-              options={MEASUREMENTS}
-              value={configsMap.dealUOM}
-              onChange={this.onChangeMultiCombo.bind(this, 'dealUOM')}
-              multi={true}
-            />
-          </FormGroup>
           <FormGroup>
             <ControlLabel>
               {__('Team members who can access every branches')}

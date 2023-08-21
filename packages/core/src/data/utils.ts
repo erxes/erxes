@@ -1,22 +1,27 @@
-import * as AWS from 'aws-sdk';
 import utils from '@erxes/api-utils/src';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
+
+import * as AWS from 'aws-sdk';
 import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
+import * as Handlebars from 'handlebars';
+import * as jimp from 'jimp';
+import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
+
+import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
+import {
+  sendCommonMessage,
+  sendContactsMessage,
+  sendLogsMessage
+} from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
-import * as _ from 'underscore';
-import * as Handlebars from 'handlebars';
-import * as nodemailer from 'nodemailer';
-import { sendCommonMessage, sendLogsMessage } from '../messageBroker';
-import { IModels } from '../connectionResolver';
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { getService, getServices, redis } from '../serviceDiscovery';
-import { sendContactsMessage } from '../messageBroker';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -297,7 +302,8 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'text/csv',
     'image/svg+xml',
     'text/plain',
-    'application/vnd.ms-excel'
+    'application/vnd.ms-excel',
+    'audio/mp3'
   ];
 
   const oldMsOfficeDocs = [
@@ -329,7 +335,8 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/pdf',
-    'image/gif'
+    'image/gif',
+    'audio/mp4'
   ];
 
   const UPLOAD_FILE_TYPES = await getConfig(
@@ -338,13 +345,10 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     models
   );
 
-  if (
-    !(
-      (UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')) ||
-      defaultMimeTypes
-    ).includes(mime)
-  ) {
-    return 'Invalid configured file type';
+  if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')).includes(mime)) {
+    if (!defaultMimeTypes.includes(mime)) {
+      return 'Invalid configured file type';
+    }
   }
 
   return 'ok';
@@ -441,6 +445,7 @@ export const uploadFileAWS = async (
   const s3 = await createAWS(models);
 
   // generate unique name
+
   const fileName = `${AWS_PREFIX}${Math.random()}${file.name.replace(
     / /g,
     ''
@@ -1052,6 +1057,33 @@ export const handleUnsubscription = async (
       },
       { $set: { isSubscribed: 'No' } }
     );
+  }
+};
+
+export const resizeImage = async (
+  file: any,
+  maxWidth?: number,
+  maxHeight?: number
+) => {
+  try {
+    let image = await jimp.read(`${file.path}`);
+
+    if (!image) {
+      throw new Error('Error reading image');
+    }
+
+    if (maxWidth && image.getWidth() > maxWidth) {
+      image = image.resize(maxWidth, jimp.AUTO);
+    } else if (maxHeight && image.getHeight() > maxHeight) {
+      image = image.resize(jimp.AUTO, maxHeight);
+    }
+
+    await image.writeAsync(file.path);
+
+    return file;
+  } catch (error) {
+    console.error(error);
+    return file;
   }
 };
 

@@ -58,7 +58,12 @@ cube(`Conversations`, {
     },
 
     assignedUser: {
-      sql: `${Users}.\`username\``,
+      sql: `
+        CASE
+          WHEN ${Users}.\`details.fullName\` IS NULL OR ${Users}.\`details.fullName\` = '' THEN ${Users}.\`username\`
+          ELSE ${Users}.\`details.fullName\`
+        END
+      `,
       type: `string`,
       title: 'Assigned User'
     },
@@ -75,7 +80,14 @@ cube(`Conversations`, {
         when: [
           {
             sql: `${CUBE.closeduserid} = ${Users._id}`,
-            label: { sql: `${Users}.username` }
+            label: {
+              sql: `
+                  CASE
+                    WHEN ${Users}.\`details.fullName\` IS NULL OR ${Users}.\`details.fullName\` = '' THEN ${Users}.\`username\`
+                    ELSE ${Users}.\`details.fullName\`
+                  END
+                `
+            }
           }
         ],
         else: {}
@@ -95,7 +107,14 @@ cube(`Conversations`, {
         when: [
           {
             sql: `${CUBE.firstrespondeduserid} = ${Users._id}`,
-            label: { sql: `${Users}.username` }
+            label: {
+              sql: `
+                  CASE
+                    WHEN ${Users}.\`details.fullName\` IS NULL OR ${Users}.\`details.fullName\` = '' THEN ${Users}.\`username\`
+                    ELSE ${Users}.\`details.fullName\`
+                  END
+                `
+            }
           }
         ],
         else: {}

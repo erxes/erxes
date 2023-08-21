@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { ChildProps, graphql } from 'react-apollo';
+import { graphql, ChildProps } from '@apollo/client/react/hoc';
 
 import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -8,7 +8,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import SelectBoards from '../components/SelectBoardPipeline';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { mutations } from '@erxes/ui-cards/src/settings/boards/graphql';
 import { queries } from '@erxes/ui-cards/src/boards/graphql';
 import { withProps } from '@erxes/ui/src/utils';

@@ -25,6 +25,14 @@ const commonParams = `
   $branchIds:[String]
   $departmentIds:[String]
   ${conformityQueryFields}
+  $createdStartDate: Date
+  $createdEndDate: Date
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
 `;
 
 const commonParamDefs = `
@@ -48,6 +56,14 @@ const commonParamDefs = `
   branchIds: $branchIds,
   departmentIds: $departmentIds,
   ${conformityQueryFieldDefs}
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
 `;
 
 export const ticketFields = `
@@ -103,6 +119,19 @@ const ticketDetail = `
     ticketDetail(_id: $_id) {
       ${ticketFields}
       ${commonFields}
+    }
+  }
+`;
+
+const clientPortalComments = `
+  query clientPortalComments($typeId: String!, $type: String!) {
+    clientPortalComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdUser 
+      createdAt
+      userType
+      type
     }
   }
 `;
@@ -167,5 +196,6 @@ export default {
   ticketsTotalCount,
   ticketDetail,
   archivedTickets,
-  archivedTicketsCount
+  archivedTicketsCount,
+  clientPortalComments
 };

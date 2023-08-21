@@ -9,6 +9,12 @@ export const NOTIFICATION_TYPES = {
   DEAL_CHANGE: 'dealChange',
   DEAL_DUE_DATE: 'dealDueDate',
   DEAL_DELETE: 'dealDelete',
+  PURCHASE_ADD: 'purchaseAdd',
+  PURCHASE_REMOVE_ASSIGN: 'purchaseRemoveAssign',
+  PURCHASE_EDIT: 'purchaseEdit',
+  PURCHASE_CHANGE: 'purchaseChange',
+  PURCHASE_DUE_DATE: 'purchaseDueDate',
+  PURCHASE_DELETE: 'purchaseDelete',
   GROWTHHACK_ADD: 'growthHackAdd',
   GROWTHHACK_REMOVE_ASSIGN: 'growthHackRemoveAssign',
   GROWTHHACK_EDIT: 'growthHackEdit',
@@ -30,6 +36,8 @@ export const NOTIFICATION_TYPES = {
   CUSTOMER_MENTION: 'customerMention',
   COMPANY_MENTION: 'companyMention',
   IMPORT_DONE: 'importDone',
+  CHAT_MENTION: 'chatMention',
+  CHAT_RECEIVE: 'chatReceive',
   ALL: [
     'channelMembersChange',
     'conversationAddMessage',
@@ -41,6 +49,12 @@ export const NOTIFICATION_TYPES = {
     'dealChange',
     'dealDueDate',
     'dealDelete',
+    'purchaseAdd',
+    'purchaseRemoveAssign',
+    'purchaseEdit',
+    'purchaseChange',
+    'purchaseDueDate',
+    'purchaseDelete',
     'growthHackAdd',
     'growthHackRemoveAssign',
     'growthHackEdit',
@@ -63,150 +77,7 @@ export const NOTIFICATION_TYPES = {
     'companyMention',
     'plugin',
     'importDone',
-  ],
+    'chatMention',
+    'chatReceive'
+  ]
 };
-
-export const NOTIFICATION_MODULES = [
-  {
-    name: 'conversations',
-    description: 'Conversations',
-    types: [
-      {
-        name: 'conversationStateChange',
-        text: 'State change',
-      },
-      {
-        name: 'conversationAssigneeChange',
-        text: 'Assignee change',
-      },
-      {
-        name: 'conversationAddMessage',
-        text: 'Add message',
-      },
-    ],
-  },
-
-  {
-    name: 'channels',
-    description: 'Channels',
-    types: [
-      {
-        name: 'channelMembersChange',
-        text: 'Members change',
-      },
-    ],
-  },
-
-  {
-    name: 'deals',
-    description: 'Deals',
-    types: [
-      {
-        name: 'dealAdd',
-        text: 'Assigned a new deal  card',
-      },
-      {
-        name: 'dealRemoveAssign',
-        text: 'Removed from the deal card',
-      },
-      {
-        name: 'dealEdit',
-        text: 'Deal card edited',
-      },
-      {
-        name: 'dealChange',
-        text: 'Moved between stages',
-      },
-      {
-        name: 'dealDueDate',
-        text: 'Due date is near',
-      },
-      {
-        name: 'dealDelete',
-        text: 'Deal card deleted',
-      },
-    ],
-  },
-
-  {
-    name: 'tickets',
-    description: 'Tickets',
-    types: [
-      {
-        name: 'ticketAdd',
-        text: 'Assigned a new ticket  card',
-      },
-      {
-        name: 'ticketRemoveAssign',
-        text: 'Removed from the ticket card',
-      },
-      {
-        name: 'ticketEdit',
-        text: 'Ticket card edited',
-      },
-      {
-        name: 'ticketChange',
-        text: 'Moved between stages',
-      },
-      {
-        name: 'ticketDueDate',
-        text: 'Due date is near',
-      },
-      {
-        name: 'ticketDelete',
-        text: 'Ticket card deleted',
-      },
-    ],
-  },
-
-  {
-    name: 'tasks',
-    description: 'Tasks',
-    types: [
-      {
-        name: 'taskAdd',
-        text: 'Assigned a new task  card',
-      },
-      {
-        name: 'taskRemoveAssign',
-        text: 'Removed from the task card',
-      },
-      {
-        name: 'taskEdit',
-        text: 'Task card edited',
-      },
-      {
-        name: 'taskChange',
-        text: 'Moved between stages',
-      },
-      {
-        name: 'taskDueDate',
-        text: 'Due date is near',
-      },
-      {
-        name: 'taskDelete',
-        text: 'Task card deleted',
-      },
-    ],
-  },
-  {
-    name: 'customers',
-    description: 'Customers',
-    types: [
-      {
-        name: 'customerMention',
-        text: 'Mention on customer note',
-      },
-    ],
-  },
-  {
-    name: 'companies',
-    description: 'Companies',
-    types: [
-      {
-        name: 'companyMention',
-        text: 'Mention on company note',
-      },
-    ],
-  },
-];

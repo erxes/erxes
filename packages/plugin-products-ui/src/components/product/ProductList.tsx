@@ -114,7 +114,7 @@ class List extends React.Component<IProps, State> {
     this.timer = setTimeout(() => {
       router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
-    }, 500);
+    }, 1500);
   };
 
   moveCursorAtTheEnd(e) {
@@ -196,11 +196,7 @@ class List extends React.Component<IProps, State> {
               <th>{__('Name')}</th>
               <th>{__('Type')}</th>
               <th>{__('Category')}</th>
-              <th>{__('Supply')}</th>
-              <th>{__('Product count')}</th>
-              <th>{__('Minimium count')}</th>
               <th>{__('Unit Price')}</th>
-              <th>{__('SKU')}</th>
               <th>{__('Tags')}</th>
               <th>{__('Actions')}</th>
             </tr>
@@ -255,7 +251,9 @@ class List extends React.Component<IProps, State> {
 
       actionBarRight = (
         <BarItems>
-          {isEnabled('documents') && <ProductsPrintAction bulk={bulk} />}
+          {(isEnabled('documents') && (
+            <ProductsPrintAction bulk={this.props.bulk} />
+          )) || <></>}
 
           {bulk.length === 2 && (
             <ModalTrigger

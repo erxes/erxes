@@ -140,7 +140,7 @@ export default class NavigationMore extends React.Component<Props, State> {
 
     return (
       <div ref={this.wrapperRef}>
-        <NavItem>
+        <NavItem className={`more-${navCollapse}`}>
           <NavMenuItem navCollapse={navCollapse}>
             <a onClick={() => toggleMenu('more')}>
               <NavIcon className="icon-ellipsis-h" />
