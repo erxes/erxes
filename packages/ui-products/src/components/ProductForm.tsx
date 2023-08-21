@@ -113,6 +113,10 @@ class Form extends React.Component<Props, State> {
           continue;
         }
 
+        if (value.type === 'char') {
+          maskList.push(value.char);
+        }
+
         if (value.type === 'customField' && value.matches) {
           maskList.push(`(${Object.values(value.matches).join('|')})`);
         }
@@ -440,7 +444,9 @@ class Form extends React.Component<Props, State> {
                 value={code}
                 required={true}
                 onChange={(e: any) => {
-                  this.setState({ code: e.target.value });
+                  this.setState({
+                    code: e.target.value.replace(/ /g, '')
+                  });
                 }}
               />
             </FormGroup>

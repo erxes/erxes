@@ -114,7 +114,7 @@ class List extends React.Component<IProps, State> {
     this.timer = setTimeout(() => {
       router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
-    }, 1000);
+    }, 1500);
   };
 
   moveCursorAtTheEnd(e) {

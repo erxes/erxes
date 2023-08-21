@@ -163,7 +163,7 @@ class CategoryMask extends React.Component<Props, State> {
     if (!activePerVal.type) {
       return null;
     }
-    console.log(isEdit, 'iiiiiiiiiiiiiiiiiiiiiiiiii');
+
     const onChange = e => {
       const name = e.target.name;
       const value = e.target.value;
@@ -292,8 +292,8 @@ class CategoryMask extends React.Component<Props, State> {
                   disabled={!isEdit}
                   options={[
                     { value: 'char', label: 'Characters' },
-                    { value: 'customField', label: 'Custom properties' },
-                    { value: 'string', label: 'Name of section' }
+                    { value: 'customField', label: 'Custom properties' }
+                    // { value: 'string', label: 'Name of section' }
                   ]}
                   onChange={changeType}
                 />

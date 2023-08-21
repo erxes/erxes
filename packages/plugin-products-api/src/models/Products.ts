@@ -121,10 +121,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     public static async updateProduct(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
 
-      doc.code = doc.code
-        .replace(/\*/g, '')
-        .replace(/_/g, '')
-        .replace(/ /g, '');
+      doc.code = doc.code.replace(/ /g, '');
 
       if (product.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
@@ -159,7 +156,6 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         product.customFieldsData,
         doc.customFieldsData
       );
-      console.log(doc.customFieldsData);
 
       await models.Products.updateOne({ _id }, { $set: doc });
 

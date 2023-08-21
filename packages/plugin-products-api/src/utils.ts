@@ -235,6 +235,10 @@ export const checkCodeMask = async (
       continue;
     }
 
+    if (value.type === 'char') {
+      maskList.push(value.char);
+    }
+
     if (value.type === 'customField' && value.matches) {
       maskList.push(`(${Object.values(value.matches).join('|')})`);
     }
