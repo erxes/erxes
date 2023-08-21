@@ -36,6 +36,7 @@ export const tumentechDealSchema = schemaHooksWrapper(
     startPlaceId: field({ type: String, label: 'Deal start place Id' }),
     endPlaceId: field({ type: String, label: 'Deal end place Id' }),
     driverIds: field({ type: [String], label: 'Driver Ids' }),
+    driverType: field({ type: Number, label: 'Driver type' }),
     requiredCarCategoryIds: field({
       type: [String],
       label: 'Required car category Ids'

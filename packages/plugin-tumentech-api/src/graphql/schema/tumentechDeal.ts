@@ -6,6 +6,7 @@ export const types = ({ cards }) => `
     
     ${cards ? `deal: Deal` : ''}
 
+    driverType: Int
     startPlaceId: String
     endPlaceId: String
     startPlace: Place
@@ -31,7 +32,7 @@ export const types = ({ cards }) => `
 `;
 
 export const queries = `
-    tumentechDeals(page: Int, perPage: Int, dealIds: [String]): TumentechDealsResponse
+    tumentechDeals(page: Int, perPage: Int, dealIds: [String],stageId: String, driverType: Int): TumentechDealsResponse
     tumentechDealDetail(_id: String, dealId: String): TumentechDeal
 `;
 
