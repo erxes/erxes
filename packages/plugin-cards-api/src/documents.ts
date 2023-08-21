@@ -6,7 +6,7 @@ import {
   sendFormsMessage
 } from './messageBroker';
 import * as _ from 'lodash';
-import { match } from 'assert';
+
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);
 };
@@ -242,16 +242,7 @@ export default {
       );
     }
 
-    const replaceProducts = async (key, type, pdMatches) => {
-      let cols: string[] = [];
-      if (pdMatches.length) {
-        for (const match of pdMatches) {
-          cols.push(match.replace('{{ productsData.', '').replace(' }}', ''));
-        }
-      }
-      if (!cols.length) {
-        cols = ['quantity', 'unitPrice', 'amount'];
-      }
+    const replaceProducts = async (key, type) => {
       let totalAmount = 0;
       let discount = 0;
 
@@ -325,20 +316,15 @@ export default {
       return { totalAmount, discount };
     };
 
-    const pdMatches = replacedContent.match(/{{ productsData.\w+ }}/g);
-
     const replaceProductsResult = await replaceProducts(
       /{{ productsInfo }}/g,
-      'product',
-      pdMatches
+      'product'
     );
-
     const productsTotalAmount = replaceProductsResult.totalAmount;
 
     const replaceServicesResult = await replaceProducts(
       /{{ servicesInfo }}/g,
-      'service',
-      pdMatches
+      'service'
     );
     const servicesTotalAmount = replaceServicesResult.totalAmount;
 
