@@ -69,8 +69,7 @@ export default compose(
     options: ({ contentType, queryParams }) => ({
       variables: {
         contentTypeId: contentType._id || '',
-        ...generatePaginationParams(queryParams),
-        perPage: 60
+        ...generatePaginationParams(queryParams)
       },
       fetchPolicy: 'network-only'
     })

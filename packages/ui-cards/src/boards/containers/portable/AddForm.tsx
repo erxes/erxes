@@ -275,9 +275,9 @@ export default (props: IProps) =>
       }),
       graphql<FinalProps, StagesQueryResponse>(gql(queries.stages), {
         name: 'stagesQuery',
-        options: (props: FinalProps) => ({
+        options: (finalProps: FinalProps) => ({
           variables: {
-            pipelineId: props.pipelineId || ''
+            pipelineId: finalProps.pipelineId || ''
           }
         })
       })

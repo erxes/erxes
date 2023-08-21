@@ -1,7 +1,7 @@
-import { NOTIFICATION_MODULES } from '../../constants';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
+import { serviceDiscovery } from '../../configs';
 
 const notificationQueries = {
   /**
@@ -99,8 +99,27 @@ const notificationQueries = {
   /**
    * Module list used in notifications
    */
-  notificationsModules() {
-    return NOTIFICATION_MODULES;
+  async notificationsModules() {
+    const services = await serviceDiscovery.getServices();
+    const modules: Array<{
+      name: string;
+      types: any[];
+      description: string;
+    }> = [];
+
+    for (const serviceName of services) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config?.meta || {};
+
+      if (meta && meta.notificationModules) {
+        const notificationModules = meta.notificationModules || [];
+        for (const notificationModule of notificationModules) {
+          modules.push(notificationModule);
+        }
+      }
+    }
+
+    return modules;
   },
 
   /**

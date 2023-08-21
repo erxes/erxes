@@ -19,12 +19,15 @@ import {
   generateForwardMailContent,
   generatePreviousContents
 } from '../../containers/utils';
+import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 
+import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import EmailTemplate from './emailTemplate/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { IAttachment } from '@erxes/ui/src/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -34,15 +37,15 @@ import MailChooser from './MailChooser';
 import { Meta } from './styles';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
+import Uploader from '@erxes/ui/src/components/Uploader';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
   currentUser: IUser;
   fromEmail?: string;
+  emailTo?: string;
   mailData?: IMail;
   clearOnSubmit?: boolean;
   isReply?: boolean;
@@ -98,7 +101,7 @@ class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { isForward, replyAll, mailData = {} as IMail } = props;
+    const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
     const mailWidget = JSON.parse(localStorage.getItem('emailWidgetData'));
 
@@ -118,7 +121,13 @@ class MailForm extends React.Component<Props, State> {
     const sender =
       this.getEmailSender(from.email || props.fromEmail) || mailWidget?.to;
 
-    const to = mailWidget ? mailWidget.to : isForward ? '' : sender;
+    const to = emailTo
+      ? emailTo
+      : mailWidget
+      ? mailWidget.to
+      : isForward
+      ? ''
+      : sender;
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
       (localStorage.getItem(`reply_${mailKey}`) || '').length > 0;
@@ -166,7 +175,7 @@ class MailForm extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { name, content } = this.state;
+    const { name, content, to } = this.state;
 
     if (prevState.content !== content) {
       localStorage.setItem(name, content);
@@ -174,6 +183,10 @@ class MailForm extends React.Component<Props, State> {
 
     if (prevProps.clear !== this.props.clear) {
       this.clearContent();
+    }
+
+    if (prevProps.emailTo !== this.props.emailTo) {
+      this.setState({ to: this.props.emailTo });
     }
   }
 
@@ -660,45 +673,62 @@ class MailForm extends React.Component<Props, State> {
       this.setState({ attachments });
     };
 
+    const removeAttachment = (index: number) => {
+      const attachments = [...this.state.attachments];
+
+      attachments.splice(index, 1);
+
+      this.setState({ attachments });
+
+      onChangeAttachment(attachments);
+    };
+
     return (
-      <EditorFooter>
-        <div>
-          {this.renderSubmit('Send', this.onSubmit, 'primary')}
-          {isReply &&
-            this.renderSubmit(
-              'Send and Resolve',
-              onSubmitResolve,
-              'success',
-              'check-circle'
-            )}
-        </div>
-        <ToolBar>
-          <Tip text="Attach file" placement="top">
-            <UploaderWrapper>
-              <Uploader
-                defaultFileList={this.state.attachments || []}
-                onChange={onChangeAttachment}
-                text=" "
-                icon="attach"
-              />
-            </UploaderWrapper>
-          </Tip>
-          {this.renderIcon({
-            text: 'Delete',
-            icon: 'trash-alt',
-            onClick: toggleReply
-          })}
-          {isEnabled('emailtemplates') && (
-            <EmailTemplate
-              onSelect={this.templateChange}
-              totalCount={totalCount}
-              fetchMoreEmailTemplates={fetchMoreEmailTemplates}
-              targets={generateEmailTemplateParams(emailTemplates || [])}
-              history={history}
+      <div>
+        <UploaderWrapper>
+          <Attachment
+            attachment={this.state.attachments[0] || ({} as IAttachment)}
+            attachments={this.state.attachments || ([] as IAttachment[])}
+            removeAttachment={removeAttachment}
+            withoutPreview={true}
+          />
+        </UploaderWrapper>
+        <EditorFooter>
+          <div>
+            {this.renderSubmit('Send', this.onSubmit, 'primary')}
+            {isReply &&
+              this.renderSubmit(
+                'Send and Resolve',
+                onSubmitResolve,
+                'success',
+                'check-circle'
+              )}
+          </div>
+          <ToolBar>
+            <Uploader
+              defaultFileList={this.state.attachments || []}
+              onChange={onChangeAttachment}
+              icon="attach"
+              showOnlyIcon={true}
+              noPreview={true}
             />
-          )}
-        </ToolBar>
-      </EditorFooter>
+            {this.renderIcon({
+              text: 'Delete',
+              icon: 'trash-alt',
+              onClick: toggleReply
+            })}
+            {isEnabled('emailtemplates') && (
+              <EmailTemplate
+                onSelect={this.templateChange}
+                totalCount={totalCount}
+                fetchMoreEmailTemplates={fetchMoreEmailTemplates}
+                targets={generateEmailTemplateParams(emailTemplates || [])}
+                history={history}
+              />
+            )}
+          </ToolBar>
+        </EditorFooter>
+      </div>
     );
   }
 

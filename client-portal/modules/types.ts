@@ -436,3 +436,12 @@ export interface IPaymentsData {
     amount?: number;
   };
 }
+
+export interface LogicParams {
+  fieldId: string;
+  operator: string;
+  logicValue: any;
+  validation?: string;
+  fieldValue?: any;
+  type?: string;
+}

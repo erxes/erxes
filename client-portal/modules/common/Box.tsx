@@ -1,9 +1,9 @@
-import { SectionContainer, SidebarCollapse } from "../styles/products";
+import { SectionContainer, SidebarCollapse } from '../styles/products';
 
-import Icon from "./Icon";
-import React from "react";
-import Sidebar from "./Sidebar";
-import { getConfig, setConfig } from "../utils/products";
+import Icon from './Icon';
+import React from 'react';
+import Sidebar from './Sidebar';
+import { getConfig, setConfig } from '../utils/products';
 type BoxProps = {
   title: string;
   name?: string;
@@ -12,6 +12,8 @@ type BoxProps = {
   callback?: () => void;
   collapsible?: boolean;
   isOpen?: boolean;
+  titleChildren?: React.ReactNode;
+  hasShadow?: boolean;
 };
 
 type BoxState = {
@@ -52,7 +54,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
   renderDropBtn() {
     const { isOpen } = this.state;
-    const icon = isOpen ? "angle-down" : "angle-right";
+    const icon = isOpen ? 'angle-down' : 'angle-right';
     const { QuickButtons } = Sidebar.Section;
     const { extraButtons } = this.props;
 
@@ -73,11 +75,15 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const { Title } = Section;
 
     const { isOpen } = this.state;
-    const { children, title, collapsible } = this.props;
+    const { children, title, collapsible, titleChildren } = this.props;
 
+    const shadow = this.props.hasShadow || false;
     return (
-      <SectionContainer hasShadow={true}>
-        <Title onClick={this.toggle}>{title}</Title>
+      <SectionContainer hasShadow={shadow}>
+        <Title onClick={this.toggle}>
+          {title}
+          {titleChildren}
+        </Title>
         {this.renderDropBtn()}
         {isOpen ? (
           <Section collapsible={collapsible}>{children}</Section>

@@ -251,7 +251,9 @@ class List extends React.Component<IProps, State> {
 
       actionBarRight = (
         <BarItems>
-          {isEnabled('documents') && <ProductsPrintAction bulk={bulk} />}
+          {(isEnabled('documents') && (
+            <ProductsPrintAction bulk={this.props.bulk} />
+          )) || <></>}
 
           {bulk.length === 2 && (
             <ModalTrigger

@@ -168,11 +168,13 @@ export const mutations = () => `
   clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): JSON
   clientPortalUsersVerify(userIds: [String]!, type: String): JSON
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): JSON
+  clientPortalLoginWithPhone(phone: String!, clientPortalId: String!, deviceToken: String): JSON
+  clientPortalLoginWithSocialPay(clientPortalId: String!, token: String!) : JSON
   clientPortalRefreshToken: String
   clientPortalGoogleAuthentication(clientPortalId: String, code: String): JSON
   clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): JSON
   clientPortalLogout: String
-  clientPortalLoginWithPhone(phone: String!, clientPortalId: String!, deviceToken: String): JSON
+  
   clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!
   clientPortalUsersVerifyPhone(code: String!): String!
 

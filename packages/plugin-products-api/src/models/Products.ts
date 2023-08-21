@@ -130,6 +130,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         await this.checkCodeDuplication(doc.code);
       }
 
+      if (doc.code) {
+        doc.uom = await models.Uoms.checkUOM(doc);
+      }
+
       if (doc.barcodes) {
         doc.barcodes = doc.barcodes
           .filter(bc => bc)

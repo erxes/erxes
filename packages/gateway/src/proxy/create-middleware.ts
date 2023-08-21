@@ -12,7 +12,11 @@ const onProxyReq = (proxyReq, req: any) => {
   proxyReq.setHeader('userid', req.user ? req.user._id : '');
 };
 
-export function applyProxiesCoreless(
+const forbid = (_req, res) => {
+  res.status(403).send();
+};
+
+export async function applyProxiesCoreless(
   app: Express,
   targets: ErxesProxyTarget[]
 ) {
@@ -20,13 +24,15 @@ export function applyProxiesCoreless(
     '^/graphql',
     createProxyMiddleware({
       pathRewrite: { '^/graphql': '/' },
-      target: `http://localhost:${apolloRouterPort}`,
+      target: `http://127.0.0.1:${apolloRouterPort}`,
       onProxyReq
     })
   );
 
   for (const target of targets) {
     const path = `^/pl(-|:)${target.name}`;
+
+    app.use(`${path}/rpc`, forbid);
 
     app.use(
       path,
@@ -46,6 +52,7 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
   if (!core) {
     throw new Error('core service not found');
   }
+  app.use('/rpc', forbid);
   app.use(
     '/',
     createProxyMiddleware({

@@ -109,5 +109,21 @@ export default {
     }
 
     return { status: 'healthy' };
+  },
+
+  async data(
+    integration: IIntegrationDocument,
+    _args,
+    { subdomain }: IContext
+  ) {
+    const inboxId: string = integration._id;
+
+    return await sendCommonMessage({
+      serviceName: integration.kind,
+      subdomain,
+      action: 'detailIntegration',
+      data: { inboxId },
+      isRPC: true
+    });
   }
 };

@@ -128,7 +128,7 @@ const DetailHeader = styled.div`
   span {
     font-size: 14px;
     cursor: pointer;
-    transition: all ease .3s;
+    transition: all ease 0.3s;
     color: ${colors.colorCoreGray};
     display: flex;
     align-items: center;
@@ -139,22 +139,20 @@ const DetailHeader = styled.div`
   }
 `;
 
-const TicketDetailContent = styled.div`
-  
-`;
+const TicketDetailContent = styled.div``;
 
 const DetailRow = styledTS<{ type?: string }>(styled.div)`
   margin-bottom: ${dimensions.unitSpacing + 5}px;
-  display: ${props => props.type === "row" && 'flex'};
-  align-items: ${props => props.type === "row" && 'center'};
+  display: ${props => props.type === 'row' && 'flex'};
+  align-items: ${props => props.type === 'row' && 'center'};
 
   label {
     color: #999;
     font-weight: 500;
     text-transform: capitalize;
     font-size: 13px;
-    margin: ${props => props.type === "row" ? 0 : '0 0 8px 0'};
-    width: ${props => props.type === "row" && '120px'};
+    margin: ${props => (props.type === 'row' ? 0 : '0 0 8px 0')};
+    width: ${props => props.type === 'row' && '120px'};
   }
   
   span {
@@ -297,7 +295,7 @@ const RightSidebar = styled(Card)`
 
 const GroupList = styled.div`
   margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
-  border-radius: 12px;
+  border-radius: 0 0 12px 12px;
   border: 1px solid ${colors.borderDarker};
   background: ${colors.colorWhite};
 
@@ -319,7 +317,19 @@ const GroupWrapper = styled.div`
   }
 `;
 
-const CardTab = styledTS<{baseColor?: string}>(styled.div)`
+const GroupBoxWrapper = styled.div`
+  background: ${colors.colorWhite};
+
+  h3 {
+    padding-left: ${dimensions.coreSpacing}px;
+  }
+
+  border-radius: 12px;
+
+  border-top: 1px solid ${colors.borderPrimary};
+`;
+
+const CardTab = styledTS<{ baseColor?: string }>(styled.div)`
   margin-right: ${dimensions.coreSpacing}px;
   font-size: 13px;
   background: #f4f4f4;
@@ -335,7 +345,8 @@ const CardTab = styledTS<{baseColor?: string}>(styled.div)`
     text-transform: capitalize;
     
     &.active {
-      background: ${props => props.baseColor ? props.baseColor : colors.colorSecondary};
+      background: ${props =>
+        props.baseColor ? props.baseColor : colors.colorSecondary};
       color: ${colors.colorWhite};
     }
   }
@@ -349,7 +360,7 @@ const Assignees = styled.div`
   img {
     border-radius: 24px;
     border: 1px solid ${colors.borderPrimary};
-    margin-right: ${dimensions.unitSpacing- 5}px;
+    margin-right: ${dimensions.unitSpacing - 5}px;
   }
 `;
 
@@ -370,7 +381,7 @@ const FilterGroup = styled.div`
   @media (max-width: 700px) {
     justify-content: space-between;
     margin-bottom: ${dimensions.unitSpacing}px;
-   }
+  }
 `;
 
 export {
@@ -397,5 +408,6 @@ export {
   CardTab,
   Card,
   FlexRow,
-  Assignees
+  Assignees,
+  GroupBoxWrapper
 };

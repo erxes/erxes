@@ -214,7 +214,6 @@ class WorkArea extends React.Component<FinalProps, State> {
     callback?: (e?) => void;
   }) => {
     const { addMessageMutation, currentId, dmConfig } = this.props;
-
     // immediate ui update =======
     let update;
 
@@ -424,9 +423,9 @@ const WithConsumer = (props: Props) => {
           return null;
         }
 
-        if (!WithQuery) {
-          WithQuery = generateWithQuery(props);
-        }
+        // if (!WithQuery) {
+        WithQuery = generateWithQuery(props);
+        // }
 
         return <WithQuery {...props} currentUser={currentUser} />;
       }}

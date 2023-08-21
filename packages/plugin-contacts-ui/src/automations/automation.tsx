@@ -1,5 +1,6 @@
 import React from 'react';
 import HistoryName from './components/HistoryName';
+import SelectRecipients from './components/SelectRecipients';
 
 const Automations = props => {
   const { componentType } = props;
@@ -7,7 +8,8 @@ const Automations = props => {
   switch (componentType) {
     case 'historyName':
       return <HistoryName {...props} />;
-
+    case 'selectRecipients':
+      return <SelectRecipients {...props} />;
     default:
       return null;
   }

@@ -27,6 +27,7 @@ type TotalCount = {
   line: number;
   telegram: number;
   viber: number;
+  calls: number;
   twilio: number;
   whatsapp: number;
   exchange: number;

@@ -26,6 +26,7 @@ import automations from './automations';
 import cronjobs from './cronjobs/conversations';
 import dashboards from './dashboards';
 import webhookMiddleware from './middlewares/webhookMiddleware';
+import { NOTIFICATION_MODULES } from './constants';
 import payment from './payment';
 
 export let mainDb;
@@ -58,6 +59,7 @@ export default {
     cronjobs,
     permissions,
     dashboards,
+    notificationModules: NOTIFICATION_MODULES,
     payment
   },
   apolloServerContext: async (context, req, res) => {
