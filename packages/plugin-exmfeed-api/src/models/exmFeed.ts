@@ -30,14 +30,16 @@ export const loadFeedClass = models => {
      * Create new exm
      */
     public static async createExmFeed(doc: any, user: any) {
-      const { eventData } = doc;
+      if (doc && doc.contentType === 'event') {
+        const { eventData } = doc;
 
-      if (!eventData.startDate || !eventData.endDate) {
-        throw new Error('StartDate and EndDate must be chosen');
-      }
+        if (!eventData.startDate || !eventData.endDate) {
+          throw new Error('StartDate and EndDate must be chosen');
+        }
 
-      if (!eventData.where) {
-        throw new Error('Where must be chosen');
+        if (!eventData.where) {
+          throw new Error('Where must be chosen');
+        }
       }
 
       const exm = await models.ExmFeed.create({
