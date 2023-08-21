@@ -333,7 +333,8 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/pdf',
-    'image/gif'
+    'image/gif',
+    'audio/mp4'
   ];
 
   const UPLOAD_FILE_TYPES = await getConfig(
@@ -342,13 +343,10 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     models
   );
 
-  if (
-    !(
-      (UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')) ||
-      defaultMimeTypes
-    ).includes(mime)
-  ) {
-    return 'Invalid configured file type';
+  if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')).includes(mime)) {
+    if (!defaultMimeTypes.includes(mime)) {
+      return 'Invalid configured file type';
+    }
   }
 
   return 'ok';

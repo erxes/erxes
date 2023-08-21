@@ -45,6 +45,7 @@ const contractFields = `
   currency
   classification
   expiredDays
+  loanBalanceAmount
 `;
 
 const listParamsDef = `

@@ -47,7 +47,7 @@ export interface IContractModel extends Model<IContractDocument> {
   ): Promise<IContractDocument>;
   createContract(doc: IContract): Promise<IContractDocument>;
   updateContract(_id, doc: IContract): Promise<IContractDocument>;
-  closeContract(messageBroker, memoryStorage, doc: ICloseVariable);
+  closeContract(subdomain, doc: ICloseVariable);
   removeContracts(_ids);
 }
 export const loadContractClass = (models: IModels) => {
@@ -121,17 +121,13 @@ export const loadContractClass = (models: IModels) => {
     /**
      * Close Contract
      */
-    public static async closeContract(
-      subdomain,
-      memoryStorage,
-      doc: ICloseVariable
-    ) {
+    public static async closeContract(subdomain, doc: ICloseVariable) {
       const contract = await models.Contracts.getContract({
         _id: doc.contractId
       });
       const closeInfo = await getCloseInfo(
         models,
-        memoryStorage,
+        subdomain,
         contract,
         doc.closeDate
       );
@@ -166,6 +162,11 @@ export const loadContractClass = (models: IModels) => {
      * Remove Contract category
      */
     public static async removeContracts(_ids) {
+      const transactions = await models.Transactions.count({
+        contractId: _ids
+      });
+      if (transactions > 0)
+        throw new Error('You can not delete contract with transaction');
       await models.Schedules.deleteMany({
         contractId: { $in: _ids }
       });

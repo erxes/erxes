@@ -68,6 +68,8 @@ export type IPos = {
   checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes?: string[];
+  isCheckRemainder: boolean;
+  checkExcludeCategoryIds: string[];
 };
 
 export type ISlot = {

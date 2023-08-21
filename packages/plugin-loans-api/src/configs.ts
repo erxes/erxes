@@ -6,6 +6,7 @@ import documents from './documents';
 import forms from './forms';
 import imports from './imports';
 import exporter from './exporter';
+import logs from './logUtils';
 import * as permissions from './permissions';
 import payment from './payment';
 import { checkContractScheduleAnd } from './cronjobs/contractCronJobs';
@@ -46,10 +47,12 @@ export default {
     graphqlPubsub = options.pubsubClient;
   },
   meta: {
+    logs: { consumers: logs },
     cronjobs: {
       handleDailyJob: checkContractScheduleAnd
     },
     documents,
+    permissions,
     forms,
     imports,
     exporter,

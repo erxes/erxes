@@ -291,7 +291,9 @@ export const sendMessage = async (
     throw new Error(`client not found during ${queueName}`);
   }
 
-  return client[isRPC ? (isMQ ? 'sendRPCMessageMq' : 'sendRPCMessage') : 'sendMessage'](queueName, {
+  return client[
+    isRPC ? (isMQ ? 'sendRPCMessageMq' : 'sendRPCMessage') : 'sendMessage'
+  ](queueName, {
     subdomain,
     data,
     defaultValue,
