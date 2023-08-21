@@ -51,33 +51,36 @@ export default function List(props: Props) {
     <body>
       <div class="wrapper">
       <div class="paper">
-          <div>
-            <span><Strong>Date: </Strong>
-              ${dayjs(safeRemainder.beginDate).format(
-                'YYYY-MM-DD HH:mm'
-              )} - ${dayjs(safeRemainder.endDate).format('YYYY-MM-DD HH:mm')}
-            </span>
-            <span>
-              <Strong>Branch: </Strong>
-              ${safeRemainder.branch && safeRemainder.branch.title}
-            </span>
-            <span>
-              <Strong>Department: </Strong>
-              ${safeRemainder.department && safeRemainder.department.title}
-            </span>
-          </div>
-          <table>
-          <thead>
-            <tr>
-              <th>${__('Product')}</th>
-              <th>${__('Date')}</th>
-              <th>${__('Live')}</th>
-              <th>${__('UOM')}</th>
-              <th>${__('Status')}</th>
-              <th>${__('Safe')}</th>
-              <th>${__('Diff')}</th>
-            </tr>
-          </thead>
+        <div class="center title">
+          <h2>Тооллого</h2>
+        </div>
+        <div>
+          <span><Strong>Date: </Strong>
+            ${dayjs(safeRemainder.beginDate).format(
+              'YYYY-MM-DD HH:mm'
+            )} - ${dayjs(safeRemainder.endDate).format('YYYY-MM-DD HH:mm')}
+          </span>
+          <span>
+            <Strong>Branch: </Strong>
+            ${safeRemainder.branch && safeRemainder.branch.title}
+          </span>
+          <span>
+            <Strong>Department: </Strong>
+            ${safeRemainder.department && safeRemainder.department.title}
+          </span>
+        </div>
+        <table>
+        <thead>
+          <tr>
+            <th>${__('Product')}</th>
+            <th>${__('Date')}</th>
+            <th>${__('Live')}</th>
+            <th>${__('UOM')}</th>
+            <th>${__('Status')}</th>
+            <th>${__('Safe')}</th>
+            <th>${__('Diff')}</th>
+          </tr>
+        </thead>
     `;
 
     for (const remainderItem of safeRemainderItems) {
@@ -87,9 +90,9 @@ export default function List(props: Props) {
         count,
         preCount,
         uom,
-        status,
-        remainder
+        status
       } = remainderItem;
+
       printContentHTML += `<tr>
         <td>${product && `${product.code} - ${product.name} `}</td>
         <td>${moment(modifiedAt).format('YYYY/MM/DD HH:mm:ss')}</td>
@@ -108,7 +111,20 @@ export default function List(props: Props) {
     }
 
     printContentHTML += `
-      </table></div></div>
+      </table>
+      <div>
+        <p className="signature">
+          <label>Тооллого хийсэн:</label>
+          <span> _____________________</span>
+          <span>/${safeRemainder.modifiedUser?.details?.fullName || ''}/</span>
+        </p>
+        <p className="signature">
+          <label>Хянасан:</label>
+          <span> _____________________</span>
+        </p>
+      </div>
+      
+      </div></div>
       <style type="text/css">
         html {
           color: #000;
@@ -124,6 +140,8 @@ export default function List(props: Props) {
           color: #000;
           display: flex;
           width: 100vw;
+          padding: 10mm;
+          margin-top: -15mm;
           align-items: center;
           justify-content: center;
         }

@@ -76,7 +76,12 @@ const safeRemainderItemsQueries = {
     { models, subdomain }: IContext
   ) => {
     const query: any = await generateFilterItems(subdomain, params);
-    return paginate(models.SafeRemainderItems.find(query).lean(), params);
+    return paginate(
+      models.SafeRemainderItems.find(query)
+        .sort({ order: 1 })
+        .lean(),
+      params
+    );
   },
 
   safeRemainderItemsCount: async (
