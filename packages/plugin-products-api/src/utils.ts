@@ -1,13 +1,15 @@
-import { debug } from './configs';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { ICustomField } from '@erxes/api-utils/src/types';
 import * as _ from 'underscore';
+import { debug } from './configs';
 import { IModels } from './connectionResolver';
 import {
   fetchSegment,
+  sendFormsMessage,
   sendSegmentsMessage,
   sendTagsMessage
 } from './messageBroker';
-import { productSchema } from './models/definitions/products';
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { IProductCategory, productSchema } from './models/definitions/products';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
@@ -210,3 +212,116 @@ export class Builder {
     };
   }
 }
+
+export const checkCodeMask = async (
+  models: IModels,
+  category?: IProductCategory,
+  code?: string
+) => {
+  if (!category || !code) {
+    return false;
+  }
+
+  if (!category || !category.mask || !category.mask.values) {
+    return true;
+  }
+
+  let maskStr = '';
+  const maskList: any[] = [];
+
+  for (const value of category.mask.values || []) {
+    if (value.static) {
+      maskList.push(value.static);
+      continue;
+    }
+
+    if (value.type === 'char') {
+      maskList.push(value.char);
+    }
+
+    if (value.type === 'customField' && value.matches) {
+      maskList.push(`(${Object.values(value.matches).join('|')})`);
+    }
+  }
+  maskStr = `${maskList.join('')}\\w+`;
+
+  const mask = new RegExp(maskStr, 'g');
+
+  if (await mask.test(code)) {
+    return true;
+  }
+
+  return false;
+};
+
+export const initCustomField = async (
+  subdomain: string,
+  category: IProductCategory,
+  code: string,
+  productCustomFieldsData?: ICustomField[],
+  docCustomFieldsData?: ICustomField[]
+) => {
+  if (!category || !category.mask || !category.mask.values) {
+    if (docCustomFieldsData && docCustomFieldsData.length) {
+      const docFieldsIds = docCustomFieldsData.map(d => d.field);
+      const allCustomFieldsData = docCustomFieldsData.concat(
+        (productCustomFieldsData || []).filter(
+          d => !docFieldsIds.includes(d.field)
+        )
+      );
+
+      return await sendFormsMessage({
+        subdomain,
+        action: 'fields.prepareCustomFieldsData',
+        data: allCustomFieldsData,
+        isRPC: true,
+        defaultValue: []
+      });
+    }
+
+    return productCustomFieldsData;
+  }
+
+  let strInd = 0;
+  let customFieldsData: ICustomField[] = [];
+
+  for (const value of category.mask.values || []) {
+    const len = Number(value.len);
+    if (value.static) {
+      strInd += len;
+      continue;
+    }
+
+    if (value.type === 'customField' && value.matches) {
+      const subCode = code.substring(strInd, strInd + len);
+
+      const subCodeInd = Object.values(value.matches).indexOf(subCode);
+
+      customFieldsData.push({
+        field: value.fieldId,
+        value: Object.keys(value.matches)[subCodeInd]
+      });
+      strInd += len;
+    }
+  }
+
+  const codeFieldIds = customFieldsData.map(d => d.field);
+  customFieldsData = customFieldsData.concat(
+    (docCustomFieldsData || []).filter(d => !codeFieldIds.includes(d.field))
+  );
+
+  const withDocFieldIds = customFieldsData.map(d => d.field);
+  customFieldsData = customFieldsData.concat(
+    (productCustomFieldsData || []).filter(
+      d => !withDocFieldIds.includes(d.field)
+    )
+  );
+
+  return await sendFormsMessage({
+    subdomain,
+    action: 'fields.prepareCustomFieldsData',
+    data: customFieldsData,
+    isRPC: true,
+    defaultValue: []
+  });
+};
