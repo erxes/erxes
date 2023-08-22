@@ -30,7 +30,6 @@ import { queries } from '../../graphql';
 import { getEnv } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 type Props = {
-  item: any;
   loadingItems: () => boolean;
   removeStage: (stageId: string) => void;
   index: number;
@@ -150,95 +149,19 @@ export default class Stage extends React.Component<Props, State> {
 
   print = _id => {
     const { items } = this.props;
+    const apiUrl = getEnv().REACT_APP_API_URL; // Replace this with your API URL
+
     try {
-      const itemsArray = items as any[];
+      for (const item of items) {
+        const { stage } = item;
 
-      const groupedData: Record<string, any> = {};
-      itemsArray.forEach(item => {
-        const stageId = item.stage._id;
-        const stageItems = itemsArray.filter(
-          item => item.stage._id === stageId
-        );
+        const url = `${apiUrl}/pl:documents/print?_id=${_id}&itemId=${item._id}&stageId=${stage._id}`;
 
-        const combinedNames = stageItems.map(item => item.name).join(',');
-
-        if (!groupedData[stageId]) {
-          groupedData[stageId] = {
-            stage: {
-              ...item.stage,
-              status: 'active',
-              order: item.stage.order + 1,
-              type: item.stage.type
-            },
-            amount: {
-              AED: 0
-            },
-            assignedUsers: item.assignedUsers,
-            companies: item.companies,
-            createdAt: item.createdAt,
-            customers: item.customers,
-            hasNotified: item.hasNotified,
-            isComplete: item.isComplete,
-            isWatched: item.isWatched,
-            labels: item.labels,
-            modifiedAt: item.modifiedAt,
-            name: combinedNames,
-            products: [],
-            status: item.status,
-            tagIds: item.tagIds,
-            unUsedAmount: item.unUsedAmount,
-            __typename: item.__typename,
-            _id: item._id
-          };
-        }
-
-        if (item.products) {
-          item.products.forEach(product => {
-            const existingProduct = groupedData[stageId].products.find(
-              p => p.productId === product.productId
-            );
-
-            if (existingProduct) {
-              existingProduct.quantity += product.quantity;
-              existingProduct.amount += product.amount;
-              existingProduct.discount += product.discount;
-              existingProduct.discountPercent += product.discountPercent;
-              existingProduct.globalUnitPrice += product.globalUnitPrice;
-              existingProduct.maxQuantity += product.maxQuantity;
-            } else {
-              groupedData[stageId].products.push({
-                productId: product.productId,
-                amount: product.amount,
-                discount: product.discount,
-                discountPercent: product.discountPercent,
-                globalUnitPrice: product.globalUnitPrice,
-                maxQuantity: product.maxQuantity,
-                quantity: product.quantity
-              });
-            }
-
-            // Update the total amount
-            groupedData[stageId].amount.AED +=
-              product.amount * product.quantity;
-          });
-        }
-      });
-
-      const extractedResults = Object.values(groupedData);
-
-      if (extractedResults.length > 0) {
-        const data = extractedResults[0];
-        const url = `${
-          getEnv().REACT_APP_API_URL
-        }/pl:documents/print?_id=${_id}&itemId=${data._id}&stageId=${
-          data.stage._id
-        }`;
+        // Open the URL in a new browser window
         window.open(url);
-      } else {
-        return { error: 'No data available.' };
       }
     } catch (error) {
-      return { error: error.message };
+      console.error('An error occurred:', error);
     }
   };
 
