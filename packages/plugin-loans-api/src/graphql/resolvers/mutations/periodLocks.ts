@@ -1,16 +1,11 @@
-import { gatherDescriptions } from '../../../utils';
-import {
-  checkPermission,
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog
-} from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import messageBroker, { sendMessageBroker } from '../../../messageBroker';
+import { sendMessageBroker } from '../../../messageBroker';
 import {
   IPeriodLock,
   IPeriodLockDocument
 } from '../../../models/definitions/periodLocks';
+import { createLog, deleteLog, updateLog } from '../../../logUtils';
 
 const periodLockMutations = {
   periodLocksAdd: async (
@@ -30,18 +25,7 @@ const periodLockMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putCreateLog(
-      subdomain,
-      messageBroker(),
-      {
-        newData: doc,
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await createLog(subdomain, user, logData);
 
     return periodLock;
   },
@@ -66,19 +50,7 @@ const periodLockMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        newData: { ...doc },
-        updatedDocument: updated,
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await updateLog(subdomain, user, logData);
 
     return updated;
   },
@@ -116,16 +88,7 @@ const periodLockMutations = {
         extraParams: { models }
       };
 
-      const descriptions = gatherDescriptions(logData);
-      await putDeleteLog(
-        subdomain,
-        messageBroker(),
-        {
-          ...logData,
-          ...descriptions
-        },
-        user
-      );
+      await deleteLog(subdomain, user, logData);
     }
 
     return periodLockIds;

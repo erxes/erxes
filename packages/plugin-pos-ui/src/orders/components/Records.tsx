@@ -21,6 +21,7 @@ import Record from './Record';
 
 interface IProps extends IRouterProps {
   orders: IOrder[];
+  count: number;
   loading: boolean;
   bulk: any[];
   isAllSelected: boolean;
@@ -32,6 +33,7 @@ interface IProps extends IRouterProps {
   onSelect: (values: string[] | string, key: string) => void;
   isFiltered: boolean;
   clearFilter: () => void;
+  exportRecord: (headers: any) => void;
 }
 
 class Orders extends React.Component<IProps, {}> {
@@ -47,9 +49,39 @@ class Orders extends React.Component<IProps, {}> {
     e.target.value = tmpValue;
   };
 
+  tableHeaders = [
+    { name: 'created_date', title: __('created date') },
+    { name: 'created_time', title: __('created time') },
+    { name: 'number', title: __('Number') },
+    { name: 'pos', title: __('POS') },
+    { name: 'branch', title: __('Branch') },
+    { name: 'department', title: __('Department') },
+    { name: 'cashier', title: __('Cashier') },
+    { name: 'type', title: __('Type') },
+    { name: 'billType', title: __('Bill Type') },
+    { name: 'companyRD', title: __('Company RD') },
+    { name: 'customerType', title: __('Customer type') },
+    { name: 'customer', title: __('Customer') },
+    { name: 'barcode', title: __('Barcode') },
+    { name: 'subBarcode', title: __('Factor') },
+    { name: 'code', title: __('Code') },
+    { name: 'categoryCode', title: __('Category code') },
+    { name: 'categoryName', title: __('Category name') },
+    { name: 'name', title: __('Name') },
+    { name: 'count', title: __('Count') },
+    { name: 'firstPrice', title: __('First price') },
+    { name: 'discount', title: __('Discount') },
+    { name: 'discountType', title: __('Discount type') },
+    { name: 'salePrice', title: __('Sale price') },
+    { name: 'amount', title: __('Amount') },
+    { name: 'payType', title: __('Payment type') }
+  ];
+
   render() {
     const {
       orders,
+      count,
+      exportRecord,
       history,
       loading,
       queryParams,
@@ -71,11 +103,16 @@ class Orders extends React.Component<IProps, {}> {
 
     const actionBarRight = (
       <BarItems>
-        <Link to="/settings/exportHistories?type=pos:pos">
-          <Button icon="export" btnStyle="success">
+        {this.props.count > 0 && (
+          <Button
+            icon="export"
+            btnStyle="success"
+            onClick={exportRecord.bind(this.tableHeaders)}
+          >
             {__(`Export`)}
           </Button>
-        </Link>
+        )}
+
         <RightMenu {...rightMenuProps} />
       </BarItems>
     );
@@ -95,106 +132,16 @@ class Orders extends React.Component<IProps, {}> {
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>
-              <th>
-                <SortHandler
-                  sortField={'created_date'}
-                  label={__('created date')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'created_time'}
-                  label={__('created time')}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'number'} label={__('Number')} />
-              </th>
-              <th>
-                <SortHandler sortField={'pos'} label={__('POS')} />
-              </th>
-              <th>
-                <SortHandler sortField={'branch'} label={__('Branch')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'department'}
-                  label={__('Department')}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'cashier'} label={__('Cashier')} />
-              </th>
-              <th>
-                <SortHandler sortField={'type'} label={__('Type')} />
-              </th>
-              <th>
-                <SortHandler sortField={'billType'} label={__('Bill Type')} />
-              </th>
-              <th>
-                <SortHandler sortField={'companyRD'} label={__('Company RD')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'customerType'}
-                  label={__('Customer type')}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'customer'} label={__('Customer')} />
-              </th>
-              <th>
-                <SortHandler sortField={'barcode'} label={__('Barcode')} />
-              </th>
-              <th>
-                <SortHandler sortField={'subBarcode'} label={__('Factor')} />
-              </th>
-              <th>
-                <SortHandler sortField={'code'} label={__('Code')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'categoryCode'}
-                  label={__('Category code')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'categoryName'}
-                  label={__('Category name')}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'name'} label={__('Name')} />
-              </th>
-              <th>
-                <SortHandler sortField={'count'} label={__('Count')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'firstPrice'}
-                  label={__('First price')}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'discount'} label={__('Discount')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'discountType'}
-                  label={__('Discount type')}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'salePrice'} label={__('Sale price')} />
-              </th>
-              <th>
-                <SortHandler sortField={'amount'} label={__('Amount')} />
-              </th>
-              <th>
-                <SortHandler sortField={'payType'} label={__('Payment type')} />
-              </th>
-              <th>Үйлдлүүд</th>
+              {this.tableHeaders.map(th => (
+                <th>
+                  <SortHandler
+                    key={th.name}
+                    sortField={th.name}
+                    label={th.title}
+                  />
+                </th>
+              ))}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="orders">
@@ -221,7 +168,7 @@ class Orders extends React.Component<IProps, {}> {
           />
         }
         mainHead={header}
-        footer={<Pagination count={1000} />}
+        footer={<Pagination count={count} />}
         content={
           <DataWithLoader
             data={mainContent}

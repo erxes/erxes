@@ -17,6 +17,8 @@ const {
 
 const isSwarm = DEPLOYMENT_METHOD !== 'docker-compose';
 
+const buildPlugins = ['dev', 'staging', 'build-test'];
+
 const commonEnvs = configs => {
   const db_server_address = configs.db_server_address;
   const widgets = configs.widgets || {};
@@ -160,8 +162,8 @@ const syncUI = async ({ name, image_tag, ui_location }) => {
     if (!tag) {
       s3_location = `https://erxes-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
     } else {
-      if (tag === 'dev') {
-        s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
+      if (buildPlugins.includes(tag)) {
+        s3_location = `https://erxes-${tag}-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
         s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${tag}`;
       }
@@ -640,9 +642,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
 
   if (configs.image_tag) {
-    if (configs.image_tag === 'dev') {
+    if (buildPlugins.includes(configs.image_tag)) {
       pluginsMapLocation =
-        'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
+        `https://erxes-${configs.image_tag}-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js`;
     } else {
       pluginsMapLocation = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${image_tag}/pluginsMap.js`;
     }

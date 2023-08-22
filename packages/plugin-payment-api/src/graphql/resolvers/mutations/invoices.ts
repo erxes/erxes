@@ -40,7 +40,7 @@ const mutations = {
         const paymentData =
           dataInCookie &&
           JSON.parse(
-            Buffer.from(dataInCookie as string, 'base64').toString('ascii')
+            Buffer.from(dataInCookie as string, 'base64').toString('utf8')
           );
 
         if (

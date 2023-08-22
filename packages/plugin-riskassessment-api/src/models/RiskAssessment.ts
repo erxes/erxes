@@ -265,11 +265,13 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         assessmentId: riskAssessment._id
       });
 
-      await models.RiskAssessmentIndicators.deleteOne({
+      await models.RiskAssessmentIndicators.deleteMany({
         assessmentId: riskAssessment._id
       });
 
-      return riskAssessment.remove();
+      return await models.RiskAssessments.deleteOne({
+        _id: riskAssessment._id
+      });
     }
 
     public static async riskAssessmentAssignedMembers(cardId, cardType) {

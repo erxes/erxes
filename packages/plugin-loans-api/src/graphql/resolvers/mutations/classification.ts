@@ -1,12 +1,5 @@
-import { gatherDescriptions } from '../../../utils';
-import {
-  checkPermission,
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog
-} from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import messageBroker from '../../../messageBroker';
+import { createLog, deleteLog, updateLog } from '../../../logUtils';
 import {
   IClassification,
   IClassificationDocument
@@ -29,17 +22,7 @@ const classificationMutations = {
       extraParams: { models }
     };
 
-    const descriptions = await gatherDescriptions(logData);
-
-    await putCreateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await createLog(subdomain, user, logData);
 
     return classification;
   },
@@ -59,17 +42,7 @@ const classificationMutations = {
       extraParams: { models }
     };
 
-    const descriptions = await gatherDescriptions(logData);
-
-    await putCreateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await createLog(subdomain, user, logData);
 
     return classification;
   },
@@ -92,17 +65,7 @@ const classificationMutations = {
       extraParams: { models }
     };
 
-    const descriptions = await gatherDescriptions(logData);
-
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await updateLog(subdomain, user, logData);
 
     return updated;
   },
@@ -149,23 +112,13 @@ const classificationMutations = {
     await models.Classification.deleteMany({ _id: { $in: classificationIds } });
 
     for (const classification of classifications) {
-      const descriptions = await gatherDescriptions({
+      const logData = {
         type: 'classification',
         object: classification,
         extraParams: { models }
-      });
+      };
 
-      await putDeleteLog(
-        subdomain,
-        messageBroker(),
-        {
-          type: 'classification',
-          object: classification,
-          extraParams: { models },
-          ...descriptions
-        },
-        user
-      );
+      await deleteLog(subdomain, user, logData);
     }
 
     return classificationIds;

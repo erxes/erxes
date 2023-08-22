@@ -1,12 +1,13 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import * as permissions from './permissions';
 import { generateModels } from './connectionResolver';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
+import * as permissions from './permissions';
 
-import { initBroker } from './messageBroker';
-import logs from './logUtils';
-import beforeResolvers from './beforeResolvers';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import beforeResolvers from './beforeResolvers';
+import documents from './documents';
+import logs from './logUtils';
+import { initBroker } from './messageBroker';
 
 export let debug;
 export let graphqlPubsub;
@@ -41,5 +42,10 @@ export default {
     // es = options.elasticsearch;
   },
 
-  meta: { logs: { consumers: logs }, beforeResolvers }
+  meta: {
+    logs: { consumers: logs },
+    beforeResolvers,
+    permissions,
+    documents
+  }
 };

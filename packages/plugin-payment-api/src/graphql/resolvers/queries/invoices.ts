@@ -108,7 +108,7 @@ const queries = {
     { contentType, contentTypeId },
     { models }: IContext
   ) {
-    return models.Invoices.getInvoice({ contentType, contentTypeId });
+    return models.Invoices.find({ contentType, contentTypeId }).lean();
   }
 };
 

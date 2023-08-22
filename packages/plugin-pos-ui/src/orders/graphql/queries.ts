@@ -162,7 +162,7 @@ const coverFields = `
   userId
   details {
     _id
-    paidType    
+    paidType
     paidSummary {
       _id
       kind
@@ -247,6 +247,12 @@ const posOrderRecords = `
   }
 `;
 
+const posOrderRecordsCount = `
+  query posOrderRecordsCount(${listParamsDef}) {
+    posOrderRecordsCount(${listParamsValue})
+  }
+`;
+
 export default {
   posOrders,
   posOrdersSummary,
@@ -255,5 +261,6 @@ export default {
   productCategories,
   covers,
   coverDetail,
-  posOrderRecords
+  posOrderRecords,
+  posOrderRecordsCount
 };

@@ -7,6 +7,9 @@ import redisUtils from './redisUtils';
 import { PAYMENTS } from './api/constants';
 import { StorePayAPI } from './api/storepay/api';
 import { sendRequest } from '@erxes/api-utils/src';
+import { graphqlPubsub } from './configs';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import messageBroker from './messageBroker';
 
 const router = Router();
 
@@ -36,9 +39,36 @@ router.post('/gateway/manualCheck', async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const invoice = await models.Invoices.checkInvoice(invoiceId);
+  const status = await models.Invoices.checkInvoice(invoiceId);
 
-  return res.json({ status: invoice });
+  if (status === 'paid') {
+    const invoice = await models.Invoices.getInvoice({ _id: invoiceId });
+
+    graphqlPubsub.publish('invoiceUpdated', {
+      invoiceUpdated: {
+        _id: invoice._id,
+        status: 'paid'
+      }
+    });
+
+    const [serviceName] = invoice.contentType.split(':');
+
+    if (await isEnabled(serviceName)) {
+      messageBroker().sendMessage(`${serviceName}:paymentCallback`, {
+        subdomain,
+        data: {
+          ...invoice,
+          apiResponse: 'success'
+        }
+      });
+    }
+
+    redisUtils.removeInvoice(invoiceId);
+
+    res.clearCookie(`paymentData_${invoice.contentTypeId}`);
+  }
+
+  return res.json({ status });
 });
 
 router.post('/gateway/storepay', async (req, res) => {
@@ -112,7 +142,8 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       selectedPaymentId,
       paymentKind,
       phone,
-      domain
+      domain,
+      identifier: invoice.identifier
     });
   }
 
@@ -149,7 +180,7 @@ router.get('/gateway', async (req, res) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('ascii')
+    Buffer.from(params as string, 'base64').toString('utf8')
   );
 
   const subdomain = getSubdomain(req);
@@ -207,7 +238,7 @@ router.post('/gateway', async (req, res, next) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('ascii')
+    Buffer.from(params as string, 'base64').toString('utf8')
   );
 
   const subdomain = getSubdomain(req);

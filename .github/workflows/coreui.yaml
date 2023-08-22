@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - staging
+      - build-test
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/core-ui/**'
