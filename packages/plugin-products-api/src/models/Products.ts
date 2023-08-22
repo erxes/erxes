@@ -53,6 +53,27 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
     }
 
+    static fixBarcodes(barcodes?, variants?) {
+      if (barcodes && barcodes.length) {
+        barcodes = barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, '').replace(/_/g, ''));
+
+        if (variants) {
+          const undefinedVariantCodes = Object.keys(variants).filter(
+            key => !(barcodes || []).includes(key)
+          );
+          if (undefinedVariantCodes.length) {
+            for (const unDefCode of undefinedVariantCodes) {
+              delete variants[unDefCode];
+            }
+          }
+        }
+      }
+
+      return { barcodes, variants };
+    }
+
     /**
      * Create a product
      */
@@ -63,11 +84,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         .replace(/ /g, '');
       await this.checkCodeDuplication(doc.code);
 
-      if (doc.barcodes) {
-        doc.barcodes = doc.barcodes
-          .filter(bc => bc)
-          .map(bc => bc.replace(/\s/g, ''));
-      }
+      doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
 
       if (doc.categoryCode) {
         const category = await models.ProductCategories.getProductCatogery({
@@ -131,11 +148,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         doc.uom = await models.Uoms.checkUOM(doc);
       }
 
-      if (doc.barcodes) {
-        doc.barcodes = doc.barcodes
-          .filter(bc => bc)
-          .map(bc => bc.replace(/\s/g, ''));
-      }
+      doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
 
       const category = await models.ProductCategories.getProductCatogery({
         _id: doc.categoryId || product.categoryId
