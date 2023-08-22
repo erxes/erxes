@@ -69,6 +69,7 @@ export const INTEGRATION_KINDS = {
   MESSENGER: 'messenger',
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
+  TELEGRAM: 'telegram',
   FORMS: 'lead',
   CALLPRO: 'callpro',
   WEBHOOK: 'webhook',

@@ -98,6 +98,7 @@ export interface ICustomer {
   lastSeenAt?: Date;
   sessionCount?: number;
   visitorId?: string;
+  telegramId?: string;
   data?: any;
 }
 
@@ -366,6 +367,7 @@ export const customerSchema = schemaWrapper(
       optional: true,
       esType: 'number'
     }),
-    visitorId: field({ type: String, optional: true })
+    visitorId: field({ type: String, optional: true }),
+    telegramId: field({ type: String, optional: true })
   })
 );
