@@ -60,11 +60,8 @@ export default {
   types: [
     {
       label: 'Cards',
-      type: 'cards'
-    },
-    {
-      label: 'Cards Stage',
-      type: 'cards:stage'
+      type: 'cards',
+      subTypes: ['deal', 'task', 'ticket', 'purchase', 'stageDeal']
     }
   ],
 
@@ -79,7 +76,7 @@ export default {
 
   replaceContent: async ({
     subdomain,
-    data: { stageId, itemId, content, contentype }
+    data: { stageId, itemId, content, contentype, itemIds }
   }) => {
     const models = await generateModels(subdomain);
     const stage = await models.Stages.findOne({ _id: stageId });
@@ -112,11 +109,14 @@ export default {
     let item;
 
     if (contentype == 'cards:stage') {
-      const stage = await collection.find({ stageId: stageId });
-      if (!stage) {
+      const items = await collection.find({
+        stageId: stageId,
+        _id: { $in: itemIds }
+      });
+      if (!items) {
         return '';
       }
-      item = await cardsStage(stage);
+      item = await cardsStage(items);
       if (!item) {
         return '';
       }
@@ -422,15 +422,15 @@ export default {
   }
 };
 
-function cardsStage(stage: any) {
+function cardsStage(items: any[]) {
   try {
-    const itemsArray = stage as any[];
+    const itemsArray = items;
 
     const groupedData: Record<string, any> = {};
     itemsArray.forEach(item => {
       const stageId = item.stageId;
-      const stageItems = itemsArray.filter(item => item.stageId === stageId);
-      const combinedNames = stageItems.map(item => item.name).join(',');
+
+      const combinedNames = itemsArray.map(item => item.name).join(',');
 
       if (!groupedData[stageId]) {
         groupedData[stageId] = {
@@ -462,7 +462,10 @@ function cardsStage(stage: any) {
       if (item.productsData) {
         item.productsData.forEach(product => {
           const existingProduct = groupedData[stageId].productsData.find(
-            p => p.productId === product.productId
+            p =>
+              p.productId === product.productId &&
+              p.branchId === product.branchId &&
+              p.departmentId === product.departmentId
           );
           if (existingProduct) {
             existingProduct.quantity += product.quantity;

@@ -73,7 +73,7 @@ export default class Stage extends React.Component<Props, State> {
     client
       .mutate({
         mutation: gql(queries.documents),
-        variables: { contentType: 'cards:stage' }
+        variables: { contentType: 'cards', subType: 'stage' }
       })
       .then(({ data }) => {
         this.setState({ documents: data.documents });
@@ -152,14 +152,12 @@ export default class Stage extends React.Component<Props, State> {
     const apiUrl = getEnv().REACT_APP_API_URL; // Replace this with your API URL
 
     try {
-      for (const item of items) {
-        const { stage } = item;
+      const itemIds = items.map(i => i._id);
 
-        const url = `${apiUrl}/pl:documents/print?_id=${_id}&itemId=${item._id}&stageId=${stage._id}`;
+      const url = `${apiUrl}/pl:documents/print?_id=${_id}&itemIds=${itemIds}&stageId=${this.props.stage._id}&contentype=cards:stage`;
 
-        // Open the URL in a new browser window
-        window.open(url);
-      }
+      // Open the URL in a new browser window
+      window.open(url);
     } catch (error) {
       console.error('An error occurred:', error);
     }

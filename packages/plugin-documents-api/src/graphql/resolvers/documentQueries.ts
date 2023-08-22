@@ -23,7 +23,11 @@ const documentQueries = {
     }
 
     if (subType) {
-      selector.subType = subType;
+      selector.$or = [
+        { subType },
+        { subType: { $exists: false } },
+        { subType: { $in: ['', null, undefined] } }
+      ];
     }
 
     if (limit) {
