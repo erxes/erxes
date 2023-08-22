@@ -445,6 +445,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     // If there are ids and form params, returning ids filter only filter by ids
     if (this.params.ids && this.params.ids.length > 0) {
+      if (typeof this.params.ids === 'string') {
+        this.params.ids = [this.params.ids];
+      }
       this.idsFilter(this.params.ids.filter(id => id));
     }
 

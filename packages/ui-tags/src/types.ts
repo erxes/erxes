@@ -14,7 +14,8 @@ export type ITagTypes =
   | 'customer'
   | 'engageMessage'
   | 'company'
-  | 'integration';
+  | 'integration'
+  | 'automations';
 
 // queries
 

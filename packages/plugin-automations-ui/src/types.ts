@@ -1,6 +1,7 @@
 import { QueryResponse, MutationVariables, Counts } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IAction } from '@erxes/ui-automations/src/types';
+import { ITag } from '@erxes/ui-tags/src/types';
 
 export type ITrigger = {
   id: string;
@@ -26,6 +27,7 @@ export interface IAutomationDoc {
   createdBy?: string;
   updatedUser?: IUser;
   createdUser?: IUser;
+  tags?: ITag[];
 }
 
 export interface IAutomationNoteDoc {
@@ -81,9 +83,20 @@ export type RemoveMutationVariables = {
   automationIds: string[];
 };
 
+export type ArchiveMutationVariables = {
+  automationIds: string[];
+  isRestore?: boolean;
+};
+
 export type RemoveMutationResponse = {
   automationsRemove: (params: {
     variables: RemoveMutationVariables;
+  }) => Promise<any>;
+};
+
+export type ArchiveMutationResponse = {
+  automationsArchive: (params: {
+    variables: ArchiveMutationVariables;
   }) => Promise<any>;
 };
 

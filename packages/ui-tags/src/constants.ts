@@ -4,6 +4,7 @@ export const TAG_TYPES = {
   CONVERSATION: __('inbox:conversation'),
   CUSTOMER: __('contacts:customer'),
   ENGAGE_MESSAGE: __('engages:engageMessage'),
+  AUTOMATION: __('automations:automations'),
   COMPANY: __('contacts:company'),
   INTEGRATION: __('inbox:integration'),
   PRODUCT: __('products:product'),
