@@ -24,6 +24,7 @@ interface IQueryParams {
   boardId?: string;
   segment?: string;
   segmentData?: string;
+  groupCatDiffVals: boolean;
 }
 
 const generateFilter = async (
