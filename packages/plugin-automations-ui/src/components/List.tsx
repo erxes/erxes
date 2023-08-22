@@ -155,7 +155,7 @@ class AutomationsList extends React.Component<IProps, State> {
               <th>{__('Status')}</th>
               <th>{__('Triggers')}</th>
               <th>{__('Action')}</th>
-              <th>{__('Tags')}</th>
+              {isEnabled('tags') && <th>{__('Tags')}</th>}
               <th>{__('Last updated by')}</th>
               <th>{__('Created by')}</th>
               <th>{__('Last update')}</th>
