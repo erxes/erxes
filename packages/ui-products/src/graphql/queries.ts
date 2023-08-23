@@ -10,6 +10,7 @@ const productFields = `
   description
   unitPrice
   barcodes
+  variants
   barcodeDescription
   ${
     isEnabled('tags')
@@ -108,6 +109,8 @@ const productCategories = `
 
       isRoot
       productCount
+      maskType
+      mask
     }
   }
 `;

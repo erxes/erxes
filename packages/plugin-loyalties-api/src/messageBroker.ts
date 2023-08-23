@@ -111,8 +111,14 @@ export const sendNotificationsMessage = async (
   });
 };
 
-export const sendCommonMessage = async (channel, message): Promise<any> => {
-  return client.sendMessage(channel, message);
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {

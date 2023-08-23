@@ -24,7 +24,9 @@ const ChatList = (props: Props) => {
   const [searchValue, setSearchValue] = useState('');
   const [filteredChats, setFilteredChats] = useState([]);
   const [pinnedChatIds, setPinnedChatIds] = useState(
-    props.chats?.filter((chat: any) => chat.isPinned === true) || []
+    props.chats?.filter((chat: any) =>
+      chat.isPinnedUserIds.includes(props.currentUser._id)
+    ) || []
   );
 
   const {
@@ -85,12 +87,12 @@ const ChatList = (props: Props) => {
           <ChatListWrapper>
             {chats.map(
               c =>
-                c.isPinned && (
+                c.isPinnedUserIds.includes(props.currentUser._id) && (
                   <ChatItem
                     key={c._id}
                     chat={c}
                     active={c._id === chatId}
-                    isPinned={c.isPinned}
+                    isPinned={c.isPinnedUserIds.includes(props.currentUser._id)}
                     isWidget={isWidget}
                     hasOptions={hasOptions}
                     handlePin={handlePin}
@@ -111,12 +113,12 @@ const ChatList = (props: Props) => {
         <ChatListWrapper>
           {chats.map(
             c =>
-              !c.isPinned && (
+              !c.isPinnedUserIds.includes(props.currentUser._id) && (
                 <ChatItem
                   key={c._id}
                   chat={c}
                   active={c._id === chatId}
-                  isPinned={c.isPinned}
+                  isPinned={c.isPinnedUserIds.includes(props.currentUser._id)}
                   isWidget={isWidget}
                   hasOptions={hasOptions}
                   handlePin={handlePin}
@@ -135,7 +137,7 @@ const ChatList = (props: Props) => {
         key={c._id}
         chat={c}
         active={c._id === chatId}
-        isPinned={c.isPinned}
+        isPinned={c.isPinnedUserIds.includes(props.currentUser._id)}
         isWidget={isWidget}
         hasOptions={hasOptions}
         handlePin={handlePin}

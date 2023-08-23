@@ -69,3 +69,9 @@ export const UI_ACTIONS = [
     isAvailable: true
   }
 ];
+
+export const STATUSES = {
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  ARCHIVED: 'archived'
+};

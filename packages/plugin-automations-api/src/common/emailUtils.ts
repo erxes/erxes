@@ -74,15 +74,32 @@ const getAttributionEmails = async ({
   serviceName,
   contentType,
   target,
+  execution,
   value,
   key
 }) => {
+  let emails: string[] = [];
   const matches = (value || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
   const attributes = matches.map(match =>
     match.replace(/\{\{\s*|\s*\}\}/g, '')
   );
   const relatedValueProps = {};
+
+  if (!attributes?.length) {
+    return [];
+  }
+
   for (const attribute of attributes) {
+    if (attribute === 'triggerExecutors') {
+      const excutorEmails = await getSegmentEmails({
+        subdomain,
+        serviceName,
+        contentType,
+        execution
+      });
+      emails = [...emails, ...excutorEmails];
+    }
+
     relatedValueProps[attribute] = {
       key: 'email',
       filter: {
@@ -114,7 +131,7 @@ const getAttributionEmails = async ({
     defaultValue: {}
   });
 
-  return generateEmails(replacedContent[key]);
+  return [...emails, ...generateEmails(replacedContent[key])];
 };
 
 const getSegmentEmails = async ({
@@ -263,20 +280,9 @@ export const getRecipientEmails = async ({
           serviceName,
           contentType,
           target,
+          execution,
           value: config[key],
           key: type
-        });
-
-        toEmails = [...toEmails, ...emails];
-        continue;
-      }
-
-      if (type === 'segmentBased') {
-        const emails = await getSegmentEmails({
-          subdomain,
-          serviceName,
-          contentType,
-          execution
         });
 
         toEmails = [...toEmails, ...emails];

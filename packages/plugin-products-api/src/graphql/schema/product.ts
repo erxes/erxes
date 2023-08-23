@@ -39,6 +39,8 @@ export const types = (tagsAvailable, contactsAvailable) => `
     status: String
     isRoot: Boolean
     productCount: Int
+    maskType: String
+    mask: JSON
   }
 
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -48,6 +50,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     type: String
     description: String
     barcodes: [String]
+    variants: JSON
     barcodeDescription: String
     unitPrice: Float
     categoryId: String
@@ -76,6 +79,7 @@ const productParams = `
   type: String,
   description: String,
   barcodes: [String],
+  variants: JSON,
   barcodeDescription: String,
   unitPrice: Float,
   code: String,
@@ -97,6 +101,8 @@ const productCategoryParams = `
   parentId: String,
   attachment: AttachmentInput,
   status: String
+  maskType: String
+  mask: JSON
 `;
 
 const productsQueryParams = `
