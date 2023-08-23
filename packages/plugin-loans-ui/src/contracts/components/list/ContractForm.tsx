@@ -85,6 +85,12 @@ type State = {
   };
 };
 
+function isGreaterNumber(value: any, compareValue: any) {
+  value = Number(value || 0);
+  compareValue = Number(compareValue || 0);
+  return value > compareValue;
+}
+
 class ContractForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -407,7 +413,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
-      this.state.leaseAmount < this.state.config.minAmount
+      isGreaterNumber(this.state.config.minAmount, this.state.leaseAmount)
     )
       errors.leaseAmount = errorWrapper(
         `${__('Lease amount must greater than')} ${this.state.config.minAmount}`
@@ -415,25 +421,31 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
-      this.state.leaseAmount > this.state.config.maxAmount
+      isGreaterNumber(this.state.leaseAmount, this.state.config.maxAmount)
     )
       errors.leaseAmount = errorWrapper(
         `${__('Lease amount must less than')} ${this.state.config.maxAmount}`
       );
 
-    if (this.state.config && this.state.tenor < this.state.config.minTenor)
+    if (
+      this.state.config &&
+      isGreaterNumber(this.state.config.minTenor, this.state.tenor)
+    )
       errors.tenor = errorWrapper(
         `${__('Tenor must greater than')} ${this.state.config.minTenor}`
       );
 
-    if (this.state.config && this.state.tenor > this.state.config.maxTenor)
+    if (
+      this.state.config &&
+      isGreaterNumber(this.state.tenor, this.state.config.maxTenor)
+    )
       errors.tenor = errorWrapper(
         `${__('Tenor must less than')} ${this.state.config.maxTenor}`
       );
 
     if (
       this.state.config &&
-      this.state.interestMonth < this.state.config.minInterest
+      isGreaterNumber(this.state.config.minInterest, this.state.interestMonth)
     )
       errors.interestMonth = errorWrapper(
         `${__('Interest must greater than')} ${this.state.config.minInterest}`
@@ -441,7 +453,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
-      this.state.interestMonth > this.state.config.maxInterest
+      isGreaterNumber(this.state.interestMonth, this.state.config.maxInterest)
     )
       errors.interestMonth = errorWrapper(
         `${__('Interest must less than')} ${this.state.config.maxInterest}`
