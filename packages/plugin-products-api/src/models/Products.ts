@@ -115,7 +115,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         _id: doc.categoryId
       });
 
-      if (!(await checkCodeMask(models, category, doc.code))) {
+      if (!(await checkCodeMask(category, doc.code))) {
         throw new Error('Code is not validate of category mask');
       }
 
@@ -138,28 +138,22 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     public static async updateProduct(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
 
-      doc.code = doc.code.replace(/ /g, '');
-
-      if (product.code !== doc.code) {
-        await this.checkCodeDuplication(doc.code);
-      }
-
-      if (doc.code) {
-        doc.uom = await models.Uoms.checkUOM(doc);
-      }
-
-      doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
-
       const category = await models.ProductCategories.getProductCatogery({
         _id: doc.categoryId || product.categoryId
       });
 
       if (doc.code) {
-        if (!(await checkCodeMask(models, category, doc.code))) {
-          throw new Error('Code is not validate of category mask');
+        doc.code = doc.code.replace(/\*/g, '');
+        doc.uom = await models.Uoms.checkUOM(doc);
+        doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
+
+        if (product.code !== doc.code) {
+          await this.checkCodeDuplication(doc.code);
         }
 
-        doc.uom = await models.Uoms.checkUOM(doc);
+        if (!(await checkCodeMask(category, doc.code))) {
+          throw new Error('Code is not validate of category mask');
+        }
       }
 
       doc.customFieldsData = await initCustomField(
