@@ -553,7 +553,7 @@ class Form extends React.Component<Props, State> {
                 required={true}
                 onChange={(e: any) => {
                   this.setState({
-                    code: e.target.value.replace(/ /g, '')
+                    code: e.target.value.replace(/\*/g, '')
                   });
                 }}
               />
