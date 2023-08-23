@@ -4,6 +4,7 @@ const productParamsDef = `
   $categoryId: String,
   $description: String,
   $barcodes: [String],
+  $variants: JSON,
   $barcodeDescription: String,
   $unitPrice: Float,
   $code: String
@@ -24,7 +25,9 @@ const productCategoryParamsDef = `
   $description: String,
   $attachment: AttachmentInput,
   $status: String,
-  $meta: String
+  $meta: String,
+  $maskType: String,
+  $mask: JSON
 `;
 
 const productParams = `
@@ -33,6 +36,7 @@ const productParams = `
   categoryId: $categoryId,
   description: $description,
   barcodes: $barcodes,
+  variants: $variants,
   barcodeDescription: $barcodeDescription,
   unitPrice: $unitPrice,
   code: $code,
@@ -53,7 +57,9 @@ const productCategoryParams = `
   description: $description,
   attachment: $attachment,
   status: $status,
-  meta: $meta
+  meta: $meta,
+  maskType: $maskType,
+  mask: $mask,
 `;
 
 const productAdd = `

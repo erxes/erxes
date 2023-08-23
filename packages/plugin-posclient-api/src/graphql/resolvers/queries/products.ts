@@ -87,10 +87,20 @@ const generateFilter = async (
   // search =========
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    const codeRegex = new RegExp(
+      `^${searchValue
+        .replace(/\./g, '\\.')
+        .replace(/\*/g, '.')
+        .replace(/_/g, '.')
+        .replace(/  /g, '.')}.*`,
+      'igu'
+    );
 
     filter.$or = [
+      {
+        $or: [{ code: { $in: [regex] } }, { code: { $in: [codeRegex] } }]
+      },
       { name: { $in: [regex] } },
-      { code: { $in: [regex] } },
       { barcodes: { $in: [searchValue] } }
     ];
   }

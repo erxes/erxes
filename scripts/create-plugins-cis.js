@@ -77,6 +77,8 @@ var main = async () => {
     workflowsPath('plugin-sample-api.yaml')
   );
 
+  permissionCheckers = [];
+
   for (const plugin of plugins) {
     pluginsMap[plugin.name] = {};
 
@@ -145,12 +147,23 @@ var main = async () => {
 
       if (permissions) {
         pluginsMap[plugin.name].api.permissions = permissions;
+
+        for (const val of Object.values(permissions)) {
+          permissionCheckers = permissionCheckers.concat(val.actions)
+        }
       }
 
       if (essyncer) {
         pluginsMap[plugin.name].api.essyncer = essyncer;
       }
     }
+  }
+
+  const actions = permissionCheckers.map(action => action.name);
+  const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
+
+  if (dups.length) {
+    console.log(`warning: duplicated actions names ==> ${dups.join(', ')}`);
   }
 
   fs.writeFileSync(

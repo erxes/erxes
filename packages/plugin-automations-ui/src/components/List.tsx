@@ -14,6 +14,10 @@ import { IAutomation, AutomationsCount } from '../types';
 import Row from './Row';
 import { EmptyContent } from '../styles';
 import Sidebar from './Sidebar';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import Tagger from '@erxes/ui-tags/src/containers/Tagger';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 
 interface IProps extends IRouterProps {
   automations: IAutomation[];
@@ -28,6 +32,10 @@ interface IProps extends IRouterProps {
   addAutomation: () => void;
   removeAutomations: (
     doc: { automationIds: string[] },
+    emptyBulk: () => void
+  ) => void;
+  archiveAutomations: (
+    doc: { automationIds: string[]; isRestore?: boolean },
     emptyBulk: () => void
   ) => void;
   queryParams: any;
@@ -86,6 +94,19 @@ class AutomationsList extends React.Component<IProps, State> {
     this.props.removeAutomations({ automationIds }, this.props.emptyBulk);
   };
 
+  archiveAutomations = automations => {
+    const automationIds: string[] = automations.map(
+      automation => automation._id
+    );
+
+    const isRestore = this.props?.queryParams?.status === 'archived';
+
+    this.props.archiveAutomations(
+      { automationIds, isRestore },
+      this.props.emptyBulk
+    );
+  };
+
   moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = '';
@@ -112,7 +133,8 @@ class AutomationsList extends React.Component<IProps, State> {
       queryParams,
       isExpand,
       counts,
-      addAutomation
+      addAutomation,
+      emptyBulk
     } = this.props;
 
     const automations = this.props.automations || [];
@@ -133,6 +155,7 @@ class AutomationsList extends React.Component<IProps, State> {
               <th>{__('Status')}</th>
               <th>{__('Triggers')}</th>
               <th>{__('Action')}</th>
+              {isEnabled('tags') && <th>{__('Tags')}</th>}
               <th>{__('Last updated by')}</th>
               <th>{__('Created by')}</th>
               <th>{__('Last update')}</th>
@@ -170,6 +193,27 @@ class AutomationsList extends React.Component<IProps, State> {
           >
             Remove
           </Button>
+          <Button
+            btnStyle="simple"
+            size="small"
+            icon="archive-alt"
+            onClick={() => this.archiveAutomations(bulk)}
+          >
+            {queryParams.status === 'archived' ? 'Restore' : 'Archive'}
+          </Button>
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={TAG_TYPES.AUTOMATION}
+              successCallback={emptyBulk}
+              singleSelect
+              targets={bulk}
+              trigger={
+                <Button btnStyle="simple" size="small" icon="tag-alt">
+                  Tag
+                </Button>
+              }
+            />
+          )}
         </BarItems>
       );
     }
@@ -210,7 +254,13 @@ class AutomationsList extends React.Component<IProps, State> {
           />
         }
         actionBar={actionBar}
-        leftSidebar={<Sidebar counts={counts || ({} as any)} />}
+        leftSidebar={
+          <Sidebar
+            counts={counts || ({} as any)}
+            history={history}
+            queryParams={queryParams}
+          />
+        }
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
