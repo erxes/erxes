@@ -191,7 +191,7 @@ export default class EditorAttributeUtil {
       throw new Error('Cards service is not running.');
     }
     return this.msgBrokerClient.sendRPCMessage(
-      'cards:deals:generateAmounts',
+      'cards:deals.generateAmounts',
       productsData
     );
   }
@@ -202,7 +202,7 @@ export default class EditorAttributeUtil {
     }
 
     return this.msgBrokerClient.sendRPCMessage(
-      'cards:deals:generateProducts',
+      'cards:deals.generateProducts',
       productsData
     );
   }
