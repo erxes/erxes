@@ -56,7 +56,8 @@ const exmFeedQueries = {
     },
     { models, user, subdomain }
   ) => {
-    const departmentIds = user.departmentIds;
+    const departmentIds = user.departmentIds || [];
+    const branchIds = user.departmentIds || [];
 
     const units = await sendCoreMessage({
       subdomain,
@@ -68,16 +69,7 @@ const exmFeedQueries = {
       defaultValue: []
     });
 
-    const branches = await sendCoreMessage({
-      subdomain,
-      action: 'branches.find',
-      data: { query: { userIds: user._id } },
-      isRPC: true,
-      defaultValue: []
-    });
-
     const unitIds = units.map(unit => unit._id) || [];
-    const branchIds = branches.map(branch => branch._id) || [];
 
     const unitCondition = [
       { unitId: { $exists: false } },
@@ -124,7 +116,10 @@ const exmFeedQueries = {
           $and: [
             { departmentIds: { $in: departmentIds } },
             {
-              $or: departmentCondition
+              $or: branchCondition
+            },
+            {
+              $or: unitCondition
             }
           ]
         },
@@ -202,6 +197,37 @@ const exmFeedQueries = {
 
     if (bravoType) {
       filter.customFieldsData = { $elemMatch: { value: bravoType } };
+    }
+
+    if (contentTypes && contentTypes.includes('event')) {
+      const currentDate = new Date();
+
+      const events = await models.ExmFeed.find({ contentType: 'event' });
+
+      for (const event of events) {
+        if (event.eventData.endDate < currentDate) {
+          const { _id } = event;
+
+          await models.ExmFeed.updateOne(
+            { _id },
+            {
+              $set: {
+                isPinned: false
+              }
+            }
+          );
+        }
+      }
+
+      return {
+        list: await models.ExmFeed.find({ ...filter })
+          .sort({
+            'ExmEventData.startDate': -1
+          })
+          .skip(skip || 0)
+          .limit(limit || 20),
+        totalCount: await models.ExmFeed.find(filter).countDocuments()
+      };
     }
 
     return {
