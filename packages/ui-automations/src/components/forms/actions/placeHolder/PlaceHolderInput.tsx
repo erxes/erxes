@@ -177,6 +177,16 @@ class PlaceHolderInput extends React.Component<Props, State> {
     }
   };
 
+  onKeyDown = e => {
+    if (e.keyCode === 8) {
+      const { config, inputName } = this.props;
+      config[inputName] = '';
+
+      this.setState({ config });
+      this.props.onChange(config);
+    }
+  };
+
   renderExtraContent() {
     const plugins: any[] = (window as any).plugins || [];
     const { type = '' } = this.props;
@@ -251,6 +261,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
             value={converted}
             onChange={this.onChange}
             onKeyPress={this.onKeyPress}
+            onKeyDown={this.onKeyDown}
           />
         </FormGroup>
       </BoardHeader>

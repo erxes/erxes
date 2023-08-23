@@ -15,7 +15,6 @@ import Row from './Row';
 import { EmptyContent } from '../styles';
 import Sidebar from './Sidebar';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import Tagger from '@erxes/ui-tags/src/containers/Tagger';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 
