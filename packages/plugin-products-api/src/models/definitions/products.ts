@@ -29,10 +29,10 @@ export const PRODUCT_CATEGORY_STATUSES = {
 };
 
 export const PRODUCT_CATEGORY_MASK_TYPES = {
-  ANY: 'any',
+  ANY: '',
   SOFT: 'soft',
   HARD: 'hard',
-  ALL: ['any', 'soft', 'hard']
+  ALL: ['', 'soft', 'hard']
 };
 
 export interface ISubUom {
