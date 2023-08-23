@@ -214,7 +214,6 @@ export class Builder {
 }
 
 export const checkCodeMask = async (
-  models: IModels,
   category?: IProductCategory,
   code?: string
 ) => {
@@ -236,14 +235,14 @@ export const checkCodeMask = async (
     }
 
     if (value.type === 'char') {
-      maskList.push(value.char);
+      maskList.push(value.char.replace(/./g, '\\.'));
     }
 
     if (value.type === 'customField' && value.matches) {
       maskList.push(`(${Object.values(value.matches).join('|')})`);
     }
   }
-  maskStr = `${maskList.join('')}\\w+`;
+  maskStr = `${maskList.join('')}.*`;
 
   const mask = new RegExp(maskStr, 'g');
 

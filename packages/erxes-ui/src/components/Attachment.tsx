@@ -342,6 +342,8 @@ class Attachment extends React.Component<Props> {
         break;
       case 'zip':
       case 'csv':
+        filePreview = this.renderOtherFile(attachment);
+        break;
       case 'doc':
       case 'ppt':
       case 'psd':

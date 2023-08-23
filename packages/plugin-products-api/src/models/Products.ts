@@ -53,6 +53,27 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
     }
 
+    static fixBarcodes(barcodes?, variants?) {
+      if (barcodes && barcodes.length) {
+        barcodes = barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, '').replace(/_/g, ''));
+
+        if (variants) {
+          const undefinedVariantCodes = Object.keys(variants).filter(
+            key => !(barcodes || []).includes(key)
+          );
+          if (undefinedVariantCodes.length) {
+            for (const unDefCode of undefinedVariantCodes) {
+              delete variants[unDefCode];
+            }
+          }
+        }
+      }
+
+      return { barcodes, variants };
+    }
+
     /**
      * Create a product
      */
@@ -63,11 +84,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         .replace(/ /g, '');
       await this.checkCodeDuplication(doc.code);
 
-      if (doc.barcodes) {
-        doc.barcodes = doc.barcodes
-          .filter(bc => bc)
-          .map(bc => bc.replace(/\s/g, ''));
-      }
+      doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
 
       if (doc.categoryCode) {
         const category = await models.ProductCategories.getProductCatogery({
@@ -98,7 +115,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         _id: doc.categoryId
       });
 
-      if (!(await checkCodeMask(models, category, doc.code))) {
+      if (!(await checkCodeMask(category, doc.code))) {
         throw new Error('Code is not validate of category mask');
       }
 
@@ -121,32 +138,22 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     public static async updateProduct(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
 
-      doc.code = doc.code.replace(/ /g, '');
-
-      if (product.code !== doc.code) {
-        await this.checkCodeDuplication(doc.code);
-      }
-
-      if (doc.code) {
-        doc.uom = await models.Uoms.checkUOM(doc);
-      }
-
-      if (doc.barcodes) {
-        doc.barcodes = doc.barcodes
-          .filter(bc => bc)
-          .map(bc => bc.replace(/\s/g, ''));
-      }
-
       const category = await models.ProductCategories.getProductCatogery({
         _id: doc.categoryId || product.categoryId
       });
 
       if (doc.code) {
-        if (!(await checkCodeMask(models, category, doc.code))) {
-          throw new Error('Code is not validate of category mask');
+        doc.code = doc.code.replace(/\*/g, '');
+        doc.uom = await models.Uoms.checkUOM(doc);
+        doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
+
+        if (product.code !== doc.code) {
+          await this.checkCodeDuplication(doc.code);
         }
 
-        doc.uom = await models.Uoms.checkUOM(doc);
+        if (!(await checkCodeMask(category, doc.code))) {
+          throw new Error('Code is not validate of category mask');
+        }
       }
 
       doc.customFieldsData = await initCustomField(

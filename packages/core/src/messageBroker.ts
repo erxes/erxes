@@ -486,24 +486,27 @@ export const initBroker = async options => {
     };
   });
 
-  consumeRPCQueue('core:imports:prepareImportDocs', async args => {
+  consumeRPCQueue('core:imports.insertImportItems', async args => {
+    return {
+      status: 'success',
+      data: await imports.insertImportItems(args)
+    };
+  });
+
+  consumeRPCQueue('core:imports.prepareImportDocs', async args => {
+    console.log('sdads');
     return {
       status: 'success',
       data: await imports.prepareImportDocs(args)
     };
   });
 
-  consumeRPCQueue('core:imports:insertImportItems', async args => ({
-    status: 'success',
-    data: await imports.insertImportItems(args)
-  }));
-
-  consumeRPCQueue('core:exporter:prepareExportData', async args => ({
+  consumeRPCQueue('core:exporter.prepareExportData', async args => ({
     status: 'success',
     data: await exporter.prepareExportData(args)
   }));
 
-  consumeRPCQueue('core:exporter:getExportDocs', async args => ({
+  consumeRPCQueue('core:exporter.getExportDocs', async args => ({
     status: 'success',
     data: await exporter.getExportDocs(args)
   }));
