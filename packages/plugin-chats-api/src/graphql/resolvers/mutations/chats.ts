@@ -90,7 +90,21 @@ const chatMutations = {
     }
 
     if (chat.type === CHAT_TYPE.GROUP) {
-      await checkChatAdmin(models.Chats, user._id);
+      if (chat.participantIds.length > 1) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $pull: {
+              participantIds: { $in: user?._id },
+              adminIds: { $in: user?._id }
+            }
+          }
+        );
+
+        return 'Success';
+      }
+
+      return models.Chats.removeChat(_id);
     }
 
     return models.Chats.removeChat(_id);
@@ -165,17 +179,32 @@ const chatMutations = {
       participantIds: { $in: [user._id] }
     });
 
+    const isPinnedUser = chat && chat.isPinnedUserIds.includes(user._id);
+
     if (chat) {
       graphqlPubsub.publish('chatInserted', {
         userId: chat.createdUser?._id
       });
 
-      await models.Chats.updateOne(
-        { _id },
-        { $set: { isPinned: !chat.isPinned } }
-      );
+      if (!isPinnedUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $push: { isPinnedUserIds: [user._id] }
+          }
+        );
+      }
 
-      return !chat.isPinned;
+      if (isPinnedUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $pull: { isPinnedUserIds: { $in: [user._id] } }
+          }
+        );
+      }
+
+      return true;
     }
     return false;
   },
@@ -185,18 +214,32 @@ const chatMutations = {
       _id,
       participantIds: { $in: [user._id] }
     });
+    const muteUser = chat && chat.muteUserIds.includes(user._id);
 
     if (chat) {
       graphqlPubsub.publish('chatInserted', {
         userId: chat.createdUser?._id
       });
 
-      await models.Chats.updateOne(
-        { _id },
-        { $set: { isWithNotification: !chat.isWithNotification } }
-      );
+      if (!muteUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $push: { muteUserIds: [user._id] }
+          }
+        );
+      }
 
-      return !chat.isWithNotification;
+      if (muteUser) {
+        await models.Chats.updateOne(
+          { _id },
+          {
+            $pull: { muteUserIds: { $in: [user._id] } }
+          }
+        );
+      }
+
+      return true;
     }
     return false;
   },
@@ -238,7 +281,9 @@ const chatMutations = {
 
     const chat = await models.Chats.getChat(message.chatId, user._id);
 
-    const recievers = chat.participantIds.filter(i => i !== user._id);
+    const recievers = chat.participantIds.filter(
+      value => !chat.muteUserIds.includes(value)
+    );
 
     sendCoreMessage({
       subdomain: 'os',
@@ -296,9 +341,8 @@ const chatMutations = {
     { _id, userIds, type },
     { models, user }
   ) => {
-    await checkChatAdmin(models.Chats, user._id);
-
     const chat = await models.Chats.getChat(_id, user._id);
+    // const chat = await models.Chats.getChat(_id);
 
     if ((chat.participantIds || []).length === 1) {
       if (type === 'remove') {
@@ -365,6 +409,97 @@ const chatMutations = {
     });
 
     return 'ok';
+  },
+
+  chatForward: async (_root, { userIds, ...args }, { user, models }) => {
+    if (userIds && userIds.length > 0) {
+      const participantIds = [...(userIds || [])];
+
+      if (!participantIds.includes(user._id)) {
+        participantIds.push(user._id);
+      }
+
+      let newChat = await models.Chats.findOne({
+        type: 'direct',
+        participantIds: {
+          $all: participantIds,
+          $size: participantIds.length
+        }
+      });
+
+      if (!newChat) {
+        newChat = await models.Chats.createChat(
+          {
+            participantIds,
+            type: 'direct'
+          },
+          user._id
+        );
+
+        graphqlPubsub.publish('chatInserted', {
+          userId: user._id
+        });
+
+        args.chatId = newChat._id;
+      }
+
+      if (newChat) {
+        args.chatId = newChat._id;
+      }
+    }
+
+    const message = await models.ChatMessages.createChatMessage(args, user._id);
+
+    await models.Chats.updateOne(
+      {
+        _id: message.chatId
+      },
+      {
+        $set: {
+          updatedAt: new Date()
+        }
+      }
+    );
+
+    graphqlPubsub.publish('chatMessageInserted', {
+      chatMessageInserted: message
+    });
+
+    graphqlPubsub.publish('chatReceivedNotification', {
+      chatReceivedNotification: message
+    });
+
+    const chat = await models.Chats.getChat(message.chatId);
+
+    const recievers = chat.participantIds.filter(
+      value => !chat.muteUserIds.includes(value)
+    );
+
+    sendCoreMessage({
+      subdomain: 'os',
+      action: 'sendMobileNotification',
+      data: {
+        title: `${user?.details?.fullName || user?.fullName} sent you chat`,
+        body: strip_html(args.content),
+        receivers: recievers,
+        data: {
+          type: 'chats',
+          id: chat._id
+        }
+      }
+    });
+
+    for (const reciever of recievers) {
+      graphqlPubsub.publish('chatUnreadCountChanged', {
+        userId: reciever
+      });
+
+      graphqlPubsub.publish('chatInserted', {
+        userId: reciever
+      });
+    }
+
+    return message;
   }
 };
 

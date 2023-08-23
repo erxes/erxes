@@ -5,8 +5,9 @@
     "watch-plugin-src": "node ./scripts/watch-plugin-src.js",
     "build": "webpack --mode production && node scripts/fix-build.js",
     "build:dev": "webpack --mode development",
-    "start": "yarn watch-plugin-src & webpack serve --mode development",
-    "start:live": "webpack serve --open --mode development --live-reload --hot"
+    "start": "yarn watch-plugin-src & yarn wait:dev",
+    "start:live": "webpack serve --open --mode development --live-reload --hot",
+    "wait:dev": "sleep 5 && webpack serve --mode development"
   },
   "license": "MIT",
   "devDependencies": {

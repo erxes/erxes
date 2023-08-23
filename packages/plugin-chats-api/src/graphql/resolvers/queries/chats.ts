@@ -6,28 +6,26 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage } from '../../../messageBroker';
 
 const chatQueries = {
-  chats: async (_root, { type, limit, skip }, { models, user }) => {
+  chats: async (_root, { type, limit, skip, position }, { models, user }) => {
     const filter: any = { participantIds: { $in: [user._id] } };
 
     if (type) {
       filter.type = type;
     }
 
-    const pinnedChats = await models.Chats.find({
-      ...filter,
-      isPinned: true
-    }).sort({ updatedAt: -1 });
+    if (position) {
+      filter.position = position;
+    }
 
-    const nonPinnedChats = await models.Chats.find({
-      ...filter,
-      isPinned: { $ne: true }
+    const chats = await models.Chats.find({
+      ...filter
     })
       .sort({ updatedAt: -1 })
       .skip(skip || 0)
       .limit(limit || 10);
 
     const result = {
-      list: [...pinnedChats, ...nonPinnedChats],
+      list: [...chats],
       totalCount: await models.Chats.countDocuments(filter)
     };
     return result;

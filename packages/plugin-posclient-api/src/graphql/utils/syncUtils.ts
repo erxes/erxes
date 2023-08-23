@@ -182,7 +182,8 @@ export const importProducts = async (
                 attachment: attachmentUrlChanger(product.attachment),
                 attachmentMore: (product.attachmentMore || []).map(a =>
                   attachmentUrlChanger(a)
-                )
+                ),
+                [`isCheckRems.${token}`]: product.isCheckRem
               },
               $addToSet: { tokens: token }
             },
@@ -287,7 +288,9 @@ export const extractConfig = async (subdomain, doc) => {
     allowBranchIds: doc.allowBranchIds,
     checkRemainder: doc.checkRemainder,
     permissionConfig: doc.permissionConfig,
-    allowTypes: doc.allowTypes
+    allowTypes: doc.allowTypes,
+    isCheckRemainder: doc.isCheckRemainder,
+    checkExcludeCategoryIds: doc.checkExcludeCategoryIds
   };
 };
 
@@ -323,7 +326,12 @@ export const receiveProduct = async (models: IModels, data) => {
     const info = action === 'update' ? updatedDocument : object;
     return await models.Products.updateOne(
       { _id: object._id },
-      { ...info, [`prices.${token}`]: info.unitPrice, tokens },
+      {
+        ...info,
+        [`prices.${token}`]: info.unitPrice,
+        [`isCheckRems.${token}`]: info.isCheckRem,
+        tokens
+      },
       { upsert: true }
     );
   }

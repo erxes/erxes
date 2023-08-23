@@ -18,8 +18,8 @@ export const uploader = async (req: any, res, next) => {
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
 
-  const maxHeight = parseInt(req.query.maxHeight);
-  const maxWidth = parseInt(req.query.maxWidth);
+  const maxHeight = Number(req.query.maxHeight);
+  const maxWidth = Number(req.query.maxWidth);
 
   const INTEGRATIONS_API_DOMAIN = `${domain}/gateway/pl:integrations`;
 
@@ -47,11 +47,11 @@ export const uploader = async (req: any, res, next) => {
   const form = new formidable.IncomingForm();
 
   form.parse(req, async (_error, _fields, response) => {
-    let file = response.file || response.upload;
+    const file: any = response.file || response.upload;
 
     let fileResult = file;
 
-    const detectedType = fileType(fs.readFileSync(file['path']));
+    const detectedType = fileType(fs.readFileSync(file.path));
     if (detectedType && detectedType.mime.startsWith('image/')) {
       if (maxHeight || maxWidth) {
         fileResult = await resizeImage(file, maxWidth, maxHeight);
@@ -59,7 +59,7 @@ export const uploader = async (req: any, res, next) => {
     }
 
     // check file ====
-    const status = await checkFile(models, file, req.headers.source);
+    const status = await checkFile(models, fileResult, req.headers.source);
     if (status === 'ok') {
       try {
         const result = await uploadFile(

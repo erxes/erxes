@@ -155,40 +155,60 @@ export class MonpayAPI extends BaseAPI {
     }
   }
 
-  async couponCheck(couponCode: string) {
-    const loginRes = await this.request({
-      method: 'POST',
-      headers: this.headers,
-      path: PAYMENTS.monpay.actions.branchLogin,
-      data: { username: this.username, password: 'qwerty' }
-    });
-
-    let token = '';
-
-    if (loginRes.code !== 0) {
-      return { error: 'Failed to login' };
-    }
-
-    token = loginRes.result.token;
-
+  async couponScan(couponCode: string) {
     try {
-      const res = await this.request({
-        method: 'GET',
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${token}`
-        },
-        path: PAYMENTS.monpay.actions.couponScan,
-        params: { couponCode }
+      const loginRes = await this.request({
+        method: 'POST',
+        headers: this.headers,
+        path: PAYMENTS.monpay.actions.branchLogin,
+        data: {
+          username: process.env.MONPAY_COUPON_USERNAME || '',
+          password: process.env.MONPAY_COUPON_PASSWORD || ''
+        }
       });
 
-      if (res.code !== 0) {
-        return { error: 'Coupon is not valid' };
+      if (loginRes.code !== 0) {
+        return { error: 'Failed to login' };
       }
 
-      return { ...res.result };
+      const token = loginRes.result.token;
+
+      try {
+        const res = await this.request({
+          method: 'GET',
+          headers: {
+            ...this.headers,
+            Authorization: `Bearer ${token}`
+          },
+          path: PAYMENTS.monpay.actions.couponScan,
+          params: { couponCode }
+        });
+
+        if (res.code !== 0) {
+          return { error: 'Coupon is not valid' };
+        }
+
+        //   {
+        //     "code": 0,
+        //     "info": "Амжилттай",
+        //     "result": {
+        //         "couponCategory": "MOBI_BDAY_JURUR15000",
+        //         "couponCode": "jurur_4kYE7uOQYFJRc",
+        //         "couponEndDate": 1701360000000,
+        //         "userPhone": "90371041",
+        //         "isUsable": true,
+        //         "description": "COUPON IS AVAILABLE",
+        //         "couponAmount": 15000
+        //     }
+        // }
+
+        return { ...res.result };
+      } catch (e) {
+        console.error(e);
+        return { error: e.message };
+      }
     } catch (e) {
-      return { error: e.message };
+      throw new Error(e.message);
     }
   }
 }

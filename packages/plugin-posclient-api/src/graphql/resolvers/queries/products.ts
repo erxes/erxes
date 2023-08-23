@@ -87,10 +87,20 @@ const generateFilter = async (
   // search =========
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    const codeRegex = new RegExp(
+      `^${searchValue
+        .replace(/\./g, '\\.')
+        .replace(/\*/g, '.')
+        .replace(/_/g, '.')
+        .replace(/  /g, '.')}.*`,
+      'igu'
+    );
 
     filter.$or = [
+      {
+        $or: [{ code: { $in: [regex] } }, { code: { $in: [codeRegex] } }]
+      },
       { name: { $in: [regex] } },
-      { code: { $in: [regex] } },
       { barcodes: { $in: [searchValue] } }
     ];
   }
@@ -155,8 +165,15 @@ const productQueries = {
     let filter = await generateFilter(subdomain, models, config.token, {
       type,
       categoryId,
+      branchId,
       searchValue,
-      ids
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      segment,
+      segmentData
     });
 
     let sortParams: any = { code: 1 };
@@ -185,13 +202,33 @@ const productQueries = {
    */
   async poscProductsTotalCount(
     _root,
-    { type, categoryId, searchValue }: IProductParams,
+    {
+      type,
+      categoryId,
+      branchId,
+      searchValue,
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      segment,
+      segmentData
+    }: IProductParams,
     { models, config, subdomain }: IContext
   ) {
     const filter = await generateFilter(subdomain, models, config.token, {
       type,
       categoryId,
-      searchValue
+      branchId,
+      searchValue,
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      segment,
+      segmentData
     });
 
     return models.Products.find(filter).countDocuments();

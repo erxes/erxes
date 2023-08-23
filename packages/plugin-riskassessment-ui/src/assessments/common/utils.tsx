@@ -29,9 +29,10 @@ import { generateParamsIds } from '../../common/utils';
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
-  title: string;
+  title?: string;
   withoutPopoverTitle?: boolean;
   icon?: string;
+  iconColor?: string;
   customComponent?: JSX.Element;
   placement?: Placement;
   rootClose?: boolean;
@@ -69,20 +70,23 @@ export class DetailPopOver extends React.Component<Props> {
   }
 
   renderContent() {
-    const { customComponent, title, icon } = this.props;
+    const { customComponent, title, icon, iconColor } = this.props;
     if (customComponent) {
       return customComponent;
     }
 
     return (
       <>
-        <div>
-          <ControlLabel>{__(title)}</ControlLabel>
-        </div>
+        {title && (
+          <div>
+            <ControlLabel>{__(title)}</ControlLabel>
+          </div>
+        )}
         <div>
           <Button
             style={{ padding: '7px 0' }}
             btnStyle="link"
+            iconColor={iconColor}
             icon={icon ? icon : 'question-circle'}
           ></Button>
         </div>

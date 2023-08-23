@@ -1,3 +1,4 @@
+import { riskIndicatorParams as indicatorParams } from '../../common/graphql';
 const riskIndicatorParams = `
     $name: String!, 
     $description: String, 
@@ -48,9 +49,18 @@ mutation RemoveUnusedRiskIndicatorForm($formIds: [String]) {
 }
 `;
 
+const duplicate = `
+mutation DuplicateRiskIndicator($_id: String) {
+  duplicateRiskIndicator(_id: $_id) {
+    ${indicatorParams}
+  }
+}
+`;
+
 export default {
   riskIndicatorAdd,
   riskIndicatorRemove,
   riskIndicatorUpdate,
-  removeUnusedRiskIndicatorForm
+  removeUnusedRiskIndicatorForm,
+  duplicate
 };

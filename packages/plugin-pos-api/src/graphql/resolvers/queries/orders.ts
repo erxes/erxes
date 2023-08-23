@@ -3,7 +3,7 @@ import {
   sendCoreMessage,
   sendProductsMessage
 } from '../../../messageBroker';
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import {
   getPureDate,
   getToday,
@@ -133,6 +133,234 @@ const generateFilterPosQuery = async (
   }
 
   return query;
+};
+
+export const posOrderRecordsQuery = async (
+  subdomain,
+  models,
+  params,
+  commonQuerySelector,
+  user?
+) => {
+  const query = await generateFilterPosQuery(
+    models,
+    params,
+    commonQuerySelector,
+    user?._id
+  );
+  console.log(params, 'sssssssssssssssssssssssssssssssssss');
+  const { perPage = 20, page = 1 } = params;
+
+  const orders = await models.PosOrders.aggregate([
+    { $match: query },
+    { $unwind: '$items' },
+    { $sort: { createdAt: -1 } },
+    { $skip: perPage * (page - 1) },
+    { $limit: perPage }
+  ]);
+
+  const branchIds = orders.map(item => item.branchId);
+  const branches = await sendCoreMessage({
+    subdomain,
+    action: 'branches.find',
+    data: { query: { _id: { $in: branchIds } } },
+    isRPC: true
+  });
+
+  const branchById = {};
+  for (const branch of branches) {
+    branchById[branch._id] = branch;
+  }
+
+  const departmentIds = orders.map(item => item.departmentId);
+  const departments = await sendCoreMessage({
+    subdomain,
+    action: 'departments.find',
+    data: { _id: { $in: departmentIds } },
+    isRPC: true
+  });
+
+  const departmentById = {};
+  for (const department of departments) {
+    departmentById[department._id] = department;
+  }
+
+  const productsIds = orders.map(order => order.items.productId);
+  const products = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
+    isRPC: true
+  });
+
+  const productById = {};
+  for (const product of products) {
+    productById[product._id] = product;
+  }
+
+  const productCategoryIds = products.map(p => p.categoryId);
+  const productCategories = await sendProductsMessage({
+    subdomain,
+    action: 'categories.find',
+    data: { query: { _id: { $in: productCategoryIds } } },
+    isRPC: true
+  });
+
+  const productCategoryById = {};
+  for (const productCat of productCategories) {
+    productCategoryById[productCat._id] = productCat;
+  }
+
+  const customerIds = orders
+    .filter(o => o.customerType || ('customer' === 'customer' && o.customerId))
+    .map(o => o.customerId);
+  const companyIds = orders
+    .filter(o => o.customerType === 'company' && o.customerId)
+    .map(o => o.customerId);
+  const userIds = orders
+    .map(o => o.userId)
+    .concat(
+      orders
+        .filter(o => o.customerType === 'user' && o.customerId)
+        .map(o => o.customerId)
+    );
+
+  const customerById = {};
+  const companyById = {};
+  const userById = {};
+
+  if (customerIds.length) {
+    const customers = await sendContactsMessage({
+      subdomain,
+      action: 'customers.find',
+      data: { _id: { $in: customerIds } },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    for (const customer of customers) {
+      customerById[customer._id] = customer;
+    }
+  }
+
+  if (companyIds.length) {
+    const companies = await sendContactsMessage({
+      subdomain,
+      action: 'companies.find',
+      data: { _id: { $in: companyIds } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const company of companies) {
+      companyById[company._id] = company;
+    }
+  }
+
+  const users = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: { query: { _id: { $in: userIds } } },
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  for (const user of users) {
+    userById[user._id] = user;
+  }
+
+  const posByToken = {};
+  const poss = await models.Pos.find({
+    token: { $in: orders.map(o => o.posToken) }
+  });
+  for (const pos of poss) {
+    posByToken[pos.token] = pos;
+  }
+
+  for (const order of orders) {
+    order._id = `${order._id}_${order.items._id}`;
+    order.branch = branchById[order.branchId || ''];
+    order.department = departmentById[order.departmentId || ''];
+    const perProduct = productById[order.items.productId || ''] || {};
+    order.items.product = perProduct;
+    order.items.productCategory =
+      productCategoryById[perProduct.categoryId || ''];
+    order.items.manufactured = order.items.manufacturedDate
+      ? new Date(
+          Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n'))
+        )
+      : '';
+    order.user = userById[order.userId];
+    order.posName = posByToken[order.posToken].name;
+
+    if (order.customerType === 'company') {
+      const company = companyById[order.customerId || ''];
+      if (company) {
+        order.customer = {
+          _id: company._id,
+          code: company.code,
+          primaryPhone: company.primaryPhone,
+          firstName: company.primaryName,
+          primaryEmail: company.primaryEmail,
+          lastName: ''
+        };
+      }
+    }
+
+    if (order.customerType === 'user') {
+      const user = userById[order.customerId];
+      if (user) {
+        order.customer = {
+          _id: user._id,
+          code: user.code,
+          primaryPhone: (user.details && user.details.operatorPhone) || '',
+          firstName: `${user.firstName || ''} ${user.lastName || ''}`,
+          primaryEmail: user.email,
+          lastName: user.username
+        };
+      }
+    }
+
+    if (!order.customerType || order.customerType === 'customer') {
+      const customer = customerById[order.customerId || ''];
+
+      if (customer) {
+        order.customer = {
+          _id: customer._id,
+          code: customer.code,
+          primaryPhone: customer.primaryPhone,
+          firstName: customer.firstName,
+          primaryEmail: customer.primaryEmail,
+          lastName: customer.lastName
+        };
+      }
+    }
+  }
+
+  return orders;
+};
+
+export const posOrderRecordsCountQuery = async (
+  models: IModels,
+  params: any,
+  commonQuerySelector: any,
+  user?
+) => {
+  const query = await generateFilterPosQuery(
+    models,
+    params,
+    commonQuerySelector,
+    user?._id
+  );
+  console.log(query);
+
+  const orders = await models.PosOrders.aggregate([
+    { $match: query },
+    { $unwind: '$items' },
+    { $project: { 'items._id': 1 } }
+  ]);
+
+  return orders.length;
 };
 
 const queries = {
@@ -433,186 +661,21 @@ const queries = {
     params,
     { subdomain, models, commonQuerySelector, user }: IContext
   ) => {
-    const query = await generateFilterPosQuery(
+    return posOrderRecordsQuery(
+      subdomain,
       models,
       params,
       commonQuerySelector,
-      user._id
+      user
     );
+  },
 
-    const { perPage = 20, page = 1 } = params;
-
-    const orders = await models.PosOrders.aggregate([
-      { $match: query },
-      { $unwind: '$items' },
-      { $sort: { createdAt: -1 } },
-      { $skip: perPage * (page - 1) },
-      { $limit: perPage }
-    ]);
-
-    const branchIds = orders.map(item => item.branchId);
-    const branches = await sendCoreMessage({
-      subdomain,
-      action: 'branches.find',
-      data: { query: { _id: { $in: branchIds } } },
-      isRPC: true
-    });
-
-    const branchById = {};
-    for (const branch of branches) {
-      branchById[branch._id] = branch;
-    }
-
-    const departmentIds = orders.map(item => item.departmentId);
-    const departments = await sendCoreMessage({
-      subdomain,
-      action: 'departments.find',
-      data: { _id: { $in: departmentIds } },
-      isRPC: true
-    });
-
-    const departmentById = {};
-    for (const department of departments) {
-      departmentById[department._id] = department;
-    }
-
-    const productsIds = orders.map(order => order.items.productId);
-    const products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: { query: { _id: { $in: productsIds } }, limit: productsIds.length },
-      isRPC: true
-    });
-
-    const productById = {};
-    for (const product of products) {
-      productById[product._id] = product;
-    }
-
-    const customerIds = orders
-      .filter(
-        o => o.customerType || ('customer' === 'customer' && o.customerId)
-      )
-      .map(o => o.customerId);
-    const companyIds = orders
-      .filter(o => o.customerType === 'company' && o.customerId)
-      .map(o => o.customerId);
-    const userIds = orders
-      .map(o => o.userId)
-      .concat(
-        orders
-          .filter(o => o.customerType === 'user' && o.customerId)
-          .map(o => o.customerId)
-      );
-
-    const customerById = {};
-    const companyById = {};
-    const userById = {};
-
-    if (customerIds.length) {
-      const customers = await sendContactsMessage({
-        subdomain,
-        action: 'customers.find',
-        data: { _id: { $in: customerIds } },
-        isRPC: true,
-        defaultValue: {}
-      });
-
-      for (const customer of customers) {
-        customerById[customer._id] = customer;
-      }
-    }
-
-    if (companyIds.length) {
-      const companies = await sendContactsMessage({
-        subdomain,
-        action: 'companies.find',
-        data: { _id: { $in: companyIds } },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      for (const company of companies) {
-        companyById[company._id] = company;
-      }
-    }
-
-    const users = await sendCoreMessage({
-      subdomain,
-      action: 'users.find',
-      data: { query: { _id: { $in: userIds } } },
-      isRPC: true,
-      defaultValue: {}
-    });
-
-    for (const user of users) {
-      userById[user._id] = user;
-    }
-
-    const posByToken = {};
-    const poss = await models.Pos.find({
-      token: { $in: orders.map(o => o.posToken) }
-    });
-    for (const pos of poss) {
-      posByToken[pos.token] = pos;
-    }
-
-    for (const order of orders) {
-      order._id = `${order._id}_${order.items._id}`;
-      order.branch = branchById[order.branchId || ''];
-      order.department = departmentById[order.departmentId || ''];
-      order.items.product = productById[order.items.productId || ''];
-      order.items.manufactured = new Date(
-        Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n'))
-      );
-      order.user = userById[order.userId];
-      order.posName = posByToken[order.posToken].name;
-
-      if (order.customerType === 'company') {
-        const company = companyById[order.customerId || ''];
-        if (company) {
-          order.customer = {
-            _id: company._id,
-            code: company.code,
-            primaryPhone: company.primaryPhone,
-            firstName: company.primaryName,
-            primaryEmail: company.primaryEmail,
-            lastName: ''
-          };
-        }
-      }
-
-      if (order.customerType === 'user') {
-        const user = userById[order.customerId];
-        if (user) {
-          order.customer = {
-            _id: user._id,
-            code: user.code,
-            primaryPhone: (user.details && user.details.operatorPhone) || '',
-            firstName: `${user.firstName || ''} ${user.lastName || ''}`,
-            primaryEmail: user.email,
-            lastName: user.username
-          };
-        }
-      }
-
-      if (!order.customerType || order.customerType === 'customer') {
-        const customer = customerById[order.customerId || ''];
-
-        if (customer) {
-          order.customer = {
-            _id: customer._id,
-            code: customer.code,
-            primaryPhone: customer.primaryPhone,
-            firstName: customer.firstName,
-            primaryEmail: customer.primaryEmail,
-            lastName: customer.lastName
-          };
-        }
-      }
-    }
-
-    return orders;
+  posOrderRecordsCount: async (
+    _root,
+    params,
+    { subdomain, models, commonQuerySelector, user }: IContext
+  ) => {
+    return posOrderRecordsCountQuery(models, params, commonQuerySelector, user);
   }
 };
 

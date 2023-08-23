@@ -1,12 +1,8 @@
-import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
+import { ICustomField } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import * as _ from 'lodash';
 import { IModels } from '../connectionResolver';
-import {
-  sendCardsMessage,
-  sendContactsMessage,
-  sendFormsMessage
-} from '../messageBroker';
+import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
 import {
   IProduct,
   IProductCategory,
@@ -16,6 +12,7 @@ import {
   productSchema,
   PRODUCT_STATUSES
 } from './definitions/products';
+import { checkCodeMask, initCustomField } from '../utils';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -56,17 +53,38 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
     }
 
+    static fixBarcodes(barcodes?, variants?) {
+      if (barcodes && barcodes.length) {
+        barcodes = barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, '').replace(/_/g, ''));
+
+        if (variants) {
+          const undefinedVariantCodes = Object.keys(variants).filter(
+            key => !(barcodes || []).includes(key)
+          );
+          if (undefinedVariantCodes.length) {
+            for (const unDefCode of undefinedVariantCodes) {
+              delete variants[unDefCode];
+            }
+          }
+        }
+      }
+
+      return { barcodes, variants };
+    }
+
     /**
      * Create a product
      */
     public static async createProduct(doc: IProduct) {
+      doc.code = doc.code
+        .replace(/\*/g, '')
+        .replace(/_/g, '')
+        .replace(/ /g, '');
       await this.checkCodeDuplication(doc.code);
 
-      if (doc.barcodes) {
-        doc.barcodes = doc.barcodes
-          .filter(bc => bc)
-          .map(bc => bc.replace(/\s/g, ''));
-      }
+      doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
 
       if (doc.categoryCode) {
         const category = await models.ProductCategories.getProductCatogery({
@@ -93,14 +111,23 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         doc.vendorId = vendor?._id;
       }
 
-      doc.customFieldsData = await sendFormsMessage({
-        subdomain,
-        action: 'fields.prepareCustomFieldsData',
-        data: doc.customFieldsData,
-        isRPC: true
+      const category = await models.ProductCategories.getProductCatogery({
+        _id: doc.categoryId
       });
 
+      if (!(await checkCodeMask(category, doc.code))) {
+        throw new Error('Code is not validate of category mask');
+      }
+
       doc.uom = await models.Uoms.checkUOM(doc);
+
+      doc.customFieldsData = await initCustomField(
+        subdomain,
+        category,
+        doc.code,
+        [],
+        doc.customFieldsData
+      );
 
       return models.Products.create(doc);
     }
@@ -111,29 +138,31 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     public static async updateProduct(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
 
-      if (product.code !== doc.code) {
-        await this.checkCodeDuplication(doc.code);
-      }
+      const category = await models.ProductCategories.getProductCatogery({
+        _id: doc.categoryId || product.categoryId
+      });
 
       if (doc.code) {
+        doc.code = doc.code.replace(/\*/g, '');
         doc.uom = await models.Uoms.checkUOM(doc);
+        doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
+
+        if (product.code !== doc.code) {
+          await this.checkCodeDuplication(doc.code);
+        }
+
+        if (!(await checkCodeMask(category, doc.code))) {
+          throw new Error('Code is not validate of category mask');
+        }
       }
 
-      if (doc.barcodes) {
-        doc.barcodes = doc.barcodes
-          .filter(bc => bc)
-          .map(bc => bc.replace(/\s/g, ''));
-      }
-
-      if (doc.customFieldsData) {
-        // clean custom field values
-        doc.customFieldsData = await sendFormsMessage({
-          subdomain,
-          action: 'fields.prepareCustomFieldsData',
-          data: doc.customFieldsData,
-          isRPC: true
-        });
-      }
+      doc.customFieldsData = await initCustomField(
+        subdomain,
+        category,
+        doc.code || product.code,
+        product.customFieldsData,
+        doc.customFieldsData
+      );
 
       await models.Products.updateOne({ _id }, { $set: doc });
 

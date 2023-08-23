@@ -43,7 +43,7 @@ export type PricingPlan = {
 
   products: string[];
   productsExcluded: string[];
-  productsBundle: string[];
+  productsBundle: string[][];
   categories: string[];
   categoriesExcluded: string[];
   segments: string[];

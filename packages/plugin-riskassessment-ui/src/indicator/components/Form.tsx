@@ -1,19 +1,25 @@
 import { gql } from '@apollo/client';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import {
+  BarItems,
   Button,
+  Form as CommonForm,
+  ControlLabel,
   EmptyState,
+  FormControl,
   FormGroup,
-  Spinner,
+  PageHeader,
+  Step,
+  Steps,
   Tip,
   Toggle,
   __,
   confirm
 } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import {
+  ControlWrapper,
+  StepWrapper
+} from '@erxes/ui/src/components/step/styles';
 import {
   ColorPick,
   ColorPicker,
@@ -22,7 +28,11 @@ import {
 } from '@erxes/ui/src/styles/main';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IButtonMutateProps,
+  IFormProps,
+  IRouterProps
+} from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -31,22 +41,22 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { COLORS, calculateMethods } from '../../common/constants';
 import { SelectOperations } from '../../common/utils';
-import { FormContainer, FormContent, Header } from '../../styles';
 import {
-  RiskCalculateLogicType,
-  RiskCalculateFormsType,
-  RiskIndicatorsType
-} from '../common/types';
+  CommonFormContainer,
+  FormContainer,
+  FormContent,
+  Header
+} from '../../styles';
+import { RiskCalculateLogicType, RiskIndicatorsType } from '../common/types';
 import { SelectTags } from '../common/utils';
 import { mutations } from '../graphql';
 import FormItem from './FormItem';
 
 type Props = {
-  indicatorDetail?: RiskIndicatorsType;
-  detailLoading?: boolean;
+  detail?: RiskIndicatorsType;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
-  fieldsSkip?: any;
-} & ICommonFormProps;
+  duplicatIndicator: (_id: string) => void;
+} & IRouterProps;
 
 type IRiskIndicatorsStateType = {
   _id?: string;
@@ -67,12 +77,12 @@ type State = {
   riskIndicator: IRiskIndicatorsStateType;
 };
 
-class Form extends React.Component<Props & ICommonFormProps, State> {
+class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      riskIndicator: props.indicatorDetail || {}
+      riskIndicator: props.detail || {}
     };
 
     this.generateDoc = this.generateDoc.bind(this);
@@ -101,6 +111,34 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     return { ...values, ...{ ...riskIndicator, forms, calculateLogics } };
   }
+  handleClose = () => {
+    const { riskIndicator } = this.state;
+    const { detail, history } = this.props;
+    const formIds: any[] = [];
+
+    for (const form of riskIndicator.forms || []) {
+      if (form.formId) {
+        formIds.push(form.formId);
+      }
+    }
+
+    const checkSaved = formIds.every(formId =>
+      detail?.forms?.find(form => form.formId === formId)
+    );
+
+    if (!checkSaved) {
+      confirm(
+        `Are you sure you want to close.Your created form won't save`
+      ).then(() => {
+        client.mutate({
+          mutation: gql(mutations.removeUnusedRiskIndicatorForm),
+          variables: { formIds }
+        });
+        return history.push('/settings/risk-indicators');
+      });
+    }
+    history.push('/settings/risk-indicators');
+  };
 
   renderLogic(
     { _id, name, logic, value, value2, color }: RiskCalculateLogicType,
@@ -259,7 +297,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     );
   }
 
-  renderGeneralLogics(formProps) {
+  renderGeneralFormsLogics(formProps) {
     const { riskIndicator } = this.state;
 
     if (!(riskIndicator?.forms?.length > 1)) {
@@ -363,13 +401,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     ));
   }
 
-  renderContent = (formProps: IFormProps) => {
-    const { detailLoading } = this.props;
+  renderGeneralStep(formProps) {
     const { riskIndicator } = this.state;
 
-    if (detailLoading) {
-      return <Spinner objective />;
-    }
     const handleState = e => {
       const { name, value } = e.currentTarget as HTMLInputElement;
       this.setState(prev => ({
@@ -383,30 +417,8 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       }));
     };
 
-    const addForm = () => {
-      this.setState(prev => ({
-        riskIndicator: {
-          ...prev.riskIndicator,
-          forms: [
-            ...(prev?.riskIndicator?.forms || []),
-            { _id: String(Math.random()), formId: '', calculateMethod: '' }
-          ]
-        }
-      }));
-    };
-
-    const toggleWithDescription = () => {
-      this.setState(prev => ({
-        ...prev,
-        riskIndicator: {
-          ...prev.riskIndicator,
-          isWithDescription: !prev.riskIndicator?.isWithDescription
-        }
-      }));
-    };
-
     return (
-      <>
+      <FormContainer column gap style={{ padding: 10 }}>
         <FormGroup>
           <ControlLabel required>{__('Name')}</ControlLabel>
           <FormControl
@@ -474,73 +486,115 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             />
           </FormGroup>
         </FormContainer>
-
-        <FormContainer column gap style={{ padding: 10 }}>
-          {this.renderGeneralLogics(formProps)}
-          <FormWrapper>
-            <FormColumn>
-              <Header>{__('Forms')}</Header>
-            </FormColumn>
-            <FormContainer row gap align="center">
-              <Toggle
-                onChange={toggleWithDescription}
-                checked={riskIndicator?.isWithDescription}
-              />
-              <ControlLabel>{__('use fields with description')}</ControlLabel>
-            </FormContainer>
-          </FormWrapper>
-          {this.renderForms()}
-          <div style={{ textAlign: 'center' }}>
-            <Button icon="plus-1" onClick={addForm}>
-              {__('Add Form')}
-            </Button>
-          </div>
-        </FormContainer>
-      </>
+      </FormContainer>
     );
-  };
+  }
 
-  render() {
-    const { indicatorDetail, renderButton, closeModal } = this.props;
+  renderFormsStep(formProps) {
     const { riskIndicator } = this.state;
 
-    const handleClose = () => {
-      const formIds: any[] = [];
-
-      for (const form of riskIndicator.forms || []) {
-        if (form.formId) {
-          formIds.push(form.formId);
+    const addForm = () => {
+      this.setState(prev => ({
+        riskIndicator: {
+          ...prev.riskIndicator,
+          forms: [
+            ...(prev?.riskIndicator?.forms || []),
+            { _id: String(Math.random()), formId: '', calculateMethod: '' }
+          ]
         }
-      }
+      }));
+    };
 
-      const checkSaved = formIds.every(formId =>
-        indicatorDetail?.forms?.find(form => form.formId === formId)
-      );
-
-      if (!checkSaved) {
-        confirm(
-          `Are you sure you want to close.Your created form won't save`
-        ).then(() => {
-          client.mutate({
-            mutation: gql(mutations.removeUnusedRiskIndicatorForm),
-            variables: { formIds }
-          });
-          return closeModal();
-        });
-      }
-      closeModal();
+    const toggleWithDescription = () => {
+      this.setState(prev => ({
+        ...prev,
+        riskIndicator: {
+          ...prev.riskIndicator,
+          isWithDescription: !prev.riskIndicator?.isWithDescription
+        }
+      }));
     };
 
     return (
-      <CommonForm
-        {...this.props}
-        closeModal={handleClose}
-        renderContent={this.renderContent}
-        generateDoc={this.generateDoc}
-        object={this.props.object}
-        renderButton={renderButton}
-        createdAt={indicatorDetail?.createdAt}
-      />
+      <FormContainer column gap style={{ padding: 10 }}>
+        {this.renderGeneralFormsLogics(formProps)}
+        <FormWrapper>
+          <FormContainer row gap align="center">
+            <Toggle
+              onChange={toggleWithDescription}
+              checked={riskIndicator?.isWithDescription}
+            />
+            <ControlLabel>{__('use fields with description')}</ControlLabel>
+          </FormContainer>
+        </FormWrapper>
+        {this.renderForms()}
+        <div style={{ textAlign: 'center' }}>
+          <Button icon="plus-1" onClick={addForm}>
+            {__('Add Form')}
+          </Button>
+        </div>
+      </FormContainer>
+    );
+  }
+
+  renderContent = (formProps: IFormProps) => {
+    return (
+      <StepWrapper>
+        {this.renderActions(formProps)}
+        <Steps>
+          <Step noButton img="/images/icons/erxes-07.svg" title="General">
+            {this.renderGeneralStep(formProps)}
+          </Step>
+          <Step noButton img="/images/icons/erxes-30.png" title="Forms">
+            {this.renderFormsStep(formProps)}
+          </Step>
+        </Steps>
+      </StepWrapper>
+    );
+  };
+
+  renderActions(formProps: IFormProps) {
+    const { isSubmitted, values } = formProps;
+    const { detail, renderButton, duplicatIndicator } = this.props;
+
+    return (
+      <ControlWrapper style={{ justifyContent: 'end' }}>
+        {detail && (
+          <Button
+            btnStyle="warning"
+            icon="file-copy-alt"
+            onClick={duplicatIndicator.bind(this, detail._id)}
+          >
+            {__('Duplicate')}
+          </Button>
+        )}
+        {renderButton &&
+          renderButton({
+            name: 'Indicator',
+            values: this.generateDoc(values),
+            isSubmitted,
+            object: detail
+          })}
+      </ControlWrapper>
+    );
+  }
+
+  render() {
+    return (
+      <CommonFormContainer>
+        <PageHeader>
+          <BarItems>
+            <Button
+              icon="leftarrow-3"
+              btnStyle="link"
+              onClick={this.handleClose}
+            >
+              {__('Back')}
+            </Button>
+          </BarItems>
+        </PageHeader>
+        <CommonForm {...this.props} renderContent={this.renderContent} />
+      </CommonFormContainer>
     );
   }
 }

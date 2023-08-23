@@ -43,6 +43,9 @@ const contractFields = `
   dealId
   nextPayment
   currency
+  classification
+  expiredDays
+  loanBalanceAmount
 `;
 
 const listParamsDef = `
@@ -119,7 +122,7 @@ export const contractsMain = `
 
 export const contractDetailFields = `
   branchId
-  classification
+  
   contractType {
     code
     name

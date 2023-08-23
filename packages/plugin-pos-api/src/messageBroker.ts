@@ -179,6 +179,22 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('pos:orders.aggregate', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { aggregate, replacers } = data;
+    for (const repl of replacers || []) {
+      try {
+        eval(repl);
+      } catch (e) {}
+    }
+
+    return {
+      status: 'success',
+      data: await models.PosOrders.aggregate(aggregate)
+    };
+  });
+
   consumeRPCQueue('pos:configs.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     return {
@@ -325,6 +341,7 @@ export const sendPosclientMessage = async (
     lastAction = `posclient:${action}_${pos.token}`;
     serviceName = '';
     args.data.thirdService = true;
+    args.isMQ = true;
   }
 
   args.data.token = pos.token;
@@ -358,7 +375,37 @@ export const sendCommonMessage = async (
     ...args
   });
 };
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args
+  });
+};
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any
+) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options, segmentData },
+    isRPC: true
+  });
 
+export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'forms',
+    ...args
+  });
+};
 export default function() {
   return client;
 }

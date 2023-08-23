@@ -71,6 +71,8 @@ export const types = `
     checkRemainder: Boolean
     permissionConfig: JSON
     allowTypes: [String]
+    isCheckRemainder: Boolean
+    checkExcludeCategoryIds: [String]
   }
 `;
 

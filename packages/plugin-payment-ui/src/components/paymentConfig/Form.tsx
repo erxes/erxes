@@ -11,6 +11,8 @@ type Props = {
   payments: IPaymentDocument[];
   isRequired?: boolean;
   description?: string;
+  contentType: string;
+  contentTypeId?: string;
   currentConfig?: IPaymentConfig;
   selectedPaymentIds: string[];
   isSubmitted?: boolean;
@@ -43,7 +45,12 @@ function SelectPayments(props: Props) {
       props.setPaymentIds(props.currentConfig.paymentIds);
     }
 
-    if (props.isSubmitted && !isSubmitted) {
+    if (
+      props.isSubmitted &&
+      !isSubmitted &&
+      props.contentType &&
+      props.contentTypeId
+    ) {
       setIsSubmitted(true);
       props.save();
     }

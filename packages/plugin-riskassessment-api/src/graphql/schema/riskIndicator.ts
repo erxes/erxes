@@ -177,6 +177,7 @@ export const mutations = `
         calculateLogics:[ICalculateLogic],
         forms:[IRiskIndicatorForm]):JSON
     removeRiskIndicatorUnusedForms (formIds:[String]) :JSON
+    duplicateRiskIndicator(_id:String):RiskIndicatorType
 
     addRiskIndicatorsGroups(${commonIndicatorGroupsMutationsParams}):JSON
     updateRiskIndicatorsGroups(${commonIndicatorGroupsMutationsParams}):JSON

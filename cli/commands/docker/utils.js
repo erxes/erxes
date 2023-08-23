@@ -5,20 +5,6 @@ const { log, execCommand, filePath, execCurl } = require('../utils');
 
 require('dotenv').config();
 
-
-const routerConfigDirPath = filePath('./apollo-router-config');
-
-async function createRouterConfigDir() {
-  if (!fs.existsSync(routerConfigDirPath)) {
-    await fs.mkdirSync(routerConfigDirPath,{ recursive: true, mode: 0o777 });
-  }
-}
-
-async function recreateRouterConfigDir() {
-  await fs.rmSync(routerConfigDirPath, { recursive: true, force: true });
-  await createRouterConfigDir();
-}
-
 const {
   DEPLOYMENT_METHOD,
   SERVICE_INTERNAL_PORT = 80,
@@ -30,6 +16,8 @@ const {
 } = process.env;
 
 const isSwarm = DEPLOYMENT_METHOD !== 'docker-compose';
+
+const buildPlugins = ['dev', 'staging', 'build-test'];
 
 const commonEnvs = configs => {
   const db_server_address = configs.db_server_address;
@@ -98,8 +86,8 @@ const healthcheck = {
     '-i',
     `http://localhost:${SERVICE_INTERNAL_PORT}/health`
   ],
-  interval: '1s',
-  start_period: '5s'
+  interval: '30s',
+  start_period: '30s'
 };
 
 const generateLBaddress = address =>
@@ -174,8 +162,8 @@ const syncUI = async ({ name, image_tag, ui_location }) => {
     if (!tag) {
       s3_location = `https://erxes-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
     } else {
-      if (tag === 'dev') {
-        s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
+      if (buildPlugins.includes(tag)) {
+        s3_location = `https://erxes-${tag}-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
         s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${tag}`;
       }
@@ -426,7 +414,6 @@ const deployDbs = async () => {
 
 const up = async ({ uis, downloadLocales, fromInstaller }) => {
   await cleaning();
-  await createRouterConfigDir();
 
   const configs = await fse.readJSON(filePath('configs.json'));
   const image_tag = configs.image_tag || 'federation';
@@ -528,7 +515,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           ...commonEnvs(configs),
           ...((configs.gateway || {}).extra_env || {})
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js', `${routerConfigDirPath}:/erxes-gateway/dist/gateway/src/apollo-router/temp`],
+        volumes: ['./enabled-services.js:/data/enabled-services.js'],
         healthcheck,
         extra_hosts,
         ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
@@ -655,9 +642,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
 
   if (configs.image_tag) {
-    if (configs.image_tag === 'dev') {
+    if (buildPlugins.includes(configs.image_tag)) {
       pluginsMapLocation =
-        'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
+        `https://erxes-${configs.image_tag}-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js`;
     } else {
       pluginsMapLocation = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${image_tag}/pluginsMap.js`;
     }
@@ -875,7 +862,6 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   log('Deploy ......');
 
   if (isSwarm) {
-    await recreateRouterConfigDir();
 
     await execCommand('docker service rm erxes_gateway', true);
 
@@ -971,7 +957,6 @@ const update = async ({ serviceNames, noimage, uis }) => {
   }
 
   log('Updating gateway ....');
-  await recreateRouterConfigDir();
   await execCommand(`docker service update --force erxes_gateway`);
 };
 

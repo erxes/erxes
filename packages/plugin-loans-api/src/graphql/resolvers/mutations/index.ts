@@ -5,6 +5,7 @@ import insuranceTypeMutations from './insuranceTypes';
 import invoiceMutations from './invoices';
 import scheduleMutations from './schedules';
 import transactionMutations from './transactions';
+import classificationMutations from './classification';
 
 export default {
   ...periodLockMutations,
@@ -13,5 +14,6 @@ export default {
   ...insuranceTypeMutations,
   ...invoiceMutations,
   ...scheduleMutations,
-  ...transactionMutations
+  ...transactionMutations,
+  ...classificationMutations
 };

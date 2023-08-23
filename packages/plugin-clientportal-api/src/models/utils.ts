@@ -1,5 +1,7 @@
 import { IModels } from '../connectionResolver';
+import { SOCIALPAY_TOKEN_URL } from '../constants';
 import messageBroker, { sendContactsMessage } from '../messageBroker';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 
 export interface IContactsParams {
   subdomain: string;
@@ -161,4 +163,42 @@ export const putActivityLog = async user => {
       }
     }
   });
+};
+
+export const fetchUserFromSocialpay = async (token: string) => {
+  try {
+    const response = await sendRequest({
+      url: SOCIALPAY_TOKEN_URL,
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: {
+        method: 'checkAdditionalToken',
+        params: [token]
+      }
+    });
+
+    const { result } = response;
+
+    if (!result || result.Result !== 'SUCCESS') {
+      return null;
+    }
+
+    return result;
+  } catch (e) {
+    return null;
+  }
+};
+
+export const handleDeviceToken = async (user, deviceToken) => {
+  if (deviceToken) {
+    const deviceTokens: string[] = user.deviceTokens || [];
+
+    if (!deviceTokens.includes(deviceToken)) {
+      deviceTokens.push(deviceToken);
+
+      await user.update({ $set: { deviceTokens } });
+    }
+  }
 };

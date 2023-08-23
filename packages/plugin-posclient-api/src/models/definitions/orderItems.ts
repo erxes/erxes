@@ -40,7 +40,6 @@ export const orderItemSchema = schemaHooksWrapper(
     }),
     discountAmount: getNumberFieldDefinition({
       label: 'Discount price amount',
-      positive: true,
       optional: true
     }),
     discountPercent: getNumberFieldDefinition({

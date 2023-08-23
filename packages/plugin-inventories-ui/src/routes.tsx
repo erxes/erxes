@@ -26,11 +26,31 @@ const safeRemainderDetails = asyncComponent(() =>
   )
 );
 
+const safeRemainderDetailsPrint = asyncComponent(() =>
+  import(
+    /* webpackChunkName: 'List - SafeRemainders' */ './safeRemainderDetails/containers/Print'
+  )
+);
+
 const transactions = asyncComponent(() =>
   import(
     /* webpackChunkName: 'List - Transactions' */ './transactions/containers/List'
   )
 );
+
+const RemaindersLog = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings List - ProductService" */ './remainders/containers/RemaindersLog'
+  )
+);
+
+const remaindersLog = ({ match, location }) => {
+  const id = match.params.id;
+
+  return (
+    <RemaindersLog id={id} queryParams={queryString.parse(location.search)} />
+  );
+};
 
 const reserveRems = ({ location, history }) => {
   return (
@@ -74,9 +94,23 @@ const routes = () => {
 
       <Route
         exact={true}
+        path="/inventories/safe-remainders/detailsPrint/:id"
+        key="/inventories/safe-remainders/detailsPrint/:id"
+        component={safeRemainderDetailsPrint}
+      />
+
+      <Route
+        exact={true}
         path="/inventories/transactions/"
         key="/inventories/transactions"
         component={transactions}
+      />
+
+      <Route
+        exact={true}
+        path="/inventories/remainders-log/"
+        key="/inventories/remainders-log"
+        component={remaindersLog}
       />
     </>
   );

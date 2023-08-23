@@ -398,7 +398,8 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.useMargin &&
-      this.state.marginAmount < this.state.leaseAmount
+      this.state.leaseAmount &&
+      Number(this.state.marginAmount) < Number(this.state.leaseAmount)
     )
       errors.marginAmount = errorWrapper(
         'Margin Amount can not be less than lease Amount'

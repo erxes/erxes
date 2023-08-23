@@ -88,14 +88,14 @@ class Record extends React.Component<Props> {
         <td key={'customerType'}>{order.customerType || ''}</td>
         <td key={'customer'}>{this.generateLabel(order.customer) || ''}</td>
         <td key={'barcode'}>{order.items?.product?.barcodes?.[0] || ''}</td>
-        <td key={'factor'}>
+        <td key={'subBarcode'}>
           {(order.items?.manufactured &&
             dayjs(order.items?.manufactured).format('YYYY-MM-DD HH:mm')) ||
             ''}
         </td>
         <td key={'code'}>{order.items?.product?.code || ''}</td>
-        <td key={'category'}>{order.items?.product?.code || ''}</td>
-        <td key={'subCategory'}>{order.items?.product?.code || ''}</td>
+        <td key={'categoryCode'}>{order.items?.productCategory?.code || ''}</td>
+        <td key={'categoryName'}>{order.items?.productCategory?.name || ''}</td>
         <td key={'name'}>{order.items?.product?.name || ''}</td>
         <td key={'count'}>{order.items?.count || 0}</td>
         <td key={'firstPrice'}>
