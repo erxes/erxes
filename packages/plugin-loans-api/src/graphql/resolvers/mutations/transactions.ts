@@ -120,7 +120,8 @@ const transactionMutations = {
             action: 'putresponses.returnBill',
             data: {
               contentType: 'loans:transaction',
-              contentId: transaction._id
+              contentId: transaction._id,
+              number: transaction.number
             },
             subdomain
           },

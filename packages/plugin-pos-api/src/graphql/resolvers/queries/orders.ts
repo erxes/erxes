@@ -148,7 +148,7 @@ export const posOrderRecordsQuery = async (
     commonQuerySelector,
     user?._id
   );
-  console.log(params, 'sssssssssssssssssssssssssssssssssss');
+
   const { perPage = 20, page = 1 } = params;
 
   const orders = await models.PosOrders.aggregate([
