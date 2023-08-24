@@ -98,7 +98,8 @@ function ActionRow({
     createdUser,
     updatedUser,
     triggers,
-    actions
+    actions,
+    tags
   } = automation;
 
   const isActive = status !== 'draft' ? true : false;
@@ -124,6 +125,11 @@ function ActionRow({
       <td className="text-warning">
         <Icon icon="share-alt" />
         <b> {s.numberFormat(actions.length)}</b>
+      </td>
+      <td>
+        {(tags || []).map(tag => (
+          <Label lblColor={tag.colorCode}>{tag.name}</Label>
+        ))}
       </td>
       <td>
         <FlexCenter>

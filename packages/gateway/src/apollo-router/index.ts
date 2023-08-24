@@ -7,10 +7,10 @@ import * as fs from 'fs';
 import * as yaml from 'yaml';
 import { ErxesProxyTarget } from 'src/proxy/targets';
 import {
+  dirTempPath,
   routerConfigPath,
   routerPath,
-  supergraphPath,
-  downloadsPath
+  supergraphPath
 } from './paths';
 import supergraphCompose from './supergraph-compose';
 // import * as getPort from 'get-port';
@@ -48,7 +48,7 @@ const downloadRouter = async () => {
   }
   const args = [
     '-c',
-    `cd ${downloadsPath} && curl -sSL https://router.apollo.dev/download/nix/v1.26.0 | sh`
+    `cd ${dirTempPath} && curl -sSL https://router.apollo.dev/download/nix/v1.26.0 | sh`
   ];
   spawnSync('sh', args, { stdio: 'inherit' });
 };
@@ -102,7 +102,7 @@ const startRouter = async (
 ): Promise<ChildProcess> => {
   await supergraphCompose(proxyTargets);
   await createRouterConfig();
-  downloadRouter();
+  await downloadRouter();
 
   const devOptions = ['--dev', '--hot-reload'];
 

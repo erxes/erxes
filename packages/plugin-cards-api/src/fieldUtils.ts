@@ -190,8 +190,6 @@ export const generateFields = async ({ subdomain, data }) => {
     // generate list using customer or company schema
     fields = [...(await generateFieldsFromSchema(schema, '')), ...fields];
 
-    console.log({ fields });
-
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
 

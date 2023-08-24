@@ -62,6 +62,7 @@ const productCategoryDetail = `
   query productCategoryDetail($_id: String) {
     productCategoryDetail(_id: $_id) {
       _id
+      code
       name
       productCount
     }
