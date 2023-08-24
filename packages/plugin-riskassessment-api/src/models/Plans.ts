@@ -1,12 +1,14 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
+import { PLAN_STATUSES } from '../common/constants';
 import { validatePlan } from '../common/validateDoc';
 import { IModels } from '../connectionResolver';
-import { IPlansDocument, plansSchema } from './definitions/plan';
 import { sendCardsMessage } from '../messageBroker';
-import { PLAN_STATUSES } from '../common/constants';
+import { IPlansDocument, plansSchema } from './definitions/plan';
 export interface IPlansModel extends Model<IPlansDocument> {
   addPlan(doc, user): Promise<IPlansDocument>;
   editPlan(_id, doc): Promise<IPlansDocument>;
+  duplicatePlan(_id, user): Promise<IPlansDocument>;
   removePlans(ids: string[]): Promise<IPlansDocument>;
   archivePlan(): Promise<IPlansDocument>;
   addSchedule(planId, doc): Promise<IPlansDocument>;
@@ -51,6 +53,55 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       }
 
       return models.Plans.deleteMany({ _id: { $in: ids } });
+    }
+
+    public static async duplicatePlan(planId: string, user: IUserDocument) {
+      const plan = await models.Plans.findOne({ planId }).lean();
+      if (!plan) {
+        throw new Error('Not Found');
+      }
+
+      const schedules = await models.Schedules.find({
+        planId: plan._id
+      }).lean();
+
+      const {
+        _id,
+        plannerId,
+        createdAt,
+        modifiedAt,
+        status,
+        cardIds,
+        ...planDoc
+      } = plan;
+
+      const newPlan = await models.Plans.create({
+        ...planDoc,
+        plannerId: user._id
+      });
+
+      const newSchedulesDoc = schedules.map(
+        ({
+          name,
+          indicatorId,
+          groupId,
+          structureTypeId,
+          assignedUserIds,
+          customFieldsData
+        }) => ({
+          planId: newPlan._id,
+          name,
+          indicatorId,
+          groupId,
+          structureTypeId,
+          assignedUserIds,
+          customFieldsData
+        })
+      );
+
+      await models.Schedules.insertMany(newSchedulesDoc);
+
+      return newPlan;
     }
 
     public static async addSchedule(planId: string, doc: any) {

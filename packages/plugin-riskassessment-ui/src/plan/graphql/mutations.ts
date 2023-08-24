@@ -38,6 +38,22 @@ const removePlan = `
     }
 `;
 
+const duplicatePlan = `
+  mutation DuplicateRiskAssessmentPlan($id: String) {
+    duplicateRiskAssessmentPlan(_id: $id) {
+      _id
+    }
+  }
+`;
+
+const changeStatus = `
+mutation ChangeStatusRiskAssessmentPlan($_id: String, $status: String) {
+  changeStatusRiskAssessmentPlan(_id: $_id, status: $status) {
+    _id
+  }
+}
+`;
+
 const commonScheduleParams = `
     $planId: String,
     $indicatorId: String,
@@ -84,6 +100,8 @@ export default {
   addPlan,
   updatePlan,
   removePlan,
+  duplicatePlan,
+  changeStatus,
   addSchedule,
   updateSchedule,
   removeSchedule

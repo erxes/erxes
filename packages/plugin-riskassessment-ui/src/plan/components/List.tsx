@@ -24,6 +24,8 @@ type Props = {
   queryParams: any;
   history: any;
   removePlans: (ids: string[]) => void;
+  duplicatePlan: (_id: string) => void;
+  changeStatus: (_id: string, status: string) => void;
 };
 
 type State = {
@@ -57,7 +59,7 @@ class List extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { list } = this.props;
+    const { list, duplicatePlan, changeStatus } = this.props;
     const { selectedItems } = this.state;
 
     const handleSelectAll = () => {
@@ -91,6 +93,7 @@ class List extends React.Component<Props, State> {
             </th>
             <th>{__('Name')}</th>
             <th>{__('Planner')}</th>
+            <th>{__('Status')}</th>
             <th>
               <SortHandler sortField="createdAt" />
               {__('Created At')}
@@ -109,6 +112,8 @@ class List extends React.Component<Props, State> {
               selectedItems={selectedItems}
               handleSelect={handleSelect}
               queryParams={this.props.queryParams}
+              duplicate={duplicatePlan}
+              changeStatus={changeStatus}
             />
           ))}
         </tbody>

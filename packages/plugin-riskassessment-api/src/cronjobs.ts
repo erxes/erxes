@@ -99,5 +99,5 @@ const handleDailyJob = async ({ subdomain }) => {
 };
 
 export default {
-  handleMinutelyJob: handleDailyJob
+  handleDailyJob
 };
