@@ -1,30 +1,12 @@
+import React from 'react';
 import { Config, IStage, IUser } from '../../types';
-import React, { useState } from 'react';
-import { TabContainers, TabTitle } from '../../styles/tasks';
-
 import Detail from '../../card/containers/Detail';
 import Group from '../containers/Group';
-import Link from 'next/link';
-import { getConfigColor } from '../../common/utils';
 import { useRouter } from 'next/router';
-import Button from '../../common/Button';
 import { __ } from '../../../utils';
-import {
-  getCurrentDate,
-  getFullTitle,
-  monthColumns,
-  nextMonth,
-  previousMonth
-} from '../../utils/calendar';
-import dayjs, { Dayjs } from 'dayjs';
-import styled from 'styled-components';
-import { colors } from '../../styles';
-import {
-  ColumnContentBody,
-  Content,
-  ContentHeader,
-  ScrolledContent
-} from '../../styles/cards';
+import { getFullTitle, monthColumns } from '../../utils/calendar';
+import { Dayjs } from 'dayjs';
+import { Content, ContentHeader, ScrolledContent } from '../../styles/cards';
 import { IDateColumn } from '../../types';
 
 type Props = {
@@ -66,33 +48,6 @@ function CalendarView({
       />
     );
   }
-
-  // const onPreviousClick = () => {
-  //   const newDate = previousMonth(currentDate);
-  //   setCurrentDate(newDate);
-  // };
-
-  // const onNextClick = () => {
-  //   const newDate = nextMonth(currentDate);
-  //   setCurrentDate(newDate);
-  // };
-
-  // const onTodayClick = () => {
-  //   const newDate = getCurrentDate();
-  //   setCurrentDate(newDate);
-  // };
-
-  // const renderColumn = (date: IDateColumn) => {
-  //   return (
-  //     <Group
-  //       groupType={groupType}
-  //       viewType={viewType}
-  //       type={type}
-  //       id={stageId}
-  //       date={date}
-  //     />
-  //   );
-  // };
 
   const renderColumn = (index: number, date: IDateColumn) => {
     return (

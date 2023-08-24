@@ -1,5 +1,5 @@
 import { Config, IStage, IUser } from '../../types';
-import React, { useState } from 'react';
+import React from 'react';
 import { TabContainers, TabTitle } from '../../styles/tasks';
 
 import Detail from '../../card/containers/Detail';

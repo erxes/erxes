@@ -8,7 +8,6 @@ import {
   ListRow
 } from '../../styles/cards';
 
-import { Card } from 'react-bootstrap';
 import React from 'react';
 import dayjs from 'dayjs';
 import { renderUserFullName } from '../../utils';
