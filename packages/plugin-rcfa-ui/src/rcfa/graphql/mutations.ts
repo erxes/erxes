@@ -47,8 +47,8 @@ mutation CloseRcfaRoot($_id: String) {
 `;
 
 const createActionInRoot = `
-mutation CreateActionRcfaRoot($issueId: String, $name: String) {
-  createActionRcfaRoot(issueId: $issueId, name: $name)
+mutation CreateActionRcfaRoot($issueId: String,$stageId:String, $name: String) {
+  createActionRcfaRoot(issueId: $issueId,stageId:$stageId, name: $name)
 }
 `;
 

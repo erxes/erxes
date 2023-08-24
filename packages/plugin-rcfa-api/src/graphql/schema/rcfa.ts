@@ -1,10 +1,21 @@
 export const types = `
+
+  extend type Ticket @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Task @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type RCFAType {
     _id: String
     mainType: String
     mainTypeId: String
+    mainTypeDetail:Ticket,
     relType: String
     relTypeId: String
+    relTypeDetail:Task
     status: String
     createdAt: Date
     userId: String
