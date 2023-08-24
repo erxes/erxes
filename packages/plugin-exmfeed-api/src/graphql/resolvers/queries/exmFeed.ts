@@ -57,7 +57,15 @@ const exmFeedQueries = {
     { models, user, subdomain }
   ) => {
     const departmentIds = user.departmentIds || [];
-    const branchIds = user.departmentIds || [];
+
+    const currentUser = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: user._id },
+      isRPC: true
+    });
+
+    const branchIds = currentUser.branchIds || [];
 
     const units = await sendCoreMessage({
       subdomain,
@@ -83,8 +91,8 @@ const exmFeedQueries = {
     ];
 
     const departmentCondition = [
-      { branchIds: { $eq: [] } },
-      { branchIds: { $size: 0 } }
+      { departmentIds: { $eq: [] } },
+      { departmentIds: { $size: 0 } }
     ];
 
     const filter: any = {
@@ -98,30 +106,41 @@ const exmFeedQueries = {
         },
         {
           $and: [
-            { branchIds: { $in: branchIds } },
             {
-              $or: unitCondition
+              $or: [
+                { branchIds: { $in: branchIds } },
+                { unitId: { $in: unitIds } },
+                { departmentIds: { $in: departmentIds } }
+              ]
             }
+          ]
+        },
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            { unitId: { $in: unitIds } }
+          ]
+        },
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            { departmentIds: { $in: departmentIds } }
           ]
         },
         {
           $and: [
             { unitId: { $in: unitIds } },
-            {
-              $or: branchCondition
-            }
+            { departmentIds: { $in: departmentIds } }
           ]
         },
         {
-          $and: [
-            { departmentIds: { $in: departmentIds } },
-            {
-              $or: branchCondition
-            },
-            {
-              $or: unitCondition
-            }
-          ]
+          $and: [{ branchIds: { $in: branchIds } }]
+        },
+        {
+          $and: [{ unitId: { $in: unitIds } }]
+        },
+        {
+          $and: [{ departmentIds: { $in: departmentIds } }]
         },
         {
           $and: [
