@@ -7,8 +7,7 @@ export const types = `
     parentId:String,
     createdAt:Date,
     status:String,
-    relType:String,
-    relTypeId:String,
+    taskIds:[String],
     description:String,
     isRootCause:Boolean
   }
@@ -24,5 +23,5 @@ export const mutations = `
   editRcfaIssue(_id:String, doc:JSON):RCFAIssue
   deleteRcfaIssue(_id:String):RCFAIssue
   closeRcfaRoot(_id:String):JSON,
-  createActionRcfaRoot(issueId:String,name:String):JSON
+  createActionRcfaRoot(issueId:String,name:String,stageId:String):JSON
 `;
