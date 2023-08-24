@@ -4,7 +4,7 @@ module.exports = defineConfig({
   projectId: "jyjb4c",
 
   env: {
-    userEmail: "erdeneuul18@gmail.com",
+    userEmail: "admin@erxes.io",
     userPassword: "Admin123@",
   },
 
