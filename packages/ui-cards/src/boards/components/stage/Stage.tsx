@@ -350,23 +350,6 @@ export default class Stage extends React.Component<Props, State> {
                   </td>
                 </tr>
               ))}
-
-              {/* <thead>
-                <tr>
-                  <td>
-                    <FormGroup>
-                      <FormControl
-                        name='width'
-                        type='number'
-                        placeholder='Width'
-                        // onChange={(event) =>
-                        //   this.onChangeCheckbox(item._id, event.target.checked)
-                        // }
-                      />
-                    </FormGroup>
-                  </td>
-                </tr>
-              </thead> */}
               <tr>
                 <td>
                   <input
