@@ -95,6 +95,11 @@ const exmFeedQueries = {
       { departmentIds: { $size: 0 } }
     ];
 
+    const recipientCondition = [
+      { recipientIds: { $eq: [] } },
+      { recipientIds: { $size: 0 } }
+    ];
+
     const filter: any = {
       $or: [
         {
@@ -134,6 +139,9 @@ const exmFeedQueries = {
           ]
         },
         {
+          $and: [{ recipientIds: { $in: [user._id] } }]
+        },
+        {
           $and: [{ branchIds: { $in: branchIds } }]
         },
         {
@@ -152,6 +160,9 @@ const exmFeedQueries = {
             },
             {
               $or: departmentCondition
+            },
+            {
+              $or: recipientCondition
             }
           ]
         },
@@ -180,30 +191,6 @@ const exmFeedQueries = {
 
     if (contentTypes && contentTypes.length > 0) {
       filter.contentType = { $in: contentTypes };
-    }
-
-    if (contentTypes && contentTypes.includes('event')) {
-      filter.$or.push(
-        { 'eventData.visibility': 'public' },
-        {
-          'eventData.visibility': 'private',
-          recipientIds: { $in: [user._id] },
-          createdBy: { $in: user._id }
-        }
-      );
-    }
-
-    if (contentTypes && contentTypes.includes('bravo')) {
-      if (recipientType === 'recieved') {
-        filter.recipientIds = { $in: [user._id] };
-      } else if (recipientType === 'sent') {
-        filter.createdBy = user._id;
-      } else {
-        filter.$or.push(
-          { recipientIds: { $in: [user._id] } },
-          { createdBy: user._id }
-        );
-      }
     }
 
     if (isPinned !== undefined) {
@@ -239,7 +226,7 @@ const exmFeedQueries = {
       }
 
       return {
-        list: await models.ExmFeed.find({ ...filter })
+        list: await models.ExmFeed.find(filter)
           .sort({
             'ExmEventData.startDate': -1
           })
