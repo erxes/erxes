@@ -157,8 +157,6 @@ export default class Field extends React.Component<Props, State> {
       isMapDraggable = false;
     }
 
-    console.log(props.field.subFields);
-    console.log(props.field.subFieldIds);
     this.state = {
       editing: false,
       dateValue: '',
