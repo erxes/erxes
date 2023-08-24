@@ -107,11 +107,10 @@ export default {
       return '';
     }
     let item;
-
     if (contentype == 'cards:stage') {
       const items = await collection.find({
         stageId: stageId,
-        _id: { $in: itemIds }
+        _id: { $in: itemIds.split(',') }
       });
       if (!items) {
         return '';
@@ -425,64 +424,48 @@ export default {
 function cardsStage(items: any[]) {
   try {
     const itemsArray = items;
-
-    const groupedData: Record<string, any> = {};
+    const aggregatedData: Record<string, any> = {
+      amount: {
+        AED: 0
+      },
+      productsData: []
+    };
     itemsArray.forEach(item => {
-      const stageId = item.stageId;
-
       const combinedNames = itemsArray.map(item => item.name).join(',');
-
-      if (!groupedData[stageId]) {
-        groupedData[stageId] = {
-          amount: {
-            AED: 0
-          },
-          isComplete: item.isComplete,
-          assignedUserIds: item.assignedUserIds,
-          watchedUserIds: item.watchedUserIds,
-          labelIds: item.labelIds,
-          tagIds: item.tagIds,
-          branchIds: item.branchIds,
-          departmentIds: item.departmentIds,
-          modifiedAt: item.modifiedAt,
-          createdAt: item.createdAt,
-          stageChangedDate: item.stageChangedDate,
-          sourceConversationIds: item.sourceConversationIds,
-          status: item.status,
-          name: combinedNames,
-          stageId: item.stageId,
-          customFieldsData: item.customFieldsData,
-          initialStageId: item.initialStageId,
-          modifiedBy: item.modifiedBy,
-          userId: item.userId,
-          productsData: []
-        };
-      }
+      aggregatedData.isComplete = item.isComplete;
+      aggregatedData.assignedUserIds = item.assignedUserIds;
+      aggregatedData.watchedUserIds = item.watchedUserIds;
+      aggregatedData.labelIds = item.labelIds;
+      aggregatedData.tagIds = item.tagIds;
+      aggregatedData.branchIds = item.branchIds;
+      aggregatedData.departmentIds = item.departmentIds;
+      aggregatedData.modifiedAt = item.modifiedAt;
+      aggregatedData.createdAt = item.createdAt;
+      aggregatedData.stageChangedDate = item.stageChangedDate;
+      aggregatedData.sourceConversationIds = item.sourceConversationIds;
+      aggregatedData.status = item.status;
+      aggregatedData.name = combinedNames;
+      aggregatedData.stageId = item.stageId;
+      aggregatedData.customFieldsData = item.customFieldsData;
+      aggregatedData.initialStageId = item.initialStageId;
+      aggregatedData.modifiedBy = item.modifiedBy;
+      aggregatedData.userId = item.userId;
+      aggregatedData.searchText = combinedNames;
 
       if (item.productsData) {
         item.productsData.forEach(product => {
-          const existingProduct = groupedData[stageId].productsData.find(
+          const existingProduct = aggregatedData.productsData.find(
             p =>
               p.productId === product.productId &&
               p.branchId === product.branchId &&
               p.departmentId === product.departmentId
           );
+
           if (existingProduct) {
             existingProduct.quantity += product.quantity;
             existingProduct.amount += product.amount;
-            existingProduct.discount += product.discount;
-            existingProduct.discountPercent += product.discountPercent;
-            existingProduct.globalUnitPrice += product.globalUnitPrice;
-            existingProduct.maxQuantity += product.maxQuantity;
-            existingProduct.unitPricePercent += product.unitPricePercent;
-            existingProduct.globalUnitPricePercent +=
-              product.globalUnitPricePercent;
-            existingProduct.maxQuantity += product.maxQuantity;
-            existingProduct.discountPercent += product.discountPercent;
-            existingProduct.discount += product.discount;
-            existingProduct.vatPercent += product.vatPercent;
           } else {
-            groupedData[stageId].productsData.push({
+            aggregatedData.productsData.push({
               tax: product.tax,
               taxPercent: product.taxPercent,
               discount: product.discount,
@@ -499,19 +482,13 @@ function cardsStage(items: any[]) {
               unitPricePercent: product.unitPricePercent
             });
           }
+
           // Update the total amount for this stage
-          groupedData[stageId].amount.AED += product.amount * product.quantity;
+          aggregatedData.amount.AED += product.amount * product.quantity;
         });
       }
     });
-
-    const extractedResults = Object.values(groupedData);
-    if (extractedResults.length > 0) {
-      const result = extractedResults[0];
-      return result;
-    } else {
-      return { error: 'No data' };
-    }
+    return aggregatedData;
   } catch (error) {
     return { error: error.message };
   }
