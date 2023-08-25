@@ -16,10 +16,10 @@ jobs:
         containers: [1, 2, 3, 4, 5]
     steps:
       
-      - name: Use Node.js 14.20.x
+      - name: Use Node.js 16.20.x
         uses: actions/setup-node@v1
         with:
-          node-version: 14.20.x
+          node-version: 16.20.x
 
       - uses: actions/checkout@v2
 
