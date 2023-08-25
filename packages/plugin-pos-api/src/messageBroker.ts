@@ -1,10 +1,5 @@
 import { afterMutationHandlers } from './afterMutations';
-import {
-  confirmLoyalties,
-  getBranchesUtil,
-  statusToDone,
-  syncOrderFromClient
-} from './utils';
+import { getBranchesUtil, statusToDone, syncOrderFromClient } from './utils';
 import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';

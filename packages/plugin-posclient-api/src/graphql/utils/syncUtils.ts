@@ -324,6 +324,17 @@ export const receiveProduct = async (models: IModels, data) => {
       tokens.push(token);
     }
     const info = action === 'update' ? updatedDocument : object;
+    if (info.attachment && info.attachment.url) {
+      const FILE_PATH = `${await getServerAddress(
+        'localhost',
+        'core'
+      )}/read-file`;
+      info.attachment.url =
+        info.attachment.url.indexOf('http') === -1
+          ? `${FILE_PATH}?key=${info.attachment.url}`
+          : info.attachment.url;
+    }
+
     return await models.Products.updateOne(
       { _id: object._id },
       {

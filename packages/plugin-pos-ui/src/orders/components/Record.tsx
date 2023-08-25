@@ -64,7 +64,7 @@ class Record extends React.Component<Props> {
           {dayjs(order.paidDate || order.createdAt).format('YYYY-MM-DD')}
         </td>
         <td key={'Time'}>
-          {dayjs(order.paidDate || order.createdAt).format('HH-mm-ss')}
+          {dayjs(order.paidDate || order.createdAt).format('HH:mm:ss')}
         </td>
         <td key={'BillID'}>{order.number} </td>
         <td key={'pos'}>
@@ -110,19 +110,20 @@ class Record extends React.Component<Props> {
           {(order.items?.count || 0) * (order.items?.unitPrice || 0)}
         </td>
         <td key={'amountType'}>
-          {[
-            ...Array.from(
-              new Set(
-                [
-                  ...order.paidAmounts,
-                  { type: 'cash', amount: order.cashAmount },
-                  { type: 'mobile', amount: order.mobileAmount }
-                ]
-                  .filter(pa => pa.amount > 0)
-                  .map(pa => pa.type)
+          {(order.status === 'return' && 'RETURNED') ||
+            [
+              ...Array.from(
+                new Set(
+                  [
+                    ...order.paidAmounts,
+                    { type: 'cash', amount: order.cashAmount },
+                    { type: 'mobile', amount: order.mobileAmount }
+                  ]
+                    .filter(pa => pa.amount > 0)
+                    .map(pa => pa.type)
+                )
               )
-            )
-          ].join(', ')}
+            ].join(', ')}
         </td>
         <td></td>
       </tr>
