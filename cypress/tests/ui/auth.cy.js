@@ -1,5 +1,6 @@
 describe("User sign up and login", () => {
     beforeEach(() => {
+        cy.exec('yarn run cypress:seedDB');
         Cypress.Cookies.debug(true);
         cy.visit('/');
         cy.clearCookies();
@@ -22,7 +23,6 @@ describe("User sign up and login", () => {
     it("Login", () => {
         const email = Cypress.env('userEmail');
         const password = Cypress.env('userPassword');
-            
         cy.login(email, password)
     })
 

@@ -1,19 +1,20 @@
 describe("Contacts", () => {
-
-  it("add & set tag & remove company", () => {
+  beforeEach(() => {
+    cy.exec('yarn run cypress:seedDB').wait(300);
     Cypress.Cookies.debug(true);
-      cy.visit('/');
-      cy.clearCookies();
-      cy.on('uncaught:exception', (err, runnable) => {
-          return false
+    cy.visit('/');
+    cy.clearCookies();
+    cy.on('uncaught:exception', (err, runnable) => {
+        return false
     })
     
     cy.login(Cypress.env('userEmail'), Cypress.env('userPassword'))
-    .visit("/companies");
+    .visit("/companies").wait(300);
+  })
+  const random = Math.random().toString(36).slice(2)
 
-    const random = Math.random().toString(36).slice(2)
+  it("add company", () => {
 
-    //add company
     cy.get('i[icon = "plus-circle"]').click();
 
     cy.get("div .Select-placeholder")
@@ -28,8 +29,10 @@ describe("Contacts", () => {
 
     cy.get('button[type="submit"]')
       .click();
+  })
 
-    //add tag
+  it("set tag company", () => {
+
     cy.get("#companiesCheckBox").click();
 
     cy.get('button[icon="tag-alt"]').click();
@@ -41,9 +44,10 @@ describe("Contacts", () => {
     .click();
 
     cy.get('button[icon="tag-alt"]').click();
+  })
 
-
-    //delete company
+  it("remove company", () => {
+  
     cy.contains(random)
     .parent()
     .parent()
@@ -56,8 +60,6 @@ describe("Contacts", () => {
     cy.get('button[icon="cancel-1"]')
     .click();
 
-    if(cy.get('div[class="modal-content"]')){
-      cy.get('button[icon="check-circle"]').click()
-    }
+    cy.get('button[icon="check-circle"]').click()
   });
 });
