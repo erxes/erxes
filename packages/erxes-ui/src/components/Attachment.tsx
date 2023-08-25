@@ -247,6 +247,7 @@ class Attachment extends React.Component<Props> {
             {__('Your browser does not support the video tag')}.
           </video>
         </ItemInfo>
+        <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
       </AttachmentWrapper>
     );
   };
