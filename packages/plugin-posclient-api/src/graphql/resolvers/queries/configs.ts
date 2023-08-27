@@ -4,14 +4,18 @@ import { sendPosMessage } from '../../../messageBroker';
 const configQueries = {
   async currentConfig(_root, _args, { models, config }: IContext) {
     if (!config) {
-      const confCount = await models.Configs.find().count();
+      const confCount = await models.Configs.find({
+        status: { $ne: 'deleted' }
+      }).count();
 
       if (!confCount) {
         return {};
       }
 
       if (confCount === 1) {
-        return await models.Configs.findOne().lean();
+        return await models.Configs.findOne({
+          status: { $ne: 'deleted' }
+        }).lean();
       }
 
       throw new Error('not found currentConfig');
@@ -20,7 +24,7 @@ const configQueries = {
   },
 
   async posclientConfigs(_root, _args, { models }: IContext) {
-    return models.Configs.find();
+    return models.Configs.find({ status: { $ne: 'deleted' } }).lean();
   },
 
   poscSlots(_root, _args, { models, config }: IContext) {

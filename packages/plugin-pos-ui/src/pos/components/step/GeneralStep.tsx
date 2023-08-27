@@ -149,8 +149,10 @@ class GeneralStep extends React.Component<Props, State> {
 
   onChangeInput = e => {
     const { pos } = this.props;
-    pos[e.target.id] = (e.currentTarget as HTMLInputElement).value;
-    this.onChangeFunction('pos', pos);
+    this.onChangeFunction('pos', {
+      ...pos,
+      [e.target.id]: (e.currentTarget as HTMLInputElement).value
+    });
   };
 
   renderCauseOnline() {

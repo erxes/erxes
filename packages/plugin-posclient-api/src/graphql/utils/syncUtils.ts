@@ -449,7 +449,7 @@ export const receivePosConfig = async (
       throw new Error('token not found');
     }
 
-    config = await models.Configs.createConfig(token);
+    config = await models.Configs.createConfig(token, pos.name);
   }
 
   await models.Configs.updateConfig(config._id, {
@@ -466,4 +466,5 @@ export const receivePosConfig = async (
 
   await importUsers(models, adminUsers, token, true);
   await importUsers(models, cashiers, token, false);
+  return models.Configs.findOne({ _id: config._id }).lean();
 };

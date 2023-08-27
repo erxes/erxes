@@ -4,6 +4,7 @@ import { IPos, IPosSlot } from '../../../models/definitions/pos';
 import {
   syncPosToClient,
   syncProductGroupsToClient,
+  syncRemovePosToClient,
   syncSlotsToClient
 } from './utils';
 
@@ -17,13 +18,13 @@ const mutations = {
     params: IPos,
     { models, user, subdomain }: IContext
   ) => {
+    const { ALL_AUTO_INIT } = process.env;
+    if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+      params.onServer = true;
+    }
     const pos = await models.Pos.posAdd(user, params);
 
-    const { ALL_AUTO_INIT } = process.env;
-    if (
-      [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
-      pos.isOnline
-    ) {
+    if (pos.onServer) {
       await syncPosToClient(subdomain, pos);
     }
 
@@ -36,6 +37,12 @@ const mutations = {
     { models, subdomain }: IContext
   ) => {
     await models.Pos.getPos({ _id });
+
+    const { ALL_AUTO_INIT } = process.env;
+    if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+      doc.isOnline = true;
+    }
+
     const updatedDocument = await models.Pos.posEdit(_id, { ...doc });
 
     await syncPosToClient(subdomain, updatedDocument);
@@ -43,7 +50,13 @@ const mutations = {
     return updatedDocument;
   },
 
-  posRemove: async (_root, { _id }: { _id: string }, { models }: IContext) => {
+  posRemove: async (
+    _root,
+    { _id }: { _id: string },
+    { models, subdomain }: IContext
+  ) => {
+    const pos = await models.Pos.getPos({ _id });
+    await syncRemovePosToClient(subdomain, pos);
     return await models.Pos.posRemove(_id);
   },
 
