@@ -428,6 +428,95 @@ const createGCS = async (models?: IModels) => {
 };
 
 /*
+ * Create Google Cloud Storage instance
+ */
+const createCFR2 = async (models?: IModels) => {
+  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+    'CLOUDFLARE_ACCOUNT_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
+    'CLOUDFLARE_ACCESS_KEY_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
+    'CLOUDFLARE_SECRET_ACCESS_KEY',
+    '',
+    models
+  );
+  const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+
+  if (!CLOUDFLARE_ACCESS_KEY_ID || !CLOUDFLARE_SECRET_ACCESS_KEY) {
+    throw new Error('Cloudflare R2 Credentials are not configured');
+  }
+
+  const options: {
+    endpoint?: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    signatureVersion: 'v4';
+  } = {
+    endpoint: CLOUDFLARE_ENDPOINT,
+    accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
+    secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
+    signatureVersion: 'v4'
+  };
+
+  return new AWS.S3(options);
+};
+
+/*
+ * Save file to Cloudflare r2
+ */
+
+export const uploadFileCloudflare = async (
+  file: { name: string; path: string; type: string },
+  forcePrivate: boolean = false,
+  models?: IModels
+): Promise<string> => {
+  const CLOUDFLARE_BUCKET = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+  const IS_PUBLIC = forcePrivate
+    ? false
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+
+  // initialize r2
+  const r2 = await createCFR2(models);
+
+  // generate unique name
+  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+
+  // read file
+  const buffer = await fs.readFileSync(file.path);
+
+  // upload to r2
+  const response: any = await new Promise((resolve, reject) => {
+    r2.upload(
+      {
+        ContentType: file.type,
+        Bucket: CLOUDFLARE_BUCKET,
+        Key: fileName,
+        Body: buffer,
+        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined
+      },
+      (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(res);
+      }
+    );
+  });
+  return IS_PUBLIC === 'true' ? response.Location : fileName;
+};
+
+/*
  * Save binary data to amazon s3
  */
 export const uploadFileAWS = async (
@@ -475,6 +564,34 @@ export const uploadFileAWS = async (
   });
 
   return IS_PUBLIC === 'true' ? response.Location : fileName;
+};
+
+/*
+ * Delete file from Cloudflare r2
+ */
+export const deleteFileCloudflare = async (
+  fileName: string,
+  models?: IModels
+) => {
+  const CLOUDFLARE_BUCKET = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  const params = { Bucket: CLOUDFLARE_BUCKET, Key: fileName };
+
+  // initialize r2
+  const r2 = await createCFR2(models);
+
+  return new Promise((resolve, reject) => {
+    r2.deleteObject(params, err => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve('ok');
+    });
+  });
 };
 
 /*
@@ -697,6 +814,40 @@ export const readFileRequest = async ({
     });
   }
 
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    const CLOUDFLARE_R2_BUCKET = await getConfig(
+      'CLOUDFLARE_BUCKET_NAME',
+      '',
+      models
+    );
+    const r2 = await createCFR2(models);
+
+    return new Promise((resolve, reject) => {
+      r2.getObject(
+        {
+          Bucket: CLOUDFLARE_R2_BUCKET,
+          Key: key
+        },
+        (error, response) => {
+          if (error) {
+            if (
+              error.code === 'NoSuchKey' &&
+              error.message.includes('key does not exist')
+            ) {
+              debugBase(
+                `Error occurred when fetching r2 file with key: "${key}"`
+              );
+            }
+
+            return reject(error);
+          }
+
+          return resolve(response.Body);
+        }
+      );
+    });
+  }
+
   if (UPLOAD_SERVICE_TYPE === 'local') {
     return new Promise((resolve, reject) => {
       fs.readFile(`${uploadsFolderPath}/${key}`, (error, response) => {
@@ -736,6 +887,10 @@ export const uploadFile = async (
     nameOrLink = await uploadFileGCS(file, models);
   }
 
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    nameOrLink = await uploadFileCloudflare(file, false, models);
+  }
+
   if (UPLOAD_SERVICE_TYPE === 'local') {
     nameOrLink = await uploadFileLocal(file);
   }
@@ -769,6 +924,10 @@ export const deleteFile = async (
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
     return deleteFileGCS(fileName, models);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    return deleteFileCloudflare(fileName, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
