@@ -75,6 +75,9 @@ type State = {
   weekends: number[];
   useHoliday: boolean;
   relContractId?: string;
+  isPayFirstMonth?: boolean;
+  isBarter?: boolean;
+  downPayment?: number;
   config?: {
     maxAmount: number;
     minAmount: number;
@@ -185,7 +188,8 @@ class ContractForm extends React.Component<Props, State> {
       weekends: this.state.weekends.map(week => Number(week)),
       useHoliday: Boolean(this.state.useHoliday),
       relContractId: this.state.relContractId,
-      currency: this.state.currency
+      currency: this.state.currency,
+      downPayment: Number(this.state.downPayment || 0)
     };
 
     if (this.state.leaseType === 'salvage') {
@@ -543,6 +547,32 @@ class ContractForm extends React.Component<Props, State> {
               )}
 
               {this.state.useMargin &&
+                this.renderFormGroup('Down payment', {
+                  ...formProps,
+                  type: 'number',
+                  name: 'downPayment',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  value: this.state.downPayment || 0,
+                  errors: this.checkValidation(),
+                  onChange: this.onChangeWithSalvage,
+                  onClick: this.onFieldClick
+                })}
+              {this.state.useMargin && (
+                <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
+                  {this.renderFormGroup('Is Barter', {
+                    ...formProps,
+                    className: 'flex-item',
+                    type: 'checkbox',
+                    componentClass: 'checkbox',
+                    name: 'isBarter',
+                    checked: this.state.isBarter || false,
+                    onChange: this.onChangeCheckbox
+                  })}
+                </div>
+              )}
+
+              {this.state.useMargin &&
                 this.renderFormGroup('Margin Amount', {
                   ...formProps,
                   type: 'number',
@@ -797,6 +827,15 @@ class ContractForm extends React.Component<Props, State> {
                 componentClass: 'checkbox',
                 name: 'useHoliday',
                 checked: this.state.useHoliday || false,
+                onChange: this.onChangeCheckbox
+              })}
+              {this.renderFormGroup('Is Pay First Month', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'isPayFirstMonth',
+                checked: this.state.isPayFirstMonth || false,
                 onChange: this.onChangeCheckbox
               })}
 
