@@ -21,6 +21,7 @@ import { isValidBarcode } from './otherUtils';
 import { IProductDocument } from '../../models/definitions/products';
 import { checkLoyalties } from './loyalties';
 import { checkPricing } from './pricing';
+import { checkRemainders } from './products';
 
 interface IDetailItem {
   count: number;
@@ -95,16 +96,70 @@ export const generateOrderNumber = async (
   return number;
 };
 
-export const validateOrder = async (models: IModels, doc: IOrderInput) => {
+export const validateOrder = async (
+  subdomain: string,
+  models: IModels,
+  config: IConfigDocument,
+  doc: IOrderInput
+) => {
   const { items = [] } = doc;
 
   if (items.filter(i => !i.isPackage).length < 1) {
     throw new Error('Products missing in order. Please add products');
   }
 
+  const products = await models.Products.find({
+    _id: { $in: items.map(i => i.productId) }
+  }).lean();
+  const productIds = products.map(p => p._id);
+
   for (const item of items) {
     // will throw error if product is not found
-    await models.Products.getProduct({ _id: item.productId });
+    if (!productIds.includes(item.productId)) {
+      throw new Error('Products missing in order');
+    }
+  }
+
+  if (
+    config.isCheckRemainder &&
+    (doc.branchId || config.branchId) &&
+    doc.type !== 'before'
+  ) {
+    const checkProducts = products.filter(
+      p => (p.isCheckRems || {})[config.token] || false
+    );
+
+    if (checkProducts.length) {
+      const result = await checkRemainders(
+        subdomain,
+        config,
+        checkProducts,
+        doc.branchId || config.branchId
+      );
+
+      const errors: string[] = [];
+      const withRemProductById = {};
+      for (const product of result) {
+        withRemProductById[product._id] = product;
+      }
+
+      for (const item of items) {
+        const product = withRemProductById[item.productId];
+        if (!product) {
+          continue;
+        }
+
+        if (product.remainder < item.count) {
+          errors.push(
+            `#${product.code} - ${product.name} have a potential sales balance of ${product.remainder}`
+          );
+        }
+      }
+
+      if (errors.length) {
+        throw new Error(errors.join(', '));
+      }
+    }
   }
 };
 

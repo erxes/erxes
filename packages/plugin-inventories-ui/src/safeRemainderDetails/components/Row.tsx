@@ -10,11 +10,12 @@ type Props = {
   item: any;
   updateItem: (_id: string, remainder: number, status: string) => void;
   removeItem: (item: any) => void;
+  onEnter: (val?: number) => void;
 };
 
 export default function Row(props: Props) {
   const timer: any = useRef(null);
-  const { item, updateItem, removeItem } = props;
+  const { item, updateItem, removeItem, onEnter } = props;
   const { product, modifiedAt, count, preCount, uom, status } = item;
 
   // states
@@ -83,6 +84,17 @@ export default function Row(props: Props) {
     setDiff(count - preCount);
   }, [count, preCount]);
 
+  const onKeyDown = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        onEnter(-1);
+        return;
+      }
+      onEnter();
+    }
+  };
+
   return (
     <tr>
       <td>{product && `${product.code} - ${product.name}`}</td>
@@ -102,12 +114,16 @@ export default function Row(props: Props) {
       </td>
 
       <td>
-        <FormControl
-          type="number"
-          value={remainder}
-          onChange={handleRemainderChange}
-          align={'right'}
-        />
+        <div className="canFocus">
+          <FormControl
+            type="number"
+            value={remainder}
+            onChange={handleRemainderChange}
+            align={'right'}
+            onKeyDown={onKeyDown}
+            onFocus={e => (e.target as any).select()}
+          />
+        </div>
       </td>
       <td>
         <FormControl

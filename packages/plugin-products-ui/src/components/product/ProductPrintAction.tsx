@@ -1,23 +1,26 @@
-import Button from '@erxes/ui/src/components/Button';
+import { gql } from '@apollo/client';
 import client from '@erxes/ui/src/apolloClient';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Dropdown from 'react-bootstrap/Dropdown';
+import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { gql } from '@apollo/client';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { getEnv, __ } from '@erxes/ui/src/utils';
+import Datetime from '@nateradebaugh/react-datetime';
 import WithPermission from 'coreui/withPermission';
-import { __, getEnv } from '@erxes/ui/src/utils';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { queries } from '../../graphql';
 
+import { Label } from '@erxes/ui/src/components/form/styles';
 import { colors } from '@erxes/ui/src/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { Flex, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 export const ActionItem = styled.button`
   width: 100%;
@@ -65,10 +68,13 @@ type State = {
   loading: boolean;
   showPopup: boolean;
   selectedDocumentId: String;
+  copyInfos: { id: string; c: number; product: any }[];
   copies: number;
   width: number;
   branchId: string;
   departmentId: string;
+  date: Date;
+  isDate: boolean;
 };
 
 class BulkDocuments extends React.Component<Props, State> {
@@ -80,8 +86,11 @@ class BulkDocuments extends React.Component<Props, State> {
       documents: [],
       loading: false,
       showPopup: false,
+      copyInfos: (props.bulk || []).map(b => ({ id: b._id, c: 1, product: b })),
       copies: 1,
       width: 300,
+      isDate: false,
+      date: new Date(),
       branchId: localStorage.getItem('erxes_products_documents_branchId') || '',
       departmentId:
         localStorage.getItem('erxes_products_documents_departmentId') || ''
@@ -89,7 +98,15 @@ class BulkDocuments extends React.Component<Props, State> {
   }
 
   loadDocuments = () => {
-    this.setState({ loading: true, showPopup: false });
+    this.setState({
+      loading: true,
+      showPopup: false,
+      copyInfos: (this.props.bulk || []).map(b => ({
+        id: b._id,
+        c: 1,
+        product: b
+      }))
+    });
 
     client
       .mutate({
@@ -106,21 +123,24 @@ class BulkDocuments extends React.Component<Props, State> {
   };
 
   print = () => {
-    const { bulk } = this.props;
     const {
       selectedDocumentId,
       copies,
+      copyInfos,
       width,
       branchId,
-      departmentId
+      departmentId,
+      isDate,
+      date
     } = this.state;
 
     window.open(
       `${
         getEnv().REACT_APP_API_URL
       }/pl:documents/print?_id=${selectedDocumentId}&productIds=${JSON.stringify(
-        bulk.map(b => b._id)
-      )}&copies=${copies}&width=${width}&branchId=${branchId}&departmentId=${departmentId}`
+        copyInfos.map(c => ({ id: c.id, c: c.c }))
+      )}&copies=${copies}&width=${width}&branchId=${branchId}&departmentId=${departmentId}&date=${date}&isDate=${isDate ||
+        ''}`
     );
   };
 
@@ -138,6 +158,36 @@ class BulkDocuments extends React.Component<Props, State> {
     });
   };
 
+  focusNext = (index: number, val?: number) => {
+    const { bulk } = this.props;
+    const length = bulk.length;
+
+    let next = index + (val || 1);
+    if (next >= length) {
+      next = 0;
+    }
+    if (next < 0) {
+      next = length - 1;
+    }
+
+    document
+      .getElementsByClassName('canFocus')
+      [next].getElementsByTagName('input')[0]
+      .focus();
+  };
+
+  onKeyDown = (ind, e) => {
+    console.log(ind);
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        this.focusNext(ind, -1);
+        return;
+      }
+      this.focusNext(ind);
+    }
+  };
+
   renderPopup() {
     const { showPopup } = this.state;
 
@@ -152,50 +202,113 @@ class BulkDocuments extends React.Component<Props, State> {
     }
 
     const content = formProps => {
-      const { copies, width } = this.state;
+      const { copies, width, copyInfos } = this.state;
 
       return (
         <>
-          <FormGroup>
-            <ControlLabel>Copies</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="copies"
-              value={copies}
-              onChange={this.onChange.bind(this, 'copies')}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Width</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="width"
-              value={width}
-              onChange={this.onChange.bind(this, 'width')}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Branch</ControlLabel>
-            <SelectBranches
-              label={__('Choose branch')}
-              name="branchId"
-              multi={false}
-              initialValue={this.state.branchId}
-              onSelect={branchId => this.onChangeSelect('branchId', branchId)}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Department</ControlLabel>
-            <SelectDepartments
-              label={__('Choose branch')}
-              name="departmentId"
-              multi={false}
-              initialValue={this.state.departmentId}
-              onSelect={departmentId =>
-                this.onChangeSelect('departmentId', departmentId)
-              }
-            />
-          </FormGroup>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Copies</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="copies"
+                  value={copies}
+                  onChange={this.onChange.bind(this, 'copies')}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Width</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="width"
+                  value={width}
+                  onChange={this.onChange.bind(this, 'width')}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Branch</ControlLabel>
+                <SelectBranches
+                  label={__('Choose branch')}
+                  name="branchId"
+                  multi={false}
+                  initialValue={this.state.branchId}
+                  onSelect={branchId =>
+                    this.onChangeSelect('branchId', branchId)
+                  }
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Department</ControlLabel>
+                <SelectDepartments
+                  label={__('Choose branch')}
+                  name="departmentId"
+                  multi={false}
+                  initialValue={this.state.departmentId}
+                  onSelect={departmentId =>
+                    this.onChangeSelect('departmentId', departmentId)
+                  }
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Date</ControlLabel>
+                <Datetime
+                  inputProps={{ placeholder: 'Click to select a date' }}
+                  dateFormat="YYYY-MM-DD"
+                  timeFormat="HH:mm"
+                  viewMode={'days'}
+                  closeOnSelect
+                  utc
+                  input
+                  value={this.state.date || null}
+                  onChange={date =>
+                    this.setState({ date: new Date(date || '') })
+                  }
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>is Date</ControlLabel>
+                <FormControl
+                  componentClass="checkbox"
+                  required={true}
+                  name="isDate"
+                  checked={this.state.isDate}
+                  onChange={e =>
+                    this.setState({ isDate: (e.target as any).checked })
+                  }
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              {(copyInfos || []).map((copy, ind) => (
+                <Flex className="canFocus">
+                  <Label>{`${copy.product.code} - ${copy.product.name}: `}</Label>
+                  <FormControl
+                    {...formProps}
+                    align="right"
+                    type="number"
+                    min={0}
+                    name="copy"
+                    value={copy.c}
+                    onKeyDown={this.onKeyDown.bind(this, ind)}
+                    onFocus={e => (e.target as any).select()}
+                    onChange={e =>
+                      this.setState({
+                        copyInfos: copyInfos.map(c =>
+                          c.id === copy.id
+                            ? {
+                                ...c,
+                                c: (e.target as any).value
+                              }
+                            : c
+                        )
+                      })
+                    }
+                  />
+                </Flex>
+              ))}
+            </FormColumn>
+          </FormWrapper>
           <Button onClick={this.print}>Print</Button>
         </>
       );
@@ -204,7 +317,7 @@ class BulkDocuments extends React.Component<Props, State> {
     return (
       <ModalTrigger
         title="Print documents"
-        size="sm"
+        size="lg"
         isOpen={true}
         content={content}
       />

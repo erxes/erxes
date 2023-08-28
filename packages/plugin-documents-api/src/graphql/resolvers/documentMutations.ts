@@ -20,5 +20,6 @@ const documentMutations = {
 };
 
 checkPermission(documentMutations, 'documentsSave', 'manageDocuments');
+checkPermission(documentMutations, 'documentsRemove', 'removeDocuments');
 
 export default documentMutations;

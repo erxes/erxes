@@ -29,6 +29,7 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { confirm } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { __ } from 'coreui/utils';
 import React from 'react';
 import { JOB_TYPE_CHOISES } from '../../constants';
@@ -37,8 +38,8 @@ import { queries } from '../../job/graphql';
 import { IOverallWorkDet } from '../../overallWork/types';
 import { AddTrigger, TableOver } from '../../styles';
 import { IProductsData } from '../../types';
-import SeriesPrint from '../containers/SeriesPrint';
 import { IPerform } from '../types';
+import FormPrintAction from './FormPrintAction';
 import PerformDetail from './PerformDetail';
 
 type Props = {
@@ -657,7 +658,7 @@ class Form extends React.Component<Props, State> {
       return (
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{__(`Send Branch`)}</ControlLabel>
+            <ControlLabel>{__(`Spend Branch`)}</ControlLabel>
             <SelectBranches
               label="Choose branch"
               name="inBranchId"
@@ -671,7 +672,7 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__(`Send Department`)}</ControlLabel>
+            <ControlLabel>{__(`Spend Department`)}</ControlLabel>
             <SelectDepartments
               label="Choose department"
               name="inDepartmentId"
@@ -893,42 +894,17 @@ class Form extends React.Component<Props, State> {
     return;
   }
 
-  printSeries = () => {
+  renderDocuments() {
     const { perform } = this.props;
-
     if (!perform || !perform._id) {
-      return;
-    }
-    window.open(`/processes/seriesNumberPrint/${perform._id}`);
-  };
-
-  renderPrintBtn() {
-    const { perform } = this.props;
-    if (!perform || !perform._id || !perform.series) {
       return <></>;
     }
-    const trigger = (
-      <Button
-        btnStyle="simple"
-        onClick={this.printSeries}
-        icon="print"
-        uppercase={false}
-      >
-        Print
-      </Button>
-    );
 
-    const modalContent = props => <SeriesPrint {...props} id={perform._id} />;
+    if (!isEnabled('documents')) {
+      return <></>;
+    }
 
-    return (
-      <ModalTrigger
-        title={__('Print performance series')}
-        size="xl"
-        trigger={trigger}
-        autoOpenKey="showPrintSeriesModal"
-        content={modalContent}
-      />
-    );
+    return <FormPrintAction perform={perform} />;
   }
 
   renderConfirmOrAbort() {
@@ -1117,8 +1093,10 @@ class Form extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
             </FormColumn>
+
+            <FormColumn>{this.renderDocuments()}</FormColumn>
+
             <FormColumn>
-              {this.renderPrintBtn()}
               <Button
                 btnStyle="simple"
                 onClick={closeModal}

@@ -41,5 +41,7 @@ export default {
     graphqlPubsub = options.pubsubClient;
   },
 
-  meta: {}
+  meta: {
+    permissions
+  }
 };

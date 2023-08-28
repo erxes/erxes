@@ -161,7 +161,7 @@ const ordersAdd = async (
     throw new Error('Please logout and reLogin');
   }
 
-  await validateOrder(models, doc);
+  await validateOrder(subdomain, models, config, doc);
 
   const orderDoc = {
     totalAmount,
@@ -245,7 +245,7 @@ const ordersEdit = async (
 
   checkOrderStatus(order);
 
-  await validateOrder(models, doc);
+  await validateOrder(subdomain, models, config, doc);
 
   await cleanOrderItems(doc._id, doc.items, models);
 
@@ -957,6 +957,7 @@ const orderMutations = {
           $set: {
             paidDate: now,
             modifiedAt: now,
+            billType: BILL_TYPES.INNER,
             status: getStatus(
               config,
               '',

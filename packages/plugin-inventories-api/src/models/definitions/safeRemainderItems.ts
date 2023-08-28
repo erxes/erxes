@@ -10,6 +10,7 @@ export interface ISafeRemainderItem {
   preCount: number;
   count: number;
   status: string;
+  order: number;
 }
 
 export interface ISafeRemainderItemDocument
@@ -25,7 +26,7 @@ export const safeRemainderItemSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     branchId: field({ type: String, default: '', label: 'Branch' }),
     departmentId: field({ type: String, default: '', label: 'Department' }),
-    remainderId: field({ type: String }),
+    remainderId: field({ type: String, index: true }),
     productId: field({ type: String, index: true }),
 
     preCount: field({ type: Number, label: 'Pre count' }),
@@ -38,14 +39,15 @@ export const safeRemainderItemSchema = schemaHooksWrapper(
       default: new Date(),
       label: 'Modified date'
     }),
-    modifiedBy: { type: String, label: 'Modified User' }
+    modifiedBy: { type: String, label: 'Modified User' },
+    order: field({ type: Number, index: true })
   }),
   'erxes_safe_remainder_items'
 );
 
 // for safeRemainderItemSchema query. increases search speed, avoids in-memory sorting
 safeRemainderItemSchema.index({
-  isDebit: 1,
+  remainderId: 1,
   productId: 1,
   branchId: 1,
   departmentId: 1

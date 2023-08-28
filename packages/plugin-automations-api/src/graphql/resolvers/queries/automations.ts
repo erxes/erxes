@@ -7,7 +7,7 @@ import { IContext } from '../../../connectionResolver';
 import { sendSegmentsMessage } from '../../../messageBroker';
 import { ITrigger } from '../../../models/definitions/automaions';
 import { serviceDiscovery } from '../../../configs';
-import { UI_ACTIONS } from '../../../constants';
+import { STATUSES, UI_ACTIONS } from '../../../constants';
 
 interface IListArgs {
   status: string;
@@ -17,6 +17,7 @@ interface IListArgs {
   perPage?: number;
   sortField: string;
   sortDirection: number;
+  tagIds: string[];
 }
 
 interface IHistoriesParams {
@@ -31,19 +32,22 @@ interface IHistoriesParams {
 }
 
 const generateFilter = (params: IListArgs) => {
-  const { status, searchValue } = params;
+  const { status, searchValue, tagIds } = params;
 
-  const filter: any = {};
+  const filter: any = { status: { $nin: [STATUSES.ARCHIVED, 'template'] } };
 
   if (status) {
     filter.status = status;
-  } else {
-    filter.status = { $ne: 'template' };
   }
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
+
+  if (tagIds) {
+    filter.tagIds = { $in: tagIds };
+  }
+
   return filter;
 };
 
@@ -236,8 +240,8 @@ const automationQueries = {
           constants.actionsConst.push(action);
         }
 
-        if (!!pluginConstants?.emailReciepentTypes?.length) {
-          const updatedEmailReciepentTypes = pluginConstants.emailReciepentTypes.map(
+        if (!!pluginConstants?.emailRecipientTypes?.length) {
+          const updatedEmailRecipIentTypes = pluginConstants.emailRecipientTypes.map(
             eRT => ({ ...eRT, serviceName })
           );
           constants.actionsConst = constants.actionsConst.map(actionConst =>
@@ -245,7 +249,7 @@ const automationQueries = {
               ? {
                   ...actionConst,
                   emailRecipientsConst: actionConst.emailRecipientsConst.concat(
-                    updatedEmailReciepentTypes
+                    updatedEmailRecipIentTypes
                   )
                 }
               : actionConst
