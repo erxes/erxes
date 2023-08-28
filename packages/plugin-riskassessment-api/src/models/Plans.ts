@@ -56,7 +56,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
     }
 
     public static async duplicatePlan(planId: string, user: IUserDocument) {
-      const plan = await models.Plans.findOne({ planId }).lean();
+      const plan = await models.Plans.findOne({ _id: planId }).lean();
       if (!plan) {
         throw new Error('Not Found');
       }

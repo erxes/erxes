@@ -58,9 +58,9 @@ class List extends React.Component<FinalProps> {
         });
     };
 
-    const duplicatePlan = _id => {
+    const duplicatePlan = id => {
       confirm().then(() => {
-        duplicatePlansMutationsResponse({ variables: { _id } })
+        duplicatePlansMutationsResponse({ variables: { id } })
           .then(() => {
             Alert.success('Duplicated successfully');
           })
