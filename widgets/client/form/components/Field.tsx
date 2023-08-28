@@ -32,6 +32,7 @@ type Props = {
   currentLocation?: ILocationOption;
   color?: string;
   mapScriptLoaded?: boolean;
+  isSubField?: boolean;
   onChange: (params: {
     fieldId: string;
     value: FieldValue;
@@ -502,7 +503,14 @@ export default class Field extends React.Component<Props, State> {
       const newData = field.subFields || [];
 
       subFields.push(newData);
-      values.push(newData.map(e => ({ _id: e._id, type: e.type, text: e.text, value: '' })) || []);
+      values.push(
+        newData.map((e) => ({
+          _id: e._id,
+          type: e.type,
+          text: e.text,
+          value: '',
+        })) || []
+      );
       this.setState({ subFields, subValues: values });
       this.onChange(values);
     };
@@ -510,7 +518,7 @@ export default class Field extends React.Component<Props, State> {
     const onRemoveClick = (index: number) => {
       subFields.splice(index, 1);
       values.splice(index, 1);
-      
+
       this.setState({ subFields });
       this.onChange(values);
     };
@@ -529,24 +537,41 @@ export default class Field extends React.Component<Props, State> {
                     X
                   </button>
                 )}
-                {fields.map((subField: IField) => {
+                <div style={{ display: 'flex', marginLeft: '-5px', marginRight: '-5px'}}>{fields.map((subField: IField) => {
                   const value = values[index]
                     ? values[index].find((v: any) => v._id === subField._id)
                     : '';
 
+                  const fieldStyle = () => {
+                    if (subField.column) {
+                      return {
+                        // width: `${100 / subField.column}%` ,
+                        width: `100%` ,
+                        margin: '0 5px',
+                        display: 'inline-block',
+                      };
+                    }
+                  };
+
                   return (
-                    <div key={`${subField._id}-${index}`}>
-                      <Field
-                        key={subField._id}
-                        field={subField}
-                        value={value ? value.value : ''}
-                        onChange={(e) => {
-                          onChangeSubField(subField, index, e);
-                        }}
-                      />
-                    </div>
+                    
+                      <div
+                        key={`${subField._id}-${index}`}
+                        style={fieldStyle()}
+                      >
+                        <Field
+                          key={subField._id}
+                          field={subField}
+                          value={value ? value.value : ''}
+                          isSubField={true}
+                          onChange={(e) => {
+                            onChangeSubField(subField, index, e);
+                          }}
+                        />
+                      </div>
+                  
                   );
-                })}
+                })}</div>
               </div>
             );
           }
@@ -813,20 +838,20 @@ export default class Field extends React.Component<Props, State> {
   }
 
   render() {
-    const { field, error } = this.props;
+    const { field, error, isSubField } = this.props;
     const { isAttachingFile } = this.state;
 
     const fieldStyle = () => {
-      if (field.column) {
+      if (field.column && !isSubField) {
         return {
           width: `${100 / field.column}%`,
           display: 'inline-block',
         };
       }
-      if(!field.subFields || field.subFields.length !== 0) {
+      if (!field.subFields || field.subFields.length !== 0) {
         return {
           paddingRight: '0',
-        }
+        };
       }
     };
 

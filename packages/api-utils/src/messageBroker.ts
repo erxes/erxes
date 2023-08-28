@@ -132,6 +132,10 @@ export const createConsumeRPCQueue = (app: Express) => (
 ) => {
   const { procedureName } = splitPluginProcedureName(queueName);
 
+  if(procedureName.includes(':')) {
+    throw new Error(`${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`)
+  }
+
   const endpoint = `/rpc/${procedureName}`;
 
   app.post(endpoint, async (req, res) => {

@@ -494,7 +494,6 @@ export const initBroker = async options => {
   });
 
   consumeRPCQueue('core:imports.prepareImportDocs', async args => {
-    console.log('sdads');
     return {
       status: 'success',
       data: await imports.prepareImportDocs(args)

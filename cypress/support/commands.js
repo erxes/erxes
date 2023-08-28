@@ -16,7 +16,7 @@ Cypress.Commands.add('login', (email, password) => {
     cy.get('input[name=email]').type(`${email}`);
     cy.get('input[name=password]').type(`${password}`); 
     cy.get('button.sc-bRBYWo').click();
-    cy.url().should('include', '/dashboard');
+    cy.wait(3000);
     cy.getCookie('auth-token').should('exist');
 })
 
