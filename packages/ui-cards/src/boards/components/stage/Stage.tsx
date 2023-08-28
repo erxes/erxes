@@ -24,16 +24,9 @@ import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
 import { OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
 import { Row } from '@erxes/ui-settings/src/styles';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { queries } from '../../graphql';
-import { getEnv } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import Modal from 'react-bootstrap/Modal';
-import Table from '@erxes/ui/src/components/table';
-import { Button, Alert } from '@erxes/ui/src';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import FormControl from '@erxes/ui/src/components/form/Control';
+import StageModal from './StageModal';
+
 type Props = {
   loadingItems: () => boolean;
   removeStage: (stageId: string) => void;
@@ -53,14 +46,7 @@ type Props = {
 type State = {
   showSortOptions: boolean;
   renderModal: boolean;
-  documents: any[];
-  loading: boolean;
-  checked: boolean;
   items: any[];
-  selectedDocumentId: string;
-  selectedDocumentName: string;
-  copies: number;
-  width: number;
 };
 
 export default class Stage extends React.Component<Props, State> {
@@ -74,36 +60,11 @@ export default class Stage extends React.Component<Props, State> {
     this.state = {
       showSortOptions: false,
       renderModal: false,
-      documents: [],
-      loading: false,
-      checked: false,
-      items: [],
-      selectedDocumentId: '',
-      selectedDocumentName: '',
-      copies: 1,
-      width: 300
+      items: []
     };
   }
-  loadDocuments = () => {
-    this.setState({ loading: true });
 
-    client
-      .mutate({
-        mutation: gql(queries.documents),
-        variables: { contentType: 'cards', subType: 'stageDeal' }
-      })
-      .then(({ data }) => {
-        this.setState({
-          documents: data.documents,
-          loading: false
-        });
-      })
-      .catch(() => {
-        this.setState({ loading: false });
-      });
-  };
   componentDidMount() {
-    this.loadDocuments();
     const handle = setInterval(() => {
       if (this.props.loadingItems()) {
         return;
@@ -133,12 +94,11 @@ export default class Stage extends React.Component<Props, State> {
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     const { stage, index, length, items, loadingItems } = this.props;
-    const { showSortOptions, renderModal, selectedDocumentId } = this.state;
+    const { showSortOptions, renderModal } = this.state;
 
     if (
       showSortOptions !== nextState.showSortOptions ||
       renderModal !== nextState.renderModal ||
-      selectedDocumentId !== nextState.selectedDocumentId ||
       index !== nextProps.index ||
       loadingItems() !== nextProps.loadingItems() ||
       length !== nextProps.length ||
@@ -166,37 +126,6 @@ export default class Stage extends React.Component<Props, State> {
       renderModal: !prevState.renderModal
     }));
     this.onClosePopover();
-  };
-
-  onchangeDocument = (itemId, itemName) => {
-    // Update the selectedDocumentId in the state
-    this.setState({
-      selectedDocumentId: itemId,
-      selectedDocumentName: itemName
-    });
-
-    // Perform additional actions as needed based on the selected item
-  };
-
-  print = () => {
-    const { items, selectedDocumentId, copies, width } = this.state;
-
-    const apiUrl = getEnv().REACT_APP_API_URL; // Replace this with your API URL
-    if (!selectedDocumentId) return Alert.error('Please select document !!!');
-    try {
-      const checkedItemIds = items
-        .filter(item => item.checked) // Filter only checked items
-        .map(item => item._id); // Map to an array of _id values
-      if (checkedItemIds.length === 0) {
-        return Alert.error('Please select item !!!');
-      }
-
-      const url = `${apiUrl}/pl:documents/print?_id=${selectedDocumentId}&itemIds=${checkedItemIds}&stageId=${this.props.stage._id}&copies=${copies}&width=${width}&contentype=cards:stage`;
-      // Open the URL in a new browser window
-      window.open(url);
-    } catch (error) {
-      console.error('An error occurred:', error);
-    }
   };
 
   onChangeCheckbox = (id: string, isChecked: boolean) => {
@@ -257,38 +186,6 @@ export default class Stage extends React.Component<Props, State> {
       </Popover>
     );
   }
-  onChangeCopies = event => {
-    this.setState({ copies: event });
-  };
-  onChangeWidth = event => {
-    this.setState({ width: event });
-  };
-
-  renderDropdown() {
-    const { selectedDocumentId, documents } = this.state;
-
-    return (
-      <Dropdown>
-        <Dropdown.Toggle variant="success" id="dropdown-basic">
-          {selectedDocumentId
-            ? documents.find(item => item._id === selectedDocumentId)?.name ||
-              'Select Document'
-            : 'Select Document'}
-        </Dropdown.Toggle>
-
-        <Dropdown.Menu>
-          {documents.map(item => (
-            <Dropdown.Item
-              key={item._id}
-              onSelect={() => this.onchangeDocument(item._id, item.name)} // this.
-            >
-              {item.name}
-            </Dropdown.Item>
-          ))}
-        </Dropdown.Menu>
-      </Dropdown>
-    );
-  }
 
   renderCtrl() {
     return (
@@ -306,104 +203,6 @@ export default class Stage extends React.Component<Props, State> {
           <Icon icon="ellipsis-h" />
         </ActionButton>
       </OverlayTrigger>
-    );
-  }
-
-  renderModal() {
-    const { renderModal } = this.state;
-    const { items } = this.props;
-    if (!renderModal) {
-      return null;
-    }
-    return (
-      <Modal
-        centered
-        show={renderModal}
-        onHide={this.toggleModal}
-        backdrop="static"
-        keyboard={false}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{__('Print document')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Table>
-            <thead>
-              <tr>
-                <th>{__('Name')}</th>
-                <th>{__('Action')}</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {items.map(item => (
-                <tr key={item._id}>
-                  <td>{item.name}</td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={event =>
-                        this.onChangeCheckbox(item._id, event.target.checked)
-                      }
-                    />
-                  </td>
-                </tr>
-              ))}
-              <tr>
-                <td>
-                  <input
-                    type="number"
-                    name="copies"
-                    placeholder="Copies"
-                    onChange={event => this.onChangeCopies(event.target.value)}
-                  />
-                </td>
-
-                <td>
-                  <input
-                    type="number"
-                    name="width"
-                    placeholder="Width"
-                    onChange={event => this.onChangeWidth(event.target.value)}
-                  />
-                </td>
-              </tr>
-              <tr></tr>
-              <tr>
-                <td colSpan={2}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'flex-end'
-                    }}
-                  >
-                    {this.renderDropdown()}
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </Table>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            btnStyle="simple"
-            size="small"
-            icon="times-circle"
-            onClick={this.toggleModal}
-          >
-            {__('Cancel')}
-          </Button>
-          <Button
-            btnStyle="success"
-            size="small"
-            onClick={this.print}
-            icon="checked-1"
-          >
-            {__('Save')}
-          </Button>
-        </Modal.Footer>
-      </Modal>
     );
   }
 
@@ -561,6 +360,16 @@ export default class Stage extends React.Component<Props, State> {
     );
   }
 
+  renderTriggerModal() {
+    return this.state.renderModal ? (
+      <StageModal
+        item={this.props.items}
+        toggleModal={this.toggleModal}
+        stage={this.props.stage}
+      />
+    ) : null;
+  }
+
   render() {
     const { index, stage } = this.props;
 
@@ -580,8 +389,8 @@ export default class Stage extends React.Component<Props, State> {
                     <span>{stage.itemsTotalCount}</span>
                   </div>
                   {this.renderCtrl()}
-                  {this.state.renderModal && this.renderModal()}
                 </StageTitle>
+
                 <Row>
                   {renderAmount(stage.amount)}
                   {renderAmount(stage.unUsedAmount, false)}
@@ -590,6 +399,7 @@ export default class Stage extends React.Component<Props, State> {
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
                 {this.renderItemList()}
+                {this.renderTriggerModal()},
               </Body>
               {this.renderAddItemTrigger()}
             </StageRoot>
