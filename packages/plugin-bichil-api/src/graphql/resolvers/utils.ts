@@ -824,7 +824,7 @@ export const bichilTimeclockReportPivot = async (
   exportToXlsx?: boolean
 ) => {
   const models = await generateModels(subdomain);
-  const usersReport: IUserReport = { scheduleReport: [] };
+  const usersReport: any = { scheduleReport: [] };
   const shiftsOfSchedule: any = [];
 
   // get the schedule data of this month
