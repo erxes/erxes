@@ -537,7 +537,7 @@ export default class Field extends React.Component<Props, State> {
                     X
                   </button>
                 )}
-                {fields.map((subField: IField) => {
+                <div style={{ display: 'flex', marginLeft: '-5px', marginRight: '-5px'}}>{fields.map((subField: IField) => {
                   const value = values[index]
                     ? values[index].find((v: any) => v._id === subField._id)
                     : '';
@@ -545,8 +545,9 @@ export default class Field extends React.Component<Props, State> {
                   const fieldStyle = () => {
                     if (subField.column) {
                       return {
-                        width: `${100 / subField.column}%` ,
-                        margin: '0 auto',
+                        // width: `${100 / subField.column}%` ,
+                        width: `100%` ,
+                        margin: '0 5px',
                         display: 'inline-block',
                       };
                     }
@@ -570,7 +571,7 @@ export default class Field extends React.Component<Props, State> {
                       </div>
                   
                   );
-                })}
+                })}</div>
               </div>
             );
           }
