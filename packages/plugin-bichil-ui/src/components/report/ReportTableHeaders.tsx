@@ -3,15 +3,18 @@ import React from 'react';
 
 type Props = {
   reportType: string;
+  showBranch: boolean;
+  showDepartment: boolean;
 };
 
 function TableHeaders(props: Props) {
-  const { reportType } = props;
+  const { reportType, showBranch, showDepartment } = props;
 
   switch (reportType) {
     case 'Урьдчилсан':
       return (
         <tr>
+          <th>{__('№')}</th>
           <th>{__('Team member Id')}</th>
           <th>{__('Last Name')}</th>
           <th>{__('First Name')}</th>
@@ -25,6 +28,9 @@ function TableHeaders(props: Props) {
       return (
         <>
           <tr>
+            <th rowSpan={2}>{__('№')}</th>
+            {showDepartment && <th rowSpan={2}>{__('Department')}</th>}
+            {showBranch && <th rowSpan={2}>{__('Branch')}</th>}
             <th rowSpan={2}>{__('Team member Id')}</th>
             <th rowSpan={2}>{__('Position')}</th>
             <th rowSpan={2}>{__('Last Name')}</th>
@@ -37,13 +43,13 @@ function TableHeaders(props: Props) {
             </th>
           </tr>
           <tr>
-            <td>{__('Days')}</td>
-            <td>{__('Hours')}</td>
-            <td>{__('Worked days')}</td>
-            <td>{__('Worked hours')}</td>
-            <td>{__('Shift request')}</td>
-            <td>{__('Overtime')}</td>
-            <td>{__('Mins Late')}</td>
+            <th>{__('Days')}</th>
+            <th>{__('Hours')}</th>
+            <th>{__('Worked days')}</th>
+            <th>{__('Worked hours')}</th>
+            <th>{__('Shift request')}</th>
+            <th>{__('Overtime')}</th>
+            <th>{__('Mins Late')}</th>
           </tr>
         </>
       );
@@ -72,23 +78,24 @@ function TableHeaders(props: Props) {
             </th>
           </tr>
           <tr>
-            <td>{__('Team member Id')}</td>
-            <td>{__('Last Name')}</td>
-            <td>{__('First Name')}</td>
-            <td>{__('Position')}</td>
-            <td>{__('Date')}</td>
-            <td>{__('Planned Check In')}</td>
-            <td>{__('Planned Check Out')}</td>
-            <td>{__('Planned Duration')}</td>
-            <td>{__('Check In')}</td>
-            <td>{__('In Device')}</td>
-            <td>{__('Check Out')}</td>
-            <td>{__('Out Device')}</td>
-            <td>{__('Location')}</td>
-            <td>{__('Duration')}</td>
-            <td>{__('Overtime')}</td>
-            <td>{__('Overnight')}</td>
-            <td>{__('Mins Late')}</td>
+            <th>{__('№')}</th>
+            <th>{__('Team member Id')}</th>
+            <th>{__('Last Name')}</th>
+            <th>{__('First Name')}</th>
+            <th>{__('Position')}</th>
+            <th>{__('Date')}</th>
+            <th>{__('Planned Check In')}</th>
+            <th>{__('Planned Check Out')}</th>
+            <th>{__('Planned Duration')}</th>
+            <th>{__('Check In')}</th>
+            <th>{__('In Device')}</th>
+            <th>{__('Check Out')}</th>
+            <th>{__('Out Device')}</th>
+            <th>{__('Location')}</th>
+            <th>{__('Duration')}</th>
+            <th>{__('Overtime')}</th>
+            <th>{__('Overnight')}</th>
+            <th>{__('Mins Late')}</th>
           </tr>
         </>
       );
