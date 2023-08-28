@@ -44,6 +44,7 @@ export default {
   },
   meta: {
     afterMutations,
-    afterQueries
+    afterQueries,
+    permissions
   }
 };

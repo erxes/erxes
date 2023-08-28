@@ -1,111 +1,13 @@
 // import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-import {
-  putCreateLog,
-  putUpdateLog,
-  putDeleteLog,
-  MODULE_NAMES
-} from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
 import {
-  IPerform,
-  IPerformDocument
-} from '../../../models/definitions/performs';
+  MODULE_NAMES,
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog
+} from '../../../logUtils';
 import { sendInventoriesMessage } from '../../../messageBroker';
-
-const editQuantity = async (
-  subdomain: string,
-  oldPerform: IPerformDocument,
-  newPerform: IPerformDocument,
-  kind: 'in' | 'out'
-) => {
-  const keyProducts = `${kind}Products`;
-  const keyBranchId = `${kind}BranchId`;
-  const keyDepartmentId = `${kind}DepartmentId`;
-  const multiplier = kind === 'in' ? 1 : -1;
-
-  if (!(oldPerform[keyProducts].length && newPerform[keyProducts].length)) {
-    return;
-  }
-
-  if (
-    oldPerform[keyBranchId] === newPerform[keyBranchId] &&
-    oldPerform[keyDepartmentId] === newPerform[keyDepartmentId]
-  ) {
-    const keyProductsByProductId = {};
-    for (const data of oldPerform[keyProducts]) {
-      keyProductsByProductId[data.productId] = {
-        uom: data.uom,
-        diffCount: data.quantity
-      };
-    }
-
-    for (const updatedData of newPerform[keyProducts]) {
-      const oldData = keyProductsByProductId[updatedData.productId];
-      if (oldData) {
-        oldData.diffCount =
-          multiplier * (oldData.diffCount - updatedData.quantity);
-      } else {
-        keyProductsByProductId[updatedData.productId] = {
-          uom: updatedData.uom,
-          diffCount: -1 * multiplier * updatedData.quantity
-        };
-      }
-    }
-
-    const keyProductsData: any[] = [];
-    for (const productId of Object.keys(keyProductsByProductId)) {
-      if (keyProductsByProductId[productId].diffCount !== 0) {
-        keyProductsData.push({
-          productId,
-          ...keyProductsByProductId[productId]
-        });
-      }
-    }
-
-    if (keyProductsData.length) {
-      // processes in or inventories credit and out or inventories debit
-      await sendInventoriesMessage({
-        subdomain,
-        action: 'remainders.updateMany',
-        data: {
-          branchId: newPerform[keyBranchId],
-          departmentId: newPerform[keyDepartmentId],
-          productsData: keyProductsData
-        }
-      });
-    }
-
-    return;
-  }
-
-  await sendInventoriesMessage({
-    subdomain,
-    action: 'remainders.updateMany',
-    data: {
-      branchId: oldPerform[keyBranchId],
-      departmentId: oldPerform[keyDepartmentId],
-      productsData: (oldPerform[keyProducts] || []).map(ip => ({
-        productId: ip.productId,
-        uom: ip.uom,
-        diffCount: 1 * multiplier * ip.quantity
-      }))
-    }
-  });
-
-  await sendInventoriesMessage({
-    subdomain,
-    action: 'remainders.updateMany',
-    data: {
-      branchId: newPerform[keyBranchId],
-      departmentId: newPerform[keyDepartmentId],
-      productsData: (newPerform[keyProducts] || []).map(ip => ({
-        productId: ip.productId,
-        uom: ip.uom,
-        diffCount: -1 * multiplier * ip.quantity
-      }))
-    }
-  });
-};
+import { IPerform } from '../../../models/definitions/performs';
 
 const performMutations = {
   /**
@@ -166,9 +68,6 @@ const performMutations = {
       },
       perform
     );
-
-    // await editQuantity(subdomain, perform, updatedPerform, 'in');
-    // await editQuantity(subdomain, perform, updatedPerform, 'out');
 
     await putUpdateLog(
       models,
@@ -334,9 +233,6 @@ const performMutations = {
       },
       perform
     );
-
-    // await editQuantity(subdomain, perform, updatedPerform, 'in');
-    // await editQuantity(subdomain, perform, updatedPerform, 'out');
 
     await putUpdateLog(
       models,

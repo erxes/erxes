@@ -3,6 +3,7 @@ const documents = `
     documents(page: $page, perPage: $perPage, contentType: $contentType) {
       _id
       contentType
+      subType
       name
       createdAt
     }
@@ -14,6 +15,7 @@ const documentsDetail = `
     documentsDetail(_id: $_id) {
       _id
       contentType
+      subType
       name
       content
       replacer
@@ -41,6 +43,7 @@ const documentsGetContentTypes = `
   documentsGetContentTypes {
     contentType
     label
+    subTypes
   }
 }
 `;

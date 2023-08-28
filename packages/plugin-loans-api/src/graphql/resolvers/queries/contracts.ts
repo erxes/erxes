@@ -2,7 +2,6 @@ import { getCloseInfo } from '../../../models/utils/closeUtils';
 import { getFullDate } from '../../../models/utils/utils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import redis from '../../../redis';
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -11,6 +10,10 @@ const generateFilter = async (models, params, commonQuerySelector) => {
 
   if (params.searchValue) {
     filter.number = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
+  }
+
+  if (params.status) {
+    filter.status = params.status;
   }
 
   // if (params.ids) {
@@ -253,11 +256,15 @@ const contractQueries = {
     return models.Contracts.getContract({ _id });
   },
 
-  closeInfo: async (_root, { contractId, date }, { models }: IContext) => {
+  closeInfo: async (
+    _root,
+    { contractId, date },
+    { models, subdomain }: IContext
+  ) => {
     const contract = await models.Contracts.getContract({
       _id: contractId
     });
-    return getCloseInfo(models, redis, contract, date);
+    return getCloseInfo(models, subdomain, contract, date);
   }
 };
 
