@@ -37,13 +37,29 @@ export default function List(props: Props) {
     { title: __('Safe Remainder') }
   ];
 
+  const focusNext = (index: number, length: number, val?: number) => {
+    let next = index + (val || 1);
+    if (next >= length) {
+      next = 0;
+    }
+    if (next < 0) {
+      next = length - 1;
+    }
+
+    document
+      .getElementsByClassName('canFocus')
+      [next].getElementsByTagName('input')[0]
+      .focus();
+  };
+
   const renderRow = (remainderItems: any[]) => {
-    return (remainderItems || []).map(item => (
+    return (remainderItems || []).map((item, ind) => (
       <Row
         key={item._id}
         item={item}
         updateItem={updateItem}
         removeItem={removeItem}
+        onEnter={val => focusNext(ind, remainderItems.length, val)}
       />
     ));
   };

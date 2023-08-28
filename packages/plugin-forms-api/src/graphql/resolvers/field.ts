@@ -35,6 +35,15 @@ export const field = {
     return models.Fields.findOne({ _id: associatedFieldId });
   },
 
+  async subFields(root: IFieldDocument, _params, { models }: IContext) {
+    const { subFieldIds = [] } = root;
+    const subfields = await models.Fields.find({ _id: { $in: subFieldIds } });
+
+    return subfields.sort(
+      (a, b) => subFieldIds.indexOf(a._id) - subFieldIds.indexOf(b._id)
+    );
+  },
+
   async groupName(root: IFieldDocument, _params, { models }: IContext) {
     const { groupId } = root;
 

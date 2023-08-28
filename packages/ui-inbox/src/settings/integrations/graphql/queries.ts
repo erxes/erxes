@@ -121,6 +121,7 @@ const integrations = `
             `
           : ''
       }
+      data
       healthStatus
     }
   }

@@ -78,7 +78,7 @@ class TableDetail extends React.Component<Props> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.rcfa), {
+    graphql<Props>(gql(queries.rcfaDetail), {
       name: 'rcfaDetail',
       options: (props: any) => ({
         variables: {

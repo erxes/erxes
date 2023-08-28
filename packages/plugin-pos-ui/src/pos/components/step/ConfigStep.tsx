@@ -10,7 +10,8 @@ import {
   Icon,
   Tip,
   ModalTrigger,
-  __
+  __,
+  FormControl
 } from '@erxes/ui/src';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import {
@@ -37,6 +38,8 @@ type State = {
   initialCategoryIds: string[];
   kioskExcludeCategoryIds: string[];
   kioskExcludeProductIds: string[];
+  isCheckRemainder: boolean;
+  checkExcludeCategoryIds: string[];
 };
 
 export default class ConfigStep extends React.Component<Props, State> {
@@ -51,7 +54,9 @@ export default class ConfigStep extends React.Component<Props, State> {
       mappings: pos && pos.catProdMappings ? pos.catProdMappings : [],
       initialCategoryIds: (pos && pos.initialCategoryIds) || [],
       kioskExcludeCategoryIds: (pos && pos.kioskExcludeCategoryIds) || [],
-      kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || []
+      kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || [],
+      isCheckRemainder: (pos && pos.isCheckRemainder) || false,
+      checkExcludeCategoryIds: (pos && pos.checkExcludeCategoryIds) || []
     };
   }
 
@@ -182,19 +187,11 @@ export default class ConfigStep extends React.Component<Props, State> {
     );
   }
 
-  onChangeInitialCategory = values => {
+  onChangeValue = (name, value) => {
     const { pos, onChange } = this.props;
-    const initialCategoryIds = values;
-    this.setState({ initialCategoryIds });
+    this.setState({ [name]: value } as any);
 
-    onChange('pos', { ...pos, initialCategoryIds });
-  };
-
-  onChangekioskExclude = (name, ids) => {
-    const { pos, onChange } = this.props;
-    this.setState({ [name]: ids } as any);
-
-    onChange('pos', { ...pos, [name]: ids });
+    onChange('pos', { ...pos, [name]: value });
   };
 
   render() {
@@ -203,7 +200,9 @@ export default class ConfigStep extends React.Component<Props, State> {
       mappings = [],
       initialCategoryIds,
       kioskExcludeCategoryIds,
-      kioskExcludeProductIds
+      kioskExcludeProductIds,
+      isCheckRemainder,
+      checkExcludeCategoryIds
     } = this.state;
 
     const groupTrigger = (
@@ -251,7 +250,7 @@ export default class ConfigStep extends React.Component<Props, State> {
                     label: '...Clear product category filter'
                   }}
                   onSelect={categoryIds =>
-                    this.onChangeInitialCategory(categoryIds)
+                    this.onChangeValue('initialCategoryIds', categoryIds)
                   }
                   multi={true}
                 />
@@ -267,10 +266,7 @@ export default class ConfigStep extends React.Component<Props, State> {
                   name="kioskExcludeCategoryIds"
                   initialValue={kioskExcludeCategoryIds}
                   onSelect={categoryIds =>
-                    this.onChangekioskExclude(
-                      'kioskExcludeCategoryIds',
-                      categoryIds
-                    )
+                    this.onChangeValue('kioskExcludeCategoryIds', categoryIds)
                   }
                   multi={true}
                 />
@@ -282,10 +278,7 @@ export default class ConfigStep extends React.Component<Props, State> {
                   name="kioskExcludeProductIds"
                   initialValue={kioskExcludeProductIds}
                   onSelect={productIds =>
-                    this.onChangekioskExclude(
-                      'kioskExcludeProductIds',
-                      productIds
-                    )
+                    this.onChangeValue('kioskExcludeProductIds', productIds)
                   }
                   multi={true}
                 />
@@ -305,6 +298,39 @@ export default class ConfigStep extends React.Component<Props, State> {
               <Button btnStyle="primary" icon="plus-circle" onClick={onClick}>
                 Add mapping
               </Button>
+            </Block>
+
+            <Block>
+              <h4>{__('Remainder configs')}</h4>
+              <Description>
+                Map a product to category. When a product within that category
+                is sold in pos system with "take" option, then the mapped
+                product will be added to the price.
+              </Description>
+              <FormGroup>
+                <FormControl
+                  checked={isCheckRemainder}
+                  componentClass="checkbox"
+                  onChange={e => {
+                    this.onChangeValue(
+                      'isCheckRemainder',
+                      (e.target as any).checked
+                    );
+                  }}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Categories</ControlLabel>
+                <SelectProductCategory
+                  label={'kiosk'}
+                  name="checkExcludeCategoryIds"
+                  initialValue={checkExcludeCategoryIds}
+                  onSelect={categoryIds =>
+                    this.onChangeValue('checkExcludeCategoryIds', categoryIds)
+                  }
+                  multi={true}
+                />
+              </FormGroup>
             </Block>
           </LeftItem>
         </FlexColumn>

@@ -12,6 +12,7 @@ import messageBroker from './messageBroker';
 import { jobReferSchema } from './models/definitions/jobs';
 import { jobCategorySchema } from './models/definitions/jobCategories';
 import { flowSchema } from './models/definitions/flows';
+import { performSchema } from './models/definitions/performs';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -20,9 +21,8 @@ export const LOG_ACTIONS = {
 };
 
 export const MODULE_NAMES = {
-  PRODUCT: 'product',
-  PRODUCT_CATEGORY: 'productCategory',
   JOBREFER: 'jobRefer',
+  JOBREFER_CATEGORY: 'jobReferCategory',
   FLOW: 'flow',
   WORK: 'work',
   OVERALWORK: 'overalWork',
@@ -60,7 +60,7 @@ export const putDeleteLog = async (
   await commonPutDeleteLog(
     subdomain,
     messageBroker(),
-    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `processes:${logDoc.type}` },
     user
   );
 };
@@ -83,7 +83,7 @@ export const putUpdateLog = async (
   await commonPutUpdateLog(
     subdomain,
     messageBroker(),
-    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `processes:${logDoc.type}` },
     user
   );
 };
@@ -106,7 +106,7 @@ export const putCreateLog = async (
   await commonPutCreateLog(
     subdomain,
     messageBroker(),
-    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `processes:${logDoc.type}` },
     user
   );
 };
@@ -117,7 +117,8 @@ export default {
     data: getSchemaLabels(type, [
       { name: 'jobRefer', schemas: [jobReferSchema] },
       { name: 'jobCategory', schemas: [jobCategorySchema] },
-      { name: 'flow', schemas: [flowSchema] }
+      { name: 'flow', schemas: [flowSchema] },
+      { name: 'perform', schemas: [performSchema] }
     ])
   })
 };

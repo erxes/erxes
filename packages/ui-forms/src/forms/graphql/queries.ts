@@ -39,7 +39,8 @@ const fields = `
       pageNumber
       productCategoryId
       isDefinedByErxes
-      optionsValues,
+      optionsValues
+      subFieldIds
     }
   }
 `;

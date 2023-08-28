@@ -116,6 +116,25 @@ const getStatus = (config, buttonType, doc, order?) => {
   return ORDER_STATUSES.NEW;
 };
 
+const orderAdd = async (models, lastDoc, config) => {
+  try {
+    const number = await generateOrderNumber(models, config);
+
+    const order = await models.Orders.createOrder({
+      ...lastDoc,
+      number
+    });
+
+    return order;
+  } catch (e) {
+    if (e.message.includes(`E11000 duplicate key error`)) {
+      return await orderAdd(models, lastDoc, config);
+    } else {
+      throw new Error(e.message);
+    }
+  }
+};
+
 const ordersAdd = async (
   doc: IOrderInput,
   {
@@ -142,11 +161,9 @@ const ordersAdd = async (
     throw new Error('Please logout and reLogin');
   }
 
-  await validateOrder(models, doc);
-  const number = await generateOrderNumber(models, config);
+  await validateOrder(subdomain, models, config, doc);
 
   const orderDoc = {
-    number,
     totalAmount,
     type,
     branchId,
@@ -160,7 +177,7 @@ const ordersAdd = async (
 
     const status = getStatus(config, doc.buttonType, doc);
 
-    const order = await models.Orders.createOrder({
+    const lastDoc = {
       ...doc,
       ...orderDoc,
       totalAmount: getTotalAmount(preparedDoc.items),
@@ -169,7 +186,9 @@ const ordersAdd = async (
       departmentId: config.departmentId,
       taxInfo: getTaxInfo(config),
       status
-    });
+    };
+
+    const order = await orderAdd(models, lastDoc, config);
 
     for (const item of preparedDoc.items) {
       await models.OrderItems.createOrderItem({
@@ -226,7 +245,7 @@ const ordersEdit = async (
 
   checkOrderStatus(order);
 
-  await validateOrder(models, doc);
+  await validateOrder(subdomain, models, config, doc);
 
   await cleanOrderItems(doc._id, doc.items, models);
 
@@ -938,6 +957,7 @@ const orderMutations = {
           $set: {
             paidDate: now,
             modifiedAt: now,
+            billType: BILL_TYPES.INNER,
             status: getStatus(
               config,
               '',

@@ -106,6 +106,10 @@ export const fixPermissions = async (
   const modules = Object.getOwnPropertyNames(permissionObjects);
   const result: string[] = [];
 
+  try {
+    registerModule(externalObjects);
+  } catch (e) {}
+
   for (const mod of modules) {
     const moduleItem: IModuleMap = permissionObjects[mod];
 

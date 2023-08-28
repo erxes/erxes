@@ -26,11 +26,13 @@ import Product from './Product';
 
 type Props = {
   field: IField;
+  fields?: IField[];
   error?: IFieldError;
   value?: FieldValue;
   currentLocation?: ILocationOption;
   color?: string;
   mapScriptLoaded?: boolean;
+  isSubField?: boolean;
   onChange: (params: {
     fieldId: string;
     value: FieldValue;
@@ -50,6 +52,8 @@ type State = {
   objectListConfigs: IObjectListConfig[];
   editing: boolean;
   qty?: number;
+  subFields: IField[][];
+  subValues: any[];
 };
 
 export default class Field extends React.Component<Props, State> {
@@ -164,6 +168,8 @@ export default class Field extends React.Component<Props, State> {
         lng: 0.0,
       },
       objectListConfigs: [],
+      subFields: [props.field.subFields || []],
+      subValues: [],
     };
   }
 
@@ -454,10 +460,128 @@ export default class Field extends React.Component<Props, State> {
         return;
       }
 
-      this.onChange({product, quantity});
+      this.onChange({ product, quantity });
     };
 
-    return <Product products={products as any} onChange={onChangeProduct as any} />;
+    return (
+      <Product products={products as any} onChange={onChangeProduct as any} />
+    );
+  }
+
+  renderSubFields(field: IField) {
+    const subFields = this.state.subFields;
+
+    const values = this.state.subValues;
+
+    const onChangeSubField = (subField: IField, index: number, e: any) => {
+      const value = {
+        _id: subField._id,
+        type: subField.type,
+        text: subField.text,
+        value: e.value,
+      };
+
+      if (index >= 0 && index < values.length) {
+        const currentIndex = values[index].findIndex(
+          (subValue: any) => subValue._id === subField._id
+        );
+
+        if (currentIndex === -1) {
+          values[index].push(value);
+        }
+
+        values[index][currentIndex] = value;
+      } else {
+        values[index] = [];
+        values[index].push(value);
+      }
+
+      this.onChange(values);
+    };
+
+    const onAddClick = () => {
+      const newData = field.subFields || [];
+
+      subFields.push(newData);
+      values.push(
+        newData.map((e) => ({
+          _id: e._id,
+          type: e.type,
+          text: e.text,
+          value: '',
+        })) || []
+      );
+      this.setState({ subFields, subValues: values });
+      this.onChange(values);
+    };
+
+    const onRemoveClick = (index: number) => {
+      subFields.splice(index, 1);
+      values.splice(index, 1);
+
+      this.setState({ subFields });
+      this.onChange(values);
+    };
+
+    return (
+      <div className="field-groups">
+        {this.state.subFields.map((fields, index) => {
+          {
+            return (
+              <div className="field-group">
+                {subFields.length > 1 && (
+                  <button
+                    className="removeBtn"
+                    onClick={() => onRemoveClick(index)}
+                  >
+                    X
+                  </button>
+                )}
+                <div style={{ display: 'flex', marginLeft: '-5px', marginRight: '-5px'}}>{fields.map((subField: IField) => {
+                  const value = values[index]
+                    ? values[index].find((v: any) => v._id === subField._id)
+                    : '';
+
+                  const fieldStyle = () => {
+                    if (subField.column) {
+                      return {
+                        // width: `${100 / subField.column}%` ,
+                        width: `100%` ,
+                        margin: '0 5px',
+                        display: 'inline-block',
+                      };
+                    }
+                  };
+
+                  return (
+                    
+                      <div
+                        key={`${subField._id}-${index}`}
+                        style={fieldStyle()}
+                      >
+                        <Field
+                          key={subField._id}
+                          field={subField}
+                          value={value ? value.value : ''}
+                          isSubField={true}
+                          onChange={(e) => {
+                            onChangeSubField(subField, index, e);
+                          }}
+                        />
+                      </div>
+                  
+                  );
+                })}</div>
+              </div>
+            );
+          }
+        })}
+
+        <button onClick={onAddClick} type="button">
+          {__('add more')}
+        </button>
+      </div>
+    );
   }
 
   renderObjectList(objectListConfigs: any, attrs: any) {
@@ -489,7 +613,8 @@ export default class Field extends React.Component<Props, State> {
   }
 
   renderControl() {
-    const { field, value } = this.props;
+    const { value } = this.props;
+    const field = this.props.field;
     const { options = [], validation = 'text' } = field;
     const name = field._id;
 
@@ -665,6 +790,9 @@ export default class Field extends React.Component<Props, State> {
 
         return this.renderProduct(field);
 
+      case 'parentField':
+        return this.renderSubFields(field);
+
       case 'objectList':
         return this.renderObjectList(field.objectListConfigs, attrs);
 
@@ -710,14 +838,19 @@ export default class Field extends React.Component<Props, State> {
   }
 
   render() {
-    const { field, error } = this.props;
+    const { field, error, isSubField } = this.props;
     const { isAttachingFile } = this.state;
 
     const fieldStyle = () => {
-      if (field.column) {
+      if (field.column && !isSubField) {
         return {
           width: `${100 / field.column}%`,
           display: 'inline-block',
+        };
+      }
+      if (!field.subFields || field.subFields.length !== 0) {
+        return {
+          paddingRight: '0',
         };
       }
     };

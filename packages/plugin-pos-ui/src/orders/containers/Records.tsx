@@ -8,9 +8,10 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { ListQueryVariables, OrderRecordsQueryResponse } from '../types';
 import { queries } from '../graphql';
 import { withRouter } from 'react-router-dom';
-import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
+import { Bulk, getEnv, withProps, router, Spinner } from '@erxes/ui/src';
 import { FILTER_PARAMS } from '../../constants';
 import { IQueryParams } from '@erxes/ui/src/types';
+import { OrderRecordsCountQueryResponse } from '../../../.erxes/plugin-src/orders/types';
 
 type Props = {
   queryParams: any;
@@ -19,6 +20,7 @@ type Props = {
 
 type FinalProps = {
   ordersQuery: OrderRecordsQueryResponse;
+  ordersCountQuery: OrderRecordsCountQueryResponse;
 } & Props &
   IRouterProps;
 
@@ -92,24 +94,42 @@ class OrdersContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { ordersQuery } = this.props;
+    const { ordersQuery, ordersCountQuery } = this.props;
 
-    if (ordersQuery.loading) {
+    if (ordersQuery.loading || ordersCountQuery.loading) {
       return <Spinner />;
     }
 
     const list = ordersQuery.posOrderRecords || [];
+    const count = ordersCountQuery.posOrderRecordsCount || [];
+
+    const exportOrderRecords = headers => {
+      const { REACT_APP_API_URL } = getEnv();
+      const { queryParams } = this.props;
+      const params = generateParams({ queryParams });
+
+      const stringified = queryString.stringify({
+        ...params
+      });
+
+      window.open(
+        `${REACT_APP_API_URL}/pl:pos/file-export?${stringified}`,
+        '_blank'
+      );
+    };
 
     const updatedProps = {
       ...this.props,
       orders: list,
+      count,
       loading: ordersQuery.loading,
 
       onFilter: this.onFilter,
       onSelect: this.onSelect,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
+      exportRecord: exportOrderRecords
     };
 
     const ordersList = props => {
@@ -151,6 +171,17 @@ export default withProps<Props>(
       ListQueryVariables
     >(gql(queries.posOrderRecords), {
       name: 'ordersQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams }),
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<
+      { queryParams: any },
+      OrderRecordsCountQueryResponse,
+      ListQueryVariables
+    >(gql(queries.posOrderRecordsCount), {
+      name: 'ordersCountQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
         fetchPolicy: 'network-only'

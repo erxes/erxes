@@ -1,16 +1,10 @@
-import { gatherDescriptions } from '../../../utils';
-import {
-  checkPermission,
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog
-} from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import messageBroker from '../../../messageBroker';
 import {
   IContractType,
   IContractTypeDocument
 } from '../../../models/definitions/contractTypes';
+import { createLog, deleteLog, updateLog } from '../../../logUtils';
 
 const contractTypeMutations = {
   contractTypesAdd: async (
@@ -27,17 +21,7 @@ const contractTypeMutations = {
       extraParams: { models }
     };
 
-    const descriptions = await gatherDescriptions(logData);
-
-    await putCreateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await createLog(subdomain, user, logData);
 
     return contractType;
   },
@@ -62,17 +46,7 @@ const contractTypeMutations = {
       extraParams: { models }
     };
 
-    const descriptions = await gatherDescriptions(logData);
-
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await updateLog(subdomain, user, logData);
 
     return updated;
   },
@@ -94,22 +68,12 @@ const contractTypeMutations = {
     await models.ContractTypes.removeContractTypes(contractTypeIds);
 
     for (const contractType of contractTypes) {
-      const descriptions = await gatherDescriptions({
+      const logData = {
         type: 'contractType',
         object: contractType,
         extraParams: { models }
-      });
-      await putDeleteLog(
-        subdomain,
-        messageBroker(),
-        {
-          type: 'contractType',
-          object: contractType,
-          extraParams: { models },
-          ...descriptions
-        },
-        user
-      );
+      };
+      await deleteLog(subdomain, user, logData);
     }
 
     return contractTypeIds;

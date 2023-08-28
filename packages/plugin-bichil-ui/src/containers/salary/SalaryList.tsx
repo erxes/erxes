@@ -52,7 +52,12 @@ export default function ListContainer(props: Props) {
     }
   );
 
-  if (loading || labelsQuery.loading || salariesQry.loading) {
+  if (
+    loading ||
+    labelsQuery.loading ||
+    salariesQry.loading ||
+    symbolsQuery.loading
+  ) {
     return <Spinner />;
   }
 
@@ -110,10 +115,13 @@ export default function ListContainer(props: Props) {
     }
   }
 
+  const labels = labelsQuery.data.bichilSalaryLabels || {};
+  const symbols = symbolsQuery.data.bichilSalarySymbols || {};
+
   const extendedProps = {
     ...props,
-    labels: labelsQuery.data.bichilSalaryLabels || {},
-    symbols: symbolsQuery.data.bichilSalarySymbols || {},
+    labels,
+    symbols,
     salaries,
     totalCount,
     isEmployeeSalary,

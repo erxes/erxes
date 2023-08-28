@@ -41,6 +41,11 @@ import {
   queries as transactionQueries,
   types as transactionTypes
 } from './transaction';
+import {
+  mutations as classificationMutations,
+  queries as classificationQueries,
+  types as classificationTypes
+} from './classification';
 
 export const types = `
   ${attachmentType}
@@ -70,8 +75,7 @@ export const types = `
   ${invoiceTypes},
   ${transactionTypes},
   ${scheduleTypes()},
- 
-
+  ${classificationTypes()},
 `;
 
 export const queries = `
@@ -83,6 +87,7 @@ export const queries = `
   ${invoiceQueries},
   ${scheduleQueries},
   ${transactionQueries},
+  ${classificationQueries},
 `;
 
 export const mutations = `
@@ -93,4 +98,5 @@ export const mutations = `
   ${invoiceMutations},
   ${scheduleMutations},
   ${transactionMutations},
+  ${classificationMutations},
 `;

@@ -25,6 +25,10 @@ export interface IPerform {
   inProducts: IProductsData[];
   outProducts: IProductsData[];
   series?: string;
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
 }
 
 export interface IPerformDocument extends IPerform, Document {
@@ -55,17 +59,21 @@ export const performSchema = schemaHooksWrapper(
       label: 'Type'
     }),
     typeId: field({ type: String, label: 'jobId' }), // jobReferId || productId || ~subFlowId
-    inBranchId: field({ type: String, optional: true, label: 'in Branch' }),
+    inBranchId: field({ type: String, optional: true, label: 'Spend Branch' }),
     inDepartmentId: field({
       type: String,
       optional: true,
-      label: 'in Department'
+      label: 'Spend Department'
     }),
-    outBranchId: field({ type: String, optional: true, label: 'out Branch' }),
+    outBranchId: field({
+      type: String,
+      optional: true,
+      label: 'Receipt Branch'
+    }),
     outDepartmentId: field({
       type: String,
       optional: true,
-      label: 'out Department'
+      label: 'Receipt Department'
     }),
     needProducts: field({ type: [productsDataSchema], label: 'Need products' }),
     resultProducts: field({

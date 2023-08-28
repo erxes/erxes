@@ -2,7 +2,6 @@ import { colors, dimensions } from '@erxes/ui/src';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { Contents } from '@erxes/ui/src/layout/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 import { Columns } from '@erxes/ui/src/styles/chooser';
 import { Column } from '@erxes/ui/src/styles/main';
@@ -32,14 +31,20 @@ export const TreeCard = styledTS<{
   text-align:center;
   width:250px
     .content{
-    background-color:white;
-    border-radius:15px;
-    > h5{
-      color:${colors.colorBlack}
-    }
-    > p{
-      color:${colors.colorLightGray}
-    }
+      background-color:white;
+      border-radius:15px;
+      padding:10px;
+      margin-bottom:10px;
+      > h5{
+        inline-size: 190px;
+        overflow-wrap: break-word;
+        color:${colors.colorBlack}
+      }
+      > p{
+        inline-size: 190px;
+        overflow-wrap: break-word;
+        color:${colors.colorLightGray}
+      }
   }
 `;
 

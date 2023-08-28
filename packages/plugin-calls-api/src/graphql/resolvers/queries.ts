@@ -1,4 +1,4 @@
-import { Callss, Types } from '../../models';
+import { Callss, Types, Integrations } from '../../models';
 import { IContext } from '@erxes/api-utils/src/types';
 
 const callsQueries = {
@@ -18,6 +18,10 @@ const callsQueries = {
 
   callssTotalCount(_root, _args, _context: IContext) {
     return Callss.find({}).countDocuments();
+  },
+
+  callsIntegrationDetail(_root, { integrationId }, _context: IContext) {
+    return Integrations.findOne({ inboxId: integrationId });
   }
 };
 
