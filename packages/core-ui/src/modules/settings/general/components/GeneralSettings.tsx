@@ -404,6 +404,13 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
+        <CollapseContent title={__('Cloudflare R2')}>
+          {this.renderItem('CLOUDFLARE_ACCESS_KEY_ID')}
+          {this.renderItem('CLOUDFLARE_SECRET_ACCESS_KEY')}
+          {this.renderItem('CLOUDFLARE_ACCOUNT_ID')}
+          {this.renderItem('CLOUDFLARE_BUCKET_NAME')}
+        </CollapseContent>
+
         <CollapseContent title="AWS S3">
           <Info>
             <a
