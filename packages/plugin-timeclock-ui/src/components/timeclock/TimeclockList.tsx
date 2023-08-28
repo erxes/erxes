@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import { ITimeclock } from '../../types';
 import Row from './TimeclockRow';
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -39,9 +39,6 @@ type Props = {
 function List(props: Props) {
   const {
     isCurrentUserAdmin,
-    currentUser,
-    departments,
-    branches,
     timeclocks,
     totalCount,
     startClockTime,
@@ -86,9 +83,7 @@ function List(props: Props) {
         <Icon icon="subject" />
       </ToggleButton>
 
-      <Title capitalize={true}>
-        {__(new Date().toDateString().slice(0, -4))}
-      </Title>
+      <Title capitalize={true}>{` Total: ${timeclocks.length}`}</Title>
     </FlexRowLeft>
   );
 
