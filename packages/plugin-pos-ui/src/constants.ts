@@ -28,6 +28,16 @@ export const ALLOW_TYPES = [
   { value: 'before', label: 'Before', kind: 'sale' }
 ];
 
+export const ALLOW_STATUSES = [
+  { value: 'new', label: 'New' },
+  { value: 'doing', label: 'Doing' },
+  { value: 'reDoing', label: 'Redoing' },
+  { value: 'done', label: 'Done' },
+  { value: 'complete', label: 'Complete' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'return', label: 'Return' }
+];
+
 export const DISTRICTS = [
   { value: '01', label: 'Архангай' },
   { value: '02', label: 'Баян-Өлгий' },

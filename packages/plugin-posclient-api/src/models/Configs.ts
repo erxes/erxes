@@ -3,7 +3,7 @@ import { Model, model } from 'mongoose';
 import { IConfig, configSchema, IConfigDocument } from './definitions/configs';
 
 export interface IConfigModel extends Model<IConfigDocument> {
-  createConfig(token: string): Promise<IConfigDocument>;
+  createConfig(token: string, name: string): Promise<IConfigDocument>;
   getConfig(query: any): Promise<IConfigDocument>;
   removeConfig(_id: string): Promise<IConfigDocument>;
   updateConfig(_id: string, doc: IConfig): Promise<IConfigDocument>;
@@ -21,7 +21,7 @@ export const loadConfigClass = models => {
       return pos;
     }
 
-    public static async createConfig(token: string) {
+    public static async createConfig(token: string, name: string) {
       try {
         const config = await models.Configs.findOne({ token });
 
@@ -31,7 +31,7 @@ export const loadConfigClass = models => {
           );
         }
 
-        await models.Configs.create({ token });
+        await models.Configs.create({ token, name });
         return await models.Configs.findOne({ token }).lean();
       } catch (e) {
         throw new Error(`Can not create POS config: ${e.message}`);

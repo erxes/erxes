@@ -109,6 +109,9 @@ const queryParams = `
   posId: String
   posToken: String
   types: [String]
+  statuses: [String]
+  excludeStatuses: [String] 
+  hasPaidDate: Boolean 
 `;
 
 export const queries = `

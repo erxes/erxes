@@ -49,6 +49,7 @@ export interface IOrder {
   slotCode?: string;
   taxInfo?: any;
   convertDealId?: string;
+  returnInfo?: any;
 }
 
 const commonAttributes = { positive: true, default: 0 };
@@ -202,6 +203,11 @@ export const orderSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'Converted Deal'
+    }),
+    returnInfo: field({
+      type: Object,
+      optional: true,
+      label: 'Return information'
     })
   }),
   'erxes_orders'

@@ -55,7 +55,10 @@ const generateFilterPosQuery = async (
     customerType,
     posId,
     posToken,
-    types
+    types,
+    statuses,
+    excludeStatuses,
+    hasPaidDate
   } = params;
 
   if (search) {
@@ -74,6 +77,14 @@ const generateFilterPosQuery = async (
       customerType === 'customer'
         ? { $in: [customerType, '', undefined, null] }
         : customerType;
+  }
+
+  if (
+    (statuses && statuses.length) ||
+    (excludeStatuses && excludeStatuses.length)
+  ) {
+    const _in = statuses && statuses.length ? { $in: statuses || [] } : {};
+    query.status = { ..._in, $nin: excludeStatuses || [] };
   }
 
   if (posId) {
@@ -123,6 +134,10 @@ const generateFilterPosQuery = async (
     query.type = { $in: types };
   }
 
+  if (hasPaidDate) {
+    query.paidDate = { $exists: true };
+  }
+
   if (paidDate === 'today' || !Object.keys(query).length) {
     const now = new Date();
 
@@ -148,7 +163,7 @@ export const posOrderRecordsQuery = async (
     commonQuerySelector,
     user?._id
   );
-  console.log(params, 'sssssssssssssssssssssssssssssssssss');
+
   const { perPage = 20, page = 1 } = params;
 
   const orders = await models.PosOrders.aggregate([
@@ -375,6 +390,7 @@ const queries = {
       commonQuerySelector,
       user._id
     );
+    console.log(query);
 
     let sort: any = { number: 1 };
     if (params.sortField && params.sortDirection) {

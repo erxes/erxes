@@ -57,7 +57,15 @@ const exmFeedQueries = {
     { models, user, subdomain }
   ) => {
     const departmentIds = user.departmentIds || [];
-    const branchIds = user.departmentIds || [];
+
+    const currentUser = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: user._id },
+      isRPC: true
+    });
+
+    const branchIds = currentUser.branchIds || [];
 
     const units = await sendCoreMessage({
       subdomain,
@@ -83,8 +91,13 @@ const exmFeedQueries = {
     ];
 
     const departmentCondition = [
-      { branchIds: { $eq: [] } },
-      { branchIds: { $size: 0 } }
+      { departmentIds: { $eq: [] } },
+      { departmentIds: { $size: 0 } }
+    ];
+
+    const recipientCondition = [
+      { recipientIds: { $eq: [] } },
+      { recipientIds: { $size: 0 } }
     ];
 
     const filter: any = {
@@ -98,30 +111,44 @@ const exmFeedQueries = {
         },
         {
           $and: [
-            { branchIds: { $in: branchIds } },
             {
-              $or: unitCondition
+              $or: [
+                { branchIds: { $in: branchIds } },
+                { unitId: { $in: unitIds } },
+                { departmentIds: { $in: departmentIds } }
+              ]
             }
+          ]
+        },
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            { unitId: { $in: unitIds } }
+          ]
+        },
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            { departmentIds: { $in: departmentIds } }
           ]
         },
         {
           $and: [
             { unitId: { $in: unitIds } },
-            {
-              $or: branchCondition
-            }
+            { departmentIds: { $in: departmentIds } }
           ]
         },
         {
-          $and: [
-            { departmentIds: { $in: departmentIds } },
-            {
-              $or: branchCondition
-            },
-            {
-              $or: unitCondition
-            }
-          ]
+          $and: [{ recipientIds: { $in: [user._id] } }]
+        },
+        {
+          $and: [{ branchIds: { $in: branchIds } }]
+        },
+        {
+          $and: [{ unitId: { $in: unitIds } }]
+        },
+        {
+          $and: [{ departmentIds: { $in: departmentIds } }]
         },
         {
           $and: [
@@ -133,6 +160,9 @@ const exmFeedQueries = {
             },
             {
               $or: departmentCondition
+            },
+            {
+              $or: recipientCondition
             }
           ]
         },
@@ -161,30 +191,6 @@ const exmFeedQueries = {
 
     if (contentTypes && contentTypes.length > 0) {
       filter.contentType = { $in: contentTypes };
-    }
-
-    if (contentTypes && contentTypes.includes('event')) {
-      filter.$or.push(
-        { 'eventData.visibility': 'public' },
-        {
-          'eventData.visibility': 'private',
-          recipientIds: { $in: [user._id] },
-          createdBy: { $in: user._id }
-        }
-      );
-    }
-
-    if (contentTypes && contentTypes.includes('bravo')) {
-      if (recipientType === 'recieved') {
-        filter.recipientIds = { $in: [user._id] };
-      } else if (recipientType === 'sent') {
-        filter.createdBy = user._id;
-      } else {
-        filter.$or.push(
-          { recipientIds: { $in: [user._id] } },
-          { createdBy: user._id }
-        );
-      }
     }
 
     if (isPinned !== undefined) {
@@ -220,7 +226,7 @@ const exmFeedQueries = {
       }
 
       return {
-        list: await models.ExmFeed.find({ ...filter })
+        list: await models.ExmFeed.find(filter)
           .sort({
             'ExmEventData.startDate': -1
           })

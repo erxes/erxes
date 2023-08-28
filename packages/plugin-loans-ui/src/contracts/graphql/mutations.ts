@@ -45,6 +45,9 @@ const commonFields = `
 
   $relContractId: String
   $currency:String
+  $isPayFirstMonth: Boolean
+  $downPayment: Float
+  $isBarter: Boolean
 `;
 
 const commonVariables = `
@@ -92,6 +95,9 @@ const commonVariables = `
 
   relContractId: $relContractId
   currency: $currency
+  isPayFirstMonth: $isPayFirstMonth
+  downPayment: $downPayment
+  isBarter: $isBarter
 `;
 
 const contractsAdd = `

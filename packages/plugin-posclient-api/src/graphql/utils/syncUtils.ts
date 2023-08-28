@@ -324,6 +324,17 @@ export const receiveProduct = async (models: IModels, data) => {
       tokens.push(token);
     }
     const info = action === 'update' ? updatedDocument : object;
+    if (info.attachment && info.attachment.url) {
+      const FILE_PATH = `${await getServerAddress(
+        'localhost',
+        'core'
+      )}/read-file`;
+      info.attachment.url =
+        info.attachment.url.indexOf('http') === -1
+          ? `${FILE_PATH}?key=${info.attachment.url}`
+          : info.attachment.url;
+    }
+
     return await models.Products.updateOne(
       { _id: object._id },
       {
@@ -438,7 +449,7 @@ export const receivePosConfig = async (
       throw new Error('token not found');
     }
 
-    config = await models.Configs.createConfig(token);
+    config = await models.Configs.createConfig(token, pos.name);
   }
 
   await models.Configs.updateConfig(config._id, {
@@ -455,4 +466,5 @@ export const receivePosConfig = async (
 
   await importUsers(models, adminUsers, token, true);
   await importUsers(models, cashiers, token, false);
+  return models.Configs.findOne({ _id: config._id }).lean();
 };
