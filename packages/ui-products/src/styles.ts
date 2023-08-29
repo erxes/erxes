@@ -8,17 +8,39 @@ export const CategoryContainer = styled.div`
   flex-shrink: 0;
 `;
 
-export const BarcodeContainer = styled.div`
-  margin: 6px 0px;
-`;
-
 export const BarcodeItem = styled.div`
-  padding: 6px 6px;
+  padding: 2px 2px;
   &:hover {
     cursor: pointer;
     color: ${lighten(colors.textPrimary, 40)};
     background: ${colors.bgActive};
     text-decoration: line-through;
+  }
+`;
+
+export const TableBarcode = styled(Table)`
+  margin-top: 10px;
+  box-shadow: 1px solid black;
+  border-collapse: collapse;
+
+  thead {
+    th {
+      border: 1px solid ${colors.borderPrimary};
+      border-top: none;
+      text-align: center;
+    }
+  }
+
+  tbody {
+    td {
+      border-bottom: none;
+      text-align: center;
+    }
+
+    tr td {
+      padding-top: 0px;
+      padding-bottom: 1px;
+    }
   }
 `;
 

@@ -138,7 +138,8 @@ export const executeActions = async (
           action,
           execution,
           collectionType
-        }
+        },
+        isRPC: true
       });
     }
 

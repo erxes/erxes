@@ -10,6 +10,7 @@ import {
 
 export default {
   insertImportItems: async ({ subdomain, data }) => {
+    console.log('========');
     const models = await generateModels(subdomain);
     const { docs, user, contentType } = data;
 
@@ -127,6 +128,7 @@ export default {
   },
   importExportTypes: IMPORT_EXPORT_TYPES,
   prepareImportDocs: async ({ subdomain, data }) => {
+    console.log('---------');
     const { scopeBrandIds, result, contentType, properties } = data;
 
     const bulkDoc: any = [];
