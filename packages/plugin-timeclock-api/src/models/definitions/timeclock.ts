@@ -245,6 +245,8 @@ export const absenceSchema = new Schema({
   startTime: field({ type: Date, label: 'Absence starting time', index: true }),
   endTime: field({ type: Date, label: 'Absence ending time', index: true }),
 
+  holidayName: field({ type: String, label: 'holiday name' }),
+
   requestDates: field({
     type: [String],
     label: 'Requested dates in string format'
