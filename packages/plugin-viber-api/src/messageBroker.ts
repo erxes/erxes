@@ -151,15 +151,12 @@ export const initBroker = async cl => {
     'viber:api_to_integrations',
     async (args: ISendMessageArgs): Promise<any> => {
       const { subdomain, data } = args;
-      console.log('viber:api_to_integrations', data);
       const integrationId = data.integrationId;
 
       const integration = await Integrations.findOne(
         { inboxId: integrationId },
         { inboxId: 1, token: 1 }
       );
-
-      console.log('integration', integration);
 
       if (!integration) {
         return {
