@@ -1,0 +1,31 @@
+[{
+    "_id": "dbtWgcicmtYSgRjja",
+    "departmentIds": [],
+    "branchIds": [],
+    "starredConversationIds": [],
+    "details": {
+      "fullName": "admin admin",
+      "firstName": "admin",
+      "lastName": "admin"
+    },
+    "isActive": true,
+    "brandIds": [],
+    "groupIds": [],
+    "deviceTokens": [],
+    "doNotDisturb": "No",
+    "isSubscribed": "Yes",
+    "isShowNotification": false,
+    "score": 0,
+    "role": "user",
+    "scopeBrandIds": [],
+    "isOwner": true,
+    "email": "admin@erxes.io",
+    "password": "$2a$10$TkPz/lFGBndLxoc0.4W0LOIJA2AKVg1e35CAX/PtlHG5patBPjApW",
+    "code": "000",
+    "createdAt": {
+      "date": "2023-08-22T04:35:44.432Z"
+    },
+    "emailSignatures": [],
+    "customFieldsData": [],
+    "__v": 0
+  }]
