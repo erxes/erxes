@@ -9,6 +9,7 @@ module.exports = {
     './unreadCount': './src/inbox/containers/UnreadCount.tsx',
     './actionForms': './src/settings/integrations/containers/ActionForms',
     './emailWidget': './src/inbox/containers/EmailWidget.tsx',
+    './integrationDetailsForm': './src/forms/components/CallproEditForm.tsx',
   },
   routes: {
     url: 'http://localhost:3009/remoteEntry.js',
@@ -127,4 +128,5 @@ module.exports = {
       scope: "inbox",
     }
   ],
+  integrationDetailsForm: './integrationDetailsForm',
 };
