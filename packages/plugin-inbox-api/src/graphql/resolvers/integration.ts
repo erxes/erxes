@@ -1,5 +1,8 @@
 import { IIntegrationDocument } from '../../models/definitions/integrations';
-import { sendCommonMessage } from '../../messageBroker';
+import {
+  sendCommonMessage,
+  sendIntegrationsMessage
+} from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
 
@@ -123,6 +126,31 @@ export default {
       subdomain,
       action: 'api_to_integrations',
       data: { inboxId, action: 'getConfigs' },
+      isRPC: true
+    });
+  },
+
+  async details(
+    integration: IIntegrationDocument,
+    _args,
+    { subdomain }: IContext
+  ) {
+    const inboxId: string = integration._id;
+
+    if (integration.kind === 'callpro') {
+      return await sendIntegrationsMessage({
+        subdomain,
+        action: 'api_to_integrations',
+        data: { inboxId, action: 'getDetails' },
+        isRPC: true
+      });
+    }
+
+    return await sendCommonMessage({
+      serviceName: integration.kind,
+      subdomain,
+      action: 'api_to_integrations',
+      data: { inboxId, integrationId: inboxId, action: 'getDetails' },
       isRPC: true
     });
   }

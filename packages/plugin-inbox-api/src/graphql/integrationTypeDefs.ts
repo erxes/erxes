@@ -50,6 +50,8 @@ export const types = ({ products, tags, forms }) => `
     visibility: String
     departmentIds: [String]
     data: JSON
+
+    details: JSON
   }
 
   type BookingData {
@@ -264,7 +266,7 @@ export const mutations = `
     channelIds: [String]
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String], data: JSON): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String], details: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!, kind: String): JSON
