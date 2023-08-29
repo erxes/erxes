@@ -44,6 +44,10 @@ const plansMutations = {
     );
   },
 
+  async forceStartRiskAssessmentPlan(_root, { _id }, { models }: IContext) {
+    return await models.Plans.forceStartPlan(_id);
+  },
+
   async addRiskAssessmentPlanSchedule(
     _root,
     { planId, ...doc },
@@ -64,5 +68,10 @@ const plansMutations = {
 checkPermission(plansMutations, 'addPlan', 'manageRiskAssessment');
 checkPermission(plansMutations, 'updatePlan', 'manageRiskAssessment');
 checkPermission(plansMutations, 'removePlan', 'manageRiskAssessment');
+checkPermission(
+  plansMutations,
+  'duplicateRiskAssessmentPlan',
+  'manageRiskAssessment'
+);
 
 export default plansMutations;
