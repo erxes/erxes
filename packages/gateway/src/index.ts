@@ -45,7 +45,9 @@ const stopRouter = () => {
   if (!apolloRouterProcess) {
     return;
   }
-  apolloRouterProcess.kill('SIGKILL');
+  try {
+    apolloRouterProcess.kill('SIGKILL');
+  } catch (e) {}
 };
 
 (async () => {
@@ -149,7 +151,9 @@ const stopRouter = () => {
   process.on(sig, async () => {
     console.log(`Exiting on signal ${sig}`);
     if (NODE_ENV === 'development') {
-      publishRefreshEnabledServices();
+      try {
+        publishRefreshEnabledServices();
+      } catch (e) {}
     }
     if (subscriptionServer) {
       try {

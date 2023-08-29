@@ -4,6 +4,7 @@ const productParamsDef = `
   $categoryId: String,
   $description: String,
   $barcodes: [String],
+  $variants: JSON,
   $barcodeDescription: String,
   $unitPrice: Float,
   $code: String
@@ -35,6 +36,7 @@ const productParams = `
   categoryId: $categoryId,
   description: $description,
   barcodes: $barcodes,
+  variants: $variants,
   barcodeDescription: $barcodeDescription,
   unitPrice: $unitPrice,
   code: $code,

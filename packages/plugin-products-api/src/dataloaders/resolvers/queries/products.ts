@@ -24,6 +24,7 @@ interface IQueryParams {
   boardId?: string;
   segment?: string;
   segmentData?: string;
+  groupCatDiffVals: boolean;
 }
 
 const generateFilter = async (
@@ -93,8 +94,7 @@ const generateFilter = async (
       `^${searchValue
         .replace(/\./g, '\\.')
         .replace(/\*/g, '.')
-        .replace(/_/g, '.')
-        .replace(/  /g, '.')}.*`,
+        .replace(/_/g, '.')}.*`,
       'igu'
     );
 

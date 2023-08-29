@@ -145,13 +145,12 @@ const getRelatedValue = async (
 
     if (!!relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
-      const re = activeContacts
+      return activeContacts
         .filter(contacts =>
           filter ? contacts[filter.key] === filter.value : contacts
         )
         .map(contacts => contacts[key])
         .join(', ');
-      return re;
     }
 
     return activeContacts
@@ -411,6 +410,20 @@ export default {
   }
 };
 
+const generateIds = value => {
+  const arr = value.split(', ');
+
+  if (Array.isArray(arr)) {
+    return arr;
+  }
+
+  if (!arr.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
+    return [arr];
+  }
+
+  return [];
+};
+
 const actionCreate = async ({
   models,
   subdomain,
@@ -419,6 +432,8 @@ const actionCreate = async ({
   collectionType
 }) => {
   const { config = {} } = action;
+  let { target, triggerType } = execution || {};
+  let relatedValueProps = {};
 
   let newData = action.config.assignedTo
     ? await replacePlaceHolders({
@@ -426,12 +441,21 @@ const actionCreate = async ({
         subdomain,
         getRelatedValue,
         actionData: { assignedTo: action.config.assignedTo },
-        target: execution.target,
+        target: { ...target, type: (triggerType || '').replace('cards:', '') },
         isRelated: false
       })
     : {};
 
   delete action.config.assignedTo;
+
+  if (!!config.customers) {
+    relatedValueProps['customers'] = { key: '_id' };
+    target.customers = config.customers;
+  }
+  if (!!config.companies) {
+    relatedValueProps['companies'] = { key: '_id' };
+    target.companies = config.companies;
+  }
 
   newData = {
     ...newData,
@@ -440,7 +464,8 @@ const actionCreate = async ({
       subdomain,
       getRelatedValue,
       actionData: action.config,
-      target: execution.target
+      target: { ...target, type: (triggerType || '').replace('cards:', '') },
+      relatedValueProps
     }))
   };
 
@@ -473,6 +498,31 @@ const actionCreate = async ({
 
   if (config.hasOwnProperty('stageId')) {
     newData.stageId = config.stageId;
+  }
+
+  if (!!newData?.customers) {
+    newData.customerIds = generateIds(newData.customers);
+  }
+  if (!!newData?.companies) {
+    newData.companyIds = generateIds(newData.companies);
+  }
+
+  if (Object.keys(newData).some(key => key.startsWith('customFieldsData'))) {
+    const customFieldsData: Array<{ field: string; value: string }> = [];
+
+    const fieldKeys = Object.keys(newData).filter(key =>
+      key.startsWith('customFieldsData')
+    );
+
+    for (const fieldKey of fieldKeys) {
+      const [, fieldId] = fieldKey.split('.');
+
+      customFieldsData.push({
+        field: fieldId,
+        value: newData[fieldKey]
+      });
+    }
+    newData.customFieldsData = customFieldsData;
   }
 
   try {
