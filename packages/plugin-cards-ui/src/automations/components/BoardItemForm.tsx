@@ -11,7 +11,7 @@ import React from 'react';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { BoardItemWrapper } from '../styles';
-
+import SelectFields from '@erxes/ui-automations/src/containers/forms/actions/SelectFields';
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
@@ -118,7 +118,7 @@ class BoardItemForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { triggerType, users } = this.props;
+    const { triggerType, users, activeAction } = this.props;
     const { config, pipelineLabels } = this.state;
 
     const userOptions = users.map(u => ({
@@ -217,6 +217,24 @@ class BoardItemForm extends React.Component<Props, State> {
             fieldType="select"
             excludeAttr={true}
             options={priorityOptions}
+          />
+          <SelectFields
+            config={config}
+            onSelect={this.onChange}
+            label="Add Fields"
+            excludedNames={[
+              'name',
+              'description',
+              'assignedUserIds',
+              'createdAt',
+              'parentId',
+              'closeDate',
+              'labelIds',
+              'priority',
+              'stageId'
+            ]}
+            triggerType={triggerType}
+            actionType={activeAction.type.replace('.create', '')}
           />
         </BoardItemWrapper>
       </Common>

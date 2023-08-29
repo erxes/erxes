@@ -7,6 +7,7 @@ import {
   Button,
   Chip,
   ControlLabel,
+  EmptyState,
   FormControl,
   FormGroup,
   HelpPopover,
@@ -21,6 +22,7 @@ import { BackIcon } from '../../../../styles';
 import { renderDynamicComponent } from '../../../../utils';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   activeAction: any;
@@ -92,7 +94,7 @@ class SendMail extends React.Component<Props, State> {
     );
   }
 
-  renderAttrubutionInput(customAttributions) {
+  renderAttrubutionInput() {
     const { triggerType } = this.props;
     const { config } = this.state;
 
@@ -102,6 +104,10 @@ class SendMail extends React.Component<Props, State> {
       });
     };
 
+    const isAviableTriggerExcutor = ['contacts', 'user'].some(c =>
+      triggerType.includes(c)
+    );
+
     return (
       <>
         <PlaceHolderInput
@@ -109,9 +115,20 @@ class SendMail extends React.Component<Props, State> {
           triggerType={triggerType}
           inputName="attributionMails"
           label="Attribution Mails"
-          attrTypes={['user', 'contact']}
+          attrTypes={['user', 'contact', 'segment']}
           onChange={onChange}
-          customAttributions={customAttributions}
+          customAttributions={
+            isAviableTriggerExcutor
+              ? [
+                  {
+                    _id: String(Math.random()),
+                    label: 'Trigger Executors',
+                    name: 'triggerExecutors',
+                    type: 'segment'
+                  }
+                ]
+              : []
+          }
           additionalContent={
             <HelpPopover>
               <br>
@@ -144,10 +161,7 @@ class SendMail extends React.Component<Props, State> {
     );
   }
 
-  renderRecipientTypeComponent(
-    { serviceName, label, name, type, customAttributions },
-    onSelect
-  ) {
+  renderRecipientTypeComponent({ serviceName, label, name, type }, onSelect) {
     const { config } = this.state;
 
     if (serviceName) {
@@ -168,9 +182,7 @@ class SendMail extends React.Component<Props, State> {
       case 'customMail':
         return this.renderCustomMailInput();
       case 'attributionMail':
-        return this.renderAttrubutionInput(customAttributions);
-      case 'segmentBased':
-        return this.renderSegmentInput(type, onSelect);
+        return this.renderAttrubutionInput();
       case 'teamMember':
         return (
           <FormGroup>
@@ -304,6 +316,22 @@ class SendMail extends React.Component<Props, State> {
     const selectTemplate = id => {
       this.setState({ config: { ...config, templateId: id } });
     };
+
+    if (!isEnabled('emailtemplates')) {
+      return (
+        <EmptyState
+          image="/images/actions/33.svg"
+          text=""
+          extra={
+            <span>
+              The send email action is not available.
+              <br />
+              Because the email template plugin is not working
+            </span>
+          }
+        />
+      );
+    }
 
     if (config?.templateId) {
       return this.renderConfig(emailRecipientsConst);

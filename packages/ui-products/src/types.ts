@@ -17,6 +17,10 @@ export interface IUom {
   code: string;
   createdAt: Date;
 }
+
+export interface IVariant {
+  [code: string]: { name?: string; image?: any };
+}
 export interface IProduct {
   _id: string;
   name: string;
@@ -25,6 +29,7 @@ export interface IProduct {
   description: string;
   getTags?: ITag[];
   barcodes: string[];
+  variants: IVariant;
   barcodeDescription: string;
   code: string;
   unitPrice: number;
