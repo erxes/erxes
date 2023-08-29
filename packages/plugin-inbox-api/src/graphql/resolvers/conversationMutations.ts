@@ -11,7 +11,7 @@ import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
-import { debug, graphqlPubsub } from '../../configs';
+import { debug, serviceDiscovery, graphqlPubsub } from '../../configs';
 import {
   sendContactsMessage,
   sendCardsMessage,
@@ -542,6 +542,21 @@ const conversationMutations = {
         },
         user
       );
+
+      if (await serviceDiscovery.isEnabled('zerocodeai')) {
+        // const messagesCount = await models.ConversationMessages.count({ conversationId: conversation._id });
+        // const messages = await models.ConversationMessages.find({ conversationId: conversation._id }).sort({ createdAt: -1 }).limit(messagesCount / 10);
+
+        sendCommonMessage({
+          subdomain,
+          serviceName: 'zerocodeai',
+          action: 'analyze',
+          data: {
+            conversation,
+            messages: [{ content: 'muu' }, { content: 'sain' }]
+          }
+        });
+      }
     }
 
     serverTiming.endTime('putLog');
