@@ -31,17 +31,33 @@ const exmFeedMutations = {
     //   user
     // );
 
+    const unit = await sendCoreMessage({
+      subdomain,
+      action: 'units.findOne',
+      data: {
+        _id: doc.unitId
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
     let receivers = await sendCoreMessage({
       subdomain,
       action: 'users.find',
       data: {
         query: {
-          _id: { $ne: user._id }
+          $or: [
+            { departmentIds: { $in: doc.departmentIds } },
+            { branchIds: { $in: doc.branchIds } },
+            { _id: { $in: unit?.userIds || [] } }
+          ]
         }
       },
       isRPC: true,
       defaultValue: []
     });
+
+    const receiversEmail = receivers.map(r => r.email);
 
     receivers = receivers.map(r => r._id);
 
@@ -71,6 +87,20 @@ const exmFeedMutations = {
       }
     });
 
+    sendCoreMessage({
+      subdomain,
+      action: 'sendEmail',
+      data: {
+        toEmails: [receiversEmail],
+        title: doc.title,
+        template: {
+          data: {
+            content: doc.description
+          }
+        }
+      }
+    });
+
     if (doc.type === 'bravo' && models.Exms) {
       for (const userId of doc.recipientIds || []) {
         await models.Exms.useScoring(userId, 'exmBravoAdd');
@@ -83,10 +113,8 @@ const exmFeedMutations = {
   exmFeedEdit: async (
     _root,
     { _id, ...doc },
-    { user, docModifier, models, messageBroker }
+    { user, docModifier, models }
   ) => {
-    const exmFeed = await models.ExmFeed.getExmFeed(_id);
-
     const updated = await models.ExmFeed.updateExmFeed(
       _id,
       docModifier(doc),
