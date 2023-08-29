@@ -34,6 +34,7 @@ const ListContainer = (props: FinalProps) => {
   if (meetingQuery.loading) {
     return <Spinner />;
   }
+
   const renderButton = ({
     passedName,
     values,
@@ -51,7 +52,7 @@ const ListContainer = (props: FinalProps) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={['meetings']}
+        refetchQueries={meetingQuery.refetch()}
       />
     );
   };
@@ -92,7 +93,8 @@ const ListContainer = (props: FinalProps) => {
     loading: meetingQuery.loading,
     remove,
     edit,
-    renderButton
+    renderButton,
+    refetch: meetingQuery.refetch
   };
   return <List {...updatedProps} />;
 };

@@ -39,19 +39,32 @@ export const MeetingWrapper = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
   margin-top: ${dimensions.coreSpacing}px;
+  .description {
+    padding: 4px;
+    border: 1px solid ${colors.borderDarker};
+    border-radius: 8px;
+    margin: 10px 0 10px 0;
+  }
 `;
 
 export const MeetingDetailRow = styled.tr`
-  font-size: 18px;
+  font-size: 14px;
+  margin-top: 10px;
 `;
+
 export const MeetingDetailColumn = styled.td`
   width: 600px;
+  padding: ${dimensions.unitSpacing / 2}px 0;
+  span {
+    color: ${colors.colorCoreBlue};
+  }
 `;
 
 export const FormWrapper = styled.div`
   width: 100%;
   padding: 25px;
 `;
+
 export const BoxWrapper = styled.div`
   width: 100%;
   margin-top: ${dimensions.coreSpacing}px;

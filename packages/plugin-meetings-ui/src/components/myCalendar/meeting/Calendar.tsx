@@ -9,8 +9,9 @@ type Props = {
 const localizer = momentLocalizer(moment);
 
 export const CalendarComponent = ({ events }: Props) => {
+  console.log('calendarEvents', events);
   return (
-    <div style={{ height: '800px' }}>
+    <div style={{ height: '80vh' }}>
       <Calendar
         localizer={localizer}
         events={events}

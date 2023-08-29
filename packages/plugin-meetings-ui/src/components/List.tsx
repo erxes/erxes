@@ -6,9 +6,7 @@ import { MeetingForm } from '../components/myCalendar/meeting/Form';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { IMeeting } from '../types';
 
 import { menuMeeting } from '../contants';
@@ -26,26 +24,29 @@ type Props = {
   queryParams: any;
   route?: string;
   history: string;
+  refetch: any;
 };
 
 function List(props: Props) {
   const {
     meetings,
-    remove,
     renderButton,
     loading,
-    edit,
     searchFilter,
     queryParams,
-    route,
-    history
+    history,
+    refetch
   } = props;
+
   const [showSideBar, setShowSideBar] = useState<Boolean>(true);
   const [component, setComponent] = useState(<div />);
   const [showCreateMeeting, setShowCreateMeeting] = useState(false);
 
   const { meetingId } = queryParams;
   const routePath = location.pathname.split('/').slice(-1)[0];
+
+  console.log('------====-------', meetings);
+
   useEffect(() => {
     switch (routePath) {
       case 'myMeeting':
@@ -56,15 +57,10 @@ function List(props: Props) {
         break;
       default:
         setComponent(
-          <MyCalendarList
-            {...props}
-            meetings={meetings}
-            queryParams={queryParams}
-            showCreateMeeting={showCreateMeeting}
-          />
+          <MyCalendarList {...props} showCreateMeeting={showCreateMeeting} />
         );
     }
-  }, [queryParams]);
+  }, [queryParams, meetings]);
 
   const trigger = (
     <Button

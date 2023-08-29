@@ -1,19 +1,17 @@
-import { __, router } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils/core';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import {
-  FieldStyle,
-  SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
+import { colors } from '@erxes/ui/src/styles';
+import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import React, { useState } from 'react';
 import { IMeeting } from '../../types';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { Header, SidebarListItem } from '@erxes/ui-settings/src/styles';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import * as moment from 'moment';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { ChatListSearch } from '../../styles';
 import dayjs from 'dayjs';
-import { useHistory, Route } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 
@@ -23,16 +21,17 @@ type Props = {
   afterSave?: () => void;
   meetings: IMeeting[];
   queryParams: any;
+  refetch: any;
 };
 
 export const SideBar = (props: Props) => {
-  const { queryParams, meetings } = props;
+  const { queryParams, meetings, refetch } = props;
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
   const [checkBoxValues, setCheckValues] = useState([]);
   const history = useHistory();
 
-  const participantUser = meetings.reduce((uniqueUsers, meeting) => {
+  const participantUser = meetings.reduce((uniqueUsers: IUser[], meeting) => {
     meeting.participantUser.forEach(user => {
       if (!uniqueUsers.some(uniqueUser => uniqueUser._id === user._id)) {
         uniqueUsers.push(user);
@@ -51,17 +50,31 @@ export const SideBar = (props: Props) => {
       <SidebarListItem
         isActive={className === 'active'}
         key={meeting._id}
-        style={{ borderRadius: '15px', display: 'block' }}
         onClick={() =>
           history.push(`/meetings/myCalendar?meetingId=${meeting._id}`)
         }
+        backgroundColor="#f2f2f2"
+        style={{
+          margin: '0 20px 4px 20px',
+          borderRadius: '10px',
+          padding: '4px 8px'
+        }}
       >
-        <h5 style={{ margin: '10px 0px 10px 60px' }}>{__(meeting.title)} </h5>
-        {startTime && endTime && (
-          <h5 style={{ margin: '10px 0px 10px 60px' }}>
-            {startTime} - {endTime}
-          </h5>
-        )}
+        <div
+          style={{
+            margin: '4px',
+            display: 'grid',
+            color:
+              className === 'active' ? colors.colorPrimary : colors.textPrimary
+          }}
+        >
+          <h5 style={{ margin: 0 }}>{__(meeting.title)}</h5>
+          {startTime && endTime && (
+            <span>
+              {startTime} - {endTime}
+            </span>
+          )}
+        </div>
       </SidebarListItem>
     );
   };
@@ -124,17 +137,24 @@ export const SideBar = (props: Props) => {
   };
 
   const data = (
-    <SidebarList>
-      <h4>{__('Other Calendar')}</h4>
-      {participantUser.map(user => {
+    <SidebarList style={{ padding: '10px 20px' }}>
+      {/* <h4>{__("Other Calendar")}</h4> */}
+      {participantUser.map((user: any) => {
         return (
-          <>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '4px'
+            }}
+          >
             <FormControl
               componentClass="checkbox"
               onChange={e => handleChange(e, user._id)}
             />
+            &emsp;
             <FieldStyle>{user.details.fullName}</FieldStyle>
-          </>
+          </div>
         );
       })}
     </SidebarList>
@@ -150,50 +170,43 @@ export const SideBar = (props: Props) => {
           onChange={handleSearch}
         />
       </ChatListSearch>
-      {todayMeetings(filteredMeeting).length > 0 ? (
-        <>
-          {/* <LeftSidebar.Header uppercase={true}>
-              {__('Today meeting')}
-            </LeftSidebar.Header> */}
-          <h4>{__('Today')}</h4>
+      {todayMeetings(filteredMeeting).length > 0 && (
+        <Box title="Today" name={`today`} isOpen={true}>
+          {/* <h4>{__("Today")}</h4> */}
 
           <SidebarList noTextColor noBackground id="SideBar">
             {todayMeetings(filteredMeeting).map(meeting => {
               return ListItem(meeting);
             })}
           </SidebarList>
-        </>
-      ) : (
-        ''
+        </Box>
       )}
-      {tommorowMeetings(filteredMeeting).length > 0 ? (
-        <>
-          <h4>{__('Tommorow')}</h4>
+
+      {tommorowMeetings(filteredMeeting).length > 0 && (
+        <Box title="Tommorow" name={`tomorrow`} isOpen={true}>
+          {/* <h4>{__("Tommorow")}</h4> */}
 
           <SidebarList noTextColor noBackground id="SideBar">
             {tommorowMeetings(filteredMeeting).map(meeting => {
               return ListItem(meeting);
             })}
           </SidebarList>
-        </>
-      ) : (
-        ''
+        </Box>
       )}
-      {otherMeetings(filteredMeeting).length > 0 ? (
-        <>
-          <h4>{__('Other')}</h4>
+
+      {otherMeetings(filteredMeeting).length > 0 && (
+        <Box title="Other" name={`other`} isOpen={false}>
+          {/* <h4>{__("Other")}</h4> */}
 
           <SidebarList noTextColor noBackground id="SideBar">
             {otherMeetings(filteredMeeting).map(meeting => {
               return ListItem(meeting);
             })}
           </SidebarList>
-        </>
-      ) : (
-        ''
+        </Box>
       )}
 
-      <Box title="" name={`showCaledar`} isOpen={true}>
+      <Box title="Other calendar" name={`showCaledar`} isOpen={true}>
         <DataWithLoader
           data={data}
           loading={false}

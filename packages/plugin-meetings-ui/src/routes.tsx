@@ -11,6 +11,7 @@ const meetings = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   const { meetingId } = queryParams;
   const routePath = location.pathname.split('/').slice(-1)[0];
+
   return (
     <List
       meetingId={meetingId}

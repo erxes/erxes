@@ -15,16 +15,15 @@ export const MyCalendarList = (props: Props) => {
   const { meetings, queryParams, showCreateMeeting } = props;
   const { meetingId } = queryParams;
 
-  const events = [];
-
-  meetings?.map((meeting: IMeeting) => {
-    events.push({
+  const events =
+    meetings?.map((meeting: IMeeting) => ({
       title: meeting.title,
       start: new Date(meeting.startDate), // Year, Month (0-11), Day, Hour, Minute
-      end: new Date(meeting.endDate)
-    });
-  });
+      end: new Date(meeting.endDate),
+      color: '#1e90ff'
+    })) || [];
 
+  console.log('events =====================', events);
   // Add more events as needed
 
   return !meetingId ? (

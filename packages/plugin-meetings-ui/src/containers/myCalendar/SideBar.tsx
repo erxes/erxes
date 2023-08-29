@@ -72,6 +72,7 @@ const TypesListContainer = (props: FinalProps) => {
     ...props,
     meetings: meetingQuery.meetings || [],
     loading: meetingQuery.loading,
+    refetch: meetingQuery.refetch,
     remove,
     renderButton
   };

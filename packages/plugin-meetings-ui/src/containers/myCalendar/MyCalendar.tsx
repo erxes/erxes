@@ -49,6 +49,7 @@ const TypesListContainer = (props: FinalProps) => {
         callback={callback}
         isSubmitted={isSubmitted}
         type="submit"
+        refetchQueries={[meetingQuery.refetch]}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
@@ -67,15 +68,15 @@ const TypesListContainer = (props: FinalProps) => {
       })
       .catch(e => Alert.error(e.message));
   };
-  const moment = require('moment');
 
   const meetings = meetingQuery.meetings || [];
-  const today = moment(); // Get today's date
-  const tomorrow = moment().add(1, 'day'); // Get tomorrow's date
+  // const today = moment(); // Get today's date
+  // const tomorrow = moment().add(1, "day"); // Get tomorrow's date
 
   const updatedProps = {
     ...props,
-    meetings: meetingQuery.meetings || [],
+    meetings: meetings,
+    refetch: meetingQuery.refetch,
     loading: meetingQuery.loading,
     remove,
     renderButton
