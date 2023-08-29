@@ -77,7 +77,7 @@ class List extends React.Component<FinalProps> {
             Alert.success('Status changed successfully');
           })
           .catch(err => {
-            console.log(err.message);
+            Alert.error(err.message);
           });
       });
     };
@@ -106,6 +106,7 @@ const refetchQueries = queryParams => [
 const generateParams = queryParams => ({
   ...generatePaginationParams(queryParams),
   isArchived: queryParams.isArchived === 'true',
+  searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: queryParams.sortDirection
     ? Number(queryParams.sortDirection)

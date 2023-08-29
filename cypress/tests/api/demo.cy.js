@@ -1,6 +1,10 @@
 describe('Demo', () => {
 
-    const userId = 'geHGAEjSGRY59LsJL';
+    beforeEach(() => {
+      cy.exec('yarn run cypress:seedDB')
+    })
+
+    const userId = 'dbtWgcicmtYSgRjja';
 
     it("login", function () {
         cy.request("POST", 'http://localhost:4000/graphql', {
@@ -8,7 +12,7 @@ describe('Demo', () => {
             login(email: $email, password: $password)
           }`,
           variables: {
-            email: 'erdeneuul18@gmail.com',
+            email: 'admin@erxes.io',
             password: 'Admin123@',
           },
         }).then((response) => {

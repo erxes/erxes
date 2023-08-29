@@ -51,7 +51,7 @@ const handleDailyJob = async ({ subdomain }) => {
         userId: plannerId,
         stageId: configs.stageId,
         assignedUserIds: schedule.assignedUserIds,
-        customeFieldsData: schedule.customeFieldsData
+        customFieldsData: schedule.customFieldsData
       };
       const fieldName = structureType;
       if (['branch', 'department'].includes(structureType)) {

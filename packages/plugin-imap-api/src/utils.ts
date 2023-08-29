@@ -40,7 +40,7 @@ export const generateImap = (integration: IIntegrationDocument) => {
 
 const searchMessages = (imap, criteria) => {
   return new Promise((resolve, reject) => {
-    let messages: any = [];
+    const messages: any = [];
 
     imap.search(criteria, function(err, results) {
       if (err) throw err;
@@ -225,7 +225,7 @@ export const listenIntegration = async (
 ) => {
   const models = await generateModels(subdomain);
 
-  var imap = generateImap(integration);
+  const imap = generateImap(integration);
 
   imap.once('ready', response => {
     imap.openBox('INBOX', true, async (err, box) => {
