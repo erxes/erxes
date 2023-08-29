@@ -104,8 +104,6 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { doc, kind } }) => {
       const models = await generateModels(subdomain);
 
-      console.log('createIntegration', doc, kind);
-
       if (kind === 'callpro') {
         return callproCreateIntegration(models, doc);
       } else {
