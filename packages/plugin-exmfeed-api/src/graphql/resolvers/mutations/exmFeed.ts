@@ -74,11 +74,11 @@ const exmFeedMutations = {
       action: `${doc.contentType} created`,
       content: doc.description,
       link: `/erxes-plugin-exm-feed/list=${exmFeed._id}`,
-      receivers: receivers
+      receivers
     });
 
     sendCoreMessage({
-      subdomain: subdomain,
+      subdomain,
       action: 'sendMobileNotification',
       data: {
         title: doc.title,
@@ -92,7 +92,7 @@ const exmFeedMutations = {
       action: 'sendEmail',
       data: {
         toEmails: [receiversEmail],
-        title: doc.title,
+        title: `New post - ${doc.title}`,
         template: {
           data: {
             content: doc.description
