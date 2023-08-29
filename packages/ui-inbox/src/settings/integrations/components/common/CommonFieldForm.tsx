@@ -160,11 +160,15 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
         {this.renderScript()}
 
-        {loadDynamicComponent('integrationDetailsForm', {
-          integrationKind: this.props.integrationKind,
-          details: this.state.details,
-          onChange: onDetailsChange
-        })}
+        {loadDynamicComponent(
+          'integrationDetailsForm',
+          {
+            integrationKind: this.props.integrationKind,
+            details: this.state.details,
+            onChange: onDetailsChange
+          },
+          true
+        )}
 
         <SelectBrand
           isRequired={true}
