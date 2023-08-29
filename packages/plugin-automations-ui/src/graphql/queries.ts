@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const userFields = `
   _id
   username
@@ -117,9 +119,9 @@ export const automationsMain = `
         updatedUser {
           ${userFields}
         }
-        tags {
-          ${tagFields}
-        }
+
+        ${isEnabled('tags') ? `tags {${tagFields}}` : ''}
+        
       }
 
       totalCount
