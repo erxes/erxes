@@ -36,7 +36,7 @@ export class ViberAPI {
 
   async registerWebhook(): Promise<any> {
     // used for local testing
-    const localDomain: string = 'https://a2de-202-21-104-34.jp.ngrok.io';
+    const localDomain: string = 'https://8e09-103-212-118-66.ngrok-free.app';
 
     const domain: string = getEnv({ name: 'DOMAIN', subdomain: this.subdomain })
       ? getEnv({ name: 'DOMAIN', subdomain: this.subdomain }) + '/gateway'
