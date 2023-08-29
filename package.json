@@ -44,7 +44,8 @@
     "lintp": "func () { if [ -z \"$1\" ]; then tslint 'packages/gateway/src/**/*.ts?(x)'; else echo \"packages/${1}/src/**/*.ts?(x)\" && tslint \"packages/${1}/src/**/*.ts?(x)\"; fi ;}; func",
     "generateVersion": "node commands/generateVersion.js",
     "release": "release-it",
-    "create-release-ci": "node scripts/create-release-ci"
+    "create-release-ci": "node scripts/create-release-ci",
+    "cypress:seedDB": "node ./cypress/database/seedLocalMongoDB.js"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "1.1.0",

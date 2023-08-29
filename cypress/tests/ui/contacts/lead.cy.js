@@ -1,20 +1,19 @@
-describe("Contacts", () => {
+describe("Lead", () => {
   beforeEach(() => {
+    cy.exec('yarn run cypress:seedDB').wait(300);
     Cypress.Cookies.debug(true);
     cy.visit('/');
     cy.clearCookies();
     cy.on('uncaught:exception', (err, runnable) => {
         return false
     })
+    cy.login(Cypress.env('userEmail'), Cypress.env('userPassword'))
+    .visit("/contacts/lead").wait(300);
   });
 
-  it("Lead", () => {
-    cy.login(Cypress.env('userEmail'), Cypress.env('userPassword'))
-    .visit("/contacts/lead");
+  it("add1", () => {
 
     const random = Math.random().toString(36).slice(2)
-
-    //add first
 
     cy.get('button[icon="plus-circle"]').click();
 
@@ -24,7 +23,7 @@ describe("Contacts", () => {
       .contains("Enter an email")
       .click()
       .type(random + "@nmma.co");
-    cy.waitAndClick("div .Select-menu-outer");
+    cy.waitAndClick("div.Select-menu-outer");
 
     cy.get('button[type="submit"]')
       .eq(0)
@@ -33,8 +32,9 @@ describe("Contacts", () => {
       cy.get('button[class="close"]')
       .click()    
     }
+  })
 
-    // add second
+  it("add2", () => {
 
     const random2 = Math.random().toString(36).slice(2)
 
@@ -46,7 +46,7 @@ describe("Contacts", () => {
       .contains("Enter an email")
       .click()
       .type(random2 + "@nmma.co");
-    cy.waitAndClick("div .Select-menu-outer");
+    cy.waitAndClick("div.Select-menu-outer");
 
     cy.get('button[type="submit"]')
       .eq(0)
@@ -55,9 +55,10 @@ describe("Contacts", () => {
       cy.get('button[class="close"]')
       .click()    
     }
+  })
 
-    //tag
-    
+  it("tag", () => {
+
     cy.get("#customers>.crow")
       .eq(0)
       .get("#customersCheckBox")
@@ -77,10 +78,10 @@ describe("Contacts", () => {
     if(cy.get('button[icon="tag-alt"]')){
       cy.wait(10)
     }
+  })
 
-    
-    // merge
-
+  it("merge", () => {
+  
     cy.get("#customers>.crow")
       .eq(0)
       .within(() => {
