@@ -8,7 +8,7 @@ const meetingMutations = {
     return await models.Meetings.createMeeting(doc, user);
   },
   // /**
-  //  * Edits a new meetings
+  //  * Edits a meetings
   //  */
   async meetingEdit(_root, { _id, doc }, { models, user }: IContext) {
     return models.Meetings.updateMeeting(_id, doc, user);

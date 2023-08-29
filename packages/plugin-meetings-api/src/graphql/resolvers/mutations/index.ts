@@ -1,5 +1,4 @@
-import meetingMutations from './meeting';
+import Meeting from './meeting';
+import Topic from './topic';
 
-export default {
-  ...meetingMutations
-};
+export { Meeting, Topic };

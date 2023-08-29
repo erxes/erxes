@@ -1,18 +1,21 @@
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, router } from '@erxes/ui/src/utils/core';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+import React, { useState } from 'react';
 import { IMeeting } from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { Header, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
 import * as moment from 'moment';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { ChatListSearch } from '../../styles';
 import dayjs from 'dayjs';
+import { useHistory, Route } from 'react-router-dom';
+import Box from '@erxes/ui/src/components/Box';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -22,44 +25,48 @@ type Props = {
   queryParams: any;
 };
 
-type State = {
-  searchValue: string;
-  filteredMeeting: IMeeting[];
-};
+export const SideBar = (props: Props) => {
+  const { queryParams, meetings } = props;
+  const { meetingId } = queryParams;
+  const [filteredMeeting, setFilteredMeeting] = useState(meetings);
+  const [checkBoxValues, setCheckValues] = useState([]);
+  const history = useHistory();
 
-class SideBar extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const participantUser = meetings.reduce((uniqueUsers, meeting) => {
+    meeting.participantUser.forEach(user => {
+      if (!uniqueUsers.some(uniqueUser => uniqueUser._id === user._id)) {
+        uniqueUsers.push(user);
+      }
+    });
+    return uniqueUsers;
+  }, []);
 
-    this.state = {
-      searchValue: '',
-      filteredMeeting: []
-    };
-  }
-
-  ListItem = meeting => {
-    const { queryParams } = this.props;
-    const { meetingId } = queryParams;
+  const ListItem = meeting => {
     const className = meeting && meetingId === meeting._id ? 'active' : '';
     const startTime =
       meeting.startDate && dayjs(meeting.startDate).format('HH:mm');
     const endTime = meeting.endDate && dayjs(meeting.endDate).format('HH:mm');
 
     return (
-      <SidebarListItem isActive={className === 'active'} key={meeting._id}>
-        <Link to={`/meetings/myCalendar?meetingId=${meeting._id}`}>
-          <div>{__(meeting.title)}</div>
-          {startTime && endTime && (
-            <div>
-              {startTime} - {endTime}
-            </div>
-          )}
-        </Link>
+      <SidebarListItem
+        isActive={className === 'active'}
+        key={meeting._id}
+        style={{ borderRadius: '15px', display: 'block' }}
+        onClick={() =>
+          history.push(`/meetings/myCalendar?meetingId=${meeting._id}`)
+        }
+      >
+        <h5 style={{ margin: '10px 0px 10px 60px' }}>{__(meeting.title)} </h5>
+        {startTime && endTime && (
+          <h5 style={{ margin: '10px 0px 10px 60px' }}>
+            {startTime} - {endTime}
+          </h5>
+        )}
       </SidebarListItem>
     );
   };
 
-  todayMeetings = meetings => {
+  const todayMeetings = meetings => {
     const today = moment(); // Get today's date
     const todayMeetings = meetings.filter(meeting => {
       const meetingDate = moment(meeting.startDate);
@@ -69,7 +76,7 @@ class SideBar extends React.Component<Props, State> {
     return todayMeetings;
   };
 
-  tommorowMeetings = meetings => {
+  const tommorowMeetings = meetings => {
     const tomorrow = moment().add(1, 'day'); // Get tomorrow's date
     return meetings.filter(meeting => {
       const meetingDate = moment(meeting.startDate);
@@ -77,7 +84,7 @@ class SideBar extends React.Component<Props, State> {
     });
   };
 
-  otherMeetings = meetings => {
+  const otherMeetings = meetings => {
     const today = moment(); // Get today's date
     const tomorrow = moment().add(1, 'day'); // Get tomorrow's date
 
@@ -90,78 +97,115 @@ class SideBar extends React.Component<Props, State> {
     });
   };
 
-  handleSearch = (event: any) => {
-    const { meetings } = this.props;
-
-    this.setState({ searchValue: event.target.value });
-    this.setState({
-      filteredMeeting: meetings.filter(item => {
-        let name = '';
-        return name
+  const handleSearch = (event: any) => {
+    setFilteredMeeting(
+      meetings.filter(meeting => {
+        return meeting.title
           .toLowerCase()
-          .includes(this.state.searchValue.toLowerCase());
+          .includes(event.target.value.toLowerCase());
       })
-    });
+    );
   };
 
-  render() {
-    const { meetings } = this.props;
+  const handleChange = (e, userId) => {
+    let checkedUsers = checkBoxValues;
+    const isChecked = e.target.checked;
 
-    return (
-      <LeftSidebar>
-        <ChatListSearch>
-          <FormControl
-            type="text"
-            placeholder="Search Meeting"
-            round={true}
-            onChange={this.handleSearch}
-          />
-        </ChatListSearch>
-        {this.todayMeetings(meetings).length > 0 ? (
+    // if selected value is not already in list then add it
+    if (isChecked && !checkedUsers.includes(userId)) {
+      checkedUsers.push(userId);
+    }
+
+    // remove option from checked list
+    if (!isChecked) {
+      checkedUsers = checkedUsers.filter(v => v !== userId);
+    }
+    setCheckValues(checkedUsers);
+  };
+
+  const data = (
+    <SidebarList>
+      <h4>{__('Other Calendar')}</h4>
+      {participantUser.map(user => {
+        return (
           <>
-            {/* <LeftSidebar.Header uppercase={true}>
+            <FormControl
+              componentClass="checkbox"
+              onChange={e => handleChange(e, user._id)}
+            />
+            <FieldStyle>{user.details.fullName}</FieldStyle>
+          </>
+        );
+      })}
+    </SidebarList>
+  );
+
+  return (
+    <LeftSidebar>
+      <ChatListSearch>
+        <FormControl
+          type="text"
+          placeholder="Search Meeting"
+          round={true}
+          onChange={handleSearch}
+        />
+      </ChatListSearch>
+      {todayMeetings(filteredMeeting).length > 0 ? (
+        <>
+          {/* <LeftSidebar.Header uppercase={true}>
               {__('Today meeting')}
             </LeftSidebar.Header> */}
-            <h3>{__('Today')}</h3>
+          <h4>{__('Today')}</h4>
 
-            <SidebarList noTextColor noBackground id="SideBar">
-              {this.todayMeetings(meetings).map(meeting => {
-                return this.ListItem(meeting);
-              })}
-            </SidebarList>
-          </>
-        ) : (
-          ''
-        )}
-        {this.tommorowMeetings(meetings).length > 0 ? (
-          <>
-            <h3>{__('Tommorow')}</h3>
+          <SidebarList noTextColor noBackground id="SideBar">
+            {todayMeetings(filteredMeeting).map(meeting => {
+              return ListItem(meeting);
+            })}
+          </SidebarList>
+        </>
+      ) : (
+        ''
+      )}
+      {tommorowMeetings(filteredMeeting).length > 0 ? (
+        <>
+          <h4>{__('Tommorow')}</h4>
 
-            <SidebarList noTextColor noBackground id="SideBar">
-              {this.tommorowMeetings(meetings).map(meeting => {
-                return this.ListItem(meeting);
-              })}
-            </SidebarList>
-          </>
-        ) : (
-          ''
-        )}
-        {this.otherMeetings(meetings).length > 0 ? (
-          <>
-            <h3>{__('Other')}</h3>
+          <SidebarList noTextColor noBackground id="SideBar">
+            {tommorowMeetings(filteredMeeting).map(meeting => {
+              return ListItem(meeting);
+            })}
+          </SidebarList>
+        </>
+      ) : (
+        ''
+      )}
+      {otherMeetings(filteredMeeting).length > 0 ? (
+        <>
+          <h4>{__('Other')}</h4>
 
-            <SidebarList noTextColor noBackground id="SideBar">
-              {this.otherMeetings(meetings).map(meeting => {
-                return this.ListItem(meeting);
-              })}
-            </SidebarList>
-          </>
-        ) : (
-          ''
-        )}
-      </LeftSidebar>
-    );
-  }
-}
+          <SidebarList noTextColor noBackground id="SideBar">
+            {otherMeetings(filteredMeeting).map(meeting => {
+              return ListItem(meeting);
+            })}
+          </SidebarList>
+        </>
+      ) : (
+        ''
+      )}
+
+      <Box title="" name={`showCaledar`} isOpen={true}>
+        <DataWithLoader
+          data={data}
+          loading={false}
+          count={participantUser.length}
+          emptyText={'Empty'}
+          emptyIcon="leaf"
+          size="small"
+          objective={true}
+        />
+      </Box>
+    </LeftSidebar>
+  );
+};
 
 export default SideBar;

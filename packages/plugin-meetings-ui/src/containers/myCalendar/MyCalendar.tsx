@@ -44,7 +44,7 @@ const TypesListContainer = (props: FinalProps) => {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.editType : mutations.addType}
+        mutation={object ? mutations.editMeeting : mutations.addMeeting}
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
@@ -52,7 +52,6 @@ const TypesListContainer = (props: FinalProps) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={['listMeetingsTypeQuery']}
       />
     );
   };

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { Alert, confirm, router, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import {
   EditMutationResponse,
@@ -99,13 +99,6 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.listMeetingsTypes), {
-      name: 'listMeetingsTypeQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-
     graphql(gql(queries.meetings), {
       name: 'meetingQuery',
       options: () => ({

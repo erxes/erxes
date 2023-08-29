@@ -1,3 +1,5 @@
+import { IUser } from '@erxes/ui/src/auth/types';
+
 export interface IMeeting {
   _id: string;
   title: string;
@@ -15,6 +17,10 @@ export interface IMeeting {
   companyId: string;
 
   participantIds: string[];
+  participantUser: IUser[];
+  createdUser: IUser;
+
+  topics: ITopic[];
 }
 
 // queries
@@ -59,3 +65,10 @@ export type EditTypeMutationResponse = {
 export type RemoveTypeMutationResponse = {
   typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };
+
+export interface ITopic {
+  _id: string;
+  title: string;
+  description: string;
+  ownerId: string;
+}

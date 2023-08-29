@@ -15,15 +15,6 @@ const list = `
   }
 `;
 
-const listMeetingsTypes = `
-  query listMeetingsTypeQuery{
-    meetingsTypes{
-      _id
-      name
-    }
-  }
-`;
-
 const meetingFields = `
   _id
   title
@@ -36,6 +27,14 @@ const meetingFields = `
   status
   companyId
   participantIds
+  participantUser{
+      _id
+      details {
+        fullName
+        firstName
+        lastName
+      }
+    }
 `;
 
 const meetings = `
@@ -57,14 +56,29 @@ query MeetingDetail($_id: String!) {
     createdAt
     status
     companyId
-    participantIds
+    participantUser{
+      _id
+      details {
+        fullName
+      }
+    }
+    createdUser {
+        details {
+          fullName
+        }
+      }
+    topics{
+      _id
+      title
+      description
+      ownerId
+    }
   }
 }
 `;
 
 export default {
   list,
-  listMeetingsTypes,
   meetings,
   meetingDetail
 };

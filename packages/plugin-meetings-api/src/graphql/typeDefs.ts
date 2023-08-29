@@ -1,7 +1,19 @@
 import { gql } from 'apollo-server-express';
-import { mutations, queries } from './schema/meeting';
+import { mutations as meetingMutations, queries } from './schema/meeting';
+import { mutations as topicMutations } from './schema/topic';
 
 const types = `
+  type Topic {
+    _id: String
+    title: String
+    description: String
+    ownerId: String 
+  }
+
+  extend type User @key(fields: "_id") {
+        _id: String! @external
+      }
+
   type Meeting {
     _id: String
     title: String
@@ -14,6 +26,9 @@ const types = `
     status: String
     companyId: String
     participantIds: [String]
+    topics: [Topic]
+    participantUser: [User]
+    createdUser: User
   }
 `;
 
@@ -29,7 +44,8 @@ const typeDefs = async () => {
     }
     
     extend type Mutation {
-      ${mutations}
+      ${meetingMutations}
+      ${topicMutations}
     }
   `;
 };
