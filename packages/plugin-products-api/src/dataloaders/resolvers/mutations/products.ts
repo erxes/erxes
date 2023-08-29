@@ -207,7 +207,7 @@ const productMutations = {
 
 checkPermission(productMutations, 'productsAdd', 'manageProducts');
 checkPermission(productMutations, 'productsEdit', 'manageProducts');
-checkPermission(productMutations, 'productsRemove', 'manageProducts');
+checkPermission(productMutations, 'productsRemove', 'removeProducts');
 checkPermission(productMutations, 'productsMerge', 'productsMerge');
 
 checkPermission(productMutations, 'productCategoriesAdd', 'manageProducts');

@@ -5,6 +5,11 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { IOption } from '@erxes/ui/src/types';
 import { Attributes } from '../styles';
 import { __ } from '@erxes/ui/src/utils/core';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components/form';
 
 type Props = {
   config: any;
@@ -15,8 +20,20 @@ type Props = {
   isMulti?: boolean;
 };
 
-export default class SelectOption extends React.Component<Props> {
+type State = {
+  searchValue: string;
+};
+
+export default class SelectOption extends React.Component<Props, State> {
   private overlay: any;
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      searchValue: ''
+    };
+  }
 
   hideContent = () => {
     this.overlay.hide();
@@ -47,12 +64,29 @@ export default class SelectOption extends React.Component<Props> {
   };
 
   renderContent() {
-    const { options } = this.props;
+    let { options } = this.props;
+    const { searchValue } = this.state;
+
+    const onSearch = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      this.setState({ searchValue: value });
+    };
+
+    if (searchValue) {
+      options = options.filter(option =>
+        new RegExp(searchValue, 'i').test(option.label)
+      );
+    }
 
     return (
       <Popover id="select-option-popover">
         <Attributes>
           <React.Fragment>
+            <FormGroup>
+              <ControlLabel>{__('Search')}</ControlLabel>
+              <FormControl placeholder="type a search" onChange={onSearch} />
+            </FormGroup>
             <li>
               <b>Default Options</b>
             </li>

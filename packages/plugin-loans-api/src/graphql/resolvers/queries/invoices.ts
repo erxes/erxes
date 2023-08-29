@@ -141,8 +141,8 @@ const invoiceQueries = {
   }
 };
 
-checkPermission(invoiceQueries, 'handinvoicesler', 'showInvoices');
-checkPermission(invoiceQueries, 'invoicesMain', 'showInvoices');
-checkPermission(invoiceQueries, 'invoiceDetail', 'showInvoices');
+checkPermission(invoiceQueries, 'handinvoicesler', 'showLoanInvoices');
+checkPermission(invoiceQueries, 'invoicesMain', 'showLoanInvoices');
+checkPermission(invoiceQueries, 'invoiceDetail', 'showLoanInvoices');
 
 export default invoiceQueries;

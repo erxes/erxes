@@ -11,6 +11,7 @@ import { Title } from '@erxes/ui/src/styles/main';
 
 type Props = {
   contentType: String;
+  subTypes: string[];
   history: any;
   obj: any;
   save: (doc) => void;
@@ -20,6 +21,7 @@ type State = {
   name?: string;
   content?: string;
   replacer?: string;
+  subType?: string;
 };
 
 const FormWrapper = styled.div`
@@ -31,7 +33,7 @@ class Form extends React.Component<Props, State> {
 
     const { obj } = props;
 
-    this.state = { name: obj.name, content: obj.content };
+    this.state = { name: obj.name, content: obj.content, subType: obj.subType };
   }
 
   onContentChange = e => {
@@ -49,18 +51,19 @@ class Form extends React.Component<Props, State> {
   };
 
   onSave = () => {
-    const { name, content, replacer } = this.state;
+    const { name, content, replacer, subType } = this.state;
 
     this.props.save({
       name,
       content,
-      replacer
+      replacer,
+      subType
     });
   };
 
   render() {
-    const { obj, contentType } = this.props;
-    const { content } = this.state;
+    const { obj, contentType, subTypes } = this.props;
+    const { content, subType } = this.state;
 
     const formContent = (
       <FormWrapper>
@@ -105,6 +108,23 @@ class Form extends React.Component<Props, State> {
             defaultValue={obj.replacer}
             onChange={this.onChangeField.bind(this, 'replacer')}
           />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Sub Type</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            name="subType"
+            value={subType}
+            onChange={this.onChangeField.bind(this, 'subType')}
+          >
+            <option key="" value=""></option>
+            {(subTypes || []).map(e => (
+              <option key={e} value={e}>
+                {e}
+              </option>
+            ))}
+          </FormControl>
         </FormGroup>
       </FormWrapper>
     );

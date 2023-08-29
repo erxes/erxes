@@ -55,17 +55,18 @@ export const checkRemainders = async (
           responseByCode =
             (jsonRes[account] && jsonRes[account][location]) || {};
 
-          products.map((item: any) => {
-            item.remainder = responseByCode[item.code]
-              ? responseByCode[item.code]
+          for (const product of products) {
+            product.remainder = responseByCode[product.code]
+              ? responseByCode[product.code]
               : undefined;
-            return item;
-          });
+          }
         }
       } catch (e) {
         debugError(`fetch remainder from erkhet, Error: ${e.message}`);
       }
     }
+
+    return products;
   }
 
   let branchIds = paramBranchId

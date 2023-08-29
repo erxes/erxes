@@ -40,6 +40,42 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'imap:updateIntegration',
+    async ({ subdomain, data: { integrationId, doc } }) => {
+      const details = JSON.parse(doc.data);
+      const models = await generateModels(subdomain);
+
+      const integration = await models.Integrations.findOne({
+        inboxId: integrationId
+      });
+
+      if (!integration) {
+        return {
+          status: 'error',
+          errorMessage: 'Integration not found.'
+        };
+      }
+
+      await models.Integrations.updateOne(
+        { inboxId: integrationId },
+        { $set: details }
+      );
+
+      const updatedIntegration = await models.Integrations.findOne({
+        inboxId: integrationId
+      });
+
+      if (updatedIntegration) {
+        await listenIntegration(subdomain, updatedIntegration);
+      }
+
+      return {
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'imap:removeIntegrations',
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
@@ -47,6 +83,31 @@ export const initBroker = async cl => {
       await models.Messages.remove({ inboxIntegrationId: integrationId });
       await models.Customers.remove({ inboxIntegrationId: integrationId });
       await models.Integrations.remove({ inboxId: integrationId });
+
+      return {
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'imap:api_to_integrations',
+    async (args: ISendMessageArgs): Promise<any> => {
+      const { subdomain, data } = args;
+      const models = await generateModels(subdomain);
+
+      const integrationId = data.integrationId;
+
+      const integration = await models.Integrations.findOne({
+        inboxId: integrationId
+      }).select(['-_id', '-kind', '-erxesApiId', '-inboxId']);
+
+      if (data.action === 'getDetails') {
+        return {
+          status: 'success',
+          data: integration
+        };
+      }
 
       return {
         status: 'success'

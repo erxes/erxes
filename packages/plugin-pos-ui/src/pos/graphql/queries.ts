@@ -47,6 +47,8 @@ export const posCommonFields = `
   checkRemainder
   permissionConfig
   allowTypes
+  isCheckRemainder
+  checkExcludeCategoryIds
 `;
 
 const commonParamDefs = `

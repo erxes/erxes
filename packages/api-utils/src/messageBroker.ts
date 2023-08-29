@@ -18,6 +18,19 @@ const httpAgentOptions = {
 const keepaliveAgent = new Agent(httpAgentOptions);
 const secureKeepaliveAgent = new Agent.HttpsAgent(httpAgentOptions);
 
+function getHttpAgent(protocol: string, args: any): Agent | Agent.HttpsAgent {
+  if (args.timeout && Number(args.timeout)) {
+    const options = { ...httpAgentOptions, timeout: Number(args.timeout) };
+    if (protocol === 'http:') {
+      return new Agent(options);
+    } else {
+      return new Agent.HttpsAgent(options);
+    }
+  } else {
+    return protocol === 'http:' ? keepaliveAgent : secureKeepaliveAgent;
+  }
+}
+
 const showInfoDebug = () => {
   if ((process.env.DEBUG || '').includes('error')) {
     return false;
@@ -119,6 +132,12 @@ export const createConsumeRPCQueue = (app: Express) => (
 ) => {
   const { procedureName } = splitPluginProcedureName(queueName);
 
+  if (procedureName.includes(':')) {
+    throw new Error(
+      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`
+    );
+  }
+
   const endpoint = `/rpc/${procedureName}`;
 
   app.post(endpoint, async (req, res) => {
@@ -157,10 +176,7 @@ export const sendRPCMessage = async (
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(args),
-        agent: parsedURL =>
-          parsedURL.protocol === 'http:'
-            ? keepaliveAgent
-            : secureKeepaliveAgent,
+        agent: parsedURL => getHttpAgent(parsedURL.protocol, args),
         compress: false
       });
 

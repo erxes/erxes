@@ -22,7 +22,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     subdomain: string,
     doc: ITransaction
   ): Promise<ITransactionDocument>;
-  updateTransaction(memoryStorage: any, _id: string, doc: ITransaction);
+  updateTransaction(subdomain: any, _id: string, doc: ITransaction);
   changeTransaction(_id: string, doc: ITransaction);
   removeTransactions(_ids: string[]);
   getPaymentInfo(
@@ -135,7 +135,7 @@ export const loadTransactionClass = (models: IModels) => {
      * Update Transaction
      */
     public static async updateTransaction(
-      memoryStorage,
+      subdomain,
       _id: string,
       doc: ITransaction
     ) {
@@ -173,7 +173,7 @@ export const loadTransactionClass = (models: IModels) => {
         await models.Invoices.updateInvoice(doc.invoiceId, invoiceData);
       }
 
-      const trInfo = await transactionRule(models, memoryStorage, { ...doc });
+      const trInfo = await transactionRule(models, subdomain, { ...doc });
 
       await models.Transactions.updateOne(
         { _id },
