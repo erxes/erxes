@@ -166,6 +166,12 @@ export type CoversQueryResponse = {
   refetch: () => void;
 };
 
+export type CoversCountQueryResponse = {
+  posCoversCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type CoverDetailQueryResponse = {
   posCoverDetail: ICover;
   loading: boolean;

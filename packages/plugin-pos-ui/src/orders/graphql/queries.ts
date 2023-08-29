@@ -203,6 +203,7 @@ const coverParams = `
   $sortField: String
   $sortDirection: Int
   $posId: String
+  $posToken: String
   $startDate: Date
   $endDate: Date
   $userId: String
@@ -214,6 +215,7 @@ const coverParamsVal = `
   sortField: $sortField
   sortDirection: $sortDirection
   posId: $posId
+  posToken: $posToken
   startDate: $startDate
   endDate: $endDate
   userId: $userId
@@ -224,6 +226,12 @@ const covers = `
     posCovers(${coverParamsVal}) {
       ${coverFields}
     }
+  }
+`;
+
+const coversCount = `
+  query posCoversCount(${coverParams}) {
+    posCoversCount(${coverParamsVal})
   }
 `;
 
@@ -264,6 +272,7 @@ export default {
   posProducts,
   productCategories,
   covers,
+  coversCount,
   coverDetail,
   posOrderRecords,
   posOrderRecordsCount
