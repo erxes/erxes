@@ -11,7 +11,6 @@ interface IProps {
 }
 
 const IntegrationEditForm = (props: IProps) => {
-  console.log('props', props);
   if (props.integrationKind !== 'callpro') {
     return null;
   }
