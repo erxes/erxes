@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -87,6 +87,11 @@ function ScheduleList(props: Props) {
   const [isSideBarOpen, setIsOpen] = useState(
     localStorage.getItem('isSideBarOpen') === 'true' ? true : false
   );
+
+  // Set Approved as default for scheduleStatus
+  useEffect(() => {
+    router.setParams(history, { scheduleStatus: 'Approved' });
+  }, []);
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
