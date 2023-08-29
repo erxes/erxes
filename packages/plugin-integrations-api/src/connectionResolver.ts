@@ -57,7 +57,7 @@ export const loadClasses = (db: mongoose.Connection) => {
     loadConfigClass(models)
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
-    'erxes_integrations',
+    'integrations',
     loadIntegrationClass(models)
   );
   models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
