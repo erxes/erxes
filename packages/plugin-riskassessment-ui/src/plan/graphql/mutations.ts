@@ -54,6 +54,14 @@ mutation ChangeStatusRiskAssessmentPlan($_id: String, $status: String) {
 }
 `;
 
+const forceStartPlan = `
+  mutation ForceStartRiskAssessmentPlan($id: String) {
+    forceStartRiskAssessmentPlan(_id: $id) {
+      _id
+    }
+  }
+`;
+
 const commonScheduleParams = `
     $planId: String,
     $indicatorId: String,
@@ -102,6 +110,7 @@ export default {
   removePlan,
   duplicatePlan,
   changeStatus,
+  forceStartPlan,
   addSchedule,
   updateSchedule,
   removeSchedule

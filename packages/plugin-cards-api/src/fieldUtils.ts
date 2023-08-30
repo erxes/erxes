@@ -104,6 +104,21 @@ const generateUsersOptions = async (
   };
 };
 
+const generateStructuresOptions = async (
+  subdomain: string,
+  name: string,
+  label: string,
+  type: string,
+  filter?: any
+) => {
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type
+  };
+};
+
 const getStageOptions = async (models: IModels, pipelineId) => {
   const stages = await models.Stages.find({ pipelineId });
   const options: Array<{ label: string; value: any }> = [];
@@ -246,6 +261,20 @@ export const generateFields = async ({ subdomain, data }) => {
     'contact'
   );
 
+  const branchesOptions = await generateStructuresOptions(
+    subdomain,
+    'branchIds',
+    'Branches',
+    'structure'
+  );
+
+  const departmentsOptions = await generateStructuresOptions(
+    subdomain,
+    'departmentIds',
+    'Departments',
+    'structure'
+  );
+
   fields = [
     ...fields,
     ...[
@@ -254,7 +283,9 @@ export const generateFields = async ({ subdomain, data }) => {
       assignedUserOptions,
       watchedUserOptions,
       customersOptions,
-      companiesOptions
+      companiesOptions,
+      branchesOptions,
+      departmentsOptions
     ]
   ];
 

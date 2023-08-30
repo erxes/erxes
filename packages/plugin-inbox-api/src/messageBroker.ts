@@ -103,10 +103,9 @@ export const initBroker = cl => {
     }
   );
 
-  consumeRPCQueue(
-    'inbox:integrations.receive',
-    async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
-  );
+  consumeRPCQueue('inbox:integrations.receive', async ({ subdomain, data }) => {
+    return receiveRpcMessage(subdomain, data);
+  });
 
   consumeQueue(
     'inbox:integrationsNotification',
@@ -288,6 +287,15 @@ export const initBroker = cl => {
     return {
       status: 'success',
       data: await models.Channels.updateUserChannels(channelIds, userId)
+    };
+  });
+
+  consumeRPCQueue('inbox:channels.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Channels.find(data)
     };
   });
 
