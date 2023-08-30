@@ -1,8 +1,8 @@
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, router } from '@erxes/ui/src/utils/core';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { colors } from '@erxes/ui/src/styles';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { IMeeting } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -25,11 +25,16 @@ type Props = {
 };
 
 export const SideBar = (props: Props) => {
-  const { queryParams, meetings, refetch } = props;
+  const { queryParams, meetings } = props;
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
-  const [checkBoxValues, setCheckValues] = useState([]);
+  const [checkedUsers, setCheckedUsers] = useState(
+    queryParams.participantUserIds
+      ? queryParams.participantUserIds.split(',')
+      : []
+  );
   const history = useHistory();
+
   const participantUser = meetings.reduce((uniqueUsers: IUser[], meeting) => {
     meeting.participantUser.forEach(user => {
       if (!uniqueUsers.some(uniqueUser => uniqueUser._id === user._id)) {
@@ -38,6 +43,11 @@ export const SideBar = (props: Props) => {
     });
     return uniqueUsers;
   }, []);
+
+  useEffect(() => {
+    const queryString = 'participantUserIds=' + checkedUsers.join(',');
+    return history.push(`${window.location.pathname}?${queryString}`);
+  }, [checkedUsers]);
 
   const ListItem = meeting => {
     const className = meeting && meetingId === meeting._id ? 'active' : '';
@@ -120,20 +130,12 @@ export const SideBar = (props: Props) => {
   };
 
   const handleChange = (e, userId: string) => {
-    let checkedUsers = checkBoxValues;
     const isChecked = e.target.checked;
-
-    // if selected value is not already in list then add it
     if (isChecked && !checkedUsers.includes(userId)) {
-      checkedUsers.push(userId);
+      setCheckedUsers([...checkedUsers, userId]);
+    } else {
+      setCheckedUsers(checkedUsers.filter(user => user !== userId));
     }
-
-    // remove option from checked list
-    if (!isChecked) {
-      checkedUsers = checkedUsers.filter(v => v !== userId);
-    }
-    // router.setParams(history, { participantUserIds: [...checkedUsers] });
-    setCheckValues(checkedUsers);
   };
 
   const data = (
@@ -142,6 +144,7 @@ export const SideBar = (props: Props) => {
       {participantUser.map((user: any) => {
         return (
           <div
+            key={user._id}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -151,6 +154,7 @@ export const SideBar = (props: Props) => {
             <FormControl
               componentClass="checkbox"
               onChange={e => handleChange(e, user._id)}
+              defaultChecked={checkedUsers.includes(user._id)}
             />
             &emsp;
             <FieldStyle>{user.details.fullName}</FieldStyle>

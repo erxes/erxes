@@ -1,6 +1,6 @@
 import React from 'react';
 import * as compose from 'lodash.flowright';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../../graphql';
 import { MeetingsQueryResponse } from '../../../types';
@@ -19,7 +19,7 @@ type FinalProps = {
 
 class PreviousDetail extends React.Component<FinalProps> {
   render() {
-    const { companyId, meetingsQuery, queryParams } = this.props;
+    const { meetingsQuery, queryParams } = this.props;
     if (meetingsQuery.loading) {
       return <Spinner />;
     }

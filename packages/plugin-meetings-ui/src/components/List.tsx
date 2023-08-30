@@ -68,9 +68,7 @@ function List(props: Props) {
         setSideBar(<div>sidebar 1</div>);
         break;
       default:
-        setComponent(
-          <MyCalendarList {...props} showCreateMeeting={showCreateMeeting} />
-        );
+        setComponent(<MyCalendarList {...props} />);
         setSideBar(<SideBar history={history} queryParams={queryParams} />);
         break;
     }

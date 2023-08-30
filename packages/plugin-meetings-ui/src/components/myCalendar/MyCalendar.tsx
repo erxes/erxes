@@ -10,7 +10,6 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   meetings?: IMeeting[];
   queryParams: any;
-  showCreateMeeting: boolean;
 };
 
 export const MyCalendarList = (props: Props) => {
@@ -31,17 +30,7 @@ export const MyCalendarList = (props: Props) => {
 
   const renderTabContent = () => {
     if (currentTab === 'Previous session') {
-      console.log('prev');
-
-      return (
-        <PreviousDetail companyId={companyId} queryParams={queryParams} />
-        // <Detail
-        //   meetingId={meetingId}
-        //   queryParams={queryParams}
-        //   status='completed'
-        //   companyId={companyId}
-        // />
-      );
+      return <PreviousDetail companyId={companyId} queryParams={queryParams} />;
     }
     console.log('else');
     return <Detail meetingId={meetingId} queryParams={queryParams} />;

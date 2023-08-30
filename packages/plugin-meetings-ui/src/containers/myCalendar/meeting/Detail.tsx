@@ -28,7 +28,6 @@ type FinalProps = {
 
 const MeetingDetailContainer = (props: FinalProps) => {
   const { meetingDetailQuery, companyId, status } = props;
-  console.log('aaaaa', props);
 
   const { data, loading } = useQuery(gql(queries.meetings), {
     variables: { companyId, status },
@@ -55,7 +54,8 @@ const MeetingDetailContainer = (props: FinalProps) => {
   const updatedProps = {
     meetingDetail: meetingDetailQuery && meetingDetailQuery.meetingDetail,
     changeStatus,
-    meetings: data?.meetings
+    meetings: data?.meetings,
+    refetchDetail: meetingDetailQuery && meetingDetailQuery.refetch
   };
 
   return <MeetingDetail {...updatedProps} />;

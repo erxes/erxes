@@ -1,7 +1,9 @@
-import { mutations, queries } from '../../../graphql';
 import React from 'react';
+import { gql } from '@apollo/client';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+
+import { mutations, queries } from '../../../graphql';
 import { ITopic } from '../../../types';
 import { TopicForm } from '../../../components/myCalendar/topic/Form';
 
@@ -10,6 +12,8 @@ type Props = {
   meetingId: string;
   participantUserIds: string[];
   meetingStatus: string;
+  refetchDetail: any;
+  closeModal: () => void;
 };
 
 export const TopicFormContainer = (props: Props) => {
@@ -18,6 +22,7 @@ export const TopicFormContainer = (props: Props) => {
     passedName,
     values,
     isSubmitted,
+
     callback,
     object
   }: IButtonMutateProps) => {
@@ -31,12 +36,14 @@ export const TopicFormContainer = (props: Props) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={{
-          query: queries.meetingDetail,
-          variables: {
-            _id: props.meetingId
+        refetchQueries={[
+          {
+            query: gql(queries.meetingDetail),
+            variables: {
+              _id: props.meetingId
+            }
           }
-        }}
+        ]}
       />
     );
   };

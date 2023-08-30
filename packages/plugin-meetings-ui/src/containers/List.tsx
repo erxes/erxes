@@ -39,7 +39,6 @@ const ListContainer = (props: FinalProps) => {
     history,
     currentUser
   } = props;
-  console.log(currentUser, 'currentUser:::');
 
   if (meetingQuery.loading) {
     return <Spinner />;
@@ -52,17 +51,27 @@ const ListContainer = (props: FinalProps) => {
     callback,
     object
   }: IButtonMutateProps) => {
+    const updatedCallback = () => {
+      if (callback) {
+        callback();
+      }
+      meetingQuery.refetch();
+    };
     return (
       <ButtonMutate
         mutation={object ? mutations.editMeeting : mutations.addMeeting}
         variables={values}
-        callback={callback}
+        callback={updatedCallback}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={meetingQuery.refetch()}
+        refetchQueries={[
+          {
+            query: gql(queries.meetings)
+          }
+        ]}
       />
     );
   };

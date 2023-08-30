@@ -42,16 +42,19 @@ export const MeetingWrapper = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   margin-top: ${dimensions.coreSpacing}px;
   .description {
-    padding: 4px;
+    padding: 4px 8px;
     border: 1px solid ${colors.borderDarker};
     border-radius: 8px;
     margin: 10px 0 10px 0;
   }
 `;
 
-export const MeetingDetailRow = styled.tr`
+export const MeetingDetailRow = styled.div`
   font-size: 14px;
-  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
 `;
 
 export const MeetingDetailFooter = styled.div`
@@ -60,9 +63,9 @@ export const MeetingDetailFooter = styled.div`
   gap: 15px;
   justify-content: center;
 `;
-export const MeetingDetailColumn = styled.td`
-  width: 600px;
+export const MeetingDetailColumn = styled.div`
   padding: ${dimensions.unitSpacing / 2}px 0;
+  flex: 1 1 0px;
   span {
     color: ${colors.colorCoreBlue};
   }

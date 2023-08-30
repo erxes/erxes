@@ -8,9 +8,7 @@ import {
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
-import { BoxWrapper, FormWrapper } from '../../../styles';
 import { ITopic } from '../../../types';
-import Box from '@erxes/ui/src/components/Box';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 type Props = {
@@ -19,10 +17,19 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   participantUserIds: string[];
   meetingStatus: string;
+  closeModal?: () => void;
+  afterSave?: () => void;
 };
 
 export const TopicForm = (props: Props) => {
-  const { topic, meetingId, participantUserIds, meetingStatus } = props;
+  const {
+    afterSave,
+    topic,
+    meetingId,
+    participantUserIds,
+    meetingStatus,
+    closeModal
+  } = props;
   const [ownerId, setOwnerId] = useState(topic?.ownerId);
 
   const onSelectOwner = value => {
@@ -52,7 +59,7 @@ export const TopicForm = (props: Props) => {
     const { topic, renderButton } = props;
     const { values, isSubmitted } = formProps;
     return (
-      <FormWrapper>
+      <>
         <FormGroup>
           <ControlLabel required={true}>Topic name</ControlLabel>
           <FormControl
@@ -98,23 +105,14 @@ export const TopicForm = (props: Props) => {
               passedName: 'meetings',
               values: generateDoc(values),
               isSubmitted,
+              callback: closeModal || afterSave,
               object: topic
             })}
           </ModalFooter>
         )}
-      </FormWrapper>
+      </>
     );
   };
 
-  return (
-    <BoxWrapper>
-      <Box
-        title={topic ? topic.title : 'Add topic'}
-        name="showCustomFields"
-        isOpen={topic ? false : true}
-      >
-        <Form renderContent={renderContent} />
-      </Box>
-    </BoxWrapper>
-  );
+  return <Form renderContent={renderContent} />;
 };
