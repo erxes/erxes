@@ -9,6 +9,25 @@ type Props = {
 const localizer = momentLocalizer(moment);
 
 export const CalendarComponent = ({ events }: Props) => {
+  const MyCustomEvent = ({ event }: any) => {
+    return (
+      <div
+        style={{
+          display: 'grid',
+          fontSize: '11px',
+          lineHeight: '1.2'
+        }}
+      >
+        <span>{event.title}</span>
+        <span>
+          {moment(event.start).format('LT') +
+            '-' +
+            moment(event.end).format('LT')}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div style={{ height: '80vh' }}>
       <Calendar
@@ -18,6 +37,18 @@ export const CalendarComponent = ({ events }: Props) => {
         endAccessor="end"
         defaultView="month"
         views={['month', 'week']}
+        components={{
+          event: MyCustomEvent // Use your custom event component
+        }}
+        eventPropGetter={event => ({
+          style: {
+            backgroundColor: event.bgColor,
+            margin: '1px 2px',
+            width: 'calc(100% - 2px)',
+            borderRadius: '6px',
+            padding: '4px 8px'
+          }
+        })}
       />
     </div>
   );

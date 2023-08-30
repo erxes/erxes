@@ -1,8 +1,8 @@
-import { __, router } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils/core';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { colors } from '@erxes/ui/src/styles';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IMeeting } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { generateColorCode } from '../../utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -138,6 +139,7 @@ export const SideBar = (props: Props) => {
     }
   };
 
+  console.log('participantUser', participantUser);
   const data = (
     <SidebarList style={{ padding: '10px 20px' }}>
       {/* <h4>{__("Other Calendar")}</h4> */}
@@ -158,6 +160,15 @@ export const SideBar = (props: Props) => {
             />
             &emsp;
             <FieldStyle>{user.details.fullName}</FieldStyle>
+            <div
+              style={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: generateColorCode(user._id),
+                marginLeft: 'auto'
+              }}
+            />
           </div>
         );
       })}
