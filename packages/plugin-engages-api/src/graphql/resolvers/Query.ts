@@ -5,7 +5,10 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { getCustomerName } from '@erxes/api-utils/src/editorAttributeUtils';
 import { IContext, IModels } from '../../connectionResolver';
-import { awsRequests } from '../../trackers/engageTracker';
+import {
+  awsRequests,
+  customMailServiceRequests
+} from '../../trackers/engageTracker';
 import { prepareAvgStats } from '../../utils';
 import {
   sendContactsMessage,
@@ -344,8 +347,16 @@ const engageQueries = {
     });
 
     const userEmails = users.map(u => u.email);
+
+    const {
+      isDefaultEmailServiceCMS,
+      getVerifiedEmails
+    } = customMailServiceRequests;
+
     const allVerifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+      ((await isDefaultEmailServiceCMS(models))
+        ? (await getVerifiedEmails(models)) || []
+        : await awsRequests.getVerifiedEmails(models)) || [];
 
     if (!allVerifiedEmails) {
       return [];

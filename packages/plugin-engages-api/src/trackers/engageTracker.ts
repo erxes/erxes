@@ -6,6 +6,7 @@ import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
 import { generateModels, IModels } from '../connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { createTransporter } from '../utils';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
@@ -186,5 +187,58 @@ export const awsRequests = {
         return resolve(data);
       });
     });
+  }
+};
+
+export const customMailServiceRequests = {
+  async isDefaultEmailServiceCMS(models: IModels) {
+    const defaultEmailService =
+      (await models.Configs.getConfig('defaultEmailService'))?.value || 'SES';
+
+    return defaultEmailService === 'custom';
+  },
+
+  async getVerifiedEmails(models: IModels) {
+    const mailServiceName = (await models.Configs.getConfig('mailServiceName'))
+      .value;
+
+    return await models.VerifiedAddresses.find({ mailServiceName }).distinct(
+      'email'
+    );
+  },
+
+  async removeVerifiedEmail(models: IModels, email: string) {
+    const mailServiceName = (await models.Configs.getConfig('mailServiceName'))
+      .value;
+
+    return await models.VerifiedAddresses.find({
+      mailServiceName,
+      email
+    }).distinct('email');
+  },
+
+  async verifyEmail(models: IModels, email: string) {
+    const mailServiceName = (await models.Configs.getConfig('mailServiceName'))
+      .value;
+
+    const transporter = await createTransporter(models);
+    try {
+      await transporter.sendMail({
+        from: email,
+        to: 'nodemailer@disposebox.com',
+        subject: 'verification test',
+        html: 'verification test'
+      });
+      await models.VerifiedAddresses.create({
+        email,
+        mailServiceName: mailServiceName
+      });
+      return email;
+    } catch (error) {
+      console.log(error);
+      throw new Error(
+        'Verification failed: Please check Sender Verification of custom email service'
+      );
+    }
   }
 };

@@ -12,7 +12,10 @@ import {
   sendContactsMessage
 } from './messageBroker';
 import { IModels } from './connectionResolver';
-import { awsRequests } from './trackers/engageTracker';
+import {
+  awsRequests,
+  customMailServiceRequests
+} from './trackers/engageTracker';
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -336,11 +339,23 @@ export const checkCampaignDoc = async (
       throw new Error(`From user email is not specified: ${user.username}`);
     }
 
-    const verifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+    const {
+      isDefaultEmailServiceCMS,
+      getVerifiedEmails
+    } = customMailServiceRequests;
+
+    const verifiedEmails: any = (await isDefaultEmailServiceCMS(models))
+      ? await getVerifiedEmails(models)
+      : (await awsRequests.getVerifiedEmails(models)) || [];
 
     if (!verifiedEmails.includes(user.email)) {
-      throw new Error(`From user email "${user.email}" is not verified in AWS`);
+      throw new Error(
+        `From user email "${user.email}" is not verified in ${
+          (await isDefaultEmailServiceCMS(models))
+            ? 'Custom Mail Service'
+            : `AWS`
+        }`
+      );
     }
   }
 };

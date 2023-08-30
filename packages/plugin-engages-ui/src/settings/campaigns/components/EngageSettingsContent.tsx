@@ -8,12 +8,18 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __, Alert } from 'coreui/utils';
+import { __, Alert, Tabs, TabTitle } from '@erxes/ui/src';
 import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
 import { ContentBox } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import { Verify } from '@erxes/ui-settings/src/general/components/styles';
+import Select from 'react-select-plus';
+import styled from 'styled-components';
+
+const Container = styled.div`
+  margin: 10px 0;
+`;
 
 type Props = {
   configsMap: IConfigsMap;
@@ -38,6 +44,8 @@ type State = {
   telnyxApiKey?: string;
   telnyxPhone?: string;
   telnyxProfileId?: string;
+  defaultEmailService?: string;
+  selectedTab?: string;
 };
 
 type CommonFields =
@@ -47,7 +55,8 @@ type CommonFields =
   | 'testContent'
   | 'telnyxApiKey'
   | 'telnyxPhone'
-  | 'telnyxProfileId';
+  | 'telnyxProfileId'
+  | 'defaultEmailService';
 
 class EngageSettingsContent extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -64,12 +73,15 @@ class EngageSettingsContent extends React.Component<Props, State> {
       trueMailApiKey: configsMap.trueMailApiKey || '',
       telnyxApiKey: configsMap.telnyxApiKey || '',
       telnyxPhone: configsMap.telnyxPhone || '',
-      telnyxProfileId: configsMap.telnyxProfileId || ''
+      telnyxProfileId: configsMap.telnyxProfileId || '',
+      defaultEmailService: configsMap.defaultEmailService || 'SES',
+      selectedTab: 'general'
     };
   }
 
   generateDoc = values => {
-    return { configsMap: values };
+    const { defaultEmailService } = this.state;
+    return { configsMap: { ...values, defaultEmailService } };
   };
 
   onChangeCommon = (name: CommonFields, e) => {
@@ -121,10 +133,32 @@ class EngageSettingsContent extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { configsMap, renderButton } = this.props;
-    const { values, isSubmitted } = formProps;
+  renderItem = (
+    key: string,
+    label: string,
+    formProps: IFormProps,
+    description?: string,
+    componentClass?: string
+  ) => {
+    const { configsMap } = this.props;
 
+    return (
+      <FormGroup>
+        <ControlLabel>{label}</ControlLabel>
+        {description && <p>{__(description)}</p>}
+        <FormControl
+          {...formProps}
+          name={key}
+          max={140}
+          componentClass={componentClass}
+          defaultValue={configsMap[key]}
+          onChange={this.onChangeCommon.bind(this, key)}
+        />
+      </FormGroup>
+    );
+  };
+
+  renderSeSConfig = formProps => {
     return (
       <>
         <Info>
@@ -141,46 +175,45 @@ class EngageSettingsContent extends React.Component<Props, State> {
             {__('Learn more about Amazon SES configuration')}
           </a>
         </Info>
-        <FormGroup>
-          <ControlLabel>AWS SES Access key ID</ControlLabel>
-          <FormControl
-            {...formProps}
-            max={140}
-            name="accessKeyId"
-            defaultValue={configsMap.accessKeyId}
-          />
-        </FormGroup>
+        {this.renderItem('accessKeyId', 'AWS SES Access key ID', formProps)}
+        {this.renderItem(
+          'secretAccessKey',
+          'AWS SES Secret access key',
+          formProps
+        )}
+        {this.renderItem('region', 'AWS SES Region', formProps)}
+        {this.renderItem('configSet', 'AWS SES Config set', formProps)}
+      </>
+    );
+  };
 
-        <FormGroup>
-          <ControlLabel>AWS SES Secret access key</ControlLabel>
-          <FormControl
-            {...formProps}
-            max={140}
-            name="secretAccessKey"
-            defaultValue={configsMap.secretAccessKey}
-          />
-        </FormGroup>
+  renderCustomMailConfig = formProps => {
+    return (
+      <>
+        <Info>
+          <a
+            target="_blank"
+            href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#custom-mail-service"
+            rel="noopener noreferrer"
+          >
+            {__('Learn the case of custom email service')}
+          </a>
+        </Info>
+        {this.renderItem('mailServiceName', 'Mail Service Name', formProps)}
+        {this.renderItem('customMailPort', 'Port', formProps)}
+        {this.renderItem('customMailUsername', 'Username', formProps)}
+        {this.renderItem('customMailPassword', 'Password', formProps)}
+        {this.renderItem('customMailHost', 'Host', formProps)}
+      </>
+    );
+  };
 
-        <FormGroup>
-          <ControlLabel>AWS SES Region</ControlLabel>
-          <FormControl
-            {...formProps}
-            max={140}
-            name="region"
-            defaultValue={configsMap.region}
-          />
-        </FormGroup>
+  renderGeneral = (formProps: IFormProps) => {
+    const { configsMap } = this.props;
+    const { defaultEmailService } = this.state;
 
-        <FormGroup>
-          <ControlLabel>AWS SES Config set</ControlLabel>
-          <FormControl
-            {...formProps}
-            max={140}
-            name="configSet"
-            defaultValue={configsMap.configSet}
-          />
-        </FormGroup>
-
+    return (
+      <>
         <FormGroup>
           <ControlLabel>Unverified emails limit</ControlLabel>
           <FormControl
@@ -221,25 +254,66 @@ class EngageSettingsContent extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <ModalFooter>
-          {renderButton({
-            name: 'configsMap',
-            values: this.generateDoc(values),
-            isSubmitted,
-            object: this.props.configsMap
-          })}
-        </ModalFooter>
+        <FormGroup>
+          <ControlLabel>DEFAULT EMAIL SERVICE</ControlLabel>
+          <p>
+            {__(
+              'Choose your email service name. The default email service is SES.'
+            )}
+          </p>
+          <Select
+            options={[
+              { label: 'SES', value: 'SES' },
+              { label: 'Custom', value: 'custom' }
+            ]}
+            value={defaultEmailService}
+            clearable={false}
+            searchable={false}
+            onChange={({ value }) =>
+              this.setState({ defaultEmailService: value })
+            }
+          />
+        </FormGroup>
       </>
     );
   };
 
-  render() {
-    return (
-      <ContentBox id={'EngageSettingsMenu'}>
-        <CollapseContent title="General settings">
-          <Form renderContent={this.renderContent} />
-        </CollapseContent>
+  renderGemeral = () => {
+    const { renderButton } = this.props;
 
+    const content = (formProps: IFormProps) => {
+      const { values, isSubmitted } = formProps;
+      return (
+        <Container>
+          <CollapseContent title="General settings">
+            {this.renderGeneral(formProps)}
+          </CollapseContent>
+
+          <CollapseContent title="AWS SES">
+            {this.renderSeSConfig(formProps)}
+          </CollapseContent>
+
+          <CollapseContent title="Custom mail service">
+            {this.renderCustomMailConfig(formProps)}
+          </CollapseContent>
+          <ModalFooter>
+            {renderButton({
+              name: 'configsMap',
+              values: this.generateDoc(values),
+              isSubmitted,
+              object: this.props.configsMap
+            })}
+          </ModalFooter>
+        </Container>
+      );
+    };
+
+    return <Form renderContent={content} />;
+  };
+
+  renderVerify = () => {
+    return (
+      <Container>
         <CollapseContent
           title={__('Verify the email addresses that you send email from')}
         >
@@ -298,6 +372,30 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </Button>
           </ModalFooter>
         </CollapseContent>
+      </Container>
+    );
+  };
+
+  render() {
+    const { selectedTab } = this.state;
+
+    return (
+      <ContentBox id={'EngageSettingsMenu'}>
+        <Tabs full>
+          <TabTitle
+            className={selectedTab === 'general' ? 'active' : ''}
+            onClick={() => this.setState({ selectedTab: 'general' })}
+          >
+            {__('General Settings')}
+          </TabTitle>
+          <TabTitle
+            className={selectedTab === 'verify' ? 'active' : ''}
+            onClick={() => this.setState({ selectedTab: 'verify' })}
+          >
+            {__('Verify')}
+          </TabTitle>
+        </Tabs>
+        {selectedTab === 'verify' ? this.renderVerify() : this.renderGemeral()}
       </ContentBox>
     );
   }

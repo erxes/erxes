@@ -141,6 +141,13 @@ export const smsSchema = new Schema(
   { _id: false }
 );
 
+export const verifiedEmailAddressesSchema = new Schema({
+  _id: field({ pkey: true }),
+  email: field({ type: String }),
+  mailServiceName: field({ type: String }),
+  createdAt: field({ type: String })
+});
+
 export const engageMessageSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),

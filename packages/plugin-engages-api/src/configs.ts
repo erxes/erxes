@@ -30,7 +30,15 @@ export default {
   segment: { schemas: [] },
   hasSubscriptions: false,
   meta: { tags, logs: { consumers: logs }, webhooks, cronjobs, permissions },
-  postHandlers: [{ path: `/service/engage/tracker`, method: engageTracker }],
+  postHandlers: [
+    {
+      path: `/service/engage/tracker`,
+      method: (req, res) => {
+        console.log(req.body);
+        res.send({ dasd: 'dasdas' });
+      }
+    }
+  ],
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 

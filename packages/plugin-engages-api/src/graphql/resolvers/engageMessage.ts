@@ -1,10 +1,14 @@
 import { IContext } from '../../connectionResolver';
 import { IEngageMessageDocument } from '../../models/definitions/engages';
 import { prepareSmsStats } from '../../telnyxUtils';
-import { sendCoreMessage } from '../../messageBroker'
+import { sendCoreMessage } from '../../messageBroker';
 
 export default {
-  __resolveReference({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
+  __resolveReference(
+    { _id }: IEngageMessageDocument,
+    _args,
+    { models }: IContext
+  ) {
     return models.EngageMessages.findOne({ _id });
   },
 
@@ -73,7 +77,11 @@ export default {
     return null;
   },
 
-  async createdUserName({ createdBy = '' }: IEngageMessageDocument, _args, { subdomain }: IContext) {
+  async createdUserName(
+    { createdBy = '' }: IEngageMessageDocument,
+    _args,
+    { subdomain }: IContext
+  ) {
     const user = await sendCoreMessage({
       subdomain,
       action: 'users.findOne',
