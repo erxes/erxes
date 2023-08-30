@@ -251,10 +251,7 @@ const pricingQueryParams = `
   prioritizeRule: String
   branchId: String
   departmentId: String
-  
-  totalAmount: String
   productId: String
-  quantity: Float
   date: Date
 
   findOne: Boolean
@@ -267,6 +264,9 @@ const pricingQueryParams = `
   isPriceEnabled: Boolean
   isExpiryEnabled: Boolean
   isRepeatEnabled: Boolean
+
+  totalAmount: String
+  quantity: Float
 `;
 
 export const queries = `
