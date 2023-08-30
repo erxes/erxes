@@ -44,6 +44,7 @@ export type IOrder = {
   origin?: string;
   syncedErkhet: boolean;
   convertDealId: string;
+  returnInfo?: any;
 };
 
 export type IOrderRecord = {} & IOrder;
