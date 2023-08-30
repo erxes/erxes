@@ -23,6 +23,7 @@ type Props = {
   fieldType?: string;
   config?: any;
   options?: IOption[];
+  optionsAllowedTypes?: string[];
   isMulti?: boolean;
   excludeAttr?: boolean;
   customAttributions?: FieldsCombinedByType[];
@@ -69,8 +70,14 @@ class PlaceHolderInput extends React.Component<Props, State> {
   };
 
   renderSelect() {
-    const { fieldType, options, inputName, isMulti } = this.props;
-    if (fieldType !== 'select') {
+    const {
+      fieldType,
+      options,
+      inputName,
+      isMulti,
+      optionsAllowedTypes
+    } = this.props;
+    if (!['select', ...(optionsAllowedTypes || [])].includes(fieldType || '')) {
       return '';
     }
 

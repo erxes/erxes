@@ -37,3 +37,24 @@ export const USER_EXTENDED_FIELDS = [
     type: 'string'
   }
 ];
+
+export const USER_EXPORT_EXTENDED_FIELDS = [
+  {
+    _id: Math.random(),
+    name: 'departments',
+    label: 'Departments',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'branches',
+    label: 'Branches',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: '_id',
+    label: 'Employee Id',
+    type: 'string'
+  }
+];

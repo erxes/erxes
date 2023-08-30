@@ -201,14 +201,17 @@ export const generateDoc = async ({
     defaultValue: null
   });
 
-  const fromUser = await sendCoreMessage({
-    subdomain,
-    action: 'users.findOne',
-    data: {
-      _id: fromUserId
-    },
-    isRPC: true
-  });
+  const fromUser = fromUserId
+    ? await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: fromUserId
+        },
+        isRPC: true,
+        defaultValue: null
+      })
+    : null;
 
   const { subject, content } = await sendCommonMessage({
     subdomain,
@@ -237,7 +240,7 @@ export const generateDoc = async ({
   return {
     title: subject,
     fromEmail: fromUser?.email,
-    toEmails: toEmails.filter(email => fromUser.email !== email),
+    toEmails: toEmails.filter(email => fromUser?.email !== email),
     customHtml: content
   };
 };
