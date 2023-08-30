@@ -9,6 +9,7 @@ type Props = {
   topic?: ITopic;
   meetingId: string;
   participantUserIds: string[];
+  meetingStatus: string;
 };
 
 export const TopicFormContainer = (props: Props) => {
@@ -30,7 +31,7 @@ export const TopicFormContainer = (props: Props) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={['meetingDetail']}
+        refetchQueries={['MeetingDetail']}
       />
     );
   };

@@ -83,10 +83,7 @@ const TypesListContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql(gql(queries.meetings), {
-      name: 'meetingQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'meetingQuery'
     })
   )(TypesListContainer)
 );

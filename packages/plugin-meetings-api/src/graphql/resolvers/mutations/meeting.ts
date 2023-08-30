@@ -10,8 +10,8 @@ const meetingMutations = {
   // /**
   //  * Edits a meetings
   //  */
-  async meetingEdit(_root, { _id, doc }, { models, user }: IContext) {
-    return models.Meetings.updateMeeting(_id, doc, user);
+  async meetingEdit(_root, doc, { models, user }: IContext) {
+    return models.Meetings.updateMeeting(doc, user);
   },
   /**
    * Removes a single meetings

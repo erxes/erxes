@@ -18,10 +18,11 @@ type Props = {
   meetingId: String;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   participantUserIds: string[];
+  meetingStatus: string;
 };
 
 export const TopicForm = (props: Props) => {
-  const { topic, meetingId, participantUserIds } = props;
+  const { topic, meetingId, participantUserIds, meetingStatus } = props;
   const [ownerId, setOwnerId] = useState(topic?.ownerId);
 
   const onSelectOwner = value => {
@@ -91,14 +92,16 @@ export const TopicForm = (props: Props) => {
         </FormGroup>
         {/* </FormGroup> */}
 
-        <ModalFooter id={'AddTagButtons'}>
-          {renderButton({
-            passedName: 'meetings',
-            values: generateDoc(values),
-            isSubmitted,
-            object: topic
-          })}
-        </ModalFooter>
+        {meetingStatus !== 'completed' && (
+          <ModalFooter id={'AddTagButtons'}>
+            {renderButton({
+              passedName: 'meetings',
+              values: generateDoc(values),
+              isSubmitted,
+              object: topic
+            })}
+          </ModalFooter>
+        )}
       </FormWrapper>
     );
   };

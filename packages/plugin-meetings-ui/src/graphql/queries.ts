@@ -1,20 +1,3 @@
-const list = `
-  query listQuery($typeId: String) {
-    meetingss(typeId: $typeId) {
-      _id
-      name
-      expiryDate
-      createdAt
-      checked
-      typeId
-      currentType{
-        _id
-        name
-      }
-    }
-  }
-`;
-
 const meetingFields = `
   _id
   title
@@ -27,6 +10,13 @@ const meetingFields = `
   status
   companyId
   participantIds
+   createdUser {
+     _id
+     username
+     details {
+        fullName
+      }
+    }
   participantUser{
       _id
       details {
@@ -38,8 +28,8 @@ const meetingFields = `
 `;
 
 const meetings = `
-query meetings{
-  meetings{
+query meetings($companyId: String, $status: String){
+  meetings(companyId: $companyId, status: $status){
   ${meetingFields}
   }
 }`;
@@ -78,7 +68,6 @@ query MeetingDetail($_id: String!) {
 `;
 
 export default {
-  list,
   meetings,
   meetingDetail
 };

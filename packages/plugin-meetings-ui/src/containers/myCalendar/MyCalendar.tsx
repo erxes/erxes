@@ -5,8 +5,7 @@ import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   EditTypeMutationResponse,
   RemoveTypeMutationResponse,
-  MeetingsQueryResponse,
-  IMeeting
+  MeetingsQueryResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 import React from 'react';
@@ -88,10 +87,7 @@ const TypesListContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql(gql(queries.meetings), {
-      name: 'meetingQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'meetingQuery'
     })
   )(TypesListContainer)
 );

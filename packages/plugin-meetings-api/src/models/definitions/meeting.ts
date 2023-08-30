@@ -46,7 +46,7 @@ export const meetingSchema = new Schema({
 
   status: field({
     type: String,
-    enum: ['scheduled', 'completed', 'canceled'],
+    enum: ['scheduled', 'completed', 'canceled', 'ongoing'],
     default: 'scheduled'
   }),
 

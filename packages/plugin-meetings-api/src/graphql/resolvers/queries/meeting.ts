@@ -1,19 +1,51 @@
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../messageBroker';
 
-const meetingQueries = {
-  async meetings(_root, { userId }, { models }: IContext) {
-    // if (!userId) {
-    //   throw new Error('User id requered');
-    // }
+const generateFilter = async (params, userId) => {
+  const { participantIds, companyId, status } = params;
 
-    return await models.Meetings.getMeetings();
+  const selector: any = { createdBy: userId, status: { $ne: 'completed' } };
+
+  if (participantIds) {
+    selector.participantIds = { $in: participantIds || [] };
+  }
+
+  if (companyId || companyId === null) {
+    selector.companyId = companyId;
+    selector.status = 'completed';
+  }
+
+  return selector;
+};
+
+const generateSort = (sortField, sortDirection) => {
+  let sort: any = { createdAt: -1 };
+
+  if (sortField && sortDirection) {
+    sort = {};
+    sort = { [sortField]: sortDirection };
+  }
+  return sort;
+};
+
+const meetingQueries = {
+  async meetings(_root, args, { models, user }: IContext) {
+    const { sortField, sortDirection } = args;
+    const filter = await generateFilter(args, user._id);
+
+    const sort = generateSort(sortField, sortDirection);
+
+    return await paginate(models.Meetings.find(filter).sort(sort), args);
   },
-  async meetingDetail(_root, { _id }, { models }: IContext) {
+  async meetingDetail(_root, { _id }, { models, user }: IContext) {
     if (!_id) {
       return [];
     }
+    if (!user) {
+      return [];
+    }
 
-    return await models.Meetings.meetingDetail(_id);
+    return await models.Meetings.meetingDetail(_id, user._id);
   }
 };
 
