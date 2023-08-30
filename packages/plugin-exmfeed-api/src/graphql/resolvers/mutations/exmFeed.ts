@@ -47,15 +47,30 @@ const exmFeedMutations = {
       data: {
         query: {
           $or: [
-            { departmentIds: { $in: doc.departmentIds } },
-            { branchIds: { $in: doc.branchIds } },
-            { _id: { $in: unit?.userIds || [] } }
+            { departmentIds: { $in: doc?.departmentIds || [] } },
+            { branchIds: { $in: doc?.branchIds || [] } },
+            { _id: { $in: unit?.userIds || [] } },
+            { _id: { $in: doc?.recipientIds || [] } }
           ]
         }
       },
       isRPC: true,
       defaultValue: []
     });
+
+    if (doc && doc.contentType === 'publicHoliday') {
+      receivers = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $ne: user._id }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+    }
 
     const receiversEmail = receivers.map(r => r.email);
 
