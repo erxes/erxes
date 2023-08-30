@@ -116,7 +116,7 @@ export const MeetingDetail = (props: Props) => {
           <MeetingDetailColumn>
             <span>Team members:</span>{' '}
             {meetingDetail.participantUser.map((user, index) => {
-              if (index != meetingDetail.participantUser.length - 1)
+              if (index != meetingDetail.participantUser?.length - 1)
                 return <>{user.details?.fullName},</>;
               return <>{user.details?.fullName}</>;
             })}

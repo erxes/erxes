@@ -49,7 +49,6 @@ export const MeetingForm = (props: Props) => {
     companyId: string;
   }) => {
     const finalValues = values;
-    console.log(values, 'values/');
     if (meetings) {
       finalValues._id = meetings._id;
     }

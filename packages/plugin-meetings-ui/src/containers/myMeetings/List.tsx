@@ -6,11 +6,15 @@ import { ListComponent } from '../../components/myMeetings/List';
 
 type Props = {
   history: any;
+  queryParams: any;
 };
 
 export const MyMeetingListContainer = (props: Props) => {
+  const { queryParams } = props;
+  const { createdAtFrom, createdAtTo, ownerId, companyId } = queryParams;
+
   const { data, loading } = useQuery(gql(queries.meetings), {
-    variables: { status: 'completed' }
+    variables: { createdAtFrom, createdAtTo, userId: ownerId, companyId }
   });
 
   if (loading) {

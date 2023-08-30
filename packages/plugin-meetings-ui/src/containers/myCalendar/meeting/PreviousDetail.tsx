@@ -23,12 +23,10 @@ class PreviousDetail extends React.Component<FinalProps> {
     if (meetingsQuery.loading) {
       return <Spinner />;
     }
-    console.log('Ty');
     const updatedProps = {
       meetings: meetingsQuery.meetings || [],
       queryParams
     };
-    console.log('aaa');
     return <PreviousDetailComponent {...updatedProps} />;
   }
 }

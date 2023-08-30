@@ -174,31 +174,31 @@ export const SideBar = (props: Props) => {
           onChange={handleSearch}
         />
       </ChatListSearch>
-      {todayMeetings(filteredMeeting).length > 0 && (
+      {todayMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Today" name={`today`} isOpen={true}>
           {/* <h4>{__("Today")}</h4> */}
 
           <SidebarList noTextColor noBackground id="SideBar">
-            {todayMeetings(filteredMeeting).map(meeting => {
+            {todayMeetings(filteredMeeting)?.map(meeting => {
               return ListItem(meeting);
             })}
           </SidebarList>
         </Box>
       )}
 
-      {tommorowMeetings(filteredMeeting).length > 0 && (
+      {tommorowMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Tommorow" name={`tomorrow`} isOpen={true}>
           {/* <h4>{__("Tommorow")}</h4> */}
 
           <SidebarList noTextColor noBackground id="SideBar">
-            {tommorowMeetings(filteredMeeting).map(meeting => {
+            {tommorowMeetings(filteredMeeting)?.map(meeting => {
               return ListItem(meeting);
             })}
           </SidebarList>
         </Box>
       )}
 
-      {otherMeetings(filteredMeeting).length > 0 && (
+      {otherMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Other" name={`other`} isOpen={false}>
           {/* <h4>{__("Other")}</h4> */}
 
@@ -214,7 +214,7 @@ export const SideBar = (props: Props) => {
         <DataWithLoader
           data={data}
           loading={false}
-          count={participantUser.length}
+          count={participantUser?.length}
           emptyText={'Empty'}
           emptyIcon="leaf"
           size="small"

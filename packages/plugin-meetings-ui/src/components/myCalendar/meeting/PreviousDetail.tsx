@@ -23,7 +23,6 @@ class PreviousDetailComponents extends React.Component<Props, State> {
   }
 
   render() {
-    console.log('aaaa8');
     const { meetings, queryParams } = this.props;
     const { selectedMeetingId } = this.state;
 
@@ -34,10 +33,8 @@ class PreviousDetailComponents extends React.Component<Props, State> {
       })) || {};
 
     const onSelect = ({ value }) => {
-      console.log(value, 'value');
       this.setState({ selectedMeetingId: value });
     };
-    console.log(selectedValues, 'selectedValues');
     return (
       <>
         <FeatureRowItem>

@@ -19,17 +19,35 @@ const meetingFields = `
     }
   participantUser{
       _id
+      isActive
       details {
         fullName
         firstName
         lastName
+        avatar
       }
     }
 `;
 
+export const meetingsFilterParamsDef = `
+    companyId: $companyId,
+    createdAtFrom : $createdAtFrom,
+    createdAtTo: $createdAtTo,
+    status: $status
+    userId: $userId
+`;
+
+export const meetingsFilterParams = `
+    $companyId: String,
+    $createdAtFrom: String,
+    $createdAtTo: String,
+    $status: String
+    $userId: String
+`;
+
 const meetings = `
-query meetings($companyId: String, $status: String){
-  meetings(companyId: $companyId, status: $status){
+query meetings(${meetingsFilterParams}){
+  meetings(${meetingsFilterParamsDef}){
   ${meetingFields}
   }
 }`;

@@ -2,7 +2,13 @@ import { router, __ } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React, { useState } from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { FlexColumnCustom, SidebarActions, SidebarHeader } from '../../styles';
+import {
+  ContainerBox,
+  EndDateContainer,
+  FlexColumnCustom,
+  SidebarActions,
+  SidebarHeader
+} from '../../styles';
 import { CustomRangeContainer } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Button from '@erxes/ui/src/components/Button';
@@ -10,6 +16,11 @@ import Select from 'react-select-plus';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+
+import { FormGroup as CommonFormGroup, Icon, Tip } from '@erxes/ui/src';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import moment from 'moment';
 // import { prepareCurrentUserOption } from '../../utils';
 
 type Props = {
@@ -18,56 +29,29 @@ type Props = {
   queryParams: any;
   history: any;
 };
-// get 1st of the next Month
-const NOW = new Date();
-const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
-// get 1st of this month
-const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
 
 const LeftSideBar = (props: Props) => {
   const { history, queryParams, currentUser } = props;
-
-  const [currUserIds, setUserIds] = useState(queryParams.userIds);
-
-  const [selectedBranches, setBranches] = useState(queryParams.branchIds);
-  const [selectedDepartments, setDepartments] = useState(
-    queryParams.departmentIds
+  const [companyId, setCompanyId] = useState('');
+  const [userId, setUserId] = useState('');
+  const [createdAtFrom, setCreatedForm] = useState(
+    queryParams.createdAtFrom || ''
   );
-
-  const returnTotalUserOptions = () => {
-    const totalUserOptions: string[] = [];
-
-    totalUserOptions.push(currentUser._id);
-
-    return totalUserOptions;
-  };
-
-  const filterParams = {
-    ids: returnTotalUserOptions(),
-    excludeIds: false
-  };
-
-  const [startDate, setStartDate] = useState(
-    queryParams.startDate || startOfThisMonth
-  );
-  const [endDate, setEndDate] = useState(
-    queryParams.endDate || startOfNextMonth
-  );
+  console.log(companyId, 'companyId');
+  const [createdAtTo, setCreatedAtTo] = useState(queryParams.createdAtTo || '');
 
   const cleanFilter = () => {
-    onBranchSelect([]);
-    onDepartmentSelect([]);
-    onMemberSelect([]);
-    onStartDateChange(startOfThisMonth);
-    onEndDateChange(startOfNextMonth);
     router.removeParams(
       history,
-      'userIds',
-      'branchIds',
-      'startDate',
-      'endDate',
-      'departmentIds'
+      'createdAtFrom',
+      'createdAtTo',
+      'ownerId',
+      'companyId'
     );
+    setCompanyId('');
+    setCreatedAtTo(undefined);
+    setCreatedForm(undefined);
+    setUserId('');
     removePageParams();
   };
 
@@ -75,125 +59,69 @@ const LeftSideBar = (props: Props) => {
     router.removeParams(history, 'page', 'perPage');
   };
 
-  const setParams = (key: string, value: any) => {
-    if (value) {
-      router.setParams(history, {
-        [key]: value
-      });
-
-      removePageParams();
+  const setFilter = (name, value) => {
+    if (name === 'companyId') {
+      setCompanyId(value);
     }
+    if (name === 'ownerId') {
+      setUserId(value);
+    }
+    console.log('setFilter:');
+    router.setParams(props.history, { [name]: value });
   };
 
-  if (!queryParams.startDate) {
-    setParams('startDate', startOfThisMonth);
-  }
-  if (!queryParams.endDate) {
-    setParams('endDate', startOfNextMonth);
-  }
-
-  const renderDepartmentOptions = (depts: IDepartment[]) => {
-    return depts.map(dept => ({
-      value: dept._id,
-      label: dept.title,
-      userIds: dept.userIds
-    }));
-  };
-
-  const renderBranchOptions = (branchesList: IBranch[]) => {
-    return branchesList.map(branch => ({
-      value: branch._id,
-      label: branch.title,
-      userIds: branch.userIds
-    }));
-  };
-
-  const onBranchSelect = selectedBranch => {
-    setBranches(selectedBranch);
-
-    const selectedBranchIds: string[] = [];
-
-    selectedBranch.map(branch => {
-      selectedBranchIds.push(branch.value);
-    });
-
-    setParams('branchIds', selectedBranchIds);
-  };
-
-  const onDepartmentSelect = selectedDepartment => {
-    setDepartments(selectedDepartment);
-
-    const selectedDepartmentIds: string[] = [];
-
-    selectedDepartment.map(department => {
-      selectedDepartmentIds.push(department.value);
-    });
-
-    setParams('departmentIds', selectedDepartmentIds);
-  };
-
-  const onMemberSelect = selectedUsers => {
-    setUserIds(selectedUsers);
-
-    setParams('userIds', selectedUsers);
-  };
-
-  const onStartDateChange = date => {
-    setStartDate(date);
-    setParams('startDate', date);
-  };
-
-  const onEndDateChange = date => {
-    setEndDate(date);
-
-    setParams('endDate', date);
-  };
-
-  const renderSidebarActions = () => {
-    return (
-      <SidebarHeader>
-        <CustomRangeContainer>
-          <DateControl
-            required={false}
-            value={startDate}
-            name="startDate"
-            placeholder={'Starting date'}
-            dateFormat={'YYYY-MM-DD'}
-            onChange={onStartDateChange}
-          />
-          <DateControl
-            required={false}
-            value={endDate}
-            name="endDate"
-            placeholder={'Ending date'}
-            dateFormat={'YYYY-MM-DD'}
-            onChange={onEndDateChange}
-          />
-        </CustomRangeContainer>
-      </SidebarHeader>
-    );
-  };
-
-  const renderSidebarHeader = () => {
-    return <SidebarActions>{renderSidebarActions()}</SidebarActions>;
+  const handleSelectDate = (value, name) => {
+    if ('createdAtTo' === name) {
+      value = moment(value).format(`YYYY/MM/DD hh:mm`);
+      setCreatedAtTo(value);
+    }
+    if ('createdAtFrom' === name) {
+      value = moment(value).format(`YYYY/MM/DD hh:mm`);
+      setCreatedForm(value);
+    }
+    value !== 'Invalid date' && router.setParams(history, { [name]: value });
   };
 
   return (
-    <Sidebar wide={true} hasBorder={true} header={renderSidebarHeader()}>
+    <Sidebar wide={true} hasBorder={true}>
       <FlexColumnCustom marginNum={20}>
-        <div>
-          <ControlLabel>Team members</ControlLabel>
-          <SelectTeamMembers
-            initialValue={currUserIds}
-            customField="employeeId"
-            label="Select team member"
-            name="userIds"
-            // customOption={prepareCurrentUserOption(currentUser)}
-            filterParams={filterParams}
-            queryParams={queryParams}
-            onSelect={onMemberSelect}
-          />
-        </div>
+        <SelectCompanies
+          label="Filter by company"
+          name="companyId"
+          onSelect={setFilter}
+          customOption={{ value: '', label: '... Choose company' }}
+          multi={false}
+        />
+
+        <CustomRangeContainer>
+          <DateContainer>
+            <DateControl
+              name="createdAtFrom"
+              placeholder="Choose start date"
+              value={createdAtFrom}
+              onChange={e => handleSelectDate(e, 'createdAtFrom')}
+            />
+          </DateContainer>
+          <EndDateContainer>
+            <DateContainer>
+              <DateControl
+                name="createdAtTo"
+                placeholder="Choose end date"
+                value={createdAtTo}
+                onChange={e => handleSelectDate(e, 'createdAtTo')}
+              />
+            </DateContainer>
+          </EndDateContainer>
+        </CustomRangeContainer>
+
+        <SelectTeamMembers
+          label="Filter by created member"
+          name="ownerId"
+          multi={false}
+          initialValue={userId}
+          customOption={{ value: '', label: '... Choose created member' }}
+          onSelect={ownerId => setFilter('ownerId', ownerId)}
+        />
 
         <Button btnStyle="warning" onClick={cleanFilter}>
           Clear filter

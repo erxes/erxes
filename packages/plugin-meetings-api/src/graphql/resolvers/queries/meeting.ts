@@ -1,18 +1,39 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../messageBroker';
 
-const generateFilter = async (params, userId) => {
-  const { participantIds, companyId, status } = params;
+const generateFilter = async params => {
+  const {
+    participantIds,
+    companyId,
+    createdAtFrom,
+    createdAtTo,
+    userId
+  } = params;
 
-  const selector: any = { createdBy: userId, status: { $ne: 'completed' } };
+  const selector: any = { status: { $ne: 'completed' } };
 
   if (participantIds) {
     selector.participantIds = { $in: participantIds || [] };
   }
+  if (userId) {
+    selector.createdBy = userId;
+  }
 
   if (companyId || companyId === null) {
     selector.companyId = companyId;
-    selector.status = 'completed';
+    selector.status = {
+      $in: ['completed', 'ongoing', 'cancelled', 'scheduled']
+    };
+  }
+
+  if (createdAtFrom) {
+    selector.createdAt = { $gt: new Date(createdAtFrom) };
+  }
+  if (createdAtTo) {
+    selector.createdAt = {
+      ...selector.createdAt,
+      $lt: new Date(createdAtTo)
+    };
   }
 
   return selector;
@@ -31,7 +52,7 @@ const generateSort = (sortField, sortDirection) => {
 const meetingQueries = {
   async meetings(_root, args, { models, user }: IContext) {
     const { sortField, sortDirection } = args;
-    const filter = await generateFilter(args, user._id);
+    const filter = await generateFilter(args);
 
     const sort = generateSort(sortField, sortDirection);
 

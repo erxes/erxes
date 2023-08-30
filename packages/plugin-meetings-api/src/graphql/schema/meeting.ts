@@ -14,9 +14,17 @@ const params = `
   participantIds: [String]
   companyId: String
 `;
+export const meetingFilters = `
+    companyId:String,
+    createdAtFrom:String,
+    createdAtTo:String,
+    searchValue:String
+    userId:String,
+    participantIds: [String]
+`;
 
 export const queries = `
-  meetings(${commonParams}, participantIds: [String], companyId: String): [Meeting]
+  meetings(${commonParams}, ${meetingFilters}): [Meeting]
   meetingDetail(_id: String!): Meeting
 `;
 

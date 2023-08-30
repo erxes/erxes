@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { router, __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import { MeetingForm } from '../components/myCalendar/meeting/Form';
 import { Title } from '@erxes/ui-settings/src/styles';
@@ -15,6 +15,7 @@ import SideBar from '../containers/myCalendar/SideBar';
 import SideBarContainer from '../containers/myMeetings/SideBar';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { MyMeetingListContainer } from '../containers/myMeetings/List';
+import { FormControl } from '@erxes/ui/src/components';
 
 type Props = {
   meetings: any;
@@ -44,6 +45,7 @@ function List(props: Props) {
   } = props;
 
   const [showSideBar, setShowSideBar] = useState<Boolean>(true);
+  const [searchValue, setSearchValue] = useState<String>('');
   const [component, setComponent] = useState(<div />);
   const [sideBar, setSideBar] = useState(<div />);
   const [showCreateMeeting, setShowCreateMeeting] = useState(false);
@@ -54,7 +56,9 @@ function List(props: Props) {
   useEffect(() => {
     switch (routePath) {
       case 'myMeetings':
-        setComponent(<MyMeetingListContainer history={history} />);
+        setComponent(
+          <MyMeetingListContainer history={history} queryParams={queryParams} />
+        );
         setSideBar(
           <SideBarContainer
             history={history}
@@ -93,16 +97,31 @@ function List(props: Props) {
       meetingDetail={meetings}
     />
   );
+  const searchHandler = event => {
+    const searchValue = event.target.value.toLowerCase();
+    const { history } = this.props;
+    // router.setParams(history, { searchValue: event.target.value });
+    // setSearchValue(searchValue);
+  };
 
-  const actionBarRight = (
-    <ModalTrigger
-      title={__('Create meetings')}
-      trigger={trigger}
-      content={modalContent}
-      enforceFocus={false}
-      size="xl"
-    />
-  );
+  const actionBarRight =
+    routePath === 'myCalendar' ? (
+      <ModalTrigger
+        title={__('Create meetings')}
+        trigger={trigger}
+        content={modalContent}
+        enforceFocus={false}
+        size="xl"
+      />
+    ) : (
+      <FormControl
+        type="text"
+        placeholder={__('Type to search')}
+        onChange={searchHandler}
+        value={searchValue}
+        autoFocus={true}
+      />
+    );
 
   const title = !meetingId && (
     <Title capitalize={true}>{__('My Calendar')}</Title>

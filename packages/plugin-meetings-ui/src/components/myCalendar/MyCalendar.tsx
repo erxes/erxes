@@ -32,7 +32,6 @@ export const MyCalendarList = (props: Props) => {
     if (currentTab === 'Previous session') {
       return <PreviousDetail companyId={companyId} queryParams={queryParams} />;
     }
-    console.log('else');
     return <Detail meetingId={meetingId} queryParams={queryParams} />;
   };
   // Add more events as needed
