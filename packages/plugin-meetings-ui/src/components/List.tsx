@@ -12,6 +12,9 @@ import { IMeeting } from '../types';
 import { menuMeeting } from '../contants';
 import { MyCalendarList } from './myCalendar/MyCalendar';
 import SideBar from '../containers/myCalendar/SideBar';
+import SideBarContainer from '../containers/myMeetings/SideBar';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { MyMeetingListContainer } from '../containers/myMeetings/List';
 
 type Props = {
   meetings: any;
@@ -25,6 +28,7 @@ type Props = {
   route?: string;
   history: string;
   refetch: any;
+  currentUser: IUser;
 };
 
 function List(props: Props) {
@@ -35,30 +39,40 @@ function List(props: Props) {
     searchFilter,
     queryParams,
     history,
-    refetch
+    refetch,
+    currentUser
   } = props;
 
   const [showSideBar, setShowSideBar] = useState<Boolean>(true);
   const [component, setComponent] = useState(<div />);
+  const [sideBar, setSideBar] = useState(<div />);
   const [showCreateMeeting, setShowCreateMeeting] = useState(false);
 
   const { meetingId } = queryParams;
   const routePath = location.pathname.split('/').slice(-1)[0];
 
-  console.log('------====-------', meetings);
-
   useEffect(() => {
     switch (routePath) {
-      case 'myMeeting':
-        setComponent(<div>2</div>);
+      case 'myMeetings':
+        setComponent(<MyMeetingListContainer history={history} />);
+        setSideBar(
+          <SideBarContainer
+            history={history}
+            queryParams={queryParams}
+            currentUser={currentUser}
+          />
+        );
         break;
       case 'agendaTemplate':
         setComponent(<div>1</div>);
+        setSideBar(<div>sidebar 1</div>);
         break;
       default:
         setComponent(
           <MyCalendarList {...props} showCreateMeeting={showCreateMeeting} />
         );
+        setSideBar(<SideBar history={history} queryParams={queryParams} />);
+        break;
     }
   }, [queryParams, meetings]);
 
@@ -118,9 +132,7 @@ function List(props: Props) {
           emptyImage="/images/actions/8.svg"
         />
       }
-      leftSidebar={
-        showSideBar && <SideBar history={history} queryParams={queryParams} />
-      }
+      leftSidebar={showSideBar && sideBar}
       transparent={true}
       hasBorder
     />

@@ -1,6 +1,7 @@
-export const queries = `
-  meetings: [Meeting]
-  meetingDetail(_id: String!): Meeting
+const commonParams = `
+  status:String
+  sortField:String
+  sortDirection:Int
 `;
 const params = `
   title: String
@@ -11,6 +12,12 @@ const params = `
   createdBy: String
   status: String
   participantIds: [String]
+  companyId: String
+`;
+
+export const queries = `
+  meetings(${commonParams}, participantIds: [String], companyId: String): [Meeting]
+  meetingDetail(_id: String!): Meeting
 `;
 
 export const mutations = `

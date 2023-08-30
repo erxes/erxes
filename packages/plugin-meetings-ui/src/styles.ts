@@ -1,5 +1,7 @@
 import styled from 'styled-components';
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import styledTS from 'styled-components-ts';
+
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 export const ChatListSearch = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
@@ -52,6 +54,12 @@ export const MeetingDetailRow = styled.tr`
   margin-top: 10px;
 `;
 
+export const MeetingDetailFooter = styled.div`
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+`;
 export const MeetingDetailColumn = styled.td`
   width: 600px;
   padding: ${dimensions.unitSpacing / 2}px 0;
@@ -69,3 +77,49 @@ export const BoxWrapper = styled.div`
   width: 100%;
   margin-top: ${dimensions.coreSpacing}px;
 `;
+
+export const FeatureRowItem = styled.div`
+  min-width: 150px;
+  margin-left: 30px;
+  margin-top: 30px;
+  width: 300px;
+`;
+
+export const SidebarHeader = styledTS<{
+  spaceBottom?: boolean;
+  uppercase?: boolean;
+  bold?: boolean;
+}>(styled.div)`
+  height: ${dimensions.headerSpacing}px;
+  text-transform: ${props => props.uppercase && 'uppercase'};
+  font-weight: ${props => (props.bold ? 'bold' : '500')};
+  display: flex;
+  font-size: ${typography.fontSizeHeading8}px;
+  flex-direction: column;
+  margin: 0px ${dimensions.coreSpacing}px;
+`;
+
+export const SidebarActions = styled.div`
+  #date-popover {
+    max-width: 470px;
+    width: 500px;
+  }
+
+  .rdtPicker {
+    width: 100%;
+  }
+`;
+
+export const FlexColumnCustom = styledTS<{
+  marginNum: number;
+}>(styled.div)`
+  display: flex;
+  flex-direction: column;
+  gap: ${props => props.marginNum}px
+  margin: 20px 20px
+
+  div:first-child {
+    margin-bottom: 0;
+  }
+
+  `;

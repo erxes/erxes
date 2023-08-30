@@ -1,6 +1,8 @@
+import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import Detail from '../../containers/myCalendar/meeting/Detail';
+import PreviousDetail from '../../containers/myCalendar/meeting/PreviousDetail';
 import { IMeeting } from '../../types';
 import { CalendarComponent } from './meeting/Calendar';
 
@@ -12,8 +14,9 @@ type Props = {
 };
 
 export const MyCalendarList = (props: Props) => {
-  const { meetings, queryParams, showCreateMeeting } = props;
+  const { meetings, queryParams } = props;
   const { meetingId } = queryParams;
+  const [currentTab, setCurrentTab] = useState('This session');
 
   const events =
     meetings?.map((meeting: IMeeting) => ({
@@ -23,12 +26,47 @@ export const MyCalendarList = (props: Props) => {
       color: '#1e90ff'
     })) || [];
 
-  console.log('events =====================', events);
+  const companyId = meetings?.find(meeting => meeting._id === meetingId)
+    ?.companyId;
+
+  const renderTabContent = () => {
+    if (currentTab === 'Previous session') {
+      console.log('prev');
+
+      return (
+        <PreviousDetail companyId={companyId} queryParams={queryParams} />
+        // <Detail
+        //   meetingId={meetingId}
+        //   queryParams={queryParams}
+        //   status='completed'
+        //   companyId={companyId}
+        // />
+      );
+    }
+    console.log('else');
+    return <Detail meetingId={meetingId} queryParams={queryParams} />;
+  };
   // Add more events as needed
 
   return !meetingId ? (
     <CalendarComponent events={events} />
   ) : (
-    <Detail meetingId={meetingId} queryParams={queryParams} />
+    <>
+      <Tabs full={true}>
+        <TabTitle
+          className={currentTab === 'This session' ? 'active' : ''}
+          onClick={() => setCurrentTab('This session')}
+        >
+          {'This session'}
+        </TabTitle>
+        <TabTitle
+          className={currentTab === 'Previous session' ? 'active' : ''}
+          onClick={() => setCurrentTab('Previous session')}
+        >
+          {'Previous session'}
+        </TabTitle>
+      </Tabs>
+      {renderTabContent()}
+    </>
   );
 };

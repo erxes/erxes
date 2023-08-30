@@ -14,6 +14,7 @@ import { IMeeting } from '../../../types';
 import { CustomRangeContainer } from '../../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 type Props = {
   closeModal?: () => void;
@@ -33,6 +34,7 @@ export const MeetingForm = (props: Props) => {
   const { meetings, queryParams } = props;
 
   const [userIds, setUserIds] = useState([]);
+  const [companyId, setCompanyId] = useState('');
 
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
@@ -44,9 +46,10 @@ export const MeetingForm = (props: Props) => {
     participantIds: string[];
     startDate: Date;
     endDate: Date;
+    companyId: string;
   }) => {
     const finalValues = values;
-
+    console.log(values, 'values/');
     if (meetings) {
       finalValues._id = meetings._id;
     }
@@ -59,24 +62,12 @@ export const MeetingForm = (props: Props) => {
     if (endDate) {
       finalValues.endDate = endDate;
     }
-
+    if (companyId) {
+      finalValues.companyId = companyId;
+    }
     return {
       ...finalValues
     };
-  };
-
-  const generateTagOptions = (types: IItem[]) => {
-    const result: React.ReactNode[] = [];
-
-    for (const type of types) {
-      result.push(
-        <option key={type._id} value={type._id}>
-          {type.name}
-        </option>
-      );
-    }
-
-    return result;
   };
 
   const onStartDateChange = dateVal => {
@@ -114,6 +105,9 @@ export const MeetingForm = (props: Props) => {
 
   const onUserSelect = users => {
     setUserIds(users);
+  };
+  const onCompanySelect = company => {
+    setCompanyId(company);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -179,19 +173,15 @@ export const MeetingForm = (props: Props) => {
         </FormGroup>
         {
           <FormGroup>
-            <ControlLabel required={true}>Category</ControlLabel>
+            <ControlLabel required={true}>Company</ControlLabel>
 
-            <FormControl
-              {...formProps}
+            <SelectCompanies
+              label="Choose Company"
               name="companyId"
-              componentClass="select"
-              defaultValue={object.companyId}
-            >
-              {generateTagOptions([
-                { _id: '1', name: 'Oyu' },
-                { _id: '2', name: 'Mcs' }
-              ])}
-            </FormControl>
+              multi={false}
+              onSelect={onCompanySelect}
+              customOption={{ value: '', label: 'Choose Company' }}
+            />
           </FormGroup>
         }
 

@@ -9,31 +9,16 @@ import { IUser } from '@erxes/api-utils/src/types';
 import { userInfo } from 'os';
 
 export interface IMeetingModel extends Model<IMeetingDocument> {
-  meetingDetail(_id: String): Promise<IMeetingDocument>;
-  getMeetings(): Promise<IMeetingDocument>;
+  meetingDetail(_id: String, userId: string): Promise<IMeetingDocument>;
   createMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
-  updateMeeting(
-    _id: String,
-    args: IMeeting,
-    user: IUser
-  ): Promise<IMeetingDocument>;
+  updateMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
   removeMeeting(args: IMeeting): Promise<IMeetingDocument>;
 }
 
 export const loadMeetingClass = (model: IModels) => {
   class Meeting {
-    public static async getMeetings() {
-      const meetings = await model.Meetings.find();
-
-      if (!meetings) {
-        throw new Error('Meetings not found');
-      }
-
-      return meetings;
-    }
-
-    public static async meetingDetail(_id: string) {
-      const meeting = await model.Meetings.findOne({ _id });
+    public static async meetingDetail(_id: string, userId: string) {
+      const meeting = await model.Meetings.findOne({ _id, createdBy: userId });
 
       if (!meeting) {
         return [];
@@ -52,11 +37,15 @@ export const loadMeetingClass = (model: IModels) => {
       });
     }
     // update
-    public static async updateMeeting(_id: string, doc, user) {
+    public static async updateMeeting(doc, user) {
+      if (!user) {
+        throw new Error('You are not logged in');
+      }
       await model.Meetings.updateOne(
-        { _id },
+        { _id: doc._id },
         { $set: { ...doc, updatedBy: user._id } }
-      ).then(err => console.error(err));
+      );
+      return model.Meetings.findOne({ _id: doc._id });
     }
     // remove
     public static async removeMeeting(_id: string) {

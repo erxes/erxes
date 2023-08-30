@@ -18,17 +18,13 @@ const meetings = ({ location, history }) => {
       searchFilter={location.search}
       history={history}
       queryParams={queryParams}
+      route={routePath}
     />
   );
 };
 
 const routes = () => {
-  return (
-    <Route
-      path="/meetings/myCalendar"
-      component={props => meetings({ ...props })}
-    />
-  );
+  return <Route path="/meetings" component={props => meetings({ ...props })} />;
 };
 
 export default routes;

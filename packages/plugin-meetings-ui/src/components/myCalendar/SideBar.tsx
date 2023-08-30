@@ -30,7 +30,6 @@ export const SideBar = (props: Props) => {
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
   const [checkBoxValues, setCheckValues] = useState([]);
   const history = useHistory();
-
   const participantUser = meetings.reduce((uniqueUsers: IUser[], meeting) => {
     meeting.participantUser.forEach(user => {
       if (!uniqueUsers.some(uniqueUser => uniqueUser._id === user._id)) {
@@ -133,6 +132,7 @@ export const SideBar = (props: Props) => {
     if (!isChecked) {
       checkedUsers = checkedUsers.filter(v => v !== userId);
     }
+    // router.setParams(history, { participantUserIds: [...checkedUsers] });
     setCheckValues(checkedUsers);
   };
 

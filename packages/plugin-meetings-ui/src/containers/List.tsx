@@ -13,6 +13,8 @@ import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { IUser } from '@erxes/ui/src/auth/types';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
   history: any;
@@ -24,12 +26,20 @@ type Props = {
 
 type FinalProps = {
   meetingQuery: MeetingsQueryResponse;
+  currentUser: IUser;
 } & Props &
   RemoveMutationResponse &
   EditMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { meetingQuery, removeMutation, editMutation, history } = props;
+  const {
+    meetingQuery,
+    removeMutation,
+    editMutation,
+    history,
+    currentUser
+  } = props;
+  console.log(currentUser, 'currentUser:::');
 
   if (meetingQuery.loading) {
     return <Spinner />;
@@ -117,5 +127,5 @@ export default withProps<Props>(
     graphql(gql(mutations.editMeeting), {
       name: 'editMutation'
     })
-  )(ListContainer)
+  )(withCurrentUser(ListContainer))
 );

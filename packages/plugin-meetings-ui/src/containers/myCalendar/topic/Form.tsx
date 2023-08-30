@@ -9,6 +9,7 @@ type Props = {
   topic?: ITopic;
   meetingId: string;
   participantUserIds: string[];
+  meetingStatus: string;
 };
 
 export const TopicFormContainer = (props: Props) => {
