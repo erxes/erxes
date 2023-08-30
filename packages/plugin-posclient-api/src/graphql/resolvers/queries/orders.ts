@@ -1,5 +1,5 @@
 import { IContext } from '../../types';
-import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
+import { escapeRegExp, getPureDate, paginate } from '@erxes/api-utils/src/core';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { sendPosMessage } from '../../../messageBroker';
 import { IConfig } from '../../../models/definitions/configs';
@@ -18,13 +18,6 @@ interface ISearchParams {
   isPaid?: boolean;
   statuses: string[];
 }
-
-export const getPureDate = (date: Date, multiplier = 1) => {
-  const ndate = new Date(date);
-  const diffTimeZone =
-    multiplier * Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
 
 const generateFilter = (config: IConfig, params: ISearchParams) => {
   const {

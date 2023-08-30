@@ -31,12 +31,6 @@ interface IDetailItem {
   productId: string;
 }
 
-export const getPureDate = (date?: Date) => {
-  const ndate = date ? new Date(date) : new Date();
-  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
 export const generateOrderNumber = async (
   models: IModels,
   config: IConfig
