@@ -120,7 +120,7 @@ export const SideBar = (props: Props) => {
     );
   };
 
-  const handleChange = (e, userId) => {
+  const handleChange = (e, userId: string) => {
     let checkedUsers = checkBoxValues;
     const isChecked = e.target.checked;
 

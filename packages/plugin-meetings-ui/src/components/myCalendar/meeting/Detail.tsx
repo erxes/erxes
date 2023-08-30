@@ -54,7 +54,9 @@ export const MeetingDetail = (props: Props) => {
             </MeetingDetailColumn>
           </MeetingDetailRow>
           <p className="description"> {meetingDetail.description}</p>
-          <span>Meeting Agenda:</span>
+          <MeetingDetailColumn>
+            <span>Meeting Agenda:</span>
+          </MeetingDetailColumn>
           {topics.map((topic: ITopic) => {
             return (
               <TopicFormContainer
@@ -81,7 +83,7 @@ export const MeetingDetail = (props: Props) => {
   return (
     <MeetingWrapper>
       <h3>{meetingDetail.title}</h3>
-      <Tabs full={true}>
+      <Tabs full={true} grayBorder={true}>
         <TabTitle
           className={currentTab === 'This session' ? 'active' : ''}
           onClick={() => setCurrentTab('This session')}

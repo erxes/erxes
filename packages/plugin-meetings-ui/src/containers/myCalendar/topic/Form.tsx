@@ -1,4 +1,4 @@
-import { mutations } from '../../../graphql';
+import { mutations, queries } from '../../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -30,7 +30,12 @@ export const TopicFormContainer = (props: Props) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={['meetingDetail']}
+        refetchQueries={{
+          query: queries.meetingDetail,
+          variables: {
+            _id: props.meetingId
+          }
+        }}
       />
     );
   };
