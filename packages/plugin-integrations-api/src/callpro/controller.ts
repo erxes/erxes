@@ -100,13 +100,13 @@ const init = async app => {
         phoneNumber: numberTo
       }).lean();
 
-      // const inboxIntegration = await sendInboxMessage({
-      //   subdomain,
-      //   action: 'integrations.findOne',
-      //   data: { _id: integration.erxesApiId },
-      //   isRPC: true,
-      //   defaultValue: null
-      // });
+      const inboxIntegration = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.findOne',
+        data: { _id: integration.erxesApiId },
+        isRPC: true,
+        defaultValue: null
+      });
 
       if (!integration) {
         const message = `Integration not found with: ${numberTo}`;
@@ -249,34 +249,33 @@ const init = async app => {
         throw new Error(e);
       }
 
-      // TODO: send message to subscription
-      // let channelMemberIds: string[] = [];
+      let channelMemberIds: string[] = [];
 
-      // const channels = await sendInboxMessage({
-      //   subdomain,
-      //   action: 'channels.find',
-      //   data: {
-      //     integrationIds: { $in: [inboxIntegration._id] }
-      //   },
-      //   isRPC: true
-      // });
+      const channels = await sendInboxMessage({
+        subdomain,
+        action: 'channels.find',
+        data: {
+          integrationIds: { $in: [inboxIntegration._id] }
+        },
+        isRPC: true
+      });
 
-      // for (const channel of channels) {
-      //   channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
-      // }
+      for (const channel of channels) {
+        channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
+      }
 
-      // graphqlPubsub.publish('conversationClientMessageInserted', {
-      //   conversationClientMessageInserted: {
-      //     _id: Math.random().toString(),
-      //     content: 'new callpro message',
-      //     createdAt: new Date(),
-      //     customerId: customer.erxesApiId,
-      //     conversationId: conversation.erxesApiId
-      //   },
-      //   conversation,
-      //   integration: inboxIntegration,
-      //   channelMemberIds
-      // });
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: {
+          _id: Math.random().toString(),
+          content: 'new callpro message',
+          createdAt: new Date(),
+          customerId: customer.erxesApiId,
+          conversationId: conversation.erxesApiId
+        },
+        conversation,
+        integration: inboxIntegration,
+        channelMemberIds
+      });
 
       res.send('success');
     })
