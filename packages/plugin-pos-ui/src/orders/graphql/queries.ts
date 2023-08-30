@@ -78,6 +78,7 @@ export const orderFields = `
     email
   }
   convertDealId
+  returnInfo
 `;
 
 const posOrders = `

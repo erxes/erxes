@@ -1057,12 +1057,16 @@ const orderMutations = {
       throw new Error('Please check ebarimt config');
     }
 
-    const returnResponses = await models.PutResponses.returnBill({
+    const returnResponses = (await models.PutResponses.returnBill({
       contentId: _id,
       contentType: 'pos',
       number: order.number || '',
       config: ebarimtConfig
-    });
+    })) as any;
+
+    if (returnResponses.error) {
+      throw new Error(returnResponses.error);
+    }
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 
