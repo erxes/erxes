@@ -1033,6 +1033,10 @@ const orderMutations = {
       throw new Error('Amount exceeds total amount');
     }
 
+    if (order.returnInfo && order.returnInfo.returnAt) {
+      throw new Error('Order is already returned');
+    }
+
     const modifier: any = {
       $set: {
         status: ORDER_STATUSES.RETURN,
@@ -1057,7 +1061,7 @@ const orderMutations = {
       throw new Error('Please check ebarimt config');
     }
 
-    const returnResponses = (await models.PutResponses.returnBill({
+    let returnResponses = (await models.PutResponses.returnBill({
       contentId: _id,
       contentType: 'pos',
       number: order.number || '',
@@ -1065,7 +1069,7 @@ const orderMutations = {
     })) as any;
 
     if (returnResponses.error) {
-      throw new Error(returnResponses.error);
+      returnResponses = [];
     }
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
