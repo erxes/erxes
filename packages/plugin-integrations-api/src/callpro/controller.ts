@@ -108,7 +108,7 @@ const init = async app => {
         defaultValue: null
       });
 
-      if (!integration || !inboxIntegration) {
+      if (!integration) {
         const message = `Integration not found with: ${numberTo}`;
 
         debugCallPro(message);
