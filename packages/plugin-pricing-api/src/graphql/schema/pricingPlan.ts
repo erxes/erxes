@@ -75,6 +75,7 @@ export const types = () => `
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
+    vendors: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -174,6 +175,7 @@ export const types = () => `
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
+    vendors: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -219,6 +221,7 @@ export const types = () => `
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
+    vendors: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,

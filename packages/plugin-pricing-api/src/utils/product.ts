@@ -50,7 +50,7 @@ export const getAllowedProducts = async (
   switch (plan.applyType) {
     case 'bundle': {
       let pIds: string[] = [];
-      for (const bundles of plan.productsBundle) {
+      for (const bundles of plan.productsBundle || []) {
         let difference = _.difference(bundles, productIds);
         if (difference.length === 0)
           pIds = pIds.concat(_.intersection(productIds, bundles));
@@ -64,7 +64,7 @@ export const getAllowedProducts = async (
 
     case 'segment': {
       let productIdsInSegments: string[] = [];
-      for (const segment of plan.segments) {
+      for (const segment of plan.segments || []) {
         productIdsInSegments = productIdsInSegments.concat(
           await sendSegmentsMessage({
             subdomain,
@@ -76,6 +76,36 @@ export const getAllowedProducts = async (
         );
       }
       return _.intersection(productIds, productIdsInSegments);
+    }
+
+    case 'vendor': {
+      const limit = await sendProductsMessage({
+        subdomain,
+        action: 'count',
+        data: {
+          query: {
+            vendorId: { $in: plan.vendors || [] }
+          }
+        },
+        isRPC: true,
+        defaultValue: 0
+      });
+
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          query: {
+            vendorId: { $in: plan.vendors || [] }
+          },
+          field: { _id: 1 },
+          limit
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      const productIdsInVendors = products.map(p => p._id);
+      return _.intersection(productIds, productIdsInVendors);
     }
 
     case 'category': {
