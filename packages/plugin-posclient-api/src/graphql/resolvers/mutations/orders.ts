@@ -655,7 +655,8 @@ const orderMutations = {
           ebarimtConfig,
           items,
           billType,
-          registerNumber
+          registerNumber,
+          config.paymentTypes
         );
 
         ebarimtConfig.districtName = getDistrictName(
