@@ -5,7 +5,6 @@ import React from 'react';
 import { IMeeting } from '../../types';
 '@erxes/ui/src/components/MemberAvatars';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Form from '../../containers/myCalendar/meeting/Form';
 
 type Props = {

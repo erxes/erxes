@@ -6,7 +6,6 @@ import {
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { IUser } from '@erxes/api-utils/src/types';
-import { userInfo } from 'os';
 
 export interface IMeetingModel extends Model<IMeetingDocument> {
   meetingDetail(_id: String, userId: string): Promise<IMeetingDocument>;

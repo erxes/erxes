@@ -69,8 +69,6 @@ const TypesListContainer = (props: FinalProps) => {
   };
 
   const meetings = meetingQuery.meetings || [];
-  // const today = moment(); // Get today's date
-  // const tomorrow = moment().add(1, "day"); // Get tomorrow's date
 
   const updatedProps = {
     ...props,

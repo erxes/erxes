@@ -1,5 +1,4 @@
 import React from 'react';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import SideBar from '../../components/myMeetings/SideBar';
 

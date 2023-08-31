@@ -96,7 +96,6 @@ export const TopicForm = (props: Props) => {
             filterParams={{ ids: participantUserIds, excludeIds: false }}
           />
         </FormGroup>
-        {/* </FormGroup> */}
 
         {meetingStatus !== 'completed' && (
           <ModalFooter id={'AddTagButtons'}>

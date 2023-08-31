@@ -1,6 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { router, __ } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import MeetingFormContainer from '../containers/myCalendar/meeting/Form';
 import MyMeetingListContainer from '../containers/myMeetings/List';
@@ -8,7 +7,6 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IMeeting } from '../types';
 
 import { menuMeeting } from '../contants';
 import { MyCalendarList } from './myCalendar/MyCalendar';
@@ -91,12 +89,7 @@ function List(props: Props) {
   const modalContent = props => (
     <MeetingFormContainer {...props} types={[]} meetingDetail={meetings} />
   );
-  const searchHandler = event => {
-    const searchValue = event.target.value.toLowerCase();
-    const { history } = this.props;
-    // router.setParams(history, { searchValue: event.target.value });
-    // setSearchValue(searchValue);
-  };
+  const searchHandler = event => {};
 
   const actionBarRight =
     routePath === 'myCalendar' ? (

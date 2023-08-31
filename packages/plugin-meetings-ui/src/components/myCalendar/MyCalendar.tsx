@@ -1,5 +1,4 @@
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 import Detail from '../../containers/myCalendar/meeting/Detail';
 import PreviousDetail from '../../containers/myCalendar/meeting/PreviousDetail';

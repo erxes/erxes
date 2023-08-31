@@ -1,5 +1,4 @@
 import Icon from '@erxes/ui/src/components/Icon';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { colors } from '@erxes/ui/src/styles';
 import { __ } from '@erxes/ui/src/utils';

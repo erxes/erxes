@@ -4,8 +4,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
@@ -18,7 +16,6 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 
 type Props = {
   closeModal?: () => void;
-  // afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   meeting?: IMeeting;
   queryParams: any;

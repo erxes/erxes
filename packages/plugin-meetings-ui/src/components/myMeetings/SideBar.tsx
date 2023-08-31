@@ -2,26 +2,15 @@ import { router, __ } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React, { useState } from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import {
-  ContainerBox,
-  EndDateContainer,
-  FlexColumnCustom,
-  SidebarActions,
-  SidebarHeader
-} from '../../styles';
+import { EndDateContainer, FlexColumnCustom } from '../../styles';
 import { CustomRangeContainer } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Button from '@erxes/ui/src/components/Button';
-import Select from 'react-select-plus';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
-import { FormGroup as CommonFormGroup, Icon, Tip } from '@erxes/ui/src';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import moment from 'moment';
-// import { prepareCurrentUserOption } from '../../utils';
 
 type Props = {
   currentUser: IUser;

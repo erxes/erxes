@@ -190,8 +190,6 @@ export const SideBar = (props: Props) => {
       </ChatListSearch>
       {todayMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Today" name={`today`} isOpen={true}>
-          {/* <h4>{__("Today")}</h4> */}
-
           <SidebarList noTextColor noBackground id="SideBar">
             {todayMeetings(filteredMeeting)?.map(meeting => {
               return ListItem(meeting);
@@ -202,8 +200,6 @@ export const SideBar = (props: Props) => {
 
       {tommorowMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Tommorow" name={`tomorrow`} isOpen={true}>
-          {/* <h4>{__("Tommorow")}</h4> */}
-
           <SidebarList noTextColor noBackground id="SideBar">
             {tommorowMeetings(filteredMeeting)?.map(meeting => {
               return ListItem(meeting);
@@ -214,8 +210,6 @@ export const SideBar = (props: Props) => {
 
       {otherMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Other" name={`other`} isOpen={false}>
-          {/* <h4>{__("Other")}</h4> */}
-
           <SidebarList noTextColor noBackground id="SideBar">
             {otherMeetings(filteredMeeting).map(meeting => {
               return ListItem(meeting);

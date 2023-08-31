@@ -1,5 +1,4 @@
 import { IContext } from '../../../messageBroker';
-import { sendCoreMessage } from '../../../messageBroker';
 import { IMeeting } from '../../../models/definitions/meeting';
 
 export default {

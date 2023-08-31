@@ -4,7 +4,7 @@ import Select from 'react-select-plus';
 import moment from 'moment';
 import Detail from '../../../containers/myCalendar/meeting/Detail';
 import { FeatureRowItem } from '../../../styles';
-import { EmptyContent, EmptyState } from '@erxes/ui/src/components';
+import { EmptyState } from '@erxes/ui/src/components';
 
 type Props = {
   meetings: IMeeting[];

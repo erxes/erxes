@@ -1,17 +1,11 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import {
-  IMeeting,
-  MeetingsQueryResponse,
-  RemoveMutationResponse
-} from '../../../types';
+import { withProps } from '@erxes/ui/src/utils';
+import { IMeeting, RemoveMutationResponse } from '../../../types';
 import { mutations, queries } from '../../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { IUser } from '@erxes/ui/src/auth/types';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { MeetingForm } from '../../../components/myCalendar/meeting/Form';
