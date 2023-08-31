@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IEbarimtConfig } from './definitions/configs';
 import {
   putResponseSchema,
   IPutResponseDocument,
@@ -29,6 +30,12 @@ export interface IPutResponseModel extends Model<IPutResponseDocument> {
     _id: string,
     doc: IPutResponse
   ): Promise<IPutResponseDocument>;
+  returnBill(doc: {
+    contentType: string;
+    contentId: string;
+    number: string;
+    config: IEbarimtConfig;
+  }): Promise<IPutResponseDocument[]>;
 }
 export const loadPutResponseClass = models => {
   class PutResponse {
@@ -37,8 +44,8 @@ export const loadPutResponseClass = models => {
       return putData.run();
     }
 
-    public static async returnBill(models, deal, config) {
-      return returnBill(models, deal, config);
+    public static async returnBill(doc) {
+      return returnBill(models, doc);
     }
 
     public static async putHistory({

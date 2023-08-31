@@ -1,6 +1,10 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
-import { USER_EXTENDED_FIELDS, USER_PROPERTIES_INFO } from './constants';
+import {
+  USER_EXPORT_EXTENDED_FIELDS,
+  USER_EXTENDED_FIELDS,
+  USER_PROPERTIES_INFO
+} from './constants';
 
 const generateFields = async ({ subdomain, data }) => {
   const models = await generateModels(subdomain);
@@ -24,6 +28,10 @@ const generateFields = async ({ subdomain, data }) => {
 
   if (usageType && usageType === 'import') {
     fields = USER_EXTENDED_FIELDS;
+  }
+
+  if (usageType && usageType === 'export') {
+    fields = USER_EXPORT_EXTENDED_FIELDS;
   }
 
   if (schema) {

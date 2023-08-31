@@ -50,7 +50,7 @@ class CoverRow extends React.Component<Props> {
 
     const trigger = (
       <tr>
-        <td key={'beginDate'}>{cover.beginDate} </td>
+        <td key={'beginDate'}>{dayjs(cover.beginDate).format('lll')} </td>
         <td key={'endDate'}>{dayjs(cover.endDate).format('lll')}</td>
         <td key={'pos'}>{cover.posName}</td>
         <td key={'user'}>{cover.user ? cover.user.email : ''}</td>

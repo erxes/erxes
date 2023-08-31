@@ -9,6 +9,10 @@ const generateFilters = params => {
     filter.status = 'archived';
   }
 
+  if (params.searchValue) {
+    filter.name = { $regex: new RegExp(params.searchValue, 'i') };
+  }
+
   return filter;
 };
 

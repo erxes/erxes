@@ -163,6 +163,7 @@ export const getCalcedAmounts = async (
   }
 
   const startDate = getFullDate(contract.startDate);
+  startDate.setDate(startDate.getDate() + 1);
   const skipInterestCalcDate = addMonths(
     new Date(startDate),
     contract.skipInterestCalcMonth || 0

@@ -1,36 +1,18 @@
 import {
   Box,
   ControlLabel,
-  DateControl,
   FormGroup,
   Icon,
   Sidebar,
   Tip,
   __
 } from '@erxes/ui/src';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import Select from 'react-select-plus';
-import { cardTypes, statusColorConstant } from '../../common/constants';
-import {
-  FilterByTags,
-  SelectIndicatorGroups,
-  SelectIndicators,
-  SelectOperations
-} from '../../common/utils';
-import {
-  Box as StatusBox,
-  ClearableBtn,
-  ColorBox,
-  CustomRangeContainer,
-  EndDateContainer,
-  FormContainer as Container,
-  Padding,
-  SidebarHeader
-} from '../../styles';
+import { cardTypes } from '../../common/constants';
+import { FilterByTags } from '../../common/utils';
+import { ClearableBtn, Padding, SidebarHeader } from '../../styles';
 import { CardFilter } from '../common/utils';
 
 interface LayoutProps {

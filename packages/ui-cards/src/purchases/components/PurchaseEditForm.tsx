@@ -18,6 +18,7 @@ import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
 import { __ } from '@erxes/ui/src/utils';
 import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
 import queryString from 'query-string';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   options: IOptions;
@@ -37,12 +38,13 @@ type Props = {
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
+  currentUser: IUser;
 };
 
 type State = {
   amount: any;
   unUsedAmount: any;
-  products: IProduct[];
+  products: (IProduct & { quantity?: number })[];
   productsData: any;
   paymentsData: IPaymentsData;
   expensesData: any;
@@ -260,6 +262,7 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
   }: IEditFormContent) => {
     const {
       item,
+      currentUser,
       options,
       onUpdate,
       addItem,
@@ -299,6 +302,7 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
             saveItem={saveItem}
             renderItems={this.renderItems}
             childrenSection={this.renderChildrenSection}
+            currentUser={currentUser}
           />
         </Flex>
       </>

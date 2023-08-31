@@ -44,6 +44,7 @@ export type IOrder = {
   origin?: string;
   syncedErkhet: boolean;
   convertDealId: string;
+  returnInfo?: any;
 };
 
 export type IOrderRecord = {} & IOrder;
@@ -88,6 +89,12 @@ export type ListQueryVariables = {
 
 export type OrdersSummaryQueryResponse = {
   posOrdersSummary: any;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type OrdersGroupSummaryQueryResponse = {
+  posOrdersGroupSummary: any;
   loading: boolean;
   refetch: () => void;
 };
@@ -162,6 +169,12 @@ export type ICover = {
 
 export type CoversQueryResponse = {
   posCovers: ICover[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type CoversCountQueryResponse = {
+  posCoversCount: number;
   loading: boolean;
   refetch: () => void;
 };

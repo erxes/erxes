@@ -39,14 +39,15 @@ export type PricingPlan = {
   bonusProduct?: string;
   isPriority: boolean;
 
-  applyType: 'category' | 'product' | 'segment' | 'bundle';
+  applyType: 'category' | 'product' | 'segment' | 'vendor' | 'bundle';
 
-  products: string[];
-  productsExcluded: string[];
-  productsBundle: string[][];
-  categories: string[];
-  categoriesExcluded: string[];
-  segments: string[];
+  products?: string[];
+  productsExcluded?: string[];
+  productsBundle?: string[][];
+  categories?: string[];
+  categoriesExcluded?: string[];
+  segments?: string[];
+  vendors?: string[];
 
   isStartDateEnabled: boolean;
   isEndDateEnabled: boolean;

@@ -13,7 +13,7 @@ export interface IPutResponseModel extends Model<IPutResponseDocument> {
     config: IPutResponseConfig
   ): Promise<IPutResponseDocument>;
   returnBill(
-    doc: { contentType: string; contentId: string },
+    doc: { contentType: string; contentId: string; number: string },
     config: IPutResponseConfig
   ): Promise<IPutResponseDocument[]>;
   putHistory({

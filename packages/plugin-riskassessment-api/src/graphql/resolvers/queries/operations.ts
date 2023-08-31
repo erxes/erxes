@@ -1,5 +1,4 @@
 import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext, IModels } from '../../../connectionResolver';
 
 const generateFilter = async (models: IModels, params) => {

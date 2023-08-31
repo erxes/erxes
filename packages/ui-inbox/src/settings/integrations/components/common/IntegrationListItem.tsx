@@ -37,7 +37,7 @@ type Props = {
   disableAction?: boolean;
   editIntegration: (
     id: string,
-    { name, brandId, channelIds }: IntegrationMutationVariables
+    { name, brandId, channelIds, details }: IntegrationMutationVariables
   ) => void;
   showExternalInfoColumn: () => void;
   showExternalInfo: boolean;
@@ -166,6 +166,7 @@ class IntegrationListItem extends React.Component<Props, State> {
         integrationId={integration._id}
         integrationKind={integration.kind}
         webhookData={integration.webhookData}
+        details={integration.details}
       />
     );
 
