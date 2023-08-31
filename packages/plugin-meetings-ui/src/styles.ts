@@ -187,3 +187,20 @@ export const EndDateContainer = styled.div`
     left: -98px !important;
   }
 `;
+
+export const ParticipantList = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    .badge {
+      width: 14px;
+      height: 14px;
+      border-radius: 14px;
+      margin-left: auto;
+    }
+  }
+`;

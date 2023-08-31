@@ -36,7 +36,7 @@ export const CalendarComponent = ({ events }: Props) => {
         startAccessor="start"
         endAccessor="end"
         defaultView="month"
-        views={['month', 'week']}
+        views={['month', 'week', 'day']}
         components={{
           event: MyCustomEvent // Use your custom event component
         }}
@@ -46,7 +46,7 @@ export const CalendarComponent = ({ events }: Props) => {
             margin: '1px 2px',
             width: 'calc(100% - 2px)',
             borderRadius: '6px',
-            padding: '4px 8px'
+            padding: '2px 8px'
           }
         })}
       />

@@ -9,7 +9,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import * as moment from 'moment';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { ChatListSearch } from '../../styles';
+import { ChatListSearch, ParticipantList } from '../../styles';
 import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
 import Box from '@erxes/ui/src/components/Box';
@@ -34,6 +34,7 @@ export const SideBar = (props: Props) => {
       ? queryParams.participantUserIds.split(',')
       : []
   );
+
   const history = useHistory();
 
   const participantUser = meetings.reduce((uniqueUsers: IUser[], meeting) => {
@@ -138,21 +139,16 @@ export const SideBar = (props: Props) => {
       setCheckedUsers(checkedUsers.filter(user => user !== userId));
     }
   };
+  const handleUserRemove = (userId: string) => {
+    console.log('userId', userId);
+  };
 
-  console.log('participantUser', participantUser);
   const data = (
     <SidebarList style={{ padding: '10px 20px' }}>
       {/* <h4>{__("Other Calendar")}</h4> */}
       {participantUser.map((user: any) => {
         return (
-          <div
-            key={user._id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginBottom: '4px'
-            }}
-          >
+          <ParticipantList key={user._id}>
             <FormControl
               componentClass="checkbox"
               onChange={e => handleChange(e, user._id)}
@@ -160,16 +156,20 @@ export const SideBar = (props: Props) => {
             />
             &emsp;
             <FieldStyle>{user.details.fullName}</FieldStyle>
-            <div
-              style={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: generateColorCode(user._id),
-                marginLeft: 'auto'
-              }}
-            />
-          </div>
+            <div className="actions">
+              <div
+                className="badge"
+                style={{
+                  backgroundColor: generateColorCode(user._id)
+                }}
+              />
+              {/* <Icon
+                icon={"trash-alt"}
+                size={18}
+                onClick={() => handleUserRemove(user._id)}
+              /> */}
+            </div>
+          </ParticipantList>
         );
       })}
     </SidebarList>
