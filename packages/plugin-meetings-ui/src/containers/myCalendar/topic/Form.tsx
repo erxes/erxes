@@ -13,7 +13,6 @@ type Props = {
   participantUserIds: string[];
   meetingStatus: string;
   refetchDetail: any;
-  closeModal: () => void;
 };
 
 export const TopicFormContainer = (props: Props) => {
@@ -22,7 +21,6 @@ export const TopicFormContainer = (props: Props) => {
     passedName,
     values,
     isSubmitted,
-
     callback,
     object
   }: IButtonMutateProps) => {

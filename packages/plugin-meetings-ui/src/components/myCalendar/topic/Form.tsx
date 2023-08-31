@@ -27,8 +27,7 @@ export const TopicForm = (props: Props) => {
     topic,
     meetingId,
     participantUserIds,
-    meetingStatus,
-    closeModal
+    meetingStatus
   } = props;
   const [ownerId, setOwnerId] = useState(topic?.ownerId);
 
@@ -56,7 +55,7 @@ export const TopicForm = (props: Props) => {
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { topic, renderButton } = props;
+    const { topic, renderButton, closeModal } = props;
     const { values, isSubmitted } = formProps;
     return (
       <>
@@ -101,6 +100,9 @@ export const TopicForm = (props: Props) => {
 
         {meetingStatus !== 'completed' && (
           <ModalFooter id={'AddTagButtons'}>
+            <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
+              Cancel
+            </Button>
             {renderButton({
               passedName: 'meetings',
               values: generateDoc(values),

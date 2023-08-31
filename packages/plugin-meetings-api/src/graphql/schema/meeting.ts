@@ -9,7 +9,6 @@ const params = `
   startDate: Date
   endDate: Date
   location: String
-  createdBy: String
   status: String
   participantIds: [String]
   companyId: String
@@ -21,6 +20,7 @@ export const meetingFilters = `
     searchValue:String
     userId:String,
     participantIds: [String]
+    isPreviousSession: Boolean
 `;
 
 export const queries = `
@@ -29,7 +29,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  meetingAdd(${params}): Meeting
+  meetingAdd(${params}, createdBy: String): Meeting
   meetingEdit(_id: String!,${params}): Meeting
   meetingCancel(_id: String!): String
   meetingRemove(_id: String!): String

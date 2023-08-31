@@ -7,12 +7,15 @@ const generateFilter = async params => {
     companyId,
     createdAtFrom,
     createdAtTo,
-    userId
+    userId,
+    isPreviousSession
   } = params;
 
-  const selector: any = { status: { $ne: 'completed' } };
+  const selector: any = {
+    status: { $ne: 'completed' }
+  };
 
-  if (participantIds) {
+  if (participantIds && participantIds.length > 0) {
     selector.participantIds = { $in: participantIds || [] };
   }
   if (userId) {
@@ -22,10 +25,15 @@ const generateFilter = async params => {
   if (companyId || companyId === null) {
     selector.companyId = companyId;
     selector.status = {
-      $in: ['completed', 'ongoing', 'cancelled', 'scheduled']
+      $in: ['ongoing', 'cancelled', 'scheduled']
     };
   }
-
+  if (isPreviousSession) {
+    selector.status = 'completed';
+  }
+  if (!isPreviousSession) {
+    selector.startDate = { $gt: Date.now() };
+  }
   if (createdAtFrom) {
     selector.createdAt = { $gt: new Date(createdAtFrom) };
   }

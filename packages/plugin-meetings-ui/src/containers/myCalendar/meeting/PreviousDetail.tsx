@@ -38,7 +38,8 @@ export default withProps<Props>(
       options: props => ({
         fetchPolicy: 'network-only',
         variables: {
-          companyId: props.companyId
+          companyId: props.companyId,
+          isPreviousSession: true
         }
       })
     })

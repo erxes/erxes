@@ -17,14 +17,14 @@ const addMeeting = `
 `;
 
 const remove = `
-  mutation meetingssRemove($_id: String!){
-    meetingssRemove(_id: $_id)
+  mutation meetingRemove($_id: String!){
+    meetingRemove(_id: $_id)
   }
   `;
 
 const editMeeting = `
-  mutation meetingEdit($_id: String!, $name: String, $expiryDate:Date, $checked:Boolean, $typeId:String, $status: String){
-    meetingEdit(_id: $_id, name: $name, expiryDate:$expiryDate, checked:$checked, typeId:$typeId, status: $status){
+  mutation meetingEdit($_id: String!, $title: String, $description: String, $startDate: Date, $endDate: Date, $location: String, $status: String, $participantIds: [String], $companyId: String){
+    meetingEdit(_id: $_id, title: $title, description: $description, startDate: $startDate, endDate: $endDate, location: $location,  status: $status, participantIds: $participantIds, companyId: $companyId){
       _id
     }
   }

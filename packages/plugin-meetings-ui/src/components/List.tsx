@@ -2,7 +2,8 @@ import Button from '@erxes/ui/src/components/Button';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { router, __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
-import { MeetingForm } from '../components/myCalendar/meeting/Form';
+import MeetingFormContainer from '../containers/myCalendar/meeting/Form';
+import MyMeetingListContainer from '../containers/myMeetings/List';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -14,14 +15,10 @@ import { MyCalendarList } from './myCalendar/MyCalendar';
 import SideBar from '../containers/myCalendar/SideBar';
 import SideBarContainer from '../containers/myMeetings/SideBar';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { MyMeetingListContainer } from '../containers/myMeetings/List';
 import { FormControl } from '@erxes/ui/src/components';
 
 type Props = {
   meetings: any;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
-  remove: (meetings: IMeeting) => void;
-  edit: (meetings: IMeeting) => void;
   loading: boolean;
   searchFilter: string;
 
@@ -35,20 +32,15 @@ type Props = {
 function List(props: Props) {
   const {
     meetings,
-    renderButton,
     loading,
     searchFilter,
     queryParams,
     history,
-    refetch,
     currentUser
   } = props;
 
-  const [showSideBar, setShowSideBar] = useState<Boolean>(true);
-  const [searchValue, setSearchValue] = useState<String>('');
   const [component, setComponent] = useState(<div />);
   const [sideBar, setSideBar] = useState(<div />);
-  const [showCreateMeeting, setShowCreateMeeting] = useState(false);
 
   const { meetingId } = queryParams;
   const routePath = location.pathname.split('/').slice(-1)[0];
@@ -73,7 +65,14 @@ function List(props: Props) {
         break;
       default:
         setComponent(<MyCalendarList {...props} />);
-        setSideBar(<SideBar history={history} queryParams={queryParams} />);
+        setSideBar(
+          <SideBar
+            history={history}
+            queryParams={queryParams}
+            meetings={meetings}
+            loading={loading}
+          />
+        );
         break;
     }
   }, [queryParams, meetings]);
@@ -83,19 +82,14 @@ function List(props: Props) {
       id={'AddMeetingsButton'}
       btnStyle="success"
       icon="plus-circle"
-      onClick={() => setShowCreateMeeting(true)}
+      onClick={() => {}}
     >
       Create new meetings
     </Button>
   );
 
   const modalContent = props => (
-    <MeetingForm
-      {...props}
-      types={[]}
-      renderButton={renderButton}
-      meetingDetail={meetings}
-    />
+    <MeetingFormContainer {...props} types={[]} meetingDetail={meetings} />
   );
   const searchHandler = event => {
     const searchValue = event.target.value.toLowerCase();
@@ -118,7 +112,6 @@ function List(props: Props) {
         type="text"
         placeholder={__('Type to search')}
         onChange={searchHandler}
-        value={searchValue}
         autoFocus={true}
       />
     );
@@ -149,7 +142,7 @@ function List(props: Props) {
           emptyImage="/images/actions/8.svg"
         />
       }
-      leftSidebar={showSideBar && sideBar}
+      leftSidebar={sideBar}
       transparent={true}
       hasBorder
     />

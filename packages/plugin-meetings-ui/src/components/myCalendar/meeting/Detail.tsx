@@ -72,13 +72,14 @@ export const MeetingDetail = (props: Props) => {
     </Button>
   );
 
-  const modalContent = () => (
+  const modalContent = props => (
     <TopicFormContainer
+      {...props}
       meetingId={meetingDetail._id}
       participantUserIds={meetingDetail.participantUser.map(user => user._id)}
       meetingStatus={meetingDetail.status}
       refetchDetail={refetchDetail}
-      closeModal={() => setShowTopicModal(false)}
+      // closeModal={() => setShowTopicModal(false)}
     />
   );
 

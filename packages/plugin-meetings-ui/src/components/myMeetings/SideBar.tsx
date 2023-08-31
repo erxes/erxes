@@ -37,7 +37,7 @@ const LeftSideBar = (props: Props) => {
   const [createdAtFrom, setCreatedForm] = useState(
     queryParams.createdAtFrom || ''
   );
-  console.log(companyId, 'companyId');
+
   const [createdAtTo, setCreatedAtTo] = useState(queryParams.createdAtTo || '');
 
   const cleanFilter = () => {
@@ -66,7 +66,6 @@ const LeftSideBar = (props: Props) => {
     if (name === 'ownerId') {
       setUserId(value);
     }
-    console.log('setFilter:');
     router.setParams(props.history, { [name]: value });
   };
 
@@ -88,7 +87,7 @@ const LeftSideBar = (props: Props) => {
         <SelectCompanies
           label="Filter by company"
           name="companyId"
-          onSelect={setFilter}
+          onSelect={companyId => setFilter('companyId', companyId)}
           customOption={{ value: '', label: '... Choose company' }}
           multi={false}
         />

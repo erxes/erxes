@@ -35,6 +35,8 @@ export const meetingsFilterParamsDef = `
     createdAtTo: $createdAtTo,
     status: $status
     userId: $userId
+    isPreviousSession: $isPreviousSession
+    participantIds: $participantIds
 `;
 
 export const meetingsFilterParams = `
@@ -43,6 +45,8 @@ export const meetingsFilterParams = `
     $createdAtTo: String,
     $status: String
     $userId: String
+    $isPreviousSession: Boolean
+    $participantIds: [String]
 `;
 
 const meetings = `

@@ -4,18 +4,34 @@ import { FlexCenter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { IMeeting } from '../../types';
 '@erxes/ui/src/components/MemberAvatars';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import Form from '../../containers/myCalendar/meeting/Form';
 
 type Props = {
   meeting: IMeeting;
+  remove: () => void;
 };
 export const Row = (props: Props) => {
-  const { meeting } = props;
+  const { meeting, remove } = props;
 
-  const editMeetingTrigger = () => (
+  const editTrigger = (
     <Button btnStyle="link">
-      <Icon icon="edit-3" />
+      <Tip text={'Edit'} placement="top">
+        <Icon icon="edit-3" />
+      </Tip>
     </Button>
   );
+
+  const renderRemoveButton = onClick => {
+    return (
+      <Tip text={'Delete'} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="times-circle" />
+      </Tip>
+    );
+  };
+
+  const content = props => <Form {...props} meeting={meeting} />;
 
   return (
     <tr>
@@ -31,17 +47,14 @@ export const Row = (props: Props) => {
         </FlexCenter>
       </td>
       <td>
-        <div style={{ textAlign: 'center' }}>
+        <ActionButtons>
           <ModalTrigger
-            size="lg"
-            title="Edit meeting"
-            trigger={editMeetingTrigger()}
-            content={contentProps => <p>a</p>}
+            title="Edit tag"
+            trigger={editTrigger}
+            content={content}
           />
-          <Tip text={'Delete'} placement="top">
-            <Button btnStyle="link" onClick={() => {}} icon="times-circle" />
-          </Tip>
-        </div>
+          {renderRemoveButton(remove)}
+        </ActionButtons>
       </td>
     </tr>
   );

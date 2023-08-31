@@ -8,7 +8,6 @@ import { CalendarComponent } from './meeting/Calendar';
 import { generateColorCode } from '../../utils';
 
 type Props = {
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   meetings?: IMeeting[];
   queryParams: any;
 };

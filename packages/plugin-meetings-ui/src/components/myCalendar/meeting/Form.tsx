@@ -18,9 +18,9 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 
 type Props = {
   closeModal?: () => void;
-  afterSave: () => void;
+  // afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  meetings?: IMeeting;
+  meeting?: IMeeting;
   queryParams: any;
 } & ICommonFormProps;
 
@@ -31,7 +31,7 @@ type IItem = {
 };
 
 export const MeetingForm = (props: Props) => {
-  const { meetings, queryParams } = props;
+  const { meeting, queryParams } = props;
 
   const [userIds, setUserIds] = useState([]);
   const [companyId, setCompanyId] = useState('');
@@ -49,8 +49,8 @@ export const MeetingForm = (props: Props) => {
     companyId: string;
   }) => {
     const finalValues = values;
-    if (meetings) {
-      finalValues._id = meetings._id;
+    if (meeting) {
+      finalValues._id = meeting._id;
     }
     if (userIds) {
       finalValues.participantIds = userIds;
@@ -110,9 +110,9 @@ export const MeetingForm = (props: Props) => {
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { meetings, afterSave, closeModal, renderButton } = props;
+    const { meeting, closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
-    const object = meetings || ({} as IMeeting);
+    const object = meeting || ({} as IMeeting);
     return (
       <>
         <FormGroup>
@@ -147,7 +147,7 @@ export const MeetingForm = (props: Props) => {
             <ControlLabel>Team members </ControlLabel>
             <div style={{ width: '100%' }}>
               <SelectTeamMembers
-                initialValue={userIds}
+                initialValue={object.participantIds || userIds}
                 customField="employeeId"
                 filterParams={{}}
                 queryParams={queryParams}
@@ -178,6 +178,7 @@ export const MeetingForm = (props: Props) => {
               label="Choose Company"
               name="companyId"
               multi={false}
+              initialValue={object.companyId}
               onSelect={onCompanySelect}
               customOption={{ value: '', label: 'Choose Company' }}
             />
@@ -193,8 +194,8 @@ export const MeetingForm = (props: Props) => {
             passedName: 'meetings',
             values: generateDoc(values),
             isSubmitted,
-            callback: closeModal || afterSave,
-            object: meetings
+            callback: closeModal,
+            object: meeting
           })}
         </ModalFooter>
       </>

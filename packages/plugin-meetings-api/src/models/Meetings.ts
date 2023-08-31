@@ -12,7 +12,7 @@ export interface IMeetingModel extends Model<IMeetingDocument> {
   meetingDetail(_id: String, userId: string): Promise<IMeetingDocument>;
   createMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
   updateMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
-  removeMeeting(args: IMeeting): Promise<IMeetingDocument>;
+  removeMeeting(_id: String): Promise<IMeetingDocument>;
 }
 
 export const loadMeetingClass = (model: IModels) => {
@@ -29,7 +29,6 @@ export const loadMeetingClass = (model: IModels) => {
 
     // create
     public static async createMeeting(doc, user) {
-      console.log('createMeeting:', doc);
       return await model.Meetings.create({
         ...doc,
         createdAt: new Date(),

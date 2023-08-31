@@ -22,11 +22,11 @@ type Props = {
   afterSave?: () => void;
   meetings: IMeeting[];
   queryParams: any;
-  refetch: any;
+  loading: boolean;
 };
 
 export const SideBar = (props: Props) => {
-  const { queryParams, meetings } = props;
+  const { queryParams, meetings, loading } = props;
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
   const [checkedUsers, setCheckedUsers] = useState(
@@ -48,6 +48,9 @@ export const SideBar = (props: Props) => {
 
   useEffect(() => {
     const queryString = 'participantUserIds=' + checkedUsers.join(',');
+    if (queryString === 'participantUserIds=') {
+      return history.push(`${window.location.pathname}`);
+    }
     return history.push(`${window.location.pathname}?${queryString}`);
   }, [checkedUsers]);
 
@@ -224,7 +227,7 @@ export const SideBar = (props: Props) => {
       <Box title="Other calendar" name={`showCaledar`} isOpen={true}>
         <DataWithLoader
           data={data}
-          loading={false}
+          loading={loading}
           count={participantUser?.length}
           emptyText={'Empty'}
           emptyIcon="leaf"

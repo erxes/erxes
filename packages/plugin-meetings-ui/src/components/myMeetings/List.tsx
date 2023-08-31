@@ -5,10 +5,11 @@ import { Row } from './Row';
 
 type Props = {
   meetings: IMeeting[];
+  remove: (id: string) => void;
 };
 
 export const ListComponent = (props: Props) => {
-  const { meetings } = props;
+  const { meetings, remove } = props;
   return (
     <>
       <Table>
@@ -25,7 +26,7 @@ export const ListComponent = (props: Props) => {
         </thead>
         <tbody>
           {meetings?.map((meeting: IMeeting) => {
-            return <Row meeting={meeting} />;
+            return <Row meeting={meeting} remove={() => remove(meeting._id)} />;
           })}
         </tbody>
       </Table>
