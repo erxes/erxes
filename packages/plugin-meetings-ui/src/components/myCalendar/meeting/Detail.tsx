@@ -136,6 +136,7 @@ export const MeetingDetail = (props: Props) => {
 
   return (
     <MeetingWrapper>
+      <h3>{meetingDetail.title}</h3>
       {renderTabContent()}
 
       {meetingDetail.status !== 'completed' && (
