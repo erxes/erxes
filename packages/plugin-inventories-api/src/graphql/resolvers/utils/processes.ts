@@ -1,3 +1,4 @@
+import { getPureDate } from '@erxes/api-utils/src/core';
 import { sendProcessesMessage } from '../../../messageBroker';
 
 export const getProcesses = async (
@@ -10,6 +11,8 @@ export const getProcesses = async (
   beProductIds
 ) => {
   const { endDate, beginDate, branchId, departmentId, isDetailed } = params;
+  const bDate = getPureDate(beginDate);
+  const eDate = getPureDate(endDate);
 
   const performsC1In = await sendProcessesMessage({
     subdomain,
@@ -18,7 +21,7 @@ export const getProcesses = async (
       aggregate: [
         {
           $match: {
-            endAt: { $lt: beginDate },
+            endAt: { $lt: bDate },
             status: 'confirmed',
             inBranchId: branchId,
             inDepartmentId: departmentId,
@@ -53,7 +56,7 @@ export const getProcesses = async (
       aggregate: [
         {
           $match: {
-            endAt: { $lt: beginDate },
+            endAt: { $lt: bDate },
             status: 'confirmed',
             outBranchId: branchId,
             outDepartmentId: departmentId,
@@ -88,7 +91,7 @@ export const getProcesses = async (
       aggregate: [
         {
           $match: {
-            endAt: { $gte: beginDate, $lte: endDate },
+            endAt: { $gte: bDate, $lte: eDate },
             status: 'confirmed',
             inBranchId: branchId,
             inDepartmentId: departmentId,
@@ -125,7 +128,7 @@ export const getProcesses = async (
       aggregate: [
         {
           $match: {
-            endAt: { $gte: beginDate, $lte: endDate },
+            endAt: { $gte: bDate, $lte: eDate },
             status: 'confirmed',
             outBranchId: branchId,
             outDepartmentId: departmentId,

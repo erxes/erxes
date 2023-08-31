@@ -15,8 +15,21 @@ const Plans = () => {
   const query = queryString.parse(location.search);
   const params = {
     ...query,
-    perPage: Number(query.perPage),
-    page: Number(query.page)
+    isQuantityEnabled:
+      (query.isQuantityEnabled === 'true' &&
+        Boolean(query.isQuantityEnabled)) ||
+      undefined,
+    isPriceEnabled:
+      (query.isPriceEnabled === 'true' && Boolean(query.isPriceEnabled)) ||
+      undefined,
+    isExpiryEnabled:
+      (query.isExpiryEnabled === 'true' && Boolean(query.isExpiryEnabled)) ||
+      undefined,
+    isRepeatEnabled:
+      (query.isRepeatEnabled === 'true' && Boolean(query.isRepeatEnabled)) ||
+      undefined,
+    perPage: query.perPage && Number(query.perPage),
+    page: query.page && Number(query.page)
   };
 
   const plansCount = useQuery(gql(queries.pricingPlansCount), {
@@ -36,8 +49,8 @@ const Plans = () => {
       header={<Wrapper.Header title={__('Pricing Plans')} submenu={SUBMENU} />}
       content={<List count={count} params={params} />}
       footer={<Pagination count={count} />}
-      actionBar={<ActionBar />}
-      leftSidebar={<Sidebar />}
+      actionBar={<ActionBar count={count} />}
+      leftSidebar={<Sidebar params={params} />}
       transparent
       hasBorder
     />

@@ -75,6 +75,9 @@ type State = {
   weekends: number[];
   useHoliday: boolean;
   relContractId?: string;
+  isPayFirstMonth?: boolean;
+  isBarter?: boolean;
+  downPayment?: number;
   config?: {
     maxAmount: number;
     minAmount: number;
@@ -84,6 +87,12 @@ type State = {
     minInterest: number;
   };
 };
+
+function isGreaterNumber(value: any, compareValue: any) {
+  value = Number(value || 0);
+  compareValue = Number(compareValue || 0);
+  return value > compareValue;
+}
 
 class ContractForm extends React.Component<Props, State> {
   constructor(props) {
@@ -179,7 +188,8 @@ class ContractForm extends React.Component<Props, State> {
       weekends: this.state.weekends.map(week => Number(week)),
       useHoliday: Boolean(this.state.useHoliday),
       relContractId: this.state.relContractId,
-      currency: this.state.currency
+      currency: this.state.currency,
+      downPayment: Number(this.state.downPayment || 0)
     };
 
     if (this.state.leaseType === 'salvage') {
@@ -407,7 +417,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
-      this.state.leaseAmount < this.state.config.minAmount
+      isGreaterNumber(this.state.config.minAmount, this.state.leaseAmount)
     )
       errors.leaseAmount = errorWrapper(
         `${__('Lease amount must greater than')} ${this.state.config.minAmount}`
@@ -415,25 +425,31 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
-      this.state.leaseAmount > this.state.config.maxAmount
+      isGreaterNumber(this.state.leaseAmount, this.state.config.maxAmount)
     )
       errors.leaseAmount = errorWrapper(
         `${__('Lease amount must less than')} ${this.state.config.maxAmount}`
       );
 
-    if (this.state.config && this.state.tenor < this.state.config.minTenor)
+    if (
+      this.state.config &&
+      isGreaterNumber(this.state.config.minTenor, this.state.tenor)
+    )
       errors.tenor = errorWrapper(
         `${__('Tenor must greater than')} ${this.state.config.minTenor}`
       );
 
-    if (this.state.config && this.state.tenor > this.state.config.maxTenor)
+    if (
+      this.state.config &&
+      isGreaterNumber(this.state.tenor, this.state.config.maxTenor)
+    )
       errors.tenor = errorWrapper(
         `${__('Tenor must less than')} ${this.state.config.maxTenor}`
       );
 
     if (
       this.state.config &&
-      this.state.interestMonth < this.state.config.minInterest
+      isGreaterNumber(this.state.config.minInterest, this.state.interestMonth)
     )
       errors.interestMonth = errorWrapper(
         `${__('Interest must greater than')} ${this.state.config.minInterest}`
@@ -441,7 +457,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
-      this.state.interestMonth > this.state.config.maxInterest
+      isGreaterNumber(this.state.interestMonth, this.state.config.maxInterest)
     )
       errors.interestMonth = errorWrapper(
         `${__('Interest must less than')} ${this.state.config.maxInterest}`
@@ -528,6 +544,32 @@ class ContractForm extends React.Component<Props, State> {
                     multi={false}
                   />
                 </FormGroup>
+              )}
+
+              {this.state.useMargin &&
+                this.renderFormGroup('Down payment', {
+                  ...formProps,
+                  type: 'number',
+                  name: 'downPayment',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  value: this.state.downPayment || 0,
+                  errors: this.checkValidation(),
+                  onChange: this.onChangeWithSalvage,
+                  onClick: this.onFieldClick
+                })}
+              {this.state.useMargin && (
+                <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
+                  {this.renderFormGroup('Is Barter', {
+                    ...formProps,
+                    className: 'flex-item',
+                    type: 'checkbox',
+                    componentClass: 'checkbox',
+                    name: 'isBarter',
+                    checked: this.state.isBarter || false,
+                    onChange: this.onChangeCheckbox
+                  })}
+                </div>
               )}
 
               {this.state.useMargin &&
@@ -785,6 +827,15 @@ class ContractForm extends React.Component<Props, State> {
                 componentClass: 'checkbox',
                 name: 'useHoliday',
                 checked: this.state.useHoliday || false,
+                onChange: this.onChangeCheckbox
+              })}
+              {this.renderFormGroup('Is Pay First Month', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'isPayFirstMonth',
+                checked: this.state.isPayFirstMonth || false,
                 onChange: this.onChangeCheckbox
               })}
 

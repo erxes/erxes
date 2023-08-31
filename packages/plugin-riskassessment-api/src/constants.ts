@@ -7,8 +7,3 @@ export const statusColors = {
   In_Progress: '#3B85F4',
   No_Result: '#888'
 };
-
-export const PLAN_STATUSES = {
-  ARCHIVED: 'archived',
-  ACTIVE: 'active'
-};

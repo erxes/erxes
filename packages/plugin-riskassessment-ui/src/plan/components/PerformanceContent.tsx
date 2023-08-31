@@ -2,7 +2,7 @@ import React from 'react';
 import { IPLan } from '../common/types';
 import PortableCard from '../common/PortableCard';
 import { Divider, FormContainer, ScheduleCard } from '../../styles';
-import { __ } from '@erxes/ui/src';
+import { Info, __ } from '@erxes/ui/src';
 
 type Props = {
   plan: { cardIds?: string[]; dashboard?: any } & IPLan;
@@ -13,8 +13,12 @@ const commonStyles = {
   maxWidth: '350px'
 };
 
+const handleNaN = value => {
+  return isNaN(value) ? 0 : value;
+};
+
 const generatePercentage = (value1, value2) =>
-  ((value1 / value2) * 100).toFixed(2);
+  handleNaN(((value1 / value2) * 100).toFixed(2));
 
 class Performance extends React.Component<Props> {
   constructor(props) {
@@ -30,6 +34,8 @@ class Performance extends React.Component<Props> {
       averangeAssessment = 0,
       resolvedCardsCount = 0
     } = dashboard || {};
+
+    console.log('dfg');
 
     return (
       <FormContainer column padding="25px">

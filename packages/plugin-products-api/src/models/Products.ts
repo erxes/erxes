@@ -421,7 +421,7 @@ export const loadProductCategoryClass = (models: IModels) => {
 
       const childCategories = await models.ProductCategories.find({
         $and: [
-          { order: { $regex: new RegExp(productCategory.order, 'i') } },
+          { order: { $regex: new RegExp(`^${productCategory.order}`, 'i') } },
           { _id: { $ne: _id } }
         ]
       });

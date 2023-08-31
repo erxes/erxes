@@ -31,12 +31,6 @@ interface IDetailItem {
   productId: string;
 }
 
-export const getPureDate = (date?: Date) => {
-  const ndate = date ? new Date(date) : new Date();
-  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
 export const generateOrderNumber = async (
   models: IModels,
   config: IConfig
@@ -260,7 +254,8 @@ export const prepareEbarimtData = async (
   config: IEbarimtConfig,
   items: IOrderItemDocument[] = [],
   orderBillType: string,
-  registerNumber?: string
+  registerNumber?: string,
+  paymentTypes?: any[]
 ) => {
   if (!config) {
     throw new Error('has not ebarimt config');
@@ -284,6 +279,32 @@ export const prepareEbarimtData = async (
       billType = BILL_TYPES.ENTITY;
       customerCode = registerNumber;
       customerName = response.name;
+    }
+  }
+
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  );
+  if (
+    preTaxPaymentTypes.length &&
+    order.paidAmounts &&
+    order.paidAmounts.length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPays = order.paidAmounts.filter(
+        pa => pa.type === preTaxPaymentType.type
+      );
+      if (matchOrderPays.length) {
+        for (const matchOrderPay of matchOrderPays) {
+          preSentAmount += matchOrderPay.amount;
+        }
+      }
+    }
+
+    if (preSentAmount && preSentAmount <= order.totalAmount) {
+      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
     }
   }
 
@@ -312,7 +333,8 @@ export const prepareEbarimtData = async (
       continue;
     }
 
-    const amount = (item.count || 0) * (item.unitPrice || 0);
+    const tempAmount = (item.count || 0) * (item.unitPrice || 0);
+    const amount = tempAmount - (tempAmount / 100) * itemAmountPrePercent;
 
     const stock = {
       count: item.count,

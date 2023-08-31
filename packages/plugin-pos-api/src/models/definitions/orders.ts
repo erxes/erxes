@@ -54,6 +54,7 @@ export interface IPosOrder {
   origin?: string;
   taxInfo?: any;
   convertDealId?: string;
+  returnInfo?: any;
 }
 export interface IPosOrderDocument extends IPosOrder, Document {
   _id: string;
@@ -125,6 +126,13 @@ const paidAmountSchema = new Schema({
   info: field({ type: Object })
 });
 
+const returnInfoSchema = new Schema({
+  cashAmount: field({ type: Number }),
+  paidAmounts: field({ type: [paidAmountSchema] }),
+  returnAt: field({ type: Date }),
+  returnBy: field({ type: String })
+});
+
 export const posOrderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -187,6 +195,11 @@ export const posOrderSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'Converted Deal'
+    }),
+    returnInfo: field({
+      type: returnInfoSchema,
+      optional: true,
+      label: 'Return information'
     })
   }),
   'erxes_posOrders'
