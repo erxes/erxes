@@ -2,7 +2,8 @@ export const menuPos = [
   { title: 'Pos Orders', link: '/pos-orders' },
   { title: 'Pos Covers', link: '/pos-covers' },
   { title: 'Pos by Items', link: '/pos-order-items' },
-  { title: 'Pos Items', link: '/pos-order-records' }
+  { title: 'Pos Items', link: '/pos-order-records' },
+  { title: 'Pos Summary', link: '/pos-order-summary' }
 ];
 
 export const TEXT_COLORS = [

@@ -115,11 +115,16 @@ const queryParams = `
   hasPaidDate: Boolean 
 `;
 
+const groupParams = `
+  groupField: String
+`;
+
 export const queries = `
   posOrders(${queryParams}): [PosOrder]
   posOrderDetail(_id: String): PosOrderDetail
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
+  posOrdersGroupSummary(${queryParams}, ${groupParams}): JSON
   posOrdersTotalCount(${queryParams}): JSON
   posOrderRecords(${queryParams}): [PosOrderRecord]
   posOrderRecordsCount(${queryParams}): Int

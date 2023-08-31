@@ -95,6 +95,12 @@ const posOrdersSummary = `
   }
 `;
 
+const posOrdersGroupSummary = `
+  query posOrdersGroupSummary(${listParamsDef}, $groupField: String) {
+    posOrdersGroupSummary(${listParamsValue}, groupField: $groupField)
+  }
+`;
+
 const posOrderDetail = `
   query posOrderDetail($_id: String) {
     posOrderDetail(_id: $_id) {
@@ -269,6 +275,7 @@ const posOrderRecordsCount = `
 export default {
   posOrders,
   posOrdersSummary,
+  posOrdersGroupSummary,
   posOrderDetail,
   posProducts,
   productCategories,

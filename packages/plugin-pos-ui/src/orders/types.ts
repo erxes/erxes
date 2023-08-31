@@ -93,6 +93,12 @@ export type OrdersSummaryQueryResponse = {
   refetch: () => void;
 };
 
+export type OrdersGroupSummaryQueryResponse = {
+  posOrdersGroupSummary: any;
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type IPosProduct = {
   counts: any;
   count: number;
