@@ -28,18 +28,6 @@ const receiveMessage = async (
     ]
   });
 
-  const inboxIntegration = await sendInboxMessage({
-    subdomain,
-    action: 'integrations.findOne',
-    data: { _id: integration.erxesApiId },
-    isRPC: true,
-    defaultValue: null
-  });
-
-  if (!inboxIntegration) {
-    throw new Error(`Integration not found: ${integration.erxesApiId}`);
-  }
-
   const userId = sender.id;
   const pageId = recipient.id;
   const kind = INTEGRATION_KINDS.MESSENGER;
@@ -136,31 +124,6 @@ const receiveMessage = async (
           ...created.toObject(),
           conversationId: conversation.erxesApiId
         }
-      });
-
-      let channelMemberIds: string[] = [];
-
-      const channels = await sendInboxMessage({
-        subdomain,
-        action: 'channels.find',
-        data: {
-          integrationIds: { $in: [inboxIntegration._id] }
-        },
-        isRPC: true
-      });
-
-      for (const channel of channels) {
-        channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
-      }
-
-      graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: {
-          ...created.toObject(),
-          conversationId: conversation.erxesApiId
-        },
-        conversation,
-        integration: inboxIntegration,
-        channelMemberIds
       });
 
       graphqlPubsub.publish('conversationMessageInserted', {
