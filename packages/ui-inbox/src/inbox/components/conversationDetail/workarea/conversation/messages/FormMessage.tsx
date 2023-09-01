@@ -37,6 +37,19 @@ export default class FormMessage extends React.Component<Props, {}> {
   private componentRef;
 
   displayValue(data) {
+    if (data.type === 'parentField') {
+      const subFields = data.value;
+      if (subFields.length === 0) {
+        return null;
+      }
+
+      return subFields.map(e => {
+        return e.map(e2 => {
+          return this.renderField(e2);
+        });
+      });
+    }
+
     if (typeof data.value === 'object' && 'value' in data.value) {
       data.value = data.value.value;
     }

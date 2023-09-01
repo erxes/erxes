@@ -24,6 +24,8 @@ export const transactionFields = `
   ${transactionPreInfo}
   futureDebt
   debtTenor
+  storedInterest
+  calcInterest
 `;
 
 export const transactionOtherFields = `
@@ -152,6 +154,8 @@ query GetPaymentInfo($id: String!, $payDate: Date) {
     total
     balance
     closeAmount
+    calcInterest
+    storedInterest
   }
 }
 `;

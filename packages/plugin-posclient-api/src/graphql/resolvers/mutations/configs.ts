@@ -1,5 +1,4 @@
 import { authCookieOptions } from '@erxes/api-utils/src/core';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   extractConfig,
   getServerAddress,
@@ -16,6 +15,7 @@ import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { redis } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendRequest } from '@erxes/api-utils/src/requests';
+import { app } from '../../../configs';
 
 const configMutations = {
   posConfigsFetch: async (
@@ -25,7 +25,7 @@ const configMutations = {
   ) => {
     const address = await getServerAddress(subdomain);
 
-    const config = await models.Configs.createConfig(token);
+    const config = await models.Configs.createConfig(token, '');
 
     try {
       const response = await sendRequest({
@@ -67,15 +67,18 @@ const configMutations = {
     const messageBrokerClient = await initBrokerMain({
       RABBITMQ_HOST,
       MESSAGE_BROKER_PREFIX,
-      redis
+      redis,
+      app
     });
 
     await initBroker(messageBrokerClient)
       .then(() => {
-        debugInfo('Message broker has started.');
+        console.log('Message broker has started.');
       })
       .catch(e => {
-        debugError(`Error occurred when starting message broker: ${e.message}`);
+        console.log(
+          `Error occurred when starting message broker: ${e.message}`
+        );
       });
 
     return config;

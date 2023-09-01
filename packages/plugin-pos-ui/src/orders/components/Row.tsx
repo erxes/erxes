@@ -77,14 +77,16 @@ class PutResponseRow extends React.Component<Props> {
         <td key={'type'}>{order.type || ''}</td>
         <td key={'user'}>{order.user ? order.user.email : ''}</td>
         <td key={'actions'} onClick={onClick}>
-          <Button
-            btnStyle="warning"
-            size="small"
-            icon="external-link-alt"
-            onClick={this.returnBill}
-          >
-            Return
-          </Button>
+          {!order.returnInfo?.returnAt && (
+            <Button
+              btnStyle="warning"
+              size="small"
+              icon="external-link-alt"
+              onClick={this.returnBill}
+            >
+              Return
+            </Button>
+          )}
         </td>
       </tr>
     );

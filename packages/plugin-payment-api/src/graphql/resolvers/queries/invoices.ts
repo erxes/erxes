@@ -101,6 +101,14 @@ const queries = {
 
   async invoiceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Invoices.getInvoice({ _id });
+  },
+
+  async invoiceDetailByContent(
+    _root,
+    { contentType, contentTypeId },
+    { models }: IContext
+  ) {
+    return models.Invoices.find({ contentType, contentTypeId }).lean();
   }
 };
 

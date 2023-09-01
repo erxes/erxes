@@ -8,6 +8,7 @@ module.exports = {
     "./inboxIntegrationForm": "./src/components/IntegrationForm.tsx",
     "./inboxConversationDetail": "./src/components/ConversationDetail.tsx",
     './activityLog': './src/components/ActivityLog.tsx',
+    "./integrationDetailsForm": "./src/components/IntegrationEditForm.tsx",
   },
   routes: {
     url: 'http://localhost:3014/remoteEntry.js',
@@ -30,5 +31,6 @@ module.exports = {
       'All integrations, For support teams, Marketing automation, Email marketing',
     components: ['inboxConversationDetail'],
   }],
+  integrationDetailsForm: './integrationDetailsForm',
   activityLog: './activityLog',
 };

@@ -106,6 +106,7 @@ export const mutations = `
 
 const commonParams = `
     cardType:String,
+    cardIds:[String],
     status:String
     searchValue:String
     createdAtFrom:String

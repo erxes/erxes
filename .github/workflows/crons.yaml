@@ -5,6 +5,7 @@ on:
     branches:
       - 'dev'
       - 'staging'
+      - build-test
     paths:
       - 'packages/api-utils/**'
       - 'packages/crons/**'

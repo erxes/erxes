@@ -1,10 +1,5 @@
 import { afterMutationHandlers } from './afterMutations';
-import {
-  confirmLoyalties,
-  getBranchesUtil,
-  statusToDone,
-  syncOrderFromClient
-} from './utils';
+import { getBranchesUtil, statusToDone, syncOrderFromClient } from './utils';
 import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
@@ -179,6 +174,22 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('pos:orders.aggregate', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { aggregate, replacers } = data;
+    for (const repl of replacers || []) {
+      try {
+        eval(repl);
+      } catch (e) {}
+    }
+
+    return {
+      status: 'success',
+      data: await models.PosOrders.aggregate(aggregate)
+    };
+  });
+
   consumeRPCQueue('pos:configs.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     return {
@@ -325,6 +336,24 @@ export const sendPosclientMessage = async (
     lastAction = `posclient:${action}_${pos.token}`;
     serviceName = '';
     args.data.thirdService = true;
+    args.isMQ = true;
+
+    if (args.isRPC) {
+      const response: any = await sendMessage({
+        client,
+        serviceDiscovery,
+        serviceName,
+        ...args,
+        action: `posclient:health_check_${pos.token}`,
+        data: { token: pos.token, thirdService: true },
+        timeout: 1000,
+        defaultValue: { healthy: 'no' }
+      });
+
+      if (response.healthy !== 'ok') {
+        throw new Error('syncing error not connected posclient');
+      }
+    }
   }
 
   args.data.token = pos.token;
@@ -389,6 +418,7 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
     ...args
   });
 };
+
 export default function() {
   return client;
 }

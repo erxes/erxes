@@ -21,6 +21,7 @@ import { isValidBarcode } from './otherUtils';
 import { IProductDocument } from '../../models/definitions/products';
 import { checkLoyalties } from './loyalties';
 import { checkPricing } from './pricing';
+import { checkRemainders } from './products';
 
 interface IDetailItem {
   count: number;
@@ -29,12 +30,6 @@ interface IDetailItem {
   barcode: string;
   productId: string;
 }
-
-export const getPureDate = (date?: Date) => {
-  const ndate = date ? new Date(date) : new Date();
-  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
 
 export const generateOrderNumber = async (
   models: IModels,
@@ -95,16 +90,70 @@ export const generateOrderNumber = async (
   return number;
 };
 
-export const validateOrder = async (models: IModels, doc: IOrderInput) => {
+export const validateOrder = async (
+  subdomain: string,
+  models: IModels,
+  config: IConfigDocument,
+  doc: IOrderInput
+) => {
   const { items = [] } = doc;
 
   if (items.filter(i => !i.isPackage).length < 1) {
     throw new Error('Products missing in order. Please add products');
   }
 
+  const products = await models.Products.find({
+    _id: { $in: items.map(i => i.productId) }
+  }).lean();
+  const productIds = products.map(p => p._id);
+
   for (const item of items) {
     // will throw error if product is not found
-    await models.Products.getProduct({ _id: item.productId });
+    if (!productIds.includes(item.productId)) {
+      throw new Error('Products missing in order');
+    }
+  }
+
+  if (
+    config.isCheckRemainder &&
+    (doc.branchId || config.branchId) &&
+    doc.type !== 'before'
+  ) {
+    const checkProducts = products.filter(
+      p => (p.isCheckRems || {})[config.token] || false
+    );
+
+    if (checkProducts.length) {
+      const result = await checkRemainders(
+        subdomain,
+        config,
+        checkProducts,
+        doc.branchId || config.branchId
+      );
+
+      const errors: string[] = [];
+      const withRemProductById = {};
+      for (const product of result) {
+        withRemProductById[product._id] = product;
+      }
+
+      for (const item of items) {
+        const product = withRemProductById[item.productId];
+        if (!product) {
+          continue;
+        }
+
+        if (product.remainder < item.count) {
+          errors.push(
+            `#${product.code} - ${product.name} have a potential sales balance of ${product.remainder}`
+          );
+        }
+      }
+
+      if (errors.length) {
+        throw new Error(errors.join(', '));
+      }
+    }
   }
 };
 
@@ -205,7 +254,8 @@ export const prepareEbarimtData = async (
   config: IEbarimtConfig,
   items: IOrderItemDocument[] = [],
   orderBillType: string,
-  registerNumber?: string
+  registerNumber?: string,
+  paymentTypes?: any[]
 ) => {
   if (!config) {
     throw new Error('has not ebarimt config');
@@ -229,6 +279,32 @@ export const prepareEbarimtData = async (
       billType = BILL_TYPES.ENTITY;
       customerCode = registerNumber;
       customerName = response.name;
+    }
+  }
+
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  );
+  if (
+    preTaxPaymentTypes.length &&
+    order.paidAmounts &&
+    order.paidAmounts.length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPays = order.paidAmounts.filter(
+        pa => pa.type === preTaxPaymentType.type
+      );
+      if (matchOrderPays.length) {
+        for (const matchOrderPay of matchOrderPays) {
+          preSentAmount += matchOrderPay.amount;
+        }
+      }
+    }
+
+    if (preSentAmount && preSentAmount <= order.totalAmount) {
+      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
     }
   }
 
@@ -257,7 +333,8 @@ export const prepareEbarimtData = async (
       continue;
     }
 
-    const amount = (item.count || 0) * (item.unitPrice || 0);
+    const tempAmount = (item.count || 0) * (item.unitPrice || 0);
+    const amount = tempAmount - (tempAmount / 100) * itemAmountPrePercent;
 
     const stock = {
       count: item.count,

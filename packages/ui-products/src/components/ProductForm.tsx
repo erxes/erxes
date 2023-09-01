@@ -8,14 +8,15 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import { IProduct, IProductCategory, IUom } from '../types';
+import { IProduct, IProductCategory, IUom, IVariant } from '../types';
 import { TAX_TYPES, TYPES } from '../constants';
-import { BarcodeContainer, BarcodeItem } from '../styles';
+import { BarcodeItem, TableBarcode } from '../styles';
 import {
   extractAttachment,
   generateCategoryOptions
 } from '@erxes/ui/src/utils';
 
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import CategoryForm from '../containers/CategoryForm';
 import CommonForm from '@erxes/ui/src/components/form/Form';
@@ -23,12 +24,15 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
+import { __ } from '@erxes/ui/src/utils/core';
 import { queries } from '../graphql';
 
 type Props = {
@@ -41,6 +45,7 @@ type Props = {
 
 type State = {
   barcodes: string[];
+  variants: IVariant;
   barcodeInput: string;
   barcodeDescription: string;
   attachment?: IAttachment;
@@ -51,6 +56,10 @@ type State = {
   subUoms: any[];
   taxType: string;
   taxCode: string;
+  categoryId: string;
+  code: string;
+  category?: IProductCategory;
+  maskStr?: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -62,17 +71,26 @@ class Form extends React.Component<Props, State> {
       attachment,
       attachmentMore,
       barcodes,
+      variants,
       barcodeDescription,
       vendorId,
       description,
       uom,
       subUoms,
       taxType,
-      taxCode
+      taxCode,
+      code,
+      categoryId
     } = product;
+
+    const fixVariants = {};
+    for (const barcode of barcodes || []) {
+      fixVariants[barcode] = (variants || {})[barcode] || {};
+    }
 
     this.state = {
       barcodes: barcodes ? barcodes : [],
+      variants: fixVariants,
       barcodeInput: '',
       barcodeDescription: barcodeDescription ? barcodeDescription : '',
       attachment: attachment ? attachment : undefined,
@@ -82,13 +100,54 @@ class Form extends React.Component<Props, State> {
       uom,
       subUoms: subUoms ? subUoms : [],
       taxType,
-      taxCode
+      taxCode,
+      code: code || '',
+      categoryId
     };
   }
+
+  componentDidMount(): void {
+    this.getMaskStr(this.state.categoryId);
+  }
+
+  getMaskStr = categoryId => {
+    const { code } = this.state;
+    const { productCategories } = this.props;
+
+    const category = productCategories.find(pc => pc._id === categoryId);
+    let maskStr = '';
+
+    if (category && category.mask) {
+      const maskList: any[] = [];
+      for (const value of category.mask.values || []) {
+        if (value.static) {
+          maskList.push(value.static);
+          continue;
+        }
+
+        if (value.type === 'char') {
+          maskList.push(value.char);
+        }
+
+        if (value.type === 'customField' && value.matches) {
+          maskList.push(`(${Object.values(value.matches).join('|')})`);
+        }
+      }
+      maskStr = `${maskList.join('')}\w+`;
+
+      if (maskList.length && !code) {
+        this.setState({ code: maskList[0] });
+      }
+    }
+    this.setState({ maskStr });
+
+    return category;
+  };
 
   generateDoc = (values: {
     _id?: string;
     barcodes?: string[];
+    variants?: IVariant;
     attachment?: IAttachment;
     attachmentMore?: IAttachment[];
     productCount: number;
@@ -104,11 +163,14 @@ class Form extends React.Component<Props, State> {
       attachment,
       attachmentMore,
       barcodes,
+      variants,
       barcodeDescription,
       vendorId,
       description,
       uom,
-      subUoms
+      subUoms,
+      code,
+      categoryId
     } = this.state;
 
     if (product) {
@@ -119,9 +181,12 @@ class Form extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      code,
+      categoryId,
       attachment,
       attachmentMore,
       barcodes,
+      variants,
       barcodeDescription,
       vendorId,
       description,
@@ -303,16 +368,118 @@ class Form extends React.Component<Props, State> {
     }
   };
 
-  onClickBarcode = (index: number) => {
-    const splicedBarcodes = [...this.state.barcodes];
-    splicedBarcodes.splice(index, 1);
-    this.setState({ barcodes: [...splicedBarcodes] });
+  onClickBarcode = (value: string) => {
+    this.setState({
+      barcodes: this.state.barcodes.filter(b => b !== value)
+    });
   };
 
   onTaxChange = e => {
     this.setState({
       [e.target.name]: e.target.value
     } as any);
+  };
+
+  onChangeCateogry = e => {
+    const value = e.target.value;
+
+    this.setState({
+      categoryId: value,
+      category: this.getMaskStr(value)
+    });
+  };
+
+  renderBarcodes = () => {
+    const { barcodes, variants, attachmentMore } = this.state;
+    if (!barcodes.length) {
+      return <></>;
+    }
+
+    const onChangePerImage = (item, e) => {
+      const value = e.target.value;
+      this.setState({
+        variants: {
+          ...variants,
+          [item]: {
+            ...variants[item],
+            image: (attachmentMore || []).find(a => a.url === value)
+          }
+        }
+      });
+    };
+
+    return (
+      <TableBarcode>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Image</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {barcodes.map((item: any) => (
+            <tr>
+              <td>
+                <BarcodeItem
+                  key={item}
+                  onClick={() => this.onClickBarcode(item)}
+                >
+                  {item}
+                </BarcodeItem>
+              </td>
+              <td>
+                <FormControl
+                  name="name"
+                  value={(variants[item] || {}).name || ''}
+                  onChange={e =>
+                    this.setState({
+                      variants: {
+                        ...variants,
+                        [item]: {
+                          ...variants[item],
+                          name: (e.target as any).value
+                        }
+                      }
+                    })
+                  }
+                />
+              </td>
+              <td>
+                <FormControl
+                  name="image"
+                  componentClass="select"
+                  value={((variants[item] || {}).image || {}).url || ''}
+                  onChange={onChangePerImage.bind(this, item)}
+                >
+                  <option key={Math.random()} value="">
+                    {' '}
+                  </option>
+                  {(attachmentMore || []).map(img => (
+                    <option key={img.url} value={img.url}>
+                      {img.name}
+                    </option>
+                  ))}
+                </FormControl>
+              </td>
+              <td>
+                <ActionButtons>
+                  <Button
+                    btnStyle="link"
+                    onClick={() => this.onClickBarcode(item)}
+                  >
+                    <Tip text={__('Delete')} placement="bottom">
+                      <Icon icon="trash" />
+                    </Tip>
+                  </Button>
+                </ActionButtons>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </TableBarcode>
+    );
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -343,13 +510,55 @@ class Form extends React.Component<Props, State> {
       description,
       barcodeDescription,
       taxType,
-      taxCode
+      taxCode,
+      code,
+      categoryId,
+      maskStr
     } = this.state;
 
     return (
       <>
         <FormWrapper>
           <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Category</ControlLabel>
+              <Row>
+                <FormControl
+                  {...formProps}
+                  name="categoryId"
+                  componentClass="select"
+                  defaultValue={categoryId}
+                  required={true}
+                  onChange={this.onChangeCateogry}
+                >
+                  {generateCategoryOptions(productCategories)}
+                </FormControl>
+
+                {this.renderFormTrigger(trigger)}
+              </Row>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>Code</ControlLabel>
+              <p>
+                Depending on your business type, you may type in a barcode or
+                any other UPC (Universal Product Code). If you don't use UPC,
+                type in any numeric value to differentiate your products. With
+                pattern {maskStr}
+              </p>
+              <FormControl
+                {...formProps}
+                name="code"
+                value={code}
+                required={true}
+                onChange={(e: any) => {
+                  this.setState({
+                    code: e.target.value.replace(/\*/g, '')
+                  });
+                }}
+              />
+            </FormGroup>
+
             <FormGroup>
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
@@ -376,39 +585,6 @@ class Form extends React.Component<Props, State> {
                   </option>
                 ))}
               </FormControl>
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel required={true}>Code</ControlLabel>
-              <p>
-                Depending on your business type, you may type in a barcode or
-                any other UPC (Universal Product Code). If you don't use UPC,
-                type in any numeric value to differentiate your products.
-              </p>
-              <FormControl
-                {...formProps}
-                name="code"
-                defaultValue={object.code}
-                autoComplete="off"
-                required={true}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel required={true}>Category</ControlLabel>
-              <Row>
-                <FormControl
-                  {...formProps}
-                  name="categoryId"
-                  componentClass="select"
-                  defaultValue={object.categoryId}
-                  required={true}
-                >
-                  {generateCategoryOptions(productCategories)}
-                </FormControl>
-
-                {this.renderFormTrigger(trigger)}
-              </Row>
             </FormGroup>
 
             <FormGroup>
@@ -535,18 +711,7 @@ class Form extends React.Component<Props, State> {
                   Add barcode
                 </Button>
               </Row>
-              <BarcodeContainer>
-                {this.state.barcodes.map((item: any, index: number) => {
-                  return (
-                    <BarcodeItem
-                      key={index}
-                      onClick={() => this.onClickBarcode(index)}
-                    >
-                      {item}
-                    </BarcodeItem>
-                  );
-                })}
-              </BarcodeContainer>
+              {this.renderBarcodes()}
             </FormGroup>
 
             <FormGroup>

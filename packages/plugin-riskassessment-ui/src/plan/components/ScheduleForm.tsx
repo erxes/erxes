@@ -33,6 +33,7 @@ type Props = {
 type State = {
   doc: any;
   useGroup: boolean;
+  isDisabled: boolean;
 };
 class ScheduleForm extends React.Component<Props, State> {
   constructor(props) {
@@ -40,7 +41,8 @@ class ScheduleForm extends React.Component<Props, State> {
 
     this.state = {
       doc: props?.schedule || {},
-      useGroup: props?.doc?.groupId || false
+      useGroup: props?.doc?.groupId || false,
+      isDisabled: props?.plan?.status === 'archived'
     };
   }
 
@@ -54,8 +56,8 @@ class ScheduleForm extends React.Component<Props, State> {
       plan,
       duplicate
     } = this.props;
-    const { useGroup, doc } = this.state;
-    const { structureType, structureDetail, structureTypeId } = plan;
+    const { useGroup, doc, isDisabled } = this.state;
+    const { structureType, structureDetail } = plan;
 
     const handleChange = (value, name) => {
       this.setState({ doc: { ...doc, [name]: value } });
@@ -168,14 +170,16 @@ class ScheduleForm extends React.Component<Props, State> {
           customFieldsData={doc.customFieldsData || []}
         />
 
-        <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal}>
-            {__('Close')}
-          </Button>
-          <Button btnStyle="success" onClick={handleSave}>
-            {__('Save')}
-          </Button>
-        </ModalFooter>
+        {!isDisabled && (
+          <ModalFooter>
+            <Button btnStyle="simple" onClick={closeModal}>
+              {__('Close')}
+            </Button>
+            <Button btnStyle="success" onClick={handleSave}>
+              {__('Save')}
+            </Button>
+          </ModalFooter>
+        )}
       </>
     );
   }

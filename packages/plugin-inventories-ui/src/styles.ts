@@ -165,6 +165,11 @@ export const TableOver = styled(Table)`
         text-align: right;
       }
     }
+
+    tr td {
+      padding-top: 0px;
+      padding-bottom: 1px;
+    }
   }
 `;
 
@@ -200,5 +205,4 @@ export const TableTransactionAdd = styled(Table)`
 export const SidebarFilters = styledTS(styled.div)`
   overflow: hidden;
   padding: 5px 15px 30px 15px;
-  height: 100%;
 `;

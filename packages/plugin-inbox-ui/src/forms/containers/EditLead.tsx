@@ -29,6 +29,7 @@ type Props = {
 type State = {
   isLoading: boolean;
   isReadyToSaveForm: boolean;
+  isIntegrationSubmitted: boolean;
   mustWait?: any;
   doc?: {
     brandId: string;
@@ -58,7 +59,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
     this.state = {
       isLoading: false,
       isReadyToSaveForm: false,
-      mustWait: { optionsStep: false }
+      mustWait: { optionsStep: false },
+      isIntegrationSubmitted: false
     };
   }
 
@@ -126,6 +128,9 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           .then(() => {
             Alert.success('You successfully updated a form');
 
+            this.setState({
+              isIntegrationSubmitted: true
+            });
             this.redirect();
           })
 
@@ -163,13 +168,14 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       },
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
+      isIntegrationSubmitted: this.state.isIntegrationSubmitted,
       emailTemplates: emailTemplatesQuery
         ? emailTemplatesQuery.emailTemplates || []
         : [],
       configs: configsQuery.configs || []
     };
 
-    return <Lead {...updatedProps} />;
+    return <Lead {...updatedProps} currentMode="update" />;
   }
 }
 

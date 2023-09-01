@@ -247,6 +247,7 @@ class Attachment extends React.Component<Props> {
             {__('Your browser does not support the video tag')}.
           </video>
         </ItemInfo>
+        <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
       </AttachmentWrapper>
     );
   };
@@ -342,6 +343,8 @@ class Attachment extends React.Component<Props> {
         break;
       case 'zip':
       case 'csv':
+        filePreview = this.renderOtherFile(attachment);
+        break;
       case 'doc':
       case 'ppt':
       case 'psd':

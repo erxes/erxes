@@ -10,7 +10,7 @@ import {
   receiveProductCategory,
   receiveUser
 } from './graphql/utils/syncUtils';
-import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
+import { sendRPCMessageMq } from '@erxes/api-utils/src/messageBroker';
 
 let client;
 
@@ -36,6 +36,40 @@ export const initBroker = async cl => {
   client = cl;
   const { consumeQueue, consumeRPCQueue } = client;
 
+  consumeRPCQueue(
+    `posclient:configs.manage${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await receivePosConfig(subdomain, models, data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    `posclient:configs.remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { posId, posToken } = data;
+
+      const config = await models.Configs.findOne({ token: posToken }).lean();
+      if (!config) {
+        throw new Error('not found config from posclient');
+      }
+
+      await models.Configs.updateOne(
+        { token: posToken },
+        { $set: { status: 'deleted' } }
+      );
+      return {
+        status: 'success',
+        data: {}
+      };
+    }
+  );
+
   consumeQueue(
     `posclient:crudData${channelToken}`,
     async ({ subdomain, data }) => {
@@ -52,9 +86,6 @@ export const initBroker = async cl => {
             break;
           case 'user':
             await receiveUser(models, data);
-            break;
-          case 'pos':
-            await receivePosConfig(subdomain, models, data);
             break;
           case 'productGroups':
             const { productGroups = [] } = data;
@@ -193,6 +224,7 @@ export const sendMessageWrapper = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
+
   if (SKIP_REDIS) {
     const { action, isRPC, defaultValue } = args;
 
@@ -203,7 +235,7 @@ export const sendMessageWrapper = async (
     // check connected gateway on server and check some plugins isAvailable
     if (isRPC) {
       const longTask = async () =>
-        await sendRPCMessage('gateway:isServiceAvailable', serviceName);
+        await sendRPCMessageMq('core:isServiceEnabled', serviceName);
 
       const timeout = (cb, interval) => () =>
         new Promise(resolve => setTimeout(() => cb(resolve), interval));
@@ -214,6 +246,8 @@ export const sendMessageWrapper = async (
       await Promise.race([longTask, onTimeout].map(f => f())).then(
         result => (response = result as boolean)
       );
+
+      args.isMQ = true;
 
       if (!response) {
         return defaultValue;

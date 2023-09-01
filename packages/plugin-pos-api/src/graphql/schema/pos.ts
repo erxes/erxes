@@ -44,6 +44,8 @@ const posCommonFields = `
   checkRemainder: Boolean
   permissionConfig: JSON
   allowTypes: [String]
+  isCheckRemainder: Boolean
+  checkExcludeCategoryIds: [String]
 `;
 
 const catProd = `

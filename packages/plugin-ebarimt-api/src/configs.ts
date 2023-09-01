@@ -39,5 +39,9 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: { afterMutations, beforeResolvers }
+  meta: {
+    afterMutations,
+    beforeResolvers,
+    permissions
+  }
 };

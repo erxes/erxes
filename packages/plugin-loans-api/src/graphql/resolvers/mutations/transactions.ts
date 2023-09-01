@@ -1,17 +1,11 @@
-import { gatherDescriptions } from '../../../utils';
-import {
-  checkPermission,
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog
-} from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import messageBroker, { sendMessageBroker } from '../../../messageBroker';
-import redis from '../../../redis';
+import { sendMessageBroker } from '../../../messageBroker';
 import {
   ITransaction,
   ITransactionDocument
 } from '../../../models/definitions/transactions';
+import { createLog, deleteLog, updateLog } from '../../../logUtils';
 
 const transactionMutations = {
   transactionsAdd: async (
@@ -31,17 +25,7 @@ const transactionMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putCreateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await createLog(subdomain, user, logData);
 
     return transaction;
   },
@@ -60,7 +44,7 @@ const transactionMutations = {
     });
 
     const updated = await models.Transactions.updateTransaction(
-      redis,
+      subdomain,
       _id,
       doc
     );
@@ -73,17 +57,7 @@ const transactionMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await updateLog(subdomain, user, logData);
 
     return updated;
   },
@@ -111,17 +85,7 @@ const transactionMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await updateLog(subdomain, user, logData);
 
     return updated;
   },
@@ -150,27 +114,21 @@ const transactionMutations = {
         extraParams: { models }
       };
 
-      const descriptions = gatherDescriptions(logData);
       if (!!transaction.ebarimt && transaction.isManual)
         await sendMessageBroker(
           {
             action: 'putresponses.returnBill',
             data: {
               contentType: 'loans:transaction',
-              contentId: transaction._id
+              contentId: transaction._id,
+              number: transaction.number
             },
             subdomain
           },
           'ebarimt'
         );
 
-      await putDeleteLog(
-        subdomain,
-        messageBroker(),
-
-        { ...logData, ...descriptions },
-        user
-      );
+      await deleteLog(subdomain, user, logData);
     }
 
     return transactionIds;

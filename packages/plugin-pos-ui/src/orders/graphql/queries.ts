@@ -17,6 +17,8 @@ const listParamsDef = `
   $customerType: String
   $posId: String
   $types: [String]
+  $statuses: [String]
+  $excludeStatuses: [String]
 `;
 
 const listParamsValue = `
@@ -35,6 +37,8 @@ const listParamsValue = `
   customerType: $customerType
   posId: $posId
   types: $types
+  statuses: $statuses
+  excludeStatuses: $excludeStatuses
 `;
 
 export const orderFields = `
@@ -74,6 +78,7 @@ export const orderFields = `
     email
   }
   convertDealId
+  returnInfo
 `;
 
 const posOrders = `
@@ -87,6 +92,12 @@ const posOrders = `
 const posOrdersSummary = `
   query posOrdersSummary(${listParamsDef}) {
     posOrdersSummary(${listParamsValue})
+  }
+`;
+
+const posOrdersGroupSummary = `
+  query posOrdersGroupSummary(${listParamsDef}, $groupField: String) {
+    posOrdersGroupSummary(${listParamsValue}, groupField: $groupField)
   }
 `;
 
@@ -162,7 +173,7 @@ const coverFields = `
   userId
   details {
     _id
-    paidType    
+    paidType
     paidSummary {
       _id
       kind
@@ -199,6 +210,7 @@ const coverParams = `
   $sortField: String
   $sortDirection: Int
   $posId: String
+  $posToken: String
   $startDate: Date
   $endDate: Date
   $userId: String
@@ -210,6 +222,7 @@ const coverParamsVal = `
   sortField: $sortField
   sortDirection: $sortDirection
   posId: $posId
+  posToken: $posToken
   startDate: $startDate
   endDate: $endDate
   userId: $userId
@@ -220,6 +233,12 @@ const covers = `
     posCovers(${coverParamsVal}) {
       ${coverFields}
     }
+  }
+`;
+
+const coversCount = `
+  query posCoversCount(${coverParams}) {
+    posCoversCount(${coverParamsVal})
   }
 `;
 
@@ -247,13 +266,22 @@ const posOrderRecords = `
   }
 `;
 
+const posOrderRecordsCount = `
+  query posOrderRecordsCount(${listParamsDef}) {
+    posOrderRecordsCount(${listParamsValue})
+  }
+`;
+
 export default {
   posOrders,
   posOrdersSummary,
+  posOrdersGroupSummary,
   posOrderDetail,
   posProducts,
   productCategories,
   covers,
+  coversCount,
   coverDetail,
-  posOrderRecords
+  posOrderRecords,
+  posOrderRecordsCount
 };

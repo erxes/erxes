@@ -3,20 +3,15 @@ import {
   IContract,
   IContractDocument
 } from '../../../models/definitions/contracts';
-import { gatherDescriptions } from '../../../utils';
-import {
-  checkPermission,
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog
-} from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import messageBroker, {
+import {
   sendCardsMessage,
   sendCoreMessage,
   sendMessageBroker
 } from '../../../messageBroker';
-import redis from '../../../redis';
+import { createLog, deleteLog, updateLog } from '../../../logUtils';
+import { INTEREST_CORRECTION_TYPE } from '../../../models/definitions/constants';
 
 const contractMutations = {
   contractsAdd: async (
@@ -33,17 +28,7 @@ const contractMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putCreateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await createLog(subdomain, user, logData);
 
     return contract;
   },
@@ -68,17 +53,7 @@ const contractMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await updateLog(subdomain, user, logData);
 
     return updated;
   },
@@ -110,17 +85,7 @@ const contractMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await updateLog(subdomain, user, logData);
 
     return updated;
   },
@@ -133,7 +98,7 @@ const contractMutations = {
     const contract = await models.Contracts.getContract({
       _id: doc.contractId
     });
-    const updated = await models.Contracts.closeContract(subdomain, redis, doc);
+    const updated = await models.Contracts.closeContract(subdomain, doc);
 
     const logData = {
       type: 'contract',
@@ -143,17 +108,7 @@ const contractMutations = {
       extraParams: { models }
     };
 
-    const descriptions = gatherDescriptions(logData);
-
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        ...logData,
-        ...descriptions
-      },
-      user
-    );
+    await updateLog(subdomain, user, logData);
 
     return updated;
   },
@@ -179,13 +134,8 @@ const contractMutations = {
         object: contract,
         extraParams: { models }
       };
-      const descriptions = gatherDescriptions(logData);
-      await putDeleteLog(
-        subdomain,
-        messageBroker(),
-        { ...logData, ...descriptions },
-        user
-      );
+
+      await deleteLog(subdomain, user, logData);
     }
 
     return contractIds;
@@ -275,6 +225,78 @@ const contractMutations = {
     // return collaterals;
 
     return { collateralsData: collaterals };
+  },
+
+  stopInterest: async (
+    _root,
+    {
+      contractId,
+      stoppedDate,
+      isStopLoss,
+      interestAmount,
+      lossAmount
+    }: {
+      contractId: string;
+      stoppedDate: Date;
+      isStopLoss: boolean;
+      interestAmount: number;
+      lossAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const updatedContract = await models.InterestCorrection.stopInterest({
+      contractId,
+      stoppedDate,
+      interestAmount,
+      isStopLoss,
+      lossAmount
+    });
+    return updatedContract;
+  },
+  interestChange: async (
+    _root,
+    {
+      contractId,
+      stoppedDate,
+      interestAmount,
+      lossAmount
+    }: {
+      contractId: string;
+      stoppedDate: Date;
+      isStopLoss: boolean;
+      interestAmount: number;
+      lossAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const updatedContract = await models.InterestCorrection.interestChange({
+      contractId,
+      stoppedDate,
+      interestAmount,
+      lossAmount
+    });
+
+    return updatedContract;
+  },
+  interestReturn: async (
+    _root,
+    {
+      contractId,
+      invDate,
+      interestAmount
+    }: {
+      contractId: string;
+      invDate: Date;
+      interestAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const updatedContract = await models.InterestCorrection.interestReturn({
+      contractId,
+      invDate,
+      interestAmount
+    });
+    return updatedContract;
   }
 };
 

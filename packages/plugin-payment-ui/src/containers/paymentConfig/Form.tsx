@@ -34,7 +34,8 @@ const SelectPaymentsContainer = (props: Props) => {
       variables: {
         contentType: props.contentType,
         contentTypeId: props.contentTypeId
-      }
+      },
+      skip: !props.contentTypeId
     }
   );
 

@@ -1,6 +1,7 @@
 import {
   attachmentSchema,
   customFieldSchema,
+  IAttachment,
   ICustomField
 } from '@erxes/api-utils/src/types';
 import { Schema, Document } from 'mongoose';
@@ -27,6 +28,13 @@ export const PRODUCT_CATEGORY_STATUSES = {
   ALL: ['active', 'disabled', 'archived']
 };
 
+export const PRODUCT_CATEGORY_MASK_TYPES = {
+  ANY: '',
+  SOFT: 'soft',
+  HARD: 'hard',
+  ALL: ['', 'soft', 'hard']
+};
+
 export interface ISubUom {
   uom: string;
   ratio: number;
@@ -39,14 +47,15 @@ export interface IProduct {
   type?: string;
   description?: string;
   barcodes?: string[];
+  variants: { [code: string]: { image?: IAttachment; name?: string } };
   barcodeDescription?: string;
   unitPrice?: number;
   code: string;
   customFieldsData?: ICustomField[];
   productId?: string;
   tagIds?: string[];
-  attachment?: any;
-  attachmentMore?: any[];
+  attachment?: IAttachment;
+  attachmentMore?: IAttachment[];
   status?: string;
   vendorId?: string;
   vendorCode?: string;
@@ -73,6 +82,8 @@ export interface IProductCategory {
   parentId?: string;
   attachment?: any;
   status?: string;
+  maskType?: string;
+  mask?: any;
 }
 
 export interface IProductCategoryDocument extends IProductCategory, Document {
@@ -110,6 +121,7 @@ export const productSchema = schemaWrapper(
       label: 'Barcodes',
       index: true
     }),
+    variants: field({ type: Object, optional: true }),
     barcodeDescription: field({
       type: String,
       optional: true,
@@ -179,6 +191,13 @@ export const productCategorySchema = schemaWrapper(
       type: Date,
       default: new Date(),
       label: 'Created at'
-    })
+    }),
+    maskType: field({
+      type: String,
+      optional: true,
+      label: 'Mask type',
+      enum: PRODUCT_CATEGORY_MASK_TYPES.ALL
+    }),
+    mask: field({ type: Object, label: 'Mask' })
   })
 );

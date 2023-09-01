@@ -85,6 +85,7 @@ const generateParams = ({ queryParams }) => ({
     ? parseInt(queryParams.sortDirection, 10)
     : undefined,
   type: queryParams.type,
+  status: queryParams.status,
   startDate: queryParams.startDate,
   endDate: queryParams.endDate,
   inBranchId: queryParams.inBranchId,
