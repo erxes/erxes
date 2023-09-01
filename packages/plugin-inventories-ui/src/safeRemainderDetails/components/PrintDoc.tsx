@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 // erxes
@@ -51,7 +52,7 @@ export default function List(props: Props) {
       <div class="wrapper">
       <div class="paper">
         <div class="center title">
-          <h2>Тооллого</h2>
+          <h2>Тоолсон</h2>
         </div>
         <div>
           <span><Strong>Date: </Strong>
@@ -72,9 +73,12 @@ export default function List(props: Props) {
         <thead>
           <tr>
             <th>${__('Product')}</th>
+            <th>${__('Date')}</th>
             <th>${__('Live')}</th>
             <th>${__('UOM')}</th>
+            <th>${__('Status')}</th>
             <th>${__('Safe')}</th>
+            <th>${__('Diff')}</th>
           </tr>
         </thead>
     `;
@@ -91,11 +95,17 @@ export default function List(props: Props) {
 
       printContentHTML += `<tr>
         <td>${product && `${product.code} - ${product.name} `}</td>
+        <td>${moment(modifiedAt).format('YYYY/MM/DD HH:mm:ss')}</td>
         <td class="text-right">
           ${displayNumber(preCount)}
         </td>
         <td>${uom}</td>
+        <td>${status}</td>
         <td class="text-right">
+          ${displayNumber(count)}
+        </td>
+        <td class="text-right">
+          ${displayNumber(count - preCount)}
         </td>
       </tr>`;
     }
@@ -104,7 +114,7 @@ export default function List(props: Props) {
       </table>
       <div>
         <p className="signature">
-          <label>Тоолсон:</label>
+          <label>Тооллого хийсэн:</label>
           <span> _____________________</span>
           <span>/${safeRemainder.modifiedUser?.details?.fullName || ''}/</span>
         </p>

@@ -58,7 +58,7 @@ class CategoryForm extends React.Component<Props, State> {
   }
 
   generateDoc = (values: { _id?: string; attachment?: IAttachment }) => {
-    const { category } = this.props;
+    const { category, categories } = this.props;
     const finalValues = values;
     const { attachment, maskType, mask, parentId, code } = this.state;
 
@@ -66,10 +66,26 @@ class CategoryForm extends React.Component<Props, State> {
       finalValues._id = category._id;
     }
 
+    let genMaskType = maskType;
+    let genMask = mask;
+
+    const parentCategory = categories.find(c => c._id === parentId);
+    if (parentCategory && parentCategory.maskType === 'hard') {
+      genMaskType = parentCategory.maskType;
+      genMask = parentCategory.mask;
+    }
+
+    if (parentCategory && parentCategory.maskType === 'soft') {
+      if (mask.isSimilar) {
+        genMaskType = parentCategory.maskType;
+        genMask = parentCategory.mask;
+      }
+    }
+
     return {
       ...finalValues,
-      maskType,
-      mask,
+      maskType: genMaskType,
+      mask: genMask,
       parentId,
       code,
       attachment

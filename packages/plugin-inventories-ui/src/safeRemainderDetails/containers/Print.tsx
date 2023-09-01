@@ -6,10 +6,13 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 // local
 import { queries } from '../graphql';
-import ListComponent from '../components/Print';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
-function ListContainer() {
+type Props = {
+  component: any;
+};
+
+function ListContainer(props: Props) {
   // Hooks
   const location = useLocation();
   const { id } = useParams();
@@ -77,8 +80,8 @@ function ListContainer() {
     safeRemainderItems,
     totalCount
   };
-
-  return <ListComponent {...componentProps} />;
+  const Component = props.component;
+  return <Component {...componentProps} />;
 }
 
 export default compose()(ListContainer);

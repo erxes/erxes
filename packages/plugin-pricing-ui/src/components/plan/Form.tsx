@@ -39,13 +39,14 @@ export default function Form(props: Props) {
     bonusProduct: data.bonusProduct || null,
     isPriority: data.isPriority || false,
 
-    applyType: data.applyType || 'category', // "product", "category", "bundle", 'segment'
+    applyType: data.applyType || 'category', // "product", "category", "bundle", 'segment', 'vendors'
     products: data.products || [],
     productsExcluded: data.productsExcluded || [],
     productsBundle: data.productsBundle || [[]],
     categories: data.categories || [],
     categoriesExcluded: data.categoriesExcluded || [],
     segments: data.segments || [],
+    vendors: data.vendors || [],
 
     isStartDateEnabled: data.isStartDateEnabled || false,
     isEndDateEnabled: data.isEndDateEnabled || false,

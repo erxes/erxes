@@ -78,6 +78,7 @@ export const orderFields = `
     email
   }
   convertDealId
+  returnInfo
 `;
 
 const posOrders = `
@@ -91,6 +92,12 @@ const posOrders = `
 const posOrdersSummary = `
   query posOrdersSummary(${listParamsDef}) {
     posOrdersSummary(${listParamsValue})
+  }
+`;
+
+const posOrdersGroupSummary = `
+  query posOrdersGroupSummary(${listParamsDef}, $groupField: String) {
+    posOrdersGroupSummary(${listParamsValue}, groupField: $groupField)
   }
 `;
 
@@ -203,6 +210,7 @@ const coverParams = `
   $sortField: String
   $sortDirection: Int
   $posId: String
+  $posToken: String
   $startDate: Date
   $endDate: Date
   $userId: String
@@ -214,6 +222,7 @@ const coverParamsVal = `
   sortField: $sortField
   sortDirection: $sortDirection
   posId: $posId
+  posToken: $posToken
   startDate: $startDate
   endDate: $endDate
   userId: $userId
@@ -224,6 +233,12 @@ const covers = `
     posCovers(${coverParamsVal}) {
       ${coverFields}
     }
+  }
+`;
+
+const coversCount = `
+  query posCoversCount(${coverParams}) {
+    posCoversCount(${coverParamsVal})
   }
 `;
 
@@ -260,10 +275,12 @@ const posOrderRecordsCount = `
 export default {
   posOrders,
   posOrdersSummary,
+  posOrdersGroupSummary,
   posOrderDetail,
   posProducts,
   productCategories,
   covers,
+  coversCount,
   coverDetail,
   posOrderRecords,
   posOrderRecordsCount

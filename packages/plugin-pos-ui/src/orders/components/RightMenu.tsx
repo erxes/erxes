@@ -95,7 +95,6 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   onSelect = (values: string[] | string, key: string) => {
-    console.log(values, key);
     const { filterParams } = this.state;
     this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
   };
