@@ -31,13 +31,13 @@ const PricingPlan = {
 
     switch (plan.applyType) {
       case 'product': {
-        productIds = plan.products;
+        productIds = plan.products || [];
         break;
       }
 
       case 'segment': {
         let productIdsInSegments: string[] = [];
-        for (const segment of plan.segments) {
+        for (const segment of plan.segments || []) {
           productIdsInSegments = productIdsInSegments.concat(
             await sendSegmentsMessage({
               subdomain,
@@ -49,6 +49,36 @@ const PricingPlan = {
           );
         }
         productIds = productIdsInSegments;
+        break;
+      }
+
+      case 'vendor': {
+        const limit = await sendProductsMessage({
+          subdomain,
+          action: 'count',
+          data: {
+            query: {
+              vendorId: { $in: plan.vendors || [] }
+            }
+          },
+          isRPC: true,
+          defaultValue: 0
+        });
+
+        const products = await sendProductsMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            query: {
+              vendorId: { $in: plan.vendors || [] }
+            },
+            field: { _id: 1 },
+            limit
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+        productIds = products.map(p => p._id);
         break;
       }
 

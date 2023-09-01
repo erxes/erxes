@@ -432,18 +432,6 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
       defaultValue: {},
       timeout: 50000
     });
-
-    if (resp.message || resp.error) {
-      const txt = JSON.stringify({
-        message: resp.message,
-        error: resp.error
-      });
-
-      await models.PosOrders.updateOne(
-        { _id: newOrder._id },
-        { $set: { syncErkhetInfo: txt } }
-      );
-    }
   } else {
     resp = await sendSyncerkhetMessage({
       subdomain,

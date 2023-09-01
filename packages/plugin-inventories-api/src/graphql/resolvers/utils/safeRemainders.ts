@@ -1,3 +1,4 @@
+import { getPureDate } from '@erxes/api-utils/src/core';
 import { IModels } from '../../../connectionResolver';
 import { SAFE_REMAINDER_STATUSES } from '../../../models/definitions/constants';
 
@@ -11,8 +12,8 @@ export const getSafeRemainders = async (
   beProductIds
 ) => {
   const { endDate, beginDate, branchId, departmentId, isDetailed } = params;
-  const bDate = new Date(beginDate);
-  const eDate = new Date(endDate);
+  const bDate = getPureDate(beginDate);
+  const eDate = getPureDate(endDate);
 
   const safeRemC1 = await models.SafeRemainderItems.aggregate([
     {

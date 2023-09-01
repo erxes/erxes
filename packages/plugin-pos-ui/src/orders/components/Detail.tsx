@@ -187,6 +187,18 @@ class OrderDetail extends React.Component<Props, State> {
     return value;
   };
 
+  renderReturnInfo() {
+    const { order } = this.props;
+    if (!order.returnInfo || !order.returnInfo.returnAt) {
+      return <></>;
+    }
+
+    return this.renderRow(
+      'return Date',
+      dayjs(order.returnInfo.returnAt).format('lll')
+    );
+  }
+
   render() {
     const { order } = this.props;
 
@@ -252,7 +264,7 @@ class OrderDetail extends React.Component<Props, State> {
           'Total Amount',
           this.displayValue(order, 'totalAmount')
         )}
-
+        {this.renderReturnInfo()}
         <ul>
           {this.renderEditRow('Cash Amount', 'cashAmount')}
           {this.renderEditRow('Mobile Amount', 'mobileAmount')}
