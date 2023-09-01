@@ -1,9 +1,9 @@
 const colorList = [
   '#FF5733',
   '#1E90FF',
-  '#FFD700',
-  '#8A2BE2',
-  '#00FF00',
+  '#9a8200',
+  '#844bb8',
+  '#00b400',
   '#FF4500',
   '#9932CC',
   '#FF1493',
@@ -15,16 +15,14 @@ const colorList = [
   '#008000',
   '#7B68EE',
   '#FF69B4',
-  '#ADFF2F',
+  '#517817',
   '#6A5ACD',
-  '#FFD700',
   '#2E8B57',
   '#BA55D3',
   '#228B22',
   '#8B008B',
   '#00CED1',
-  '#9932CC',
-  '#00FFFF',
+  '#04c1c1',
   '#FF00FF',
   '#8B4513',
   '#20B2AA',
@@ -33,7 +31,7 @@ const colorList = [
 
 export const generateColorCode = (userId: string) => {
   const hash = userId.split('').reduce((acc, char) => {
-    return char.charCodeAt(0) + (acc << 6) + (acc << 16) - acc;
+    return acc * 3 + char.charCodeAt(0); // Improved hash calculation
   }, 0);
 
   // Use modulo to ensure the index is within the bounds of the color list

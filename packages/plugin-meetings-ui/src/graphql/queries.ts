@@ -64,6 +64,7 @@ query MeetingDetail($_id: String!) {
     startDate
     endDate
     location
+    method
     createdBy
     createdAt
     status
@@ -89,7 +90,17 @@ query MeetingDetail($_id: String!) {
 }
 `;
 
+const companies = `
+query companies {
+  companies {
+    _id
+    name
+  }
+}
+`;
+
 export default {
   meetings,
-  meetingDetail
+  meetingDetail,
+  companies
 };

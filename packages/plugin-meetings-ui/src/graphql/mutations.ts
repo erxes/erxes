@@ -1,12 +1,13 @@
 const addMeeting = `
-  mutation MeetingAdd($title: String, $description: String, $startDate: Date, $endDate: Date, $location: String, $createdBy: String, $status: String, $participantIds: [String], $companyId: String) {
-  meetingAdd(title: $title, description: $description, startDate: $startDate, endDate: $endDate, location: $location, createdBy: $createdBy, status: $status, participantIds: $participantIds, companyId: $companyId) {
+  mutation MeetingAdd($title: String, $description: String, $startDate: Date, $endDate: Date, $location: String, $method: String, $createdBy: String, $status: String, $participantIds: [String], $companyId: String) {
+  meetingAdd(title: $title, description: $description, startDate: $startDate, endDate: $endDate, location: $location, method: $method, createdBy: $createdBy, status: $status, participantIds: $participantIds, companyId: $companyId) {
     _id
     title
     description
     startDate
     endDate
     location
+    method
     createdBy
     createdAt
     status
@@ -23,8 +24,8 @@ const remove = `
   `;
 
 const editMeeting = `
-  mutation meetingEdit($_id: String!, $title: String, $description: String, $startDate: Date, $endDate: Date, $location: String, $status: String, $participantIds: [String], $companyId: String){
-    meetingEdit(_id: $_id, title: $title, description: $description, startDate: $startDate, endDate: $endDate, location: $location,  status: $status, participantIds: $participantIds, companyId: $companyId){
+  mutation meetingEdit($_id: String!, $title: String, $description: String, $startDate: Date, $endDate: Date, $method: String, $location: String, $status: String, $participantIds: [String], $companyId: String){
+    meetingEdit(_id: $_id, title: $title, description: $description, startDate: $startDate, endDate: $endDate, method: $method, location: $location,  status: $status, participantIds: $participantIds, companyId: $companyId){
       _id
     }
   }
