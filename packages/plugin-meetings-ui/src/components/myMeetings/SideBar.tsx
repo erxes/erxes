@@ -37,10 +37,10 @@ const LeftSideBar = (props: Props) => {
       'ownerId',
       'companyId'
     );
-    setCompanyId('');
+    setCompanyId(undefined);
     setCreatedAtTo(undefined);
     setCreatedForm(undefined);
-    setUserId('');
+    setUserId(undefined);
     removePageParams();
   };
 
@@ -76,6 +76,7 @@ const LeftSideBar = (props: Props) => {
         <SelectCompanies
           label="Filter by company"
           name="companyId"
+          initialValue={companyId}
           onSelect={companyId => setFilter('companyId', companyId)}
           customOption={{ value: '', label: '... Choose company' }}
           multi={false}

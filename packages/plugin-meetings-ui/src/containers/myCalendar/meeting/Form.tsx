@@ -30,6 +30,9 @@ const MeetingFormContainer = (props: FinalProps) => {
     callback,
     object
   }: IButtonMutateProps) => {
+    const getRefetchQueries = () => {
+      return ['meetings'];
+    };
     return (
       <ButtonMutate
         mutation={object ? mutations.editMeeting : mutations.addMeeting}
@@ -40,11 +43,7 @@ const MeetingFormContainer = (props: FinalProps) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={[
-          {
-            query: gql(queries.meetings)
-          }
-        ]}
+        refetchQueries={getRefetchQueries()}
       />
     );
   };

@@ -27,6 +27,7 @@ type Props = {
 
 export const SideBar = (props: Props) => {
   const { queryParams, meetings, loading } = props;
+
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
   const [checkedUsers, setCheckedUsers] = useState(
@@ -48,11 +49,14 @@ export const SideBar = (props: Props) => {
 
   useEffect(() => {
     const queryString = 'participantUserIds=' + checkedUsers.join(',');
-    if (queryString === 'participantUserIds=') {
-      return history.push(`${window.location.pathname}`);
+    setFilteredMeeting(meetings);
+    if (queryString.includes('participantUserIds')) {
+      if (queryString === 'participantUserIds=') {
+        return history.push(`${window.location.pathname}`);
+      }
+      return history.push(`${window.location.pathname}?${queryString}`);
     }
-    return history.push(`${window.location.pathname}?${queryString}`);
-  }, [checkedUsers]);
+  }, [checkedUsers, meetings]);
 
   const ListItem = meeting => {
     const className = meeting && meetingId === meeting._id ? 'active' : '';
@@ -142,13 +146,9 @@ export const SideBar = (props: Props) => {
       setCheckedUsers(checkedUsers.filter(user => user !== userId));
     }
   };
-  const handleUserRemove = (userId: string) => {
-    console.log('userId', userId);
-  };
 
   const data = (
     <SidebarList style={{ padding: '10px 20px' }}>
-      {/* <h4>{__("Other Calendar")}</h4> */}
       {participantUser.map((user: any) => {
         return (
           <ParticipantList key={user._id}>
@@ -177,7 +177,6 @@ export const SideBar = (props: Props) => {
       })}
     </SidebarList>
   );
-
   return (
     <LeftSidebar>
       <ChatListSearch>

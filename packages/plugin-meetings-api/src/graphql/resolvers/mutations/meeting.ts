@@ -5,7 +5,13 @@ const meetingMutations = {
   //  * Creates a new meetings
   //  */
   async meetingAdd(_root, doc, { models, user }: IContext) {
-    return await models.Meetings.createMeeting(doc, user);
+    const { participantIds } = doc;
+    const allParticipantIds =
+      participantIds && participantIds.includes(user._id)
+        ? participantIds
+        : (participantIds || []).concat(user._id);
+
+    return await models.Meetings.createMeeting(doc, allParticipantIds, user);
   },
   // /**
   //  * Edits a meetings

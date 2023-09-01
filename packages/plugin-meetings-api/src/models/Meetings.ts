@@ -9,7 +9,11 @@ import { IUser } from '@erxes/api-utils/src/types';
 
 export interface IMeetingModel extends Model<IMeetingDocument> {
   meetingDetail(_id: String, userId: string): Promise<IMeetingDocument>;
-  createMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
+  createMeeting(
+    args: IMeeting,
+    participantIds: String[],
+    user: IUser
+  ): Promise<IMeetingDocument>;
   updateMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
   removeMeeting(_id: String): Promise<IMeetingDocument>;
 }
@@ -17,7 +21,10 @@ export interface IMeetingModel extends Model<IMeetingDocument> {
 export const loadMeetingClass = (model: IModels) => {
   class Meeting {
     public static async meetingDetail(_id: string, userId: string) {
-      const meeting = await model.Meetings.findOne({ _id, createdBy: userId });
+      const meeting = await model.Meetings.findOne({
+        _id,
+        participantIds: { $in: [userId] }
+      });
 
       if (!meeting) {
         return [];
@@ -27,9 +34,14 @@ export const loadMeetingClass = (model: IModels) => {
     }
 
     // create
-    public static async createMeeting(doc, user) {
+    public static async createMeeting(
+      doc: IMeeting,
+      participantIds: String[],
+      user
+    ) {
       return await model.Meetings.create({
         ...doc,
+        participantIds,
         createdAt: new Date(),
         createdBy: user._id
       });

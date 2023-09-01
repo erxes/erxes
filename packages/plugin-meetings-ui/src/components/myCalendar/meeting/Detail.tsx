@@ -25,7 +25,7 @@ type Props = {
 export const MeetingDetail = (props: Props) => {
   const { meetingDetail, changeStatus, refetchDetail } = props;
   const { topics } = meetingDetail;
-  const { participantUser } = meetingDetail;
+  const { participantUser } = meetingDetail || {};
 
   const [showTopicModal, setShowTopicModal] = useState(false);
 
@@ -75,7 +75,7 @@ export const MeetingDetail = (props: Props) => {
     <TopicFormContainer
       {...props}
       meetingId={meetingDetail._id}
-      participantUserIds={meetingDetail.participantUser.map(user => user._id)}
+      participantUserIds={meetingDetail.participantUser?.map(user => user._id)}
       meetingStatus={meetingDetail.status}
       refetchDetail={refetchDetail}
       // closeModal={() => setShowTopicModal(false)}
@@ -105,7 +105,7 @@ export const MeetingDetail = (props: Props) => {
           <MeetingDetailColumn>
             <Icon icon="map" color={colors.colorCoreBlue} /> &nbsp;
             <span>Location:</span>
-            {' ' + meetingDetail.location}
+            {' ' + meetingDetail?.location}
           </MeetingDetailColumn>
         </MeetingDetailRow>
         <MeetingDetailRow>
@@ -115,7 +115,7 @@ export const MeetingDetail = (props: Props) => {
           </MeetingDetailColumn>
           <MeetingDetailColumn>
             <span>Team members:</span>{' '}
-            {meetingDetail.participantUser.map((user, index) => {
+            {meetingDetail.participantUser?.map((user, index) => {
               if (index != meetingDetail.participantUser?.length - 1)
                 return <>{user.details?.fullName},</>;
               return <>{user.details?.fullName}</>;
@@ -169,7 +169,7 @@ export const MeetingDetail = (props: Props) => {
             }}
             icon="times-circle"
           >
-            {meetingDetail.status === 'scheduled'
+            {meetingDetail.status !== 'ongoing'
               ? 'Start meeting'
               : 'End meeting'}
           </Button>
