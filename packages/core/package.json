@@ -36,7 +36,7 @@
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts"
   },
   "dependencies": {
-    "apollo-server-core": "^3.6.1",
+    "apollo-server-core": "^3.12.1",
     "apollo-server-express": "^3.6.1",
     "apollo-datasource-rest": "^0.5.1",
     "aws-sdk": "^2.151.0",
@@ -46,7 +46,7 @@
     "erxes-inmemory-storage": "^1.0.20",
     "faker": "^4.1.0",
     "file-type": "^10.4.0",
-    "firebase-admin": "^8.6.1",
+    "firebase-admin": "^9.0.0",
     "formidable": "1.2.6",
     "fs-extra": "^9.0.1",
     "handlebars": "^4.7.3",
