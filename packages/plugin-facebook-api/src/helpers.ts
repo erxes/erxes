@@ -280,6 +280,12 @@ export const facebookCreateIntegration = async (
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN' });
 
+  let domain = `${DOMAIN}/gateway/pl:facebook`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    domain = `${DOMAIN}/pl:facebook`;
+  }
+
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
@@ -287,7 +293,7 @@ export const facebookCreateIntegration = async (
         url: `${ENDPOINT_URL}/register-endpoint`,
         method: 'POST',
         body: {
-          domain: `${DOMAIN}/gateway/pl:facebook`,
+          domain,
           facebookPageIds,
           fbPageIds: facebookPageIds
         }
