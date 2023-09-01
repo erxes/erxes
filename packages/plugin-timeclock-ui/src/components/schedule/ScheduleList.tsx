@@ -88,11 +88,6 @@ function ScheduleList(props: Props) {
     localStorage.getItem('isSideBarOpen') === 'true' ? true : false
   );
 
-  // Set Approved as default for scheduleStatus
-  useEffect(() => {
-    router.setParams(history, { scheduleStatus: 'Approved' });
-  }, []);
-
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
     setIsOpen(toggleIsOpen);
