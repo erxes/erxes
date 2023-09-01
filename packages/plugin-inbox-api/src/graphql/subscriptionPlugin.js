@@ -124,8 +124,6 @@ module.exports = {
           () =>
             graphqlPubsub.asyncIterator("conversationClientMessageInserted"),
           async (payload, variables) => {
-            console.log("payload", payload)
-            console.log("variables", variables)
             const { conversation, integration, channelMemberIds } = payload;
             
             if (!conversation) {
