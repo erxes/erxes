@@ -253,14 +253,22 @@ export const absenceSchema = new Schema({
   }),
 
   reason: field({ type: String, label: 'reason for absence' }),
-  explanation: field({ type: String, label: 'explanation by a team member' }),
+  explanation: field({
+    type: String,
+    label: 'explanation by a team member',
+    optional: true
+  }),
 
   solved: field({
     type: Boolean,
     default: false,
     label: 'whether absence request is solved or pending'
   }),
-  attachment: field({ type: attachmentSchema, label: 'Attachment' }),
+  attachment: field({
+    type: attachmentSchema,
+    label: 'Attachment',
+    optional: true
+  }),
   status: field({
     type: String,
     label: 'Status of absence request, whether approved or rejected'
