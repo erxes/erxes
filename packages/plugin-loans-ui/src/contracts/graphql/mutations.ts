@@ -182,6 +182,29 @@ const changeClassification = `
   }
 `;
 
+const stopInterest = `
+mutation StopInterest($contractId: String, $stoppedDate: Date, $interestAmount: Float, $isStopLoss: Boolean, $lossAmount: Float) {
+  stopInterest(contractId: $contractId, stoppedDate: $stoppedDate, interestAmount: $interestAmount, isStopLoss: $isStopLoss, lossAmount: $lossAmount) {
+    _id
+  }
+}
+`;
+const interestChange = `
+  mutation InterestChange($contractId: String, $stoppedDate: Date, $isStopLoss: Boolean, $interestAmount: Float, $lossAmount: Float) {
+    interestChange(contractId: $contractId, stoppedDate: $stoppedDate, isStopLoss: $isStopLoss, interestAmount: $interestAmount, lossAmount: $lossAmount) {
+      _id
+    }
+  }
+`;
+
+const interestReturn = `
+  mutation InterestReturn($contractId: String, $stoppedDate: Date, $isStopLoss: Boolean, $interestAmount: Float, $lossAmount: Float) {
+    interestReturn(contractId: $contractId, stoppedDate: $stoppedDate, isStopLoss: $isStopLoss, interestAmount: $interestAmount, lossAmount: $lossAmount) {
+      _id
+    }
+  }
+`;
+
 export default {
   contractsAdd,
   contractsEdit,
@@ -191,5 +214,8 @@ export default {
   fixSchedules,
   contractsClose,
   getProductsData,
-  changeClassification
+  changeClassification,
+  stopInterest,
+  interestChange,
+  interestReturn
 };

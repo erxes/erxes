@@ -125,6 +125,8 @@ export const getCalcedAmounts = async (
     payment: number;
     preSchedule: any;
     balance: number;
+    storedInterest: number;
+    calcInterest: number;
     closeAmount: number;
   } = {
     undue: 0,
@@ -136,6 +138,8 @@ export const getCalcedAmounts = async (
     total: 0,
     preSchedule: undefined,
     balance: 0,
+    storedInterest: 0,
+    calcInterest: 0,
     closeAmount: 0
   };
 
@@ -152,6 +156,9 @@ export const getCalcedAmounts = async (
    * @property preSchedule /schedule of done or less payed/
    * @property nextSchedule /schedule of pending/
    */
+
+  result.storedInterest = contract.storedInterest;
+
   let { preSchedule, nextSchedule } = await getAOESchedules(
     models,
     contract,
@@ -469,6 +476,8 @@ export const transactionRule = async (
     interestEve: number;
     interestNonce: number;
     surplus: number;
+    storedInterest: number;
+    calcInterest: number;
     calcedInfo: any;
   }
 ) => {
@@ -480,6 +489,8 @@ export const transactionRule = async (
     insurance: 0,
     debt: 0,
     surplus: 0,
+    storedInterest: 0,
+    calcInterest: 0,
     calcedInfo: undefined
   };
 

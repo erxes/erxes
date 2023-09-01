@@ -117,11 +117,11 @@ class ClassificationForm extends React.Component<Props, State> {
       this.state.classificationChangeList?.map(mur => ({
         description: `${mur.classification}->${mur.newClassification}`,
         invDate: this.state.invDate,
-        total: mur.list.reduce((a, b) => a + b.leaseAmount, 0),
+        total: mur.list.reduce((a, b) => a + b.loanBalanceAmount, 0),
         classification: mur.classification,
         newClassification: mur.newClassification,
         dtl: mur.list?.map(a => ({
-          amount: a.leaseAmount,
+          amount: a.loanBalanceAmount,
           contractId: a._id,
           currency: a.currency
         }))
@@ -165,10 +165,11 @@ class ClassificationForm extends React.Component<Props, State> {
       <table style={{ width: '100%' }}>
         <thead>
           <tr>
-            <th>number</th>
-            <th>classification</th>
-            <th>expiredDays</th>
-            <th>new classification</th>
+            <th>{__('number')}</th>
+            <th>{__('classification')}</th>
+            <th>{__('expiredDays')}</th>
+            <th>{__('amount')}</th>
+            <th>{__('new classification')}</th>
           </tr>
         </thead>
         {this.state.classificationChangeList.map((a, cIndex) => {
@@ -190,6 +191,7 @@ class ClassificationForm extends React.Component<Props, State> {
                     <td style={{ fontSize: 'bold' }}>{mur.number}</td>
                     <td>{mur.classification}</td>
                     <td>{mur.expiredDays}</td>
+                    <td>{mur.loanBalanceAmount?.toLocaleString()}</td>
                     <td>
                       <select
                         style={{ border: 'none' }}
@@ -234,6 +236,19 @@ class ClassificationForm extends React.Component<Props, State> {
                   </tr>
                 );
               })}
+              <tr>
+                <td
+                  colSpan={3}
+                  style={{ textAlign: 'right', fontWeight: 'bold' }}
+                >
+                  Total:
+                </td>
+                <td>
+                  {a.list
+                    .reduce((a, b) => a + b.loanBalanceAmount, 0)
+                    ?.toLocaleString()}
+                </td>
+              </tr>
             </tbody>
           );
         })}
