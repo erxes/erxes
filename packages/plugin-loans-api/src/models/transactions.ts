@@ -108,6 +108,28 @@ export const loadTransactionClass = (models: IModels) => {
         ...doc
       });
 
+      if (contract.storedInterest) {
+        let payedInterest =
+          doc.total - trInfo.calcedInfo.debt - trInfo.calcedInfo.undue;
+
+        const mustPayInterst = trInfo.interestEve + trInfo.interestNonce;
+
+        if (payedInterest > mustPayInterst) payedInterest = mustPayInterst;
+
+        if (payedInterest > 0) {
+          if (payedInterest > trInfo.calcedInfo.storedInterest) {
+            trInfo.storedInterest = trInfo.calcedInfo.storedInterest;
+            trInfo.calcInterest =
+              payedInterest - trInfo.calcedInfo.storedInterest;
+          } else trInfo.storedInterest = payedInterest;
+        }
+
+        const interest =
+          trInfo.calcedInfo.interestEve + trInfo.calcedInfo.interestNonce;
+        trInfo.calcedInfo.storedInterest = contract.storedInterest;
+        trInfo.calcedInfo.calcInterest = interest - contract.storedInterest;
+      }
+
       const tr = await models.Transactions.create({ ...doc, ...trInfo });
 
       await trAfterSchedule(models, tr);
@@ -115,6 +137,15 @@ export const loadTransactionClass = (models: IModels) => {
       const contractType = await models.ContractTypes.findOne({
         _id: contract.contractTypeId
       });
+
+      if (trInfo.storedInterest > 0)
+        await models.Contracts.updateOne(
+          {
+            _id: tr.contractId
+          },
+          { $inc: { storedInterest: trInfo.storedInterest * -1 } }
+        );
+
       if (
         contractType?.config?.isAutoSendEBarimt === true ||
         (isGetEBarimt && doc.isManual)
@@ -384,6 +415,11 @@ export const loadTransactionClass = (models: IModels) => {
               'At this moment transaction can not been created because this date closed'
             );
           await removeTrAfterSchedule(models, oldTr);
+          oldTr.contractId &&
+            (await models.Contracts.updateOne(
+              { _id: oldTr.contractId },
+              { $set: { storedInterest: oldTr.calcedInfo.storedInterest } }
+            ));
           await models.Transactions.deleteOne({ _id: oldTr._id });
         }
       }
@@ -406,6 +442,13 @@ export const loadTransactionClass = (models: IModels) => {
         debt = 0,
         balance = 0
       } = paymentInfo;
+
+      paymentInfo.calcInterest =
+        paymentInfo.interestEve + paymentInfo.interestNonce;
+      if (paymentInfo.storedInterest > 0) {
+        paymentInfo.calcInterest =
+          paymentInfo.calcInterest - paymentInfo.storedInterest;
+      }
 
       paymentInfo.total =
         payment + undue + interestEve + interestNonce + insurance + debt;

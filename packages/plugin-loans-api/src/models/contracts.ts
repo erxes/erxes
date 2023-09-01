@@ -76,6 +76,7 @@ export const loadContractClass = (models: IModels) => {
       doc: IContract
     ): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
+      doc.lastStoredDate = getFullDate(doc.startDate || new Date());
       doc.number = await getNumber(models, doc.contractTypeId);
 
       doc.insuranceAmount = getInsurancAmount(
