@@ -9,7 +9,7 @@ export type IPlan = {
   configs: any;
   status: string;
   createdAt: string;
-  modiefiedAt: string;
+  modifiedAt: string;
   createDate: string;
   startDate: string;
   closeDate: string;
@@ -100,7 +100,7 @@ export const plansSchema = new Schema({
   status: field({
     type: String,
     label: 'Status',
-    enum: ['active', 'archived'],
-    default: 'active'
+    enum: ['active', 'archived', 'draft'],
+    default: 'draft'
   })
 });

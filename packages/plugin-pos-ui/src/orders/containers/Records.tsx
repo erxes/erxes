@@ -12,6 +12,7 @@ import { Bulk, getEnv, withProps, router, Spinner } from '@erxes/ui/src';
 import { FILTER_PARAMS } from '../../constants';
 import { IQueryParams } from '@erxes/ui/src/types';
 import { OrderRecordsCountQueryResponse } from '../../../.erxes/plugin-src/orders/types';
+import { generateParams } from './List';
 
 type Props = {
   queryParams: any;
@@ -143,25 +144,6 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     return <Bulk content={ordersList} refetch={refetch} />;
   }
 }
-
-const generateParams = ({ queryParams }) => ({
-  ...router.generatePaginationParams(queryParams || {}),
-  sortField: queryParams.sortField,
-  sortDirection: queryParams.sortDirection
-    ? parseInt(queryParams.sortDirection, 10)
-    : undefined,
-  search: queryParams.search,
-  paidStartDate: queryParams.paidStartDate,
-  paidEndDate: queryParams.paidEndDate,
-  createdStartDate: queryParams.createdStartDate,
-  createdEndDate: queryParams.createdEndDate,
-  paidDate: queryParams.paidDate,
-  userId: queryParams.userId,
-  customerId: queryParams.customerId,
-  customerType: queryParams.customerType,
-  posId: queryParams.posId,
-  types: queryParams.types && queryParams.types.split(',')
-});
 
 export default withProps<Props>(
   compose(

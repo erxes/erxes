@@ -1,14 +1,17 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
+import { PLAN_STATUSES } from '../common/constants';
 import { validatePlan } from '../common/validateDoc';
 import { IModels } from '../connectionResolver';
-import { IPlansDocument, plansSchema } from './definitions/plan';
 import { sendCardsMessage } from '../messageBroker';
-import { PLAN_STATUSES } from '../common/constants';
+import { IPlansDocument, plansSchema } from './definitions/plan';
+import * as moment from 'moment';
 export interface IPlansModel extends Model<IPlansDocument> {
   addPlan(doc, user): Promise<IPlansDocument>;
   editPlan(_id, doc): Promise<IPlansDocument>;
+  duplicatePlan(_id, user): Promise<IPlansDocument>;
   removePlans(ids: string[]): Promise<IPlansDocument>;
-  archivePlan(): Promise<IPlansDocument>;
+  forceStartPlan(_id: string): Promise<IPlansDocument>;
   addSchedule(planId, doc): Promise<IPlansDocument>;
   editSchedule(args): Promise<IPlansDocument>;
   removeSchedule(_id): Promise<IPlansDocument>;
@@ -51,6 +54,128 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       }
 
       return models.Plans.deleteMany({ _id: { $in: ids } });
+    }
+
+    public static async duplicatePlan(planId: string, user: IUserDocument) {
+      const plan = await models.Plans.findOne({ _id: planId }).lean();
+      if (!plan) {
+        throw new Error('Not Found');
+      }
+
+      const schedules = await models.Schedules.find({
+        planId: plan._id
+      }).lean();
+
+      const {
+        _id,
+        plannerId,
+        createdAt,
+        modifiedAt,
+        status,
+        cardIds,
+        name,
+        ...planDoc
+      } = plan;
+
+      const newPlan = await models.Plans.create({
+        ...planDoc,
+        name: `${name} - copied`,
+        plannerId: user._id
+      });
+
+      const newSchedulesDoc = schedules.map(
+        ({
+          name,
+          indicatorId,
+          groupId,
+          structureTypeId,
+          assignedUserIds,
+          customFieldsData
+        }) => ({
+          planId: newPlan._id,
+          name,
+          indicatorId,
+          groupId,
+          structureTypeId,
+          assignedUserIds,
+          customFieldsData
+        })
+      );
+
+      await models.Schedules.insertMany(newSchedulesDoc);
+
+      return newPlan;
+    }
+
+    public static async forceStartPlan(_id: string) {
+      const plan = await models.Plans.findOne({
+        _id,
+        status: { $ne: PLAN_STATUSES.ARCHIVED }
+      });
+
+      if (!plan) {
+        throw new Error('not found');
+      }
+
+      const { startDate, closeDate, configs, plannerId, structureType } = plan;
+
+      if (!configs?.cardType && !configs?.stageId) {
+        throw new Error('Please provide a specify cards configuration');
+      }
+
+      const schedules = await models.Schedules.find({
+        planId: plan._id
+      });
+
+      if (!schedules?.length) {
+        throw new Error('You must add at least one schedule in plan');
+      }
+
+      const commonDoc = {
+        startDate,
+        closeDate,
+        stageId: configs.stageId,
+        userId: plannerId
+      };
+
+      let newItemIds: string[] = [];
+
+      for (const schedule of schedules) {
+        const itemDoc = {
+          ...commonDoc,
+          name: schedule.name,
+          assignedUserIds: schedule.assignedUserIds,
+          customFieldsData: schedule.customFieldsData
+        };
+
+        if (['branch', 'department'].includes(structureType)) {
+          itemDoc[`${structureType}Ids`] = schedule?.structureTypeId
+            ? [schedule.structureTypeId]
+            : [];
+        }
+
+        const newItem = await sendCardsMessage({
+          subdomain,
+          action: `${configs.cardType}s.create`,
+          data: itemDoc,
+          isRPC: true,
+          defaultValue: null
+        });
+
+        await models.RiskAssessments.addRiskAssessment({
+          cardType: configs.cardType,
+          cardId: newItem._id,
+          indicatorId: schedule.indicatorId,
+          [`${structureType}Id`]: schedule.structureTypeId || ''
+        });
+
+        newItemIds = [...newItemIds, newItem?._id];
+      }
+
+      return await models.Plans.updateOne(
+        { _id: plan._id },
+        { status: PLAN_STATUSES.ARCHIVED, cardIds: newItemIds }
+      );
     }
 
     public static async addSchedule(planId: string, doc: any) {

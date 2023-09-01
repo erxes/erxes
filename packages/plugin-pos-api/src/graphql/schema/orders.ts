@@ -37,6 +37,7 @@ const posOrderFields = contactsEnabled => `
   syncedErkhet: Boolean,
   origin: String
   convertDealId: String
+  returnInfo: JSON
 `;
 
 export const types = ({ contactsEnabled, productsEnabled }) => `
@@ -109,6 +110,13 @@ const queryParams = `
   posId: String
   posToken: String
   types: [String]
+  statuses: [String]
+  excludeStatuses: [String] 
+  hasPaidDate: Boolean 
+`;
+
+const groupParams = `
+  groupField: String
 `;
 
 export const queries = `
@@ -116,6 +124,7 @@ export const queries = `
   posOrderDetail(_id: String): PosOrderDetail
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
+  posOrdersGroupSummary(${queryParams}, ${groupParams}): JSON
   posOrdersTotalCount(${queryParams}): JSON
   posOrderRecords(${queryParams}): [PosOrderRecord]
   posOrderRecordsCount(${queryParams}): Int

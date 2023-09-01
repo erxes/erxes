@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 import { sendMessageBroker } from '../messageBroker';
+import { IStoredInterestDocument } from './definitions/storedInterest';
 
 export const loadPeriodLockClass = (models: IModels) => {
   class PeriodLock {
@@ -53,6 +54,11 @@ export const loadPeriodLockClass = (models: IModels) => {
         total: { $gt: 0 },
         contractId: { $nin: doc.excludeContracts || [], $exists: true }
       });
+
+      await models.StoredInterest.createStoredInterest(
+        doc.date,
+        periodLocks._id
+      );
 
       const generals = await models.General.createGeneral(
         transactions,
@@ -120,6 +126,24 @@ export const loadPeriodLockClass = (models: IModels) => {
      */
     public static async removePeriodLocks(_ids: string[]) {
       await models.General.deleteMany({ periodLockId: { $in: _ids } });
+      const storedInterestList: IStoredInterestDocument[] = await models.StoredInterest.find(
+        { periodLockId: { $in: _ids } }
+      ).lean();
+      for (const storedInterst of storedInterestList) {
+        await models.Contracts.updateOne(
+          { _id: storedInterst.contractId },
+          {
+            $set: {
+              storedInterst: { $inc: storedInterst.amount * -1 },
+              lastStoredDate: storedInterst.prevStoredDate
+            }
+          }
+        );
+      }
+
+      await models.StoredInterest.deleteMany({
+        _id: storedInterestList.map(a => a._id)
+      });
       return models.PeriodLocks.deleteMany({ _id: { $in: _ids } });
     }
   }

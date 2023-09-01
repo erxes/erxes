@@ -14,6 +14,14 @@ const chatAdd = `
   }
 `;
 
+const chatEdit = `
+  mutation chatEdit($id: String!, $name: String) {
+    chatEdit(_id: $id, name: $name) {
+      _id
+    }
+  }
+`;
+
 const chatRemove = `
   mutation chatRemove($id: String!) {
     chatRemove(_id: $id)
@@ -47,6 +55,7 @@ const chatToggleIsPinned = `
 export default {
   chatMessageAdd,
   chatAdd,
+  chatEdit,
   chatRemove,
   chatMarkAsRead,
   chatMakeOrRemoveAdmin,

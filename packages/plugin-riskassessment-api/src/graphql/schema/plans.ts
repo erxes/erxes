@@ -76,6 +76,9 @@ export const mutations = `
     addRiskAssessmentPlan(${commonMutationsParams}):JSON
     updateRiskAssessmentPlan(_id:String,${commonMutationsParams}):JSON
     removeRiskAssessmentPlan(ids:[String]):JSON
+    duplicateRiskAssessmentPlan(_id:String):Plan
+    changeStatusRiskAssessmentPlan(_id:String,status:String):Plan
+    forceStartRiskAssessmentPlan(_id:String):Plan
 
     addRiskAssessmentPlanSchedule(${commonScheduleParams}):JSON
     updateRiskAssessmentPlanSchedule(_id:String,${commonScheduleParams}):JSON
