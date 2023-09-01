@@ -19,6 +19,8 @@ type Props = {
   changeDate?: (day_key: string, time: Date) => void;
   changeScheduleConfig: (day_key: string, scheduleConfigId: string) => void;
   changeScheduleTime: (day_key: string, type: string, timeVal: Date) => void;
+  changeScheduleBreak: (day_key: string, breakMins: number) => void;
+
   removeDate?: (day_key: string) => void;
   timeOnly?: boolean;
   dateOnly?: boolean;
@@ -37,7 +39,8 @@ const DatePicker = (props: Props) => {
 
     scheduledDate,
     onInputCheckedChange,
-    changeScheduleTime
+    changeScheduleTime,
+    changeScheduleBreak
   } = props;
 
   const [shiftStartInput, setShiftStartInput] = useState(
@@ -78,6 +81,11 @@ const DatePicker = (props: Props) => {
         changeScheduleTime(curr_day_key, type, validateInput);
       }
     }
+  };
+
+  const onBreakChange = e => {
+    const getBreakInMins = parseInt(e.currentTarget.value, 10);
+    changeScheduleBreak(curr_day_key, getBreakInMins);
   };
 
   const toggleInputChecked = e => {
@@ -161,7 +169,18 @@ const DatePicker = (props: Props) => {
             <>{dayjs(shiftEnd).format(timeFormat)}</>
           )}
         </CustomWidth>
-        <CustomWidth widthPercent={15}>( {lunchBreakInMins}' )</CustomWidth>
+        <CustomWidth widthPercent={15}>
+          {inputChecked ? (
+            <FormControl
+              name="lunchBreakInMins"
+              componentClass="number"
+              defaultValue={lunchBreakInMins}
+              onChange={onBreakChange}
+            />
+          ) : (
+            lunchBreakInMins
+          )}
+        </CustomWidth>
         <FormControl
           name="inputChecked"
           componentClass="checkbox"

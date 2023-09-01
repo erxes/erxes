@@ -223,12 +223,11 @@ function ScheduleForm(props: Props) {
     );
 
     const newShift = {
+      ...oldShift,
       shiftDate: selectedDate,
       shiftStart: getShiftStart,
       shiftEnd: getShiftEnd,
-      overnightShift: overnight,
-      lunchBreakInMins: oldShift.lunchBreakInMins,
-      scheduleConfigId: oldShift.scheduleConfigId
+      overnightShift: overnight
     };
 
     delete scheduleDates[day_key];
@@ -242,7 +241,7 @@ function ScheduleForm(props: Props) {
     return {
       shiftStart: shift.shiftStart,
       shiftEnd: shift.shiftEnd,
-      scheduleConfigId: shift.scheduleConfigId,
+      scheduleConfigId: shift.inputChecked ? null : shift.scheduleConfigId,
       lunchBreakInMins: shift.lunchBreakInMins
     };
   });
@@ -304,7 +303,6 @@ function ScheduleForm(props: Props) {
   };
 
   const addDay = () => {
-    console.log('sdate ', scheduleDates);
     // sort array of dates, in order to get the latest day
     let dates_arr = Object.values(scheduleDates).map(shift => shift.shiftDate);
     dates_arr = dates_arr.sort(
@@ -411,7 +409,7 @@ function ScheduleForm(props: Props) {
         isOvernightShift
       ] = compareStartAndEndTime(
         scheduleDates,
-        getDate,
+        day_key,
         new Date(getDate + ' ' + getTime),
         new Date(
           getDate +
@@ -420,12 +418,40 @@ function ScheduleForm(props: Props) {
         ),
         getDate
       );
+
       prevScheduleDates[day_key].shiftStart = correctShiftStart;
+      prevScheduleDates[day_key].shiftEnd = correctShiftEnd;
+      prevScheduleDates[day_key].overnightShift = isOvernightShift;
     } else {
-      prevScheduleDates[day_key].shiftEnd = timeVal;
+      const [
+        correctShiftStart,
+        correctShiftEnd,
+        isOvernightShift
+      ] = compareStartAndEndTime(
+        scheduleDates,
+        day_key,
+        new Date(
+          getDate +
+            ' ' +
+            dayjs(scheduleDates[day_key].shiftStart).format(timeFormat)
+        ),
+        new Date(getDate + ' ' + getTime),
+        getDate
+      );
+      prevScheduleDates[day_key].shiftStart = correctShiftStart;
+      prevScheduleDates[day_key].shiftEnd = correctShiftEnd;
+      prevScheduleDates[day_key].overnightShift = isOvernightShift;
     }
 
     setScheduleDates({ ...prevScheduleDates });
+  };
+
+  const changeScheduleBreak = (day_key: string, lunchBreakInMins: number) => {
+    const prev_scheduled_dates = scheduleDates;
+
+    prev_scheduled_dates[day_key].lunchBreakInMins = lunchBreakInMins;
+
+    setScheduleDates({ ...prev_scheduled_dates });
   };
 
   const renderWeekDays = () => {
@@ -445,6 +471,7 @@ function ScheduleForm(props: Props) {
               onInputCheckedChange={onInputCheckedChange}
               inputDefaultChecked={inputDefaultChecked}
               changeScheduleTime={changeScheduleTime}
+              changeScheduleBreak={changeScheduleBreak}
             />
           );
         })}
