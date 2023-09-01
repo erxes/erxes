@@ -8,7 +8,7 @@
     "test": "jest --coverage --forceExit --runInBand"
   },
   "dependencies": {
-    "apollo-server-core": "^3.6.1",
+    "apollo-server-core": "^3.12.1",
     "apollo-server-express": "^3.6.1"
   }
 }
