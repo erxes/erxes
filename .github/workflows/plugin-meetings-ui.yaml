@@ -1,4 +1,4 @@
-name: Plugin {sample} UI CI
+name: Plugin meetings UI CI
 
 on:
   push:
@@ -21,9 +21,9 @@ on:
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
       - "packages/ui-tags/**"
-      - "packages/ui-{sample}/**"
-      - "packages/plugin-{sample}-ui/**"
-      - ".github/workflows/plugin-{sample}-ui.yaml"
+      - "packages/ui-meetings/**"
+      - "packages/plugin-meetings-ui/**"
+      - ".github/workflows/plugin-meetings-ui.yaml"
   pull_request:
     branches:
       - dev
@@ -44,9 +44,9 @@ on:
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
       - "packages/ui-tags/**"
-      - "packages/ui-{sample}/**"
-      - "packages/plugin-{sample}-ui/**"
-      - ".github/workflows/plugin-{sample}-ui.yaml"
+      - "packages/ui-meetings/**"
+      - "packages/plugin-meetings-ui/**"
+      - ".github/workflows/plugin-meetings-ui.yaml"
 
 jobs:
   ui:
@@ -63,9 +63,9 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-{sample}-ui/.erxes
-          cp -r packages/plugin-{sample}-ui/src packages/plugin-{sample}-ui/.erxes/plugin-src
-          cd packages/plugin-{sample}-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-meetings-ui/.erxes
+          cp -r packages/plugin-meetings-ui/src packages/plugin-meetings-ui/.erxes/plugin-src
+          cd packages/plugin-meetings-ui
           yarn install
           yarn install-deps
           yarn build
@@ -81,7 +81,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         run: |
-          tar -cf build.tar --directory=packages/plugin-{sample}-ui/.erxes/dist .
-          cp build.tar packages/plugin-{sample}-ui/.erxes/dist
-          rm -rf packages/plugin-{sample}-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-{sample}-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-{sample}-ui --delete
+          tar -cf build.tar --directory=packages/plugin-meetings-ui/.erxes/dist .
+          cp build.tar packages/plugin-meetings-ui/.erxes/dist
+          rm -rf packages/plugin-meetings-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-meetings-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-meetings-ui --delete

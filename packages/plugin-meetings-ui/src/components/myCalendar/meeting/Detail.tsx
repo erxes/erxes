@@ -1,0 +1,179 @@
+import Icon from '@erxes/ui/src/components/Icon';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { colors } from '@erxes/ui/src/styles';
+import { __ } from '@erxes/ui/src/utils';
+import moment from 'moment';
+import React, { useState } from 'react';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+
+import {
+  MeetingDetailColumn,
+  MeetingDetailFooter,
+  MeetingDetailRow,
+  MeetingWrapper
+} from '../../../styles';
+import { IMeeting, ITopic } from '../../../types';
+
+import { TopicFormContainer } from '../../../containers/myCalendar/topic/Form';
+import Button from '@erxes/ui/src/components/Button';
+
+type Props = {
+  meetingDetail: IMeeting;
+  changeStatus: (status: string, meetingId: string) => void;
+  refetchDetail: any;
+};
+export const MeetingDetail = (props: Props) => {
+  const { meetingDetail, changeStatus, refetchDetail } = props;
+  const { topics } = meetingDetail;
+  const { participantUser } = meetingDetail;
+
+  const [showTopicModal, setShowTopicModal] = useState(false);
+
+  const renderTopicItem = (topic: ITopic) => {
+    return (
+      <div className="description" key={topic._id}>
+        <MeetingDetailRow>
+          <MeetingDetailColumn>
+            <span>Topic name: </span> &nbsp;
+            {topic.title}
+          </MeetingDetailColumn>
+        </MeetingDetailRow>
+        <MeetingDetailRow>
+          <MeetingDetailColumn>
+            <span>Description:</span> &nbsp;
+            {topic.description}
+          </MeetingDetailColumn>
+        </MeetingDetailRow>
+        <MeetingDetailRow>
+          <MeetingDetailColumn>
+            <span>Topic owner:</span> &nbsp;
+            {
+              participantUser?.find(
+                participant => participant._id === topic.ownerId
+              )?.details?.fullName
+            }
+          </MeetingDetailColumn>
+        </MeetingDetailRow>
+      </div>
+    );
+  };
+
+  const renderMeetingAgenda = () => {
+    if (!topics || topics.length === 0)
+      return <EmptyState text={`Empty`} icon="clipboard-blank" />;
+
+    return topics.map((topic: ITopic) => renderTopicItem(topic));
+  };
+
+  const trigger = (
+    <Button id={'AddTopicButton'} btnStyle="success" icon="plus-circle">
+      Add topic
+    </Button>
+  );
+
+  const modalContent = props => (
+    <TopicFormContainer
+      {...props}
+      meetingId={meetingDetail._id}
+      participantUserIds={meetingDetail.participantUser.map(user => user._id)}
+      meetingStatus={meetingDetail.status}
+      refetchDetail={refetchDetail}
+      // closeModal={() => setShowTopicModal(false)}
+    />
+  );
+
+  const renderAddButton = (
+    <ModalTrigger
+      title={__('Add topic')}
+      trigger={trigger}
+      content={modalContent}
+      enforceFocus={false}
+    />
+  );
+
+  const renderTabContent = () => {
+    return (
+      <>
+        <MeetingDetailRow>
+          <MeetingDetailColumn>
+            <Icon icon="calendar-alt" color={colors.colorCoreBlue} /> &nbsp;
+            {meetingDetail.startDate &&
+              moment(meetingDetail.startDate).format(
+                'ddd, MMMM DD, YYYY • HH:mm a'
+              )}
+          </MeetingDetailColumn>
+          <MeetingDetailColumn>
+            <Icon icon="map" color={colors.colorCoreBlue} /> &nbsp;
+            <span>Location:</span>
+            {' ' + meetingDetail.location}
+          </MeetingDetailColumn>
+        </MeetingDetailRow>
+        <MeetingDetailRow>
+          <MeetingDetailColumn>
+            <span> Created By: </span>
+            {' ' + meetingDetail.createdUser?.details?.fullName}
+          </MeetingDetailColumn>
+          <MeetingDetailColumn>
+            <span>Team members:</span>{' '}
+            {meetingDetail.participantUser.map((user, index) => {
+              if (index != meetingDetail.participantUser?.length - 1)
+                return <>{user.details?.fullName},</>;
+              return <>{user.details?.fullName}</>;
+            })}
+          </MeetingDetailColumn>
+        </MeetingDetailRow>
+        <p className="description"> {meetingDetail.description}</p>
+        <MeetingDetailRow>
+          <MeetingDetailColumn>
+            <span>Meeting Agenda:</span>
+          </MeetingDetailColumn>
+          {meetingDetail.status !== 'completed' && renderAddButton}
+        </MeetingDetailRow>
+        {renderMeetingAgenda()}
+      </>
+    );
+  };
+
+  return (
+    <MeetingWrapper>
+      {renderTabContent()}
+
+      {meetingDetail.status !== 'completed' && (
+        <MeetingDetailFooter>
+          <Button
+            btnStyle="warning"
+            onClick={() => {
+              changeStatus(meetingDetail._id, 'canceled');
+            }}
+            icon="times-circle"
+          >
+            Cancel
+          </Button>
+          <Button
+            btnStyle="warning"
+            onClick={() => {
+              changeStatus(meetingDetail._id, 'draft');
+            }}
+            icon="times-circle"
+          >
+            Save as default
+          </Button>
+          <Button
+            btnStyle="success"
+            onClick={() => {
+              changeStatus(
+                meetingDetail._id,
+                meetingDetail.status === 'ongoing' ? 'completed' : 'ongoing'
+              );
+            }}
+            icon="times-circle"
+          >
+            {meetingDetail.status === 'scheduled'
+              ? 'Start meeting'
+              : 'End meeting'}
+          </Button>
+        </MeetingDetailFooter>
+      )}
+    </MeetingWrapper>
+  );
+};
