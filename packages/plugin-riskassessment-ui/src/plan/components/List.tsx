@@ -4,18 +4,20 @@ import {
   FormControl,
   HeaderDescription,
   ModalTrigger,
-  SortHandler,
+  Pagination,
   Table,
   Tip,
+  Wrapper,
   __,
   router
 } from '@erxes/ui/src';
 import { setParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { TableHead } from '../../assessments/components/ListHead';
 import { subMenu } from '../../common/constants';
-import { DefaultWrapper } from '../../common/utils';
 import { FlexRow, HeaderContent } from '../../styles';
+import { headers } from '../common/Headers';
 import Form from '../containers/Form';
 import Row from './Row';
 
@@ -63,7 +65,13 @@ class List extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { list, duplicatePlan, changeStatus } = this.props;
+    const {
+      queryParams,
+      history,
+      list,
+      duplicatePlan,
+      changeStatus
+    } = this.props;
     const { selectedItems } = this.state;
 
     const handleSelectAll = () => {
@@ -96,16 +104,13 @@ class List extends React.Component<Props, State> {
               />
             </th>
             <th>{__('Name')}</th>
-            <th>{__('Planner')}</th>
-            <th>{__('Status')}</th>
-            <th>
-              <SortHandler sortField="createdAt" />
-              {__('Created At')}
-            </th>
-            <th>
-              <SortHandler sortField="modifiedAt" />
-              {__('Modified At')}
-            </th>
+            {headers(queryParams, history).map(
+              ({ name, label, sort, filter }) => (
+                <TableHead key={name} sort={sort} filter={filter}>
+                  {label}
+                </TableHead>
+              )
+            )}
             <th>{__('Actions')}</th>
           </tr>
         </thead>
@@ -215,16 +220,16 @@ class List extends React.Component<Props, State> {
       </BarItems>
     );
 
-    const updatedProps = {
-      title: 'Plans',
-      content: this.renderContent(),
-      totalCount,
-      rightActionBar,
-      leftActionBar,
-      subMenu
-    };
-
-    return <DefaultWrapper {...updatedProps} />;
+    return (
+      <Wrapper
+        header={<Wrapper.Header title={'Plans'} submenu={subMenu} />}
+        actionBar={
+          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+        }
+        content={this.renderContent()}
+        footer={<Pagination count={totalCount} />}
+      />
+    );
   }
 }
 
