@@ -10,6 +10,7 @@ const productFields = `
   description
   unitPrice
   barcodes
+  variants
   barcodeDescription
   ${
     isEnabled('tags')

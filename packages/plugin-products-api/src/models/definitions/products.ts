@@ -1,6 +1,7 @@
 import {
   attachmentSchema,
   customFieldSchema,
+  IAttachment,
   ICustomField
 } from '@erxes/api-utils/src/types';
 import { Schema, Document } from 'mongoose';
@@ -28,10 +29,10 @@ export const PRODUCT_CATEGORY_STATUSES = {
 };
 
 export const PRODUCT_CATEGORY_MASK_TYPES = {
-  ANY: 'any',
+  ANY: '',
   SOFT: 'soft',
   HARD: 'hard',
-  ALL: ['any', 'soft', 'hard']
+  ALL: ['', 'soft', 'hard']
 };
 
 export interface ISubUom {
@@ -46,14 +47,15 @@ export interface IProduct {
   type?: string;
   description?: string;
   barcodes?: string[];
+  variants: { [code: string]: { image?: IAttachment; name?: string } };
   barcodeDescription?: string;
   unitPrice?: number;
   code: string;
   customFieldsData?: ICustomField[];
   productId?: string;
   tagIds?: string[];
-  attachment?: any;
-  attachmentMore?: any[];
+  attachment?: IAttachment;
+  attachmentMore?: IAttachment[];
   status?: string;
   vendorId?: string;
   vendorCode?: string;
@@ -119,6 +121,7 @@ export const productSchema = schemaWrapper(
       label: 'Barcodes',
       index: true
     }),
+    variants: field({ type: Object, optional: true }),
     barcodeDescription: field({
       type: String,
       optional: true,

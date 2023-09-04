@@ -3,35 +3,41 @@ import { debugCallPro, debugError, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { sendInboxMessage } from '../messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { graphqlPubsub } from '../configs';
 
-export const callproCreateIntegration = async (models: IModels, { integrationId, data }) => {
-    const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
+export const callproCreateIntegration = async (
+  models: IModels,
+  { integrationId, data }
+) => {
+  const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
 
-    // Check existing Integration
-    const integration = await models.Integrations.findOne({
-      kind: 'callpro',
-      phoneNumber
-    }).lean();
+  // Check existing Integration
+  const integration = await models.Integrations.findOne({
+    kind: 'callpro',
+    phoneNumber
+  }).lean();
 
-    if (integration) {
-      const message = `Integration already exists with this phone number: ${phoneNumber}`;
+  if (integration) {
+    const message = `Integration already exists with this phone number: ${phoneNumber}`;
 
-      debugCallPro(message);
-      throw new Error(message);
-    }
+    debugCallPro(message);
+    throw new Error(message);
+  }
 
-    await models.Integrations.create({
-      kind: 'callpro',
-      erxesApiId: integrationId,
-      phoneNumber,
-      recordUrl
-    });
+  await models.Integrations.create({
+    kind: 'callpro',
+    erxesApiId: integrationId,
+    phoneNumber,
+    recordUrl
+  });
 
-    return { status: 'success' };
+  return { status: 'success' };
 };
 
-export const callproGetAudio = async (models: IModels, { erxesApiId, integrationId }) => {
-
+export const callproGetAudio = async (
+  models: IModels,
+  { erxesApiId, integrationId }
+) => {
   const integration = await models.Integrations.findOne({
     erxesApiId: integrationId
   });
@@ -43,7 +49,9 @@ export const callproGetAudio = async (models: IModels, { erxesApiId, integration
     throw new Error(message);
   }
 
-  const conversation = await models.CallProConversations.findOne({ erxesApiId });
+  const conversation = await models.CallProConversations.findOne({
+    erxesApiId
+  });
 
   if (!conversation) {
     const message = 'Conversation not found';
@@ -62,7 +70,7 @@ export const callproGetAudio = async (models: IModels, { erxesApiId, integration
   }
 
   return { audioSrc };
-}
+};
 
 const init = async app => {
   app.post(
@@ -92,7 +100,15 @@ const init = async app => {
         phoneNumber: numberTo
       }).lean();
 
-      if (!integration) {
+      const inboxIntegration = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.findOne',
+        data: { _id: integration.erxesApiId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (!integration || !inboxIntegration) {
         const message = `Integration not found with: ${numberTo}`;
 
         debugCallPro(message);
@@ -100,7 +116,9 @@ const init = async app => {
       }
 
       // get customer
-      let customer = await models.CallProCustomers.findOne({ phoneNumber: numberFrom });
+      let customer = await models.CallProCustomers.findOne({
+        phoneNumber: numberFrom
+      });
 
       if (!customer) {
         try {
@@ -148,7 +166,9 @@ const init = async app => {
       }
 
       // get conversation
-      let conversation = await models.CallProConversations.findOne({ callId: callID });
+      let conversation = await models.CallProConversations.findOne({
+        callId: callID
+      });
 
       // create conversation
       if (!conversation) {
@@ -228,6 +248,34 @@ const init = async app => {
         );
         throw new Error(e);
       }
+
+      let channelMemberIds: string[] = [];
+
+      const channels = await sendInboxMessage({
+        subdomain,
+        action: 'channels.find',
+        data: {
+          integrationIds: { $in: [inboxIntegration._id] }
+        },
+        isRPC: true
+      });
+
+      for (const channel of channels) {
+        channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
+      }
+
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: {
+          _id: Math.random().toString(),
+          content: 'new callpro message',
+          createdAt: new Date(),
+          customerId: customer.erxesApiId,
+          conversationId: conversation.erxesApiId
+        },
+        conversation,
+        integration: inboxIntegration,
+        channelMemberIds
+      });
 
       res.send('success');
     })
