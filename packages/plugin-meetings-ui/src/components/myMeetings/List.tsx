@@ -19,6 +19,7 @@ export const ListComponent = (props: Props) => {
             <th>{'Saved By'}</th>
             <th>{'Saved At'}</th>
             <th>{'Members'}</th>
+            <th>{'Status'}</th>
             <th>
               <>{'Action'}</>
             </th>

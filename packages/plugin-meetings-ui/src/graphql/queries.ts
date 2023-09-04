@@ -37,6 +37,8 @@ export const meetingsFilterParamsDef = `
     userId: $userId
     isPreviousSession: $isPreviousSession
     participantIds: $participantIds
+    perPage: $perPage
+    page: $page
 `;
 
 export const meetingsFilterParams = `
@@ -47,6 +49,8 @@ export const meetingsFilterParams = `
     $userId: String
     $isPreviousSession: Boolean
     $participantIds: [String]
+    $perPage: Int
+    $page: Int
 `;
 
 const meetings = `
@@ -64,6 +68,7 @@ query MeetingDetail($_id: String!) {
     startDate
     endDate
     location
+    method
     createdBy
     createdAt
     status
@@ -89,7 +94,17 @@ query MeetingDetail($_id: String!) {
 }
 `;
 
+const companies = `
+query companies {
+  companies {
+    _id
+    name
+  }
+}
+`;
+
 export default {
   meetings,
-  meetingDetail
+  meetingDetail,
+  companies
 };

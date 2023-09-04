@@ -5,7 +5,6 @@ import SideBar from '../../components/myMeetings/SideBar';
 type Props = {
   history: any;
   currentUser: IUser;
-
   queryParams: any;
 };
 
@@ -13,7 +12,6 @@ const SideBarContainer = (props: Props) => {
   const updatedProps = {
     ...props
   };
-
   return <SideBar {...updatedProps} />;
 };
 

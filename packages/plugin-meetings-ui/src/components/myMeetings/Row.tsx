@@ -45,6 +45,7 @@ export const Row = (props: Props) => {
           />
         </FlexCenter>
       </td>
+      <td>{meeting.status}</td>
       <td>
         <ActionButtons>
           <ModalTrigger

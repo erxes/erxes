@@ -20,7 +20,7 @@ type Props = {
 };
 
 const LeftSideBar = (props: Props) => {
-  const { history, queryParams, currentUser } = props;
+  const { history, queryParams } = props;
   const [companyId, setCompanyId] = useState('');
   const [userId, setUserId] = useState('');
   const [createdAtFrom, setCreatedForm] = useState(
@@ -37,10 +37,10 @@ const LeftSideBar = (props: Props) => {
       'ownerId',
       'companyId'
     );
-    setCompanyId('');
+    setCompanyId(undefined);
     setCreatedAtTo(undefined);
     setCreatedForm(undefined);
-    setUserId('');
+    setUserId(undefined);
     removePageParams();
   };
 
@@ -76,6 +76,7 @@ const LeftSideBar = (props: Props) => {
         <SelectCompanies
           label="Filter by company"
           name="companyId"
+          initialValue={companyId}
           onSelect={companyId => setFilter('companyId', companyId)}
           customOption={{ value: '', label: '... Choose company' }}
           multi={false}

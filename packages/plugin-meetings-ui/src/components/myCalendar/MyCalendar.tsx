@@ -1,5 +1,5 @@
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Detail from '../../containers/myCalendar/meeting/Detail';
 import PreviousDetail from '../../containers/myCalendar/meeting/PreviousDetail';
 import { IMeeting } from '../../types';
