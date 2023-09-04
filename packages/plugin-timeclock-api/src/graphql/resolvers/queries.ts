@@ -7,7 +7,6 @@ import {
   timeclockReportPreliminary
 } from './utils';
 import {
-  customFixDate,
   findAllTeamMembersWithEmpId,
   findTeamMembers,
   generateCommonUserIds,

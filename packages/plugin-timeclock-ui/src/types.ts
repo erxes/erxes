@@ -175,6 +175,7 @@ export interface IScheduleDate {
 
   scheduleConfigId?: string;
   lunchBreakInMins?: number;
+  inputChecked?: boolean;
 
   shiftDate?: Date;
   shiftStart: Date;
