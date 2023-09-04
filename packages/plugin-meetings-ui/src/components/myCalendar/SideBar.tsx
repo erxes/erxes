@@ -2,7 +2,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { colors } from '@erxes/ui/src/styles';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { IMeeting } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -14,7 +14,7 @@ import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { generateColorCode } from '../../utils';
+import { generateColorCode, colorList } from '../../utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -196,6 +196,7 @@ export const SideBar = (props: Props) => {
           onChange={handleSearch}
         />
       </ChatListSearch>
+
       {todayMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Today" name={`today`} isOpen={true}>
           <SidebarList noTextColor noBackground id="SideBar">
@@ -205,7 +206,6 @@ export const SideBar = (props: Props) => {
           </SidebarList>
         </Box>
       )}
-
       {tommorowMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Tommorow" name={`tomorrow`} isOpen={true}>
           <SidebarList noTextColor noBackground id="SideBar">
@@ -215,7 +215,6 @@ export const SideBar = (props: Props) => {
           </SidebarList>
         </Box>
       )}
-
       {otherMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Other" name={`other`} isOpen={false}>
           <SidebarList noTextColor noBackground id="SideBar">
@@ -225,7 +224,6 @@ export const SideBar = (props: Props) => {
           </SidebarList>
         </Box>
       )}
-
       <Box title="Other calendar" name={`showCaledar`} isOpen={true}>
         <DataWithLoader
           data={data}

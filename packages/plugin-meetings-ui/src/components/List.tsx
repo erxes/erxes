@@ -1,4 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
+import { Link } from 'react-router-dom';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import MeetingFormContainer from '../containers/myCalendar/meeting/Form';
@@ -19,12 +20,12 @@ type Props = {
   meetings: any;
   loading: boolean;
   searchFilter: string;
-
   queryParams: any;
   route?: string;
   history: string;
   refetch: any;
   currentUser: IUser;
+  changeRoute?: (route: string) => void;
 };
 
 function List(props: Props) {
@@ -90,16 +91,24 @@ function List(props: Props) {
     <MeetingFormContainer {...props} types={[]} meetingDetail={meetings} />
   );
   const searchHandler = event => {};
-
   const actionBarRight =
     routePath === 'myCalendar' ? (
-      <ModalTrigger
-        title={__('Create meetings')}
-        trigger={trigger}
-        content={modalContent}
-        enforceFocus={false}
-        size="xl"
-      />
+      meetingId ? (
+        <Link to="/meetings/myCalendar">
+          <Button btnStyle="success" size="small" icon="calendar-alt">
+            {__('Back to calendar')}
+          </Button>
+        </Link>
+      ) : (
+        // </Link>
+        <ModalTrigger
+          title={__('Create meetings')}
+          trigger={trigger}
+          content={modalContent}
+          enforceFocus={false}
+          size="xl"
+        />
+      )
     ) : (
       <FormControl
         type="text"

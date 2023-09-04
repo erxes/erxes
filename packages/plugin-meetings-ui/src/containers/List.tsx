@@ -18,7 +18,6 @@ import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 type Props = {
   history: any;
   searchFilter: string;
-
   queryParams: any;
   route?: string;
 };
@@ -31,8 +30,7 @@ type FinalProps = {
   EditMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { meetingQuery, queryParams } = props;
-
+  const { meetingQuery } = props;
   if (meetingQuery.loading) {
     return <Spinner />;
   }
