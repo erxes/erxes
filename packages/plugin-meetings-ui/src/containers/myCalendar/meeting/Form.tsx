@@ -11,15 +11,17 @@ import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
 
 import { IMeeting, RemoveMutationResponse } from '../../../types';
-import { mutations, queries } from '../../../graphql';
+import { mutations } from '../../../graphql';
 import { MeetingForm } from '../../../components/myCalendar/meeting/Form';
 import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
 
 type Props = {
-  history: any;
-  closeModal: () => void;
   queryParams: any;
-  meeting: IMeeting;
+  meeting?: IMeeting;
+  refetch?: any;
+  currentUser: IUser;
+  closeModal: () => void;
+  object?: IMeeting;
 };
 
 type FinalProps = {
@@ -29,7 +31,7 @@ type FinalProps = {
   RemoveMutationResponse;
 
 const MeetingFormContainer = (props: FinalProps) => {
-  const { companiesQuery } = props;
+  const { companiesQuery, refetch } = props;
   const renderButton = ({
     passedName,
     values,
@@ -51,12 +53,7 @@ const MeetingFormContainer = (props: FinalProps) => {
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
-        refetchQueries={[
-          {
-            query: gql(queries.meetings),
-            variables: { perPage: 50 }
-          }
-        ]}
+        refetchQueries={refetch}
       />
     );
   };
@@ -65,6 +62,7 @@ const MeetingFormContainer = (props: FinalProps) => {
     ...props,
     renderButton
   };
+
   if (companiesQuery && companiesQuery.loading) {
     return <Spinner />;
   }

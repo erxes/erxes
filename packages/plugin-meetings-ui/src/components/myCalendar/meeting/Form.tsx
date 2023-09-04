@@ -16,7 +16,6 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
 
 type Props = {
-  closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   meeting?: IMeeting;
   queryParams: any;
@@ -129,7 +128,7 @@ export const MeetingForm = (props: Props) => {
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { meeting, closeModal, renderButton } = props;
+    const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
     const object = meeting || ({} as IMeeting);
 
@@ -198,7 +197,7 @@ export const MeetingForm = (props: Props) => {
             <ControlLabel>Team members </ControlLabel>
             <div style={{ width: '100%' }}>
               <SelectTeamMembers
-                initialValue={object.participantIds || userIds}
+                initialValue={object?.participantIds || userIds}
                 customField="employeeId"
                 filterParams={{}}
                 queryParams={queryParams}

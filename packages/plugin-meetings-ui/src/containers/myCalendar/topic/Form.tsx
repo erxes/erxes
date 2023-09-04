@@ -12,7 +12,6 @@ type Props = {
   meetingId: string;
   participantUserIds: string[];
   meetingStatus: string;
-  refetchDetail: any;
 };
 
 export const TopicFormContainer = (props: Props) => {

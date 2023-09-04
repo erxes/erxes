@@ -15,6 +15,7 @@ import SideBar from '../containers/myCalendar/SideBar';
 import SideBarContainer from '../containers/myMeetings/SideBar';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { FormControl } from '@erxes/ui/src/components';
+import { MeetingsQueryResponse } from '../types';
 
 type Props = {
   meetings: any;
@@ -23,9 +24,9 @@ type Props = {
   queryParams: any;
   route?: string;
   history: string;
-  refetch: any;
+  refetchQueries?: any;
   currentUser: IUser;
-  changeRoute?: (route: string) => void;
+  meetingQuery?: MeetingsQueryResponse;
 };
 
 function List(props: Props) {
@@ -35,7 +36,8 @@ function List(props: Props) {
     searchFilter,
     queryParams,
     history,
-    currentUser
+    currentUser,
+    meetingQuery
   } = props;
 
   const [component, setComponent] = useState(<div />);
@@ -43,11 +45,16 @@ function List(props: Props) {
 
   const { meetingId } = queryParams;
   const routePath = location.pathname.split('/').slice(-1)[0];
+
   useEffect(() => {
     switch (routePath) {
       case 'myMeetings':
         setComponent(
-          <MyMeetingListContainer history={history} queryParams={queryParams} />
+          <MyMeetingListContainer
+            history={history}
+            queryParams={queryParams}
+            meetings={meetings}
+          />
         );
         setSideBar(
           <SideBarContainer
@@ -87,8 +94,15 @@ function List(props: Props) {
   );
 
   const modalContent = props => (
-    <MeetingFormContainer {...props} types={[]} meetingDetail={meetings} />
+    <MeetingFormContainer
+      queryParams={queryParams}
+      refetch={meetingQuery?.refetch}
+      currentUser={currentUser}
+      closeModal={props.closeModal}
+      object={null}
+    />
   );
+
   const searchHandler = event => {};
   const actionBarRight =
     routePath === 'myCalendar' ? (

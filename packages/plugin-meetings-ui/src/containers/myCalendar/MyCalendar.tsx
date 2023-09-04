@@ -49,7 +49,7 @@ const TypesListContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         refetchQueries={[meetingQuery.refetch({ perPage: 50 })]}
-        successMessage={`You successfully ${
+        successMessage={`myCalendar - You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
       />
@@ -69,10 +69,12 @@ const TypesListContainer = (props: FinalProps) => {
   };
 
   const meetings = meetingQuery.meetings || [];
+  console.log('----=-=-=-=--=-=-props', props);
+
   const updatedProps = {
     ...props,
     meetings: meetings,
-    refetch: meetingQuery.refetch,
+    refetchMeetings: meetingQuery.refetch,
     loading: meetingQuery.loading,
     remove,
     renderButton

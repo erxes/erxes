@@ -53,8 +53,7 @@ const MeetingDetailContainer = (props: FinalProps) => {
   const updatedProps = {
     meetingDetail: meetingDetailQuery && meetingDetailQuery.meetingDetail,
     changeStatus,
-    meetings: data?.meetings,
-    refetchDetail: meetingDetailQuery && meetingDetailQuery.refetch
+    meetings: data?.meetings
   };
 
   return <MeetingDetail {...updatedProps} />;

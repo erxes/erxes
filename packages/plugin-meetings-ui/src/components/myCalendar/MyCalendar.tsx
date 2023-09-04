@@ -1,5 +1,5 @@
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Detail from '../../containers/myCalendar/meeting/Detail';
 import PreviousDetail from '../../containers/myCalendar/meeting/PreviousDetail';
 import { IMeeting } from '../../types';
@@ -15,6 +15,7 @@ export const MyCalendarList = (props: Props) => {
   const { meetings, queryParams } = props;
   const { meetingId } = queryParams;
   const [currentTab, setCurrentTab] = useState('This session');
+
   const events =
     meetings?.map((meeting: IMeeting) => ({
       title: meeting.title,

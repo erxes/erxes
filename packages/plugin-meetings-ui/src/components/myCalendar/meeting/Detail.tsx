@@ -3,7 +3,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { colors } from '@erxes/ui/src/styles';
 import { __ } from '@erxes/ui/src/utils';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 import {
@@ -20,14 +20,11 @@ import Button from '@erxes/ui/src/components/Button';
 type Props = {
   meetingDetail: IMeeting;
   changeStatus: (status: string, meetingId: string) => void;
-  refetchDetail: any;
 };
 export const MeetingDetail = (props: Props) => {
-  const { meetingDetail, changeStatus, refetchDetail } = props;
+  const { meetingDetail, changeStatus } = props;
   const { topics } = meetingDetail;
   const { participantUser } = meetingDetail || {};
-
-  const [showTopicModal, setShowTopicModal] = useState(false);
 
   const renderTopicItem = (topic: ITopic) => {
     return (
@@ -77,7 +74,6 @@ export const MeetingDetail = (props: Props) => {
       meetingId={meetingDetail._id}
       participantUserIds={meetingDetail.participantUser?.map(user => user._id)}
       meetingStatus={meetingDetail.status}
-      refetchDetail={refetchDetail}
       // closeModal={() => setShowTopicModal(false)}
     />
   );

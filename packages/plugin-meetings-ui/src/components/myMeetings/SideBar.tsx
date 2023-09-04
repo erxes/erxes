@@ -20,7 +20,7 @@ type Props = {
 };
 
 const LeftSideBar = (props: Props) => {
-  const { history, queryParams, currentUser } = props;
+  const { history, queryParams } = props;
   const [companyId, setCompanyId] = useState('');
   const [userId, setUserId] = useState('');
   const [createdAtFrom, setCreatedForm] = useState(

@@ -5,7 +5,6 @@ import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import React, { useState, useEffect } from 'react';
 import { IMeeting } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import * as moment from 'moment';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -17,7 +16,6 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { generateColorCode } from '../../utils';
 
 type Props = {
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal?: () => void;
   afterSave?: () => void;
   meetings: IMeeting[];
@@ -27,6 +25,7 @@ type Props = {
 
 export const SideBar = (props: Props) => {
   const { queryParams, meetings, loading } = props;
+
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
   const [checkedUsers, setCheckedUsers] = useState(
@@ -48,10 +47,9 @@ export const SideBar = (props: Props) => {
 
   useEffect(() => {
     setFilteredMeeting(meetings);
-  }, [meetings]);
+  }, [meetings, meetings.length]);
 
-  const onClick = meetingId => {
-    // history.push(`/meetings/myCalendar?meetingId=${meetingId}`);
+  const onClick = (meetingId: string) => {
     router.setParams(history, { meetingId: meetingId });
   };
 
@@ -137,16 +135,19 @@ export const SideBar = (props: Props) => {
   };
 
   const handleChange = (e, userId: string) => {
+    router.removeParams(history, meetingId);
     const isChecked = e.target.checked;
     if (isChecked && !checkedUsers.includes(userId)) {
       setCheckedUsers([...checkedUsers, userId]);
       const participantIds = [...checkedUsers, userId];
-      const queryString = 'participantUserIds=' + participantIds.join(',');
+      const queryString = participantIds.join(',');
+
       return history.push(`${window.location.pathname}?${queryString}`);
     } else {
       const uncheckedUser = checkedUsers.filter(user => user !== userId);
       setCheckedUsers(uncheckedUser);
-      const queryString = 'participantUserIds=' + uncheckedUser.join(',');
+      const queryString = uncheckedUser.join(',');
+
       return history.push(`${window.location.pathname}?${queryString}`);
     }
   };
@@ -181,6 +182,7 @@ export const SideBar = (props: Props) => {
       })}
     </SidebarList>
   );
+
   return (
     <LeftSidebar>
       <ChatListSearch>

@@ -5,7 +5,6 @@ import SideBar from '../../components/myMeetings/SideBar';
 type Props = {
   history: any;
   currentUser: IUser;
-
   queryParams: any;
 };
 

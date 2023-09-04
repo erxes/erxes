@@ -39,8 +39,7 @@ const ListContainer = (props: FinalProps) => {
     ...props,
     meetings: meetingQuery.meetings || [],
     types: [],
-    loading: meetingQuery.loading,
-    refetch: meetingQuery.refetch
+    loading: meetingQuery.loading
   };
   return <List {...updatedProps} />;
 };
@@ -52,10 +51,16 @@ export default withProps<Props>(
       options: ({ queryParams, perPage }: Props) => {
         const participantUserIds =
           queryParams?.participantUserIds?.split(',') || [];
+        const { createdAtFrom, createdAtTo, ownerId, companyId } = queryParams;
+
         return {
           variables: {
             participantIds: participantUserIds || [],
-            perPage: perPage || 50
+            perPage: perPage || 80,
+            createdAtFrom,
+            createdAtTo,
+            userId: ownerId,
+            companyId
           }
         };
       }
