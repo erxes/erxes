@@ -21,7 +21,7 @@ type Props = {
   refetch?: any;
   currentUser: IUser;
   closeModal: () => void;
-  object?: IMeeting;
+  object?: IMeeting | null;
 };
 
 type FinalProps = {

@@ -139,13 +139,13 @@ export const SideBar = (props: Props) => {
     if (isChecked && !checkedUsers.includes(userId)) {
       setCheckedUsers([...checkedUsers, userId]);
       const participantIds = [...checkedUsers, userId];
-      const queryString = participantIds.join(',');
+      const queryString = 'participantUserIds=' + participantIds.join(',');
 
       return history.push(`${window.location.pathname}?${queryString}`);
     } else {
       const uncheckedUser = checkedUsers.filter(user => user !== userId);
       setCheckedUsers(uncheckedUser);
-      const queryString = uncheckedUser.join(',');
+      const queryString = 'participantUserIds=' + uncheckedUser.join(',');
 
       return history.push(`${window.location.pathname}?${queryString}`);
     }
