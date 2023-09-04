@@ -28,14 +28,5 @@ export default {
         _id: meeting.createdBy
       }
     );
-  },
-
-  async company({ companyId }) {
-    return (
-      companyId && {
-        __typename: 'Company',
-        _id: companyId
-      }
-    );
   }
 };

@@ -35,7 +35,7 @@ const MeetingDetailContainer = (props: FinalProps) => {
   });
 
   const [editMeetingStatus] = useMutation(gql(mutations.editMeetingStatus), {
-    refetchQueries: ['meetingQuery'],
+    refetchQueries: ['meetings'],
     onError: e => {
       console.error(e);
     }

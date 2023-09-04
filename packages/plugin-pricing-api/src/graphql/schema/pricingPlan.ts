@@ -75,6 +75,7 @@ export const types = () => `
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
+    vendors: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -174,6 +175,7 @@ export const types = () => `
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
+    vendors: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -219,6 +221,7 @@ export const types = () => `
     categories: [String],
     categoriesExcluded: [String],
     segments: [String],
+    vendors: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -251,10 +254,7 @@ const pricingQueryParams = `
   prioritizeRule: String
   branchId: String
   departmentId: String
-  
-  totalAmount: String
   productId: String
-  quantity: Float
   date: Date
 
   findOne: Boolean
@@ -267,6 +267,9 @@ const pricingQueryParams = `
   isPriceEnabled: Boolean
   isExpiryEnabled: Boolean
   isRepeatEnabled: Boolean
+
+  totalAmount: String
+  quantity: Float
 `;
 
 export const queries = `

@@ -7,13 +7,12 @@ import Spinner from '../../common/Spinner';
 
 type Props = {
   checklist: any;
-  type: string;
   config: Config;
 };
-function CheckListDetail({ type, checklist, config }: Props) {
+function CheckListDetail({ checklist, config }: Props) {
   const { data, loading } = useQuery(gql(queries.checklistDetail), {
     variables: { _id: checklist._id },
-    skip: type !== 'task',
+    skip: !checklist,
     context: {
       headers: {
         'erxes-app-token': config?.erxesAppToken

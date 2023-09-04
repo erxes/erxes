@@ -7,6 +7,7 @@ const chats = `
         type
         isSeen
         isPinned
+        isPinnedUserIds
         lastMessage {
           content
           createdAt

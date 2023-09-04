@@ -1,6 +1,5 @@
 import {
   Button,
-  confirm,
   ControlLabel,
   FormControl,
   FormGroup,

@@ -186,7 +186,7 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'ebarimt:putresponses.returnBill',
-    async ({ subdomain, data: { contentType, contentId, config } }) => {
+    async ({ subdomain, data: { contentType, contentId, number, config } }) => {
       const models = await generateModels(subdomain);
       const mainConfig = {
         ...(await getConfig(subdomain, 'EBARIMT', {})),
@@ -196,7 +196,7 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: await models.PutResponses.returnBill(
-          { contentType, contentId },
+          { contentType, contentId, number },
           mainConfig
         )
       };

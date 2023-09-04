@@ -27,7 +27,7 @@ export interface IMeeting {
 // queries
 export type MeetingsQueryResponse = {
   meetings: IMeeting[];
-  refetch: ({ perPage: Int }) => void;
+  refetch: () => void;
   loading: boolean;
 };
 

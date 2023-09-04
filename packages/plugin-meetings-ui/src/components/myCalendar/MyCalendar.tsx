@@ -15,7 +15,6 @@ export const MyCalendarList = (props: Props) => {
   const { meetings, queryParams } = props;
   const { meetingId } = queryParams;
   const [currentTab, setCurrentTab] = useState('This session');
-
   const events =
     meetings?.map((meeting: IMeeting) => ({
       title: meeting.title,

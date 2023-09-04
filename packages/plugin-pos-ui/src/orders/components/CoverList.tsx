@@ -10,6 +10,7 @@ import {
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import CoverSidebar from './CoverSidebar';
 import { menuPos } from '../../constants';
 
 import { TableWrapper } from '../../styles';
@@ -22,6 +23,7 @@ interface IProps extends IRouterProps {
   isAllSelected: boolean;
   history: any;
   queryParams: any;
+  coversCount: number;
 
   onSearch: (search: string) => void;
   onFilter: (filterParams: IQueryParams) => void;
@@ -43,7 +45,7 @@ class Covers extends React.Component<IProps, {}> {
   };
 
   render() {
-    const { covers, history, queryParams, remove } = this.props;
+    const { covers, history, queryParams, remove, coversCount } = this.props;
 
     const mainContent = (
       <TableWrapper>
@@ -88,8 +90,10 @@ class Covers extends React.Component<IProps, {}> {
             submenu={menuPos}
           />
         }
-        // mainHead={header}
-        footer={<Pagination count={1} />}
+        leftSidebar={
+          <CoverSidebar queryParams={queryParams} history={history} />
+        }
+        footer={<Pagination count={coversCount} />}
         content={
           <DataWithLoader
             data={mainContent}

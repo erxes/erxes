@@ -1,5 +1,4 @@
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {

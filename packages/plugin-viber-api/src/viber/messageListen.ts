@@ -50,21 +50,6 @@ const messageListen = async (
     integrationId
   });
 
-  const viberIntegration = await Integrations.findOne({
-    inboxId: integrationId
-  });
-  const integration = await sendInboxMessage({
-    subdomain,
-    action: 'integrations.findOne',
-    data: { _id: viberIntegration.erxesApiId },
-    isRPC: true,
-    defaultValue: null
-  });
-
-  if (!integration) {
-    throw new Error('Integration not found');
-  }
-
   if (!conversation) {
     try {
       conversation = await Conversations.create({
@@ -126,31 +111,6 @@ const messageListen = async (
         ...conversationMessage.toObject(),
         conversationId: conversation.erxesApiId
       }
-    });
-
-    let channelMemberIds: string[] = [];
-
-    const channels = await sendInboxMessage({
-      subdomain,
-      action: 'channels.find',
-      data: {
-        integrationIds: { $in: [integration._id] }
-      },
-      isRPC: true
-    });
-
-    for (const channel of channels) {
-      channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
-    }
-
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: {
-        ...conversationMessage.toObject(),
-        conversationId: conversation.erxesApiId
-      },
-      conversation,
-      integration,
-      channelMemberIds
     });
 
     graphqlPubsub.publish('conversationMessageInserted', {

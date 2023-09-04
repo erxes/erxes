@@ -32,7 +32,7 @@ const editMeeting = `
   `;
 
 const editMeetingStatus = `
-  mutation meetingEdit($_id: String!, $status: String){
+  mutation meetingEditStatus($_id: String!, $status: String){
     meetingEdit(_id: $_id,  status: $status){
       _id
       status

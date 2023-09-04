@@ -125,7 +125,7 @@ export default {
       serviceName: integration.kind,
       subdomain,
       action: 'api_to_integrations',
-      data: { inboxId, action: 'getConfigs' },
+      data: { inboxId, action: 'getConfigs', integrationId: inboxId },
       isRPC: true
     });
   },
@@ -141,7 +141,7 @@ export default {
       return await sendIntegrationsMessage({
         subdomain,
         action: 'api_to_integrations',
-        data: { inboxId, action: 'getDetails' },
+        data: { inboxId, action: 'getDetails', integrationId: inboxId },
         isRPC: true
       });
     }

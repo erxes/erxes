@@ -1,3 +1,4 @@
+import { Attributes } from '@erxes/ui-automations/src//components/forms/actions/styles';
 import {
   Button,
   ControlLabel,
@@ -6,27 +7,19 @@ import {
   Icon,
   Tip,
   __,
-  colors,
   dimensions
 } from '@erxes/ui/src';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { Placement } from 'react-bootstrap/Overlay';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import styled from 'styled-components';
-import { ClearableBtn, FormContainer } from '../../styles';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import * as compose from 'lodash.flowright';
-import { Attributes } from '@erxes/ui-automations/src//components/forms/actions/styles';
-import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
-import { CARD_FILTER_ATTRIBUTES } from './constants';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { generateParamsIds } from '../../common/utils';
-import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+import { ClearableBtn, FormContainer } from '../../styles';
+import { CARD_FILTER_ATTRIBUTES } from './constants';
 
 type Props = {
   title?: string;

@@ -22,5 +22,5 @@ export const queries = `
   scoreLogList(${commonFilters},orderType:String,order:String,fromDate:String,toDate:String):List
 `;
 export const mutation = `
-changeScore( ownerType: String, ownerId: String, changeScore: Int, description: String, createdBy: String ):JSON
+  changeScore( ownerType: String, ownerId: String, changeScore: Int, description: String, createdBy: String ):JSON
 `;

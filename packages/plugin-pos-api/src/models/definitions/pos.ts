@@ -138,7 +138,8 @@ export const posSchema = schemaHooksWrapper(
     checkExcludeCategoryIds: field({
       type: [String],
       label: 'Check Exclude Categories'
-    })
+    }),
+    status: field({ type: String, label: 'Status', optional: true })
   }),
   'erxes_pos'
 );

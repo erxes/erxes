@@ -10,6 +10,8 @@ const typeFields = `
   debt: Float,
   total: Float,
   balance: Float,
+  storedInterest: Float,
+  calcInterest: Float,
   closeAmount: Float,
 `;
 export const types = `

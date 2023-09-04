@@ -25,7 +25,6 @@ type Props = {
 
 export const SideBar = (props: Props) => {
   const { queryParams, meetings, loading } = props;
-
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
   const [checkedUsers, setCheckedUsers] = useState(
@@ -193,7 +192,6 @@ export const SideBar = (props: Props) => {
           onChange={handleSearch}
         />
       </ChatListSearch>
-
       {todayMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Today" name={`today`} isOpen={true}>
           <SidebarList noTextColor noBackground id="SideBar">

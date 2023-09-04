@@ -115,7 +115,7 @@ class SchedulesConfig extends React.Component<Props> {
     );
   }
 
-  renderSchedule(schedule: ISchedule) {
+  renderActionBar(schedule) {
     const { history, removeSchedule, plan, refetch } = this.props;
     const { configs = {} as Config } = plan;
 
@@ -133,6 +133,40 @@ class SchedulesConfig extends React.Component<Props> {
       refetch
     };
 
+    if (plan.status === 'archived') {
+      const trigger = (
+        <Button icon="eye" btnStyle="link">
+          {__('View')}
+        </Button>
+      );
+
+      const content = ({ closeModal }) => (
+        <ScheduleForm {...updatedProps} closeModal={closeModal} />
+      );
+
+      return (
+        <ModalTrigger
+          title="Detail Schedule"
+          size="lg"
+          content={content}
+          trigger={trigger}
+        />
+      );
+    }
+
+    return (
+      <BarItems className="bottomBarItem">
+        {this.renderEditForm(updatedProps)}
+        {this.renderDuplicateForm(updatedProps)}
+
+        <Button btnStyle="link" onClick={handleRemomve} icon="times-circle">
+          {__('Remove')}
+        </Button>
+      </BarItems>
+    );
+  }
+
+  renderSchedule(schedule: ISchedule) {
     return (
       <ScheduleCard key={schedule._id}>
         <FormContainer padding="0 0 10px 0" width="100%" column>
@@ -154,16 +188,7 @@ class SchedulesConfig extends React.Component<Props> {
             <Assignees users={schedule?.assignedUsers || []} />
           </FormContainer>
         </FormContainer>
-        {plan.status !== 'archived' && (
-          <BarItems className="bottomBarItem">
-            {this.renderEditForm(updatedProps)}
-            {this.renderDuplicateForm(updatedProps)}
-
-            <Button btnStyle="link" onClick={handleRemomve} icon="times-circle">
-              {__('Remove')}
-            </Button>
-          </BarItems>
-        )}
+        {this.renderActionBar(schedule)}
       </ScheduleCard>
     );
   }

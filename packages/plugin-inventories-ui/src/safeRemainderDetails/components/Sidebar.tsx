@@ -63,7 +63,6 @@ export default function Sidebar(props: Props) {
           </FormGroup>
         </SidebarContent>
       </Box>
-
       <Box title={__('Filters')} name="showFilters" isOpen={true}>
         <SidebarContent>
           <FormGroup>
@@ -116,6 +115,14 @@ export default function Sidebar(props: Props) {
       >
         <Button btnStyle="success" icon="check-circle" size="small">
           {__('Print')}
+        </Button>
+      </Link>
+      &nbsp;
+      <Link
+        to={`/inventories/safe-remainders/detailsPrintDoc/${props.safeRemainder._id}/${location.search}`}
+      >
+        <Button btnStyle="success" icon="check-circle" size="small">
+          {__('Print Doc')}
         </Button>
       </Link>
     </Wrapper.Sidebar>
