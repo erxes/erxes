@@ -56,7 +56,8 @@ export default withProps<Props>(
           queryParams?.participantUserIds?.split(',') || [];
         return {
           variables: {
-            participantIds: participantUserIds || []
+            participantIds: participantUserIds || [],
+            perPage: 50
           }
         };
       }

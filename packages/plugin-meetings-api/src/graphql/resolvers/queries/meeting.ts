@@ -13,12 +13,16 @@ const generateFilter = async (params, user) => {
 
   const selector: any = { participantIds: { $in: [user._id] } };
 
-  if (participantIds && participantIds.length > 0) {
+  if (
+    participantIds &&
+    participantIds.length > 0 &&
+    !participantIds.includes('')
+  ) {
     selector.participantIds = { $in: participantIds };
   }
-  // if (userId) {
-  //   selector.createdBy = userId;
-  // }
+  if (userId) {
+    selector.createdBy = userId;
+  }
 
   if (companyId || companyId === null) {
     selector.companyId = companyId;
@@ -41,7 +45,7 @@ const generateFilter = async (params, user) => {
       $lt: new Date(createdAtTo)
     };
   }
-
+  console.log(selector, 'aa');
   return selector;
 };
 

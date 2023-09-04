@@ -39,7 +39,8 @@ export const TopicFormContainer = (props: Props) => {
             query: gql(queries.meetingDetail),
             variables: {
               _id: props.meetingId
-            }
+            },
+            skip: object
           }
         ]}
       />

@@ -57,10 +57,10 @@ function List(props: Props) {
           />
         );
         break;
-      case 'agendaTemplate':
-        setComponent(<div>1</div>);
-        setSideBar(<div>sidebar 1</div>);
-        break;
+      // case 'agendaTemplate':
+      //   setComponent(<div>1</div>);
+      //   setSideBar(<div>sidebar 1</div>);
+      //   break;
       default:
         setComponent(<MyCalendarList {...props} />);
         setSideBar(

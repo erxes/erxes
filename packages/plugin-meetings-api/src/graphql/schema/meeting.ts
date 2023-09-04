@@ -22,6 +22,8 @@ export const meetingFilters = `
     userId:String,
     participantIds: [String]
     isPreviousSession: Boolean
+    perPage: Int
+    page: Int
 `;
 
 export const queries = `

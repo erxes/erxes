@@ -25,7 +25,13 @@ const MyMeetingListContainer = (props: FinalProps) => {
   const { createdAtFrom, createdAtTo, ownerId, companyId } = queryParams;
 
   const { data, loading } = useQuery(gql(queries.meetings), {
-    variables: { createdAtFrom, createdAtTo, userId: ownerId, companyId }
+    variables: {
+      createdAtFrom,
+      createdAtTo,
+      userId: ownerId,
+      companyId,
+      perPage: 50
+    }
   });
 
   if (loading) {

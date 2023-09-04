@@ -37,6 +37,8 @@ export const meetingsFilterParamsDef = `
     userId: $userId
     isPreviousSession: $isPreviousSession
     participantIds: $participantIds
+    perPage: $perPage
+    page: $page
 `;
 
 export const meetingsFilterParams = `
@@ -47,6 +49,8 @@ export const meetingsFilterParams = `
     $userId: String
     $isPreviousSession: Boolean
     $participantIds: [String]
+    $perPage: Int
+    $page: Int
 `;
 
 const meetings = `

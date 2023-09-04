@@ -30,7 +30,7 @@ const MeetingDetailContainer = (props: FinalProps) => {
   const { meetingDetailQuery, companyId, status } = props;
 
   const { data, loading } = useQuery(gql(queries.meetings), {
-    variables: { companyId, status },
+    variables: { companyId, status, perPage: 50 },
     skip: !companyId
   });
 

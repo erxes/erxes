@@ -47,16 +47,16 @@ export const SideBar = (props: Props) => {
     return uniqueUsers;
   }, []);
 
-  useEffect(() => {
-    const queryString = 'participantUserIds=' + checkedUsers.join(',');
-    setFilteredMeeting(meetings);
-    if (queryString.includes('participantUserIds')) {
-      if (queryString === 'participantUserIds=') {
-        return history.push(`${window.location.pathname}`);
-      }
-      return history.push(`${window.location.pathname}?${queryString}`);
-    }
-  }, [checkedUsers, meetings]);
+  // useEffect(() => {
+  //   const queryString = 'participantUserIds=' + checkedUsers.join(',');
+  //   setFilteredMeeting(meetings);
+  //   if (queryString.includes('participantUserIds')) {
+  //     if (queryString === 'participantUserIds=') {
+  //       return history.push(`${window.location.pathname}`);
+  //     }
+  //     return history.push(`${window.location.pathname}?${queryString}`);
+  //   }
+  // }, [checkedUsers, meetings]);
 
   const ListItem = meeting => {
     const className = meeting && meetingId === meeting._id ? 'active' : '';
@@ -101,7 +101,7 @@ export const SideBar = (props: Props) => {
     const today = moment(); // Get today's date
     const todayMeetings = meetings.filter(meeting => {
       const meetingDate = moment(meeting.startDate);
-      return meetingDate.isSame(today, 'day');
+      return meeting.status !== 'completed' && meetingDate.isSame(today, 'day');
     });
 
     return todayMeetings;
@@ -111,7 +111,9 @@ export const SideBar = (props: Props) => {
     const tomorrow = moment().add(1, 'day'); // Get tomorrow's date
     return meetings.filter(meeting => {
       const meetingDate = moment(meeting.startDate);
-      return meetingDate.isSame(tomorrow, 'day');
+      return (
+        meeting.status !== 'completed' && meetingDate.isSame(tomorrow, 'day')
+      );
     });
   };
 
@@ -122,6 +124,7 @@ export const SideBar = (props: Props) => {
     return meetings.filter(meeting => {
       const meetingDate = moment(meeting.startDate);
       return (
+        meeting.status !== 'completed' &&
         !meetingDate.isSame(today, 'day') &&
         !meetingDate.isSame(tomorrow, 'day')
       );
@@ -142,8 +145,14 @@ export const SideBar = (props: Props) => {
     const isChecked = e.target.checked;
     if (isChecked && !checkedUsers.includes(userId)) {
       setCheckedUsers([...checkedUsers, userId]);
+      const participantIds = [...checkedUsers, userId];
+      const queryString = 'participantUserIds=' + participantIds.join(',');
+      return history.push(`${window.location.pathname}?${queryString}`);
     } else {
-      setCheckedUsers(checkedUsers.filter(user => user !== userId));
+      const uncheckedUser = checkedUsers.filter(user => user !== userId);
+      setCheckedUsers(uncheckedUser);
+      const queryString = 'participantUserIds=' + uncheckedUser.join(',');
+      return history.push(`${window.location.pathname}?${queryString}`);
     }
   };
 
