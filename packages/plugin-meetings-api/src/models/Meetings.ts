@@ -15,7 +15,7 @@ export interface IMeetingModel extends Model<IMeetingDocument> {
     user: IUser
   ): Promise<IMeetingDocument>;
   updateMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
-  removeMeeting(_id: String): Promise<IMeetingDocument>;
+  removeMeeting(_id: String, user: IUser): Promise<IMeetingDocument>;
 }
 
 export const loadMeetingClass = (model: IModels) => {
@@ -51,15 +51,29 @@ export const loadMeetingClass = (model: IModels) => {
       if (!user) {
         throw new Error('You are not logged in');
       }
-      await model.Meetings.updateOne(
-        { _id: doc._id },
-        { $set: { ...doc, updatedBy: user._id } }
-      );
-      return model.Meetings.findOne({ _id: doc._id });
+      const result = await model.Meetings.findOne({
+        _id: doc._id,
+        createdBy: user._id
+      });
+      if (result) {
+        await model.Meetings.updateOne(
+          { _id: result._id },
+          { $set: { ...doc, updatedBy: user._id } }
+        );
+        return result;
+      }
+      throw new Error('You cannot edit ');
     }
     // remove
-    public static async removeMeeting(_id: string) {
-      return model.Meetings.deleteOne({ _id });
+    public static async removeMeeting(_id: string, user) {
+      const result = await model.Meetings.findOne({
+        _id,
+        createdBy: user._id
+      });
+      if (result) {
+        return model.Meetings.deleteOne({ _id });
+      }
+      throw new Error('You cannot remove ');
     }
   }
 
