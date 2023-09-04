@@ -22,8 +22,8 @@ const meetingMutations = {
   /**
    * Removes a single meetings
    */
-  async meetingRemove(_root, { _id }, { models }: IContext) {
-    await models.Meetings.removeMeeting(_id);
+  async meetingRemove(_root, { _id }, { models, user }: IContext) {
+    await models.Meetings.removeMeeting(_id, user);
     return 'removed';
   }
 };
