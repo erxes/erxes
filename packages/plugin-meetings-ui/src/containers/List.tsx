@@ -20,6 +20,7 @@ type Props = {
   searchFilter: string;
   queryParams: any;
   route?: string;
+  perPage?: number;
 };
 
 type FinalProps = {
@@ -34,7 +35,6 @@ const ListContainer = (props: FinalProps) => {
   if (meetingQuery.loading) {
     return <Spinner />;
   }
-
   const updatedProps = {
     ...props,
     meetings: meetingQuery.meetings || [],
@@ -49,13 +49,13 @@ export default withProps<Props>(
   compose(
     graphql(gql(queries.meetings), {
       name: 'meetingQuery',
-      options: ({ queryParams }: Props) => {
+      options: ({ queryParams, perPage }: Props) => {
         const participantUserIds =
           queryParams?.participantUserIds?.split(',') || [];
         return {
           variables: {
             participantIds: participantUserIds || [],
-            perPage: 50
+            perPage: perPage || 50
           }
         };
       }

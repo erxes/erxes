@@ -1,8 +1,8 @@
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, router } from '@erxes/ui/src/utils/core';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { colors } from '@erxes/ui/src/styles';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IMeeting } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -14,7 +14,7 @@ import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { generateColorCode, colorList } from '../../utils';
+import { generateColorCode } from '../../utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -27,7 +27,6 @@ type Props = {
 
 export const SideBar = (props: Props) => {
   const { queryParams, meetings, loading } = props;
-
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
   const [checkedUsers, setCheckedUsers] = useState(
@@ -47,16 +46,14 @@ export const SideBar = (props: Props) => {
     return uniqueUsers;
   }, []);
 
-  // useEffect(() => {
-  //   const queryString = 'participantUserIds=' + checkedUsers.join(',');
-  //   setFilteredMeeting(meetings);
-  //   if (queryString.includes('participantUserIds')) {
-  //     if (queryString === 'participantUserIds=') {
-  //       return history.push(`${window.location.pathname}`);
-  //     }
-  //     return history.push(`${window.location.pathname}?${queryString}`);
-  //   }
-  // }, [checkedUsers, meetings]);
+  useEffect(() => {
+    setFilteredMeeting(meetings);
+  }, [meetings]);
+
+  const onClick = meetingId => {
+    // history.push(`/meetings/myCalendar?meetingId=${meetingId}`);
+    router.setParams(history, { meetingId: meetingId });
+  };
 
   const ListItem = meeting => {
     const className = meeting && meetingId === meeting._id ? 'active' : '';
@@ -68,9 +65,7 @@ export const SideBar = (props: Props) => {
       <SidebarListItem
         isActive={className === 'active'}
         key={meeting._id}
-        onClick={() =>
-          history.push(`/meetings/myCalendar?meetingId=${meeting._id}`)
-        }
+        onClick={() => onClick(meeting._id)}
         backgroundColor="#f2f2f2"
         style={{
           margin: '0 20px 4px 20px',

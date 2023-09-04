@@ -104,8 +104,17 @@ export const MeetingDetail = (props: Props) => {
           </MeetingDetailColumn>
           <MeetingDetailColumn>
             <Icon icon="map" color={colors.colorCoreBlue} /> &nbsp;
-            <span>Location:</span>
-            {' ' + meetingDetail?.location}
+            {meetingDetail?.method === 'offline' ? (
+              <>
+                <span>Location:</span>
+                {' ' + meetingDetail?.location}
+              </>
+            ) : (
+              <>
+                <span>Method:</span>
+                {' ' + meetingDetail?.method}
+              </>
+            )}
           </MeetingDetailColumn>
         </MeetingDetailRow>
         <MeetingDetailRow>

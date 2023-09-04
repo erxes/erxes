@@ -53,7 +53,8 @@ const MeetingFormContainer = (props: FinalProps) => {
         } a ${passedName}`}
         refetchQueries={[
           {
-            query: gql(queries.meetings)
+            query: gql(queries.meetings),
+            variables: { perPage: 50 }
           }
         ]}
       />
@@ -67,7 +68,6 @@ const MeetingFormContainer = (props: FinalProps) => {
   if (companiesQuery && companiesQuery.loading) {
     return <Spinner />;
   }
-
   return <MeetingForm {...updatedProps} />;
 };
 

@@ -40,7 +40,6 @@ const SideBarContainer = (props: Props) => {
     ...props,
     renderButton
   };
-
   return <SideBar {...updatedProps} />;
 };
 

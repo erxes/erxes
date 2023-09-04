@@ -45,7 +45,6 @@ const generateFilter = async (params, user) => {
       $lt: new Date(createdAtTo)
     };
   }
-  console.log(selector, 'aa');
   return selector;
 };
 

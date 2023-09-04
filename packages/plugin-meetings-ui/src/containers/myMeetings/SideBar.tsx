@@ -13,7 +13,6 @@ const SideBarContainer = (props: Props) => {
   const updatedProps = {
     ...props
   };
-
   return <SideBar {...updatedProps} />;
 };
 

@@ -43,7 +43,6 @@ function List(props: Props) {
 
   const { meetingId } = queryParams;
   const routePath = location.pathname.split('/').slice(-1)[0];
-
   useEffect(() => {
     switch (routePath) {
       case 'myMeetings':
@@ -100,7 +99,6 @@ function List(props: Props) {
           </Button>
         </Link>
       ) : (
-        // </Link>
         <ModalTrigger
           title={__('Create meetings')}
           trigger={trigger}
