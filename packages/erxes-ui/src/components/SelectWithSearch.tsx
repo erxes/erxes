@@ -66,6 +66,7 @@ const ClearButton = styled.div`
 `;
 
 type Props = {
+  initialValuesProvided: boolean;
   initialValues: string[];
   searchValue: string;
   search: (search: string, loadMore?: boolean) => void;
@@ -123,13 +124,19 @@ class SelectWithSearch extends React.Component<
     const {
       queryName,
       customQuery,
-      generateOptions,
-      initialValues
+      initialValues,
+      generateOptions
     } = nextProps;
+
+    const { initialValuesProvided } = this.props;
     const { selectedValues } = this.state;
 
     // trigger clearing values by initialValues prop
-    if ((!initialValues || !initialValues.length) && selectedValues.length) {
+    if (
+      initialValuesProvided &&
+      (!initialValues || !initialValues.length) &&
+      selectedValues.length
+    ) {
       this.setState({ selectedValues: [] });
     }
 
@@ -381,6 +388,7 @@ class Wrapper extends React.Component<
     return (
       <Component
         {...this.props}
+        initialValuesProvided={initialValue ? true : false}
         initialValues={initialValues}
         abortController={abortController}
         search={this.search}
