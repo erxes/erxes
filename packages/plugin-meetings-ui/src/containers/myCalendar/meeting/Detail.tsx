@@ -1,7 +1,7 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   EditTypeMutationResponse,
   RemoveTypeMutationResponse,
@@ -37,7 +37,7 @@ const MeetingDetailContainer = (props: FinalProps) => {
   const [editMeetingStatus] = useMutation(gql(mutations.editMeetingStatus), {
     refetchQueries: ['meetings'],
     onError: e => {
-      console.error(e);
+      Alert.error(e.message);
     }
   });
 
