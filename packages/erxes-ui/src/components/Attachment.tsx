@@ -42,6 +42,10 @@ const ItemInfo = styled.div`
   }
 `;
 
+const VideoPlayerWrapper = styled.div`
+  width: 300px;
+`;
+
 const Download = styled.a`
   color: ${colors.colorCoreGray};
   margin-left: 10px;
@@ -70,10 +74,12 @@ const PreviewWrapper = styledTS<{ large?: boolean }>(styled.div)`
   }
 `;
 
-export const Meta = styled.div`
+export const Meta = styled.div<{ type?: string }>`
   position: relative;
   font-weight: 500;
   color: ${colors.colorCoreGray};
+  display: ${props => (props.type?.includes('video') ? 'flex' : 'initial')};
+  justify-content: space-between;
 
   > * + * {
     margin-left: 10px;
@@ -160,12 +166,12 @@ class Attachment extends React.Component<Props> {
     }
   }
 
-  renderOtherInfo = attachment => {
+  renderOtherInfo = (attachment, type?: string) => {
     const name = attachment.name || attachment.url || '';
 
     return (
       <>
-        <h5>
+        <h5 style={{ marginBottom: type === 'video' ? 0 : '' }}>
           <AttachmentName>{name}</AttachmentName>
           <Download
             rel="noopener noreferrer"
@@ -175,7 +181,7 @@ class Attachment extends React.Component<Props> {
             <Icon icon="external-link-alt" />
           </Download>
         </h5>
-        <Meta>
+        <Meta type={attachment.type}>
           <span>
             {attachment.size && (
               <div>
@@ -234,7 +240,7 @@ class Attachment extends React.Component<Props> {
             attachments={attachments}
           />
         </PreviewWrapper>
-        <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
+        <ItemInfo>{this.renderOtherInfo(attachment, '')}</ItemInfo>
       </AttachmentWrapper>
     );
   };
@@ -252,17 +258,19 @@ class Attachment extends React.Component<Props> {
         }
       ]
     };
-
     if (simple) {
-      return <VideoPlayer options={options} />;
+      return (
+        <VideoPlayerWrapper>
+          <VideoPlayer options={options} type="simple" />
+        </VideoPlayerWrapper>
+      );
     }
+
     return (
-      <AttachmentWrapper>
-        <ItemInfo>
-          <VideoPlayer options={options} />
-        </ItemInfo>
-        {this.renderOtherInfo(attachment)}
-      </AttachmentWrapper>
+      <>
+        <VideoPlayer options={options} />
+        {this.renderOtherInfo(attachment, 'video')}
+      </>
     );
   };
 
@@ -281,16 +289,18 @@ class Attachment extends React.Component<Props> {
     };
 
     if (simple) {
-      return <VideoPlayer options={options} />;
+      return (
+        <VideoPlayerWrapper>
+          <VideoPlayer options={options} type="simple" />
+        </VideoPlayerWrapper>
+      );
     }
 
     return (
-      <AttachmentWrapper>
-        <ItemInfo>
-          <VideoPlayer options={options} />
-        </ItemInfo>
-        {this.renderOtherInfo(attachment)}
-      </AttachmentWrapper>
+      <>
+        <VideoPlayer options={options} />
+        {this.renderOtherInfo(attachment, 'video')}
+      </>
     );
   };
 
