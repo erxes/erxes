@@ -1,11 +1,10 @@
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, router } from '@erxes/ui/src/utils/core';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { colors } from '@erxes/ui/src/styles';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IMeeting } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import * as moment from 'moment';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -17,7 +16,6 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { generateColorCode } from '../../utils';
 
 type Props = {
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal?: () => void;
   afterSave?: () => void;
   meetings: IMeeting[];
@@ -47,12 +45,12 @@ export const SideBar = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    const queryString = 'participantUserIds=' + checkedUsers.join(',');
-    if (queryString === 'participantUserIds=') {
-      return history.push(`${window.location.pathname}`);
-    }
-    return history.push(`${window.location.pathname}?${queryString}`);
-  }, [checkedUsers]);
+    setFilteredMeeting(meetings);
+  }, [meetings, meetings.length]);
+
+  const onClick = (meetingId: string) => {
+    router.setParams(history, { meetingId: meetingId });
+  };
 
   const ListItem = meeting => {
     const className = meeting && meetingId === meeting._id ? 'active' : '';
@@ -64,9 +62,7 @@ export const SideBar = (props: Props) => {
       <SidebarListItem
         isActive={className === 'active'}
         key={meeting._id}
-        onClick={() =>
-          history.push(`/meetings/myCalendar?meetingId=${meeting._id}`)
-        }
+        onClick={() => onClick(meeting._id)}
         backgroundColor="#f2f2f2"
         style={{
           margin: '0 20px 4px 20px',
@@ -97,7 +93,7 @@ export const SideBar = (props: Props) => {
     const today = moment(); // Get today's date
     const todayMeetings = meetings.filter(meeting => {
       const meetingDate = moment(meeting.startDate);
-      return meetingDate.isSame(today, 'day');
+      return meeting.status !== 'completed' && meetingDate.isSame(today, 'day');
     });
 
     return todayMeetings;
@@ -107,7 +103,9 @@ export const SideBar = (props: Props) => {
     const tomorrow = moment().add(1, 'day'); // Get tomorrow's date
     return meetings.filter(meeting => {
       const meetingDate = moment(meeting.startDate);
-      return meetingDate.isSame(tomorrow, 'day');
+      return (
+        meeting.status !== 'completed' && meetingDate.isSame(tomorrow, 'day')
+      );
     });
   };
 
@@ -118,6 +116,7 @@ export const SideBar = (props: Props) => {
     return meetings.filter(meeting => {
       const meetingDate = moment(meeting.startDate);
       return (
+        meeting.status !== 'completed' &&
         !meetingDate.isSame(today, 'day') &&
         !meetingDate.isSame(tomorrow, 'day')
       );
@@ -135,20 +134,25 @@ export const SideBar = (props: Props) => {
   };
 
   const handleChange = (e, userId: string) => {
+    router.removeParams(history, meetingId);
     const isChecked = e.target.checked;
     if (isChecked && !checkedUsers.includes(userId)) {
       setCheckedUsers([...checkedUsers, userId]);
+      const participantIds = [...checkedUsers, userId];
+      const queryString = 'participantUserIds=' + participantIds.join(',');
+
+      return history.push(`${window.location.pathname}?${queryString}`);
     } else {
-      setCheckedUsers(checkedUsers.filter(user => user !== userId));
+      const uncheckedUser = checkedUsers.filter(user => user !== userId);
+      setCheckedUsers(uncheckedUser);
+      const queryString = 'participantUserIds=' + uncheckedUser.join(',');
+
+      return history.push(`${window.location.pathname}?${queryString}`);
     }
-  };
-  const handleUserRemove = (userId: string) => {
-    console.log('userId', userId);
   };
 
   const data = (
     <SidebarList style={{ padding: '10px 20px' }}>
-      {/* <h4>{__("Other Calendar")}</h4> */}
       {participantUser.map((user: any) => {
         return (
           <ParticipantList key={user._id}>
@@ -158,7 +162,11 @@ export const SideBar = (props: Props) => {
               defaultChecked={checkedUsers.includes(user._id)}
             />
             &emsp;
-            <FieldStyle>{user.details.fullName}</FieldStyle>
+            <FieldStyle>
+              {user.details?.fullName !== ' ' && user.details?.fullName !== ''
+                ? user.details.fullName
+                : user.email}
+            </FieldStyle>
             <div className="actions">
               <div
                 className="badge"
@@ -197,7 +205,6 @@ export const SideBar = (props: Props) => {
           </SidebarList>
         </Box>
       )}
-
       {tommorowMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Tommorow" name={`tomorrow`} isOpen={true}>
           <SidebarList noTextColor noBackground id="SideBar">
@@ -207,7 +214,6 @@ export const SideBar = (props: Props) => {
           </SidebarList>
         </Box>
       )}
-
       {otherMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Other" name={`other`} isOpen={false}>
           <SidebarList noTextColor noBackground id="SideBar">
@@ -217,7 +223,6 @@ export const SideBar = (props: Props) => {
           </SidebarList>
         </Box>
       )}
-
       <Box title="Other calendar" name={`showCaledar`} isOpen={true}>
         <DataWithLoader
           data={data}
