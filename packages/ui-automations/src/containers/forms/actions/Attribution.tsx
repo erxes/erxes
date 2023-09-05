@@ -20,6 +20,7 @@ type Props = {
   fieldType?: string;
   attrType?: string;
   attrTypes?: string[];
+  attrConfig?: any;
   onlySet?: boolean;
   customAttributions?: FieldsCombinedByType[];
 };
@@ -58,9 +59,10 @@ export default withProps<Props>(
       gql(formQueries.fieldsCombinedByContentType),
       {
         name: 'fieldsCombinedByTypeQuery',
-        options: ({ triggerType }) => ({
+        options: ({ triggerType, attrConfig }) => ({
           variables: {
-            contentType: triggerType
+            contentType: triggerType,
+            config: attrConfig ? attrConfig : undefined
           }
         })
       }

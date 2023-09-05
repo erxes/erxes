@@ -7,6 +7,11 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { Attributes } from '../styles';
 import PlaceHolderInput from './PlaceHolderInput';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components/form';
 
 type Props = {
   triggerType: string;
@@ -17,6 +22,7 @@ type Props = {
 };
 
 type State = {
+  searchValue: string;
   fields: FieldsCombinedByType[];
 };
 
@@ -27,7 +33,8 @@ class SelectFields extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      fields: []
+      fields: [],
+      searchValue: ''
     };
   }
 
@@ -48,18 +55,34 @@ class SelectFields extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { attributions } = this.props;
-    const { fields } = this.state;
+    let { attributions } = this.props;
+    const { fields, searchValue } = this.state;
 
     const onClickField = item => {
       this.setState({ fields: [...fields, item] });
       this.hideContent();
     };
 
+    const onSearch = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      this.setState({ searchValue: value });
+    };
+
+    if (searchValue) {
+      attributions = attributions.filter(option =>
+        new RegExp(searchValue, 'i').test(option.label)
+      );
+    }
+
     return (
       <Popover id="field-popover">
         <Attributes>
           <React.Fragment>
+            <FormGroup>
+              <ControlLabel>{__('Search')}</ControlLabel>
+              <FormControl placeholder="type a search" onChange={onSearch} />
+            </FormGroup>
             <li>
               <b>{__('Fields')}</b>
             </li>
