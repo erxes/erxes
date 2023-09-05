@@ -127,7 +127,7 @@ export const findTeamMembers = (subdomain: string, userIds: string[]) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { employeeId: { $exists: true }, _id: { $in: userIds } }
+      query: { _id: { $in: userIds } }
     },
     isRPC: true,
     defaultValue: []

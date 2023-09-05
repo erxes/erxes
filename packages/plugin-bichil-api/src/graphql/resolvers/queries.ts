@@ -73,7 +73,7 @@ const bichilQueries = {
     } else {
       if (isCurrentUserAdmin) {
         // return all team member ids
-        totalMembers = await findAllTeamMembersWithEmpId(subdomain);
+        totalMembers = await findAllTeamMembers(subdomain);
         totalTeamMemberIds = totalMembers.map(usr => usr._id);
       } else {
         // return supervisod users including current user

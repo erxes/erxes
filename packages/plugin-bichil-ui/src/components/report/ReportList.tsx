@@ -1,8 +1,9 @@
 import Table from '@erxes/ui/src/components/table';
 import React from 'react';
 import { IReport } from '../../types';
-import TableHeaders from './ReportTableHeaders';
 import TableRow from './ReportTableRow';
+import TableHeaders from './ReportTableHeaders';
+
 type Props = {
   bichilReports: IReport[];
   reportType: string;
