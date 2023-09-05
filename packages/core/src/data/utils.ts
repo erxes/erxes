@@ -897,8 +897,6 @@ const readFromCR2 = async (key: string, models?: IModels) => {
           return reject(error);
         }
 
-        console.log('response.Body', response.Body);
-
         return resolve(response.Body);
       }
     );
