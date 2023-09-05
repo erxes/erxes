@@ -9,6 +9,7 @@ import colors from '../styles/colors';
 import { rgba } from '../styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import VideoPlayer from './VideoPlayer';
 
 export const AttachmentWrapper = styled.div`
   border-radius: 4px;
@@ -238,15 +239,57 @@ class Attachment extends React.Component<Props> {
     );
   };
 
-  renderVideoFile = attachment => {
+  renderVideoFile = (attachment, simple?: boolean) => {
+    const options = {
+      autoplay: false,
+      playbackRates: [0.5, 1, 1.25, 1.5, 2],
+      controls: true,
+      width: '100%',
+      sources: [
+        {
+          src: readFile(attachment.url),
+          type: 'video/mp4'
+        }
+      ]
+    };
+
+    if (simple) {
+      return <VideoPlayer options={options} />;
+    }
     return (
       <AttachmentWrapper>
         <ItemInfo>
-          <video controls={true} loop={true}>
-            <source src={readFile(attachment.url)} type="video/mp4" />
-            {__('Your browser does not support the video tag')}.
-          </video>
+          <VideoPlayer options={options} />
         </ItemInfo>
+        {this.renderOtherInfo(attachment)}
+      </AttachmentWrapper>
+    );
+  };
+
+  renderVideoStream = (attachment: IAttachment, simple?: boolean) => {
+    const options = {
+      autoplay: false,
+      playbackRates: [0.5, 1, 1.25, 1.5, 2],
+      controls: true,
+      width: '100%',
+      sources: [
+        {
+          src: attachment.url,
+          type: 'application/x-mpegURL'
+        }
+      ]
+    };
+
+    if (simple) {
+      return <VideoPlayer options={options} />;
+    }
+
+    return (
+      <AttachmentWrapper>
+        <ItemInfo>
+          <VideoPlayer options={options} />
+        </ItemInfo>
+        {this.renderOtherInfo(attachment)}
       </AttachmentWrapper>
     );
   };
@@ -290,6 +333,9 @@ class Attachment extends React.Component<Props> {
 
     const { simple, withoutPreview } = this.props;
 
+    const url = attachment.url || attachment.name || '';
+    const fileExtension = url.split('.').pop();
+
     if (withoutPreview) {
       return this.renderWithoutPreview();
     }
@@ -302,16 +348,17 @@ class Attachment extends React.Component<Props> {
       return this.renderOtherFile(attachment);
     }
 
-    if (attachment.type === 'audio') {
+    if (attachment.type.includes('audio')) {
       return this.renderAudioFile(attachment);
     }
 
-    if (attachment.type === 'video') {
-      return this.renderVideoFile(attachment);
+    if (url.includes('cloudflarestream.com')) {
+      return this.renderVideoStream(attachment, simple);
     }
 
-    const url = attachment.url || attachment.name || '';
-    const fileExtension = url.split('.').pop();
+    if (attachment.type.includes('video')) {
+      return this.renderVideoFile(attachment, simple);
+    }
 
     let filePreview;
 
@@ -339,6 +386,9 @@ class Attachment extends React.Component<Props> {
         break;
       case 'wave':
         filePreview = this.renderAudioWavFile(attachment);
+        break;
+      case 'm3u8':
+        filePreview = this.renderVideoStream(attachment);
         break;
       case 'zip':
       case 'csv':
