@@ -273,7 +273,6 @@ const productQueries = {
         .sort(sortParams)
         .lean();
     }
-    console.log(categories.length);
 
     const list: IProductCategoryDocument[] = [];
 
