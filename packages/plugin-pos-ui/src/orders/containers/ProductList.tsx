@@ -9,6 +9,7 @@ import { PosProductsQueryResponse } from '../types';
 import { queries } from '../graphql';
 import { FILTER_PARAMS } from '../../constants';
 import queryString from 'query-string';
+import { generateParams } from './List';
 
 type Props = {
   queryParams: any;
@@ -133,21 +134,7 @@ export default withProps<Props>(
       {
         name: 'posProductsQuery',
         options: ({ queryParams }) => ({
-          variables: {
-            ...router.generatePaginationParams(queryParams || {}),
-            categoryId: queryParams.categoryId,
-            searchValue: queryParams.searchValue,
-            search: queryParams.search,
-            paidStartDate: queryParams.paidStartDate,
-            paidEndDate: queryParams.paidEndDate,
-            createdStartDate: queryParams.createdStartDate,
-            createdEndDate: queryParams.createdEndDate,
-            paidDate: queryParams.paidDate,
-            userId: queryParams.userId,
-            customerId: queryParams.customerId,
-            customerType: queryParams.customerType,
-            posId: queryParams.posId
-          },
+          variables: generateParams({ queryParams }),
           fetchPolicy: 'network-only'
         })
       }

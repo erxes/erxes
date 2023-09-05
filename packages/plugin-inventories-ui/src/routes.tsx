@@ -1,4 +1,6 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import ListComponentDoc from './safeRemainderDetails/components/PrintDoc';
+import ListComponent from './safeRemainderDetails/components/Print';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -26,7 +28,7 @@ const safeRemainderDetails = asyncComponent(() =>
   )
 );
 
-const safeRemainderDetailsPrint = asyncComponent(() =>
+const SafeRemainderDetailsPrint = asyncComponent(() =>
   import(
     /* webpackChunkName: 'List - SafeRemainders' */ './safeRemainderDetails/containers/Print'
   )
@@ -43,6 +45,14 @@ const RemaindersLog = asyncComponent(() =>
     /* webpackChunkName: "Settings List - ProductService" */ './remainders/containers/RemaindersLog'
   )
 );
+
+const safeRemainderDetailsPrintDoc = () => {
+  return <SafeRemainderDetailsPrint component={ListComponentDoc} />;
+};
+
+const safeRemainderDetailsPrint = () => {
+  return <SafeRemainderDetailsPrint component={ListComponent} />;
+};
 
 const remaindersLog = ({ match, location }) => {
   const id = match.params.id;
@@ -97,6 +107,12 @@ const routes = () => {
         path="/inventories/safe-remainders/detailsPrint/:id"
         key="/inventories/safe-remainders/detailsPrint/:id"
         component={safeRemainderDetailsPrint}
+      />
+      <Route
+        exact={true}
+        path="/inventories/safe-remainders/detailsPrintDoc/:id"
+        key="/inventories/safe-remainders/detailsPrintDoc/:id"
+        component={safeRemainderDetailsPrintDoc}
       />
 
       <Route

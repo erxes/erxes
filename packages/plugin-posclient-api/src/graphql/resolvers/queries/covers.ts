@@ -1,4 +1,4 @@
-import { paginate } from '@erxes/api-utils/src/core';
+import { getPureDate, paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 
 const coverQueries = {
@@ -40,6 +40,8 @@ const coverQueries = {
     { _id, endDate }: { _id: string; endDate: Date },
     { models, posUser, config }: IContext
   ) {
+    endDate = getPureDate(endDate);
+
     if (endDate > new Date()) {
       throw new Error('Must be a date forward from now');
     }

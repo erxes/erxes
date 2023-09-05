@@ -51,7 +51,7 @@ const getCellValue = (order, colName) => {
     case 'created_date':
       return moment(order.paidDate || order.createdAt).format('YYYY-MM-DD');
     case 'created_time':
-      return moment(order.paidDate || order.createdAt).format('HH-mm-ss');
+      return moment(order.paidDate || order.createdAt).format('HH:mm:ss');
     case 'number':
       return order.number;
     case 'pos':

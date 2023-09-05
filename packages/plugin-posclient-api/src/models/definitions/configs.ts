@@ -163,7 +163,8 @@ export const configSchema = new Schema({
   permissionConfig: field({ type: Object, optional: true }),
   allowTypes: field({ type: [String], label: 'Allow Types' }),
   isCheckRemainder: field({ type: Boolean, optional: true }),
-  checkExcludeCategoryIds: field({ type: [String] })
+  checkExcludeCategoryIds: field({ type: [String] }),
+  status: field({ type: String, optional: true })
 });
 
 export const productGroupSchema = new Schema({

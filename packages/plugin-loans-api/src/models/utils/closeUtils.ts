@@ -63,6 +63,7 @@ export const getCloseInfo = async (
     insurance,
     payment: lastPaySchedule.balance,
     debt,
+    storedInterest: contract.storedInterest,
     total:
       lastPaySchedule.balance +
       (undue || 0) +

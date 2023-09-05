@@ -232,6 +232,7 @@ type SelectCustomFieldProps = {
   name: string;
   initialValue: string;
   customOption?: IOption;
+  configs?: any[];
   onSelect: ({
     value,
     label,
@@ -245,46 +246,41 @@ type SelectCustomFieldProps = {
 };
 
 type SelectCustomFieldFinalProps = {
-  fields: any;
+  fieldsQuery: any;
 } & SelectCustomFieldProps;
 
 class SelectCustomFieldsComponent extends React.Component<
-  SelectCustomFieldFinalProps
+  { options: any[]; defaultValue: any } & SelectCustomFieldFinalProps
 > {
   constructor(props) {
     super(props);
   }
 
-  render() {
-    const { label, initialValue, onSelect, fields } = this.props;
-    if (fields?.loading) {
-      return null;
+  componentDidMount() {
+    if (!!this?.props?.defaultValue) {
+      const { defaultValue, configs = [] } = this.props;
+      const { name, value = [], label } = defaultValue || {};
+
+      const updateConfigs = value.map(val => {
+        const config = configs.find(config => config.value === val.value);
+        return config ? config : val;
+      });
+
+      this.props.onSelect({
+        _id: name.replace('customFieldsData.', ''),
+        label,
+        value: updateConfigs
+      });
     }
+  }
 
-    const options =
-      fields?.fieldsCombinedByContentType
-        .map(
-          ({ _id, label, name, selectOptions }) =>
-            selectOptions && {
-              _id,
-              label,
-              name,
-              value: selectOptions
-            }
-        )
-        .filter(field => field) || [];
+  render() {
+    const { label, defaultValue, onSelect, options } = this.props;
 
-    const handleChange = e => {
-      const _id = e?.name.replace('customFieldsData.', '');
-      onSelect({ value: e?.value, label: e?.label, _id });
+    const handleChange = ({ name, value, label }) => {
+      const _id = (name || '').replace('customFieldsData.', '');
+      onSelect({ value, label, _id });
     };
-
-    const defaultValue = !!initialValue
-      ? options.find(
-          option =>
-            option.name.replace('customFieldsData.', '') === initialValue
-        )
-      : null;
 
     return (
       <Select
@@ -298,21 +294,50 @@ class SelectCustomFieldsComponent extends React.Component<
   }
 }
 
+function SelectCustomFieldsContainer(props: SelectCustomFieldFinalProps) {
+  const { initialValue, fieldsQuery } = props;
+  if (fieldsQuery?.loading) {
+    return null;
+  }
+
+  const { fieldsCombinedByContentType = [] } = fieldsQuery || {};
+
+  const options = fieldsCombinedByContentType
+    .filter(({ selectOptions }) => !!selectOptions)
+    .map(({ selectOptions, ...field }) => ({
+      ...field,
+      value: selectOptions
+    }));
+
+  const defaultValue = !!initialValue
+    ? options.find(option => option.name.includes(initialValue))
+    : null;
+
+  const updatedProps = {
+    ...props,
+    options,
+    defaultValue
+  };
+
+  return <SelectCustomFieldsComponent {...updatedProps} />;
+}
+
 export const SelectCustomFields = withProps<SelectCustomFieldProps>(
   compose(
     graphql<SelectCustomFieldProps>(
       gql(formQueries.fieldsCombinedByContentType),
       {
-        name: 'fields',
+        name: 'fieldsQuery',
         skip: ({ type }) => !type,
         options: ({ type }) => ({
           variables: {
             contentType: `cards:${type}`
-          }
+          },
+          fetchPolicy: 'no-cache'
         })
       }
     )
-  )(SelectCustomFieldsComponent)
+  )(SelectCustomFieldsContainer)
 );
 
 export const SelectOperations = ({

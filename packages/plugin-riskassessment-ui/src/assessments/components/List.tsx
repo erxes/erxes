@@ -1,10 +1,8 @@
 import {
   BarItems,
   Button,
-  EmptyState,
   FormControl,
   HeaderDescription,
-  SortHandler,
   Table,
   __
 } from '@erxes/ui/src';
@@ -12,10 +10,10 @@ import * as _loadash from 'lodash';
 import React from 'react';
 import { DefaultWrapper } from '../../common/utils';
 import { FlexRow, HeaderContent } from '../../styles';
-import Row from './Row';
-import { SideBar } from './SideBar';
 import { headers } from '../common/Headers';
 import { TableHead } from './ListHead';
+import Row from './Row';
+import { SideBar } from './SideBar';
 
 type Props = {
   list: any[];

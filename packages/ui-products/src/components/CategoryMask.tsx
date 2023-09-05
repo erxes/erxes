@@ -6,7 +6,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Flex, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { IProductCategory } from '../types';
-import { ICategory } from '@erxes/ui/src/utils/categories';
 import { __ } from '@erxes/ui/src/utils/core';
 import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 import { TableOver } from '../styles';
@@ -34,8 +33,6 @@ type State = {
 class CategoryMask extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-
-    const category = props.category || ({} as ICategory);
 
     this.state = {
       activePerVal: {},
@@ -73,6 +70,7 @@ class CategoryMask extends React.Component<Props, State> {
     const onEdit = () => {
       this.setState({ activePerVal: perVal });
     };
+
     return (
       <td colSpan={perVal.len || 1}>
         {perVal.static || (
@@ -251,6 +249,8 @@ class CategoryMask extends React.Component<Props, State> {
         </>
       );
     }
+
+    return <></>;
   }
 
   saveSubForm = () => {

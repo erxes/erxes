@@ -109,7 +109,7 @@ var main = async () => {
         pluginsMap[plugin.name].api.permissions = permissions;
 
         for (const val of Object.values(permissions)) {
-          permissionCheckers = permissionCheckers.concat(val.actions)
+          permissionCheckers = permissionCheckers.concat(val.actions);
         }
       }
 
@@ -119,7 +119,7 @@ var main = async () => {
     }
   }
 
-  const actions = permissionCheckers.map(action => action.name);
+  const actions = permissionCheckers.map((action) => action.name);
   const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
 
   if (dups.length) {

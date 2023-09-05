@@ -93,6 +93,11 @@ export const types = () => `
     expiredDays:Float
     loanTransactionHistory:JSON
     currency:String
+    storedInterest:Float
+    lastStoredDate:Date
+    isPayFirstMonth: Boolean
+    downPayment: Float
+    isBarter: Boolean
   }
 
 
@@ -110,6 +115,7 @@ export const types = () => `
     insurance: Float,
     debt: Float,
     total: Float,
+    storedInterest: Float,
   }
   type ContractsListResponse {
     list: [LoanContract],
@@ -198,6 +204,17 @@ const commonFields = `
   dealId: String
   skipInterestCalcMonth: Float
   currency:String
+  isPayFirstMonth: Boolean
+  downPayment: Float
+  isBarter: Boolean
+`;
+
+const interestCorrectionFields = `
+  contractId: String
+  stoppedDate: Date
+  isStopLoss: Boolean
+  interestAmount: Float
+  lossAmount: Float
 `;
 
 export const mutations = `
@@ -207,4 +224,7 @@ export const mutations = `
   contractsClose(contractId: String, closeDate: Date, closeType: String, description: String): LoanContract
   contractsRemove(contractIds: [String]): [String]
   getProductsData(contractId: String): CollateralsDataResponse
+  stopInterest(${interestCorrectionFields}): LoanContract
+  interestChange(${interestCorrectionFields}): LoanContract
+  interestReturn(${interestCorrectionFields}): LoanContract
 `;

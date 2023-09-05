@@ -55,7 +55,10 @@ const generateFilterPosQuery = async (
     customerType,
     posId,
     posToken,
-    types
+    types,
+    statuses,
+    excludeStatuses,
+    hasPaidDate
   } = params;
 
   if (search) {
@@ -74,6 +77,14 @@ const generateFilterPosQuery = async (
       customerType === 'customer'
         ? { $in: [customerType, '', undefined, null] }
         : customerType;
+  }
+
+  if (
+    (statuses && statuses.length) ||
+    (excludeStatuses && excludeStatuses.length)
+  ) {
+    const _in = statuses && statuses.length ? { $in: statuses || [] } : {};
+    query.status = { ..._in, $nin: excludeStatuses || [] };
   }
 
   if (posId) {
@@ -123,6 +134,10 @@ const generateFilterPosQuery = async (
     query.type = { $in: types };
   }
 
+  if (hasPaidDate) {
+    query.paidDate = { $exists: true };
+  }
+
   if (paidDate === 'today' || !Object.keys(query).length) {
     const now = new Date();
 
@@ -148,7 +163,7 @@ export const posOrderRecordsQuery = async (
     commonQuerySelector,
     user?._id
   );
-  console.log(params, 'sssssssssssssssssssssssssssssssssss');
+
   const { perPage = 20, page = 1 } = params;
 
   const orders = await models.PosOrders.aggregate([
@@ -352,7 +367,6 @@ export const posOrderRecordsCountQuery = async (
     commonQuerySelector,
     user?._id
   );
-  console.log(query);
 
   const orders = await models.PosOrders.aggregate([
     { $match: query },
@@ -458,7 +472,8 @@ const queries = {
           _id: '',
           cashAmount: { $sum: '$cashAmount' },
           mobileAmount: { $sum: '$mobileAmount' },
-          totalAmount: { $sum: '$totalAmount' }
+          totalAmount: { $sum: '$totalAmount' },
+          count: { $sum: 1 }
         }
       }
     ]);
@@ -515,10 +530,139 @@ const queries = {
       ordersAmount[key] = (ordersAmount[key] || 0) + amount.amount;
     }
 
-    return {
-      ...ordersAmount,
-      count: await models.PosOrders.find(query).countDocuments()
+    return ordersAmount;
+  },
+
+  posOrdersGroupSummary: async (
+    _root,
+    params,
+    { models, commonQuerySelector, user }: IContext
+  ) => {
+    const query = await generateFilterPosQuery(
+      models,
+      params,
+      commonQuerySelector,
+      user._id
+    );
+
+    let idGroup: any = {};
+    const { groupField } = params;
+
+    if (groupField) {
+      if (groupField === 'date') {
+        idGroup.paidDate = {
+          $dateToString: { format: '%Y-%m-%d', date: '$paidDate' }
+        };
+      }
+
+      if (groupField === 'time') {
+        idGroup.paidDate = {
+          $dateToString: { format: '%Y-%m-%d %H', date: '$paidDate' }
+        };
+      }
+    }
+
+    const mainAmounts = await models.PosOrders.aggregate([
+      { $match: { ...query } },
+      {
+        $project: {
+          paidDate: '$paidDate',
+          cashAmount: '$cashAmount',
+          mobileAmount: '$mobileAmount',
+          totalAmount: '$totalAmount',
+          finalAmount: '$finalAmount '
+        }
+      },
+      {
+        $group: {
+          _id: idGroup,
+          cashAmount: { $sum: '$cashAmount' },
+          mobileAmount: { $sum: '$mobileAmount' },
+          totalAmount: { $sum: '$totalAmount' },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const otherAmounts = await models.PosOrders.aggregate([
+      { $match: { ...query } },
+      { $unwind: '$paidAmounts' },
+      {
+        $project: {
+          paidDate: '$paidDate',
+          type: '$paidAmounts.type',
+          amount: '$paidAmounts.amount',
+          token: '$posToken'
+        }
+      },
+      {
+        $lookup: {
+          from: 'pos',
+          let: { letToken: '$token', letType: '$type' },
+          pipeline: [
+            {
+              $match: { $expr: { $eq: ['$token', '$$letToken'] } }
+            },
+            {
+              $unwind: '$paymentTypes'
+            },
+            {
+              $project: {
+                type: '$paymentTypes.type',
+                title: '$paymentTypes.title'
+              }
+            },
+            {
+              $match: { $expr: { $eq: ['$type', '$$letType'] } }
+            }
+          ],
+          as: 'paymentInfo'
+        }
+      },
+      {
+        $unwind: { path: '$paymentInfo', preserveNullAndEmptyArrays: true }
+      },
+      {
+        $group: {
+          _id: { ...idGroup, type: '$type', title: '$paymentInfo.title' },
+          amount: { $sum: '$amount' }
+        }
+      }
+    ]);
+
+    const summary = {};
+    const columns = {
+      cashAmount: 'cash amount',
+      mobileAmount: 'mobile amount',
+      totalAmount: 'total amount',
+      count: 'count'
     };
+
+    for (const mainAmount of mainAmounts) {
+      summary[mainAmount._id.paidDate] = {
+        cashAmount: mainAmount.cashAmount || 0,
+        mobileAmount: mainAmount.mobileAmount || 0,
+        totalAmount: mainAmount.totalAmount || 0,
+        count: mainAmount.count || 0
+      };
+    }
+
+    for (const otherAmount of otherAmounts) {
+      summary[otherAmount._id.paidDate][otherAmount._id.type] =
+        (summary[otherAmount._id.paidDate][otherAmount._id.type] || 0) +
+        otherAmount.amount;
+
+      columns[otherAmount._id.type] = otherAmount._id.title;
+    }
+
+    const keys = Object.keys(summary).sort();
+
+    const amounts: any[] = [];
+    for (const key of keys) {
+      amounts.push({ ...summary[key], paidDate: key });
+    }
+
+    return { amounts, columns };
   },
 
   posProducts: async (

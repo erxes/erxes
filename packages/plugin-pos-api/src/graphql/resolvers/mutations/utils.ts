@@ -9,14 +9,31 @@ import { IModels } from '../../../connectionResolver';
 export const syncPosToClient = async (subdomain: string, pos: IPosDocument) => {
   const configData = await getConfigData(subdomain, pos);
 
-  await sendPosclientMessage({
+  return await sendPosclientMessage({
     subdomain,
-    action: 'crudData',
+    action: 'configs.manage',
     data: {
       type: 'pos',
       ...configData
     },
-    isRPC: false,
+    isRPC: true,
+    pos
+  });
+};
+
+export const syncRemovePosToClient = async (
+  subdomain: string,
+  pos: IPosDocument
+) => {
+  return await sendPosclientMessage({
+    subdomain,
+    action: 'configs.remove',
+    data: {
+      type: 'pos',
+      posId: pos._id,
+      posToken: pos.token
+    },
+    isRPC: true,
     pos
   });
 };
