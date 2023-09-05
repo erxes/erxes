@@ -13,6 +13,7 @@ const meetingFields = `
    createdUser {
      _id
      username
+     email
      details {
         fullName
       }
@@ -20,6 +21,7 @@ const meetingFields = `
   participantUser{
       _id
       isActive
+      email
       details {
         fullName
         firstName
