@@ -40,7 +40,8 @@ export const LANGUAGES = [
 export const SERVICE_TYPES = [
   { label: __('Local'), value: 'local' },
   { label: __('Amazon Web Service'), value: 'AWS' },
-  { label: __('Google Cloud Service'), value: 'GCS' }
+  { label: __('Google Cloud Service'), value: 'GCS' },
+  { label: __('Cloudflare'), value: 'CLOUDFLARE' }
 ];
 
 export const FILE_SYSTEM_TYPES = [
@@ -73,6 +74,13 @@ export const KEY_LABELS = {
   WIDGETS_UPLOAD_FILE_TYPES: 'Upload File Types of Widget',
   UPLOAD_SERVICE_TYPE: 'Upload Service Type',
   FILE_SYSTEM_PUBLIC: 'Bucket file system type',
+  CLOUDFLARE_ACCESS_KEY_ID: 'Cloudflare Access Key id',
+  CLOUDFLARE_SECRET_ACCESS_KEY: 'Cloudflare Secret Access Key',
+  CLOUDFLARE_BUCKET_NAME: 'Cloudflare R2 Bucket Name',
+  CLOUDFLARE_ACCOUNT_ID: 'Cloudflare Account id',
+  CLOUDFLARE_API_TOKEN: 'Cloudflare API Token',
+  CLOUDFLARE_USE_CDN: 'Use Cloudflare Images and Stream',
+  CLOUDFLARE_ACCOUNT_HASH: 'Cloudflare Account Hash',
   AWS_ACCESS_KEY_ID: 'AWS Access Key Id',
   AWS_SECRET_ACCESS_KEY: 'AWS Secret Access Key',
   AWS_BUCKET: 'AWS Bucket',
