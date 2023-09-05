@@ -9,6 +9,7 @@ export interface IMeeting {
   startDate: Date;
   endDate: Date;
   location: string;
+  method: string;
 
   createdBy: string;
   updatedBy: string;
@@ -34,6 +35,7 @@ export const meetingSchema = new Schema({
   startDate: field({ type: Date }),
   endDate: field({ type: Date }),
   location: field({ type: String }),
+  method: field({ type: String }),
 
   createdBy: field({ type: String }),
   updatedBy: field({ type: String }),

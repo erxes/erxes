@@ -39,7 +39,8 @@ export default withProps<Props>(
         fetchPolicy: 'network-only',
         variables: {
           companyId: props.companyId,
-          isPreviousSession: true
+          isPreviousSession: true,
+          perPage: 50
         }
       })
     })

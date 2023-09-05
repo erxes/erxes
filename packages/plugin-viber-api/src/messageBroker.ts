@@ -160,8 +160,8 @@ export const initBroker = async cl => {
 
       if (!integration) {
         return {
-          status: 'success',
-          data: null
+          status: 'error',
+          errorMessage: 'Integration not found.'
         };
       }
 
@@ -175,13 +175,20 @@ export const initBroker = async cl => {
       }
 
       if (data.action.includes('reply')) {
-        const payload = JSON.parse(data.payload || '{}');
-        const viberApi: ViberAPI = new ViberAPI({
-          token: integration.token,
-          integrationId,
-          subdomain
-        });
-        await viberApi.sendMessage(payload);
+        try {
+          const payload = JSON.parse(data.payload || '{}');
+          const viberApi: ViberAPI = new ViberAPI({
+            token: integration.token,
+            integrationId,
+            subdomain
+          });
+          await viberApi.sendMessage(payload);
+        } catch (e) {
+          return {
+            status: 'error',
+            errorMessage: e.message
+          };
+        }
       }
 
       return {
