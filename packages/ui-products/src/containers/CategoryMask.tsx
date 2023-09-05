@@ -1,7 +1,5 @@
 import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 

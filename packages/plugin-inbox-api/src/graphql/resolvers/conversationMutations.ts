@@ -82,7 +82,8 @@ const sendConversationToServices = async (
       data: {
         action: `reply-${integration.kind.split('-')[1]}`,
         type: serviceName,
-        payload: JSON.stringify(payload)
+        payload: JSON.stringify(payload),
+        integrationId: integration._id
       }
     });
   } catch (e) {

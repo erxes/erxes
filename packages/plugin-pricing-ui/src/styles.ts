@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 // erxes
 import { colors, dimensions } from '@erxes/ui/src/styles';
 
@@ -46,4 +47,8 @@ export const Table = styled.table`
     border-right: none;
     text-align: right;
   }
+`;
+
+export const SidebarFilters = styledTS(styled.div)`
+  padding: 5px 15px 30px 15px;
 `;

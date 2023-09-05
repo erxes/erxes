@@ -8,7 +8,8 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import {
   ListQueryVariables,
   CoversQueryResponse,
-  RemoveCoverMutationResponse
+  RemoveCoverMutationResponse,
+  CoversCountQueryResponse
 } from '../types';
 import { mutations, queries } from '../graphql';
 import { withRouter } from 'react-router-dom';
@@ -30,6 +31,7 @@ type Props = {
 
 type FinalProps = {
   coversQuery: CoversQueryResponse;
+  coversCountQuery: CoversCountQueryResponse;
 } & Props &
   RemoveCoverMutationResponse &
   IRouterProps;
@@ -104,9 +106,9 @@ class OrdersContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { coversQuery, removeCover } = this.props;
+    const { coversQuery, coversCountQuery, removeCover } = this.props;
 
-    if (coversQuery.loading) {
+    if (coversQuery.loading || coversCountQuery.loading) {
       return <Spinner />;
     }
 
@@ -130,6 +132,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     };
 
     const covers = coversQuery.posCovers || [];
+    const coversCount = coversCountQuery.posCoversCount || [];
 
     const updatedProps = {
       ...this.props,
@@ -139,7 +142,8 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
       clearFilter: this.clearFilter,
-      remove
+      remove,
+      coversCount
     };
 
     const ordersList = props => {
@@ -163,7 +167,8 @@ const generateParams = ({ queryParams }) => ({
   startDate: queryParams.startDate,
   endDate: queryParams.endDate,
   userId: queryParams.userId,
-  posId: queryParams.posId
+  posId: queryParams.posId,
+  posToken: queryParams.posToken
 });
 
 export default withProps<Props>(
@@ -172,6 +177,16 @@ export default withProps<Props>(
       gql(queries.covers),
       {
         name: 'coversQuery',
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<{ queryParams: any }, CoversCountQueryResponse, ListQueryVariables>(
+      gql(queries.coversCount),
+      {
+        name: 'coversCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
           fetchPolicy: 'network-only'

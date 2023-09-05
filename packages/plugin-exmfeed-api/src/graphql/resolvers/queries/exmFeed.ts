@@ -56,7 +56,16 @@ const exmFeedQueries = {
     },
     { models, user, subdomain }
   ) => {
-    const departmentIds = user.departmentIds;
+    const departmentIds = user.departmentIds || [];
+
+    const currentUser = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: user._id },
+      isRPC: true
+    });
+
+    const branchIds = currentUser.branchIds || [];
 
     const units = await sendCoreMessage({
       subdomain,
@@ -68,16 +77,7 @@ const exmFeedQueries = {
       defaultValue: []
     });
 
-    const branches = await sendCoreMessage({
-      subdomain,
-      action: 'branches.find',
-      data: { query: { userIds: user._id } },
-      isRPC: true,
-      defaultValue: []
-    });
-
     const unitIds = units.map(unit => unit._id) || [];
-    const branchIds = branches.map(branch => branch._id) || [];
 
     const unitCondition = [
       { unitId: { $exists: false } },
@@ -91,8 +91,13 @@ const exmFeedQueries = {
     ];
 
     const departmentCondition = [
-      { branchIds: { $eq: [] } },
-      { branchIds: { $size: 0 } }
+      { departmentIds: { $eq: [] } },
+      { departmentIds: { $size: 0 } }
+    ];
+
+    const recipientCondition = [
+      { recipientIds: { $eq: [] } },
+      { recipientIds: { $size: 0 } }
     ];
 
     const filter: any = {
@@ -106,27 +111,44 @@ const exmFeedQueries = {
         },
         {
           $and: [
-            { branchIds: { $in: branchIds } },
             {
-              $or: unitCondition
+              $or: [
+                { branchIds: { $in: branchIds } },
+                { unitId: { $in: unitIds } },
+                { departmentIds: { $in: departmentIds } }
+              ]
             }
+          ]
+        },
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            { unitId: { $in: unitIds } }
+          ]
+        },
+        {
+          $and: [
+            { branchIds: { $in: branchIds } },
+            { departmentIds: { $in: departmentIds } }
           ]
         },
         {
           $and: [
             { unitId: { $in: unitIds } },
-            {
-              $or: branchCondition
-            }
+            { departmentIds: { $in: departmentIds } }
           ]
         },
         {
-          $and: [
-            { departmentIds: { $in: departmentIds } },
-            {
-              $or: departmentCondition
-            }
-          ]
+          $and: [{ recipientIds: { $in: [user._id] } }]
+        },
+        {
+          $and: [{ branchIds: { $in: branchIds } }]
+        },
+        {
+          $and: [{ unitId: { $in: unitIds } }]
+        },
+        {
+          $and: [{ departmentIds: { $in: departmentIds } }]
         },
         {
           $and: [
@@ -138,6 +160,9 @@ const exmFeedQueries = {
             },
             {
               $or: departmentCondition
+            },
+            {
+              $or: recipientCondition
             }
           ]
         },
@@ -168,30 +193,6 @@ const exmFeedQueries = {
       filter.contentType = { $in: contentTypes };
     }
 
-    if (contentTypes && contentTypes.includes('event')) {
-      filter.$or.push(
-        { 'eventData.visibility': 'public' },
-        {
-          'eventData.visibility': 'private',
-          recipientIds: { $in: [user._id] },
-          createdBy: { $in: user._id }
-        }
-      );
-    }
-
-    if (contentTypes && contentTypes.includes('bravo')) {
-      if (recipientType === 'recieved') {
-        filter.recipientIds = { $in: [user._id] };
-      } else if (recipientType === 'sent') {
-        filter.createdBy = user._id;
-      } else {
-        filter.$or.push(
-          { recipientIds: { $in: [user._id] } },
-          { createdBy: user._id }
-        );
-      }
-    }
-
     if (isPinned !== undefined) {
       if (isPinned) {
         filter.isPinned = true;
@@ -202,6 +203,37 @@ const exmFeedQueries = {
 
     if (bravoType) {
       filter.customFieldsData = { $elemMatch: { value: bravoType } };
+    }
+
+    if (contentTypes && contentTypes.includes('event')) {
+      const currentDate = new Date();
+
+      const events = await models.ExmFeed.find({ contentType: 'event' });
+
+      for (const event of events) {
+        if (event.eventData.endDate < currentDate) {
+          const { _id } = event;
+
+          await models.ExmFeed.updateOne(
+            { _id },
+            {
+              $set: {
+                isPinned: false
+              }
+            }
+          );
+        }
+      }
+
+      return {
+        list: await models.ExmFeed.find(filter)
+          .sort({
+            'ExmEventData.startDate': -1
+          })
+          .skip(skip || 0)
+          .limit(limit || 20),
+        totalCount: await models.ExmFeed.find(filter).countDocuments()
+      };
     }
 
     return {

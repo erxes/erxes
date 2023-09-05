@@ -115,9 +115,15 @@ const ActionButtons = styled.div`
   }
 `;
 
-const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
+const SidebarListItem = styledTS<{
+  isActive: boolean;
+  backgroundColor?: string;
+}>(styled.li)`
   position: relative;
-  background: ${props => props.isActive && rgba(colors.colorPrimary, 0.2)};
+  background: ${props =>
+    (props.isActive && rgba(colors.colorPrimary, 0.2)) ||
+    props.backgroundColor ||
+    colors.colorWhite};
   overflow: hidden;
   display: flex;
   justify-content: space-between;

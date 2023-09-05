@@ -22,7 +22,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import SelectPos from './SelectPos';
-import { ALLOW_TYPES } from '../../constants';
+import { ALLOW_STATUSES, ALLOW_TYPES } from '../../constants';
 
 const SelectCustomers = asyncComponent(
   () =>
@@ -95,7 +95,6 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   onSelect = (values: string[] | string, key: string) => {
-    console.log(values, key);
     const { filterParams } = this.state;
     this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
   };
@@ -252,6 +251,34 @@ export default class RightMenu extends React.Component<Props, State> {
             );
           }}
           options={ALLOW_TYPES}
+        />
+
+        <Select
+          name={'statuses'}
+          multi={true}
+          placeholder={__('Choose status')}
+          value={filterParams.statuses}
+          onChange={statuses => {
+            this.onSelect(
+              (statuses || []).map(t => t.value),
+              'statuses'
+            );
+          }}
+          options={ALLOW_STATUSES}
+        />
+
+        <Select
+          name={'excludeStatuses'}
+          multi={true}
+          placeholder={__('Exclude status')}
+          value={filterParams.excludeStatuses}
+          onChange={statuses => {
+            this.onSelect(
+              (statuses || []).map(t => t.value),
+              'excludeStatuses'
+            );
+          }}
+          options={ALLOW_STATUSES}
         />
 
         {this.renderRange('created')}

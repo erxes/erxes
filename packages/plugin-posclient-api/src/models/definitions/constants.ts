@@ -53,8 +53,9 @@ export const ORDER_STATUSES = {
   DONE: 'done',
   COMPLETE: 'complete',
   PENDING: 'pending',
+  RETURN: 'return',
 
-  ALL: ['new', 'doing', 'done', 'complete', 'reDoing', 'pending'],
+  ALL: ['new', 'doing', 'done', 'complete', 'reDoing', 'pending', 'return'],
   FULL: ['paid', 'done', 'complete']
 };
 

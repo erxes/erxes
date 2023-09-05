@@ -1,6 +1,7 @@
 import { DISTRICTS } from './definitions/constants';
 import { IModels } from '../connectionResolver';
 import { sendRequest } from '@erxes/api-utils/src/requests';
+import { IEbarimtConfig } from './definitions/configs';
 
 const formatNumber = (num: number): string => {
   return num && num.toFixed ? num.toFixed(2) : '0.00';
@@ -230,7 +231,16 @@ export class PutData<IListArgs extends IPutDataArgs> {
   }
 }
 
-export const returnBill = async (models: IModels, doc, config) => {
+export const returnBill = async (
+  models: IModels,
+  doc: {
+    contentType: string;
+    contentId: string;
+    number: string;
+    config: IEbarimtConfig;
+  }
+) => {
+  const config = doc.config;
   const url = config.ebarimtUrl || '';
   const { contentType, contentId } = doc;
 
@@ -247,10 +257,18 @@ export const returnBill = async (models: IModels, doc, config) => {
 
   const resultObjIds: string[] = [];
   for (const prePutResponse of prePutResponses) {
-    const rd = prePutResponse.registerNo;
+    let rd = prePutResponse.registerNo;
+    if (!rd) {
+      continue;
+    }
+
+    if (rd.length === 12) {
+      rd = rd.slice(-8);
+    }
+
     const date = prePutResponse.date;
 
-    if (!prePutResponse.billId || !rd || !date) {
+    if (!prePutResponse.billId || !date) {
       continue;
     }
 
@@ -268,6 +286,7 @@ export const returnBill = async (models: IModels, doc, config) => {
       sendInfo: { ...data },
       contentId,
       contentType,
+      number: doc.number,
       returnBillId: prePutResponse.billId
     });
 

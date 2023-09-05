@@ -11,6 +11,7 @@ import {
   sendMessageBroker
 } from '../../../messageBroker';
 import { createLog, deleteLog, updateLog } from '../../../logUtils';
+import { INTEREST_CORRECTION_TYPE } from '../../../models/definitions/constants';
 
 const contractMutations = {
   contractsAdd: async (
@@ -224,6 +225,78 @@ const contractMutations = {
     // return collaterals;
 
     return { collateralsData: collaterals };
+  },
+
+  stopInterest: async (
+    _root,
+    {
+      contractId,
+      stoppedDate,
+      isStopLoss,
+      interestAmount,
+      lossAmount
+    }: {
+      contractId: string;
+      stoppedDate: Date;
+      isStopLoss: boolean;
+      interestAmount: number;
+      lossAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const updatedContract = await models.InterestCorrection.stopInterest({
+      contractId,
+      stoppedDate,
+      interestAmount,
+      isStopLoss,
+      lossAmount
+    });
+    return updatedContract;
+  },
+  interestChange: async (
+    _root,
+    {
+      contractId,
+      stoppedDate,
+      interestAmount,
+      lossAmount
+    }: {
+      contractId: string;
+      stoppedDate: Date;
+      isStopLoss: boolean;
+      interestAmount: number;
+      lossAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const updatedContract = await models.InterestCorrection.interestChange({
+      contractId,
+      stoppedDate,
+      interestAmount,
+      lossAmount
+    });
+
+    return updatedContract;
+  },
+  interestReturn: async (
+    _root,
+    {
+      contractId,
+      invDate,
+      interestAmount
+    }: {
+      contractId: string;
+      invDate: Date;
+      interestAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const updatedContract = await models.InterestCorrection.interestReturn({
+      contractId,
+      invDate,
+      interestAmount
+    });
+    return updatedContract;
   }
 };
 

@@ -225,7 +225,8 @@ class PaymentsStep extends React.Component<Props, State> {
               <Description>
                 Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
                 Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true",
-                Хэрэв хуваах боломжгүй бол: "notSplit: true"
+                Хэрэв хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн
+                төлбөрөөр (Татвар тооцсон) бол: "preTax: true"
               </Description>
 
               <FormGroup>

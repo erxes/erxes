@@ -418,19 +418,35 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
   if (!(pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet)) {
     return;
   }
-  const resp = await sendSyncerkhetMessage({
-    subdomain,
-    action: 'toOrder',
-    data: {
-      pos,
-      order: newOrder
-    },
-    isRPC: true,
-    defaultValue: {},
-    timeout: 50000
-  });
+  let resp;
 
-  if (resp.message || resp.error) {
+  if (newOrder.status === 'return') {
+    resp = await sendSyncerkhetMessage({
+      subdomain,
+      action: 'returnOrder',
+      data: {
+        pos,
+        order: newOrder
+      },
+      isRPC: true,
+      defaultValue: {},
+      timeout: 50000
+    });
+  } else {
+    resp = await sendSyncerkhetMessage({
+      subdomain,
+      action: 'toOrder',
+      data: {
+        pos,
+        order: newOrder
+      },
+      isRPC: true,
+      defaultValue: {},
+      timeout: 50000
+    });
+  }
+
+  if (resp && (resp.message || resp.error)) {
     const txt = JSON.stringify({
       message: resp.message,
       error: resp.error
@@ -453,6 +469,11 @@ const syncInventoriesRem = async ({
     return;
   }
 
+  let multiplier = 1;
+  if (newOrder.status === 'return') {
+    multiplier = -1;
+  }
+
   if (
     (!oldBranchId && newOrder.branchId) ||
     (oldBranchId && oldBranchId !== newOrder.branchId)
@@ -466,7 +487,7 @@ const syncInventoriesRem = async ({
         productsData: (newOrder.items || []).map(item => ({
           productId: item.productId,
           uom: item.uom,
-          diffCount: -1 * item.count
+          diffCount: -1 * item.count * multiplier
         }))
       }
     });
@@ -482,7 +503,7 @@ const syncInventoriesRem = async ({
         productsData: (newOrder.items || []).map(item => ({
           productId: item.productId,
           uom: item.uom,
-          diffCount: item.count
+          diffCount: item.count * multiplier
         }))
       }
     });

@@ -19,6 +19,10 @@ const mutations = {
     if (!pos) {
       throw new Error('not found pos');
     }
+    if (order.status === 'return') {
+      throw new Error('Already returned');
+    }
+
     const ebarimtMainConfig = await getConfig(subdomain, 'EBARIMT', {});
 
     await sendEbarimtMessage({
@@ -27,6 +31,7 @@ const mutations = {
       data: {
         contentType: 'pos',
         contentId: _id,
+        number: order.number,
         config: { ...pos.ebarimtConfig, ...ebarimtMainConfig }
       },
       isRPC: true
@@ -52,6 +57,10 @@ const mutations = {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error('not found order');
+    }
+
+    if (order.status === 'return') {
+      throw new Error('Already returned');
     }
 
     if (
