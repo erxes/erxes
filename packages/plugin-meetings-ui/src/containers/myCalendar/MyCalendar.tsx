@@ -48,8 +48,8 @@ const TypesListContainer = (props: FinalProps) => {
         callback={callback}
         isSubmitted={isSubmitted}
         type="submit"
-        refetchQueries={[meetingQuery.refetch]}
-        successMessage={`You successfully ${
+        refetchQueries={[meetingQuery.refetch()]}
+        successMessage={`myCalendar - You successfully ${
           object ? 'updated' : 'added'
         } a ${passedName}`}
       />
@@ -73,7 +73,7 @@ const TypesListContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     meetings: meetings,
-    refetch: meetingQuery.refetch,
+    refetchMeetings: meetingQuery.refetch,
     loading: meetingQuery.loading,
     remove,
     renderButton
@@ -85,7 +85,12 @@ const TypesListContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql(gql(queries.meetings), {
-      name: 'meetingQuery'
+      name: 'meetingQuery',
+      options: {
+        variables: {
+          perPage: 50
+        }
+      }
     })
   )(TypesListContainer)
 );

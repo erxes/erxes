@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../messageBroker';
 
-const generateFilter = async params => {
+const generateFilter = async (params, user) => {
   const {
     participantIds,
     companyId,
@@ -11,12 +11,14 @@ const generateFilter = async params => {
     isPreviousSession
   } = params;
 
-  const selector: any = {
-    status: { $ne: 'completed' }
-  };
+  const selector: any = { participantIds: { $in: [user._id] } };
 
-  if (participantIds && participantIds.length > 0) {
-    selector.participantIds = { $in: participantIds || [] };
+  if (
+    participantIds &&
+    participantIds.length > 0 &&
+    !participantIds.includes('')
+  ) {
+    selector.participantIds = { $in: participantIds };
   }
   if (userId) {
     selector.createdBy = userId;
@@ -24,16 +26,16 @@ const generateFilter = async params => {
 
   if (companyId || companyId === null) {
     selector.companyId = companyId;
-    selector.status = {
-      $in: ['ongoing', 'cancelled', 'scheduled']
-    };
+    // selector.status = {
+    //   $in: ["ongoing", "cancelled", "scheduled"]
+    // };
   }
   if (isPreviousSession) {
     selector.status = 'completed';
   }
-  if (!isPreviousSession) {
-    selector.startDate = { $gt: Date.now() };
-  }
+  // if (!isPreviousSession) {
+  //   selector.startDate = { $gt: Date.now() };
+  // }
   if (createdAtFrom) {
     selector.createdAt = { $gt: new Date(createdAtFrom) };
   }
@@ -43,7 +45,6 @@ const generateFilter = async params => {
       $lt: new Date(createdAtTo)
     };
   }
-
   return selector;
 };
 
@@ -60,7 +61,7 @@ const generateSort = (sortField, sortDirection) => {
 const meetingQueries = {
   async meetings(_root, args, { models, user }: IContext) {
     const { sortField, sortDirection } = args;
-    const filter = await generateFilter(args);
+    const filter = await generateFilter(args, user);
 
     const sort = generateSort(sortField, sortDirection);
 

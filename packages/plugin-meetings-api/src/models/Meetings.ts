@@ -9,15 +9,22 @@ import { IUser } from '@erxes/api-utils/src/types';
 
 export interface IMeetingModel extends Model<IMeetingDocument> {
   meetingDetail(_id: String, userId: string): Promise<IMeetingDocument>;
-  createMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
+  createMeeting(
+    args: IMeeting,
+    participantIds: String[],
+    user: IUser
+  ): Promise<IMeetingDocument>;
   updateMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
-  removeMeeting(_id: String): Promise<IMeetingDocument>;
+  removeMeeting(_id: String, user: IUser): Promise<IMeetingDocument>;
 }
 
 export const loadMeetingClass = (model: IModels) => {
   class Meeting {
     public static async meetingDetail(_id: string, userId: string) {
-      const meeting = await model.Meetings.findOne({ _id, createdBy: userId });
+      const meeting = await model.Meetings.findOne({
+        _id,
+        participantIds: { $in: [userId] }
+      });
 
       if (!meeting) {
         return [];
@@ -27,9 +34,14 @@ export const loadMeetingClass = (model: IModels) => {
     }
 
     // create
-    public static async createMeeting(doc, user) {
+    public static async createMeeting(
+      doc: IMeeting,
+      participantIds: String[],
+      user
+    ) {
       return await model.Meetings.create({
         ...doc,
+        participantIds,
         createdAt: new Date(),
         createdBy: user._id
       });
@@ -39,15 +51,29 @@ export const loadMeetingClass = (model: IModels) => {
       if (!user) {
         throw new Error('You are not logged in');
       }
-      await model.Meetings.updateOne(
-        { _id: doc._id },
-        { $set: { ...doc, updatedBy: user._id } }
-      );
-      return model.Meetings.findOne({ _id: doc._id });
+      const result = await model.Meetings.findOne({
+        _id: doc._id,
+        createdBy: user._id
+      });
+      if (result) {
+        await model.Meetings.updateOne(
+          { _id: result._id },
+          { $set: { ...doc, updatedBy: user._id } }
+        );
+        return result;
+      }
+      throw new Error('You cannot edit ');
     }
     // remove
-    public static async removeMeeting(_id: string) {
-      return model.Meetings.deleteOne({ _id });
+    public static async removeMeeting(_id: string, user) {
+      const result = await model.Meetings.findOne({
+        _id,
+        createdBy: user._id
+      });
+      if (result) {
+        return model.Meetings.deleteOne({ _id });
+      }
+      throw new Error('You cannot remove ');
     }
   }
 

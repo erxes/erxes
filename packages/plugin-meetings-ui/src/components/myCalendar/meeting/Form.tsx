@@ -6,46 +6,51 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IMeeting } from '../../../types';
 import { CustomRangeContainer } from '../../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
 
 type Props = {
-  closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   meeting?: IMeeting;
   queryParams: any;
+  currentUser: IUser;
+  companiesQuery: CompaniesQueryResponse;
 } & ICommonFormProps;
 
-type IItem = {
-  order?: string;
-  name: string;
-  _id: string;
-};
-
 export const MeetingForm = (props: Props) => {
-  const { meeting, queryParams } = props;
+  const { companiesQuery, meeting, queryParams } = props;
+  const { companies } = companiesQuery || {};
 
-  const [userIds, setUserIds] = useState([]);
+  const [userIds, setUserIds] = useState([props.currentUser._id] || []);
   const [companyId, setCompanyId] = useState('');
+  const [title, setTitle] = useState('');
+  const [selectedMethod, setSelectedMethod] = useState('');
 
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
 
+  useEffect(() => {
+    setTitle(companies?.find(c => c._id === companyId)?.primaryName || '');
+  }, [companyId]);
+
   const generateDoc = (values: {
     _id?: string;
-    name: string;
+    title: string;
     content: string;
     participantIds: string[];
     startDate: Date;
     endDate: Date;
     companyId: string;
+    method: string;
   }) => {
     const finalValues = values;
+
     if (meeting) {
       finalValues._id = meeting._id;
     }
@@ -60,11 +65,22 @@ export const MeetingForm = (props: Props) => {
     }
     if (companyId) {
       finalValues.companyId = companyId;
+      finalValues.title = title;
     }
+    if (selectedMethod) {
+      finalValues.method = selectedMethod;
+    }
+
     return {
       ...finalValues
     };
   };
+
+  const methodOptions = [
+    { value: 'online', label: 'Online meeting' },
+    { value: 'face-to-face', label: 'Face-to-face meeting' },
+    { value: 'offline', label: 'Offline meeting' }
+  ];
 
   const onStartDateChange = dateVal => {
     setStartDate(dateVal);
@@ -102,49 +118,86 @@ export const MeetingForm = (props: Props) => {
   const onUserSelect = users => {
     setUserIds(users);
   };
-  const onCompanySelect = company => {
-    setCompanyId(company);
+
+  const onCompanySelect = e => {
+    setCompanyId((e.target as HTMLInputElement).value);
+  };
+
+  const onMethodSelect = e => {
+    setSelectedMethod((e.target as HTMLInputElement).value);
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { meeting, closeModal, renderButton } = props;
+    const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
     const object = meeting || ({} as IMeeting);
+
+    const companyOptions =
+      (companies &&
+        companies.map((company: any) => ({
+          value: company._id,
+          label: company.primaryName || '',
+          avatar: company.avatar
+        }))) ||
+      [];
+
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Meeting title</ControlLabel>
+          <h4>{object?.title || title}</h4>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Choose Company</ControlLabel>
           <FormControl
             {...formProps}
-            name="title"
-            defaultValue={object.title}
-            type="text"
+            name="companyId"
+            defaultValue={object.companyId}
+            componentClass="select"
             required={true}
             autoFocus={true}
+            options={companyOptions}
+            onChange={onCompanySelect}
           />
         </FormGroup>
+
         <FormGroup>
           <ControlLabel required={false}>Start and Close date</ControlLabel>
           {renderDatePicker()}
         </FormGroup>
+
         <FormGroup>
-          <ControlLabel required={true}>Place</ControlLabel>
+          <ControlLabel required={true}>Method </ControlLabel>
           <FormControl
             {...formProps}
-            name="location"
-            defaultValue={object.location}
-            type="text"
+            name="method"
+            defaultValue={object.method}
+            componentClass="select"
             required={true}
-            autoFocus={true}
+            options={methodOptions}
+            onChange={onMethodSelect}
           />
         </FormGroup>
+
+        {selectedMethod === 'offline' && (
+          <FormGroup>
+            <ControlLabel required={true}>Place</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="location"
+              defaultValue={object.location}
+              type="text"
+              required={true}
+              autoFocus={true}
+            />
+          </FormGroup>
+        )}
 
         <FormGroup>
           <div style={{ marginBottom: '0' }}>
             <ControlLabel>Team members </ControlLabel>
             <div style={{ width: '100%' }}>
               <SelectTeamMembers
-                initialValue={object.participantIds || userIds}
+                initialValue={object?.participantIds || userIds}
                 customField="employeeId"
                 filterParams={{}}
                 queryParams={queryParams}
@@ -167,20 +220,6 @@ export const MeetingForm = (props: Props) => {
             autoFocus={true}
           />
         </FormGroup>
-        {
-          <FormGroup>
-            <ControlLabel required={true}>Company</ControlLabel>
-
-            <SelectCompanies
-              label="Choose Company"
-              name="companyId"
-              multi={false}
-              initialValue={object.companyId}
-              onSelect={onCompanySelect}
-              customOption={{ value: '', label: 'Choose Company' }}
-            />
-          </FormGroup>
-        }
 
         <ModalFooter id={'AddTagButtons'}>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
