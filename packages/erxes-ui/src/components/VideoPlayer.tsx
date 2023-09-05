@@ -6,7 +6,7 @@ import 'video.js/dist/video-js.css';
 export const VideoJS = props => {
   const videoRef = React.useRef<any>(null);
   const playerRef = React.useRef<any>(null);
-  const { options, onReady, type } = props;
+  const { options, onReady } = props;
   React.useEffect(() => {
     // Make sure Video.js player is only initialized once
     if (!playerRef.current) {

@@ -261,7 +261,7 @@ class Attachment extends React.Component<Props> {
     if (simple) {
       return (
         <VideoPlayerWrapper>
-          <VideoPlayer options={options} type="simple" />
+          <VideoPlayer options={options} />
         </VideoPlayerWrapper>
       );
     }
@@ -291,7 +291,7 @@ class Attachment extends React.Component<Props> {
     if (simple) {
       return (
         <VideoPlayerWrapper>
-          <VideoPlayer options={options} type="simple" />
+          <VideoPlayer options={options} />
         </VideoPlayerWrapper>
       );
     }
