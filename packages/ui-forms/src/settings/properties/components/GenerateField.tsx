@@ -254,6 +254,8 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     };
 
+    console.log('renderFile value', value);
+
     return (
       <Uploader
         defaultFileList={value || []}
@@ -592,6 +594,8 @@ export default class GenerateField extends React.Component<Props, State> {
       onChange: this.onChange,
       name: ''
     };
+
+    console.log('field', field);
 
     const boolOptions = ['Yes', 'No'];
 

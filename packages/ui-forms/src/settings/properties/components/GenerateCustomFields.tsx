@@ -467,6 +467,7 @@ class GenerateGroup extends React.Component<Props, State> {
   };
 
   render() {
+    console.log('GenerateGroup render', this.props);
     const { fieldGroup, isDetail } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
     let extraButtons = <></>;
