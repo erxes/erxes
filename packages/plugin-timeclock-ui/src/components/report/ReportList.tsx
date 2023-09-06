@@ -23,6 +23,8 @@ type Props = {
   getPagination: (pagination: any) => void;
 
   exportReport: () => void;
+
+  isCurrentUserAdmin: boolean;
 };
 
 function ReportList(props: Props) {
@@ -34,7 +36,8 @@ function ReportList(props: Props) {
     getActionBar,
     getPagination,
     exportReport,
-    showSideBar
+    showSideBar,
+    isCurrentUserAdmin
   } = props;
   const [reportType, setType] = useState(queryParams.reportType);
 
@@ -176,7 +179,8 @@ function ReportList(props: Props) {
     // custom report for bichil-globus
     const bichilTable = loadDynamicComponent('bichilReportTable', {
       reportType,
-      queryParams
+      queryParams,
+      isCurrentUserAdmin
     });
 
     if (bichilTable) {
