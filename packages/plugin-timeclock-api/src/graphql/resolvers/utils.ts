@@ -305,6 +305,12 @@ export const timeclockReportByUser = async (
     }
   }
 
+  let scheduledShiftStartSelectedDay;
+  let scheduledShiftEndSelectedDay;
+
+  let recordedShiftStartSelectedDay;
+  let recordedShiftEndSelectedDay;
+
   let totalHoursWorkedSelectedMonth = 0;
   let totalHoursWorkedSelectedDay = 0;
 
