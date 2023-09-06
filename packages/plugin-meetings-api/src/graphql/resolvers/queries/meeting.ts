@@ -1,5 +1,5 @@
 import { paginate } from '@erxes/api-utils/src';
-import { IContext, sendCoreMessage } from '../../../messageBroker';
+import { IContext } from '../../../messageBroker';
 
 const generateFilter = async (params, user) => {
   const {
