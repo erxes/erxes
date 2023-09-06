@@ -118,6 +118,7 @@ export const SideBar = (props: Props) => {
       return (
         meeting.status !== 'completed' &&
         !meetingDate.isSame(today, 'day') &&
+        meetingDate.isAfter(today) &&
         !meetingDate.isSame(tomorrow, 'day')
       );
     });
