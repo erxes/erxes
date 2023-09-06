@@ -1,12 +1,8 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import {
-  EditTypeMutationResponse,
-  RemoveTypeMutationResponse,
-  MeetingsQueryResponse
-} from '../../types';
+import { withProps } from '@erxes/ui/src/utils';
+import { MeetingsQueryResponse } from '../../types';
 import { mutations, queries } from '../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -22,12 +18,10 @@ type Props = {
 
 type FinalProps = {
   meetingQuery: MeetingsQueryResponse;
-} & Props &
-  RemoveTypeMutationResponse &
-  EditTypeMutationResponse;
+} & Props;
 
 const TypesListContainer = (props: FinalProps) => {
-  const { meetingQuery, typesEdit, typesRemove, history } = props;
+  const { meetingQuery } = props;
 
   if (meetingQuery.loading) {
     return <Spinner />;
@@ -56,18 +50,6 @@ const TypesListContainer = (props: FinalProps) => {
     );
   };
 
-  const remove = type => {
-    confirm('You are about to delete the item. Are you sure? ')
-      .then(() => {
-        typesRemove({ variables: { _id: type._id } })
-          .then(() => {
-            Alert.success('Successfully deleted an item');
-          })
-          .catch(e => Alert.error(e.message));
-      })
-      .catch(e => Alert.error(e.message));
-  };
-
   const meetings = meetingQuery.meetings || [];
 
   const updatedProps = {
@@ -75,7 +57,6 @@ const TypesListContainer = (props: FinalProps) => {
     meetings: meetings,
     refetchMeetings: meetingQuery.refetch,
     loading: meetingQuery.loading,
-    remove,
     renderButton
   };
 

@@ -64,12 +64,15 @@ function List(props: Props) {
           />
         );
         break;
-      // case 'agendaTemplate':
-      //   setComponent(<div>1</div>);
-      //   setSideBar(<div>sidebar 1</div>);
-      //   break;
       default:
-        setComponent(<MyCalendarList {...props} />);
+        setComponent(
+          <MyCalendarList
+            meetings={meetings}
+            queryParams={queryParams}
+            meetingQuery={meetingQuery}
+            currentUser={currentUser}
+          />
+        );
         setSideBar(
           <SideBar
             history={history}

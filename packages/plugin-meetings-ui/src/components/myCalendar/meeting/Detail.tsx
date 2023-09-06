@@ -74,7 +74,6 @@ export const MeetingDetail = (props: Props) => {
       meetingId={meetingDetail._id}
       participantUserIds={meetingDetail.participantUser?.map(user => user._id)}
       meetingStatus={meetingDetail.status}
-      // closeModal={() => setShowTopicModal(false)}
     />
   );
 
@@ -153,7 +152,7 @@ export const MeetingDetail = (props: Props) => {
             }}
             icon="times-circle"
           >
-            Cancel
+            Cancel meeting
           </Button>
           <Button
             btnStyle="warning"
