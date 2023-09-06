@@ -8,7 +8,6 @@ const commonFields = `
 const orderFields = `
   status: String
   customerId: String
-  customerType: String
   number: String
 `;
 
@@ -21,9 +20,38 @@ const PaidAmountDefs = `
 
 const paymentInputDefs = `
   cashAmount: Float
+  mobileAmount: Float
   billType: String
   registerNumber: String
-  mobileAmount: Float
+`;
+
+const orderTypeFields = `
+  ${commonFields}
+  ${orderFields}
+  ${paymentInputDefs}
+  paidAmounts: [PaidAmount]
+
+  paidDate: Date
+  dueDate: Date
+  modifiedAt: Date
+  totalAmount: Float
+  finalAmount: Float
+  shouldPrintEbarimt: Boolean
+  printedEbarimt: Boolean
+  billId: String
+  oldBillId: String
+  type: String
+  branchId: String
+  deliveryInfo: JSON
+  origin: String
+  customer: PosCustomer
+  customerType: String,
+  items: [PosOrderItem]
+  user: PosUser
+  putResponses: [PosPutResponse]
+  returnInfo: JSON
+
+  slotCode: String
 `;
 
 export const types = `
@@ -34,6 +62,7 @@ export const types = `
   type PosOrderItem {
     ${commonFields}
     productId: String!
+    categoryId: String
     count: Float!
     orderId: String!
     unitPrice: Float
@@ -45,6 +74,7 @@ export const types = `
     isTake: Boolean
     productImgUrl: String
     status: String
+    manufacturedDate: String
   }
 
   type PosPutResponse {
@@ -75,42 +105,58 @@ export const types = `
     message: String
     getInformation: String
     returnBillId: String
+    stocks: JSON
   }
 
-  type CardPayment {
-    _id: String
-    amount: Float
-    cardInfo: JSON
+  type PosCustomer {
+    _id: String!
+    code: String
+    primaryPhone: String
+    firstName: String
+    primaryEmail: String
+    lastName: String
+    primaryAddress: JSON
+    addresses: [JSON]
   }
 
+  type PosUserDetailsType {
+    avatar: String
+    fullName: String
+    shortName: String
+    birthDate: Date
+    position: String
+    workStartedDate: Date
+    location: String
+    description: String
+    operatorPhone: String
+  }
+
+  type PosUser {
+    _id: String!
+    createdAt: Date
+    username: String
+    firstName: String
+    lastName: String
+    primaryPhone: String
+    primaryEmail: String
+    email: String
+    isActive: Boolean
+    isOwner: Boolean
+    details: PosUserDetailsType
+  }
+
+  type OrderDetail {
+    ${orderTypeFields}
+    deal: JSON
+    dealLink: String
+  }
 
   type Order {
-    ${commonFields}
-    ${orderFields}
-    ${paymentInputDefs}
-    paidAmounts: [PaidAmount]
-
-    paidDate: Date
-    modifiedAt: Date
-    totalAmount: Float
-    finalAmount: Float
-    shouldPrintEbarimt: Boolean
-    printedEbarimt: Boolean
-    billId: String
-    oldBillId: String
-    type: String
-    branchId: String
-    departmentId: String
-    deliveryInfo: JSON
-    cardPaymentInfo: String
-    cardPayments: [CardPayment]
-    origin: String
-    items: [PosOrderItem]
-    putResponses: [PosPutResponse]
-    slotCode: String
+    ${orderTypeFields}
   }
 `;
 
 export const queries = `
+  orders(${ordersQueryParams}): [Order]
   fullOrders(${ordersQueryParams}): [Order]
 `;

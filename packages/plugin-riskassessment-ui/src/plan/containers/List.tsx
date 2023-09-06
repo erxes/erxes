@@ -121,6 +121,7 @@ const generateParams = queryParams => ({
     ? Number(queryParams.sortDirection)
     : undefined,
   plannerIds: generateParamsIds(queryParams.plannerIds),
+  status: queryParams?.status,
   structureIds: generateParamsIds(queryParams.structureIds),
   createDateFrom: generateDateParams(queryParams.createDateFrom),
   createDateTo: generateDateParams(queryParams.createDateTo),
