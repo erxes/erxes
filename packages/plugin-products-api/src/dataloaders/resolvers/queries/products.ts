@@ -5,7 +5,7 @@ import {
 import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
 import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import messageBroker, { sendTagsMessage } from '../../../messageBroker';
 import { Builder, countBySegment, countByTag, IListArgs } from '../../../utils';
 
@@ -57,16 +57,16 @@ const generateFilter = async (
   }
 
   if (categoryId) {
-    const category = await models.ProductCategories.getProductCatogery({
+    const category = await models.ProductCategories.getProductCategory({
       _id: categoryId,
       status: { $in: [null, 'active'] }
     });
 
-    const product_category_ids = await models.ProductCategories.find(
+    const productCategoryIds = await models.ProductCategories.find(
       { order: { $regex: new RegExp(`^${category.order}`) } },
       { _id: 1 }
     );
-    filter.categoryId = { $in: product_category_ids };
+    filter.categoryId = { $in: productCategoryIds };
   } else {
     const notActiveCategories = await models.ProductCategories.find({
       status: { $nin: [null, 'active'] }
@@ -115,6 +115,57 @@ const generateFilter = async (
     const { list } = await qb.runQueries();
 
     filter._id = { $in: list.map(l => l._id) };
+  }
+
+  return filter;
+};
+
+const generateFilterCat = async ({
+  models,
+  parentId,
+  withChild,
+  searchValue,
+  meta,
+  status
+}) => {
+  const filter: any = {};
+  filter.status = { $nin: ['disabled', 'archived'] };
+
+  if (status && status !== 'active') {
+    filter.status = status;
+  }
+
+  if (parentId) {
+    if (withChild) {
+      const category = await (models as IModels).ProductCategories.getProductCategory(
+        {
+          _id: parentId
+        }
+      );
+
+      const relatedCategoryIds = (
+        await models.ProductCategories.find(
+          { order: { $regex: new RegExp(`^${category.order}`) } },
+          { _id: 1 }
+        ).lean()
+      ).map(c => c._id);
+
+      filter.parentId = { $in: relatedCategoryIds };
+    } else {
+      filter.parentId = parentId;
+    }
+  }
+
+  if (meta) {
+    if (!isNaN(meta)) {
+      filter.meta = { $lte: Number(meta) };
+    } else {
+      filter.meta = meta;
+    }
+  }
+
+  if (searchValue) {
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
   return filter;
@@ -210,47 +261,41 @@ const productQueries = {
     return counts;
   },
 
-  productCategories(
+  async productCategories(
     _root,
-    {
-      parentId,
-      searchValue,
-      status,
-      meta
-    }: { parentId: string; searchValue: string; status: string; meta: string },
-    { commonQuerySelector, models }: IContext
+    { parentId, withChild, searchValue, status, meta },
+    { models }: IContext
   ) {
-    const filter: any = commonQuerySelector;
+    const filter = await generateFilterCat({
+      models,
+      status,
+      parentId,
+      withChild,
+      searchValue,
+      meta
+    });
 
-    filter.status = { $nin: ['disabled', 'archived'] };
+    const sortParams: any = { order: 1 };
 
-    if (status && status !== 'active') {
-      filter.status = status;
-    }
-
-    if (parentId) {
-      filter.parentId = parentId;
-    }
-
-    if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
-    }
-
-    if (meta) {
-      if (!isNaN(parseFloat(meta))) {
-        filter.meta = { $lte: Number(meta) };
-      } else {
-        filter.meta = meta;
-      }
-    }
-
-    return models.ProductCategories.find(filter)
-      .sort({ order: 1 })
+    return await models.ProductCategories.find(filter)
+      .sort(sortParams)
       .lean();
   },
 
-  productCategoriesTotalCount(_root, _params, { models }: IContext) {
-    return models.ProductCategories.find().countDocuments();
+  async productCategoriesTotalCount(
+    _root,
+    { parentId, searchValue, status, withChild, meta },
+    { models }: IContext
+  ) {
+    const filter = await generateFilterCat({
+      models,
+      parentId,
+      withChild,
+      searchValue,
+      status,
+      meta
+    });
+    return models.ProductCategories.find(filter).countDocuments();
   },
 
   productDetail(_root, { _id }: { _id: string }, { models }: IContext) {
