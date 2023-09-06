@@ -96,7 +96,7 @@ function CalendarComponent(props: Props) {
   };
 
   return (
-    <>
+    <div>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         headerToolbar={{
@@ -104,6 +104,7 @@ function CalendarComponent(props: Props) {
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         }}
+        height="80vh"
         initialView="dayGridMonth"
         editable={true}
         selectMirror={true}
@@ -129,7 +130,7 @@ function CalendarComponent(props: Props) {
           />
         </Modal.Body>
       </Modal>
-    </>
+    </div>
   );
 }
 
