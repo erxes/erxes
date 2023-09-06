@@ -8,6 +8,7 @@ export interface IMeeting {
   startDate: Date;
   endDate: Date;
   location: string;
+  method: string;
 
   createdBy: string;
   createdAt: Date;

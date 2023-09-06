@@ -18,8 +18,8 @@ export const CalendarComponent = ({ events }: Props) => {
           lineHeight: '1.2'
         }}
       >
-        <span>{event.title}</span>
-        <span>
+        <span style={{ whiteSpace: 'nowrap' }}>{event.title}</span>
+        <span style={{ whiteSpace: 'nowrap' }}>
           {moment(event.start).format('LT') +
             '-' +
             moment(event.end).format('LT')}

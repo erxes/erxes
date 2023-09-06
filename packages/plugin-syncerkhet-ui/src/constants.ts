@@ -15,6 +15,7 @@ export const KEY_LABELS = {
 };
 
 export const menuSyncerkhet = [
+  { title: 'Sync history', link: '/sync-erkhet-history' },
   { title: 'Check deals', link: '/check-synced-deals?dateType=firstOrMove' },
   { title: 'Check orders', link: '/check-pos-orders' },
   { title: 'Check Category', link: '/inventory-category' },

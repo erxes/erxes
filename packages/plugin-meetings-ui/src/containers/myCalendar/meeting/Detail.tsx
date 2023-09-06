@@ -1,7 +1,7 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   EditTypeMutationResponse,
   RemoveTypeMutationResponse,
@@ -30,14 +30,14 @@ const MeetingDetailContainer = (props: FinalProps) => {
   const { meetingDetailQuery, companyId, status } = props;
 
   const { data, loading } = useQuery(gql(queries.meetings), {
-    variables: { companyId, status },
+    variables: { companyId, status, perPage: 50 },
     skip: !companyId
   });
 
   const [editMeetingStatus] = useMutation(gql(mutations.editMeetingStatus), {
-    refetchQueries: ['meetingQuery'],
+    refetchQueries: ['meetings'],
     onError: e => {
-      console.error(e);
+      Alert.error(e.message);
     }
   });
 
@@ -50,12 +50,10 @@ const MeetingDetailContainer = (props: FinalProps) => {
   if ((meetingDetailQuery && meetingDetailQuery.loading) || loading) {
     return <Spinner />;
   }
-
   const updatedProps = {
     meetingDetail: meetingDetailQuery && meetingDetailQuery.meetingDetail,
     changeStatus,
-    meetings: data?.meetings,
-    refetchDetail: meetingDetailQuery && meetingDetailQuery.refetch
+    meetings: data?.meetings
   };
 
   return <MeetingDetail {...updatedProps} />;
