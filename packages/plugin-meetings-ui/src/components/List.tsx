@@ -27,6 +27,7 @@ type Props = {
   refetchQueries?: any;
   currentUser: IUser;
   meetingQuery?: MeetingsQueryResponse;
+  participantUsers: IUser[];
 };
 
 function List(props: Props) {
@@ -37,7 +38,8 @@ function List(props: Props) {
     queryParams,
     history,
     currentUser,
-    meetingQuery
+    meetingQuery,
+    participantUsers
   } = props;
 
   const [component, setComponent] = useState(<div />);
@@ -79,6 +81,7 @@ function List(props: Props) {
             queryParams={queryParams}
             meetings={meetings}
             loading={loading}
+            participantUsers={participantUsers}
           />
         );
         break;

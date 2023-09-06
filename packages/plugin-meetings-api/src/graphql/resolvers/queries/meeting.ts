@@ -1,5 +1,5 @@
 import { paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../messageBroker';
+import { IContext, sendCoreMessage } from '../../../messageBroker';
 
 const generateFilter = async (params, user) => {
   const {
@@ -26,16 +26,11 @@ const generateFilter = async (params, user) => {
 
   if (companyId || companyId === null) {
     selector.companyId = companyId;
-    // selector.status = {
-    //   $in: ["ongoing", "cancelled", "scheduled"]
-    // };
   }
   if (isPreviousSession) {
     selector.status = 'completed';
   }
-  // if (!isPreviousSession) {
-  //   selector.startDate = { $gt: Date.now() };
-  // }
+
   if (createdAtFrom) {
     selector.createdAt = { $gt: new Date(createdAtFrom) };
   }
