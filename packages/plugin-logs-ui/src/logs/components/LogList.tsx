@@ -111,7 +111,8 @@ const moduleOptions = [
   { value: 'responseTemplate', label: 'Response templates' },
   { value: 'emailTemplate', label: 'Email templates' },
   { value: 'importHistory', label: 'Import histories' },
-  { value: 'script', label: 'Scripts' }
+  { value: 'script', label: 'Scripts' },
+  { value: 'pricing:pricingPlan', label: 'PricingPlan' }
 ];
 
 const breadcrumb = [

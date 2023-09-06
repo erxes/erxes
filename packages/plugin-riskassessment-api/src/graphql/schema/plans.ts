@@ -89,6 +89,8 @@ const commonQueriesParams = `
     isArchived:Boolean,
     plannerIds:[String],
     structureIds:[String],
+    tagIds:[String],
+    status:String,
     createDateFrom:String,
     createDateTo:String,
     startDateFrom:String,

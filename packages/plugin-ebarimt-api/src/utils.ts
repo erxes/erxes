@@ -40,7 +40,7 @@ export const validCompanyCode = async (config, companyCode) => {
 
 export const companyCheckCode = async (params, subdomain) => {
   if (!params.code) {
-    return;
+    return params;
   }
 
   const config = await getConfig(subdomain, 'EBARIMT', {});
@@ -50,13 +50,13 @@ export const companyCheckCode = async (params, subdomain) => {
     !config.checkCompanyUrl ||
     !config.checkCompanyUrl.includes('http')
   ) {
-    return;
+    return params;
   }
 
   const companyName = await validCompanyCode(config, params.code);
 
   if (!companyName) {
-    throw new Error(`Байгууллагын код буруу бөглөсөн байна. "${params.code}"`);
+    return params;
   }
 
   if (companyName.includes('**') && params.primaryName) {
