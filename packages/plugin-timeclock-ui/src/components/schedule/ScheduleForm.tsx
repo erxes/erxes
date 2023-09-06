@@ -4,15 +4,20 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import DateRange from '../datepicker/DateRange';
 import dayjs from 'dayjs';
 import DatePicker from '../datepicker/DatePicker';
-import { IScheduleForm, IScheduleConfig } from '../../types';
-import Select from 'react-select-plus';
+import {
+  IScheduleForm,
+  IScheduleConfig,
+  IScheduleConfigOrder
+} from '../../types';
+import Select, { components } from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import {
   FlexCenter,
   FlexColumn,
   FlexRow,
   MarginX,
-  MarginY
+  MarginY,
+  CustomBoxWrapper
 } from '../../styles';
 
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -30,6 +35,9 @@ import Datetime from '@nateradebaugh/react-datetime';
 import { dateFormat, timeFormat } from '../../constants';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { FormControl } from '@erxes/ui/src/components/form';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Box from '@erxes/ui/src/components/Box';
+import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {
   currentUser: IUser;
@@ -43,6 +51,7 @@ type Props = {
   history: any;
   modalContentType: string;
   scheduleConfigs: IScheduleConfig[];
+  scheduleConfigsOrder?: IScheduleConfigOrder;
 
   checkDuplicateScheduleShifts: (values: any) => any;
 
@@ -61,6 +70,7 @@ function ScheduleForm(props: Props) {
 
     modalContentType,
     scheduleConfigs,
+    scheduleConfigsOrder,
     checkDuplicateScheduleShifts
   } = props;
 
@@ -82,7 +92,7 @@ function ScheduleForm(props: Props) {
     return totalUserOptions;
   };
 
-  if (!scheduleConfigs.length) {
+  if (!scheduleConfigs) {
     Alert.error('Please add schedule config in configuration section!');
   }
 
@@ -96,8 +106,20 @@ function ScheduleForm(props: Props) {
   // prepare schedule configsObject
   const scheduleConfigsObject = {};
 
-  scheduleConfigs.map(scheduleConfig => {
+  scheduleConfigs?.map(scheduleConfig => {
     scheduleConfigsObject[scheduleConfig._id] = scheduleConfig;
+  });
+
+  const [scheduleConfigsOrderData, setScheduleConfigsOrderData] = useState({
+    userId: currentUser._id,
+    orderedList: scheduleConfigsOrder
+      ? scheduleConfigsOrder.orderedList
+      : scheduleConfigs.map((s, index) => ({
+          scheduleConfigId: s._id,
+          order: index,
+          pinned: false,
+          label: `${s.shiftStart} ~ ${s.shiftEnd}\xa0\xa0\xa0(${s.scheduleName})`
+        }))
   });
 
   const [inputDefaultChecked, setInputDefaultChecked] = useState(false);
@@ -141,7 +163,7 @@ function ScheduleForm(props: Props) {
   const renderScheduleConfigOptions = () => {
     return scheduleConfigs?.map(scheduleConfig => ({
       value: scheduleConfig._id,
-      label: `${scheduleConfig.scheduleName}\xa0\xa0\xa0(${scheduleConfig.shiftStart} ~ ${scheduleConfig.shiftEnd})`
+      label: `${scheduleConfig.shiftStart} ~ ${scheduleConfig.shiftEnd}\xa0\xa0\xa0(${scheduleConfig.scheduleName})`
     }));
   };
 
@@ -566,6 +588,7 @@ function ScheduleForm(props: Props) {
       </FlexCenter>
     );
   };
+
   const adminConfigDefaultContent = () => {
     return (
       <FlexColumn marginNum={10}>
@@ -606,6 +629,12 @@ function ScheduleForm(props: Props) {
             </div>
           </div>
         </FormGroup>
+
+        <CustomBoxWrapper>
+          <Box title="set schedule configs order">
+            {/* {scheduleConfigsOrderData.orderedList.map(s => )} */}
+          </Box>
+        </CustomBoxWrapper>
 
         <FormGroup>
           <ControlLabel>Select schedule for all</ControlLabel>

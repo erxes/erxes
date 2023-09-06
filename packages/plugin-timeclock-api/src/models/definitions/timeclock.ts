@@ -139,6 +139,27 @@ export interface IReportCheckDocument extends IReportCheck, Document {
   _id: string;
 }
 
+export interface IScheduleConfigOrder {
+  userId: string;
+  orderedList: IScheduleConfigOrderItem[];
+}
+
+export interface IScheduleConfigOrderDocument
+  extends IScheduleConfigOrder,
+    Document {
+  _id: string;
+}
+export interface IScheduleConfigOrderItem {
+  scheduleConfigId: string;
+  order: number;
+  pinned: boolean;
+}
+export interface IScheduleConfigOrderItemDocument
+  extends IScheduleConfigOrderItem,
+    Document {
+  _id: string;
+}
+
 export const attachmentSchema = new Schema(
   {
     name: field({ type: String }),
@@ -437,6 +458,25 @@ export const reportCheckSchema = new Schema({
   })
 });
 
+export const scheduleConfigOrderItemSchema = new Schema({
+  scheduleConfigId: field({ type: String, index: true }),
+  pinned: field({ type: Boolean, default: false }),
+  order: field({ type: Number, index: true })
+});
+
+export const scheduleConfigOrderSchema = new Schema({
+  _id: field({ pkey: true }),
+  userId: field({
+    type: String,
+    label: 'User of the report',
+    unique: true,
+    index: true
+  }),
+  orderedList: field({
+    type: [scheduleConfigOrderItemSchema],
+    label: 'personalized order of schedule configs'
+  })
+});
 // common types
 export interface IScheduleReport {
   date?: string;

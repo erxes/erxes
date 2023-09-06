@@ -116,6 +116,17 @@ const DatePicker = (props: Props) => {
     changeScheduleConfig(curr_day_key, el.value);
   };
 
+  // const pin = () => {
+  //   console.log('asdad');
+  // };
+
+  // const CustomOption = ({ innerProps, isDisabled }) =>
+  //   !isDisabled ? (
+  //     <div {...innerProps}>
+  //       <button>Aaa</button>
+  //     </div>
+  //   ) : null;
+
   return (
     <FlexRow>
       <div style={{ width: '15%' }}>
@@ -127,15 +138,14 @@ const DatePicker = (props: Props) => {
         />
       </div>
       {!inputChecked && (
-        <div style={{ width: 'fit-content' }}>
-          <Select
-            onChange={onScheduleConfigSelect}
-            placeholder="Select Schedule"
-            options={scheduleConfigOptions}
-            value={selectedScheduleConfigId}
-            multi={false}
-          />
-        </div>
+        <Select
+          onChange={onScheduleConfigSelect}
+          placeholder="Select Schedule"
+          options={scheduleConfigOptions}
+          value={selectedScheduleConfigId}
+          multi={false}
+          // components={{ _Option: CustomOption }}
+        />
       )}
       <FlexRow style={{ width: '40%' }}>
         <CustomWidth widthPercent={15}>

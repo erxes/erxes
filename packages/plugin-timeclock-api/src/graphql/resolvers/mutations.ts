@@ -702,6 +702,25 @@ const timeclockMutations = {
     return newScheduleConfig;
   },
 
+  scheduleConfigOrderEdit(_root, params, { models, user }: IContext) {
+    const bulkWirteOps = [
+      {
+        updateOne: {
+          filter: { userId: user._id },
+          update: {
+            $set: {
+              contentType: models.ScheduleConfigsOrders,
+              ...params
+            }
+          },
+          upsert: true
+        }
+      }
+    ];
+
+    return models.ScheduleConfigsOrders.bulkWrite(bulkWirteOps);
+  },
+
   checkReport(_root, doc, { models, user }: IContext) {
     const getUserId = doc.userId || user._id;
     return models.ReportChecks.createReportCheck({

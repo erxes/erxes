@@ -364,6 +364,18 @@ const CustomCollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
   }
 `;
 
+const CustomBoxWrapper = styled.div`
+  h3 {
+    margin: 0;
+  }
+
+  a {
+    i {
+      margin: 0;
+    }
+  }
+`;
+
 export {
   FilterItem,
   FilterWrapper,
@@ -396,5 +408,6 @@ export {
   CustomCollapseRow,
   CustomLabel,
   AlertContainer,
-  CustomWidth
+  CustomWidth,
+  CustomBoxWrapper
 };

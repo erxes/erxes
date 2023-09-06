@@ -22,7 +22,8 @@ import {
   ITimeLogModel,
   loadTimeLogClass,
   IReportCheckModel,
-  loadReportCheckClass
+  loadReportCheckClass,
+  IScheduleConfigOrderModel
 } from './models/Timeclock';
 import {
   IAbsenceDocument,
@@ -31,6 +32,7 @@ import {
   IPayDateDocument,
   IReportCheckDocument,
   IScheduleConfigDocument,
+  IScheduleConfigOrderDocument,
   IScheduleDocument,
   IShiftDocument,
   ITimeClockDocument,
@@ -46,6 +48,7 @@ export interface IModels {
   Shifts: IShiftModel;
   PayDates: IPayDateModel;
   ScheduleConfigs: IScheduleConfigModel;
+  ScheduleConfigsOrders: IScheduleConfigOrderModel;
   DeviceConfigs: IDeviceConfigModel;
   ReportChecks: IReportCheckModel;
 }
@@ -94,6 +97,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IScheduleConfigDocument,
     IScheduleConfigModel
   >('timeclock_schedule_config', loadScheduleConfigClass(models));
+
+  models.ScheduleConfigsOrders = db.model<
+    IScheduleConfigOrderDocument,
+    IScheduleConfigOrderModel
+  >('timeclock_schedule_configs_order', loadScheduleConfigClass(models));
 
   models.DeviceConfigs = db.model<IDeviceConfigDocument, IDeviceConfigModel>(
     'timeclock_device_config',

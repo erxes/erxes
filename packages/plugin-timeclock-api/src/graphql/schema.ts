@@ -219,6 +219,18 @@ export const types = `
     shiftEnd: String
     configDays: [ConfigDay]
   }
+  
+  type ScheduleConfigsOrderItem {
+    order: Int
+    pinned: Boolean
+    scheduleConfigId: String
+  }
+  
+  type ScheduleConfigsOrder {
+    _id: String!
+    userId: String
+    orderedList: [ScheduleConfigsOrderItem]
+  }
 
   type ConfigDay {
     _id: String!
@@ -365,6 +377,8 @@ export const queries = `
   scheduleDetail(_id: String!): Schedule
   scheduleConfigs: [ScheduleConfig]
   
+  scheduleConfigsOrder(userId: String): ScheduleConfigsOrder
+
   payDates: [PayDate]
   holidays: [Absence]
 

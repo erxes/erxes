@@ -177,6 +177,11 @@ const timeclockQueries = {
     return models.ScheduleConfigs.find();
   },
 
+  scheduleConfigsOrder(_root, { userId }, { models, user }: IContext) {
+    const getUserId = userId ? userId : user._id;
+    return models.ScheduleConfigsOrders.findOne({ userId: getUserId });
+  },
+
   async requestsMain(
     _root,
     queryParams,

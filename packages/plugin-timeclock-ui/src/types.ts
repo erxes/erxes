@@ -160,6 +160,17 @@ export interface IScheduleConfig {
   configDays: IScheduleConfigDays[];
 }
 
+export interface IScheduleConfigOrder {
+  _id?: string;
+  userId: string;
+  orderedList: IScheduleConfigOrderItem[];
+}
+export interface IScheduleConfigOrderItem {
+  scheduleConfigId: string;
+  order: number;
+  pinned: boolean;
+}
+
 export interface IScheduleConfigDays {
   configName: string;
   configShiftStart?: string;
