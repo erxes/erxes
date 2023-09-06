@@ -10,7 +10,9 @@ import * as jimp from 'jimp';
 import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
-
+import * as FormData from 'form-data';
+// import * as tus from 'tus-js-client';
+import fetch from 'node-fetch';
 import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
@@ -428,6 +430,206 @@ const createGCS = async (models?: IModels) => {
 };
 
 /*
+ * Create Google Cloud Storage instance
+ */
+const createCFR2 = async (models?: IModels) => {
+  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+    'CLOUDFLARE_ACCOUNT_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_ACCESS_KEY_ID = await getConfig(
+    'CLOUDFLARE_ACCESS_KEY_ID',
+    '',
+    models
+  );
+  const CLOUDFLARE_SECRET_ACCESS_KEY = await getConfig(
+    'CLOUDFLARE_SECRET_ACCESS_KEY',
+    '',
+    models
+  );
+  const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+
+  if (!CLOUDFLARE_ACCESS_KEY_ID || !CLOUDFLARE_SECRET_ACCESS_KEY) {
+    throw new Error('Cloudflare Credentials are not configured');
+  }
+
+  const options: {
+    endpoint?: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    signatureVersion: 'v4';
+  } = {
+    endpoint: CLOUDFLARE_ENDPOINT,
+    accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
+    secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
+    signatureVersion: 'v4'
+  };
+
+  return new AWS.S3(options);
+};
+
+const uploadToCFImages = async (file: any, models?: IModels) => {
+  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+    'CLOUDFLARE_ACCOUNT_ID',
+    '',
+    models
+  );
+
+  const CLOUDFLARE_API_TOKEN = await getConfig(
+    'CLOUDFLARE_API_TOKEN',
+    '',
+    models
+  );
+
+  // const IS_PUBLIC = forcePrivate
+  //   ? false
+  //   : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
+  const headers = {
+    Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`
+  };
+
+  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+
+  const formData = new FormData();
+  formData.append('file', fs.createReadStream(file.path));
+  formData.append('id', fileName);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error('Error uploading file to Cloudflare Images');
+  }
+
+  if (data.result.variants.length === 0) {
+    throw new Error('Error uploading file to Cloudflare Images');
+  }
+
+  return data.result.variants[0];
+};
+
+// upload file to Cloudflare stream
+const uploadToCFStream = async (file: any, models?: IModels) => {
+  const CLOUDFLARE_ACCOUNT_ID = await getConfig(
+    'CLOUDFLARE_ACCOUNT_ID',
+    '',
+    models
+  );
+
+  const CLOUDFLARE_API_TOKEN = await getConfig(
+    'CLOUDFLARE_API_TOKEN',
+    '',
+    models
+  );
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/stream`;
+  const headers = {
+    Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`
+  };
+
+  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+
+  const formData = new FormData();
+  formData.append('file', fs.createReadStream(file.path));
+  formData.append('id', fileName);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error('Error uploading file to Cloudflare Stream');
+  }
+
+  return data.result.playback.hls;
+};
+
+/*
+ * Save file to Cloudflare
+ */
+
+export const uploadFileCloudflare = async (
+  file: { name: string; path: string; type: string },
+  forcePrivate: boolean = false,
+  models?: IModels
+): Promise<string> => {
+  const CLOUDFLARE_BUCKET = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  const CLOUDFLARE_USE_CDN = await getConfig(
+    'CLOUDFLARE_USE_CDN',
+    'false',
+    models
+  );
+
+  const detectedType = fileType(fs.readFileSync(file.path));
+
+  if (
+    (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+    detectedType &&
+    isImage(detectedType.mime)
+  ) {
+    return uploadToCFImages(file, models);
+  }
+
+  if (
+    CLOUDFLARE_USE_CDN === 'true' ||
+    (CLOUDFLARE_USE_CDN === true && detectedType && isVideo(detectedType.mime))
+  ) {
+    return uploadToCFStream(file, models);
+  }
+
+  const IS_PUBLIC = forcePrivate
+    ? false
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+
+  // generate unique name
+  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+
+  // read file
+  const buffer = await fs.readFileSync(file.path);
+
+  // initialize r2
+  const r2 = await createCFR2(models);
+
+  // upload to r2
+  const response: any = await new Promise((resolve, reject) => {
+    r2.upload(
+      {
+        ContentType: file.type,
+        Bucket: CLOUDFLARE_BUCKET,
+        Key: fileName,
+        Body: buffer,
+        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined
+      },
+      (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(res);
+      }
+    );
+  });
+  return IS_PUBLIC === 'true' ? response.Location : fileName;
+};
+
+/*
  * Save binary data to amazon s3
  */
 export const uploadFileAWS = async (
@@ -475,6 +677,34 @@ export const uploadFileAWS = async (
   });
 
   return IS_PUBLIC === 'true' ? response.Location : fileName;
+};
+
+/*
+ * Delete file from Cloudflare
+ */
+export const deleteFileCloudflare = async (
+  fileName: string,
+  models?: IModels
+) => {
+  const CLOUDFLARE_BUCKET = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  const params = { Bucket: CLOUDFLARE_BUCKET, Key: fileName };
+
+  // initialize r2
+  const r2 = await createCFR2(models);
+
+  return new Promise((resolve, reject) => {
+    r2.deleteObject(params, err => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve('ok');
+    });
+  });
 };
 
 /*
@@ -615,6 +845,64 @@ const deleteFileGCS = async (fileName: string, models?: IModels) => {
 /**
  * Read file from GCS, AWS
  */
+
+const readFromCFImages = async (key: string, models?: IModels) => {
+  const CLOUDFLARE_ACCOUNT_HASH = await getConfig(
+    'CLOUDFLARE_ACCOUNT_HASH',
+    '',
+    models
+  );
+
+  if (!CLOUDFLARE_ACCOUNT_HASH) {
+    throw new Error('Cloudflare Account Hash is not configured');
+  }
+
+  const url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${key}/public`;
+  return new Promise(resolve => {
+    fetch(url)
+      .then(res => res.buffer())
+      .then(buffer => resolve(buffer))
+      .catch(_err => {
+        return readFromCR2(key, models);
+      });
+  });
+};
+
+const readFromCR2 = async (key: string, models?: IModels) => {
+  const CLOUDFLARE_R2_BUCKET = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  const r2 = await createCFR2(models);
+
+  return new Promise((resolve, reject) => {
+    r2.getObject(
+      {
+        Bucket: CLOUDFLARE_R2_BUCKET,
+        Key: key
+      },
+      (error, response) => {
+        if (error) {
+          if (
+            error.code === 'NoSuchKey' &&
+            error.message.includes('key does not exist')
+          ) {
+            debugBase(
+              `Error occurred when fetching r2 file with key: "${key}"`
+            );
+          }
+
+          return reject(error);
+        }
+
+        return resolve(response.Body);
+      }
+    );
+  });
+};
+
 export const readFileRequest = async ({
   key,
   subdomain,
@@ -697,6 +985,23 @@ export const readFileRequest = async ({
     });
   }
 
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    const CLOUDFLARE_USE_CDN = await getConfig(
+      'CLOUDFLARE_USE_CDN',
+      'false',
+      models
+    );
+
+    if (
+      (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
+      isImage(key)
+    ) {
+      return readFromCFImages(key, models);
+    }
+
+    return readFromCR2(key, models);
+  }
+
   if (UPLOAD_SERVICE_TYPE === 'local') {
     return new Promise((resolve, reject) => {
       fs.readFile(`${uploadsFolderPath}/${key}`, (error, response) => {
@@ -736,6 +1041,10 @@ export const uploadFile = async (
     nameOrLink = await uploadFileGCS(file, models);
   }
 
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    nameOrLink = await uploadFileCloudflare(file, false, models);
+  }
+
   if (UPLOAD_SERVICE_TYPE === 'local') {
     nameOrLink = await uploadFileLocal(file);
   }
@@ -769,6 +1078,10 @@ export const deleteFile = async (
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
     return deleteFileGCS(fileName, models);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    return deleteFileCloudflare(fileName, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -1085,6 +1398,14 @@ export const resizeImage = async (
     console.error(error);
     return file;
   }
+};
+
+export const isImage = (mimeType: string) => {
+  return mimeType.includes('image');
+};
+
+export const isVideo = (mimeType: string) => {
+  return mimeType.includes('video');
 };
 
 export const getEnv = utils.getEnv;
