@@ -1,30 +1,30 @@
 import {
+  Button,
   ControlLabel,
   DateControl,
   FormGroup,
   SortHandler,
   Tip,
-  Button,
   __
 } from '@erxes/ui/src';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
+import { statusColorConstant } from '../../common/constants';
 import {
   SelectIndicatorGroups,
   SelectIndicators,
   SelectOperations
 } from '../../common/utils';
-import { removeParams, setParams } from '@erxes/ui/src/utils/router';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { statusColorConstant } from '../../common/constants';
 import {
-  Box as StatusBox,
   ColorBox,
+  FormContainer as Container,
   CustomRangeContainer,
   EndDateContainer,
-  FormContainer as Container
+  Box as StatusBox
 } from '../../styles';
-import { DateContainer } from '@erxes/ui/src/styles/main';
 
 export const headers = (queryParams, history) => {
   const handleSelectStructure = (values, name) => {
@@ -38,13 +38,13 @@ export const headers = (queryParams, history) => {
   };
 
   const generateQueryParamsDate = params => {
-    return params ? new Date(parseInt(params)).toString() : '';
+    return params ? new Date(params) : '';
   };
 
   const dateOrder = (value, name) => {
     removeParams(history, 'page');
     setParams(history, {
-      [name]: new Date(value).valueOf()
+      [name]: value
     });
   };
 
@@ -204,8 +204,9 @@ export const headers = (queryParams, history) => {
       sort: <SortHandler sortField="createdAt" />,
       filter: {
         actionBar:
-          Object.keys(queryParams || {}).some(key =>
-            ['createdAtFrom', 'createdAtTo'].includes(key)
+          Object.entries(queryParams || {}).some(
+            ([key, value]) =>
+              ['createdAtFrom', 'createdAtTo'].includes(key) && value
           ) && clearButton(['createdAtFrom', 'createdAtTo']),
         main: (
           <FormGroup>
@@ -240,8 +241,9 @@ export const headers = (queryParams, history) => {
       sort: <SortHandler sortField="closedAt" />,
       filter: {
         actionBar:
-          Object.keys(queryParams || {}).some(key =>
-            ['closedAtFrom', 'closedAtFrom'].includes(key)
+          Object.entries(queryParams || {}).some(
+            ([key, value]) =>
+              ['closedAtFrom', 'closedAtFrom'].includes(key) && value
           ) && clearButton(['closedAtFrom', 'closedAtFrom']),
         main: (
           <FormGroup>

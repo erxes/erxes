@@ -5,12 +5,10 @@ import {
   consumeInventoryCategory
 } from './utils/consumeInventory';
 import redis from '@erxes/api-utils/src/redis';
+import { IModels } from './connectionResolver';
+import { ISyncLogDocument } from './models/definitions/syncLog';
 
 let clientErkhet;
-
-export const sendCommonMessage = async (channel, message): Promise<any> => {
-  return clientErkhet.sendMessage(channel, message);
-};
 
 export const initBrokerErkhet = async () => {
   clientErkhet = await erkhetBroker();
@@ -39,7 +37,35 @@ export const initBrokerErkhet = async () => {
   });
 };
 
-export const sendRPCMessage = async (channel, message): Promise<any> => {
+export const sendRPCMessage = async (
+  models: IModels,
+  syncLog: ISyncLogDocument,
+  channel: string,
+  message: any
+): Promise<any> => {
+  await models.SyncLogs.updateOne(
+    { _id: syncLog._id },
+    { $set: { sendData: message, sendStr: JSON.stringify(message) } }
+  );
+  const response = await clientErkhet.sendRPCMessage(channel, message);
+  if (typeof response === 'string') {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      { $set: { responseStr: JSON.stringify(response), error: response } }
+    );
+  } else {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: { responseData: response, responseStr: JSON.stringify(response) }
+      }
+    );
+  }
+  return response;
+};
+
+// send temp rpc message == no log message
+export const sendTRPCMessage = async (channel, message): Promise<any> => {
   return clientErkhet.sendRPCMessage(channel, message);
 };
 

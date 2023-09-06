@@ -18,9 +18,9 @@ import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 type Props = {
   history: any;
   searchFilter: string;
-
   queryParams: any;
   route?: string;
+  perPage?: number;
 };
 
 type FinalProps = {
@@ -31,18 +31,15 @@ type FinalProps = {
   EditMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { meetingQuery, queryParams } = props;
-
+  const { meetingQuery } = props;
   if (meetingQuery.loading) {
     return <Spinner />;
   }
-
   const updatedProps = {
     ...props,
     meetings: meetingQuery.meetings || [],
     types: [],
-    loading: meetingQuery.loading,
-    refetch: meetingQuery.refetch
+    loading: meetingQuery.loading
   };
   return <List {...updatedProps} />;
 };
@@ -51,12 +48,19 @@ export default withProps<Props>(
   compose(
     graphql(gql(queries.meetings), {
       name: 'meetingQuery',
-      options: ({ queryParams }: Props) => {
+      options: ({ queryParams, perPage }: Props) => {
         const participantUserIds =
           queryParams?.participantUserIds?.split(',') || [];
+        const { createdAtFrom, createdAtTo, ownerId, companyId } = queryParams;
+
         return {
           variables: {
-            participantIds: participantUserIds || []
+            participantIds: participantUserIds || [],
+            perPage: perPage || 80,
+            createdAtFrom,
+            createdAtTo,
+            userId: ownerId,
+            companyId
           }
         };
       }

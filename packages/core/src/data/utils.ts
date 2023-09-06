@@ -10,7 +10,6 @@ import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as FormData from 'form-data';
-// import * as tus from 'tus-js-client';
 import fetch from 'node-fetch';
 import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';

@@ -1,4 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
+import { Link } from 'react-router-dom';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import MeetingFormContainer from '../containers/myCalendar/meeting/Form';
@@ -14,17 +15,18 @@ import SideBar from '../containers/myCalendar/SideBar';
 import SideBarContainer from '../containers/myMeetings/SideBar';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { FormControl } from '@erxes/ui/src/components';
+import { MeetingsQueryResponse } from '../types';
 
 type Props = {
   meetings: any;
   loading: boolean;
   searchFilter: string;
-
   queryParams: any;
   route?: string;
   history: string;
-  refetch: any;
+  refetchQueries?: any;
   currentUser: IUser;
+  meetingQuery?: MeetingsQueryResponse;
 };
 
 function List(props: Props) {
@@ -34,7 +36,8 @@ function List(props: Props) {
     searchFilter,
     queryParams,
     history,
-    currentUser
+    currentUser,
+    meetingQuery
   } = props;
 
   const [component, setComponent] = useState(<div />);
@@ -47,7 +50,11 @@ function List(props: Props) {
     switch (routePath) {
       case 'myMeetings':
         setComponent(
-          <MyMeetingListContainer history={history} queryParams={queryParams} />
+          <MyMeetingListContainer
+            history={history}
+            queryParams={queryParams}
+            meetings={meetings}
+          />
         );
         setSideBar(
           <SideBarContainer
@@ -57,10 +64,10 @@ function List(props: Props) {
           />
         );
         break;
-      case 'agendaTemplate':
-        setComponent(<div>1</div>);
-        setSideBar(<div>sidebar 1</div>);
-        break;
+      // case 'agendaTemplate':
+      //   setComponent(<div>1</div>);
+      //   setSideBar(<div>sidebar 1</div>);
+      //   break;
       default:
         setComponent(<MyCalendarList {...props} />);
         setSideBar(
@@ -87,19 +94,33 @@ function List(props: Props) {
   );
 
   const modalContent = props => (
-    <MeetingFormContainer {...props} types={[]} meetingDetail={meetings} />
+    <MeetingFormContainer
+      queryParams={queryParams}
+      refetch={meetingQuery?.refetch}
+      currentUser={currentUser}
+      closeModal={props.closeModal}
+      object={null}
+    />
   );
-  const searchHandler = event => {};
 
+  const searchHandler = event => {};
   const actionBarRight =
     routePath === 'myCalendar' ? (
-      <ModalTrigger
-        title={__('Create meetings')}
-        trigger={trigger}
-        content={modalContent}
-        enforceFocus={false}
-        size="xl"
-      />
+      meetingId ? (
+        <Link to="/meetings/myCalendar">
+          <Button btnStyle="success" size="small" icon="calendar-alt">
+            {__('Back to calendar')}
+          </Button>
+        </Link>
+      ) : (
+        <ModalTrigger
+          title={__('Create meetings')}
+          trigger={trigger}
+          content={modalContent}
+          enforceFocus={false}
+          size="xl"
+        />
+      )
     ) : (
       <FormControl
         type="text"

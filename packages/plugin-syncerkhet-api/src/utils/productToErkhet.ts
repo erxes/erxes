@@ -1,7 +1,13 @@
 import { sendProductsMessage } from '../messageBroker';
 import { getConfig, toErkhet } from './utils';
 
-export const productCategoryToErkhet = async (subdomain, params, action) => {
+export const productCategoryToErkhet = async (
+  subdomain,
+  models,
+  syncLog,
+  params,
+  action
+) => {
   const productCategory = params.updatedDocument || params.object;
   const oldProductCategory = params.object;
 
@@ -24,10 +30,16 @@ export const productCategoryToErkhet = async (subdomain, params, action) => {
     }
   };
 
-  toErkhet(config, sendData, 'product-change');
+  toErkhet(models, syncLog, config, sendData, 'product-change');
 };
 
-export const productToErkhet = async (subdomain, params, action) => {
+export const productToErkhet = async (
+  subdomain,
+  models,
+  syncLog,
+  params,
+  action
+) => {
   const product = params.updatedDocument || params.object;
   const oldProduct = params.object;
 
@@ -69,5 +81,5 @@ export const productToErkhet = async (subdomain, params, action) => {
     }
   };
 
-  toErkhet(config, sendData, 'product-change');
+  toErkhet(models, syncLog, config, sendData, 'product-change');
 };
