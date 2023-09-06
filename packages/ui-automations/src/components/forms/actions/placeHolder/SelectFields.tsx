@@ -15,15 +15,20 @@ import {
 
 type Props = {
   triggerType: string;
+  triggerConfig?: any;
   config: any;
   label: string;
-  attributions: FieldsCombinedByType[];
+  attributions: Array<
+    { excludeAttr?: boolean; callback?: () => void } & FieldsCombinedByType
+  >;
   onSelect: (config: any) => void;
 };
 
 type State = {
   searchValue: string;
-  fields: FieldsCombinedByType[];
+  fields: Array<
+    { excludeAttr?: boolean; callback?: () => void } & FieldsCombinedByType
+  >;
 };
 
 class SelectFields extends React.Component<Props, State> {
@@ -59,6 +64,8 @@ class SelectFields extends React.Component<Props, State> {
     const { fields, searchValue } = this.state;
 
     const onClickField = item => {
+      item?.callback && item?.callback();
+
       this.setState({ fields: [...fields, item] });
       this.hideContent();
     };
@@ -103,7 +110,7 @@ class SelectFields extends React.Component<Props, State> {
   }
 
   renderFields() {
-    const { triggerType, config, onSelect } = this.props;
+    const { triggerType, triggerConfig, config, onSelect } = this.props;
     const { fields } = this.state;
 
     const removeField = ({ _id, name }) => {
@@ -118,11 +125,14 @@ class SelectFields extends React.Component<Props, State> {
         inputName={field.name}
         label={field.label}
         config={config}
+        excludeAttr={field.excludeAttr}
         onChange={onSelect}
         triggerType={triggerType}
         fieldType={field.type === 'Date' ? 'date' : field.type}
         options={field.selectOptions || []}
         optionsAllowedTypes={['contact']}
+        triggerConfig={triggerConfig}
+        attrWithSegmentConfig={!!triggerConfig}
         isMulti={true}
         additionalContent={
           <Button

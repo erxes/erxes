@@ -30,6 +30,18 @@ class AttributesForm extends React.Component<FinalProps> {
       return '';
     }
 
+    let config = segmentDetail?.config || {};
+
+    if (
+      !(segmentDetail?.subSegmentConditions || [])?.some(subCondition =>
+        (subCondition?.conditions || []).some(cond =>
+          ['forms:form_submission'].includes(cond.propertyType || '')
+        )
+      )
+    ) {
+      config = undefined;
+    }
+
     return children(segmentDetail?.config || {});
   }
 }
