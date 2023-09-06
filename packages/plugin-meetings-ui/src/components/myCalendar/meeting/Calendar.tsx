@@ -67,7 +67,7 @@ function CalendarComponent(props: Props) {
   };
 
   const renderEventContent = ({ event }: EventClickArg) => (
-    <RenderEvent>
+    <RenderEvent backgroundColor={event.backgroundColor}>
       <span style={{ whiteSpace: 'nowrap', paddingLeft: '15px' }}>
         {event.title}
       </span>
