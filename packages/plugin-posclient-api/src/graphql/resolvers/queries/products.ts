@@ -242,7 +242,8 @@ const productQueries = {
       excludeEmpty,
       meta,
       sortDirection,
-      sortField
+      sortField,
+      ...paginationArgs
     }: ICategoryParams,
     { models, config }: IContext
   ) {
@@ -259,9 +260,19 @@ const productQueries = {
       sortParams = { [sortField]: sortDirection };
     }
 
-    const categories = await models.ProductCategories.find(filter)
-      .sort(sortParams)
-      .lean();
+    let categories;
+    if (paginationArgs.page || paginationArgs.perPage) {
+      categories = await paginate(
+        models.ProductCategories.find(filter)
+          .sort(sortParams)
+          .lean(),
+        paginationArgs
+      );
+    } else {
+      categories = await models.ProductCategories.find(filter)
+        .sort(sortParams)
+        .lean();
+    }
 
     const list: IProductCategoryDocument[] = [];
 

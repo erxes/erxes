@@ -10,24 +10,32 @@ export default {
     { models }: IContext,
     { variableValues }
   ) {
-    const { startDate, endDate } = variableValues;
+    try {
+      const { startDate, endDate } = variableValues;
 
-    const scheduleSelector = { scheduleId: schedule._id };
+      const scheduleSelector = { scheduleId: schedule._id };
 
-    const timeFields = {
-      shiftStart: {
-        $gte: fixDate(startDate),
-        $lte: customFixDate(endDate)
-      },
-      shiftEnd: {
-        $gte: fixDate(startDate),
-        $lte: customFixDate(endDate)
+      const timeFields = {
+        shiftStart: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        },
+        shiftEnd: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(endDate)
+        }
+      };
+
+      let selector = { ...scheduleSelector };
+
+      if (startDate && endDate) {
+        selector = { ...selector, ...timeFields };
       }
-    };
 
-    const selector = { ...timeFields, ...scheduleSelector };
-
-    return models.Shifts.find(selector).sort({ shiftStart: -1 });
+      return models.Shifts.find(selector).sort({ shiftStart: -1 });
+    } catch (error) {
+      return new Error(`Invalid ${error.path}: ${error.value}`);
+    }
   },
 
   user(schedule: IScheduleDocument) {

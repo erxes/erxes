@@ -499,6 +499,23 @@ export const getCards = async (
     }
   }
 
+  interface IDate {
+    month: number;
+    year: number;
+  }
+
+  const dateSelector = (date: IDate) => {
+    const { year, month } = date;
+
+    const start = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+    const end = new Date(Date.UTC(year, month + 1, 1, 0, 0, 0));
+
+    return {
+      $gte: start,
+      $lte: end
+    };
+  };
+
   return sendCardsMessage({
     subdomain,
     action: `${type}s.find`,
@@ -511,7 +528,8 @@ export const getCards = async (
       ...(args?.closeDateType && {
         closeDate: getCloseDateByType(args.closeDateType)
       }),
-      ...(args?.userIds && { assignedUserIds: { $in: args?.userIds || [] } })
+      ...(args?.userIds && { assignedUserIds: { $in: args?.userIds || [] } }),
+      ...(args?.date && { closeDate: dateSelector(args.date) })
     },
     isRPC: true,
     defaultValue: []

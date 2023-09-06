@@ -33,7 +33,7 @@ type Props = {
 } & IRouterProps;
 
 type State = {
-  plan: { param: any[] } & any;
+  plan: IPLan;
   useGroup: boolean;
 };
 
@@ -57,9 +57,8 @@ class Form extends React.Component<Props, State> {
 
   onChange = (value, name) => {
     const { plan } = this.state;
-    plan[name] = value;
 
-    this.setState({ plan });
+    this.setState({ plan: { ...plan, [name]: value } });
   };
 
   generateDoc() {
