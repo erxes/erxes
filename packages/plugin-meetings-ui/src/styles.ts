@@ -204,3 +204,11 @@ export const ParticipantList = styled.div`
     }
   }
 `;
+export const RenderEvent = styled.div`
+        fontSize: '12px',
+        lineHeight: '2',
+        width: '100%',
+        backgroundColor: event.backgroundColor,
+        color: 'white',
+        borderRadius: '12px'
+        `;

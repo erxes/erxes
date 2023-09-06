@@ -10,6 +10,7 @@ import MeetingFormContainer from '../../../containers/myCalendar/meeting/Form';
 import { Modal } from 'react-bootstrap';
 import { IMeeting } from '../../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { RenderEvent } from '../../../styles';
 
 type Props = {
   meetings?: IMeeting[];
@@ -66,16 +67,7 @@ function CalendarComponent(props: Props) {
   };
 
   const renderEventContent = ({ event }: EventClickArg) => (
-    <div
-      style={{
-        fontSize: '12px',
-        lineHeight: '2',
-        width: '100%',
-        backgroundColor: event.backgroundColor,
-        color: 'white',
-        borderRadius: '12px'
-      }}
-    >
+    <RenderEvent>
       <span style={{ whiteSpace: 'nowrap', paddingLeft: '15px' }}>
         {event.title}
       </span>
@@ -87,7 +79,7 @@ function CalendarComponent(props: Props) {
           minute: '2-digit'
         })}
       </span>
-    </div>
+    </RenderEvent>
   );
 
   const object = {
@@ -96,7 +88,7 @@ function CalendarComponent(props: Props) {
   };
 
   return (
-    <div>
+    <>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         headerToolbar={{
@@ -130,7 +122,7 @@ function CalendarComponent(props: Props) {
           />
         </Modal.Body>
       </Modal>
-    </div>
+    </>
   );
 }
 
