@@ -119,8 +119,8 @@ const productsQueryParams = `
 `;
 
 export const queries = `
-  productCategories(parentId: String, searchValue: String, status: String, meta: String): [ProductCategory]
-  productCategoriesTotalCount: Int
+  productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): [ProductCategory]
+  productCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
   productCategoryDetail(_id: String): ProductCategory
   products(
     ${productsQueryParams},
