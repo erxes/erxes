@@ -636,7 +636,6 @@ export const bichilTimeclockReportFinal = async (
 
   userIds.forEach(async currUserId => {
     // assign team member info from teamMembersObj
-
     if (exportToXlsx) {
       usersReport[currUserId] = { ...teamMembersObj[currUserId] };
     }

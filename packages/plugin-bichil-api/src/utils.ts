@@ -281,15 +281,11 @@ export const createTeamMembersObject = async (
   });
 
   for (const teamMember of teamMembers) {
-    if (!teamMember.employeeId) {
-      continue;
-    }
-
     teamMembersObject[teamMember._id] = {
-      employeeId: teamMember.employeeId,
-      position: teamMember.details.position,
-      lastName: teamMember.details.lastName,
-      firstName: teamMember.details.firstName
+      employeeId: teamMember.employeeId || '-',
+      position: teamMember.details.position || '-',
+      lastName: teamMember.details.lastName || '-',
+      firstName: teamMember.details.firstName || '-'
     };
   }
 

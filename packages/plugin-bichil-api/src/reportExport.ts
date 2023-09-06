@@ -14,6 +14,7 @@ import {
 import { IUsersReport } from './models/definitions/timeclock';
 import {
   createTeamMembersObject,
+  findAllTeamMembers,
   findTeamMember,
   findTeamMembers,
   generateCommonUserIds,
@@ -456,8 +457,15 @@ export const buildFile = async (
     totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
   } else {
     // return supervisod users including current user
-    totalMembers = await returnSupervisedUsers(currentUser, subdomain);
-    totalTeamMemberIds = totalMembers.map(usr => usr._id);
+    if (isCurrentUserAdmin) {
+      // return all team member ids
+      totalMembers = await findAllTeamMembers(subdomain);
+      totalTeamMemberIds = totalMembers.map(usr => usr._id);
+    } else {
+      // return supervisod users including current user
+      totalMembers = await returnSupervisedUsers(currentUser, subdomain);
+      totalTeamMemberIds = totalMembers.map(usr => usr._id);
+    }
   }
 
   const teamMembersObject = await createTeamMembersObject(

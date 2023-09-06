@@ -16,6 +16,7 @@ type Props = {
   searchValue?: string;
 
   reportType: string;
+  isCurrentUserAdmin: boolean;
 };
 
 type FinalProps = {
@@ -62,10 +63,11 @@ export default withProps<Props>(
   compose(
     graphql<Props, ReportsQueryResponse>(gql(queries.bichilTimeclockReport), {
       name: 'bichilTimeclockReportQuery',
-      options: ({ queryParams, reportType }) => ({
+      options: ({ queryParams, reportType, isCurrentUserAdmin }) => ({
         variables: {
           ...generateParams(queryParams),
-          reportType
+          reportType,
+          isCurrentUserAdmin
         },
         fetchPolicy: 'network-only'
       })
