@@ -22,6 +22,7 @@ type Props = {
   currentUser: IUser;
   closeModal: () => void;
   object?: IMeeting | null;
+  calendarDate?: any;
 };
 
 type FinalProps = {
