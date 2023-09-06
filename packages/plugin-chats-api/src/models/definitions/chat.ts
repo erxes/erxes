@@ -5,13 +5,15 @@ const attachmentSchema = {
   name: { type: String },
   url: { type: String },
   type: { type: String },
-  size: { type: Number, optional: true }
+  size: { type: Number, optional: true },
+  duration: { type: Number, optional: true }
 };
 export interface IAttachment {
   name: string;
   type: string;
   url: string;
   size?: number;
+  duration?: number;
 }
 export interface IChat {
   participantIds: string[];
@@ -87,10 +89,18 @@ export const chatSchema = schemaHooksWrapper(
       default: false,
       label: 'Has pinned'
     }),
+    isPinnedUserIds: field({
+      type: [String],
+      label: 'isPinnedUserIds'
+    }),
     isWithNotification: field({
       type: Boolean,
       default: false,
       label: 'Has notification'
+    }),
+    muteUserIds: field({
+      type: [String],
+      label: 'Mute UserIds'
     }),
     featuredImage: field({
       type: [attachmentSchema],

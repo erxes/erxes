@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { IModels, models } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { IOperationsDocument, operationSchema } from './definitions/operations';
 export interface IOperationsModel extends Model<IOperationsDocument> {
   addOperation(doc): Promise<IOperationsDocument>;

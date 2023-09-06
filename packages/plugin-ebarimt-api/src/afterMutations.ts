@@ -39,7 +39,12 @@ export const afterMutationHandlers = async (
         };
 
         const returnResponses = await models.PutResponses.returnBill(
-          { ...deal, contentType: 'deal', contentId: deal._id },
+          {
+            ...deal,
+            contentType: 'deal',
+            contentId: deal._id,
+            number: deal.number
+          },
           returnConfig
         );
 

@@ -151,7 +151,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParams = ({ queryParams }) => ({
+export const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   sortField: queryParams.sortField,
   sortDirection: queryParams.sortDirection
@@ -167,7 +167,10 @@ const generateParams = ({ queryParams }) => ({
   customerId: queryParams.customerId,
   customerType: queryParams.customerType,
   posId: queryParams.posId,
-  types: queryParams.types && queryParams.types.split(',')
+  types: queryParams.types && queryParams.types.split(','),
+  statuses: queryParams.statuses && queryParams.statuses.split(','),
+  excludeStatuses:
+    queryParams.excludeStatuses && queryParams.excludeStatuses.split(',')
 });
 
 export default withProps<Props>(

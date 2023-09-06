@@ -1,5 +1,4 @@
 import { authCookieOptions } from '@erxes/api-utils/src/core';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   extractConfig,
   getServerAddress,
@@ -26,7 +25,7 @@ const configMutations = {
   ) => {
     const address = await getServerAddress(subdomain);
 
-    const config = await models.Configs.createConfig(token);
+    const config = await models.Configs.createConfig(token, '');
 
     try {
       const response = await sendRequest({

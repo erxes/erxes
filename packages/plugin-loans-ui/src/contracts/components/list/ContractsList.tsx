@@ -222,18 +222,8 @@ class ContractsList extends React.Component<IProps, State> {
 
       actionBarLeft = (
         <BarItems>
-          {can('contractsRemove', currentUser) && (
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
-              {__('Delete')}
-            </Button>
-          )}
           <ModalTrigger
-            title={`${__('New transaction')}`}
+            title={`${__('Change classification')}`}
             trigger={
               <Button btnStyle="warning" size="small" icon="cancel-1">
                 {__('Change classification')}
@@ -244,6 +234,16 @@ class ContractsList extends React.Component<IProps, State> {
             content={classificationForm}
             backDrop="static"
           />
+          {can('contractsRemove', currentUser) && (
+            <Button
+              btnStyle="danger"
+              size="small"
+              icon="cancel-1"
+              onClick={onClick}
+            >
+              {__('Delete')}
+            </Button>
+          )}
         </BarItems>
       );
     }

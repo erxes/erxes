@@ -35,7 +35,7 @@ function DetailContainer({ _id, type, publicTask, ...props }: Props) {
     gql(queries.checklists),
     {
       variables: { contentType: type, contentTypeId: _id },
-      skip: !_id || !publicTask,
+      skip: !_id,
       context: {
         headers: {
           'erxes-app-token': props.config?.erxesAppToken

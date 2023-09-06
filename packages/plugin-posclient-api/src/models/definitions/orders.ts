@@ -49,6 +49,7 @@ export interface IOrder {
   slotCode?: string;
   taxInfo?: any;
   convertDealId?: string;
+  returnInfo?: any;
 }
 
 const commonAttributes = { positive: true, default: 0 };
@@ -66,6 +67,13 @@ const paidAmountSchema = new Schema({
     label: 'Paid amount'
   }),
   info: field({ type: Object })
+});
+
+const returnInfoSchema = new Schema({
+  cashAmount: field({ type: Number }),
+  paidAmounts: field({ type: [paidAmountSchema] }),
+  returnAt: field({ type: Date }),
+  returnBy: field({ type: String })
 });
 
 export const orderSchema = schemaHooksWrapper(
@@ -202,6 +210,11 @@ export const orderSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'Converted Deal'
+    }),
+    returnInfo: field({
+      type: returnInfoSchema,
+      optional: true,
+      label: 'Return information'
     })
   }),
   'erxes_orders'
