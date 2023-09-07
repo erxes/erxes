@@ -200,7 +200,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
       bankButton.classList.add('bank');
       bankButton.innerHTML = `<img src="${bankUrl.logo}" class="urlLogo">`;
       bankButton.addEventListener('click', function() {
-        window.open(bankUrl.url, '_self');
+        window.open(bankUrl.link, '_self');
       });
       document.getElementById('bank-buttons').appendChild(bankButton);
     });
