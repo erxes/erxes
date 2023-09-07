@@ -729,3 +729,19 @@ span.red {
   align-items: center;
   height: 100%;
 }
+
+.urlLogo {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px;
+}
+.bank {
+  border-width: 0;
+  border-radius: 10px;
+  padding: 7px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  background-color: transparent;
+  height: 44px;
+  display: inline-flex;
+}

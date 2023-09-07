@@ -26,16 +26,11 @@ const generateFilter = async (params, user) => {
 
   if (companyId || companyId === null) {
     selector.companyId = companyId;
-    // selector.status = {
-    //   $in: ["ongoing", "cancelled", "scheduled"]
-    // };
   }
   if (isPreviousSession) {
     selector.status = 'completed';
   }
-  // if (!isPreviousSession) {
-  //   selector.startDate = { $gt: Date.now() };
-  // }
+
   if (createdAtFrom) {
     selector.createdAt = { $gt: new Date(createdAtFrom) };
   }

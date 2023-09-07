@@ -1,14 +1,17 @@
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Detail from '../../containers/myCalendar/meeting/Detail';
 import PreviousDetail from '../../containers/myCalendar/meeting/PreviousDetail';
-import { IMeeting } from '../../types';
-import { CalendarComponent } from './meeting/Calendar';
+import { IMeeting, MeetingsQueryResponse } from '../../types';
 import { generateColorCode } from '../../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { CalendarContainer } from '../../containers/myCalendar/meeting/Calendar';
 
 type Props = {
   meetings?: IMeeting[];
   queryParams: any;
+  meetingQuery: MeetingsQueryResponse;
+  currentUser: IUser;
 };
 
 export const MyCalendarList = (props: Props) => {
@@ -20,7 +23,8 @@ export const MyCalendarList = (props: Props) => {
       title: meeting.title,
       start: new Date(meeting.startDate), // Year, Month (0-11), Day, Hour, Minute
       end: new Date(meeting.endDate),
-      bgColor: generateColorCode(meeting.createdBy)
+      id: meeting._id,
+      color: generateColorCode(meeting.createdBy)
     })) || [];
 
   const companyId =
@@ -36,7 +40,12 @@ export const MyCalendarList = (props: Props) => {
   // Add more events as needed
 
   return !meetingId ? (
-    <CalendarComponent events={events} />
+    <CalendarContainer
+      events={events}
+      queryParams={queryParams}
+      currentUser={props.currentUser}
+      meetings={meetings}
+    />
   ) : (
     <>
       <Tabs full={true}>
