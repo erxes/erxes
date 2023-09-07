@@ -1,5 +1,5 @@
 import { Divider, SidebarContent } from '../styles';
-import { IField, ILocationOption } from '@erxes/ui/src/types';
+import { IField, ILocationValue } from '@erxes/ui/src/types';
 import { IFieldGroup, LogicParams } from '../types';
 
 import { Alert } from '@erxes/ui/src/utils';
@@ -37,7 +37,7 @@ type State = {
   editing: boolean;
   data: any;
   extraValues?: any;
-  currentLocation: ILocationOption;
+  currentLocation: ILocationValue;
 };
 
 class GenerateGroup extends React.Component<Props, State> {

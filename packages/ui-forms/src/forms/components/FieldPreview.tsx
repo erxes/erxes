@@ -1,4 +1,4 @@
-import { IField, ILocationOption } from '@erxes/ui/src/types';
+import { IField, ILocationValue } from '@erxes/ui/src/types';
 
 import { FieldItem } from '../styles';
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
@@ -9,7 +9,7 @@ type Props = {
   field: IField;
   otherFields: IField[];
   onClick?: (field: IField) => void;
-  onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
+  onChangeLocationOptions?: (locationOptions: ILocationValue[]) => void;
 };
 
 class FieldPreview extends React.Component<Props, {}> {

@@ -1,4 +1,4 @@
-import { ILocationOption } from '@erxes/api-utils/src/types';
+import { ILocationValue } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { INPUT_TYPE } from './constants';
 import { field, schemaWrapper } from './utils';
@@ -68,7 +68,7 @@ export interface IField extends IVisibility {
   content?: string;
   description?: string;
   options?: string[];
-  locationOptions?: ILocationOption[];
+  locationOptions?: ILocationValue[];
   objectListConfigs?: IObjectListConfig[];
   optionsValues?: string;
   isRequired?: boolean;

@@ -15,7 +15,7 @@ import {
   IField,
   IFieldLogic,
   IFormProps,
-  ILocationOption,
+  ILocationValue,
   IObjectListConfig
 } from '@erxes/ui/src/types';
 import { __, loadDynamicComponent } from '@erxes/ui/src/utils/core';
@@ -32,7 +32,7 @@ type Props = {
   field?: IField;
   groups: IFieldGroup[];
   type: string;
-  inputTypes: { value: string; label: string }[];
+  inputTypes: Array<{ value: string; label: string }>;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -44,7 +44,7 @@ type State = {
   type: string;
   hasOptions: boolean;
   add: boolean;
-  currentLocation: ILocationOption;
+  currentLocation: ILocationValue;
   searchable: boolean;
   showInCard: boolean;
   logics?: IFieldLogic[];

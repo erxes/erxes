@@ -33,6 +33,7 @@ import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from '@erxes/ui-settings/src/general/components/Header';
 import { SelectTeamMembers } from '@erxes/ui/src';
+import MapSettings from './MapSettings';
 
 type Props = {
   currentLanguage: string;
@@ -434,6 +435,11 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         {this.renderCloudflare()}
+
+        <MapSettings
+          configsMap={configsMap.MAP_CONFIGS}
+          onChangeConfig={this.onChangeConfig}
+        />
 
         <CollapseContent title="AWS S3">
           <Info>

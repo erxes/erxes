@@ -4,7 +4,7 @@ import {
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES
 } from '@erxes/ui-contacts/src/companies/constants';
-import { IAttachment, IField, ILocationOption } from '@erxes/ui/src/types';
+import { IAttachment, IField, ILocationValue } from '@erxes/ui/src/types';
 import { LogicIndicator, SelectInput } from '../styles';
 import {
   RenderDynamicComponent,
@@ -33,7 +33,7 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 type Props = {
   field: IField;
   otherFields?: IField[];
-  currentLocation?: ILocationOption;
+  currentLocation?: ILocationValue;
   defaultValue?: any;
   hasLogic?: boolean;
   isEditing?: boolean;
@@ -43,14 +43,14 @@ type Props = {
     value: any;
     extraValue?: string;
   }) => void;
-  onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
+  onChangeLocationOptions?: (locationOptions: ILocationValue[]) => void;
 };
 
 type State = {
   value?: any;
   checkBoxValues: any[];
   errorCounter: number;
-  currentLocation?: ILocationOption;
+  currentLocation?: ILocationValue;
 };
 
 export default class GenerateField extends React.Component<Props, State> {

@@ -1,5 +1,5 @@
 import { IOrderInput, updateOrder } from '@erxes/api-utils/src/commonUtils';
-import { ILocationOption } from '@erxes/api-utils/src/types';
+import { ILocationValue } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import validator from 'validator';
 
@@ -21,7 +21,7 @@ export interface ITypedListItem {
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;
-  locationValue?: ILocationOption;
+  locationValue?: ILocationValue;
   extraValue?: string;
 }
 
@@ -388,7 +388,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
     public static generateTypedItem(
       field: string,
-      value: string | number | string[] | ILocationOption,
+      value: string | number | string[] | ILocationValue,
       type: string,
       validation?: string,
       extraValue?: string
@@ -419,7 +419,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         }
 
         if (type === 'map') {
-          const { lat, lng } = value as ILocationOption;
+          const { lat, lng } = value as ILocationValue;
 
           stringValue = `${lng},${lat}`;
           locationValue = { type: 'Point', coordinates: [lng, lat] };

@@ -37,6 +37,7 @@ import {
   mutations as AppMutations,
   queries as AppQueries
 } from './app';
+import { types as MapTypes, queries as MapQueries } from './map';
 
 export let types = `
   scalar JSON
@@ -61,6 +62,7 @@ export let types = `
   ${RobotTypes}
   ${StructureTypes}
   ${AppTypes}
+  ${MapTypes}
 `;
 
 export let queries = `
@@ -72,6 +74,7 @@ export let queries = `
   ${RobotQueries}
   ${StructureQueries}
   ${AppQueries}
+  ${MapQueries}
 `;
 
 export let mutations = `

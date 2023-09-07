@@ -5,13 +5,13 @@ import {
   FormGroup
 } from '@erxes/ui/src/components/form';
 import { __ } from '@erxes/ui/src/utils';
-import { ILocationOption } from '@erxes/ui/src/types';
+import { ILocationValue } from '@erxes/ui/src/types';
 import React from 'react';
 import { LogicItem, LogicRow, RowFill, RowSmall } from '../styles';
 
 type Props = {
-  onChangeOption: (option: ILocationOption, index: number) => void;
-  option: ILocationOption;
+  onChangeOption: (option: ILocationValue, index: number) => void;
+  option: ILocationValue;
   index: number;
   removeOption: (index: number) => void;
 };

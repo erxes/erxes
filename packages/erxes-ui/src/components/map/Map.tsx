@@ -1,26 +1,25 @@
 import { MapContainer } from '@erxes/ui/src/styles/main';
 import React, { useEffect, useState } from 'react';
-import { ILocationOption } from '../../types';
+import { ILocationValue } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
 import colors from '../../styles/colors';
 import {} from './mapTypes';
-import { ITrackingData } from '../../../../plugin-tumentech-ui/src/types';
 
 export interface IMapProps extends google.maps.MapOptions {
   id: string;
   googleMapApiKey?: string;
-  center?: ILocationOption;
-  locationOptions: ILocationOption[];
+  center?: ILocationValue;
+  locationOptions: ILocationValue[];
   locale?: string;
   connectWithLines?: boolean;
   googleMapPath?: string | string[];
   mode?: 'view' | 'config';
   fullHeight?: boolean;
-  trackingData?: ITrackingData[];
-  startPoints?: ILocationOption[];
-  endPoints?: ILocationOption[];
-  onChangeMarker?: (location: ILocationOption) => void;
-  onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
+  trackingData?: any[];
+  startPoints?: ILocationValue[];
+  endPoints?: ILocationValue[];
+  onChangeMarker?: (location: ILocationValue) => void;
+  onChangeLocationOptions?: (locationOptions: ILocationValue[]) => void;
 }
 
 interface IMarker extends google.maps.Marker {
@@ -92,14 +91,14 @@ const Map = (props: IMapProps) => {
     renderMap();
   });
 
-  const onLocationChange = (option: ILocationOption, index: number) => {
+  const onLocationChange = (option: ILocationValue, index: number) => {
     if (props.onChangeLocationOptions) {
       locationOptions[index] = option;
       props.onChangeLocationOptions(locationOptions);
     }
   };
 
-  const onChangeCurrentLocation = (option: ILocationOption) => {
+  const onChangeCurrentLocation = (option: ILocationValue) => {
     if (props.onChangeMarker) {
       props.onChangeMarker(option);
     }

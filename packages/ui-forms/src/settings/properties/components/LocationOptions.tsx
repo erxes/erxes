@@ -1,14 +1,14 @@
 import { FormGroup } from '@erxes/ui/src';
 import Icon from '@erxes/ui/src/components/Icon';
-import { ILocationOption } from '@erxes/ui/src/types';
+import { ILocationValue } from '@erxes/ui/src/types';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import React, { useEffect, useState } from 'react';
 import LocationOption from './LocationOption';
 
 type Props = {
-  onChange: (value: ILocationOption[]) => void;
-  locationOptions: ILocationOption[];
-  currentLocation?: ILocationOption;
+  onChange: (value: ILocationValue[]) => void;
+  locationOptions: ILocationValue[];
+  currentLocation?: ILocationValue;
 };
 
 function LocationOptions(props: Props) {

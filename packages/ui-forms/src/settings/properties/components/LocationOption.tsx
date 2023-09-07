@@ -4,9 +4,9 @@ import {
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components/form';
-import { ILocationOption } from '@erxes/ui/src/types';
+import { ILocationValue } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   LogicItem,
   LogicRow,
@@ -15,8 +15,8 @@ import {
 import { Column } from '@erxes/ui/src/styles/main';
 
 type Props = {
-  onChangeOption: (option: ILocationOption, index: number) => void;
-  option: ILocationOption;
+  onChangeOption: (option: ILocationValue, index: number) => void;
+  option: ILocationValue;
   index: number;
   removeOption?: (index: number) => void;
 };
@@ -38,7 +38,9 @@ function LocationOption(props: Props) {
   };
 
   const remove = () => {
-    removeOption && removeOption(index);
+    if (removeOption) {
+      removeOption(index);
+    }
   };
 
   return (

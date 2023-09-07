@@ -67,7 +67,7 @@ export interface IFieldLogic {
   __typename?: string;
 }
 
-export interface ILocationOption {
+export interface ILocationValue {
   lat: number;
   lng: number;
   description?: string;
@@ -93,7 +93,7 @@ export interface IField {
   content?: string;
   description?: string;
   options?: string[];
-  locationOptions?: ILocationOption[];
+  locationOptions?: ILocationValue[];
   objectListConfigs?: IObjectListConfig[];
   isRequired?: boolean;
   order?: React.ReactNode;
