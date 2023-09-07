@@ -26,7 +26,7 @@ import { sendRequest } from '@erxes/api-utils/src';
 
 import { solveSubmissions } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversationMutations';
-import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
+import { IBrowserInfo } from '@erxes/api-utils/src/types';
 import {
   client as msgBrokerClient,
   sendContactsMessage,

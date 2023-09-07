@@ -1,9 +1,10 @@
 import { Document, Schema } from 'mongoose';
 import {
   attachmentSchema,
-  IRule,
   ruleSchema
 } from '@erxes/api-utils/src/definitions/common';
+import { IRule } from '@erxes/api-utils/src/types';
+
 import {
   LEAD_LOAD_TYPES,
   LEAD_SUCCESS_ACTIONS,

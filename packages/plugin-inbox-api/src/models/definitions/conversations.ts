@@ -1,5 +1,7 @@
 import { Document, Schema } from 'mongoose';
-import { customFieldSchema, ICustomField } from '@erxes/api-utils/src/definitions/common';
+import { customFieldSchema } from '@erxes/api-utils/src/definitions/common';
+import { ICustomField } from '@erxes/api-utils/src/types';
+
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_SELECT_OPTIONS,

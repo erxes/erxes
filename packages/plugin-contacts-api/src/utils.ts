@@ -27,10 +27,11 @@ import {
   MODULE_NAMES
 } from './constants';
 import { companySchema } from './models/definitions/companies';
-import { ICustomField, ILink } from '@erxes/api-utils/src/types';
+import { ILink } from '@erxes/api-utils/src/types';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 import { sendCommonMessage } from './messageBroker';
+import { ICustomField } from '@erxes/api-utils/src/types';
 
 const EXTEND_FIELDS = {
   CUSTOMER: [

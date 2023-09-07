@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 import { putActivityLog, prepareCocLogData } from '../logUtils';
 import { validSearchText } from '@erxes/api-utils/src';
-import { ICustomField } from '@erxes/api-utils/src/definitions/common';
+import { ICustomField } from '@erxes/api-utils/src/types';
 import {
   companySchema,
   ICompany,

@@ -122,15 +122,6 @@ export const customFieldSchema = new Schema(
 
 customFieldSchema.index({ locationValue: '2dsphere' });
 
-export interface ICustomField {
-  field: string;
-  value: any;
-  stringValue?: string;
-  numberValue?: number;
-  dateValue?: Date;
-  locationValue?: ILocationOption;
-}
-
 export const attachmentSchema = new Schema(
   {
     name: { type: String },
@@ -149,15 +140,42 @@ export interface IEncryptionData {
   key: Buffer;
 }
 
-export interface ILocationOption {
-  lat: number;
-  lng: number;
-  description?: string;
-}
-
 export interface IAttachment {
   name: string;
   url: string;
   size: number;
   type: string;
+}
+
+export interface IBrowserInfo {
+  language?: string;
+  url?: string;
+  city?: string;
+  countryCode?: string;
+}
+
+export interface IRule {
+  kind: string;
+  text: string;
+  condition: string;
+  value: string;
+}
+
+export interface IRuleDocument extends IRule, Document {
+  _id: string;
+}
+
+export interface ILocationValue {
+  lat: number;
+  lng: number;
+  description?: string;
+}
+
+export interface ICustomField {
+  field: string;
+  value: any;
+  stringValue?: string;
+  numberValue?: number;
+  dateValue?: Date;
+  locationValue?: ILocationValue;
 }

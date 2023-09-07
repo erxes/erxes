@@ -1,13 +1,10 @@
 import { Document, Schema } from 'mongoose';
 
-import {
-  customFieldSchema,
-  ICustomField,
-  ILink
-} from '@erxes/api-utils/src/definitions/common';
+import { customFieldSchema } from '@erxes/api-utils/src/definitions/common';
 import { CUSTOMER_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from '@erxes/api-utils/src/definitions/utils';
+import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 
 export interface ILocation {
   remoteAddress: string;

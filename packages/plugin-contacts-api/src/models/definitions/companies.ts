@@ -1,14 +1,11 @@
 import { Document, Schema } from 'mongoose';
 
-import {
-  customFieldSchema,
-  ICustomField,
-  ILink
-} from '@erxes/api-utils/src/definitions/common';
+import { customFieldSchema } from '@erxes/api-utils/src/definitions/common';
 import { COMPANY_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from '@erxes/api-utils/src/definitions/utils';
 import { IAddress } from './customers';
+import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 
 export interface ICompany {
   scopeBrandIds?: string[];

@@ -4,7 +4,7 @@ import { IIntegrationDocument } from '../../models/definitions/integrations';
 
 import { getOrCreateEngageMessage } from '../../widgetUtils';
 
-import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
+import { IBrowserInfo } from '@erxes/api-utils/src/types';
 import {
   sendCoreMessage,
   sendFormsMessage,

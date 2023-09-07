@@ -1,4 +1,4 @@
-import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
+import { IBrowserInfo } from '@erxes/api-utils/src/types';
 
 /**
  * Checks individual rule
@@ -123,7 +123,7 @@ export const checkRules = async (
 
   let passedAllRules = true;
 
-  rules.forEach((rule) => {
+  rules.forEach(rule => {
     // check individual rule
     if (!checkRule({ rule, browserInfo, numberOfVisits })) {
       passedAllRules = false;

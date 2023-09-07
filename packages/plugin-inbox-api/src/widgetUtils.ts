@@ -1,4 +1,4 @@
-import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
+import { IBrowserInfo } from '@erxes/api-utils/src/types';
 import { debug } from './configs';
 
 import {
