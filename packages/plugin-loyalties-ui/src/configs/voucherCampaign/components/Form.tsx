@@ -65,17 +65,21 @@ class Form extends React.Component<Props, State> {
       finalValues._id = voucherCampaign._id;
     }
 
-    voucherCampaign.discountPercent = Number(
-      voucherCampaign.discountPercent || 0
-    );
-    voucherCampaign.spinCount = Number(voucherCampaign.spinCount || 0);
-    voucherCampaign.lotteryCount = Number(voucherCampaign.lotteryCount || 0);
-    voucherCampaign.bonusCount = Number(voucherCampaign.bonusCount || 0);
-    voucherCampaign.buyScore = Number(voucherCampaign.buyScore || 0);
+    const {
+      discountPercent = 0,
+      spinCount = 0,
+      lotteryCount = 0,
+      bonusCount = 0,
+      buyScore = 0
+    } = voucherCampaign;
 
     return {
       ...finalValues,
-      ...voucherCampaign
+      discountPercent: Number(discountPercent),
+      spinCount: Number(spinCount),
+      lotteryCount: Number(lotteryCount),
+      bonusCount: Number(bonusCount),
+      buyScore: Number(buyScore)
     };
   };
 

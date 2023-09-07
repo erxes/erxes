@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import {
   Button,
   Form as CommonForm,
@@ -7,35 +5,19 @@ import {
   FormControl,
   FormGroup,
   ModalTrigger,
-  SelectTeamMembers
+  SelectTeamMembers,
+  __
 } from '@erxes/ui/src';
-import { ModalFooter, ScrollWrapper } from '@erxes/ui/src/styles/main';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import { IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import React from 'react';
+import SelectClientPortalUser from '../../../common/SelectClientPortalUsers';
+import { getOwnerTypes } from '../../common/constants';
 
-const SelectCompanies = asyncComponent(
-  () =>
-    isEnabled('contacts') &&
-    import(
-      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
-    )
-);
-
-const SelectCustomers = asyncComponent(
-  () =>
-    isEnabled('contacts') &&
-    import(
-      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
-    )
-);
-
-interface LayoutProps {
-  children: React.ReactNode;
-  label: string;
-}
 type Props = {
   renderBtn: (props: any) => JSX.Element;
 };
@@ -50,19 +32,85 @@ class ScoreForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      ownerType: '',
+      ownerType: 'customer',
       ownerId: '',
       changeScore: 0
     };
   }
+
+  generateDoc = values => {
+    const { ownerId } = this.state;
+
+    return {
+      ...values,
+      changeScore: Number(values?.changeScore || 0),
+      ownerId
+    };
+  };
+
+  renderOwner = () => {
+    const { ownerType, ownerId } = this.state;
+
+    const handleOwnerId = id => {
+      this.setState(prev => ({ ...prev, ownerId: id }));
+    };
+
+    if (isEnabled('contacts') && ownerType === 'customer') {
+      return (
+        <SelectCustomers
+          label="Customer"
+          name="ownerId"
+          multi={false}
+          initialValue={ownerId}
+          onSelect={handleOwnerId}
+        />
+      );
+    }
+
+    if (ownerType === 'user') {
+      return (
+        <SelectTeamMembers
+          label="Team Member"
+          name="ownerId"
+          multi={false}
+          initialValue={ownerId}
+          onSelect={handleOwnerId}
+        />
+      );
+    }
+
+    if (isEnabled('contacts') && ownerType === 'company') {
+      return (
+        <SelectCompanies
+          label="Compnay"
+          name="ownerId"
+          multi={false}
+          initialValue={ownerId}
+          onSelect={handleOwnerId}
+        />
+      );
+    }
+
+    if (isEnabled('clientportal') && ownerType === 'cpUser') {
+      return (
+        <SelectClientPortalUser
+          label="Client Portal User"
+          name="ownerId"
+          multi={false}
+          initialValue={ownerId}
+          onSelect={handleOwnerId}
+        />
+      );
+    }
+
+    return null;
+  };
 
   render() {
     const { ownerType, ownerId } = this.state;
     const { renderBtn } = this.props;
 
     let changeScore = 0;
-
-    const ownerTypeInput = ['customer', 'user', 'company'];
 
     const handleOwnerType = e => {
       const target = e.currentTarget as HTMLInputElement;
@@ -71,134 +119,72 @@ class ScoreForm extends React.Component<Props, State> {
       this.setState(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleOwnerId = id => {
-      this.setState(prev => ({ ...prev, ownerId: id }));
-    };
-
-    const handleScore = e => {
-      const value = parseInt(e.target.value);
-      // this.setState(prev=>({...prev,changeScore:value}))
-      changeScore = value;
-    };
-
-    const generateDoc = () => {
-      return {
-        ownerType,
-        ownerId,
-        createdBy: new Date(),
-        changeScore
-      };
-    };
-
-    const renderOwner = () => {
-      if (isEnabled('contacts') && ownerType === 'customer') {
-        return (
-          <SelectCustomers
-            label="Customers"
-            name="ownerId"
-            multi={false}
-            initialValue={ownerId}
-            onSelect={handleOwnerId}
-          />
-        );
-      }
-
-      if (ownerType === 'user') {
-        return (
-          <SelectTeamMembers
-            label="Team Members"
-            name="ownerId"
-            multi={false}
-            initialValue={ownerId}
-            onSelect={handleOwnerId}
-          />
-        );
-      }
-
-      if (isEnabled('contacts')) {
-        return (
-          <SelectCompanies
-            label="Compnay"
-            name="ownerId"
-            multi={false}
-            initialValue={ownerId}
-            onSelect={handleOwnerId}
-          />
-        );
-      }
-
-      return null;
-    };
-
-    const btnModal = <Button block={true}>Give Score</Button>;
-
-    const FormColumn = (props: LayoutProps) => (
-      <FormGroup>
-        <ControlLabel>{props.label}</ControlLabel>
-        <div>{props.children}</div>
-      </FormGroup>
-    );
-
-    const Form = (formProps: IFormProps) => {
+    const Form = (formProps: IFormProps, closeModal: () => void) => {
       const { values, isSubmitted } = formProps;
 
       return (
         <>
-          <ScrollWrapper>
-            <FormColumn label="Owner type">
-              <FormControl
-                {...formProps}
-                name="ownerType"
-                componentClass="select"
-                defaultValue={ownerType}
-                required={true}
-                onChange={handleOwnerType}
-              >
-                {ownerTypeInput.map(p => (
-                  <option key={p} value={p}>
-                    {' '}
-                    {p}{' '}
-                  </option>
-                ))}
-              </FormControl>
-            </FormColumn>
-            <FormColumn label="Owner">{renderOwner()}</FormColumn>
-            <FormColumn label="Score">
-              <FormControl
-                {...formProps}
-                name="discountPercent"
-                type="number"
-                min={0}
-                max={100}
-                placeholder="0"
-                required={true}
-                defaultValue={changeScore}
-                onChange={handleScore}
-              />
-            </FormColumn>
-          </ScrollWrapper>
+          <FormGroup>
+            <ControlLabel>{__('Owner type')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="ownerType"
+              componentClass="select"
+              defaultValue={ownerType}
+              required={true}
+              onChange={handleOwnerType}
+            >
+              {getOwnerTypes().map(({ label, name }) => (
+                <option key={name} value={name}>
+                  {label}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Owner')}</ControlLabel>
+            {this.renderOwner()}
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Score')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="changeScore"
+              type="number"
+              min={0}
+              max={100}
+              placeholder="0"
+              required={true}
+              defaultValue={changeScore}
+            />
+          </FormGroup>
           <ModalFooter>
-            <Button btnStyle="simple" icon="cancel-1">
-              Close
+            <Button btnStyle="simple" icon="cancel-1" onClick={closeModal}>
+              {__('Close')}
             </Button>
             {renderBtn({
               name: 'score',
-              values: generateDoc(),
-              isSubmitted
+              values: this.generateDoc(values),
+              isSubmitted,
+              callback: closeModal
             })}
           </ModalFooter>
         </>
       );
     };
 
-    const content = () => {
-      return <CommonForm renderContent={Form} />;
+    const content = ({ closeModal }) => {
+      return (
+        <CommonForm renderContent={formProps => Form(formProps, closeModal)} />
+      );
     };
+
+    const trigger = <Button btnStyle="success">{__('Give Score')}</Button>;
 
     return (
       <ModalTrigger
         title="Lottery Detail"
-        trigger={btnModal}
+        trigger={trigger}
         autoOpenKey="showVoucherModal"
         content={content}
         backDrop="static"
