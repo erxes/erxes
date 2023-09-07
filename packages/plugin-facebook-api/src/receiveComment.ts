@@ -1,5 +1,9 @@
 import { IModels } from './connectionResolver';
-import { getOrCreateComment, getOrCreateCustomer } from './store';
+import {
+  getOrCreateComment,
+  getOrCreateCustomer,
+  getOrCreatePost
+} from './store';
 import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
 
@@ -12,7 +16,7 @@ const receiveComment = async (
   const userId = params.from.id;
   const postId = params.post_id;
 
-  await getOrCreateCustomer(
+  const customer = await getOrCreateCustomer(
     models,
     subdomain,
     pageId,
@@ -20,10 +24,17 @@ const receiveComment = async (
     INTEGRATION_KINDS.POST
   );
 
-  const post = await models.Posts.findOne({ postId });
+  let post = await models.Posts.findOne({ postId, receipendId: customer._id });
 
   if (!post) {
-    throw new Error('Post not found');
+    post = await getOrCreatePost(
+      models,
+      subdomain,
+      params,
+      pageId,
+      userId,
+      customer._id
+    );
   }
 
   return getOrCreateComment(
@@ -32,7 +43,9 @@ const receiveComment = async (
     params,
     pageId,
     userId,
-    params.verb || ''
+    params.verb || '',
+    post,
+    customer
   );
 };
 

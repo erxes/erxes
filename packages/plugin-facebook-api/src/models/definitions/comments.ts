@@ -13,6 +13,8 @@ export interface IComment {
   erxesApiId: string;
   timestamp: Date;
   permalink_url: string;
+  userId?: string;
+  customerId?: string;
 }
 
 export interface ICommentDocument extends IComment, Document {}
@@ -24,6 +26,8 @@ export const commentSchema = new Schema({
   recipientId: String,
   senderId: String,
   parentId: String,
+  userId: { type: String, optional: true },
+  customerId: { type: String, optional: true },
   permalink_url: String,
   attachments: [String],
   content: String,
