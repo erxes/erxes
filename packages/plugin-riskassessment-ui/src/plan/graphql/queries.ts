@@ -2,6 +2,7 @@ import { commonPaginateDef, commonPaginateValue } from '../../common/graphql';
 
 const commonParamsDef = `
   $isArchived:Boolean,
+  $status:String,
   $plannerIds:[String],
   $structureIds:[String],
   $createDateFrom:String,
@@ -21,6 +22,7 @@ const commonParamsValue = `
   isArchived:$isArchived,
   plannerIds:$plannerIds,
   structureIds:$structureIds,
+  status:$status,
   createDateFrom:$createDateFrom,
   createDateTo:$createDateTo,
   startDateFrom:$startDateFrom,

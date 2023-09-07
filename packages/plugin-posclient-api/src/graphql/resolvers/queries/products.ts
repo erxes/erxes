@@ -29,7 +29,9 @@ interface IProductParams extends ICommonParams {
 
 interface ICategoryParams extends ICommonParams {
   parentId: string;
+  withChild: boolean;
   searchValue: string;
+  status: string;
   excludeEmpty?: boolean;
   meta?: string;
 }
@@ -64,10 +66,12 @@ const generateFilter = async (
       _id: categoryId
     });
 
-    const relatedCategoryIds = await models.ProductCategories.find(
-      { order: { $regex: new RegExp(`^${category.order}`) } },
-      { _id: 1 }
-    );
+    const relatedCategoryIds = (
+      await models.ProductCategories.find(
+        { order: { $regex: new RegExp(`^${category.order}`) } },
+        { _id: 1 }
+      ).lean()
+    ).map(c => c._id);
 
     filter.categoryId = { $in: relatedCategoryIds };
   }
@@ -118,12 +122,41 @@ const generateFilter = async (
   return filter;
 };
 
-const generateFilterCat = ({ token, parentId, searchValue, meta }) => {
+const generateFilterCat = async ({
+  models,
+  token,
+  parentId,
+  withChild,
+  searchValue,
+  status,
+  meta
+}) => {
   const filter: any = { tokens: { $in: [token] } };
   filter.status = { $nin: ['disabled', 'archived'] };
 
+  if (status && status !== 'active') {
+    filter.status = status;
+  }
+
   if (parentId) {
-    filter.parentId = parentId;
+    if (withChild) {
+      const category = await (models as IModels).ProductCategories.getProductCategory(
+        {
+          _id: parentId
+        }
+      );
+
+      const relatedCategoryIds = (
+        await models.ProductCategories.find(
+          { order: { $regex: new RegExp(`^${category.order}`) } },
+          { _id: 1 }
+        ).lean()
+      ).map(c => c._id);
+
+      filter.parentId = { $in: relatedCategoryIds };
+    } else {
+      filter.parentId = parentId;
+    }
   }
 
   if (meta) {
@@ -238,7 +271,9 @@ const productQueries = {
     _root,
     {
       parentId,
+      withChild,
       searchValue,
+      status,
       excludeEmpty,
       meta,
       sortDirection,
@@ -247,10 +282,13 @@ const productQueries = {
     }: ICategoryParams,
     { models, config }: IContext
   ) {
-    const filter = generateFilterCat({
+    const filter = await generateFilterCat({
+      models,
       token: config.token,
       parentId,
+      withChild,
       searchValue,
+      status,
       meta
     });
 
@@ -296,17 +334,16 @@ const productQueries = {
 
   async poscProductCategoriesTotalCount(
     _root,
-    {
-      parentId,
-      searchValue,
-      meta
-    }: { parentId: string; searchValue: string; meta: string },
+    { parentId, withChild, searchValue, status, meta },
     { models, config }: IContext
   ) {
     const filter = await generateFilterCat({
+      models,
       token: config.token,
       parentId,
+      withChild,
       searchValue,
+      status,
       meta
     });
     return models.ProductCategories.find(filter).countDocuments();

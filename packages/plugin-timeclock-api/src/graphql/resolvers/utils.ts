@@ -305,6 +305,12 @@ export const timeclockReportByUser = async (
     }
   }
 
+  let scheduledShiftStartSelectedDay;
+  let scheduledShiftEndSelectedDay;
+
+  let recordedShiftStartSelectedDay;
+  let recordedShiftEndSelectedDay;
+
   let totalHoursWorkedSelectedMonth = 0;
   let totalHoursWorkedSelectedDay = 0;
 
@@ -418,6 +424,13 @@ export const timeclockReportByUser = async (
             recordedShiftOfSelectedDay.recordedStart.getTime() -
             scheduleShift.shiftStart.getTime();
 
+          recordedShiftStartSelectedDay =
+            recordedShiftOfSelectedDay.recordedStart;
+          recordedShiftEndSelectedDay = recordedShiftOfSelectedDay.recordedEnd;
+
+          scheduledShiftStartSelectedDay = scheduleShift.shiftStart;
+          scheduledShiftEndSelectedDay = scheduleShift.shiftEnd;
+
           if (shiftStartDiff > 0) {
             totalMinsLateSelectedDay += shiftStartDiff / MMSTOMINS;
           }
@@ -472,6 +485,17 @@ export const timeclockReportByUser = async (
 
     totalDaysNotWorked = new Set(notWorkedDays).size;
 
+    const scheduleReport = [
+      {
+        timeclockDate: selectedDayString,
+        timeclockStart: recordedShiftStartSelectedDay,
+        timeclockEnd: recordedShiftEndSelectedDay,
+
+        scheduledStart: scheduledShiftStartSelectedDay,
+        scheduledEnd: scheduledShiftEndSelectedDay
+      }
+    ];
+
     report = {
       ...report,
       totalDaysNotWorked,
@@ -489,7 +513,9 @@ export const timeclockReportByUser = async (
       totalHoursAbsenceSelectedMonth,
 
       scheduledShifts: scheduleShiftsSelectedMonth,
-      timeclocks: timeclocksOfSelectedMonth
+      timeclocks: timeclocksOfSelectedMonth,
+
+      scheduleReport
     };
   }
 
