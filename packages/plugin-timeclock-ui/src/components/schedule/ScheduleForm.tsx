@@ -9,7 +9,7 @@ import {
   IScheduleConfig,
   IScheduleConfigOrder
 } from '../../types';
-import Select, { components } from 'react-select-plus';
+import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import {
   FlexCenter,
@@ -35,9 +35,7 @@ import Datetime from '@nateradebaugh/react-datetime';
 import { dateFormat, timeFormat } from '../../constants';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { FormControl } from '@erxes/ui/src/components/form';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Box from '@erxes/ui/src/components/Box';
-import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {
   currentUser: IUser;
@@ -632,7 +630,14 @@ function ScheduleForm(props: Props) {
 
         <CustomBoxWrapper>
           <Box title="set schedule configs order">
-            {/* {scheduleConfigsOrderData.orderedList.map(s => )} */}
+            {scheduleConfigsOrderData.orderedList
+              .sort((a, b) => a.order - b.order)
+              .map(s => (
+                <FlexRow key={s.order}>
+                  <div>{s.label}</div>
+                  <Button icon="BsFillPinFill" />
+                </FlexRow>
+              ))}
           </Box>
         </CustomBoxWrapper>
 

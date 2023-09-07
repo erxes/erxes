@@ -169,6 +169,7 @@ export interface IScheduleConfigOrderItem {
   scheduleConfigId: string;
   order: number;
   pinned: boolean;
+  label?: string;
 }
 
 export interface IScheduleConfigDays {
