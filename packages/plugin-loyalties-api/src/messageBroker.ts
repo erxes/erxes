@@ -111,6 +111,17 @@ export const sendNotificationsMessage = async (
   });
 };
 
+export const sendClientPortalMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'clientportal',
+    ...args
+  });
+};
+
 export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
