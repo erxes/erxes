@@ -130,19 +130,6 @@ const List = styled.ul`
   }
 `;
 
-const SearchTitle = styled.h4`
-  margin: 0;
-  font-size: 12px;
-  text-transform: capitalize;
-  color: #9d9da4;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  position: sticky;
-  top: 0;
-  background: #fbfcff;
-  font-weight: 600;
-  margin-top: 5px;
-`;
-
 type Props = {
   onSearch: (e) => void;
   clearSearch: () => void;

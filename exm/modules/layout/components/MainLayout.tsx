@@ -1,7 +1,6 @@
 import { Layout, MainWrapper } from "../styles";
 
 import DetectBrowser from "./DetectBrowser";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "../../auth/types";
 import MainBar from "./MainBar";
 import Navigation from "./Navigation";

@@ -1,9 +1,9 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import React from 'react';
-import { Spinner } from 'react-bootstrap';
+import { gql, useMutation, useQuery } from "@apollo/client";
 
-import { IUser, NotificationDetailQueryResponse } from '../../../types';
-import NotificationDetail from '../../components/notifications/Detail';
+import { IUser } from "../../../types";
+import NotificationDetail from "../../components/notifications/Detail";
+import React from "react";
+import { Spinner } from "react-bootstrap";
 
 type Props = {
   _id: string;
@@ -33,15 +33,12 @@ const notificationsRemoveMutation = gql`
 
 function NotificationDetailContainer(props: Props) {
   // const [markAsRead] = useMutation(markAsReadMutation);
-  const response = useQuery<NotificationDetailQueryResponse>(
-    notificationDetailQuery,
-    {
-      skip: !props.currentUser,
-      variables: {
-        id: props._id,
-      },
-    }
-  );
+  const response = useQuery(notificationDetailQuery, {
+    skip: !props.currentUser,
+    variables: {
+      id: props._id,
+    },
+  });
 
   const [removeMutation] = useMutation(notificationsRemoveMutation);
 

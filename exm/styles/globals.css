@@ -84,6 +84,10 @@ hr {
   min-height: 200px;
 }
 
+.modal-header {
+  padding: 1rem 40px 1em 1em;
+}
+
 .Select-placeholder {
   padding: 0 1rem;
 }
@@ -113,6 +117,22 @@ hr {
 .Select-menu-outer, .Select-option:last-child {
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
+}
+
+#groupMembers-popover {
+  padding: 10px;
+  background: #fff;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  width: 300px;
+  border: none;
+  z-index: 9;
+  border-radius: 8px;
+  max-height: 350px;
+  overflow: scroll;
+}
+
+#contextmenu-popover {
+  left: -15px !important;
 }
 
 @keyframes searchIcon {

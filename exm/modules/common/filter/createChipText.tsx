@@ -1,10 +1,10 @@
-import { graphql } from 'react-apollo';
+import { graphql } from "@apollo/client/react/hoc";
 
 const ChipText = (props: any) => {
   const { query } = props;
 
   if (query.loading) {
-    return '-';
+    return "-";
   }
 
   const brand = query.brandDetail;
@@ -26,14 +26,14 @@ const ChipText = (props: any) => {
 
 const createChipText = (query, id) => {
   return graphql(query, {
-    name: 'query',
+    name: "query",
     options: () => {
       return {
         variables: {
-          id
-        }
+          id,
+        },
       };
-    }
+    },
   })(ChipText);
 };
 

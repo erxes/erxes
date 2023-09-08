@@ -52,8 +52,8 @@ export default function PostForm(props: Props) {
         />
         <UploadItems>
           <div>
-            <Uploader defaultFileList={images || []} onChange={setImage} />
             <ControlLabel>Add image:</ControlLabel>
+            <Uploader defaultFileList={images || []} onChange={setImage} />
           </div>
         </UploadItems>
         {renderButton({

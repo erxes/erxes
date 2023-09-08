@@ -110,7 +110,7 @@ export default function ThankList({
   return (
     <NewsFeedLayout>
       {(list || []).map((filteredItem) => renderItem(filteredItem))}
-      <LoadMore perPage={limit} all={totalCount} />
+      {/* <LoadMore perPage={limit} all={totalCount} /> */}
     </NewsFeedLayout>
   );
 }

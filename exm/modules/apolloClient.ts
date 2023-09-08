@@ -1,14 +1,12 @@
-import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import WebSocketLink from './WebSocketLink';
-import { createHttpLink } from 'apollo-link-http';
-import { getEnv } from "../utils/configs";
-import { getMainDefinition } from 'apollo-utilities';
-import { onError } from 'apollo-link-error';
-import { setContext } from 'apollo-link-context';
-import { split } from 'apollo-link';
+import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 
-const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();
+import { getEnv } from "../utils/configs";
+import { getMainDefinition } from '@apollo/client/utilities';
+import { onError } from '@apollo/client/link/error';
+import { setContext } from '@apollo/client/link/context';
+import { split } from '@apollo/client/link/core';
+
+const { REACT_APP_API_URL } = getEnv();
 
 // Create an http link:
 const httpLink = createHttpLink({

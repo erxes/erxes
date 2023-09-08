@@ -1,13 +1,12 @@
-import dayjs from 'dayjs';
-import React from 'react';
+import { CreatedDate, FormWrapper } from "../../../styles/main";
 
-import Button from '../../../common/Button';
-import { FormGroup } from '../../../common/form';
-import { CreatedDate, FormWrapper } from '../../../styles/main';
-import { INotification } from '../../../types';
+import Button from "../../../common/Button";
+import { FormGroup } from "../../../common/form";
+import React from "react";
+import dayjs from "dayjs";
 
 type Props = {
-  notification: INotification;
+  notification: any;
   removeNotification: (_id: string) => void;
 };
 
@@ -18,13 +17,13 @@ export default function Detail({ removeNotification, notification }: Props) {
 
   return (
     <FormWrapper>
-      <h4>{notification.title || 'Notification'}</h4>
+      <h4>{notification.title || "Notification"}</h4>
       <div className="content">
         <FormGroup>
           <div dangerouslySetInnerHTML={{ __html: notification.content }} />
 
           <CreatedDate>
-            {dayjs(notification.createdAt).format('DD MMM YYYY, HH:mm')}
+            {dayjs(notification.createdAt).format("DD MMM YYYY, HH:mm")}
           </CreatedDate>
         </FormGroup>
 

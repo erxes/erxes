@@ -8,8 +8,8 @@ import {
 import Alert from "../../utils/Alert";
 import ForgotPassword from "../components/ForgotPassword";
 import React from "react";
-import gql from "graphql-tag";
-import { graphql } from "react-apollo";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 import { mutations } from "../graphql";
 
 type Props = {};

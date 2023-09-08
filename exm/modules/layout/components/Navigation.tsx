@@ -38,13 +38,17 @@ export default class LeftSidebar extends React.Component<Props, State> {
         </div>
         <Sidebar>
           {MAIN_NAVIGATION.map((item: any, i: number) => (
-            <Link key={i} href={item.url}>
+            <Link key={i} href={!item.desc ? item.url : ""}>
               <li
                 className={item.key === activeClass ? "active" : ""}
-                onClick={() => this.onClick(item.key)}
+                onClick={() => !item.desc && this.onClick(item.key)}
               >
                 <Icon className={item.key} icon={item.icon} size={18} />
-                <span>{item.value}</span>
+                <div>
+                  <span>{item.value}</span>
+                  <br />
+                  <p>{item.desc}</p>
+                </div>
               </li>
             </Link>
           ))}
@@ -55,7 +59,13 @@ export default class LeftSidebar extends React.Component<Props, State> {
           </div>
           <b>{__("Need help?")}</b>
           <p>{__("Please check our docs")}</p>
-          <Button size="small">Documentation</Button>
+          <Button
+            size="small"
+            target="blank"
+            href="https://docs.erxes.io/docs/intro"
+          >
+            Documentation
+          </Button>
         </HelpBox>
       </LeftNavigation>
     );

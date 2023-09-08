@@ -1,10 +1,10 @@
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors } from '../styles';
+import React from "react";
+import { colors } from "../styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
-const closeSize = '20px';
-const horizontalSpace = '10px';
+const closeSize = "20px";
+const horizontalSpace = "10px";
 
 const ChipItem = styledTS<{ capitalize?: boolean; hasSpace: boolean }>(
   styled.span
@@ -13,11 +13,11 @@ const ChipItem = styledTS<{ capitalize?: boolean; hasSpace: boolean }>(
   background: ${colors.colorSecondary};
   padding: 2px ${horizontalSpace};
   margin: 2px 5px 2px 0;
-  text-transform: ${props => (props.capitalize ? 'capitalize' : 'none')};
+  text-transform: ${(props) => (props.capitalize ? "capitalize" : "none")};
   display: inline-block;
   border-radius: 11px;
   padding-right: 27px;
-  padding-left: ${props => props.hasSpace && '30px'};
+  padding-left: ${(props) => props.hasSpace && "30px"};
   position: relative;
   line-height: 18px;
 `;
@@ -52,7 +52,7 @@ const Front = styled(Click)`
 
 function Chip(props: {
   capitalize?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   children: React.ReactNode;
   frontContent?: React.ReactNode;
 }) {

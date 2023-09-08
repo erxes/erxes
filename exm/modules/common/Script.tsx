@@ -1,4 +1,3 @@
-import { IErxesForm } from "../types";
 import React from "react";
 import { getEnv } from "../../utils/configs";
 
@@ -6,7 +5,7 @@ const { REACT_APP_DOMAIN } = getEnv();
 
 class Script extends React.Component<{
   messengerBrandCode?: string;
-  erxesForms?: IErxesForm[];
+  erxesForms?: any[];
 }> {
   componentDidMount() {
     const { messengerBrandCode, erxesForms = [] } = this.props;

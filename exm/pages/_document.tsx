@@ -30,6 +30,8 @@ export default class MyDocument extends Document {
         (sheet as any).seal();
       }
     }
+
+    return null;
   }
 
   render() {

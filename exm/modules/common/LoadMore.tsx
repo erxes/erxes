@@ -1,10 +1,7 @@
-import { getParam, setParams } from "../utils/router";
-
-import Button from "./Button";
-import { IRouterProps } from "../types";
-import React from "react";
-
-// import { withRouter } from "react-router-dom";
+import Button from './Button';
+import { IRouterProps } from '../types';
+import React from 'react';
+import { useRouter } from 'next/router';
 
 interface IProps extends IRouterProps {
   perPage?: number;
@@ -13,20 +10,19 @@ interface IProps extends IRouterProps {
   loading?: boolean;
 }
 
-function LoadMore({
-  history = {},
-  perPage = 20,
-  all,
-  paramName = "limit",
-  loading,
-}: IProps) {
-  const loaded = parseInt(getParam(history, paramName), 10) || perPage;
+function LoadMore({ perPage = 20, all, paramName = 'limit', loading }: IProps) {
+  const router = useRouter();
+  const prevNumber = Number(router && router.query?.limit) || 20;
 
   const load = () => {
-    setParams(history, { limit: loaded + perPage });
+    // Set query parameters and navigate to a new URL
+    router.push({
+      pathname: '/',
+      query: { limit: prevNumber + perPage }
+    });
   };
 
-  return loaded < all ? (
+  return prevNumber < all ? (
     <Button
       block={true}
       btnStyle="link"
@@ -34,7 +30,7 @@ function LoadMore({
       icon="redo"
       uppercase={false}
     >
-      {loading ? "Loading..." : "Load more"}
+      {loading ? 'Loading...' : 'Load more'}
     </Button>
   ) : null;
 }

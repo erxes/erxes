@@ -1,4 +1,4 @@
-interface IAttachment {
+export interface IAttachment {
   name: string;
   url: string;
   size: number;
@@ -93,4 +93,28 @@ export type QueryResponse = {
   loading: boolean;
   refetch: (variables?: any) => Promise<any>;
   error?: string;
+};
+
+export interface IComment {
+  _id: string;
+  createdUser?: {
+    _id?: string;
+    username?: string;
+    email?: string;
+    details: {
+      avatar: string;
+      fullName: string;
+      position: string;
+    }
+  };
+  comment: string;
+  replies?: IComment[];
+  contentId: string;
+}
+
+export type RemoveMutationResponse = {
+  removeMutation: (params: {
+    variables: { _id: string };
+    refetchQueries?: any;
+  }) => Promise<any>;
 };

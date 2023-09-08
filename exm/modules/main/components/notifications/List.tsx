@@ -1,16 +1,14 @@
-import React from 'react';
-
-import Modal from '../../../common/Modal';
-import { NotificationList } from '../../../styles/main';
-import { Wrapper } from '../../../styles/tasks';
-import { INotification, IUser } from '../../../types';
-import Alert from '../../../utils/Alert';
-import NotificationDetail from '../../containers/notifications/Detail';
-import Row from './Row';
+import { IUser } from "../../../types";
+import Modal from "../../../common/Modal";
+import NotificationDetail from "../../containers/notifications/Detail";
+import { NotificationList } from "../../../styles/main";
+import React from "react";
+import Row from "./Row";
+import { Wrapper } from "../../../styles/tasks";
 
 type Props = {
   currentUser: IUser;
-  notifications: INotification[];
+  notifications: any[];
   count: number;
   loading: boolean;
   refetch?: () => void;
@@ -21,9 +19,8 @@ const List = (props: Props) => {
   const { notifications } = props;
 
   const [showModal, setShowModal] = React.useState(false);
-  const [selectedNotificationId, setSelectedNotificationId] = React.useState(
-    ''
-  );
+  const [selectedNotificationId, setSelectedNotificationId] =
+    React.useState("");
 
   const renderContent = () => {
     if (notifications.length === 0) {
@@ -55,6 +52,7 @@ const List = (props: Props) => {
               currentUser={props.currentUser}
               afterRemove={() => {
                 setShowModal(false);
+                // tslint:disable-next-line:no-unused-expression
                 props.refetch && props.refetch();
               }}
             />
