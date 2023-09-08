@@ -320,7 +320,7 @@ export const readFile = (value: string, width?: number): string => {
   return url;
 };
 
-export const getUserAvatar = (user: IUserDoc) => {
+export const getUserAvatar = (user: IUserDoc, width?: number) => {
   if (!user) {
     return '';
   }
@@ -331,7 +331,7 @@ export const getUserAvatar = (user: IUserDoc) => {
     return '/images/avatar-colored.svg';
   }
 
-  return readFile(details.avatar);
+  return readFile(details.avatar, width);
 };
 
 export function withProps<IProps>(
