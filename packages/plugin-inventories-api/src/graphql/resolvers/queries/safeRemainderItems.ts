@@ -7,14 +7,32 @@ import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 
 const generateFilterItems = async (subdomain: string, params: any) => {
-  const { remainderId, productCategoryId, status, diffType } = params;
+  const { remainderId, productCategoryIds, status, diffType } = params;
   const query: any = { remainderId };
 
-  if (productCategoryId) {
+  if (productCategoryIds && productCategoryIds.length) {
+    const categories = await sendProductsMessage({
+      subdomain,
+      action: 'categories.withChilds',
+      data: { ids: productCategoryIds },
+      isRPC: true
+    });
+
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { query: { categoryId: { $in: categories.map(c => c._id) } } },
+      isRPC: true,
+      defaultValue: 0
+    });
+
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
-      data: { query: {}, categoryId: productCategoryId },
+      data: {
+        query: { categoryId: { $in: categories.map(c => c._id) } },
+        limit
+      },
       isRPC: true,
       defaultValue: []
     });
@@ -58,7 +76,12 @@ const safeRemainderItemsQueries = {
     { models, subdomain }: IContext
   ) => {
     const query: any = await generateFilterItems(subdomain, params);
-    return paginate(models.SafeRemainderItems.find(query).lean(), params);
+    return paginate(
+      models.SafeRemainderItems.find(query)
+        .sort({ order: 1 })
+        .lean(),
+      params
+    );
   },
 
   safeRemainderItemsCount: async (

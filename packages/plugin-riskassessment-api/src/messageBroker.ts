@@ -15,7 +15,7 @@ export const initBroker = async cl => {
   });
 
   consumeRPCQueue(
-    'riskassessment:riskAssessments:find',
+    'riskassessment:riskAssessments.find',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 

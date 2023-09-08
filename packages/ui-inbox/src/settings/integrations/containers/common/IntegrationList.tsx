@@ -106,7 +106,7 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const editIntegration = (
     id: string,
-    { name, brandId, channelIds, data }: IntegrationMutationVariables,
+    { name, brandId, channelIds, details }: IntegrationMutationVariables,
     callback: () => void
   ) => {
     if (!name || !brandId) {
@@ -116,7 +116,7 @@ const IntegrationListContainer = (props: FinalProps) => {
     }
 
     editCommonFields({
-      variables: { _id: id, name, brandId, channelIds, data }
+      variables: { _id: id, name, brandId, channelIds, details }
     })
       .then(response => {
         const result = response.data.integrationsEditCommonFields;

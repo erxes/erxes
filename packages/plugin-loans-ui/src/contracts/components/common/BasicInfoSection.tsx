@@ -14,6 +14,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 import ContractForm from '../../containers/ContractForm';
 import CloseForm from '../../containers/detail/CloseForm';
+import InterestChange from '../../containers/detail/InterestChange';
 import { Action, Name } from '../../styles';
 import { IContract } from '../../types';
 import DetailInfo from './DetailInfo';
@@ -82,6 +83,10 @@ class BasicInfoSection extends React.Component<Props, State> {
 
     const closeForm = props => <CloseForm {...props} contract={contract} />;
 
+    const interestChangeForm = props => (
+      <InterestChange {...props} contract={contract} />
+    );
+
     return (
       <Action>
         <Dropdown onToggle={isShown => isShown && onOpen()}>
@@ -119,6 +124,14 @@ class BasicInfoSection extends React.Component<Props, State> {
                 </a>
               </li>
             )}
+            <li>
+              <ModalTrigger
+                title={__('Interest correction')}
+                trigger={<a href="#toClose">{__('Interest correction')}</a>}
+                size="lg"
+                content={interestChangeForm}
+              />
+            </li>
           </Dropdown.Menu>
         </Dropdown>
       </Action>

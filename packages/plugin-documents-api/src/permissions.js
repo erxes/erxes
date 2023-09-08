@@ -6,12 +6,21 @@ module.exports = {
       {
         name: 'documentsAll',
         description: 'All',
-        use: ['manageDocuments']
+        use: ['manageDocuments', 'removeDocuments', 'showDocuments']
       },
       {
         name: 'manageDocuments',
         description: 'Manage documents'
+      },
+      {
+        name: 'removeDocuments',
+        description: 'Remove documents'
+      },
+      {
+        name: 'showDocuments',
+        description: 'Show documents'
       }
+
     ]
-  }, 
+  },
 }

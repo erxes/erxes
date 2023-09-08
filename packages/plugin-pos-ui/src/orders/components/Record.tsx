@@ -64,7 +64,7 @@ class Record extends React.Component<Props> {
           {dayjs(order.paidDate || order.createdAt).format('YYYY-MM-DD')}
         </td>
         <td key={'Time'}>
-          {dayjs(order.paidDate || order.createdAt).format('HH-mm-ss')}
+          {dayjs(order.paidDate || order.createdAt).format('HH:mm:ss')}
         </td>
         <td key={'BillID'}>{order.number} </td>
         <td key={'pos'}>
@@ -88,7 +88,7 @@ class Record extends React.Component<Props> {
         <td key={'customerType'}>{order.customerType || ''}</td>
         <td key={'customer'}>{this.generateLabel(order.customer) || ''}</td>
         <td key={'barcode'}>{order.items?.product?.barcodes?.[0] || ''}</td>
-        <td key={'factor'}>
+        <td key={'subBarcode'}>
           {(order.items?.manufactured &&
             dayjs(order.items?.manufactured).format('YYYY-MM-DD HH:mm')) ||
             ''}
@@ -110,19 +110,20 @@ class Record extends React.Component<Props> {
           {(order.items?.count || 0) * (order.items?.unitPrice || 0)}
         </td>
         <td key={'amountType'}>
-          {[
-            ...Array.from(
-              new Set(
-                [
-                  ...order.paidAmounts,
-                  { type: 'cash', amount: order.cashAmount },
-                  { type: 'mobile', amount: order.mobileAmount }
-                ]
-                  .filter(pa => pa.amount > 0)
-                  .map(pa => pa.type)
+          {(order.status === 'return' && 'RETURNED') ||
+            [
+              ...Array.from(
+                new Set(
+                  [
+                    ...order.paidAmounts,
+                    { type: 'cash', amount: order.cashAmount },
+                    { type: 'mobile', amount: order.mobileAmount }
+                  ]
+                    .filter(pa => pa.amount > 0)
+                    .map(pa => pa.type)
+                )
               )
-            )
-          ].join(', ')}
+            ].join(', ')}
         </td>
         <td></td>
       </tr>

@@ -16,6 +16,7 @@ import React from 'react';
 import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
 import queryString from 'query-string';
 import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   options: IOptions;
@@ -35,6 +36,7 @@ type Props = {
   ) => void;
   beforePopupClose: () => void;
   sendToBoard?: (item: any) => void;
+  currentUser: IUser;
 };
 
 type State = {
@@ -91,6 +93,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
   }: IEditFormContent) => {
     const {
       item,
+      currentUser,
       options,
       onUpdate,
       addItem,
@@ -129,6 +132,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
             updateTimeTrack={updateTimeTrack}
             renderItems={this.renderItems}
             childrenSection={this.renderChildrenSection}
+            currentUser={currentUser}
           />
         </Flex>
       </>

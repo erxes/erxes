@@ -169,7 +169,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeItems = boardsPipelines => {
+  onChangeItems = (boardsPipelines: any, key?: string) => {
+    if (key) {
+      this.setState({ config: { [key]: boardsPipelines } });
+      return;
+    }
+
     this.setState({ config: { boardsPipelines } });
   };
 

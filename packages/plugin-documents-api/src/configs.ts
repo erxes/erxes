@@ -76,6 +76,9 @@ export default {
         }
 
         let replacedContents: any[] = [];
+        let scripts = '';
+        let styles = '';
+        let heads = '';
 
         if (document.contentType === 'core:user') {
           const user = await sendCommonMessage({
@@ -155,6 +158,21 @@ export default {
         const replacers = (document.replacer || '').split('\n');
 
         for (let replacedContent of replacedContents) {
+          if (replacedContent.startsWith('::heads::')) {
+            heads += replacedContent.replace('::heads::', '');
+            continue;
+          }
+
+          if (replacedContent.startsWith('::scripts::')) {
+            scripts += replacedContent.replace('::scripts::', '');
+            continue;
+          }
+
+          if (replacedContent.startsWith('::styles::')) {
+            styles += replacedContent.replace('::styles::', '');
+            continue;
+          }
+
           for (const replacer of replacers) {
             const [key, value] = replacer.split(',');
 
@@ -167,7 +185,7 @@ export default {
           if (copies) {
             results = `
              ${results}
-              <div style="margin-right: 20px; margin-bottom: 20px;width: ${width}px;float: left;">
+              <div style="margin-right: 2mm; margin-bottom: 2mm; width: ${width}mm; float: left;">
                 ${replacedContent}
               </div>
             `;
@@ -176,14 +194,21 @@ export default {
           }
         }
 
-        let multipliedResults: string[] = [];
+        let multipliedResults: string[] = [
+          `
+          <head>
+            <meta charset="utf-8">
+            ${heads}
+          </head>
+        `
+        ];
 
         if (copies) {
           let i = 0;
           while (i < copies) {
             i++;
             multipliedResults.push(`
-              <div style="margin-right: 20px; margin-bottom: 20px;float: left;">
+              <div style="margin-right: 2mm; margin-bottom: 2mm; float: left;">
               ${results}
               </div>
             `);
@@ -197,7 +222,7 @@ export default {
             /*receipt*/
             html {
               color: #000;
-              font-size: 13px;
+              font-size: 11px;
               font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
             }
 
@@ -225,10 +250,13 @@ export default {
               padding: 5px;
               text-align: left;
             }
+            ${styles}
           </style>
       `;
-
-        return res.send(multipliedResults + style);
+        const script = `
+            ${scripts}
+        `;
+        return res.send(multipliedResults + style + script);
       }
     }
   ],

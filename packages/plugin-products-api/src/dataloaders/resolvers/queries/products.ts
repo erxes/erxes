@@ -24,6 +24,7 @@ interface IQueryParams {
   boardId?: string;
   segment?: string;
   segmentData?: string;
+  groupCatDiffVals: boolean;
 }
 
 const generateFilter = async (
@@ -88,21 +89,22 @@ const generateFilter = async (
 
   // search =========
   if (searchValue) {
-    const fields = [
-      {
-        name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
-      },
-      {
-        code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
-      },
-      {
-        barcodes: {
-          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-        }
-      }
-    ];
+    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    const codeRegex = new RegExp(
+      `^${searchValue
+        .replace(/\./g, '\\.')
+        .replace(/\*/g, '.')
+        .replace(/_/g, '.')}.*`,
+      'igu'
+    );
 
-    filter.$or = fields;
+    filter.$or = [
+      {
+        $or: [{ code: { $in: [regex] } }, { code: { $in: [codeRegex] } }]
+      },
+      { name: { $in: [regex] } },
+      { barcodes: { $in: [searchValue] } }
+    ];
   }
 
   if (segment || segmentData) {

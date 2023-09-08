@@ -1,4 +1,4 @@
-import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
+import { formatValue, FormControl } from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
 
@@ -15,16 +15,15 @@ type State = {
   showModal: boolean;
 };
 
-function displayValue(periodLock, name) {
+function displayValue(periodLock, name, toFormatNumber?: boolean) {
   const value = _.get(periodLock, name);
+  if (toFormatNumber)
+    return formatValue(value ? value?.toLocaleString() : value);
 
   return formatValue(value);
 }
 
-function PeriodLockRow(
-  { periodLock, history, isChecked, toggleBulk }: Props,
-  { showModal }: State
-) {
+function PeriodLockRow({ periodLock, isChecked, toggleBulk }: Props) {
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(periodLock, e.target.checked);
@@ -46,7 +45,9 @@ function PeriodLockRow(
       </td>
 
       <td key={'code'}>{displayValue(periodLock, 'invDate')}</td>
-      <td key={'total'}>{displayValue(periodLock, 'total')}</td>
+      <td key={'total'}>{displayValue(periodLock, 'total', true)}</td>
+      <td key={'total'}>{displayValue(periodLock, 'classification')}</td>
+      <td key={'total'}>{displayValue(periodLock, 'newClassification')}</td>
 
       <td onClick={onClick}>{}</td>
     </tr>

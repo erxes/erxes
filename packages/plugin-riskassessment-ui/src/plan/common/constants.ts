@@ -15,26 +15,3 @@ export const CARDTYPES = [
   { label: 'Ticket', value: 'ticket' },
   { label: 'Task', value: 'task' }
 ];
-
-// export const CARD_ATTRIBUTE_TYPES = [
-//   {
-//     name: 'branch',
-//     label: 'Branch'
-//   },
-//   {
-//     name: 'department',
-//     label: 'Department'
-//   },
-//   {
-//     name: 'operation',
-//     label: 'Operation'
-//   },
-//   {
-//     name: 'indicator',
-//     label: 'Indicator'
-//   },
-//   {
-//     name: 'group',
-//     label: 'Group'
-//   }
-// ];

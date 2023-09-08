@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IPeriodLockDocument } from './models/definitions/periodLocks';
 import { IContractDocument } from './models/definitions/contracts';
@@ -29,6 +28,16 @@ import {
   loadClassificationClass
 } from './models/classification';
 import { IClassificationDocument } from './models/definitions/classification';
+import {
+  IInterestCorrectionModel,
+  loanInterestCorrectionClass
+} from './models/interestCorrection';
+import { IInterestCorrectionDocument } from './models/definitions/interestCorrection';
+import {
+  IStoredInterestModel,
+  loanStoredInterestClass
+} from './models/storedInterest';
+import { IStoredInterestDocument } from './models/definitions/storedInterest';
 
 export interface IModels {
   PeriodLocks: IPeriodLockModel;
@@ -41,6 +50,8 @@ export interface IModels {
   Transactions: ITransactionModel;
   General: IGeneralModel;
   Classification: IClassificationModel;
+  InterestCorrection: IInterestCorrectionModel;
+  StoredInterest: IStoredInterestModel;
 }
 
 export interface IContext extends IMainContext {
@@ -102,6 +113,22 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'loan_general',
     loadGeneralClass(models)
   ) as IGeneralModel;
+
+  models.InterestCorrection = db.model<
+    IInterestCorrectionDocument,
+    IInterestCorrectionModel
+  >(
+    'loan_interest_correction',
+    loanInterestCorrectionClass(models)
+  ) as IInterestCorrectionModel;
+
+  models.StoredInterest = db.model<
+    IStoredInterestDocument,
+    IStoredInterestModel
+  >(
+    'loan_stored_interest',
+    loanStoredInterestClass(models)
+  ) as IStoredInterestModel;
 
   return models;
 };

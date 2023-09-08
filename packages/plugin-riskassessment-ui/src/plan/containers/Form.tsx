@@ -27,6 +27,7 @@ type FinalProps = {
   planQueryResponse: { riskAssessmentPlan: any } & QueryResponse;
   removeScheduleMutationResponse: any;
   schedulesQueryResponse: ScheduleQueryResponse;
+  forceStartPlanMutationResponse: any;
 } & IRouterProps &
   Props;
 
@@ -39,6 +40,7 @@ class Form extends React.Component<FinalProps> {
     const {
       planQueryResponse,
       removeScheduleMutationResponse,
+      forceStartPlanMutationResponse,
       schedulesQueryResponse,
       history
     } = this.props;
@@ -61,6 +63,18 @@ class Form extends React.Component<FinalProps> {
         removeScheduleMutationResponse({ variables: { id } })
           .then(() => {
             Alert.success('Removed schedule successfully');
+          })
+          .catch(err => {
+            Alert.error(err.message);
+          });
+      });
+    };
+
+    const forceStart = id => {
+      confirm().then(() => {
+        forceStartPlanMutationResponse({ variables: { id } })
+          .then(() => {
+            Alert.success('Plan started forcefully successfully');
           })
           .catch(err => {
             Alert.error(err.message);
@@ -108,6 +122,7 @@ class Form extends React.Component<FinalProps> {
       plan: planQueryResponse?.riskAssessmentPlan,
       refetch: planQueryResponse?.refetch,
       renderButton,
+      forceStart,
       schedule: {
         removeSchedule,
         refetch: schedulesQueryResponse?.refetch,
@@ -134,8 +149,7 @@ export default withProps<Props>(
         name: 'planQueryResponse',
         skip: ({ _id }) => !_id,
         options: ({ _id }) => ({
-          variables: { _id },
-          fetchPolicy: 'no-cache'
+          variables: { _id }
         })
       }
     ),
@@ -152,6 +166,19 @@ export default withProps<Props>(
       name: 'removeScheduleMutationResponse',
       options: ({ _id }) => ({
         refetchQueries: schdulesRefetchQueries({ planId: _id })
+      })
+    }),
+    graphql<Props>(gql(mutations.forceStartPlan), {
+      name: 'forceStartPlanMutationResponse',
+      options: ({ _id }) => ({
+        refetchQueries: [
+          {
+            query: gql(queries.plan),
+            variables: { _id }
+          },
+          ...schdulesRefetchQueries({ planId: _id })
+        ],
+        fetchPolicy: 'no-cache'
       })
     })
   )(Form)

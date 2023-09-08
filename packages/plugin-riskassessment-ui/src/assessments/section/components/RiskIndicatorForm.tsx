@@ -2,7 +2,6 @@ import GenerateField from '@erxes/ui-forms/src/settings/properties/components/Ge
 import { UploaderWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import {
   Button,
-  CollapseContent,
   ControlLabel,
   FormControl,
   FormGroup,
@@ -11,22 +10,12 @@ import {
   __,
   colors
 } from '@erxes/ui/src';
-import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
+import { FormColumn, ModalFooter } from '@erxes/ui/src/styles/main';
 import { IField } from '@erxes/ui/src/types';
 import { readFile } from '@erxes/ui/src/utils/core';
 import { default as _loadash } from 'lodash';
 import React from 'react';
-import {
-  DetailPopoverWrapper,
-  Divider,
-  ListItem,
-  Padding
-} from '../../../styles';
-import { DetailPopOver } from '../../common/utils';
+import { Divider, ListItem, Padding } from '../../../styles';
 import IndicatorAssessmentHistory from '../containers/IndicatorAssessmentHistory';
 
 type Props = {

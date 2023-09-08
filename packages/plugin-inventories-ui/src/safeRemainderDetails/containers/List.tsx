@@ -31,7 +31,7 @@ function ListContainer() {
       remainderId: id,
       status: queryParams.status,
       diffType: queryParams.diffType,
-      productCategoryId: queryParams.productCategoryId,
+      productCategoryIds: queryParams.productCategoryIds,
       ...router.generatePaginationParams(queryParams || {})
     }
   });
@@ -43,7 +43,7 @@ function ListContainer() {
         remainderId: id,
         status: queryParams.status,
         diffType: queryParams.diffType,
-        productCategoryId: queryParams.productCategoryId
+        productCategoryIds: queryParams.productCategoryIds
       }
     }
   );

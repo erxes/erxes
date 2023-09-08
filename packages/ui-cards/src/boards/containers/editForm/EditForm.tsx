@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { queries as userQueries } from '@erxes/ui/src/team/graphql';
-import { AllUsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { AllUsersQueryResponse, IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
@@ -20,6 +20,7 @@ import {
 } from '../../types';
 import { invalidateCache } from '../../utils';
 import { PipelineConsumer } from '../PipelineContext';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type WrapperProps = {
   itemId: string;
@@ -31,6 +32,7 @@ type WrapperProps = {
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
   hideHeader?: boolean;
+  currentUser: IUser;
 };
 
 type ContainerProps = {
@@ -314,7 +316,7 @@ class WithData extends React.Component<ContainerProps> {
   }
 }
 
-export default (props: WrapperProps) => {
+export default withCurrentUser((props: WrapperProps) => {
   return (
     <PipelineConsumer>
       {({ onAddItem, onRemoveItem, onUpdateItem, options }) => {
@@ -330,4 +332,4 @@ export default (props: WrapperProps) => {
       }}
     </PipelineConsumer>
   );
-};
+});
