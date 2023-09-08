@@ -12,7 +12,6 @@ type Props = {
   meetingId: string;
   participantUserIds: string[];
   meetingStatus: string;
-  refetchDetail: any;
 };
 
 export const TopicFormContainer = (props: Props) => {
@@ -39,7 +38,8 @@ export const TopicFormContainer = (props: Props) => {
             query: gql(queries.meetingDetail),
             variables: {
               _id: props.meetingId
-            }
+            },
+            skip: object
           }
         ]}
       />

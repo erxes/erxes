@@ -12,6 +12,7 @@ const params = `
   status: String
   participantIds: [String]
   companyId: String
+  method: String
 `;
 export const meetingFilters = `
     companyId:String,
@@ -21,6 +22,8 @@ export const meetingFilters = `
     userId:String,
     participantIds: [String]
     isPreviousSession: Boolean
+    perPage: Int
+    page: Int
 `;
 
 export const queries = `

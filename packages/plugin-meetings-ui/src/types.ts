@@ -8,6 +8,7 @@ export interface IMeeting {
   startDate: Date;
   endDate: Date;
   location: string;
+  method: string;
 
   createdBy: string;
   createdAt: Date;
@@ -56,14 +57,6 @@ export type EditMutationResponse = {
 
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
-};
-
-export type EditTypeMutationResponse = {
-  typesEdit: (params: { variables: MutationVariables }) => Promise<any>;
-};
-
-export type RemoveTypeMutationResponse = {
-  typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export interface ITopic {

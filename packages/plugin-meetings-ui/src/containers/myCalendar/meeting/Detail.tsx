@@ -1,12 +1,8 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-import {
-  EditTypeMutationResponse,
-  RemoveTypeMutationResponse,
-  MeetingDetailQueryResponse
-} from '../../../types';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { MeetingDetailQueryResponse } from '../../../types';
 import { mutations, queries } from '../../../graphql';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -22,27 +18,34 @@ type Props = {
 
 type FinalProps = {
   meetingDetailQuery: MeetingDetailQueryResponse;
-} & Props &
-  RemoveTypeMutationResponse &
-  EditTypeMutationResponse;
+} & Props;
 
 const MeetingDetailContainer = (props: FinalProps) => {
   const { meetingDetailQuery, companyId, status } = props;
 
   const { data, loading } = useQuery(gql(queries.meetings), {
-    variables: { companyId, status },
+    variables: { companyId, status, perPage: 50 },
     skip: !companyId
   });
 
   const [editMeetingStatus] = useMutation(gql(mutations.editMeetingStatus), {
-    refetchQueries: ['meetingQuery'],
+    refetchQueries: ['meetings'],
     onError: e => {
-      console.error(e);
+      Alert.error(e.message);
     }
   });
 
   const changeStatus = (meetingId: string, status: string) => {
-    confirm('Start meeting?').then(() =>
+    const confirmLabel =
+      status === 'canceled'
+        ? 'Cancel meeting?'
+        : status === 'draft'
+        ? 'Draft meeting?'
+        : status === 'ongoing'
+        ? 'Start meeting?'
+        : 'End meeting?';
+
+    confirm(confirmLabel).then(() =>
       editMeetingStatus({ variables: { _id: meetingId, status } })
     );
   };
@@ -50,12 +53,10 @@ const MeetingDetailContainer = (props: FinalProps) => {
   if ((meetingDetailQuery && meetingDetailQuery.loading) || loading) {
     return <Spinner />;
   }
-
   const updatedProps = {
     meetingDetail: meetingDetailQuery && meetingDetailQuery.meetingDetail,
     changeStatus,
-    meetings: data?.meetings,
-    refetchDetail: meetingDetailQuery && meetingDetailQuery.refetch
+    meetings: data?.meetings
   };
 
   return <MeetingDetail {...updatedProps} />;

@@ -11,7 +11,6 @@ import {
   FlexCenter,
   FlexColumn,
   FlexRow,
-  FlexRowEven,
   MarginX,
   MarginY
 } from '../../styles';
@@ -28,9 +27,9 @@ import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { Alert, __ } from '@erxes/ui/src/utils';
 import { compareStartAndEndTime, prepareCurrentUserOption } from '../../utils';
 import Datetime from '@nateradebaugh/react-datetime';
-import Tip from '@erxes/ui/src/components/Tip';
-import { dateFormat } from '../../constants';
+import { dateFormat, timeFormat } from '../../constants';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { FormControl } from '@erxes/ui/src/components/form';
 
 type Props = {
   currentUser: IUser;
@@ -101,6 +100,8 @@ function ScheduleForm(props: Props) {
     scheduleConfigsObject[scheduleConfig._id] = scheduleConfig;
   });
 
+  const [inputDefaultChecked, setInputDefaultChecked] = useState(false);
+
   const [selectedScheduleConfigId, setScheduleConfigId] = useState(
     scheduleConfigs[0]._id
   );
@@ -138,55 +139,59 @@ function ScheduleForm(props: Props) {
   };
 
   const renderScheduleConfigOptions = () => {
-    return scheduleConfigs.map(scheduleConfig => ({
+    return scheduleConfigs?.map(scheduleConfig => ({
       value: scheduleConfig._id,
       label: `${scheduleConfig.scheduleName}\xa0\xa0\xa0(${scheduleConfig.shiftStart} ~ ${scheduleConfig.shiftEnd})`
     }));
   };
 
-  //  might use it later
-  // const onScheduleConfigSelect = scheduleConfig => {
-  //   const selectedScheduleConfidId = scheduleConfig.value;
+  // change schedule for all days
+  const onScheduleConfigSelectForAll = scheduleConfig => {
+    const selectedScheduleConfidId = scheduleConfig.value;
 
-  //   setScheduleConfigId(selectedScheduleConfidId);
+    setScheduleConfigId(selectedScheduleConfidId);
 
-  //   setDefaultStartTime(
-  //     scheduleConfigsObject[selectedScheduleConfidId].shiftStart
-  //   );
-  //   setDefaultEndTime(scheduleConfigsObject[selectedScheduleConfidId].shiftEnd);
+    setDefaultStartTime(
+      scheduleConfigsObject[selectedScheduleConfidId].shiftStart
+    );
+    setDefaultEndTime(scheduleConfigsObject[selectedScheduleConfidId].shiftEnd);
 
-  //   Object.keys(scheduleDates).forEach(day_key => {
-  //     const shiftDay = scheduleDates[day_key].shiftDate;
+    Object.keys(scheduleDates).forEach(day_key => {
+      if (scheduleDates[day_key].inputChecked) {
+        return;
+      }
+      const shiftDay = scheduleDates[day_key].shiftDate;
 
-  //     const getShiftStart = dayjs(
-  //       shiftDay?.toLocaleDateString() +
-  //         ' ' +
-  //         scheduleConfigsObject[selectedScheduleConfidId].shiftStart
-  //     ).toDate();
+      const getShiftStart = dayjs(
+        shiftDay?.toLocaleDateString() +
+          ' ' +
+          scheduleConfigsObject[selectedScheduleConfidId].shiftStart
+      ).toDate();
 
-  //     const getShiftEnd = dayjs(
-  //       shiftDay?.toLocaleDateString() +
-  //         ' ' +
-  //         scheduleConfigsObject[selectedScheduleConfidId].shiftEnd
-  //     ).toDate();
+      const getShiftEnd = dayjs(
+        shiftDay?.toLocaleDateString() +
+          ' ' +
+          scheduleConfigsObject[selectedScheduleConfidId].shiftEnd
+      ).toDate();
 
-  //     const [
-  //       getCorrectShiftStart,
-  //       getCorrectShiftEnd,
-  //       overNightShift
-  //     ] = compareStartAndEndTime(
-  //       scheduleDates,
-  //       day_key,
-  //       getShiftStart,
-  //       getShiftEnd
-  //     );
-  //     scheduleDates[day_key].shiftStart = getCorrectShiftStart;
-  //     scheduleDates[day_key].shiftEnd = getCorrectShiftEnd;
-  //     scheduleDates[day_key].overnightShift = overNightShift;
-  //   });
+      const [
+        getCorrectShiftStart,
+        getCorrectShiftEnd,
+        overNightShift
+      ] = compareStartAndEndTime(
+        scheduleDates,
+        day_key,
+        getShiftStart,
+        getShiftEnd
+      );
+      scheduleDates[day_key].shiftStart = getCorrectShiftStart;
+      scheduleDates[day_key].shiftEnd = getCorrectShiftEnd;
+      scheduleDates[day_key].overnightShift = overNightShift;
+      scheduleDates[day_key].scheduleConfigId = selectedScheduleConfidId;
+    });
 
-  //   setScheduleDates({ ...scheduleDates });
-  // };
+    setScheduleDates({ ...scheduleDates });
+  };
 
   const onBranchSelect = selectedBranch => {
     const selectedBranchIds: any = [];
@@ -203,7 +208,6 @@ function ScheduleForm(props: Props) {
     setScheduleDates({
       ...scheduleDates
     });
-    setScheduleDaysLastIdx(scheduleDaysLastIdx - 1);
   };
 
   const onDateChange = (day_key, selectedDate) => {
@@ -219,12 +223,11 @@ function ScheduleForm(props: Props) {
     );
 
     const newShift = {
+      ...oldShift,
       shiftDate: selectedDate,
       shiftStart: getShiftStart,
       shiftEnd: getShiftEnd,
-      overnightShift: overnight,
-      lunchBreakInMins: oldShift.lunchBreakInMins,
-      scheduleConfigId: oldShift.scheduleConfigId
+      overnightShift: overnight
     };
 
     delete scheduleDates[day_key];
@@ -238,7 +241,7 @@ function ScheduleForm(props: Props) {
     return {
       shiftStart: shift.shiftStart,
       shiftEnd: shift.shiftEnd,
-      scheduleConfigId: shift.scheduleConfigId,
+      scheduleConfigId: shift.inputChecked ? null : shift.scheduleConfigId,
       lunchBreakInMins: shift.lunchBreakInMins
     };
   });
@@ -333,7 +336,8 @@ function ScheduleForm(props: Props) {
       overnightShift: overnight,
       scheduleConfigId: selectedScheduleConfigId,
       lunchBreakInMins:
-        scheduleConfigsObject[selectedScheduleConfigId].lunchBreakInMins
+        scheduleConfigsObject[selectedScheduleConfigId].lunchBreakInMins,
+      inputChecked: inputDefaultChecked
     };
 
     setScheduleDaysLastIdx(scheduleDaysLastIdx + 1);
@@ -386,9 +390,71 @@ function ScheduleForm(props: Props) {
     setDefaultEndTime(scheduleConfigsObject[scheduleConfigId].shiftEnd);
   };
 
-  const renderWeekDays = () => {
-    const datePickers: any = [];
+  const onInputCheckedChange = (curr_day_key: string, checked: boolean) => {
+    const prevScheduleDates = scheduleDates;
+    prevScheduleDates[curr_day_key].inputChecked = checked;
 
+    setScheduleDates({ ...prevScheduleDates });
+  };
+
+  const changeScheduleTime = (day_key: string, type: string, timeVal: Date) => {
+    const prevScheduleDates = scheduleDates;
+    const getDate = dayjs(scheduleDates[day_key].shiftDate).format(dateFormat);
+    const getTime = dayjs(timeVal).format(timeFormat);
+
+    if (type === 'start') {
+      const [
+        correctShiftStart,
+        correctShiftEnd,
+        isOvernightShift
+      ] = compareStartAndEndTime(
+        scheduleDates,
+        day_key,
+        new Date(getDate + ' ' + getTime),
+        new Date(
+          getDate +
+            ' ' +
+            dayjs(scheduleDates[day_key].shiftEnd).format(timeFormat)
+        ),
+        getDate
+      );
+
+      prevScheduleDates[day_key].shiftStart = correctShiftStart;
+      prevScheduleDates[day_key].shiftEnd = correctShiftEnd;
+      prevScheduleDates[day_key].overnightShift = isOvernightShift;
+    } else {
+      const [
+        correctShiftStart,
+        correctShiftEnd,
+        isOvernightShift
+      ] = compareStartAndEndTime(
+        scheduleDates,
+        day_key,
+        new Date(
+          getDate +
+            ' ' +
+            dayjs(scheduleDates[day_key].shiftStart).format(timeFormat)
+        ),
+        new Date(getDate + ' ' + getTime),
+        getDate
+      );
+      prevScheduleDates[day_key].shiftStart = correctShiftStart;
+      prevScheduleDates[day_key].shiftEnd = correctShiftEnd;
+      prevScheduleDates[day_key].overnightShift = isOvernightShift;
+    }
+
+    setScheduleDates({ ...prevScheduleDates });
+  };
+
+  const changeScheduleBreak = (day_key: string, lunchBreakInMins: number) => {
+    const prev_scheduled_dates = scheduleDates;
+
+    prev_scheduled_dates[day_key].lunchBreakInMins = lunchBreakInMins;
+
+    setScheduleDates({ ...prev_scheduled_dates });
+  };
+
+  const renderWeekDays = () => {
     return (
       <FlexColumn marginNum={5}>
         {Object.keys(scheduleDates).map(i => {
@@ -402,6 +468,10 @@ function ScheduleForm(props: Props) {
               changeDate={onDateChange}
               removeDate={onRemoveDate}
               changeScheduleConfig={onScheduleConfigChange}
+              onInputCheckedChange={onInputCheckedChange}
+              inputDefaultChecked={inputDefaultChecked}
+              changeScheduleTime={changeScheduleTime}
+              changeScheduleBreak={changeScheduleBreak}
             />
           );
         })}
@@ -537,6 +607,29 @@ function ScheduleForm(props: Props) {
           </div>
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Select schedule for all</ControlLabel>
+          <Select
+            options={renderScheduleConfigOptions()}
+            onChange={onScheduleConfigSelectForAll}
+            multi={false}
+            value={selectedScheduleConfigId}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <FlexRow>
+            <ControlLabel>Input default checked</ControlLabel>
+            <FormControl
+              name="inputDefaultChecked"
+              componentClass="checkbox"
+              onChange={() => {
+                setInputDefaultChecked(!inputDefaultChecked);
+              }}
+            />
+          </FlexRow>
+        </FormGroup>
+
         <Select
           value={contentType}
           onChange={onContentTypeSelect}
@@ -547,7 +640,7 @@ function ScheduleForm(props: Props) {
           }))}
         />
 
-        {displayTotalDaysHoursBreakMins()}
+        <MarginY margin={20}>{displayTotalDaysHoursBreakMins()}</MarginY>
         {renderAdminConfigSwitchContent()}
         {actionButtons('admin')}
       </FlexColumn>
@@ -621,20 +714,19 @@ function ScheduleForm(props: Props) {
   };
 
   const displayStartEndBreak = (
-    <FlexRowEven style={{ marginRight: '0.5rem', width: '32%' }}>
+    <FlexRow style={{ width: '40%' }}>
       <ControlLabel>{__('Start:')} </ControlLabel>
       <ControlLabel>{__('End:')} </ControlLabel>
       <ControlLabel>{__('Break:')} </ControlLabel>
-      <Tip>
-        <div>{''}</div>
-      </Tip>
-    </FlexRowEven>
+      <ControlLabel>{__('Input:')} </ControlLabel>
+      <ControlLabel>{__('Delete:')} </ControlLabel>
+    </FlexRow>
   );
   const adminConfigByDateRange = () => {
     return (
       <FlexColumn marginNum={20}>
         <FlexRow>
-          <div style={{ width: '78%', marginRight: '0.5rem' }}>
+          <div style={{ width: '60%' }}>
             <DateRange
               showTime={false}
               startDate={dateRangeStart}
@@ -763,7 +855,7 @@ function ScheduleForm(props: Props) {
   const adminConfigBySelect = () => (
     <FlexColumn marginNum={20}>
       <FlexRow>
-        <div style={{ width: '78%', marginRight: '0.5rem' }}>
+        <div style={{ width: '60%' }}>
           <OverlayTrigger
             ref={overlay => setOverlayTrigger(overlay)}
             placement="top-start"

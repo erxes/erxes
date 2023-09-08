@@ -8,11 +8,12 @@ import { graphql } from '@apollo/client/react/hoc';
 import * as compose from 'lodash.flowright';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { RemoveMutationResponse } from '../../types';
+import { IMeeting, RemoveMutationResponse } from '../../types';
 
 type Props = {
   history: any;
   queryParams: any;
+  meetings: IMeeting[];
 };
 
 type FinalProps = {
@@ -22,15 +23,6 @@ type FinalProps = {
 
 const MyMeetingListContainer = (props: FinalProps) => {
   const { queryParams, removeMutation } = props;
-  const { createdAtFrom, createdAtTo, ownerId, companyId } = queryParams;
-
-  const { data, loading } = useQuery(gql(queries.meetings), {
-    variables: { createdAtFrom, createdAtTo, userId: ownerId, companyId }
-  });
-
-  if (loading) {
-    return <Spinner />;
-  }
 
   const remove = (id: string) => {
     confirm('You are about to delete the item. Are you sure? ')
@@ -47,7 +39,7 @@ const MyMeetingListContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     remove,
-    meetings: data.meetings
+    meetings: props.meetings
   };
   return <ListComponent {...updatedProps} />;
 };
