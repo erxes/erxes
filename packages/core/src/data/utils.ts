@@ -469,7 +469,11 @@ const createCFR2 = async (models?: IModels) => {
   return new AWS.S3(options);
 };
 
-const uploadToCFImages = async (file: any, models?: IModels) => {
+const uploadToCFImages = async (
+  file: any,
+  forcePrivate?: boolean,
+  models?: IModels
+) => {
   const CLOUDFLARE_ACCOUNT_ID = await getConfig(
     'CLOUDFLARE_ACCOUNT_ID',
     '',
@@ -482,9 +486,9 @@ const uploadToCFImages = async (file: any, models?: IModels) => {
     models
   );
 
-  // const IS_PUBLIC = forcePrivate
-  //   ? false
-  //   : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+  const IS_PUBLIC = forcePrivate
+    ? false
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
   const headers = {
@@ -511,6 +515,10 @@ const uploadToCFImages = async (file: any, models?: IModels) => {
 
   if (data.result.variants.length === 0) {
     throw new Error('Error uploading file to Cloudflare Images');
+  }
+
+  if (IS_PUBLIC) {
+    return fileName;
   }
 
   return data.result.variants[0];
@@ -584,7 +592,7 @@ export const uploadFileCloudflare = async (
     detectedType &&
     isImage(detectedType.mime)
   ) {
-    return uploadToCFImages(file, models);
+    return uploadToCFImages(file, forcePrivate, models);
   }
 
   if (
@@ -846,7 +854,11 @@ const deleteFileGCS = async (fileName: string, models?: IModels) => {
  * Read file from GCS, AWS
  */
 
-const readFromCFImages = async (key: string, models?: IModels) => {
+const readFromCFImages = async (
+  key: string,
+  width?: number,
+  models?: IModels
+) => {
   const CLOUDFLARE_ACCOUNT_HASH = await getConfig(
     'CLOUDFLARE_ACCOUNT_HASH',
     '',
@@ -857,7 +869,12 @@ const readFromCFImages = async (key: string, models?: IModels) => {
     throw new Error('Cloudflare Account Hash is not configured');
   }
 
-  const url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${key}/public`;
+  let url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${key}/public`;
+
+  if (width) {
+    url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${key}/w=${width}`;
+  }
+
   return new Promise(resolve => {
     fetch(url)
       .then(res => res.buffer())
@@ -907,12 +924,14 @@ export const readFileRequest = async ({
   key,
   subdomain,
   models,
-  userId
+  userId,
+  width
 }: {
-  userId: string;
   key: string;
   subdomain: string;
   models?: IModels;
+  userId: string;
+  width?: number;
 }): Promise<any> => {
   const services = await getServices();
 
@@ -996,7 +1015,7 @@ export const readFileRequest = async ({
       (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
       isImage(key)
     ) {
-      return readFromCFImages(key, models);
+      return readFromCFImages(key, width, models);
     }
 
     return readFromCR2(key, models);
@@ -1400,8 +1419,16 @@ export const resizeImage = async (
   }
 };
 
-export const isImage = (mimeType: string) => {
-  return mimeType.includes('image');
+export const isImage = (mimetypeOrName: string) => {
+  const extensions = ['jpg', 'jpeg', 'png', 'gif', 'svg'];
+
+  // extract extension from file name
+  const extension = mimetypeOrName.split('.').pop();
+  if (extensions.includes(extension || '')) {
+    return true;
+  }
+
+  return mimetypeOrName.includes('image');
 };
 
 export const isVideo = (mimeType: string) => {
