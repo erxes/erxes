@@ -36,9 +36,12 @@ export const loanStoredInterestClass = (models: IModels) => {
           if (!prevSchedule) contract.balanceAmount = contract.leaseAmount;
           else contract.balanceAmount = prevSchedule?.balance || 0;
 
-          const storedInterest =
-            ((contract.balanceAmount * contract.interestRate) / 100 / 365) *
-            getDiffDay(contract.lastStoredDate, storeInterestDate);
+          let storedInterest = Number(
+            (
+              ((contract.balanceAmount * contract.interestRate) / 100 / 365) *
+              getDiffDay(contract.lastStoredDate, storeInterestDate)
+            ).toFixed(0)
+          );
 
           await models.StoredInterest.create({
             amount: storedInterest,
