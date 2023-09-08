@@ -1,13 +1,8 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useEffect } from 'react';
-import { mutations } from '../../../user/graphql';
-import Notifications from '../../components/notifications/List';
-import {
-  IUser,
-  NotificationsCountQueryResponse,
-  NotificationsQueryResponse,
-} from '../../../types';
-import { useRouter } from 'next/router';
+import { gql, useMutation, useQuery } from "@apollo/client";
+
+import { IUser } from "../../../types";
+import Notifications from "../../components/notifications/List";
+import React from "react";
 
 type Props = {
   count: number;
@@ -58,21 +53,18 @@ function NotificationsContainer(props: Props) {
       variables: {
         ids: [notificationId],
       },
-    })
+    });
   };
 
-  const notificationsResponse = useQuery<NotificationsQueryResponse>(
-    notificationsQuery,
-    {
-      skip: !props.currentUser,
-      variables: {
-        requireRead: props.requireRead,
-        page: 1,
-        perPage: 10,
-      },
-      fetchPolicy: 'network-only',
-    }
-  );
+  const notificationsResponse = useQuery(notificationsQuery, {
+    skip: !props.currentUser,
+    variables: {
+      requireRead: props.requireRead,
+      page: 1,
+      perPage: 10,
+    },
+    fetchPolicy: "network-only",
+  });
 
   const notifications =
     (notificationsResponse.data &&

@@ -1,8 +1,9 @@
 import { gql, useMutation } from "@apollo/client";
+
+import { IButtonMutateProps } from "../../common/types";
 import React from "react";
 import ResetPassword from "../components/ResetPassword";
 import mutations from "../graphql/mutations";
-import { IButtonMutateProps } from "../../common/types";
 // import ButtonMutate from "../../common/ButtonMutate";
 
 function ResetPasswordContainer() {
@@ -17,7 +18,7 @@ function ResetPasswordContainer() {
   };
 
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-    const callbackResponse = () => (window.location.href = "/");
+    // const callbackResponse = () => (window.location.href = "/");
 
     return null;
 

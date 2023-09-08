@@ -28,7 +28,7 @@ const setParams = (history: any, query: any, replace: boolean = false) => {
 /**
  * @param {String} name
  */
-const getParam = (history: any, name: string | string[]) => {
+const getParam = (history: any, name: any) => {
   const location = Object.assign({}, history.location);
 
   // convert to {param1: value1}

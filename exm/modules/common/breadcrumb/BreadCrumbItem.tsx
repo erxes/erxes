@@ -1,8 +1,9 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { colors, dimensions } from '../../styles';
-import { rgba } from '../../styles/ecolor';
+import { colors, dimensions } from "../../styles";
+
+import Link from "next/link";
+import React from "react";
+import { rgba } from "../../styles/ecolor";
+import styled from "styled-components";
 
 const Item = styled.li`
   display: inline-block;
@@ -15,8 +16,8 @@ const Item = styled.li`
   }
 
   & + li::before {
-    content: '\\e9c2';
-    font-family: 'erxes';
+    content: "\\e9c2";
+    font-family: "erxes";
     padding: 0 ${dimensions.unitSpacing}px;
     color: ${rgba(colors.colorCoreDarkGray, 0.7)};
     font-size: 10px;
@@ -39,7 +40,7 @@ function BreadcrumbItem({
   children,
   ...props
 }: Props) {
-  const linkProps = { to, title, target };
+  const linkProps = { href: to, title, target };
 
   return (
     <Item>

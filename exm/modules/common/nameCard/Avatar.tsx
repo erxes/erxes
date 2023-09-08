@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import React from "react";
 import { colors } from "../../styles";
 import { readFile } from "../../utils";
@@ -65,7 +65,7 @@ function Element({
 }) {
   if (customer) {
     return (
-      <Link to={customer && `/contacts/details/${customer._id}`}>
+      <Link href={customer && `/contacts/details/${customer._id}`}>
         {children}
       </Link>
     );

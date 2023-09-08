@@ -1,8 +1,8 @@
-import React from "react";
-import gql from "graphql-tag";
-import { queries } from "../graphql";
-import { useQuery } from "@apollo/client";
-import withCurrentUser from "../../auth/containers/withCurrentUser";
+import React from 'react';
+import gql from 'graphql-tag';
+import { queries } from '../graphql';
+import { useQuery } from '@apollo/client';
+import withCurrentUser from '../../auth/containers/withCurrentUser';
 
 const withTeamMembers = (Component) => {
   const Container = (props) => {
@@ -12,7 +12,7 @@ const withTeamMembers = (Component) => {
 
     const users =
       allUsersQuery && !allUsersQuery.loading
-        ? allUsersQuery.data.allUsers.filter((u) => u._id !== currentUser._id)
+        ? allUsersQuery.data?.allUsers.filter((u) => u._id !== currentUser._id)
         : [];
 
     return <Component users={users} {...props} />;

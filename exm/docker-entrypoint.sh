@@ -8,6 +8,6 @@ ENV="$(cat <<EOF
 EOF
 )"
 
-echo $ENV > /client-portal/static/js/env.js
+echo $ENV > /exm/static/js/env.js
 
 exec "$@"

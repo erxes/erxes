@@ -1,12 +1,12 @@
-import { gql, useMutation } from '@apollo/client';
-import React from 'react';
+import { IUser } from "../../types";
+// import { gql, useMutation } from '@apollo/client';
+import React from "react";
 
-import { Config, IUser } from '../../types';
-import { mutations } from '../../user/graphql';
-import Header from '../components/Header';
+// import { mutations } from '../../user/graphql';
+// import Header from '../components/Header';
 
 type Props = {
-  config: Config;
+  config: any;
   currentUser: IUser;
   headerHtml?: string;
   headingSpacing?: boolean;
@@ -15,22 +15,23 @@ type Props = {
 };
 
 function HeaderContainer(props: Props) {
-  const [logout, { data, error }] = useMutation(gql(mutations.logout));
+  // const [logout, { data, error }] = useMutation(gql(mutations.logout));
 
-  if (error) {
-    return <div>{error.message}</div>;
-  }
+  // if (error) {
+  //   return <div>{error.message}</div>;
+  // }
 
-  if (data) {
-    window.location.href = '/';
-  }
+  // if (data) {
+  //   window.location.href = '/';
+  // }
 
-  const updatedProps = {
-    ...props,
-    logout,
-  };
+  // const updatedProps = {
+  //   ...props,
+  //   logout,
+  // };
 
-  return <Header {...updatedProps} />;
+  return null;
+  // return <Header {...updatedProps} />;
 }
 
 export default HeaderContainer;

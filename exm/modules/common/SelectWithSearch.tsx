@@ -8,8 +8,8 @@ import React from "react";
 import Select from "react-select-plus";
 import { __ } from "../../utils";
 import colors from "../styles/colors";
-import gql from "graphql-tag";
-import { graphql } from "react-apollo";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 import { readFile } from "./utils";
 import styled from "styled-components";
 
@@ -18,12 +18,7 @@ export const SelectValue = styled.div`
   justify-content: center;
   align-items: center;
   margin-left: -7px;
-  padding-left: 25px;
-
-  img {
-    position: absolute;
-    left: 0;
-  }
+  padding-left: 5px;
 `;
 
 const SelectOption = styled.div`
@@ -48,13 +43,26 @@ const SelectWrapper = styled.div`
   .Select-clear-zone {
     visibility: hidden;
   }
+
+  .Select--multi .Select-value-icon {
+    padding: 3px 5px;
+    border-right: 1px solid rgb(133 37 255 / 37%);
+  }
+  
+  .Select--multi .Select-value {
+    background-color: rgb(133 37 255 / 17%);
+    border: 1px solid rgb(133 37 255 / 37%);
+    color: #5629B6;
+    border-radius: 15px;
+    padding: 0 3px;
+  }
 `;
 
 const ClearButton = styled.div`
   position: absolute;
-  right: 18px;
+  right: 23px;
   font-size: 16px;
-  top: 50%;
+  top: 54%;
   width: 18px;
   z-index: 2;
   color: #999;

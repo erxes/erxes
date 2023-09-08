@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
-import { LoginFormWrapper } from '../../styles/form';
-import FormControl from '../../common/form/Control';
-import Form from '../../common/form/Form';
-import FormGroup from '../../common/form/Group';
-import { IButtonMutateProps } from '../../common/types';
-import { LOGIN_TYPES } from '../types';
-import { Config } from '../../types';
+import React, { useState } from "react";
+
+import Form from "../../common/form/Form";
+import FormControl from "../../common/form/Control";
+import FormGroup from "../../common/form/Group";
+import { IButtonMutateProps } from "../../common/types";
+import { LOGIN_TYPES } from "../types";
+import { LoginFormWrapper } from "../../styles/form";
 
 type Props = {
-  config: Config;
+  config: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   hasCompany: boolean;
 };
 
 function Register({ config, renderButton, hasCompany }: Props) {
   const [type, changeType] = useState(LOGIN_TYPES.CUSTOMER);
-  const [showlogin, setLogin] = useState(false);
+  // const [showlogin, setLogin] = useState(false);
 
-  const onChange = e => {
+  const onChange = (e) => {
     changeType(e.target.value);
     e.isDefaultPrevented();
   };
 
-  const renderContent = formProps => {
+  const renderContent = (formProps) => {
     const { values, isSubmitted } = formProps;
 
     return (
@@ -42,7 +42,7 @@ function Register({ config, renderButton, hasCompany }: Props) {
               <FormControl
                 {...formProps}
                 name="firstName"
-                placeholder={'First name'}
+                placeholder={"First name"}
                 required={true}
               />
             </FormGroup>
@@ -51,13 +51,13 @@ function Register({ config, renderButton, hasCompany }: Props) {
               <FormControl
                 {...formProps}
                 name="lastName"
-                placeholder={'Last name'}
+                placeholder={"Last name"}
                 required={true}
               />
             </FormGroup>
 
             <FormGroup>
-              <FormControl {...formProps} name="phone" placeholder={'Phone'} />
+              <FormControl {...formProps} name="phone" placeholder={"Phone"} />
             </FormGroup>
           </>
         ) : (
@@ -66,7 +66,7 @@ function Register({ config, renderButton, hasCompany }: Props) {
               <FormControl
                 {...formProps}
                 name="companyName"
-                placeholder={'Company name'}
+                placeholder={"Company name"}
                 required={true}
               />
             </FormGroup>
@@ -75,7 +75,7 @@ function Register({ config, renderButton, hasCompany }: Props) {
               <FormControl
                 {...formProps}
                 name="companyRegistrationNumber"
-                placeholder={'Company registration number'}
+                placeholder={"Company registration number"}
                 required={true}
                 type="number"
               />
@@ -87,7 +87,7 @@ function Register({ config, renderButton, hasCompany }: Props) {
           <FormControl
             {...formProps}
             name="email"
-            placeholder={'registered@email.com'}
+            placeholder={"registered@email.com"}
             required={true}
           />
         </FormGroup>
@@ -97,7 +97,7 @@ function Register({ config, renderButton, hasCompany }: Props) {
             {...formProps}
             name="password"
             type="password"
-            placeholder={'password'}
+            placeholder={"password"}
             required={true}
           />
         </FormGroup>
@@ -105,7 +105,7 @@ function Register({ config, renderButton, hasCompany }: Props) {
         <FormGroup>
           {renderButton({
             values: { ...values, type, clientPortalId: config._id },
-            isSubmitted
+            isSubmitted,
           })}
         </FormGroup>
       </>
@@ -114,7 +114,7 @@ function Register({ config, renderButton, hasCompany }: Props) {
 
   return (
     <LoginFormWrapper>
-      <h2>{'Register'}</h2>
+      <h2>{"Register"}</h2>
       <Form renderContent={renderContent} />
     </LoginFormWrapper>
   );

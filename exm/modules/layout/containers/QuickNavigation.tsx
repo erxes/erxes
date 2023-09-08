@@ -1,12 +1,7 @@
-import * as compose from "lodash.flowright";
-
 import { IUser } from "../../auth/types";
 import QuickNavigation from "../components/QuickNavigation";
 import React from "react";
-import { queries as generalQueries } from "@erxes/ui-settings/src/general/graphql";
-import gql from "graphql-tag";
-import { graphql } from "react-apollo";
-import { withProps } from "../../utils";
+import withCurrentUser from "../../auth/containers/withCurrentUser";
 
 type Props = {
   currentUser: IUser;
@@ -22,6 +17,6 @@ class QuickNavigationContainer extends React.Component<Props, State> {
   }
 }
 
-const WithUser = QuickNavigationContainer;
+const WithUser = withCurrentUser(QuickNavigationContainer);
 
 export default WithUser;

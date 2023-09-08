@@ -52,6 +52,7 @@ const allUsers = `
         avatar
         fullName
         ${nameFields}
+        position
       }
     }
   }

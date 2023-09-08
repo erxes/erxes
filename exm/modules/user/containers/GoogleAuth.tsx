@@ -1,12 +1,10 @@
-import { useMutation } from '@apollo/client';
-import gql from 'graphql-tag';
-import { useRouter } from 'next/router';
-
-import { Config } from '../../types';
-import { mutations } from '../graphql';
+import gql from "graphql-tag";
+import { mutations } from "../graphql";
+import { useMutation } from "@apollo/client";
+import { useRouter } from "next/router";
 
 type Props = {
-  config: Config;
+  config: any;
 };
 
 function VerifyContainer(props: Props) {
@@ -26,12 +24,12 @@ function VerifyContainer(props: Props) {
     },
   })
     .then((result) => {
-      if (result?.data?.clientPortalGoogleAuthentication === 'loggedin') {
-        window.location.href = '/';
+      if (result?.data?.clientPortalGoogleAuthentication === "loggedin") {
+        window.location.href = "/";
       }
     })
     .catch((e) => {
-      console.error('error: ', e.message);
+      console.error("error: ", e.message);
     });
 
   return <p />;

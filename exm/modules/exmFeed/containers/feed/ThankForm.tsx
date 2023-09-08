@@ -52,9 +52,14 @@ export default function ThankFormContainer(props: Props) {
     );
   };
 
+  const updatedProps = {
+    ...props,
+    renderButton,
+  };
+
   return (
     <FormWrap transparent={transparent}>
-      <ThankForm {...props} renderButton={renderButton} />
+      <ThankForm {...updatedProps} />
     </FormWrap>
   );
 }

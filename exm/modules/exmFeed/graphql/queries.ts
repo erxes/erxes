@@ -44,12 +44,14 @@ const commonFeedFields = `
     goingUserIds
   }
   customFieldsData
-  department
+  departmentIds
+  branchIds
+  unitId
 `;
 
 const feed = `
-  query feed($title: String, $limit: Int, $contentTypes: [ContentType]) {
-    exmFeed(title: $title, limit: $limit, contentTypes: $contentTypes) {
+  query feed($title: String, $limit: Int, $skip: Int, $contentTypes: [ContentType]) {
+    exmFeed(title: $title, limit: $limit, skip: $skip, contentTypes: $contentTypes) {
       list {
         ${commonFeedFields}
       }
@@ -109,4 +111,219 @@ const departments = `
   }
 `;
 
-export default { feed, thanks, fields, users, allUsers, departments };
+const branches = `
+  query branches {
+    branches {
+      _id,
+      code,
+      title,
+      parentId
+    }
+  }
+`;
+
+const unitsMain = `
+  query unitsMain {
+    unitsMain {
+      list {
+        _id
+        title
+      }
+    }
+  }
+`;
+
+const chats = `
+  query chats($type: ChatType, $limit: Int, $skip: Int) {
+    chats(type: $type, limit: $limit, skip: $skip) {
+      list {
+        _id
+        name
+        type
+        isSeen
+        isPinned
+        lastMessage {
+          content
+          createdAt
+          createdUser {
+            _id
+          }
+          seenList {
+            seenDate
+            user {
+              _id
+            }
+            lastSeenMessageId
+          }
+        }
+        createdUser {
+          _id
+          email
+          details {
+            avatar
+            description
+            fullName
+            operatorPhone
+          }
+        }
+        createdAt
+        participantUsers {
+          _id
+          email
+          details {
+            avatar
+            description
+            fullName
+            position
+            operatorPhone
+          }
+        }
+      }
+      totalCount
+    }
+  }
+`;
+
+const chatDetail = `
+  query chatDetail($id: String!) {
+    chatDetail(_id: $id) {
+      _id
+      name
+      type
+      isSeen
+      lastMessage {
+        createdAt
+        content
+      }
+      createdUser {
+        _id
+        email
+        details {
+          avatar
+          description
+          fullName
+          operatorPhone
+        }
+      }
+      createdAt
+      participantUsers {
+        _id
+        email
+        employeeId
+        isAdmin
+        departments {
+          title
+        }
+        branches {
+          title
+        }
+        details {
+          avatar
+          description
+          fullName
+          operatorPhone
+          position
+        }
+      }
+    }
+  }
+`;
+
+const chatMessages = `
+  query chatMessages($chatId: String, $limit: Int, $skip: Int) {
+    chatMessages(chatId: $chatId, limit: $limit, skip: $skip) {
+      list {
+        _id
+        content
+        attachments
+        createdUser {
+          _id
+          email
+          details {
+            avatar
+            fullName
+          }
+        }
+        createdAt
+        relatedMessage {
+          _id
+          content
+          createdUser {
+            _id
+            email
+            details {
+              avatar
+              fullName
+            }
+          }
+        }
+        seenList {
+          lastSeenMessageId
+        }
+      }
+      totalCount
+    }
+  }
+`;
+
+const getChatIdByUserIds = `
+  query getChatIdByUserIds($userIds: [String]) {
+    getChatIdByUserIds(userIds: $userIds)
+  }
+`;
+
+const comments = `
+  query comments($contentId: String!, $contentType: ReactionContentType!, $parentId: String) {
+    comments(contentId: $contentId, contentType: $contentType, parentId: $parentId) {
+      list {
+        _id
+        comment
+        createdUser {
+          _id
+          details {
+            avatar
+            firstName
+            fullName
+            lastName
+            position
+          }
+          email
+          username
+        }
+        createdAt
+        parentId
+        contentId
+      }
+    }
+  }
+`;
+
+const emojiCount = `
+  query emojiCount($contentId: String!, $contentType: ReactionContentType!, $type: String!) {
+    emojiCount(contentId: $contentId, contentType: $contentType, type: $type)
+  }
+`;
+
+const emojiIsReacted = `
+  query emojiIsReacted($contentId: String!, $contentType: ReactionContentType!, $type: String!) {
+    emojiIsReacted(contentId: $contentId, contentType: $contentType, type: $type)
+  }
+`;
+
+export default {
+  feed,
+  thanks,
+  fields,
+  users,
+  allUsers,
+  departments,
+  chats,
+  chatDetail,
+  chatMessages,
+  getChatIdByUserIds,
+  branches,
+  unitsMain,
+  comments,
+  emojiCount,
+  emojiIsReacted
+};

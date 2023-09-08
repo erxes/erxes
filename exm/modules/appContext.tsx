@@ -1,4 +1,4 @@
-import React, { createContext, useEffect } from "react";
+import React, { createContext } from "react";
 import { gql, useQuery } from "@apollo/client";
 
 import { CurrentUserQueryResponse } from "./auth/types";

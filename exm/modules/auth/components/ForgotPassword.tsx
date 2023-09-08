@@ -2,7 +2,7 @@ import { AuthBox } from "../styles";
 import Button from "../../common/Button";
 import FormControl from "../../common/form/Control";
 import FormGroup from "../../common/form/Group";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import React from "react";
 import { __ } from "../../../utils";
 import { getThemeItem } from "../../utils";
@@ -65,7 +65,7 @@ class ForgotPassword extends React.Component<Props, { email: string }> {
             Email me the instruction
           </Button>
         </form>
-        <Link to="/sign-in">{__("Sign in")}</Link>
+        <Link href="/sign-in">{__("Sign in")}</Link>
       </AuthBox>
     );
   }

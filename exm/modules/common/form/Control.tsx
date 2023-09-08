@@ -42,6 +42,7 @@ type Props = {
   maxHeight?: number;
   maxLength?: number;
   color?: string;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -88,6 +89,7 @@ class FormControl extends React.Component<Props> {
     const attributes = {
       onChange,
       onKeyPress: props.onKeyPress,
+      onKeyDown: props.onKeyDown,
       onClick: props.onClick,
       onBlur: props.onBlur,
       value: props.value,

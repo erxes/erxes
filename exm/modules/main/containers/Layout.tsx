@@ -5,7 +5,6 @@ import AppProvider, { AppConsumer } from "../../appContext";
 import DumbLayout from "../components/Layout";
 import Head from "next/head";
 import React from "react";
-import { Store } from "../../types";
 import { readFile } from "../../common/utils";
 
 type Props = {
@@ -18,7 +17,7 @@ const Layout = (props: Props) => {
   return (
     <AppProvider>
       <AppConsumer>
-        {({ config, topic, currentUser, ...otherProps }: Store) => {
+        {({ config, topic, currentUser, ...otherProps }: any) => {
           const { baseFont } = (config || ({} as any)).styles || {};
 
           return (

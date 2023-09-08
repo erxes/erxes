@@ -1,9 +1,8 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useEffect } from 'react';
-import { Spinner } from 'react-bootstrap';
+import { gql, useMutation } from "@apollo/client";
 
-import { IUser, NotificationDetailQueryResponse } from '../../../types';
-import NotificationSettings from '../../components/notifications/Settings';
+import { IUser } from "../../../types";
+import NotificationSettings from "../../components/notifications/Settings";
+import React from "react";
 
 type Props = { currentUser: IUser; saveCallback: () => void };
 

@@ -4,8 +4,8 @@ import { CurrentUserQueryResponse } from "../types";
 import React from "react";
 import Spinner from "../../common/Spinner";
 import { queries as gq } from "../graphql";
-import gql from "graphql-tag";
-import { graphql } from "react-apollo";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 import { withProps } from "../../utils";
 
 type Props = {

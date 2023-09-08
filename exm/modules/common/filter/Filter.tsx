@@ -1,41 +1,39 @@
-import { removeParams, setParams } from "../../utils/router";
+// import { removeParams, setParams } from "../../utils/router";
 
 import Chip from "../Chip";
-import { IRouterProps } from "../../types";
 import React from "react";
 import { __ } from "../../../utils";
 import { cleanIntegrationKind } from "../../utils";
 import createChipText from "./createChipText";
 import gql from "graphql-tag";
 import styled from "styled-components";
-import { withRouter } from "react-router-dom";
 
-interface IProps extends IRouterProps {
+type IProps = {
   queryParams?: any;
-}
+};
 
 const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, history }: IProps) {
-  const onClickClose = (paramKey) => {
-    for (const key of paramKey) {
-      removeParams(history, key);
-    }
-  };
+function Filter({ queryParams = {} }: IProps) {
+  // const onClickClose = (paramKey) => {
+  //   for (const key of paramKey) {
+  //     removeParams(history, key);
+  //   }
+  // };
 
-  const onClickRemove = (paramKey: string, ids: string[], id: string) => {
-    if (ids.length === 1) {
-      removeParams(history, paramKey);
-    } else {
-      const index = ids.indexOf(id);
+  // const onClickRemove = (paramKey: string, ids: string[], id: string) => {
+  //   if (ids.length === 1) {
+  //     removeParams(history, paramKey);
+  //   } else {
+  //     const index = ids.indexOf(id);
 
-      ids.splice(index, 1);
+  //     ids.splice(index, 1);
 
-      setParams(history, { [paramKey]: ids.toString() });
-    }
-  };
+  //     setParams(history, { [paramKey]: ids.toString() });
+  //   }
+  // };
 
   const renderFilterParam = (
     paramKey: string,
@@ -46,12 +44,12 @@ function Filter({ queryParams = {}, history }: IProps) {
       return null;
     }
 
-    const onClick = () => onClickClose([paramKey]);
+    // const onClick = () => onClickClose([paramKey]);
 
     const text = customText || paramKey;
 
     return (
-      <Chip capitalize={true} onClick={onClick}>
+      <Chip capitalize={true} onClick={() => null}>
         {bool ? text : __(cleanIntegrationKind(queryParams[paramKey]))}
       </Chip>
     );
@@ -88,14 +86,14 @@ function Filter({ queryParams = {}, history }: IProps) {
 
       if (ids.length > 1) {
         return ids.map((_id: string) => {
-          const ChipText = createChipText(graphqlQuery, _id);
+          const ChipText1 = createChipText(graphqlQuery, _id);
 
           return (
             <Chip
-              onClick={onClickRemove.bind(null, paramKey, ids, _id)}
+              // onClick={onClickRemove.bind(null, paramKey, ids, _id)}
               key={_id}
             >
-              <ChipText />
+              <ChipText1 />
             </Chip>
           );
         });
@@ -104,7 +102,9 @@ function Filter({ queryParams = {}, history }: IProps) {
       const ChipText = createChipText(graphqlQuery, id);
 
       return (
-        <Chip onClick={onClickClose.bind(null, [paramKey])}>
+        <Chip
+        // onClick={onClickClose.bind(null, [paramKey])}
+        >
           <ChipText />
         </Chip>
       );
@@ -115,10 +115,12 @@ function Filter({ queryParams = {}, history }: IProps) {
 
   const renderFilterWithDate = () => {
     if (queryParams.startDate && queryParams.endDate) {
-      const onClick = () => onClickClose(["startDate", "endDate"]);
+      // const onClick = () => onClickClose(["startDate", "endDate"]);
 
       return (
-        <Chip onClick={onClick}>
+        <Chip
+        // onClick={onClick}
+        >
           {queryParams.startDate} - {queryParams.endDate}
         </Chip>
       );
@@ -153,4 +155,4 @@ function Filter({ queryParams = {}, history }: IProps) {
   );
 }
 
-export default withRouter<IProps>(Filter);
+export default Filter;

@@ -5,10 +5,8 @@ import styled, { css } from 'styled-components';
 import { TabContainer } from '../common/tabs/styles';
 import { getThemeItem } from '../utils';
 import styledTS from 'styled-components-ts';
-import { twinkling } from '../utils/animations';
 
 const thBackground = getThemeItem('background');
-const thColor = getThemeItem('text_color');
 
 const FlexContent = styled.div`
   display: flex;
@@ -230,6 +228,11 @@ const Sidebar = styled.ul`
 
     &:hover {
       color: ${colors.textSecondary};
+    }
+
+    p {
+      margin: 0;
+      font-size: 10px;
     }
   }
 `;

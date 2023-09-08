@@ -1,11 +1,10 @@
-import React from "react";
-import { mutations } from "../graphql";
-import Register from "../components/Register";
-import { IButtonMutateProps } from "../../common/types";
-import ButtonMutate from "../../common/ButtonMutate";
-import { getEnv } from "../../../utils/configs";
 import { AppConsumer } from "../../appContext";
-import { Store } from "../../types";
+import ButtonMutate from "../../common/ButtonMutate";
+import { IButtonMutateProps } from "../../common/types";
+import React from "react";
+import Register from "../components/Register";
+import { getEnv } from "../../../utils/configs";
+import { mutations } from "../graphql";
 
 function RegisterContainer() {
   const { REACT_APP_HAS_COMPANY } = getEnv();
@@ -37,13 +36,11 @@ function RegisterContainer() {
 
   return (
     <AppConsumer>
-      {({ config }: Store) => {
-        return (
-          <Register {...{config, ...updatedProps}} />
-        );
+      {({ config }: any) => {
+        return <Register {...{ config, ...updatedProps }} />;
       }}
     </AppConsumer>
-  )
+  );
 }
 
 export default RegisterContainer;

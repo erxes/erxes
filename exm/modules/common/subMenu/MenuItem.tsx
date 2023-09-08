@@ -1,8 +1,8 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
-import { colors } from '../../styles';
-import { rgba } from '../../styles/ecolor';
+import NavLink from "next/link";
+import React from "react";
+import { colors } from "../../styles";
+import { rgba } from "../../styles/ecolor";
+import styled from "styled-components";
 
 const Item = styled.li`
   display: inline-block;
@@ -18,7 +18,7 @@ const Item = styled.li`
     position: relative;
 
     &.active::after {
-      content: '';
+      content: "";
       background: ${colors.colorSecondary};
       width: 100%;
       height: 2px;
@@ -40,11 +40,11 @@ type Props = {
 };
 
 function MenuItem({ to, title, children, ...props }: Props) {
-  const linkProps = { to, title };
+  const linkProps = { href: to, title };
 
   return (
     <Item>
-      <NavLink {...props} {...linkProps} exact={true}>
+      <NavLink {...props} {...linkProps}>
         {children}
       </NavLink>
     </Item>

@@ -1,7 +1,7 @@
-import FormControl from "../common/form/Control";
-import { IFormProps } from "../common/types";
-import { IUser } from "../auth/types";
-import React from "react";
+import FormControl from '../common/form/Control';
+import { IFormProps } from '../common/types';
+import { IUser } from '../auth/types';
+import React from 'react';
 
 export const description = (formProps: IFormProps, item: any) => {
   return (
@@ -32,11 +32,11 @@ export const title = (formProps: IFormProps, item: any) => {
 };
 
 export const getUserOptions = (users: IUser[]) =>
-  users.map((user) => ({
+  (users || []).map((user) => ({
     value: user._id,
     label: user.details
-      ? user.details.fullName || user.email || "No name"
-      : user.email || "No name",
+      ? user.details.fullName || user.email || 'No name'
+      : user.email || 'No name'
   }));
 
 export function getDepartmentOptions(array: any[] = []) {

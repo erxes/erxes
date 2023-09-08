@@ -26,22 +26,37 @@ type Props = {
   closeModal?: () => void;
   fields: any[];
   departments: any[];
+  branches: any[];
+  units: any[];
+  isEdit?: boolean;
 };
 
 export default function PostForm(props: Props) {
   const item = props.item || {};
   const fields = props.fields;
   const departments = props.departments || [];
+  const branches = props.branches || [];
+  const units = props.units || [];
 
   const [attachments, setAttachment] = useState(item.attachments || []);
   const [images, setImage] = useState(item.images || []);
   const [customFieldsData, setCustomFieldsData] = useState(
     item.customFieldsData || []
   );
-  const [selectedDepartment, setSelectedDepartment] = useState<any>(null);
+  const [departmentIds, setDepartmentIds] = useState(item?.departmentIds || []);
+  const [branchIds, setBranchIds] = useState(item?.branchIds || []);
+  const [unitId, setUnitId] = useState(item?.unitId || "");
 
   const onChangeDepartment = (option: any) => {
-    setSelectedDepartment(option);
+    setDepartmentIds(option.map((data) => data.value) || []);
+  };
+
+  const onChangeBranch = (option: any) => {
+    setBranchIds(option.map((data) => data.value) || []);
+  };
+
+  const onChangeUnit = (option: any) => {
+    setUnitId(option?.value || "");
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -61,12 +76,34 @@ export default function PostForm(props: Props) {
         <FormGroup>
           <ControlLabel>Choose department</ControlLabel>
           <Select
-            placeholder="Choose one department"
-            name="departmentId"
-            value={selectedDepartment}
+            placeholder="Choose department"
+            name="departmentIds"
+            value={departmentIds}
             onChange={onChangeDepartment}
-            multi={false}
+            multi={true}
             options={getDepartmentOptions(departments)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Choose branch</ControlLabel>
+          <Select
+            placeholder="Choose branch"
+            name="branchIds"
+            value={branchIds}
+            onChange={onChangeBranch}
+            multi={true}
+            options={getDepartmentOptions(branches)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Choose unit</ControlLabel>
+          <Select
+            placeholder="Choose unit"
+            name="unitId"
+            value={unitId}
+            onChange={onChangeUnit}
+            multi={false}
+            options={getDepartmentOptions(units)}
           />
         </FormGroup>
         {fields && fields.length !== 0 && (
@@ -110,16 +147,27 @@ export default function PostForm(props: Props) {
             images,
             attachments,
             customFieldsData,
-            department: selectedDepartment ? selectedDepartment.label : null,
+            departmentIds,
+            branchIds,
+            unitId,
           },
           isSubmitted,
-          callback: closeModal,
+          callback: props.isEdit ? closeModal : insideCloseModal,
         })}
       </>
     );
   };
 
-  const content = (datas) => <Form {...datas} renderContent={renderContent} />;
+  let insideCloseModal;
+  const content = (datas?) => {
+    insideCloseModal = datas ? datas.closeModal : props.closeModal;
+
+    return <Form {...datas} renderContent={renderContent} />;
+  };
+
+  if (props.isEdit) {
+    return content();
+  }
 
   return (
     <CreateFormContainer>

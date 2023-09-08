@@ -1,4 +1,4 @@
-import { ApolloLink, FetchResult, Observable, Operation } from 'apollo-link';
+import { ApolloLink, FetchResult, Observable, Operation } from '@apollo/client';
 import { Client, ClientOptions, createClient } from 'graphql-ws';
 
 import { print } from 'graphql';

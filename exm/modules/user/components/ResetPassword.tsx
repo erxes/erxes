@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { LoginFormWrapper } from "../../styles/form";
-import FormControl from "../../common/form/Control";
+
 import Form from "../../common/form/Form";
+import FormControl from "../../common/form/Control";
 import FormGroup from "../../common/form/Group";
 import { IButtonMutateProps } from "../../common/types";
-import Icon from "../../common/Icon";
+import { LoginFormWrapper } from "../../styles/form";
 
 type Props = {
   handleCode: (phone: string) => void;
@@ -14,10 +14,10 @@ type Props = {
 function ResetPassword({ renderButton, handleCode }: Props) {
   const [phone, changePhone] = useState("");
 
-  const handleSubmit = (e) => {
-    handleCode(phone);
-    e.isDefaultPrevented();
-  };
+  // const handleSubmit = (e) => {
+  //   handleCode(phone);
+  //   e.isDefaultPrevented();
+  // };
 
   const onChange = (e) => {
     changePhone(e.target.value);
@@ -33,6 +33,7 @@ function ResetPassword({ renderButton, handleCode }: Props) {
           <FormControl
             {...formProps}
             name="phone"
+            defaultValue={phone}
             placeholder={"Phone"}
             onChange={onChange}
           />

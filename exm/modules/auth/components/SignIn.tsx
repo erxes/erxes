@@ -8,8 +8,6 @@ import Link from "next/link";
 import React from "react";
 import _ from "lodash";
 import { __ } from "../../../utils";
-import { getThemeItem } from "../../utils";
-import { readFile } from "../../common/utils";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

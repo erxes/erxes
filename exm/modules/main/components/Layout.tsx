@@ -1,12 +1,13 @@
-import React from "react";
 import { Container, MainContent } from "../../styles/main";
+
 import Header from "../containers/Header";
-import { Config, IUser } from "../../types";
+import { IUser } from "../../types";
+import React from "react";
 import { getConfigColor } from "../../common/utils";
 
 type Props = {
   topic: any;
-  config: Config;
+  config: any;
   children: any;
   currentUser: IUser;
   headerBottomComponent?: React.ReactNode;
@@ -21,7 +22,7 @@ function Layout({
   currentUser,
   headingSpacing,
   headerBottomComponent,
-  notificationsCount
+  notificationsCount,
 }: Props) {
   return (
     <>

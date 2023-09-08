@@ -1,14 +1,14 @@
-import React from 'react';
-import Field from './Field';
+import Field from "./Field";
+import React from "react";
 
 export default function GenerateFields({
   fields,
   customFieldsData,
-  setCustomFieldsData
+  setCustomFieldsData,
 }) {
   const onChangeCustomFields = (fieldId: string, value: any) => {
-    let updatedCustomFieldsData = customFieldsData.filter(
-      f => f.field !== fieldId
+    const updatedCustomFieldsData = customFieldsData.filter(
+      (f) => f.field !== fieldId
     );
 
     updatedCustomFieldsData.push({ field: fieldId, value });

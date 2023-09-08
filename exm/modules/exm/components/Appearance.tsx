@@ -6,7 +6,7 @@ import {
   WelcomeContent,
 } from "../styles";
 import { ColorPick, ColorPicker } from "../styles";
-import { IExm, IWelcomeContent } from "../types";
+import { IExm, IWelcomeContent } from "../../types";
 import React, { useState } from "react";
 
 import Button from "../../common/Button";
