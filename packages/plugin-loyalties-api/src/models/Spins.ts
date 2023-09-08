@@ -173,6 +173,7 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
         { _id: spinId },
         {
           status: SPIN_STATUS.WON,
+          voucherCampaignId: award.voucherCampaignId,
           voucherId: voucher._id,
           awardId: award._id,
           usedAt: new Date()
