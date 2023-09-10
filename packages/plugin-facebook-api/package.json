@@ -6,6 +6,7 @@
     "start": "bun src/index.ts"
   },
   "dependencies": {
+    "@erxes/api-utils" : "workspace:*",
     "botbuilder": "^4.4.0",
     "botbuilder-adapter-facebook-erxes": "^1.0.5",
     "fbgraph": "^1.4.4",

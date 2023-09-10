@@ -6,6 +6,7 @@
     "start": "bun src/index.ts"
   },
   "dependencies": {
+    "@erxes/api-utils" : "workspace:*",
     "uuid-by-string": "^3.0.5",
     "xlsx-populate": "^1.20.1"
   }

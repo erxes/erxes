@@ -6,6 +6,7 @@
     "start": "bun src/index.ts"
   },
   "dependencies": {
+    "@erxes/api-utils" : "workspace:*",
     "@types/body-parser": "^1.17.0",
     "aws-sdk": "^2.493.0",
     "body-parser": "^1.17.1",

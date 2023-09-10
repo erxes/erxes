@@ -6,6 +6,6 @@
     "start": "bun src/index.ts"
   },
   "dependencies": {
-    "server-timing": "3.3.1"
+    "@erxes/api-utils" : "workspace:*"
   }
 }

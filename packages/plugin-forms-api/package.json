@@ -4,5 +4,8 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts"
+  },
+  "dependencies": {
+    "@erxes/api-utils" : "workspace:*"
   }
 }
