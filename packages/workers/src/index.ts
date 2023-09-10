@@ -4,8 +4,6 @@ import express from 'express';
 import { createServer } from 'http';
 import { filterXSS } from 'xss';
 import { connect } from './db/connection';
-
-import { initApolloServer } from './apolloClient';
 import { initBroker } from './messageBroker';
 import { join, leave, redis } from './serviceDiscovery';
 import mongoose from 'mongoose';
@@ -13,6 +11,16 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { generateErrors } from './data/modules/import/generateErrors';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { readFileRequest } from './worker/export/utils';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServer } from '@apollo/server';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import resolvers from './data/resolvers';
+import typeDefDetails from './data/schema';
+import { generateModels } from './connectionResolvers';
+import gql from 'graphql-tag';
+// load environment variables
+dotenv.config();
 
 async function closeMongooose() {
   try {
@@ -50,9 +58,6 @@ async function closeHttpServer() {
 
 // load environment variables
 dotenv.config();
-
-// connect to mongo database
-connect();
 
 const app = express();
 
@@ -112,37 +117,141 @@ const {
   MONGO_URL = 'mongodb://localhost/erxes',
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX,
-  TEST_MONGO_URL = 'mongodb://localhost/erxes-test'
+  TEST_MONGO_URL = 'mongodb://localhost/erxes-test',
+  USE_BRAND_RESTRICTIONS
 } = process.env;
 
-httpServer.listen(PORT, async () => {
-  let mongoUrl = MONGO_URL;
 
-  if (NODE_ENV === 'test') {
-    mongoUrl = TEST_MONGO_URL;
-  }
 
-  initApolloServer(app, httpServer).then(apolloServer => {
-    apolloServer.applyMiddleware({ app, path: '/graphql' });
-  });
+let mongoUrl = MONGO_URL;
 
-  // connect to mongo database
-  connect(mongoUrl).then(async () => {
-    initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
-      console.log(`Error ocurred during message broker init ${e.message}`);
-    });
-  });
+if (NODE_ENV === 'test') {
+  mongoUrl = TEST_MONGO_URL;
+}
 
-  await join({
-    name: 'workers',
-    port: PORT,
-    dbConnectionString: MONGO_URL,
-    hasSubscriptions: false,
-    meta: {}
-  });
+// connect to mongo database
+await connect(mongoUrl);
 
-  console.log(`GraphQL Server is now running on1 ${PORT}`);
+await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
+
+const { types, queries, mutations } = typeDefDetails;
+
+const typeDefs = gql`
+    ${types}
+  
+    extend type Query {
+      ${queries}
+    }
+    extend type Mutation {
+      ${mutations}
+    }
+  `;
+
+const apolloServer = new ApolloServer({
+  schema: buildSubgraphSchema([
+    {
+      typeDefs: typeDefs as any,
+      resolvers
+    }
+  ]),
+  // for graceful shutdowns
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
+
+await apolloServer.start();
+console.log("apollo started")
+
+app.use('/graphql', expressMiddleware(apolloServer, {
+  context: async ({ req, res }: any) => {
+    let user: any = null;
+
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    if (req.headers.user) {
+      const userJson = Buffer.from(req.headers.user, 'base64').toString(
+        'utf-8'
+      );
+      user = JSON.parse(userJson);
+    }
+
+    const requestInfo = {
+      secure: req.secure,
+      cookies: req.cookies
+    };
+
+    let context;
+
+    if (USE_BRAND_RESTRICTIONS !== 'true') {
+      context = {
+        brandIdSelector: {},
+        singleBrandIdSelector: {},
+        userBrandIdsSelector: {},
+        docModifier: doc => doc,
+        commonQuerySelector: {},
+        user,
+        res,
+        requestInfo,
+        subdomain,
+        models
+      };
+    } else {
+      let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+      let brandIds = [];
+      let brandIdSelector = {};
+      let commonQuerySelector = {};
+      let commonQuerySelectorElk;
+      let userBrandIdsSelector = {};
+      let singleBrandIdSelector = {};
+
+      if (user) {
+        brandIds = user.brandIds || [];
+
+        if (scopeBrandIds.length === 0) {
+          scopeBrandIds = brandIds;
+        }
+
+        if (!user.isOwner && scopeBrandIds.length > 0) {
+          brandIdSelector = { _id: { $in: scopeBrandIds } };
+          commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
+          commonQuerySelectorElk = { terms: { scopeBrandIds } };
+          userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
+          singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
+        }
+      }
+
+      context = {
+        brandIdSelector,
+        singleBrandIdSelector,
+        userBrandIdsSelector,
+        docModifier: doc => ({ ...doc, scopeBrandIds }),
+        scopeBrandIds,
+        commonQuerySelector,
+        user,
+        res,
+        requestInfo,
+        subdomain,
+        models,
+        commonQuerySelectorElk
+      };
+    }
+
+    return context;
+  }
+}));
+
+
+
+await join({
+  name: 'workers',
+  port: PORT,
+  dbConnectionString: MONGO_URL,
+  hasSubscriptions: false,
+  meta: {}
+});
+
+await new Promise<void>(resolve => httpServer.listen({ port: PORT }, resolve));
+console.log(`GraphQL Server is now running on http://localhost:${PORT}/graphql`);
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {

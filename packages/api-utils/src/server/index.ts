@@ -45,8 +45,6 @@ const {
 
 export default async function startServer(configs: any) {
 
-  console.log("---------------------------------------------------------")
-
   const app = express();
 
   if (SENTRY_DSN) {

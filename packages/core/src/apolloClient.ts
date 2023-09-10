@@ -1,21 +1,20 @@
-import { ApolloServer, gql } from 'apollo-server-express';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-import { buildSubgraphSchema } from '@apollo/federation';
-import dotenv from 'dotenv';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { buildSubgraphSchema } from '@apollo/subgraph';
 import resolvers from './data/resolvers';
 import typeDefDetails from './data/schema';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-
+import gql from 'graphql-tag';
 // load environment variables
-dotenv.config();
 
-const { USE_BRAND_RESTRICTIONS } = process.env;
+const { USE_BRAND_RESTRICTIONS } = Bun.env;
 
 let apolloServer;
 
-export const initApolloServer = async (_app, httpServer) => {
+export const initApolloServer = async (app, httpServer) => {
   const { types, queries, mutations } = typeDefDetails;
 
   const typeDefs = gql(`
@@ -31,19 +30,25 @@ export const initApolloServer = async (_app, httpServer) => {
   apolloServer = new ApolloServer({
     schema: buildSubgraphSchema([
       {
-        typeDefs,
+        typeDefs: typeDefs as any,
         resolvers
       }
     ]),
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+
+  });
+
+  await apolloServer.start();
+
+  app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }) => {
       const subdomain = getSubdomain(req);
       const models = await generateModels(subdomain);
 
       let user: any = null;
 
-      if (req.headers.user) {
+      if (req.headers?.user) {
         const userJson = Buffer.from(req.headers.user, 'base64').toString(
           'utf-8'
         );
@@ -112,9 +117,7 @@ export const initApolloServer = async (_app, httpServer) => {
         models
       };
     }
-  });
-
-  await apolloServer.start();
+  }));
 
   return apolloServer;
 };
