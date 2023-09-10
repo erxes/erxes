@@ -42,7 +42,7 @@
     "build": "node commands/build.js",
     "compress": "gzip -5 --keep -r build/static/js",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
-    "open-cypress": "yarn run cypress open",
+    "open-cypress": "bun run cypress open",
     "record-cypress": "cypress run --record=false --headless --browser chrome"
   },
   "devDependencies": {

@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && bun install",
-    "start": "cd .erxes && yarn start",
+    "start": "cd .erxes && bun run start",
     "build": "cd .erxes && bun run build",
-    "tsc": "cd .erxes && yarn tsc"
+    
   },
   "dependencies": {
     "@cubejs-client/core": "^0.30.29",

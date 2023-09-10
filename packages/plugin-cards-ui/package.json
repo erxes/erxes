@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && bun install",
-    "start": "cd .erxes && yarn start",
-    "build": "cd .erxes && bun run build",
-    "tsc": "cd .erxes && yarn tsc"
+    "start": "cd .erxes && bun run start",
+    "build": "cd .erxes && bun run build"
   },
   "dependencies": {
     "timers-browserify": "^2.0.12"
