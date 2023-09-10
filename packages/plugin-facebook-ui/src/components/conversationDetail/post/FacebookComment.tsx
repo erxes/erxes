@@ -6,7 +6,7 @@ import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvert
 import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
 import PurchaseConvertTrigger from '@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger';
 import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
-import React from 'react';
+import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
 import { IFacebookComment } from '../../../types';

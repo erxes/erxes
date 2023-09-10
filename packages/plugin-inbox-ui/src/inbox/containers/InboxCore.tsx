@@ -1,5 +1,5 @@
 import { AppConsumer } from 'coreui/appContext';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { gql } from '@apollo/client';
 import { can, router as routerUtils } from '@erxes/ui/src/utils';
 import React from 'react';

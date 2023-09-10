@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import { IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';

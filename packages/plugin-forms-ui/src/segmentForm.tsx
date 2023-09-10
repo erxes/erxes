@@ -4,7 +4,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import Select from 'react-select-plus';
 import React from 'react';
 import { withProps } from '@erxes/ui/src/utils';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 
 import Spinner from '@erxes/ui/src/components/Spinner';

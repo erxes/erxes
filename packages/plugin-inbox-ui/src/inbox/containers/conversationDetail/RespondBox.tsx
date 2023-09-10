@@ -1,7 +1,7 @@
 import { AppConsumer } from 'coreui/appContext';
 import { gql } from '@apollo/client';
 import { fromJS } from 'immutable';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import RespondBox from '../../components/conversationDetail/workarea/RespondBox';

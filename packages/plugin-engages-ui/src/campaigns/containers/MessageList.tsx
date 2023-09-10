@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { IRouterProps } from '@erxes/ui/src/types';
 import queryString from 'query-string';
@@ -7,7 +7,7 @@ import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { withProps } from '@erxes/ui/src/utils';
-import routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 import MessageList from '../components/MessageList';
 import { queries } from '@erxes/ui-engage/src/graphql';
 import {

@@ -1,4 +1,4 @@
-import routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 
 import { ILeadIntegration, IntegrationsCount } from '@erxes/ui-leads/src/types';
 
