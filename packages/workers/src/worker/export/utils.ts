@@ -1,12 +1,12 @@
 import { IModels } from '../../connectionResolvers';
-import dotenv from 'dotenv';
+
 import path from 'path';
 import fs from 'fs';
 
 import CustomWorker from '../workerUtil';
 import { debugWorkers } from '../debugger';
 
-dotenv.config();
+
 
 const myWorker = new CustomWorker();
 

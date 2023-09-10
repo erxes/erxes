@@ -1,7 +1,5 @@
 import Redis from 'ioredis';
-import dotenv from 'dotenv';
 import * as fakeRedis from './redisSubstitute';
-dotenv.config();
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, SKIP_REDIS } = process.env;
 

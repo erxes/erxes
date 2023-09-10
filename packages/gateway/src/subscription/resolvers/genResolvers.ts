@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
 
-dotenv.config();
+
+
 
 import graphqlPubsub from '../pubsub';
 import _ from 'lodash';

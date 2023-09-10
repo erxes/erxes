@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+
 import schedule from 'node-schedule';
 import { IModels } from '../connectionResolver';
 import { fetchSegment } from '../graphql/resolvers/queries/queryBuilder';

@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+
 import Telnyx from 'telnyx';
 import { IModels } from './connectionResolver';
 
@@ -7,7 +7,7 @@ import { sendIntegrationsMessage } from './messageBroker';
 import { ICallbackParams, IMessageParams, ITelnyxMessageParams } from './types';
 // import { getEnv } from './utils';
 
-dotenv.config();
+
 
 // fetches telnyx config & integrations from integrations plugin
 export const getTelnyxInfo = async (subdomain: string) => {

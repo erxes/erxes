@@ -1,9 +1,6 @@
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { debugInfo, debugError } from './debuggers';
 import { getEnv } from './utils';
-
-dotenv.config();
 
 mongoose.Promise = global.Promise;
 

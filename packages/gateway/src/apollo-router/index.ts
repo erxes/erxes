@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
-dotenv.config();
+
+
 
 import { spawn, spawnSync, ChildProcess } from 'child_process';
 import path from 'path';

@@ -1,10 +1,6 @@
-import dotenv from 'dotenv';
 import { redisOptions } from 'erxes-inmemory-storage';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis from 'ioredis';
-
-// load environment variables
-dotenv.config();
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 

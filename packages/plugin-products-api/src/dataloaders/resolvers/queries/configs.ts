@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
+
 import { IContext } from '../../../connectionResolver';
-dotenv.config();
+
 
 const configQueries = {
   /**

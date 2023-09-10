@@ -1,7 +1,7 @@
-import dotenv from 'dotenv';
+
 
 import { sendRequest } from '../../../api-utils/src/requests';
-dotenv.config();
+
 
 import { Collection, Db, MongoClient } from 'mongodb';
 

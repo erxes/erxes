@@ -46,7 +46,10 @@ module.exports = (env, args) => {
     devServer: {
       port: 3000,
       allowedHosts: 'all',
-      historyApiFallback: true
+      historyApiFallback: true,
+      client: {
+        overlay: false
+      }
     },
 
     module: {

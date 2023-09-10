@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+
 import Random from 'meteor-random';
 
 import { IAttachment } from '@erxes/api-utils/src/types';
@@ -6,7 +6,7 @@ import { ICustomer } from './types';
 import { getEnv } from './utils';
 import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
 
-dotenv.config();
+
 
 const prepareAttachments = (attachments: IAttachment[] = []) => {
   return attachments.map(file => ({

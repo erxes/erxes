@@ -1,5 +1,5 @@
 import csvParser from 'csv-parser';
-import dotenv from 'dotenv';
+
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
@@ -47,7 +47,7 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
   return properties;
 };
 
-dotenv.config();
+
 
 const myWorker = new CustomWorker();
 

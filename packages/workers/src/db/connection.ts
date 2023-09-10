@@ -1,7 +1,7 @@
-import dotenv from 'dotenv';
+
 import mongoose from 'mongoose';
 
-dotenv.config();
+
 
 const { NODE_ENV, MONGO_URL = 'mongodb://localhost/erxes' } = process.env;
 

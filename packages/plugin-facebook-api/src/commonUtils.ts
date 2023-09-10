@@ -1,11 +1,11 @@
-import dotenv from 'dotenv';
+
 import request from 'request-promise';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
 import { get, set } from './inmemoryStorage';
 
-dotenv.config();
+
 
 const CACHE_NAME = 'configs_erxes_fb_integrations';
 

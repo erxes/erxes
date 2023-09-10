@@ -1,9 +1,9 @@
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { ErxesProxyTarget } from './targets';
-import dotenv from 'dotenv';
+
 import { apolloRouterPort } from '../apollo-router';
 import { Express } from 'express';
-dotenv.config();
+
 
 const { NODE_ENV } = process.env;
 

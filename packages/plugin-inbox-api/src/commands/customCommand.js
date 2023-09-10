@@ -1,7 +1,7 @@
-const dotenv = require('dotenv');
+
 const { MongoClient } = require('mongodb');
 
-dotenv.config();
+
 
 const { MONGO_URL, INTEGRATIONS_MONGO_URL, FB_MONGO_URL } = process.env;
 

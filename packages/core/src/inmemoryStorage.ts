@@ -1,9 +1,5 @@
-import dotenv from 'dotenv';
 import memoryStorage from 'erxes-inmemory-storage';
 import { debugError } from './debuggers';
-
-// load environment variables
-dotenv.config();
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 

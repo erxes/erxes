@@ -1,8 +1,5 @@
-import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
 
-// load environment variables
-dotenv.config();
 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';

@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import {
   ISendMessageArgs,
   sendMessage as sendCommonMessage
@@ -6,7 +5,6 @@ import {
 import { serviceDiscovery } from './configs';
 import { Customers, Integrations, Messages } from './models';
 
-dotenv.config();
 
 let client;
 

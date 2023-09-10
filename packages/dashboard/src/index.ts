@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+
 import jwt from 'jsonwebtoken';
 import Downloader from 'nodejs-file-downloader';
 import fs from 'fs';
@@ -7,7 +7,7 @@ import path from 'path';
 import { CubejsServer } from '@cubejs-backend/server';
 import { getService, getServices } from './serviceDiscovery';
 
-dotenv.config();
+
 
 const { CUBEJS_API_SECRET, DB_NAME } = process.env;
 

@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
-dotenv.config();
+
+
 
 import { ErxesProxyTarget } from 'src/proxy/targets';
 import { supergraphConfigPath, supergraphPath } from './paths';

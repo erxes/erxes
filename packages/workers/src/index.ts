@@ -1,5 +1,5 @@
 import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
+
 import express from 'express';
 import { createServer } from 'http';
 import { filterXSS } from 'xss';
@@ -20,7 +20,7 @@ import typeDefDetails from './data/schema';
 import { generateModels } from './connectionResolvers';
 import gql from 'graphql-tag';
 // load environment variables
-dotenv.config();
+
 
 async function closeMongooose() {
   try {
@@ -57,7 +57,7 @@ async function closeHttpServer() {
 }
 
 // load environment variables
-dotenv.config();
+
 
 const app = express();
 

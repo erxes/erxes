@@ -1,11 +1,11 @@
 import { Model } from 'mongoose';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+
 
 import { IModels } from '../../connectionResolver';
 import { appSchema, IAppDocument, IApp } from './definitions/apps';
 
-dotenv.config();
+
 
 const { JWT_TOKEN_SECRET = '' } = process.env;
 

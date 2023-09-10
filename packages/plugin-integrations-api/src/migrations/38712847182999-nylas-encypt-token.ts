@@ -1,8 +1,8 @@
-import dotenv from 'dotenv';
+
 import mongoose from 'mongoose';
 import nylasUtils from '../nylas/utils';
 
-dotenv.config();
+
 
 const nylasKinds = [
   'office365',

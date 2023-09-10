@@ -23,7 +23,6 @@
     "bun-types": "latest",
     "crypto": "^1.0.1",
     "debug": "^4.1.1",
-    "dotenv": "^4.0.0",
     "elasticsearch": "^16.7.2",
     "graphql": "^16.8.0",
     "graphql-tag": "^2.12.6",

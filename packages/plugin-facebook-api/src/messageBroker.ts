@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+
 
 import {
   facebookCreateIntegration,
@@ -19,7 +19,7 @@ import {
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 
-dotenv.config();
+
 
 let client;
 

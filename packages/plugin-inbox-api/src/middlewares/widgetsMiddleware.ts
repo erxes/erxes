@@ -1,6 +1,6 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import dotenv from 'dotenv';
-dotenv.config();
+
+
 
 import { generateModels } from '../connectionResolver';
 

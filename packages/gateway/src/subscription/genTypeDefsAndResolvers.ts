@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
-dotenv.config();
+
+
 
 import getPluginConfigs from './plugins/getPluginConfigs';
 import genTypeDefs from './genTypeDefs';

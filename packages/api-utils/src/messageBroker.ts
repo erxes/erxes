@@ -5,8 +5,6 @@ import { getPluginAddress } from './serviceDiscovery';
 import { Express } from 'express';
 import fetch from 'node-fetch';
 import Agent from 'agentkeepalive';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const timeoutMs = Number(process.env.RPC_TIMEOUT) || 10000;
 
