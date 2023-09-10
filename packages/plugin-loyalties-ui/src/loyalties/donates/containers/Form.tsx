@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import Form from '../components/Form';
 import React from 'react';
 import { ButtonMutate } from '@erxes/ui/src/components';

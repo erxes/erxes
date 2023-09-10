@@ -1,7 +1,7 @@
 import { ColorButton } from '../../styles/common';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __, Alert } from '@erxes/ui/src/utils';
-import React from 'react';
+import * as React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { ChooseLabelWrapper } from '../../styles/label';
 import { IPipelineLabel } from '../../types';

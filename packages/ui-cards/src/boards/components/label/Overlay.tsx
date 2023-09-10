@@ -2,10 +2,14 @@ import Button from '@erxes/ui/src/components/Button';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import * as React from 'react';
 import Popover from 'react-bootstrap/Popover';
 import Form from '../../containers/label/Form';
-import { ButtonContainer, PipelineLabelList, Title } from '../../styles/label';
+import {
+  ButtonContainer,
+  PipelineLabelList,
+  Title
+} from '../../styles/label';
 import { IPipelineLabel } from '../../types';
 import { Wrapper } from '@erxes/ui/src/styles/main';
 

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
@@ -18,7 +18,7 @@ import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { dateFormat, timeFormat } from '../../constants';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import { AlertContainer } from '../../styles';
 import { IUser } from '@erxes/ui/src/auth/types';
 

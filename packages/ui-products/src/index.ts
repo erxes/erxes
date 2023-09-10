@@ -6,7 +6,7 @@ import {
   queries as productQueries,
   mutations as productMutations
 } from './graphql';
-import productTypes from './types';
+import * as productTypes from './types';
 import SelectProductCategory from './containers/SelectProductCategory';
 
 export {

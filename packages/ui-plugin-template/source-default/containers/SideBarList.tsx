@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import SideBar from '../components/SideBar';

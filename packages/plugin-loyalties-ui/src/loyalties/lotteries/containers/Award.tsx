@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { Bulk, Spinner } from '@erxes/ui/src/components';
 import { router, withProps } from '@erxes/ui/src/utils';

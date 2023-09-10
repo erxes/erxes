@@ -1,6 +1,6 @@
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { Alert, withProps, router as routerUtils } from '@erxes/ui/src/utils';
 import { UserDetailQueryResponse } from '@erxes/ui/src/auth/types';
 import React from 'react';

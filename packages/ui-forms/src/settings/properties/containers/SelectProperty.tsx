@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';

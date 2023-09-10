@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import React from 'react';
 import { SitesTotalCountQueryResponse } from '../types';

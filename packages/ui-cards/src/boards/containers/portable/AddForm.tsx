@@ -1,6 +1,6 @@
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { Alert, renderWithProps } from '@erxes/ui/src/utils';
 import { mutations } from '../../../conformity/graphql';
 import {

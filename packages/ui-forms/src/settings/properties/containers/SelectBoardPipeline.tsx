@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { graphql, ChildProps } from '@apollo/client/react/hoc';
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
 import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';

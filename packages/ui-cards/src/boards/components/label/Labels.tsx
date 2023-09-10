@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import RTG from 'react-transition-group';
 import { PipelineConsumer } from '../../containers/PipelineContext';
 import { Label, LabelList } from '../../styles/label';

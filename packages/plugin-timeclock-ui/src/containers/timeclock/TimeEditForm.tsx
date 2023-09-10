@@ -1,6 +1,6 @@
 import { ITimeclock, TimeClockMutationResponse } from '../../types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
 import { mutations } from '../../graphql';

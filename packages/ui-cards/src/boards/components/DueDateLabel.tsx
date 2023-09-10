@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { CloseDateLabel, StartDateLabel } from '../styles/popup';
 import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
+import * as React from 'react';
 import { generateButtonClass, generateButtonStart } from '../utils';
 
 type IProps = {

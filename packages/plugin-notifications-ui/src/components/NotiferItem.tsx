@@ -1,6 +1,6 @@
 import debounce from 'lodash/debounce';
 import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
+import * as React from 'react';
 import RTG from 'react-transition-group';
 import styled from 'styled-components';
 import { Item } from '@erxes/ui-notifications/src/components/styles';

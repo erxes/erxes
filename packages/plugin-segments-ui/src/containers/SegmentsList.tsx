@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { confirm } from '@erxes/ui/src/utils';
 import React from 'react';

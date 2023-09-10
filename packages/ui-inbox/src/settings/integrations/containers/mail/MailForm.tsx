@@ -1,6 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 import client from '@erxes/ui/src/apolloClient';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';

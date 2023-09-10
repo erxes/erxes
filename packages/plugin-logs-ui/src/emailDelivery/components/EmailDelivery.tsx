@@ -7,7 +7,7 @@ import { Title } from '@erxes/ui/src/styles/main';
 import { __, router } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import React from 'react';
+import * as React from 'react';
 import Select from 'react-select-plus';
 import { EMAIL_TYPES } from '../containers/EmailDelivery';
 import Row from './Row';

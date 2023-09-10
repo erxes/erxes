@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { IItem, IOptions, WatchMutation, WatchVariables } from '../../types';
 import { Alert, renderWithProps } from '@erxes/ui/src/utils';
-import React from 'react';
+import * as React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import Watch from '../../components/editForm/Watch';
 

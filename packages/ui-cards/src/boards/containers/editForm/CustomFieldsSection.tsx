@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
 

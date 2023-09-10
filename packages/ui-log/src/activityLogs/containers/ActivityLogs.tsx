@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { ActivityLogQueryResponse, IActivityLog } from '../types';
 import { queries, subscriptions } from '../graphql';

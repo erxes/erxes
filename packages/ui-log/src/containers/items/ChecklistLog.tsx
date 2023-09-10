@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { ActivityLogQueryResponse } from '@erxes/ui-log/src/activityLogs/types';
 import ChecklistLog from '../../components/items/checklist/ChecklistLog';

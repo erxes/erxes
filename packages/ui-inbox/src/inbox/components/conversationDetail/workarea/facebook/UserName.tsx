@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 type Props = {
   username?: string;
@@ -11,8 +11,8 @@ class UserName extends React.Component<Props, {}> {
 
     return (
       <a
-        target="_blank"
-        rel="noopener noreferrer"
+        target='_blank'
+        rel='noopener noreferrer'
         href={`https://www.facebook.com/search/top/?q=${username}`}
       >
         {username}

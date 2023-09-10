@@ -2,7 +2,7 @@ import { Bulk } from '@erxes/ui/src/components';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps, router } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';

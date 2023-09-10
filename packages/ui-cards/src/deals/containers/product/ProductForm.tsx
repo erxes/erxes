@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { gql } from '@apollo/client';
 import ProductForm from '../../components/product/ProductForm';
 import React from 'react';

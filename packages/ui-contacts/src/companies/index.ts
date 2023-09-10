@@ -6,7 +6,7 @@ import {
   queries as companyQueries,
   mutations as companyMutations
 } from './graphql';
-import companyTypes from './types';
+import * as companyTypes from './types';
 
 export {
   CompanySection,

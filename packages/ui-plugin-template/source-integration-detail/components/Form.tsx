@@ -16,7 +16,7 @@ import {
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';

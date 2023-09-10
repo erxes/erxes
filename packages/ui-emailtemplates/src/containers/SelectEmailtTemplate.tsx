@@ -2,7 +2,7 @@ import React from 'react';
 import { EmptyState, Spinner, withProps } from '@erxes/ui/src';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { QueryResponse } from '@erxes/ui/src/types';
 import { queries } from '../graphql';
 import EmailTemplatesComponent from '../components/SelectEmailTemplate';

@@ -5,7 +5,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { queries, mutations } from '../graphql/';
 import {
   ClientPortalCommentQueryResponse,

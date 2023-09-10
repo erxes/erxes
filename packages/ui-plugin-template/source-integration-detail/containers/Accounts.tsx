@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
 
 import Accounts from '../components/Accounts';

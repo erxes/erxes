@@ -2,7 +2,7 @@ import Datetime from '@nateradebaugh/react-datetime';
 import Icon from '@erxes/ui/src/components/Icon';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import colors from '@erxes/ui/src/styles/colors';
-import React from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 

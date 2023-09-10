@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
-import routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';

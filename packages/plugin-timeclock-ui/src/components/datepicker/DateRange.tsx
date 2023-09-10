@@ -7,7 +7,7 @@ import { __ } from '@erxes/ui/src/utils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { FlexRow, DateName, FlexCenter, MarginY } from '../../styles';
 import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import { dateFormat } from '../../constants';
 
 type Props = {

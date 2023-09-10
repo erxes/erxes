@@ -2,7 +2,7 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { gql } from '@apollo/client';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import Form from '../components/Form';
-import React from 'react';
+import * as React from 'react';
 import { withRouter } from 'react-router-dom';
 import { mutations, queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 

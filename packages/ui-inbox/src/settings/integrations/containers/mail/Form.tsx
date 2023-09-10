@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 

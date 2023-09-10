@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { Alert, removeTypename, withProps } from '@erxes/ui/src/utils';
 import {

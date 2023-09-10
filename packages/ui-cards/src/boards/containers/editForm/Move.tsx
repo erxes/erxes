@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { queries as boardQueries } from '../../graphql';
 import { IOptions, IPipeline, StagesQueryResponse } from '../../types';
 import React from 'react';

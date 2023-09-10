@@ -1,7 +1,7 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, getEnv } from '@erxes/ui/src/utils';
-import React from 'react';
+import * as React from 'react';
 import { IMailAttachment } from '../../../../types';
 import {
   AttachmentItem,

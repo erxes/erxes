@@ -1,6 +1,6 @@
 import React from 'react';
 import { withProps } from '@erxes/ui/src/utils/core';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { QueryResponse } from '@erxes/ui/src/types';

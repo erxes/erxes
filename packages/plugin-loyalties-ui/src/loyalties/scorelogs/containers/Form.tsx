@@ -1,6 +1,6 @@
 import { ButtonMutate } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import React from 'react';
 import ScoreForm from '../components/Form';
 import mutations from '../graphql/mutations';

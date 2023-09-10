@@ -1,6 +1,6 @@
 import { getEnv, isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
 import React from 'react';
