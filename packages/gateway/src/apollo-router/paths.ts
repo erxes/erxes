@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-export const dirTempPath = path.resolve(__dirname, 'temp');
+export const dirTempPath = path.resolve(import.meta.dir, 'temp');
 
 if (!fs.existsSync(dirTempPath)) {
   fs.mkdirSync(dirTempPath, { recursive: true });

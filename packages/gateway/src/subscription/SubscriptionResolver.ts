@@ -1,4 +1,4 @@
-import { DocumentNode, GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo } from 'graphql';
 import { merge } from 'lodash';
 import {
   gql,
@@ -17,12 +17,6 @@ import {
   parseResolveInfo,
   ResolveTree
 } from 'graphql-parse-resolve-info';
-import fetch from 'node-fetch';
-import {
-  AuthenticationError,
-  ApolloError,
-  ForbiddenError
-} from 'apollo-server-errors';
 
 function fieldPathsAsStrings(obj: { [key: string]: any }) {
   const paths = (obj = {}, head = ''): string[] => {
@@ -256,7 +250,7 @@ export default class SubscriptionResolver {
 
     const query = buildQueryUsingSelections(selections);
 
-    const documentNode: DocumentNode = gql(query);
+    const documentNode = gql(query);
 
     try {
       const response = await this.query({
@@ -273,29 +267,9 @@ export default class SubscriptionResolver {
   }
 
   private async query(graphqlRequest: GraphQLRequest): Promise<FetchResult> {
-    try {
-      const response = await toPromise(
-        execute(this.apolloLink, graphqlRequest)
-      );
-      return response;
-    } catch (error) {
-      const status = error.statusCode ? error.statusCode : null;
-      const message = error.bodyText ? error.bodyText : null;
-      let apolloError: ApolloError;
-      switch (status) {
-        case 401:
-          apolloError = new AuthenticationError(message);
-          break;
-        case 403:
-          apolloError = new ForbiddenError(message);
-          break;
-        case 502:
-          apolloError = new ApolloError('Bad Gateway', status);
-          break;
-        default:
-          apolloError = new ApolloError(message, status);
-      }
-      return apolloError;
-    }
+    const response = await toPromise(
+      execute(this.apolloLink, graphqlRequest)
+    );
+    return response;
   }
 }

@@ -1,7 +1,5 @@
 import { getService, getServices } from '../redis';
 import retry from '../util/retry';
-import fetch from 'node-fetch';
-
 
 
 export type ErxesProxyTarget = {

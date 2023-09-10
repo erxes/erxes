@@ -46,7 +46,7 @@ export function makeSubscriptionSchema({ typeDefs, resolvers }: any) {
 export async function startSubscriptionServer(
   httpServer: http.Server
 ): Promise<Disposable | undefined> {
-  const wsServer = new ws.Server({
+  const wsServer = new ws.WebSocketServer({
     server: httpServer,
     path: '/graphql'
   });
