@@ -8,7 +8,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from 'modules/common/utils';
 import { SideList } from '../../styles';
-import routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 import { IRouterProps } from '@erxes/ui/src/types';
 import queryString from 'query-string';
 

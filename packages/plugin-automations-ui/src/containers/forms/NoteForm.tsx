@@ -1,5 +1,5 @@
 import React from 'react';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { mutations, queries } from '../../graphql';
 import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';

@@ -1,5 +1,5 @@
 import compose from 'lodash.flowright';
-import gq from '../graphql';
+import * as gq from '../graphql';
 
 import { storeConstantToStore, withProps } from '../../utils';
 

@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { IAction } from '@erxes/ui-automations/src/types';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 
