@@ -4,8 +4,7 @@
   "license": "GNU General Public License v3.0 with Commons Clause",
   "scripts": {
     "dev": "NODE_ENV=development bun --watch src/index.ts",
-    "download:plugins": "bun src/subscription/plugins/runDownloadPlugins.ts",
-    "build": "yarn tsc -p tsconfig.prod.json && node fix-build.js"
+    "download:plugins": "bun src/subscription/plugins/runDownloadPlugins.ts"
   },
   "dependencies": {
     "@apollo/client": "~3.7.14",
@@ -44,7 +43,6 @@
     "@types/jsonwebtoken": "^8.5.6",
     "@types/lodash": "^4.14.178",
     "@types/mongodb": "^3.6.20",
-    "@types/node": "^17.0.3",
     "node-watch": "^0.7.3",
     "nodemon": "^2.0.15",
     "ts-node": "^10.4.0",

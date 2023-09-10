@@ -2,10 +2,8 @@
   "name": "@erxes/plugin-facebook-api",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && bun install",
-    "dev": "cd .erxes && bun run dev",
-    "build": "cd .erxes && bun run build",
-    "start": "cd .erxes/dist/plugin-facebook-api/.erxes && node src"
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts"
   },
   "dependencies": {
     "botbuilder": "^4.4.0",

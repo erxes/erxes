@@ -2,10 +2,8 @@
   "name": "@erxes/plugin-cards-api",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && bun install",
-    "dev": "DEBUG=erxes* cd .erxes && yarn dev",
-    "build": "cd .erxes && bun run build",
-    "start": "cd .erxes/dist/plugin-cards-api/.erxes && bun src"
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts"
   },
   "dependencies": {
     "server-timing": "3.3.1",

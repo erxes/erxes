@@ -2,11 +2,8 @@
   "name": "@erxes/plugin-inbox-api",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && bun install",
-    "dev": "cd .erxes && bun run dev",
-    "build": "cd .erxes && bun run build",
-    "start": "cd .erxes/dist/plugin-inbox-api/.erxes && node src",
-    "customCommand": "yarn ts-node src/customCommand.ts"
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts"
   },
   "dependencies": {
     "erxes-inmemory-storage": "^1.0.20",

@@ -35,7 +35,6 @@
     "@types/json2csv": "^5.0.1",
     "@types/mongodb": "^3.1.2",
     "@types/mongoose": "5.7.3",
-    "@types/node": "^17.0.7",
     "@types/request": "^2.47.1",
     "@types/underscore": "^1.8.9",
     "nodemon": "^2.0.15",
