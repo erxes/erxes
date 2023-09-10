@@ -32,6 +32,8 @@ export function makeSubscriptionSchema({ typeDefs, resolvers }: any) {
 
   const supergraphTypeDefs = gql(supergraph);
 
+  console.log("------------------- before makeExecutableSchema -------------------------");
+
   return makeExecutableSchema({
     typeDefs: [
       ...((supergraphTypeDefs && [supergraphTypeDefs]) as DocumentNode[]),

@@ -36,7 +36,6 @@ export default {
   name: 'contacts',
   permissions,
   graphql: async sd => {
-    console.log("------------------------------------");
     serviceDiscovery = sd;
 
     return {
@@ -46,6 +45,8 @@ export default {
   },
 
   hasSubscriptions: true,
+  subscriptionJs: require('path').resolve(import.meta.dir, 'graphql', 'subscriptionPlugin.js'),
+  
   hasDashboard: true,
   meta: {
     imports,

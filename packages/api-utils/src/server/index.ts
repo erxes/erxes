@@ -129,11 +129,12 @@ export default async function startServer(configs: any) {
 
 
   if (configs.hasSubscriptions) {
-    // app.get('/subscriptionPlugin.js', async (req, res) => {
-    //   res.sendFile(
-    //     path.join(__dirname, '../../src/graphql/subscriptionPlugin.js')
-    //   );
-    // });
+    console.log("-------------------", configs.subscriptionJs);
+    app.get('/subscriptionPlugin.js', async (req, res) => {
+      res.sendFile(
+        configs.subscriptionJs
+      );
+    });
   }
 
   if (configs.hasDashboard) {
