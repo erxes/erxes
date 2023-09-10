@@ -9,13 +9,13 @@ import {
   subscribe,
   validate
 } from 'graphql';
-import * as ws from 'ws';
+import ws from 'ws';
 import SubscriptionResolver from './SubscriptionResolver';
 import { Disposable, SubscribeMessage } from 'graphql-ws';
 import genTypeDefsAndResolvers from './genTypeDefsAndResolvers';
-import * as http from 'http';
+import http from 'http';
 import { supergraphPath } from '../apollo-router/paths';
-import * as fs from 'fs';
+import fs from 'fs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { apolloRouterPort } from '../apollo-router';
 import { gql } from '@apollo/client/core';

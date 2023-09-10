@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 
 import { sendRequest } from '../../../api-utils/src/requests';
 dotenv.config();

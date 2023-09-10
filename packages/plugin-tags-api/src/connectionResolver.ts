@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import { ITagDocument } from './models/definitions/tags';
 import { ITagModel, loadTagClass } from './models/Tags';
 import { IContext as IMainContext } from '@erxes/api-utils/src';

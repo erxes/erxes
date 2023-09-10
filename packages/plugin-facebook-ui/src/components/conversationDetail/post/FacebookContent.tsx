@@ -1,6 +1,6 @@
 import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
 import { readFile } from '@erxes/ui/src/utils/core';
-import * as React from 'react';
+import React from 'react';
 import { ContentContainer, FacebookContentMessage } from './styles';
 
 type Props = {

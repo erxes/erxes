@@ -6,7 +6,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './reportExport';
-import * as permissions from './permissions';
+import permissions from './permissions';
 
 export let mainDb;
 export let debug;

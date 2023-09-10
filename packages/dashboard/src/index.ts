@@ -1,8 +1,8 @@
-import * as dotenv from 'dotenv';
-import * as jwt from 'jsonwebtoken';
-import * as Downloader from 'nodejs-file-downloader';
-import * as fs from 'fs';
-import * as path from 'path';
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+import Downloader from 'nodejs-file-downloader';
+import fs from 'fs';
+import path from 'path';
 
 import { CubejsServer } from '@cubejs-backend/server';
 import { getService, getServices } from './serviceDiscovery';

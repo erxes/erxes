@@ -1,4 +1,4 @@
-import '@nateradebaugh/react-datetime/css/react-datetime.css';
+import '@nateradebaugh/react-datetime/dist/css/styles.css';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import dayjs from 'dayjs';
 import * as Sentry from '@sentry/react';

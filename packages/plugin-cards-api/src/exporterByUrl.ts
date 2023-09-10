@@ -1,11 +1,11 @@
-import * as xlsxPopulate from 'xlsx-populate';
+import xlsxPopulate from 'xlsx-populate';
 import { IColumnLabel } from '@erxes/api-utils/src';
 import {
   findSchemaLabels,
   getCustomFieldsData
 } from '@erxes/api-utils/src/exporter';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import * as moment from 'moment';
+import moment from 'moment';
 import { IModels } from './connectionResolver';
 import { BOARD_BASIC_INFOS, MODULE_NAMES } from './constants';
 import {

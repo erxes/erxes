@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import * as React from 'react';
+import React from 'react';
 import { Footer } from './styles';
 
 type Props = {

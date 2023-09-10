@@ -1,6 +1,6 @@
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { Model, model } from 'mongoose';
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
 
@@ -50,14 +50,14 @@ const removeRelatedIds = async (models: IModels, tag: ITagDocument) => {
     };
   }> = [];
 
-  tags.forEach(async (t) => {
-    const ids = (t.relatedIds || []).filter((id) => !relatedIds.includes(id));
+  tags.forEach(async t => {
+    const ids = (t.relatedIds || []).filter(id => !relatedIds.includes(id));
 
     doc.push({
       updateOne: {
         filter: { _id: t._id },
-        update: { $set: { relatedIds: ids } },
-      },
+        update: { $set: { relatedIds: ids } }
+      }
     });
   });
 
@@ -76,7 +76,7 @@ export interface ITagModel extends Model<ITagDocument> {
   ): Promise<boolean>;
 }
 
-export const loadTagClass = (models) => {
+export const loadTagClass = models => {
   class Tag {
     /*
      * Get a tag
@@ -132,7 +132,7 @@ export const loadTagClass = (models) => {
      */
     static async getParentTag(doc: ITag) {
       return models.Tags.findOne({
-        _id: doc.parentId,
+        _id: doc.parentId
       }).lean();
     }
 
@@ -158,7 +158,7 @@ export const loadTagClass = (models) => {
       const tag = await models.Tags.create({
         ...doc,
         order,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       await setRelatedIds(models, tag);
@@ -190,15 +190,15 @@ export const loadTagClass = (models) => {
       const order = await this.generateOrder(parentTag, doc);
 
       const tag = await models.Tags.findOne({
-        _id,
+        _id
       });
 
       if (tag && tag.order) {
         const childTags = await models.Tags.find({
           $and: [
             { order: { $regex: new RegExp(escapeRegExp(tag.order), 'i') } },
-            { _id: { $ne: _id } },
-          ],
+            { _id: { $ne: _id } }
+          ]
         });
 
         if (childTags.length > 0) {
@@ -210,7 +210,7 @@ export const loadTagClass = (models) => {
           }> = [];
 
           // updating child categories order
-          childTags.forEach(async (childTag) => {
+          childTags.forEach(async childTag => {
             let childOrder = childTag.order;
 
             if (tag.order && childOrder) {
@@ -219,8 +219,8 @@ export const loadTagClass = (models) => {
               bulkDoc.push({
                 updateOne: {
                   filter: { _id: childTag._id },
-                  update: { $set: { order: childOrder } },
-                },
+                  update: { $set: { order: childOrder } }
+                }
               });
             }
           });
@@ -279,7 +279,7 @@ export const loadTagClass = (models) => {
 
         await models.Tags.updateOne(
           {
-            _id: parentTag._id,
+            _id: parentTag._id
           },
           { $set: { order: parentOrder } }
         );

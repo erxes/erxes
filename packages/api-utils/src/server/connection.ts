@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import mongoose = require('mongoose');
 import { debugInfo, debugError } from './debuggers';
 import { getEnv } from './utils';

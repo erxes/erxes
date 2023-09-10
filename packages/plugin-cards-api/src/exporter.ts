@@ -7,7 +7,7 @@ import {
   sendLogsMessage,
   sendProductsMessage
 } from './messageBroker';
-import * as moment from 'moment';
+import moment from 'moment';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
 import { IStageDocument } from './models/definitions/boards';

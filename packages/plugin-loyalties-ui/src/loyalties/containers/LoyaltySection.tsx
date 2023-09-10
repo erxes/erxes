@@ -1,6 +1,6 @@
 import { withProps } from '@erxes/ui/src/utils';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import LoyaltySection from '../components/LoyaltySection';

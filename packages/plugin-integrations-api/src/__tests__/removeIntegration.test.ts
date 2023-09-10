@@ -1,4 +1,4 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 
 import {
   integrationFactory,
@@ -6,10 +6,10 @@ import {
   nylasGmailConversationMessageFactory,
   nylasGmailCustomerFactory
 } from '../factories';
-import * as gmailApi from '../gmail/api';
+import gmailApi from '../gmail/api';
 import { removeIntegration } from '../helpers';
 import { Integrations } from '../models';
-import * as nylasApi from '../nylas/api';
+import nylasApi from '../nylas/api';
 import {
   NylasGmailConversationMessages,
   NylasGmailConversations,

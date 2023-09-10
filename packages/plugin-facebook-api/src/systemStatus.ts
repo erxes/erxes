@@ -1,6 +1,6 @@
-import * as mongoose from 'mongoose';
-import * as os from 'os';
-import * as path from 'path';
+import mongoose from 'mongoose';
+import os from 'os';
+import path from 'path';
 
 export default async () => {
   const { version, storageEngine } = await mongoose.connection.db.command({

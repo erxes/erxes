@@ -1,6 +1,6 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { accountFactory, integrationFactory } from '../factories';
-import * as api from '../gmail/api';
+import api from '../gmail/api';
 import {
   createIntegration,
   getGmailAttachment,
@@ -19,10 +19,10 @@ import {
   storeCustomer,
   updateLastChangesHistoryId
 } from '../gmail/store';
-import * as gmailUtils from '../gmail/utils';
-import * as broker from '../messageBroker';
+import gmailUtils from '../gmail/utils';
+import broker from '../messageBroker';
 import { Accounts, Integrations } from '../models';
-import * as utils from '../utils';
+import utils from '../utils';
 import './setup.ts';
 
 describe('Gmail controller test', () => {

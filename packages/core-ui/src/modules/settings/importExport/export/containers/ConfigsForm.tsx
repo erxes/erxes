@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
 import ConfigsForm from '../components/ConfigsForm';

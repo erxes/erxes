@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 

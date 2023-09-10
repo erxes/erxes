@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { Alert, sendDesktopNotification } from '@erxes/ui/src/utils';
 import {

@@ -1,5 +1,5 @@
-import * as dayjs from 'dayjs';
-import * as xlsxPopulate from 'xlsx-populate';
+import dayjs from 'dayjs';
+import xlsxPopulate from 'xlsx-populate';
 import { IModels } from './connectionResolver';
 import {
   FINAL_REPORT_COLUMNS,

@@ -16,7 +16,7 @@ import {
   findUser,
   returnUnionOfUserIds
 } from './utils';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { fixDate } from '@erxes/api-utils/src';
 
 interface ITimeClockEdit extends ITimeClock {

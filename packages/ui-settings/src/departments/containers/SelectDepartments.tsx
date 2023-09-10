@@ -1,6 +1,6 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IFormProps } from '@erxes/ui/src/types';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql, ChildProps } from '@apollo/client/react/hoc';

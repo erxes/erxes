@@ -1,6 +1,6 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import React from 'react';
 import { graphql, ChildProps } from '@apollo/client/react/hoc';
 

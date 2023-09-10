@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import redis from './redis';
 import { IUserDocument } from './types';
 import { isEnabled } from './serviceDiscovery';

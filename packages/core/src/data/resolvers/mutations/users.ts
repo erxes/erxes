@@ -2,7 +2,7 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import * as telemetry from 'erxes-telemetry';
+import telemetry from 'erxes-telemetry';
 import { ILink } from '@erxes/api-utils/src/types';
 import { authCookieOptions } from '@erxes/api-utils/src/core';
 

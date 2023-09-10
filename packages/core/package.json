@@ -10,8 +10,8 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
-    "start": "node dist",
-    "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon src/index.ts",
+    "start": "bun src/index.ts",
+    "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development bun --watch src/index.ts",
     "loadTestData": "ts-node ./src/commands/loadTestData.ts",
     "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json && node fix-build.js",
     "test": "node --expose-gc --max_old_space_size=8000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage --w=1",

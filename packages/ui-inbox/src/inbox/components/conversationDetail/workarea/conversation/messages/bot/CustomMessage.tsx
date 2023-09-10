@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { IBotData } from '../../../../../../types';
 import { MessageContent } from '../../styles';
 import { QuickReplies, ReplyButton } from './styles';

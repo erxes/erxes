@@ -22,7 +22,7 @@
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^3.0.5",
     "@googlemaps/typescript-guards": "^1.0.7",
-    "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
+    "@nateradebaugh/react-datetime": "^4.6.0",
     "@types/classnames": "^2.2.6",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",

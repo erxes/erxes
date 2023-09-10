@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { Model } from 'mongoose';
 import { getOwner } from './utils';
 import { IModels } from '../connectionResolver';

@@ -29,7 +29,7 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import routerUtils from '@erxes/ui/src/utils/router';
 import { __, Alert, confirm, router } from 'coreui/utils';
 import { gql } from '@apollo/client';
 import React from 'react';

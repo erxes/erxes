@@ -1,10 +1,10 @@
-import * as serverTiming from 'server-timing';
+import serverTiming from 'server-timing';
 
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
-import * as permissions from './permissions';
+import permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporterByUrl';
 import segments from './segments';

@@ -6,7 +6,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import Form from '@erxes/ui/src/components/form/Form';
 
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import * as React from 'react';
+import React from 'react';
 import { IPipelineLabel } from '../../types';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorChooserWrapper } from '../../styles/label';

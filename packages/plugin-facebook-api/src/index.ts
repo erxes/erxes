@@ -1,4 +1,4 @@
-import * as bodyParser from 'body-parser';
+import bodyParser from 'body-parser';
 
 import { debugFacebook, debugRequest } from './debuggers';
 import initFacebook from './controller';

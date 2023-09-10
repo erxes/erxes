@@ -1,4 +1,4 @@
-import * as twitterApi from './twitter/api';
+import twitterApi from './twitter/api';
 
 import { debugError } from './debuggers';
 import { setupSmooch, setupSmoochWebhook } from './smooch/api';

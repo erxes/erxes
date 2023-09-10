@@ -1,10 +1,10 @@
-import * as request from 'request-promise';
-import * as sinon from 'sinon';
+import request from 'request-promise';
+import sinon from 'sinon';
 import { integrationFactory } from '../factories';
 import { updateIntegrationConfigs } from '../helpers';
 import { initMemoryStorage } from '../inmemoryStorage';
-import * as messageBroker from '../messageBroker';
-import * as smoochUtils from '../smooch/api';
+import messageBroker from '../messageBroker';
+import smoochUtils from '../smooch/api';
 import {
   SmoochViberConversationMessages as ConversationMessages,
   SmoochViberConversations as Conversations,

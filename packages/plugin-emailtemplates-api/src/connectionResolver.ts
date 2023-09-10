@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 import { IEmailTemplateDocument } from './models/definitions/emailTemplates';
 import {

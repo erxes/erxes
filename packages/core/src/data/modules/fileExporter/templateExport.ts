@@ -1,4 +1,4 @@
-import * as json2csv from 'json2csv';
+import json2csv from 'json2csv';
 import { createXlsFile, generateXlsx } from '../../utils';
 
 export const templateExport = async (args: any) => {

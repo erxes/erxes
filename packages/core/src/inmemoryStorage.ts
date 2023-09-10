@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import memoryStorage from 'erxes-inmemory-storage';
 import { debugError } from './debuggers';
 

@@ -1,6 +1,6 @@
-import * as mongoose from 'mongoose';
-import * as strip from 'strip';
-import * as Random from 'meteor-random';
+import mongoose from 'mongoose';
+import strip from 'strip';
+import Random from 'meteor-random';
 import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
 

@@ -123,7 +123,7 @@ module.exports = (env, args) => {
           './src/modules/common/components/WithPermission'
         )
       },
-      extensions: ['*', '.js', '.jsx', '.ts', '.tsx']
+      extensions: ['.css', '.js', '.jsx', '.ts', '.tsx']
     },
 
     plugins: [

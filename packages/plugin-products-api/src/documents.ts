@@ -1,5 +1,5 @@
 import { dateToShortStr } from '@erxes/api-utils/src/core';
-import * as moment from 'moment';
+import moment from 'moment';
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import {

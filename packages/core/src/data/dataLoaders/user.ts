@@ -1,6 +1,6 @@
-import * as DataLoader from 'dataloader';
+import DataLoader from 'dataloader';
 import { IModels } from '../../connectionResolver';
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 export default function generateDataLoaderTag(models: IModels) {

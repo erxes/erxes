@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { isEnabled, sendDesktopNotification } from '@erxes/ui/src/utils/core';
 import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { IAttachment } from '@erxes/ui/src/types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import Modal from '../../../components/conversationDetail/workarea/responseTemplate/Modal';

@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import redis from '@erxes/api-utils/src/redis';
@@ -14,7 +14,7 @@ import {
   sendCardsMessage
 } from './messageBroker';
 
-import * as admin from 'firebase-admin';
+import admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
 
 export const getConfig = async (

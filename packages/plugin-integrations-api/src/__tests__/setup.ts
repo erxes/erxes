@@ -1,5 +1,5 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import { connectionOptions } from '../connection';
 
 // May require additional time for downloading MongoDB binaries

@@ -7,7 +7,7 @@ import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
 import cronjobs from './cronjobs/engages';
-import * as permissions from './permissions';
+import permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 

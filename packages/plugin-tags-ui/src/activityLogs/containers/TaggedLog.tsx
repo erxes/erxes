@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';

@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 import { IColumnLabel } from '.';
 
 export const getCustomFieldsData = async (getField, item, column, type) => {

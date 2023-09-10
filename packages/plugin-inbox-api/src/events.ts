@@ -1,5 +1,5 @@
 import { client, getIndexPrefix } from '@erxes/api-utils/src/elasticsearch';
-import * as getUuid from 'uuid-by-string';
+import getUuid from 'uuid-by-string';
 import { debug } from './configs';
 import {
   sendAutomationsMessage,

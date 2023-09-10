@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as fs from 'fs';
+import path from 'path';
+import fs from 'fs';
 
 import downloadPlugins from './downloadPlugins';
 
@@ -7,17 +7,23 @@ function getFilesFullPaths(
   dir: string,
   pred: (filename: string) => boolean
 ): string[] {
-  if (!fs.existsSync(dir)) { return []; }
+  if (!fs.existsSync(dir)) {
+    return [];
+  }
 
   return fs
     .readdirSync(dir)
     .map(fileName => {
-      if (!pred(fileName)) { return ''; }
+      if (!pred(fileName)) {
+        return '';
+      }
 
       const fullName = path.join(dir, fileName);
       const stat = fs.lstatSync(fullName);
 
-      if (stat.isDirectory()) { return ''; }
+      if (stat.isDirectory()) {
+        return '';
+      }
 
       return fullName;
     })

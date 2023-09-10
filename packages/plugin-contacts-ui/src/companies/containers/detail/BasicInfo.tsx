@@ -1,6 +1,6 @@
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../../graphql';
 import ActionSection from '@erxes/ui-contacts/src/customers/components/common/ActionSection';

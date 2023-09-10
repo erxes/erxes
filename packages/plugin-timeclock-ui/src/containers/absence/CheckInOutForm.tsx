@@ -6,7 +6,7 @@ import {
   TimeLogsPerUserQueryResponse
 } from '../../types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
 import { mutations, queries } from '../../graphql';

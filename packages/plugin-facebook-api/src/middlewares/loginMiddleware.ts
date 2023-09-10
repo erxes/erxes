@@ -1,4 +1,4 @@
-import * as graph from 'fbgraph';
+import graph from 'fbgraph';
 
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from '../connectionResolver';

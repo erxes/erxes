@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { mutations, queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';

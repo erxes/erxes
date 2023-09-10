@@ -1,5 +1,5 @@
-import * as moment from 'moment';
-import * as _ from 'underscore';
+import moment from 'moment';
+import _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { sendFormsMessage, sendInboxMessage } from '../messageBroker';
 import { CommonBuilder } from './utils';

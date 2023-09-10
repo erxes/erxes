@@ -1,5 +1,5 @@
-import * as strip from 'strip';
-import * as _ from 'underscore';
+import strip from 'strip';
+import _ from 'underscore';
 
 import {
   checkPermission,

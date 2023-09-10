@@ -56,16 +56,16 @@ module.exports.devCmd = async program => {
     {
       name: 'coreui',
       cwd: filePath('../packages/core-ui/'),
-      script: 'yarn',
-      args: 'start',
+      script: 'bun',
+      args: 'run start',
       ...commonOptions,
       ignore_watch: ['node_modules']
     },
     {
       name: 'core',
       cwd: filePath('../packages/core/'),
-      script: 'yarn',
-      args: 'dev',
+      script: 'bun',
+      args: 'run dev',
       ...commonOptions,
       ignore_watch: ['node_modules'],
       env: {
@@ -92,13 +92,13 @@ module.exports.devCmd = async program => {
   );
 
   await execCommand(
-    `cd ${filePath(`../packages/core-ui`)} && yarn generate-doterxes`
+    `cd ${filePath(`../packages/core-ui`)} && bun run generate-doterxes`
   );
 
   if (configs.widgets) {
     if (program.deps) {
       log('Installing dependencies in widgets .........');
-      await execCommand(`cd ${filePath(`../widgets`)} && yarn install`);
+      await execCommand(`cd ${filePath(`../widgets`)} && bun install`);
     }
 
     await fse.writeFile(
@@ -114,8 +114,8 @@ module.exports.devCmd = async program => {
     apps.push({
       name: 'widgets',
       cwd: filePath(`../widgets`),
-      script: 'yarn',
-      args: 'dev',
+      script: 'bun',
+      args: 'run dev',
       ...commonOptions,
       ignore_watch: ['node_modules']
     });
@@ -132,7 +132,7 @@ module.exports.devCmd = async program => {
         await execCommand(
           `cd ${filePath(
             `../packages/plugin-${plugin.name}-ui`
-          )} && yarn install-deps`
+          )} && bun run install-deps`
         );
       }
 
@@ -162,8 +162,8 @@ module.exports.devCmd = async program => {
         apps.push({
           name: `${plugin.name}-ui`,
           cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
-          script: 'yarn',
-          args: 'start',
+          script: 'bun',
+          args: 'run start',
           ...commonOptions,
           ignore_watch: ['node_modules']
         });
@@ -173,8 +173,8 @@ module.exports.devCmd = async program => {
     apps.push({
       name: `${plugin.name}-api`,
       cwd: filePath(`../packages/plugin-${plugin.name}-api`),
-      script: 'yarn',
-      args: 'dev',
+      script: 'bun',
+      args: 'run dev',
       ...commonOptions,
       ignore_watch: ['node_modules'],
       env: {
@@ -189,8 +189,8 @@ module.exports.devCmd = async program => {
     apps.push({
       name: 'workers',
       cwd: filePath(`../packages/workers`),
-      script: 'yarn',
-      args: 'dev',
+      script: 'bun',
+      args: 'run dev',
       ...commonOptions,
       ignore_watch: ['node_modules'],
       env: {
@@ -203,14 +203,14 @@ module.exports.devCmd = async program => {
 
   if (configs.dashboard) {
     await execCommand(
-      `cd ${filePath(`../packages/dashboard`)} && yarn install`
+      `cd ${filePath(`../packages/dashboard`)} && bun install`
     );
 
     apps.push({
       name: 'dashboard',
       cwd: filePath(`../packages/dashboard`),
-      script: 'yarn',
-      args: 'dev',
+      script: 'bun',
+      args: 'run dev',
       ...commonOptions,
       ignore_watch: ['node_modules'],
       env: {
@@ -224,8 +224,8 @@ module.exports.devCmd = async program => {
   apps.push({
     name: 'gateway',
     cwd: filePath(`../packages/gateway`),
-    script: 'yarn',
-    args: 'dev',
+    script: 'bun',
+    args: 'run dev',
     ...commonOptions,
     ignore_watch: ['node_modules'],
     env: {
@@ -260,7 +260,7 @@ module.exports.devCmd = async program => {
       log(`Installing dependencies in core-ui .........`);
 
       await execCommand(
-        `cd ${filePath(`../packages/core-ui`)} && yarn install`
+        `cd ${filePath(`../packages/core-ui`)} && bun install`
       );
     }
 

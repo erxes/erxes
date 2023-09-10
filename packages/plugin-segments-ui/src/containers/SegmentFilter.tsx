@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { CountQueryResponse } from '@erxes/ui/src/team/types';
 import React from 'react';

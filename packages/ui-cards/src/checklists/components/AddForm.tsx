@@ -4,7 +4,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import * as React from 'react';
+import React from 'react';
 
 type IProps = {
   itemId: string;

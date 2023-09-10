@@ -1,14 +1,13 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import * as dotenv from 'dotenv';
-dotenv.config()
+import dotenv from 'dotenv';
+dotenv.config();
 
-
-import { generateModels } from "../connectionResolver";
+import { generateModels } from '../connectionResolver';
 
 const widgetsMiddleware = async (req, res) => {
   const { WIDGETS_DOMAIN } = process.env;
 
-  const domain = WIDGETS_DOMAIN || 'http://localhost:3200'
+  const domain = WIDGETS_DOMAIN || 'http://localhost:3200';
 
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);

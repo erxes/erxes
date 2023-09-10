@@ -1,5 +1,5 @@
-import * as dotenv from 'dotenv';
-import * as Random from 'meteor-random';
+import dotenv from 'dotenv';
+import Random from 'meteor-random';
 
 import { IAttachment } from '@erxes/api-utils/src/types';
 import { ICustomer } from './types';

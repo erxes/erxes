@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { CAMPAIGN_STATUS, LOTTERY_STATUS } from './definitions/constants';
 import { Model, model } from 'mongoose';
 import { getRandomNumber, randomBetween, validCampaign } from './utils';

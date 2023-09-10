@@ -1,4 +1,4 @@
-import * as crypto from 'crypto';
+import crypto from 'crypto';
 import { getEnv } from './core';
 import { URL } from 'url';
 

@@ -4,7 +4,7 @@ import { initBroker } from './messageBroker';
 
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import * as permissions from './permissions';
+import permissions from './permissions';
 import tags from './tags';
 export let mainDb;
 export let graphqlPubsub;

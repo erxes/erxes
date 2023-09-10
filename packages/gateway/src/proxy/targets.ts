@@ -1,7 +1,7 @@
 import { getService, getServices } from '../redis';
 import retry from '../util/retry';
 import fetch from 'node-fetch';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config();
 
 export type ErxesProxyTarget = {

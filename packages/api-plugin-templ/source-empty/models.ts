@@ -1,6 +1,6 @@
 import { model } from 'mongoose';
 import { Schema } from 'mongoose';
-import * as _ from 'underscore';
+import _ from 'underscore';
 
 export const {name}Schema = new Schema({
   name: String

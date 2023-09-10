@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import Random from 'meteor-random';
 
 /*
  * Mongoose field options wrapper

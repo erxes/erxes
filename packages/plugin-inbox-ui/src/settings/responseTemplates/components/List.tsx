@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';

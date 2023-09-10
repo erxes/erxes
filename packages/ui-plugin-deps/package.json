@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@apollo/client": "~3.7.14",
-    "@nateradebaugh/react-datetime": "4.0.0-rc.10",
+    "@nateradebaugh/react-datetime": "^4.6.0",
     "@types/styled-components": "^3.0.0",
     "ckeditor4-react": "1.1.0",
     "color": "^4.1.0",

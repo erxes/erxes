@@ -1,13 +1,13 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import {
   IConfigDocument,
-  INotificationDocument,
+  INotificationDocument
 } from './models/definitions/notifications';
 import {
   IConfigModel,
   INotificationModel,
   loadNotificationClass,
-  loadNotificationConfigClass,
+  loadNotificationConfigClass
 } from './models/Notifications';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -41,4 +41,7 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses);
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);

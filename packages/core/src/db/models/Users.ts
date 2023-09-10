@@ -2,11 +2,11 @@ import redis from '@erxes/api-utils/src/redis';
 import { ILink } from '@erxes/api-utils/src/types';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
-import * as bcrypt from 'bcryptjs';
-import * as crypto from 'crypto';
-import * as jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
-import * as sha256 from 'sha256';
+import sha256 from 'sha256';
 import { IModels } from '../../connectionResolver';
 import { userActionsMap } from '@erxes/api-utils/src/core';
 import { set } from '../../inmemoryStorage';

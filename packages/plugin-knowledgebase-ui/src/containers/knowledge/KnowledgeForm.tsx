@@ -1,6 +1,6 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';

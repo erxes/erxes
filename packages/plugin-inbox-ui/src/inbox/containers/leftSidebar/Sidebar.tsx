@@ -1,6 +1,6 @@
 import { AppConsumer } from 'coreui/appContext';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { IBulkContentProps } from '@erxes/ui/src/components/Bulk';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';

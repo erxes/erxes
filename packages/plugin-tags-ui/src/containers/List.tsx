@@ -1,5 +1,5 @@
 import { __ } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {

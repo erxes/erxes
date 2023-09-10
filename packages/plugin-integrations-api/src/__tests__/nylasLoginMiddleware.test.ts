@@ -1,8 +1,8 @@
-import * as querystring from 'querystring';
-import * as sinon from 'sinon';
-import * as debuggers from '../debuggers';
+import querystring from 'querystring';
+import sinon from 'sinon';
+import debuggers from '../debuggers';
 import { initMemoryStorage } from '../inmemoryStorage';
-import * as api from '../nylas/api';
+import api from '../nylas/api';
 import {
   AUTHORIZED_CALENDAR_REDIRECT_URL,
   AUTHORIZED_REDIRECT_URL,
@@ -12,8 +12,8 @@ import {
   GOOGLE_OAUTH_AUTH_URL
 } from '../nylas/constants';
 import getOAuthCredentials from '../nylas/loginMiddleware';
-import * as nylasUtils from '../nylas/utils';
-import * as utils from '../utils';
+import nylasUtils from '../nylas/utils';
+import utils from '../utils';
 import './setup.ts';
 
 initMemoryStorage();

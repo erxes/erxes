@@ -18,7 +18,7 @@ import { AddForm } from '../../containers/portable';
 import { IItem, IOptions } from '../../types';
 import Table from '@erxes/ui/src/components/table';
 import ListItemRow from './ListItemRow';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import routerUtils from '@erxes/ui/src/utils/router';
 import Item from './Item';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';

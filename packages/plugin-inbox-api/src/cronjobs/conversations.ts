@@ -1,5 +1,5 @@
-import * as moment from 'moment';
-import * as _ from 'underscore';
+import moment from 'moment';
+import _ from 'underscore';
 import { generateModels } from '../connectionResolver';
 import {
   sendAutomationsMessage,

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IIntegration } from '../../types';

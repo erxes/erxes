@@ -1,4 +1,4 @@
-import * as bodyParser from 'body-parser';
+import bodyParser from 'body-parser';
 
 import initCallPro from './callpro/controller';
 import { debugIntegrations, debugRequest } from './debuggers';

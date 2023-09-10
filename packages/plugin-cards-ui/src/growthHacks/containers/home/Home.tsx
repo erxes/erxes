@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { queries } from '@erxes/ui-cards/src/boards/graphql';
 import { BoardCountsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import Spinner from '@erxes/ui/src/components/Spinner';

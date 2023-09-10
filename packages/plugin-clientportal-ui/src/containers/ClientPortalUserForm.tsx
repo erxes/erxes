@@ -6,7 +6,7 @@ import {
   IRouterProps
 } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 

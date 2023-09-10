@@ -2,7 +2,7 @@ import { sendRequest } from '@erxes/api-utils/src';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IAttachment } from '@erxes/api-utils/src/types';
-import * as randomize from 'randomatic';
+import randomize from 'randomatic';
 
 import { tokenHandler } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
@@ -12,7 +12,7 @@ import { IUser } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
 import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../models/utils';
 
 export interface IVerificationParams {

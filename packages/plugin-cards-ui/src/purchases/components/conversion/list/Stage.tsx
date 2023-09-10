@@ -1,6 +1,6 @@
 import { IConversionStagePurchase } from '@erxes/ui-cards/src/boards/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import * as React from 'react';
+import React from 'react';
 import {
   Content,
   Lost,

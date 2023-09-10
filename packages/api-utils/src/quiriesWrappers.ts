@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import redis from './redis';
 
 export const afterQueryWrapper = async (

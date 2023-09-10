@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { PageHeader } from '../styles/header';
 import { getDefaultBoardAndPipelines } from '../utils';
 import Spinner from '@erxes/ui/src/components/Spinner';

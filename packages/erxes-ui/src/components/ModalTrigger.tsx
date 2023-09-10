@@ -1,4 +1,4 @@
-import * as routerUtils from '../utils/router';
+import routerUtils from '../utils/router';
 
 import { CloseModal } from '../styles/main';
 import { IRouterProps } from '../types';

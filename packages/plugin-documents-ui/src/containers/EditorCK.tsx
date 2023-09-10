@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { IEditorProps } from '@erxes/ui/src/types';

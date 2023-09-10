@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import fs from 'fs';
 
 const isSameFile = (path1: string, path2: string): boolean => {
   const file1 = fs.readFileSync(path1);

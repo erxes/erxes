@@ -1,11 +1,11 @@
-import * as serverTiming from 'server-timing';
+import serverTiming from 'server-timing';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import logs from './logUtils';
-import * as permissions from './permissions';
+import permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
 

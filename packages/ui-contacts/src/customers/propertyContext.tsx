@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { IField } from '@erxes/ui/src/types';
 import { IFieldsVisibility } from './types';

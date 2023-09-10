@@ -1,10 +1,10 @@
 import { getEnv } from '@erxes/api-utils/src';
-import * as formidable from 'formidable';
-import * as request from 'request';
+import formidable from 'formidable';
+import request from 'request';
 import { generateModels } from '../connectionResolver';
-import * as _ from 'underscore';
-import * as fileType from 'file-type';
-import * as fs from 'fs';
+import _ from 'underscore';
+import fileType from 'file-type';
+import fs from 'fs';
 import { filterXSS } from 'xss';
 
 import { checkFile, isImage, resizeImage, uploadFile } from '../data/utils';

@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { IModels } from '../connectionResolver';
 
 import { IConformityQueryParams } from './customers';

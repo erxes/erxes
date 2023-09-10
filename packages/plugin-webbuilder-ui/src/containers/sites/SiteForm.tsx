@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { IRouterProps } from '@erxes/ui/src/types';
 import { PagesMainQueryResponse } from '../../types';

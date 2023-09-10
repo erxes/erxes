@@ -1,5 +1,5 @@
 import { redis } from '../serviceDiscovery';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import { initBroker } from '../messageBroker';
 const { MONGO_URL = '' } = process.env;
 

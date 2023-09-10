@@ -1,6 +1,6 @@
-import * as cookieParser from 'cookie-parser';
-import * as dotenv from 'dotenv';
-import * as express from 'express';
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+import express from 'express';
 import { createServer } from 'http';
 import { filterXSS } from 'xss';
 import { connect } from './db/connection';
@@ -8,7 +8,7 @@ import { connect } from './db/connection';
 import { initApolloServer } from './apolloClient';
 import { initBroker } from './messageBroker';
 import { join, leave, redis } from './serviceDiscovery';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { generateErrors } from './data/modules/import/generateErrors';
 import { getSubdomain } from '@erxes/api-utils/src/core';

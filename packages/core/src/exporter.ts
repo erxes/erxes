@@ -6,7 +6,7 @@ const IMPORT_EXPORT_TYPES = [
   }
 ];
 
-import * as moment from 'moment';
+import moment from 'moment';
 import { generateModels, IModels } from './connectionResolver';
 import { IUserDocument } from './db/models/definitions/users';
 import { fetchSegment, sendFormsMessage } from './messageBroker';

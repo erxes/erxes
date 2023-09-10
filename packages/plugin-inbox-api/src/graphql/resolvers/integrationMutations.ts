@@ -1,4 +1,4 @@
-import * as telemetry from 'erxes-telemetry';
+import telemetry from 'erxes-telemetry';
 
 import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';

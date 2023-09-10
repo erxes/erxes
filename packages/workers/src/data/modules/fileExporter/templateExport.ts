@@ -1,5 +1,5 @@
-import * as xlsxPopulate from 'xlsx-populate';
-import * as json2csv from 'json2csv';
+import xlsxPopulate from 'xlsx-populate';
+import json2csv from 'json2csv';
 
 export const createXlsFile = async () => {
   // Generating blank workbook

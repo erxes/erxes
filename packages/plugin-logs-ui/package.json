@@ -2,13 +2,13 @@
   "name": "@erxes/plugin-logs-ui",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && yarn install",
+    "install-deps": "cd .erxes && bun install",
     "start": "cd .erxes && yarn start",
     "build": "cd .erxes && yarn build"
   },
   "dependencies": {
     "@apollo/client": "~3.7.14",
-    "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
+    "@nateradebaugh/react-datetime": "^4.6.0",
     "dayjs": "^1.8.15",
     "lodash": "^4.17.15",
     "lodash.flowright": "^3.5.0",

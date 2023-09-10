@@ -1,11 +1,11 @@
-import * as qs from 'querystring';
-import * as sinon from 'sinon';
-import * as debuggers from '../debuggers';
+import qs from 'querystring';
+import sinon from 'sinon';
+import debuggers from '../debuggers';
 import { accountFactory } from '../factories';
-import * as api from '../gmail/api';
+import api from '../gmail/api';
 import { GOOGLE_AUTH_CODE } from '../gmail/constant';
 import loginMiddleware from '../gmail/loginMiddleware';
-import * as gmailUtils from '../gmail/utils';
+import gmailUtils from '../gmail/utils';
 import { Accounts } from '../models';
 import './setup.ts';
 

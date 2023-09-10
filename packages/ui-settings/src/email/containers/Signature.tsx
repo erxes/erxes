@@ -1,6 +1,6 @@
 import { AppConsumer } from '@erxes/ui/src/appContext';
-import * as compose from 'lodash.flowright';
-import * as queries from '@erxes/ui/src/auth/graphql';
+import compose from 'lodash.flowright';
+import queries from '@erxes/ui/src/auth/graphql';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';

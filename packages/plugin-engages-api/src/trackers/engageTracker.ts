@@ -1,4 +1,4 @@
-import * as AWS from 'aws-sdk';
+import AWS from 'aws-sdk';
 
 import { debugBase } from '../debuggers';
 import messageBroker, { sendContactsMessage } from '../messageBroker';

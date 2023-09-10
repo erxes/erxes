@@ -1,5 +1,5 @@
-import * as AWS from 'aws-sdk';
-import * as nodemailer from 'nodemailer';
+import AWS from 'aws-sdk';
+import nodemailer from 'nodemailer';
 
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 

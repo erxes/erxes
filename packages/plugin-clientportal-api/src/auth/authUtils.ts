@@ -1,4 +1,4 @@
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { IClientPortal } from '../models/definitions/clientPortal';
 import { IUserDocument } from '../models/definitions/clientPortalUser';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';

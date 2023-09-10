@@ -1,5 +1,4 @@
-
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -16,7 +15,6 @@ const client = new MongoClient(MONGO_URL);
 let db: Db;
 
 let FieldGroups: Collection<any>;
-
 
 const command = async () => {
   await client.connect();

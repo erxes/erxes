@@ -1,7 +1,7 @@
 import { generateAttachmentUrl } from '@erxes/api-utils/src/core';
-import * as dotenv from 'dotenv';
-import * as request from 'request-promise';
-import * as sanitizeHtml from 'sanitize-html';
+import dotenv from 'dotenv';
+import request from 'request-promise';
+import sanitizeHtml from 'sanitize-html';
 import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
 import { get, set } from './inmemoryStorage';

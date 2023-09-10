@@ -1,5 +1,5 @@
-import * as dotenv from 'dotenv';
-import * as mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 
 dotenv.config();
 

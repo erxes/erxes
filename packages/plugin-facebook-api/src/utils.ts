@@ -1,8 +1,8 @@
-import * as graph from 'fbgraph';
+import graph from 'fbgraph';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
-import * as AWS from 'aws-sdk';
-import * as request from 'request';
-import * as fs from 'fs';
+import AWS from 'aws-sdk';
+import request from 'request';
+import fs from 'fs';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugError, debugFacebook } from './debuggers';

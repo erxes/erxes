@@ -1,4 +1,4 @@
-import * as momentTz from 'moment-timezone';
+import momentTz from 'moment-timezone';
 
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 

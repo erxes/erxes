@@ -12,7 +12,7 @@ import { getService, getServices } from '../../../serviceDiscovery';
 import { sendCommonMessage } from '../../../messageBroker';
 import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
 
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import { IContext } from '../../../connectionResolver';
 dotenv.config();
 

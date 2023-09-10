@@ -1,4 +1,4 @@
-import * as json2csv from 'json2csv';
+import json2csv from 'json2csv';
 import { generateModels } from '../../../connectionResolvers';
 
 export const generateErrors = async (args: any, subdomain) => {

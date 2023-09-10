@@ -1,6 +1,6 @@
-import * as DataLoader from 'dataloader';
+import DataLoader from 'dataloader';
 import { IModels } from '../../connectionResolver';
-import * as _ from 'underscore';
+import _ from 'underscore';
 import user from './user';
 
 export interface IDataLoaders {

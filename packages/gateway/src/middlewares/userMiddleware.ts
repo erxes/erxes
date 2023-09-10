@@ -1,6 +1,6 @@
 // @ts-ignore
-import * as telemetry from 'erxes-telemetry';
-import * as jwt from 'jsonwebtoken';
+import telemetry from 'erxes-telemetry';
+import jwt from 'jsonwebtoken';
 // @ts-ignore
 import { sendRequest } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';

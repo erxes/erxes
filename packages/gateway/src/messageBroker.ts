@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();

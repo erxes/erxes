@@ -23,7 +23,7 @@ import Popover from 'react-bootstrap/Popover';
 import { PopoverButton } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
 import { dateFormat } from '../../constants';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import {
   compareStartAndEndTimeOfSingleDate,
   prepareCurrentUserOption

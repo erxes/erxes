@@ -1,6 +1,6 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { sendRPCMessage } from '../../messageBroker';
 import { generateModels } from '../../connectionResolvers';
 import { connect } from '../utils';

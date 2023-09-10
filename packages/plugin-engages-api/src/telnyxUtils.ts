@@ -1,5 +1,5 @@
-import * as dotenv from 'dotenv';
-import * as Telnyx from 'telnyx';
+import dotenv from 'dotenv';
+import Telnyx from 'telnyx';
 import { IModels } from './connectionResolver';
 
 import { SMS_DELIVERY_STATUSES } from './constants';
@@ -60,7 +60,10 @@ export const saveTelnyxHookData = async (models: IModels, data: any) => {
   }
 };
 
-export const prepareSmsStats = async (models: IModels, engageMessageId: string) => {
+export const prepareSmsStats = async (
+  models: IModels,
+  engageMessageId: string
+) => {
   const stats = await models.SmsRequests.aggregate([
     { $match: { engageMessageId } },
     { $group: { _id: '$status', count: { $sum: 1 } } }
@@ -102,7 +105,7 @@ export const prepareMessage = async ({
     from: integration.telnyxPhoneNumber,
     to,
     text: content,
-    messaging_profile_id: integration.telnyxProfileId || '',
+    messaging_profile_id: integration.telnyxProfileId || ''
     // webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
     // webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`
   };

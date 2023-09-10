@@ -1,6 +1,6 @@
 import { generateModels, IModels } from './connectionResolver';
 import { sendFormsMessage, sendTagsMessage } from './messageBroker';
-import * as moment from 'moment';
+import moment from 'moment';
 
 const prepareData = async (
   models: IModels,

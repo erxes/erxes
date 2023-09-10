@@ -6,6 +6,7 @@ const request = require('request');
 const fse = require('fs-extra');
 const { resolve } = require('path');
 const exec = require('child_process').exec;
+const { execSync } = require('child_process');
 const colors = require('colors');
 
 const filePath = pathName => {
@@ -66,22 +67,7 @@ function downloadFile(file_url, targetPath) {
 }
 
 const execCommand = (command, ignoreError) => {
-  return new Promise((resolve, reject) => {
-    exec(command, { maxBuffer: 1024 * 1000 }, (error, stdout, stderr) => {
-      if (error !== null) {
-        if (ignoreError) {
-          return resolve('done');
-        }
-
-        return reject(error);
-      }
-
-      console.log(stdout);
-      console.log(stderr);
-
-      return resolve('done');
-    });
-  });
+  return execSync(command, { stdio: 'inherit' });
 };
 
 const execCurl = (url, output) => {

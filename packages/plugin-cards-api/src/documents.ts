@@ -5,7 +5,7 @@ import {
   sendProductsMessage,
   sendFormsMessage
 } from './messageBroker';
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);

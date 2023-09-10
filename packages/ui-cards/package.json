@@ -7,7 +7,7 @@
     "@fullcalendar/interaction": "^5.11.3",
     "@fullcalendar/react": "^5.11.2",
     "@fullcalendar/resource-timeline": "^5.11.2",
-    "@nateradebaugh/react-datetime": "4.0.0-rc.10",
+    "@nateradebaugh/react-datetime": "^4.6.0",
     "dayjs": "1.8.15",
     "interactjs": "^1.10.17",
     "lodash": "^4.17.15",

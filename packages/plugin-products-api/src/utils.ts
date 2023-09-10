@@ -1,6 +1,6 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { ICustomField } from '@erxes/api-utils/src/types';
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { debug } from './configs';
 import { IModels } from './connectionResolver';
 import {

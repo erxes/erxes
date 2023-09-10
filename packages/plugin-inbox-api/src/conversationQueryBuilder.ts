@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
 import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import Tip from '@erxes/ui/src/components/Tip';
-import * as React from 'react';
+import React from 'react';
 import { DateTime } from './styles';
 
 type Props = {

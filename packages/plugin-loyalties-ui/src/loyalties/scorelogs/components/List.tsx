@@ -14,7 +14,7 @@ import { withRouter, Link } from 'react-router-dom';
 import { menuLoyalties } from '../../common/constants';
 import Sidebar from '../components/Sidebar';
 import { IScoreLogParams } from '../types';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import ScoreFormContainer from '../containers/Form';
 import { Title } from '@erxes/ui/src/styles/main';
 

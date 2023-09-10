@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 

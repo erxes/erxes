@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import {
   putCreateLog as commonPutCreateLog,
   putDeleteLog as commonPutDeleteLog,

@@ -1,5 +1,5 @@
-import * as Nylas from 'nylas';
-import * as sinon from 'sinon';
+import Nylas from 'nylas';
+import sinon from 'sinon';
 import {
   configFactory,
   integrationFactory,
@@ -7,14 +7,14 @@ import {
   nylasGmailConversationMessageFactory,
   nylasGmailCustomerFactory
 } from '../factories';
-import * as gmailUtils from '../gmail/utils';
+import gmailUtils from '../gmail/utils';
 import { extractEmailFromString } from '../gmail/utils';
 import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
-import * as messageBroker from '../messageBroker';
+import messageBroker from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import Configs from '../models/Configs';
-import * as api from '../nylas/api';
-import * as auth from '../nylas/auth';
+import api from '../nylas/api';
+import auth from '../nylas/auth';
 import {
   GOOGLE_GMAIL_SCOPES,
   GOOGLE_OAUTH_ACCESS_TOKEN_URL,
@@ -28,11 +28,11 @@ import {
   NylasGmailConversations,
   NylasGmailCustomers
 } from '../nylas/models';
-import * as store from '../nylas/store';
-import * as tracker from '../nylas/tracker';
-import * as nylasUtils from '../nylas/utils';
+import store from '../nylas/store';
+import tracker from '../nylas/tracker';
+import nylasUtils from '../nylas/utils';
 import { buildEmailAddress } from '../nylas/utils';
-import * as utils from '../utils';
+import utils from '../utils';
 import { cleanHtml } from '../utils';
 import './setup.ts';
 

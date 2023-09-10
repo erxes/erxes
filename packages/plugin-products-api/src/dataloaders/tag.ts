@@ -1,5 +1,5 @@
-import * as DataLoader from 'dataloader';
-import * as _ from 'underscore';
+import DataLoader from 'dataloader';
+import _ from 'underscore';
 import { sendTagsMessage } from '../messageBroker';
 
 export default function generateDataLoaderTag(subdomain) {

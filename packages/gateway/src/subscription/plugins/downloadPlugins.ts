@@ -1,6 +1,6 @@
-import * as path from 'path';
-import * as fs from 'fs';
-import * as Downloader from 'nodejs-file-downloader';
+import path from 'path';
+import fs from 'fs';
+import Downloader from 'nodejs-file-downloader';
 import { getService, getServices } from '../../redis';
 
 export default async function downloadPlugins(): Promise<void> {

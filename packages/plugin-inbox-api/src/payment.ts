@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export default {
   callback: async ({ subdomain, data }) => {

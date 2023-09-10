@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 
 import { IListArgs } from './conversationQueryBuilder';

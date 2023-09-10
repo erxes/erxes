@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
-import * as jwt from 'jsonwebtoken';
-import * as dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 import { IModels } from '../../connectionResolver';
 import { appSchema, IAppDocument, IApp } from './definitions/apps';

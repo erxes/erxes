@@ -1,10 +1,10 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config();
 
 import { spawn, spawnSync, ChildProcess } from 'child_process';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as yaml from 'yaml';
+import path from 'path';
+import fs from 'fs';
+import yaml from 'yaml';
 import { ErxesProxyTarget } from 'src/proxy/targets';
 import {
   dirTempPath,
@@ -13,7 +13,7 @@ import {
   supergraphPath
 } from './paths';
 import supergraphCompose from './supergraph-compose';
-// import * as getPort from 'get-port';
+// import getPort from 'get-port';
 
 const {
   DOMAIN,

@@ -13,7 +13,7 @@ import {
   FilterWrapper
 } from '@erxes/ui-settings/src/permissions/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { ILog } from '../types';
 import LogRow from './LogRow';

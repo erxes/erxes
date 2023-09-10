@@ -8,8 +8,8 @@ import {
 import { EMAIL_RECIPIENTS_TYPES } from '../constants';
 import { serviceDiscovery } from '../configs';
 import { getEnv } from '../utils';
-import * as AWS from 'aws-sdk';
-import * as nodemailer from 'nodemailer';
+import AWS from 'aws-sdk';
+import nodemailer from 'nodemailer';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 

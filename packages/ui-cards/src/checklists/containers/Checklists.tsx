@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { IItemParams } from '../../boards/types';
 import { withProps } from '@erxes/ui/src/utils';
 import React, { useEffect } from 'react';

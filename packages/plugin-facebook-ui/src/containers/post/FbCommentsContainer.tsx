@@ -1,7 +1,7 @@
-import * as React from 'react';
+import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';

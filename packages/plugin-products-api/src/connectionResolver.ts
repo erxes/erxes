@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IProductCategoryModel,

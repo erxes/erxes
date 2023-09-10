@@ -1,17 +1,17 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import {
   accountFactory,
   integrationFactory,
   nylasCalendarFactory,
   nylasEventFactory
 } from '../factories';
-import * as gmailApi from '../gmail/api';
+import gmailApi from '../gmail/api';
 import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
-import * as messageBroker from '../messageBroker';
+import messageBroker from '../messageBroker';
 import { Integrations } from '../models';
 import Accounts, { IAccount } from '../models/Accounts';
-import * as api from '../nylas/api';
-import * as auth from '../nylas/auth';
+import api from '../nylas/api';
+import auth from '../nylas/auth';
 import {
   createNylasIntegration,
   getMessage,
@@ -43,8 +43,8 @@ import {
   NylasGmailConversationMessages,
   NylasPages
 } from '../nylas/models';
-import * as nylasUtils from '../nylas/utils';
-import * as utils from '../utils';
+import nylasUtils from '../nylas/utils';
+import utils from '../utils';
 import './setup.ts';
 
 initMemoryStorage();

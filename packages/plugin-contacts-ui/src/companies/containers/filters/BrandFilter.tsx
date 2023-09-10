@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import BrandFilter from '@erxes/ui/src/brands/components/BrandFilter';
 import { queries } from '@erxes/ui/src/brands/graphql';
 import React from 'react';

@@ -1,4 +1,4 @@
-import * as strip from 'strip';
+import strip from 'strip';
 
 import {
   CONVERSATION_OPERATOR_STATUS,

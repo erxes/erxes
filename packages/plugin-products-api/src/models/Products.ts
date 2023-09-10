@@ -1,6 +1,6 @@
 import { ICustomField } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { IModels } from '../connectionResolver';
 import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
 import {

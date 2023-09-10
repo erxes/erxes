@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import Random from 'meteor-random';
 import { Model } from 'mongoose';
 import { IModels } from '../../connectionResolver';
 import { brandSchema, IBrand, IBrandDocument } from './definitions/brands';

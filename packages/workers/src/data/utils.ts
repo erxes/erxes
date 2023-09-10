@@ -1,12 +1,12 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as AWS from 'aws-sdk';
-import * as readline from 'readline';
+import fs from 'fs';
+import path from 'path';
+import AWS from 'aws-sdk';
+import readline from 'readline';
 import csvParser = require('csv-parser');
 import utils from '@erxes/api-utils/src';
 import { getFileUploadConfigs } from '../messageBroker';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
-import * as Downloader from 'nodejs-file-downloader';
+import Downloader from 'nodejs-file-downloader';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 

@@ -1,5 +1,5 @@
 import watch from 'node-watch';
-import * as fse from 'fs-extra';
+import fse from 'fs-extra';
 import { resolve } from 'path';
 
 const filePath = pathName => {

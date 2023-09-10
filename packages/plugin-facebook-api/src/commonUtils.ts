@@ -1,5 +1,5 @@
-import * as dotenv from 'dotenv';
-import * as request from 'request-promise';
+import dotenv from 'dotenv';
+import request from 'request-promise';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';

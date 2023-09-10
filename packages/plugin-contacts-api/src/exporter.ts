@@ -10,7 +10,7 @@ import {
 } from './messageBroker';
 import { ICompanyDocument } from './models/definitions/companies';
 import { ICustomerDocument } from './models/definitions/customers';
-import * as moment from 'moment';
+import moment from 'moment';
 
 const prepareData = async (
   models: IModels,

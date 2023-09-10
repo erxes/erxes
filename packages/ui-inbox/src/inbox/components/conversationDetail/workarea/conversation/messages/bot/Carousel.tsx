@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { ICarouselButton, ICarouselItem } from '../../../../../../types';
 import {
   CardAction,
@@ -22,7 +22,7 @@ export default function Carousel({ items }: Props) {
 
     if (type === 'openUrl') {
       return (
-        <CardUrl target='_blank' href={url}>
+        <CardUrl target="_blank" href={url}>
           {title}
         </CardUrl>
       );

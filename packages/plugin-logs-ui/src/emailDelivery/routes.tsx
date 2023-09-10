@@ -1,6 +1,6 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { Route } from 'react-router-dom';
 
 const EmailDeliveryList = asyncComponent(() =>

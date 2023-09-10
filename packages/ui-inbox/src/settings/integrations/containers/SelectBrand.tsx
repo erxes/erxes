@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { graphql, ChildProps } from '@apollo/client/react/hoc';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';

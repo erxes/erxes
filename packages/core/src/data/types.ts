@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import { IUserDocument } from '../db/models/definitions/users';
 import { IDataLoaders } from './dataLoaders';
 
@@ -19,5 +19,5 @@ export interface IContext {
     HelpersApi: any;
   };
   dataLoaders: IDataLoaders;
-  subdomain: string
+  subdomain: string;
 }

@@ -1,4 +1,4 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { accountFactory } from '../factories';
 import {
   chunkSubstr,
@@ -11,7 +11,7 @@ import {
   parseMail
 } from '../gmail/utils';
 import { Accounts } from '../models';
-import * as utils from '../utils';
+import utils from '../utils';
 import './setup';
 
 describe('Gmail utils', async () => {

@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import _ from 'lodash';
 import Form from '../containers/Form';
 import React from 'react';

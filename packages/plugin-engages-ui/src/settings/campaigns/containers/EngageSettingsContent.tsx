@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 

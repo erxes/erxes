@@ -1,7 +1,7 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { accountFactory, integrationFactory } from '../factories';
 import { initMemoryStorage } from '../inmemoryStorage';
-import * as message from '../messageBroker';
+import message from '../messageBroker';
 import {
   ConversationMessages,
   Conversations,

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import React from 'react';

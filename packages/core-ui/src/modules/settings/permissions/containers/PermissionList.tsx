@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { Alert, confirm } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';

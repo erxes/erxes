@@ -1,4 +1,4 @@
-import * as strip from 'strip';
+import strip from 'strip';
 
 import { IModels } from './connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';

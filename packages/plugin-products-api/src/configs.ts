@@ -8,7 +8,7 @@ import logs from './logUtils';
 import tags from './tags';
 import internalNotes from './internalNotes';
 import forms from './forms';
-import * as permissions from './permissions';
+import permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import imports from './imports';
 import exporter from './exporter';

@@ -1,3 +1,3 @@
-import * as debug from 'debug';
+import debug from 'debug';
 
 export const debugWorkers = debug('erxes-workers:');

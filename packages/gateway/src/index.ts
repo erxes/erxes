@@ -1,10 +1,10 @@
 import * as Sentry from '@sentry/node';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config();
 
-import * as express from 'express';
-import * as http from 'http';
-import * as cookieParser from 'cookie-parser';
+import express from 'express';
+import http from 'http';
+import cookieParser from 'cookie-parser';
 import userMiddleware from './middlewares/userMiddleware';
 import pubsub from './subscription/pubsub';
 import {
@@ -14,7 +14,7 @@ import {
   setAfterQueries
 } from './redis';
 import { initBroker } from './messageBroker';
-import * as cors from 'cors';
+import cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
 import {
   applyProxiesCoreless,
@@ -45,7 +45,9 @@ const stopRouter = () => {
   if (!apolloRouterProcess) {
     return;
   }
-  try { apolloRouterProcess.kill('SIGKILL'); } catch (e) {}
+  try {
+    apolloRouterProcess.kill('SIGKILL');
+  } catch (e) {}
 };
 
 (async () => {
@@ -151,9 +153,7 @@ const stopRouter = () => {
     if (NODE_ENV === 'development') {
       try {
         publishRefreshEnabledServices();
-      } catch (e) {
-
-      }
+      } catch (e) {}
     }
     if (subscriptionServer) {
       try {

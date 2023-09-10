@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import React from 'react';
+import routerUtils from '@erxes/ui/src/utils/router';
 
 import {
   IButtonMutateProps,

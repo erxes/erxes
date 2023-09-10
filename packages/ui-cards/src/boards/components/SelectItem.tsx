@@ -2,7 +2,7 @@ import PriorityIndicator from './editForm/PriorityIndicator';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import colors from '@erxes/ui/src/styles/colors';
-import * as React from 'react';
+import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
 

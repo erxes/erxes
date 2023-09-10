@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import { ISegmentDocument } from './models/definitions/segments';
 import { ISegmentModel, loadClass } from './models/Segments';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
@@ -17,9 +17,15 @@ export let models: IModels | null = null;
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Segments = db.model<ISegmentDocument, ISegmentModel>('segments', loadClass(models));
+  models.Segments = db.model<ISegmentDocument, ISegmentModel>(
+    'segments',
+    loadClass(models)
+  );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses)
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);

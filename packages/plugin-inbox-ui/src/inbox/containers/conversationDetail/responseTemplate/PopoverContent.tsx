@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
 import PopoverContent from '../../../components/conversationDetail/workarea/responseTemplate/PopoverContent';
 import { IBrand } from '@erxes/ui/src/brands/types';

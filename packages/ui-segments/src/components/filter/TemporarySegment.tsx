@@ -11,7 +11,7 @@ import { withRouter } from 'react-router-dom';
 import Button from '@erxes/ui/src/components/Button';
 import styled from 'styled-components';
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import routerUtils from '@erxes/ui/src/utils/router';
 import RTG from 'react-transition-group';
 
 import client from '@erxes/ui/src/apolloClient';

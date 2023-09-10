@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import { ActivityLogQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';

@@ -1,4 +1,4 @@
-import * as elasticsearch from 'elasticsearch';
+import elasticsearch from 'elasticsearch';
 import { debugError } from './debuggers';
 
 export interface IFetchEsArgs {

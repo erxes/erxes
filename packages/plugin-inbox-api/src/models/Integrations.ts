@@ -1,4 +1,4 @@
-import * as momentTz from 'moment-timezone';
+import momentTz from 'moment-timezone';
 import { Model, Query } from 'mongoose';
 
 import { IModels } from '../connectionResolver';

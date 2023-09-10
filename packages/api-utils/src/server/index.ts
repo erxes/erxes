@@ -1,30 +1,31 @@
-import * as dotenv from 'dotenv';
+import debug from 'debug';
+import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
 
 // load environment variables
 dotenv.config({ path: '../.env' });
 
-import * as cors from 'cors';
+import cors from 'cors';
 
-import * as bodyParser from 'body-parser';
-import * as express from 'express';
+import bodyParser from 'body-parser';
+import express from 'express';
 import { filterXSS } from 'xss';
 import { buildSubgraphSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server-express';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 
-import * as http from 'http';
+import http from 'http';
 
 import { connect } from './connection';
-import { debugInfo, debugError } from './debuggers';
+// import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-import * as path from 'path';
-import * as ws from 'ws';
+import path from 'path';
+import ws from 'ws';
 
 import {
   getService,
@@ -36,7 +37,8 @@ import {
   redis
 } from '@erxes/api-utils/src/serviceDiscovery';
 
-const configs = require('../../src/configs').default;
+export let debugInfo;
+export let debugError;
 
 const {
   MONGO_URL,
@@ -75,28 +77,6 @@ app.use(Sentry.Handlers.tracingHandler());
 app.use(bodyParser.json({ limit: '15mb' }));
 app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
 
-if (configs.middlewares) {
-  for (const middleware of configs.middlewares) {
-    app.use(middleware);
-  }
-}
-
-if (configs.postHandlers) {
-  for (const handler of configs.postHandlers) {
-    if (handler.path && handler.method) {
-      app.post(handler.path, handler.method);
-    }
-  }
-}
-
-if (configs.getHandlers) {
-  for (const handler of configs.getHandlers) {
-    if (handler.path && handler.method) {
-      app.get(handler.path, handler.method);
-    }
-  }
-}
-
 app.disable('x-powered-by');
 
 app.use(cors());
@@ -107,30 +87,6 @@ app.use(cookieParser());
 app.get('/health', async (_req, res) => {
   res.end('ok');
 });
-
-if (configs.hasSubscriptions) {
-  app.get('/subscriptionPlugin.js', async (req, res) => {
-    res.sendFile(
-      path.join(__dirname, '../../src/graphql/subscriptionPlugin.js')
-    );
-  });
-}
-
-if (configs.hasDashboard) {
-  if (configs.hasDashboard) {
-    app.get('/dashboard', async (req, res) => {
-      const headers = req.rawHeaders;
-
-      const index = headers.indexOf('schemaName') + 1;
-
-      const schemaName = headers[index];
-
-      res.sendFile(
-        path.join(__dirname, `../../src/dashboardSchemas/${schemaName}.js`)
-      );
-    });
-  }
-}
 
 app.use((req: any, _res, next) => {
   req.rawBody = '';
@@ -157,7 +113,7 @@ app.use(Sentry.Handlers.errorHandler());
 const httpServer = http.createServer(app);
 
 // GRACEFULL SHUTDOWN
-process.stdin.resume(); // so the program will not close instantly
+// process.stdin.resume(); // so the program will not close instantly
 
 async function closeHttpServer() {
   try {
@@ -175,25 +131,7 @@ async function closeHttpServer() {
   }
 }
 
-async function leaveServiceDiscovery() {
-  try {
-    await leave(configs.name, PORT || '');
-    console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-// If the Node process ends, close the Mongoose connection
-(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
-  process.on(sig, async () => {
-    await closeHttpServer();
-    await leaveServiceDiscovery();
-    process.exit(0);
-  });
-});
-
-const generateApolloServer = async serviceDiscovery => {
+const generateApolloServer = async (serviceDiscovery, configs) => {
   const services = await getServices();
   debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
 
@@ -278,7 +216,74 @@ const generateApolloServer = async serviceDiscovery => {
   });
 };
 
-async function startServer() {
+export default async function startServer(configs: any) {
+  debugInfo = debug(`erxes-${configs.name}:info`);
+  debugError = debug(`erxes-${configs.name}:error`);
+
+  if (configs.hasSubscriptions) {
+    app.get('/subscriptionPlugin.js', async (req, res) => {
+      res.sendFile(
+        path.join(__dirname, '../../src/graphql/subscriptionPlugin.js')
+      );
+    });
+  }
+
+  if (configs.hasDashboard) {
+    if (configs.hasDashboard) {
+      app.get('/dashboard', async (req, res) => {
+        const headers = req.rawHeaders;
+
+        const index = headers.indexOf('schemaName') + 1;
+
+        const schemaName = headers[index];
+
+        res.sendFile(
+          path.join(__dirname, `../../src/dashboardSchemas/${schemaName}.js`)
+        );
+      });
+    }
+  }
+
+  if (configs.middlewares) {
+    for (const middleware of configs.middlewares) {
+      app.use(middleware);
+    }
+  }
+
+  if (configs.postHandlers) {
+    for (const handler of configs.postHandlers) {
+      if (handler.path && handler.method) {
+        app.post(handler.path, handler.method);
+      }
+    }
+  }
+
+  if (configs.getHandlers) {
+    for (const handler of configs.getHandlers) {
+      if (handler.path && handler.method) {
+        app.get(handler.path, handler.method);
+      }
+    }
+  }
+
+  async function leaveServiceDiscovery() {
+    try {
+      await leave(configs.name, PORT || '');
+      console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // If the Node process ends, close the Mongoose connection
+  (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+    process.on(sig, async () => {
+      await closeHttpServer();
+      await leaveServiceDiscovery();
+      process.exit(0);
+    });
+  });
+
   const serviceDiscovery = {
     getServices,
     getService,
@@ -286,7 +291,7 @@ async function startServer() {
     isEnabled
   };
 
-  const apolloServer = await generateApolloServer(serviceDiscovery);
+  const apolloServer = await generateApolloServer(serviceDiscovery, configs);
   await apolloServer.start();
 
   apolloServer.applyMiddleware({
@@ -300,7 +305,7 @@ async function startServer() {
   );
 
   if (configs.freeSubscriptions) {
-    const wsServer = new ws.Server({
+    const wsServer = new ws.WebSocketServer({
       server: httpServer,
       path: '/subscriptions'
     });
@@ -698,5 +703,3 @@ async function startServer() {
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);
 }
-
-startServer();

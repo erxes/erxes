@@ -1,4 +1,4 @@
-import * as schedule from 'node-schedule';
+import schedule from 'node-schedule';
 import { IModels } from '../connectionResolver';
 // import { debugCrons } from '../debuggers';
 import { sendCoreMessage } from '../messageBroker';
@@ -20,11 +20,7 @@ export const removeOldLogs = async (models: IModels, subdomain: string) => {
   const now = new Date();
   return models.Logs.deleteMany({
     createdAt: {
-      $lte: new Date(
-        now.getFullYear(),
-        now.getMonth() - months,
-        now.getDate()
-      )
+      $lte: new Date(now.getFullYear(), now.getMonth() - months, now.getDate())
     }
   });
 };

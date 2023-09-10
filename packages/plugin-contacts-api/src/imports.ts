@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { generateModels } from './connectionResolver';
 import { IMPORT_EXPORT_TYPES } from './constants';
 import { generatePronoun } from './importUtils';

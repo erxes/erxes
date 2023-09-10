@@ -1,5 +1,5 @@
-import * as faker from 'faker';
-import * as Random from 'meteor-random';
+import faker from 'faker';
+import Random from 'meteor-random';
 
 export const getUniqueValue = async (
   collection: any,

@@ -1,5 +1,5 @@
-import * as DataLoader from 'dataloader';
-import * as _ from 'underscore';
+import DataLoader from 'dataloader';
+import _ from 'underscore';
 import { sendContactsMessage } from '../messageBroker';
 
 export default function generateDataLoaderCompany(subdomain) {

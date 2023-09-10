@@ -1,6 +1,6 @@
 import { Info } from '@erxes/ui/src/styles/main';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 
 import { withProps, __ } from 'modules/common/utils';

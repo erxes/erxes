@@ -1,10 +1,6 @@
 import dayjs from 'dayjs';
-import * as React from 'react';
-import {
-  ActivityList,
-  InfoSection,
-  DateType,
-} from '../../styles/activityLogs';
+import React from 'react';
+import { ActivityList, InfoSection, DateType } from '../../styles/activityLogs';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { Link } from 'react-router-dom';
 import RoundedBackgroundIcon from '../RoundedBackgroundIcon';

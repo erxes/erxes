@@ -1,9 +1,9 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
 import graphqlPubsub from '../pubsub';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import activityLogs from './activityLogs';
 import calendars from './calendars';
 import robot from './robot';

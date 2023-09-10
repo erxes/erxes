@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "test": "jest --coverage --forceExit --runInBand",
-    "install-deps": "cd .erxes && yarn install",
-    "dev": "cd .erxes && yarn dev",
-    "build": "cd .erxes && yarn build",
+    "install-deps": "cd .erxes && bun install",
+    "dev": "cd .erxes && bun run dev",
+    "build": "cd .erxes && bun run build",
     "start": "cd .erxes/dist/plugin-engages-api/.erxes && node src"
   },
   "dependencies": {

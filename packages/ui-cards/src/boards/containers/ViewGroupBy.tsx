@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 
 import React, { Component } from 'react';
 import { IOptions, IPipeline, StagesQueryResponse } from '../types';

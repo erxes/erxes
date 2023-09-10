@@ -1,4 +1,4 @@
-import * as strip from 'strip';
+import strip from 'strip';
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';

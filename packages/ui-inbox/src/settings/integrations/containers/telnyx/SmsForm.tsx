@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as compose from 'lodash.flowright';
+import React from 'react';
+import compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import {

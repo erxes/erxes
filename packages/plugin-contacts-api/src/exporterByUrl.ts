@@ -1,5 +1,5 @@
-import * as xlsxPopulate from 'xlsx-populate';
-import * as moment from 'moment';
+import xlsxPopulate from 'xlsx-populate';
+import moment from 'moment';
 
 import {
   findSchemaLabels,

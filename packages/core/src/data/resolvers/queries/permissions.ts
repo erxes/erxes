@@ -1,5 +1,5 @@
 import { IContext, IModels } from '../../../connectionResolver';
-import * as _ from 'underscore';
+import _ from 'underscore';
 import {
   actionsMap,
   IActionsMap,

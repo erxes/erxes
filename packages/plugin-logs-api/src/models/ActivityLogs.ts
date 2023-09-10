@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import Random from 'meteor-random';
 import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
 

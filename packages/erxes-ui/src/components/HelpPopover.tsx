@@ -1,5 +1,5 @@
 import Icon from './Icon';
-import * as React from 'react';
+import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import styled from 'styled-components';

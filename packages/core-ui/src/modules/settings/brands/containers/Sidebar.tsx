@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';

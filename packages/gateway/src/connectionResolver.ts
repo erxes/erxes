@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { userSchema } from '@erxes/api-utils/src/definitions/users';
 import { permissionSchema } from '@erxes/api-utils/src/definitions/permissions';
@@ -28,4 +28,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses);
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);

@@ -1,5 +1,5 @@
 import { Model, Schema, Document } from 'mongoose';
-import * as Random from 'meteor-random';
+import Random from 'meteor-random';
 import { IModels } from '../connectionResolver';
 import { field } from './utils';
 
@@ -32,7 +32,6 @@ export interface IEmailDeliveryModel extends Model<IEmailDeliveriesDocument> {
   createEmailDelivery(doc: IEmailDeliveries): Promise<IEmailDeliveriesDocument>;
   updateEmailDeliveryStatus(_id: string, status: string): Promise<void>;
 }
-
 
 export const EMAIL_DELIVERY_STATUS = {
   PENDING: 'pending',

@@ -1,8 +1,8 @@
-import * as csvParser from 'csv-parser';
-import * as dotenv from 'dotenv';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as readline from 'readline';
+import csvParser from 'csv-parser';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import readline from 'readline';
 import { Writable } from 'stream';
 import { createAWS, getS3FileInfo, uploadsFolderPath } from '../../data/utils';
 

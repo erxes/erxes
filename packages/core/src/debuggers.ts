@@ -1,4 +1,4 @@
-import * as debug from 'debug';
+import debug from 'debug';
 
 export const debugExternalApi = debug('erxes-api:external-api-fetcher');
 export const debugInit = debug('erxes-api:init');

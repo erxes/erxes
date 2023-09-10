@@ -2,7 +2,7 @@ import { IItem, IOptions } from '../../types';
 import { ITicket } from '../../../tickets/types';
 import { IDeal } from '../../../deals/types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import routerUtils from '@erxes/ui/src/utils/router';
 import queryString from 'query-string';
 import React from 'react';
 import { withRouter } from 'react-router-dom';

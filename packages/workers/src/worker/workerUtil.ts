@@ -1,4 +1,4 @@
-import * as os from 'os';
+import os from 'os';
 import { debugWorkers } from './debugger';
 
 export default class CustomWorker {

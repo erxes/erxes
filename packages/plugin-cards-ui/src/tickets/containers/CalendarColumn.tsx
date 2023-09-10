@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { ColumnProps } from '@erxes/ui-cards/src/boards/components/Calendar';
 import {
   calendarColumnQuery,

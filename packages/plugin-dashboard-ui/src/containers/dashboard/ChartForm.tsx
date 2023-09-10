@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import { DashboardGetTypesQueryResponse, IDashboardItem } from '../../types';

@@ -17,7 +17,7 @@ import { IItem, IItemParams, IOptions, IStage } from '../../types';
 import { invalidateCache } from '../../utils';
 import CardSelect from './CardSelect';
 import GenerateAddFormFields from './GenerateAddFormFields';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
 import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';

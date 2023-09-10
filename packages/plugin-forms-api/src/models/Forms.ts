@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import Random from 'meteor-random';
 import { Model } from 'mongoose';
 import validator from 'validator';
 import { IModels } from '../connectionResolver';

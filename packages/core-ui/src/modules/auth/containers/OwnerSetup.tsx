@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';

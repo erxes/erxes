@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
 import queryString from 'query-string';

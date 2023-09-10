@@ -1,5 +1,5 @@
-import * as Redis from 'ioredis';
-import * as dotenv from 'dotenv';
+import Redis from 'ioredis';
+import dotenv from 'dotenv';
 import * as fakeRedis from './redisSubstitute';
 dotenv.config();
 

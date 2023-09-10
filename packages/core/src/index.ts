@@ -1,20 +1,20 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
 
 // load environment variables
 dotenv.config();
 
-import * as cookieParser from 'cookie-parser';
-import * as cors from 'cors';
-import * as telemetry from 'erxes-telemetry';
-import * as express from 'express';
-import * as helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import telemetry from 'erxes-telemetry';
+import express from 'express';
+import helmet from 'helmet';
 import { createServer } from 'http';
-import * as mongoose from 'mongoose';
-import * as path from 'path';
+import mongoose from 'mongoose';
+import path from 'path';
 import { initApolloServer } from './apolloClient';
 import { templateExport } from './data/modules/fileExporter/templateExport';
-import * as fs from 'fs';
+import fs from 'fs';
 
 import {
   deleteFile,

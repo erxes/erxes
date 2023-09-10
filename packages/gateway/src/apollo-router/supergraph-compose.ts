@@ -1,12 +1,12 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config();
 
 import { ErxesProxyTarget } from 'src/proxy/targets';
 import { supergraphConfigPath, supergraphPath } from './paths';
-import * as fs from 'fs';
+import fs from 'fs';
 import { execSync } from 'child_process';
 import isSameFile from '../util/is-same-file';
-import * as yaml from 'yaml';
+import yaml from 'yaml';
 
 const { NODE_ENV, SUPERGRAPH_POLL_INTERVAL_MS } = process.env;
 

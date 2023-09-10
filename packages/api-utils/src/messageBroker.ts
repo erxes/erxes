@@ -1,11 +1,11 @@
-import * as amqplib from 'amqplib';
+import amqplib from 'amqplib';
 import { v4 as uuid } from 'uuid';
 import { debugError, debugInfo } from './debuggers';
 import { getPluginAddress } from './serviceDiscovery';
 import { Express } from 'express';
 import fetch from 'node-fetch';
-import * as Agent from 'agentkeepalive';
-import * as dotenv from 'dotenv';
+import Agent from 'agentkeepalive';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const timeoutMs = Number(process.env.RPC_TIMEOUT) || 10000;
@@ -132,8 +132,10 @@ export const createConsumeRPCQueue = (app: Express) => (
 ) => {
   const { procedureName } = splitPluginProcedureName(queueName);
 
-  if(procedureName.includes(':')) {
-    throw new Error(`${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`)
+  if (procedureName.includes(':')) {
+    throw new Error(
+      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`
+    );
   }
 
   const endpoint = `/rpc/${procedureName}`;

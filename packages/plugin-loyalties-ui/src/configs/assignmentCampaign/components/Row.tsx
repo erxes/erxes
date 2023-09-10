@@ -2,7 +2,7 @@ import { FormControl, TextInfo, Icon } from '@erxes/ui/src/components';
 import React from 'react';
 import { IAssignmentCampaign } from '../types';
 import { Link } from 'react-router-dom';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import routerUtils from '@erxes/ui/src/utils/router';
 
 type Props = {
   assignmentCampaign: IAssignmentCampaign;

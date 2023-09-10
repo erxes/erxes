@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import {
   IInternalNoteModel,
   loadInternalNoteClass
@@ -29,4 +29,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses)
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);

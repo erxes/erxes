@@ -1,4 +1,4 @@
 import SelectTeamMembers from './containers/SelectTeamMembers';
-import * as teamQueries from './graphql';
+import teamQueries from './graphql';
 
-export { SelectTeamMembers, teamQueries }
+export { SelectTeamMembers, teamQueries };

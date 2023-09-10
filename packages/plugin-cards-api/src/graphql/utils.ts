@@ -6,7 +6,7 @@ import { ITaskDocument } from '../models/definitions/tasks';
 import { IPurchaseDocument } from '../models/definitions/purchases';
 import { ITicketDocument } from '../models/definitions/tickets';
 import { can, checkLogin } from '@erxes/api-utils/src';
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
 import { IModels } from '../connectionResolver';

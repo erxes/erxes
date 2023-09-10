@@ -1,9 +1,9 @@
-import * as bcrypt from 'bcryptjs';
-import * as crypto from 'crypto';
-import * as jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
-import * as randomize from 'randomatic';
-import * as sha256 from 'sha256';
+import randomize from 'randomatic';
+import sha256 from 'sha256';
 
 import { IModels } from '../connectionResolver';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';

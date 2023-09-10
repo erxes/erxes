@@ -1,7 +1,7 @@
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import colors from 'modules/common/styles/colors';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const Iframe = styled.iframe.attrs({

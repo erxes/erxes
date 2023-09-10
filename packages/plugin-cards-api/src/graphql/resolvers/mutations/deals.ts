@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { IItemDragCommonFields } from '../../../models/definitions/boards';
 import { IDeal, IProductData } from '../../../models/definitions/deals';
 import { checkPermission } from '@erxes/api-utils/src/permissions';

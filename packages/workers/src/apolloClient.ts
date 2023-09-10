@@ -1,9 +1,9 @@
 import { ApolloServer, gql } from 'apollo-server-express';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { buildSubgraphSchema } from '@apollo/federation';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import resolvers from './data/resolvers';
-import * as typeDefDetails from './data/schema';
+import typeDefDetails from './data/schema';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolvers';
 

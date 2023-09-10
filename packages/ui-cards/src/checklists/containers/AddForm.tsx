@@ -1,6 +1,6 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import * as React from 'react';
+import React from 'react';
 import AddForm from '../components/AddForm';
 import { mutations } from '../graphql';
 

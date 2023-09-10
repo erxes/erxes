@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
 import Segments from '@erxes/ui-segments/src/containers/Filter';
 import React from 'react';

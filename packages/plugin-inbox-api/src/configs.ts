@@ -1,5 +1,5 @@
-import * as serverTiming from 'server-timing';
-import * as cors from 'cors';
+import serverTiming from 'server-timing';
+import cors from 'cors';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
@@ -17,7 +17,7 @@ import logs from './logUtils';
 import tags from './tags';
 import segments from './segments';
 import forms from './forms';
-import * as permissions from './permissions';
+import permissions from './permissions';
 import search from './search';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { getSubdomain } from '@erxes/api-utils/src/core';

@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import _ from 'underscore';
 import { IItemDragCommonFields } from '../../../models/definitions/boards';
 import {
   IPurchase,

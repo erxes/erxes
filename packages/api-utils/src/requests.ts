@@ -1,4 +1,4 @@
-import * as requestify from 'requestify';
+import requestify from 'requestify';
 import { sendMessage } from './messageBroker';
 import { debugExternalApi } from './debuggers';
 import { isEnabled } from './serviceDiscovery';

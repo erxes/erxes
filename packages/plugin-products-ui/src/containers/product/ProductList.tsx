@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';

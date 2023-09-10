@@ -5,7 +5,7 @@ import {
 } from './models/ClientPortalNotifications';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 import {
   IClientPortalModel,

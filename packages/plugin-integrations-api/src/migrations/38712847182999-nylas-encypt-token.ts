@@ -1,6 +1,6 @@
-import * as dotenv from 'dotenv';
-import * as mongoose from 'mongoose';
-import * as nylasUtils from '../nylas/utils';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import nylasUtils from '../nylas/utils';
 
 dotenv.config();
 

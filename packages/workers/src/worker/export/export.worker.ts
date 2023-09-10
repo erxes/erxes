@@ -1,7 +1,7 @@
-import * as xlsxPopulate from 'xlsx-populate';
-import * as mongoose from 'mongoose';
-import * as moment from 'moment';
-import * as fs from 'fs';
+import xlsxPopulate from 'xlsx-populate';
+import mongoose from 'mongoose';
+import moment from 'moment';
+import fs from 'fs';
 import { connect } from '../utils';
 import { createAWS, uploadsFolderPath } from '../../data/utils';
 import messageBroker, { getFileUploadConfigs } from '../../messageBroker';

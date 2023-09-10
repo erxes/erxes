@@ -7,7 +7,7 @@ import {
 import { __ } from '@erxes/ui/src/utils/core';
 import Stages from '../../containers/conversion/Stages';
 import Header from '@erxes/ui/src/layout/components/Header';
-import * as React from 'react';
+import React from 'react';
 import PurchaseMainActionBar from '../PurchaseMainActionBar';
 import { PurchaseContent, FixedContent, ViewDivider } from './style';
 
