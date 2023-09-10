@@ -1,0 +1,46 @@
+{
+  "jwt_token_secret": "token",
+  "client_portal_domains": "",
+  "elasticsearch": {},
+  "redis": {
+    "password": ""
+  },
+  "mongo": {
+    "username": "",
+    "password": ""
+  },
+  "rabbitmq": {
+    "cookie": "",
+    "user": "",
+    "pass": "",
+    "vhost": ""
+  },
+  "widgets": {},
+  "workers": {},
+  "plugins": [
+    {
+      "name": "forms",
+      "ui": "local"
+    },
+    {
+      "name": "contacts",
+      "ui": "local"
+    },
+    {
+      "name" : "inbox",
+      "ui" : "local"
+    },
+    {
+      "name" : "products",
+      "ui" : "local"
+    },
+    {
+      "name" : "tags",
+      "ui" : "local"
+    },
+    {
+      "name" : "cards",
+      "ui" : "local"
+    }
+  ]
+}

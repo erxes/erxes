@@ -15,7 +15,7 @@ import {
   sendMobileNotification
 } from './data/utils';
 
-import serviceDiscovery from './serviceDiscovery';
+import * as serviceDiscovery from './serviceDiscovery';
 
 import logUtils from './logUtils';
 import internalNotes from './internalNotes';

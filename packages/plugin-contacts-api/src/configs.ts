@@ -36,6 +36,7 @@ export default {
   name: 'contacts',
   permissions,
   graphql: async sd => {
+    console.log("------------------------------------");
     serviceDiscovery = sd;
 
     return {

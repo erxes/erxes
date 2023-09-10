@@ -1,7 +1,8 @@
-import {
-  IApp,
-  IAppDocument,
+export {
   appSchema
 } from '@erxes/api-utils/src/definitions/apps';
 
-export { IApp, IAppDocument, appSchema };
+export type {
+  IApp,
+  IAppDocument
+} from '@erxes/api-utils/src/definitions/apps';

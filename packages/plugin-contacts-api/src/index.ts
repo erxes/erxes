@@ -1,4 +1,10 @@
 import configs from './configs';
-import startServer from '@erxes/api-utils/src/server/index';
+import startServer from '@erxes/api-utils/src/server';
 
-startServer(configs);
+try {
+    console.log("--------------------------------------")
+    await startServer(configs);
+} catch (e) {
+    console.log("--------------------------------------")
+    throw e;
+}

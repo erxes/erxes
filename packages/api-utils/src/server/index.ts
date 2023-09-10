@@ -1,29 +1,25 @@
-import debug from 'debug';
-import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
-
-// load environment variables
-dotenv.config({ path: '../.env' });
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { buildSubgraphSchema } from '@apollo/subgraph';
 
 import cors from 'cors';
 
 import bodyParser from 'body-parser';
 import express from 'express';
 import { filterXSS } from 'xss';
-import { buildSubgraphSchema } from '@apollo/federation';
-import { ApolloServer } from 'apollo-server-express';
 import cookieParser from 'cookie-parser';
 
 import http from 'http';
 
 import { connect } from './connection';
-// import { debugInfo, debugError } from './debuggers';
+import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import pubsub from './pubsub';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import path from 'path';
 import ws from 'ws';
 
@@ -37,9 +33,6 @@ import {
   redis
 } from '@erxes/api-utils/src/serviceDiscovery';
 
-export let debugInfo;
-export let debugError;
-
 const {
   MONGO_URL,
   RABBITMQ_HOST,
@@ -49,95 +42,171 @@ const {
   SENTRY_DSN
 } = process.env;
 
-export const app = express();
 
-if (SENTRY_DSN) {
-  Sentry.init({
-    dsn: SENTRY_DSN,
-    integrations: [
-      // enable HTTP calls tracing
-      new Sentry.Integrations.Http({ tracing: true }),
-      // Automatically instrument Node.js libraries and frameworks
-      ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
-    ],
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
-    profilesSampleRate: 1.0 // Profiling sample rate is relative to tracesSampleRate
-  });
-}
+export default async function startServer(configs: any) {
 
-// RequestHandler creates a separate execution context, so that all
-// transactions/spans/breadcrumbs are isolated across requests
-app.use(Sentry.Handlers.requestHandler());
-// TracingHandler creates a trace for every incoming request
-app.use(Sentry.Handlers.tracingHandler());
+  console.log("---------------------------------------------------------")
 
-app.use(bodyParser.json({ limit: '15mb' }));
-app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
+  const app = express();
 
-app.disable('x-powered-by');
-
-app.use(cors());
-
-app.use(cookieParser());
-
-// for health checking
-app.get('/health', async (_req, res) => {
-  res.end('ok');
-});
-
-app.use((req: any, _res, next) => {
-  req.rawBody = '';
-
-  req.on('data', chunk => {
-    req.rawBody += chunk.toString();
-  });
-
-  next();
-});
-
-// Error handling middleware
-app.use((error, _req, res, _next) => {
-  const msg = filterXSS(error.message);
-
-  debugError(`Error: ${msg}`);
-
-  res.status(500).send(msg);
-});
-
-// The error handler must be before any other error middleware and after all controllers
-app.use(Sentry.Handlers.errorHandler());
-
-const httpServer = http.createServer(app);
-
-// GRACEFULL SHUTDOWN
-// process.stdin.resume(); // so the program will not close instantly
-
-async function closeHttpServer() {
-  try {
-    await new Promise<void>((resolve, reject) => {
-      // Stops the server from accepting new connections and finishes existing connections.
-      httpServer.close((error: Error | undefined) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve();
-      });
+  if (SENTRY_DSN) {
+    Sentry.init({
+      dsn: SENTRY_DSN,
+      integrations: [
+        // enable HTTP calls tracing
+        new Sentry.Integrations.Http({ tracing: true }),
+        // Automatically instrument Node.js libraries and frameworks
+        ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
+      ],
+      // Set tracesSampleRate to 1.0 to capture 100%
+      // of transactions for performance monitoring.
+      // We recommend adjusting this value in production
+      tracesSampleRate: 1.0,
+      profilesSampleRate: 1.0 // Profiling sample rate is relative to tracesSampleRate
     });
-  } catch (e) {
-    console.error(e);
   }
-}
 
-const generateApolloServer = async (serviceDiscovery, configs) => {
+  // RequestHandler creates a separate execution context, so that all
+  // transactions/spans/breadcrumbs are isolated across requests
+  app.use(Sentry.Handlers.requestHandler());
+  // TracingHandler creates a trace for every incoming request
+  app.use(Sentry.Handlers.tracingHandler());
+
+  app.use(bodyParser.json({ limit: '15mb' }));
+  app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
+
+  app.disable('x-powered-by');
+
+  app.use(cors(configs.corsOptions || {}));
+
+  app.use(cookieParser());
+
+  // for health checking
+  app.get('/health', async (_req, res) => {
+    res.end('ok');
+  });
+
+  app.use((req: any, _res, next) => {
+    req.rawBody = '';
+
+    req.on('data', chunk => {
+      req.rawBody += chunk.toString();
+    });
+
+    next();
+  });
+
+  // Error handling middleware
+  app.use((error, _req, res, _next) => {
+    const msg = filterXSS(error.message);
+
+    debugError(`Error: ${msg}`);
+
+    res.status(500).send(msg);
+  });
+
+  // The error handler must be before any other error middleware and after all controllers
+  app.use(Sentry.Handlers.errorHandler());
+
+  const httpServer = http.createServer(app);
+
+  // GRACEFULL SHUTDOWN
+  // process.stdin.resume(); // so the program will not close instantly
+
+  async function closeHttpServer() {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        // Stops the server from accepting new connections and finishes existing connections.
+        httpServer.close((error: Error | undefined) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve();
+        });
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+
+  if (configs.hasSubscriptions) {
+    // app.get('/subscriptionPlugin.js', async (req, res) => {
+    //   res.sendFile(
+    //     path.join(__dirname, '../../src/graphql/subscriptionPlugin.js')
+    //   );
+    // });
+  }
+
+  if (configs.hasDashboard) {
+    if (configs.hasDashboard) {
+      app.get('/dashboard', async (req, res) => {
+        const headers = req.rawHeaders;
+
+        const index = headers.indexOf('schemaName') + 1;
+
+        const schemaName = headers[index];
+
+        res.sendFile(
+          path.join(__dirname, `../../src/dashboardSchemas/${schemaName}.js`)
+        );
+      });
+    }
+  }
+
+  if (configs.middlewares) {
+    for (const middleware of configs.middlewares) {
+      app.use(middleware);
+    }
+  }
+
+  if (configs.postHandlers) {
+    for (const handler of configs.postHandlers) {
+      if (handler.path && handler.method) {
+        app.post(handler.path, handler.method);
+      }
+    }
+  }
+
+  if (configs.getHandlers) {
+    for (const handler of configs.getHandlers) {
+      if (handler.path && handler.method) {
+        app.get(handler.path, handler.method);
+      }
+    }
+  }
+
+  async function leaveServiceDiscovery() {
+    try {
+      await leave(configs.name, PORT || '');
+      console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // If the Node process ends, close the Mongoose connection
+  (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+    process.on(sig, async () => {
+      await closeHttpServer();
+      await leaveServiceDiscovery();
+      process.exit(0);
+    });
+  });
+
+  const serviceDiscovery = {
+    getServices,
+    getService,
+    isAvailable,
+    isEnabled
+  };
+
   const services = await getServices();
   debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
 
   const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
 
-  return new ApolloServer({
+  const apolloServer = new ApolloServer({
     schema: buildSubgraphSchema([
       {
         typeDefs,
@@ -147,6 +216,12 @@ const generateApolloServer = async (serviceDiscovery, configs) => {
 
     // for graceful shutdown
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+
+  });
+
+  await apolloServer.start();
+
+  app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }) => {
       let user: any = null;
 
@@ -213,92 +288,8 @@ const generateApolloServer = async (serviceDiscovery, configs) => {
 
       return context;
     }
-  });
-};
+  }));
 
-export default async function startServer(configs: any) {
-  debugInfo = debug(`erxes-${configs.name}:info`);
-  debugError = debug(`erxes-${configs.name}:error`);
-
-  if (configs.hasSubscriptions) {
-    app.get('/subscriptionPlugin.js', async (req, res) => {
-      res.sendFile(
-        path.join(__dirname, '../../src/graphql/subscriptionPlugin.js')
-      );
-    });
-  }
-
-  if (configs.hasDashboard) {
-    if (configs.hasDashboard) {
-      app.get('/dashboard', async (req, res) => {
-        const headers = req.rawHeaders;
-
-        const index = headers.indexOf('schemaName') + 1;
-
-        const schemaName = headers[index];
-
-        res.sendFile(
-          path.join(__dirname, `../../src/dashboardSchemas/${schemaName}.js`)
-        );
-      });
-    }
-  }
-
-  if (configs.middlewares) {
-    for (const middleware of configs.middlewares) {
-      app.use(middleware);
-    }
-  }
-
-  if (configs.postHandlers) {
-    for (const handler of configs.postHandlers) {
-      if (handler.path && handler.method) {
-        app.post(handler.path, handler.method);
-      }
-    }
-  }
-
-  if (configs.getHandlers) {
-    for (const handler of configs.getHandlers) {
-      if (handler.path && handler.method) {
-        app.get(handler.path, handler.method);
-      }
-    }
-  }
-
-  async function leaveServiceDiscovery() {
-    try {
-      await leave(configs.name, PORT || '');
-      console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  // If the Node process ends, close the Mongoose connection
-  (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
-    process.on(sig, async () => {
-      await closeHttpServer();
-      await leaveServiceDiscovery();
-      process.exit(0);
-    });
-  });
-
-  const serviceDiscovery = {
-    getServices,
-    getService,
-    isAvailable,
-    isEnabled
-  };
-
-  const apolloServer = await generateApolloServer(serviceDiscovery, configs);
-  await apolloServer.start();
-
-  apolloServer.applyMiddleware({
-    app,
-    path: '/graphql',
-    cors: configs.corsOptions || {}
-  });
 
   await new Promise<void>(resolve =>
     httpServer.listen({ port: PORT }, resolve)
@@ -314,7 +305,7 @@ export default async function startServer(configs: any) {
   }
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
+    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`
   );
 
   const mongoUrl = MONGO_URL || '';

@@ -37,13 +37,16 @@ const userMovemmentSchema = new Schema({
   createdAt: field({ type: Date, label: 'Created At', default: Date.now })
 });
 
-export {
+export type {
   IDetail,
   IDetailDocument,
   IEmailSignature,
   IEmailSignatureDocument,
   IUser,
   IUserDocument,
+};
+
+export {
   userSchema,
   IUserMovementDocument,
   userMovemmentSchema

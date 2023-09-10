@@ -25,8 +25,6 @@ import { generateFieldsFromSchema } from './fieldUtils';
 
 import {
   can,
-  IActionMap,
-  IPermissionContext,
   checkLogin,
   getKey,
   permissionWrapper,
@@ -35,11 +33,16 @@ import {
   requireLogin
 } from './permissions';
 
-import { IContext } from './types';
+export type {
+  IActionMap,
+  IPermissionContext,
+} from './permissions';
+
+export type { IContext } from './types';
 import { ruleSchema } from './definitions/common';
 import { field, schemaWrapper } from './definitions/utils';
 
-import { IColumnLabel } from './types';
+export type { IColumnLabel } from './types';
 import { afterQueryWrapper } from './quiriesWrappers';
 
 export { getEnv }; // ({ name, defaultValue })
@@ -66,16 +69,12 @@ export { dateToShortStr };
 export { shortStrToDate };
 export {
   can,
-  IActionMap,
-  IPermissionContext,
   checkLogin,
   getKey,
   permissionWrapper,
   getUserActionsMap,
   checkPermission,
   requireLogin,
-  IContext,
-  IColumnLabel,
   ruleSchema,
   field,
   schemaWrapper

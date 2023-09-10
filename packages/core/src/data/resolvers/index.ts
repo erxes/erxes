@@ -1,4 +1,4 @@
-import permissionActions from '../permissions/actions';
+import * as permissionActions from '../permissions/actions';
 import Brand from './brand';
 import customScalars from './customScalars';
 import Mutation from './mutations';
