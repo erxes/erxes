@@ -2,7 +2,7 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import router from './router';
+import * as router from './router';
 
 import { IUser, IUserDoc } from '../auth/types';
 

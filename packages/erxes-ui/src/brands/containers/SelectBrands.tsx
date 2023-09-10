@@ -1,6 +1,6 @@
 import SelectWithSearch from '../../components/SelectWithSearch';
 import { IOption, IQueryParams } from '../../types';
-import React from 'react';
+import * as React from 'react';
 import { queries } from '../graphql';
 import { IBrand } from '../types';
 

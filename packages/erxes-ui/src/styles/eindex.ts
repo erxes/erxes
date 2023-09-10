@@ -1,9 +1,9 @@
-import chooser from './chooser';
+import * as chooser from './chooser';
 import colors from './colors';
 import dimensions from './dimensions';
-import color from './ecolor';
-import mainStyles from './main';
-import sort from './sort';
+import * as color from './ecolor';
+import * as mainStyles from './main';
+import * as sort from './sort';
 import typography from './typography';
 
 const ChooserColumns = chooser.Columns;
@@ -13,14 +13,7 @@ const ChooserFooter = chooser.Footer;
 const ChooserSelect = chooser.Select;
 const ChooserActionTop = chooser.ActionTop;
 
-export {
-  ChooserColumns,
-  ChooserColumn,
-  ChooserTitle,
-  ChooserFooter,
-  ChooserSelect,
-  ChooserActionTop
-};
+export { ChooserColumns, ChooserColumn, ChooserTitle, ChooserFooter, ChooserSelect, ChooserActionTop };
 
 const MainStyleActions = mainStyles.Actions;
 const PopoverButton = mainStyles.PopoverButton;

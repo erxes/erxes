@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';

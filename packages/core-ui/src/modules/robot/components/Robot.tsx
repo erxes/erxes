@@ -1,6 +1,6 @@
 import debounce from 'lodash/debounce';
 import { IUser } from 'modules/auth/types';
-import React from 'react';
+import * as React from 'react';
 import RTG from 'react-transition-group';
 import AssistantContent from '../containers/AssistantContent';
 import { Bot, BotWrapper } from './styles';

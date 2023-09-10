@@ -1,7 +1,7 @@
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import React from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import { NavButton } from './styles';
 

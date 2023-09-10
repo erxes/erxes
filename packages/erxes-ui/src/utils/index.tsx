@@ -1,8 +1,8 @@
-import animations from './animations';
-import calendar from './calendar';
-import categories from './categories';
-import core from './core';
-import router from './router';
+import * as animations from './animations';
+import * as calendar from './calendar';
+import * as categories from './categories';
+import * as core from './core';
+import * as router from './router';
 
 import uploadHandler, {
   deleteHandler as uploadDeleteHandler

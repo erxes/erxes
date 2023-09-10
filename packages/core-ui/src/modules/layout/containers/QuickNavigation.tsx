@@ -1,6 +1,6 @@
 import client from 'apolloClient';
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
 import { Alert, getCookie, setCookie, withProps } from 'modules/common/utils';

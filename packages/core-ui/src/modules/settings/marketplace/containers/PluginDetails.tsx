@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import PluginDetails from '../components/detail/PluginDetails';
 import React from 'react';

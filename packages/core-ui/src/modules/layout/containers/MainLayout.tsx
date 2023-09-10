@@ -1,5 +1,5 @@
 import { withProps } from '@erxes/ui/src/utils/core';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { gql } from '@apollo/client';
 import { AppConsumer, AppProvider } from 'appContext';
 import { IUser } from 'modules/auth/types';

@@ -2,7 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import { darken, lighten } from 'modules/common/styles/color';
 import colors from 'modules/common/styles/colors';
 import dimensions from 'modules/common/styles/dimensions';
-import React from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 

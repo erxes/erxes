@@ -1,7 +1,7 @@
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { Alert, confirm, __ } from 'modules/common/utils';
 import Spinner from 'modules/common/components/Spinner';

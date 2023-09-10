@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
 import React from 'react';
