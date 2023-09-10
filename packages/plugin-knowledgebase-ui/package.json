@@ -4,8 +4,7 @@
   "scripts": {
     "install-deps": "cd .erxes && bun install",
     "start": "cd .erxes && bun run start",
-    "build": "cd .erxes && bun run build",
-    
+    "build": "cd .erxes && bun run build"    
   },
   "dependencies": {
     "react-copy-to-clipboard": "^5.0.4",

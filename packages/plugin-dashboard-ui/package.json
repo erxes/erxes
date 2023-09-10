@@ -4,8 +4,7 @@
   "scripts": {
     "install-deps": "cd .erxes && bun install",
     "start": "cd .erxes && bun run start",
-    "build": "cd .erxes && bun run build",
-    
+    "build": "cd .erxes && bun run build"    
   },
   "dependencies": {
     "@cubejs-client/core": "^0.30.29",
