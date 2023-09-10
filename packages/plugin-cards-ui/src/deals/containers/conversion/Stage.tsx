@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -11,7 +11,7 @@ import {
   IDeal,
   IQueryParams
 } from '@erxes/ui-cards/src/deals/types';
-import React from 'react';
+import * as React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {

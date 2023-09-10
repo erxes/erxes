@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { ColumnProps } from '@erxes/ui-cards/src/boards/components/Calendar';
 import {
   calendarColumnQuery,
@@ -9,10 +9,7 @@ import { getMonthTitle } from '@erxes/ui/src/utils/calendar';
 import CalendarColumn from '../components/CalendarColumn';
 import React from 'react';
 import { queries } from '@erxes/ui-cards/src/tasks/graphql';
-import {
-  TasksQueryResponse,
-  TasksTotalCountQueryResponse
-} from '@erxes/ui-cards/src/tasks/types';
+import { TasksQueryResponse, TasksTotalCountQueryResponse } from '@erxes/ui-cards/src/tasks/types';
 
 type FinalProps = ColumnProps & {
   tasksQuery: TasksQueryResponse;

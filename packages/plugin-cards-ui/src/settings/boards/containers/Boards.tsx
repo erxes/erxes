@@ -1,5 +1,5 @@
-import compose from 'lodash.flowright';
-import routerUtils from '@erxes/ui/src/utils/router';
+import * as compose from 'lodash.flowright';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';

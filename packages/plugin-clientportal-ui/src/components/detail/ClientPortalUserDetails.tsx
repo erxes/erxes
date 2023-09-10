@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'path';
 
 import BasicInfo from '../../containers/details/BasicInfo';
 import EmptyState from '@erxes/ui/src/components/EmptyState';

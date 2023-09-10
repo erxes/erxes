@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { Alert, __, confirm, withProps } from 'coreui/utils';
 import {

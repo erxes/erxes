@@ -1,7 +1,7 @@
 import { IConversionStagePurchase } from '@erxes/ui-cards/src/boards/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import React from 'react';
+import * as React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { IPurchase } from '@erxes/ui-cards/src/purchases/types';
 import { BodyRow, StageName } from '../style';

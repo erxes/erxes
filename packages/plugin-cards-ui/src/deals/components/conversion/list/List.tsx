@@ -1,5 +1,5 @@
 import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
-import React from 'react';
+import * as React from 'react';
 import { Result } from '../style';
 import Stage from './Stage';
 

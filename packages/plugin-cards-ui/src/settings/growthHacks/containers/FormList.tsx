@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import { FormsQueryResponse } from '@erxes/ui-forms/src/forms/types';
 import React from 'react';

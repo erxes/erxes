@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IGrowthHack, VoteMutation, VoteVariables } from '../types';
-import React from 'react';
+import * as React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { Vote } from '../components/editForm';
 import { mutations, queries } from '../graphql';

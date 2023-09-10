@@ -1,4 +1,4 @@
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { CountQueryResponse } from '../../types';
 import CountsByTag from '@erxes/ui/src/components/CountsByTag';

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { withRouter } from 'react-router-dom';
 import Icon from '@erxes/ui/src/components/Icon';
-import routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 import { IRouterProps } from '@erxes/ui/src/types';
 import queryString from 'query-string';
 import { __ } from '@erxes/ui/src/utils';

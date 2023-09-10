@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 import { queries } from '@erxes/ui-cards/src/boards/graphql';
 import { ConversionStagesQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -7,7 +7,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
 import List from '../../components/conversion/list/List';
 import Table from '../../components/conversion/table/Table';
-import React from 'react';
+import * as React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {

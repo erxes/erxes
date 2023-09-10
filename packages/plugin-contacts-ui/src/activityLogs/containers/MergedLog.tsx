@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import compose from 'lodash.flowright';
+import * as compose from 'lodash.flowright';
 
 import { withProps } from '@erxes/ui/src/utils';
 import { queries } from '@erxes/ui-contacts/src/graphql';
