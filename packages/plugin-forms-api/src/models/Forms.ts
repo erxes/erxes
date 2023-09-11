@@ -135,7 +135,7 @@ export const loadFormClass = (models: IModels) => {
           options: field.options,
           isRequired: field.isRequired,
           order: field.order,
-          optionsValues: field.optionsValues || ''
+          optionsValues: field?.optionsValues
         });
       }
 
