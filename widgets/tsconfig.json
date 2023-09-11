@@ -4,7 +4,7 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "module": "esnext",
-      "lib": [
+    "lib": [
       "es5",
       "es6",
       "dom",
@@ -14,8 +14,13 @@
     "jsx": "react",
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": false
   },
-  "include": ["client"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "client"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

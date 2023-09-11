@@ -1,6 +1,5 @@
 {
   "name": "erxes-widgets",
-  "type": "module",
   "keywords": [
     "express",
     "react",
@@ -86,7 +85,7 @@
   "devDependencies": {
     "bun-types": "latest",
     "git-repo-info": "^2.1.0",
-    "typescript" : "^5.2.2"
+    "typescript" : "^3.9.10"
   },
   "engines": {
     "node": ">=10.x.x"
