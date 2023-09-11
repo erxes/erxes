@@ -368,6 +368,9 @@ export const timeclockReportByUser = async (
             !shift.checked
         );
 
+        scheduledShiftStartSelectedDay = scheduleShift.shiftStart;
+        scheduledShiftEndSelectedDay = scheduleShift.shiftEnd;
+
         if (
           recordedShiftOfSelectedDay &&
           recordedShiftOfSelectedDay.recordedStart &&
@@ -381,9 +384,6 @@ export const timeclockReportByUser = async (
           recordedShiftStartSelectedDay =
             recordedShiftOfSelectedDay.recordedStart;
           recordedShiftEndSelectedDay = recordedShiftOfSelectedDay.recordedEnd;
-
-          scheduledShiftStartSelectedDay = scheduleShift.shiftStart;
-          scheduledShiftEndSelectedDay = scheduleShift.shiftEnd;
 
           if (shiftStartDiff > 0) {
             totalMinsLateSelectedDay += shiftStartDiff / MMSTOMINS;
