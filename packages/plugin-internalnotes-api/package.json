@@ -2,9 +2,10 @@
   "name": "@erxes/plugin-internalnotes-api",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && bun install",
-    "dev": "cd .erxes && bun run dev",
-    "build": "cd .erxes && bun run build",
-    "start": "cd .erxes/dist/plugin-cards-api/.erxes && bun src"
+    "dev": "bun --watch src",
+    "start": "bun src"
+  },
+  "dependencies": {
+    "@erxes/api-utils" : "workspace:*"
   }
 }

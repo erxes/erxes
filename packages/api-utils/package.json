@@ -6,21 +6,15 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.11.1",
-    "@babel/preset-env": "^7.11.0",
-    "@babel/preset-typescript": "^7.10.4",
-    "@babel/runtime": "^7.11.2",
     "@types/ioredis": "^4.28.7",
     "@types/lodash": "^4.14.178",
-    "babel-preset-gatsby-package": "^0.5.2"
+    "bun-types": "latest"
   },
   "dependencies": {
     "@apollo/server" : "^4.9.3",
     "@apollo/subgraph" : "^2.5.4",
     "agentkeepalive": "^4.3.0",
-    "amqplib": "^0.10.2",
-    "bun-types": "latest",
+    "amqplib": "^0.10.2",    
     "crypto": "^1.0.1",
     "debug": "^4.1.1",
     "elasticsearch": "^16.7.2",
@@ -37,5 +31,8 @@
     "request": "^2.88.0",
     "requestify": "^0.2.5",
     "strip": "^3.0.0"
+  },
+  "peerDependencies": {
+    "typescript" : "^5.2.2"
   }
 }

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S bun -b
 'use strict';
 
 const _ = require('lodash');

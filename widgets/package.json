@@ -1,7 +1,7 @@
 {
   "name": "erxes-widgets",
+  "type": "module",
   "keywords": [
-    "node",
     "express",
     "react",
     "typescript",
@@ -12,14 +12,15 @@
   "private": true,
   "scripts": {
     "dev": "bun run dev-server & bun run dev-webpack",
-    "dev-server": "NODE_ENV=development nodemon -e ts --project tsconfig.server.json server --exec ts-node",
+    "dev-server": "NODE_ENV=development bun run --watch --tsconfig-override ./tsconfig.server.json server",
     "dev-webpack": "webpack --mode development --watch --progress",
     "build": "bun run build-webpack && bun run build-server",
     "build-server": "tsc --project tsconfig.server.json && cp -r ./server/views/ ./dist/",
     "build-webpack": "webpack --mode production --config=webpack.prod.config.js",
-    "start": "node dist"
+    "start": "bun run server"
   },
   "dependencies": {
+
     "@fingerprintjs/fingerprintjs": "^3.0.5",
     "@googlemaps/typescript-guards": "^1.0.7",
     "@nateradebaugh/react-datetime": "^4.6.0",
@@ -83,10 +84,9 @@
     "xss": "^1.0.3"
   },
   "devDependencies": {
+    "bun-types": "latest",
     "git-repo-info": "^2.1.0",
-    "nodemon": "^1.11.0",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.5.2"
+    "typescript" : "^5.2.2"
   },
   "engines": {
     "node": ">=10.x.x"

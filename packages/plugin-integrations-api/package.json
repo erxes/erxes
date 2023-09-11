@@ -27,13 +27,11 @@
     "sinon": "^7.5.0",
     "smooch-core": "^8.8.0",
     "telnyx": "^1.7.2",
-    "ts-node": "8.0.3",
     "underscore": "^1.10.2",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
     "jest": "22.0.4",
-    "ts-jest": "22.0.4",
-    "ts-node-dev": "^1.0.0-pre.32"
+    "ts-jest": "22.0.4"
   }
 }
