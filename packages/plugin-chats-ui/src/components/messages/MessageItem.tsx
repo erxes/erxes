@@ -16,8 +16,10 @@ import {
   MessageBody,
   MessageOption,
   MessageContent,
-  MessageAttachmentWrapper
+  MessageAttachmentWrapper,
+  MessageBy
 } from '../../styles';
+import ChatForward from '../../containers/chats/ChatForward';
 
 dayjs.extend(calendar);
 
@@ -25,6 +27,7 @@ type Props = {
   message: any;
   setReply: (text: string) => void;
   isWidget?: boolean;
+  chatType?: string;
 };
 
 type FinalProps = {
@@ -32,32 +35,11 @@ type FinalProps = {
 } & Props;
 
 const MessageItem = (props: FinalProps) => {
-  const { message, currentUser, isWidget } = props;
-  const actionRef = useRef<HTMLElement>(null);
+  const { message, currentUser, isWidget, chatType } = props;
 
   const isMe = currentUser._id === message.createdUser._id;
   const draftContent =
     message.relatedMessage && convertFromHTML(message.relatedMessage.content);
-
-  const handleMouseEnter = () => {
-    if (actionRef && actionRef.current) {
-      const element = actionRef.current;
-
-      if (element && element.style) {
-        element.style.visibility = 'visible';
-      }
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (actionRef && actionRef.current) {
-      const element = actionRef.current;
-
-      if (element && element.style) {
-        element.style.visibility = 'hidden';
-      }
-    }
-  };
 
   const renderAttachments = () => {
     return (message.attachments || []).map(attachment => (
@@ -69,37 +51,67 @@ const MessageItem = (props: FinalProps) => {
     ));
   };
 
+  const userInfo =
+    message.relatedMessage.createdUser &&
+    (message.relatedMessage.createdUser.details.fullName ||
+      message.relatedMessage.createdUser.email);
+
+  const renderReplyText = () => {
+    if (isMe) {
+      return (
+        <>
+          You replied to{' '}
+          {message.relatedMessage.createdUser._id === currentUser._id
+            ? 'yourself'
+            : userInfo}
+        </>
+      );
+    }
+
+    return (
+      <>
+        {(message.createdUser.details.fullName || message.createdUser.email) +
+          'replied to '}
+        {message.relatedMessage.createdUser._id === message.createdUser._id
+          ? 'themself'
+          : userInfo}
+      </>
+    );
+  };
+
   return (
-    <MessageItemWrapper
-      me={isMe}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <MessageItemWrapper me={isMe}>
       <div style={{ flex: 1 }} />
       <MessageWrapper me={isMe}>
         {draftContent && (
-          <MessageReply>
+          <MessageReply me={isMe}>
             <b>
-              {message.relatedMessage.createdUser &&
-                (message.relatedMessage.createdUser.details.fullName ||
-                  message.relatedMessage.createdUser.email)}
-              :&nbsp;
+              <Icon icon="reply" /> {renderReplyText()}
             </b>
             <p>{draftContent.contentBlocks[0].text}</p>
           </MessageReply>
         )}
+        {chatType === 'group' && !isMe && !draftContent && (
+          <MessageBy>
+            {message.createdUser &&
+              (message.createdUser.details.fullName ||
+                message.createdUser.email)}
+          </MessageBy>
+        )}
         {message.content !== '<p></p>' && (
           <MessageBody me={isMe}>
+            <ChatForward
+              content={message.content}
+              attachments={message.attachments}
+              currentUser={currentUser}
+            />
             <Tip placement="top" text="Reply">
-              <MessageOption
-                onClick={() => props.setReply(message)}
-                innerRef={actionRef}
-              >
-                <Icon icon="reply" color="secondary" />
+              <MessageOption onClick={() => props.setReply(message)}>
+                <Icon icon="reply" color="#9d9d9d" />
               </MessageOption>
             </Tip>
             <Tip
-              placement={isMe ? 'left' : 'right'}
+              placement="top"
               text={message.createdAt && dayjs(message.createdAt).calendar()}
             >
               <MessageContent

@@ -58,6 +58,7 @@ const Chat = (props: Props) => {
       leftSidebar={<LeftSidebar chatId={chatId} />}
       rightSidebar={<RightSidebar chatId={chatId} />}
       content={renderContent()}
+      hasBorder={true}
     />
   );
 };

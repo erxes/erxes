@@ -17,12 +17,13 @@ import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   chat: any;
+  type?: string;
 };
 type FinalProps = {
   currentUser: IUser;
 } & Props;
 const ParticipantList = (props: FinalProps) => {
-  const { chat, currentUser } = props;
+  const { chat, currentUser, type } = props;
   const participantUserIds = chat?.participantUsers.map(user => {
     return user._id;
   });
@@ -30,51 +31,47 @@ const ParticipantList = (props: FinalProps) => {
   const renderAdd = () => {
     return (
       <ModalTrigger
-        title="Add people"
+        title="Add Member"
         trigger={
-          <ParticipantItemWrapper>
-            <a href="#">
-              <Icon
-                icon="plus"
-                size={16}
-                color="black"
-                style={{ margin: '0 0.6em' }}
-              />
+          <ParticipantItemWrapper isWidget={type === 'widget'}>
+            <a>
+              <Icon icon="plus" size={15} color="#444" />
               Add Member
             </a>
           </ParticipantItemWrapper>
         }
-        content={props => (
+        content={p => (
           <AddMember
-            {...props}
+            {...p}
             chatId={chat._id}
             participantUserIds={participantUserIds}
           />
         )}
-        isAnimate
-        hideHeader
+        isAnimate={true}
       />
     );
   };
+
   const isAdmin = (chat?.participantUsers || []).find(
     pUser => pUser._id === currentUser._id
   )?.isAdmin;
 
   return (
-    <>
-      <Title>Participants</Title>
-      <ParticipantListWrapper>
+    <div style={{ flexDirection: 'column' }}>
+      {type !== 'widget' && <Title>Participants</Title>}
+      <ParticipantListWrapper isWidget={type === 'widget'}>
         {(chat?.participantUsers || []).map(u => (
           <ParticipantItem
             key={u._id}
             chatId={chat._id}
             user={u}
             isAdmin={isAdmin}
+            isWidget={type === 'widget'}
           />
         ))}
         {isAdmin && renderAdd()}
       </ParticipantListWrapper>
-    </>
+    </div>
   );
 };
 

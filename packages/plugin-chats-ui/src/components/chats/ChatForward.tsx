@@ -1,0 +1,38 @@
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { MessageOption } from '../../styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import ChatList from '../../containers/chats/ChatList';
+import { IUser } from '@erxes/ui/src/auth/types';
+
+type Props = {
+  forwardChat?: (chatId?: string) => void;
+  currentUser: IUser;
+  forwardedChatIds?: string[];
+};
+
+const ChatForward = (props: Props) => {
+  return (
+    <ModalTrigger
+      trigger={
+        <MessageOption>
+          <Tip placement="top" text="Forward">
+            <Icon icon="export" color="#9d9d9d" />
+          </Tip>
+        </MessageOption>
+      }
+      content={p => (
+        <ChatList
+          {...p}
+          forwardedChatIds={props.forwardedChatIds}
+          forwardChat={props.forwardChat}
+          isForward={true}
+        />
+      )}
+      title="Send to"
+    />
+  );
+};
+
+export default ChatForward;

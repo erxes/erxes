@@ -21,7 +21,7 @@ const GroupChatName = (props: Props) => {
 
   return (
     <>
-      <h3>Direct chat</h3>
+      <h3>Change group chat name</h3>
       <FormControl
         placeholder="Name"
         value={name}

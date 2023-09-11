@@ -14,7 +14,7 @@ type Props = {
   currentUser: IUser;
 };
 
-const WdigetListContainer = (props: Props) => {
+const WidgetListContainer = (props: Props) => {
   const { currentUser } = props;
 
   const { loading, error, data, refetch } = useQuery(
@@ -103,6 +103,6 @@ const WdigetListContainer = (props: Props) => {
   );
 };
 
-const WithCurrentUser = withCurrentUser(WdigetListContainer);
+const WithCurrentUser = withCurrentUser(WidgetListContainer);
 
 export default (props: Props) => <WithCurrentUser {...props} />;
