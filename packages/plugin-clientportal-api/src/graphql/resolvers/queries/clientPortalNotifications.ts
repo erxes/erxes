@@ -13,7 +13,7 @@ const notificationQueries = {
       throw new Error('You are not logged in');
     }
 
-    let qry: { receiver: string; isRead?: boolean } = {
+    const qry: { receiver: string; isRead?: boolean } = {
       receiver: cpUser._id,
       isRead: false
     };

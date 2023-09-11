@@ -299,7 +299,7 @@ export const isEnabled = (service: string) => {
  * @param {String} - value
  * @return {String} - URL
  */
-export const readFile = (value: string): string => {
+export const readFile = (value: string, width?: number): string => {
   if (
     !value ||
     urlParser.isValidURL(value) ||
@@ -311,10 +311,16 @@ export const readFile = (value: string): string => {
 
   const { REACT_APP_API_URL } = getEnv();
 
-  return `${REACT_APP_API_URL}/read-file?key=${value}`;
+  let url = `${REACT_APP_API_URL}/read-file?key=${value}`;
+
+  if (width) {
+    url += `&width=${width}`;
+  }
+
+  return url;
 };
 
-export const getUserAvatar = (user: IUserDoc) => {
+export const getUserAvatar = (user: IUserDoc, width?: number) => {
   if (!user) {
     return '';
   }
@@ -325,7 +331,7 @@ export const getUserAvatar = (user: IUserDoc) => {
     return '/images/avatar-colored.svg';
   }
 
-  return readFile(details.avatar);
+  return readFile(details.avatar, width);
 };
 
 export function withProps<IProps>(
