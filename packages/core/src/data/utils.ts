@@ -484,6 +484,12 @@ const uploadToCFImages = async (
     models
   );
 
+  const CLOUDFLARE_BUCKET_NAME = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    'erxes',
+    models
+  );
+
   const IS_PUBLIC = forcePrivate
     ? false
     : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
@@ -497,7 +503,7 @@ const uploadToCFImages = async (
 
   const formData = new FormData();
   formData.append('file', fs.createReadStream(file.path));
-  formData.append('id', fileName);
+  formData.append('id', `${CLOUDFLARE_BUCKET_NAME}/${fileName}`);
 
   const response = await fetch(url, {
     method: 'POST',
@@ -515,8 +521,8 @@ const uploadToCFImages = async (
     throw new Error('Error uploading file to Cloudflare Images');
   }
 
-  if (IS_PUBLIC) {
-    return fileName;
+  if (!IS_PUBLIC || IS_PUBLIC === 'false') {
+    return CLOUDFLARE_BUCKET_NAME + '/' + fileName;
   }
 
   return data.result.variants[0];
