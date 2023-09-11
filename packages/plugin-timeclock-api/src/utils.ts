@@ -1050,10 +1050,6 @@ const createTeamMembersObject = async (subdomain: any, userIds: string[]) => {
   });
 
   for (const teamMember of teamMembers) {
-    if (!teamMember.employeeId) {
-      continue;
-    }
-
     teamMembersObject[teamMember._id] = {
       employeeId: teamMember.employeeId,
       lastName: teamMember.details.lastName,
