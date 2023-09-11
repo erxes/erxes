@@ -6,17 +6,23 @@ import { IContext } from '../../../connectionResolver';
 const notificationQueries = {
   async clientPortalNotificationCount(
     _root,
-    _args,
+    { all }: { all: boolean },
     { models, cpUser }: IContext
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
     }
 
-    return models.ClientPortalNotifications.find({
+    let qry: { receiver: string; isRead?: boolean } = {
       receiver: cpUser._id,
       isRead: false
-    }).countDocuments();
+    };
+
+    if (all) {
+      delete qry.isRead;
+    }
+
+    return models.ClientPortalNotifications.find(qry).countDocuments();
   },
 
   async clientPortalNotifications(
