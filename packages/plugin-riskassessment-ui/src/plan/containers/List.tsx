@@ -9,6 +9,7 @@ import React from 'react';
 import ListComponent from '../components/List';
 import { mutations, queries } from '../graphql';
 import client from '@erxes/ui/src/apolloClient';
+import { generateParamsIds } from '../../common/utils';
 
 type Props = {
   history: any;
@@ -103,6 +104,14 @@ const refetchQueries = queryParams => [
   }
 ];
 
+const generateDateParams = date => {
+  if (!date || date === 'NaN') {
+    return undefined;
+  }
+
+  return date;
+};
+
 const generateParams = queryParams => ({
   ...generatePaginationParams(queryParams),
   isArchived: queryParams.isArchived === 'true',
@@ -110,7 +119,20 @@ const generateParams = queryParams => ({
   sortField: queryParams.sortField,
   sortDirection: queryParams.sortDirection
     ? Number(queryParams.sortDirection)
-    : undefined
+    : undefined,
+  plannerIds: generateParamsIds(queryParams.plannerIds),
+  status: queryParams?.status,
+  structureIds: generateParamsIds(queryParams.structureIds),
+  createDateFrom: generateDateParams(queryParams.createDateFrom),
+  createDateTo: generateDateParams(queryParams.createDateTo),
+  startDateFrom: generateDateParams(queryParams.startDateFrom),
+  startDateTo: generateDateParams(queryParams.startDateTo),
+  closeDateFrom: generateDateParams(queryParams.closeDateFrom),
+  closeDateTo: generateDateParams(queryParams.closeDateTo),
+  createdAtFrom: generateDateParams(queryParams.createdAtFrom),
+  createdAtTo: generateDateParams(queryParams.createdAtTo),
+  modifiedAtFrom: generateDateParams(queryParams.modifiedAtFrom),
+  modifiedAtTo: generateDateParams(queryParams.modifiedAtTo)
 });
 
 export default withProps<Props>(

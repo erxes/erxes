@@ -8,7 +8,7 @@ export const types = ({ tags, forms, contacts }) => `
   ${attachmentInput}
 
   extend type Customer @key(fields: "_id") {
-    _id: String! @external
+    _id: String @external
     conversations: [Conversation]
   }
 

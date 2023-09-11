@@ -339,18 +339,8 @@ export const sendPosclientMessage = async (
     args.isMQ = true;
 
     if (args.isRPC) {
-      const response: any = await sendMessage({
-        client,
-        serviceDiscovery,
-        serviceName,
-        ...args,
-        action: `posclient:health_check_${pos.token}`,
-        data: { token: pos.token, thirdService: true },
-        timeout: 1000,
-        defaultValue: { healthy: 'no' }
-      });
-
-      if (response.healthy !== 'ok') {
+      const response = await sendPosclientHealthCheck(args);
+      if (!response || response.healthy !== 'ok') {
         throw new Error('syncing error not connected posclient');
       }
     }
@@ -364,6 +354,36 @@ export const sendPosclientMessage = async (
     serviceName,
     ...args,
     action: lastAction
+  });
+};
+
+export const sendPosclientHealthCheck = async ({
+  subdomain,
+  pos
+}: {
+  subdomain: string;
+  pos: IPosDocument;
+}) => {
+  const { ALL_AUTO_INIT } = process.env;
+
+  if (
+    [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
+    pos.onServer
+  ) {
+    return { healthy: 'ok' };
+  }
+
+  return await sendMessage({
+    subdomain,
+    client,
+    serviceDiscovery,
+    isRPC: true,
+    isMQ: true,
+    serviceName: '',
+    action: `posclient:health_check_${pos.token}`,
+    data: { token: pos.token, thirdService: true },
+    timeout: 1000,
+    defaultValue: { healthy: 'no' }
   });
 };
 

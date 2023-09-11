@@ -86,3 +86,15 @@ export type OrderDetailQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type SyncHistoriesQueryResponse = {
+  syncHistories: any[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type SyncHistoriesCountQueryResponse = {
+  syncHistoriesCount: number;
+  loading: boolean;
+  refetch: () => void;
+};

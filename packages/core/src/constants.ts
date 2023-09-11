@@ -53,7 +53,7 @@ export const USER_EXPORT_EXTENDED_FIELDS = [
   },
   {
     _id: Math.random(),
-    name: '_id',
+    name: 'employeeId',
     label: 'Employee Id',
     type: 'string'
   }

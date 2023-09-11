@@ -27,8 +27,8 @@ const addPlan = `
 `;
 
 const updatePlan = `
-    mutation UpdateRiskAssessmentPlan($id: String,${commonPlanParams}) {
-      updateRiskAssessmentPlan(_id: $id,${commonPlanParamsDef})
+    mutation UpdateRiskAssessmentPlan($_id: String,${commonPlanParams}) {
+      updateRiskAssessmentPlan(_id: $_id,${commonPlanParamsDef})
     }
 `;
 

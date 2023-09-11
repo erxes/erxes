@@ -1,7 +1,13 @@
 import { getConfig, toErkhet } from './utils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
-export const customerToErkhet = async (subdomain, params, action) => {
+export const customerToErkhet = async (
+  subdomain,
+  models,
+  syncLog,
+  params,
+  action
+) => {
   const config = await getConfig(subdomain, 'ERKHET', {});
 
   const customer = params.updatedDocument || params.object;
@@ -32,7 +38,7 @@ export const customerToErkhet = async (subdomain, params, action) => {
     }
   };
 
-  toErkhet(config, sendData, 'customer-change');
+  toErkhet(models, syncLog, config, sendData, 'customer-change');
 };
 
 export const validCompanyCode = async (config, companyCode) => {
@@ -61,7 +67,14 @@ export const validCompanyCode = async (config, companyCode) => {
   return result;
 };
 
-export const companyToErkhet = async (subdomain, params, action, user) => {
+export const companyToErkhet = async (
+  subdomain,
+  models,
+  syncLog,
+  params,
+  action,
+  user
+) => {
   const config = await getConfig(subdomain, 'ERKHET', {});
   const company = params.updatedDocument || params.object;
 
@@ -79,5 +92,5 @@ export const companyToErkhet = async (subdomain, params, action, user) => {
     }
   };
 
-  toErkhet(config, sendData, 'customer-change');
+  toErkhet(models, syncLog, config, sendData, 'customer-change');
 };
