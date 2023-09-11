@@ -376,6 +376,32 @@ const CustomBoxWrapper = styled.div`
   }
 `;
 
+const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
+  background: ${props => (props.pinned ? colors.colorSecondary : '#f5f5f5')};
+  border-radius: 50%;
+  border: 1px solid ${colors.borderPrimary};
+  width: ${dimensions.coreSpacing}px;
+  height: ${dimensions.coreSpacing}px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: -5px;
+  top: -5px;
+
+  i {
+    filter: ${props => !props.pinned && 'brightness(30%)'};
+  }
+
+  &:hover {
+    background: ${colors.colorSecondary};
+
+    i {
+      filter: none;
+    }
+  }
+`;
+
 export {
   FilterItem,
   FilterWrapper,
@@ -409,5 +435,6 @@ export {
   CustomLabel,
   AlertContainer,
   CustomWidth,
-  CustomBoxWrapper
+  CustomBoxWrapper,
+  RoundBox
 };

@@ -17,12 +17,13 @@ import {
   FlexRow,
   MarginX,
   MarginY,
-  CustomBoxWrapper
+  CustomBoxWrapper,
+  RoundBox
 } from '../../styles';
 
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { PopoverButton } from '@erxes/ui/src/styles/main';
+import { Pin, PopoverButton } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
 
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -635,7 +636,9 @@ function ScheduleForm(props: Props) {
               .map(s => (
                 <FlexRow key={s.order}>
                   <div>{s.label}</div>
-                  <Button icon="BsFillPinFill" />
+                  {/* <RoundBox pinned={false}> */}
+                  <Icon icon="tag-alt" isActive={true} />
+                  {/* </RoundBox> */}
                 </FlexRow>
               ))}
           </Box>
