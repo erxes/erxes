@@ -1,7 +1,7 @@
 import { sendCardsMessage, sendCoreMessage } from '../messageBroker';
-import { sendCommonMessage } from '../messageBrokerErkhet';
+import { sendRPCMessage } from '../messageBrokerErkhet';
 
-export const toErkhet = (config, sendData, action) => {
+export const toErkhet = (models, syncLog, config, sendData, action) => {
   const postData = {
     token: config.apiToken,
     apiKey: config.apiKey,
@@ -9,7 +9,7 @@ export const toErkhet = (config, sendData, action) => {
     orderInfos: JSON.stringify(sendData)
   };
 
-  sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
+  sendRPCMessage(models, syncLog, 'rpc_queue:erxes-automation-erkhet', {
     action,
     payload: JSON.stringify(postData),
     thirdService: true

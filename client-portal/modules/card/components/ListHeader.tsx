@@ -1,13 +1,16 @@
-import { CardTab, FilterGroup } from "../../styles/cards";
-import { typeFilters, viewModes } from "../../main/constants";
+import { ActionBarWrapper, CardTab, FilterGroup } from '../../styles/cards';
+import { typeFilters, viewModes } from '../../main/constants';
 
-import Button from "../../common/Button";
-import { Dropdown } from "react-bootstrap";
-import DropdownToggle from "../../common/DropdownToggle";
-import { HeaderWrapper } from "../../styles/main";
-import Icon from "../../common/Icon";
-import React from "react";
-import { capitalize } from "../../common/utils";
+import Button from '../../common/Button';
+import { Dropdown } from 'react-bootstrap';
+import DropdownToggle from '../../common/DropdownToggle';
+import { HeaderWrapper } from '../../styles/main';
+import Icon from '../../common/Icon';
+import React from 'react';
+import { capitalize } from '../../common/utils';
+import { __ } from '../../../utils';
+import { Dayjs } from 'dayjs';
+import { getCurrentDate, nextMonth, previousMonth } from '../../utils/calendar';
 
 type Props = {
   headerLabel: string;
@@ -19,19 +22,44 @@ type Props = {
   hideHeader: boolean;
   setShowForm: (val: boolean) => void;
   setViewType: (val: string) => void;
+  currentDate: Dayjs;
+  setCurrentDate: (date: Dayjs) => void;
 };
 
 export default class ListHeader extends React.Component<Props> {
   renderFilters() {
-    const { mode, setMode, setViewType, viewType, hideHeader } = this.props;
+    const {
+      mode,
+      setMode,
+      setViewType,
+      viewType,
+      hideHeader,
+      currentDate,
+      setCurrentDate
+    } = this.props;
 
     if (hideHeader) {
       return null;
     }
 
+    const onPreviousClick = () => {
+      const newDate = previousMonth(currentDate);
+      setCurrentDate(newDate);
+    };
+
+    const onNextClick = () => {
+      const newDate = nextMonth(currentDate);
+      setCurrentDate(newDate);
+    };
+
+    const onTodayClick = () => {
+      const newDate = getCurrentDate();
+      setCurrentDate(newDate);
+    };
+
     return (
       <>
-        {viewType !== "board" && (
+        {viewType === 'list' && (
           <Dropdown>
             <Dropdown.Toggle
               as={DropdownToggle}
@@ -50,7 +78,7 @@ export default class ListHeader extends React.Component<Props> {
             </Dropdown.Toggle>
 
             <Dropdown.Menu>
-              {typeFilters.map((viewMode) => (
+              {typeFilters.map(viewMode => (
                 <Dropdown.Item
                   key={viewMode.showMode}
                   className="d-flex align-items-center justify-content-between"
@@ -64,6 +92,33 @@ export default class ListHeader extends React.Component<Props> {
               ))}
             </Dropdown.Menu>
           </Dropdown>
+        )}
+
+        {viewType === 'calendar' && (
+          <ActionBarWrapper>
+            <Button
+              btnStyle="simple"
+              ignoreTrans={true}
+              size="small"
+              icon="leftarrow"
+              onClick={onPreviousClick}
+            />
+            <Button
+              btnStyle="simple"
+              ignoreTrans={true}
+              size="small"
+              icon="rightarrow"
+              onClick={onNextClick}
+            />
+            <Button
+              btnStyle="primary"
+              ignoreTrans={true}
+              size="small"
+              onClick={onTodayClick}
+            >
+              {__('Today')}
+            </Button>
+          </ActionBarWrapper>
         )}
 
         <Dropdown>
@@ -81,7 +136,7 @@ export default class ListHeader extends React.Component<Props> {
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            {viewModes.map((item) => (
+            {viewModes.map(item => (
               <Dropdown.Item
                 key={item.type}
                 className="d-flex align-items-center justify-content-between"

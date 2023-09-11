@@ -21,19 +21,23 @@ type Props = {
   queryParams: any;
   currentUser: IUser;
   companiesQuery: CompaniesQueryResponse;
+  calendarDate?: { startDate: string; endDate: string };
 } & ICommonFormProps;
 
 export const MeetingForm = (props: Props) => {
-  const { companiesQuery, meeting, queryParams } = props;
+  const { companiesQuery, meeting, queryParams, calendarDate } = props;
   const { companies } = companiesQuery || {};
-
   const [userIds, setUserIds] = useState([props.currentUser._id] || []);
   const [companyId, setCompanyId] = useState('');
   const [title, setTitle] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
 
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<string | Date>(
+    calendarDate?.startDate || new Date()
+  );
+  const [endDate, setEndDate] = useState<string | Date>(
+    calendarDate?.endDate || new Date()
+  );
 
   useEffect(() => {
     setTitle(companies?.find(c => c._id === companyId)?.primaryName || '');
@@ -44,8 +48,8 @@ export const MeetingForm = (props: Props) => {
     title: string;
     content: string;
     participantIds: string[];
-    startDate: Date;
-    endDate: Date;
+    startDate: string | Date;
+    endDate: string | Date;
     companyId: string;
     method: string;
   }) => {

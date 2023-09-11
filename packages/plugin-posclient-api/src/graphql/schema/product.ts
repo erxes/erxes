@@ -59,7 +59,9 @@ const productsQueryParams = `
 
 const productCategoriesParams = `
   parentId: String,
+  withChild: Boolean,
   searchValue: String,
+  status: String,
   excludeEmpty: Boolean,
   meta: String,
 `;

@@ -24,9 +24,9 @@ const Wrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
-
+// const CalendarWrapper =
 const ItemWrapper = styled.div`
-  margin: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px 0;
+  margin: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px;
   overflow: hidden;
   background-color: ${colors.colorWhite};
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
