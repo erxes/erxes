@@ -6,6 +6,7 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
 import { sendPricingMessage } from '../../../messageBroker';
 import { Builder } from '../../../utils';
 import { checkRemainders } from '../../utils/products';
+import { IConfigDocument } from '../../../models/definitions/configs';
 
 interface ICommonParams {
   sortField?: string;
@@ -25,19 +26,23 @@ interface IProductParams extends ICommonParams {
   boardId?: string;
   segment?: string;
   segmentData?: string;
+  isKiosk?: boolean;
 }
 
 interface ICategoryParams extends ICommonParams {
   parentId: string;
+  withChild: boolean;
   searchValue: string;
+  status: string;
   excludeEmpty?: boolean;
   meta?: string;
+  isKiosk: Boolean;
 }
 
 const generateFilter = async (
   subdomain: string,
   models: IModels,
-  token: string,
+  config: IConfigDocument,
   {
     type,
     categoryId,
@@ -47,9 +52,11 @@ const generateFilter = async (
     excludeIds,
     segment,
     segmentData,
+    isKiosk,
     ...paginationArgs
   }: IProductParams
 ) => {
+  const { token } = config;
   const filter: any = {
     status: { $ne: PRODUCT_STATUSES.DELETED },
     tokens: { $in: [token] }
@@ -64,10 +71,12 @@ const generateFilter = async (
       _id: categoryId
     });
 
-    const relatedCategoryIds = await models.ProductCategories.find(
-      { order: { $regex: new RegExp(`^${category.order}`) } },
-      { _id: 1 }
-    );
+    const relatedCategoryIds = (
+      await models.ProductCategories.find(
+        { order: { $regex: new RegExp(`^${category.order}`) } },
+        { _id: 1 }
+      ).lean()
+    ).map(c => c._id);
 
     filter.categoryId = { $in: relatedCategoryIds };
   }
@@ -115,15 +124,57 @@ const generateFilter = async (
     filter._id = { $in: list.map(l => l._id) };
   }
 
+  if (isKiosk) {
+    return {
+      $and: [
+        filter,
+        { categoryId: { $nin: config.kioskExcludeCategoryIds } },
+        { _id: { $nin: config.kioskExcludeProductIds } }
+      ]
+    };
+  }
+
   return filter;
 };
 
-const generateFilterCat = ({ token, parentId, searchValue, meta }) => {
+const generateFilterCat = async ({
+  models,
+  config,
+  parentId,
+  withChild,
+  searchValue,
+  status,
+  meta,
+  isKiosk
+}) => {
+  const { token } = config;
+
   const filter: any = { tokens: { $in: [token] } };
   filter.status = { $nin: ['disabled', 'archived'] };
 
+  if (status && status !== 'active') {
+    filter.status = status;
+  }
+
   if (parentId) {
-    filter.parentId = parentId;
+    if (withChild) {
+      const category = await (models as IModels).ProductCategories.getProductCategory(
+        {
+          _id: parentId
+        }
+      );
+
+      const relatedCategoryIds = (
+        await models.ProductCategories.find(
+          { order: { $regex: new RegExp(`^${category.order}`) } },
+          { _id: 1 }
+        ).lean()
+      ).map(c => c._id);
+
+      filter.parentId = { $in: relatedCategoryIds };
+    } else {
+      filter.parentId = parentId;
+    }
   }
 
   if (meta) {
@@ -136,6 +187,10 @@ const generateFilterCat = ({ token, parentId, searchValue, meta }) => {
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (isKiosk) {
+    filter._id = { $nin: config.kioskExcludeCategoryIds };
   }
 
   return filter;
@@ -156,13 +211,14 @@ const productQueries = {
       boardId,
       segment,
       segmentData,
+      isKiosk,
       sortField,
       sortDirection,
       ...paginationArgs
     }: IProductParams,
     { models, subdomain, config }: IContext
   ) {
-    let filter = await generateFilter(subdomain, models, config.token, {
+    let filter = await generateFilter(subdomain, models, config, {
       type,
       categoryId,
       branchId,
@@ -173,7 +229,8 @@ const productQueries = {
       pipelineId,
       boardId,
       segment,
-      segmentData
+      segmentData,
+      isKiosk
     });
 
     let sortParams: any = { code: 1 };
@@ -213,11 +270,12 @@ const productQueries = {
       pipelineId,
       boardId,
       segment,
-      segmentData
+      segmentData,
+      isKiosk
     }: IProductParams,
     { models, config, subdomain }: IContext
   ) {
-    const filter = await generateFilter(subdomain, models, config.token, {
+    const filter = await generateFilter(subdomain, models, config, {
       type,
       categoryId,
       branchId,
@@ -228,7 +286,8 @@ const productQueries = {
       pipelineId,
       boardId,
       segment,
-      segmentData
+      segmentData,
+      isKiosk
     });
 
     return models.Products.find(filter).countDocuments();
@@ -238,20 +297,27 @@ const productQueries = {
     _root,
     {
       parentId,
+      withChild,
       searchValue,
+      status,
       excludeEmpty,
       meta,
+      isKiosk,
       sortDirection,
       sortField,
       ...paginationArgs
     }: ICategoryParams,
     { models, config }: IContext
   ) {
-    const filter = generateFilterCat({
-      token: config.token,
+    const filter = await generateFilterCat({
+      models,
+      config,
       parentId,
+      withChild,
       searchValue,
-      meta
+      status,
+      meta,
+      isKiosk
     });
 
     let sortParams: any = { order: 1 };
@@ -296,18 +362,18 @@ const productQueries = {
 
   async poscProductCategoriesTotalCount(
     _root,
-    {
-      parentId,
-      searchValue,
-      meta
-    }: { parentId: string; searchValue: string; meta: string },
+    { parentId, withChild, searchValue, status, meta, isKiosk },
     { models, config }: IContext
   ) {
     const filter = await generateFilterCat({
-      token: config.token,
+      models,
+      config,
       parentId,
+      withChild,
       searchValue,
-      meta
+      status,
+      meta,
+      isKiosk
     });
     return models.ProductCategories.find(filter).countDocuments();
   },

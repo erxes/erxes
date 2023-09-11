@@ -446,9 +446,11 @@ const fillValue = async (
       const productDatas = item.productsData;
       let totalAmount = 0;
 
-      for (const data of productDatas) {
-        if (data.amount) {
-          totalAmount = totalAmount + data.amount;
+      if (productDatas) {
+        for (const data of productDatas) {
+          if (data.amount) {
+            totalAmount = totalAmount + data.amount;
+          }
         }
       }
 

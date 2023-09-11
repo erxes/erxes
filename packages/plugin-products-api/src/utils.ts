@@ -221,7 +221,12 @@ export const checkCodeMask = async (
     return false;
   }
 
-  if (!category || !category.mask || !category.mask.values) {
+  if (
+    !category ||
+    !category.maskType ||
+    !category.mask ||
+    !category.mask.values
+  ) {
     return true;
   }
 
@@ -260,7 +265,12 @@ export const initCustomField = async (
   productCustomFieldsData?: ICustomField[],
   docCustomFieldsData?: ICustomField[]
 ) => {
-  if (!category || !category.mask || !category.mask.values) {
+  if (
+    !category ||
+    !category.maskType ||
+    !category.mask ||
+    !category.mask.values
+  ) {
     if (docCustomFieldsData && docCustomFieldsData.length) {
       const docFieldsIds = docCustomFieldsData.map(d => d.field);
       const allCustomFieldsData = docCustomFieldsData.concat(
@@ -286,7 +296,7 @@ export const initCustomField = async (
 
   for (const value of category.mask.values || []) {
     const len = Number(value.len);
-    if (value.static) {
+    if (value.static || value.type === 'char') {
       strInd += len;
       continue;
     }

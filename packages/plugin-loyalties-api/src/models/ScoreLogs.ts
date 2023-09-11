@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
-import { Model, model } from 'mongoose';
-import { checkVouchersSale } from '../utils';
+import { Model } from 'mongoose';
 import { getOwner } from './utils';
 import { IModels } from '../connectionResolver';
 import {
@@ -9,6 +8,7 @@ import {
   IScoreLog
 } from './definitions/scoreLog';
 import {
+  sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage
@@ -153,42 +153,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       } = doc;
 
       const score = Number(changeScore);
-      let owner;
-      let sendMessage;
-      let action;
-
-      if (ownerType === 'customer') {
-        owner = await await sendContactsMessage({
-          subdomain,
-          action: 'customers.findOne',
-          data: { _id: ownerId },
-          isRPC: true
-        });
-        sendMessage = sendContactsMessage;
-        action = 'customers.updateOne';
-      }
-
-      if (ownerType === 'user') {
-        owner = await await sendCoreMessage({
-          subdomain,
-          action: 'users.findOne',
-          data: { _id: ownerId },
-          isRPC: true
-        });
-        sendMessage = sendCoreMessage;
-        action = 'users.updateOne';
-      }
-
-      if (ownerType === 'company') {
-        owner = await sendContactsMessage({
-          subdomain,
-          action: 'companies.findOne',
-          data: { _id: ownerId },
-          isRPC: true
-        });
-        sendMessage = sendContactsMessage;
-        action = 'companies.updateCommon';
-      }
+      const owner = await getOwner(subdomain, ownerType, ownerId);
 
       if (!owner) {
         throw new Error(`not fount ${ownerType}`);
@@ -201,18 +166,15 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error(`score are not enough`);
       }
 
-      const response = await sendMessage({
+      const response = await this.updateOwnerScore({
         subdomain,
-        action,
-        data: {
-          selector: { _id: ownerId },
-          modifier: { $set: { score: newScore } }
-        },
-        isRPC: true
+        ownerId,
+        ownerType,
+        newScore
       });
 
-      if (!response) {
-        return;
+      if (!response || !Object.keys(response || {})?.length) {
+        throw new Error('Something went wrong for give score');
       }
       return await models.ScoreLogs.create({
         ownerId,
@@ -222,6 +184,69 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         description,
         createdBy
       });
+    }
+    static async updateOwnerScore({ subdomain, ownerType, ownerId, newScore }) {
+      if (ownerType === 'user') {
+        return await sendCoreMessage({
+          subdomain,
+          action: 'users.updateOne',
+          data: {
+            selector: { _id: ownerId },
+            modifier: { $set: { score: newScore } }
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+      }
+      if (ownerType === 'customer') {
+        return await sendContactsMessage({
+          subdomain,
+          action: 'customers.updateOne',
+          data: {
+            selector: { _id: ownerId },
+            modifier: { $set: { score: newScore } }
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+      }
+      if (ownerType === 'company') {
+        return await sendContactsMessage({
+          subdomain,
+          action: 'companies.updateCommon',
+          data: {
+            selector: { _id: ownerId },
+            modifier: { $set: { score: newScore } }
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+      }
+      if (ownerType === 'cpUser') {
+        const cpUser = await sendClientPortalMessage({
+          subdomain,
+          action: 'clientPortalUsers.findOne',
+          data: {
+            _id: ownerId
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        if (!cpUser) {
+          throw new Error('Not Found Owner');
+        }
+        return await sendContactsMessage({
+          subdomain,
+          action: 'customers.updateOne',
+          data: {
+            selector: { _id: cpUser.erxesCustomerId },
+            modifier: { $set: { score: newScore } }
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+      }
     }
   }
 

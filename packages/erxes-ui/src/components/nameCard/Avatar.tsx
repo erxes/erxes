@@ -89,8 +89,12 @@ class Avatar extends React.Component<Props> {
 
   renderImage(src: string) {
     const { size } = this.props;
+
     return (
-      <AvatarImage image={readFile(src)} style={this.generateStyle(size)} />
+      <AvatarImage
+        image={readFile(src, size && size * 2)}
+        style={this.generateStyle(size)}
+      />
     );
   }
 

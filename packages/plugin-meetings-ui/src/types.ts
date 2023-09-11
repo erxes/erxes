@@ -59,14 +59,6 @@ export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
-export type EditTypeMutationResponse = {
-  typesEdit: (params: { variables: MutationVariables }) => Promise<any>;
-};
-
-export type RemoveTypeMutationResponse = {
-  typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
-};
-
 export interface ITopic {
   _id: string;
   title: string;
