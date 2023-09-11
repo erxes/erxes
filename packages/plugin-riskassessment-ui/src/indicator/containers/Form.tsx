@@ -110,7 +110,8 @@ export default withProps<Props>(
       name: 'indicatorDetail',
       skip: ({ _id }) => !_id,
       options: ({ _id }) => ({
-        variables: { id: _id }
+        variables: { id: _id },
+        fetchPolicy: 'no-cache'
       })
     }),
     graphql<Props>(gql(mutations.duplicate), {
