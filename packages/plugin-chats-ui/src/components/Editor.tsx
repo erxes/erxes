@@ -63,6 +63,7 @@ const Editor = (props: Props) => {
     props.sendMessage({ content, attachments, mentionedUserIds }, () => {
       clearContent();
     });
+    props.setReply(null);
   };
 
   const handleDeleteFile = (url: string) => {

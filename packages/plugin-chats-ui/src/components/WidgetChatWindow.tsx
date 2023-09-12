@@ -31,6 +31,8 @@ type Props = {
     replyId?: string
   ) => void;
   handleActive: (chatId: string, toClose: boolean) => void;
+  isMinimized?: boolean;
+  handleMinimize?: (chatId: string) => void;
 };
 
 type FinalProps = {
@@ -38,9 +40,8 @@ type FinalProps = {
 } & Props;
 
 const WidgetChatWindow = (props: FinalProps) => {
-  const { chat, currentUser } = props;
+  const { chat, currentUser, isMinimized, handleMinimize } = props;
   const [reply, setReply] = useState<any>(null);
-  const [isMinimized, setIsMinimized] = useState(false);
   const [popoverContentType, setPopoverContentType] = useState('main');
 
   const users: any[] = chat.participantUsers || [];
@@ -54,10 +55,6 @@ const WidgetChatWindow = (props: FinalProps) => {
       event.preventDefault();
       props.handleActive(chat._id, false);
     }
-  };
-
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
   };
 
   const popoverContent = () => {
@@ -105,7 +102,7 @@ const WidgetChatWindow = (props: FinalProps) => {
 
   if (isMinimized) {
     return (
-      <MinimizedWidgetChatWindow onClick={() => handleMinimize()}>
+      <MinimizedWidgetChatWindow onClick={() => handleMinimize(chat._id)}>
         <WidgetChatWindowHeader>
           <div>
             {chat.type === 'direct' ? (
@@ -117,14 +114,20 @@ const WidgetChatWindow = (props: FinalProps) => {
               </ChatGroupAvatar>
             )}
             <p>
-              {chat.name || user.details?.fullName || user.email}
+              <div className="name">
+                {chat.name || user.details?.fullName || user.email}
+              </div>
               {chat.type === 'direct' && (
                 <div className="position">{user.details?.position}</div>
               )}
             </p>
           </div>
           <div>
-            <Icon icon="minus-1" size={20} onClick={() => handleMinimize()} />
+            <Icon
+              icon="minus-1"
+              size={20}
+              onClick={() => handleMinimize(chat._id)}
+            />
             <Icon
               icon="times"
               size={24}
@@ -149,7 +152,9 @@ const WidgetChatWindow = (props: FinalProps) => {
             </ChatGroupAvatar>
           )}
           <p>
-            {chat.name || user.details?.fullName || user.email}
+            <div className="name">
+              {chat.name || user.details?.fullName || user.email}
+            </div>
             {chat.type === 'direct' && (
               <div className="position">{user.details?.position}</div>
             )}
@@ -167,7 +172,11 @@ const WidgetChatWindow = (props: FinalProps) => {
           )}
         </div>
         <div>
-          <Icon icon="minus-1" size={24} onClick={() => handleMinimize()} />
+          <Icon
+            icon="minus-1"
+            size={24}
+            onClick={() => handleMinimize(chat._id)}
+          />
           <Icon
             icon="times"
             size={24}

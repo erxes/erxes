@@ -52,6 +52,7 @@ const MessageItem = (props: FinalProps) => {
   };
 
   const userInfo =
+    message.relatedMessage &&
     message.relatedMessage.createdUser &&
     (message.relatedMessage.createdUser.details.fullName ||
       message.relatedMessage.createdUser.email);

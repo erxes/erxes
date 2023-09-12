@@ -31,7 +31,7 @@ const WidgetListContainer = (props: Props) => {
 
   useSubscription(gql(subscriptions.chatInserted), {
     variables: { userId: currentUser._id },
-    onSubscriptionData: ({ subscriptionData: { data } }) => {
+    onSubscriptionData: () => {
       refetch();
     }
   });
@@ -82,7 +82,7 @@ const WidgetListContainer = (props: Props) => {
 
   useSubscription(gql(subscriptions.chatUnreadCountChanged), {
     variables: { userId: currentUser._id },
-    onSubscriptionData: data => {
+    onSubscriptionData: () => {
       refetch();
     }
   });

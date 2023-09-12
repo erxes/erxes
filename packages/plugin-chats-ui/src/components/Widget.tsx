@@ -18,6 +18,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { __, Alert } from '@erxes/ui/src/utils';
 
 const LOCALSTORAGE_KEY = 'erxes_active_chats';
+const LOCALSTORAGE_KEY_MINIMIZE = 'erxes_minimized_chats';
 
 type Props = {
   unreadCount: number;
@@ -26,6 +27,7 @@ type Props = {
 
 type State = {
   activeChatIds: any[];
+  minimizedChatIds: any[];
 };
 
 class Widget extends React.Component<Props, State> {
@@ -33,7 +35,10 @@ class Widget extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      activeChatIds: JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]')
+      activeChatIds: JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]'),
+      minimizedChatIds: JSON.parse(
+        localStorage.getItem(LOCALSTORAGE_KEY_MINIMIZE) || '[]'
+      )
     };
   }
 
@@ -42,6 +47,26 @@ class Widget extends React.Component<Props, State> {
       Alert.success('You have a new chat');
     }
   }
+
+  handleMinimize = (_chatId: string) => {
+    const { minimizedChatIds } = this.state;
+
+    if (minimizedChatIds.includes(_chatId)) {
+      this.setState({
+        minimizedChatIds: minimizedChatIds.filter(c => c !== _chatId)
+      });
+      localStorage.setItem(
+        LOCALSTORAGE_KEY_MINIMIZE,
+        JSON.stringify(minimizedChatIds.filter(c => c !== _chatId))
+      );
+    } else {
+      this.setState({ minimizedChatIds: [...minimizedChatIds, _chatId] });
+      localStorage.setItem(
+        LOCALSTORAGE_KEY_MINIMIZE,
+        JSON.stringify([...minimizedChatIds, _chatId])
+      );
+    }
+  };
 
   handleActive = (_chatId: string, toClose?: boolean) => {
     const { activeChatIds } = this.state;
@@ -68,7 +93,7 @@ class Widget extends React.Component<Props, State> {
 
   render() {
     const { unreadCount, currentUser } = this.props;
-    const { activeChatIds } = this.state;
+    const { activeChatIds, minimizedChatIds } = this.state;
 
     const popoverChat = (
       <Popover id="chat-popover" className="notification-popover">
@@ -112,6 +137,8 @@ class Widget extends React.Component<Props, State> {
               key={c._id}
               chatId={c}
               handleActive={this.handleActive}
+              isMinimized={minimizedChatIds.includes(c)}
+              handleMinimize={this.handleMinimize}
             />
           ))}
         </WidgetChatWrapper>
