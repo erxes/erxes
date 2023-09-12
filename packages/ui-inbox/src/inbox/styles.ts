@@ -352,7 +352,23 @@ const SmallEditor = styled.div`
 const CallLabel = styledTS<{ type: string }>(styled.span)`
   color: ${props => (props.type === 'answered' ? 'green' : 'red')};
 `;
+const ModalWrapper = styledTS<{ show?: boolean }>(styled.div)`
 
+${({ show }) =>
+  show
+    ? `
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 300;
+  `
+    : ``}`;
 export {
   PopoverButton,
   RespondBoxStyled,
@@ -381,5 +397,6 @@ export {
   NoHeight,
   SmallEditor,
   CallLabel,
-  MailRespondBox
+  MailRespondBox,
+  ModalWrapper
 };
