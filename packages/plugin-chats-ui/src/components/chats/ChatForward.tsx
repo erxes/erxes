@@ -7,9 +7,10 @@ import ChatList from '../../containers/chats/ChatList';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
-  forwardChat?: (chatId?: string) => void;
+  forwardChat?: (chatId?: string, userIds?: string[]) => void;
   currentUser: IUser;
   forwardedChatIds?: string[];
+  isWidget: boolean;
 };
 
 const ChatForward = (props: Props) => {
@@ -28,6 +29,7 @@ const ChatForward = (props: Props) => {
           forwardedChatIds={props.forwardedChatIds}
           forwardChat={props.forwardChat}
           isForward={true}
+          isWidget={props.isWidget}
         />
       )}
       title="Send to"

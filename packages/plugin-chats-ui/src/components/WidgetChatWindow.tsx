@@ -79,7 +79,7 @@ const WidgetChatWindow = (props: FinalProps) => {
         <Popover id="chatGroupMembers-popover">
           <MainPopoverWrapper>
             <ModalTrigger
-              title="Compose"
+              title="Change group name"
               trigger={
                 <div>
                   <Icon icon="pen-1" />
@@ -87,7 +87,6 @@ const WidgetChatWindow = (props: FinalProps) => {
                 </div>
               }
               content={p => <GroupChatName {...p} chat={chat} />}
-              hideHeader={true}
               isAnimate={true}
             />
             <div onClick={() => setPopoverContentType('members')}>
@@ -117,9 +116,6 @@ const WidgetChatWindow = (props: FinalProps) => {
               <div className="name">
                 {chat.name || user.details?.fullName || user.email}
               </div>
-              {chat.type === 'direct' && (
-                <div className="position">{user.details?.position}</div>
-              )}
             </p>
           </div>
           <div>
@@ -188,6 +184,7 @@ const WidgetChatWindow = (props: FinalProps) => {
         currentUser={currentUser}
         chatId={chat._id}
         setReply={setReply}
+        isWidget={true}
       />
       <ReplyInfo reply={reply} setReply={setReply} />
       <Editor

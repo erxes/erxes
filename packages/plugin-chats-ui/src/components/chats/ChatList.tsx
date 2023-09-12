@@ -21,7 +21,7 @@ type Props = {
   totalCount?: number;
   allUsers: IUser[];
   isForward?: boolean;
-  forwardChat?: (chatId?: string) => void;
+  forwardChat?: (chatId?: string, userIds?: string[]) => void;
   forwardedChatIds?: string[];
 };
 
@@ -206,9 +206,9 @@ const ChatList = (props: Props) => {
                   handlePin={handlePin}
                   isWidget={isWidget}
                   active={false}
-                  // isForward={isForward}
-                  // forwardChat={forwardChat}
-                  // forwardedChatIds={forwardedChatIds}
+                  isForward={isForward}
+                  forwardChat={forwardChat}
+                  forwardedChatIds={forwardedChatIds}
                 />
               );
             }

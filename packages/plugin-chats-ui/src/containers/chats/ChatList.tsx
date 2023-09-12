@@ -18,7 +18,7 @@ type Props = {
   isWidget?: boolean;
   handleClickItem?: (chatId: string) => void;
   isForward?: boolean;
-  forwardChat?: (chatId?: string) => void;
+  forwardChat?: (chatId?: string, userIds?: string[]) => void;
   forwardedChatIds?: string[];
 };
 

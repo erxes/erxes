@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { convertFromHTML } from 'draft-js';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
@@ -105,6 +105,7 @@ const MessageItem = (props: FinalProps) => {
               content={message.content}
               attachments={message.attachments}
               currentUser={currentUser}
+              isWidget={isWidget}
             />
             <Tip placement="top" text="Reply">
               <MessageOption onClick={() => props.setReply(message)}>

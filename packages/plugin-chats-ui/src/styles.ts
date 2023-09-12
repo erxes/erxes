@@ -648,6 +648,7 @@ export const MessageReply = styledTS<{ me?: boolean }>(styled.div)`
   
   b {
     font-weight: 500;
+    font-size: 11px;
   }
   
   p {
@@ -857,68 +858,6 @@ export const FileName = styled.div`
   text-overflow: ellipsis;
   margin-right: 5px;
   color: ${colors.colorWhite};
-`;
-
-export const EditorActions = styled.div`
-  padding: 10px 20px 20px 20px;
-  text-align: right;
-  position: relative;
-  color: ${colors.colorCoreGray};
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  label {
-    margin: 0 10px 0 0;
-    display: block;
-
-    &:hover {
-      cursor: pointer;
-      color: ${darken(colors.colorCoreGray, 30)};
-    }
-    ${isEnabled('internalnotes') &&
-      `
-      &:first-of-type {
-        position: absolute;
-        left: 20px;
-      }
-    `}
-  }
-
-  i {
-    margin: 0;
-  }
-
-  input[type='file'] {
-    display: none;
-  }
-`;
-
-export const EditorWrapper = styled.div`
-  position: relative;
-  width: 100%;
-
-  > .cke_chrome {
-    border-bottom: 0;
-    border-left: 0;
-    border-right: 0;
-  }
-
-  .cke_bottom {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
-  }
-
-  .cke_toolgroup {
-    border: 0;
-    margin-left: 3px;
-  }
-
-  .cke_resizer {
-    display: none !important;
-  }
 `;
 
 /**

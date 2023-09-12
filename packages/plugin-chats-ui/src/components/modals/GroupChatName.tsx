@@ -21,14 +21,17 @@ const GroupChatName = (props: Props) => {
 
   return (
     <>
-      <h3>Change group chat name</h3>
       <FormControl
         placeholder="Name"
         value={name}
         onChange={(e: any) => setName(e.target.value)}
       />
       <br />
-      <Button style={{ float: 'right' }} onClick={handleSubmit}>
+      <Button
+        btnStyle="success"
+        style={{ float: 'right' }}
+        onClick={handleSubmit}
+      >
         Save
       </Button>
       <Button

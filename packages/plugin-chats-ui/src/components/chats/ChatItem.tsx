@@ -91,6 +91,11 @@ const ChatItem = (props: FinalProps) => {
     }
   };
 
+  const onDelete = () => {
+    props.remove();
+    document.getElementById('ChatActions').click();
+  };
+
   const renderChatActions = () => {
     if (isForward) {
       return (forwardedChatIds || []).includes(chat?._id) ? (
@@ -108,20 +113,24 @@ const ChatItem = (props: FinalProps) => {
       );
     }
 
-    return (
-      <ChatActions>
-        <OverlayTrigger
-          trigger="click"
-          rootClose={true}
-          placement="bottom"
-          overlay={popoverContextMenu}
-        >
-          <ChatActionItem>
-            <Icon icon="ellipsis-h" size={14} />
-          </ChatActionItem>
-        </OverlayTrigger>
-      </ChatActions>
-    );
+    if (chat) {
+      return (
+        <ChatActions id="ChatActions">
+          <OverlayTrigger
+            trigger="click"
+            rootClose={true}
+            placement="top"
+            overlay={popoverContextMenu}
+          >
+            <ChatActionItem>
+              <Icon icon="ellipsis-h" size={14} />
+            </ChatActionItem>
+          </OverlayTrigger>
+        </ChatActions>
+      );
+    }
+
+    return null;
   };
 
   const popoverContextMenu = chat && (
@@ -133,7 +142,7 @@ const ChatItem = (props: FinalProps) => {
         <ContextMenuItem onClick={() => props.markAsRead()}>
           {chat.isSeen ? 'Mark as unread' : 'Mark as read'}
         </ContextMenuItem>
-        <ContextMenuItem color="red" onClick={() => props.remove()}>
+        <ContextMenuItem color="red" onClick={onDelete}>
           Delete Chat
         </ContextMenuItem>
       </ContextMenuList>

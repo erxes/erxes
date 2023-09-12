@@ -22,12 +22,12 @@ type Props = {
   currentUser?: IUser;
   notContactUser?: IUser;
   isForward?: boolean;
-  forwardChat?: (chatId?: string) => void;
+  forwardChat?: (chatId?: string, userIds?: string[]) => void;
   forwardedChatIds?: string[];
 };
 
 const ChatItemContainer = (props: Props) => {
-  const { chat, active, handleClickItem } = props;
+  const { chat, active, handleClickItem, isWidget } = props;
   const history = useHistory();
   const [removeMutation] = useMutation(gql(mutations.chatRemove));
   const [markAsReadMutation] = useMutation(gql(mutations.chatMarkAsRead));
@@ -64,30 +64,29 @@ const ChatItemContainer = (props: Props) => {
   };
 
   const createChat = (userIds: string[]) => {
-    if (props.isWidget) {
+    if (isWidget) {
       chatAddMutation({
-        variables: { type: 'direct', participantIds: userIds || [] },
-        refetchQueries: [
-          {
-            query: gql(queries.chats)
-          }
-        ]
+        variables: { type: 'direct', participantIds: userIds || [] }
       })
         .then(({ data }) => {
           if (handleClickItem) {
             handleClickItem(data.chatAdd._id);
           }
-          // if (props.forwardChat) {
-          //   props.forwardChat(data.chatAdd._id);
-          // }
+          if (props.forwardChat) {
+            props.forwardChat(data.chatAdd._id);
+          }
         })
         .catch(error => {
           Alert.error(error.message);
         });
+    } else {
+      if (props.forwardChat) {
+        props.forwardChat(null, userIds);
+      } else {
+        router.removeParams(history, 'id', 'userIds');
+        router.setParams(history, { userId: userIds[0] });
+      }
     }
-
-    router.removeParams(history, 'id', 'userIds');
-    router.setParams(history, { userId: userIds[0] });
   };
 
   return (

@@ -11,6 +11,7 @@ type Props = {
   currentUser: IUser;
   content?: any;
   attachments?: any;
+  isWidget: boolean;
 };
 
 const ChatForwardContainer = (props: Props) => {
@@ -18,24 +19,22 @@ const ChatForwardContainer = (props: Props) => {
 
   const [chatForward] = useMutation(gql(mutations.chatForward));
 
-  const forwardChat = (chatId: string) => {
+  const forwardChat = (chatId?: string, userIds?: string[]) => {
     chatForward({
       variables: {
-        chatId,
+        chatId: chatId && chatId,
+        userIds,
         content: props.content,
         attachments: props.attachments
       }
-    })
-      .then(() => {
-        setForwardedChatIds([...forwardedChatIds, chatId]);
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+    }).then(() => {
+      setForwardedChatIds([...forwardedChatIds, chatId]);
+    });
   };
 
   return (
     <ChatForward
+      {...props}
       currentUser={props.currentUser}
       forwardedChatIds={forwardedChatIds}
       forwardChat={forwardChat}
