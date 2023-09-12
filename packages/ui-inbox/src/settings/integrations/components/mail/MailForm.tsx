@@ -523,7 +523,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderFrom() {
     return (
-      <FlexRow>
+      <FlexRow isEmail={true}>
         <label className="from">From:</label>
         {this.renderFromValue()}
       </FlexRow>
@@ -532,7 +532,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderTo() {
     return (
-      <FlexRow>
+      <FlexRow isEmail={true}>
         <label>To:</label>
         <FormControl
           autoFocus={this.props.isForward}
