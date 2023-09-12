@@ -185,10 +185,8 @@ class MailForm extends React.Component<Props, State> {
       this.clearContent();
     }
 
-    if (prevProps.emailTo !== this.props.emailTo || to !== this.props.emailTo) {
-      if (prevState.to === to) {
-        this.setState({ to: this.props.emailTo });
-      }
+    if (prevProps.emailTo !== this.props.emailTo) {
+      this.setState({ to: this.props.emailTo });
     }
   }
 
@@ -309,7 +307,7 @@ class MailForm extends React.Component<Props, State> {
 
   clearContent = () => {
     this.setState({
-      // to: "",
+      to: this.props.emailTo ? this.props.emailTo : '',
       cc: '',
       bcc: '',
       subject: '',
