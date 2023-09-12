@@ -26,6 +26,7 @@ type Props = {
 type State = {
   shrink: string;
   clear: boolean;
+  isFullscreen: boolean;
 };
 
 class Widget extends React.Component<Props, State> {
@@ -34,7 +35,8 @@ class Widget extends React.Component<Props, State> {
 
     this.state = {
       shrink: localStorage.getItem('emailWidgetShrink') || 'false',
-      clear: false
+      clear: false,
+      isFullscreen: false
     };
   }
 
@@ -116,9 +118,12 @@ class Widget extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { shrink, clear } = this.state;
+    const { shrink, clear, isFullscreen } = this.state;
 
     const changeShrink = () => {
+      if (isFullscreen) {
+        this.setState({ isFullscreen: false });
+      }
       this.setState({ shrink: shrink === 'true' ? 'false' : 'true' });
       localStorage.setItem(
         'emailWidgetShrink',
@@ -140,20 +145,38 @@ class Widget extends React.Component<Props, State> {
 
     const onClose = () => {
       hideWidget();
-      this.setState({ clear: true });
+      this.setState({ clear: true, isFullscreen: false });
+    };
+
+    const handleExpand = () => {
+      this.setState({ isFullscreen: !this.state.isFullscreen });
     };
 
     const isWidgetShow =
       JSON.parse(localStorage.getItem('emailWidgetShow')) || {};
+
     const isShrink = shrink === 'true' ? true : false;
 
     return (
-      <WidgetWrapper shrink={isShrink} show={isWidgetShow.show}>
+      <WidgetWrapper
+        shrink={isShrink}
+        show={isWidgetShow.show}
+        fullScreen={isFullscreen}
+      >
         <NewEmailHeader>
           <span onClick={changeShrink}>{__('New Email')}</span>
           <div>
-            <Icon size={10} icon={shrink === 'true' ? 'plus' : 'minus'} />
-            <Icon size={10} icon="cancel" onClick={() => onClose()} />
+            <Icon
+              size={10}
+              icon={shrink === 'true' ? 'plus' : 'minus'}
+              onClick={changeShrink}
+            />
+            <Icon
+              size={10}
+              icon={isFullscreen ? 'compress' : 'expand-arrows-alt'}
+              onClick={handleExpand}
+            />
+            <Icon size={10} icon="cancel" onClick={onClose} />
           </div>
         </NewEmailHeader>
         <MailForm
