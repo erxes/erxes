@@ -172,11 +172,13 @@ const ChatItem = (props: FinalProps) => {
     return (
       <>
         <p>
-          {chat && chat.type === 'direct'
-            ? user?.details.fullName || user?.email
-            : chat?.name}
-          {chat && chat.type === 'direct' && (
-            <span> ({user?.details.position})</span>
+          {chat && chat.type === 'direct' ? (
+            <>
+              {user?.details.fullName || user?.email}
+              <span> ({user?.details.position})</span>
+            </>
+          ) : (
+            chat?.name
           )}
         </p>
       </>

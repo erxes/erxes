@@ -8,9 +8,8 @@ import AddMember from '../../containers/modals/AddMember';
 import {
   Title,
   ParticipantListWrapper,
-  ParticipantItemWrapper
-  // ParticipantDetails,
-  // ParticipantSubDetails
+  ParticipantItemWrapper,
+  FlexColumn
 } from '../../styles';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -57,7 +56,7 @@ const ParticipantList = (props: FinalProps) => {
   )?.isAdmin;
 
   return (
-    <div style={{ flexDirection: 'column' }}>
+    <FlexColumn>
       {type !== 'widget' && <Title>Participants</Title>}
       <ParticipantListWrapper isWidget={type === 'widget'}>
         {(chat?.participantUsers || []).map(u => (
@@ -71,7 +70,7 @@ const ParticipantList = (props: FinalProps) => {
         ))}
         {isAdmin && renderAdd()}
       </ParticipantListWrapper>
-    </div>
+    </FlexColumn>
   );
 };
 

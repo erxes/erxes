@@ -550,11 +550,8 @@ export const ParticipantDetails = styledTS<{ isWidget?: boolean }>(styled.div)`
   }
 `;
 
-export const ParticipantSubDetails = styled.div`
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+export const FlexColumn = styled.div`
+  flex-direction: column;
 `;
 /**
  * Participants - END
