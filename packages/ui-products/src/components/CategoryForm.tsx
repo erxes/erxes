@@ -67,7 +67,7 @@ class CategoryForm extends React.Component<Props, State> {
     }
 
     let genMaskType = maskType;
-    let genMask = mask;
+    let genMask = maskType && mask;
 
     const parentCategory = categories.find(c => c._id === parentId);
     if (parentCategory && parentCategory.maskType === 'hard') {

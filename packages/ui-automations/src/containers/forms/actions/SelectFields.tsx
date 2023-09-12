@@ -20,6 +20,7 @@ type Props = {
   label: string;
   excludedNames?: string[];
   customAttributions?: FieldsCombinedByType[];
+  withDefaultValue?: boolean;
 };
 
 type FinalProps = {
@@ -38,9 +39,9 @@ class SelectFields extends React.Component<FinalProps, State> {
       return null;
     }
 
-    const attributions = fieldsCombinedByTypeQuery.fieldsCombinedByContentType.concat(
-      this.props.customAttributions || []
-    );
+    const attributions = (
+      fieldsCombinedByTypeQuery?.fieldsCombinedByContentType || []
+    ).concat(this.props?.customAttributions || []);
 
     const extendedProps = {
       ...this.props,
