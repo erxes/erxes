@@ -1,20 +1,20 @@
-import { IUser } from "../../../auth/types";
-import React, { useState } from "react";
-import { __ } from "../../../../utils";
-import ChatItem from "../../containers/chat/ChatItem";
-import ModalTrigger from "../../../common/ModalTrigger";
-import Icon from "../../../common/Icon";
-import FormControl from "../../../common/form/Control";
-import CreateGroupChat from "../../containers/chat/CreateGroupChat";
+import { IUser } from '../../../auth/types';
+import React, { useState } from 'react';
+import { __ } from '../../../../utils';
+import ChatItem from '../../containers/chat/ChatItem';
+import ModalTrigger from '../../../common/ModalTrigger';
+import Icon from '../../../common/Icon';
+import FormControl from '../../../common/form/Control';
+import CreateGroupChat from '../../containers/chat/CreateGroupChat';
 import {
   IconButton,
   ChatListHeader,
   SearchInput,
   NoEvent,
-  ChatListSpacing,
-} from "../../styles";
-import Tip from "../../../common/Tip";
-import { TabTitle, Tabs } from "../../../common/tabs";
+  ChatListSpacing
+} from '../../styles';
+import Tip from '../../../common/Tip';
+import { TabTitle, Tabs } from '../../../common/tabs';
 
 type Props = {
   users: IUser[];
@@ -35,18 +35,20 @@ export default function ChatList({
   togglePinned,
   isForward,
   forwardChat,
-  forwardedChatIds,
+  forwardedChatIds
 }: Props) {
   const contactedUsers = chats.map(
-    (c) => c.type === "direct" && c.participantUsers[0]?._id
+    (c) => c.type === 'direct' && c.participantUsers[0]?._id
   );
 
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [filteredGroupChat, setFilteredGroupChat] = useState([]);
-  const [currentTab, setCurrentTab] = useState("Chats");
+  const [currentTab, setCurrentTab] = useState('Chats');
   const [pinnedChatIds, setPinnedChatIds] = useState(
-    chats?.filter((chat: any) => chat.isPinned === true) || []
+    chats?.filter((chat: any) =>
+      chat.isPinnedUserIds.includes(currentUser._id)
+    ) || []
   );
 
   const updatePinned = (_chats: any[]) => {
@@ -74,8 +76,8 @@ export default function ChatList({
           <label>Pinned</label>
           {chats.map(
             (c) =>
-              c.isPinned &&
-              (isGroup ? c.type === "group" : c.type === "direct") && (
+              c.isPinnedUserIds.includes(currentUser._id) &&
+              (isGroup ? c.type === 'group' : c.type === 'direct') && (
                 <ChatItem
                   key={c._id}
                   chat={c}
@@ -115,7 +117,7 @@ export default function ChatList({
     );
     setFilteredGroupChat(
       chats.filter((chat) => {
-        if (chat.type === "group") {
+        if (chat.type === 'group') {
           return chat.name.toLowerCase().includes(inputValue.toLowerCase());
         }
       })
@@ -123,18 +125,18 @@ export default function ChatList({
   };
 
   const renderTabContent = () => {
-    if (currentTab === "Group chats") {
+    if (currentTab === 'Group chats') {
       return (
         <>
           {pinnedChatIds.length !== 0 && renderPinnedChats(true)}
           <ChatListHeader>
             {isForward ? (
-              "Your groups"
+              'Your groups'
             ) : (
               <>
                 <ModalTrigger
                   title="Create a group chat"
-                  trigger={<label>{__("Create a group chat")}</label>}
+                  trigger={<label>{__('Create a group chat')}</label>}
                   content={(props) => (
                     <CreateGroupChat
                       {...props}
@@ -162,7 +164,10 @@ export default function ChatList({
             )}
           </ChatListHeader>
           {chats.map((c) => {
-            if (!c.isPinned && c.type === "group") {
+            if (
+              !c.isPinnedUserIds.includes(currentUser._id) &&
+              c.type === 'group'
+            ) {
               return (
                 <ChatItem
                   chat={c}
@@ -186,7 +191,10 @@ export default function ChatList({
         {pinnedChatIds.length !== 0 && renderPinnedChats(false)}
         <label>Recent</label>
         {chats.map((chat) => {
-          if (!chat.isPinned && chat.type === "direct") {
+          if (
+            !chat.isPinnedUserIds.includes(currentUser._id) &&
+            chat.type === 'direct'
+          ) {
             return (
               <ChatItem
                 currentUser={currentUser}
@@ -226,7 +234,7 @@ export default function ChatList({
   };
 
   const renderUsers = () => {
-    if (searchValue !== "") {
+    if (searchValue !== '') {
       if (filteredUsers.length > 0 || filteredGroupChat.length > 0) {
         return (
           <>
@@ -293,16 +301,16 @@ export default function ChatList({
       <>
         <Tabs full={true}>
           <TabTitle
-            className={currentTab === "Chats" ? "active" : ""}
-            onClick={() => setCurrentTab("Chats")}
+            className={currentTab === 'Chats' ? 'active' : ''}
+            onClick={() => setCurrentTab('Chats')}
           >
-            {__("Chats")}
+            {__('Chats')}
           </TabTitle>
           <TabTitle
-            className={currentTab === "Group chats" ? "active" : ""}
-            onClick={() => setCurrentTab("Group chats")}
+            className={currentTab === 'Group chats' ? 'active' : ''}
+            onClick={() => setCurrentTab('Group chats')}
           >
-            {__("Group chats")}
+            {__('Group chats')}
           </TabTitle>
         </Tabs>
         <ChatListSpacing>{renderTabContent()}</ChatListSpacing>
@@ -315,7 +323,7 @@ export default function ChatList({
       <SearchInput>
         <Icon icon="search-1" size={18} />
         <FormControl
-          placeholder={__("Search")}
+          placeholder={__('Search')}
           name="searchValue"
           onChange={search}
           value={searchValue}

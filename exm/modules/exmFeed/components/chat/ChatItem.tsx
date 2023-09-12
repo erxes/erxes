@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 // erxes
-import Avatar from "../../../common/nameCard/Avatar";
-import Icon from "../../../common/Icon";
-import Button from "../../../common/Button";
-import { IUser } from "../../../auth/types";
+import Avatar from '../../../common/nameCard/Avatar';
+import Icon from '../../../common/Icon';
+import Button from '../../../common/Button';
+import { IUser } from '../../../auth/types';
 // local
 import {
   ChatItemWrapper,
@@ -13,9 +13,11 @@ import {
   ChatActionItem,
   ContextMenuList,
   ContextMenuItem,
-} from "../../styles";
-import Dropdown from "react-bootstrap/Dropdown";
-import DropdownToggle from "../../../common/DropdownToggle";
+  AvatarImg
+} from '../../styles';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '../../../common/DropdownToggle';
+import { readFile } from '../../../utils';
 
 type Props = {
   chat?: any;
@@ -31,6 +33,8 @@ type Props = {
   isForward?: boolean;
   forwardChat?: (chatId?: string) => void;
   forwardedChatIds?: string[];
+  createChats: () => void;
+  setChatUser: (userId: string) => void;
 };
 
 const ChatItem = (props: Props) => {
@@ -42,6 +46,8 @@ const ChatItem = (props: Props) => {
     isForward,
     forwardChat,
     forwardedChatIds,
+    createChats,
+    setChatUser
   } = props;
 
   const users: any[] = chat?.participantUsers || [];
@@ -55,7 +61,8 @@ const ChatItem = (props: Props) => {
       props.handleClickItem(chat._id);
     }
     if (notContactUser) {
-      createChat([notContactUser._id, currentUser._id]);
+      setChatUser(notContactUser._id);
+      createChats();
     }
   };
 
@@ -76,11 +83,11 @@ const ChatItem = (props: Props) => {
     return (
       <>
         <p>
-          {chat && chat.type === "direct"
+          {chat && chat.type === 'direct'
             ? user?.details.fullName || user?.email
             : chat?.name}
         </p>
-        <span>{chat && chat.type === "direct" && user?.details.position}</span>
+        <span>{chat && chat.type === 'direct' && user?.details.position}</span>
       </>
     );
   };
@@ -128,10 +135,10 @@ const ChatItem = (props: Props) => {
             <Dropdown.Menu>
               <ContextMenuList>
                 <ContextMenuItem onClick={() => props.handlePin(chat._id)}>
-                  {chat?.isPinned ? "Unpin" : "Pin"}
+                  {chat?.isPinned ? 'Unpin' : 'Pin'}
                 </ContextMenuItem>
                 <ContextMenuItem onClick={() => props.markAsRead()}>
-                  {chat && chat.isSeen ? "Mark as unread" : "Mark as read"}
+                  {chat && chat.isSeen ? 'Mark as unread' : 'Mark as read'}
                 </ContextMenuItem>
                 <ContextMenuItem color="red" onClick={() => props.remove()}>
                   Delete Chat
@@ -147,12 +154,21 @@ const ChatItem = (props: Props) => {
   return (
     <ChatItemWrapper id="ChatItemWrapper" isWidget={true}>
       {chat &&
-        (chat.type === "direct" ? (
+        (chat.type === 'direct' ? (
           <Avatar user={user} size={36} />
         ) : (
           <ChatGroupAvatar id="ChatGroupAvatar">
-            <Avatar user={users[0]} size={24} />
-            <Avatar user={users[1]} size={24} />
+            {chat.featuredImage.length > 0 ? (
+              <AvatarImg
+                alt={'author'}
+                src={readFile(chat && chat.featuredImage[0].url, 60)}
+              />
+            ) : (
+              <>
+                <Avatar user={users[0]} size={24} />
+                <Avatar user={users[1]} size={24} />{' '}
+              </>
+            )}
           </ChatGroupAvatar>
         ))}
 
