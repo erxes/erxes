@@ -1,4 +1,8 @@
-import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
+import {
+  sendClientPortalMessage,
+  sendContactsMessage,
+  sendCoreMessage
+} from '../messageBroker';
 
 export const validCampaign = doc => {
   if (
@@ -97,6 +101,14 @@ export const getOwner = async (subdomain, ownerType, ownerId) => {
         action: 'companies.findOne',
         data: { _id: ownerId },
         isRPC: true
+      });
+    case 'cpUser':
+      return await sendClientPortalMessage({
+        subdomain,
+        action: 'clientPortalUsers.findOne',
+        data: { _id: ownerId },
+        isRPC: true,
+        defaultValue: null
       });
     default:
       return {};
