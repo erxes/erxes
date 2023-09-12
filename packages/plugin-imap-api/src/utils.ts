@@ -1,4 +1,5 @@
 import * as Imap from 'node-imap';
+import * as retry from 'retry';
 import { simpleParser } from 'mailparser';
 import { generateModels } from './connectionResolver';
 import { sendContactsMessage, sendInboxMessage } from './messageBroker';
@@ -11,7 +12,7 @@ export const toUpper = thing => {
 export const findAttachmentParts = (struct, attachments?) => {
   attachments = attachments || [];
 
-  for (var i = 0, len = struct.length, r; i < len; ++i) {
+  for (let i = 0, len = struct.length, _r: any; i < len; ++i) {
     if (Array.isArray(struct[i])) {
       findAttachmentParts(struct[i], attachments);
     } else {
@@ -42,8 +43,10 @@ const searchMessages = (imap, criteria) => {
   return new Promise((resolve, reject) => {
     const messages: any = [];
 
-    imap.search(criteria, function(err, results) {
-      if (err) throw err;
+    imap.search(criteria, (err, results) => {
+      if (err) {
+        throw err;
+      }
 
       let f;
 
@@ -53,15 +56,14 @@ const searchMessages = (imap, criteria) => {
         if (e.message.includes('Nothing to fetch')) {
           return resolve([]);
         }
-
         throw e;
       }
 
-      f.on('message', function(msg) {
-        msg.on('body', async function(stream) {
-          var buffer = '';
+      f.on('message', msg => {
+        msg.on('body', async stream => {
+          let buffer = '';
 
-          stream.on('data', function(chunk) {
+          stream.on('data', chunk => {
             buffer += chunk.toString('utf8');
           });
 
@@ -71,19 +73,19 @@ const searchMessages = (imap, criteria) => {
         });
       });
 
-      f.once('error', function(err) {
-        reject(err);
+      f.once('error', (error: any) => {
+        reject(error);
       });
 
-      f.once('end', async function() {
-        const results: any = [];
+      f.once('end', async () => {
+        const data: any = [];
 
         for (const buffer of messages) {
           const parsed = await simpleParser(buffer);
-          results.push(parsed);
+          data.push(parsed);
         }
 
-        resolve(results);
+        resolve(data);
       });
     });
   });
@@ -219,72 +221,99 @@ const saveMessages = async (
   }
 };
 
+const operation = retry.operation({
+  retries: 15,
+  factor: 2,
+  minTimeout: 1000,
+  maxTimeout: 60000,
+  randomize: true
+});
+
 export const listenIntegration = async (
   subdomain: string,
   integration: IIntegrationDocument
 ) => {
-  const models = await generateModels(subdomain);
+  const performImapOperation = async callback => {
+    const models = await generateModels(subdomain);
 
-  const imap = generateImap(integration);
+    const imap = generateImap(integration);
 
-  imap.once('ready', response => {
-    imap.openBox('INBOX', true, async (err, box) => {
+    imap.once('ready', _response => {
+      imap.openBox('INBOX', true, async (_err, _box) => {
+        try {
+          await saveMessages(subdomain, imap, integration, ['UNSEEN']);
+        } catch (e) {
+          await models.Logs.createLog({
+            type: 'error',
+            message: e.message + ' 3 ',
+            errorStack: e.stack
+          });
+          console.log('listen integration error ============', e);
+          callback(e);
+          throw e;
+        }
+      });
+    });
+
+    imap.on('mail', async response => {
+      console.log('new messages ========', response);
+
+      const updatedIntegration = await models.Integrations.findOne({
+        _id: integration._id
+      });
+
+      if (!updatedIntegration) {
+        console.log(`ending ${integration.user} imap`);
+        return imap.end();
+      }
+
       try {
         await saveMessages(subdomain, imap, integration, ['UNSEEN']);
       } catch (e) {
         await models.Logs.createLog({
           type: 'error',
-          message: e.message,
+          message: e.message + ' 1 ',
           errorStack: e.stack
         });
-
+        console.log('save message error ============', e);
+        callback(e);
         throw e;
       }
     });
-  });
 
-  imap.on('mail', async response => {
-    console.log('new messages ========', response);
-
-    const models = await generateModels(subdomain);
-
-    const updatedIntegration = await models.Integrations.findOne({
-      _id: integration._id
-    });
-
-    if (!updatedIntegration) {
-      console.log(`ending ${integration.user} imap`);
-      return imap.end();
-    }
-
-    try {
-      await saveMessages(subdomain, imap, integration, ['UNSEEN']);
-    } catch (e) {
+    imap.once('error', async e => {
       await models.Logs.createLog({
         type: 'error',
-        message: e.message,
+        message: e.message + ' 2 ',
         errorStack: e.stack
       });
 
-      throw e;
-    }
-  });
-
-  imap.once('error', async e => {
-    await models.Logs.createLog({
-      type: 'error',
-      message: e.message,
-      errorStack: e.stack
+      console.log('on imap.once =============', e);
+      callback(e);
     });
 
-    console.log('on imap.once =============', e);
-  });
+    imap.once('end', e => {
+      console.log('Connection ended', e);
+    });
 
-  imap.once('end', function(e) {
-    console.log('Connection ended', e);
-  });
+    imap.connect();
+  };
 
-  imap.connect();
+  operation.attempt(currentAttempt => {
+    console.log(`Attempt ${currentAttempt} ==========`);
+    performImapOperation(error => {
+      if (operation.retry(error)) {
+        return;
+      }
+      if (error) {
+        console.error(
+          'Max retries exceeded. Could not complete the operation. =============='
+        );
+      } else {
+        console.log('IMAP operation completed successfully. ==============');
+      }
+    });
+  });
 };
 
 const listen = async (subdomain: string) => {
