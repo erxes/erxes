@@ -90,6 +90,7 @@ export default {
               ) {
                 if (err) {
                   imap.end();
+                  console.log('read-mail-attachment =============', err);
                   return next(err);
                 }
 
