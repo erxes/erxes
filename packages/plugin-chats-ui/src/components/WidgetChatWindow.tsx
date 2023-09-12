@@ -86,7 +86,9 @@ const WidgetChatWindow = (props: FinalProps) => {
                   Change group name
                 </div>
               }
-              content={p => <GroupChatName {...p} chat={chat} />}
+              content={modalProps => (
+                <GroupChatName {...modalProps} chat={chat} />
+              )}
               isAnimate={true}
             />
             <div onClick={() => setPopoverContentType('members')}>

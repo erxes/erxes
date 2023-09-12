@@ -26,7 +26,7 @@ const LeftSidebar = (props: Props) => {
               <Icon icon="edit-1" size={14} />
             </IconButton>
           }
-          content={p => <CreateGroupChat {...p} />}
+          content={modalProps => <CreateGroupChat {...modalProps} />}
           isAnimate={true}
         />
       </div>

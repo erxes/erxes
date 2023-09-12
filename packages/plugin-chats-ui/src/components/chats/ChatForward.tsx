@@ -23,9 +23,9 @@ const ChatForward = (props: Props) => {
           </Tip>
         </MessageOption>
       }
-      content={p => (
+      content={modalProps => (
         <ChatList
-          {...p}
+          {...modalProps}
           forwardedChatIds={props.forwardedChatIds}
           forwardChat={props.forwardChat}
           isForward={true}

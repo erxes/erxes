@@ -36,13 +36,22 @@ type FinalProps = {
 
 const MessageItem = (props: FinalProps) => {
   const { message, currentUser, isWidget, chatType } = props;
+  const {
+    relatedMessage,
+    content,
+    attachments,
+    createdAt,
+    createdUser
+  } = message;
 
-  const isMe = currentUser._id === message.createdUser._id;
+  const { details, email } = createdUser;
+
+  const isMe = currentUser._id === createdUser._id;
   const draftContent =
-    message.relatedMessage && convertFromHTML(message.relatedMessage.content);
+    relatedMessage && convertFromHTML(relatedMessage.content);
 
   const renderAttachments = () => {
-    return (message.attachments || []).map(attachment => (
+    return (attachments || []).map(attachment => (
       <Attachment
         key={attachment._id}
         attachment={attachment || {}}
@@ -52,17 +61,17 @@ const MessageItem = (props: FinalProps) => {
   };
 
   const userInfo =
-    message.relatedMessage &&
-    message.relatedMessage.createdUser &&
-    (message.relatedMessage.createdUser.details.fullName ||
-      message.relatedMessage.createdUser.email);
+    relatedMessage &&
+    relatedMessage.createdUser &&
+    (relatedMessage.createdUser.details.fullName ||
+      relatedMessage.createdUser.email);
 
   const renderReplyText = () => {
     if (isMe) {
       return (
         <>
           You replied to{' '}
-          {message.relatedMessage.createdUser._id === currentUser._id
+          {relatedMessage.createdUser._id === currentUser._id
             ? 'yourself'
             : userInfo}
         </>
@@ -71,9 +80,8 @@ const MessageItem = (props: FinalProps) => {
 
     return (
       <>
-        {(message.createdUser.details.fullName || message.createdUser.email) +
-          'replied to '}
-        {message.relatedMessage.createdUser._id === message.createdUser._id
+        {(details.fullName || email) + 'replied to '}
+        {relatedMessage.createdUser._id === createdUser._id
           ? 'themself'
           : userInfo}
       </>
@@ -93,17 +101,13 @@ const MessageItem = (props: FinalProps) => {
           </MessageReply>
         )}
         {chatType === 'group' && !isMe && !draftContent && (
-          <MessageBy>
-            {message.createdUser &&
-              (message.createdUser.details.fullName ||
-                message.createdUser.email)}
-          </MessageBy>
+          <MessageBy>{createdUser && (details.fullName || email)}</MessageBy>
         )}
-        {message.content !== '<p></p>' && (
+        {content !== '<p></p>' && (
           <MessageBody me={isMe}>
             <ChatForward
-              content={message.content}
-              attachments={message.attachments}
+              content={content}
+              attachments={attachments}
               currentUser={currentUser}
               isWidget={isWidget}
             />
@@ -114,10 +118,10 @@ const MessageItem = (props: FinalProps) => {
             </Tip>
             <Tip
               placement="top"
-              text={message.createdAt && dayjs(message.createdAt).calendar()}
+              text={createdAt && dayjs(createdAt).calendar()}
             >
               <MessageContent
-                dangerouslySetInnerHTML={{ __html: message.content || '' }}
+                dangerouslySetInnerHTML={{ __html: content || '' }}
                 me={isMe}
               />
             </Tip>
@@ -127,7 +131,7 @@ const MessageItem = (props: FinalProps) => {
           {renderAttachments()}
         </MessageAttachmentWrapper>
       </MessageWrapper>
-      {!isMe && <Avatar user={message.createdUser} size={36} showTip={true} />}
+      {!isMe && <Avatar user={createdUser} size={36} showTip={true} />}
     </MessageItemWrapper>
   );
 };

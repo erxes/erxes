@@ -26,7 +26,9 @@ const RightSidebar = (props: Props) => {
               <Icon icon="pencil" size={12} />
             </IconButton>
           }
-          content={p => <GroupChatName {...p} chat={chatDetail} />}
+          content={modalProps => (
+            <GroupChatName {...modalProps} chat={chatDetail} />
+          )}
           isAnimate={true}
         />
       </div>

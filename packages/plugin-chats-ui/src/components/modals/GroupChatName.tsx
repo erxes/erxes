@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 // erxes
 import Button from '@erxes/ui/src/components/Button';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 
 type Props = {
   chat: any;
@@ -26,21 +26,14 @@ const GroupChatName = (props: Props) => {
         value={name}
         onChange={(e: any) => setName(e.target.value)}
       />
-      <br />
-      <Button
-        btnStyle="success"
-        style={{ float: 'right' }}
-        onClick={handleSubmit}
-      >
-        Save
-      </Button>
-      <Button
-        btnStyle="simple"
-        style={{ float: 'right', marginRight: '10px' }}
-        onClick={props.closeModal}
-      >
-        Cancel
-      </Button>
+      <ModalFooter>
+        <Button btnStyle="success" onClick={handleSubmit}>
+          Save
+        </Button>
+        <Button btnStyle="simple" onClick={props.closeModal}>
+          Cancel
+        </Button>
+      </ModalFooter>
     </>
   );
 };

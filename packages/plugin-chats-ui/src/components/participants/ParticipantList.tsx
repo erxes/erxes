@@ -39,9 +39,9 @@ const ParticipantList = (props: FinalProps) => {
             </a>
           </ParticipantItemWrapper>
         }
-        content={p => (
+        content={modalProps => (
           <AddMember
-            {...p}
+            {...modalProps}
             chatId={chat._id}
             participantUserIds={participantUserIds}
           />

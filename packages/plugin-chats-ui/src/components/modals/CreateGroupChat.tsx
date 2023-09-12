@@ -4,7 +4,7 @@ import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import * as router from '@erxes/ui/src/utils/router';
-
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { useHistory } from 'react-router-dom';
 
 type Props = {
@@ -59,21 +59,22 @@ const CreateGroupChat = (props: Props) => {
         initialValue={userIds}
         onSelect={handleUserChange}
       />
-      <br />
-      <Button
-        btnStyle="success"
-        style={{ float: 'right' }}
-        onClick={handleSubmit}
-      >
-        Create
-      </Button>
-      <Button
-        btnStyle="simple"
-        style={{ float: 'right', marginRight: '10px' }}
-        onClick={props.closeModal}
-      >
-        Cancel
-      </Button>
+      <ModalFooter>
+        <Button
+          btnStyle="success"
+          style={{ float: 'right' }}
+          onClick={handleSubmit}
+        >
+          Create
+        </Button>
+        <Button
+          btnStyle="simple"
+          style={{ float: 'right', marginRight: '10px' }}
+          onClick={props.closeModal}
+        >
+          Cancel
+        </Button>
+      </ModalFooter>
     </>
   );
 };

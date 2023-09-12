@@ -192,29 +192,25 @@ const ChatList = (props: Props) => {
 
   const renderFilteredUsers = () => {
     if (filteredUsers.length > 0) {
-      return (
-        <>
-          {filteredUsers.map(user => {
-            if (!contactedUsers.includes(user._id)) {
-              return (
-                <ChatItem
-                  key={user._id}
-                  currentUser={currentUser}
-                  notContactUser={user}
-                  hasOptions={true}
-                  handleClickItem={props.handleClickItem}
-                  handlePin={handlePin}
-                  isWidget={isWidget}
-                  active={false}
-                  isForward={isForward}
-                  forwardChat={forwardChat}
-                  forwardedChatIds={forwardedChatIds}
-                />
-              );
-            }
-          })}
-        </>
-      );
+      return filteredUsers.map(user => {
+        if (!contactedUsers.includes(user._id)) {
+          return (
+            <ChatItem
+              key={user._id}
+              currentUser={currentUser}
+              notContactUser={user}
+              hasOptions={true}
+              handleClickItem={props.handleClickItem}
+              handlePin={handlePin}
+              isWidget={isWidget}
+              active={false}
+              isForward={isForward}
+              forwardChat={forwardChat}
+              forwardedChatIds={forwardedChatIds}
+            />
+          );
+        }
+      });
     }
 
     return <EmptyState icon="ban" text="No matching members" />;
