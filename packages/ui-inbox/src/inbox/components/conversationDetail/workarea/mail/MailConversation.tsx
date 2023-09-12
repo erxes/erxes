@@ -17,7 +17,7 @@ class MailConversation extends React.Component<Props, {}> {
     if (!conversation) {
       return null;
     }
-    console.log('ccc', conversation);
+
     const messages = conversationMessages || [];
     const { integration } = conversation;
     const { _id, brandId } = integration;
