@@ -186,8 +186,6 @@ class MailForm extends React.Component<Props, State> {
     }
 
     if (prevProps.emailTo !== this.props.emailTo || to !== this.props.emailTo) {
-      const toStateChanged = prevState.to === to;
-      console.log('aaa===========', toStateChanged, prevState.to, to);
       if (prevState.to === to) {
         this.setState({ to: this.props.emailTo });
       }
