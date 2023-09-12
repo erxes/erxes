@@ -189,7 +189,7 @@ export function withProps<IProps>(
   };
 }
 
-export const readFile = (value: string): string => {
+export const readFile = (value: string, width?: number): string => {
   if (
     !value ||
     urlParser.isValidURL(value) ||
@@ -201,13 +201,23 @@ export const readFile = (value: string): string => {
 
   const { REACT_APP_DOMAIN } = getEnv();
 
+  let url = `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
+
+  if (width) {
+    url += `&width=${width}`;
+  }
+
   if (REACT_APP_DOMAIN.includes('localhost')) {
+    if (width) {
+      return `${REACT_APP_DOMAIN}/read-file?key=${value}&width=${width}`;
+    }
     return `${REACT_APP_DOMAIN}/read-file?key=${value}`;
   }
-  return `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
+
+  return url;
 };
 
-export const getUserAvatar = (user: IUserDoc) => {
+export const getUserAvatar = (user: IUserDoc, width?: number) => {
   if (!user) {
     return '';
   }
@@ -218,7 +228,7 @@ export const getUserAvatar = (user: IUserDoc) => {
     return '/images/avatar-colored.svg';
   }
 
-  return readFile(details.avatar);
+  return readFile(details.avatar, width);
 };
 
 const getURL = () => {

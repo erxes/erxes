@@ -50,15 +50,25 @@ export const getConfigColor = (config: any, key: string) => {
  * @param {String} - value
  * @return {String} - URL
  */
-export const readFile = (value: string): string => {
+export const readFile = (value: string, width?: number): string => {
   if (!value || urlParser.isValidURL(value) || value.includes('/')) {
     return value;
   }
 
   const { REACT_APP_DOMAIN } = getEnv();
 
+  let url = `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
+
+  if (width) {
+    url += `&width=${width}`;
+  }
+
   if (REACT_APP_DOMAIN.includes('localhost')) {
+    if (width) {
+      return `${REACT_APP_DOMAIN}/read-file?key=${value}&width=${width}`;
+    }
     return `${REACT_APP_DOMAIN}/read-file?key=${value}`;
   }
-  return `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
+
+  return url;
 };
