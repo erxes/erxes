@@ -1,4 +1,3 @@
-import { PopoverButton } from '@erxes/ui/src/styles/eindex';
 import {
   RichEditorControlsRoot,
   RichEditorRoot
@@ -7,11 +6,13 @@ import {
   PopoverFooter as RootFooter,
   PopoverList as RootList
 } from '@erxes/ui/src/components/filterableList/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
+
+import { PopoverButton } from '@erxes/ui/src/styles/eindex';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ResponseSuggestions = styled.ul`
   position: absolute;
@@ -352,8 +353,8 @@ const SmallEditor = styled.div`
 const CallLabel = styledTS<{ type: string }>(styled.span)`
   color: ${props => (props.type === 'answered' ? 'green' : 'red')};
 `;
-const ModalWrapper = styledTS<{ show?: boolean }>(styled.div)`
 
+const ModalWrapper = styledTS<{ show?: boolean }>(styled.div)`
 ${({ show }) =>
   show
     ? `
@@ -367,8 +368,13 @@ ${({ show }) =>
       justify-content: center;
       align-items: center;
       z-index: 300;
+
+      .cke_contents {
+        min-height: 450px !important;
+      }
   `
     : ``}`;
+
 export {
   PopoverButton,
   RespondBoxStyled,

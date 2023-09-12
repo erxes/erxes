@@ -13,6 +13,7 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { WidgetWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import { __ } from '@erxes/ui/src/utils';
+
 type Props = {
   disabled?: boolean;
   emailTo?: string;
@@ -178,7 +179,10 @@ class Widget extends React.Component<Props, State> {
                   onClick={changeShrink}
                 />
               </Tip>
-              <Tip text={'Full-screen'} placement="top">
+              <Tip
+                text={isFullscreen ? 'Exit full screen' : 'Full screen'}
+                placement="top"
+              >
                 <Icon
                   size={10}
                   icon={isFullscreen ? 'compress' : 'expand-arrows-alt'}
