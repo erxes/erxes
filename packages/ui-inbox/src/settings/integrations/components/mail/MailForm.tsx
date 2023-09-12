@@ -72,6 +72,7 @@ type Props = {
   history: any;
   shrink?: boolean;
   clear?: boolean;
+  conversationStatus?: string;
 };
 
 type State = {
@@ -660,7 +661,8 @@ class MailForm extends React.Component<Props, State> {
       toggleReply,
       totalCount,
       fetchMoreEmailTemplates,
-      history
+      history,
+      conversationStatus
     } = this.props;
 
     const onSubmitResolve = e => this.onSubmit(e, true);
@@ -698,10 +700,12 @@ class MailForm extends React.Component<Props, State> {
             {this.renderSubmit('Send', this.onSubmit, 'primary')}
             {isReply &&
               this.renderSubmit(
-                'Send and Resolve',
+                conversationStatus === 'closed'
+                  ? 'Send and Open'
+                  : 'Send and Resolve',
                 onSubmitResolve,
-                'success',
-                'check-circle'
+                conversationStatus === 'closed' ? 'warning' : 'success',
+                conversationStatus === 'closed' ? 'redo' : 'check-circle'
               )}
           </div>
           <ToolBar>
