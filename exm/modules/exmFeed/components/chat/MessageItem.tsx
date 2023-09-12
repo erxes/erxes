@@ -1,13 +1,13 @@
-import React, { useRef } from "react";
-import { convertFromHTML } from "draft-js";
-import dayjs from "dayjs";
-import calendar from "dayjs/plugin/calendar";
+import React, { useRef } from 'react';
+import { convertFromHTML } from 'draft-js';
+import dayjs from 'dayjs';
+import calendar from 'dayjs/plugin/calendar';
 // erxes
-import Avatar from "../../../common/nameCard/Avatar";
-import Attachment from "../../../common/Attachment";
-import Tip from "../../../common/Tip";
-import Icon from "../../../common/Icon";
-import { IUser } from "../../../auth/types";
+import Avatar from '../../../common/nameCard/Avatar';
+import Attachment from '../../../common/Attachment';
+import Tip from '../../../common/Tip';
+import Icon from '../../../common/Icon';
+import { IUser } from '../../../auth/types';
 import {
   MessageItemWrapper,
   MessageWrapper,
@@ -16,9 +16,9 @@ import {
   MessageOption,
   MessageContent,
   MessageAttachmentWrapper,
-  MessageBy,
-} from "../../styles";
-import ChatForward from "../../containers/chat/ChatForward";
+  MessageBy
+} from '../../styles';
+import ChatForward from '../../containers/chat/ChatForward';
 
 dayjs.extend(calendar);
 
@@ -42,7 +42,7 @@ const MessageItem = (props: Props) => {
       const element = actionRef.current;
 
       if (element && element.style) {
-        element.style.visibility = "visible";
+        element.style.visibility = 'visible';
       }
     }
   };
@@ -52,7 +52,7 @@ const MessageItem = (props: Props) => {
       const element = actionRef.current;
 
       if (element && element.style) {
-        element.style.visibility = "hidden";
+        element.style.visibility = 'hidden';
       }
     }
   };
@@ -63,6 +63,7 @@ const MessageItem = (props: Props) => {
         key={attachment._id}
         attachment={attachment || {}}
         simple={true}
+        size={200}
       />
     ));
   };
@@ -86,7 +87,7 @@ const MessageItem = (props: Props) => {
             <p>{draftContent.contentBlocks[0].text}</p>
           </MessageReply>
         )}
-        {chatType === "group" && !isMe && (
+        {chatType === 'group' && !isMe && (
           <MessageBy>
             {message.createdUser &&
               (message.createdUser.details.fullName ||
@@ -112,7 +113,7 @@ const MessageItem = (props: Props) => {
             text={message.createdAt && dayjs(message.createdAt).calendar()}
           >
             <MessageContent
-              dangerouslySetInnerHTML={{ __html: message.content || "" }}
+              dangerouslySetInnerHTML={{ __html: message.content || '' }}
               me={isMe}
             />
           </Tip>
