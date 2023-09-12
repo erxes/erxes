@@ -1,10 +1,10 @@
-import Link from "next/link";
-import React from "react";
-import { colors } from "../../styles";
-import { readFile } from "../../utils";
-import { rgba } from "../../styles/ecolor";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import Link from 'next/link';
+import React from 'react';
+import { colors } from '../../styles';
+import { readFile } from '../../utils';
+import { rgba } from '../../styles/ecolor';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
   display: block;
@@ -17,9 +17,9 @@ const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
   color: ${colors.colorWhite};
 
   background: ${(props) =>
-    (props.state === "lead" && rgba(colors.colorCoreYellow, 0.8)) ||
-    (props.state === "visitor" && rgba(colors.colorLightGray, 0.6)) ||
-    (props.state === "customer" && rgba(colors.colorCoreTeal, 0.8)) ||
+    (props.state === 'lead' && rgba(colors.colorCoreYellow, 0.8)) ||
+    (props.state === 'visitor' && rgba(colors.colorLightGray, 0.6)) ||
+    (props.state === 'customer' && rgba(colors.colorCoreTeal, 0.8)) ||
     rgba(colors.colorSecondary, 0.8)};
 
   > span {
@@ -42,7 +42,7 @@ const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
 
 const AvatarImage = styledTS<{ image?: string }>(styled.div)`
   background: url(${(props) =>
-    props.image ? `"${props.image}"` : "/images/avatar.svg"})
+    props.image ? `"${props.image}"` : '/images/avatar.svg'})
     center no-repeat;
   background-size: cover;
 `;
@@ -58,7 +58,7 @@ type Props = {
 
 function Element({
   children,
-  customer,
+  customer
 }: {
   children: React.ReactNode;
   customer?;
@@ -81,14 +81,14 @@ class Avatar extends React.Component<Props> {
       lineHeight: `${size}px`,
       borderRadius: `${size}px`,
       fontSize: `${size / 3}px`,
-      fontWeight: 600,
+      fontWeight: 600
     };
   }
 
   renderImage(src: string) {
     const { size } = this.props;
     return (
-      <AvatarImage image={readFile(src)} style={this.generateStyle(size)} />
+      <AvatarImage image={readFile(src, 60)} style={this.generateStyle(size)} />
     );
   }
 
@@ -97,12 +97,12 @@ class Avatar extends React.Component<Props> {
 
     if (customer) {
       return {
-        state: customer.state,
+        state: customer.state
       };
     }
 
     return {
-      state: true,
+      state: true
     };
   }
 
@@ -111,10 +111,10 @@ class Avatar extends React.Component<Props> {
 
     const initials = fullName ? (
       fullName
-        .split(" ")
+        .split(' ')
         .slice(0, letterCount)
         .map((s) => s.charAt(0))
-        .join(".")
+        .join('.')
         .toUpperCase()
     ) : (
       <AvatarImage style={this.generateStyle(size)} />
