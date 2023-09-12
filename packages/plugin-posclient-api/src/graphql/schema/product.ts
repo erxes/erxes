@@ -55,6 +55,7 @@ const productsQueryParams = `
   excludeIds: Boolean,
   segment: String,
   segmentData: String,
+  isKiosk: Boolean,
 `;
 
 const productCategoriesParams = `
@@ -64,6 +65,7 @@ const productCategoriesParams = `
   status: String,
   excludeEmpty: Boolean,
   meta: String,
+  isKiosk: Boolean,
 `;
 const commonParams = `
   page: Int,

@@ -413,15 +413,9 @@ export const loadProductCategoryClass = (models: IModels) => {
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const productCategory = await models.ProductCategories.getProductCategory(
-        {
-          _id
-        }
-      );
-
       const childCategories = await models.ProductCategories.find({
         $and: [
-          { order: { $regex: new RegExp(`^${productCategory.order}`, 'i') } },
+          { order: { $regex: new RegExp(`^${category.order}`, 'i') } },
           { _id: { $ne: _id } }
         ]
       });
@@ -432,7 +426,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       childCategories.forEach(async childCategory => {
         let order = childCategory.order;
 
-        order = order.replace(productCategory.order, doc.order);
+        order = order.replace(category.order, doc.order);
 
         await models.ProductCategories.updateOne(
           { _id: childCategory._id },

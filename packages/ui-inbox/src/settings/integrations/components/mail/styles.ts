@@ -272,22 +272,35 @@ const NewEmailHeader = styled.h5`
   }
 `;
 
-const WidgetWrapper = styledTS<{ show: boolean; shrink: boolean }>(styled.div)`
+const WidgetWrapper = styledTS<{
+  show: boolean;
+  shrink: boolean;
+  fullScreen?: boolean;
+}>(styled.div)`
   position: fixed;
-  bottom: ${dimensions.unitSpacing}px;
-  right: ${dimensions.coreSpacing}px;
-  display: flex;
   flex-direction: column;
   z-index: 300;
   justify-content: flex-end;
   align-content: flex-end;
   background: #fff;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
   border-radius: 8px;
-  width: ${props => (props.shrink ? '260px' : '600px')};
   overflow: hidden;
-
-  ${props => !props.show && 'display:none;'}
+  width: ${({ fullScreen, shrink }) =>
+    fullScreen ? '75vw' : shrink ? '260px' : '600px'};
+  ${({ fullScreen }) =>
+    fullScreen
+      ? `
+    left: 50%;
+    top: 20%;
+    transform: translate(-50%, 0);
+    box-shadow: 0 0 0 50vmax rgba(0,0,0,.5);
+  `
+      : `
+    bottom: ${dimensions.unitSpacing}px;
+    right: ${dimensions.coreSpacing}px; 
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+  `}
+  ${({ show }) => (show ? 'display: flex;' : 'display:none;')} 
 `;
 
 const UploaderWrapper = styled.div`

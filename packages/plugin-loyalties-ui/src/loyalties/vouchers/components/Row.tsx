@@ -78,6 +78,16 @@ class VoucherRow extends React.Component<Props> {
       );
     }
 
+    if (voucher.ownerType === 'cpUser') {
+      return (
+        <FlexItem>
+          <Link to={`/settings/client-portal/users/details/${voucher.ownerId}`}>
+            {voucher?.owner?.email || ''}
+          </Link>
+        </FlexItem>
+      );
+    }
+
     return '';
   };
 
