@@ -15,8 +15,9 @@ type Props = {
   conversationId?: string;
   customerId?: string;
   isLast: boolean;
-  brandId?: string;
   mails: IMessage[];
+  brandId?: string;
+  conversationStatus?: string;
 };
 
 type State = {
@@ -108,7 +109,8 @@ class Mail extends React.PureComponent<Props, State> {
       integrationId,
       customerId,
       brandId,
-      mails
+      mails,
+      conversationStatus
     } = this.props;
 
     return (
@@ -126,6 +128,7 @@ class Mail extends React.PureComponent<Props, State> {
           toggleReply={this.toggleReply}
           integrationId={integrationId}
           refetchQueries={['detailQuery']}
+          conversationStatus={conversationStatus}
           mailData={mailData}
           brandId={brandId}
           mails={mails}
