@@ -51,7 +51,12 @@ export const getConfigColor = (config: any, key: string) => {
  * @return {String} - URL
  */
 export const readFile = (value: string, width?: number): string => {
-  if (!value || urlParser.isValidURL(value) || value.includes('/')) {
+  if (
+    !value ||
+    urlParser.isValidURL(value) ||
+    (typeof value === 'string' && value.includes('http')) ||
+    (typeof value === 'string' && value.startsWith('/'))
+  ) {
     return value;
   }
 
@@ -64,10 +69,13 @@ export const readFile = (value: string, width?: number): string => {
   }
 
   if (REACT_APP_DOMAIN.includes('localhost')) {
+    url = `${REACT_APP_DOMAIN}/read-file?key=${value}`;
+
     if (width) {
-      return `${REACT_APP_DOMAIN}/read-file?key=${value}&width=${width}`;
+      url += `&width=${width}`;
     }
-    return `${REACT_APP_DOMAIN}/read-file?key=${value}`;
+
+    return url;
   }
 
   return url;
