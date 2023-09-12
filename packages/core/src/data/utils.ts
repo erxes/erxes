@@ -871,14 +871,26 @@ const readFromCFImages = async (
     models
   );
 
+  const CLOUDFLARE_BUCKET_NAME = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  let fileName = key;
+
+  if (!key.startsWith(CLOUDFLARE_BUCKET_NAME)) {
+    fileName = `${CLOUDFLARE_BUCKET_NAME}/${key}`;
+  }
+
   if (!CLOUDFLARE_ACCOUNT_HASH) {
     throw new Error('Cloudflare Account Hash is not configured');
   }
 
-  let url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${key}/public`;
+  let url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/public`;
 
   if (width) {
-    url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${key}/w=${width}`;
+    url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/w=${width}`;
   }
 
   return new Promise(resolve => {
