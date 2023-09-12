@@ -91,7 +91,8 @@ const generateParams = queryParams => {
   return {
     ...router.generatePaginationParams(queryParams || {}),
     searchValue: queryParams?.searchValue,
-    dateFilters: generateDateFilters(queryParams)
+    dateFilters: generateDateFilters(queryParams),
+    categoryId: queryParams?.categoryId
   };
 };
 

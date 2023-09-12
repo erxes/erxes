@@ -83,22 +83,11 @@ class List extends React.Component<Props, State> {
   }
 
   renderForm() {
-    const { queryParams } = this.props;
-
-    // const content = props => <Form {...props} queryParams={queryParams} />;
     return (
       <Link to={`/settings/sync-saas/add`}>
         <Button btnStyle="success">{__('Add')}</Button>
       </Link>
     );
-
-    // return (
-    //   <ModalTrigger
-    //     title="Add New Connnection"
-    //     content={content}
-    //     trigger={trigger}
-    //   />
-    // );
   }
 
   renderContent() {

@@ -2,6 +2,7 @@ const commonTypes = `
         _id: String,
         name:String,
         description:String,
+        categoryId:String
         subdomain:String,
         appToken:String,
         startDate:Date,
@@ -31,6 +32,7 @@ const commonQueryParams = `
     customerId:String,
     customerIds:[String],
     excludeCustomerIds:[String]
+    categoryId:String
 `;
 
 export const queries = `
@@ -43,6 +45,7 @@ export const queries = `
 const commonMutationParams = `
     name:String,
     description:String,
+    categoryId:String,
     subdomain:String,
     appToken:String,
     startDate:String,

@@ -52,6 +52,10 @@ const generateFilters = async (params: any, models: IModels) => {
     filter._id = { $nin: syncIds };
   }
 
+  if (params?.categoryId) {
+    filter.categoryId = params.categoryId;
+  }
+
   return filter;
 };
 

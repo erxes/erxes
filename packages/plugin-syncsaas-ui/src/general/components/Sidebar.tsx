@@ -17,6 +17,7 @@ import {
   Padding,
   SidebarHeader
 } from '../../styles';
+import Categories from '../categories/containers/List';
 
 type Props = {
   history: any;
@@ -81,6 +82,7 @@ class SideBar extends React.Component<Props> {
         header={<SidebarHeader>{__('Additional Filter')}</SidebarHeader>}
       >
         <Padding>
+          <Categories history={history} queryParams={queryParams} />
           <CustomForm
             label="Start Date Range"
             field={['startDateFrom', 'startDateTo']}

@@ -24,6 +24,7 @@ import {
   Padding,
   StepperContainer
 } from '../../styles';
+import { SelectCategories } from '../categories/SelectCategories';
 
 type Props = {
   detail?: any;
@@ -127,6 +128,15 @@ class Form extends React.Component<Props, State> {
                   name="description"
                   value={sync?.description}
                   onChange={onChange}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>{__('Category')}</ControlLabel>
+                <SelectCategories
+                  name="categoryId"
+                  label="Category"
+                  initialValue={sync?.categoryId}
+                  onSelect={(value, name) => this.handleChange(name, value)}
                 />
               </FormGroup>
               <FormGroup>
