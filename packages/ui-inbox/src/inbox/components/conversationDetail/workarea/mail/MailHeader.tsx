@@ -102,19 +102,13 @@ class MailHeader extends React.Component<Props, State> {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
-              <a href="#action" onClick={onToggleReply}>
-                Reply
-              </a>
+              <a onClick={onToggleReply}>Reply</a>
             </li>
             <li>
-              <a href="#action" onClick={onToggleReplyAll}>
-                Reply all
-              </a>
+              <a onClick={onToggleReplyAll}>Reply all</a>
             </li>
             <li>
-              <a href="#action" onClick={onToggleForward}>
-                Forward
-              </a>
+              <a onClick={onToggleForward}>Forward</a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
