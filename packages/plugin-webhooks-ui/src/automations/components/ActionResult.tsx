@@ -2,9 +2,9 @@ import { Button, ModalTrigger } from '@erxes/ui/src';
 import React from 'react';
 
 const ActionResult = ({ result }) => {
-  const { url, method, data } = result || {};
+  const { url, method, data, headers, status } = result || {};
 
-  if (!url || !method) {
+  if (!status && status !== 'success') {
     return <>{JSON.stringify(result)}</>;
   }
 
@@ -47,11 +47,31 @@ const ActionResult = ({ result }) => {
           <strong>{'Method: '}</strong>
           {`${method}`}
         </ul>
-        <pre>
-          <code>
-            <div dangerouslySetInnerHTML={{ __html: syntaxHighlight(data) }} />
-          </code>
-        </pre>
+        <ul>
+          <strong>{'Headers:'}</strong>
+          {Object.keys(headers || {}).length ? (
+            <pre>
+              <code>
+                <div
+                  dangerouslySetInnerHTML={{ __html: syntaxHighlight(headers) }}
+                />
+              </code>
+            </pre>
+          ) : (
+            ''
+          )}
+        </ul>
+
+        <ul>
+          <strong>{'Body: '}</strong>
+          <pre>
+            <code>
+              <div
+                dangerouslySetInnerHTML={{ __html: syntaxHighlight(data) }}
+              />
+            </code>
+          </pre>
+        </ul>
       </>
     );
   };

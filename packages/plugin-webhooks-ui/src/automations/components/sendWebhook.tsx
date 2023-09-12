@@ -164,8 +164,8 @@ class SendWebhook extends React.Component<Props, State> {
       this.onChange({ ...config, [name]: value });
     };
 
-    const handleSelect = (value, name) => {
-      this.onChange({ ...config, [name]: value });
+    const handleSelect = ({ value }) => {
+      this.onChange({ ...config, method: value });
     };
 
     return (
@@ -213,7 +213,10 @@ class SendWebhook extends React.Component<Props, State> {
               onChange={() =>
                 this.setState({
                   useSpecifiedFields: !useSpecifiedFields,
-                  config: { url: config?.url || '' }
+                  config: {
+                    ...config,
+                    specifiedFields: !useSpecifiedFields ? {} : undefined
+                  }
                 })
               }
             />

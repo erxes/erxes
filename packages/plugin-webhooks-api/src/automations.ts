@@ -41,15 +41,13 @@ export default {
       target = replacedContent;
     }
 
-    let response;
-
     const headers = (config.headers || []).reduce((acc, item) => {
       acc[item.key] = item.value;
       return acc;
     }, {});
 
     try {
-      return await sendRequest({
+      await sendRequest({
         url,
         method: method || 'POST',
         headers: {
@@ -61,9 +59,14 @@ export default {
           triggerType,
           data: target
         }
-      }).then(() => {
-        response = { url, method: method || 'POST', data: target };
       });
+      return {
+        url,
+        method: method || 'POST',
+        headers,
+        data: target,
+        status: 'success'
+      };
     } catch (error) {
       return error.message;
     }
