@@ -459,11 +459,13 @@ const createCFR2 = async (models?: IModels) => {
     accessKeyId: string;
     secretAccessKey: string;
     signatureVersion: 'v4';
+    region: string;
   } = {
     endpoint: CLOUDFLARE_ENDPOINT,
     accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
     secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
-    signatureVersion: 'v4'
+    signatureVersion: 'v4',
+    region: 'auto'
   };
 
   return new AWS.S3(options);
