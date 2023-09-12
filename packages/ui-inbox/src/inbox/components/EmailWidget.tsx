@@ -3,15 +3,16 @@ import {
   NewEmailHeader,
   WidgetButton
 } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
+
 import Button from '@erxes/ui/src/components/Button';
+import CommonPortal from '@erxes/ui/src/components/CommonPortal';
 import Icon from '@erxes/ui/src/components/Icon';
 import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
+import { ModalWrapper } from '../styles';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { WidgetWrapper } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import { __ } from '@erxes/ui/src/utils';
-import { ModalWrapper } from '../styles';
-import CommonPortal from '@erxes/ui/src/components/CommonPortal';
 type Props = {
   disabled?: boolean;
   emailTo?: string;
@@ -170,17 +171,23 @@ class Widget extends React.Component<Props, State> {
           <NewEmailHeader>
             <span onClick={changeShrink}>{__('New Email')}</span>
             <div>
-              <Icon
-                size={10}
-                icon={shrink === 'true' ? 'plus' : 'minus'}
-                onClick={changeShrink}
-              />
-              <Icon
-                size={10}
-                icon={isFullscreen ? 'compress' : 'expand-arrows-alt'}
-                onClick={handleExpand}
-              />
-              <Icon size={10} icon="cancel" onClick={onClose} />
+              <Tip text={'Minimize'} placement="top">
+                <Icon
+                  size={10}
+                  icon={shrink === 'true' ? 'plus' : 'minus'}
+                  onClick={changeShrink}
+                />
+              </Tip>
+              <Tip text={'Full-screen'} placement="top">
+                <Icon
+                  size={10}
+                  icon={isFullscreen ? 'compress' : 'expand-arrows-alt'}
+                  onClick={handleExpand}
+                />
+              </Tip>
+              <Tip text={'Close'} placement="top">
+                <Icon size={10} icon="cancel" onClick={onClose} />
+              </Tip>
             </div>
           </NewEmailHeader>
           <MailForm

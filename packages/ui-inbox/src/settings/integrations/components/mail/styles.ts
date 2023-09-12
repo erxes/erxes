@@ -2,6 +2,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 
 import { Attachment } from '@erxes/ui-inbox/src/inbox/styles';
 import { SelectWrapper } from '@erxes/ui/src/components/form/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -248,7 +249,8 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
 `;
 
 const NewEmailHeader = styled.h5`
-  background: ${colors.bgActive};
+  background: ${rgba(colors.colorSecondary, 0.1)};
+  color: ${colors.colorSecondary};
   margin-bottom: 0;
   margin-top: 0;
   padding: 10px 20px;
@@ -261,9 +263,11 @@ const NewEmailHeader = styled.h5`
   i {
     margin-left: 5px;
     padding: 5px;
+    border-radius: 5px;
+    transition: all ease 0.3s;
 
     &:hover {
-      background: ${colors.bgGray};
+      background: ${rgba(colors.colorSecondary, 0.3)};
     }
   }
 
@@ -298,7 +302,7 @@ const WidgetWrapper = styledTS<{
       : `
     bottom: ${dimensions.unitSpacing}px;
     right: ${dimensions.coreSpacing}px; 
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 0px 3px -4px;
   `}
   ${({ show }) => (show ? 'display: flex;' : 'display:none;')} 
 `;
