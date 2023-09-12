@@ -44,7 +44,7 @@ type Props = {
   queryParams?: any;
   shrink?: boolean;
   clear?: boolean;
-  conversationStatus?: boolean;
+  conversationStatus?: string;
 } & IRouterProps;
 
 type FinalProps = {
