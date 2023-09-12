@@ -4,6 +4,10 @@ import React from 'react';
 const ActionResult = ({ result }) => {
   const { url, method, data } = result || {};
 
+  if (!url || !method) {
+    return <>{JSON.stringify(result)}</>;
+  }
+
   function syntaxHighlight(json) {
     if (typeof json != 'string') {
       json = JSON.stringify(json, undefined, 2);
