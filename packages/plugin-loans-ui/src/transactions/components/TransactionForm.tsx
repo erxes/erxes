@@ -49,6 +49,7 @@ type State = {
   isOrganization?: boolean;
   organizationRegister?: string;
   organizationName?: string;
+  storedInterest: number;
 };
 
 class TransactionForm extends React.Component<Props, State> {
@@ -69,7 +70,8 @@ class TransactionForm extends React.Component<Props, State> {
       customerId:
         transaction.customerId || (invoice && invoice.customerId) || '',
       invoice: invoice || transaction.invoice || null,
-      paymentInfo: null
+      paymentInfo: null,
+      storedInterest: 0
     };
   }
 
@@ -164,8 +166,8 @@ class TransactionForm extends React.Component<Props, State> {
           </FormWrapper>
           {this.renderRowTr('Total must pay', 'total')}
           {this.renderRowTr('Payment', 'payment')}
-          {this.renderRowTr('Interest Eve', 'interestEve')}
-          {this.renderRowTr('Interest Nonce', 'interestNonce')}
+          {this.renderRowTr('Stored Interest', 'storedInterest')}
+          {this.renderRowTr('Interest Nonce', 'calcInterest')}
           {this.renderRowTr('Loss', 'undue')}
           {this.renderRowTr('Insurance', 'insurance')}
           {this.renderRowTr('Debt', 'debt')}
@@ -191,8 +193,8 @@ class TransactionForm extends React.Component<Props, State> {
         </FormWrapper>
         {this.renderRow('total', 'total')}
         {this.renderRow('payment', 'payment')}
-        {this.renderRow('interest eve', 'interestEve')}
-        {this.renderRow('interest nonce', 'interestNonce')}
+        {this.renderRow('interest eve', 'storedInterest')}
+        {this.renderRow('interest nonce', 'calcInterest')}
         {this.renderRow('undue', 'undue')}
         {this.renderRow('insurance', 'insurance')}
         {this.renderRow('debt', 'debt')}
@@ -210,7 +212,7 @@ class TransactionForm extends React.Component<Props, State> {
 
     const getPaymentInfo = (
       contractId,
-      payDate = dayjs()
+      payDate: any = dayjs()
         .locale('en')
         .format('MMM, D YYYY')
     ) => {
@@ -294,7 +296,6 @@ class TransactionForm extends React.Component<Props, State> {
                   />
                 </DateContainer>
               </FormGroup>
-
               <FormGroup>
                 <ControlLabel>{__('Description')}</ControlLabel>
                 <DateContainer>
@@ -331,10 +332,13 @@ class TransactionForm extends React.Component<Props, State> {
                   initialValue={this.state.contractId}
                   onSelect={(v, n) => {
                     onSelect(v, n);
-                    typeof v === 'string' &&
+                    if (typeof v === 'string') {
                       onSelect(Contracts[v].customerId, 'customerId');
+                      onSelect(Contracts[v].storedInterest, 'storedInterest');
+                    }
+
                     if (this.state.contractId !== v)
-                      getPaymentInfo(v, values.payDate);
+                      getPaymentInfo(v, this.state.payDate);
                   }}
                   multi={false}
                 />

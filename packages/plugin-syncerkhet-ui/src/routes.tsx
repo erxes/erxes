@@ -32,6 +32,12 @@ const PipelineSettings = asyncComponent(() =>
   )
 );
 
+const SyncHistoryList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "CheckSyncedDeals" */ './containers/SyncHistoryList'
+  )
+);
+
 const CheckSyncedDeals = asyncComponent(() =>
   import(
     /* webpackChunkName: "CheckSyncedDeals" */ './containers/CheckSyncedDeals'
@@ -81,6 +87,15 @@ const ReturnStageSetting = () => {
 
 const PipelineSetting = () => {
   return <Settings component={PipelineSettings} configCode="remainderConfig" />;
+};
+
+const syncHistoryList = ({ location, history }) => {
+  return (
+    <SyncHistoryList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
 };
 
 const checkSyncedDealList = ({ location, history }) => {
@@ -154,6 +169,13 @@ const routes = () => {
         exact={true}
         path="/erxes-plugin-sync-erkhet/settings/pipeline"
         component={PipelineSetting}
+      />
+
+      <Route
+        key="/sync-erkhet-history"
+        exact={true}
+        path="/sync-erkhet-history"
+        component={syncHistoryList}
       />
 
       <Route

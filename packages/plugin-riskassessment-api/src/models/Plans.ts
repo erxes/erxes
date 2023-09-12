@@ -30,9 +30,16 @@ export const loadPlans = (models: IModels, subdomain: string) => {
     }
 
     public static async editPlan(_id, doc) {
-      return models.Plans.findOneAndUpdate(_id, {
-        $set: { ...doc, modifiedAt: Date.now() }
-      });
+      if (!(await models.Plans.findOne({ _id }))) {
+        throw new Error('Not Found');
+      }
+
+      return await models.Plans.updateOne(
+        { _id },
+        {
+          $set: { ...doc, modifiedAt: Date.now() }
+        }
+      );
     }
 
     public static async removePlans(ids) {

@@ -6,7 +6,7 @@ import { IUser } from 'modules/auth/types';
 import Navigation from './navigation';
 import React from 'react';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { bustIframe } from 'modules/common/utils';
+import { bustIframe, getEnv } from 'modules/common/utils';
 import { withRouter } from 'react-router-dom';
 
 const MainBar = asyncComponent(() =>
@@ -65,7 +65,9 @@ class MainLayout extends React.Component<IProps, State> {
       };
     } // end currentUser checking
 
-    if (!(window as any).env.REACT_APP_HIDE_MESSENGER) {
+    const { REACT_APP_HIDE_MESSENGER } = getEnv();
+
+    if (!REACT_APP_HIDE_MESSENGER) {
       const userDetail = (currentUser && currentUser.details) || {
         firstName: '',
         lastName: ''

@@ -38,6 +38,8 @@ export interface ITransaction {
   undue?: number;
   insurance?: number;
   debt?: number;
+  storedInterest?: number;
+  calcInterest?: number;
   total: number;
   surplus?: number;
   calcedInfo?: {
@@ -47,6 +49,8 @@ export interface ITransaction {
     undue?: number;
     insurance?: number;
     debt?: number;
+    storedInterest?: number;
+    calcInterest?: number;
     total: number;
     surplus?: number;
   };
@@ -142,6 +146,8 @@ export const transactionSchema = schemaHooksWrapper(
         interestNonce: Number,
         undue: Number,
         insurance: Number,
+        storedInterest: Number,
+        calcInterest: Number,
         debt: Number,
         total: Number,
         surplus: Number
@@ -178,6 +184,16 @@ export const transactionSchema = schemaHooksWrapper(
       type: Boolean,
       optional: true,
       label: 'ebarimt'
+    }),
+    storedInterest: field({
+      type: Number,
+      optional: true,
+      label: 'Stored Interest'
+    }),
+    calcInterest: field({
+      type: Number,
+      optional: true,
+      label: 'calc Interest'
     })
   }),
   'erxes_transactionSchema'

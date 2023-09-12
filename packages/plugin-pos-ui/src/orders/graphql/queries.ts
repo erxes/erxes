@@ -78,6 +78,7 @@ export const orderFields = `
     email
   }
   convertDealId
+  returnInfo
 `;
 
 const posOrders = `
@@ -91,6 +92,12 @@ const posOrders = `
 const posOrdersSummary = `
   query posOrdersSummary(${listParamsDef}) {
     posOrdersSummary(${listParamsValue})
+  }
+`;
+
+const posOrdersGroupSummary = `
+  query posOrdersGroupSummary(${listParamsDef}, $groupField: String) {
+    posOrdersGroupSummary(${listParamsValue}, groupField: $groupField)
   }
 `;
 
@@ -268,6 +275,7 @@ const posOrderRecordsCount = `
 export default {
   posOrders,
   posOrdersSummary,
+  posOrdersGroupSummary,
   posOrderDetail,
   posProducts,
   productCategories,

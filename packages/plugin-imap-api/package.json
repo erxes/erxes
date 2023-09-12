@@ -11,6 +11,7 @@
     "base64-stream": "^1.0.0",
     "mailparser": "^3.5.0",
     "node-imap": "^0.9.6",
-    "nodemailer": "^6.8.0"
+    "nodemailer": "^6.8.0",
+    "retry": "^0.13.1"
   }
 }

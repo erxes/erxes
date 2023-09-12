@@ -69,6 +69,13 @@ const paidAmountSchema = new Schema({
   info: field({ type: Object })
 });
 
+const returnInfoSchema = new Schema({
+  cashAmount: field({ type: Number }),
+  paidAmounts: field({ type: [paidAmountSchema] }),
+  returnAt: field({ type: Date }),
+  returnBy: field({ type: String })
+});
+
 export const orderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -205,7 +212,7 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Converted Deal'
     }),
     returnInfo: field({
-      type: Object,
+      type: returnInfoSchema,
       optional: true,
       label: 'Return information'
     })

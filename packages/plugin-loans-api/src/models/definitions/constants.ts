@@ -59,3 +59,15 @@ export const LEASE_TYPES = {
 
   ALL: ['finance', 'salvage']
 };
+
+export const STORED_INTEREST_TYPES = {
+  STORED_INTEREST: 'storedInterest',
+  OUT_BALANCE: 'outBalance'
+};
+
+export const INTEREST_CORRECTION_TYPE = {
+  STOP_INTEREST: 'stopInterest',
+  INTEREST_RETURN: 'interestReturn',
+  INTEREST_CHANGE: 'interestChange',
+  ALL: ['stopInterest', 'interestReturn', 'interestChange']
+};

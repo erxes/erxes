@@ -3,12 +3,13 @@ import {
   Button,
   FormControl,
   HeaderDescription,
+  Pagination,
   Table,
+  Wrapper,
   __
 } from '@erxes/ui/src';
 import * as _loadash from 'lodash';
 import React from 'react';
-import { DefaultWrapper } from '../../common/utils';
 import { FlexRow, HeaderContent } from '../../styles';
 import { headers } from '../common/Headers';
 import { TableHead } from './ListHead';
@@ -37,7 +38,7 @@ class List extends React.Component<Props, State> {
   }
 
   renderContent = () => {
-    const { list, queryParams, history, totalCount } = this.props;
+    const { list, queryParams, history } = this.props;
     const { selectedAssessmentIds } = this.state;
 
     const handleSelect = (id: string) => {
@@ -141,16 +142,19 @@ class List extends React.Component<Props, State> {
       </BarItems>
     );
 
-    const updatedProps = {
-      title: 'Assessment',
-      content: this.renderContent(),
-      leftActionBar,
-      rightActionBar,
-      sidebar: (
-        <SideBar history={this.props.history} queryParams={queryParams} />
-      )
-    };
-    return <DefaultWrapper {...updatedProps} />;
+    return (
+      <Wrapper
+        header={<Wrapper.Header title={'Assessment'} />}
+        actionBar={
+          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+        }
+        leftSidebar={
+          <SideBar history={this.props.history} queryParams={queryParams} />
+        }
+        content={this.renderContent()}
+        footer={<Pagination count={totalCount} />}
+      />
+    );
   }
 }
 
