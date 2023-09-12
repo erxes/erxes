@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
 // erxes
@@ -24,6 +24,7 @@ type Props = {
 
 const ChatItemContainer = (props: Props) => {
   const [chatUser, setChatUser] = useState('');
+  const [chatId, setChatId] = useState(undefined);
 
   const { chat, handleClickItem } = props;
   const [removeMutation] = useMutation(gql(mutations.chatRemove));
@@ -35,6 +36,10 @@ const ChatItemContainer = (props: Props) => {
     fetchPolicy: 'network-only',
     skip: !chatUser
   });
+
+  useEffect(() => {
+    setChatId(getChatIdQuery.data);
+  }, [getChatIdQuery.data]);
 
   if (getChatIdQuery.loading) {
     return null;
@@ -65,11 +70,8 @@ const ChatItemContainer = (props: Props) => {
   };
 
   const createChats = () => {
-    if (handleClickItem) {
-      const test = getChatIdQuery.data
-        ? getChatIdQuery.data.getChatIdByUserIds
-        : '';
-      handleClickItem(test);
+    if (chatId) {
+      handleClickItem(chatId.getChatIdByUserIds);
     }
   };
 
