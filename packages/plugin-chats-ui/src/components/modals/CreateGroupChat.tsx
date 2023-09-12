@@ -43,7 +43,6 @@ const CreateGroupChat = (props: Props) => {
 
   return (
     <>
-      <h3>Create a chat</h3>
       {userIds.length > 1 && (
         <>
           <FormControl
@@ -61,7 +60,11 @@ const CreateGroupChat = (props: Props) => {
         onSelect={handleUserChange}
       />
       <br />
-      <Button style={{ float: 'right' }} onClick={handleSubmit}>
+      <Button
+        btnStyle="success"
+        style={{ float: 'right' }}
+        onClick={handleSubmit}
+      >
         Create
       </Button>
       <Button

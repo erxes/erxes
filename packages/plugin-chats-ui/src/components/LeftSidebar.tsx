@@ -27,7 +27,6 @@ const LeftSidebar = (props: Props) => {
             </IconButton>
           }
           content={p => <CreateGroupChat {...p} />}
-          hideHeader={true}
           isAnimate={true}
         />
       </div>

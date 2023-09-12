@@ -96,6 +96,22 @@ const ChatItem = (props: FinalProps) => {
     document.getElementById('ChatActions').click();
   };
 
+  const popoverContextMenu = chat && (
+    <Popover id="contextmenu-popover">
+      <ContextMenuList>
+        <ContextMenuItem onClick={() => props.handlePin(chat._id)}>
+          {isPinned ? 'Unpin' : 'Pin'}
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => props.markAsRead()}>
+          {chat.isSeen ? 'Mark as unread' : 'Mark as read'}
+        </ContextMenuItem>
+        <ContextMenuItem color="red" onClick={onDelete}>
+          Delete Chat
+        </ContextMenuItem>
+      </ContextMenuList>
+    </Popover>
+  );
+
   const renderChatActions = () => {
     if (isForward) {
       return (forwardedChatIds || []).includes(chat?._id) ? (
@@ -132,22 +148,6 @@ const ChatItem = (props: FinalProps) => {
 
     return null;
   };
-
-  const popoverContextMenu = chat && (
-    <Popover id="contextmenu-popover">
-      <ContextMenuList>
-        <ContextMenuItem onClick={() => props.handlePin(chat._id)}>
-          {isPinned ? 'Unpin' : 'Pin'}
-        </ContextMenuItem>
-        <ContextMenuItem onClick={() => props.markAsRead()}>
-          {chat.isSeen ? 'Mark as unread' : 'Mark as read'}
-        </ContextMenuItem>
-        <ContextMenuItem color="red" onClick={onDelete}>
-          Delete Chat
-        </ContextMenuItem>
-      </ContextMenuList>
-    </Popover>
-  );
 
   const isSeen = chat
     ? chat.lastMessage?.createdUser?._id === currentUser?._id
@@ -186,12 +186,7 @@ const ChatItem = (props: FinalProps) => {
   };
 
   return (
-    <ChatItemWrapper
-      active={active}
-      isWidget={isWidget}
-      isSeen={isSeen}
-      onClick={handleClick}
-    >
+    <ChatItemWrapper active={active} isWidget={isWidget} isSeen={isSeen}>
       {chat &&
         (chat.type === 'direct' ? (
           <Avatar user={user} size={36} />
@@ -204,7 +199,7 @@ const ChatItem = (props: FinalProps) => {
 
       {notContactUser && <Avatar user={notContactUser} size={36} />}
 
-      <ChatWrapper isSeen={isSeen}>
+      <ChatWrapper isSeen={isSeen} onClick={handleClick}>
         {renderInfo()}
         {chat && draftContent && (
           <ChatBody>
