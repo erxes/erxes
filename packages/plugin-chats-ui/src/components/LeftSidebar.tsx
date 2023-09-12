@@ -4,7 +4,6 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Icon from '@erxes/ui/src/components/Icon';
 // local
-import CreateDirectChat from './modals/CreateDirectChat';
 import CreateGroupChat from '../containers/modals/CreateGroupChat';
 import ChatList from '../containers/chats/ChatList';
 import { SidebarWrapper, SidebarHeader, IconButton } from '../styles';

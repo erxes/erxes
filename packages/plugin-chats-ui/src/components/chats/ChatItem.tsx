@@ -96,13 +96,23 @@ const ChatItem = (props: FinalProps) => {
     document.getElementById('ChatActions').click();
   };
 
+  const onPin = () => {
+    props.handlePin(chat._id);
+    document.getElementById('ChatActions').click();
+  };
+
+  const onMarkAsRead = () => {
+    props.markAsRead();
+    document.getElementById('ChatActions').click();
+  };
+
   const popoverContextMenu = chat && (
     <Popover id="contextmenu-popover">
       <ContextMenuList>
-        <ContextMenuItem onClick={() => props.handlePin(chat._id)}>
+        <ContextMenuItem onClick={onPin}>
           {isPinned ? 'Unpin' : 'Pin'}
         </ContextMenuItem>
-        <ContextMenuItem onClick={() => props.markAsRead()}>
+        <ContextMenuItem onClick={onMarkAsRead}>
           {chat.isSeen ? 'Mark as unread' : 'Mark as read'}
         </ContextMenuItem>
         <ContextMenuItem color="red" onClick={onDelete}>
