@@ -22538,6 +22538,7 @@ safe-identifier@^0.4.1:
   version "0.4.2"
   resolved "https://registry.npmjs.org/safe-identifier/-/safe-identifier-0.4.2.tgz"
   integrity sha512-6pNbSMW6OhAi9j+N8V+U715yBQsaWJ7eyEUaOrawX+isg5ZxhUlV1NipNtgaKHmFGiABwt+ZF04Ii+3Xjkg+8w==
+
 safe-json-parse@4.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/safe-json-parse/-/safe-json-parse-4.0.0.tgz"
@@ -24559,7 +24560,7 @@ tryor@~0.1.2:
   resolved "https://registry.npmjs.org/tryor/-/tryor-0.1.2.tgz"
   integrity sha1-gUXkynyv9ArN48z5Rui4u3W0Fys=
 
-ts-invariant@^0.10.3, ts-invariant@~0.10.3:
+ts-invariant@^0.10.3:
   version "0.10.3"
   resolved "https://registry.npmjs.org/ts-invariant/-/ts-invariant-0.10.3.tgz"
   integrity sha512-uivwYcQaxAucv1CzRp2n/QdYPo4ILf9VXgH19zEIjFx2EJufV16P0JtJVpYHy89DItG6Kwj2oIUjrcK5au+4tQ==

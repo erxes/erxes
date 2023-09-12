@@ -496,6 +496,14 @@ a:hover {
   display: none !important;
 }
 
+#chatGroupMembers-popover {
+  padding: 10px 0;
+  z-index: 50;
+}
+#chatGroupMembers-popover .arrow {
+  display: none;
+}
+
 /* select  */
 
 .Select-control {

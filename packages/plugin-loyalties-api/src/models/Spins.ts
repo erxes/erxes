@@ -45,9 +45,9 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      if (spinCampaign.startDate > now || spinCampaign.endDate < now) {
-        throw new Error('Not create spin, expired');
-      }
+      // if (spinCampaign.startDate > now || spinCampaign.endDate < now) {
+      //   throw new Error('Not create spin, expired');
+      // }
 
       return await models.Spins.create({
         campaignId,
@@ -173,6 +173,7 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
         { _id: spinId },
         {
           status: SPIN_STATUS.WON,
+          voucherCampaignId: award.voucherCampaignId,
           voucherId: voucher._id,
           awardId: award._id,
           usedAt: new Date()
