@@ -1,10 +1,9 @@
 import React from 'react';
 import SendWebhook from './components/sendWebhook';
+import ActionResult from './components/ActionResult';
 
 const Automations = props => {
   const { componentType, activeAction } = props;
-
-  console.log({ componentType });
 
   if (componentType === 'actionForm') {
     const { type } = activeAction;
@@ -20,8 +19,7 @@ const Automations = props => {
     }
   }
   if (componentType === 'historyActionResult') {
-    const { result } = props;
-    return <>{result}</>;
+    return <ActionResult {...props} />;
   }
 };
 

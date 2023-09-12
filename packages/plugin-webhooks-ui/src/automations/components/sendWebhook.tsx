@@ -74,7 +74,7 @@ class SendWebhook extends React.Component<Props, State> {
       const { name, value } = e.currentTarget as HTMLInputElement;
 
       const updatedHeaders = headers.map(h =>
-        h._id === header._id ? { [name]: value } : h
+        h._id === header._id ? { ...h, [name]: value } : h
       );
 
       this.setState({ config: { ...config, headers: updatedHeaders } });
@@ -86,17 +86,23 @@ class SendWebhook extends React.Component<Props, State> {
     };
 
     return (
-      <ListItem>
+      <ListItem key={header._id}>
         <Columns>
           <FirstColumn>
             <FormGroup>
-              <FormControl name="key" placeholder="key" onChange={onChange} />
+              <FormControl
+                name="key"
+                placeholder="key"
+                value={header?.key}
+                onChange={onChange}
+              />
             </FormGroup>
           </FirstColumn>
           <EndColumn>
             <FormGroup>
               <FormControl
                 name="value"
+                value={header?.value}
                 placeholder="value"
                 onChange={onChange}
               />
@@ -144,17 +150,12 @@ class SendWebhook extends React.Component<Props, State> {
     const { useSpecifiedFields, config } = this.state;
 
     const onChangeFields = rConf => {
-      this.setState({ config: { ...config, ...rConf } });
-    };
-
-    const handleSave = () => {
-      const headers = {};
-
-      (config?.headers || []).forEach(({ key, value }) => {
-        headers[key] = value;
+      this.setState({
+        config: {
+          ...config,
+          specifiedFields: { ...(config?.specifiedFields || {}), ...rConf }
+        }
       });
-
-      addAction(activeAction, activeAction.id, { ...config, headers });
     };
 
     const handleChange = e => {
@@ -171,7 +172,7 @@ class SendWebhook extends React.Component<Props, State> {
       <DrawerDetail>
         <Common
           closeModal={closeModal}
-          addAction={handleSave}
+          addAction={addAction}
           activeAction={activeAction}
           config={config}
         >
@@ -181,8 +182,9 @@ class SendWebhook extends React.Component<Props, State> {
                 <ControlLabel>{__('Method')}</ControlLabel>
 
                 <Select
-                  value={'POST'}
+                  value={config?.method || 'POST'}
                   options={RESP_METHODS}
+                  name="method"
                   clearable={false}
                   onChange={handleSelect}
                 />
@@ -193,6 +195,7 @@ class SendWebhook extends React.Component<Props, State> {
                 <ControlLabel required>{__('Post Url')}</ControlLabel>
                 <FormControl
                   name="url"
+                  value={config?.url}
                   placeholder="https://erxes.io/..."
                   onChange={handleChange}
                 />
@@ -218,7 +221,7 @@ class SendWebhook extends React.Component<Props, State> {
 
           {useSpecifiedFields && (
             <SelectFields
-              config={config}
+              config={config?.specifiedFields || {}}
               triggerType={triggerType}
               onSelect={onChangeFields}
               actionType={triggerType}

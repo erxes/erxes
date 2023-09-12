@@ -14,23 +14,25 @@ export default {
     ]
   },
   receiveActions: async ({ subdomain, data }) => {
-    const { action, execution, triggerType } = data;
+    const { action, execution } = data;
+
+    const { triggerType } = execution;
 
     const [serviceName] = triggerType.split(':');
 
     let { target } = execution;
     const { config } = action;
 
-    const { url, method, ...obj } = config || {};
+    const { url, method, specifiedFields } = config || {};
 
-    if (Object.keys(obj).length) {
+    if (Object.keys(specifiedFields || {}).length) {
       const replacedContent = await sendCommonMessage({
         subdomain,
         serviceName,
         action: 'automations.replacePlaceHolders',
         data: {
           target,
-          config: {}
+          config: specifiedFields
         },
         isRPC: true,
         defaultValue: {}
@@ -41,21 +43,29 @@ export default {
 
     let response;
 
+    const headers = (config.headers || []).reduce((acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    }, {});
+
     try {
-      await sendRequest({
+      return await sendRequest({
         url,
         method: method || 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...headers
+        },
         body: {
           actionType: 'automations.webhook',
+          triggerType,
           data: target
         }
       }).then(() => {
         response = { url, method: method || 'POST', data: target };
       });
     } catch (error) {
-      response = error.message;
+      return error.message;
     }
-
-    return response;
   }
 };
