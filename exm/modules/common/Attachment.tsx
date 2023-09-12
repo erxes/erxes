@@ -1,12 +1,12 @@
-import Icon from "./Icon";
-import React from "react";
-import styled from "styled-components";
-import { rgba } from "../styles/ecolor";
-import colors from "../styles/colors";
-import { IAttachment } from "./types";
-import { readFile } from "./utils";
-import AttachmentWithPreview from "./AttachmentWithPreview";
-import ImageWithPreview from "./ImageWithPreview";
+import Icon from './Icon';
+import React from 'react';
+import styled from 'styled-components';
+import { rgba } from '../styles/ecolor';
+import colors from '../styles/colors';
+import { IAttachment } from './types';
+import { readFile } from './utils';
+import AttachmentWithPreview from './AttachmentWithPreview';
+import ImageWithPreview from './ImageWithPreview';
 
 export const AttachmentWrapper = styled.div`
   border-radius: 4px;
@@ -91,6 +91,7 @@ type Props = {
 
   index?: number;
   attachments?: IAttachment[];
+  size?: number;
 };
 
 class Attachment extends React.Component<Props> {
@@ -106,7 +107,7 @@ class Attachment extends React.Component<Props> {
   };
 
   renderOtherInfo = (attachment) => {
-    const name = attachment.name || attachment.url || "";
+    const name = attachment.name || attachment.url || '';
 
     return (
       <>
@@ -162,12 +163,13 @@ class Attachment extends React.Component<Props> {
     );
   };
 
-  renderImagePreview(attachment) {
+  renderImagePreview(attachment, size) {
     return (
       <ImageWithPreview
         onLoad={this.onLoadImage}
         alt={attachment.url}
         src={attachment.url}
+        size={size}
       />
     );
   }
@@ -177,51 +179,51 @@ class Attachment extends React.Component<Props> {
       return null;
     }
 
-    const { simple } = this.props;
+    const { simple, size } = this.props;
 
-    if (attachment.type.startsWith("image")) {
+    if (attachment.type.startsWith('image')) {
       if (simple) {
-        return this.renderImagePreview(attachment);
+        return this.renderImagePreview(attachment, size);
       }
 
       return this.renderOtherFile(attachment);
     }
 
-    const url = attachment.url || attachment.name || "";
-    const fileExtension = url.split(".").pop();
+    const url = attachment.url || attachment.name || '';
+    const fileExtension = url.split('.').pop();
 
     let filePreview;
 
     switch (fileExtension) {
-      case "docx":
-        filePreview = this.renderOtherFile(attachment, "doc");
+      case 'docx':
+        filePreview = this.renderOtherFile(attachment, 'doc');
         break;
-      case "pptx":
-        filePreview = this.renderOtherFile(attachment, "ppt");
+      case 'pptx':
+        filePreview = this.renderOtherFile(attachment, 'ppt');
         break;
-      case "xlsx":
-        filePreview = this.renderOtherFile(attachment, "xls");
+      case 'xlsx':
+        filePreview = this.renderOtherFile(attachment, 'xls');
         break;
-      case "mp4":
+      case 'mp4':
         filePreview = this.renderVideoFile(attachment);
         break;
-      case "zip":
-      case "csv":
-      case "doc":
-      case "ppt":
-      case "psd":
-      case "avi":
-      case "txt":
-      case "rar":
-      case "mp3":
-      case "pdf":
-      case "png":
-      case "xls":
-      case "jpeg":
+      case 'zip':
+      case 'csv':
+      case 'doc':
+      case 'ppt':
+      case 'psd':
+      case 'avi':
+      case 'txt':
+      case 'rar':
+      case 'mp3':
+      case 'pdf':
+      case 'png':
+      case 'xls':
+      case 'jpeg':
         filePreview = this.renderOtherFile(attachment, fileExtension);
         break;
       default:
-        filePreview = this.renderOtherFile(attachment, "file-2");
+        filePreview = this.renderOtherFile(attachment, 'file-2');
     }
     return filePreview;
   };
