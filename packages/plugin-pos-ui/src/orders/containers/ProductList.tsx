@@ -127,6 +127,12 @@ class ProductListContainer extends React.Component<FinalProps> {
   }
 }
 
+export const genParams = ({ queryParams }) => ({
+  ...generateParams({ queryParams }),
+  searchValue: queryParams.searchValue,
+  categoryId: queryParams.categoryId
+});
+
 export default withProps<Props>(
   compose(
     graphql<Props, PosProductsQueryResponse, { page: number; perPage: number }>(
@@ -134,7 +140,7 @@ export default withProps<Props>(
       {
         name: 'posProductsQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
+          variables: genParams({ queryParams }),
           fetchPolicy: 'network-only'
         })
       }
