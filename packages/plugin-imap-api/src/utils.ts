@@ -222,7 +222,7 @@ const saveMessages = async (
 };
 
 const operation = retry.operation({
-  retries: 15,
+  retries: 3,
   factor: 2,
   minTimeout: 1000,
   maxTimeout: 60000,
@@ -231,11 +231,11 @@ const operation = retry.operation({
 
 export const listenIntegration = async (
   subdomain: string,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
+  isRetry?: boolean
 ) => {
+  const models = await generateModels(subdomain);
   const performImapOperation = async callback => {
-    const models = await generateModels(subdomain);
-
     const imap = generateImap(integration);
 
     imap.once('ready', _response => {
@@ -249,8 +249,7 @@ export const listenIntegration = async (
             errorStack: e.stack
           });
           console.log('listen integration error ============', e);
-          callback(e);
-          throw e;
+          isRetry && callback(e);
         }
       });
     });
@@ -259,7 +258,8 @@ export const listenIntegration = async (
       console.log('new messages ========', response);
 
       const updatedIntegration = await models.Integrations.findOne({
-        _id: integration._id
+        _id: integration._id,
+        healthStatus: 'healthy'
       });
 
       if (!updatedIntegration) {
@@ -276,7 +276,7 @@ export const listenIntegration = async (
           errorStack: e.stack
         });
         console.log('save message error ============', e);
-        callback(e);
+        isRetry && callback(e);
         throw e;
       }
     });
@@ -289,7 +289,23 @@ export const listenIntegration = async (
       });
 
       console.log('on imap.once =============', e);
-      callback(e);
+
+      if (e.message.includes('Invalid credentials')) {
+        await models.Integrations.updateOne(
+          { _id: integration._id },
+          {
+            $set: {
+              healthStatus: 'unHealthy',
+              error: `${e.message}`
+            }
+          }
+        );
+
+        return imap.end();
+      }
+
+      isRetry && callback(e);
+      throw new Error(e);
     });
 
     imap.once('end', e => {
@@ -301,13 +317,23 @@ export const listenIntegration = async (
 
   operation.attempt(currentAttempt => {
     console.log(`Attempt ${currentAttempt} ==========`);
-    performImapOperation(error => {
+
+    performImapOperation(async error => {
       if (operation.retry(error)) {
         return;
       }
       if (error) {
         console.error(
           'Max retries exceeded. Could not complete the operation. =============='
+        );
+        return await models.Integrations.updateOne(
+          { _id: integration._id },
+          {
+            $set: {
+              healthStatus: 'unHealthy',
+              error: error.message || 'Max retries exceeded'
+            }
+          }
         );
       } else {
         console.log('IMAP operation completed successfully. ==============');
@@ -324,10 +350,12 @@ const listen = async (subdomain: string) => {
     message: `Started syncing integrations`
   });
 
-  const integrations = await models.Integrations.find();
+  const integrations = await models.Integrations.find({
+    healthStatus: 'healthy'
+  });
 
   for (const integration of integrations) {
-    await listenIntegration(subdomain, integration);
+    await listenIntegration(subdomain, integration, true);
   }
 };
 
