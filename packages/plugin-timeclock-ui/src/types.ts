@@ -233,6 +233,11 @@ export type PayDatesQueryResponse = {
   refetch: () => void;
   loading: boolean;
 };
+
+export type ScheduleConfigOrderQueryResponse = {
+  scheduleConfigOrder: IScheduleConfigOrder;
+} & QueryResponse;
+
 export type HolidaysQueryResponse = {
   holidays: IAbsence[];
 } & QueryResponse;
@@ -435,4 +440,6 @@ export type ScheduleMutationResponse = {
   checkDuplicateScheduleShiftsMutation: (params: {
     variables: ScheduleMutationVariables;
   }) => Promise<any>;
+
+  scheduleConfigOrderEditMutation: (params: { variables: any }) => Promise<any>;
 };

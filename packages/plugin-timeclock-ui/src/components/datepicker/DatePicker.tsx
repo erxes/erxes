@@ -116,17 +116,6 @@ const DatePicker = (props: Props) => {
     changeScheduleConfig(curr_day_key, el.value);
   };
 
-  // const pin = () => {
-  //   console.log('asdad');
-  // };
-
-  // const CustomOption = ({ innerProps, isDisabled }) =>
-  //   !isDisabled ? (
-  //     <div {...innerProps}>
-  //       <button>Aaa</button>
-  //     </div>
-  //   ) : null;
-
   return (
     <FlexRow>
       <div style={{ width: '15%' }}>

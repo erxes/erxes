@@ -86,6 +86,13 @@ export const types = `
     lunchBreakInMins: Int
   }
 
+  input ConfigOrderInput {
+   scheduleConfigId: String
+   order: Int
+   pinned: Boolean
+   label: String 
+  }
+
   type Shift{
     _id: String
     scheduleConfigId: String
@@ -220,16 +227,17 @@ export const types = `
     configDays: [ConfigDay]
   }
   
-  type ScheduleConfigsOrderItem {
+  type ScheduleConfigOrderItem {
     order: Int
     pinned: Boolean
     scheduleConfigId: String
+    label: String
   }
   
-  type ScheduleConfigsOrder {
+  type ScheduleConfigOrder {
     _id: String!
     userId: String
-    orderedList: [ScheduleConfigsOrderItem]
+    orderedList: [ScheduleConfigOrderItem]
   }
 
   type ConfigDay {
@@ -377,7 +385,7 @@ export const queries = `
   scheduleDetail(_id: String!): Schedule
   scheduleConfigs: [ScheduleConfig]
   
-  scheduleConfigsOrder(userId: String): ScheduleConfigsOrder
+  scheduleConfigOrder(userId: String): ScheduleConfigOrder
 
   payDates: [PayDate]
   holidays: [Absence]
@@ -413,6 +421,8 @@ export const mutations = `
   scheduleConfigEdit(_id : String ,scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
   scheduleConfigRemove(_id : String ): JSON
   
+  scheduleConfigOrderEdit(userId: String, orderedList:[ConfigOrderInput]): JSON
+
   payDateAdd(dateNums: [Int]): PayDate
   payDateEdit(_id: String, dateNums: [Int]): PayDate
   payDateRemove(_id: String): JSON

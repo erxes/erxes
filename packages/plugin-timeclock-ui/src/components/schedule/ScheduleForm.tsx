@@ -18,6 +18,7 @@ import {
   MarginX,
   MarginY,
   CustomBoxWrapper,
+  SortItem,
   RoundBox
 } from '../../styles';
 
@@ -38,6 +39,8 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Box from '@erxes/ui/src/components/Box';
 
+import * as icons from 'react-bootstrap-icons';
+
 type Props = {
   currentUser: IUser;
   isCurrentUserAdmin: boolean;
@@ -50,9 +53,10 @@ type Props = {
   history: any;
   modalContentType: string;
   scheduleConfigs: IScheduleConfig[];
-  scheduleConfigsOrder?: IScheduleConfigOrder;
+  scheduleConfigOrder?: IScheduleConfigOrder;
 
   checkDuplicateScheduleShifts: (values: any) => any;
+  scheduleConfigOrderEdit: (values: any) => any;
 
   closeModal: any;
 };
@@ -69,8 +73,9 @@ function ScheduleForm(props: Props) {
 
     modalContentType,
     scheduleConfigs,
-    scheduleConfigsOrder,
-    checkDuplicateScheduleShifts
+    scheduleConfigOrder,
+    checkDuplicateScheduleShifts,
+    scheduleConfigOrderEdit
   } = props;
 
   const returnTotalUserOptions = () => {
@@ -111,8 +116,8 @@ function ScheduleForm(props: Props) {
 
   const [scheduleConfigsOrderData, setScheduleConfigsOrderData] = useState({
     userId: currentUser._id,
-    orderedList: scheduleConfigsOrder
-      ? scheduleConfigsOrder.orderedList
+    orderedList: scheduleConfigOrder
+      ? scheduleConfigOrder.orderedList
       : scheduleConfigs.map((s, index) => ({
           scheduleConfigId: s._id,
           order: index,
@@ -160,10 +165,14 @@ function ScheduleForm(props: Props) {
   };
 
   const renderScheduleConfigOptions = () => {
-    return scheduleConfigs?.map(scheduleConfig => ({
-      value: scheduleConfig._id,
-      label: `${scheduleConfig.shiftStart} ~ ${scheduleConfig.shiftEnd}\xa0\xa0\xa0(${scheduleConfig.scheduleName})`
+    return scheduleConfigsOrderData.orderedList.map(s => ({
+      value: s.scheduleConfigId,
+      label: s.label
     }));
+    // return scheduleConfigs?.map(scheduleConfig => ({
+    //   value: scheduleConfig._id,
+    //   label: `${scheduleConfig.shiftStart} ~ ${scheduleConfig.shiftEnd}\xa0\xa0\xa0(${scheduleConfig.scheduleName})`
+    // }));
   };
 
   // change schedule for all days
@@ -588,6 +597,93 @@ function ScheduleForm(props: Props) {
     );
   };
 
+  const omitTypeName = (scheduleConfigOrderData: IScheduleConfigOrder) => {
+    const orderData = scheduleConfigOrderData;
+
+    return {
+      userId: orderData.userId,
+      orderedList: orderData.orderedList.map(s => ({
+        order: s.order,
+        scheduleConfigId: s.scheduleConfigId,
+        pinned: s.pinned,
+        label: s.label
+      }))
+    };
+  };
+
+  const scheduleConfigOrderDataEdit = (scheduleConfigOrderData: any) => {
+    setScheduleConfigsOrderData(scheduleConfigOrderData);
+    scheduleConfigOrderEdit(omitTypeName(scheduleConfigOrderData));
+  };
+
+  const unpinScheduleConfig = (currentConfigOrder: number) => {
+    let firstUnpinnedOrderNum = scheduleConfigsOrderData.orderedList.length;
+
+    const newScheduleConfigsOrderData = scheduleConfigsOrderData;
+
+    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
+      if (!scheduleConfigsOrderItem.pinned) {
+        firstUnpinnedOrderNum = scheduleConfigsOrderItem.order;
+        break;
+      }
+    }
+
+    const lastPinnedOrderNum = firstUnpinnedOrderNum - 1;
+
+    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
+      if (scheduleConfigsOrderItem.order < currentConfigOrder) {
+        continue;
+      }
+
+      if (scheduleConfigsOrderItem.order > lastPinnedOrderNum) {
+        break;
+      }
+
+      if (scheduleConfigsOrderItem.order === currentConfigOrder) {
+        scheduleConfigsOrderItem.order = lastPinnedOrderNum;
+        scheduleConfigsOrderItem.pinned = false;
+        continue;
+      }
+      scheduleConfigsOrderItem.order = scheduleConfigsOrderItem.order - 1;
+    }
+
+    scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData });
+  };
+
+  const pinScheduleConfig = (currentConfigOrder: number) => {
+    let firstUnpinnedOrderNum = 0;
+
+    const newScheduleConfigsOrderData = scheduleConfigsOrderData;
+
+    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
+      if (!scheduleConfigsOrderItem.pinned) {
+        firstUnpinnedOrderNum = scheduleConfigsOrderItem.order;
+        break;
+      }
+    }
+
+    const lastPinnedOrderNum = firstUnpinnedOrderNum - 1;
+
+    for (const scheduleConfigsOrderItem of newScheduleConfigsOrderData.orderedList) {
+      if (scheduleConfigsOrderItem.order > currentConfigOrder) {
+        break;
+      }
+
+      if (scheduleConfigsOrderItem.order <= lastPinnedOrderNum) {
+        continue;
+      }
+
+      if (scheduleConfigsOrderItem.order === currentConfigOrder) {
+        scheduleConfigsOrderItem.order = firstUnpinnedOrderNum;
+        scheduleConfigsOrderItem.pinned = true;
+        continue;
+      }
+      scheduleConfigsOrderItem.order = scheduleConfigsOrderItem.order + 1;
+    }
+
+    scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData });
+  };
+
   const adminConfigDefaultContent = () => {
     return (
       <FlexColumn marginNum={10}>
@@ -633,13 +729,18 @@ function ScheduleForm(props: Props) {
           <Box title="set schedule configs order">
             {scheduleConfigsOrderData.orderedList
               .sort((a, b) => a.order - b.order)
-              .map(s => (
-                <FlexRow key={s.order}>
+              .map((s: any) => (
+                <SortItem key={s.order}>
                   <div>{s.label}</div>
-                  {/* <RoundBox pinned={false}> */}
-                  <Icon icon="tag-alt" isActive={true} />
-                  {/* </RoundBox> */}
-                </FlexRow>
+                  {s.pinned ? (
+                    <icons.PinFill
+                      color="#673FBD"
+                      onClick={() => unpinScheduleConfig(s.order)}
+                    />
+                  ) : (
+                    <icons.Pin onClick={() => pinScheduleConfig(s.order)} />
+                  )}
+                </SortItem>
               ))}
           </Box>
         </CustomBoxWrapper>

@@ -33,7 +33,8 @@ import {
   IReportCheckDocument,
   reportCheckSchema,
   IScheduleConfigOrderDocument,
-  IScheduleConfigOrder
+  IScheduleConfigOrder,
+  scheduleConfigOrderSchema
 } from './definitions/timeclock';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -398,7 +399,7 @@ export const loadScheduleConfigOrderClass = (models: IModels) => {
   class ScheduleConfigOrder {
     // get
     public static async getScheduleConfigOrder(_id: string) {
-      const scheduleConfigOrder = await models.ScheduleConfigsOrders.findOne({
+      const scheduleConfigOrder = await models.ScheduleConfigOrder.findOne({
         _id
       });
       if (!scheduleConfigOrder) {
@@ -408,7 +409,7 @@ export const loadScheduleConfigOrderClass = (models: IModels) => {
     }
     // create
     public static async createScheduleConfigOrder(doc: IScheduleConfigOrder) {
-      return models.ScheduleConfigsOrders.create({
+      return models.ScheduleConfigOrder.create({
         ...doc
       });
     }
@@ -417,20 +418,20 @@ export const loadScheduleConfigOrderClass = (models: IModels) => {
       _id: string,
       doc: IScheduleConfigOrder
     ) {
-      await models.ScheduleConfigsOrders.updateOne(
+      await models.ScheduleConfigOrder.updateOne(
         { _id },
         { $set: { ...doc } }
       ).then(err => console.error(err));
     }
     // remove
     public static async removeScheduleConfigOrder(_id: string) {
-      return models.ScheduleConfigsOrders.deleteOne({ _id });
+      return models.ScheduleConfigOrder.deleteOne({ _id });
     }
   }
 
-  scheduleConfigSchema.loadClass(ScheduleConfigOrder);
+  scheduleConfigOrderSchema.loadClass(ScheduleConfigOrder);
 
-  return scheduleConfigSchema;
+  return scheduleConfigOrderSchema;
 };
 
 export interface IDeviceConfigModel extends Model<IDeviceConfigDocument> {

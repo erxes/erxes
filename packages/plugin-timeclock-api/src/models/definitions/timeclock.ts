@@ -461,7 +461,8 @@ export const reportCheckSchema = new Schema({
 export const scheduleConfigOrderItemSchema = new Schema({
   scheduleConfigId: field({ type: String, index: true }),
   pinned: field({ type: Boolean, default: false }),
-  order: field({ type: Number, index: true })
+  order: field({ type: Number, index: true }),
+  label: field({ type: String, label: 'startTime ~ endTime (scheduleName)' })
 });
 
 export const scheduleConfigOrderSchema = new Schema({

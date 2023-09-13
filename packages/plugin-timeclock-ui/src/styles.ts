@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
@@ -364,13 +364,50 @@ const CustomCollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
   }
 `;
 
+const SortItem = styledTS<{
+  isDragging: boolean;
+  isModal: boolean;
+  column?: number;
+}>(styled.div)`
+  background: ${colors.colorWhite};
+  display: block;
+  padding: 10px;
+  margin-bottom: 10px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  border-left: 2px solid transparent; 
+  border-top: ${props =>
+    !props.isDragging ? `1px solid ${colors.borderPrimary}` : 'none'};
+  border-radius: 4px;
+  box-shadow: ${props =>
+    props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : 'none'};
+  left: ${props =>
+    props.isDragging && props.isModal ? '40px!important' : 'auto'};
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:hover {
+    box-shadow: 0 2px 8px ${colors.shadowPrimary};
+    border-color: ${colors.colorSecondary};
+    border-top: none;
+  }
+  ${props =>
+    props.column &&
+    css`
+      width: ${100 / props.column}%;
+      display: inline-block;
+    `}
+`;
+
 const CustomBoxWrapper = styled.div`
   h3 {
     margin: 0;
   }
 
   a {
-    i {
+    &::before {
       margin: 0;
     }
   }
@@ -436,5 +473,6 @@ export {
   AlertContainer,
   CustomWidth,
   CustomBoxWrapper,
-  RoundBox
+  RoundBox,
+  SortItem
 };
