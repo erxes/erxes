@@ -7,6 +7,7 @@ const commonTypes = `
         appToken:String,
         startDate:Date,
         expireDate:Date,
+        checkApproved:Boolean,
         config:JSON
         
         organizationDetail:JSON
@@ -21,6 +22,7 @@ export const types = `
     type CustomerSyncedSaaS  {
         ${commonTypes},
         customerId:String,
+        customerStatus:String,
         syncedCustomerId:String
     }
 
@@ -50,6 +52,7 @@ const commonMutationParams = `
     appToken:String,
     startDate:String,
     expireDate:String,
+    checkApproved:Boolean,
 `;
 
 export const mutations = `
@@ -57,4 +60,5 @@ export const mutations = `
     editSaasSync(_id:String,${commonMutationParams}):JSON
     removeSaasSync(_id:String):JSON
     saveSyncedSaasConfig(_id:String,config:JSON):JSON
+    syncSaasDealsAdd(syncId:String,dealData:JSON): JSON
 `;

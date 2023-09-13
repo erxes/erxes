@@ -1,7 +1,4 @@
-import React from 'react';
-import { SidebarListItem, ActionButtons } from '@erxes/ui-settings/src/styles';
-import { Link } from 'react-router-dom';
-import { BarItems, SidebarHeader } from '@erxes/ui/src/layout/styles';
+import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import {
   Box,
   Button,
@@ -12,6 +9,9 @@ import {
   __,
   router
 } from '@erxes/ui/src';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import Form from '../containers/Form';
 
 type Props = {
@@ -107,7 +107,7 @@ class Categories extends React.Component<Props> {
       router.setParams(this.props.history, { categoryId: null });
     };
 
-    const clearSelectedCategoryButton = (
+    const extraButtons = (
       <BarItems>
         {this.renderForm(
           'Add Category',
@@ -132,7 +132,7 @@ class Categories extends React.Component<Props> {
         <Box
           title="Categories"
           name="syncSaasCategories"
-          extraButtons={clearSelectedCategoryButton}
+          extraButtons={extraButtons}
           isOpen
         >
           {this.renderList()}

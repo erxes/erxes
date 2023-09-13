@@ -6,6 +6,7 @@ const commonParams = `
     $appToken: String,
     $startDate: String,
     $expireDate: String,
+    $checkApproved:Boolean,
 `;
 const commonParamsDef = `
     name: $name,
@@ -15,6 +16,7 @@ const commonParamsDef = `
     appToken: $appToken,
     startDate: $startDate,
     expireDate: $expireDate,
+    checkApproved:$checkApproved
 `;
 
 const add = `

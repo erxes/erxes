@@ -42,7 +42,8 @@ query SyncedSaasDetail($_id: String!) {
     appToken
     startDate
     expireDate
-    config
+    config,
+    checkApproved
   }
 }
 `;

@@ -10,6 +10,8 @@ export interface ISync {
   appToken: string;
   startDate: string;
   expireDate: string;
+  checkApproved?: boolean;
+  config: any;
 }
 
 export interface ICategory {
@@ -29,6 +31,7 @@ export interface ISyncedCustomers {
   customerId: string;
   syncedCustomerId: string;
   createdAt: string;
+  status: string;
 }
 
 export interface ISyncedCustomersDocument extends ISyncedCustomers, Document {
@@ -69,7 +72,12 @@ export const syncSaasSchema = new Schema({
   expireDate: field({ type: Date, label: 'End Date', require: true }),
   createdAt: field({ type: Date, label: 'Created Date', default: Date.now }),
   createdUserId: field({ type: String, label: 'Created User Id' }),
-  config: field({ type: Schema.Types.Mixed, label: 'config', optional: true })
+  config: field({ type: Schema.Types.Mixed, label: 'config', optional: true }),
+  checkApproved: field({
+    type: Boolean,
+    label: 'Check Approved',
+    optional: true
+  })
 });
 
 export const syncedCustomersSaas = new Schema({

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { Alert, EmptyState, Spinner, confirm } from '@erxes/ui/src';
+import { Alert, Spinner, confirm } from '@erxes/ui/src';
 import { router, withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -83,8 +83,10 @@ const generateDateFilters = queryParams => {
     dateFilters.push({ ...startDate, name: 'startDate' });
   }
   if (expireDate) {
-    dateFilters.push({ ...startDate, name: 'expireDate' });
+    dateFilters.push({ ...expireDate, name: 'expireDate' });
   }
+
+  return dateFilters;
 };
 
 const generateParams = queryParams => {

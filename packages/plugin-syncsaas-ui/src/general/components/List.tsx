@@ -3,13 +3,16 @@ import {
   Button,
   FormControl,
   HeaderDescription,
+  Pagination,
   Table,
+  Wrapper,
   __,
   router
 } from '@erxes/ui/src/';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { DefaultWrapper } from '../../common/utils';
+import { TableHead } from '../common/utils';
+import { headers } from './Headers';
 import Row from './Row';
 import SideBar from './Sidebar';
 
@@ -91,7 +94,7 @@ class List extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { list } = this.props;
+    const { list, queryParams, history } = this.props;
 
     return (
       <div>
@@ -100,8 +103,15 @@ class List extends React.Component<Props, State> {
             <tr>
               <th>{__('Name')}</th>
               <th>{__('Sub Domain')}</th>
-              <th>{__('Start date')}</th>
-              <th>{__('Expire date')}</th>
+              {headers(queryParams, history).map(header => (
+                <TableHead
+                  key={header.name}
+                  filter={header.filter}
+                  sort={header.sort}
+                >
+                  {header.label}
+                </TableHead>
+              ))}
               <th>{__('Actions')}</th>
             </tr>
           </thead>
@@ -112,7 +122,7 @@ class List extends React.Component<Props, State> {
   }
 
   render() {
-    const { history, queryParams, totalCount } = this.props;
+    const { queryParams, totalCount } = this.props;
 
     const leftActionBar = (
       <HeaderDescription
@@ -129,16 +139,19 @@ class List extends React.Component<Props, State> {
       </BarItems>
     );
 
-    const updatedProps = {
-      title: 'Sync Saas',
-      leftActionBar,
-      rightActionBar,
-      sidebar: <SideBar history={history} queryParams={queryParams} />,
-      content: this.renderContent(),
-      totalCount
-    };
-
-    return <DefaultWrapper {...updatedProps} />;
+    return (
+      <Wrapper
+        header={<Wrapper.Header title={'Sync Saas'} />}
+        actionBar={
+          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+        }
+        leftSidebar={
+          <SideBar history={this.props.history} queryParams={queryParams} />
+        }
+        content={this.renderContent()}
+        footer={<Pagination count={totalCount} />}
+      />
+    );
   }
 }
 

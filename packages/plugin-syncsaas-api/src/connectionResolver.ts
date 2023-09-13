@@ -9,11 +9,17 @@ import {
   ISyncedCustomersDocument,
   syncedCustomersSaas
 } from './models/definitions/sync';
+import {
+  syncedDealSchema,
+  SyncedDealDocuments
+} from './models/definitions/deals';
 import { loadSyncCategoriesClass, ICategoriesModel } from './models/categories';
+import { ISyncDealModel, loadSyncDealClass } from './models/deals';
 
 export interface IModels {
   Sync: ISyncModel;
   SyncedCustomers: Model<ISyncedCustomersDocument>;
+  SyncedDeals: ISyncDealModel;
   Categories: ICategoriesModel;
 }
 
@@ -39,6 +45,11 @@ export const loadClasses = (
     ISyncedCustomersDocument,
     Model<ISyncedCustomersDocument>
   >('synced_saas_customers', syncedCustomersSaas);
+
+  models.SyncedDeals = db.model<SyncedDealDocuments, ISyncDealModel>(
+    'synced_saas_deals',
+    loadSyncDealClass(models, subdomain)
+  );
 
   models.Categories = db.model<ICategoryDocument, ICategoriesModel>(
     'synced_saas_categories',

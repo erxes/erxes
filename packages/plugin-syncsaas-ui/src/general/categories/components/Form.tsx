@@ -52,7 +52,7 @@ class Form extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required>{__('Description')}</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             defaultValue={doc?.description}
             {...formProps}
@@ -62,7 +62,12 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel required>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name="code" defaultValue={doc?.code} />
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={doc?.code}
+            required
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>

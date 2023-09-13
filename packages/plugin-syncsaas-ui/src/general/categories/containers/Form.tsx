@@ -1,11 +1,10 @@
-import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { router, withProps } from '@erxes/ui/src/utils/core';
+import { Alert, ButtonMutate, confirm } from '@erxes/ui/src/';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
-import queries from '../../graphql/queries';
-import { IButtonMutateProps, QueryResponse } from '@erxes/ui/src/types';
-import { Alert, ButtonMutate, Spinner, confirm } from '@erxes/ui/src/';
+import React from 'react';
 import FormComponent from '../components/Form';
 import mutations from '../graphql/mutations';
 import { refetchQueries } from './List';

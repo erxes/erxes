@@ -9,6 +9,7 @@ import {
   PageHeader,
   Step,
   Steps,
+  Toggle,
   __
 } from '@erxes/ui/src';
 import { StepWrapper } from '@erxes/ui/src/components/step/styles';
@@ -182,6 +183,17 @@ class Form extends React.Component<Props, State> {
                   </DateContainer>
                 </EndDateContainer>
               </CustomRangeContainer>
+              <FormGroup>
+                <ControlLabel>
+                  {__('Register customer when approved')}
+                </ControlLabel>
+                <Toggle
+                  checked={sync.checkApproved}
+                  onChange={() =>
+                    this.handleChange('checkApproved', !sync?.checkApproved)
+                  }
+                />
+              </FormGroup>
             </Padding>
           </Step>
           {this.props?.detail && (

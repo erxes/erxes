@@ -2,7 +2,6 @@ import { IContext } from '../../../connectionResolver';
 
 const categoriesMutations = {
   async addCategorySyncSaas(_root, args, { models }: IContext) {
-    console.log({ args });
     return await models.Categories.addCategory(args);
   },
   async editCategorySaasSync(_root, { _id, ...doc }, { models }: IContext) {
