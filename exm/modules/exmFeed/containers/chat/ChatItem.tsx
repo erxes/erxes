@@ -18,7 +18,7 @@ type Props = {
   handlePin: (chatId: string) => void;
   notContactUser?: IUser;
   isForward?: boolean;
-  forwardChat?: (chatId?: string) => void;
+  forwardChat?: (id?: string, type?: string) => void;
   forwardedChatIds?: string[];
 };
 

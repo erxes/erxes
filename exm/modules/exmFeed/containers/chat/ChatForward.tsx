@@ -1,10 +1,10 @@
-import gql from "graphql-tag";
-import { mutations } from "../../graphql";
-import { useMutation } from "@apollo/client";
-import Alert from "../../../utils/Alert";
-import ChatForward from "../../components/chat/ChatForward";
-import { IUser } from "../../../auth/types";
-import { useState } from "react";
+import gql from 'graphql-tag';
+import { mutations } from '../../graphql';
+import { useMutation } from '@apollo/client';
+import Alert from '../../../utils/Alert';
+import ChatForward from '../../components/chat/ChatForward';
+import { IUser } from '../../../auth/types';
+import { useState } from 'react';
 
 type Props = {
   currentUser: IUser;
@@ -17,20 +17,38 @@ const ChatForwardContainer = (props: Props) => {
 
   const [chatForward] = useMutation(gql(mutations.chatForward));
 
-  const forwardChat = (chatId?: string) => {
-    chatForward({
-      variables: {
-        chatId,
-        content: props.content,
-        attachments: props.attachments,
-      },
-    })
-      .then(() => {
-        setForwardedChatIds([...forwardedChatIds, chatId]);
+  const forwardChat = (id?: string, type?: string) => {
+    if (type === 'group') {
+      chatForward({
+        variables: {
+          chatId: id,
+          content: props.content,
+          attachments: props.attachments
+        }
       })
-      .catch((error) => {
-        Alert.error(error.message);
-      });
+        .then(() => {
+          console.log('sent');
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
+    }
+
+    if (type === 'direct') {
+      chatForward({
+        variables: {
+          userIds: [id],
+          content: props.content,
+          attachments: props.attachments
+        }
+      })
+        .then(() => {
+          console.log('sent');
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
+    }
   };
 
   return (

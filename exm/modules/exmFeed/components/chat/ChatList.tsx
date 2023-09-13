@@ -23,7 +23,7 @@ type Props = {
   handleActive?: (chatId: string) => void;
   togglePinned: (chatId) => void;
   isForward?: boolean;
-  forwardChat?: (chatId?: string) => void;
+  forwardChat?: (id?: string, type?: string) => void;
   forwardedChatIds?: string[];
 };
 
