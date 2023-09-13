@@ -24,7 +24,6 @@ type Props = {
   togglePinned: (chatId) => void;
   isForward?: boolean;
   forwardChat?: (id?: string, type?: string) => void;
-  forwardedChatIds?: string[];
 };
 
 export default function ChatList({
@@ -34,8 +33,7 @@ export default function ChatList({
   handleActive,
   togglePinned,
   isForward,
-  forwardChat,
-  forwardedChatIds
+  forwardChat
 }: Props) {
   const contactedUsers = chats.map(
     (c) => c.type === 'direct' && c.participantUsers[0]?._id
@@ -86,7 +84,6 @@ export default function ChatList({
                   handleClickItem={() => handleActive(c._id)}
                   isForward={isForward}
                   forwardChat={forwardChat}
-                  forwardedChatIds={forwardedChatIds}
                 />
               )
           )}
@@ -176,7 +173,6 @@ export default function ChatList({
                   handlePin={handlePin}
                   isForward={isForward}
                   forwardChat={forwardChat}
-                  forwardedChatIds={forwardedChatIds}
                 />
               );
             }
@@ -203,7 +199,6 @@ export default function ChatList({
                 handlePin={handlePin}
                 isForward={isForward}
                 forwardChat={forwardChat}
-                forwardedChatIds={forwardedChatIds}
               />
             );
           }
@@ -222,7 +217,6 @@ export default function ChatList({
                 handlePin={handlePin}
                 isForward={isForward}
                 forwardChat={forwardChat}
-                forwardedChatIds={forwardedChatIds}
               />
             );
           }
@@ -247,7 +241,6 @@ export default function ChatList({
                 handlePin={handlePin}
                 isForward={isForward}
                 forwardChat={forwardChat}
-                forwardedChatIds={forwardedChatIds}
               />
             ))}
             {filteredUsers.map((user) => {
@@ -262,7 +255,6 @@ export default function ChatList({
                     handlePin={handlePin}
                     isForward={isForward}
                     forwardChat={forwardChat}
-                    forwardedChatIds={forwardedChatIds}
                   />
                 );
               }
@@ -277,7 +269,6 @@ export default function ChatList({
                       handlePin={handlePin}
                       isForward={isForward}
                       forwardChat={forwardChat}
-                      forwardedChatIds={forwardedChatIds}
                     />
                   );
                 }

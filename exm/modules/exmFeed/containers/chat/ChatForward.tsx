@@ -13,8 +13,6 @@ type Props = {
 };
 
 const ChatForwardContainer = (props: Props) => {
-  const [forwardedChatIds, setForwardedChatIds] = useState([]);
-
   const [chatForward] = useMutation(gql(mutations.chatForward));
 
   const forwardChat = (id?: string, type?: string) => {
@@ -27,7 +25,7 @@ const ChatForwardContainer = (props: Props) => {
         }
       })
         .then(() => {
-          console.log('sent');
+          Alert.success('sent');
         })
         .catch((error) => {
           Alert.error(error.message);
@@ -43,7 +41,7 @@ const ChatForwardContainer = (props: Props) => {
         }
       })
         .then(() => {
-          console.log('sent');
+          Alert.success('sent');
         })
         .catch((error) => {
           Alert.error(error.message);
@@ -52,11 +50,7 @@ const ChatForwardContainer = (props: Props) => {
   };
 
   return (
-    <ChatForward
-      currentUser={props.currentUser}
-      forwardedChatIds={forwardedChatIds}
-      forwardChat={forwardChat}
-    />
+    <ChatForward currentUser={props.currentUser} forwardChat={forwardChat} />
   );
 };
 

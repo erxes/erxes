@@ -10,7 +10,6 @@ type Props = {
   handleActive?: (chatId: string) => void;
   isForward?: boolean;
   forwardChat?: (id?: string, type?: string) => void;
-  forwardedChatIds?: string[];
 };
 
 const ChatListContainer = (props: Props) => {

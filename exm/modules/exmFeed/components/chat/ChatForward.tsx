@@ -9,7 +9,6 @@ import { IUser } from '../../../auth/types';
 type Props = {
   forwardChat?: (id?: string, type?: string) => void;
   currentUser: IUser;
-  forwardedChatIds?: string[];
 };
 
 const ChatForward = (props: Props) => {
@@ -25,7 +24,6 @@ const ChatForward = (props: Props) => {
       content={(p) => (
         <ChatList
           {...p}
-          forwardedChatIds={props.forwardedChatIds}
           forwardChat={props.forwardChat}
           isForward={true}
           currentUser={props.currentUser}
