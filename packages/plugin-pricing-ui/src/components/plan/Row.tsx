@@ -116,8 +116,7 @@ export default function Row(props: Props) {
       </td>
       <td>
         <b>
-          {(data.createdUser && data.createdUser.details?.fullName) ||
-            data.createdUser.email}
+          {data.createdUser?.details?.fullName || data.createdUser?.email || ''}
         </b>
       </td>
       <td>
