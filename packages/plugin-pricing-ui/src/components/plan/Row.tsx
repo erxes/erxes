@@ -115,7 +115,10 @@ export default function Row(props: Props) {
         </Label>
       </td>
       <td>
-        <b>{data.createdUser && data.createdUser.details?.fullName}</b>
+        <b>
+          {(data.createdUser && data.createdUser.details?.fullName) ||
+            data.createdUser.email}
+        </b>
       </td>
       <td>
         <Icon icon="calender" />{' '}
