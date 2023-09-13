@@ -7,6 +7,7 @@ const productFields = `
   code
   categoryId
   vendorId
+  status,
   description
   unitPrice
   barcodes
@@ -53,6 +54,7 @@ const products = `
     $type: String,
     $categoryId: String,
     $tag: String,
+    $status: String,
     $searchValue: String,
     $perPage: Int,
     $page: Int $ids: [String],
@@ -66,6 +68,7 @@ const products = `
       type: $type,
       categoryId: $categoryId,
       tag: $tag,
+      status: $status,
       searchValue: $searchValue,
       perPage: $perPage,
       page: $page ids: $ids,

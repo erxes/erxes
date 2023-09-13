@@ -46,6 +46,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
+    status: String
     code: String
     type: String
     description: String
@@ -107,6 +108,7 @@ const productCategoryParams = `
 
 const productsQueryParams = `
   type: String,
+  status: String,
   categoryId: String,
   searchValue: String,
   tag: String,
