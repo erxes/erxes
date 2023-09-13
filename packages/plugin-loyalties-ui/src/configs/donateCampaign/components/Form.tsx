@@ -58,15 +58,26 @@ class Form extends React.Component<Props, State> {
       finalValues._id = donateCampaign._id;
     }
 
-    donateCampaign.maxScore = Number(donateCampaign.maxScore || 0);
-    donateCampaign.awards =
-      (donateCampaign.awards &&
-        donateCampaign.awards.sort((a, b) => a.minScore - b.minScore)) ||
+    // Create a copy of donateCampaign
+    const updatedDonateCampaign = { ...donateCampaign };
+
+    // Modify the maxScore property in the copy
+    updatedDonateCampaign.maxScore = Number(
+      updatedDonateCampaign.maxScore || 0
+    );
+
+    // Create a sorted copy of the awards array
+    const sortedAwards =
+      (updatedDonateCampaign.awards &&
+        [...updatedDonateCampaign.awards].sort(
+          (a, b) => (a?.minScore || 0) - (b?.minScore || 0)
+        )) ||
       [];
 
     return {
       ...finalValues,
-      ...donateCampaign
+      ...updatedDonateCampaign,
+      awards: sortedAwards // Assign the sorted array to the awards property
     };
   };
 
@@ -138,11 +149,15 @@ class Form extends React.Component<Props, State> {
   renderAward = (award: IDonateCampaignAward, formProps) => {
     const changeAward = (key, value) => {
       const { donateCampaign } = this.state;
-      award[key] = value;
-      donateCampaign.awards = (donateCampaign.awards || []).map(
-        a => (a._id === award._id && award) || a
+      const awards = (donateCampaign.awards || []).map(a =>
+        a._id === award._id ? { ...a, [key]: value } : a
       );
-      this.setState({ donateCampaign });
+      this.setState({
+        donateCampaign: {
+          ...donateCampaign,
+          awards
+        }
+      });
     };
     const onChangeMinScore = e => {
       e.preventDefault();

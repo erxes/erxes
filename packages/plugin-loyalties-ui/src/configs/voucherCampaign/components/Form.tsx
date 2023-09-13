@@ -75,6 +75,7 @@ class Form extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      ...voucherCampaign,
       discountPercent: Number(discountPercent),
       spinCount: Number(spinCount),
       lotteryCount: Number(lotteryCount),
