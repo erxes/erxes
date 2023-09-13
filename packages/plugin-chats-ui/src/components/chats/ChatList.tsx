@@ -153,7 +153,9 @@ const ChatList = (props: Props) => {
         <ChatListWrapper>
           {chats.map(
             c =>
-              !c.isPinnedUserIds.includes(props.currentUser._id) && (
+              (isWidget
+                ? true
+                : !c.isPinnedUserIds.includes(props.currentUser._id)) && (
                 <ChatItem
                   key={c._id}
                   chat={c}
