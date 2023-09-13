@@ -1,11 +1,10 @@
 import gql from 'graphql-tag';
-import { mutations } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import { useMutation } from '@apollo/client';
 import Alert from '@erxes/ui/src/utils/Alert';
 import ChatForward from '../../components/chats/ChatForward';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { useState } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 
 type Props = {
   currentUser: IUser;
@@ -19,17 +18,36 @@ const ChatForwardContainer = (props: Props) => {
 
   const [chatForward] = useMutation(gql(mutations.chatForward));
 
-  const forwardChat = (chatId?: string, userIds?: string[]) => {
-    chatForward({
-      variables: {
-        chatId: chatId && chatId,
-        userIds,
-        content: props.content,
-        attachments: props.attachments
-      }
-    }).then(() => {
-      setForwardedChatIds([...forwardedChatIds, chatId]);
-    });
+  const forwardChat = (id: string, type: string) => {
+    if (type === 'group') {
+      chatForward({
+        variables: {
+          chatId: id,
+          content: props.content,
+          attachments: props.attachments
+        },
+        refetchQueries: [{ query: gql(queries.chats) }]
+      })
+        .then(() => {
+          setForwardedChatIds([...forwardedChatIds, id]);
+        })
+        .catch(error => Alert.error(error.message));
+    }
+
+    if (type === 'direct') {
+      chatForward({
+        variables: {
+          userIds: [id],
+          content: props.content,
+          attachments: props.attachments
+        },
+        refetchQueries: [{ query: gql(queries.chats) }]
+      })
+        .then(() => {
+          setForwardedChatIds([...forwardedChatIds, id]);
+        })
+        .catch(error => Alert.error(error.message));
+    }
   };
 
   return (
