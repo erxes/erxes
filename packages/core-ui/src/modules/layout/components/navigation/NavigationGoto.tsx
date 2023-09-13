@@ -150,8 +150,6 @@ export default class NavigationGoto extends React.Component<Props, State> {
   handleShow = (item?) => {
     const config = getConfig('emailWidgetShow') || {};
     if (item?.render === 'email' && config['show'] === false) {
-      console.log('called');
-
       config['show'] = true;
       setConfig('emailWidgetShow', config);
     }
