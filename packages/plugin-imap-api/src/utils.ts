@@ -385,8 +385,6 @@ const listen = async (subdomain: string) => {
     // const performImapOperation = async callback => {
     const imap = generateImap(integration);
 
-    console.log('***** ', imap);
-
     imap.once('ready', _response => {
       imap.openBox('INBOX', true, async (err, _box) => {
         if (err) {
