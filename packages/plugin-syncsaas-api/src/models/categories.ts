@@ -92,6 +92,11 @@ export const loadSyncCategoriesClass = (models: IModels, subdomain: string) => {
         throw new Error('Category not found');
       }
 
+      await models.Sync.updateMany(
+        { categoryId: category?._id },
+        { $set: { categoryId: null } }
+      );
+
       return await models.Categories.deleteMany({
         order: { $regex: new RegExp(category.order, 'i') }
       });

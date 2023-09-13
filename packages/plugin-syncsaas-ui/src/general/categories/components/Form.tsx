@@ -94,7 +94,8 @@ class Form extends React.Component<Props, State> {
           {this.props.renderButton({
             name: 'category',
             values: this.generateDoc(values),
-            isSubmitted
+            isSubmitted,
+            object: category
           })}
         </ModalFooter>
       </>
