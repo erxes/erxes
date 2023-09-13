@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 // erxes
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import EmptyContent from '@erxes/ui/src/components/EmptyState';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 // local
 import LeftSidebar from '../components/LeftSidebar';
 import RightSidebar from '../containers/RightSidebar';
@@ -41,7 +41,7 @@ const Chat = (props: Props) => {
       );
     } else {
       return (
-        <EmptyContent
+        <EmptyState
           icon="chat-1"
           text="Select a chat or start a new conversation"
         />
@@ -58,6 +58,7 @@ const Chat = (props: Props) => {
       leftSidebar={<LeftSidebar chatId={chatId} />}
       rightSidebar={<RightSidebar chatId={chatId} />}
       content={renderContent()}
+      hasBorder={true}
     />
   );
 };

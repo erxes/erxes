@@ -14,6 +14,7 @@ type Props = {
   label: string;
   attributions: FieldsCombinedByType[];
   onSelect: (config: any) => void;
+  withDefaultValue?: boolean;
 };
 
 type State = {
@@ -48,11 +49,15 @@ class SelectFields extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { attributions } = this.props;
+    const { attributions, onSelect, config, withDefaultValue } = this.props;
     const { fields } = this.state;
 
     const onClickField = item => {
       this.setState({ fields: [...fields, item] });
+
+      withDefaultValue &&
+        onSelect({ ...config, [item.name]: `{{ ${item.name} }}` });
+
       this.hideContent();
     };
 

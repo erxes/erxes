@@ -40,7 +40,7 @@ const RightSidebarContainer = (props: Props) => {
     return <Component chatDetail={data.chatDetail} />;
   }
 
-  return <></>;
+  return null;
 };
 
 export default RightSidebarContainer;
