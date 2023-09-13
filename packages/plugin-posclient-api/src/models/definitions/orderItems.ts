@@ -1,4 +1,4 @@
-import { IAttachment } from '@erxes/ui/src/types';
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { ORDER_ITEM_STATUSES } from './constants';
 import {
