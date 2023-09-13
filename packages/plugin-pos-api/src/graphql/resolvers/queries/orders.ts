@@ -709,12 +709,14 @@ const queries = {
       const fields = [
         {
           name: {
-            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i')]
+            $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+            $options: 'i'
           }
         },
         {
           code: {
-            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i')]
+            $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+            $options: 'i'
           }
         }
       ];
