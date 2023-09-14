@@ -61,6 +61,6 @@ export const ACTIONS = [
     text: 'New Email',
     icon: 'icon-plus',
     url: '#',
-    render: 'email'
+    type: 'email'
   }
 ];
