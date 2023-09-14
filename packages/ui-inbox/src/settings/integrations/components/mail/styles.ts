@@ -303,7 +303,7 @@ const WidgetWrapper = styledTS<{
     left: 50%;
     top: 6%;
     transform: translate(-50%, 0);
-    box-shadow: 0 0 0 50vmax rgba(0,0,0,.5);
+    box-shadow: 0 0 0 50vmax rgba(0,0,0,.3);
   `
       : `
     bottom: ${dimensions.unitSpacing}px;
