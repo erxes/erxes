@@ -27,7 +27,7 @@ import { Column } from '@erxes/ui/src/styles/main';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import EmailTemplate from './emailTemplate/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAttachment } from '@erxes/ui/src/types';
+import { IAttachment, IOption } from '@erxes/ui/src/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -40,6 +40,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import Select from 'react-select-plus';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -73,6 +74,7 @@ type Props = {
   shrink?: boolean;
   clear?: boolean;
   conversationStatus?: string;
+  brands?: any[];
 };
 
 type State = {
@@ -96,6 +98,7 @@ type State = {
   emailSignature: string;
   name: string;
   showReply: string;
+  signatureContent: string;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -171,7 +174,9 @@ class MailForm extends React.Component<Props, State> {
       fileIds: [],
 
       name: `mail_${mailKey}`,
-      showReply: `reply_${mailKey}`
+      showReply: `reply_${mailKey}`,
+
+      signatureContent: ''
     };
   }
 
@@ -418,6 +423,10 @@ class MailForm extends React.Component<Props, State> {
   onEditorChange = e => {
     this.setState({ content: e.editor.getData() });
     this.prepareData();
+  };
+
+  onSignatureEditorChange = e => {
+    this.setState({ signatureContent: e.editor.getData() });
   };
 
   onClick = <T extends keyof State>(name: T) => {
@@ -763,7 +772,7 @@ class MailForm extends React.Component<Props, State> {
         <EditorCK
           toolbar={MAIL_TOOLBARS_CONFIG}
           removePlugins="elementspath"
-          content={this.state.content}
+          content={'kikiki'}
           onChange={this.onEditorChange}
           toolbarLocation="bottom"
           autoFocus={!this.props.isForward}
@@ -772,6 +781,65 @@ class MailForm extends React.Component<Props, State> {
           autoGrowMaxHeight={300}
         />
       </MailEditorWrapper>
+    );
+  }
+  renderSignatureSelect() {
+    const { emailSignatures, brands } = this.props;
+    const onChange = (ops: IOption[]) => {
+      // if (onValueChange) {
+      //   const value = ops.map(e => e.value).toString();
+      //   this.setState({ value });
+      //   onValueChange({ _id: field._id, value });
+      // }
+    };
+
+    return (
+      <Select
+        value={this.state.emailSignature}
+        options={brands?.map(e => ({ value: e._id, label: e.name }))}
+        onChange={value => {
+          this.setState({
+            signatureContent:
+              this.props.emailSignatures.find(
+                (sign: any) => sign.brandId === value
+              )?.signature || ''
+          });
+        }}
+      />
+    );
+  }
+  renderSignatureWidget() {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <Select
+          value={this.state.emailSignature}
+          options={this.props.brands?.map(e => ({
+            value: e._id,
+            label: e.name
+          }))}
+          onChange={({ value }) => {
+            console.log(value);
+            const emailSignature =
+              this.props.emailSignatures.find(
+                (sign: any) => sign.brandId === value
+              )?.signature || '';
+            console.log(emailSignature);
+            this.setState({ signatureContent: emailSignature });
+          }}
+          valueRenderer={() => null}
+          placeholder={<Icon icon="envelope-alt" color="red" />}
+        />
+        <EditorCK
+          toolbar={MAIL_TOOLBARS_CONFIG}
+          removePlugins="elementspath"
+          content={this.state.signatureContent}
+          onChange={this.onSignatureEditorChange}
+          toolbarLocation="bottom"
+          autoGrow={true}
+          autoGrowMinHeight={300}
+          autoGrowMaxHeight={300}
+        />
+      </div>
     );
   }
 
@@ -823,6 +891,7 @@ class MailForm extends React.Component<Props, State> {
           {this.renderMeta()}
           {this.renderSubject()}
           {this.renderBody()}
+          {this.renderSignatureWidget()}
           {this.renderButtons()}
         </>
       );
