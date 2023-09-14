@@ -219,6 +219,15 @@ const saveMessages = async (
       })),
       type: 'INBOX'
     });
+
+    await sendInboxMessage({
+      subdomain,
+      action: 'conversationClientMessageInserted',
+      data: {
+        content: msg.html,
+        conversationId
+      }
+    });
   }
 };
 
