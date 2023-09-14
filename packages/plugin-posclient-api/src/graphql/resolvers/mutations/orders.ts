@@ -203,7 +203,9 @@ const ordersAdd = async (
         isPackage: item.isPackage,
         isTake: item.isTake,
         status: ORDER_ITEM_STATUSES.NEW,
-        manufacturedDate: item.manufacturedDate
+        manufacturedDate: item.manufacturedDate,
+        description: item.description,
+        attachment: item.attachment
       });
     }
 

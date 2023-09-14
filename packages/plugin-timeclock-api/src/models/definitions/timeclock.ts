@@ -13,6 +13,7 @@ export interface ITimeClock {
   outDevice?: string;
   inDeviceType?: string;
   outDeviceType?: string;
+  shiftNotClosed?: boolean;
 }
 
 export interface ITimeClockDocument extends ITimeClock, Document {
@@ -172,6 +173,11 @@ export const timeclockSchema = new Schema({
     type: Boolean,
     label: 'Is shift started and active',
     default: false
+  }),
+  shiftNotClosed: field({
+    type: Boolean,
+    label: 'Whether shift was not closed by user',
+    optional: true
   }),
   branchName: field({
     type: String,
