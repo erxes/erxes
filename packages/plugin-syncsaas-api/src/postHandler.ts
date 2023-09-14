@@ -2,6 +2,8 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { CUSTOMER_STATUSES } from './common/constants';
 import { generateModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
+import { sendCustomerMobileNotification } from './utils';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export const postHandler = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -80,14 +82,18 @@ const dealDone = async (subdomain, data) => {
     syncedCustomerId: syncedDeal.syncedCustomerId
   });
 
-  sendCoreMessage({
-    subdomain: 'os',
-    action: 'sendMobileNotification',
-    data: {
+  try {
+    await sendCustomerMobileNotification({
+      subdomain,
       title: `Deal`,
       body: `${dealDetail?.name} moved to ${dealDetail?.stage?.name} on ${sync.subdomain}`,
-      receivers: customerIds,
+      recieverIds: customerIds,
       data: { appToken: sync?.appToken, subdomain: sync?.subdomain }
-    }
-  });
+    });
+    return 'done';
+  } catch (error) {
+    debugError(
+      `Error occurred during send customer notification: ${error.message}`
+    );
+  }
 };
