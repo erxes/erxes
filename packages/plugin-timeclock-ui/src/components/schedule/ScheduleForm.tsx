@@ -1,5 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import DateRange from '../datepicker/DateRange';
 import dayjs from 'dayjs';
@@ -19,12 +19,12 @@ import {
   MarginY,
   CustomBoxWrapper,
   SortItem,
-  RoundBox
+  CustomContainer
 } from '../../styles';
 
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { Pin, PopoverButton } from '@erxes/ui/src/styles/main';
+import { PopoverButton } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
 
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -129,7 +129,7 @@ function ScheduleForm(props: Props) {
   const [inputDefaultChecked, setInputDefaultChecked] = useState(false);
 
   const [selectedScheduleConfigId, setScheduleConfigId] = useState(
-    scheduleConfigs[0]._id
+    scheduleConfigsOrderData.orderedList[0].scheduleConfigId
   );
 
   const [lastSelectedDate, setlastSelectedDate] = useState(new Date());
@@ -154,7 +154,15 @@ function ScheduleForm(props: Props) {
   const [departmentIds, setDepartmentIds] = useState([]);
   const [branchIds, setBranchIds] = useState([]);
 
+  const [showScheduleConfigOrder, setShowScheduleConfigOrder] = useState(false);
+
   const [overlayTrigger, setOverlayTrigger] = useState<any>(null);
+
+  useEffect(() => {
+    setScheduleConfigId(
+      scheduleConfigsOrderData.orderedList[0].scheduleConfigId
+    );
+  }, [scheduleConfigsOrderData]);
 
   const renderBranchOptions = (branchesList: any[]) => {
     return branchesList.map(branch => ({
@@ -169,10 +177,6 @@ function ScheduleForm(props: Props) {
       value: s.scheduleConfigId,
       label: s.label
     }));
-    // return scheduleConfigs?.map(scheduleConfig => ({
-    //   value: scheduleConfig._id,
-    //   label: `${scheduleConfig.shiftStart} ~ ${scheduleConfig.shiftEnd}\xa0\xa0\xa0(${scheduleConfig.scheduleName})`
-    // }));
   };
 
   // change schedule for all days
@@ -562,7 +566,17 @@ function ScheduleForm(props: Props) {
         name="userId"
       />
       {displayTotalDaysHoursBreakMins()}
-      {scheduleConfigOrderContent}
+      {scheduleConfitOrderBox}
+      {showScheduleConfigOrder && scheduleConfigOrderContent}
+      <FormGroup>
+        <ControlLabel>Select schedule for all</ControlLabel>
+        <Select
+          options={renderScheduleConfigOptions()}
+          onChange={onScheduleConfigSelectForAll}
+          multi={false}
+          value={selectedScheduleConfigId}
+        />
+      </FormGroup>
       {dateSelection()}
       {renderWeekDays()}
       {actionButtons('employee')}
@@ -685,26 +699,38 @@ function ScheduleForm(props: Props) {
     scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData });
   };
 
+  const scheduleConfitOrderBox = (
+    <CustomContainer
+      onClick={() => setShowScheduleConfigOrder(!showScheduleConfigOrder)}
+    >
+      <ControlLabel>Select schedule configs order</ControlLabel>
+      <MarginX margin={5}>
+        {showScheduleConfigOrder ? (
+          <Icon icon="angle-down" />
+        ) : (
+          <Icon icon="angle-right" />
+        )}
+      </MarginX>
+    </CustomContainer>
+  );
   const scheduleConfigOrderContent = (
-    <CustomBoxWrapper>
-      <Box title="set schedule configs order">
-        {scheduleConfigsOrderData.orderedList
-          .sort((a, b) => a.order - b.order)
-          .map((s: any) => (
-            <SortItem key={s.order}>
-              <div>{s.label}</div>
-              {s.pinned ? (
-                <icons.PinFill
-                  color="#673FBD"
-                  onClick={() => unpinScheduleConfig(s.order)}
-                />
-              ) : (
-                <icons.Pin onClick={() => pinScheduleConfig(s.order)} />
-              )}
-            </SortItem>
-          ))}
-      </Box>
-    </CustomBoxWrapper>
+    <>
+      {scheduleConfigsOrderData.orderedList
+        .sort((a, b) => a.order - b.order)
+        .map((s: any) => (
+          <SortItem key={s.order}>
+            <div>{s.label}</div>
+            {s.pinned ? (
+              <icons.PinFill
+                color="#673FBD"
+                onClick={() => unpinScheduleConfig(s.order)}
+              />
+            ) : (
+              <icons.Pin onClick={() => pinScheduleConfig(s.order)} />
+            )}
+          </SortItem>
+        ))}
+    </>
   );
 
   const adminConfigDefaultContent = () => {
@@ -747,8 +773,8 @@ function ScheduleForm(props: Props) {
             </div>
           </div>
         </FormGroup>
-
-        {scheduleConfigOrderContent}
+        {scheduleConfitOrderBox}
+        {showScheduleConfigOrder && scheduleConfigOrderContent}
 
         <FormGroup>
           <ControlLabel>Select schedule for all</ControlLabel>

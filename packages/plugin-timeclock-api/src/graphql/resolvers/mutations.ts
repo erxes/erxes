@@ -6,9 +6,7 @@ import {
   ISchedule,
   IShift,
   ITimeClock,
-  IAbsenceType,
-  IDeviceConfig,
-  IDeviceConfigDocument
+  IAbsenceType
 } from '../../models/definitions/timeclock';
 import {
   createScheduleShiftsByUserIds,
@@ -736,7 +734,7 @@ const timeclockMutations = {
   }
 };
 
-// moduleRequireLogin(timeclockMutations);
+moduleRequireLogin(timeclockMutations);
 
 // extract from mssql
 checkPermission(

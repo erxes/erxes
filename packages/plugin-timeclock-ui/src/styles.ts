@@ -2,6 +2,7 @@ import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import { SidebarTitle } from '@erxes/ui/src/layout/styles';
 
 const FilterWrapper = styled.div`
   margin: 10px 20px 0 20px;
@@ -371,7 +372,7 @@ const SortItem = styledTS<{
 }>(styled.div)`
   background: ${colors.colorWhite};
   display: block;
-  padding: 10px;
+  padding:10px;
   margin-bottom: 10px;
   position: relative;
   display: flex;
@@ -439,6 +440,26 @@ const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
   }
 `;
 
+const CustomContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all ease 0.3s;
+  padding: 15px 0;
+
+  &:hover {
+    color: ${colors.colorSecondary};
+  }
+
+  > label {
+    &:hover {
+      color: ${colors.colorSecondary};
+    }
+    cursor: pointer;
+    transition: all ease 0.3s;
+  }
+`;
+
 export {
   FilterItem,
   FilterWrapper,
@@ -474,5 +495,6 @@ export {
   CustomWidth,
   CustomBoxWrapper,
   RoundBox,
-  SortItem
+  SortItem,
+  CustomContainer
 };
