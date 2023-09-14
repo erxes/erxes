@@ -13,13 +13,19 @@ export default {
       return null;
     }
 
-    const response = await sendRequest({
-      url: `${SAAS_CORE_URL}/check-subdomain`,
-      method: 'GET',
-      headers: {
-        origin: `${subdomain}..app.erxes.io`
-      }
-    });
+    let response;
+
+    try {
+      response = await sendRequest({
+        url: `${SAAS_CORE_URL}/check-subdomain`,
+        method: 'GET',
+        headers: {
+          origin: `${subdomain}..app.erxes.io`
+        }
+      });
+    } catch (error) {
+      return null;
+    }
 
     return response ? response : null;
   }
