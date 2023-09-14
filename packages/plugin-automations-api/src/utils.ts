@@ -50,6 +50,8 @@ export const isInSegment = async (
     isRPC: true
   });
 
+  console.log({ isInSegment: response });
+
   return response;
 };
 
