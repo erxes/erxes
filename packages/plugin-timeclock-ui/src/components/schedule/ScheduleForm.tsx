@@ -562,6 +562,7 @@ function ScheduleForm(props: Props) {
         name="userId"
       />
       {displayTotalDaysHoursBreakMins()}
+      {scheduleConfigOrderContent}
       {dateSelection()}
       {renderWeekDays()}
       {actionButtons('employee')}
@@ -684,6 +685,28 @@ function ScheduleForm(props: Props) {
     scheduleConfigOrderDataEdit({ ...newScheduleConfigsOrderData });
   };
 
+  const scheduleConfigOrderContent = (
+    <CustomBoxWrapper>
+      <Box title="set schedule configs order">
+        {scheduleConfigsOrderData.orderedList
+          .sort((a, b) => a.order - b.order)
+          .map((s: any) => (
+            <SortItem key={s.order}>
+              <div>{s.label}</div>
+              {s.pinned ? (
+                <icons.PinFill
+                  color="#673FBD"
+                  onClick={() => unpinScheduleConfig(s.order)}
+                />
+              ) : (
+                <icons.Pin onClick={() => pinScheduleConfig(s.order)} />
+              )}
+            </SortItem>
+          ))}
+      </Box>
+    </CustomBoxWrapper>
+  );
+
   const adminConfigDefaultContent = () => {
     return (
       <FlexColumn marginNum={10}>
@@ -725,25 +748,7 @@ function ScheduleForm(props: Props) {
           </div>
         </FormGroup>
 
-        <CustomBoxWrapper>
-          <Box title="set schedule configs order">
-            {scheduleConfigsOrderData.orderedList
-              .sort((a, b) => a.order - b.order)
-              .map((s: any) => (
-                <SortItem key={s.order}>
-                  <div>{s.label}</div>
-                  {s.pinned ? (
-                    <icons.PinFill
-                      color="#673FBD"
-                      onClick={() => unpinScheduleConfig(s.order)}
-                    />
-                  ) : (
-                    <icons.Pin onClick={() => pinScheduleConfig(s.order)} />
-                  )}
-                </SortItem>
-              ))}
-          </Box>
-        </CustomBoxWrapper>
+        {scheduleConfigOrderContent}
 
         <FormGroup>
           <ControlLabel>Select schedule for all</ControlLabel>
