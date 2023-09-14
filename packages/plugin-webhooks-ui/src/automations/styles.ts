@@ -36,3 +36,7 @@ export const FirstColumn = styled.div`
 export const EndColumn = styled.div`
   flex: 80%;
 `;
+
+export const Padding = styled.div`
+  padding: 10px;
+`;
