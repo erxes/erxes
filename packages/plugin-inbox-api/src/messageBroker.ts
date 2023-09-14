@@ -260,12 +260,16 @@ export const initBroker = cl => {
       if (id && status) {
         return {
           status: 'success',
-          data: await models.Conversations.findOne(
+          data: await models.Conversations.updateOne(
             { _id: id },
             { status: status }
           )
         };
       }
+      return {
+        status: 'error',
+        data: []
+      };
     }
   );
 

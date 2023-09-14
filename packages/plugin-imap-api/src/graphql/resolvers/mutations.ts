@@ -94,7 +94,7 @@ const notificationMutations = {
         await sendInboxMessage({
           subdomain,
           action: 'conversations.changeStatus',
-          data: { id: conversationId, status: 'open' },
+          data: { id: conversationId, status: 'new' },
           isRPC: true
         });
       }
