@@ -359,7 +359,13 @@ class MailForm extends React.Component<Props, State> {
     } = this.state;
 
     if (!to) {
-      return Alert.error('This message must have at least one recipient.');
+      return Alert.warning('This message must have at least one recipient.');
+    }
+
+    if (!subject || !content) {
+      return Alert.warning(
+        'Send this message with a subject or text in the body.'
+      );
     }
 
     const { references, headerId, inReplyTo, replyTo, threadId } = mailData;

@@ -199,6 +199,7 @@ class Widget extends React.Component<Props, State> {
             shrink={isShrink}
             clear={clear}
             clearOnSubmit={true}
+            closeModal={onClose}
           />
         </WidgetWrapper>
       </ModalWrapper>
