@@ -46,6 +46,11 @@ export default {
       return acc;
     }, {});
 
+    const params = (config.params || []).reduce((acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    }, {});
+
     try {
       await sendRequest({
         url,
@@ -54,6 +59,7 @@ export default {
           'Content-Type': 'application/json',
           ...headers
         },
+        params,
         body: {
           actionType: 'automations.webhook',
           triggerType,
@@ -64,6 +70,7 @@ export default {
         url,
         method: method || 'POST',
         headers,
+        params,
         data: target,
         status: 'success'
       };
