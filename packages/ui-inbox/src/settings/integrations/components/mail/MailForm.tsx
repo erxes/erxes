@@ -343,7 +343,8 @@ class MailForm extends React.Component<Props, State> {
       sendMail,
       isForward,
       clearOnSubmit,
-      messageId
+      messageId,
+      conversationStatus
     } = this.props;
 
     const mailData = this.props.mailData || ({} as IMail);
@@ -362,7 +363,7 @@ class MailForm extends React.Component<Props, State> {
       return Alert.warning('This message must have at least one recipient.');
     }
 
-    if (!subject || !content) {
+    if (!isReply && (!subject || !content)) {
       return Alert.warning(
         'Send this message with a subject or text in the body.'
       );
@@ -389,7 +390,10 @@ class MailForm extends React.Component<Props, State> {
       kind,
       body: updatedContent,
       erxesApiId: from,
-      shouldResolve,
+      shouldResolve:
+        shouldResolve && conversationStatus === 'new' ? true : false,
+      shouldOpen:
+        shouldResolve && conversationStatus === 'closed' ? true : false,
       ...(!isForward ? { replyToMessageId: mailData.messageId } : {}),
       to: formatStr(to),
       cc: formatStr(cc),
