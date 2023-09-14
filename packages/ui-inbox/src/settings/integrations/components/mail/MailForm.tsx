@@ -89,7 +89,8 @@ type State = {
   hasSubject?: boolean;
   kind: string;
   content: string;
-  isLoading: boolean;
+  isSubmitLoading: boolean;
+  isSubmitResolveLoading: boolean;
   attachments: any[];
   fileIds: string[];
   showPrevEmails: boolean;
@@ -151,7 +152,8 @@ class MailForm extends React.Component<Props, State> {
       hasBcc: bcc ? bcc.length > 0 : false,
       hasSubject: !props.isReply,
 
-      isLoading: false,
+      isSubmitLoading: false,
+      isSubmitResolveLoading: false,
       showPrevEmails,
 
       fromEmail: sender,
@@ -362,7 +364,9 @@ class MailForm extends React.Component<Props, State> {
 
     const { references, headerId, inReplyTo, replyTo, threadId } = mailData;
 
-    this.setState({ isLoading: true });
+    shouldResolve
+      ? this.setState({ isSubmitResolveLoading: true })
+      : this.setState({ isSubmitLoading: true });
 
     const subjectValue = subject || mailData.subject || '';
 
@@ -394,7 +398,9 @@ class MailForm extends React.Component<Props, State> {
     return sendMail({
       variables,
       callback: () => {
-        this.setState({ isLoading: false });
+        shouldResolve
+          ? this.setState({ isSubmitResolveLoading: true })
+          : this.setState({ isSubmitLoading: true });
 
         if (clearOnSubmit) {
           this.clearContent();
@@ -637,8 +643,16 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
-  renderSubmit(label, onClick, type: string, icon = 'message') {
-    const { isLoading } = this.state;
+  renderSubmit(
+    label: string,
+    onClick,
+    type: string,
+    icon = 'message',
+    kind?: string
+  ) {
+    const { isSubmitLoading, isSubmitResolveLoading } = this.state;
+    const isResolve = kind && kind === 'resolveOrOpen';
+    const isLoading = isResolve ? isSubmitResolveLoading : isSubmitLoading;
 
     return (
       <Button
@@ -705,7 +719,8 @@ class MailForm extends React.Component<Props, State> {
                   : 'Send and Resolve',
                 onSubmitResolve,
                 conversationStatus === 'closed' ? 'warning' : 'success',
-                conversationStatus === 'closed' ? 'redo' : 'check-circle'
+                conversationStatus === 'closed' ? 'redo' : 'check-circle',
+                'resolveOrOpen'
               )}
           </div>
           <ToolBar>
