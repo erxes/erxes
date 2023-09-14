@@ -22,7 +22,7 @@ type Props = {
   currentUser?: IUser;
   notContactUser?: IUser;
   isForward?: boolean;
-  forwardChat?: (chatId?: string, userIds?: string[]) => void;
+  forwardChat?: (id: string, type: string) => void;
   forwardedChatIds?: string[];
 };
 
@@ -73,7 +73,7 @@ const ChatItemContainer = (props: Props) => {
             handleClickItem(data.chatAdd._id);
           }
           if (props.forwardChat) {
-            props.forwardChat(data.chatAdd._id);
+            props.forwardChat(userIds[0], 'direct');
           }
         })
         .catch(error => {
@@ -81,7 +81,7 @@ const ChatItemContainer = (props: Props) => {
         });
     } else {
       if (props.forwardChat) {
-        props.forwardChat(null, userIds);
+        props.forwardChat(userIds[0], 'direct');
       } else {
         router.removeParams(history, 'id', 'userIds');
         router.setParams(history, { userId: userIds[0] });

@@ -56,6 +56,8 @@ const MessageItem = (props: FinalProps) => {
         key={attachment._id}
         attachment={attachment || {}}
         simple={true}
+        small={true}
+        imgPreviewWidth={200}
       />
     ));
   };
