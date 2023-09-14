@@ -231,6 +231,30 @@ export const getTriggerType = (
   return;
 };
 
+export const getTriggerConfig = (
+  actions: any,
+  triggers: any,
+  activeActionId: string
+) => {
+  const activeTrigger = triggers.find(t => t.actionId === activeActionId);
+
+  if (activeTrigger) {
+    return activeTrigger?.config;
+  }
+
+  const activeAction = actions.find(t => t.nextActionId === activeActionId);
+
+  if (activeAction) {
+    return getTriggerType(actions, triggers, activeAction.id);
+  }
+
+  if (triggers && triggers.length > 0) {
+    return triggers[0]?.config;
+  }
+
+  return;
+};
+
 export const renderDynamicComponent = (props, type) => {
   const plugins: any[] = (window as any).plugins || [];
 
