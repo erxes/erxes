@@ -212,6 +212,18 @@ const Addresses = styled.div`
   word-break: break-word;
 `;
 
+const MailSubject = styled.h5`
+  margin: 0;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0;
+  font-size: 13px;
+
+  > div {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+`;
+
 export {
   Subject,
   Meta,
@@ -231,5 +243,6 @@ export {
   From,
   AddressContainer,
   Title,
-  Addresses
+  Addresses,
+  MailSubject
 };

@@ -7,7 +7,7 @@ import ChatList from '../../containers/chats/ChatList';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
-  forwardChat?: (chatId?: string, userIds?: string[]) => void;
+  forwardChat?: (id: string, type: string) => void;
   currentUser: IUser;
   forwardedChatIds?: string[];
   isWidget: boolean;

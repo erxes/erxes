@@ -181,6 +181,18 @@ const getSegmentEmails = async ({
   });
 };
 
+const generateFromEmail = (sender, fromUserEmail) => {
+  if (sender && fromUserEmail) {
+    return `${sender} <${fromUserEmail}>`;
+  }
+
+  if (fromUserEmail) {
+    return fromUserEmail;
+  }
+
+  return null;
+};
+
 export const generateDoc = async ({
   subdomain,
   target,
@@ -188,8 +200,8 @@ export const generateDoc = async ({
   triggerType,
   config
 }) => {
-  const { templateId, fromUserId } = config;
-  const [serviceName] = triggerType.split(':');
+  const { templateId, fromUserId, sender } = config;
+  const [serviceName, type] = triggerType.split(':');
 
   const template = await sendEmailTemplateMessage({
     subdomain,
@@ -213,13 +225,21 @@ export const generateDoc = async ({
       })
     : null;
 
+  const replacedContent = (template?.content || '').replace(
+    new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, 'g'),
+    '{{ $1 }}'
+  );
+
   const { subject, content } = await sendCommonMessage({
     subdomain,
     serviceName,
     action: 'automations.replacePlaceHolders',
     data: {
       target,
-      config: { subject: config.subject, content: template.content }
+      config: {
+        subject: config.subject,
+        content: replacedContent
+      }
     },
     isRPC: true,
     defaultValue: {}
@@ -239,7 +259,7 @@ export const generateDoc = async ({
 
   return {
     title: subject,
-    fromEmail: fromUser?.email,
+    fromEmail: generateFromEmail(sender, fromUser?.email),
     toEmails: toEmails.filter(email => fromUser?.email !== email),
     customHtml: content
   };

@@ -10,6 +10,7 @@ import { gql } from '@apollo/client';
 type Props = {
   object?: IEmailTemplate;
   params?: any;
+  contentType?: string;
 } & ICommonFormProps;
 
 class Form extends React.Component<Props> {

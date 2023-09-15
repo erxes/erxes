@@ -41,7 +41,7 @@ type Props = {
   currentUser?: IUser;
   createChat?: (userIds: string[]) => void;
   isForward?: boolean;
-  forwardChat?: (chatId?: string) => void;
+  forwardChat?: (id: string, type: string) => void;
   forwardedChatIds?: string[];
 };
 
@@ -87,7 +87,9 @@ const ChatItem = (props: FinalProps) => {
 
   const handleChatForward = () => {
     if (chat) {
-      forwardChat(chat._id);
+      forwardChat(chat.type === 'group' ? chat._id : user._id, chat.type);
+    } else {
+      forwardChat(notContactUser._id, 'direct');
     }
   };
 
@@ -109,9 +111,11 @@ const ChatItem = (props: FinalProps) => {
   const popoverContextMenu = chat && (
     <Popover id="contextmenu-popover">
       <ContextMenuList>
-        <ContextMenuItem onClick={onPin}>
-          {isPinned ? 'Unpin' : 'Pin'}
-        </ContextMenuItem>
+        {!isWidget && (
+          <ContextMenuItem onClick={onPin}>
+            {isPinned ? 'Unpin' : 'Pin'}
+          </ContextMenuItem>
+        )}
         <ContextMenuItem onClick={onMarkAsRead}>
           {chat.isSeen ? 'Mark as unread' : 'Mark as read'}
         </ContextMenuItem>
@@ -124,7 +128,8 @@ const ChatItem = (props: FinalProps) => {
 
   const renderChatActions = () => {
     if (isForward) {
-      return (forwardedChatIds || []).includes(chat?._id) ? (
+      return (forwardedChatIds || []).includes(chat?._id) ||
+        (forwardedChatIds || []).includes(user._id) ? (
         <Button btnStyle="link" disabled={true} size="small">
           Sent
         </Button>
@@ -196,7 +201,12 @@ const ChatItem = (props: FinalProps) => {
   };
 
   return (
-    <ChatItemWrapper active={active} isWidget={isWidget} isSeen={isSeen}>
+    <ChatItemWrapper
+      active={active}
+      isWidget={isWidget}
+      isSeen={isSeen}
+      onClick={!isWidget && handleClick}
+    >
       {chat &&
         (chat.type === 'direct' ? (
           <Avatar user={user} size={36} />
@@ -209,7 +219,7 @@ const ChatItem = (props: FinalProps) => {
 
       {notContactUser && <Avatar user={notContactUser} size={36} />}
 
-      <ChatWrapper isSeen={isSeen} onClick={handleClick}>
+      <ChatWrapper isSeen={isSeen} onClick={isWidget && handleClick}>
         {renderInfo()}
         {chat && draftContent && (
           <ChatBody>

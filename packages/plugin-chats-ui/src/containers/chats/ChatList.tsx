@@ -18,7 +18,7 @@ type Props = {
   isWidget?: boolean;
   handleClickItem?: (chatId: string) => void;
   isForward?: boolean;
-  forwardChat?: (chatId?: string, userIds?: string[]) => void;
+  forwardChat?: (id: string, type: string) => void;
   forwardedChatIds?: string[];
 };
 
@@ -33,7 +33,6 @@ const ChatListContainer = (props: FinalProps) => {
   const limit = parseInt(router.getParam(history, 'limit'), 20);
 
   const [loadingMore, setLoadingMore] = useState(false);
-  const [isToggled, setIsToggled] = useState(false);
 
   const { loading, error, data, refetch, fetchMore } = useQuery(
     gql(queries.chats),
@@ -52,13 +51,9 @@ const ChatListContainer = (props: FinalProps) => {
     togglePinnedChat({
       variables: { id: chatId },
       refetchQueries: [{ query: gql(queries.chats) }]
-    })
-      .then(d => {
-        setIsToggled(d?.data?.chatToggleIsPinned || false);
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+    }).catch(e => {
+      Alert.error(e.message);
+    });
   };
 
   if (isWidget) {

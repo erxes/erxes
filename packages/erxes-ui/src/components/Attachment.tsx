@@ -51,9 +51,11 @@ const Download = styled.a`
   }
 `;
 
-const PreviewWrapper = styledTS<{ large?: boolean }>(styled.div)`
-  width: ${props => (props.large ? '300px' : '110px')};
-  height: ${props => (props.large ? '220px' : '80px')};
+const PreviewWrapper = styledTS<{ large?: boolean; small?: boolean }>(
+  styled.div
+)`
+  width: ${props => (props.large ? '300px' : props.small ? '55px' : '110px')};
+  height: ${props => (props.large ? '220px' : props.small ? '40px' : '80px')};
   background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
   display: flex;
   justify-content: center;
@@ -133,7 +135,9 @@ type Props = {
   additionalItem?: React.ReactNode;
   simple?: boolean;
   large?: boolean;
+  small?: boolean;
   withoutPreview?: boolean;
+  imgPreviewWidth?: number;
 
   index?: number;
   attachments?: IAttachment[];
@@ -161,6 +165,7 @@ class Attachment extends React.Component<Props> {
   }
 
   renderOtherInfo = attachment => {
+    const { small } = this.props;
     const name = attachment.name || attachment.url || '';
 
     return (
@@ -182,7 +187,7 @@ class Attachment extends React.Component<Props> {
                 {__('Size')}: {this.renderFileSize(attachment.size)}
               </div>
             )}
-            {attachment.type && (
+            {!small && attachment.type && (
               <div>
                 {__('Type')}: {attachment.type}
               </div>
@@ -221,11 +226,11 @@ class Attachment extends React.Component<Props> {
   };
 
   renderOtherFile = (attachment: IAttachment, icon?: string) => {
-    const { index, attachments, large } = this.props;
+    const { index, attachments, large, small } = this.props;
 
     return (
       <AttachmentWrapper>
-        <PreviewWrapper large={large}>
+        <PreviewWrapper large={large} small={small}>
           <AttachmentWithPreview
             icon={icon}
             index={index}
@@ -299,7 +304,8 @@ class Attachment extends React.Component<Props> {
       <ImageWithPreview
         onLoad={this.onLoadImage}
         alt={attachment.url}
-        src={readFile(attachment.url)}
+        src={attachment.url}
+        imgPreviewWidth={this.props.imgPreviewWidth}
       />
     );
   }

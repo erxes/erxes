@@ -5,7 +5,7 @@ import {
 } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
-import listen, { listenIntegration } from './utils';
+import { listenIntegration } from './utils';
 
 dotenv.config();
 
@@ -28,7 +28,7 @@ export const initBroker = async cl => {
         ...JSON.parse(doc.data)
       });
 
-      await listen(subdomain);
+      await listenIntegration(subdomain, integration);
 
       await models.Logs.createLog({
         type: 'info',
@@ -71,7 +71,7 @@ export const initBroker = async cl => {
       });
 
       if (updatedIntegration) {
-        await listen(subdomain);
+        await listenIntegration(subdomain, integration);
       }
 
       return {
@@ -94,8 +94,6 @@ export const initBroker = async cl => {
       await models.Integrations.remove({
         inboxId: integrationId
       });
-
-      await listen(subdomain);
 
       return {
         status: 'success'
