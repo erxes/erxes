@@ -7,7 +7,7 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext, IModels } from '../../../connectionResolver';
 import messageBroker, { sendTagsMessage } from '../../../messageBroker';
-import { Builder, countBySegment, countByTag, IListArgs } from '../../../utils';
+import { Builder, countBySegment, countByTag } from '../../../utils';
 
 interface IQueryParams {
   ids?: string[];
@@ -16,6 +16,7 @@ interface IQueryParams {
   status?: string;
   categoryId?: string;
   searchValue?: string;
+  vendorId?: string;
   tag: string;
   page?: number;
   perPage?: number;
@@ -38,6 +39,7 @@ const generateFilter = async (
     type,
     categoryId,
     searchValue,
+    vendorId,
     tag,
     ids,
     excludeIds,
@@ -119,6 +121,10 @@ const generateFilter = async (
     const { list } = await qb.runQueries();
 
     filter._id = { $in: list.map(l => l._id) };
+  }
+
+  if (vendorId) {
+    filter.vendorId = vendorId;
   }
 
   return filter;

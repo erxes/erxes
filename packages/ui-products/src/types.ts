@@ -89,7 +89,12 @@ export type ProductRemoveMutationResponse = {
 
 export type ProductsQueryResponse = {
   loading: boolean;
-  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
+  refetch: (variables?: {
+    searchValue?: string;
+    perPage?: number;
+    categoryId?: string;
+    vendorId?: string;
+  }) => void;
   products: IProduct[];
 };
 
