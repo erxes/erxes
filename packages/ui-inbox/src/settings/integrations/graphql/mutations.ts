@@ -29,6 +29,7 @@ const mailParamsDef = `
   $bcc: [String] ,
   $from: String!,
   $shouldResolve: Boolean,
+  $shouldOpen: Boolean,
   $attachments: [JSON],
   $customerId: String
 `;
@@ -50,6 +51,7 @@ const mailParams = `
   bcc: $bcc,
   from: $from,
   shouldResolve: $shouldResolve,
+  shouldOpen: $shouldOpen,
   attachments: $attachments,
   customerId: $customerId
 `;

@@ -20,6 +20,7 @@ interface IProductParams extends ICommonParams {
   type?: string;
   categoryId?: string;
   searchValue?: string;
+  vendorId?: string;
   branchId?: string;
   tag?: string;
   pipelineId?: string;
@@ -47,6 +48,7 @@ const generateFilter = async (
     type,
     categoryId,
     searchValue,
+    vendorId,
     tag,
     ids,
     excludeIds,
@@ -122,6 +124,10 @@ const generateFilter = async (
     const { list } = await qb.runQueries();
 
     filter._id = { $in: list.map(l => l._id) };
+  }
+
+  if (vendorId) {
+    filter.vendorId = vendorId;
   }
 
   if (isKiosk) {
@@ -204,6 +210,7 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      vendorId,
       tag,
       ids,
       excludeIds,
@@ -223,6 +230,7 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      vendorId,
       tag,
       ids,
       excludeIds,
@@ -264,6 +272,7 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      vendorId,
       tag,
       ids,
       excludeIds,
@@ -280,6 +289,7 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      vendorId,
       tag,
       ids,
       excludeIds,
