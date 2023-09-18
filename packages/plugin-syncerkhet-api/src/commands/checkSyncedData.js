@@ -173,11 +173,11 @@ const command = async () => {
 
         if (order.customerId) {
           if (order.customerType === 'company') {
-            infos.company = await Companies.findOne({ _id: order.customerId }).toArray();
+            infos.company = await Companies.findOne({ _id: order.customerId });
           } else if (order.customerType === 'user') {
-            infos.user = await Users.findOne({ _id: order.customerId }).toArray();
+            infos.user = await Users.findOne({ _id: order.customerId });
           } else {
-            infos.customer = await Customers.findOne({ _id: order.customerId }).toArray();
+            infos.customer = await Customers.findOne({ _id: order.customerId });
           }
         }
 
