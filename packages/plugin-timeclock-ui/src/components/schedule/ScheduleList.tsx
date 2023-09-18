@@ -7,7 +7,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { FilterItem, FlexRow, FlexRowLeft, ToggleButton } from '../../styles';
 
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import ScheduleForm from './ScheduleForm';
+import ScheduleForm from '../../containers/schedule/ScheduleForm';
 import { ISchedule, IScheduleConfig, IShift } from '../../types';
 import dayjs from 'dayjs';
 import {
@@ -37,7 +37,7 @@ type Props = {
   branches: IBranch[];
 
   scheduleOfMembers: ISchedule[];
-  scheduleConfigs: IScheduleConfig[];
+  scheduleConfigs?: IScheduleConfig[];
   totalCount: number;
 
   solveSchedule: (scheduleId: string, status: string) => void;

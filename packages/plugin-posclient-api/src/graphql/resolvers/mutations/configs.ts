@@ -121,6 +121,9 @@ const configMutations = {
         const { slots = [] } = response;
         await importSlots(models, slots, token);
         break;
+      case 'productsConfigs':
+        await models.ProductsConfigs.createOrUpdateConfig(response);
+        break;
     }
     return 'success';
   },

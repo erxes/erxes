@@ -8,7 +8,7 @@ import * as Agent from 'agentkeepalive';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const timeoutMs = Number(process.env.RPC_TIMEOUT) || 10000;
+const timeoutMs = Number(process.env.RPC_TIMEOUT) || 30000;
 
 const httpAgentOptions = {
   timeout: timeoutMs,
@@ -181,8 +181,15 @@ export const sendRPCMessage = async (
       });
 
       if (!(200 <= response.status && response.status < 300)) {
+        let argsJson = '"cannot stringify"';
+        try {
+          argsJson = JSON.stringify(args);
+        } catch (e) {}
+
         throw new Error(
-          `RPC HTTP error: Status code ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}`
+          `RPC HTTP error: Status code ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}.
+            Arguments: ${argsJson}
+          `
         );
       }
 
@@ -198,8 +205,15 @@ export const sendRPCMessage = async (
         if (args?.defaultValue) {
           return args.defaultValue;
         } else {
+          let argsJson = '"cannot stringify"';
+          try {
+            argsJson = JSON.stringify(args);
+          } catch (e) {}
+
           throw new Error(
-            `RPC HTTP error. Remote: ${pluginName}. Procedure: ${procedureName}. Timed out after ${timeoutMs}ms.`
+            `RPC HTTP timeout ${timeoutMs}ms. Remote: ${pluginName}. Procedure: ${procedureName}.
+              Arguments: ${argsJson}
+            `
           );
         }
       }

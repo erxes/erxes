@@ -41,6 +41,8 @@ export const types = (tagsAvailable, contactsAvailable) => `
     productCount: Int
     maskType: String
     mask: JSON
+    isSimilarity: Boolean
+    similarities: JSON
   }
 
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -70,7 +72,17 @@ export const types = (tagsAvailable, contactsAvailable) => `
     ${contactsAvailable ? 'vendor: Company' : ''}
     taxType: String
     taxCode: String
+    hasSimilarity: Boolean
+  }
 
+  type ProductSimilarityGroup {
+    title: String
+    fieldId: String
+  }
+
+  type ProductSimilarity {
+    products: [Product],
+    groups: [ProductSimilarityGroup],
   }
 `;
 
@@ -104,6 +116,8 @@ const productCategoryParams = `
   status: String
   maskType: String
   mask: JSON
+  isSimilarity: Boolean
+  similarities: JSON
 `;
 
 const productsQueryParams = `
@@ -119,6 +133,7 @@ const productsQueryParams = `
   boardId: String,
   segment: String,
   segmentData: String,
+  groupedSimilarity: String,
 `;
 
 export const queries = `
@@ -136,6 +151,7 @@ export const queries = `
   productsGroupCounts(only: String, segment: String, segmentData: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
+  productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
 `;
 
 export const mutations = `

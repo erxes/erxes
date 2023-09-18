@@ -63,6 +63,8 @@ export interface IProductCategory {
   meta: string;
   maskType: string;
   mask: any;
+  isSimilarity: boolean;
+  similarities: any[];
 }
 
 export type MutationVariables = {

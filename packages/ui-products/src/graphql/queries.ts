@@ -116,6 +116,8 @@ const productCategories = `
       productCount
       maskType
       mask
+      isSimilarity
+      similarities
     }
   }
 `;

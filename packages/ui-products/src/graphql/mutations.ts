@@ -27,7 +27,9 @@ const productCategoryParamsDef = `
   $status: String,
   $meta: String,
   $maskType: String,
-  $mask: JSON
+  $mask: JSON,
+  $isSimilarity: Boolean,
+  $similarities: JSON,
 `;
 
 const productParams = `
@@ -60,6 +62,8 @@ const productCategoryParams = `
   meta: $meta,
   maskType: $maskType,
   mask: $mask,
+  isSimilarity: $isSimilarity,
+  similarities: $similarities,
 `;
 
 const productAdd = `

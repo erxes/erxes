@@ -12,6 +12,7 @@ import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { putActivityLog } from '../logUtils';
 
 export const getEmailRecipientTypes = async () => {
   let reciepentTypes = [...EMAIL_RECIPIENTS_TYPES];
@@ -259,6 +260,7 @@ export const generateDoc = async ({
 
   return {
     title: subject,
+    fromUser,
     fromEmail: generateFromEmail(sender, fromUser?.email),
     toEmails: toEmails.filter(email => fromUser?.email !== email),
     customHtml: content
@@ -340,6 +342,28 @@ export const getRecipientEmails = async ({
   return [...new Set(toEmails)];
 };
 
+const setActivityLog = async ({
+  subdomain,
+  triggerType,
+  target,
+  user,
+  responses
+}) => {
+  for (const response of responses || []) {
+    if (response?.messageId) {
+      await putActivityLog(subdomain, {
+        action: 'putActivityLog',
+        data: {
+          contentType: triggerType,
+          contentId: target._id,
+          createdBy: 'automation',
+          action: 'sendEmail'
+        }
+      });
+    }
+  }
+};
+
 export const handleEmail = async ({
   subdomain,
   target,
@@ -347,7 +371,7 @@ export const handleEmail = async ({
   triggerType,
   config
 }) => {
-  const data: any = await generateDoc({
+  const { fromUser, ...params }: any = await generateDoc({
     subdomain,
     triggerType,
     target,
@@ -355,18 +379,26 @@ export const handleEmail = async ({
     execution
   });
 
-  if (!data) {
+  if (!params) {
     return { error: 'Something went wrong fetching data' };
   }
 
   try {
     const responses = await sendEmails({
       subdomain,
-      params: data
+      params: params
     });
 
-    delete data?.customHtml;
-    return { ...data, responses };
+    await setActivityLog({
+      subdomain,
+      triggerType,
+      target,
+      user: fromUser,
+      responses
+    });
+
+    delete params?.customHtml;
+    return { ...params, responses };
   } catch (err) {
     return { error: err.message };
   }

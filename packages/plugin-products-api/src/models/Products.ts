@@ -12,7 +12,11 @@ import {
   productSchema,
   PRODUCT_STATUSES
 } from './definitions/products';
-import { checkCodeMask, initCustomField } from '../utils';
+import {
+  checkCodeMask,
+  checkSameMaskConfig,
+  initCustomField
+} from '../maskUtils';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -119,6 +123,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         throw new Error('Code is not validate of category mask');
       }
 
+      doc.sameMasks = await checkSameMaskConfig(models, doc);
+
       doc.uom = await models.Uoms.checkUOM(doc);
 
       doc.customFieldsData = await initCustomField(
@@ -154,6 +160,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         if (!(await checkCodeMask(category, doc.code))) {
           throw new Error('Code is not validate of category mask');
         }
+
+        doc.sameMasks = await checkSameMaskConfig(models, doc);
       }
 
       doc.customFieldsData = await initCustomField(

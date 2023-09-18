@@ -160,6 +160,18 @@ export interface IScheduleConfig {
   configDays: IScheduleConfigDays[];
 }
 
+export interface IScheduleConfigOrder {
+  _id?: string;
+  userId: string;
+  orderedList: IScheduleConfigOrderItem[];
+}
+export interface IScheduleConfigOrderItem {
+  scheduleConfigId: string;
+  order: number;
+  pinned: boolean;
+  label?: string;
+}
+
 export interface IScheduleConfigDays {
   configName: string;
   configShiftStart?: string;
@@ -221,6 +233,11 @@ export type PayDatesQueryResponse = {
   refetch: () => void;
   loading: boolean;
 };
+
+export type ScheduleConfigOrderQueryResponse = {
+  scheduleConfigOrder: IScheduleConfigOrder;
+} & QueryResponse;
+
 export type HolidaysQueryResponse = {
   holidays: IAbsence[];
 } & QueryResponse;
@@ -436,4 +453,6 @@ export type ScheduleMutationResponse = {
   checkDuplicateScheduleShiftsMutation: (params: {
     variables: ScheduleMutationVariables;
   }) => Promise<any>;
+
+  scheduleConfigOrderEditMutation: (params: { variables: any }) => Promise<any>;
 };
