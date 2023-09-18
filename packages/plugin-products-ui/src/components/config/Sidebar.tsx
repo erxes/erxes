@@ -30,6 +30,12 @@ class Sidebar extends React.Component {
         <List id="SettingsSidebar">
           {this.renderListItem('/settings/products-config', 'General config')}
         </List>
+        <List id="SettingsSidebar">
+          {this.renderListItem(
+            '/settings/similarity-group',
+            'Similarity Group'
+          )}
+        </List>
       </LeftSidebar>
     );
   }

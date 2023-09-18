@@ -8,8 +8,8 @@ import {
   IShift,
   ITimeClock,
   IAbsenceType,
-  IDeviceConfig,
-  IDeviceConfigDocument
+  IDeviceConfigDocument,
+  IDeviceConfig
 } from '../../models/definitions/timeclock';
 import {
   createScheduleShiftsByUserIds,
@@ -725,6 +725,24 @@ const timeclockMutations = {
     { models }: IContext
   ) {
     return models.DeviceConfigs.removeDeviceConfig(_id);
+  },
+  scheduleConfigOrderEdit(
+    _root,
+    { userId, ...params },
+    { models, user }: IContext
+  ) {
+    const getUserId = userId || user._id;
+
+    const query = { userId: getUserId };
+    const update = {
+      $set: {
+        userId: getUserId,
+        ...params
+      }
+    };
+    const options = { upsert: true };
+
+    return models.ScheduleConfigOrder.updateOne(query, update, options);
   },
 
   checkReport(_root, doc, { models, user }: IContext) {

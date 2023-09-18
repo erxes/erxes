@@ -22,6 +22,10 @@ export const types = `
     order: String!
     isRoot: Boolean
     productCount: Int
+    maskType: String
+    mask: JSON
+    isSimilarity: Boolean
+    similarities: JSON
   }
 
   type PoscProduct {
@@ -43,6 +47,16 @@ export const types = `
     remainder: Float
     remainders: [JSON]
     isCheckRem: Boolean
+    hasSimilarity: Boolean
+  }
+
+  type PoscProductSimilarityGroup {
+    title: String
+    fieldId: String
+  }
+  type PoscProductSimilarity {
+    products: [PoscProduct],
+    groups: [PoscProductSimilarityGroup],
   }
 `;
 
@@ -50,12 +64,14 @@ const productsQueryParams = `
   type: String,
   categoryId: String,
   searchValue: String,
+  vendorId: String,
   tag: String,
   ids: [String],
   excludeIds: Boolean,
   segment: String,
   segmentData: String,
   isKiosk: Boolean,
+  groupedSimilarity: String,
 `;
 
 const productCategoriesParams = `
@@ -91,4 +107,5 @@ export const queries = `
   ): Int
   poscProductDetail(_id: String, branchId: String): PoscProduct
   getPriceInfo(productId: String!): String
+  poscProductSimilarities(_id: String!, groupedSimilarity: String): PoscProductSimilarity
 `;
