@@ -132,8 +132,10 @@ export const createConsumeRPCQueue = (app: Express) => (
 ) => {
   const { procedureName } = splitPluginProcedureName(queueName);
 
-  if(procedureName.includes(':')) {
-    throw new Error(`${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`)
+  if (procedureName.includes(':')) {
+    throw new Error(
+      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`
+    );
   }
 
   const endpoint = `/rpc/${procedureName}`;
@@ -179,8 +181,15 @@ export const sendRPCMessage = async (
       });
 
       if (!(200 <= response.status && response.status < 300)) {
+        let argsJson = '"cannot stringify"';
+        try {
+          argsJson = JSON.stringify(args);
+        } catch (e) {}
+
         throw new Error(
-          `RPC HTTP error: Status code ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}`
+          `RPC HTTP error: Status code ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}.
+            Arguments: ${argsJson}
+          `
         );
       }
 
@@ -196,8 +205,15 @@ export const sendRPCMessage = async (
         if (args?.defaultValue) {
           return args.defaultValue;
         } else {
+          let argsJson = '"cannot stringify"';
+          try {
+            argsJson = JSON.stringify(args);
+          } catch (e) {}
+
           throw new Error(
-            `RPC HTTP error. Remote: ${pluginName}. Procedure: ${procedureName}. Timed out after ${timeoutMs}ms.`
+            `RPC HTTP error. Remote: ${pluginName}. Procedure: ${procedureName}. Timed out after ${timeoutMs}ms.
+              Arguments: ${argsJson}
+            `
           );
         }
       }
