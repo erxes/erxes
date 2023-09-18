@@ -8,7 +8,7 @@ import * as Agent from 'agentkeepalive';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const timeoutMs = Number(process.env.RPC_TIMEOUT) || 10000;
+const timeoutMs = Number(process.env.RPC_TIMEOUT) || 30000;
 
 const httpAgentOptions = {
   timeout: timeoutMs,
@@ -211,7 +211,7 @@ export const sendRPCMessage = async (
           } catch (e) {}
 
           throw new Error(
-            `RPC HTTP error. Remote: ${pluginName}. Procedure: ${procedureName}. Timed out after ${timeoutMs}ms.
+            `RPC HTTP timeout ${timeoutMs}ms. Remote: ${pluginName}. Procedure: ${procedureName}.
               Arguments: ${argsJson}
             `
           );
