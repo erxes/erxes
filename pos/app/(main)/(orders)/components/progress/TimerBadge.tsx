@@ -14,6 +14,7 @@ const TimerBadge = ({
   const { remainingTime } = useTimer(date || "")
 
   const isOutDated = isDueDate && date && !isFuture(new Date(date))
+  
   const Icon = function () {
     if (isOutDated) return TimerOffIcon
 

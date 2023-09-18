@@ -92,7 +92,7 @@ export const ProductItemTitle = ({
   return (
     <CardTitle
       className={cn(
-        "font-semibold text-sm pt-1 leading-none h-8 mb-2",
+        "font-semibold text-sm pt-1 leading-none h-8 mb-2 overflow-hidden",
         className
       )}
     >

@@ -23,7 +23,7 @@ const HeaderLayout = (props: {
 
   return (
     <>
-      {mode === "main" && <Main {...props} />}
+      {["coffee-shop", "main"].includes(mode) && <Main {...props} />}
       {mode === "market" && <Market {...props} />}
     </>
   )
