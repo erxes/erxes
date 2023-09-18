@@ -96,6 +96,14 @@ const chatAdd = `
   }
 `;
 
+const chatEdit = `
+  mutation chatEdit($_id: String!, $name: String, $featuredImage: JSON) {
+    chatEdit(_id: $_id, name: $name, featuredImage: $featuredImage) {
+      _id
+    }
+  }
+`;
+
 const chatRemove = `
   mutation chatRemove($id: String!) {
     chatRemove(_id: $id)
@@ -157,7 +165,7 @@ const commentAdd = `
   }
 `;
 
-const commentRemove =`
+const commentRemove = `
   mutation commentRemove($_id: String!) {
     commentRemove(_id: $_id)
   }
@@ -169,7 +177,7 @@ const chatForward = `
       _id
     }
   }
-`
+`;
 
 export default {
   addFeed,
@@ -180,6 +188,7 @@ export default {
   deleteThank,
   pinFeed,
   chatAdd,
+  chatEdit,
   chatRemove,
   chatMarkAsRead,
   chatMessageAdd,

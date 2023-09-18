@@ -1,35 +1,40 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import queryString from 'query-string';
 // erxes
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import * as router from '@erxes/ui/src/utils/router';
-
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { useHistory } from 'react-router-dom';
 
 type Props = {
   closeModal: () => void;
-  startGroupChat: (name: string, userIds: string[]) => void;
+  startGroupChat: (name: string) => void;
+  userIds: string[];
+  setUserIds: (ids: string[]) => void;
 };
 
 const CreateGroupChat = (props: Props) => {
-  const location = useLocation();
-  const queryParams = queryString.parse(location.search);
+  const { userIds, setUserIds } = props;
   const history = useHistory();
 
-  const [userIds, setUserIds] = useState(queryParams.userIds || []);
   const [name, setName] = useState('');
 
   const handleSubmit = () => {
-    props.startGroupChat(name, userIds);
-    router.removeParams(history, 'userIds');
-    router.removeParams(history, 'limit');
-    props.closeModal();
+    if (userIds.length === 1) {
+      router.removeParams(history, 'id', 'userIds');
+      router.setParams(history, { userId: userIds });
 
-    setUserIds([]);
-    setName('');
+      setUserIds([]);
+      props.closeModal();
+    }
+    if (userIds.length > 1) {
+      props.startGroupChat(name);
+      router.removeParams(history, 'userIds');
+      router.removeParams(history, 'limit');
+
+      setName('');
+    }
   };
 
   const handleUserChange = _userIds => {
@@ -38,30 +43,38 @@ const CreateGroupChat = (props: Props) => {
 
   return (
     <>
-      <h3>Create a group chat</h3>
-      <FormControl
-        placeholder="Name"
-        value={name}
-        onChange={(e: any) => setName(e.target.value)}
-      />
-      <br />
+      {userIds.length > 1 && (
+        <>
+          <FormControl
+            placeholder="Write a group chat name"
+            value={name}
+            onChange={(e: any) => setName(e.target.value)}
+          />
+          <br />
+        </>
+      )}
       <SelectTeamMembers
         label={'Choose team member'}
         name="assignedUserIds"
         initialValue={userIds}
         onSelect={handleUserChange}
       />
-      <br />
-      <Button style={{ float: 'right' }} onClick={handleSubmit}>
-        Create
-      </Button>
-      <Button
-        btnStyle="simple"
-        style={{ float: 'right', marginRight: '10px' }}
-        onClick={props.closeModal}
-      >
-        Cancel
-      </Button>
+      <ModalFooter>
+        <Button
+          btnStyle="success"
+          style={{ float: 'right' }}
+          onClick={handleSubmit}
+        >
+          Create
+        </Button>
+        <Button
+          btnStyle="simple"
+          style={{ float: 'right', marginRight: '10px' }}
+          onClick={props.closeModal}
+        >
+          Cancel
+        </Button>
+      </ModalFooter>
     </>
   );
 };

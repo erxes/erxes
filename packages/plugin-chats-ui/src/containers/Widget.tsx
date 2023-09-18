@@ -14,7 +14,7 @@ type Props = {
   currentUser: IUser;
 };
 
-const WdigetListContainer = (props: Props) => {
+const WidgetListContainer = (props: Props) => {
   const { currentUser } = props;
 
   const { loading, error, data, refetch } = useQuery(
@@ -31,7 +31,7 @@ const WdigetListContainer = (props: Props) => {
 
   useSubscription(gql(subscriptions.chatInserted), {
     variables: { userId: currentUser._id },
-    onSubscriptionData: ({ subscriptionData: { data } }) => {
+    onSubscriptionData: () => {
       refetch();
     }
   });
@@ -82,7 +82,7 @@ const WdigetListContainer = (props: Props) => {
 
   useSubscription(gql(subscriptions.chatUnreadCountChanged), {
     variables: { userId: currentUser._id },
-    onSubscriptionData: data => {
+    onSubscriptionData: () => {
       refetch();
     }
   });
@@ -103,6 +103,6 @@ const WdigetListContainer = (props: Props) => {
   );
 };
 
-const WithCurrentUser = withCurrentUser(WdigetListContainer);
+const WithCurrentUser = withCurrentUser(WidgetListContainer);
 
 export default (props: Props) => <WithCurrentUser {...props} />;

@@ -1,9 +1,7 @@
-import Button from '@erxes/ui/src/components/Button';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import { getMentionedUserIds } from '@erxes/ui/src/components/EditorCK';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import Tip from '@erxes/ui/src/components/Tip';
 import Alert from '@erxes/ui/src/utils/Alert';
 import {
@@ -14,11 +12,10 @@ import {
 } from '@erxes/ui/src/utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import {
+  ChatEditor,
   Attachment,
   AttachmentIndicator,
   AttachmentThumb,
-  EditorActions,
-  EditorWrapper,
   FileName,
   PreviewImg
 } from '../styles';
@@ -34,14 +31,16 @@ type Props = {
 };
 
 const Editor = (props: Props) => {
+  const { type, reply } = props;
   const [state, setState] = useState({ content: props.reply || '' });
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
   const [loading, setLoading] = useState<object>({});
   const [uploadLoading, setUploadLoading] = useState<boolean>(false);
+
   const editorRef = useRef<any>(null);
 
   useEffect(() => {
-    if (props.type === 'widget') {
+    if (type === 'widget') {
       const element = document.getElementById('chat-widget-form-control');
 
       if (element) {
@@ -50,23 +49,21 @@ const Editor = (props: Props) => {
     } else if (editorRef && editorRef.current) {
       editorRef.current.focus();
     }
-  }, [props.reply]);
+  }, [reply]);
 
   const clearContent = () => {
     setState({ content: '' });
     setAttachments([]);
-    const editorName = `chat editor`;
-
-    localStorage.removeItem(editorName);
   };
 
-  const onSend = () => {
+  const handleSendMessage = () => {
     const { content } = state;
     const mentionedUserIds = getMentionedUserIds(content);
 
     props.sendMessage({ content, attachments, mentionedUserIds }, () => {
       clearContent();
     });
+    props.setReply(null);
   };
 
   const handleDeleteFile = (url: string) => {
@@ -79,6 +76,7 @@ const Editor = (props: Props) => {
     _loading[url] = true;
 
     setLoading(_loading);
+
     uploadDeleteHandler({
       fileName,
       afterUpload: ({ status }) => {
@@ -99,6 +97,7 @@ const Editor = (props: Props) => {
       }
     });
   };
+
   const handleFileInput = (event: React.FormEvent<HTMLInputElement>) => {
     const files = event.currentTarget.files;
     setUploadLoading(true);
@@ -125,58 +124,11 @@ const Editor = (props: Props) => {
     });
   };
 
-  const renderFooter = () => {
-    return (
-      <>
-        {renderIndicator()}
-
-        <EditorActions>
-          <Tip text={__('Audio')}>
-            <label>
-              <Icon icon="audio" />
-              <input type="file" multiple={true} />
-            </label>
-          </Tip>
-          <Tip text={__('Audio')}>
-            <VoiceRecorder
-              attachments={attachments}
-              setAttachments={setAttachments}
-            />
-          </Tip>
-          <Tip placement="top" text={'Attach file'}>
-            <label>
-              <Icon icon="clip" size={18} />
-              <input type="file" onChange={handleFileInput} multiple={true} />
-            </label>
-          </Tip>
-          {state.content && (
-            <Button
-              onClick={clearContent}
-              btnStyle="warning"
-              size="small"
-              icon="eraser-1"
-            >
-              Discard
-            </Button>
-          )}
-
-          <Button
-            onClick={onSend}
-            btnStyle="success"
-            size="small"
-            icon={'message'}
-          >
-            Send
-          </Button>
-        </EditorActions>
-      </>
-    );
-  };
-
-  const onEditorChange = e => {
-    setState({
-      content: e.editor.getData()
-    });
+  const handleKeyDown = (event: any) => {
+    if (event.keyCode === 13 && !event.shiftKey) {
+      handleSendMessage();
+      clearContent();
+    }
   };
 
   const renderIndicator = () => {
@@ -226,41 +178,54 @@ const Editor = (props: Props) => {
     return null;
   };
 
+  const onEditorChange = e => {
+    e.preventDefault();
+
+    setState({
+      content: e.target.value
+    });
+  };
+
   return (
     <>
-      <EditorWrapper>
-        <EditorCK
-          removePlugins="elementspath"
-          onCtrlEnter={onSend}
-          content={state.content}
-          onChange={onEditorChange}
-          height={props.type === 'widget' ? 60 : 150}
-          name={`Chat editor`}
-          toolbar={
-            props.type === 'widget'
-              ? []
-              : [
-                  {
-                    name: 'basicstyles',
-                    items: [
-                      'Bold',
-                      'Italic',
-                      'NumberedList',
-                      'BulletedList',
-                      'Link',
-                      'Unlink',
-                      '-',
-                      'Image',
-                      'EmojiPanel'
-                    ]
-                  }
-                ]
-          }
-          mentionUsers={props.mentions}
+      {renderIndicator()}
+      <ChatEditor>
+        <Tip text={'Audio'}>
+          <label>
+            <Icon icon="audio" />
+            <input type="file" multiple={true} />
+          </label>
+        </Tip>
+        <Tip text={'Audio'}>
+          <VoiceRecorder
+            attachments={attachments}
+            setAttachments={setAttachments}
+          />
+        </Tip>
+        <Tip placement="top" text={'Attach file'}>
+          <label>
+            <Icon icon="clip" size={18} />
+            <input type="file" onChange={handleFileInput} multiple={true} />
+          </label>
+        </Tip>
+        <FormControl
+          autoFocus={true}
+          autoComplete="false"
+          round={true}
+          id="chat-widget-form-control"
+          placeholder="Aa"
+          maxHeight={140}
+          onChange={(event: any) => onEditorChange(event)}
+          value={state.content}
+          onKeyDown={handleKeyDown}
+          componentClass={type !== 'widget' && 'textarea'}
         />
-
-        {renderFooter()}
-      </EditorWrapper>
+        <Tip placement="top" text={'Send'}>
+          <label onClick={handleSendMessage}>
+            <Icon icon="send" size={18} />
+          </label>
+        </Tip>
+      </ChatEditor>
     </>
   );
 };

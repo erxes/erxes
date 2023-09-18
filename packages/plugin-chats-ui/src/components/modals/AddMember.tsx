@@ -22,7 +22,6 @@ const AddMember = (props: Props) => {
   };
   return (
     <>
-      <h3>Add member</h3>
       <SelectTeamMembers
         label={'Choose team member'}
         name="assignedUserId"

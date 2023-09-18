@@ -113,6 +113,7 @@ function List({
           <AttachmentWithPreview
             attachment={item.images[0]}
             attachments={item.images}
+            size={600}
           />
         );
       }
@@ -123,10 +124,12 @@ function List({
             <AttachmentWithPreview
               attachment={item.images[0]}
               attachments={item.images}
+              size={600}
             />
             <AttachmentWithPreview
               attachment={item.images[1]}
               attachments={item.images}
+              size={600}
             />
           </>
         );
@@ -137,15 +140,18 @@ function List({
           <AttachmentWithPreview
             attachment={item.images[0]}
             attachments={item.images}
+            size={600}
           />
           <div>
             <AttachmentWithPreview
               attachment={item.images[1]}
               attachments={item.images}
+              size={600}
             />
             <AttachmentWithPreview
               attachment={item.images[2]}
               attachments={item.images}
+              size={600}
             />
             {item.images.length > 3 && (
               <MoreAttachment>+ {item.images.length - 3} more</MoreAttachment>
@@ -196,7 +202,7 @@ function List({
                   createdUser.details.fullName) ||
                 'author'
               }
-              src={getUserAvatar(createdUser)}
+              src={getUserAvatar(createdUser, 60)}
             />
             <div>
               <b>

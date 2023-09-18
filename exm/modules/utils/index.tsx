@@ -189,25 +189,38 @@ export function withProps<IProps>(
   };
 }
 
-export const readFile = (value: string): string => {
+export const readFile = (value: string, width?: number): string => {
   if (
     !value ||
     urlParser.isValidURL(value) ||
-    value.includes('http') ||
-    value.startsWith('/')
+    (typeof value === 'string' && value.includes('http')) ||
+    (typeof value === 'string' && value.startsWith('/'))
   ) {
     return value;
   }
 
   const { REACT_APP_DOMAIN } = getEnv();
 
-  if (REACT_APP_DOMAIN.includes('localhost')) {
-    return `${REACT_APP_DOMAIN}/read-file?key=${value}`;
+  let url = `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
+
+  if (width) {
+    url += `&width=${width}`;
   }
-  return `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
+
+  if (REACT_APP_DOMAIN.includes('localhost')) {
+    url = `${REACT_APP_DOMAIN}/read-file?key=${value}`;
+
+    if (width) {
+      url += `&width=${width}`;
+    }
+
+    return url;
+  }
+
+  return url;
 };
 
-export const getUserAvatar = (user: IUserDoc) => {
+export const getUserAvatar = (user: IUserDoc, width?: number) => {
   if (!user) {
     return '';
   }
@@ -218,7 +231,7 @@ export const getUserAvatar = (user: IUserDoc) => {
     return '/images/avatar-colored.svg';
   }
 
-  return readFile(details.avatar);
+  return readFile(details.avatar, width);
 };
 
 const getURL = () => {

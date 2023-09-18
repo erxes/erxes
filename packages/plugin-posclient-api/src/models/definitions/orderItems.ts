@@ -1,3 +1,4 @@
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { ORDER_ITEM_STATUSES } from './constants';
 import {
@@ -21,6 +22,8 @@ export interface IOrderItem {
   isTake?: boolean;
   status?: string;
   manufacturedDate?: string;
+  description?: string;
+  attachment?: IAttachment;
 }
 
 export interface IOrderItemDocument extends Document, IOrderItem {
@@ -76,7 +79,9 @@ export const orderItemSchema = schemaHooksWrapper(
       label: 'inner or skip ebarimt',
       default: false
     }),
-    manufacturedDate: field({ type: String, label: 'manufactured' })
+    manufacturedDate: field({ type: String, label: 'manufactured' }),
+    description: field({ type: String, label: 'Description' }),
+    attachment: field({ type: Object, label: 'Attachment' })
   }),
   'erxes_orderItem'
 );

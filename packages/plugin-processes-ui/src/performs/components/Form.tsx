@@ -68,7 +68,6 @@ type State = {
   resultProducts: IProductsData[];
   inProducts: IProductsData[];
   outProducts: IProductsData[];
-  categoryId: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -155,8 +154,7 @@ class Form extends React.Component<Props, State> {
       needProducts,
       resultProducts,
       inProducts,
-      outProducts,
-      categoryId: ''
+      outProducts
     };
   }
 
@@ -411,8 +409,6 @@ class Form extends React.Component<Props, State> {
       <ProductChooser
         {...props}
         onSelect={productOnChange}
-        onChangeCategory={categoryId => this.setStateWrapper({ categoryId })}
-        categoryId={this.state.categoryId}
         data={{
           name: 'Product',
           products: productsData.filter(p => p.product).map(p => p.product)

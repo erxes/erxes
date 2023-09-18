@@ -7,17 +7,29 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { Attributes } from '../styles';
 import PlaceHolderInput from './PlaceHolderInput';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components/form';
 
 type Props = {
   triggerType: string;
+  triggerConfig?: any;
   config: any;
   label: string;
-  attributions: FieldsCombinedByType[];
+  attributions: Array<
+    { excludeAttr?: boolean; callback?: () => void } & FieldsCombinedByType
+  >;
   onSelect: (config: any) => void;
+  withDefaultValue?: boolean;
 };
 
 type State = {
-  fields: FieldsCombinedByType[];
+  searchValue: string;
+  fields: Array<
+    { excludeAttr?: boolean; callback?: () => void } & FieldsCombinedByType
+  >;
 };
 
 class SelectFields extends React.Component<Props, State> {
@@ -27,7 +39,8 @@ class SelectFields extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      fields: []
+      fields: [],
+      searchValue: ''
     };
   }
 
@@ -48,18 +61,40 @@ class SelectFields extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { attributions } = this.props;
-    const { fields } = this.state;
+    let { attributions, onSelect, config, withDefaultValue } = this.props;
+    const { fields, searchValue } = this.state;
 
     const onClickField = item => {
+      item?.callback && item?.callback();
+
       this.setState({ fields: [...fields, item] });
+
+      withDefaultValue &&
+        onSelect({ ...config, [item.name]: `{{ ${item.name} }}` });
+
       this.hideContent();
     };
+
+    const onSearch = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      this.setState({ searchValue: value });
+    };
+
+    if (searchValue) {
+      attributions = attributions.filter(option =>
+        new RegExp(searchValue, 'i').test(option.label)
+      );
+    }
 
     return (
       <Popover id="field-popover">
         <Attributes>
           <React.Fragment>
+            <FormGroup>
+              <ControlLabel>{__('Search')}</ControlLabel>
+              <FormControl placeholder="type a search" onChange={onSearch} />
+            </FormGroup>
             <li>
               <b>{__('Fields')}</b>
             </li>
@@ -80,7 +115,7 @@ class SelectFields extends React.Component<Props, State> {
   }
 
   renderFields() {
-    const { triggerType, config, onSelect } = this.props;
+    const { triggerType, triggerConfig, config, onSelect } = this.props;
     const { fields } = this.state;
 
     const removeField = ({ _id, name }) => {
@@ -95,11 +130,14 @@ class SelectFields extends React.Component<Props, State> {
         inputName={field.name}
         label={field.label}
         config={config}
+        excludeAttr={field.excludeAttr}
         onChange={onSelect}
         triggerType={triggerType}
         fieldType={field.type === 'Date' ? 'date' : field.type}
         options={field.selectOptions || []}
         optionsAllowedTypes={['contact']}
+        triggerConfig={triggerConfig}
+        attrWithSegmentConfig={!!triggerConfig}
         isMulti={true}
         additionalContent={
           <Button

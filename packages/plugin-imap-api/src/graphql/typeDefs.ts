@@ -35,6 +35,7 @@ const mutations = `
     bcc: [String]
     from: String!
     shouldResolve: Boolean
+    shouldOpen: Boolean
     headerId: String
     replyTo: [String]
     inReplyTo: String

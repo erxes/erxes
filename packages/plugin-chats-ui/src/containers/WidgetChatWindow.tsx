@@ -14,10 +14,12 @@ type Props = {
   chatId: string;
   currentUser: IUser;
   handleActive: (chatId: string, toClose: boolean) => void;
+  isMinimized?: boolean;
+  handleMinimize?: (chatId: string) => void;
 };
 
 const WidgetChatWindowContainer = (props: Props) => {
-  const { chatId, currentUser } = props;
+  const { chatId, currentUser, isMinimized, handleMinimize } = props;
   const { loading, error, data } = useQuery(gql(queries.chatDetail), {
     variables: { id: chatId }
   });
@@ -63,6 +65,8 @@ const WidgetChatWindowContainer = (props: Props) => {
         chat={data.chatDetail}
         sendMessage={sendMessage}
         handleActive={props.handleActive}
+        isMinimized={isMinimized}
+        handleMinimize={handleMinimize}
       />
     );
   }

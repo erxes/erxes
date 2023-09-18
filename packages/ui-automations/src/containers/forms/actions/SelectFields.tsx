@@ -11,15 +11,20 @@ import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   config: any;
   triggerType: string;
+  triggerConfig?: any;
   actionType: string;
   onSelect: (config: any) => void;
   label: string;
   excludedNames?: string[];
-  customAttributions?: FieldsCombinedByType[];
+  customAttributions?: Array<
+    { excludeAttr?: boolean; callback?: () => void } & FieldsCombinedByType
+  >;
+  withDefaultValue?: boolean;
 };
 
 type FinalProps = {
@@ -35,7 +40,7 @@ class SelectFields extends React.Component<FinalProps, State> {
     const { fieldsCombinedByTypeQuery } = this.props;
 
     if (fieldsCombinedByTypeQuery.loading) {
-      return null;
+      return <Spinner objective />;
     }
 
     const attributions = fieldsCombinedByTypeQuery.fieldsCombinedByContentType.concat(

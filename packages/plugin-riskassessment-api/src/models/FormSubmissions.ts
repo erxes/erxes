@@ -82,14 +82,18 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       });
 
       if (forms.length === 1) {
-        const { sumNumber } = await calculateFormResponses({
+        const { sumNumber, scoreAviable } = await calculateFormResponses({
           responses: formSubmissions,
           fields,
           calculateMethod: forms[0].calculateMethod,
+          generalcalculateMethod: forms[0].calculateMethod,
           filter: {}
         });
 
-        resultScore = sumNumber;
+        resultScore =
+          forms[0].calculateMethod === 'ByPercent'
+            ? Number(((sumNumber / scoreAviable) * 100).toFixed(1))
+            : sumNumber;
       }
       if (forms.length > 1) {
         for (const form of forms) {
@@ -196,20 +200,27 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       });
 
       if (forms.length === 1) {
-        const { sumNumber, submissions } = await calculateFormResponses({
+        const {
+          sumNumber,
+          submissions,
+          scoreAviable
+        } = await calculateFormResponses({
           responses: formSubmissions,
           fields,
           calculateMethod: forms[0].calculateMethod,
+          generalcalculateMethod: forms[0].calculateMethod,
           filter: { ...filter, riskAssessmentId: _id }
         });
 
+        resultSumNumber =
+          forms[0].calculateMethod === 'ByPercent'
+            ? Number(((sumNumber / scoreAviable) * 100).toFixed(1))
+            : sumNumber;
+
         await models.RiskAssessmentIndicators.updateOne(
           { assessmentId: _id, indicatorId },
-          { $inc: { totalScore: sumNumber } }
+          { $inc: { totalScore: resultSumNumber } }
         );
-
-        resultSumNumber = sumNumber;
-
         await models.RiskFormSubmissions.insertMany(submissions);
       }
       if (forms.length > 1) {

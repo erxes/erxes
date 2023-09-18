@@ -7,6 +7,7 @@ import { sendPricingMessage } from '../../../messageBroker';
 import { Builder } from '../../../utils';
 import { checkRemainders } from '../../utils/products';
 import { IConfigDocument } from '../../../models/definitions/configs';
+import { getSimilaritiesProducts } from '../../../maskUtils';
 
 interface ICommonParams {
   sortField?: string;
@@ -20,6 +21,7 @@ interface IProductParams extends ICommonParams {
   type?: string;
   categoryId?: string;
   searchValue?: string;
+  vendorId?: string;
   branchId?: string;
   tag?: string;
   pipelineId?: string;
@@ -27,6 +29,7 @@ interface IProductParams extends ICommonParams {
   segment?: string;
   segmentData?: string;
   isKiosk?: boolean;
+  groupedSimilarity?: string;
 }
 
 interface ICategoryParams extends ICommonParams {
@@ -47,6 +50,7 @@ const generateFilter = async (
     type,
     categoryId,
     searchValue,
+    vendorId,
     tag,
     ids,
     excludeIds,
@@ -122,6 +126,10 @@ const generateFilter = async (
     const { list } = await qb.runQueries();
 
     filter._id = { $in: list.map(l => l._id) };
+  }
+
+  if (vendorId) {
+    filter.vendorId = vendorId;
   }
 
   if (isKiosk) {
@@ -204,6 +212,7 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      vendorId,
       tag,
       ids,
       excludeIds,
@@ -212,6 +221,7 @@ const productQueries = {
       segment,
       segmentData,
       isKiosk,
+      groupedSimilarity,
       sortField,
       sortDirection,
       ...paginationArgs
@@ -223,6 +233,7 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      vendorId,
       tag,
       ids,
       excludeIds,
@@ -237,6 +248,13 @@ const productQueries = {
 
     if (sortField) {
       sortParams = { [sortField]: sortDirection };
+    }
+
+    if (groupedSimilarity) {
+      return await getSimilaritiesProducts(models, filter, {
+        groupedSimilarity,
+        ...paginationArgs
+      });
     }
 
     const paginatedProducts = await paginate(
@@ -264,6 +282,7 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      vendorId,
       tag,
       ids,
       excludeIds,
@@ -280,6 +299,7 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      vendorId,
       tag,
       ids,
       excludeIds,
@@ -291,6 +311,108 @@ const productQueries = {
     });
 
     return models.Products.find(filter).countDocuments();
+  },
+
+  async poscProductSimilarities(
+    _root,
+    { _id, groupedSimilarity },
+    { models }: IContext
+  ) {
+    const product = await models.Products.getProduct({ _id });
+
+    if (groupedSimilarity === 'config') {
+      const getRegex = str => {
+        return new RegExp(
+          `^${str
+            .replace(/\./g, '\\.')
+            .replace(/\*/g, '.')
+            .replace(/_/g, '.')}.*`,
+          'igu'
+        );
+      };
+
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup'
+      );
+
+      const codeMasks = Object.keys(similarityGroups);
+      const customFieldIds = (product.customFieldsData || []).map(
+        cf => cf.field
+      );
+
+      const matchedMasks = codeMasks.filter(
+        cm =>
+          product.code.match(getRegex(cm)) &&
+          (similarityGroups[cm].rules || [])
+            .map(sg => sg.fieldId)
+            .filter(sgf => customFieldIds.includes(sgf)).length ===
+            (similarityGroups[cm].rules || []).length
+      );
+
+      if (!matchedMasks.length) {
+        return {
+          products: await models.Products.find({ _id })
+        };
+      }
+
+      const codeRegexs: any[] = [];
+      const fieldIds: string[] = [];
+      const groups: { title: string; fieldId: string }[] = [];
+      for (const matchedMask of matchedMasks) {
+        codeRegexs.push({ code: { $in: [getRegex(matchedMask)] } });
+
+        for (const rule of similarityGroups[matchedMask].rules || []) {
+          const { fieldId, title } = rule;
+          if (!fieldIds.includes(fieldId)) {
+            fieldIds.push(fieldId);
+            groups.push({ title, fieldId });
+          }
+        }
+      }
+
+      const filters: any = {
+        $and: [
+          {
+            $or: codeRegexs,
+            'customFieldsData.field': { $in: fieldIds }
+          }
+        ]
+      };
+
+      return {
+        products: await models.Products.find(filters).sort({ code: 1 }),
+        groups
+      };
+    }
+
+    const category = await models.ProductCategories.getProductCategory({
+      _id: product.categoryId
+    });
+    if (!category.isSimilarity || !category.similarities.length) {
+      return {
+        products: await models.Products.find({ _id })
+      };
+    }
+
+    const fieldIds = category.similarities.map(r => r.fieldId);
+    const filters: any = {
+      $and: [
+        {
+          categoryId: category._id,
+          'customFieldsData.field': { $in: fieldIds }
+        }
+      ]
+    };
+
+    const groups: {
+      title: string;
+      fieldId: string;
+    }[] = category.similarities.map(r => ({ ...r }));
+
+    return {
+      products: await models.Products.find(filters).sort({ code: 1 }),
+      groups
+    };
   },
 
   async poscProductCategories(

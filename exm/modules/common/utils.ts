@@ -50,15 +50,33 @@ export const getConfigColor = (config: any, key: string) => {
  * @param {String} - value
  * @return {String} - URL
  */
-export const readFile = (value: string): string => {
-  if (!value || urlParser.isValidURL(value) || value.includes('/')) {
+export const readFile = (value: string, width?: number): string => {
+  if (
+    !value ||
+    urlParser.isValidURL(value) ||
+    (typeof value === 'string' && value.includes('http')) ||
+    (typeof value === 'string' && value.startsWith('/'))
+  ) {
     return value;
   }
 
   const { REACT_APP_DOMAIN } = getEnv();
 
-  if (REACT_APP_DOMAIN.includes('localhost')) {
-    return `${REACT_APP_DOMAIN}/read-file?key=${value}`;
+  let url = `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
+
+  if (width) {
+    url += `&width=${width}`;
   }
-  return `${REACT_APP_DOMAIN}/gateway/pl:core/read-file?key=${value}`;
+
+  if (REACT_APP_DOMAIN.includes('localhost')) {
+    url = `${REACT_APP_DOMAIN}/read-file?key=${value}`;
+
+    if (width) {
+      url += `&width=${width}`;
+    }
+
+    return url;
+  }
+
+  return url;
 };
