@@ -264,6 +264,10 @@ mutation submitCheckInOutRequest($checkType: String, $userId: String, $checkTime
     _id
   }
 }`;
+const scheduleConfigOrderEdit = `
+mutation scheduleConfigOrderEdit($userId: String, $orderedList :[ConfigOrderInput]){
+  scheduleConfigOrderEdit(userId: $userId, orderedList: $orderedList)
+}`;
 
 export default {
   sendScheduleRequest,
@@ -307,5 +311,7 @@ export default {
 
   extractAllDataFromMsSQL,
   extractTimeLogsFromMsSql,
-  createTimeClockFromLog
+  createTimeClockFromLog,
+
+  scheduleConfigOrderEdit
 };
