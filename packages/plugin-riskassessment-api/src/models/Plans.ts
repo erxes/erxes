@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { PLAN_STATUSES } from '../common/constants';
 import { validatePlan } from '../common/validateDoc';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage } from '../messageBroker';
+import { sendCardsMessage, sendFormsMessage } from '../messageBroker';
 import {
   IPlansDocument,
   ISchedulesDocument,
@@ -152,12 +152,21 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       let newItemIds: string[] = [];
 
       for (const schedule of schedules) {
-        const itemDoc = {
+        const itemDoc: any = {
           ...commonDoc,
           name: schedule.name,
-          assignedUserIds: schedule.assignedUserIds,
-          customFieldsData: schedule.customFieldsData
+          assignedUserIds: schedule.assignedUserIds
         };
+
+        if (schedule.customFieldsData) {
+          itemDoc.customFieldsData = await sendFormsMessage({
+            subdomain,
+            action: 'fields.prepareCustomFieldsData',
+            data: schedule.customFieldsData,
+            isRPC: true,
+            defaultValue: schedule.customFieldsData
+          });
+        }
 
         if (['branch', 'department'].includes(structureType)) {
           itemDoc[`${structureType}Ids`] = schedule?.structureTypeId
