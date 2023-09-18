@@ -130,7 +130,7 @@ const command = async () => {
             if (!(infos.companies || []).filter(c => c.code === erkhetTr.customer__code).length) {
               if (!(infos.customers || []).filter(c => c.code === erkhetTr.customer__code).length) {
                 const allowCodes = (infos.companies || []).map(c => c.code).concat((infos.customers || []).map(c => c.code))
-                console.log(`diff customer> id: ${deal._id}, number: ${deal.number}, dealCustomer: ${allowCodes.join(', ')}, recordsAmount: ${erkhetTr.customer__code}`);
+                console.log(`diff customer> id: ${deal._id}, number: ${deal.number}, dealCustomer: ${allowCodes.join(', ')}, erkhetCustomer: ${erkhetTr.customer__code}`);
                 continue;
               }
             }
@@ -172,9 +172,9 @@ const command = async () => {
         }
 
         if (order.customerId) {
-          if (customerType === 'company') {
+          if (order.customerType === 'company') {
             infos.company = await Companies.findOne({ _id: order.customerId }).toArray();
-          } else if (customerType === 'user') {
+          } else if (order.customerType === 'user') {
             infos.user = await Users.findOne({ _id: order.customerId }).toArray();
           } else {
             infos.customer = await Customers.findOne({ _id: order.customerId }).toArray();
@@ -205,7 +205,7 @@ const command = async () => {
           if (
             orderCustomer !== erkhetTr.customer__code
           ) {
-            console.log(`diff customer> id: ${order._id}, number: ${order.number}, orderCustomer: ${orderCustomer}, recordsAmount: ${erkhetTr.customer__code}`);
+            console.log(`diff customer> id: ${order._id}, number: ${order.number}, orderCustomer: ${orderCustomer}, erkhetCustomer: ${erkhetTr.customer__code}`);
             continue;
           }
         }
