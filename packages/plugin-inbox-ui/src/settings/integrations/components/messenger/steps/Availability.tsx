@@ -222,6 +222,7 @@ class Availability extends React.Component<Props> {
               value="auto"
               componentClass="radio"
               checked={false}
+              disabled
               inline={true}
             >
               {__(
