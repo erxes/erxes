@@ -1,23 +1,19 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client"
+import { setContext } from "@apollo/client/link/context"
 
 import { getEnv } from "@/lib/utils"
-import { setContext } from '@apollo/client/link/context'
-import { customHeaders } from './apolloClient'
-import fetch from "isomorphic-unfetch"
 
 const env = getEnv()
 
 const httpLink: any = new HttpLink({
   uri: `${env.NEXT_PUBLIC_SERVER_API_DOMAIN}/graphql`,
-    credentials: "include",
-  fetch,
+  credentials: "include",
 })
 
 const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      ...customHeaders,
       "Access-Control-Allow-Origin": (
         env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
       ).replace("/gateway", ""),

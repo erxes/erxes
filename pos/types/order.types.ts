@@ -19,6 +19,8 @@ export interface OrderItem extends OrderItemInput {
   discountAmount?: number
   productName?: string
   productImgUrl?: string
+  attachment?: { url?: string } | null
+  description?: string
 }
 
 export type IOrderStatus =

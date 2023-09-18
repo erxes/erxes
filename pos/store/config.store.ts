@@ -10,7 +10,7 @@ import {
   IPaymentConfig,
   ISettingsConfig,
 } from "@/types/config.types"
-import { IOrderType } from '@/types/order.types'
+import { IOrderType } from "@/types/order.types"
 
 export const configAtom = atom<IConfig | null>(null)
 

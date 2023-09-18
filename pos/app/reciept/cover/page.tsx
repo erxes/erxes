@@ -1,5 +1,6 @@
 "use client"
 
+import { useSearchParams } from "next/navigation"
 import useConfig from "@/modules/auth/hooks/useConfig"
 import { coverConfigAtom } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
@@ -11,12 +12,11 @@ import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { queries } from "@/app/(main)/cover/graphql"
-import { useSearchParams } from 'next/navigation'
 
 const Cover = () => {
   const searchParams = useSearchParams()
-  const id = searchParams.get('id') 
-  
+  const id = searchParams.get("id")
+
   const { loading: loadingConfig } = useConfig("cover")
   const { loading, data } = useQuery(queries.recieptDetail, {
     variables: { id },

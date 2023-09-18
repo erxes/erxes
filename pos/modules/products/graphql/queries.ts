@@ -34,6 +34,7 @@ const products = gql`
     }
   }
 `
+
 const productSimilarities = gql`
   query PoscProductSimilarities($id: String!, $groupedSimilarity: String) {
     poscProductSimilarities(_id: $id, groupedSimilarity: $groupedSimilarity) {

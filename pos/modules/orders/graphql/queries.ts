@@ -297,6 +297,8 @@ const progressHistory = gql`
         productName
         count
         status
+        attachment
+        description
       }
       modifiedAt
       paidDate

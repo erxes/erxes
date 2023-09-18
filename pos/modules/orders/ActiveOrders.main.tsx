@@ -27,7 +27,7 @@ const ActiveOrders = () => {
 
   useEffect(() => {
     subToOrderStatuses(ORDER_STATUSES.ALL)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loading = true

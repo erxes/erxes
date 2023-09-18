@@ -1,6 +1,5 @@
-import { currentAmountAtom, currentPaymentTypeAtom } from "@/store"
-import { unPaidAmountAtom } from "@/store/order.store"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { currentPaymentTypeAtom } from "@/store"
+import { useSetAtom } from "jotai"
 import { XIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"

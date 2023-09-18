@@ -12,29 +12,20 @@ import { setContext } from "@apollo/client/link/context"
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions"
 import { getMainDefinition } from "@apollo/client/utilities"
 import { createClient } from "graphql-ws"
-import fetch from "isomorphic-unfetch"
 
 import { getEnv } from "@/lib/utils"
 
 const env = getEnv()
 
-export const customHeaders = {
-  "Sec-Fetch-Dest": "empty",
-  "Sec-Fetch-Mode": "cors",
-  "Sec-Fetch-Site": "cross-site",
-}
-
 const httpLink: any = new HttpLink({
   uri: `${env.NEXT_PUBLIC_MAIN_API_DOMAIN}/graphql`,
   credentials: "include",
-  fetch,
 })
 
 const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      ...customHeaders,
       "Access-Control-Allow-Origin": (
         env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
       ).replace("/gateway", ""),

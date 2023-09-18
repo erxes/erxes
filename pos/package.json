@@ -44,7 +44,6 @@
     "framer-motion": "^10.12.16",
     "graphql": "^16.6.0",
     "graphql-ws": "^5.13.1",
-    "isomorphic-unfetch": "3.1.0",
     "jotai": "^2.1.1",
     "lucide-react": "^0.274.0",
     "next": "13.4.20-canary.18",
