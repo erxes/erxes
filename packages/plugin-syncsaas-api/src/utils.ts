@@ -8,7 +8,9 @@ const initFirebase = async subdomain => {
     subdomain,
     action: 'configs.findOne',
     data: {
-      code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+      query: {
+        code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+      }
     },
     isRPC: true,
     defaultValue: null
@@ -48,7 +50,7 @@ export const sendCustomerMobileNotification = async ({
 
   const receivers = await sendContactsMessage({
     subdomain,
-    action: '',
+    action: 'customers.find',
     data: {
       _id: { $in: recieverIds },
       role: { $ne: 'system' }
@@ -59,7 +61,7 @@ export const sendCustomerMobileNotification = async ({
 
   for (const receiver of receivers) {
     if (receiver?.deviceTokens) {
-      tokens.push(receiver.deviceTokens);
+      tokens.push(...receiver.deviceTokens);
     }
   }
 
@@ -71,7 +73,7 @@ export const sendCustomerMobileNotification = async ({
         await transporter.send({
           token,
           notification: { title, body },
-          data: data || {}
+          data: { sync: data } || {}
         });
       } catch (error) {
         debugError(`Error occurred during firebase send: ${error.message}`);

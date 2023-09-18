@@ -35,7 +35,7 @@ export default {
   meta: {
     afterMutations
   },
-  postHandlers: [{ path: `/handleSync`, method: postHandler }],
+  postHandlers: [{ path: `/handleSync/:action`, method: postHandler }],
 
   onServerInit: async options => {
     mainDb = options.db;

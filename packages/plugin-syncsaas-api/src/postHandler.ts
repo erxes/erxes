@@ -4,20 +4,32 @@ import { CUSTOMER_STATUSES } from './common/constants';
 import { generateModels } from './connectionResolver';
 import { sendCustomerMobileNotification } from './utils';
 
+const sendErrorMessage = messsage => {
+  return { message: messsage };
+};
+
 export const postHandler = async (req, res) => {
   const subdomain = getSubdomain(req);
   const { action } = req.params || {};
 
   const { data } = req.body || {};
 
+  if (!action) {
+    res.send(sendErrorMessage('no action type in request params'));
+    return;
+  }
+
   if (action === 'customerApproved') {
-    const result = await customerRequest(subdomain, data);
-    res.send(result);
+    res.send(await customerRequest(subdomain, data));
+    return;
   }
 
   if (action === 'doneDeal') {
     res.send(await dealDone(subdomain, data));
+    return;
   }
+
+  res.send(sendErrorMessage('sendErrorMessage'));
 };
 
 const customerRequest = async (subdomain, data) => {
@@ -34,11 +46,11 @@ const customerRequest = async (subdomain, data) => {
   if (triggerType.includes('cards')) {
     const { customers } = target;
 
-    syncCustomerIds = { $in: customers };
+    syncCustomerIds = customers;
   }
 
   if (triggerType.includes('contacts')) {
-    syncCustomerIds = { $in: target?._id };
+    syncCustomerIds = target?._id ? [target._id] : [];
   }
 
   const customersSyncs = await models.SyncedCustomers.find({
@@ -85,7 +97,7 @@ const customerRequest = async (subdomain, data) => {
     { $set: { status: CUSTOMER_STATUSES.APPROVED } }
   );
 
-  return 'done';
+  return { message: 'done' };
 };
 
 const dealDone = async (subdomain, data) => {
