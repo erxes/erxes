@@ -4,8 +4,11 @@ import { PLAN_STATUSES } from '../common/constants';
 import { validatePlan } from '../common/validateDoc';
 import { IModels } from '../connectionResolver';
 import { sendCardsMessage } from '../messageBroker';
-import { IPlansDocument, plansSchema } from './definitions/plan';
-import * as moment from 'moment';
+import {
+  IPlansDocument,
+  ISchedulesDocument,
+  plansSchema
+} from './definitions/plan';
 export interface IPlansModel extends Model<IPlansDocument> {
   addPlan(doc, user): Promise<IPlansDocument>;
   editPlan(_id, doc): Promise<IPlansDocument>;
@@ -15,6 +18,7 @@ export interface IPlansModel extends Model<IPlansDocument> {
   addSchedule(planId, doc): Promise<IPlansDocument>;
   editSchedule(args): Promise<IPlansDocument>;
   removeSchedule(_id): Promise<IPlansDocument>;
+  bulkUpdateSchedules(datas: ISchedulesDocument): Promise<ISchedulesDocument>;
 }
 
 export const loadPlans = (models: IModels, subdomain: string) => {
@@ -211,6 +215,25 @@ export const loadPlans = (models: IModels, subdomain: string) => {
     }
     public static async removeSchedule(_id: string) {
       return await models.Schedules.findByIdAndDelete(_id);
+    }
+
+    public static async bulkUpdateSchedules(datas) {
+      if (!datas?.length) {
+        throw new Error('Could not update schedules without schedules data');
+      }
+
+      let updateOperations: any[] = [];
+
+      for (const { _id, ...data } of datas) {
+        if (_id)
+          [
+            updateOperations.push({
+              updateOne: { filter: { _id }, update: { $set: { ...data } } }
+            })
+          ];
+      }
+
+      return await models.Schedules.bulkWrite(updateOperations);
     }
   }
 
