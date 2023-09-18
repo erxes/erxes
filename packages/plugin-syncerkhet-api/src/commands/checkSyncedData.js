@@ -7,9 +7,9 @@ dotenv.config();
 const MONGO_URL = 'mongodb://localhost/erxes'
 
 // common filters
-const startDate = new Date('2023-8-1');
+const startDate = new Date('2023-5-1');
 const endDate = new Date('2023-8-7');
-const type = 'order'; // 'deal' | 'order'
+const type = 'deal'; // 'deal' | 'order'
 
 // deal filters
 const stageIds = [];
@@ -43,6 +43,7 @@ const command = async () => {
   console.log('connected...');
 
   Deals = db.collection('deals');
+  Stages = db.collection('stages');
   PosOrders = db.collection('pos_orders');
   Conformities = db.collection('conformities');
   Customers = db.collection('customers');
@@ -71,7 +72,8 @@ const command = async () => {
         const erkhetTrs = await getResponse(deal._id);
 
         if (!erkhetTrs || !erkhetTrs.length) {
-          console.log(`not erkhet> id: ${deal._id}, number: ${deal.number}`);
+          const stage = await Stages.findOne({_id: deal.stageId}, {name: 1});
+          console.log(`not erkhet> id: ${deal._id}, number: ${deal.number}, stage: ${stage.name}`);
           continue;
         }
 
