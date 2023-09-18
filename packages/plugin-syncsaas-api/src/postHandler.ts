@@ -1,9 +1,8 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { CUSTOMER_STATUSES } from './common/constants';
 import { generateModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
 import { sendCustomerMobileNotification } from './utils';
-import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export const postHandler = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -30,25 +29,58 @@ const customerRequest = async (subdomain, data) => {
     return 'no data';
   }
 
-  let syncedCustomerId: any = '';
+  let syncCustomerIds: any = {};
 
   if (triggerType.includes('cards')) {
     const { customers } = target;
 
-    syncedCustomerId = { $in: customers };
+    syncCustomerIds = { $in: customers };
   }
 
   if (triggerType.includes('contacts')) {
-    syncedCustomerId = target?._id;
+    syncCustomerIds = { $in: target?._id };
   }
 
-  const syncedCustomerIds = await models.SyncedCustomers.find({
-    syncedCustomerId
-  }).distinct('_id');
+  const customersSyncs = await models.SyncedCustomers.find({
+    syncedCustomerId: { $in: syncCustomerIds }
+  });
+
+  if (!!customersSyncs?.length) {
+    const customerIds = customersSyncs.map(
+      customerSync => customerSync.customerId
+    );
+
+    const syncs = await models.Sync.find({
+      _id: customersSyncs.map(customersSync => customersSync.syncId)
+    });
+
+    const syncNames = syncs.map(sync => sync.name).join(',');
+
+    try {
+      await sendCustomerMobileNotification({
+        subdomain,
+        title: `Customer Approved`,
+        body: `You approved on ${syncNames}`,
+        recieverIds: customerIds,
+        data: customersSyncs.map(({ customerId, syncId }) => {
+          const syncDetail = syncs.find(sync => sync._id === syncId);
+          return {
+            customerId,
+            subdomain: syncDetail?.subdomain,
+            name: syncDetail?.name
+          };
+        })
+      });
+    } catch (error) {
+      debugError(
+        `Error occurred during send customer notification: ${error.message}`
+      );
+    }
+  }
 
   await models.SyncedCustomers.updateMany(
     {
-      _id: { $in: syncedCustomerIds }
+      _id: { $in: customersSyncs.map(customersSync => customersSync._id) }
     },
     { $set: { status: CUSTOMER_STATUSES.APPROVED } }
   );

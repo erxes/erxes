@@ -11,6 +11,7 @@ const commonTypes = `
         config:JSON
         
         organizationDetail:JSON
+        customersDetail:[CustomerSyncedSaaS]
 `;
 
 export const types = `
@@ -34,7 +35,8 @@ const commonQueryParams = `
     customerId:String,
     customerIds:[String],
     excludeCustomerIds:[String]
-    categoryId:String
+    categoryId:String,
+    status:String,
 `;
 
 export const queries = `

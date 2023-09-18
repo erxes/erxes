@@ -28,5 +28,28 @@ export default {
     }
 
     return response ? response : null;
+  },
+
+  async customersDetail(parent, args, { models }: IContext, info) {
+    const { variableValues } = info;
+
+    const { customerId, customerIds, status, excludeCustomerIds } =
+      variableValues || {};
+
+    let selector: any = {
+      $or: [{ customerId }, { customerId: { $in: customerIds } }]
+    };
+
+    if (status) {
+      selector.status = status;
+    }
+
+    if (!!excludeCustomerIds?.length) {
+      selector.customerId = {
+        $nin: excludeCustomerIds
+      };
+    }
+
+    return await models.SyncedCustomers.find(selector);
   }
 };

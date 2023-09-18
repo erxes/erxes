@@ -56,6 +56,26 @@ const generateFilters = async (params: any, models: IModels) => {
     filter.categoryId = params.categoryId;
   }
 
+  if (
+    (params?.customerId || params?.customerIds?.length) &&
+    params.status &&
+    filter?._id?.$in
+  ) {
+    let customerIds: string[] = [];
+
+    if (params.customerId) customerIds.push(params.customerId);
+
+    if (!!params?.customerIds?.length)
+      customerIds = [...customerIds, params.customerIds];
+
+    const syncIds = await models.SyncedCustomers.find({
+      customerId: { $in: customerIds },
+      status: params.status
+    }).distinct('syncId');
+
+    filter._id = { $in: syncIds };
+  }
+
   return filter;
 };
 
