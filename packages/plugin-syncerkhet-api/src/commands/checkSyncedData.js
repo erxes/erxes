@@ -126,7 +126,7 @@ const command = async () => {
         if (companyIds.length || customerIds.length) {
           if (!(infos.companies || []).filter(c => c.code === erkhetTr.customer__code).length) {
             if (!(infos.customers || []).filter(c => c.code === erkhetTr.customer__code).length) {
-              const allowCodes = (infos.companies || []).map(c => c.code).concat((infos.customers || []).filter(c => c.code))
+              const allowCodes = (infos.companies || []).map(c => c.code).concat((infos.customers || []).map(c => c.code))
               console.log(`diff customer> id: ${deal._id}, number: ${deal.number}, dealCustomer: ${allowCodes.join(', ')}, recordsAmount: ${erkhetTr.customer__code}`);
               continue;
             }
