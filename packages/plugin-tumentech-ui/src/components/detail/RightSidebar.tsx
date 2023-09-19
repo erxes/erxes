@@ -8,7 +8,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 const CompanySection = asyncComponent(
   () =>
@@ -59,6 +59,10 @@ export default class RightSidebar extends React.Component<Props> {
             <CompanySection mainType="car" mainTypeId={car._id} />
           </>
         )}
+
+        {loadDynamicComponent('carRightSidebarSection', {
+          ...this.props
+        })}
 
         <Box title={__('Other')} name="showOthers">
           <List>

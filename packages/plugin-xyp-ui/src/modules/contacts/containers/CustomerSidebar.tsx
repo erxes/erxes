@@ -37,21 +37,17 @@ const CustomerSidebarContainer = (props: Props) => {
   const [customerEdit] = useMutation(gql(mutations.customerEdit));
 
   const fetchData = (serviceName: string, params: any, paramsOutput: any) => {
-    customer.data?.customerDetail;
-
     // params = regnum : "LRg7bBkPh3znA3Ecz"
     // key = xyp систем рүү service дуудах фараметрийн нэр // etc regnum
-    // value = string id бөгөөд fieldsgroupээс шүүж, contacts-ын фиэлд нэрийг олно,
+    // value = fieldsGroup field string id бөгөөд fieldsgroupээс шүүж, contacts-ын фиэлд нэрийг олно,
     const _in: any[] = [];
     for (const [key, value] of Object.entries(params)) {
-      console.log(`${key}: ${value}`);
       let field = null as any;
       for (const d of fieldsGroups.data?.fieldsGroups) {
         field = d?.fields?.find(x => value === x._id);
         if (field) break;
       }
       if (field) {
-        console.log(field?.type, field?.isDefinedByErxes);
         // key нь хур луу явуулах фиэлд утга
         _in.push({ field: field, key: key });
       }
@@ -88,7 +84,7 @@ const CustomerSidebarContainer = (props: Props) => {
         value: d.value
       })
     );
-    console.log('xypParams', xypParams);
+
     xypRequest({
       variables: {
         wsOperationName: serviceName,
@@ -122,12 +118,7 @@ const CustomerSidebarContainer = (props: Props) => {
             }
           }
         }
-        console.log('CUSTOMER EDIT');
-        console.log(editCustomerParams);
-        console.log('new customeFieldData');
-        console.log(customFieldsData);
-        console.log('filtered');
-        console.log(filtered);
+
         if (true) {
           customerEdit({
             variables: {
@@ -136,10 +127,7 @@ const CustomerSidebarContainer = (props: Props) => {
               ...editCustomerParams
             }
           })
-            .then(({ data }) => {
-              console.log('customerEdit');
-              console.log(data);
-            })
+            .then(({ data }) => {})
             .catch(e => console.log(e));
         }
         // if (!detail?.data?.xypDataDetail) {
@@ -161,8 +149,6 @@ const CustomerSidebarContainer = (props: Props) => {
         //   Alert.success('Successfully Edited an item');
         // }
       } else {
-        console.log('network Request');
-        console.log(data);
         Alert.error(`${data?.xypRequest?.return?.resultMessage}`);
       }
     });
