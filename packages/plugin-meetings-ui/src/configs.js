@@ -3,7 +3,8 @@ module.exports = {
   port: 3017,
   scope: 'meetings',
   exposes: {
-    './routes': './src/routes.tsx'
+    './routes': './src/routes.tsx',
+    './meetingSideBarSection': './src/DealRoute.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -16,6 +17,13 @@ module.exports = {
       url: '/meetings/myCalendar',
       icon: 'icon-star',
       location: 'mainNavigation'
+    }
+  ],
+  dealRightSidebarSection: [
+    {
+      text: 'meetingSection',
+      component: './meetingSideBarSection',
+      scope: 'meetings'
     }
   ]
 };

@@ -35,6 +35,7 @@ const types = `
     participantUser: [User]
     createdUser: User
     company: Company
+    dealIds: [String]
   }
 `;
 

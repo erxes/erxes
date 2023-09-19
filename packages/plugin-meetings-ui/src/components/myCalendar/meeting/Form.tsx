@@ -14,6 +14,8 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { DealsQueryResponse } from '@erxes/ui-cards/src/deals/types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -21,16 +23,26 @@ type Props = {
   queryParams: any;
   currentUser: IUser;
   companiesQuery: CompaniesQueryResponse;
+  dealsQuery: DealsQueryResponse;
   calendarDate?: { startDate: string; endDate: string };
 } & ICommonFormProps;
 
 export const MeetingForm = (props: Props) => {
-  const { companiesQuery, meeting, queryParams, calendarDate } = props;
+  const {
+    companiesQuery,
+    meeting,
+    queryParams,
+    calendarDate,
+    dealsQuery
+  } = props;
   const { companies } = companiesQuery || {};
+  const { deals } = dealsQuery || {};
+
   const [userIds, setUserIds] = useState([props.currentUser._id] || []);
   const [companyId, setCompanyId] = useState('');
   const [title, setTitle] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
+  const [dealId, setDealId] = useState('');
 
   const [startDate, setStartDate] = useState<string | Date>(
     calendarDate?.startDate || new Date()
@@ -52,6 +64,7 @@ export const MeetingForm = (props: Props) => {
     endDate: string | Date;
     companyId: string;
     method: string;
+    dealIds: string[];
   }) => {
     const finalValues = values;
 
@@ -73,6 +86,9 @@ export const MeetingForm = (props: Props) => {
     }
     if (selectedMethod) {
       finalValues.method = selectedMethod;
+    }
+    if (dealId) {
+      finalValues.dealIds = [dealId];
     }
 
     return {
@@ -123,8 +139,12 @@ export const MeetingForm = (props: Props) => {
     setUserIds(users);
   };
 
-  const onCompanySelect = e => {
-    setCompanyId((e.target as HTMLInputElement).value);
+  const onDealSelect = e => {
+    setDealId(e.target.value);
+  };
+
+  const onCompanySelect = companyId => {
+    setCompanyId(companyId);
   };
 
   const onMethodSelect = e => {
@@ -136,14 +156,14 @@ export const MeetingForm = (props: Props) => {
     const { values, isSubmitted } = formProps;
     const object = meeting || ({} as IMeeting);
 
-    const companyOptions =
-      (companies &&
-        companies.map((company: any) => ({
-          value: company._id,
-          label: company.primaryName || '',
-          avatar: company.avatar
+    let dealOptions =
+      (deals &&
+        deals.map((deal: any) => ({
+          value: deal._id,
+          label: deal.name || ''
         }))) ||
       [];
+    dealOptions = [{ value: '', label: '' }, ...dealOptions];
 
     return (
       <>
@@ -151,16 +171,12 @@ export const MeetingForm = (props: Props) => {
           <h4>{object?.title || title}</h4>
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>Choose Company</ControlLabel>
-          <FormControl
-            {...formProps}
+          <ControlLabel>Choose Company</ControlLabel>
+          <SelectCompanies
+            label={__('Select a company')}
             name="companyId"
-            defaultValue={object.companyId}
-            componentClass="select"
-            required={true}
-            autoFocus={true}
-            options={companyOptions}
-            onChange={onCompanySelect}
+            onSelect={onCompanySelect}
+            multi={false}
           />
         </FormGroup>
 
@@ -222,6 +238,19 @@ export const MeetingForm = (props: Props) => {
             type="text"
             required={true}
             autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Select Deal </ControlLabel>
+          <FormControl
+            {...formProps}
+            name="dealIds"
+            defaultValue={object.dealIds}
+            componentClass="select"
+            required={false}
+            options={dealOptions}
+            onChange={onDealSelect}
           />
         </FormGroup>
 

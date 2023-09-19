@@ -20,9 +20,10 @@ import Button from '@erxes/ui/src/components/Button';
 type Props = {
   meetingDetail: IMeeting;
   changeStatus: (status: string, meetingId: string) => void;
+  deals: { _id: string; name: string }[];
 };
 export const MeetingDetail = (props: Props) => {
-  const { meetingDetail, changeStatus } = props;
+  const { meetingDetail, changeStatus, deals } = props;
   const { topics } = meetingDetail;
   const { participantUser } = meetingDetail || {};
 
@@ -123,6 +124,14 @@ export const MeetingDetail = (props: Props) => {
               if (index != meetingDetail.participantUser?.length - 1)
                 return <>{user.details?.fullName},</>;
               return <>{user.details?.fullName}</>;
+            })}
+          </MeetingDetailColumn>
+        </MeetingDetailRow>
+        <MeetingDetailRow>
+          <MeetingDetailColumn>
+            <span>Deals:</span>{' '}
+            {deals?.map(deal => {
+              return <>{deal.name}, </>;
             })}
           </MeetingDetailColumn>
         </MeetingDetailRow>

@@ -43,7 +43,7 @@ function List(props: Props) {
   } = props;
 
   const [component, setComponent] = useState(<div />);
-  const [sideBar, setSideBar] = useState(<div />);
+  const [leftSideBar, setLeftSideBar] = useState(<div />);
 
   const { meetingId } = queryParams;
   const routePath = location.pathname.split('/').slice(-1)[0];
@@ -58,7 +58,7 @@ function List(props: Props) {
             meetings={meetings}
           />
         );
-        setSideBar(
+        setLeftSideBar(
           <SideBarContainer
             history={history}
             queryParams={queryParams}
@@ -75,7 +75,7 @@ function List(props: Props) {
             currentUser={currentUser}
           />
         );
-        setSideBar(
+        setLeftSideBar(
           <SideBar
             history={history}
             queryParams={queryParams}
@@ -162,7 +162,7 @@ function List(props: Props) {
           emptyImage="/images/actions/8.svg"
         />
       }
-      leftSidebar={sideBar}
+      leftSidebar={leftSideBar}
       transparent={true}
       hasBorder
     />
