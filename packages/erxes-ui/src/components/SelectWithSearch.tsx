@@ -388,7 +388,7 @@ class Wrapper extends React.Component<
     return (
       <Component
         {...this.props}
-        initialValuesProvided={initialValue ? true : false}
+        initialValuesProvided={initialValues.length ? true : false}
         initialValues={initialValues}
         abortController={abortController}
         search={this.search}

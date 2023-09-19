@@ -895,7 +895,12 @@ const readFromCFImages = async (
 
   return new Promise(resolve => {
     fetch(url)
-      .then(res => res.buffer())
+      .then(res => {
+        if (!res.ok || res.status !== 200) {
+          return readFromCR2(key, models);
+        }
+        return res.buffer();
+      })
       .then(buffer => resolve(buffer))
       .catch(_err => {
         return readFromCR2(key, models);
