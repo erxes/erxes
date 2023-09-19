@@ -187,7 +187,7 @@ export const sendRPCMessage = async (
         } catch (e) {}
 
         throw new Error(
-          `RPC HTTP error: Status code ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}.
+          `RPC HTTP error. Status code: ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}.
             Arguments: ${argsJson}
           `
         );
@@ -211,7 +211,7 @@ export const sendRPCMessage = async (
           } catch (e) {}
 
           throw new Error(
-            `RPC HTTP timeout ${timeoutMs}ms. Remote: ${pluginName}. Procedure: ${procedureName}.
+            `RPC HTTP timeout after ${timeoutMs}ms. Remote: ${pluginName}. Procedure: ${procedureName}.
               Arguments: ${argsJson}
             `
           );
@@ -223,8 +223,8 @@ export const sendRPCMessage = async (
   };
 
   let lastError = null;
-  let maxTries = 3;
-  for (let tryIdx = 0; tryIdx < maxTries; tryIdx++) {
+  const maxTries = 3;
+  for (let tryIdx = 1; tryIdx <= maxTries; tryIdx++) {
     try {
       const data = await getData();
       return data;
@@ -236,7 +236,7 @@ export const sendRPCMessage = async (
           e.code
         )
       ) {
-        const lastTry = tryIdx >= maxTries - 1;
+        const lastTry = tryIdx >= maxTries;
         !lastTry && (await new Promise(resolve => setTimeout(resolve, 3000)));
       } else {
         throw e;
