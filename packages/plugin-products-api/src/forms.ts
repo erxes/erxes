@@ -67,7 +67,7 @@ export default {
   groupsFilter: async ({ subdomain, data: { config } }) => {
     const { categoryId, isChosen } = config;
     if (!categoryId) {
-      return {};
+      return { contentType: 'products:product' };
     }
 
     const models = await generateModels(subdomain);
@@ -78,6 +78,8 @@ export default {
     const categories = await models.ProductCategories.find({
       order: { $regex: new RegExp(category.order) }
     }).lean();
+
+    // TODO: get recurcive parent
 
     return {
       $and: [

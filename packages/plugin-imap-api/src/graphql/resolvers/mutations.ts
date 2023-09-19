@@ -18,7 +18,9 @@ const notificationMutations = {
       customerId,
       to,
       attachments,
-      replyToMessageId
+      replyToMessageId,
+      shouldOpen,
+      shouldResolve
     } = args;
 
     let customer;
@@ -77,6 +79,25 @@ const notificationMutations = {
 
     if (!integration) {
       throw new Error('Integration not found');
+    }
+
+    if (conversationId) {
+      if (shouldResolve) {
+        await sendInboxMessage({
+          subdomain,
+          action: 'conversations.changeStatus',
+          data: { id: conversationId, status: 'closed' },
+          isRPC: true
+        });
+      }
+      if (shouldOpen) {
+        await sendInboxMessage({
+          subdomain,
+          action: 'conversations.changeStatus',
+          data: { id: conversationId, status: 'new' },
+          isRPC: true
+        });
+      }
     }
 
     const transporter = nodemailer.createTransport({

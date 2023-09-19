@@ -322,6 +322,16 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue('productsConfigs.getConfig', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { code } = data;
+
+    return {
+      status: 'success',
+      data: await models.ProductsConfigs.getConfig(code)
+    };
+  });
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {

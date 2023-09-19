@@ -5,12 +5,14 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils/core';
 import { CategoryContainer } from '../styles';
 import { IProductCategory } from '../types';
+import { IOption } from '@erxes/ui/src/types';
 
 type Props = {
   categories: IProductCategory[];
   currentId?: string;
   hasChildIds?: boolean;
   onChangeCategory: (categoryId: string, childIds?: string[]) => void;
+  customOption?: IOption;
 };
 
 type State = {
@@ -37,12 +39,19 @@ class ProductCategoryChooser extends React.Component<Props, State> {
   }
 
   selectOptions(categories: IProductCategory[]) {
-    return categories.map(item => ({
+    const { customOption } = this.props;
+    const options = categories.map(item => ({
       value: item._id,
       label: item.name,
       order: item.order,
       isRoot: item.isRoot
     }));
+
+    if (customOption) {
+      options.unshift({ ...customOption, order: '0', isRoot: true });
+    }
+
+    return options;
   }
 
   onChange = (categoryId: string) => {

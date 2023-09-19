@@ -469,7 +469,7 @@ const chatMutations = {
       chatReceivedNotification: message
     });
 
-    const chat = await models.Chats.getChat(message.chatId);
+    const chat = await models.Chats.getChat(message.chatId, user._id);
 
     const recievers = chat.participantIds.filter(
       value => !chat.muteUserIds.includes(value)

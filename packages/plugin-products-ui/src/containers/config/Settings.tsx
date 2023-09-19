@@ -5,11 +5,8 @@ import { Spinner } from '@erxes/ui/src/components';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../../graphql';
-import {
-  ProductsConfigsQueryResponse,
-  IConfigsMap,
-  UomsQueryResponse
-} from '../../types';
+import { ProductsConfigsQueryResponse, IConfigsMap } from '../../types';
+import { UomsQueryResponse } from '@erxes/ui-products/src/types';
 
 type Props = {
   component: any;

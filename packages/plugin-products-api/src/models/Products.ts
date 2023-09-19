@@ -12,7 +12,11 @@ import {
   productSchema,
   PRODUCT_STATUSES
 } from './definitions/products';
-import { checkCodeMask, initCustomField } from '../utils';
+import {
+  checkCodeMask,
+  checkSameMaskConfig,
+  initCustomField
+} from '../maskUtils';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -87,7 +91,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
 
       if (doc.categoryCode) {
-        const category = await models.ProductCategories.getProductCatogery({
+        const category = await models.ProductCategories.getProductCategory({
           code: doc.categoryCode
         });
         doc.categoryId = category._id;
@@ -111,13 +115,15 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         doc.vendorId = vendor?._id;
       }
 
-      const category = await models.ProductCategories.getProductCatogery({
+      const category = await models.ProductCategories.getProductCategory({
         _id: doc.categoryId
       });
 
       if (!(await checkCodeMask(category, doc.code))) {
         throw new Error('Code is not validate of category mask');
       }
+
+      doc.sameMasks = await checkSameMaskConfig(models, doc);
 
       doc.uom = await models.Uoms.checkUOM(doc);
 
@@ -138,7 +144,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     public static async updateProduct(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
 
-      const category = await models.ProductCategories.getProductCatogery({
+      const category = await models.ProductCategories.getProductCategory({
         _id: doc.categoryId || product.categoryId
       });
 
@@ -154,6 +160,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         if (!(await checkCodeMask(category, doc.code))) {
           throw new Error('Code is not validate of category mask');
         }
+
+        doc.sameMasks = await checkSameMaskConfig(models, doc);
       }
 
       doc.customFieldsData = await initCustomField(
@@ -329,7 +337,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 };
 
 export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
-  getProductCatogery(selector: any): Promise<IProductCategoryDocument>;
+  getProductCategory(selector: any): Promise<IProductCategoryDocument>;
   createProductCategory(
     doc: IProductCategory
   ): Promise<IProductCategoryDocument>;
@@ -347,7 +355,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      * Get Product Cagegory
      */
 
-    public static async getProductCatogery(selector: any) {
+    public static async getProductCategory(selector: any) {
       const productCategory = await models.ProductCategories.findOne(selector);
 
       if (!productCategory) {
@@ -394,7 +402,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       _id: string,
       doc: IProductCategory
     ) {
-      const category = await models.ProductCategories.getProductCatogery({
+      const category = await models.ProductCategories.getProductCategory({
         _id
       });
 
@@ -413,15 +421,9 @@ export const loadProductCategoryClass = (models: IModels) => {
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const productCategory = await models.ProductCategories.getProductCatogery(
-        {
-          _id
-        }
-      );
-
       const childCategories = await models.ProductCategories.find({
         $and: [
-          { order: { $regex: new RegExp(`^${productCategory.order}`, 'i') } },
+          { order: { $regex: new RegExp(`^${category.order}`, 'i') } },
           { _id: { $ne: _id } }
         ]
       });
@@ -432,7 +434,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       childCategories.forEach(async childCategory => {
         let order = childCategory.order;
 
-        order = order.replace(productCategory.order, doc.order);
+        order = order.replace(category.order, doc.order);
 
         await models.ProductCategories.updateOne(
           { _id: childCategory._id },
@@ -447,7 +449,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      * Remove Product category
      */
     public static async removeProductCategory(_id: string) {
-      await models.ProductCategories.getProductCatogery({ _id });
+      await models.ProductCategories.getProductCategory({ _id });
 
       let count = await models.Products.countDocuments({
         categoryId: _id,

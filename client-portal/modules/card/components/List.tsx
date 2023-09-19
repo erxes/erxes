@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { capitalize, getConfigColor } from '../../common/utils';
 import { duedateFilter, priorityFilter } from '../../main/constants';
 
+import CalendarView from './CalendarView';
 import BoardView from './BoardView';
 import Detail from '../containers/Detail';
 import EmptyState from '../../common/form/EmptyState';
@@ -10,6 +11,7 @@ import Form from '../containers/Form';
 import Group from '../containers/Group';
 import ListHeader from './ListHeader';
 import { useRouter } from 'next/router';
+import dayjs, { Dayjs } from 'dayjs';
 
 type Props = {
   currentUser: IUser;
@@ -41,6 +43,7 @@ export default function List({
   const [viewType, setViewType] = useState('list');
   const [showForm, setShowForm] = useState(false);
   const [activeStageId, setStageId] = useState(activeId);
+  const [currentDate, setCurrentDate] = useState(dayjs());
 
   useEffect(() => {
     // tslint:disable-next-line:no-unused-expression
@@ -92,6 +95,20 @@ export default function List({
         />
       );
     }
+    if (viewType === 'calendar') {
+      return (
+        <CalendarView
+          stages={stages}
+          stageId={activeStageId}
+          currentUser={currentUser}
+          config={config}
+          type={type}
+          groupType={mode}
+          viewType={viewType}
+          currentDate={currentDate}
+        />
+      );
+    }
 
     switch (mode) {
       case 'stage':
@@ -125,6 +142,8 @@ export default function List({
         setViewType={setViewType}
         setShowForm={setShowForm}
         hideHeader={!stages || stages.length === 0}
+        currentDate={currentDate}
+        setCurrentDate={setCurrentDate}
       />
 
       {renderContent()}

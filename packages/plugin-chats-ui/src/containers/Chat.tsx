@@ -10,7 +10,6 @@ import Chat from '../components/Chat';
 import { queries } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { currentUser } from '@erxes/ui/src/auth/graphql';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {

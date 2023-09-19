@@ -117,7 +117,7 @@ class Form extends React.Component<Props, State> {
     const category = productCategories.find(pc => pc._id === categoryId);
     let maskStr = '';
 
-    if (category && category.mask) {
+    if (category && category.maskType && category.mask) {
       const maskList: any[] = [];
       for (const value of category.mask.values || []) {
         if (value.static) {

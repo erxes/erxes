@@ -13046,6 +13046,11 @@ generate-object-property@^1.0.0:
   dependencies:
     is-property "^1.0.0"
 
+generic-pool@3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/generic-pool/-/generic-pool-3.5.0.tgz#acac4fd743a175ff20574f380910036464cb61f7"
+  integrity sha512-dEkxmX+egB2o4NR80c/q+xzLLzLX+k68/K8xv81XprD+Sk7ZtP14VugeCz+fUwv5FzpWq40pPtAkzPRqT8ka9w==
+
 generic-pool@^3.6.0, generic-pool@^3.7.1:
   version "3.8.2"
   resolved "https://registry.npmjs.org/generic-pool/-/generic-pool-3.8.2.tgz"
@@ -24560,7 +24565,7 @@ tryor@~0.1.2:
   resolved "https://registry.npmjs.org/tryor/-/tryor-0.1.2.tgz"
   integrity sha1-gUXkynyv9ArN48z5Rui4u3W0Fys=
 
-ts-invariant@^0.10.3, ts-invariant@~0.10.3:
+ts-invariant@^0.10.3:
   version "0.10.3"
   resolved "https://registry.npmjs.org/ts-invariant/-/ts-invariant-0.10.3.tgz"
   integrity sha512-uivwYcQaxAucv1CzRp2n/QdYPo4ILf9VXgH19zEIjFx2EJufV16P0JtJVpYHy89DItG6Kwj2oIUjrcK5au+4tQ==

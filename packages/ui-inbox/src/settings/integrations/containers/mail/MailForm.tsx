@@ -1,23 +1,23 @@
 import * as React from 'react';
-import client from '@erxes/ui/src/apolloClient';
 import * as compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import { mutations, queries } from '../../graphql';
 
+import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import MailForm from '../../components/mail/MailForm';
+import client from '@erxes/ui/src/apolloClient';
 import debounce from 'lodash/debounce';
-import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
 import { mutations as engageMutations } from '@erxes/ui-engage/src/graphql';
+import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import queryString from 'query-string';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withRouter } from 'react-router-dom';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import queryString from 'query-string';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   detailQuery?: any;
@@ -44,6 +44,7 @@ type Props = {
   queryParams?: any;
   shrink?: boolean;
   clear?: boolean;
+  conversationStatus?: string;
 } & IRouterProps;
 
 type FinalProps = {

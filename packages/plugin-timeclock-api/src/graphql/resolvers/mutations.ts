@@ -462,15 +462,15 @@ const timeclockMutations = {
   async sendScheduleRequest(_root, { shifts, ...doc }, { models }: IContext) {
     const schedule = await models.Schedules.createSchedule(doc);
 
-    shifts.map(shift => {
-      models.Shifts.createShift({
+    for (const shift of shifts) {
+      await models.Shifts.createShift({
         scheduleId: schedule._id,
         shiftStart: shift.shiftStart,
         shiftEnd: shift.shiftEnd,
         scheduleConfigId: shift.scheduleConfigId,
         lunchBreakInMins: shift.lunchBreakInMins
       });
-    });
+    }
 
     return schedule;
   },

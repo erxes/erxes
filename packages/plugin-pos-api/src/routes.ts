@@ -286,6 +286,15 @@ export const posSyncConfig = async (req, res) => {
       return res.send({
         slots: await models.PosSlots.find({ posId: pos._id }).lean()
       });
+    case 'productsConfigs':
+      return res.send(
+        await sendProductsMessage({
+          subdomain,
+          action: 'productsConfigs.getConfig',
+          data: { code: 'similarityGroup' },
+          isRPC: true
+        })
+      );
   }
 
   return res.send({ error: 'wrong type' });

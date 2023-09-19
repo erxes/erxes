@@ -680,6 +680,23 @@ span.red {
   height: 100%;
 }
 
+.urlLogo {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px;
+}
+
+.bank {
+  border-width: 0;
+  border-radius: 10px;
+  padding: 7px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  background-color: transparent;
+  height: 44px;
+  display: inline-flex;
+}
+
 .info {
   align-items: center;
   justify-content: space-between;
@@ -890,22 +907,6 @@ h3 {
 }
 .desktop.show {
   display: block;
-}
-
-.urlLogo {
-  width: 30px !important;
-  height: 30px !important;
-}
-
-.bank {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  color: #666;
-  border-radius: 5px;
-  padding: 7px;
-  margin-right: 5px;
-  margin-bottom: 5px;
-  height: 30px;
-  display: inline-flex;
 }
 
 @media screen and (max-width: 1000px) {

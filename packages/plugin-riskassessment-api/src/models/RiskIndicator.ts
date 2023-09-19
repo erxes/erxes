@@ -38,7 +38,7 @@ export interface IRiskIndicatorsModel extends Model<IRiskIndicatorsDocument> {
   removeRiskIndicatorUnusedForms(
     ids: string[]
   ): Promise<IRiskIndicatorsDocument>;
-  duplicateRiskIndicator(_id: string): Promise<IRiskIndicatorsDocument>;
+  duplicateRiskIndicator(indicatorId: string): Promise<IRiskIndicatorsDocument>;
 }
 
 const statusColors = {
@@ -223,34 +223,37 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
       }
     }
 
-    public static async duplicateRiskIndicator(_id: string) {
-      const indicator = await models.RiskIndicators.findOne({ _id }).lean();
+    public static async duplicateRiskIndicator(indicatorId: string) {
+      const indicator = await models.RiskIndicators.findOne({
+        _id: indicatorId
+      }).lean();
       if (!indicator) {
         throw new Error('Could not find indicator');
       }
 
-      const { name, forms } = indicator;
+      const { _id, name, forms, ...indicatorDoc } = indicator;
 
-      for (const form of forms || []) {
-        const newForm = await sendFormsMessage({
-          subdomain,
-          action: 'duplicate',
-          data: { formId: form.formId },
-          isRPC: true,
-          defaultValue: null
-        });
+      const newForms = await Promise.all(
+        forms.map(async form => {
+          const newForm = await sendFormsMessage({
+            subdomain,
+            action: 'duplicate',
+            data: { formId: form.formId },
+            isRPC: true,
+            defaultValue: null
+          });
 
-        form.formId = newForm._id;
-      }
+          return { ...form, formId: newForm._id };
+        })
+      );
 
-      indicator.name = `${name}-copied`;
-
-      indicator.createdAt = new Date();
-      indicator.modifiedAt = new Date();
-
-      delete indicator._id;
-
-      return await models.RiskIndicators.create({ ...indicator });
+      return await models.RiskIndicators.create({
+        ...indicatorDoc,
+        name: `${name}-copied`,
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+        forms: newForms
+      });
     }
     public static async riskIndicatorDetail(params: {
       _id: string;

@@ -1,10 +1,14 @@
 import React from 'react';
 import LoyaltyForm from './containers/LoyaltyForm';
 import ScoreForm from './components/ScoreForm';
+import SpinForm from './components/SpinForm';
 
 const Automations = props => {
   const { componentType, activeAction } = props;
-  console.log({ props });
+
+  if (componentType === 'historyActionResult') {
+    return <>{'-'}</>;
+  }
 
   if (componentType === 'actionForm') {
     const { type } = activeAction;
@@ -17,6 +21,9 @@ const Automations = props => {
         return <LoyaltyForm {...props} />;
       case 'score':
         return <ScoreForm {...props} />;
+      case 'spin':
+        return <SpinForm {...props} />;
+
       default:
         return null;
     }

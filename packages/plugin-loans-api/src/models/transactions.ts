@@ -108,11 +108,12 @@ export const loadTransactionClass = (models: IModels) => {
         ...doc
       });
 
+      trInfo.calcInterest = trInfo.interestEve + trInfo.interestNonce;
       if (contract.storedInterest) {
-        let payedInterest =
-          doc.total - trInfo.calcedInfo.debt - trInfo.calcedInfo.undue;
+        let payedInterest = trInfo.interestEve + trInfo.interestNonce;
 
-        const mustPayInterst = trInfo.interestEve + trInfo.interestNonce;
+        const mustPayInterst =
+          trInfo.calcedInfo.interestEve + trInfo.calcedInfo.interestNonce;
 
         if (payedInterest > mustPayInterst) payedInterest = mustPayInterst;
 
@@ -121,7 +122,10 @@ export const loadTransactionClass = (models: IModels) => {
             trInfo.storedInterest = trInfo.calcedInfo.storedInterest;
             trInfo.calcInterest =
               payedInterest - trInfo.calcedInfo.storedInterest;
-          } else trInfo.storedInterest = payedInterest;
+          } else {
+            trInfo.storedInterest = payedInterest;
+            trInfo.calcInterest = 0;
+          }
         }
 
         const interest =
@@ -433,7 +437,7 @@ export const loadTransactionClass = (models: IModels) => {
         payDate: today
       });
 
-      const {
+      let {
         payment = 0,
         undue = 0,
         interestEve = 0,
@@ -444,11 +448,9 @@ export const loadTransactionClass = (models: IModels) => {
       } = paymentInfo;
 
       paymentInfo.calcInterest =
-        paymentInfo.interestEve + paymentInfo.interestNonce;
-      if (paymentInfo.storedInterest > 0) {
-        paymentInfo.calcInterest =
-          paymentInfo.calcInterest - paymentInfo.storedInterest;
-      }
+        paymentInfo.interestEve +
+        paymentInfo.interestNonce -
+        paymentInfo.storedInterest;
 
       paymentInfo.total =
         payment + undue + interestEve + interestNonce + insurance + debt;

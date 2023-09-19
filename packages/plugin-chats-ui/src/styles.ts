@@ -12,11 +12,14 @@ export const PageContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+
+  textarea {
+    background: #eff2f5;
+  }
 `;
 
 export const SidebarWrapper = styled.div`
   height: calc(100% - 10px);
-  background-color: ${colors.bgActive};
   overflow: hidden;
   overflow-y: auto;
   border-radius: 5px;
@@ -26,17 +29,17 @@ export const SidebarHeader = styled.div`
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  background-color: ${colors.bgActive};
   z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 ${dimensions.coreSpacing}px;
+  background: #fff;
 `;
 
 export const IconButton = styled.button`
   display: inline-block;
-  background-color: ${colors.colorShadowGray};
+  background-color: ${colors.bgActive};
   margin-left: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing}px 14px;
   border-radius: 100%;
@@ -57,7 +60,6 @@ export const VoiceRecordWrapper = styled.div`
   gap: 10px;
   align-items: center;
   justify-content: center;
-  padding: 0 ${dimensions.coreSpacing}px;
 `;
 
 export const RecordButton = styledTS<{ isRecording: boolean }>(styled.button)`
@@ -68,7 +70,6 @@ export const RecordButton = styledTS<{ isRecording: boolean }>(styled.button)`
   cursor: pointer;
   padding: 0 5px;
   transition: transform 0.3s ease-in-out;
-  margin-right: 5px;
 
   animation: ${props =>
     props.isRecording &&
@@ -96,19 +97,10 @@ export const Title = styled.h5`
   color: ${colors.textSecondary};
 `;
 
-export const ChatActions = styled.div`
-  z-index: 1;
-
-  position: absolute;
-  right: ${dimensions.coreSpacing}px;
-  top: 50%;
-  transform: translateY(-50%);
-`;
-
 export const ChatActionItem = styled.button`
   display: inline-block;
-  color: white;
-  background-color: ${colors.colorPrimary};
+  color: #444;
+  background-color: ${colors.colorWhite};
   margin-left: ${dimensions.unitSpacing}px;
   padding: 0.4em 0.7em;
   border-radius: 100%;
@@ -116,12 +108,23 @@ export const ChatActionItem = styled.button`
   outline: 0;
   transition: 0.3s;
   pointer-events: auto;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background-color: ${colors.colorPrimaryDark}
+    background-color: ${colors.bgLight};
     transition: 0.3s;
     cursor: pointer;
   }
+`;
+
+export const ChatActions = styled.div`
+  z-index: 1;
+  display: none;
+
+  position: absolute;
+  right: ${dimensions.coreSpacing}px;
+  top: 50%;
+  transform: translateY(-50%);
 `;
 /**
  * Global - END
@@ -177,55 +180,133 @@ export const WidgetChatWrapper = styled.div`
   bottom: 0;
   right: 100px;
   display: flex;
-  z-index: 9999;
+  z-index: 5;
   justify-content: flex-end;
   align-content: flex-end;
+  align-items: flex-end;
 `;
 
 export const WidgetChatWindowWrapper = styled.div`
   position: relative;
-  width: 350px;
-  height: 400px;
-  margin: 0 ${dimensions.coreSpacing / 2}px;
+  width: 325px;
+  height: 440px;
+  margin-right: ${dimensions.unitSpacing}px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: flex-end;
-  border-radius: 5px;
+  border-radius: 8px;
   overflow: hidden;
   background-color: #f9f9f9;
+  border: 1px solid rgba(0, 0, 0, 0.08);
 
-  -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0.5);
-  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.1),
+    0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.1),
+    0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.1), 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 `;
 
 export const WidgetChatWindowHeader = styled.div`
   width: 100%;
-  height: 75px;
+  height: 58px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #f9f9f9;
   padding: ${dimensions.unitSpacing}px;
-  border-bottom: 2px solid ${colors.borderPrimary};
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 -1px rgba(0, 0, 0, 0.1) inset,
+    0 2px 1px -1px rgba(255, 255, 255, 0.5) inset;
 
   i {
     cursor: pointer;
-    margin: 0 ${dimensions.unitSpacing}px;
+    margin-left: 3px;
   }
+
+  &:first-child {
+    flex: 1;
+  }
+
   div {
     display: flex;
     align-items: center;
 
     p {
       display: inline-block;
-      font-weight: bold;
+      font-weight: 600;
       display: flex;
-      align-items: center;
       margin: 0;
       margin-left: ${dimensions.unitSpacing}px;
+      line-height: 15px;
+      flex-direction: column;
+      font-size: 16px;
+
+      .name {
+        height: 15px;
+        max-width: 186px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+      }
+
+      .position {
+        color: #65676b;
+        font-weight: 400;
+        font-size: 0.75rem;
+        height: 17px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        align-items: baseline;
+      }
     }
+  }
+`;
+
+export const MinimizedWidgetChatWindow = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
+  margin-right: ${dimensions.coreSpacing}px;
+
+  ${WidgetChatWindowHeader} {
+    height: 40px;
+    border-radius: 20px;
+    width: 250px;
+    cursor: pointer;
+
+    p {
+      max-width: 130px;
+      font-size: 14px;
+    }
+
+    span:first-child {
+      bottom: 2px;
+      left: 0px;
+    }
+
+    span:last-child {
+      top: 4px;
+      right: 5px;
+    }
+  }
+`;
+
+export const MainPopoverWrapper = styled.div`
+  cursor: pointer;
+  padding: 0 15px;
+
+  > div {
+    padding: 5px 0;
+  }
+
+  i {
+    margin-right: 5px;
+  }
+`;
+
+export const MembersPopoverWrapper = styled.div`
+  > button {
+    margin-bottom: 10px;
+    padding: 7px 15px;
   }
 `;
 /**
@@ -264,7 +345,7 @@ export const ChatItemWrapper = styledTS<{
     props.isWidget && !props.isSeen
       ? '#edf2fa'
       : props.active
-      ? colors.bgGray
+      ? '#f0eef9'
       : 'initial'};
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom: ${props =>
@@ -277,10 +358,13 @@ export const ChatItemWrapper = styledTS<{
   }
 
   &:hover {
-    background-color: ${props =>
-      props.isWidget ? colors.bgLight : colors.bgGray};
+    background-color: ${colors.bgActive};
     cursor: pointer;
     transition: 0.2s;
+
+    ${ChatActions} {
+      display: inline-block;
+    }
   }
   z-index: 0
 `;
@@ -314,7 +398,16 @@ export const ChatWrapper = styledTS<{ isSeen?: boolean }>(styled.div)`
   font-weight: ${props => (props.isSeen ? 'normal !important' : 'bold')};
   text-decoration: none;
 
-  p { margin: 0 };
+  p { 
+    margin: 0;
+    height: 22px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    span {
+      color: ${colors.textSecondary};
+    }
+  };
 `;
 
 export const ChatBody = styled.div`
@@ -353,7 +446,7 @@ export const ContextMenuList = styled.div`
   justify-content: center;
   align-items: flex-top;
   flex-direction: column;
-  padding: 0.5em;
+  padding: 0.3em;
 `;
 
 export const ContextMenuItem = styledTS<{ color?: string }>(styled.button)`
@@ -363,7 +456,7 @@ export const ContextMenuItem = styledTS<{ color?: string }>(styled.button)`
   outline: 0;
   border-radius: 5px;
   color: ${props => props.color || colors.textPrimary};
-  padding: 1em;
+  padding: 5px 10px;
   text-align: left;
   cursor: pointer;
 
@@ -378,35 +471,67 @@ export const ContextMenuItem = styledTS<{ color?: string }>(styled.button)`
 /**
  * Participants - START
  */
-export const ParticipantListWrapper = styled.div`
+export const ParticipantListWrapper = styledTS<{ isWidget?: boolean }>(
+  styled.div
+)`
   max-height: 100%;
   list-style: none;
   margin: 0;
   padding-left: 0;
+  ${props =>
+    props.isWidget &&
+    `
+    max-height: 280px;
+    overflow: auto;
+  `}
 `;
 
-export const ParticipantItemWrapper = styled.div`
+export const ParticipantItemWrapper = styledTS<{ isWidget?: boolean }>(
+  styled.div
+)`
   position: relative;
-
+  
   a {
+    color: #444;
     display: flex;
     align-items: center;
-    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    padding: ${props =>
+      props.isWidget
+        ? '7px 15px'
+        : `${dimensions.unitSpacing}px ${dimensions.coreSpacing}px`};
     transition: 0.2s;
+
+    i {
+      background: ${colors.bgGray};
+      border-radius: 50%;
+      height: ${props => (props.isWidget ? '28px' : '36px')};
+      width: ${props => (props.isWidget ? '28px' : '36px')};
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 10px;
+    }
   }
 
   a:hover {
-    background-color: ${colors.bgGray};
+    background-color: ${colors.bgLight};
     transition: 0.2s;
+  }
+
+  &:hover {
+    ${ChatActions} {
+      display: inline-block;
+    }
   }
 `;
 
-export const ParticipantDetails = styled.div`
+export const ParticipantDetails = styledTS<{ isWidget?: boolean }>(styled.div)`
   width: 100%;
   padding: 0 ${dimensions.unitSpacing}px;
   margin: 0;
   color: ${colors.textPrimary};
   text-decoration: none;
+  ${props => props.isWidget && 'line-height: 14px;'}
 
   p {
     font-size: 14px;
@@ -414,14 +539,19 @@ export const ParticipantDetails = styled.div`
   }
   span {
     font-size: 12px;
+    ${props =>
+      props.isWidget &&
+      `
+      height: 17px;
+      display: flex;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    `}
   }
 `;
 
-export const ParticipantSubDetails = styled.div`
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+export const FlexColumn = styled.div`
+  flex-direction: column;
 `;
 /**
  * Participants - END
@@ -504,19 +634,27 @@ export const MessageWrapper = styledTS<{ me?: boolean }>(styled.div)`
   margin-left: ${props => (!props.me ? dimensions.unitSpacing : 0)}px;
 `;
 
-export const MessageReply = styled.div`
+export const MessageReply = styledTS<{ me?: boolean }>(styled.div)`
   max-width: 100%;
   display: inline-block;
-
-  font-size: 0.8em;
+  font-size: 1em;
   color: ${colors.textSecondary};
-  background-color: ${colors.bgUnread}
-  border-radius: 5px;
-  padding: 2px ${dimensions.unitSpacing}px 2px;
   margin: 0;
-
+  margin-top: 10px;
+  line-height: 1.2em;
+  
+  b {
+    font-weight: 500;
+    font-size: 11px;
+  }
+  
   p {
+    padding: 7px ${dimensions.unitSpacing}px;
+    background-color: ${colors.bgUnread};
+    border-radius: 10px;
     margin: 0;
+    width: fit-content;
+    ${props => (props.me ? `margin-left: auto;` : `margin-right: auto;`)}
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -525,45 +663,52 @@ export const MessageReply = styled.div`
   }
 `;
 
-export const MessageBody = styledTS<{ me?: boolean }>(styled.div)`
-  max-width: 560px;
-  display: flex;
-  justify-content: ${props => (props.me ? 'flex-end' : 'flex-start')};
-  align-items: ${props => (props.me ? 'flex-end' : 'flex-start')}
-  flex-direction: ${props => (props.me ? 'row' : 'row-reverse')};
-`;
-
-export const MessageContent = styledTS<{ me?: boolean }>(styled.div)`
-  max-width: 100%;
-  display: inline-block;
-  overflow: hidden;
-  word-wrap: break-word;
-  word-break: break-word;
-
-  border-radius: 5px;
-  background-color: ${props =>
-    props.me ? colors.colorPrimary : colors.bgGray};
-  color: ${props => (props.me ? 'white' : 'initial')};
-  padding: 8px;
-  margin: 0;
-
-  p {
-    margin: 0;
-  }
-`;
-
 export const MessageOption = styled.button`
   background: none;
-  display: inline-block;
-  visibility: false;
+  display: none;
   border-radius: 100%;
   border: 0;
   outline: 0;
   cursor: pointer;
-  margin: auto ${dimensions.unitSpacing}px;
+  margin: auto;
 
   &:hover {
     background-color: ${colors.bgGray};
+  }
+`;
+
+export const MessageBody = styledTS<{ me?: boolean }>(styled.div)`
+  max-width: 560px;
+  display: flex;
+  gap: 5px;
+  justify-content: ${props => (props.me ? 'flex-end' : 'flex-start')};
+  align-items: ${props => (props.me ? 'flex-end' : 'flex-start')}
+  flex-direction: ${props => (props.me ? 'row' : 'row-reverse')};
+
+  &:hover {
+    ${MessageOption} {
+      display: inline-flex;
+    }
+  }
+`;
+
+export const MessageContent = styledTS<{ me?: boolean }>(styled.div)`
+  max-width: 205px;
+  display: inline-block;
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
+  border-radius: 17px;
+  background-color: ${props =>
+    props.me ? colors.colorPrimary : colors.bgGray};
+  color: ${props => (props.me ? 'white' : 'initial')};
+  padding: 8px 14px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 20px;
+
+  p {
+    margin: 0;
   }
 `;
 
@@ -581,6 +726,12 @@ export const MessageAttachmentWrapper = styledTS<{ isWidget?: boolean }>(
     right: 0;
   }
 `;
+
+export const MessageBy = styled.div`
+  color: #65676b;
+  font-weight: 400;
+  font-size: 11px;
+`;
 /**
  * Messages - END
  */
@@ -594,12 +745,21 @@ export const ChatEditor = styled.div`
   padding: ${dimensions.unitSpacing}px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   margin-bottom: ${dimensions.unitSpacing}px;
 
   label {
-    margin: 0 10px;
+    margin-left: 10px;
+    margin-bottom: 0px;
     display: block;
+
+    &:first-child {
+      margin: 0;
+    }
+
+    &:nth-child(3) {
+      margin-right: 10px;
+    }
 
     &:hover {
       cursor: pointer;
@@ -695,68 +855,6 @@ export const FileName = styled.div`
   text-overflow: ellipsis;
   margin-right: 5px;
   color: ${colors.colorWhite};
-`;
-
-export const EditorActions = styled.div`
-  padding: 10px 20px 20px 20px;
-  text-align: right;
-  position: relative;
-  color: ${colors.colorCoreGray};
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  label {
-    margin: 0 10px 0 0;
-    display: block;
-
-    &:hover {
-      cursor: pointer;
-      color: ${darken(colors.colorCoreGray, 30)};
-    }
-    ${isEnabled('internalnotes') &&
-      `
-      &:first-of-type {
-        position: absolute;
-        left: 20px;
-      }
-    `}
-  }
-
-  i {
-    margin: 0;
-  }
-
-  input[type='file'] {
-    display: none;
-  }
-`;
-
-export const EditorWrapper = styled.div`
-  position: relative;
-  width: 100%;
-
-  > .cke_chrome {
-    border-bottom: 0;
-    border-left: 0;
-    border-right: 0;
-  }
-
-  .cke_bottom {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
-  }
-
-  .cke_toolgroup {
-    border: 0;
-    margin-left: 3px;
-  }
-
-  .cke_resizer {
-    display: none !important;
-  }
 `;
 
 /**
