@@ -406,7 +406,7 @@ const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
     padding: 20px 20px 20px 30px;
     border-radius: 5px;
     width: ${props => (props.isInPopover ? '250px' : '500px')};
-    margin:  ${props => props.isInPopover && '5px 5px 0'};
+    margin:  ${props => props.isInPopover && '10px 20px 0'};
     background: ${colors.colorWhite};
 
     @media (max-width: 1300px) {
@@ -417,7 +417,7 @@ const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
   i {
     position: absolute;
     top: 10px;
-    left: 10px;
+    left: 30px;
     font-size: 15px;
     color: ${colors.colorCoreGray};
   }
