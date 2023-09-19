@@ -15,7 +15,7 @@ module.exports = {
     {
       text: 'Meetings',
       url: '/meetings/myCalendar',
-      icon: 'icon-star',
+      icon: 'icon-calender',
       location: 'mainNavigation'
     }
   ],

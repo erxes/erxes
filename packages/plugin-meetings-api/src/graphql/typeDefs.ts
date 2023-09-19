@@ -36,6 +36,7 @@ const types = `
     createdUser: User
     company: Company
     dealIds: [String]
+    deals: JSON
   }
 `;
 

@@ -4,7 +4,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps, IOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
@@ -16,6 +16,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import { DealsQueryResponse } from '@erxes/ui-cards/src/deals/types';
+import SelectDeal from './SelectDeal';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -25,6 +26,7 @@ type Props = {
   companiesQuery: CompaniesQueryResponse;
   dealsQuery: DealsQueryResponse;
   calendarDate?: { startDate: string; endDate: string };
+  dealId?: string;
 } & ICommonFormProps;
 
 export const MeetingForm = (props: Props) => {
@@ -33,7 +35,8 @@ export const MeetingForm = (props: Props) => {
     meeting,
     queryParams,
     calendarDate,
-    dealsQuery
+    dealsQuery,
+    dealId
   } = props;
   const { companies } = companiesQuery || {};
   const { deals } = dealsQuery || {};
@@ -42,7 +45,7 @@ export const MeetingForm = (props: Props) => {
   const [companyId, setCompanyId] = useState('');
   const [title, setTitle] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
-  const [dealId, setDealId] = useState('');
+  const [dealIds, setDealIds] = useState([dealId] || []);
 
   const [startDate, setStartDate] = useState<string | Date>(
     calendarDate?.startDate || new Date()
@@ -87,8 +90,8 @@ export const MeetingForm = (props: Props) => {
     if (selectedMethod) {
       finalValues.method = selectedMethod;
     }
-    if (dealId) {
-      finalValues.dealIds = [dealId];
+    if (dealIds) {
+      finalValues.dealIds = dealIds;
     }
 
     return {
@@ -139,8 +142,8 @@ export const MeetingForm = (props: Props) => {
     setUserIds(users);
   };
 
-  const onDealSelect = e => {
-    setDealId(e.target.value);
+  const onDealSelect = ids => {
+    setDealIds(ids);
   };
 
   const onCompanySelect = companyId => {
@@ -218,7 +221,7 @@ export const MeetingForm = (props: Props) => {
             <div style={{ width: '100%' }}>
               <SelectTeamMembers
                 initialValue={object?.participantIds || userIds}
-                customField="employeeId"
+                customField="userIds"
                 filterParams={{}}
                 queryParams={queryParams}
                 label={'Select team member'}
@@ -242,15 +245,14 @@ export const MeetingForm = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Select Deal </ControlLabel>
-          <FormControl
-            {...formProps}
+          <ControlLabel>Select Deal </ControlLabel>
+          <SelectDeal
+            label="Choose deal"
             name="dealIds"
-            defaultValue={object.dealIds}
-            componentClass="select"
-            required={false}
-            options={dealOptions}
-            onChange={onDealSelect}
+            initialValue={object?.dealIds || dealIds}
+            onSelect={onDealSelect}
+            customOption={{ value: '', label: '...Clear deal filter' }}
+            multi={true}
           />
         </FormGroup>
 

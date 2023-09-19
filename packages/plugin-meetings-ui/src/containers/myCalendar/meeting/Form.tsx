@@ -25,6 +25,7 @@ type Props = {
   closeModal: () => void;
   object?: IMeeting | null;
   calendarDate?: any;
+  dealId?: string;
 };
 
 type FinalProps = {

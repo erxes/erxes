@@ -21,20 +21,12 @@ export const MyCalendarList = (props: Props) => {
   const companyId =
     (meetings?.find(meeting => meeting._id === meetingId)
       ?.companyId as string) || '';
-  const dealIds = meetings?.find(meeting => meeting._id === meetingId)
-    ?.dealIds as string[];
 
   const renderTabContent = () => {
     if (currentTab === 'Previous session') {
       return <PreviousDetail companyId={companyId} queryParams={queryParams} />;
     }
-    return (
-      <Detail
-        meetingId={meetingId}
-        queryParams={queryParams}
-        dealIds={dealIds}
-      />
-    );
+    return <Detail meetingId={meetingId} queryParams={queryParams} />;
   };
 
   return !meetingId ? (

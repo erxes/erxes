@@ -9,7 +9,8 @@ const generateFilter = async (params, user) => {
     createdAtFrom,
     createdAtTo,
     userId,
-    isPreviousSession
+    isPreviousSession,
+    searchValue
   } = params;
 
   const selector: any = { participantIds: { $in: [user._id] } };
@@ -42,6 +43,12 @@ const generateFilter = async (params, user) => {
     selector.createdAt = {
       ...selector.createdAt,
       $lt: new Date(createdAtTo)
+    };
+  }
+
+  if (searchValue) {
+    selector.title = {
+      $in: [new RegExp(`.*${searchValue}.*`, 'i')]
     };
   }
   return selector;

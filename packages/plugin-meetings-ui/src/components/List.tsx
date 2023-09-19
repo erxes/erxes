@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { Link } from 'react-router-dom';
-import { __ } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import MeetingFormContainer from '../containers/myCalendar/meeting/Form';
 import MyMeetingListContainer from '../containers/myMeetings/List';
@@ -41,11 +41,13 @@ function List(props: Props) {
     meetingQuery,
     participantUsers
   } = props;
+  const { meetingId, searchValue } = queryParams;
 
   const [component, setComponent] = useState(<div />);
   const [leftSideBar, setLeftSideBar] = useState(<div />);
 
-  const { meetingId } = queryParams;
+  const [searchText, setSearchValue] = useState(searchValue);
+
   const routePath = location.pathname.split('/').slice(-1)[0];
 
   useEffect(() => {
@@ -109,7 +111,16 @@ function List(props: Props) {
     />
   );
 
-  const searchHandler = event => {};
+  const searchHandler = e => {
+    const searchValue = e.target.value;
+
+    setSearchValue(searchValue);
+
+    setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
+  };
   const actionBarRight =
     routePath === 'myCalendar' ? (
       meetingId ? (
@@ -131,6 +142,7 @@ function List(props: Props) {
       <FormControl
         type="text"
         placeholder={__('Type to search')}
+        defaultValue={searchText}
         onChange={searchHandler}
         autoFocus={true}
       />

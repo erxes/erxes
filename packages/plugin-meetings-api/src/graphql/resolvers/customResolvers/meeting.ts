@@ -1,4 +1,4 @@
-import { IContext } from '../../../messageBroker';
+import { IContext, sendCardsMessage } from '../../../messageBroker';
 import { IMeeting } from '../../../models/definitions/meeting';
 
 export default {
@@ -28,5 +28,36 @@ export default {
         _id: meeting.createdBy
       }
     );
+  },
+
+  async deals({ dealIds }: IMeeting, {}, { subdomain }: IContext) {
+    if (!dealIds?.length) {
+      return [];
+    }
+    let deals = await sendCardsMessage({
+      subdomain,
+      action: 'deals.find',
+      data: { _id: { $in: dealIds } },
+      isRPC: true,
+      defaultValue: ''
+    });
+    for (const dealId of dealIds || []) {
+      if (dealId) {
+        const link = await sendCardsMessage({
+          subdomain,
+          action: 'getLink',
+          data: { _id: dealId, type: 'deal' },
+          isRPC: true,
+          defaultValue: ''
+        });
+
+        if (link) {
+          deals = deals.map(deal =>
+            deal._id === dealId ? { ...deal, link } : deal
+          );
+        }
+      }
+    }
+    return deals;
   }
 };

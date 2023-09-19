@@ -15,6 +15,7 @@ import { useHistory } from 'react-router-dom';
 
 type Props = {
   meetings: IMeeting[];
+  dealId: string;
 };
 
 const meetingDealList = (props: Props) => {
@@ -67,7 +68,7 @@ const meetingDealList = (props: Props) => {
   };
 
   const renderMeetingForm = () => {
-    const { meetings } = props;
+    const { meetings, dealId } = props;
 
     const trigger = (
       <button>
@@ -77,7 +78,8 @@ const meetingDealList = (props: Props) => {
 
     const updatedProps = {
       meetings,
-      refetch: ['meetings']
+      refetch: ['meetings'],
+      dealId
     };
 
     const content = props => <Form {...props} {...updatedProps} />;

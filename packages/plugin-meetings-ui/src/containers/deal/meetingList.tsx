@@ -23,7 +23,8 @@ const ListContainer = (props: FinalProps) => {
     return <Spinner />;
   }
   const updatedProps = {
-    meetings: meetingQuery.meetings || []
+    meetings: meetingQuery.meetings || [],
+    dealId
   };
   return <List {...updatedProps} />;
 };
