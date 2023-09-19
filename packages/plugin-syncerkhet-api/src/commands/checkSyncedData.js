@@ -5,10 +5,11 @@ const { MongoClient } = require('mongodb');
 dotenv.config();
 
 const MONGO_URL = 'mongodb://localhost/erxes'
+const MONGO_LOG_URL = 'mongodb://localhost/erxes'
 
 // common filters
-const startDate = new Date('2023-5-1');
-const endDate = new Date('2023-8-7');
+const startDate = new Date('2023-06-19');
+const endDate = new Date('2023-10-1');
 const type = 'deal'; // 'deal' | 'order'
 
 // deal filters
@@ -19,6 +20,7 @@ const excludeStageIds = [];
 const posTokens = [];
 
 const client = new MongoClient(MONGO_URL);
+const clientLog = new MongoClient(MONGO_LOG_URL);
 let db;
 
 dotenv.config();
@@ -42,6 +44,11 @@ const command = async () => {
 
   console.log('connected...');
 
+  await clientLog.connect();
+  dbLog = clientLog.db();
+
+  console.log('connected log...');
+
   Deals = db.collection('deals');
   Stages = db.collection('stages');
   PosOrders = db.collection('pos_orders');
@@ -50,6 +57,7 @@ const command = async () => {
   Companies = db.collection('companies');
   Products = db.collection('products');
   Users = db.collection('users');
+  Logs = dbLog.collection('logs');
 
   if (type === 'deal') {
     const selector = { createdAt: { $gte: startDate, $lte: endDate } }
@@ -72,8 +80,33 @@ const command = async () => {
         const erkhetTrs = await getResponse(deal._id);
 
         if (!erkhetTrs || !erkhetTrs.length) {
-          const stage = await Stages.findOne({_id: deal.stageId}, {name: 1});
-          console.log(`not erkhet> id: ${deal._id}, number: ${deal.number}, stage: ${stage.name}`);
+          const changeLogs = await Logs.find({
+            objectId: deal._id,
+            $or: [
+              { changedData: { $regex: '\"stageId\":\"nnzZvTtYgCQbLE2bE\"' } },
+              { changedData: { $regex: '\"stageId\":\"NG3LiF3o4CnJoPaMB\"' } },
+              { changedData: { $regex: '\"stageId\":\"j7G7TiXQyn3iuQGKx\"' } },
+              { changedData: { $regex: '\"stageId\":\"qRKyCAKZimfwSBvDu\"' } },
+              { changedData: { $regex: '\"stageId\":\"sgC2W3B6y3jrvWiSa\"' } }
+            ]
+          }).toArray()
+  
+          if (!changeLogs || !changeLogs.length) {
+            continue;
+          }
+
+          const dealSumAmount = productsData.reduce((sum, r) => Number(sum) + Number(r.amount), 0)
+
+          const log0 = JSON.parse(changeLogs[0].changedData).modifiedAt
+          let msg = `${deal._id} # ${deal.number} # ${dealSumAmount} # ${log0}`;
+
+          if (companyIds.length || customerIds.length) {
+            const comCodes = (infos.companies || []).filter(c => c.code).map(c => c.code);
+            const cusCodes = (infos.customers || []).filter(c => c.code).map(c => c.code);
+            const allowCodes = [...comCodes, ...cusCodes]
+            msg = `${msg} # ${allowCodes.join(', ')}`
+          }
+          console.log(msg)
           continue;
         }
 
