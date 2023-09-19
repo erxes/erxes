@@ -4,6 +4,7 @@ import { IContext } from '../../../messageBroker';
 const generateFilter = async (params, user) => {
   const {
     participantIds,
+    dealIds,
     companyId,
     createdAtFrom,
     createdAtTo,
@@ -22,6 +23,9 @@ const generateFilter = async (params, user) => {
   }
   if (userId) {
     selector.createdBy = userId;
+  }
+  if (dealIds) {
+    selector.dealIds = { $in: dealIds };
   }
 
   if (companyId || companyId === null) {

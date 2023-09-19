@@ -35,6 +35,9 @@ class PreviousDetailComponents extends React.Component<Props, State> {
     const onSelect = ({ value }) => {
       this.setState({ selectedMeetingId: value });
     };
+
+    const dealIds = meetings?.find(meeting => meeting._id === selectedMeetingId)
+      ?.dealIds as string[];
     return (
       <>
         <FeatureRowItem>
@@ -47,7 +50,11 @@ class PreviousDetailComponents extends React.Component<Props, State> {
         </FeatureRowItem>
 
         {selectedMeetingId ? (
-          <Detail queryParams={queryParams} meetingId={selectedMeetingId} />
+          <Detail
+            queryParams={queryParams}
+            meetingId={selectedMeetingId}
+            dealIds={dealIds}
+          />
         ) : (
           <EmptyState text={`Empty meeting`} icon="clipboard-blank" />
         )}

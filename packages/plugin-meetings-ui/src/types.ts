@@ -22,6 +22,7 @@ export interface IMeeting {
   createdUser: IUser;
 
   topics: ITopic[];
+  dealIds: string[];
 }
 
 // queries
