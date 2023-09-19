@@ -231,7 +231,8 @@ const Contracts = {
 
     const prevSchedule = await models.Schedules.findOne({
       contractId: contract._id,
-      payDate: { $lte: today }
+      payDate: { $lte: today },
+      'transactionIds.0': { $exists: true }
     }).sort({ payDate: -1 });
 
     if (!prevSchedule) return contract.leaseAmount;
@@ -298,6 +299,15 @@ const Contracts = {
     {},
     { models }: IContext
   ) {
+    const transactions = await models.Transactions.find({
+      contractId: contract._id
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return transactions;
+  },
+  async storeInterest(contract: IContractDocument, {}, { models }: IContext) {
     const transactions = await models.Transactions.find({
       contractId: contract._id
     })

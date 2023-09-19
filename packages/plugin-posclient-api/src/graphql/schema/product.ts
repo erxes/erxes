@@ -42,6 +42,7 @@ export const types = `
     category: PosProductCategory
     remainder: Float
     remainders: [JSON]
+    isCheckRem: Boolean
   }
 `;
 

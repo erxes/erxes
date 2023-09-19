@@ -6,6 +6,7 @@ export const types = `
     createdUserId: String
 
     contentType: String!
+    subType: String
     name: String!
     content: String
     replacer: String
@@ -19,6 +20,7 @@ export const types = `
   type DocumentsTypes {
     label: String
     contentType: String
+    subTypes: [String]
   }
 
 `;
@@ -27,7 +29,8 @@ const params = `
   limit: Int,
   page: Int,
   perPage: Int,
-  contentType: String
+  contentType: String,
+  subType: String
 `;
 
 export const queries = `
@@ -39,6 +42,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  documentsSave(_id: String, contentType: String, name: String!, content: String, replacer: String): Document
+  documentsSave(_id: String, contentType: String, subType: String, name: String!, content: String, replacer: String): Document
   documentsRemove(_id: String!): JSON
 `;

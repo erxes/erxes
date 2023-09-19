@@ -150,11 +150,11 @@ function TransactionRow({
       <TrNumberCols key={'payment'}>
         {displayNumber(transaction, 'payment')}
       </TrNumberCols>
-      <TrNumberCols key={'interestEve'}>
-        {displayNumber(transaction, 'interestEve')}
+      <TrNumberCols key={'storedInterest'}>
+        {displayNumber(transaction, 'storedInterest')}
       </TrNumberCols>
-      <TrNumberCols key={'interestNonce'}>
-        {displayNumber(transaction, 'interestNonce')}
+      <TrNumberCols key={'calcInterest'}>
+        {displayNumber(transaction, 'calcInterest')}
       </TrNumberCols>
       <TrNumberCols key={'undue'}>
         {displayNumber(transaction, 'undue')}

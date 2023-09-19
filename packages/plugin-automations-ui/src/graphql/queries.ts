@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const userFields = `
   _id
   username
@@ -7,6 +9,13 @@ const userFields = `
     fullName
   }
 `;
+
+const tagFields = `
+  _id
+  colorCode
+  name
+`;
+
 export const automationFields = `
   _id
   name
@@ -64,6 +73,7 @@ const listParamsDef = `
   $sortField: String
   $sortDirection: Int
   $status: String
+  $tagIds: [String]
 `;
 
 const listParamsValue = `
@@ -75,6 +85,7 @@ const listParamsValue = `
   sortField: $sortField
   sortDirection: $sortDirection
   status: $status
+  tagIds: $tagIds
 `;
 
 export const automations = `
@@ -108,6 +119,9 @@ export const automationsMain = `
         updatedUser {
           ${userFields}
         }
+
+        ${isEnabled('tags') ? `tags {${tagFields}}` : ''}
+        
       }
 
       totalCount

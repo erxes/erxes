@@ -6,7 +6,11 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Button from '@erxes/ui/src/components/Button';
 import { Title } from '@erxes/ui/src/styles/main';
 
-export default function Actionbar() {
+type Props = {
+  count: number;
+};
+
+export default function Actionbar(props: Props) {
   const renderRight = () => (
     <Link to="/pricing/plans/create">
       <Button
@@ -20,7 +24,7 @@ export default function Actionbar() {
     </Link>
   );
 
-  const renderLeft = () => <Title>All pricing plans</Title>;
+  const renderLeft = () => <Title>Pricing plans ({props.count})</Title>;
 
   return <Wrapper.ActionBar left={renderLeft()} right={renderRight()} />;
 }

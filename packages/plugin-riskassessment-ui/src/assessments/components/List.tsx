@@ -3,7 +3,6 @@ import {
   Button,
   FormControl,
   HeaderDescription,
-  SortHandler,
   Table,
   __
 } from '@erxes/ui/src';
@@ -11,6 +10,8 @@ import * as _loadash from 'lodash';
 import React from 'react';
 import { DefaultWrapper } from '../../common/utils';
 import { FlexRow, HeaderContent } from '../../styles';
+import { headers } from '../common/Headers';
+import { TableHead } from './ListHead';
 import Row from './Row';
 import { SideBar } from './SideBar';
 
@@ -36,7 +37,7 @@ class List extends React.Component<Props, State> {
   }
 
   renderContent = () => {
-    const { list, queryParams, history } = this.props;
+    const { list, queryParams, history, totalCount } = this.props;
     const { selectedAssessmentIds } = this.state;
 
     const handleSelect = (id: string) => {
@@ -77,20 +78,15 @@ class List extends React.Component<Props, State> {
             </th>
             <th>{__('Card type')}</th>
             <th>{__('Card Name')}</th>
-            <th>{__('Indicators')}</th>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Opearation')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Result Score')}</th>
-            <th>
-              <SortHandler sortField="createdAt" />
-              {__('Created At')}
-            </th>
-            <th>
-              <SortHandler sortField="closedAt" />
-              {__('Closed At')}
-            </th>
+            {headers(queryParams, history).map(header => (
+              <TableHead
+                key={header.name}
+                filter={header.filter}
+                sort={header.sort}
+              >
+                {header.label}
+              </TableHead>
+            ))}
             <th>{__('Action')}</th>
           </tr>
         </thead>
@@ -152,8 +148,7 @@ class List extends React.Component<Props, State> {
       rightActionBar,
       sidebar: (
         <SideBar history={this.props.history} queryParams={queryParams} />
-      ),
-      totalCount
+      )
     };
     return <DefaultWrapper {...updatedProps} />;
   }

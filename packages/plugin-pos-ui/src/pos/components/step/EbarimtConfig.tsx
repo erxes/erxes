@@ -40,9 +40,9 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
-
-    this.setState({ config: { ...config, [code]: value } }, () => {
-      this.props.onChange('ebarimtConfig', config);
+    const newConfig = { ...config, [code]: value };
+    this.setState({ config: newConfig }, () => {
+      this.props.onChange('ebarimtConfig', newConfig);
     });
   };
 
@@ -67,7 +67,7 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          defaultValue={config[key]}
+          value={config[key]}
           type={type || 'text'}
           onChange={this.onChangeInput.bind(this, key)}
           required={true}

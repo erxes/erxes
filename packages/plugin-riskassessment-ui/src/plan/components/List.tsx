@@ -7,7 +7,8 @@ import {
   SortHandler,
   Table,
   Tip,
-  __
+  __,
+  router
 } from '@erxes/ui/src';
 import { setParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
@@ -24,20 +25,25 @@ type Props = {
   queryParams: any;
   history: any;
   removePlans: (ids: string[]) => void;
+  duplicatePlan: (_id: string) => void;
+  changeStatus: (_id: string, status: string) => void;
 };
 
 type State = {
   selectedItems: string[];
   showFilters: boolean;
+  searchValue: string;
 };
 
 class List extends React.Component<Props, State> {
+  private timer?: NodeJS.Timer;
   constructor(props) {
     super(props);
 
     this.state = {
       selectedItems: [],
-      showFilters: false
+      showFilters: false,
+      searchValue: props?.queryParams?.searchValue || ''
     };
   }
 
@@ -57,7 +63,7 @@ class List extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { list } = this.props;
+    const { list, duplicatePlan, changeStatus } = this.props;
     const { selectedItems } = this.state;
 
     const handleSelectAll = () => {
@@ -91,6 +97,7 @@ class List extends React.Component<Props, State> {
             </th>
             <th>{__('Name')}</th>
             <th>{__('Planner')}</th>
+            <th>{__('Status')}</th>
             <th>
               <SortHandler sortField="createdAt" />
               {__('Created At')}
@@ -109,12 +116,47 @@ class List extends React.Component<Props, State> {
               selectedItems={selectedItems}
               handleSelect={handleSelect}
               queryParams={this.props.queryParams}
+              duplicate={duplicatePlan}
+              changeStatus={changeStatus}
             />
           ))}
         </tbody>
       </Table>
     );
   }
+  renderSearchField = () => {
+    const search = e => {
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+
+      const { history } = this.props;
+      const searchValue = e.target.value;
+
+      this.setState({ searchValue });
+
+      this.timer = setTimeout(() => {
+        router.removeParams(history, 'page');
+        router.setParams(history, { searchValue });
+      }, 500);
+    };
+    const moveCursorAtTheEnd = e => {
+      const tmpValue = e.target.value;
+
+      e.target.value = '';
+      e.target.value = tmpValue;
+    };
+    return (
+      <FormControl
+        type="text"
+        placeholder="type a search"
+        onChange={search}
+        autoFocus={true}
+        value={this.state.searchValue}
+        onFocus={moveCursorAtTheEnd}
+      />
+    );
+  };
 
   render() {
     const { totalCount, removePlans, queryParams, history } = this.props;
@@ -149,6 +191,7 @@ class List extends React.Component<Props, State> {
 
     const rightActionBar = (
       <BarItems>
+        {this.renderSearchField()}
         {!!selectedItems.length && (
           <Button btnStyle="danger" onClick={handleRemove}>
             {__(`Remove (${selectedItems.length})`)}

@@ -38,3 +38,6 @@ cli/configs.json
 essyncer/plugins.json
 packages/core/src/private/uploads/
 packages/workers/src/private/uploads/
+
+docker/data/**
+docker/rabbitmq-data/**

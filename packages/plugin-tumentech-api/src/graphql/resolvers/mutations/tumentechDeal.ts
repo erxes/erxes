@@ -30,6 +30,7 @@ const generateGeometry = async (doc: ITumentechDeal, models) => {
       distance = routes[0].distance;
 
       doc.geometry = path;
+      doc.tripDistance = distance;
 
       if (tripStartedDate) {
         doc.estimatedCloseDate = new Date(

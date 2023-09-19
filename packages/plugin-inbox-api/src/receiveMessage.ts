@@ -114,10 +114,11 @@ export const receiveRpcMessage = async (subdomain, data) => {
 
     if (conversationId) {
       if (!assignedUserId) {
-        const conversation = await Conversations.findOne({
+        const existingConversation = await Conversations.findOne({
           _id: conversationId
         });
-        assignedUserId = conversation?.assignedUserId || null;
+
+        assignedUserId = existingConversation?.assignedUserId || null;
       }
 
       await Conversations.updateConversation(conversationId, {
@@ -130,7 +131,6 @@ export const receiveRpcMessage = async (subdomain, data) => {
         // reopen this conversation if it's closed
         status: CONVERSATION_STATUSES.OPEN
       });
-
       return sendSuccess({ _id: conversationId });
     }
 

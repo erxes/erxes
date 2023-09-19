@@ -22,7 +22,7 @@ export const updateConversationMessage = async (data: any) => {
   }
 
   return client.sendRPCMessage(
-    'inbox:rpc_queue:updateConversationMessage',
+    'inbox:rpc_queue.updateConversationMessage',
     data
   );
 };
@@ -33,7 +33,7 @@ export const removeEngageConversations = async (_id): Promise<any> => {
 
 export const getCampaignCustomerInfo = async data => {
   return client.sendRPCMessage(
-    'contacts:rpc_queue:prepareEngageCustomers',
+    'contacts:rpc_queue.prepareEngageCustomers',
     data
   );
 };

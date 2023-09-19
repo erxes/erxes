@@ -1,7 +1,6 @@
-import { Document, Schema } from 'mongoose';
-import { calculateMethodsSchema } from './indicator';
-import { field } from './utils';
 import { IAttachment, attachmentSchema } from '@erxes/api-utils/src/types';
+import { Document, Schema } from 'mongoose';
+import { field } from './utils';
 
 export interface IRiskFormSubmissionDocument extends Document {
   _id: string;

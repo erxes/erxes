@@ -16,6 +16,7 @@ export const commonFields = `
   categories
   categoriesExcluded
   segments
+  vendors
 
   isStartDateEnabled
   isEndDateEnabled
@@ -84,16 +85,20 @@ const pricingParamsDefs = `
   $status: String
   $prioritizeRule: String
   $branchId: String
-  $departmentId: String  
-  $totalAmount: String
+  $departmentId: String
   $productId: String
-  $quantity: Float
   $date: Date
   $findOne: Boolean
   $page: Int
   $perPage: Int
   $sortField: String
   $sortDirection: Int
+  $isQuantityEnabled: Boolean
+  $isPriceEnabled: Boolean
+  $isExpiryEnabled: Boolean
+  $isRepeatEnabled: Boolean
+  $totalAmount: String
+  $quantity: Float
 `;
 
 const pricingParamsValues = `
@@ -101,15 +106,19 @@ const pricingParamsValues = `
   prioritizeRule: $prioritizeRule
   branchId: $branchId
   departmentId: $departmentId
-  totalAmount: $totalAmount
   productId: $productId
-  quantity: $quantity
   date: $date
   findOne: $findOne
   page: $page
   perPage: $perPage
   sortField: $sortField
   sortDirection: $sortDirection
+  isQuantityEnabled: $isQuantityEnabled
+  isPriceEnabled: $isPriceEnabled
+  isExpiryEnabled: $isExpiryEnabled
+  isRepeatEnabled: $isRepeatEnabled
+  totalAmount: $totalAmount
+  quantity: $quantity
 `;
 
 const pricingPlans = `

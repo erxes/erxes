@@ -37,6 +37,8 @@ export interface IPos {
   checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes: string[];
+  isCheckRemainder: boolean;
+  checkExcludeCategoryIds: string[];
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -131,7 +133,13 @@ export const posSchema = schemaHooksWrapper(
       optional: true,
       label: 'Permission'
     }),
-    allowTypes: field({ type: [String], label: 'Allow Types' })
+    allowTypes: field({ type: [String], label: 'Allow Types' }),
+    isCheckRemainder: field({ type: Boolean, label: 'is Check Remainder' }),
+    checkExcludeCategoryIds: field({
+      type: [String],
+      label: 'Check Exclude Categories'
+    }),
+    status: field({ type: String, label: 'Status', optional: true })
   }),
   'erxes_pos'
 );

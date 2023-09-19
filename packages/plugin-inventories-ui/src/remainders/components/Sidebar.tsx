@@ -26,7 +26,9 @@ export default function Sidebar() {
       categoryId: null,
       branchId: null,
       departmentId: null,
-      page: 1
+      beginDate: null,
+      endDate: null,
+      productIds: null
     });
   };
 

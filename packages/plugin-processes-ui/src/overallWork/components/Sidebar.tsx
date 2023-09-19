@@ -274,7 +274,7 @@ class Sidebar extends React.Component<Props, State> {
             </FormGroup>
             {this.renderSpec()}
             <FormGroup>
-              <ControlLabel>In Branch</ControlLabel>
+              <ControlLabel>Spend Branch</ControlLabel>
               <SelectBranches
                 label="Choose branch"
                 name="inBranchId"
@@ -288,7 +288,7 @@ class Sidebar extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>In Department</ControlLabel>
+              <ControlLabel>Spend Department</ControlLabel>
               <SelectDepartments
                 label="Choose department"
                 name="inDepartmentId"
@@ -304,7 +304,7 @@ class Sidebar extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Out Branch</ControlLabel>
+              <ControlLabel>Receipt Branch</ControlLabel>
               <SelectBranches
                 label="Choose branch"
                 name="outBranchId"
@@ -318,7 +318,7 @@ class Sidebar extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Out Department</ControlLabel>
+              <ControlLabel>Receipt Department</ControlLabel>
               <SelectDepartments
                 label="Choose department"
                 name="outDepartmentId"

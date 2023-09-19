@@ -29,6 +29,7 @@ type Props = {
     refetch: () => void;
   };
   renderButton: (variables: IButtonMutateProps) => JSX.Element;
+  forceStart: (id: string) => void;
 } & IRouterProps;
 
 type State = {
@@ -85,7 +86,7 @@ class Form extends React.Component<Props, State> {
   }
 
   renderContent(formProps: IFormProps) {
-    const { renderButton, plan } = this.props;
+    const { renderButton, plan, forceStart } = this.props;
 
     const saveSteps = stepNumber => {
       const fieldName = plan ? plan._id : 'create';
@@ -118,12 +119,25 @@ class Form extends React.Component<Props, State> {
             title="General"
             img="/images/icons/erxes-24.svg"
             noButton={plan?.status === 'archived'}
-            additionalButton={renderButton({
-              ...formProps,
-              text: 'Plan',
-              values: this.generateDoc(),
-              object: plan
-            })}
+            additionalButton={
+              <>
+                {!!plan && (
+                  <Button
+                    btnStyle="warning"
+                    icon="archive-alt"
+                    onClick={forceStart.bind(this, plan?._id)}
+                  >
+                    {__('Force Start')}
+                  </Button>
+                )}
+                {renderButton({
+                  ...formProps,
+                  text: 'Plan',
+                  values: this.generateDoc(),
+                  object: plan
+                })}
+              </>
+            }
             onClick={saveSteps}
           >
             {this.renderGeneralConfig()}

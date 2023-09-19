@@ -17,26 +17,32 @@ import { removeParams } from '@erxes/ui/src/utils/router';
 type Props = {
   queryParams: any;
   list: any[];
-  contentTypes: { label: string; contentType: string }[];
+  contentTypes: { label: string; contentType: string; subTypes: string[] }[];
   history: any;
   remove: (_id: String) => void;
 };
 
 function List({ queryParams, contentTypes, list, remove, history }: Props) {
-  const actionBarRight = (
-    <Button
-      href={`/settings/documents/create?contentType=${queryParams.contentType}`}
-      btnStyle="success"
-      icon="plus-circle"
-    >
-      Add
-    </Button>
-  );
+  const actionBarRight = () => {
+    if (!queryParams.contentType) {
+      return <></>;
+    }
+
+    return (
+      <Button
+        href={`/settings/documents/create?contentType=${queryParams.contentType}`}
+        btnStyle="success"
+        icon="plus-circle"
+      >
+        Add
+      </Button>
+    );
+  };
 
   const title = <Title capitalize={true}>{__('Documents')}</Title>;
 
   const actionBar = (
-    <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+    <Wrapper.ActionBar left={title} right={actionBarRight()} wideSpacing />
   );
 
   const content = (
@@ -79,7 +85,7 @@ function List({ queryParams, contentTypes, list, remove, history }: Props) {
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('Documents'), link: '/documents' }
+    { title: __('Documents'), link: '/settings/documents' }
   ];
 
   const clearParams = () => {

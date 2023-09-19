@@ -18,6 +18,7 @@ import segments from './segments';
 import dashboards from './dashboards';
 import imports from './imports';
 import exporter from './exporter';
+import { exportFileRunner } from './exporterByUrl';
 export let debug;
 export let graphqlPubsub;
 export let mainDb;
@@ -28,7 +29,8 @@ export default {
   permissions,
   getHandlers: [
     { path: `/pos-init`, method: posInit },
-    { path: `/pos-sync-config`, method: posSyncConfig }
+    { path: `/pos-sync-config`, method: posSyncConfig },
+    { path: `/file-export`, method: exportFileRunner }
   ],
   postHandlers: [
     { path: `/api/unfetch-order-info`, method: unfetchOrderInfo },
@@ -64,6 +66,7 @@ export default {
     automations,
     forms,
     segments,
+    permissions,
     dashboards,
     imports,
     exporter

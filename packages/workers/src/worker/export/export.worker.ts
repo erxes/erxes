@@ -146,7 +146,7 @@ connect()
     const [serviceName, type] = contentType.split(':');
 
     const { totalCount, excelHeader } = await messageBroker().sendRPCMessage(
-      `${serviceName}:exporter:prepareExportData`,
+      `${serviceName}:exporter.prepareExportData`,
       {
         subdomain,
         data: {
@@ -166,7 +166,7 @@ connect()
 
     for (let page = 1; page <= totalIterations; page++) {
       const response = await messageBroker().sendRPCMessage(
-        `${serviceName}:exporter:getExportDocs`,
+        `${serviceName}:exporter.getExportDocs`,
         {
           subdomain,
           data: {

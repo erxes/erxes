@@ -186,10 +186,24 @@ export const afterMutationHandlers = async (subdomain, params) => {
             unitPrice = 0;
           }
 
+          let isCheckRem = false;
+          if (pos.isCheckRemainder) {
+            const excludeCategoryIds = await getChildCategories(
+              subdomain,
+              pos.checkExcludeCategoryIds
+            );
+
+            if (!excludeCategoryIds.includes(item.categoryId)) {
+              isCheckRem = true;
+            }
+          }
+
           if (params.updatedDocument) {
             params.updatedDocument.unitPrice = unitPrice;
+            params.updatedDocument.isCheckRem = isCheckRem;
           } else {
             params.object.unitPrice = unitPrice;
+            params.object.isCheckRem = isCheckRem;
           }
         }
 
