@@ -30,6 +30,7 @@ interface IProductParams extends ICommonParams {
   segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
+  categoryMeta?: string;
 }
 
 interface ICategoryParams extends ICommonParams {
@@ -56,6 +57,7 @@ const generateFilter = async (
     excludeIds,
     segment,
     segmentData,
+    categoryMeta,
     isKiosk,
     ...paginationArgs
   }: IProductParams
@@ -130,6 +132,21 @@ const generateFilter = async (
 
   if (vendorId) {
     filter.vendorId = vendorId;
+  }
+
+  if (categoryMeta) {
+    const categoryFilter: any = {};
+    if (!isNaN(Number(categoryMeta))) {
+      categoryFilter.meta = { $lte: Number(categoryMeta) };
+    } else {
+      categoryFilter.meta = categoryMeta;
+    }
+
+    const categories = await models.ProductCategories.find(
+      { categoryFilter },
+      { _id: 1 }
+    ).lean();
+    filter.categoryId = { $in: categories.map(c => c._id) };
   }
 
   if (isKiosk) {
@@ -221,6 +238,7 @@ const productQueries = {
       segment,
       segmentData,
       isKiosk,
+      categoryMeta,
       groupedSimilarity,
       sortField,
       sortDirection,
@@ -241,6 +259,7 @@ const productQueries = {
       boardId,
       segment,
       segmentData,
+      categoryMeta,
       isKiosk
     });
 
@@ -290,6 +309,7 @@ const productQueries = {
       boardId,
       segment,
       segmentData,
+      categoryMeta,
       isKiosk
     }: IProductParams,
     { models, config, subdomain }: IContext
@@ -307,6 +327,7 @@ const productQueries = {
       boardId,
       segment,
       segmentData,
+      categoryMeta,
       isKiosk
     });
 
