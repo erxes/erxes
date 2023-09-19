@@ -34,7 +34,7 @@ const MeetingDetailContainer = (props: FinalProps) => {
   const { data: deals, loading: dealsLoading } = useQuery(
     gql(dealsQuery.deals),
     {
-      skip: (!dealIds || dealIds.length === 0) && !isEnabled('cards'),
+      skip: (!dealIds && !isEnabled('cards')) || dealIds.length === 0,
       variables: { _ids: dealIds }
     }
   );
