@@ -1,14 +1,15 @@
+import { sendRequest } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
+import { CUSTOMER_STATUSES } from '../common/constants';
+import {
+  customerDetail as customerDetailQuery,
+  customersAdd as customersAddQueries
+} from '../common/customerQueries';
 import { IModels } from '../connectionResolver';
+import { sendContactsMessage } from '../messageBroker';
 import { ISyncDocument, syncSaasSchema } from './definitions/sync';
 import { validateDoc } from './utils';
-import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
-import { sendRequest } from '@erxes/api-utils/src';
-import {
-  customersAdd as customersAddQueries,
-  customerDetail as customerDetailQuery
-} from '../common/customerQueries';
 
 export interface ISyncModel extends Model<ISyncDocument> {
   addSync(doc: any, user: any): Promise<ISyncDocument>;
@@ -98,12 +99,30 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         throw new Error('This sync expired');
       }
 
+      const isCustomerExistsSaas = await this.checkSaasCustomer(
+        sync.subdomain,
+        sync.appToken,
+        customerId
+      );
+      const syncedCustomer = await models.SyncedCustomers.findOne({
+        syncId: sync?._id,
+        customerId
+      });
+
       if (
-        await this.checkSaasCustomer(sync.subdomain, sync.appToken, customerId)
+        isCustomerExistsSaas &&
+        syncedCustomer?.status === CUSTOMER_STATUSES.APPROVED
       ) {
         sync.customerId = customerId;
 
         return sync;
+      }
+
+      if (
+        isCustomerExistsSaas &&
+        syncedCustomer?.status === CUSTOMER_STATUSES.WAITING
+      ) {
+        throw new Error('Customer not approved in synced saas');
       }
 
       const customer = await sendContactsMessage({
@@ -118,24 +137,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         throw new Error('Cannot find customer');
       }
 
-      const { data, errors } = await sendRequest({
-        url: `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'erxes-app-token': sync.appToken
-        },
-        body: {
-          query: customersAddQueries,
-          variables: { ...(await this.getCustomerDoc(customer)) }
-        }
-      });
-
-      if (errors) {
-        throw new Error(errors[0]?.message);
-      }
-
-      const newCustomer = data?.customersAdd ? data?.customersAdd : null;
+      const newCustomer = await this.createCustomerToSaas(sync, customer);
 
       if (!newCustomer) {
         throw new Error('Somthing went wrong');
@@ -144,8 +146,16 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       await models.SyncedCustomers.create({
         syncId: sync._id,
         customerId: customer._id,
-        syncedCustomerId: newCustomer._id
+        syncedCustomerId: newCustomer._id,
+        status: !!sync?.checkApproved ? CUSTOMER_STATUSES.WAITING : undefined
       });
+
+      if (!!sync?.checkApproved) {
+        return {
+          subdomain,
+          customerId: customer._id
+        };
+      }
 
       const updatedSync = await models.Sync.findOne({ _id: sync._id }).lean();
 
@@ -183,6 +193,29 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       }
 
       return customerDoc;
+    }
+
+    public static async createCustomerToSaas(sync, customer) {
+      const { data, errors } = await sendRequest({
+        url: `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'erxes-app-token': sync.appToken
+        },
+        body: {
+          query: customersAddQueries,
+          variables: { ...(await this.getCustomerDoc(customer)) }
+        }
+      });
+
+      if (errors) {
+        throw new Error(errors[0]?.message);
+      }
+
+      const newCustomer = data?.customersAdd ? data?.customersAdd : null;
+
+      return newCustomer;
     }
 
     public static async checkSaasCustomer(subdomain, appToken, customerId) {

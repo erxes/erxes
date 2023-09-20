@@ -55,13 +55,17 @@ const productsQueryParams = `
   excludeIds: Boolean,
   segment: String,
   segmentData: String,
+  isKiosk: Boolean,
 `;
 
 const productCategoriesParams = `
   parentId: String,
+  withChild: Boolean,
   searchValue: String,
+  status: String,
   excludeEmpty: Boolean,
   meta: String,
+  isKiosk: Boolean,
 `;
 const commonParams = `
   page: Int,

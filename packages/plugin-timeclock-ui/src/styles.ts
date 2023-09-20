@@ -46,6 +46,32 @@ const SidebarHeader = styledTS<{
   margin: 0px ${dimensions.coreSpacing}px;
 `;
 
+const CustomWidth = styledTS<{
+  widthPercent: number;
+}>(styled.div)`
+
+width: ${props => props.widthPercent}%;
+margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-end;
+  > div {
+    flex: 1;
+    input[type='text'] {
+      border: none;
+      height: 34px;
+      padding: 5px 0;
+      color: #444;
+      border-bottom: 1px solid;
+      border-color: #ddd;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 13px;
+    }
+  }
+`;
+
 const CustomRangeContainer = styled.div`
   margin-top: 10px;
   margin-bottom: 10px;
@@ -369,5 +395,6 @@ export {
   TextAlignRight,
   CustomCollapseRow,
   CustomLabel,
-  AlertContainer
+  AlertContainer,
+  CustomWidth
 };

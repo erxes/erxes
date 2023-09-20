@@ -4,7 +4,7 @@ import { colors } from '@erxes/ui/src/styles';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import React, { useState, useEffect } from 'react';
 import { IMeeting } from '../../types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IUser, IUserConversation } from '@erxes/ui/src/auth/types';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import * as moment from 'moment';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -21,10 +21,11 @@ type Props = {
   meetings: IMeeting[];
   queryParams: any;
   loading: boolean;
+  participantUsers: IUser[];
 };
 
 export const SideBar = (props: Props) => {
-  const { queryParams, meetings, loading } = props;
+  const { queryParams, meetings, loading, participantUsers } = props;
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
   const [checkedUsers, setCheckedUsers] = useState(
@@ -32,17 +33,7 @@ export const SideBar = (props: Props) => {
       ? queryParams.participantUserIds.split(',')
       : []
   );
-
   const history = useHistory();
-
-  const participantUser = meetings.reduce((uniqueUsers: IUser[], meeting) => {
-    meeting.participantUser.forEach(user => {
-      if (!uniqueUsers.some(uniqueUser => uniqueUser._id === user._id)) {
-        uniqueUsers.push(user);
-      }
-    });
-    return uniqueUsers;
-  }, []);
 
   useEffect(() => {
     setFilteredMeeting(meetings);
@@ -118,6 +109,7 @@ export const SideBar = (props: Props) => {
       return (
         meeting.status !== 'completed' &&
         !meetingDate.isSame(today, 'day') &&
+        meetingDate.isAfter(today) &&
         !meetingDate.isSame(tomorrow, 'day')
       );
     });
@@ -153,7 +145,7 @@ export const SideBar = (props: Props) => {
 
   const data = (
     <SidebarList style={{ padding: '10px 20px' }}>
-      {participantUser.map((user: any) => {
+      {participantUsers.map((user: any) => {
         return (
           <ParticipantList key={user._id}>
             <FormControl
@@ -174,11 +166,6 @@ export const SideBar = (props: Props) => {
                   backgroundColor: generateColorCode(user._id)
                 }}
               />
-              {/* <Icon
-                icon={"trash-alt"}
-                size={18}
-                onClick={() => handleUserRemove(user._id)}
-              /> */}
             </div>
           </ParticipantList>
         );
@@ -227,7 +214,7 @@ export const SideBar = (props: Props) => {
         <DataWithLoader
           data={data}
           loading={loading}
-          count={participantUser?.length}
+          count={participantUsers?.length}
           emptyText={'Empty'}
           emptyIcon="leaf"
           size="small"

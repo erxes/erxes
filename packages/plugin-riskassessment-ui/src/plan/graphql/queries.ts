@@ -2,11 +2,37 @@ import { commonPaginateDef, commonPaginateValue } from '../../common/graphql';
 
 const commonParamsDef = `
   $isArchived:Boolean,
+  $status:String,
+  $plannerIds:[String],
+  $structureIds:[String],
+  $createDateFrom:String,
+  $createDateTo:String,
+  $startDateFrom:String,
+  $startDateTo:String,
+  $closeDateFrom:String,
+  $closeDateTo:String,
+  $createdAtFrom:String,
+  $createdAtTo:String,
+  $modifiedAtFrom:String,
+  $modifiedAtTo:String,
   ${commonPaginateDef}
 `;
 
 const commonParamsValue = `
   isArchived:$isArchived,
+  plannerIds:$plannerIds,
+  structureIds:$structureIds,
+  status:$status,
+  createDateFrom:$createDateFrom,
+  createDateTo:$createDateTo,
+  startDateFrom:$startDateFrom,
+  startDateTo:$startDateTo,
+  closeDateFrom:$closeDateFrom,
+  closeDateTo:$closeDateTo,
+  createdAtFrom:$createdAtFrom,
+  createdAtTo:$createdAtTo,
+  modifiedAtFrom:$modifiedAtFrom,
+  modifiedAtTo:$modifiedAtTo,
   ${commonPaginateValue}
   `;
 

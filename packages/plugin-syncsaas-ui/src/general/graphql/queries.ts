@@ -1,11 +1,13 @@
 const commonParams = `
     $searchValue: String,
     $dateFilters: JSON
+    $categoryId: String
 `;
 
 const commonParamsDef = `
     searchValue: $searchValue,
-    dateFilters: $dateFilters
+    dateFilters: $dateFilters,
+    categoryId:$categoryId
 `;
 
 const list = `
@@ -14,6 +16,7 @@ query SyncedSaasList(${commonParams}) {
     _id
     name
     description
+    categoryId
     subdomain
     appToken
     startDate
@@ -34,11 +37,13 @@ query SyncedSaasDetail($_id: String!) {
     _id
     name
     description
+    categoryId
     subdomain
     appToken
     startDate
     expireDate
-    config
+    config,
+    checkApproved
   }
 }
 `;

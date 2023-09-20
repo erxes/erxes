@@ -2,13 +2,16 @@ const commonTypes = `
         _id: String,
         name:String,
         description:String,
+        categoryId:String
         subdomain:String,
         appToken:String,
         startDate:Date,
         expireDate:Date,
+        checkApproved:Boolean,
         config:JSON
         
         organizationDetail:JSON
+        customersDetail:[CustomerSyncedSaaS]
 `;
 
 export const types = `
@@ -20,6 +23,7 @@ export const types = `
     type CustomerSyncedSaaS  {
         ${commonTypes},
         customerId:String,
+        customerStatus:String,
         syncedCustomerId:String
     }
 
@@ -31,6 +35,8 @@ const commonQueryParams = `
     customerId:String,
     customerIds:[String],
     excludeCustomerIds:[String]
+    categoryId:String,
+    status:String,
 `;
 
 export const queries = `
@@ -43,10 +49,12 @@ export const queries = `
 const commonMutationParams = `
     name:String,
     description:String,
+    categoryId:String,
     subdomain:String,
     appToken:String,
     startDate:String,
     expireDate:String,
+    checkApproved:Boolean,
 `;
 
 export const mutations = `
@@ -54,4 +62,5 @@ export const mutations = `
     editSaasSync(_id:String,${commonMutationParams}):JSON
     removeSaasSync(_id:String):JSON
     saveSyncedSaasConfig(_id:String,config:JSON):JSON
+    syncSaasDealsAdd(syncId:String,dealData:JSON): JSON
 `;

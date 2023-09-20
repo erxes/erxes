@@ -1,10 +1,11 @@
 import React from 'react';
 import moment from 'moment';
-import { Icon, Label } from '@erxes/ui/src';
+import { ActionButtons, Button, Icon, Label } from '@erxes/ui/src';
 import { Link } from 'react-router-dom';
+import { IRCFA } from '../../common/types';
 
 type Props = {
-  item: any;
+  item: IRCFA;
 };
 
 class Row extends React.Component<Props> {
@@ -18,7 +19,7 @@ class Row extends React.Component<Props> {
     const tableRow = (
       <tr>
         <td>{item.mainType || '-'}</td>
-        <td>{item?.relType || '-'}</td>
+        <td>{item?.mainTypeDetail?.name || '-'}</td>
         <td>
           <Label lblStyle="default">{item.status}</Label>
         </td>
@@ -29,9 +30,13 @@ class Row extends React.Component<Props> {
             : '-'}
         </td>
         <td>
-          <Link to={`/rcfa/detail/${item._id}`}>
-            <Icon icon="file-search-alt" />
-          </Link>
+          <ActionButtons>
+            <Button btnStyle="link">
+              <Link to={`/rcfa/detail/${item._id}`}>
+                <Icon icon="file-search-alt" />
+              </Link>
+            </Button>
+          </ActionButtons>
         </td>
       </tr>
     );

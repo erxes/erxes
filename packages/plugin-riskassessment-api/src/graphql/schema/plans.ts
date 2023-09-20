@@ -87,6 +87,20 @@ export const mutations = `
 
 const commonQueriesParams = `
     isArchived:Boolean,
+    plannerIds:[String],
+    structureIds:[String],
+    tagIds:[String],
+    status:String,
+    createDateFrom:String,
+    createDateTo:String,
+    startDateFrom:String,
+    startDateTo:String,
+    closeDateFrom:String,
+    closeDateTo:String,
+    createdAtFrom:String,
+    createdAtTo:String,
+    modifiedAtFrom:String,
+    modifiedAtTo:String,
     ${commonPaginateTypes}
     ${commonDateTypes}
 `;

@@ -20,6 +20,8 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { __ } from '@erxes/ui/src/utils';
 import { queries } from '../../../configs/spinCampaign/graphql';
 import { queries as voucherCampaignQueries } from '../../../configs/voucherCampaign/graphql';
+import SelectClientPortalUser from '../../../common/SelectClientPortalUsers';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -130,15 +132,32 @@ class SpinForm extends React.Component<Props, State> {
       );
     }
 
-    return (
-      <SelectCompanies
-        label="Company"
-        name="ownerId"
-        multi={false}
-        initialValue={spin.ownerId}
-        onSelect={this.onChangeOwnerId}
-      />
-    );
+    if (spin.ownerType === 'company') {
+      return (
+        <SelectCompanies
+          label="Company"
+          name="ownerId"
+          multi={false}
+          initialValue={spin.ownerId}
+          onSelect={this.onChangeOwnerId}
+        />
+      );
+    }
+
+    if (spin.ownerType === 'cpUser') {
+      return (
+        isEnabled('clientportal') && (
+          <SelectClientPortalUser
+            label="Client portal user"
+            name="ownerId"
+            multi={false}
+            initialValue={spin.ownerId}
+            onSelect={this.onChangeOwnerId}
+          />
+        )
+      );
+    }
+    return null;
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -171,18 +190,11 @@ class SpinForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'customer'} value={'customer'}>
-                {' '}
-                {'customer'}{' '}
-              </option>
-              <option key={'user'} value={'user'}>
-                {' '}
-                {'user'}{' '}
-              </option>
-              <option key={'company'} value={'company'}>
-                {' '}
-                {'company'}{' '}
-              </option>
+              {['customer', 'user', 'company', 'cpUser'].map(ownerType => (
+                <option key={ownerType} value={ownerType}>
+                  {ownerType}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
 

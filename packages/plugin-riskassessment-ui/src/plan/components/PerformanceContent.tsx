@@ -1,8 +1,8 @@
+import { __ } from '@erxes/ui/src';
 import React from 'react';
-import { IPLan } from '../common/types';
-import PortableCard from '../common/PortableCard';
 import { Divider, FormContainer, ScheduleCard } from '../../styles';
-import { Info, __ } from '@erxes/ui/src';
+import PortableCard from '../common/PortableCard';
+import { IPLan } from '../common/types';
 
 type Props = {
   plan: { cardIds?: string[]; dashboard?: any } & IPLan;
@@ -34,8 +34,6 @@ class Performance extends React.Component<Props> {
       averangeAssessment = 0,
       resolvedCardsCount = 0
     } = dashboard || {};
-
-    console.log('dfg');
 
     return (
       <FormContainer column padding="25px">
