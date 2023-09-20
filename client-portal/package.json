@@ -38,7 +38,7 @@
     "graphql-ws": "^5.11.2",
     "i18n-react": "^0.7.0",
     "lodash": "^4.17.15",
-    "next": "10.0.5",
+    "next": "10.2.3",
     "next-routes": "^1.4.2",
     "react": "17.0.1",
     "react-beautiful-dnd": "^13.1.1",
