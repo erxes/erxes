@@ -18,7 +18,6 @@ function ReportList(props: Props) {
     return <TableHeaders reportType={reportType} />;
   };
 
-  console.log('aaa', bichilReports);
   return (
     <Table>
       <thead>{renderTableHead()}</thead>

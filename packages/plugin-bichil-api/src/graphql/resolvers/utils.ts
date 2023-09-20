@@ -837,7 +837,6 @@ export const bichilTimeclockReportFinal = async (
     const totalMinsLateDeduction = totalMinsLatePerUser * latenessFee;
     const totalDeduction = shiftNotClosedDeduction + totalMinsLateDeduction;
 
-    console.log('ttt', totalHoursScheduledPerUser);
     totalHoursScheduled += totalHoursScheduledPerUser;
     totalHoursWorked += totalHoursWorkedPerUser;
     totalShiftNotClosedDeduction += shiftNotClosedDeduction;

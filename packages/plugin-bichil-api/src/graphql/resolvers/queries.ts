@@ -139,7 +139,6 @@ const bichilQueries = {
 
         const getReport = reportFinal.report;
         deductionInfo = reportFinal.deductionInfo;
-        // console.log(deductionInfo);
 
         const groupedByBranch: { [branchTitle: string]: any } = {};
 
