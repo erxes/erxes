@@ -40,7 +40,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     const customer = message.customer;
     const props = user ? { user } : { customer };
 
-    return <NameCard.Avatar {...props} />;
+    return <NameCard.Avatar {...props} size={40} />;
   }
 
   renderAttachment(hasAttachment: boolean) {

@@ -59,7 +59,7 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
           <ParticipatorImg
             title={`Participator: ${name}`}
             key={user._id}
-            src={getUserAvatar(user)}
+            src={getUserAvatar(user, 60)}
           />
         </Tip>
       );

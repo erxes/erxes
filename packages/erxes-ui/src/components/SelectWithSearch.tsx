@@ -77,7 +77,9 @@ const content = (option: IOption): React.ReactNode => (
   <>
     <Avatar
       src={
-        option.avatar ? readFile(option.avatar) : '/images/avatar-colored.svg'
+        option.avatar
+          ? readFile(option.avatar, 40)
+          : '/images/avatar-colored.svg'
       }
     />
     {option.label}
