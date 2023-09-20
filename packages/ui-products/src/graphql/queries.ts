@@ -56,6 +56,7 @@ const products = `
     $tag: String,
     $status: String,
     $searchValue: String,
+    $vendorId: String,
     $perPage: Int,
     $page: Int $ids: [String],
     $excludeIds: Boolean,
@@ -70,6 +71,7 @@ const products = `
       tag: $tag,
       status: $status,
       searchValue: $searchValue,
+      vendorId: $vendorId,
       perPage: $perPage,
       page: $page ids: $ids,
       excludeIds: $excludeIds,
@@ -114,6 +116,8 @@ const productCategories = `
       productCount
       maskType
       mask
+      isSimilarity
+      similarities
     }
   }
 `;

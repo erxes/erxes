@@ -35,8 +35,6 @@ class LeftSidebar extends React.Component<Props> {
     return (
       <Sidebar wide={true}>
         <BasicInfoSection company={company} fields={fields} />
-        <CustomFieldsSection company={company} />
-        {this.renderTrackedData()}
         {isEnabled('tags') && (
           <TaggerSection
             data={company}
@@ -44,6 +42,8 @@ class LeftSidebar extends React.Component<Props> {
             refetchQueries={taggerRefetchQueries}
           />
         )}
+        <CustomFieldsSection company={company} />
+        {this.renderTrackedData()}
       </Sidebar>
     );
   }
