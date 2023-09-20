@@ -3,12 +3,10 @@ import React from 'react';
 
 type Props = {
   reportType: string;
-  showBranch: boolean;
-  showDepartment: boolean;
 };
 
 function TableHeaders(props: Props) {
-  const { reportType, showBranch, showDepartment } = props;
+  const { reportType } = props;
 
   switch (reportType) {
     case 'Урьдчилсан':
@@ -28,28 +26,54 @@ function TableHeaders(props: Props) {
       return (
         <>
           <tr>
-            <th rowSpan={2}>{__('№')}</th>
-            {showDepartment && <th rowSpan={2}>{__('Department')}</th>}
-            {showBranch && <th rowSpan={2}>{__('Branch')}</th>}
-            <th rowSpan={2}>{__('Team member Id')}</th>
-            <th rowSpan={2}>{__('Position')}</th>
-            <th rowSpan={2}>{__('Last Name')}</th>
-            <th rowSpan={2}>{__('First Name')}</th>
-            <th rowSpan={2}>{__('Total Days of Calendar')}</th>
-            <th rowSpan={2}>{__('Total Weekend Days')}</th>
-            <th colSpan={2}>{__('Scheduled time')}</th>
-            <th colSpan={6} style={{ textAlign: 'center' }}>
-              {__('Timeclock info')}
+            {/* <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('№')}
+            </th> */}
+            <th
+              rowSpan={2}
+              style={{ textAlign: 'center', border: '1px solid #EEE' }}
+            >
+              {__('Салбар')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Овог нэр')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Ажилтаны код')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Албан тушаал')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Ажилвал зохих цаг')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Ажилласан цаг')}
+            </th>
+            <th
+              colSpan={3}
+              style={{ textAlign: 'center', border: '1px solid #EEE' }}
+            >
+              {__('Хүсэлт')}
+            </th>
+            <th
+              colSpan={7}
+              style={{ textAlign: 'center', border: '1px solid #EEE' }}
+            >
+              {__('Суутгал')}
             </th>
           </tr>
           <tr>
-            <th>{__('Days')}</th>
-            <th>{__('Hours')}</th>
-            <th>{__('Worked days')}</th>
-            <th>{__('Worked hours')}</th>
-            <th>{__('Shift request')}</th>
-            <th>{__('Overtime')}</th>
-            <th>{__('Mins Late')}</th>
+            <th>{__('Ээлжийн амралт')}</th>
+            <th>{__('Чөлөөтэй цаг')}</th>
+            <th>{__('Өвчтэй')}</th>
+            <th>{__('Бүртгэл дутуу')}</th>
+            <th>{__('Б/Д мөнгө')}</th>
+            <th>{__('Үр дүн хасалт')}</th>
+            <th>{__('Хоцорсон миниут')}</th>
+            <th>{__('Хоцролтын мөнгө')}</th>
+            <th>{__('Үр дүн хасалт')}</th>
+            <th>{__('Суутгал нэгдсэн')}</th>
           </tr>
         </>
       );

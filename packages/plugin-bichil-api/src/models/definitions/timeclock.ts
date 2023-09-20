@@ -13,6 +13,7 @@ export interface ITimeClock {
   deviceType?: string;
   longitude?: number;
   latitude?: number;
+  shiftNotClosed?: boolean;
 }
 
 export interface ITimeClockDocument extends ITimeClock, Document {
@@ -38,7 +39,7 @@ export interface IAbsence {
   checkTime?: Date;
   checkInOutRequest?: boolean;
 
-  reason?: string;
+  reason: string;
   explanation?: string;
   status?: string;
   solved?: boolean;
@@ -143,13 +144,18 @@ export const timeLogSchema = new Schema({
 
 export const timeSchema = new Schema({
   _id: field({ pkey: true }),
-  userId: field({ type: String, label: 'User' }),
-  shiftStart: field({ type: Date, label: 'Shift starting time' }),
-  shiftEnd: field({ type: Date, label: 'Shift ending time' }),
+  userId: field({ type: String, label: 'User', index: true }),
+  shiftStart: field({ type: Date, label: 'Shift starting time', index: true }),
+  shiftEnd: field({ type: Date, label: 'Shift ending time', index: true }),
   shiftActive: field({
     type: Boolean,
     label: 'Is shift started and active',
     default: false
+  }),
+  shiftNotClosed: field({
+    type: Boolean,
+    label: 'Whether shift was not closed by user',
+    optional: true
   }),
   branchName: field({
     type: String,
@@ -159,17 +165,29 @@ export const timeSchema = new Schema({
     type: String,
     label: 'Device name, which user used to clock in / out '
   }),
-  employeeUserName: field({
-    type: String,
-    label: 'Employee user name, as saved on companys terminal'
-  }),
-  employeeId: field({
-    type: String,
-    label: 'Employee id, custom field'
-  }),
   deviceType: field({
     type: String,
     label: 'Which device used for clock in/out'
+  }),
+  inDevice: field({
+    type: String,
+    label: 'check in device name',
+    optional: true
+  }),
+  outDevice: field({
+    type: String,
+    label: 'check out device name',
+    optional: true
+  }),
+  inDeviceType: field({
+    type: String,
+    label: 'check in device type',
+    optional: true
+  }),
+  outDeviceType: field({
+    type: String,
+    label: 'check out device type',
+    optional: true
   })
 });
 
@@ -370,6 +388,7 @@ export interface IUserAbsenceInfo {
   totalHoursPaidAbsence?: number;
   totalHoursUnpaidAbsence?: number;
   totalHoursSick?: number;
+  totalHoursVacation?: number;
 }
 
 export interface IUserExportReport {
@@ -394,7 +413,7 @@ export interface IUserExportReport {
   totalHoursBreakScheduled?: string;
   totalHoursBreakTaken?: string;
 
-  totalHoursShiftRequest?: string;
+  totalHoursShiftRequest?: string | number;
 
   absenceInfo?: IUserAbsenceInfo;
 
@@ -413,6 +432,19 @@ export interface IUserExportReport {
 
   totalDaysScheduledSelectedMonth?: number;
   totalDaysWorkedSelectedMonth?: number;
+
+  leftWork?: string;
+  paidBonus?: string;
+  paidBonus2?: string;
+
+  shiftNotClosedDaysPerUser?: number;
+  shiftNotClosedFee?: number;
+  shiftNotClosedDeduction?: number;
+
+  latenessFee?: number;
+  totalMinsLateDeduction?: string | number;
+
+  totalDeduction?: string | number;
 
   scheduleReport?: IScheduleReport[];
 }

@@ -83,6 +83,7 @@ const bichilQueries = {
     }
 
     const returnReport: IReport[] = [];
+    let deductionInfo;
 
     switch (reportType) {
       case 'Урьдчилсан' || 'Preliminary':
@@ -136,11 +137,15 @@ const bichilQueries = {
           false
         );
 
-        for (const userId of Object.keys(reportFinal)) {
+        const getReport = reportFinal.report;
+        deductionInfo = reportFinal.deductionInfo;
+        // console.log(deductionInfo);
+
+        const groupedByBranch: { [branchTitle: string]: any } = {};
+
+        for (const userId of Object.keys(getReport)) {
           const userBranchIds = usersStructure[userId].branchIds;
-          const userDepartmentIds = usersStructure[userId].departmentIds;
           const branchTitles: string[] = [];
-          const departmentTitles: string[] = [];
 
           for (const userBranchId of userBranchIds) {
             if (structuresDict[userBranchId]) {
@@ -148,18 +153,28 @@ const bichilQueries = {
             }
           }
 
-          for (const userDeptId of userDepartmentIds) {
-            if (structuresDict[userDeptId]) {
-              departmentTitles.push(structuresDict[userDeptId]);
+          for (const userBranchTitle of branchTitles) {
+            if (userBranchTitle in groupedByBranch) {
+              groupedByBranch[userBranchTitle] = [
+                ...groupedByBranch[userBranchTitle],
+                { userId, ...getReport[userId] }
+              ];
+              continue;
             }
-          }
 
+            groupedByBranch[userBranchTitle] = [
+              { userId, ...getReport[userId] }
+            ];
+          }
+        }
+
+        for (const branchTitle of Object.keys(groupedByBranch)) {
           returnReport.push({
-            groupReport: [
-              { userId, branchTitles, departmentTitles, ...reportFinal[userId] }
-            ]
+            groupTitle: branchTitle,
+            groupReport: groupedByBranch[branchTitle]
           });
         }
+
         break;
 
       case 'Pivot':
@@ -183,7 +198,8 @@ const bichilQueries = {
 
     return {
       list: returnReport,
-      totalCount: totalTeamMemberIds.length
+      totalCount: totalTeamMemberIds.length,
+      ...deductionInfo
     };
   },
 

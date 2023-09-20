@@ -17,8 +17,6 @@ export const removeAndUpdateTimeclocks = async params => {
     dayjs(endDate).format(dateFormat) + ' 00:00'
   );
 
-  console.log(startDateFormatted, endDateFormatted);
-
   if (!MONGO_URL) {
     throw new Error(`Environment variable MONGO_URL not set.`);
   }
