@@ -149,7 +149,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   renderContent() {
     const { conversation, messages } = this.props;
     const { customer, content, createdAt, integration } = conversation;
-    console.log('ccc', conversation);
+
     if (!this.state.toggleMessage && integration) {
       return (
         <>
