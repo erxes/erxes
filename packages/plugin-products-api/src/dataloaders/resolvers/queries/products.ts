@@ -351,7 +351,11 @@ const productQueries = {
     const category = await models.ProductCategories.getProductCategory({
       _id: product.categoryId
     });
-    if (!category.isSimilarity || !category.similarities.length) {
+    if (
+      !category.isSimilarity ||
+      !category.similarities ||
+      !category.similarities.length
+    ) {
       return {
         products: await models.Products.find({ _id })
       };
