@@ -133,9 +133,11 @@ export const MeetingDetail = (props: Props) => {
             <DrawerDetail>
               <span>Deals:</span>{' '}
               {deals?.map(deal => {
+                const { boardId, _id, pipeline } = deal;
+                const link = `/deal/board?id=${boardId}&pipelineId=${pipeline._id}&itemId=${_id}`;
                 return (
                   <>
-                    <Link to={deal.link}>{deal.name} </Link>,
+                    <Link to={link}>{deal.name} </Link>,
                   </>
                 );
               })}

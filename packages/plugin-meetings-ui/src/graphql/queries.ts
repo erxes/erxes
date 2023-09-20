@@ -80,7 +80,14 @@ query MeetingDetail($_id: String!) {
     createdAt
     status
     companyId
-    deals
+    deals{
+      _id
+      boardId
+      pipeline{
+        _id
+      }
+      name
+    }
     participantUser{
       _id
       details {

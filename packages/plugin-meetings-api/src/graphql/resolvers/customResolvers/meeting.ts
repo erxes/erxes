@@ -34,14 +34,8 @@ export default {
     if (!dealIds?.length) {
       return [];
     }
-    let deals = await sendCardsMessage({
-      subdomain,
-      action: 'deals.find',
-      data: { _id: { $in: dealIds } },
-      isRPC: true,
-      defaultValue: ''
-    });
-    for (const dealId of dealIds || []) {
+
+    return (dealIds || [])?.map(async dealId => {
       if (dealId) {
         const link = await sendCardsMessage({
           subdomain,
@@ -50,14 +44,11 @@ export default {
           isRPC: true,
           defaultValue: ''
         });
-
-        if (link) {
-          deals = deals.map(deal =>
-            deal._id === dealId ? { ...deal, link } : deal
-          );
-        }
       }
-    }
-    return deals;
+      return {
+        __typename: 'Deal',
+        _id: dealId
+      };
+    });
   }
 };

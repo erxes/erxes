@@ -18,6 +18,10 @@ const types = `
         _id: String! @external
       }
 
+  extend type Deal @key(fields: "_id") {
+    _id: String! @external
+  }   
+
   type Meeting {
     _id: String
     title: String
@@ -36,7 +40,7 @@ const types = `
     createdUser: User
     company: Company
     dealIds: [String]
-    deals: JSON
+    deals: [Deal]
   }
 `;
 
