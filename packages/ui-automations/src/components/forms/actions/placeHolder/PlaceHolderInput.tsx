@@ -10,11 +10,13 @@ import React from 'react';
 import SelectDate from './SelectDate';
 import SelectOption from './SelectOption';
 import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import AttriibutionForms from '../../../../containers/forms/actions/AttriibutionForms';
 
 type Props = {
   onChange: (config: any) => void;
   onKeyPress?: (value: string) => void;
   triggerType: string;
+  triggerConfig?: any;
   inputName: string;
   label: string;
   type?: string;
@@ -23,10 +25,12 @@ type Props = {
   fieldType?: string;
   config?: any;
   options?: IOption[];
+  optionsAllowedTypes?: string[];
   isMulti?: boolean;
   excludeAttr?: boolean;
   customAttributions?: FieldsCombinedByType[];
   additionalContent?: JSX.Element;
+  attrWithSegmentConfig?: boolean;
 };
 
 type State = {
@@ -69,8 +73,14 @@ class PlaceHolderInput extends React.Component<Props, State> {
   };
 
   renderSelect() {
-    const { fieldType, options, inputName, isMulti } = this.props;
-    if (fieldType !== 'select') {
+    const {
+      fieldType,
+      options,
+      inputName,
+      isMulti,
+      optionsAllowedTypes
+    } = this.props;
+    if (!['select', ...(optionsAllowedTypes || [])].includes(fieldType || '')) {
       return '';
     }
 
@@ -126,10 +136,33 @@ class PlaceHolderInput extends React.Component<Props, State> {
       inputName,
       attrType,
       attrTypes,
-      fieldType
+      triggerConfig,
+      fieldType,
+      attrWithSegmentConfig
     } = this.props;
     if (excludeAttr || fieldType === 'stage') {
       return '';
+    }
+
+    if (attrWithSegmentConfig) {
+      return (
+        <AttriibutionForms segmentId={triggerConfig?.contentId}>
+          {config => {
+            return (
+              <Attribution
+                inputName={inputName}
+                config={this.state.config}
+                setConfig={conf => this.onSelect(conf)}
+                triggerType={this.props.triggerType}
+                onlySet={this.getOnlySet()}
+                fieldType={fieldType}
+                attrConfig={config}
+                customAttributions={this.props.customAttributions}
+              />
+            );
+          }}
+        </AttriibutionForms>
+      );
     }
 
     return (
@@ -174,6 +207,16 @@ class PlaceHolderInput extends React.Component<Props, State> {
       this.setState({ config });
 
       this.props.onKeyPress(e);
+    }
+  };
+
+  onKeyDown = e => {
+    if (e.keyCode === 8) {
+      const { config, inputName } = this.props;
+      config[inputName] = '';
+
+      this.setState({ config });
+      this.props.onChange(config);
     }
   };
 
@@ -251,6 +294,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
             value={converted}
             onChange={this.onChange}
             onKeyPress={this.onKeyPress}
+            onKeyDown={this.onKeyDown}
           />
         </FormGroup>
       </BoardHeader>

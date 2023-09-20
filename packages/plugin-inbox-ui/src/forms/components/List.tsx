@@ -180,6 +180,7 @@ class List extends React.Component<Props, {}> {
               <SortHandler sortField={'createdDate'} label={__('Created at')} />
             </th>
             {isEnabled('tags') && <th>{__('Tags')}</th>}
+            <th>{__('Flow type')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
@@ -212,7 +213,7 @@ class List extends React.Component<Props, {}> {
             }
           />
         }
-        hasBorder
+        hasBorder={true}
       />
     );
   }

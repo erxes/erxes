@@ -28,6 +28,7 @@ const onChange = () => {
       }
     }
   }
+  process.exit();
 };
 
 watcher.on('change', onChange);

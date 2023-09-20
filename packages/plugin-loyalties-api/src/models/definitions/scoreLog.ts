@@ -5,6 +5,7 @@ import { OWNER_TYPES } from './constants';
 export interface IScoreLog {
   ownerType: string;
   ownerId: string;
+  ownerIds?: string[];
   changeScore: number;
   description: string;
   createdBy?: string;

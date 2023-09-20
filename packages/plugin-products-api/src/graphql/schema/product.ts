@@ -41,15 +41,19 @@ export const types = (tagsAvailable, contactsAvailable) => `
     productCount: Int
     maskType: String
     mask: JSON
+    isSimilarity: Boolean
+    similarities: JSON
   }
 
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
+    status: String
     code: String
     type: String
     description: String
     barcodes: [String]
+    variants: JSON
     barcodeDescription: String
     unitPrice: Float
     categoryId: String
@@ -68,7 +72,17 @@ export const types = (tagsAvailable, contactsAvailable) => `
     ${contactsAvailable ? 'vendor: Company' : ''}
     taxType: String
     taxCode: String
+    hasSimilarity: Boolean
+  }
 
+  type ProductSimilarityGroup {
+    title: String
+    fieldId: String
+  }
+
+  type ProductSimilarity {
+    products: [Product],
+    groups: [ProductSimilarityGroup],
   }
 `;
 
@@ -78,6 +92,7 @@ const productParams = `
   type: String,
   description: String,
   barcodes: [String],
+  variants: JSON,
   barcodeDescription: String,
   unitPrice: Float,
   code: String,
@@ -101,12 +116,16 @@ const productCategoryParams = `
   status: String
   maskType: String
   mask: JSON
+  isSimilarity: Boolean
+  similarities: JSON
 `;
 
 const productsQueryParams = `
   type: String,
+  status: String,
   categoryId: String,
   searchValue: String,
+  vendorId: String,
   tag: String,
   ids: [String],
   excludeIds: Boolean,
@@ -114,11 +133,12 @@ const productsQueryParams = `
   boardId: String,
   segment: String,
   segmentData: String,
+  groupedSimilarity: String,
 `;
 
 export const queries = `
-  productCategories(parentId: String, searchValue: String, status: String, meta: String): [ProductCategory]
-  productCategoriesTotalCount: Int
+  productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): [ProductCategory]
+  productCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
   productCategoryDetail(_id: String): ProductCategory
   products(
     ${productsQueryParams},
@@ -131,6 +151,7 @@ export const queries = `
   productsGroupCounts(only: String, segment: String, segmentData: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
+  productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
 `;
 
 export const mutations = `

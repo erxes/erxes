@@ -7,7 +7,6 @@ import Icon from './Icon';
 import React from 'react';
 import Select from 'react-select-plus';
 import colors from '../styles/colors';
-import debounce from 'lodash/debounce';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import styled from 'styled-components';
@@ -67,6 +66,7 @@ const ClearButton = styled.div`
 `;
 
 type Props = {
+  initialValuesProvided: boolean;
   initialValues: string[];
   searchValue: string;
   search: (search: string, loadMore?: boolean) => void;
@@ -77,7 +77,9 @@ const content = (option: IOption): React.ReactNode => (
   <>
     <Avatar
       src={
-        option.avatar ? readFile(option.avatar) : '/images/avatar-colored.svg'
+        option.avatar
+          ? readFile(option.avatar, 40)
+          : '/images/avatar-colored.svg'
       }
     />
     {option.label}
@@ -121,8 +123,24 @@ class SelectWithSearch extends React.Component<
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { queryName, customQuery, generateOptions } = nextProps;
+    const {
+      queryName,
+      customQuery,
+      initialValues,
+      generateOptions
+    } = nextProps;
+
+    const { initialValuesProvided } = this.props;
     const { selectedValues } = this.state;
+
+    // trigger clearing values by initialValues prop
+    if (
+      initialValuesProvided &&
+      (!initialValues || !initialValues.length) &&
+      selectedValues.length
+    ) {
+      this.setState({ selectedValues: [] });
+    }
 
     if (customQuery.loading !== this.props.customQuery.loading) {
       const datas = customQuery[queryName] || [];
@@ -372,6 +390,7 @@ class Wrapper extends React.Component<
     return (
       <Component
         {...this.props}
+        initialValuesProvided={initialValues.length ? true : false}
         initialValues={initialValues}
         abortController={abortController}
         search={this.search}

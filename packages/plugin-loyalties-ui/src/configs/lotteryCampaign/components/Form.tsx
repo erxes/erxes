@@ -53,28 +53,37 @@ class Form extends React.Component<Props, State> {
   componentWillUnmount(): void {
     this.props.closeModal();
   }
-
   generateDoc = (values: {
     _id?: string;
     attachment?: IAttachment;
     description: string;
   }) => {
-    const finalValues = values;
+    const finalValues = { ...values }; // Create a copy of values
     const { lotteryCampaign } = this.state;
 
     if (lotteryCampaign._id) {
       finalValues._id = lotteryCampaign._id;
     }
 
-    lotteryCampaign.buyScore = Number(lotteryCampaign.buyScore || 0);
-    lotteryCampaign.awards =
-      (lotteryCampaign.awards &&
-        lotteryCampaign.awards.sort((a, b) => a.count - b.count)) ||
+    const updatedLotteryCampaign = { ...lotteryCampaign }; // Create a copy of lotteryCampaign
+
+    updatedLotteryCampaign.buyScore = Number(
+      updatedLotteryCampaign.buyScore || 0
+    );
+
+    // Create a sorted copy of the awards array with null checks
+
+    const sortedAwards =
+      (updatedLotteryCampaign.awards &&
+        [...updatedLotteryCampaign.awards].sort(
+          (a, b) => (a?.count || 0) - (b?.count || 0)
+        )) ||
       [];
 
     return {
       ...finalValues,
-      ...lotteryCampaign
+      ...updatedLotteryCampaign,
+      awards: sortedAwards // Assign the sorted array to the awards property
     };
   };
 
@@ -146,11 +155,10 @@ class Form extends React.Component<Props, State> {
   renderAward = (award: ILotteryCampaignAward, formProps) => {
     const changeAward = (key, value) => {
       const { lotteryCampaign } = this.state;
-      award[key] = value;
-      lotteryCampaign.awards = (lotteryCampaign.awards || []).map(
-        a => (a._id === award._id && award) || a
+      const awards = (lotteryCampaign.awards || []).map(
+        a => (a._id === award._id && { ...a, [key]: value }) || a
       );
-      this.setState({ lotteryCampaign });
+      this.setState({ lotteryCampaign: { ...lotteryCampaign, awards } });
     };
     const onChangeName = e => {
       e.preventDefault();

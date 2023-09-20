@@ -41,7 +41,6 @@ type Props = {
 };
 
 type State = {
-  categoryId: string;
   currentProduct: string;
   currentDiscountVoucher: any;
   isSelectedVoucher: boolean;
@@ -53,7 +52,6 @@ class ProductItem extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      categoryId: '',
       currentProduct: props.currentProduct,
       currentDiscountVoucher: null,
       isSelectedVoucher: false,
@@ -93,10 +91,6 @@ class ProductItem extends React.Component<Props, State> {
       ...prevState,
       isSelectedVoucher: !prevState.isSelectedVoucher
     }));
-  };
-
-  onChangeCategory = (categoryId: string) => {
-    this.setState({ categoryId });
   };
 
   onChangeField = (type: string, value, _id: string) => {
@@ -283,8 +277,6 @@ class ProductItem extends React.Component<Props, State> {
       <ProductChooser
         {...props}
         onSelect={productOnChange}
-        onChangeCategory={this.onChangeCategory}
-        categoryId={this.state.categoryId}
         loadDiscountPercent={this.changeDiscountPercent}
         renderExtra={VoucherDiscountCard}
         data={{

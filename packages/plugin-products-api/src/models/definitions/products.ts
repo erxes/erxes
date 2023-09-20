@@ -1,6 +1,7 @@
 import {
   attachmentSchema,
   customFieldSchema,
+  IAttachment,
   ICustomField
 } from '@erxes/api-utils/src/types';
 import { Schema, Document } from 'mongoose';
@@ -28,10 +29,10 @@ export const PRODUCT_CATEGORY_STATUSES = {
 };
 
 export const PRODUCT_CATEGORY_MASK_TYPES = {
-  ANY: 'any',
+  ANY: '',
   SOFT: 'soft',
   HARD: 'hard',
-  ALL: ['any', 'soft', 'hard']
+  ALL: ['', 'soft', 'hard']
 };
 
 export interface ISubUom {
@@ -46,14 +47,15 @@ export interface IProduct {
   type?: string;
   description?: string;
   barcodes?: string[];
+  variants: { [code: string]: { image?: IAttachment; name?: string } };
   barcodeDescription?: string;
   unitPrice?: number;
   code: string;
   customFieldsData?: ICustomField[];
   productId?: string;
   tagIds?: string[];
-  attachment?: any;
-  attachmentMore?: any[];
+  attachment?: IAttachment;
+  attachmentMore?: IAttachment[];
   status?: string;
   vendorId?: string;
   vendorCode?: string;
@@ -64,6 +66,7 @@ export interface IProduct {
   subUoms?: ISubUom[];
   taxType?: string;
   taxCode?: string;
+  sameMasks?: string[];
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -82,6 +85,13 @@ export interface IProductCategory {
   status?: string;
   maskType?: string;
   mask?: any;
+  isSimilarity?: boolean;
+  similarities?: {
+    id: string;
+    groupId: string;
+    fieldId: string;
+    title: string;
+  }[];
 }
 
 export interface IProductCategoryDocument extends IProductCategory, Document {
@@ -119,6 +129,7 @@ export const productSchema = schemaWrapper(
       label: 'Barcodes',
       index: true
     }),
+    variants: field({ type: Object, optional: true }),
     barcodeDescription: field({
       type: String,
       optional: true,
@@ -161,7 +172,8 @@ export const productSchema = schemaWrapper(
       label: 'Sub unit of measurements'
     }),
     taxType: field({ type: String, optional: true, label: 'TAX type' }),
-    taxCode: field({ type: String, optional: true, label: 'tax type code' })
+    taxCode: field({ type: String, optional: true, label: 'tax type code' }),
+    sameMasks: field({ type: [String] })
   })
 );
 
@@ -195,6 +207,15 @@ export const productCategorySchema = schemaWrapper(
       label: 'Mask type',
       enum: PRODUCT_CATEGORY_MASK_TYPES.ALL
     }),
-    mask: field({ type: Object, label: 'Mask' })
+    mask: field({ type: Object, label: 'Mask', optional: true }),
+    isSimilarity: field({
+      type: Boolean,
+      label: 'is Similiraties',
+      optional: true
+    }),
+    similarities: field({
+      type: [{ id: String, groupId: String, fieldId: String, title: String }],
+      optional: true
+    })
   })
 );

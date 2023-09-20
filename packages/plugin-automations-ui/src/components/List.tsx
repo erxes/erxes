@@ -15,7 +15,6 @@ import Row from './Row';
 import { EmptyContent } from '../styles';
 import Sidebar from './Sidebar';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import Tagger from '@erxes/ui-tags/src/containers/Tagger';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 
@@ -155,7 +154,7 @@ class AutomationsList extends React.Component<IProps, State> {
               <th>{__('Status')}</th>
               <th>{__('Triggers')}</th>
               <th>{__('Action')}</th>
-              <th>{__('Tags')}</th>
+              {isEnabled('tags') && <th>{__('Tags')}</th>}
               <th>{__('Last updated by')}</th>
               <th>{__('Created by')}</th>
               <th>{__('Last update')}</th>

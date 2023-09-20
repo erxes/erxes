@@ -7,7 +7,6 @@ import {
   timeclockReportPreliminary
 } from './utils';
 import {
-  customFixDate,
   findAllTeamMembersWithEmpId,
   findTeamMembers,
   generateCommonUserIds,
@@ -176,6 +175,11 @@ const timeclockQueries = {
 
   scheduleConfigs(_root, {}, { models }: IContext) {
     return models.ScheduleConfigs.find();
+  },
+
+  scheduleConfigOrder(_root, { userId }, { models, user }: IContext) {
+    const getUserId = userId ? userId : user._id;
+    return models.ScheduleConfigOrder.findOne({ userId: getUserId });
   },
 
   async requestsMain(

@@ -1,5 +1,11 @@
 import { generateModels, IModels } from './connectionResolver';
-import { sendContactsMessage, sendCoreMessage } from './messageBroker';
+import {
+  sendClientPortalMessage,
+  sendCommonMessage,
+  sendContactsMessage,
+  sendCoreMessage,
+  sendSegmentsMessage
+} from './messageBroker';
 
 export default {
   constants: {
@@ -12,10 +18,17 @@ export default {
         isAvailable: true
       },
       {
-        type: 'loyalties:scoreLog.create',
+        type: 'loyalties:score.create',
         icon: 'file-plus',
         label: 'Change Score',
         description: 'Change Score',
+        isAvailable: true
+      },
+      {
+        type: 'loyalties:spin.create',
+        icon: 'file-plus',
+        label: 'Create Spin',
+        description: 'Create Spin',
         isAvailable: true
       }
     ]
@@ -25,101 +38,389 @@ export default {
     data: { action, execution, actionType }
   }) => {
     const models = await generateModels(subdomain);
+
     if (actionType === 'create') {
-      return actionCreate({ models, subdomain, action, execution });
+      return actionCreate({ subdomain, action, execution });
     }
 
     return;
   }
 };
 
-const actionCreate = async ({ models, subdomain, action, execution }) => {
-  const { config = {} } = action;
+const generateAttributes = value => {
+  const matches = (value || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
+  return matches.map(match => match.replace(/\{\{\s*|\s*\}\}/g, ''));
+};
+
+const fetchSegment = async ({ subdomain, execution }) => {
+  const { triggerConfig, targetId } = execution;
+
+  const [contentTypeId] = await sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: {
+      segmentId: triggerConfig.contentId,
+      options: {
+        defaultMustSelector: [
+          {
+            match: {
+              _id: targetId
+            }
+          }
+        ]
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+  return contentTypeId;
+};
+
+const generateIds = async value => {
+  if (
+    Array.isArray(value) &&
+    (value || []).every(value => typeof value === 'string')
+  ) {
+    return [...new Set(value)];
+  }
+
+  if (typeof value === 'string' && value.includes(', ')) {
+    return [...new Set(value.split(', '))];
+  }
+  return [];
+};
+
+const getOwner = async ({
+  models,
+  subdomain,
+  execution,
+  contentType,
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  execution: any;
+  contentType: string;
+  config: any;
+}) => {
   let ownerType;
   let ownerId;
 
-  const [_service, type] = execution.triggerType.split(':');
-  try {
-    if (
-      ['contacts:customer', 'core:user', 'contacts:company'].includes(
-        execution.triggerType
-      )
-    ) {
-      ownerType = type;
-      ownerId = execution.targetId;
-    }
+  if (
+    ['contacts:customer', 'core:user', 'contacts:company'].includes(
+      execution.triggerType
+    )
+  ) {
+    ownerType = contentType;
+    ownerId = execution.targetId;
+  }
 
-    if (execution.triggerType === 'inbox:conversation') {
-      ownerType = 'customer';
-      ownerId = execution.target.customerId;
-    }
+  if (['inbox:conversation', 'pos:posOrder'].includes(execution.triggerType)) {
+    ownerType = 'customer';
+    ownerId = execution.target.customerId;
+  }
 
-    if (
-      ['cards:task', 'cards:deal', 'cards:ticket', 'cards:purchase'].includes(
-        execution.triggerType
-      )
-    ) {
-      const customerIds = await sendCoreMessage({
+  if (
+    ['cards:task', 'cards:deal', 'cards:ticket', 'cards:purchase'].includes(
+      execution.triggerType
+    )
+  ) {
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: contentType,
+        mainTypeId: execution.targetId,
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (customerIds.length) {
+      const customers = await sendContactsMessage({
         subdomain,
-        action: 'conformities.savedConformity',
+        action: 'customers.find',
         data: {
-          mainType: type,
-          mainTypeId: execution.targetId,
-          relTypes: ['customer']
+          _id: { $in: customerIds }
         },
         isRPC: true,
         defaultValue: []
       });
 
-      if (customerIds.length) {
-        const customers = await sendContactsMessage({
-          subdomain,
-          action: 'customers.find',
-          data: {
-            _id: { $in: customerIds }
-          },
-          isRPC: true,
-          defaultValue: []
-        });
-
-        if (customers.length) {
-          ownerType = 'customer';
-          ownerId = customers[0]._id;
-        }
+      if (customers.length) {
+        ownerType = 'customer';
+        ownerId = customers[0]._id;
       }
     }
+  }
+  return { ownerType, ownerId };
+};
 
-    if (execution.triggerType === 'pos:posOrder') {
-      ownerType = 'customer';
-      ownerId = execution.target.customerId;
+const createVoucher = async ({
+  models,
+  subdomain,
+  execution,
+  contentType,
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  execution: any;
+  contentType: string;
+  config: any;
+}) => {
+  let ownerType;
+  let ownerId;
+
+  if (
+    ['contacts:customer', 'core:user', 'contacts:company'].includes(
+      execution.triggerType
+    )
+  ) {
+    ownerType = contentType;
+    ownerId = execution.targetId;
+  }
+
+  if (['inbox:conversation', 'pos:posOrder'].includes(execution.triggerType)) {
+    ownerType = 'customer';
+    ownerId = execution.target.customerId;
+  }
+
+  if (
+    ['cards:task', 'cards:deal', 'cards:ticket', 'cards:purchase'].includes(
+      execution.triggerType
+    )
+  ) {
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: contentType,
+        mainTypeId: execution.targetId,
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (customerIds.length) {
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.find',
+        data: {
+          _id: { $in: customerIds }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (customers.length) {
+        ownerType = 'customer';
+        ownerId = customers[0]._id;
+      }
     }
+  }
 
-    if (!ownerType || !ownerId) {
-      return { error: 'not found voucher owner' };
-    }
+  return await models.Vouchers.createVoucher({
+    campaignId: config.voucherCampaignId,
+    ownerType,
+    ownerId
+  });
+};
 
-    if (action.type === 'loyalties:scoreLog.create') {
-      const scoreLog = await models.ScoreLogs.changeScore({
-        ownerType,
-        ownerId,
-        changeScore: config.changeScore,
+const addScore = async ({
+  models,
+  subdomain,
+  execution,
+  serviceName,
+  contentType,
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  execution: any;
+  serviceName: string;
+  contentType: string;
+  config: any;
+}) => {
+  if (!!config?.ownerType && !!config?.ownerIds?.length) {
+    return await models.ScoreLogs.changeOwnersScore({
+      ownerType: config.ownerType,
+      ownerIds: config.ownerIds,
+      changeScore: Number(config?.score || 0),
+      description: 'from automation'
+    });
+  }
+
+  if (config?.attribution) {
+    let attributes = generateAttributes(config?.attribution || '');
+
+    if (attributes.includes('triggerExecutor')) {
+      const contentTypeId = await fetchSegment({ subdomain, execution });
+
+      await models.ScoreLogs.changeOwnersScore({
+        ownerType: contentType,
+        ownerId: contentTypeId || '',
+        changeScore: Number(config?.score || 0),
         description: 'from automation'
       });
-
-      return scoreLog;
+      attributes = attributes.filter(
+        attribute => attribute !== 'triggerExecutor'
+      );
     }
 
-    if (action.type === 'loyalties:voucher.create') {
-      const voucher = await models.Vouchers.createVoucher({
-        campaignId: config.voucherCampaignId,
-        ownerType,
-        ownerId
+    if (!attributes?.length) {
+      return 'done';
+    }
+    const data = {
+      target: execution?.target,
+      config: {},
+      relatedValueProps: {}
+    };
+
+    for (const attribute of attributes) {
+      data.config[attribute] = `{{ ${attribute} }}`;
+      data.relatedValueProps[attribute] = {
+        key: '_id'
+      };
+    }
+
+    const replacedContent = await sendCommonMessage({
+      subdomain,
+      serviceName,
+      action: 'automations.replacePlaceHolders',
+      data,
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (replacedContent['customers']) {
+      await models.ScoreLogs.changeOwnersScore({
+        ownerType: 'customer',
+        ownerIds: await generateIds(replacedContent['customers']),
+        changeScore: Number(config?.score || 0),
+        description: 'from automation'
       });
-
-      return voucher;
     }
 
-    return {};
+    if (replacedContent['companies']) {
+      await models.ScoreLogs.changeOwnersScore({
+        ownerType: 'company',
+        ownerIds: await generateIds(replacedContent['companies']),
+        changeScore: Number(config?.score || 0),
+        description: 'from automation'
+      });
+    }
+    const replacedContentKeys = Object.keys(replacedContent);
+
+    const teamMemberKeys = replacedContentKeys.filter(
+      key => !['customers', 'companies'].includes(key)
+    );
+
+    let teamMemberIds: string[] = [];
+
+    for (const key of teamMemberKeys) {
+      teamMemberIds = [
+        ...teamMemberIds,
+        ...(await generateIds(replacedContent[key]))
+      ];
+    }
+
+    await models.ScoreLogs.changeOwnersScore({
+      ownerType: 'user',
+      ownerIds: teamMemberIds || [],
+      changeScore: Number(config?.score || 0),
+      description: 'from automation'
+    });
+    return 'done';
+  }
+
+  return { error: 'Not Selected Action configuration' };
+};
+
+const addSpin = async ({
+  models,
+  subdomain,
+  execution,
+  contentType,
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  execution: any;
+  contentType: string;
+  config: any;
+}) => {
+  let { ownerId, ownerType } = await getOwner({
+    models,
+    subdomain,
+    execution,
+    contentType,
+    config
+  });
+
+  if (ownerType === 'customer') {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: {
+        erxesCustomerId: ownerId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (customerRelatedClientPortalUser) {
+      ownerId = customerRelatedClientPortalUser._id;
+      ownerType = 'cpUser';
+    }
+  }
+
+  return await models.Spins.createSpin({
+    ownerId,
+    ownerType,
+    campaignId: config.spinCampaignId
+  });
+};
+
+const actionCreate = async ({ subdomain, action, execution }) => {
+  const models = await generateModels(subdomain);
+  const { config = {}, type } = action;
+  const { triggerType } = execution || {};
+
+  const [serviceName, contentType] = triggerType.split(':');
+  try {
+    switch (type) {
+      case 'loyalties:score.create':
+        return await addScore({
+          models,
+          subdomain,
+          serviceName,
+          contentType,
+          execution,
+          config
+        });
+
+      case 'loyalties:voucher.create':
+        return createVoucher({
+          models,
+          subdomain,
+          execution,
+          contentType,
+          config
+        });
+      case 'loyalties:spin.create':
+        return addSpin({
+          models,
+          subdomain,
+          execution,
+          contentType,
+          config
+        });
+      default:
+        return {};
+    }
   } catch (e) {
     return { error: e.message };
   }
