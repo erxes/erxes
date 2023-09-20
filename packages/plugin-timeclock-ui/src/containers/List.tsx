@@ -15,8 +15,9 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import erxesQuery from '@erxes/ui/src/team/graphql/queries';
-import { removeParams } from '@erxes/ui/src/utils/router';
 import { queries } from '../graphql';
+import { removeParams } from '@erxes/ui/src/utils/router';
+
 
 type Props = {
   currentUser: IUser;

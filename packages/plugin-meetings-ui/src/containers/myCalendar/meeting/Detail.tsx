@@ -2,11 +2,7 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import {
-  EditTypeMutationResponse,
-  RemoveTypeMutationResponse,
-  MeetingDetailQueryResponse
-} from '../../../types';
+import { MeetingDetailQueryResponse } from '../../../types';
 import { mutations, queries } from '../../../graphql';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -22,9 +18,7 @@ type Props = {
 
 type FinalProps = {
   meetingDetailQuery: MeetingDetailQueryResponse;
-} & Props &
-  RemoveTypeMutationResponse &
-  EditTypeMutationResponse;
+} & Props;
 
 const MeetingDetailContainer = (props: FinalProps) => {
   const { meetingDetailQuery, companyId, status } = props;
@@ -42,7 +36,16 @@ const MeetingDetailContainer = (props: FinalProps) => {
   });
 
   const changeStatus = (meetingId: string, status: string) => {
-    confirm('Start meeting?').then(() =>
+    const confirmLabel =
+      status === 'canceled'
+        ? 'Cancel meeting?'
+        : status === 'draft'
+        ? 'Draft meeting?'
+        : status === 'ongoing'
+        ? 'Start meeting?'
+        : 'End meeting?';
+
+    confirm(confirmLabel).then(() =>
       editMeetingStatus({ variables: { _id: meetingId, status } })
     );
   };

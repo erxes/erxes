@@ -84,7 +84,6 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   }
 
   const { apiResponse } = data.invoice;
-  console.log(apiResponse);
 
   if (data.invoice._id) {
     intervalId = setInterval(async function() {
@@ -189,6 +188,22 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     deeplink.href = apiResponse.deeplink;
     deeplink.target = '_self';
     deeplink.innerHTML = `Open in ${paymentObj.kind}`;
+  }
+
+  if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile){
+    // hide qr image
+    image.style.display = 'none';
+    const urls = apiResponse.urls || [];
+
+    urls.map((bankUrl) => {
+      const bankButton = document.createElement('button');
+      bankButton.classList.add('bank');
+      bankButton.innerHTML = `<img src="${bankUrl.logo}" class="urlLogo">`;
+      bankButton.addEventListener('click', function() {
+        window.open(bankUrl.link, '_self');
+      });
+      document.getElementById('bank-buttons').appendChild(bankButton);
+    });
   }
 
   let amountValue = data.invoice.amount

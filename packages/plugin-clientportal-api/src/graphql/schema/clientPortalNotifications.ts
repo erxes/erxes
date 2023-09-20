@@ -55,7 +55,7 @@ const params = `
 
 export const queries = `
   clientPortalNotifications(${params}): [ClientPortalNotification]
-  clientPortalNotificationCount: Int
+  clientPortalNotificationCount(all: Boolean): Int
   clientPortalNotificationDetail(_id: String!): ClientPortalNotification
 `;
 

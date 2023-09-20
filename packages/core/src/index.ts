@@ -215,6 +215,7 @@ app.get('/read-file', async (req: any, res, next) => {
   try {
     const key = req.query.key;
     const name = req.query.name;
+    const width = req.query.width;
 
     if (!key) {
       return res.send('Invalid key');
@@ -224,7 +225,8 @@ app.get('/read-file', async (req: any, res, next) => {
       key,
       subdomain,
       models,
-      userId: req.headers.userid
+      userId: req.headers.userid,
+      width
     });
 
     res.attachment(name || key);
