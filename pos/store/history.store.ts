@@ -1,8 +1,8 @@
 import { addDays, formatISO, subDays } from "date-fns"
 import { atom } from "jotai"
-import { atomWithStorage } from "jotai/utils"
 
 import { IFilter } from "@/types/history.types"
+import { IOrder } from "@/types/order.types"
 import { ORDER_STATUSES } from "@/lib/constants"
 
 export const defaultFilter = {
@@ -16,6 +16,10 @@ export const defaultFilter = {
   sortField: "modifiedAt",
   sortDirection: -1,
 }
+
+export const openCancelDialogAtom = atom<string | null>(null)
+export const paymentDetailAtom = atom<IOrder | null>(null)
+export const openReturnDialogAtom = atom<string | null>(null)
 
 export const filterAtom = atom<IFilter>({
   ...defaultFilter,

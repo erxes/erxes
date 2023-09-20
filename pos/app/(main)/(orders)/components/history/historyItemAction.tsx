@@ -17,8 +17,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import OrderCancel from "./orderCancel"
+import OrderReturn from "./orderReturn"
+import PaymentDetail from "./paymentDetail"
+
 const HistoryItemAction = ({ row }: CellContext<IOrderHistory, unknown>) => {
-  const { _id, paidDate } = row.original || {}
+  const { _id, paidDate, number, totalAmount } = row.original || {}
   const router = useRouter()
   const setActiveOrder = useSetAtom(activeOrderAtom)
   const setOpenDetail = useSetAtom(detailIdAtom)
@@ -65,7 +69,12 @@ const HistoryItemAction = ({ row }: CellContext<IOrderHistory, unknown>) => {
         <DropdownMenuItem onClick={() => setOpenDetail(_id)}>
           Дэлгэрэнгүй
         </DropdownMenuItem>
+
+        <PaymentDetail _id={_id} paidDate={paidDate}/>
       </DropdownMenuContent>
+      <OrderReturn _id={_id} number={number} totalAmount={totalAmount} />
+
+      <OrderCancel _id={_id} number={number} />
     </DropdownMenu>
   )
 }

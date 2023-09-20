@@ -52,6 +52,14 @@ const getPaymentConfig = gql`
   }
 `
 
+const getPaymentTypes = gql`
+  query GetPaymentTypes {
+    currentConfig {
+      paymentTypes
+    }
+  }
+`
+
 const getCoverConfig = gql`
   query GetCoverConfig {
     currentConfig {
@@ -173,6 +181,7 @@ const queries = {
   getInitialCategories,
   getAllowTypes,
   getWaitingConfig,
+  getPaymentTypes,
 }
 
 export default queries
