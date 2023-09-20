@@ -86,7 +86,7 @@ export interface IProductCategory {
   maskType?: string;
   mask?: any;
   isSimilarity?: boolean;
-  similarities: {
+  similarities?: {
     id: string;
     groupId: string;
     fieldId: string;
@@ -207,10 +207,15 @@ export const productCategorySchema = schemaWrapper(
       label: 'Mask type',
       enum: PRODUCT_CATEGORY_MASK_TYPES.ALL
     }),
-    mask: field({ type: Object, label: 'Mask' }),
-    isSimilarity: field({ type: Boolean, label: 'is Similiraties' }),
+    mask: field({ type: Object, label: 'Mask', optional: true }),
+    isSimilarity: field({
+      type: Boolean,
+      label: 'is Similiraties',
+      optional: true
+    }),
     similarities: field({
-      type: [{ id: String, groupId: String, fieldId: String, title: String }]
+      type: [{ id: String, groupId: String, fieldId: String, title: String }],
+      optional: true
     })
   })
 );
