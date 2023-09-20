@@ -218,7 +218,11 @@ class PermissionList extends React.Component<Props> {
     );
 
     return (
-      <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+      <Wrapper.ActionBar
+        left={title}
+        right={actionBarRight}
+        wideSpacing={true}
+      />
     );
   }
 
@@ -257,7 +261,7 @@ class PermissionList extends React.Component<Props> {
         footer={<Pagination count={totalCount} />}
         content={this.renderContent()}
         center={false}
-        hasBorder
+        hasBorder={true}
       />
     );
   }
