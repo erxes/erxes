@@ -5,12 +5,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
-import {
-  posInit,
-  posSyncConfig,
-  posSyncOrders,
-  unfetchOrderInfo
-} from './routes';
+import { posInit, posSyncConfig, unfetchOrderInfo } from './routes';
 import afterMutations from './afterMutations';
 import automations from './automations';
 import forms from './forms';
@@ -32,10 +27,7 @@ export default {
     { path: `/pos-sync-config`, method: posSyncConfig },
     { path: `/file-export`, method: exportFileRunner }
   ],
-  postHandlers: [
-    { path: `/api/unfetch-order-info`, method: unfetchOrderInfo },
-    { path: `/pos-sync-orders`, method: posSyncOrders }
-  ],
+  postHandlers: [{ path: `/api/unfetch-order-info`, method: unfetchOrderInfo }],
   graphql: async sd => {
     serviceDiscovery = sd;
     return {
