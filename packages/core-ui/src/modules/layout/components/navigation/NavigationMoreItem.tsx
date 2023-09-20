@@ -1,18 +1,18 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
 import {
-  NavItem,
-  NavIcon,
-  NavMenuItem,
   MoreItemRecent,
+  NavIcon,
+  NavItem,
+  NavMenuItem,
   RoundBox
 } from '../../styles';
+
+import { NavLink } from 'react-router-dom';
+import { Plugin } from './types';
+import React from 'react';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
-
 import { getLink } from './utils';
-import { Plugin } from './types';
 
 type Props = {
   plugin: Plugin;
@@ -41,15 +41,17 @@ export default function NavigationMoreItem(props: Props) {
     >
       <MoreItemRecent>
         <NavItem isMoreItem={true}>
-          <NavMenuItem isMoreItem={true} navCollapse={navCollapse}>
-            <NavLink
-              to={getLink(plugin.url)}
-              onClick={() => toggleMenu(plugin.text)}
-            >
-              <NavIcon className={plugin.icon} />
-              <label>{plugin.text}</label>
-            </NavLink>
-          </NavMenuItem>
+          <Tip placement="top" text={plugin.text}>
+            <NavMenuItem isMoreItem={true} navCollapse={navCollapse}>
+              <NavLink
+                to={getLink(plugin.url)}
+                onClick={() => toggleMenu(plugin.text)}
+              >
+                <NavIcon className={plugin.icon} />
+                <label>{plugin.text}</label>
+              </NavLink>
+            </NavMenuItem>
+          </Tip>
           {isPinnable && (
             <Tip
               placement="top"
