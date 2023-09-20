@@ -1,4 +1,4 @@
-import { useParams, useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import useUser from "@/modules/auth/hooks/useUser"
 import {
   beginDateAtom,
@@ -35,7 +35,7 @@ const CoverCU = () => {
   const router = useRouter()
 
   const { userId } = useUser()
-  const { id } = useParams()
+  const id = useSearchParams().get("id")
   const { loading, coverCU } = useCoverCU()
 
   const handleClick = () => {

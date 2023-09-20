@@ -1,5 +1,5 @@
-import { beginDateAtom } from "@/store/cover.store"
-import { useAtom } from "jotai"
+import { isCoverAmountsFetchedAtom } from "@/store/cover.store"
+import { useAtomValue } from "jotai"
 
 import Khaan from "./Khaan"
 import CashAmounts from "./cash-amounts"
@@ -9,9 +9,9 @@ import Golomt from "./golomt"
 import TDB from "./tdb"
 
 const Amounts = () => {
-  const [beginDate] = useAtom(beginDateAtom)
+  const isFetched = useAtomValue(isCoverAmountsFetchedAtom)
 
-  if (!beginDate) return null
+  if (!isFetched) return null
 
   return (
     <div className="my-4 grid grid-cols-2 gap-2">
