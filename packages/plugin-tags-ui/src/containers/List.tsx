@@ -75,10 +75,6 @@ const ListContainer = (props: FinalProps) => {
     );
   }
 
-  if (tagsQuery.loading) {
-    return <Spinner />;
-  }
-
   const remove = tag => {
     confirm(
       `This action will untag all ${type}(s) with this tag and remove the tag. Are you sure?`
