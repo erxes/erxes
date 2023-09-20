@@ -21,7 +21,7 @@
     "dotenv": "^10.0.0",
     "erxes-api-utils": "^0.0.34",
     "erxes-telemetry": "^1.0.4",
-    "express": "^4.17.2",
+    "express": "^4.17.3",
     "get-port": "^5.1.1",
     "graphql": "^15.8.0",
     "graphql-parse-resolve-info": "^4.13.0",
