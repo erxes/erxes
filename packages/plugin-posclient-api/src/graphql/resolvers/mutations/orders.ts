@@ -737,6 +737,16 @@ const orderMutations = {
         }
       });
 
+      if (config.isOnline) {
+        const products = await models.Products.find({
+          _id: { $in: items.map(i => i.productId) }
+        }).lean();
+        for (const item of items) {
+          const product = products.find(p => p._id === item.productId) || {};
+          item.productName = `${product.code} - ${product.name}`;
+        }
+      }
+
       try {
         sendPosMessage({
           subdomain,
