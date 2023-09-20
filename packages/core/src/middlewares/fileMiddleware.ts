@@ -3,11 +3,9 @@ import * as formidable from 'formidable';
 import * as request from 'request';
 import { generateModels } from '../connectionResolver';
 import * as _ from 'underscore';
-import * as fileType from 'file-type';
-import * as fs from 'fs';
 import { filterXSS } from 'xss';
 
-import { checkFile, resizeImage, uploadFile } from '../data/utils';
+import { checkFile, isImage, resizeImage, uploadFile } from '../data/utils';
 import { debugExternalApi } from '../debuggers';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
@@ -51,11 +49,14 @@ export const uploader = async (req: any, res, next) => {
 
     let fileResult = file;
 
-    const detectedType = fileType(fs.readFileSync(file.path));
-    if (detectedType && detectedType.mime.startsWith('image/')) {
-      if (maxHeight || maxWidth) {
-        fileResult = await resizeImage(file, maxWidth, maxHeight);
-      }
+    const mimetype = file.type || file.mime;
+
+    if (!mimetype) {
+      return res.status(500).send('File type is not recognized');
+    }
+
+    if (isImage(mimetype) && maxHeight && maxWidth) {
+      fileResult = await resizeImage(file, maxWidth, maxHeight);
     }
 
     // check file ====

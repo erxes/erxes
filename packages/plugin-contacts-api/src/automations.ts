@@ -174,7 +174,6 @@ export default {
     const { type, config } = data;
 
     const commonFilter = {
-      emailValidationStatus: 'valid',
       _id: { $in: config[`${type}Ids`] }
     };
 

@@ -77,6 +77,6 @@ const brandMutations = {
 
 checkPermission(brandMutations, 'brandsAdd', 'manageBrands');
 checkPermission(brandMutations, 'brandsEdit', 'manageBrands');
-checkPermission(brandMutations, 'brandsRemove', 'manageBrands');
+checkPermission(brandMutations, 'brandsRemove', 'removeBrands');
 
 export default brandMutations;

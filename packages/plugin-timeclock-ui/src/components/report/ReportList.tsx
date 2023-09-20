@@ -73,6 +73,7 @@ function ReportList(props: Props) {
       case 'Урьдчилсан':
         return (
           <tr>
+            <th>{'№'}</th>
             <th>{__('Team member Id')}</th>
             <th>{__('Last Name')}</th>
             <th>{__('First Name')}</th>
@@ -86,6 +87,7 @@ function ReportList(props: Props) {
         return (
           <>
             <tr>
+              <th rowSpan={2}>{'№'}</th>
               {showDepartment && <th rowSpan={2}>{__('Department')}</th>}
               {showBranch && <th rowSpan={2}>{__('Branch')}</th>}
               <th rowSpan={2}>{__('Team member Id')}</th>
@@ -125,12 +127,12 @@ function ReportList(props: Props) {
           <>
             <tr>
               <th
-                colSpan={4}
+                colSpan={5}
                 style={{ textAlign: 'center', border: '1px solid #EEE' }}
               >
                 {__('General Information')}
               </th>
-              <th>{__('Time')}</th>
+              <th colSpan={1}>{__('Time')}</th>
               <th
                 colSpan={4}
                 style={{ textAlign: 'center', border: '1px solid #EEE' }}
@@ -138,17 +140,18 @@ function ReportList(props: Props) {
                 {__('Schedule')}
               </th>
               <th
-                colSpan={7}
+                colSpan={9}
                 style={{ textAlign: 'center', border: '1px solid #EEE' }}
               >
                 {__('Performance')}
               </th>
             </tr>
             <tr>
-              <td>{__('Team member Id')}</td>
-              <td>{__('Last Name')}</td>
-              <td>{__('First Name')}</td>
-              <td style={{ textAlign: 'left' }}>{__('Position')}</td>
+              <th>{'№'}</th>
+              <th>{__('Team member Id')}</th>
+              <th>{__('Last Name')}</th>
+              <th>{__('First Name')}</th>
+              <th style={{ textAlign: 'left' }}>{__('Position')}</th>
               <th>{__('Date')}</th>
               <th>{__('Planned Check In')}</th>
               <th>{__('Planned Check Out')}</th>
@@ -174,8 +177,9 @@ function ReportList(props: Props) {
       <Table>
         <thead>{renderTableHead()}</thead>
         {reports &&
-          reports.map(reportt => (
+          reports.map((reportt, i) => (
             <ReportRow
+              index={i + 1}
               key={Math.random()}
               reportType={reportType}
               report={reportt}

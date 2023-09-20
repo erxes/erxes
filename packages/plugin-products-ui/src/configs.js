@@ -6,6 +6,7 @@ module.exports = {
     "./routes": "./src/routes.tsx",
     './extendFormField': './src/containers/productCategory/SelectProductCategory.tsx',
     './extendFormFieldChoice': './src/components/product/FormFieldChoice.tsx',
+    './propertyGroupForm': './src/propertyGroupForm.tsx',
   },
   routes: {
     url: "http://localhost:3022/remoteEntry.js",
@@ -14,6 +15,7 @@ module.exports = {
   },
   extendFormField: './extendFormField',
   extendFormFieldChoice: './extendFormFieldChoice',
+  propertyGroupForm: './propertyGroupForm',
   menus: [
     {
       text: "Product and services",

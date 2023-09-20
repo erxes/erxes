@@ -8,7 +8,7 @@ import * as Agent from 'agentkeepalive';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const timeoutMs = Number(process.env.RPC_TIMEOUT) || 10000;
+const timeoutMs = Number(process.env.RPC_TIMEOUT) || 30000;
 
 const httpAgentOptions = {
   timeout: timeoutMs,
@@ -17,6 +17,19 @@ const httpAgentOptions = {
 
 const keepaliveAgent = new Agent(httpAgentOptions);
 const secureKeepaliveAgent = new Agent.HttpsAgent(httpAgentOptions);
+
+function getHttpAgent(protocol: string, args: any): Agent | Agent.HttpsAgent {
+  if (args.timeout && Number(args.timeout)) {
+    const options = { ...httpAgentOptions, timeout: Number(args.timeout) };
+    if (protocol === 'http:') {
+      return new Agent(options);
+    } else {
+      return new Agent.HttpsAgent(options);
+    }
+  } else {
+    return protocol === 'http:' ? keepaliveAgent : secureKeepaliveAgent;
+  }
+}
 
 const showInfoDebug = () => {
   if ((process.env.DEBUG || '').includes('error')) {
@@ -119,6 +132,12 @@ export const createConsumeRPCQueue = (app: Express) => (
 ) => {
   const { procedureName } = splitPluginProcedureName(queueName);
 
+  if (procedureName.includes(':')) {
+    throw new Error(
+      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`
+    );
+  }
+
   const endpoint = `/rpc/${procedureName}`;
 
   app.post(endpoint, async (req, res) => {
@@ -157,16 +176,20 @@ export const sendRPCMessage = async (
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(args),
-        agent: parsedURL =>
-          parsedURL.protocol === 'http:'
-            ? keepaliveAgent
-            : secureKeepaliveAgent,
+        agent: parsedURL => getHttpAgent(parsedURL.protocol, args),
         compress: false
       });
 
       if (!(200 <= response.status && response.status < 300)) {
+        let argsJson = '"cannot stringify"';
+        try {
+          argsJson = JSON.stringify(args);
+        } catch (e) {}
+
         throw new Error(
-          `RPC HTTP error: Status code ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}`
+          `RPC HTTP error. Status code: ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}.
+            Arguments: ${argsJson}
+          `
         );
       }
 
@@ -182,8 +205,15 @@ export const sendRPCMessage = async (
         if (args?.defaultValue) {
           return args.defaultValue;
         } else {
+          let argsJson = '"cannot stringify"';
+          try {
+            argsJson = JSON.stringify(args);
+          } catch (e) {}
+
           throw new Error(
-            `RPC HTTP error. Remote: ${pluginName}. Procedure: ${procedureName}. Timed out after ${timeoutMs}ms.`
+            `RPC HTTP timeout after ${timeoutMs}ms. Remote: ${pluginName}. Procedure: ${procedureName}.
+              Arguments: ${argsJson}
+            `
           );
         }
       }
@@ -193,8 +223,8 @@ export const sendRPCMessage = async (
   };
 
   let lastError = null;
-  let maxTries = 3;
-  for (let tryIdx = 0; tryIdx < maxTries; tryIdx++) {
+  const maxTries = 3;
+  for (let tryIdx = 1; tryIdx <= maxTries; tryIdx++) {
     try {
       const data = await getData();
       return data;
@@ -206,7 +236,7 @@ export const sendRPCMessage = async (
           e.code
         )
       ) {
-        const lastTry = tryIdx >= maxTries - 1;
+        const lastTry = tryIdx >= maxTries;
         !lastTry && (await new Promise(resolve => setTimeout(resolve, 3000)));
       } else {
         throw e;

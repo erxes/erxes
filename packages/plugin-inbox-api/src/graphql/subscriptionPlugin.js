@@ -124,12 +124,8 @@ module.exports = {
           () =>
             graphqlPubsub.asyncIterator("conversationClientMessageInserted"),
           async (payload, variables) => {
-            const { subdomain, conversation, integration, channelMemberIds } = payload;
-
-            if (subdomain !== variables.subdomain) {
-              return false;
-            }
-    
+            const { conversation, integration, channelMemberIds } = payload;
+            
             if (!conversation) {
               return false;
             }

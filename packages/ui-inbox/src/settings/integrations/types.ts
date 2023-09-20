@@ -126,7 +126,7 @@ export type CommonFieldsEditResponse = {
       name: string;
       brandId: string;
       channelIds?: string[];
-      data: any;
+      details: any;
     };
   }) => Promise<any>;
 };
@@ -280,6 +280,7 @@ export interface IIntegration {
   bookingData?: IBookingData;
   visibility?: string;
   departmentIds?: string[];
+  details?: any;
 }
 
 export type QueryVariables = {
@@ -306,7 +307,7 @@ export type IntegrationMutationVariables = {
   channelIds?: string[];
   visibility?: string;
   departmentIds?: string[];
-  data?: any;
+  details?: any;
 };
 
 export type AddIntegrationMutationVariables = {

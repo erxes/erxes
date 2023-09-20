@@ -65,7 +65,6 @@ const supergraphComposeOnce = async () => {
     await execSync(
       `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`
     );
-    
   } else {
     const superGraphqlNext = supergraphPath + '.next';
 
