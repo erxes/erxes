@@ -8,7 +8,7 @@
     "start": "cd .erxes/dist/plugin-cards-api/.erxes && node src"
   },
   "dependencies": {
-    "aws-sdk": "^2.493.0",
+    "aws-sdk": "^2.1354.0",
     "nodemailer": "^6.2.1"
   }
 }
