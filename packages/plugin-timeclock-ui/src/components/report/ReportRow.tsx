@@ -10,11 +10,13 @@ type Props = {
   report: IReport;
   showBranch: boolean;
   showDepartment: boolean;
+  index: number;
 };
 
 const ReportRow = (
   userReport: IUserReport,
   reportType: string,
+  index: number,
   showDepartment: boolean,
   showBranch: boolean
 ) => {
@@ -22,6 +24,9 @@ const ReportRow = (
     case 'Урьдчилсан':
       return (
         <tr key={Math.random()}>
+          <td>
+            <b>{index}</b>
+          </td>
           <td>{userReport.user.employeeId}</td>
           <td>{userReport.user.details?.lastName || '-'}</td>
           <td>{userReport.user.details?.firstName || '-'}</td>
@@ -35,6 +40,9 @@ const ReportRow = (
     case 'Сүүлд':
       return (
         <tr key={Math.random()}>
+          <td>
+            <b>{index}</b>
+          </td>
           {showDepartment && (
             <td>{userReport.departmentTitles?.join(',\n') || '-'}</td>
           )}
@@ -64,9 +72,11 @@ const ReportRow = (
 
     case 'Pivot':
       if (!userReport.scheduleReport || !userReport.scheduleReport.length) {
-        const columnsNo = 13;
         return (
           <tr key={Math.random()}>
+            <td>
+              <b>{index}</b>
+            </td>
             <td>{userReport.user.employeeId}</td>
             <td>{userReport.user.details?.lastName || '-'}</td>
             <td>{userReport.user.details?.firstName || '-'}</td>
@@ -94,6 +104,9 @@ const ReportRow = (
       return (
         <>
           <tr key={Math.random()}>
+            <td rowSpan={userReport.scheduleReport.length + 2}>
+              <b>{index}</b>
+            </td>
             <td rowSpan={userReport.scheduleReport.length + 2}>
               {userReport.user.employeeId}
             </td>
@@ -168,11 +181,11 @@ const renderScheduleShiftInfo = scheduledShift => {
 };
 
 const ReportList = (props: Props) => {
-  const { report, reportType, showDepartment, showBranch } = props;
+  const { report, reportType, showDepartment, showBranch, index } = props;
   return (
     <tbody>
       {report.groupReport.map(userReport =>
-        ReportRow(userReport, reportType, showDepartment, showBranch)
+        ReportRow(userReport, reportType, index, showDepartment, showBranch)
       )}
     </tbody>
   );

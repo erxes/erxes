@@ -459,11 +459,13 @@ const createCFR2 = async (models?: IModels) => {
     accessKeyId: string;
     secretAccessKey: string;
     signatureVersion: 'v4';
+    region: string;
   } = {
     endpoint: CLOUDFLARE_ENDPOINT,
     accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
     secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
-    signatureVersion: 'v4'
+    signatureVersion: 'v4',
+    region: 'auto'
   };
 
   return new AWS.S3(options);
@@ -895,7 +897,12 @@ const readFromCFImages = async (
 
   return new Promise(resolve => {
     fetch(url)
-      .then(res => res.buffer())
+      .then(res => {
+        if (!res.ok || res.status !== 200) {
+          return readFromCR2(key, models);
+        }
+        return res.buffer();
+      })
       .then(buffer => resolve(buffer))
       .catch(_err => {
         return readFromCR2(key, models);

@@ -1,5 +1,5 @@
 import { colors, dimensions } from '../styles';
-import { darken, rgba } from './ecolor';
+import { darken, lighten, rgba } from './ecolor';
 
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -384,6 +384,138 @@ const FilterGroup = styled.div`
   }
 `;
 
+const ColumnContainer = styled.div`
+  position: relative;
+  height: 100%;
+`;
+
+const ColumnContentBody = styled.div`
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 0 4px 90px;
+  margin: 10px 0;
+  overflow-y: auto;
+  display: block;
+`;
+
+const ColumnFooter = styled.div`
+  position: absolute;
+  z-index: 2;
+  bottom: 31px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  background: ${colors.bgLight};
+`;
+
+const Header = styled.div`
+  display: inline-block;
+`;
+
+const HeaderWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const ScrolledContent = styled.div`
+  display: flex;
+  height: 100%;
+  width: 100%;
+  will-change: contents;
+  overflow: auto;
+`;
+
+const Content = styled.div`
+  flex: 1;
+  overflow: hidden;
+  background: #e5e8ec;
+  margin: 0 5px 0 0;
+  min-width: 280px;
+  border-radius: 3px;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 5px 0px;
+  height: 100%;
+`;
+
+const ContentHeader = styled.div`
+  padding: 8px 16px 2px;
+  font-weight: bold;
+  font-size: 14px;
+`;
+
+const Item = styled.div`
+  margin-left: 8px;
+
+  &:first-of-type {
+    margin: 0;
+  }
+`;
+
+const buttonColor = name => {
+  if (name === 'red') {
+    return lighten(colors.colorCoreRed, 10);
+  }
+
+  if (name === 'green') {
+    return lighten(colors.colorCoreGreen, 10);
+  }
+
+  if (name === 'yellow') {
+    return lighten(colors.colorCoreYellow, 10);
+  }
+
+  if (name === 'blue') {
+    return lighten(colors.colorCoreBlue, 10);
+  }
+
+  if (name === 'teal') {
+    return lighten(colors.colorCoreTeal, 10);
+  }
+
+  return colors.colorCoreLightGray;
+};
+
+const Button = styledTS<{
+  colorName?: string;
+  extra?: boolean;
+}>(styled.div)`
+  padding: 5px 15px;
+  background: ${props => buttonColor(props.colorName)};
+  color: #fff;
+  border-radius: 16px;
+  font-weight: 500;
+  transition: background 0.3s ease;
+  display: inline-block;
+  text-align: center;
+
+  &:hover {
+    background: ${props => darken(buttonColor(props.colorName), 10)};
+    cursor: pointer;
+  }
+  
+  ${props => props.extra && 'padding-left: 40px;'}
+`;
+
+const CloseDateLabel = styled(Button)`
+  width: 72px;
+  padding: 3px 0;
+  line-height: 1em;
+  margin-top: 4px;
+  margin-left: 10px;
+`;
+
+const StartDateLabel = styled(Button)`
+  width: 72px;
+  padding: 3px 0;
+  line-height: 1em;
+  margin-top: 4px;
+`;
+
+const ActionBarWrapper = styled.div`
+  align-self: center;
+  margin: 0 20px;
+`;
+
 export {
   TicketRow,
   TicketLabel,
@@ -409,5 +541,17 @@ export {
   Card,
   FlexRow,
   Assignees,
-  GroupBoxWrapper
+  GroupBoxWrapper,
+  ColumnContainer,
+  ColumnContentBody,
+  ColumnFooter,
+  Header,
+  HeaderWrapper,
+  ScrolledContent,
+  Content,
+  ContentHeader,
+  Item,
+  CloseDateLabel,
+  StartDateLabel,
+  ActionBarWrapper
 };

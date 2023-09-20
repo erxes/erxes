@@ -303,6 +303,24 @@ const getIntegrations = async (subdomain: string) => {
   };
 };
 
+const getFormSubmissionFields = async (subdomain, config) => {
+  const fields = await sendFormsMessage({
+    subdomain,
+    action: 'fields.fieldsCombinedByContentType',
+    data: {
+      contentType: 'forms:form_submission',
+      config
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return fields.map(field => ({
+    ...field,
+    label: `form_submission:${field?.label || ''}`
+  }));
+};
+
 export const generateFields = async ({ subdomain, data }) => {
   const { type, usageType } = data;
 
@@ -404,7 +422,17 @@ export const generateFields = async ({ subdomain, data }) => {
   fields = [...fields, tags];
 
   if (type === 'customer' || type === 'lead') {
+    const { config } = data;
+
     const integrations = await getIntegrations(subdomain);
+
+    if (config) {
+      const formSubmissionFields = await getFormSubmissionFields(
+        subdomain,
+        config
+      );
+      fields = [...fields, ...formSubmissionFields];
+    }
 
     fields = [...fields, integrations];
 

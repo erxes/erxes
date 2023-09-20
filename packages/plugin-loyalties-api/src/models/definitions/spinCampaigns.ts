@@ -25,12 +25,12 @@ export interface ISpinCampaignDocument
   _id: string;
 }
 
-const spinAwardSchema = new Schema(
+export const spinAwardSchema = new Schema(
   {
-    _id: { type: String },
-    name: { type: String },
-    voucherCampaignId: { type: String },
-    probability: { type: Number, max: 100, min: 0 }
+    _id: field({ type: String }),
+    name: field({ type: String, label: 'Name' }),
+    voucherCampaignId: field({ type: String, label: 'Voucher campaign' }),
+    probability: field({ type: Number, label: 'Probability', max: 100, min: 0 })
   },
   { _id: false }
 );
@@ -40,5 +40,5 @@ export const spinCampaignSchema = new Schema({
 
   buyScore: field({ type: Number }),
 
-  awards: field({ type: [spinAwardSchema] })
+  awards: field({ type: [spinAwardSchema], label: 'Awards' })
 });

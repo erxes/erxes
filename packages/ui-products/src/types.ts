@@ -17,6 +17,10 @@ export interface IUom {
   code: string;
   createdAt: Date;
 }
+
+export interface IVariant {
+  [code: string]: { name?: string; image?: any };
+}
 export interface IProduct {
   _id: string;
   name: string;
@@ -25,6 +29,7 @@ export interface IProduct {
   description: string;
   getTags?: ITag[];
   barcodes: string[];
+  variants: IVariant;
   barcodeDescription: string;
   code: string;
   unitPrice: number;
@@ -58,6 +63,8 @@ export interface IProductCategory {
   meta: string;
   maskType: string;
   mask: any;
+  isSimilarity: boolean;
+  similarities: any[];
 }
 
 export type MutationVariables = {
@@ -84,7 +91,12 @@ export type ProductRemoveMutationResponse = {
 
 export type ProductsQueryResponse = {
   loading: boolean;
-  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
+  refetch: (variables?: {
+    searchValue?: string;
+    perPage?: number;
+    categoryId?: string;
+    vendorId?: string;
+  }) => void;
   products: IProduct[];
 };
 

@@ -46,6 +46,9 @@
    <a href="https://twitter.com/erxeshq">
       <img alt="Twitter" src="https://img.shields.io/badge/twitter-blue">
   </a>
+  <a href="https://cloud.cypress.io/projects/bg7eun/runs">
+      <img alt="Cypress" src="https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/bg7eun/master&style=flat&logo=cypress">
+  </a>
 </p>
 
 <p align="center">

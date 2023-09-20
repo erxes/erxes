@@ -4,32 +4,34 @@ import {
   ItemFooter,
   ItemWrapper,
   Right,
-  Wrapper,
-} from "../../styles/tasks";
+  Wrapper
+} from '../../styles/tasks';
 
-import EmptyState from "../../common/form/EmptyState";
-import PriorityIndicator from "../../common/PriorityIndicator";
-import React from "react";
-import dayjs from "dayjs";
-import { useRouter } from "next/router";
+import EmptyState from '../../common/form/EmptyState';
+import PriorityIndicator from '../../common/PriorityIndicator';
+import React from 'react';
+import dayjs from 'dayjs';
+import { useRouter } from 'next/router';
+import { ColumnContentBody } from '../../styles/cards';
+import DueDateLabel from '../../common/DueDateLabel';
 
 type Props = {
   items: any;
-  item: any;
   type: string;
   stageId: string;
+  viewType: string;
 };
 
-function BoardItem({ items, item, type, stageId }: Props) {
+function BoardItem({ items, viewType, type, stageId }: Props) {
   const router = useRouter();
   const activeStageId = (router.query as any).stageId || stageId;
 
-  const renderDate = (date) => {
+  const renderDate = date => {
     if (!date) {
       return null;
     }
 
-    return <ItemDate>{dayjs(date).format("MMM D, YYYY")}</ItemDate>;
+    return <ItemDate>{dayjs(date).format('MMM D, YYYY')}</ItemDate>;
   };
 
   if (!items || items.length === 0) {
@@ -42,9 +44,44 @@ function BoardItem({ items, item, type, stageId }: Props) {
     );
   }
 
+  if (viewType === 'calendar') {
+    return (
+      <ColumnContentBody>
+        {items.map(item => (
+          <ItemWrapper
+            key={item._id}
+            onClick={() =>
+              router.push(
+                `/${type}s?stageId=${activeStageId}&itemId=${item._id}`
+              )
+            }
+          >
+            <Content>
+              <h5>
+                {item.priority && <PriorityIndicator value={item.priority} />}{' '}
+                {item.name}
+              </h5>
+              <p>{item.description}</p>
+              {item && (
+                <DueDateLabel
+                  startDate={item.startDate}
+                  closeDate={item.closeDate}
+                  isComplete={item.isComplete}
+                />
+              )}
+            </Content>
+            <ItemFooter>
+              Last updated:
+              <Right>{renderDate(item.modifiedAt)}</Right>
+            </ItemFooter>
+          </ItemWrapper>
+        ))}
+      </ColumnContentBody>
+    );
+  }
   return (
     <Wrapper>
-      {items.map((task) => (
+      {items.map(task => (
         <ItemWrapper
           key={task._id}
           onClick={() =>
@@ -53,7 +90,7 @@ function BoardItem({ items, item, type, stageId }: Props) {
         >
           <Content>
             <h5>
-              {task.priority && <PriorityIndicator value={task.priority} />}{" "}
+              {task.priority && <PriorityIndicator value={task.priority} />}{' '}
               {task.name}
             </h5>
             <p>{task.description}</p>

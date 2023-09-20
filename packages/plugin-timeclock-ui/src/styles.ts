@@ -1,7 +1,8 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import { SidebarTitle } from '@erxes/ui/src/layout/styles';
 
 const FilterWrapper = styled.div`
   margin: 10px 20px 0 20px;
@@ -44,6 +45,32 @@ const SidebarHeader = styledTS<{
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: column;
   margin: 0px ${dimensions.coreSpacing}px;
+`;
+
+const CustomWidth = styledTS<{
+  widthPercent: number;
+}>(styled.div)`
+
+width: ${props => props.widthPercent}%;
+margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-end;
+  > div {
+    flex: 1;
+    input[type='text'] {
+      border: none;
+      height: 34px;
+      padding: 5px 0;
+      color: #444;
+      border-bottom: 1px solid;
+      border-color: #ddd;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 13px;
+    }
+  }
 `;
 
 const CustomRangeContainer = styled.div`
@@ -338,6 +365,101 @@ const CustomCollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
   }
 `;
 
+const SortItem = styledTS<{
+  isDragging: boolean;
+  isModal: boolean;
+  column?: number;
+}>(styled.div)`
+  background: ${colors.colorWhite};
+  display: block;
+  padding:10px;
+  margin-bottom: 10px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  border-left: 2px solid transparent; 
+  border-top: ${props =>
+    !props.isDragging ? `1px solid ${colors.borderPrimary}` : 'none'};
+  border-radius: 4px;
+  box-shadow: ${props =>
+    props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : 'none'};
+  left: ${props =>
+    props.isDragging && props.isModal ? '40px!important' : 'auto'};
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:hover {
+    box-shadow: 0 2px 8px ${colors.shadowPrimary};
+    border-color: ${colors.colorSecondary};
+    border-top: none;
+  }
+  ${props =>
+    props.column &&
+    css`
+      width: ${100 / props.column}%;
+      display: inline-block;
+    `}
+`;
+
+const CustomBoxWrapper = styled.div`
+  h3 {
+    margin: 0;
+  }
+
+  a {
+    &::before {
+      margin: 0;
+    }
+  }
+`;
+
+const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
+  background: ${props => (props.pinned ? colors.colorSecondary : '#f5f5f5')};
+  border-radius: 50%;
+  border: 1px solid ${colors.borderPrimary};
+  width: ${dimensions.coreSpacing}px;
+  height: ${dimensions.coreSpacing}px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: -5px;
+  top: -5px;
+
+  i {
+    filter: ${props => !props.pinned && 'brightness(30%)'};
+  }
+
+  &:hover {
+    background: ${colors.colorSecondary};
+
+    i {
+      filter: none;
+    }
+  }
+`;
+
+const CustomContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all ease 0.3s;
+  padding: 15px 0;
+
+  &:hover {
+    color: ${colors.colorSecondary};
+  }
+
+  > label {
+    &:hover {
+      color: ${colors.colorSecondary};
+    }
+    cursor: pointer;
+    transition: all ease 0.3s;
+  }
+`;
+
 export {
   FilterItem,
   FilterWrapper,
@@ -369,5 +491,10 @@ export {
   TextAlignRight,
   CustomCollapseRow,
   CustomLabel,
-  AlertContainer
+  AlertContainer,
+  CustomWidth,
+  CustomBoxWrapper,
+  RoundBox,
+  SortItem,
+  CustomContainer
 };

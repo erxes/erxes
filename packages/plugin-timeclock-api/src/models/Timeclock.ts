@@ -31,7 +31,10 @@ import {
   timeLogSchema,
   IReportCheck,
   IReportCheckDocument,
-  reportCheckSchema
+  reportCheckSchema,
+  IScheduleConfigOrderDocument,
+  IScheduleConfigOrder,
+  scheduleConfigOrderSchema
 } from './definitions/timeclock';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -341,6 +344,18 @@ export interface IScheduleConfigModel extends Model<IScheduleConfigDocument> {
   ): Promise<IScheduleConfigDocument>;
   removeScheduleConfig(_id: string): void;
 }
+export interface IScheduleConfigOrderModel
+  extends Model<IScheduleConfigOrderDocument> {
+  getScheduleConfigOrder(_id: string): Promise<IScheduleConfigOrderDocument>;
+  createScheduleConfigOrder(
+    doc: IScheduleConfig
+  ): Promise<IScheduleConfigOrderDocument>;
+  updateScheduleConfigOrder(
+    _id: string,
+    doc: IScheduleConfig
+  ): Promise<IScheduleConfigOrderDocument>;
+  removeScheduleConfigOrder(_id: string): void;
+}
 
 export const loadScheduleConfigClass = (models: IModels) => {
   // tslint:disable-next-line:max-classes-per-file
@@ -378,6 +393,45 @@ export const loadScheduleConfigClass = (models: IModels) => {
   scheduleConfigSchema.loadClass(ScheduleConfig);
 
   return scheduleConfigSchema;
+};
+export const loadScheduleConfigOrderClass = (models: IModels) => {
+  // tslint:disable-next-line:max-classes-per-file
+  class ScheduleConfigOrder {
+    // get
+    public static async getScheduleConfigOrder(_id: string) {
+      const scheduleConfigOrder = await models.ScheduleConfigOrder.findOne({
+        _id
+      });
+      if (!scheduleConfigOrder) {
+        throw new Error('ScheduleConfigOrder not found');
+      }
+      return scheduleConfigOrder;
+    }
+    // create
+    public static async createScheduleConfigOrder(doc: IScheduleConfigOrder) {
+      return models.ScheduleConfigOrder.create({
+        ...doc
+      });
+    }
+    // update
+    public static async updateScheduleConfigOrder(
+      _id: string,
+      doc: IScheduleConfigOrder
+    ) {
+      await models.ScheduleConfigOrder.updateOne(
+        { _id },
+        { $set: { ...doc } }
+      ).then(err => console.error(err));
+    }
+    // remove
+    public static async removeScheduleConfigOrder(_id: string) {
+      return models.ScheduleConfigOrder.deleteOne({ _id });
+    }
+  }
+
+  scheduleConfigOrderSchema.loadClass(ScheduleConfigOrder);
+
+  return scheduleConfigOrderSchema;
 };
 
 export interface IDeviceConfigModel extends Model<IDeviceConfigDocument> {

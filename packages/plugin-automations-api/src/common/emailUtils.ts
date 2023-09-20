@@ -12,6 +12,7 @@ import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { putActivityLog } from '../logUtils';
 
 export const getEmailRecipientTypes = async () => {
   let reciepentTypes = [...EMAIL_RECIPIENTS_TYPES];
@@ -74,15 +75,32 @@ const getAttributionEmails = async ({
   serviceName,
   contentType,
   target,
+  execution,
   value,
   key
 }) => {
+  let emails: string[] = [];
   const matches = (value || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
   const attributes = matches.map(match =>
     match.replace(/\{\{\s*|\s*\}\}/g, '')
   );
   const relatedValueProps = {};
+
+  if (!attributes?.length) {
+    return [];
+  }
+
   for (const attribute of attributes) {
+    if (attribute === 'triggerExecutors') {
+      const excutorEmails = await getSegmentEmails({
+        subdomain,
+        serviceName,
+        contentType,
+        execution
+      });
+      emails = [...emails, ...excutorEmails];
+    }
+
     relatedValueProps[attribute] = {
       key: 'email',
       filter: {
@@ -114,7 +132,7 @@ const getAttributionEmails = async ({
     defaultValue: {}
   });
 
-  return generateEmails(replacedContent[key]);
+  return [...emails, ...generateEmails(replacedContent[key])];
 };
 
 const getSegmentEmails = async ({
@@ -164,6 +182,18 @@ const getSegmentEmails = async ({
   });
 };
 
+const generateFromEmail = (sender, fromUserEmail) => {
+  if (sender && fromUserEmail) {
+    return `${sender} <${fromUserEmail}>`;
+  }
+
+  if (fromUserEmail) {
+    return fromUserEmail;
+  }
+
+  return null;
+};
+
 export const generateDoc = async ({
   subdomain,
   target,
@@ -171,8 +201,8 @@ export const generateDoc = async ({
   triggerType,
   config
 }) => {
-  const { templateId, fromUserId } = config;
-  const [serviceName] = triggerType.split(':');
+  const { templateId, fromUserId, sender } = config;
+  const [serviceName, type] = triggerType.split(':');
 
   const template = await sendEmailTemplateMessage({
     subdomain,
@@ -184,14 +214,22 @@ export const generateDoc = async ({
     defaultValue: null
   });
 
-  const fromUser = await sendCoreMessage({
-    subdomain,
-    action: 'users.findOne',
-    data: {
-      _id: fromUserId
-    },
-    isRPC: true
-  });
+  const fromUser = fromUserId
+    ? await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: fromUserId
+        },
+        isRPC: true,
+        defaultValue: null
+      })
+    : null;
+
+  const replacedContent = (template?.content || '').replace(
+    new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, 'g'),
+    '{{ $1 }}'
+  );
 
   const { subject, content } = await sendCommonMessage({
     subdomain,
@@ -199,7 +237,10 @@ export const generateDoc = async ({
     action: 'automations.replacePlaceHolders',
     data: {
       target,
-      config: { subject: config.subject, content: template.content }
+      config: {
+        subject: config.subject,
+        content: replacedContent
+      }
     },
     isRPC: true,
     defaultValue: {}
@@ -219,8 +260,9 @@ export const generateDoc = async ({
 
   return {
     title: subject,
-    fromEmail: fromUser?.email,
-    toEmails: toEmails.filter(email => fromUser.email !== email),
+    fromUser,
+    fromEmail: generateFromEmail(sender, fromUser?.email),
+    toEmails: toEmails.filter(email => fromUser?.email !== email),
     customHtml: content
   };
 };
@@ -263,20 +305,9 @@ export const getRecipientEmails = async ({
           serviceName,
           contentType,
           target,
+          execution,
           value: config[key],
           key: type
-        });
-
-        toEmails = [...toEmails, ...emails];
-        continue;
-      }
-
-      if (type === 'segmentBased') {
-        const emails = await getSegmentEmails({
-          subdomain,
-          serviceName,
-          contentType,
-          execution
         });
 
         toEmails = [...toEmails, ...emails];
@@ -311,6 +342,28 @@ export const getRecipientEmails = async ({
   return [...new Set(toEmails)];
 };
 
+const setActivityLog = async ({
+  subdomain,
+  triggerType,
+  target,
+  user,
+  responses
+}) => {
+  for (const response of responses || []) {
+    if (response?.messageId) {
+      await putActivityLog(subdomain, {
+        action: 'putActivityLog',
+        data: {
+          contentType: triggerType,
+          contentId: target._id,
+          createdBy: 'automation',
+          action: 'sendEmail'
+        }
+      });
+    }
+  }
+};
+
 export const handleEmail = async ({
   subdomain,
   target,
@@ -318,7 +371,7 @@ export const handleEmail = async ({
   triggerType,
   config
 }) => {
-  const data: any = await generateDoc({
+  const { fromUser, ...params }: any = await generateDoc({
     subdomain,
     triggerType,
     target,
@@ -326,18 +379,26 @@ export const handleEmail = async ({
     execution
   });
 
-  if (!data) {
+  if (!params) {
     return { error: 'Something went wrong fetching data' };
   }
 
   try {
     const responses = await sendEmails({
       subdomain,
-      params: data
+      params: params
     });
 
-    delete data?.customHtml;
-    return { ...data, responses };
+    await setActivityLog({
+      subdomain,
+      triggerType,
+      target,
+      user: fromUser,
+      responses
+    });
+
+    delete params?.customHtml;
+    return { ...params, responses };
   } catch (err) {
     return { error: err.message };
   }

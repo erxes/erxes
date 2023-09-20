@@ -186,6 +186,7 @@ export type IEditorProps = {
   name?: string;
   isSubmitted?: boolean;
   formItems?: any;
+  contentType?: string;
 };
 
 export type QueryResponse = {
