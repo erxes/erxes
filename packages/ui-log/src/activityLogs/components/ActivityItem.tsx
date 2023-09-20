@@ -3,13 +3,13 @@ import { formatText, getIconAndColor } from '../utils';
 
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import { IActivityLog } from '../types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import InternalNote from '../containers/items/InternalNote';
 import React from 'react';
 import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 import Tip from '@erxes/ui/src/components/Tip';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 type Props = {
   activity: IActivityLog;
@@ -66,7 +66,7 @@ class ActivityItem extends React.Component<Props> {
       }
 
       if (kind) {
-        const p = plugins.find(p => p.name === kind);
+        const p = plugins.find(pl => pl.name === kind);
 
         if (p) {
           scope = p.scope;

@@ -131,7 +131,7 @@ class GroupList extends React.Component<IProps> {
     const { objects } = this.props;
 
     return (
-      <SidebarList noBackground noTextColor>
+      <SidebarList noBackground={true} noTextColor={true}>
         {this.renderObjects(objects)}
       </SidebarList>
     );
@@ -172,7 +172,7 @@ class GroupList extends React.Component<IProps> {
     const { totalCount, loading } = this.props;
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder>
+      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder={true}>
         <DataWithLoader
           data={this.renderContent()}
           loading={loading}
