@@ -13,9 +13,8 @@ describe("Customer", () => {
   });
 
   it("add customer", () => {
-
-    cy.waitElm('button[icon="plus-circle"]');
-    cy.get('button[icon="plus-circle"]').click();
+    cy.reload()
+    cy.get('button[icon="plus-circle"]', { timeout: 3000}).click();
 
     const random = Math.random().toString(36).slice(2)
 

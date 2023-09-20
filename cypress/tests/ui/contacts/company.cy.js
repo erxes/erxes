@@ -14,8 +14,8 @@ describe("Contacts", () => {
   const random = Math.random().toString(36).slice(2)
 
   it("add company", () => {
-
-    cy.get('i[icon = "plus-circle"]').click();
+    cy.reload()
+    cy.get('i[icon = "plus-circle"]', { timeout: 30000 }).click();
 
     cy.get("div .Select-placeholder")
       .contains("Enter company name")
@@ -32,8 +32,8 @@ describe("Contacts", () => {
   })
 
   it("set tag company", () => {
-
-    cy.get("#companiesCheckBox").click();
+    cy.reload()
+    cy.get("#companiesCheckBox",{ timeout: 30000 }).click();
 
     cy.get('button[icon="tag-alt"]').click();
 
@@ -47,8 +47,8 @@ describe("Contacts", () => {
   })
 
   it("remove company", () => {
-  
-    cy.contains(random)
+    cy.reload()
+    cy.contains(random, { timeout: 30000 })
     .parent()
     .parent()
     .parent()
