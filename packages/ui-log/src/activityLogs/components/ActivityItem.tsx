@@ -66,7 +66,7 @@ class ActivityItem extends React.Component<Props> {
       }
 
       if (kind) {
-        const p = plugins.find(p => p.name === kind);
+        const p = plugins.find(pl => pl.name === kind);
 
         if (p) {
           scope = p.scope;
