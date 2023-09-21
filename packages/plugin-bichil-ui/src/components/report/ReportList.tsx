@@ -53,10 +53,10 @@ function ReportList(props: Props) {
         <td>{''}</td>
         <td>{''}</td>
         <td>
-          <b>{deductionInfo.totalLateMinsDeduction.toFixed(2)}</b>
+          <b>{deductionInfo.totalLateMinsDeduction?.toFixed(2)}</b>
         </td>
         <td>
-          <b>{deductionInfo.totalDeductionPerGroup.toFixed(2)}</b>
+          <b>{deductionInfo.totalDeductionPerGroup?.toFixed(2)}</b>
         </td>
       </tr>
     </Table>

@@ -223,8 +223,8 @@ function TableRow(props: Props) {
               <b>{groupTitle}</b>
             </td>
           </tr>
-          {bichilReport.groupReport.map(userReport =>
-            ReportRow(userReport, reportType, index)
+          {bichilReport.groupReport.map((userReport, i) =>
+            ReportRow(userReport, reportType, i)
           )}
         </>
       </tbody>

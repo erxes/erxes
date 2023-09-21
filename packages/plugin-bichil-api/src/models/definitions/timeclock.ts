@@ -44,6 +44,11 @@ export interface IAbsence {
   status?: string;
   solved?: boolean;
   absenceTypeId?: string;
+
+  absenceTimeType?: string;
+  totalHoursOfAbsence?: string;
+
+  requestDates?: string[];
 }
 export interface IAbsenceType {
   name: string;
@@ -238,9 +243,26 @@ export const absenceSchema = new Schema({
     type: Boolean,
     label: 'Whether request is check in/out request'
   }),
+
   absenceTypeId: field({
     type: String,
     label: 'id of an absence type'
+  }),
+
+  requestDates: field({
+    type: [String],
+    label: 'Requested dates in string format'
+  }),
+
+  absenceTimeType: field({
+    type: String,
+    default: 'by hour',
+    label: 'absence time type either by day or by hour'
+  }),
+
+  totalHoursOfAbsence: field({
+    type: String,
+    label: 'total hours of absence request'
   })
 });
 
