@@ -160,10 +160,10 @@ class MailForm extends React.Component<Props, State> {
       from: mailWidget ? mailWidget.from : mailData.from || ([{}] as IEmail[]),
       subject: mailData.subject || mailWidget ? mailWidget.subject : '',
       emailSignature: '',
-      content: mailWidget
-        ? mailWidget.content
-        : mailData
+      content: mailData
         ? this.getContent(mailData, '')
+        : mailWidget
+        ? mailWidget.content
         : '',
 
       status: 'draft',
@@ -265,21 +265,13 @@ class MailForm extends React.Component<Props, State> {
       return '';
     }
 
-    let msgIndex = mails.findIndex(mail => {
+    const selectedMails = mails.filter(mail => {
       if (!mail) {
         return false;
       }
 
       return mail._id === messageId;
     });
-
-    if (msgIndex === -1) {
-      return '';
-    }
-
-    msgIndex = msgIndex === 0 ? (msgIndex += 1) : msgIndex;
-
-    const selectedMails = mails.splice(0, msgIndex);
 
     const previousEmails = selectedMails
       .map(mail => {
