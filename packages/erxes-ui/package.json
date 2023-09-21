@@ -17,7 +17,7 @@
     "draft-js-plugins-editor": "^2.0.3",
     "draft-js-static-toolbar-plugin": "^3.0.0",
     "erxes-icon": "^1.2.1",
-    "graphql": "^15.8.0",
+    "graphql": "^16.7.1",
     "graphql-ws": "^5.6.2",
     "i18n-react": "^0.6.4",
     "lodash": "^4.17.15",
@@ -35,7 +35,7 @@
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
     "validator": "12.1.0",
-    "xss": "^1.0.3",
+    "xss": "1.0.14",
     "video.js":"^8.5.2"
   }
 }
