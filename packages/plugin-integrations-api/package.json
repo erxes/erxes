@@ -21,7 +21,7 @@
     "express": "^4.16.4",
     "formidable": "^1.2.1",
     "gmail-api-parse-message": "^2.1.2",
-    "meteor-random": "^0.0.3",
+    "nanoid" : "^3.3.6",
     "migrate": "^1.6.2",
     "nylas": "^4.7.0",
     "redis": "^2.8.0",
