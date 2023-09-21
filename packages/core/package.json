@@ -38,8 +38,7 @@
   },
   "dependencies": {
     "agentkeepalive": "^4.3.0",
-    "apollo-server-core": "^3.6.1",
-    "apollo-server-express": "^3.6.1",
+    "@apollo/server" : "^4.9.3",
     "apollo-datasource-rest": "^0.5.1",
     "aws-sdk": "^2.151.0",
     "bcryptjs": "^2.4.3",
@@ -60,7 +59,7 @@
     "server-timing": "^3.3.2",
     "sha256": "^0.2.0",
     "stream-array": "^1.1.2",
-    "ts-node": "^10.7.0",
+    "ts-node": "10.9.1",
     "validator": "^9.0.0",
     "xlsx-populate": "^1.20.1",
     "jimp":"^0.22.10",
