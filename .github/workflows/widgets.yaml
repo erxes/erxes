@@ -3,7 +3,7 @@ name: Widgets CI
 on:
   push:
     branches:
-      - 'dev'
+      - "dev"
       - "staging"
     paths:
       - "widgets/**"
