@@ -466,8 +466,8 @@ const syncInventoriesRem = async ({
   }
 
   if (
-    (!oldBranchId && newOrder.branchId) ||
-    (oldBranchId && oldBranchId !== newOrder.branchId)
+    newOrder.branchId &&
+    (!oldBranchId || oldBranchId !== newOrder.branchId)
   ) {
     sendInventoriesMessage({
       subdomain,
@@ -508,8 +508,7 @@ export const syncOrderFromClient = async ({
   items,
   pos,
   posToken,
-  responses,
-  oldBranchId
+  responses
 }: {
   subdomain: string;
   models: IModels;
@@ -518,8 +517,10 @@ export const syncOrderFromClient = async ({
   pos: IPosDocument;
   posToken: string;
   responses;
-  oldBranchId: string;
 }) => {
+  const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
+  const oldBranchId = oldOrder ? oldOrder.branchId : '';
+
   for (const response of responses || []) {
     if (response && response._id) {
       await sendEbarimtMessage({
@@ -580,6 +581,26 @@ export const syncOrderFromClient = async ({
           order: { ...newOrder, posToken, subToken: toPos.token }
         },
         pos: toPos
+      });
+    }
+
+    // change branch and before another pos synced then remove from befort sync
+    if (
+      oldOrder &&
+      oldOrder.branchId &&
+      newOrder.branchId !== oldOrder.branchId
+    ) {
+      const toCancelPos = await models.Pos.findOne({
+        branchId: oldOrder.branchId
+      }).lean();
+
+      await sendPosclientMessage({
+        subdomain,
+        action: 'erxes-posclient-to-pos-api-remove',
+        data: {
+          order: { ...newOrder, posToken, subToken: toPos.token }
+        },
+        pos: toCancelPos
       });
     }
   }

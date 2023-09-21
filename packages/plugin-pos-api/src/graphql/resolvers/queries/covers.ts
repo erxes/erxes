@@ -19,12 +19,18 @@ const generateFilterQuery = async (models, params) => {
     query.userId = userId;
   }
 
+  const dateQry: any = {};
+
   if (startDate) {
-    query.endDate = { $gte: getPureDate(startDate) };
+    dateQry.$gte = getPureDate(startDate);
   }
 
   if (endDate) {
-    query.beginDate = { $lte: getPureDate(endDate) };
+    dateQry.$lte = getPureDate(endDate);
+  }
+
+  if (Object.keys(dateQry).length) {
+    query.endDate = dateQry;
   }
 
   return query;

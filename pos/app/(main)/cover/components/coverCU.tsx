@@ -81,7 +81,7 @@ const CoverCU = () => {
     })
   }
 
-  if (!beginDate) return null
+  if (!endDate) return null
   return (
     <Button className="mt-4" loading={loading} onClick={handleClick}>
       <AlarmCheckIcon className="mr-1 h-4 w-4 -translate-x-1" />

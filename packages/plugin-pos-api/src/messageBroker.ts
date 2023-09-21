@@ -20,7 +20,7 @@ export const initBroker = async cl => {
   consumeQueue('pos:createOrUpdateOrders', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { action, posToken, responses, order, items, oldBranchId } = data;
+    const { action, posToken, responses, order, items } = data;
     const pos = await models.Pos.findOne({ token: posToken }).lean();
 
     // ====== if (action === 'statusToDone')
@@ -37,9 +37,32 @@ export const initBroker = async cl => {
       items,
       pos,
       posToken,
-      responses,
-      oldBranchId
+      responses
     });
+
+    return {
+      status: 'success'
+    };
+  });
+
+  consumeQueue('pos:createOrUpdateOrdersMany', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { posToken, syncOrders } = data;
+    const pos = await models.Pos.findOne({ token: posToken }).lean();
+
+    for (const perData of syncOrders) {
+      const { responses, order, items } = perData;
+
+      await syncOrderFromClient({
+        subdomain,
+        models,
+        order,
+        items,
+        pos,
+        posToken,
+        responses
+      });
+    }
 
     return {
       status: 'success'

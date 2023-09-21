@@ -64,11 +64,35 @@ const orderItemChangeStatus = gql`
   }
 `
 
+const ordersCancel = gql`
+  mutation ordersCancel($_id: String!) {
+    ordersCancel(_id: $_id)
+  }
+`
+const ordersReturn = gql`
+  mutation ordersReturn(
+    $_id: String!
+    $cashAmount: Float
+    $paidAmounts: [PaidAmountInput]
+  ) {
+    ordersReturn(
+      _id: $_id
+      cashAmount: $cashAmount
+      paidAmounts: $paidAmounts
+    ) {
+      _id
+      status
+    }
+  }
+`
+
 const mutations = {
   ordersAdd,
   ordersEdit,
   orderChangeStatus,
   orderItemChangeStatus,
+  ordersCancel,
+  ordersReturn,
 }
 
 export default mutations
