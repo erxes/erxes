@@ -60,6 +60,7 @@ type Props = {
   emailSignatures: IEmailSignature[];
   fetchMoreEmailTemplates: (page: number) => void;
   createdAt?: Date;
+  isEmptyEmail?: boolean;
   sendMail: ({
     variables,
     callback
@@ -178,18 +179,19 @@ class MailForm extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { name, content, to } = this.state;
+    const { name, content } = this.state;
+    const { isEmptyEmail, clear, emailTo } = this.props;
 
     if (prevState.content !== content) {
       localStorage.setItem(name, content);
     }
 
-    if (prevProps.clear !== this.props.clear) {
+    if (prevProps.clear !== clear || prevProps.isEmptyEmail !== isEmptyEmail) {
       this.clearContent();
     }
 
-    if (prevProps.emailTo !== this.props.emailTo) {
-      this.setState({ to: this.props.emailTo });
+    if (prevProps.emailTo !== emailTo) {
+      this.setState({ to: emailTo });
     }
   }
 
