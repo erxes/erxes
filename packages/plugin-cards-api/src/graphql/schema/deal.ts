@@ -35,6 +35,7 @@ export const types = ({ contacts, tags }) => `
     products: JSON
     productsData: JSON
     paymentsData: JSON
+    paymentTypeData: JSON
     ${commonTypes}
   }
 
@@ -42,7 +43,12 @@ export const types = ({ contacts, tags }) => `
     amount: Float
     name: String
   }
-
+type PaymentType {
+  _id: String
+  paymentIds: [String]
+  paymentTypes: [JSON]
+  erxesAppToken: String
+}
   type TotalForType {
     _id: String
     name: String
@@ -53,14 +59,25 @@ export const types = ({ contacts, tags }) => `
     productId : String
     quantity: Int
   }
-
+  input PaymentObjectInput {
+    _id: String
+    paymentIds: [String]
+    paymentTypes: [JSON]
+    erxesAppToken: String
+  }
 `;
 
 const dealMutationParams = `
   paymentsData: JSON,
   productsData: JSON,
+  paymentTypeData: JSON,
 `;
-
+const paymentCommonFields = `
+  _id: String
+  erxesAppToken: String
+  paymentIds: [String]
+  paymentTypes: [JSON]
+`;
 const commonQueryParams = `
   _ids: [String]
   date: ItemDate
@@ -144,6 +161,9 @@ export const queries = `
     ${commonQueryParams}
     ${conformityQueryFields}
   ): [TotalForType]
+    paymentTypes: [JSON]
+    paymentTotalCount:JSON
+    paymentDetail(_id: String!): JSON
 `;
 
 export const mutations = `
@@ -157,4 +177,6 @@ export const mutations = `
   dealsCreateProductsData(proccessId: String, dealId: String, docs: JSON): JSON
   dealsEditProductData(proccessId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(proccessId: String, dealId: String, dataId: String): JSON
+  paymentTypes(${paymentCommonFields}) : PaymentType
+  
 `;

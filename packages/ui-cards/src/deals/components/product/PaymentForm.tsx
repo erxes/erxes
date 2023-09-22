@@ -16,6 +16,7 @@ import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
 import { selectConfigOptions } from '../../utils';
+import { type } from 'os';
 
 type Props = {
   total: { currency?: string; amount?: number };
@@ -23,9 +24,16 @@ type Props = {
   currencies: string[];
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   calcChangePay: () => void;
-  changePayData: { currency?: string; amount?: number };
+  changePayData: {
+    currency?: string;
+    amount?: number;
+    type?: string;
+    title?: string;
+    config?: string;
+    icon?: string;
+  };
+  paymentQuery: any;
 };
-
 type State = {
   paymentsData: IPaymentsData;
 };
@@ -45,6 +53,20 @@ class PaymentForm extends React.Component<Props, State> {
     this.props.calcChangePay();
   }
 
+  componentDidMount(): void {
+    const { paymentQuery } = this.props;
+
+    if (paymentQuery?.length) {
+      const updatedPaymentsData = { ...this.state.paymentsData };
+      console.log(paymentQuery.paymentTypes, ' paymentQuery.paymentType');
+      paymentQuery[0].paymentTypes.forEach(item => {
+        const { title, type, config, icon } = item;
+        updatedPaymentsData[title] = { title, type, config, icon };
+      });
+      this.setState({ paymentsData: updatedPaymentsData });
+    }
+  }
+
   renderAmount(amount) {
     if (amount < 0) {
       return <WrongLess>{amount.toLocaleString()}</WrongLess>;
@@ -60,14 +82,18 @@ class PaymentForm extends React.Component<Props, State> {
     ));
   }
 
-  paymentStateChange = (kind: string, name: string, value: string | number) => {
+  paymentStateChange = (
+    kind: string,
+    title: string,
+    value: string | number
+  ) => {
     const { onChangePaymentsData, calcChangePay } = this.props;
     const { paymentsData } = this.state;
 
-    if (!paymentsData[name]) {
-      paymentsData[name] = {};
+    if (!paymentsData[title]) {
+      paymentsData[title] = {};
     }
-    paymentsData[name][kind] = value;
+    paymentsData[title][kind] = value;
 
     calcChangePay();
     this.setState({ paymentsData });
@@ -83,18 +109,17 @@ class PaymentForm extends React.Component<Props, State> {
   renderPaymentsByType(type) {
     const { currencies, changePayData } = this.props;
     const { paymentsData } = this.state;
-
     const onChange = e => {
       if (
-        (!paymentsData[type.name] || !paymentsData[type.name].currency) &&
+        (!paymentsData[type.title] || !paymentsData[type.title].currency) &&
         currencies.length > 0
       ) {
-        this.paymentStateChange('currency', type.name, currencies[0]);
+        this.paymentStateChange('currency', type.title, currencies[0]);
       }
 
       this.paymentStateChange(
         'amount',
-        type.name,
+        type.title,
         parseFloat((e.target as HTMLInputElement).value || '0')
       );
     };
@@ -102,7 +127,7 @@ class PaymentForm extends React.Component<Props, State> {
     const currencyOnChange = (currency: HTMLOptionElement) => {
       this.paymentStateChange(
         'currency',
-        type.name,
+        type.title,
         currency ? currency.value : ''
       );
     };
@@ -111,14 +136,14 @@ class PaymentForm extends React.Component<Props, State> {
       Object.keys(changePayData).forEach(key => {
         if (
           changePayData[key] > 0 &&
-          (!paymentsData[type.name] || !paymentsData[type.name].amount)
+          (!paymentsData[type.title] || !paymentsData[type.title].amount)
         ) {
-          if (!paymentsData[type.name]) {
-            paymentsData[type.name] = {};
+          if (!paymentsData[type.title]) {
+            paymentsData[type.title] = {};
           }
 
-          paymentsData[type.name].amount = changePayData[key];
-          paymentsData[type.name].currency = key;
+          paymentsData[type.title].amount = changePayData[key];
+          paymentsData[type.title].currency = key;
 
           changePayData[key] = 0;
 
@@ -131,29 +156,35 @@ class PaymentForm extends React.Component<Props, State> {
     };
 
     return (
-      <Flex key={type.name}>
+      <Flex key={type._id}>
         <ContentColumn>
           <ControlLabel>{__(type.title)}</ControlLabel>
         </ContentColumn>
         <ContentColumn>
+          <ControlLabel>{__(type.type)}</ControlLabel>
+        </ContentColumn>
+        <ContentColumn>
+          <ControlLabel>{__(type.config)}</ControlLabel>
+        </ContentColumn>
+        <ContentColumn>
           <FormControl
             value={
-              paymentsData[type.name] ? paymentsData[type.name].amount : ''
+              paymentsData[type.title] ? paymentsData[type.title].amount : ''
             }
             type="number"
             placeholder={__('Type amount')}
             min={0}
-            name={type.name}
+            name={type.title}
             onChange={onChange}
             onClick={onClick}
           />
         </ContentColumn>
         <ContentColumn>
           <Select
-            name={type.name}
+            name={type.title}
             placeholder={__('Choose currency')}
             value={
-              paymentsData[type.name] ? paymentsData[type.name].currency : 0
+              paymentsData[type.title] ? paymentsData[type.title].currency : 0
             }
             onChange={currencyOnChange}
             optionRenderer={this.selectOption}
@@ -165,7 +196,8 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderPayments() {
-    return PAYMENT_TYPES.map(type => this.renderPaymentsByType(type));
+    const payment_type = this.props.paymentQuery[0].paymentTypes;
+    return payment_type.map(type => this.renderPaymentsByType(type));
   }
 
   render() {

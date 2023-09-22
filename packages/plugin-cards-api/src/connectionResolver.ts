@@ -48,12 +48,14 @@ import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplate
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { ICostModel } from './models/Costs';
 import { ICostDocument } from './models/definitions/costs';
-
+import { IPaymentTypeDocument } from './models/definitions/payments';
+import { IPaymentTypeModel, loadPaymentTypeClass } from './models/Payments';
 export interface IModels {
   Boards: IBoardModel;
   Pipelines: IPipelineModel;
   Stages: IStageModel;
   Costs: ICostModel;
+  PaymentTypes: IPaymentTypeModel;
   Deals: IDealModel;
   Purchases: IPurchaseModel;
   Tasks: ITaskModel;
@@ -88,7 +90,10 @@ export const loadClasses = (
     'expenses',
     loadCostClass(models, subdomain)
   );
-
+  models.PaymentTypes = db.model<IPaymentTypeDocument, IPaymentTypeModel>(
+    'payment_types',
+    loadPaymentTypeClass(models, subdomain)
+  );
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
     'pipelines',
     loadPipelineClass(models, subdomain)

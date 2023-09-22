@@ -27,6 +27,9 @@ const dealQueries = {
   /**
    * Deals list
    */
+  async paymentTypes(_root, _args, { models, subdomain }: IContext) {
+    return await models.PaymentTypes.find({ status: 'active' }).lean();
+  },
   async deals(
     _root,
     args: IDealListParams,

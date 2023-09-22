@@ -62,9 +62,11 @@ type Props = {
   dealQuery: IDeal;
   categories: IProductCategory[];
   loading: boolean;
+  paymentQuery?: any;
 };
 
 type State = {
+  paymentQuery: any;
   total: { [currency: string]: number };
   unUsedTotal: { [currency: string]: number };
   bothTotal: { [currency: string]: number };
@@ -84,6 +86,7 @@ class ProductForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      paymentQuery: props.paymentQuery,
       total: {},
       unUsedTotal: {},
       bothTotal: {},
@@ -340,7 +343,6 @@ class ProductForm extends React.Component<Props, State> {
   calcChangePay = () => {
     const { paymentsData } = this.props;
     const { total } = this.state;
-
     const changePayData = Object.assign({}, total);
     const payments = paymentsData || {};
 
@@ -365,7 +367,7 @@ class ProductForm extends React.Component<Props, State> {
     const { saveProductsData, productsData, closeModal } = this.props;
 
     const { total, changePayData } = this.state;
-
+    console.log(this.props, 'this.prop');
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
@@ -640,11 +642,11 @@ class ProductForm extends React.Component<Props, State> {
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
-
       return (
         <PaymentForm
           total={total}
           payments={this.props.paymentsData}
+          paymentQuery={this.props.paymentQuery}
           onChangePaymentsData={onChangePaymentsData}
           currencies={this.props.currencies}
           calcChangePay={this.calcChangePay}

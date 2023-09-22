@@ -84,6 +84,17 @@ const confirmLoyalties = `
   }
 `;
 
+const paymentTypeAdd = `
+    mutation paymentTypes($paymentTypeObject: [PaymentObjectInput]) {
+    paymentTypes(paymentTypeObject: $paymentTypeObject) {
+      _id
+      paymentIds
+      paymentTypes
+      erxesAppToken
+    }
+  }
+  `;
+
 export default {
   dealsAdd,
   dealsEdit,
@@ -92,5 +103,6 @@ export default {
   dealsWatch,
   dealsArchive,
   dealsCopy,
-  confirmLoyalties
+  confirmLoyalties,
+  paymentTypeAdd
 };

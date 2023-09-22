@@ -9,6 +9,8 @@ import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '../../graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { IDeal, IPaymentsData, IProductData } from '../../types';
+import { PaymentTypeQueryResponse } from '../../../boards/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -21,10 +23,18 @@ type Props = {
   closeModal: () => void;
   dealQuery: IDeal;
   productCategoriesQuery: ProductCategoriesQueryResponse;
+  paymentTypesQuery: PaymentTypeQueryResponse;
 };
 
 class ProductFormContainer extends React.Component<Props> {
   render() {
+    const { paymentTypesQuery } = this.props;
+    if (paymentTypesQuery.loading) {
+      return <Spinner />;
+    }
+
+    const paymentTypes = paymentTypesQuery.paymentTypes;
+
     return (
       <AppConsumer>
         {({ currentUser }) => {
@@ -42,6 +52,7 @@ class ProductFormContainer extends React.Component<Props> {
             ...this.props,
             categories: categories,
             loading: productCategoriesQuery.loading,
+            paymentQuery: paymentTypes,
             currencies: configs.dealCurrency || []
           };
 
@@ -59,6 +70,9 @@ export default withProps<Props>(
       {
         name: 'productCategoriesQuery'
       }
-    )
+    ),
+    graphql<{}, PaymentTypeQueryResponse, {}>(gql(queries.payment_types), {
+      name: 'paymentTypesQuery'
+    })
   )(ProductFormContainer)
 );

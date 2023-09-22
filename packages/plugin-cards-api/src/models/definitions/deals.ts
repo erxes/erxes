@@ -29,6 +29,10 @@ interface IPaymentsData {
   [key: string]: {
     currency?: string;
     amount?: number;
+    type?: string;
+    title?: string;
+    icon?: string;
+    config?: string;
   };
 }
 

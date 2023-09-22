@@ -58,7 +58,17 @@ export interface IPaymentsData {
   [key: string]: {
     currency?: string;
     amount?: number;
+    type?: string;
+    title?: string;
+    icon?: string;
+    config?: string;
   };
+}
+export interface IPaymentType {
+  _id: string;
+  paymentIds?: string[];
+  paymentTypes?: any[];
+  erxesAppToken: string;
 }
 
 export type DealsTotalAmountsQueryResponse = {
@@ -66,14 +76,22 @@ export type DealsTotalAmountsQueryResponse = {
   refetch: () => void;
 };
 
+export type PaymentTypesMutationResponse = {
+  paymentTypesMutation: (params: {
+    variables: { paymentTypeObject: IPaymentType[] };
+  }) => Promise<void>;
+};
+
 export interface IDeal extends IItem {
   products?: any;
   paymentsData?: IPaymentsData;
+  paymentType?: IPaymentType[];
 }
 
 export interface IDealParams extends IItemParams {
   productsData?: IProductData[];
   paymentsData?: IPaymentsData;
+  paymentType?: IPaymentType[];
 }
 
 export type DealsQueryResponse = {

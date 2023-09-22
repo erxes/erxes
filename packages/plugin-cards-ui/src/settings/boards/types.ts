@@ -10,6 +10,14 @@ export type AddBoardMutationResponse = {
   }) => Promise<void>;
 };
 
+export type IPaymentType = {
+  map(arg0: (e: any) => { e: any }): unknown;
+  _id: string;
+  paymentIds?: string[];
+  paymentTypes?: any[];
+  erxesAppToken: string;
+};
+
 export type EditBoardMutationVariables = {
   _id?: string;
   name: string;
@@ -56,6 +64,11 @@ export type UpdateOrderPipelineMutationVariables = {
   };
 };
 
+export type PaymentTypeMutationVariable = {
+  paymentTypesMutation: (params: {
+    variables: PaymentTypeMutationVariable;
+  }) => Promise<void>;
+};
 export type UpdateOrderPipelineMutationResponse = {
   pipelinesUpdateOrderMutation: (params: {
     variables: UpdateOrderPipelineMutationVariables;
