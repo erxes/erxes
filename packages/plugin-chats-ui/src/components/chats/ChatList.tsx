@@ -6,6 +6,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import ChatItem from '../../containers/chats/ChatItem';
 import { Title, ChatListSearch, ChatListWrapper } from '../../styles';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
+import { EmptyState } from '@erxes/ui/src/components';
 
 type Props = {
   chats: any[];
@@ -18,15 +19,22 @@ type Props = {
   loadEarlierChat: () => void;
   loading?: boolean;
   totalCount?: number;
+  allUsers: IUser[];
+  isForward?: boolean;
+  forwardChat?: (id: string, type: string) => void;
+  forwardedChatIds?: string[];
 };
 
 const ChatList = (props: Props) => {
   const [searchValue, setSearchValue] = useState('');
   const [filteredChats, setFilteredChats] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [pinnedChatIds, setPinnedChatIds] = useState(
-    props.chats?.filter((chat: any) =>
-      chat.isPinnedUserIds.includes(props.currentUser._id)
-    ) || []
+    props.isWidget
+      ? []
+      : props.chats?.filter((chat: any) =>
+          chat.isPinnedUserIds.includes(props.currentUser._id)
+        ) || []
   );
 
   const {
@@ -36,8 +44,16 @@ const ChatList = (props: Props) => {
     hasOptions,
     isWidget,
     togglePinned,
-    totalCount
+    totalCount,
+    allUsers,
+    isForward,
+    forwardChat,
+    forwardedChatIds
   } = props;
+
+  const contactedUsers = chats.map(
+    c => c.type === 'direct' && c.participantUsers[0]?._id
+  );
 
   const handlePin = (_chatId: string) => {
     if (checkPinned(_chatId)) {
@@ -58,6 +74,7 @@ const ChatList = (props: Props) => {
 
   const handleSearch = (event: any) => {
     setSearchValue(event.target.value);
+    const inputValue = event.target.value;
 
     setFilteredChats(
       chats.filter(item => {
@@ -70,11 +87,31 @@ const ChatList = (props: Props) => {
               ? users.filter(u => u._id !== currentUser._id)[0]
               : users[0];
           name = user.details.fullName || user.email;
+          return (
+            name.toLowerCase().includes(inputValue.toLowerCase()) ||
+            user.details.position
+              .toLowerCase()
+              .includes(inputValue.toLowerCase())
+          );
         } else {
           name = item.name;
+          return name.toLowerCase().includes(inputValue.toLowerCase());
         }
+      })
+    );
 
-        return name.toLowerCase().includes(searchValue.toLowerCase());
+    setFilteredUsers(
+      allUsers.filter(item => {
+        return (
+          item.details?.fullName
+            ?.toLowerCase()
+            .includes(inputValue.toLowerCase()) ||
+          item.username?.toLowerCase().includes(inputValue.toLowerCase()) ||
+          item.email?.toLowerCase().includes(inputValue.toLowerCase()) ||
+          item.details?.position
+            ?.toLowerCase()
+            .includes(inputValue.toLowerCase())
+        );
       })
     );
   };
@@ -97,6 +134,9 @@ const ChatList = (props: Props) => {
                     hasOptions={hasOptions}
                     handlePin={handlePin}
                     handleClickItem={props.handleClickItem}
+                    isForward={isForward}
+                    forwardChat={forwardChat}
+                    forwardedChatIds={forwardedChatIds}
                   />
                 )
             )}
@@ -113,7 +153,9 @@ const ChatList = (props: Props) => {
         <ChatListWrapper>
           {chats.map(
             c =>
-              !c.isPinnedUserIds.includes(props.currentUser._id) && (
+              (isWidget
+                ? true
+                : !c.isPinnedUserIds.includes(props.currentUser._id)) && (
                 <ChatItem
                   key={c._id}
                   chat={c}
@@ -123,6 +165,9 @@ const ChatList = (props: Props) => {
                   hasOptions={hasOptions}
                   handlePin={handlePin}
                   handleClickItem={props.handleClickItem}
+                  isForward={isForward}
+                  forwardChat={forwardChat}
+                  forwardedChatIds={forwardedChatIds}
                 />
               )
           )}
@@ -142,8 +187,37 @@ const ChatList = (props: Props) => {
         hasOptions={hasOptions}
         handlePin={handlePin}
         handleClickItem={props.handleClickItem}
+        isForward={isForward}
+        forwardChat={forwardChat}
+        forwardedChatIds={forwardedChatIds}
       />
     ));
+  };
+
+  const renderFilteredUsers = () => {
+    if (filteredUsers.length > 0) {
+      return filteredUsers.map(user => {
+        if (!contactedUsers.includes(user._id)) {
+          return (
+            <ChatItem
+              key={user._id}
+              currentUser={currentUser}
+              notContactUser={user}
+              hasOptions={true}
+              handleClickItem={props.handleClickItem}
+              handlePin={handlePin}
+              isWidget={isWidget}
+              active={false}
+              isForward={isForward}
+              forwardChat={forwardChat}
+              forwardedChatIds={forwardedChatIds}
+            />
+          );
+        }
+      });
+    }
+
+    return <EmptyState icon="ban" text="No matching members" />;
   };
 
   return (
@@ -162,7 +236,10 @@ const ChatList = (props: Props) => {
           {renderChats()}
         </>
       ) : (
-        renderFilteredChats()
+        <>
+          {renderFilteredChats()}
+          {renderFilteredUsers()}
+        </>
       )}
     </React.Fragment>
   );

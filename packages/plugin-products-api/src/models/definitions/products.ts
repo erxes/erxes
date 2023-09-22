@@ -66,6 +66,7 @@ export interface IProduct {
   subUoms?: ISubUom[];
   taxType?: string;
   taxCode?: string;
+  sameMasks?: string[];
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -84,6 +85,13 @@ export interface IProductCategory {
   status?: string;
   maskType?: string;
   mask?: any;
+  isSimilarity?: boolean;
+  similarities?: {
+    id: string;
+    groupId: string;
+    fieldId: string;
+    title: string;
+  }[];
 }
 
 export interface IProductCategoryDocument extends IProductCategory, Document {
@@ -164,7 +172,8 @@ export const productSchema = schemaWrapper(
       label: 'Sub unit of measurements'
     }),
     taxType: field({ type: String, optional: true, label: 'TAX type' }),
-    taxCode: field({ type: String, optional: true, label: 'tax type code' })
+    taxCode: field({ type: String, optional: true, label: 'tax type code' }),
+    sameMasks: field({ type: [String] })
   })
 );
 
@@ -198,6 +207,15 @@ export const productCategorySchema = schemaWrapper(
       label: 'Mask type',
       enum: PRODUCT_CATEGORY_MASK_TYPES.ALL
     }),
-    mask: field({ type: Object, label: 'Mask' })
+    mask: field({ type: Object, label: 'Mask', optional: true }),
+    isSimilarity: field({
+      type: Boolean,
+      label: 'is Similiraties',
+      optional: true
+    }),
+    similarities: field({
+      type: [{ id: String, groupId: String, fieldId: String, title: String }],
+      optional: true
+    })
   })
 );

@@ -124,6 +124,7 @@ class GeneralSettings extends React.Component<Props, State> {
             'companyCategoryCode',
             'Company default category code on erkhet'
           )}
+          {this.renderItem('debtAccounts', 'Split "," account fullcode')}
         </CollapseContent>
         {isEnabled('loans') && (
           <CollapseContent title="Loan transaction to erkhet">

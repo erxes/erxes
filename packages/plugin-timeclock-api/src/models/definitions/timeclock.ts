@@ -13,6 +13,7 @@ export interface ITimeClock {
   outDevice?: string;
   inDeviceType?: string;
   outDeviceType?: string;
+  shiftNotClosed?: boolean;
 }
 
 export interface ITimeClockDocument extends ITimeClock, Document {
@@ -139,6 +140,27 @@ export interface IReportCheckDocument extends IReportCheck, Document {
   _id: string;
 }
 
+export interface IScheduleConfigOrder {
+  userId: string;
+  orderedList: IScheduleConfigOrderItem[];
+}
+
+export interface IScheduleConfigOrderDocument
+  extends IScheduleConfigOrder,
+    Document {
+  _id: string;
+}
+export interface IScheduleConfigOrderItem {
+  scheduleConfigId: string;
+  order: number;
+  pinned: boolean;
+}
+export interface IScheduleConfigOrderItemDocument
+  extends IScheduleConfigOrderItem,
+    Document {
+  _id: string;
+}
+
 export const attachmentSchema = new Schema(
   {
     name: field({ type: String }),
@@ -172,6 +194,11 @@ export const timeclockSchema = new Schema({
     type: Boolean,
     label: 'Is shift started and active',
     default: false
+  }),
+  shiftNotClosed: field({
+    type: Boolean,
+    label: 'Whether shift was not closed by user',
+    optional: true
   }),
   branchName: field({
     type: String,
@@ -437,6 +464,26 @@ export const reportCheckSchema = new Schema({
   })
 });
 
+export const scheduleConfigOrderItemSchema = new Schema({
+  scheduleConfigId: field({ type: String, index: true }),
+  pinned: field({ type: Boolean, default: false }),
+  order: field({ type: Number, index: true }),
+  label: field({ type: String, label: 'startTime ~ endTime (scheduleName)' })
+});
+
+export const scheduleConfigOrderSchema = new Schema({
+  _id: field({ pkey: true }),
+  userId: field({
+    type: String,
+    label: 'User of the report',
+    unique: true,
+    index: true
+  }),
+  orderedList: field({
+    type: [scheduleConfigOrderItemSchema],
+    label: 'personalized order of schedule configs'
+  })
+});
 // common types
 export interface IScheduleReport {
   date?: string;

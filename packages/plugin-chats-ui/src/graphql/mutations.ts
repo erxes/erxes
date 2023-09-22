@@ -52,6 +52,14 @@ const chatToggleIsPinned = `
   }
 `;
 
+const chatForward = `
+  mutation chatForward($chatId: String, $userIds: [String], $content: String, $attachments: [JSON]) {
+    chatForward(chatId: $chatId, userIds: $userIds, content: $content, attachments: $attachments) {
+      _id
+    }
+  }
+`;
+
 export default {
   chatMessageAdd,
   chatAdd,
@@ -60,5 +68,6 @@ export default {
   chatMarkAsRead,
   chatMakeOrRemoveAdmin,
   chatAddOrRemoveMember,
-  chatToggleIsPinned
+  chatToggleIsPinned,
+  chatForward
 };

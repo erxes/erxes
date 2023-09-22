@@ -75,6 +75,8 @@ export const types = `
     productImgUrl: String
     status: String
     manufacturedDate: String
+    description: String
+    attachment: JSON
   }
 
   type PosPutResponse {

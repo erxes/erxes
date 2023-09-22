@@ -1,7 +1,13 @@
 import { IContext } from '../../../connectionResolver';
 import { getConfig } from '../../../utils/utils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
-import { sendCardsMessage, sendProductsMessage } from '../../../messageBroker';
+import {
+  sendCardsMessage,
+  sendContactsMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from '../../../messageBroker';
+import { getPureDate } from '@erxes/api-utils/src';
 
 const erkhetQueries = {
   async erkhetRemainders(
@@ -99,6 +105,110 @@ const erkhetQueries = {
     }
 
     return result;
+  },
+
+  async erkhetDebt(
+    _root,
+    {
+      contentType,
+      contentId,
+      startDate,
+      endDate,
+      isMore
+    }: {
+      contentType: string;
+      contentId: string;
+      startDate?: Date;
+      endDate?: Date;
+      isMore: boolean;
+    },
+    { subdomain }: IContext
+  ) {
+    const result: any = {};
+
+    try {
+      const configs = await getConfig(subdomain, 'ERKHET');
+
+      if (!configs || !Object.keys(configs).length) {
+        return {};
+      }
+
+      if (!configs.debtAccounts) {
+        return {};
+      }
+
+      const sendParams: any = {
+        kind: 'debt',
+        api_key: configs.apiKey,
+        api_secret: configs.apiSecret,
+        accounts: configs.debtAccounts,
+        startDate:
+          (startDate &&
+            getPureDate(startDate)
+              .toISOString()
+              .slice(0, 10)) ||
+          '',
+        endDate:
+          (endDate &&
+            getPureDate(endDate)
+              .toISOString()
+              .slice(0, 10)) ||
+          '',
+        isMore: (isMore && 'True') || ''
+      };
+
+      switch (contentType) {
+        case 'company':
+          const company = await sendContactsMessage({
+            subdomain,
+            action: 'companies.findOne',
+            data: { _id: contentId },
+            isRPC: true,
+            defaultValue: {}
+          });
+
+          sendParams.customerCode = company && company.code;
+          break;
+        case 'user':
+          const user = await sendCoreMessage({
+            subdomain,
+            action: 'users.findOne',
+            data: { _id: contentId },
+            isRPC: true,
+            defaultValue: {}
+          });
+
+          sendParams.workerEmail = user && user.email;
+          break;
+        default:
+          const customer = await sendContactsMessage({
+            subdomain,
+            action: 'customers.findOne',
+            data: { _id: contentId },
+            isRPC: true,
+            defaultValue: {}
+          });
+
+          sendParams.customerCode = customer && customer.code;
+      }
+
+      if (!sendParams.customerCode && !sendParams.workerEmail) {
+        return {};
+      }
+
+      const response = await sendRequest({
+        url: configs.getRemainderApiUrl,
+        method: 'GET',
+        params: sendParams,
+        timeout: 8000
+      });
+
+      const jsonRes = JSON.parse(response);
+      return jsonRes;
+    } catch (e) {
+      console.log(e.message);
+      return result;
+    }
   }
 };
 

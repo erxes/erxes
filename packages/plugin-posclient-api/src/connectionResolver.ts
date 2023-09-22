@@ -1,7 +1,15 @@
 import * as mongoose from 'mongoose';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IConfigDocument } from './models/definitions/configs';
-import { IConfigModel, loadConfigClass } from './models/Configs';
+import {
+  IConfigDocument,
+  IProductsConfigDocument
+} from './models/definitions/configs';
+import {
+  IConfigModel,
+  IProductsConfigModel,
+  loadConfigClass,
+  loadProductsConfigClass
+} from './models/Configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IOrderDocument } from './models/definitions/orders';
 import { IOrderItemDocument } from './models/definitions/orderItems';
@@ -36,6 +44,7 @@ export interface IModels {
   PosUsers: IPosUserModel;
   PosSlots: IPosSlotModel;
   Covers: ICoverModel;
+  ProductsConfigs: IProductsConfigModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -89,6 +98,10 @@ export const loadClasses = (
     'posclient_covers',
     loadCoverClass(models)
   );
+  models.ProductsConfigs = db.model<
+    IProductsConfigDocument,
+    IProductsConfigModel
+  >('posclient_products_configs', loadProductsConfigClass(models));
 
   return models;
 };

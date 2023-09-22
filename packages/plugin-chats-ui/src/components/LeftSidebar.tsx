@@ -4,7 +4,6 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Icon from '@erxes/ui/src/components/Icon';
 // local
-import CreateDirectChat from './modals/CreateDirectChat';
 import CreateGroupChat from '../containers/modals/CreateGroupChat';
 import ChatList from '../containers/chats/ChatList';
 import { SidebarWrapper, SidebarHeader, IconButton } from '../styles';
@@ -20,32 +19,20 @@ const LeftSidebar = (props: Props) => {
     return (
       <div>
         <ModalTrigger
-          title="Compose"
+          title="Create a chat"
           trigger={
             <IconButton>
-              <Icon icon="pencil" size={12} />
+              <Icon icon="edit-1" size={14} />
             </IconButton>
           }
-          content={props => <CreateDirectChat {...props} />}
-          hideHeader
-          isAnimate
-        />
-        <ModalTrigger
-          title="Create a group chat"
-          trigger={
-            <IconButton>
-              <Icon icon="users" size={12} />
-            </IconButton>
-          }
-          content={props => <CreateGroupChat {...props} />}
-          hideHeader
-          isAnimate
+          content={modalProps => <CreateGroupChat {...modalProps} />}
+          isAnimate={true}
         />
       </div>
     );
   };
   return (
-    <Sidebar wide={true}>
+    <Sidebar wide={true} hasBorder={true}>
       <SidebarWrapper>
         <SidebarHeader>
           <h3>Chats</h3>

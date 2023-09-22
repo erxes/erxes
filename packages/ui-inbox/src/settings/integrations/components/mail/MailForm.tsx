@@ -72,6 +72,7 @@ type Props = {
   history: any;
   shrink?: boolean;
   clear?: boolean;
+  conversationStatus?: string;
 };
 
 type State = {
@@ -88,7 +89,8 @@ type State = {
   hasSubject?: boolean;
   kind: string;
   content: string;
-  isLoading: boolean;
+  isSubmitLoading: boolean;
+  isSubmitResolveLoading: boolean;
   attachments: any[];
   fileIds: string[];
   showPrevEmails: boolean;
@@ -150,7 +152,8 @@ class MailForm extends React.Component<Props, State> {
       hasBcc: bcc ? bcc.length > 0 : false,
       hasSubject: !props.isReply,
 
-      isLoading: false,
+      isSubmitLoading: false,
+      isSubmitResolveLoading: false,
       showPrevEmails,
 
       fromEmail: sender,
@@ -307,7 +310,7 @@ class MailForm extends React.Component<Props, State> {
 
   clearContent = () => {
     this.setState({
-      to: '',
+      to: this.props.emailTo ? this.props.emailTo : '',
       cc: '',
       bcc: '',
       subject: '',
@@ -340,7 +343,8 @@ class MailForm extends React.Component<Props, State> {
       sendMail,
       isForward,
       clearOnSubmit,
-      messageId
+      messageId,
+      conversationStatus
     } = this.props;
 
     const mailData = this.props.mailData || ({} as IMail);
@@ -356,12 +360,20 @@ class MailForm extends React.Component<Props, State> {
     } = this.state;
 
     if (!to) {
-      return Alert.error('This message must have at least one recipient.');
+      return Alert.warning('This message must have at least one recipient.');
+    }
+
+    if (!isReply && (!subject || !content)) {
+      return Alert.warning(
+        'Send this message with a subject or text in the body.'
+      );
     }
 
     const { references, headerId, inReplyTo, replyTo, threadId } = mailData;
 
-    this.setState({ isLoading: true });
+    shouldResolve
+      ? this.setState({ isSubmitResolveLoading: true })
+      : this.setState({ isSubmitLoading: true });
 
     const subjectValue = subject || mailData.subject || '';
 
@@ -378,7 +390,10 @@ class MailForm extends React.Component<Props, State> {
       kind,
       body: updatedContent,
       erxesApiId: from,
-      shouldResolve,
+      shouldResolve:
+        shouldResolve && conversationStatus === 'new' ? true : false,
+      shouldOpen:
+        shouldResolve && conversationStatus === 'closed' ? true : false,
       ...(!isForward ? { replyToMessageId: mailData.messageId } : {}),
       to: formatStr(to),
       cc: formatStr(cc),
@@ -393,7 +408,9 @@ class MailForm extends React.Component<Props, State> {
     return sendMail({
       variables,
       callback: () => {
-        this.setState({ isLoading: false });
+        shouldResolve
+          ? this.setState({ isSubmitResolveLoading: true })
+          : this.setState({ isSubmitLoading: true });
 
         if (clearOnSubmit) {
           this.clearContent();
@@ -523,7 +540,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderFrom() {
     return (
-      <FlexRow>
+      <FlexRow isEmail={true}>
         <label className="from">From:</label>
         {this.renderFromValue()}
       </FlexRow>
@@ -532,7 +549,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderTo() {
     return (
-      <FlexRow>
+      <FlexRow isEmail={true}>
         <label>To:</label>
         <FormControl
           autoFocus={this.props.isForward}
@@ -636,8 +653,16 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
-  renderSubmit(label, onClick, type: string, icon = 'message') {
-    const { isLoading } = this.state;
+  renderSubmit(
+    label: string,
+    onClick,
+    type: string,
+    icon = 'message',
+    kind?: string
+  ) {
+    const { isSubmitLoading, isSubmitResolveLoading } = this.state;
+    const isResolve = kind && kind === 'resolveOrOpen';
+    const isLoading = isResolve ? isSubmitResolveLoading : isSubmitLoading;
 
     return (
       <Button
@@ -660,7 +685,8 @@ class MailForm extends React.Component<Props, State> {
       toggleReply,
       totalCount,
       fetchMoreEmailTemplates,
-      history
+      history,
+      conversationStatus
     } = this.props;
 
     const onSubmitResolve = e => this.onSubmit(e, true);
@@ -698,10 +724,13 @@ class MailForm extends React.Component<Props, State> {
             {this.renderSubmit('Send', this.onSubmit, 'primary')}
             {isReply &&
               this.renderSubmit(
-                'Send and Resolve',
+                conversationStatus === 'closed'
+                  ? 'Send and Open'
+                  : 'Send and Resolve',
                 onSubmitResolve,
-                'success',
-                'check-circle'
+                conversationStatus === 'closed' ? 'warning' : 'success',
+                conversationStatus === 'closed' ? 'redo' : 'check-circle',
+                'resolveOrOpen'
               )}
           </div>
           <ToolBar>

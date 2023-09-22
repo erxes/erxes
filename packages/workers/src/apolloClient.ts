@@ -1,12 +1,13 @@
-import { ApolloServer, gql } from 'apollo-server-express';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-import { buildSubgraphSchema } from '@apollo/federation';
+import { buildSubgraphSchema } from '@apollo/subgraph';
 import * as dotenv from 'dotenv';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolvers';
-
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { gql } from 'graphql-tag';
 // load environment variables
 dotenv.config();
 
@@ -14,7 +15,7 @@ let apolloServer;
 
 const { USE_BRAND_RESTRICTIONS } = process.env;
 
-export const initApolloServer = async (_app, httpServer) => {
+export const initApolloServer = async (app, httpServer) => {
   const { types, queries, mutations } = typeDefDetails;
 
   const typeDefs = gql(`
@@ -37,6 +38,12 @@ export const initApolloServer = async (_app, httpServer) => {
     ]),
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+
+  });
+
+  await apolloServer.start();
+
+  app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }: any) => {
       let user: any = null;
 
@@ -113,9 +120,7 @@ export const initApolloServer = async (_app, httpServer) => {
 
       return context;
     }
-  });
-
-  await apolloServer.start();
+  }))
 
   return apolloServer;
 };
