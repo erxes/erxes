@@ -2,7 +2,7 @@ import mongoDb from 'mongodb';
 
 import requestify from 'requestify';
 import fs from 'fs';
-import Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 const MongoClient = mongoDb.MongoClient;
 const MONGO_URL = process.argv[2];
 
@@ -90,7 +90,7 @@ const command = async () => {
     const columns = buildingsRows[i].split(',');
     const companyData = {
       primaryName: columns[2],
-      _id: Random.id()
+      _id: nanoid()
     };
 
     let customFieldsData = [];
@@ -156,7 +156,7 @@ const command = async () => {
       });
       if (company) {
         buildingData = {
-          _id: Random.id(),
+          _id: nanoid(),
           code: columns[8],
           connectedDate: columns[9],
           desctiption: `${(columns[10], columns[21])}`,
@@ -223,7 +223,7 @@ const command = async () => {
       if (building) {
         for (let k = 11; k <= 15; k++) {
           const internalNoteData = columns?.[k] && {
-            _id: Random.id(),
+            _id: nanoid(),
             title: `Buildings updated`,
             createdUser: '',
             action: `mentioned you in mobinet:buildings`,

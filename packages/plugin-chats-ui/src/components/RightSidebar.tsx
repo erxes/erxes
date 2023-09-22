@@ -20,14 +20,15 @@ const RightSidebar = (props: Props) => {
     return (
       <div>
         <ModalTrigger
-          title="Compose"
+          title="Change group name"
           trigger={
             <IconButton>
               <Icon icon="pencil" size={12} />
             </IconButton>
           }
-          content={props => <GroupChatName {...props} chat={chatDetail} />}
-          hideHeader={true}
+          content={modalProps => (
+            <GroupChatName {...modalProps} chat={chatDetail} />
+          )}
           isAnimate={true}
         />
       </div>

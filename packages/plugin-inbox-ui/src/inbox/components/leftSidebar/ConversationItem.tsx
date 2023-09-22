@@ -175,7 +175,7 @@ class ConversationItem extends React.Component<Props> {
                       src={
                         assignedUser.details &&
                         (assignedUser.details.avatar
-                          ? readFile(assignedUser.details.avatar)
+                          ? readFile(assignedUser.details.avatar, 36)
                           : '/images/avatar-colored.svg')
                       }
                     />

@@ -69,14 +69,14 @@ const EditorContainer = (props: Props) => {
       },
       refetchQueries: [
         { query: gql(queries.chats) },
-        { query: gql(queries.chatMessages), variables: { chatId: chatId } }
+        { query: gql(queries.chatMessages), variables: { chatId } }
       ]
     })
       .then(() => {
         callback();
       })
-      .catch(error => {
-        Alert.error(error.message);
+      .catch(e => {
+        Alert.error(e.message);
       });
   };
 

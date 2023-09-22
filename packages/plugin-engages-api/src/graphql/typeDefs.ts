@@ -1,4 +1,4 @@
-import { gql } from "apollo-server-express";
+import gql from 'graphql-tag';
 
 import { types, mutations, queries } from './schema/engage';
 import { types as logTypes, queries as logQueries } from './schema/engageLog';

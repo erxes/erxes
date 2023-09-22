@@ -1,5 +1,17 @@
 import { commonDateTypes, commonPaginateTypes } from './common';
 
+const commonScheduleParams = `
+    planId:String,
+    indicatorId:String,
+    groupId:String,
+    structureTypeId:String,
+    startDate:String,
+    endDate:String,
+    assignedUserIds:[String],
+    name:String,
+    customFieldsData:JSON,
+`;
+
 export const types = `
 
 type StructureDetail {
@@ -47,6 +59,12 @@ type Plan {
     dashboard:JSON
     riskAssessments:[RiskAssessment]
 }
+
+    input ISchedule {
+        _id: String,
+        ${commonScheduleParams}
+    }
+
 `;
 
 const commonMutationsParams = `
@@ -60,18 +78,6 @@ const commonMutationsParams = `
     createDate:String,
 `;
 
-const commonScheduleParams = `
-    planId:String,
-    indicatorId:String,
-    groupId:String,
-    structureTypeId:String,
-    startDate:String,
-    endDate:String,
-    assignedUserIds:[String],
-    name:String,
-    customFieldsData:JSON,
-`;
-
 export const mutations = `
     addRiskAssessmentPlan(${commonMutationsParams}):JSON
     updateRiskAssessmentPlan(_id:String,${commonMutationsParams}):JSON
@@ -83,6 +89,7 @@ export const mutations = `
     addRiskAssessmentPlanSchedule(${commonScheduleParams}):JSON
     updateRiskAssessmentPlanSchedule(_id:String,${commonScheduleParams}):JSON
     removeRiskAssessmentPlanSchedule(_id:String):JSON
+    bulkUpdateRiskAssessmentSchedule(datas:[ISchedule]):JSON
 `;
 
 const commonQueriesParams = `

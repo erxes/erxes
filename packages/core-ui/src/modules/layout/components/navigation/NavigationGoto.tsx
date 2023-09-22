@@ -17,6 +17,7 @@ import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { ACTIONS, GENERAL_SETTINGS } from './constants';
 import { pluginNavigations } from './utils';
+import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
 
 type Props = {
   navCollapse: number;
@@ -146,7 +147,13 @@ export default class NavigationGoto extends React.Component<Props, State> {
     }
   };
 
-  handleShow = () => {
+  handleShow = (item?) => {
+    const config = getConfig('emailWidgetShow') || {};
+    if (item?.type === 'email' && config['show'] === false) {
+      config['show'] = true;
+      setConfig('emailWidgetShow', config);
+    }
+
     this.setState({ show: !this.state.show, keysPressed: {} });
 
     if (this.searchFormInput.current !== null) {
@@ -193,7 +200,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
             return (
               <NavLink
                 id={'nav-item-' + index}
-                onClick={this.handleShow}
+                onClick={() => this.handleShow(item)}
                 to={item.url}
                 key={index}
               >

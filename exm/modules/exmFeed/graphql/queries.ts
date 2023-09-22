@@ -142,6 +142,8 @@ const chats = `
         type
         isSeen
         isPinned
+        isPinnedUserIds
+        featuredImage
         lastMessage {
           content
           createdAt
@@ -191,6 +193,7 @@ const chatDetail = `
       name
       type
       isSeen
+      featuredImage
       lastMessage {
         createdAt
         content

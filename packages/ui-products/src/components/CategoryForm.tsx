@@ -1,10 +1,11 @@
-import React from 'react';
-
+import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
+import { GroupWrapper } from '@erxes/ui-segments/src/styles';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import {
   FormColumn,
@@ -20,17 +21,19 @@ import {
   extractAttachment,
   generateCategoryOptions
 } from '@erxes/ui/src/utils';
-import { IProductCategory } from '../types';
-import { PRODUCT_CATEGORY_STATUSES } from '../constants';
 import { ICategory } from '@erxes/ui/src/utils/categories';
-import CategoryMask from '../containers/CategoryMask';
 import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+import { PRODUCT_CATEGORY_STATUSES } from '../constants';
+import CategoryMask from '../containers/CategoryMask';
+import { IProductCategory } from '../types';
 
 type Props = {
   categories: IProductCategory[];
   category?: IProductCategory;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  fieldGroups: IFieldGroup[];
 };
 
 type State = {
@@ -39,6 +42,8 @@ type State = {
   mask: any;
   parentId: string;
   code: string;
+  isSimilarity: boolean;
+  similarities: any[];
 };
 
 class CategoryForm extends React.Component<Props, State> {
@@ -53,14 +58,24 @@ class CategoryForm extends React.Component<Props, State> {
       maskType: category.maskType || '',
       mask: category.mask || {},
       parentId: category.parentId || '',
-      code: category.code || ''
+      code: category.code || '',
+      isSimilarity: category.isSimilarity || false,
+      similarities: category.similarities || []
     };
   }
 
   generateDoc = (values: { _id?: string; attachment?: IAttachment }) => {
     const { category, categories } = this.props;
     const finalValues = values;
-    const { attachment, maskType, mask, parentId, code } = this.state;
+    const {
+      attachment,
+      maskType,
+      mask,
+      parentId,
+      code,
+      isSimilarity,
+      similarities
+    } = this.state;
 
     if (category) {
       finalValues._id = category._id;
@@ -88,7 +103,9 @@ class CategoryForm extends React.Component<Props, State> {
       mask: genMask,
       parentId,
       code,
-      attachment
+      attachment,
+      isSimilarity,
+      similarities: isSimilarity ? similarities : undefined
     };
   };
 
@@ -215,9 +232,136 @@ class CategoryForm extends React.Component<Props, State> {
     );
   };
 
+  addRule = () => {
+    const { similarities } = this.state;
+    this.setState({
+      similarities: [...similarities, { id: Math.random().toString() }]
+    });
+  };
+
+  onChangeSimilarity = e => {
+    const { similarities } = this.state;
+    const checked = e.target.checked;
+    this.setState({ isSimilarity: checked }, () => {
+      if (checked && (!similarities || !similarities.length)) {
+        this.addRule();
+      }
+    });
+  };
+
+  renderRules() {
+    const { fieldGroups } = this.props;
+    const { similarities } = this.state;
+
+    const onRemove = id => {
+      this.setState({ similarities: similarities.filter(c => c.id !== id) });
+    };
+
+    const editRule = (id, rule) => {
+      const updated = (similarities || []).map(r =>
+        r.id === id ? { ...r, ...rule } : r
+      );
+      this.setState({ similarities: updated });
+    };
+
+    const onChangeControl = (id, e) => {
+      const name = e.target.name;
+      const value = e.target.value;
+      editRule(id, { [name]: value });
+    };
+
+    const onChangeFieldGroup = (id, e) => {
+      const name = e.target.name;
+      const value = e.target.value;
+      editRule(id, { [name]: value, fieldId: '' });
+    };
+
+    return (similarities || []).map(rule => (
+      <GroupWrapper key={rule.id}>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Title</ControlLabel>
+              <FormControl
+                name="title"
+                value={rule.title}
+                onChange={onChangeControl.bind(this, rule.id)}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Field Group</ControlLabel>
+              <FormControl
+                name="groupId"
+                componentClass="select"
+                options={[
+                  { value: '', label: 'Empty' },
+                  ...(fieldGroups || []).map(fg => ({
+                    value: fg._id,
+                    label: `${fg.code} - ${fg.name}`
+                  }))
+                ]}
+                value={rule.groupId}
+                onChange={onChangeFieldGroup.bind(this, rule.id)}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Field</ControlLabel>
+              <FormControl
+                name="fieldId"
+                componentClass="select"
+                options={[
+                  { value: '', label: 'Empty' },
+                  ...(
+                    (
+                      (
+                        (fieldGroups || []).find(
+                          fg => fg._id === rule.groupId
+                        ) || {}
+                      ).fields || []
+                    ).filter(f =>
+                      [
+                        'input',
+                        'textarea',
+                        'select',
+                        'check',
+                        'radio',
+                        'customer',
+                        'product',
+                        'branch',
+                        'department',
+                        'map'
+                      ].includes(f.type)
+                    ) || []
+                  ).map(f => ({
+                    value: f._id,
+                    label: `${f.code} - ${f.text}`
+                  }))
+                ]}
+                value={rule.fieldId}
+                onChange={onChangeControl.bind(this, rule.id)}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+        <Tip text={'Delete'}>
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={onRemove.bind(this, rule.id)}
+            icon="times"
+          />
+        </Tip>
+      </GroupWrapper>
+    ));
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, category, categories } = this.props;
-    const { maskType, parentId } = this.state;
+    const { maskType, parentId, isSimilarity } = this.state;
     const { values, isSubmitted } = formProps;
     const object = category || ({} as IProductCategory);
 
@@ -293,6 +437,18 @@ class CategoryForm extends React.Component<Props, State> {
             defaultValue={object.description}
           />
         </FormGroup>
+        <FormGroup>
+          <ControlLabel>Has Similarities group</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="isSimilarity"
+            componentClass="checkbox"
+            checked={isSimilarity}
+            onChange={this.onChangeSimilarity}
+          />
+        </FormGroup>
+
+        {(isSimilarity && this.renderRules()) || ''}
 
         <FormWrapper>
           <FormColumn>
@@ -322,6 +478,18 @@ class CategoryForm extends React.Component<Props, State> {
           </FormColumn>
         </FormWrapper>
         <ModalFooter>
+          {(isSimilarity && (
+            <Button
+              btnStyle="primary"
+              onClick={this.addRule}
+              icon="plus"
+              uppercase={false}
+            >
+              Add Rule
+            </Button>
+          )) ||
+            ''}
+
           <Button
             btnStyle="simple"
             onClick={closeModal}

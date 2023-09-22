@@ -445,16 +445,14 @@ class CustomersList extends React.Component<IProps, State> {
           </Button>
         </Link>
 
-        {type === 'visitor' ? null : (
-          <ModalTrigger
-            title="New customer"
-            autoOpenKey="showCustomerModal"
-            trigger={addTrigger}
-            size="lg"
-            content={customerForm}
-            backDrop="static"
-          />
-        )}
+        <ModalTrigger
+          title="New customer"
+          autoOpenKey="showCustomerModal"
+          trigger={addTrigger}
+          size="lg"
+          content={customerForm}
+          backDrop="static"
+        />
       </BarItems>
     );
 

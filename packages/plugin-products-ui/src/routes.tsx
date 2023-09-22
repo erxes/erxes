@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 import Settings from './containers/config/Settings';
 import Uom from './containers/config/Uoms';
 import GeneralSettings from './components/config/GeneralSettings';
+import SimilarityGroup from './components/config/SimilarityGroup';
 
 const ProductList = asyncComponent(() =>
   import(
@@ -43,6 +44,10 @@ const generalSetting = () => {
   return <Settings component={GeneralSettings} />;
 };
 
+const similarityGroup = () => {
+  return <Settings component={SimilarityGroup} />;
+};
+
 const uomManage = () => {
   return <Uom history={history} />;
 };
@@ -79,6 +84,13 @@ const routes = () => (
       exact={true}
       key="/settings/products-config/"
       component={generalSetting}
+    />
+
+    <Route
+      path="/settings/similarity-group/"
+      exact={true}
+      key="/settings/similarity-group"
+      component={similarityGroup}
     />
 
     <Route

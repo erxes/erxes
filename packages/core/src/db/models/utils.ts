@@ -1,5 +1,5 @@
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import * as faker from 'faker';
-import * as Random from 'meteor-random';
 
 export const getUniqueValue = async (
   collection: any,
@@ -7,7 +7,7 @@ export const getUniqueValue = async (
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
+    type === 'email' ? faker.internet.email().toLowerCase() : randomAlphanumeric();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 

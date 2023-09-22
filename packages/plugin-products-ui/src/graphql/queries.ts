@@ -34,6 +34,7 @@ const productsCount = `
   query productsTotalCount(
     $type: String,
     $categoryId: String,
+    $status: String,
     $tag: String,
     $searchValue: String,
     $excludeIds: Boolean,
@@ -44,6 +45,7 @@ const productsCount = `
   ) {
     productsTotalCount(
       type: $type,
+      status: $status,
       categoryId: $categoryId,
       tag: $tag,
       searchValue: $searchValue,

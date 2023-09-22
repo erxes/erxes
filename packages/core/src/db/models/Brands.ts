@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 import { Model } from 'mongoose';
 import { IModels } from '../../connectionResolver';
 import { brandSchema, IBrand, IBrandDocument } from './definitions/brands';
@@ -28,13 +28,13 @@ export const loadBrandClass = (models: IModels) => {
     }
 
     public static async generateCode(code?: string) {
-      let generatedCode = code || Random.id().substr(0, 6);
+      let generatedCode = code || nanoid(6);
 
       let prevBrand = await models.Brands.findOne({ code: generatedCode });
 
       // search until not existing one found
       while (prevBrand) {
-        generatedCode = Random.id().substr(0, 6);
+        generatedCode = nanoid(6);
 
         prevBrand = await models.Brands.findOne({ code: generatedCode });
       }

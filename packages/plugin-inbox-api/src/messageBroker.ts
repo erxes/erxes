@@ -253,6 +253,27 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'inbox:conversations.changeStatus',
+    async ({ subdomain, data: { id, status } }) => {
+      const models = await generateModels(subdomain);
+
+      if (id && status) {
+        return {
+          status: 'success',
+          data: await models.Conversations.updateOne(
+            { _id: id },
+            { status: status }
+          )
+        };
+      }
+      return {
+        status: 'error',
+        data: []
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'inbox:conversations.count',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);

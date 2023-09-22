@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import { sendCardsMessage } from './messageBroker';
+import { sendCardsMessage, sendFormsMessage } from './messageBroker';
 import { PLAN_STATUSES } from './common/constants';
 import * as moment from 'moment';
 
@@ -45,14 +45,24 @@ const handleDailyJob = async ({ subdomain }) => {
     let newItemIds: string[] = [];
 
     for (const schedule of schedules) {
-      const payload = {
+      const payload: any = {
         ...commonDoc,
         name: schedule.name,
         userId: plannerId,
         stageId: configs.stageId,
-        assignedUserIds: schedule.assignedUserIds,
-        customFieldsData: schedule.customFieldsData
+        assignedUserIds: schedule.assignedUserIds
       };
+
+      if (schedule?.customFieldsData) {
+        payload.customFieldsData = await sendFormsMessage({
+          subdomain,
+          action: 'fields.prepareCustomFieldsData',
+          data: schedule.customFieldsData,
+          isRPC: true,
+          defaultValue: schedule.customFieldsData
+        });
+      }
+
       const fieldName = structureType;
       if (['branch', 'department'].includes(structureType)) {
         payload[`${fieldName}Ids`] = schedule.structureTypeId

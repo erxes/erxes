@@ -164,6 +164,20 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeQueue(
+    `posclient:erxes-posclient-to-pos-api-remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { order } = data;
+
+      await models.Orders.deleteOne({
+        _id: order._id,
+        posToken: order.posToken,
+        subToken: order.subToken
+      });
+    }
+  );
+
   consumeRPCQueue(
     `posclient:health_check${channelToken}`,
     async ({ subdomain, data }) => {

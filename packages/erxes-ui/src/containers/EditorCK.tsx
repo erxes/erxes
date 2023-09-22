@@ -12,17 +12,31 @@ import { isValidURL } from '../utils/urlParser';
 import segmentQueries from './queries';
 import { queries as teamQueries } from '../team/graphql';
 import { withProps } from '../utils';
+import { capitalize } from 'lodash';
 
-const generateAttributes = (combinedFields?: any[]) => {
+const generateAttributes = (combinedFields?: any[], contentType?: string) => {
   //check - FieldsCombinedByType
   let items: Array<{ name: string; value?: string }> = [
     { name: 'Customer' },
     { value: 'customer.name', name: 'Name' }
   ];
 
-  (combinedFields || []).forEach(field =>
-    items.push({ value: `customer.${field.name}`, name: field.label })
-  );
+  if (contentType) {
+    const [_serviceName, type] = contentType.split(':');
+
+    items.splice(0);
+
+    items = [{ name: capitalize(type) }].concat(
+      (combinedFields || []).map(field => ({
+        value: `${type}.${field.name}`,
+        name: field.label
+      }))
+    );
+  } else {
+    (combinedFields || []).forEach(field =>
+      items.push({ value: `customer.${field.name}`, name: field.label })
+    );
+  }
 
   items = [
     ...items,
@@ -54,7 +68,7 @@ type FinalProps = {
 } & Props;
 
 const EditorContainer = (props: FinalProps) => {
-  const { usersQuery, combinedFieldsQuery } = props;
+  const { usersQuery, combinedFieldsQuery, contentType } = props;
 
   if (
     usersQuery.loading ||
@@ -81,7 +95,8 @@ const EditorContainer = (props: FinalProps) => {
     }
   }
 
-  const insertItems = props.insertItems || generateAttributes(combinedFields);
+  const insertItems =
+    props.insertItems || generateAttributes(combinedFields, contentType);
 
   return (
     <EditorCK
@@ -103,9 +118,9 @@ export default withProps<Props>(
 
     graphql<Props>(gql(segmentQueries.combinedFields), {
       name: 'combinedFieldsQuery',
-      options: () => ({
+      options: ({ contentType }) => ({
         variables: {
-          contentType: 'customer'
+          contentType: contentType || 'customer'
         }
       }),
       skip: !isEnabled('segments')
