@@ -5,20 +5,28 @@ const coverQueries = {
   async covers(_root, params, { models, config, posUser }: IContext) {
     const selector: any = { posToken: config.token };
 
-    if (params.userId) {
-      selector.userId = params.userId;
+    const { userId, startDate, endDate } = params;
+
+    if (userId) {
+      selector.userId = userId;
     }
 
     if (!config.adminIds.includes(posUser._id)) {
       selector.userId = posUser._id;
     }
 
-    if (params.startDate) {
-      selector.beginDate = { $gte: params.startDate };
+    const dateQry: any = {};
+
+    if (startDate) {
+      dateQry.$gte = getPureDate(startDate);
     }
 
-    if (params.endDate) {
-      selector.endDate = { $lte: params.endDate };
+    if (endDate) {
+      dateQry.$lte = getPureDate(endDate);
+    }
+
+    if (Object.keys(dateQry).length) {
+      selector.endDate = dateQry;
     }
 
     return paginate(

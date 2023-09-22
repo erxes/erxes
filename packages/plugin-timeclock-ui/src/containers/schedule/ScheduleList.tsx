@@ -44,7 +44,7 @@ type Props = {
   shiftStatus?: string;
 
   requestedShifts?: IShift[];
-  scheduleConfigs: IScheduleConfig[];
+  scheduleConfigs?: IScheduleConfig[];
 
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;

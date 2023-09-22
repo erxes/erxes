@@ -68,6 +68,7 @@ type Props = {
   emailSignatures: IEmailSignature[];
   fetchMoreEmailTemplates: (page: number) => void;
   createdAt?: Date;
+  isEmptyEmail?: boolean;
   sendMail: ({
     variables,
     callback
@@ -98,17 +99,15 @@ type State = {
   hasSubject?: boolean;
   kind: string;
   content: string;
-  isLoading: boolean;
+  isSubmitLoading: boolean;
+  isSubmitResolveLoading: boolean;
   attachments: any[];
   fileIds: string[];
   showPrevEmails: boolean;
   emailSignature: string;
   name: string;
   showReply: string;
-  signatureContent: string;
-  bookmarksChecked: boolean;
-  urlsChecked: boolean;
-  person: string;
+  isRepliesRetrieved: boolean;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -166,17 +165,18 @@ class MailForm extends React.Component<Props, State> {
       hasBcc: bcc ? bcc.length > 0 : false,
       hasSubject: !props.isReply,
 
-      isLoading: false,
+      isSubmitLoading: false,
+      isSubmitResolveLoading: false,
       showPrevEmails,
 
       fromEmail: sender,
       from: mailWidget ? mailWidget.from : mailData.from || ([{}] as IEmail[]),
       subject: mailData.subject || mailWidget ? mailWidget.subject : '',
       emailSignature: '',
-      content: mailWidget
-        ? mailWidget.content
-        : mailData
+      content: mailData
         ? this.getContent(mailData, '')
+        : mailWidget
+        ? mailWidget.content
         : '',
 
       status: 'draft',
@@ -187,28 +187,25 @@ class MailForm extends React.Component<Props, State> {
 
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`,
-
-      signatureContent: '',
-
-      bookmarksChecked: false,
-      urlsChecked: false,
-      person: 'pedro'
+        
+      isRepliesRetrieved: false
     };
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { name, content, to } = this.state;
+    const { name, content } = this.state;
+    const { isEmptyEmail, clear, emailTo } = this.props;
 
     if (prevState.content !== content) {
       localStorage.setItem(name, content);
     }
 
-    if (prevProps.clear !== this.props.clear) {
+    if (prevProps.clear !== clear || prevProps.isEmptyEmail !== isEmptyEmail) {
       this.clearContent();
     }
 
-    if (prevProps.emailTo !== this.props.emailTo) {
-      this.setState({ to: this.props.emailTo });
+    if (prevProps.emailTo !== emailTo) {
+      this.setState({ to: emailTo });
     }
   }
 
@@ -218,7 +215,7 @@ class MailForm extends React.Component<Props, State> {
     const content = localStorage.getItem(name);
 
     if (content && content !== this.state.content) {
-      this.setState({ content });
+      this.setState({ content: '' });
     }
 
     if ((content || '').length === 0 && showPrevEmails) {
@@ -284,25 +281,20 @@ class MailForm extends React.Component<Props, State> {
   getReplies(messageId?: string) {
     const { mails = [] } = this.props;
 
+    const { isRepliesRetrieved } = this.state;
+    this.setState({ isRepliesRetrieved: !isRepliesRetrieved });
+
     if (!messageId) {
       return '';
     }
 
-    let msgIndex = mails.findIndex(mail => {
+    const selectedMails = mails.filter(mail => {
       if (!mail) {
         return false;
       }
 
       return mail._id === messageId;
     });
-
-    if (msgIndex === -1) {
-      return '';
-    }
-
-    msgIndex = msgIndex === 0 ? (msgIndex += 1) : msgIndex;
-
-    const selectedMails = mails.splice(0, msgIndex);
 
     const previousEmails = selectedMails
       .map(mail => {
@@ -366,7 +358,8 @@ class MailForm extends React.Component<Props, State> {
       sendMail,
       isForward,
       clearOnSubmit,
-      messageId
+      messageId,
+      conversationStatus
     } = this.props;
 
     const mailData = this.props.mailData || ({} as IMail);
@@ -378,21 +371,34 @@ class MailForm extends React.Component<Props, State> {
       cc,
       bcc,
       subject,
-      kind
+      kind,
+      isRepliesRetrieved
     } = this.state;
 
     if (!to) {
-      return Alert.error('This message must have at least one recipient.');
+      return Alert.warning('This message must have at least one recipient.');
+    }
+
+    if (!isReply && (!subject || !content)) {
+      return Alert.warning(
+        'Send this message with a subject or text in the body.'
+      );
     }
 
     const { references, headerId, inReplyTo, replyTo, threadId } = mailData;
 
-    this.setState({ isLoading: true });
+    shouldResolve
+      ? this.setState({ isSubmitResolveLoading: true })
+      : this.setState({ isSubmitLoading: true });
 
     const subjectValue = subject || mailData.subject || '';
 
     const updatedContent =
-      isForward || !isReply ? content : this.getReplies(messageId);
+      isForward || !isReply
+        ? content
+        : !isRepliesRetrieved
+        ? this.getReplies(messageId)
+        : content;
 
     const variables = {
       headerId,
@@ -404,7 +410,10 @@ class MailForm extends React.Component<Props, State> {
       kind,
       body: updatedContent,
       erxesApiId: from,
-      shouldResolve,
+      shouldResolve:
+        shouldResolve && conversationStatus === 'new' ? true : false,
+      shouldOpen:
+        shouldResolve && conversationStatus === 'closed' ? true : false,
       ...(!isForward ? { replyToMessageId: mailData.messageId } : {}),
       to: formatStr(to),
       cc: formatStr(cc),
@@ -419,7 +428,9 @@ class MailForm extends React.Component<Props, State> {
     return sendMail({
       variables,
       callback: () => {
-        this.setState({ isLoading: false });
+        shouldResolve
+          ? this.setState({ isSubmitResolveLoading: true })
+          : this.setState({ isSubmitLoading: true });
 
         if (clearOnSubmit) {
           this.clearContent();
@@ -719,8 +730,16 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
-  renderSubmit(label, onClick, type: string, icon = 'message') {
-    const { isLoading } = this.state;
+  renderSubmit(
+    label: string,
+    onClick,
+    type: string,
+    icon = 'message',
+    kind?: string
+  ) {
+    const { isSubmitLoading, isSubmitResolveLoading } = this.state;
+    const isResolve = kind && kind === 'resolveOrOpen';
+    const isLoading = isResolve ? isSubmitResolveLoading : isSubmitLoading;
 
     return (
       <Button
@@ -794,7 +813,8 @@ class MailForm extends React.Component<Props, State> {
                   : 'Send and Resolve',
                 onSubmitResolve,
                 conversationStatus === 'closed' ? 'warning' : 'success',
-                conversationStatus === 'closed' ? 'redo' : 'check-circle'
+                conversationStatus === 'closed' ? 'redo' : 'check-circle',
+                'resolveOrOpen'
               )}
           </div>
           <ToolBar>

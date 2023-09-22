@@ -21,7 +21,7 @@ type Props = {
   totalCount?: number;
   allUsers: IUser[];
   isForward?: boolean;
-  forwardChat?: (chatId?: string, userIds?: string[]) => void;
+  forwardChat?: (id: string, type: string) => void;
   forwardedChatIds?: string[];
 };
 
@@ -30,9 +30,11 @@ const ChatList = (props: Props) => {
   const [filteredChats, setFilteredChats] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [pinnedChatIds, setPinnedChatIds] = useState(
-    props.chats?.filter((chat: any) =>
-      chat.isPinnedUserIds.includes(props.currentUser._id)
-    ) || []
+    props.isWidget
+      ? []
+      : props.chats?.filter((chat: any) =>
+          chat.isPinnedUserIds.includes(props.currentUser._id)
+        ) || []
   );
 
   const {
@@ -151,7 +153,9 @@ const ChatList = (props: Props) => {
         <ChatListWrapper>
           {chats.map(
             c =>
-              !c.isPinnedUserIds.includes(props.currentUser._id) && (
+              (isWidget
+                ? true
+                : !c.isPinnedUserIds.includes(props.currentUser._id)) && (
                 <ChatItem
                   key={c._id}
                   chat={c}

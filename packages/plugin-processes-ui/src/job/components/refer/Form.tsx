@@ -37,7 +37,6 @@ type State = {
   jobType: string;
   needProducts: IProductsData[];
   resultProducts: IProductsData[];
-  categoryId: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -50,8 +49,7 @@ class Form extends React.Component<Props, State> {
     this.state = {
       jobType: productRefer.type || 'job',
       needProducts: needProducts || [],
-      resultProducts: resultProducts || [],
-      categoryId: ''
+      resultProducts: resultProducts || []
     };
   }
 
@@ -113,10 +111,6 @@ class Form extends React.Component<Props, State> {
     const filteredUoms = products.filter(product => product._id !== id);
 
     this.setState({ [type]: filteredUoms } as any);
-  };
-
-  onChangeCategory = (categoryId: string) => {
-    this.setState({ categoryId });
   };
 
   onChange = (id, type, formType, e) => {
@@ -197,8 +191,6 @@ class Form extends React.Component<Props, State> {
       <ProductChooser
         {...props}
         onSelect={productOnChange}
-        onChangeCategory={this.onChangeCategory}
-        categoryId={this.state.categoryId}
         data={{
           name: 'Product',
           products: (currentProducts || [])

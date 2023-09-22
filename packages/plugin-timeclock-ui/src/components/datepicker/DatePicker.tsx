@@ -127,15 +127,14 @@ const DatePicker = (props: Props) => {
         />
       </div>
       {!inputChecked && (
-        <div style={{ width: 'fit-content' }}>
-          <Select
-            onChange={onScheduleConfigSelect}
-            placeholder="Select Schedule"
-            options={scheduleConfigOptions}
-            value={selectedScheduleConfigId}
-            multi={false}
-          />
-        </div>
+        <Select
+          onChange={onScheduleConfigSelect}
+          placeholder="Select Schedule"
+          options={scheduleConfigOptions}
+          value={selectedScheduleConfigId}
+          multi={false}
+          // components={{ _Option: CustomOption }}
+        />
       )}
       <FlexRow style={{ width: '40%' }}>
         <CustomWidth widthPercent={15}>

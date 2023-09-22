@@ -372,6 +372,22 @@ a:hover {
   padding: 0 5px 0 6px;
 }
 
+.bs-popover-top>.arrow, .bs-popover-auto[x-placement^="top"]>.arrow {
+  bottom: calc((0.5rem + 1px) * -1);
+}
+
+.bs-popover-right>.arrow, .bs-popover-auto[x-placement^="right"]>.arrow {
+  left:calc((0.5rem + 1px) * -1);
+}
+
+.bs-popover-bottom>.arrow, .bs-popover-auto[x-placement^="bottom"]>.arrow,.bs-popover-bottom-start>.arrow,.bs-popover-bottom-end>.arrow {
+  top:calc((0.5rem + 1px) * -1);
+}
+
+.bs-popover-left>.arrow, .bs-popover-auto[x-placement^="left"]>.arrow {
+  right:calc((0.5rem + 1px) * -1);
+}
+
 /* popover */
 
 #calendar-popover {
@@ -492,7 +508,7 @@ a:hover {
   transform: none !important;
 }
 
-.call-popover .arrow {
+.call-popover .arrow, #color-picker .arrow  {
   display: none !important;
 }
 

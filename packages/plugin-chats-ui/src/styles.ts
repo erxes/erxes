@@ -1,8 +1,8 @@
-import styled, { keyframes, css } from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import styled, { css, keyframes } from 'styled-components';
+
+import styledTS from 'styled-components-ts';
 
 /**
  * Global - START

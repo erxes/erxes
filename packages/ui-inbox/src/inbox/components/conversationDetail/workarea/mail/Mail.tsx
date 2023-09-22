@@ -1,4 +1,4 @@
-import { BoxItem, Content, Reply } from './style';
+import { BoxItem, Content, MailSubject, Reply } from './style';
 
 import Attachments from './Attachments';
 import Button from '@erxes/ui/src/components/Button';
@@ -6,6 +6,7 @@ import { IMessage } from '../../../../types';
 import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import MailHeader from './MailHeader';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
 import { cleanHtml } from '../../../../../settings/integrations/containers/utils';
 
 type Props = {
@@ -190,6 +191,17 @@ class Mail extends React.PureComponent<Props, State> {
     return (
       <>
         <BoxItem toggle={this.state.isCollapsed}>
+          {message.mailData && (
+            <Tip text={message.mailData.subject || ''} placement="top-start">
+              <MailSubject>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: message.mailData.subject || ''
+                  }}
+                />
+              </MailSubject>
+            </Tip>
+          )}
           <MailHeader
             message={message}
             isContentCollapsed={this.state.isCollapsed}

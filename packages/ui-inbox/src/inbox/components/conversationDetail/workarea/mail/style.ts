@@ -9,6 +9,20 @@ import styledTS from 'styled-components-ts';
 const Content = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   overflow: auto;
+
+  a {
+    &.primary-button-text {
+      color: #fff;
+    }
+    &.grey-button-text {
+      color: #5f6368;
+    }
+
+    span {
+      font-size: 14px;
+      cursor: pointer;
+    }
+  }
 `;
 
 const SmallContent = styledTS<{ toggle?: boolean }>(styled.div)`
@@ -212,6 +226,18 @@ const Addresses = styled.div`
   word-break: break-word;
 `;
 
+const MailSubject = styled.h5`
+  margin: 0;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0;
+  font-size: 13px;
+
+  > div {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+`;
+
 export {
   Subject,
   Meta,
@@ -231,5 +257,6 @@ export {
   From,
   AddressContainer,
   Title,
-  Addresses
+  Addresses,
+  MailSubject
 };

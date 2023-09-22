@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 import { mutations } from './schema/mutations';
 import { queries } from './schema/queries';
 import { types } from './schema/type';

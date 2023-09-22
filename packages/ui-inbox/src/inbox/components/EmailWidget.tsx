@@ -29,6 +29,7 @@ type State = {
   shrink: string;
   clear: boolean;
   isFullscreen: boolean;
+  isEmptyEmail: boolean;
 };
 
 class Widget extends React.Component<Props, State> {
@@ -38,7 +39,8 @@ class Widget extends React.Component<Props, State> {
     this.state = {
       shrink: localStorage.getItem('emailWidgetShrink') || 'false',
       clear: false,
-      isFullscreen: false
+      isFullscreen: false,
+      isEmptyEmail: false
     };
   }
 
@@ -57,7 +59,7 @@ class Widget extends React.Component<Props, State> {
     localStorage.setItem('emailWidgetShrink', 'false');
   };
 
-  showWidget = () => {
+  showWidget = (isEmptyEmail?: boolean) => {
     const { type = 'widget' } = this.props;
     const storageShow = JSON.parse(localStorage.getItem('emailWidgetShow'));
     const storageWidgetShow = storageShow ? storageShow.show : false;
@@ -67,6 +69,10 @@ class Widget extends React.Component<Props, State> {
     }
     if (storageWidgetShow === true && storageShow.type === type) {
       this.changeState(false);
+    }
+
+    if (isEmptyEmail) {
+      this.setState({ isEmptyEmail: true });
     }
   };
 
@@ -112,7 +118,7 @@ class Widget extends React.Component<Props, State> {
           <Icon
             icon="envelope-alt"
             size={20}
-            onClick={() => this.showWidget()}
+            onClick={() => this.showWidget(true)}
           />
         </Tip>
       </WidgetButton>
@@ -196,9 +202,11 @@ class Widget extends React.Component<Props, State> {
           </NewEmailHeader>
           <MailForm
             {...this.props}
+            isEmptyEmail={this.state.isEmptyEmail}
             shrink={isShrink}
             clear={clear}
             clearOnSubmit={true}
+            closeModal={onClose}
           />
         </WidgetWrapper>
       </ModalWrapper>

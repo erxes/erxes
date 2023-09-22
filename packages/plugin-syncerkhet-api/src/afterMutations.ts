@@ -183,17 +183,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
         productToErkhet(subdomain, models, syncLog, params, 'create');
         return;
       }
-      {
-        if (action === 'update') {
-          productToErkhet(subdomain, models, syncLog, params, 'update');
-          return;
-        }
+      if (action === 'update') {
+        productToErkhet(subdomain, models, syncLog, params, 'update');
+        return;
       }
-      {
-        if (action === 'delete') {
-          productToErkhet(subdomain, models, syncLog, params, 'delete');
-          return;
-        }
+      if (action === 'delete') {
+        productToErkhet(subdomain, models, syncLog, params, 'delete');
+        return;
       }
       return;
     }

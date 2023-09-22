@@ -30,7 +30,6 @@ type Props = {
   startTime?: Date;
   loading: boolean;
 
-  scheduleConfigs: IScheduleConfig[];
   searchFilter: string;
 };
 

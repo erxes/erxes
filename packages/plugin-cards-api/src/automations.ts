@@ -525,6 +525,21 @@ const actionCreate = async ({
     newData.customFieldsData = customFieldsData;
   }
 
+  if (newData.hasOwnProperty('attachments')) {
+    const [serviceName, itemType] = triggerType.split(':');
+    if (serviceName === 'cards') {
+      const modelsMap = {
+        ticket: models.Tickets,
+        task: models.Tasks,
+        deal: models.Deals,
+        purchase: models.Purchases
+      };
+
+      const item = await modelsMap[itemType].findOne({ _id: target._id });
+      newData.attachments = item.attachments;
+    }
+  }
+
   try {
     const { create } = getCollection(models, collectionType);
 

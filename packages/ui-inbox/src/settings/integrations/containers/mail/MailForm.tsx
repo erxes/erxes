@@ -42,6 +42,7 @@ type Props = {
   closeReply?: () => void;
   callback?: () => void;
   queryParams?: any;
+  isEmptyEmail?: boolean;
   shrink?: boolean;
   clear?: boolean;
   conversationStatus?: string;
