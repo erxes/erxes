@@ -1,14 +1,15 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import EbarimtMain from "@/modules/checkout/components/ebarimt/ebarimt.main"
 import PaymentType from "@/modules/checkout/components/paymentType/paymentType.main"
 import SelectPaymentTypeMain from "@/modules/checkout/components/paymentType/selectPaymentType.main"
 import usePaymentLabel from "@/modules/checkout/hooks/usePaymentLabel"
-import OrderDetail from "@/modules/orders/OrderDetail.main"
+import OrderDetail from "@/modules/orders/OrderDetail"
 import { currentPaymentTypeAtom } from "@/store"
-import { useAtomValue } from "jotai"
+import { activeOrderAtom } from "@/store/order.store"
+import { useAtomValue, useSetAtom } from "jotai"
 
 import Detail from "./components/Detail"
 
@@ -17,11 +18,16 @@ const Checkout = () => {
   const { getLabel } = usePaymentLabel()
   const searchValue = useSearchParams()
   const _id = searchValue.get("orderId")
+  const setActiveOrderId = useSetAtom(activeOrderAtom)
 
-  const variables = useMemo(() => ({ _id }), [_id])
+  useEffect(() => {
+    if (_id) {
+      setActiveOrderId(_id)
+    }
+  }, [_id, setActiveOrderId])
 
   return (
-    <OrderDetail variables={variables}>
+    <OrderDetail>
       <div className="flex max-h-screen min-h-[600px] w-auto min-w-[880px] flex-auto items-stretch">
         <div className="mr-4 w-7/12">
           <h2 className="text-base font-bold mb-3">

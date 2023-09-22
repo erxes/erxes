@@ -1,7 +1,7 @@
 import Cart from "@/modules/checkout/components/cart/cart.market"
 import Checkout from "@/modules/checkout/market"
 import Customer from "@/modules/customer"
-import OrderDetail from "@/modules/orders/OrderDetail.main"
+import OrderDetail from "@/modules/orders/OrderDetail"
 import BarcodeResult from "@/modules/products/barcodeResult.market"
 
 import BarcodeListener from "@/components/barcodeListener"

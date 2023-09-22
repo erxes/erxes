@@ -25,6 +25,7 @@ const SelectPaymentTypeMain = () => {
     tdb,
     golomt,
     mappedPts,
+    notPaidAmount,
   } = usePossiblePaymentTerms()
 
   const { loading } = useConfig("payment")
@@ -44,7 +45,7 @@ const SelectPaymentTypeMain = () => {
           Icon={SmartphoneNfcIcon}
           title="Цахимаар"
           type="mobile"
-          disabled={disabledTerms}
+          disabled={disabledTerms || !notPaidAmount}
         />
       )}
       {khan && (
@@ -52,7 +53,7 @@ const SelectPaymentTypeMain = () => {
           Icon={LandmarkIcon}
           title="Хаан банк"
           type={BANK_CARD_TYPES.KHANBANK}
-          disabled={disabledTerms}
+          disabled={disabledTerms || !notPaidAmount}
         />
       )}
       {!!tdb && (
@@ -60,7 +61,7 @@ const SelectPaymentTypeMain = () => {
           Icon={LandmarkIcon}
           title="ХX банк"
           type={BANK_CARD_TYPES.TDB}
-          disabled={disabledTerms}
+          disabled={disabledTerms || !notPaidAmount}
         />
       )}
       {!!golomt && (
@@ -68,7 +69,7 @@ const SelectPaymentTypeMain = () => {
           Icon={LandmarkIcon}
           title="Голомт банк"
           type={BANK_CARD_TYPES.GOLOMT}
-          disabled={disabledTerms}
+          disabled={disabledTerms || !notPaidAmount}
         />
       )}
       {mappedPts.map((payment) => (

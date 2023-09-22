@@ -1,23 +1,25 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import _ from 'lodash';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { __, router } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import * as React from 'react';
+
 import {
   FilterItem,
   FilterWrapper
 } from '@erxes/ui-settings/src/permissions/styles';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import * as React from 'react';
-import Select from 'react-select-plus';
+import { __, router } from '@erxes/ui/src/utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Datetime from '@nateradebaugh/react-datetime';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { FormControl } from '@erxes/ui/src/components/form';
 import { ILog } from '../types';
 import LogRow from './LogRow';
-import { FormControl } from '@erxes/ui/src/components/form';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import _ from 'lodash';
+import dayjs from 'dayjs';
 
 type Props = {
   history: any;
@@ -326,7 +328,7 @@ class LogList extends React.Component<Props, State> {
             />
           </>
         }
-        hasBorder
+        hasBorder={true}
       />
     );
   }

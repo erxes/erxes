@@ -1,10 +1,11 @@
 import * as dotenv from 'dotenv';
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 
 import { IAttachment } from '@erxes/api-utils/src/types';
 import { ICustomer } from './types';
 import { getEnv } from './utils';
 import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 dotenv.config();
 
@@ -47,7 +48,7 @@ const prepareEmailHeader = (
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
     CustomerId: customerId,
-    MailMessageId: Random.id()
+    MailMessageId: randomAlphanumeric()
   };
 
   if (engageMessageId) {

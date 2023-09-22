@@ -50,15 +50,15 @@ on:
 
 jobs:
   ui:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Use Node.js 14.20.x
-        uses: actions/setup-node@v1
+      - name: Use Node.js 18.17.x
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.20.x
+          node-version: 18.17.x
 
       - name: Build
         run: |
@@ -71,7 +71,7 @@ jobs:
           yarn build
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

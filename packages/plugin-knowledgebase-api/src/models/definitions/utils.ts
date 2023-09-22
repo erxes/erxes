@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 
 /*
  * Mongoose field options wrapper
@@ -13,7 +13,7 @@ export const field = (options) => {
   // TODO: remove
   if (pkey) {
     options.type = String;
-    options.default = () => Random.id();
+    options.default = () => nanoid();
   }
 
   return options;

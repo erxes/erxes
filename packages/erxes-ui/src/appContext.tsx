@@ -85,7 +85,7 @@ export class AppProvider extends React.Component<
 
   setLocale = (currentLanguage: string): void => {
     if (currentLanguage !== 'mn') {
-      import(`dayjs/locale/${currentLanguage}`)
+      import(`dayjs/locale/${currentLanguage}.js`)
         .then(() => dayjs.locale(currentLanguage))
         .catch(_ => dayjs.locale('en'));
     }
