@@ -39,9 +39,9 @@ module.exports.devCmd = async program => {
     DEBUG: 'erxes*',
     NODE_ENV: 'development',
     JWT_TOKEN_SECRET: configs.jwt_token_secret,
-    MONGO_URL: 'mongodb://localhost/erxes',
+    MONGO_URL: 'mongodb://127.0.0.1/erxes',
 
-    REDIS_HOST: 'localhost',
+    REDIS_HOST: '127.0.0.1',
     REDIS_PORT: 6379,
     REDIS_PASSWORD: configs.redis.password,
     RABBITMQ_HOST: 'amqp://127.0.0.1',
