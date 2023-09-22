@@ -72,7 +72,7 @@ const DeliveryInputs = () => {
               <Label className="block pb-1">Хүргэх цаг</Label>
               <Input
                 type="time"
-                value={dueDate ? format(new Date(dueDate), "HH:mm") : undefined}
+                value={dueDate ? format(new Date(dueDate), "HH:mm") : ""}
                 onChange={(e) =>
                   setDueDate(chageTimeOfDate(dueDate || "", e.target.value))
                 }

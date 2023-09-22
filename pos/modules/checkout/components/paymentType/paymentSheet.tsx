@@ -33,7 +33,6 @@ const PaymentSheet = () => {
       >
         {openSheet && (
           <>
-            {type === "cash" && <CashSheet />}
             {type === "mobile" && <MobileSheet />}
             {type === BANK_CARD_TYPES.KHANBANK && <KhanSheet />}
             {type === BANK_CARD_TYPES.TDB && <TDBSheet />}
@@ -54,9 +53,6 @@ const Loading = () => (
   </LoaderWrapper>
 )
 
-const CashSheet = dynamic(() => import("../paymentTypes/cashSheet.market"), {
-  loading: Loading,
-})
 const MobileSheet = dynamic(
   () => import("../paymentTypes/mobileSheet.market"),
   {

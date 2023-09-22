@@ -1,5 +1,4 @@
 import { currentAmountAtom, currentPaymentTypeAtom } from "@/store"
-import { totalAmountAtom } from "@/store/cart.store"
 import { activeOrderAtom, unPaidAmountAtom } from "@/store/order.store"
 import { paymentSheetAtom } from "@/store/ui.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
@@ -15,7 +14,6 @@ const useHandlePayment = () => {
   const type = useAtomValue(currentPaymentTypeAtom)
   const setOpenSheet = useSetAtom(paymentSheetAtom)
   const _id = useAtomValue(activeOrderAtom)
-  const totalAmount = useAtomValue(totalAmountAtom)
 
   const { addPayment, loading } = useAddPayment()
 
@@ -23,7 +21,7 @@ const useHandlePayment = () => {
     const numericValue = parseFloat(val.replace(/[^0-9.-]/g, ""))
     if (!isNaN(numericValue)) {
       setCurrentAmount(
-        numericValue > totalAmount
+        numericValue > notPaidAmount
           ? type === "cash"
             ? numericValue
             : notPaidAmount
@@ -39,13 +37,11 @@ const useHandlePayment = () => {
       return setOpenSheet(true)
     }
     if (type === "cash") {
-      if (currentAmount > notPaidAmount) {
-        return setOpenSheet(true)
-      }
       return addPayment({
         variables: {
           _id,
-          cashAmount: currentAmount,
+          cashAmount:
+            currentAmount > notPaidAmount ? notPaidAmount : currentAmount,
         },
       })
     }
