@@ -39,9 +39,9 @@ module.exports.devCmd = async program => {
     DEBUG: 'erxes*',
     NODE_ENV: 'development',
     JWT_TOKEN_SECRET: configs.jwt_token_secret,
-    MONGO_URL: 'mongodb://127.0.0.1/erxes',
+    MONGO_URL: 'mongodb://localhost/erxes',
 
-    REDIS_HOST: '127.0.0.1',
+    REDIS_HOST: 'localhost',
     REDIS_PORT: 6379,
     REDIS_PASSWORD: configs.redis.password,
     RABBITMQ_HOST: 'amqp://127.0.0.1',
@@ -84,10 +84,10 @@ module.exports.devCmd = async program => {
       PORT=3000
       NODE_ENV="development"
       REACT_APP_PUBLIC_PATH=""
-      REACT_APP_CDN_HOST="http://127.0.0.1:3200"
-      REACT_APP_API_URL="http://127.0.0.1:4000"
-      REACT_APP_DASHBOARD_URL="http://127.0.0.1:4300"
-      REACT_APP_API_SUBSCRIPTION_URL="ws://127.0.0.1:4000/graphql"
+      REACT_APP_CDN_HOST="http://localhost:3200"
+      REACT_APP_API_URL="http://localhost:4000"
+      REACT_APP_DASHBOARD_URL="http://localhost:4300"
+      REACT_APP_API_SUBSCRIPTION_URL="ws://localhost:4000/graphql"
     `
   );
 
@@ -105,9 +105,9 @@ module.exports.devCmd = async program => {
       filePath('../widgets/.env'),
       `
         PORT=3200
-        ROOT_URL="http://127.0.0.1:3200"
-        API_URL="http://127.0.0.1:4000"
-        API_SUBSCRIPTIONS_URL="ws://127.0.0.1:4000/graphql"
+        ROOT_URL="http://localhost:3200"
+        API_URL="http://localhost:4000"
+        API_SUBSCRIPTIONS_URL="ws://localhost:4000/graphql"
       `
     );
 
