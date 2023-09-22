@@ -10,7 +10,7 @@ const sendErrorMessage = messsage => {
 
 export const postHandler = async (req, res) => {
   const subdomain = getSubdomain(req);
-  const { action } = req.params || {};
+  const { action } = req.headers || {};
 
   const { data } = req.body || {};
 
@@ -24,7 +24,7 @@ export const postHandler = async (req, res) => {
     return;
   }
 
-  if (action === 'doneDeal') {
+  if (action === 'dealStageChanged') {
     res.send(await dealDone(subdomain, data));
     return;
   }
