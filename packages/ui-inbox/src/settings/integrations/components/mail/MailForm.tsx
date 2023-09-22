@@ -98,6 +98,7 @@ type State = {
   emailSignature: string;
   name: string;
   showReply: string;
+  isRepliesRetrieved: boolean;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -174,7 +175,8 @@ class MailForm extends React.Component<Props, State> {
       fileIds: [],
 
       name: `mail_${mailKey}`,
-      showReply: `reply_${mailKey}`
+      showReply: `reply_${mailKey}`,
+      isRepliesRetrieved: false
     };
   }
 
@@ -201,7 +203,7 @@ class MailForm extends React.Component<Props, State> {
     const content = localStorage.getItem(name);
 
     if (content && content !== this.state.content) {
-      this.setState({ content });
+      this.setState({ content: '' });
     }
 
     if ((content || '').length === 0 && showPrevEmails) {
@@ -262,6 +264,9 @@ class MailForm extends React.Component<Props, State> {
 
   getReplies(messageId?: string) {
     const { mails = [] } = this.props;
+
+    const { isRepliesRetrieved } = this.state;
+    this.setState({ isRepliesRetrieved: !isRepliesRetrieved });
 
     if (!messageId) {
       return '';
@@ -350,7 +355,8 @@ class MailForm extends React.Component<Props, State> {
       cc,
       bcc,
       subject,
-      kind
+      kind,
+      isRepliesRetrieved
     } = this.state;
 
     if (!to) {
@@ -372,7 +378,11 @@ class MailForm extends React.Component<Props, State> {
     const subjectValue = subject || mailData.subject || '';
 
     const updatedContent =
-      isForward || !isReply ? content : this.getReplies(messageId);
+      isForward || !isReply
+        ? content
+        : !isRepliesRetrieved
+        ? this.getReplies(messageId)
+        : content;
 
     const variables = {
       headerId,
