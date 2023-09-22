@@ -14,7 +14,8 @@
     "aws-sdk": "^2.493.0",
     "body-parser": "^1.17.1",
     "nodemailer": "^6.2.1",
-    "telnyx": "^1.7.2"
+    "telnyx": "^1.7.2",
+    "erxes-api-utils" : "0.0.39"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"
