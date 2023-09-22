@@ -84,6 +84,7 @@ export const fetchSegment = async (
   });
 
   const { returnAssociated } = options;
+  console.log({ returnAssociated });
 
   if (returnAssociated && contentType !== returnAssociated.relType) {
     index = await getEsIndexByContentType(returnAssociated.relType);
@@ -113,6 +114,13 @@ export const fetchSegment = async (
         relType: getType(returnAssociated.relType)
       },
       isRPC: true
+    });
+
+    console.log({
+      mainType: getType(returnAssociated.mainType),
+      mainTypeIds: itemIds,
+      relType: getType(returnAssociated.relType),
+      associationIds
     });
 
     selector = {

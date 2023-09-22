@@ -103,20 +103,19 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       config: {}
     };
 
-    if (
-      !props.segment ||
-      (props.segment && props.segment.subSegmentConditions.length === 0)
-    ) {
+    if (!props.segment || props?.segment?.subSegmentConditions?.length === 0) {
       state = 'list';
       showAddGroup = false;
     }
 
     if (
-      props.segment ||
-      (props.segment && props.segment.subSegmentConditions.length > 0)
+      // props.segment ||
+      !!props?.segment?.subSegmentConditions?.length
     ) {
       state = 'list';
     }
+
+    console.log({ state });
 
     const segments = segment.subSegmentConditions.map((item: ISegment) => ({
       _id: item._id,
