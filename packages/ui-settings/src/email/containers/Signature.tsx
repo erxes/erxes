@@ -1,4 +1,4 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
+import { AppConsumer } from 'coreui/appContext';
 import * as compose from 'lodash.flowright';
 import * as queries from '@erxes/ui/src/auth/graphql';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -59,10 +59,9 @@ const SignatureContainer = (props: FinalProps) => {
       });
   };
 
-  const emailSignatures = currentUser.emailSignatures || [];
+  const emailSignatures = currentUser?.emailSignatures || [];
   const signatures: IEmailSignatureWithBrand[] = [];
   const brands = brandsQuery.brands || [];
-
   brands.forEach(brand => {
     // previously configured signature
     const oldEntry = emailSignatures.find(

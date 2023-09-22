@@ -34,13 +34,20 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { Label } from '@erxes/ui/src/components/form/styles';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import MailChooser from './MailChooser';
+import SignatureChooser from './SignatureChooser';
 import { Meta } from './styles';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import Select from 'react-select-plus';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+
+const Signature = asyncComponent(() =>
+  import(
+    /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
+  )
+);
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -99,6 +106,9 @@ type State = {
   name: string;
   showReply: string;
   signatureContent: string;
+  bookmarksChecked: boolean;
+  urlsChecked: boolean;
+  person: string;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -107,7 +117,9 @@ class MailForm extends React.Component<Props, State> {
 
     const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
-    const mailWidget = JSON.parse(localStorage.getItem('emailWidgetData'));
+    const mailWidget = JSON.parse(
+      localStorage.getItem('emailWidgetData') || ''
+    );
 
     const cc = replyAll
       ? formatObj(mailData.cc || [])
@@ -176,7 +188,11 @@ class MailForm extends React.Component<Props, State> {
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`,
 
-      signatureContent: ''
+      signatureContent: '',
+
+      bookmarksChecked: false,
+      urlsChecked: false,
+      person: 'pedro'
     };
   }
 
@@ -207,6 +223,10 @@ class MailForm extends React.Component<Props, State> {
 
     if ((content || '').length === 0 && showPrevEmails) {
       this.setState({ showPrevEmails: false });
+    }
+
+    if (this.props.brandId) {
+      this.handleSignatureSelection(this.props.brandId);
     }
   }
 
@@ -414,19 +434,9 @@ class MailForm extends React.Component<Props, State> {
     });
   };
 
-  changeEditorContent = (content: string, emailSignature: string) => {
-    this.setState({ content }, () => {
-      this.setState({ emailSignature });
-    });
-  };
-
   onEditorChange = e => {
     this.setState({ content: e.editor.getData() });
     this.prepareData();
-  };
-
-  onSignatureEditorChange = e => {
-    this.setState({ signatureContent: e.editor.getData() });
   };
 
   onClick = <T extends keyof State>(name: T) => {
@@ -509,6 +519,69 @@ class MailForm extends React.Component<Props, State> {
 
   templateChange = value => {
     this.setState({ content: this.findTemplate(value), templateId: value });
+  };
+
+  removeSignature = ({
+    openingTag = '<data>',
+    closingTag = '</data>',
+    content
+  }) => {
+    const closingTagLength = closingTag.length + 1;
+    const firstIndexOfSignature = content.indexOf(openingTag);
+    const lastIndexOfSignature = content.indexOf(closingTag) + closingTagLength;
+    let contentWithoutSignature = '';
+    /** If tag is found removing it and appending new signature value to the editor content*/
+    if (firstIndexOfSignature > -1) {
+      contentWithoutSignature = content
+        .slice(0, firstIndexOfSignature)
+        .concat(content.slice(lastIndexOfSignature));
+
+      /** Although tag is removed empty <openingTag></closingTag> tags could be there since it's in editor content and not removed*/
+      const remainingDataTagIndx = contentWithoutSignature.indexOf(openingTag);
+      const lastRemainingDataTagIndx =
+        contentWithoutSignature.indexOf(closingTag) + closingTagLength;
+      /** If empty tag is found removing it*/
+      if (remainingDataTagIndx > -1) {
+        contentWithoutSignature = contentWithoutSignature
+          .slice(0, remainingDataTagIndx)
+          .concat(contentWithoutSignature.slice(lastRemainingDataTagIndx));
+      }
+    } else {
+      contentWithoutSignature = content;
+    }
+    return contentWithoutSignature;
+  };
+
+  handleSignatureHide = () => {
+    this.setState({
+      content: this.removeSignature({ content: this.state.content }),
+      emailSignature: ''
+    });
+  };
+
+  handleSignatureSelection = (value: string) => {
+    const { content, emailSignature } = this.state;
+
+    /** If the current selection is same as previous, do nothing */
+    if (emailSignature === value) {
+      return;
+    }
+
+    const brandSignature = this.props.emailSignatures?.find(
+      (signature: IEmailSignature) => signature?.brandId === value
+    );
+
+    /** If selected brand exists */
+    if (brandSignature) {
+      const signatureString = brandSignature.signature || '';
+
+      this.setState({
+        content: this.removeSignature({ content }).concat(
+          `<data><span> -- </span>${signatureString}</data>`
+        ),
+        emailSignature: value
+      });
+    }
   };
 
   renderFromValue = () => {
@@ -663,6 +736,10 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
+  signatureContent = props => {
+    return <Signature {...props} />;
+  };
+
   renderButtons() {
     const {
       isReply,
@@ -671,7 +748,10 @@ class MailForm extends React.Component<Props, State> {
       totalCount,
       fetchMoreEmailTemplates,
       history,
-      conversationStatus
+      conversationStatus,
+      emailSignatures,
+      brands,
+      currentUser
     } = this.props;
 
     const onSubmitResolve = e => this.onSubmit(e, true);
@@ -739,6 +819,14 @@ class MailForm extends React.Component<Props, State> {
                 history={history}
               />
             )}
+            <SignatureChooser
+              signatureContent={this.signatureContent}
+              brands={brands}
+              signatures={emailSignatures}
+              value={this.state.emailSignature}
+              onSelect={this.handleSignatureSelection}
+              hideSignature={this.handleSignatureHide}
+            />
           </ToolBar>
         </EditorFooter>
       </div>
@@ -772,7 +860,7 @@ class MailForm extends React.Component<Props, State> {
         <EditorCK
           toolbar={MAIL_TOOLBARS_CONFIG}
           removePlugins="elementspath"
-          content={'kikiki'}
+          content={this.state.content}
           onChange={this.onEditorChange}
           toolbarLocation="bottom"
           autoFocus={!this.props.isForward}
@@ -781,65 +869,6 @@ class MailForm extends React.Component<Props, State> {
           autoGrowMaxHeight={300}
         />
       </MailEditorWrapper>
-    );
-  }
-  renderSignatureSelect() {
-    const { emailSignatures, brands } = this.props;
-    const onChange = (ops: IOption[]) => {
-      // if (onValueChange) {
-      //   const value = ops.map(e => e.value).toString();
-      //   this.setState({ value });
-      //   onValueChange({ _id: field._id, value });
-      // }
-    };
-
-    return (
-      <Select
-        value={this.state.emailSignature}
-        options={brands?.map(e => ({ value: e._id, label: e.name }))}
-        onChange={value => {
-          this.setState({
-            signatureContent:
-              this.props.emailSignatures.find(
-                (sign: any) => sign.brandId === value
-              )?.signature || ''
-          });
-        }}
-      />
-    );
-  }
-  renderSignatureWidget() {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <Select
-          value={this.state.emailSignature}
-          options={this.props.brands?.map(e => ({
-            value: e._id,
-            label: e.name
-          }))}
-          onChange={({ value }) => {
-            console.log(value);
-            const emailSignature =
-              this.props.emailSignatures.find(
-                (sign: any) => sign.brandId === value
-              )?.signature || '';
-            console.log(emailSignature);
-            this.setState({ signatureContent: emailSignature });
-          }}
-          valueRenderer={() => null}
-          placeholder={<Icon icon="envelope-alt" color="red" />}
-        />
-        <EditorCK
-          toolbar={MAIL_TOOLBARS_CONFIG}
-          removePlugins="elementspath"
-          content={this.state.signatureContent}
-          onChange={this.onSignatureEditorChange}
-          toolbarLocation="bottom"
-          autoGrow={true}
-          autoGrowMinHeight={300}
-          autoGrowMaxHeight={300}
-        />
-      </div>
     );
   }
 
@@ -891,7 +920,6 @@ class MailForm extends React.Component<Props, State> {
           {this.renderMeta()}
           {this.renderSubject()}
           {this.renderBody()}
-          {this.renderSignatureWidget()}
           {this.renderButtons()}
         </>
       );

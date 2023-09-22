@@ -347,6 +347,37 @@ const Link = styled.a`
   cursor: pointer;
 `;
 
+const SignatureChooserFooter = styledTS<{
+  noSignatures: boolean;
+}>(styled.div)`
+  display: flex;
+  width: 100%;
+  justify-content: ${({ noSignatures }) =>
+    noSignatures ? 'flex-end' : 'space-between'};
+  align-items: center;
+  padding: 0 1rem;
+  padding-top: 8px;
+  border-top: 1px solid #e9ecef;
+`;
+
+const SignatureOptionWrapper = styled.div`
+  min-width: 260px;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const SignatureHiderButton = styled.button`
+  all: unset;
+  color: ${colors.textSecondary};
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+    color: ${colors.textPrimary};
+  }
+`;
+
 export {
   Attachments,
   FlexRow,
@@ -369,5 +400,8 @@ export {
   WidgetWrapper,
   UploaderWrapper,
   WidgetButton,
-  Link
+  Link,
+  SignatureChooserFooter,
+  SignatureOptionWrapper,
+  SignatureHiderButton
 };
