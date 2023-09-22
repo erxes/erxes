@@ -165,7 +165,7 @@ const historyDetail = gql`
   }
 `
 
-export const ebarimtDetail = gql`
+const ebarimtDetail = gql`
   query EbarimtDetail($_id: String) {
     orderDetail(_id: $_id) {
       ${commonDetailFields}
@@ -368,6 +368,7 @@ const queries = {
   progressDetail,
   ordersAtWaiting,
   historyItemDetail,
+  ebarimtDetail
 }
 
 export default queries

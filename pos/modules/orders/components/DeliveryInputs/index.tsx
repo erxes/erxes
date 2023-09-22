@@ -5,7 +5,7 @@ import {
 } from "@/store/order.store"
 import { format, setHours, setMinutes } from "date-fns"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { TruckIcon } from "lucide-react"
+import { EraserIcon, SlidersHorizontalIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { CardTitle } from "@/components/ui/card"
@@ -41,17 +41,16 @@ const DeliveryInputs = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="col-span-2 font-semibold ">
-          <TruckIcon className="mr-1 h-5 w-5" />
-          Хүргэлтын мэдээлэл
+        <Button variant="outline" className="col-span-2 font-semibold h-11">
+          <SlidersHorizontalIcon className="h-5 w-5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <CardTitle className="mb-2">Хүргэлтын мэдээлэл</CardTitle>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="space-y-3">
           <div className="col-span-3 pb-1">
             <Label htmlFor="delivery" className="block pb-1">
-              Хаягын мэдээлэл
+              Mэдээлэл
             </Label>
             <Textarea
               className="max-h-20"
@@ -68,15 +67,24 @@ const DeliveryInputs = () => {
               className="w-full"
             />
           </div>
-          <div>
-            <Label className="block pb-1">Хүргэх цаг</Label>
-            <Input
-              type="time"
-              value={dueDate ? format(new Date(dueDate), "HH:mm") : undefined}
-              onChange={(e) =>
-                setDueDate(chageTimeOfDate(dueDate || "", e.target.value))
-              }
-            />
+          <div className="flex gap-2 items-end">
+            <div className="flex-auto">
+              <Label className="block pb-1">Хүргэх цаг</Label>
+              <Input
+                type="time"
+                value={dueDate ? format(new Date(dueDate), "HH:mm") : undefined}
+                onChange={(e) =>
+                  setDueDate(chageTimeOfDate(dueDate || "", e.target.value))
+                }
+              />
+            </div>
+            <Button
+              variant="secondary"
+              className="px-3"
+              onClick={() => setDueDate(undefined)}
+            >
+              <EraserIcon className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </PopoverContent>
