@@ -24,6 +24,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import { confirm } from '@erxes/ui/src/utils';
 
 type Props = {
   currentUser: IUser;
@@ -76,7 +77,8 @@ function ScheduleList(props: Props) {
     getActionBar,
     showSideBar,
     getPagination,
-    isCurrentUserSupervisor
+    isCurrentUserSupervisor,
+    checkDuplicateScheduleShifts
   } = props;
 
   const [selectedScheduleStatus, setScheduleStatus] = useState(
@@ -446,16 +448,53 @@ function ScheduleList(props: Props) {
           onMouseLeave={() => setShowRemoveBtn(false)}
           style={{ textAlign: 'center' }}
         >
-          {showRemoveBtn && (
-            <Tip text={'Remove Schedule'} placement="top">
-              <Button
-                size="small"
-                icon="times-circle"
-                btnStyle="link"
-                onClick={() => removeSchedule(scheduleOfMember._id, 'schedule')}
-              />
-            </Tip>
-          )}
+          <FlexRow>
+            {showRemoveBtn && (
+              <Tip text={'Remove Schedule'} placement="top">
+                <Button
+                  size="small"
+                  icon="times-circle"
+                  btnStyle="link"
+                  onClick={() =>
+                    removeSchedule(scheduleOfMember._id, 'schedule')
+                  }
+                />
+              </Tip>
+            )}
+
+            {selectedScheduleStatus === 'Rejected' && showRemoveBtn && (
+              <Tip text={'Approve Schedule'} placement="top">
+                <Button
+                  size="small"
+                  icon="edit-1"
+                  btnStyle="link"
+                  onClick={() => {
+                    confirm(
+                      'Are you sure to Approve according schedule ?'
+                    ).then(() => {
+                      const checkDuplicateShifts = checkDuplicateScheduleShifts(
+                        {
+                          userIds: [scheduleOfMember.user._id],
+                          shifts: scheduleOfMember.shifts.map(shift => ({
+                            shiftStart: shift.shiftStart,
+                            shiftEnd: shift.shiftEnd,
+                            scheduleConfigId: shift.scheduleConfigId,
+                            lunchBreakInMins: shift.lunchBreakInMins
+                          })),
+                          userType: 'admin',
+                          checkOnly: true
+                        }
+                      );
+
+                      if (!checkDuplicateShifts.length) {
+                        solveSchedule(scheduleOfMember._id, 'Approved');
+                      }
+                    });
+                  }}
+                />
+              </Tip>
+            )}
+          </FlexRow>
         </td>
 
         {selectedScheduleStatus === 'Pending' && (
