@@ -20905,6 +20905,7 @@ react-big-calendar@^1.8.1:
     prop-types "^15.8.1"
     react-overlays "^5.2.1"
     uncontrollable "^7.2.1"
+
 react-bootstrap-icons@1.10.3:
   version "1.10.3"
   resolved "https://registry.yarnpkg.com/react-bootstrap-icons/-/react-bootstrap-icons-1.10.3.tgz#5d64a93c7b172856b03c7d3cd5119a025b094966"
@@ -24986,7 +24987,7 @@ underscore@1.8.3:
 
 underscore@>=1.4.4, underscore@>=1.8.3, underscore@^1.13.1:
   version "1.13.4"
-  resolved "https://registry.npmjs.org/underscore/-/underscore-1.13.4.tgz"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.4.tgz#7886b46bbdf07f768e0052f1828e1dcab40c0dee"
   integrity sha512-BQFnUDuAQ4Yf/cYY5LNrK9NCJFKriaRbD9uR1fTeXnBeoa97W0i41qkZfGO9pSo8I5KzjAcSY2XYtdf0oKd7KQ==
 
 underscore@^1.10.2, underscore@^1.13.2, underscore@^1.8.3:
