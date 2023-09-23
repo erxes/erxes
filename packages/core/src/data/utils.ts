@@ -596,7 +596,8 @@ export const uploadFileCloudflare = async (
   if (
     (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
     detectedType &&
-    isImage(detectedType.mime)
+    isImage(detectedType.mime) &&
+    !['image/heic', 'image/heif'].includes(detectedType.mime)
   ) {
     return uploadToCFImages(file, forcePrivate, models);
   }
@@ -895,7 +896,12 @@ const readFromCFImages = async (
 
   return new Promise(resolve => {
     fetch(url)
-      .then(res => res.buffer())
+      .then(res => {
+        if (!res.ok || res.status !== 200) {
+          return readFromCR2(key, models);
+        }
+        return res.buffer();
+      })
       .then(buffer => resolve(buffer))
       .catch(_err => {
         return readFromCR2(key, models);

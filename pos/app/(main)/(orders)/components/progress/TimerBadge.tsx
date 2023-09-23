@@ -14,15 +14,15 @@ const TimerBadge = ({
   const { remainingTime } = useTimer(date || "")
 
   const isOutDated = isDueDate && date && !isFuture(new Date(date))
-  
-  const Icon = function () {
+
+  const Icon = (function () {
     if (isOutDated) return TimerOffIcon
 
     if (isDueDate) return TimerIcon
 
     return ClockIcon
-  }()
-  
+  })()
+
   return (
     <Badge variant={isOutDated ? "destructive" : "outline"}>
       <Icon className="h-4 w-4 mr-1" />

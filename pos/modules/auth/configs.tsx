@@ -7,10 +7,10 @@ import {
   setCurrentUserAtom,
 } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
-import { useAtom, useSetAtom } from "jotai"
-import { Loader2 } from "lucide-react"
+import { useSetAtom } from "jotai"
 
 import { hexToHsl } from "@/lib/utils"
+import Loader from "@/components/ui/loader"
 import { useToast } from "@/components/ui/use-toast"
 
 import { queries } from "./graphql"
@@ -18,15 +18,14 @@ import { queries } from "./graphql"
 const Configs = ({ children }: { children: ReactNode }) => {
   const setConfigs = useSetAtom(setConfigsAtom)
   const setCurrentUser = useSetAtom(setCurrentUserAtom)
-  const [conf, setConfig] = useAtom(configAtom)
+  const setConfig = useSetAtom(configAtom)
   const [loadingConfigs, setLoadingConfigs] = useState(true)
   const { onError } = useToast()
 
   const { loading, data } = useQuery(queries.posCurrentUser)
 
   const { data: config, loading: loadingConfig } = useQuery(
-    queries.currentConfig,
-    { skip: !!conf }
+    queries.currentConfig
   )
 
   useQuery(queries.configs, {
@@ -62,11 +61,7 @@ const Configs = ({ children }: { children: ReactNode }) => {
   }, [config, setConfig])
 
   if (loading || loadingConfig || loadingConfigs)
-    return (
-      <div className="flex h-screen  items-center justify-center">
-        <Loader2 className="mr-2 animate-spin" /> Уншиж байна...
-      </div>
-    )
+    return <Loader className="h-screen" />
 
   return <>{children}</>
 }

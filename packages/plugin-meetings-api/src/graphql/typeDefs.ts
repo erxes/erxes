@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 import { mutations as meetingMutations, queries } from './schema/meeting';
 import { mutations as topicMutations } from './schema/topic';
 

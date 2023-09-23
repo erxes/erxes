@@ -49,6 +49,7 @@ export const beginDateAtom = atom<Date | null>(null)
 export const endDateAtom = atom<Date | null>(null)
 export const currentAmountsAtom = atom<{ [key: string]: number }>({})
 export const detailsAtom = atom<Detail[]>([])
+export const isCoverAmountsFetchedAtom = atom<boolean>(false)
 
 const cashInitial = {
   _id: Math.random(),
@@ -74,6 +75,7 @@ export const setCoverAmountAtom = atom(
     set(currentAmountsAtom, rest)
   }
 )
+
 export const golomtResponseAtom = atom<string>("")
 export const tdbResponseAtom = atom<string>("")
 

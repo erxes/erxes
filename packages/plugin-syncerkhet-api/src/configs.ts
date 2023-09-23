@@ -8,6 +8,7 @@ import afterMutations from './afterMutations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import afterQueries from './afterQueries';
+import { getOrderInfo } from './routes';
 
 export let debug;
 export let graphqlPubsub;
@@ -17,6 +18,7 @@ export let serviceDiscovery;
 export default {
   name: 'syncerkhet',
   permissions,
+  getHandlers: [{ path: `/getOrderInfo`, method: getOrderInfo }],
   graphql: async sd => {
     serviceDiscovery = sd;
     return {

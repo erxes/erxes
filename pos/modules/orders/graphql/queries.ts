@@ -101,6 +101,19 @@ const orderDetail = gql`
   }
 `
 
+const historyItemDetail = gql`
+  query OrderPaymentDetail($_id: String) {
+    orderDetail(_id: $_id) {
+      cashAmount
+      mobileAmount
+      paidAmounts {
+        amount
+        type
+      }
+    }
+  }
+`
+
 const historyDetail = gql`
   query HistoryDetail($id: String) {
     orderDetail(_id: $id) {
@@ -152,7 +165,7 @@ const historyDetail = gql`
   }
 `
 
-export const ebarimtDetail = gql`
+const ebarimtDetail = gql`
   query EbarimtDetail($_id: String) {
     orderDetail(_id: $_id) {
       ${commonDetailFields}
@@ -297,6 +310,8 @@ const progressHistory = gql`
         productName
         count
         status
+        attachment
+        description
       }
       modifiedAt
       paidDate
@@ -352,6 +367,8 @@ const queries = {
   progressDoneOrders,
   progressDetail,
   ordersAtWaiting,
+  historyItemDetail,
+  ebarimtDetail
 }
 
 export default queries

@@ -1,5 +1,6 @@
 "use client"
 
+import { useSearchParams } from "next/navigation"
 import useConfig from "@/modules/auth/hooks/useConfig"
 import { coverConfigAtom } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
@@ -11,12 +12,11 @@ import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { queries } from "@/app/(main)/cover/graphql"
-import { useSearchParams } from 'next/navigation'
 
 const Cover = () => {
   const searchParams = useSearchParams()
-  const id = searchParams.get('id') 
-  
+  const id = searchParams.get("id")
+
   const { loading: loadingConfig } = useConfig("cover")
   const { loading, data } = useQuery(queries.recieptDetail, {
     variables: { id },
@@ -123,13 +123,15 @@ const Cover = () => {
               <>
                 <span className="w-1/3">{ps.paidDetail}</span>
                 <span className="w-1/3 text-center">
-                  {Number(ps.paidDetail) - (ps.paidSummary[0].amount || 0)}
+                  {Number(ps.paidDetail) - (ps.paidSummary[0]?.amount || 0)}
                 </span>
               </>
             ) : (
               <div className="w-2/3" />
             )}
-            <span className="w-1/3 text-right">{ps.paidSummary[0].amount}</span>
+            <span className="w-1/3 text-right">
+              {ps.paidSummary[0]?.amount}
+            </span>
           </div>
           <Separator />
           {ALL_BANK_CARD_TYPES.includes(ps.paidType) && (
