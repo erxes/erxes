@@ -41,6 +41,10 @@ const generateIds = value => {
     return value;
   }
 
+  if (typeof value === 'string') {
+    return [value];
+  }
+
   return [];
 };
 
