@@ -32,6 +32,18 @@ export const postHandler = async (req, res) => {
   res.send(sendErrorMessage('sendErrorMessage'));
 };
 
+const generateIds = value => {
+  if (value.includes(', ')) {
+    return value.split(', ');
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return [];
+};
+
 const customerRequest = async (subdomain, data) => {
   const models = await generateModels(subdomain);
 
@@ -46,7 +58,7 @@ const customerRequest = async (subdomain, data) => {
   if (triggerType.includes('cards')) {
     const { customers } = target;
 
-    syncCustomerIds = customers;
+    syncCustomerIds = generateIds(customers);
   }
 
   if (triggerType.includes('contacts')) {
