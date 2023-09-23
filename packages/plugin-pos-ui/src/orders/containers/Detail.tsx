@@ -4,7 +4,7 @@ import { gql } from '@apollo/client';
 import React from 'react';
 import { Alert } from '@erxes/ui/src/utils';
 import { graphql } from '@apollo/client/react/hoc';
-import { IOrder, PosOrderChangePaymentsMutationResponse } from '../types';
+import { PosOrderChangePaymentsMutationResponse } from '../types';
 import { mutations, queries } from '../graphql';
 import { OrderDetailQueryResponse } from '../types';
 import { PosDetailQueryResponse } from '../../types';
@@ -12,7 +12,8 @@ import { queries as posQueries } from '../../pos/graphql';
 import { Spinner, withProps } from '@erxes/ui/src';
 
 type Props = {
-  order: IOrder;
+  orderId: string;
+  posToken?: string;
 };
 
 type FinalProps = {
@@ -52,12 +53,15 @@ class OrdersDetailContainer extends React.Component<FinalProps> {
   render() {
     const { orderDetailQuery, posDetailQuery } = this.props;
 
-    if (orderDetailQuery.loading || posDetailQuery.loading) {
+    if (
+      orderDetailQuery.loading ||
+      (posDetailQuery && posDetailQuery.loading)
+    ) {
       return <Spinner />;
     }
 
     const order = orderDetailQuery.posOrderDetail;
-    const pos = posDetailQuery.posDetail;
+    const pos = posDetailQuery && posDetailQuery.posDetail;
 
     const updatedProps = {
       ...this.props,
@@ -76,9 +80,9 @@ export default withProps<Props>(
       gql(queries.posOrderDetail),
       {
         name: 'orderDetailQuery',
-        options: ({ order }) => ({
+        options: ({ orderId }) => ({
           variables: {
-            _id: order._id
+            _id: orderId
           },
           fetchPolicy: 'network-only'
         })
@@ -88,9 +92,10 @@ export default withProps<Props>(
       name: 'posDetailQuery',
       options: props => ({
         variables: {
-          _id: props.order.posToken
+          _id: props.posToken
         }
-      })
+      }),
+      skip: props => !props.posToken
     }),
     graphql<
       Props,
