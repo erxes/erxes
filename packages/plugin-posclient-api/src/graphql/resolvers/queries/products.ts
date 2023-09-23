@@ -7,7 +7,10 @@ import { sendPricingMessage } from '../../../messageBroker';
 import { Builder } from '../../../utils';
 import { checkRemainders } from '../../utils/products';
 import { IConfigDocument } from '../../../models/definitions/configs';
-import { getSimilaritiesProducts } from '../../../maskUtils';
+import {
+  getSimilaritiesProducts,
+  getSimilaritiesProductsCount
+} from '../../../maskUtils';
 
 interface ICommonParams {
   sortField?: string;
@@ -315,6 +318,7 @@ const productQueries = {
       segment,
       segmentData,
       categoryMeta,
+      groupedSimilarity,
       isKiosk
     }: IProductParams,
     { models, config, subdomain }: IContext
@@ -335,6 +339,12 @@ const productQueries = {
       categoryMeta,
       isKiosk
     });
+
+    if (groupedSimilarity) {
+      return await getSimilaritiesProductsCount(models, filter, {
+        groupedSimilarity
+      });
+    }
 
     return models.Products.find(filter).countDocuments();
   },
