@@ -40,7 +40,7 @@ class OrdersDetailContainer extends React.Component<FinalProps> {
     const order = orderDetailQuery.posOrderDetail;
 
     if (!order) {
-      return <>Yet sync main server</>;
+      return <>Pos order not synced yet, only on posclient</>;
     }
 
     const updatedProps = {
