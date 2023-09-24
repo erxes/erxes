@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import dynamic from "next/dynamic"
 import { columnNumberAtom, showItemsAtom } from "@/store/progress.store"
 import { useAtomValue } from "jotai"
 import { ChevronsUpDownIcon, SoupIcon, TruckIcon } from "lucide-react"
@@ -24,8 +23,7 @@ import {
 import ActiveOrderItem from "./ActiveOrderItem"
 import ChangeOrderStatus from "./ChangeOrderStatus"
 import TimerBadge from "./TimerBadge"
-
-const DeliveryInfo = dynamic(() => import("./deliveryInfo"))
+import DeliveryInfo from "./deliveryInfo"
 
 const ActiveOrder = ({
   number,
@@ -35,6 +33,7 @@ const ActiveOrder = ({
   dueDate,
   items,
   _id,
+  deliveryInfo,
 }: IOrder) => {
   const numberArr = (number || "").split("_")
   const colNum = useAtomValue(columnNumberAtom)
@@ -87,8 +86,8 @@ const ActiveOrder = ({
           </CardContent>
         </CollapsibleContent>
 
-        <CardFooter className="justify-end gap-2">
-          {type === "delivery" && <DeliveryInfo />}
+        <CardFooter className="justify-between gap-2">
+          <DeliveryInfo deliveryInfo={deliveryInfo} />
           <ChangeOrderStatus _id={_id} items={items} status={status} />
         </CardFooter>
       </Card>

@@ -1,6 +1,7 @@
 // config
 
 import { atom } from "jotai"
+import { atomWithStorage } from "jotai/utils"
 
 import {
   IConfig,
@@ -84,4 +85,9 @@ export const setWholeConfig = atom(
       paymentTypes,
     })
   }
+)
+
+export const similarityConfigAtom = atomWithStorage<string>(
+  "similarityConfig",
+  "config"
 )

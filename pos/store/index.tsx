@@ -1,6 +1,6 @@
 "use client"
 
-import { Provider, atom } from "jotai"
+import { atom, Provider } from "jotai"
 
 import { getMode } from "@/lib/utils"
 

@@ -6,7 +6,7 @@ import {
   customerAtom,
   customerTypeAtom,
   mobileAmountAtom,
-  orderNumberAtom
+  orderNumberAtom,
 } from "@/store/order.store"
 import { gql, useLazyQuery, useMutation } from "@apollo/client"
 import { useAtom } from "jotai"
@@ -88,7 +88,7 @@ const useMobilePayment = ({
 
     getInvoices()
 
-    return removeEventListener("message", () => { })
+    return removeEventListener("message", () => {})
   }, [getInvoices])
 
   return { invoiceUrl, loading }
