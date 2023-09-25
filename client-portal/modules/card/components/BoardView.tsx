@@ -1,12 +1,12 @@
-import { Config, IStage, IUser } from "../../types";
-import React, { useState } from "react";
-import { TabContainers, TabTitle } from "../../styles/tasks";
+import { Config, IStage, IUser } from '../../types';
+import React from 'react';
+import { TabContainers, TabTitle } from '../../styles/tasks';
 
-import Detail from "../../card/containers/Detail";
-import Group from "../containers/Group";
-import Link from "next/link";
-import { getConfigColor } from "../../common/utils";
-import { useRouter } from "next/router";
+import Detail from '../../card/containers/Detail';
+import Group from '../containers/Group';
+import Link from 'next/link';
+import { getConfigColor } from '../../common/utils';
+import { useRouter } from 'next/router';
 
 type Props = {
   stages: IStage[];
@@ -25,7 +25,7 @@ function BoardView({
   viewType,
   type,
   groupType,
-  currentUser,
+  currentUser
 }: Props) {
   const router = useRouter();
   const { itemId } = router.query as any;
@@ -49,12 +49,12 @@ function BoardView({
   return (
     <>
       <TabContainers>
-        {stages.map((stage) => {
+        {stages.map(stage => {
           return (
             <TabTitle
               key={stage._id}
               active={stageId === stage._id}
-              color={getConfigColor(config, "baseColor")}
+              color={getConfigColor(config, 'baseColor')}
             >
               <Link href={`/${type}s?stageId=${stage._id}`}>{stage.name}</Link>
             </TabTitle>

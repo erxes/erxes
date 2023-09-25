@@ -20,6 +20,9 @@ const types = `
     user: User
     scheduleReport: [BichilScheduleReport]
 
+    branchTitles: [String]
+    departmentTitles: [String]
+
     totalDays: Float
     totalWeekendDays: Float
     totalHoursShiftRequest: Float
@@ -122,6 +125,7 @@ const queryParams = `
   branchIds: [String]
   departmentIds: [String]
   reportType: String
+  isCurrentUserAdmin: Boolean
 `;
 
 const queries = `

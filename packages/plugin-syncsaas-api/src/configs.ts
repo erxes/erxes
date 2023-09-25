@@ -5,6 +5,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import afterMutations from './afterMutations';
+import { postHandler } from './postHandler';
 
 export let mainDb;
 export let debug;
@@ -34,6 +35,7 @@ export default {
   meta: {
     afterMutations
   },
+  postHandlers: [{ path: `/handleSync/:action`, method: postHandler }],
 
   onServerInit: async options => {
     mainDb = options.db;

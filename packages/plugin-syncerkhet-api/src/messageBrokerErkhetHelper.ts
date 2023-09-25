@@ -131,11 +131,25 @@ export const sendRPCMessage = async (
     const correlationId = uuid();
 
     return channel.assertQueue('', { exclusive: true }).then(q => {
+      const timeoutMs = message.timeout || process.env.RPC_TIMEOUT || 55000;
+      var interval = setInterval(() => {
+        channel.deleteQueue(q.queue);
+
+        clearInterval(interval);
+
+        debugError(`${queueName} ${JSON.stringify(message)} timedout`);
+
+        return resolve({ ...message.defaultValue, error: 'timedout' });
+      }, timeoutMs);
+
       channel.consume(
         q.queue,
         msg => {
+          clearInterval(interval);
+
           if (!msg) {
-            return reject(new Error('consumer cancelled by rabbitmq'));
+            channel.deleteQueue(q.queue).catch(() => {});
+            return resolve(message?.defaultValue);
           }
 
           if (msg.properties.correlationId === correlationId) {
@@ -163,27 +177,13 @@ export const sendRPCMessage = async (
 
       channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), {
         correlationId,
-        replyTo: q.queue
+        replyTo: q.queue,
+        expiration: timeoutMs
       });
     });
   });
 
   return response;
-};
-
-export const sendMessage = async (queueName: string, data?: any) => {
-  queueName = queueName.concat(queuePrefix);
-
-  try {
-    const message = JSON.stringify(data || {});
-
-    debugInfo(`Sending message ${message} to ${queueName}`);
-
-    await channel.assertQueue(queueName);
-    await channel.sendToQueue(queueName, Buffer.from(message));
-  } catch (e) {
-    debugError(`Error occurred during send queue ${queueName} ${e.message}`);
-  }
 };
 
 function RabbitListener() {}
@@ -242,7 +242,6 @@ export const init = async ({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }) => {
   return {
     consumeQueue,
     consumeRPCQueue,
-    sendMessage,
     sendRPCMessage
   };
 };

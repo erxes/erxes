@@ -131,7 +131,7 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
     }
 
     public static async createActionRcfaRoot(params) {
-      const { issueId, name } = params;
+      const { issueId, stageId, name } = params;
       if (!issueId || !name) {
         throw new Error('You should specify a issueID or name');
       }
@@ -143,20 +143,22 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
 
       const rcfa = await models.RCFA.findOne({ _id: issue?.rcfaId });
 
-      const childItem = await sendCardsMessage({
+      const rootAction = await sendCardsMessage({
         subdomain,
-        action: 'createChildItem',
+        action: 'createRelatedItem',
         data: {
-          type: rcfa?.mainType,
+          stageId,
+          name,
+          type: 'task',
           itemId: rcfa?.mainTypeId,
-          name
+          sourceType: rcfa?.mainType
         },
         isRPC: true
       });
 
       return await models.Issues.updateOne(
         { _id: issue?._id },
-        { relTypeId: childItem._id, relType: rcfa?.mainType }
+        { $addToSet: { taskIds: rootAction._id } }
       );
     }
 

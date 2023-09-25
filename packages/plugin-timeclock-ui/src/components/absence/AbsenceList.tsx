@@ -17,6 +17,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { FlexRowLeft, ToggleButton } from '../../styles';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   currentUser: IUser;
@@ -146,6 +147,8 @@ function AbsenceList(props: Props) {
       >
         <Icon icon="subject" />
       </ToggleButton>
+
+      <Title capitalize={true}>{` Total: ${absences.length}`}</Title>
     </FlexRowLeft>
   );
 

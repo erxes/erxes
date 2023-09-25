@@ -500,7 +500,6 @@ const HeaderWrapper = styled.div`
   @media (max-width: 700px) {
     > div {
       margin-top: 20px;
-
       .dropdown {
         flex: 1;
       }

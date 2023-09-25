@@ -27,6 +27,7 @@ type Props = {
   refetchQueries?: any;
   currentUser: IUser;
   meetingQuery?: MeetingsQueryResponse;
+  participantUsers: IUser[];
 };
 
 function List(props: Props) {
@@ -37,7 +38,8 @@ function List(props: Props) {
     queryParams,
     history,
     currentUser,
-    meetingQuery
+    meetingQuery,
+    participantUsers
   } = props;
 
   const [component, setComponent] = useState(<div />);
@@ -64,18 +66,22 @@ function List(props: Props) {
           />
         );
         break;
-      // case 'agendaTemplate':
-      //   setComponent(<div>1</div>);
-      //   setSideBar(<div>sidebar 1</div>);
-      //   break;
       default:
-        setComponent(<MyCalendarList {...props} />);
+        setComponent(
+          <MyCalendarList
+            meetings={meetings}
+            queryParams={queryParams}
+            meetingQuery={meetingQuery}
+            currentUser={currentUser}
+          />
+        );
         setSideBar(
           <SideBar
             history={history}
             queryParams={queryParams}
             meetings={meetings}
             loading={loading}
+            participantUsers={participantUsers}
           />
         );
         break;

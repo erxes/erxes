@@ -302,11 +302,7 @@ export default class ConfigStep extends React.Component<Props, State> {
 
             <Block>
               <h4>{__('Remainder configs')}</h4>
-              <Description>
-                Map a product to category. When a product within that category
-                is sold in pos system with "take" option, then the mapped
-                product will be added to the price.
-              </Description>
+              <Description></Description>
               <FormGroup>
                 <FormControl
                   checked={isCheckRemainder}
@@ -320,7 +316,7 @@ export default class ConfigStep extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Categories</ControlLabel>
+                <ControlLabel>Exclude Categories</ControlLabel>
                 <SelectProductCategory
                   label={'kiosk'}
                   name="checkExcludeCategoryIds"

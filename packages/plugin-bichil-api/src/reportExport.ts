@@ -1,4 +1,4 @@
-import dayjs = require('dayjs');
+import * as dayjs from 'dayjs';
 import * as xlsxPopulate from 'xlsx-populate';
 import { IModels } from './connectionResolver';
 import {
@@ -11,8 +11,22 @@ import {
   bichilTimeclockReportPivot,
   bichilTimeclockReportPreliminary
 } from './graphql/resolvers/utils';
-import { IUserReport } from './models/definitions/timeclock';
-import { createTeamMembersObject, generateCommonUserIds } from './utils';
+import { IUsersReport } from './models/definitions/timeclock';
+import {
+  createTeamMembersObject,
+  findAllTeamMembers,
+  findTeamMember,
+  findTeamMembers,
+  generateCommonUserIds,
+  returnDepartmentsBranchesDict,
+  returnSupervisedUsers
+} from './utils';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+
+type Structure = {
+  departmentIds: string[];
+  branchIds: string[];
+};
 
 const dateFormat = 'YYYY-MM-DD';
 /**
@@ -30,6 +44,10 @@ export const createXlsFile = async () => {
  */
 export const generateXlsx = async (workbook: any): Promise<string> => {
   return workbook.outputAsync();
+};
+
+const getNextChar = (char, num: number) => {
+  return String.fromCharCode(char.charCodeAt(0) + num);
 };
 
 const addIntoSheet = async (
@@ -54,12 +72,10 @@ const addIntoSheet = async (
   }
 
   if (merged) {
-    r.style({
-      horizontalAlignment: 'center',
-      verticalAlignment: 'center'
-    });
+    r.style({ horizontalAlignment: 'center', verticalAlignment: 'center' });
     r.merged(true);
     r.style('bold', true);
+    r.style('fill', 'fffe00');
     sheet.row(2).style('bold', true);
     if (reportType === 'Сүүлд' || 'Final') {
       sheet.column('E').width(50);
@@ -68,6 +84,9 @@ const addIntoSheet = async (
       sheet.column('I').width(15);
       sheet.column('J').width(15);
       sheet.column('K').width(15);
+      sheet.column('N').width(20);
+      sheet.column('O').width(20);
+      sheet.column('P').width(20);
     }
     if (reportType === 'Pivot') {
       sheet.column('E').width(50);
@@ -83,7 +102,14 @@ const addIntoSheet = async (
   r.value(values);
 };
 
-const prepareHeader = async (sheet: any, reportType: string) => {
+const prepareHeader = async (
+  sheet: any,
+  reportType: string,
+  showDepartment?: boolean,
+  showBranch?: boolean
+) => {
+  let total_columns = 0;
+
   switch (reportType) {
     case 'Урьдчилсан' || 'Preliminary':
       const pre_headers = PRELIMINARY_REPORT_COLUMNS;
@@ -91,22 +117,46 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([pre_headers], 'A1', 'I1', sheet, reportType);
       break;
     case 'Сүүлд' || 'Final':
-      const final_headers = FINAL_REPORT_COLUMNS;
+      const final_headers = [...FINAL_REPORT_COLUMNS];
+      let column_start = 'A';
+      let column_end = 'A';
 
-      addIntoSheet([final_headers[0][0]], 'A1', 'E1', sheet, reportType, true);
-      addIntoSheet([final_headers[0][1]], 'A2', 'E2', sheet, reportType);
+      if (showBranch || showDepartment) {
+        const structure: string[] = [];
 
-      addIntoSheet([final_headers[1][0]], 'F1', 'F2', sheet, reportType, true);
-      addIntoSheet([final_headers[1][1]], 'G1', 'G2', sheet, reportType, true);
+        if (showDepartment) {
+          structure.push('Цех, тасаг, багийн нэр');
+        }
+        if (showBranch) {
+          structure.push('Салбар нэгж');
+        }
+        final_headers.unshift([['Structure'], ['№', ...structure]]);
+      } else {
+        final_headers.unshift([[''], ['№']]);
+      }
 
-      addIntoSheet([final_headers[2][0]], 'H1', 'I1', sheet, reportType, true);
-      addIntoSheet([final_headers[2][1]], 'H2', 'I2', sheet, reportType);
+      for (const header of final_headers) {
+        column_end = getNextChar(column_start, header[1].length - 1);
+        addIntoSheet(
+          [header[0]],
+          `${column_start}1`,
+          `${column_end}1`,
+          sheet,
+          reportType,
+          true
+        );
+        addIntoSheet(
+          [header[1]],
+          `${column_start}2`,
+          `${column_end}2`,
+          sheet,
+          reportType
+        );
+        column_start = getNextChar(column_end, 1);
 
-      addIntoSheet([final_headers[3][0]], 'J1', 'M1', sheet, reportType, true);
-      addIntoSheet([final_headers[3][1]], 'J2', 'M2', sheet, reportType);
+        total_columns += header[1].length;
+      }
 
-      addIntoSheet([final_headers[4][0]], 'N1', 'N1', sheet, reportType, true);
-      addIntoSheet([final_headers[4][1]], 'N2', 'N2', sheet, reportType);
       break;
 
     case 'Pivot':
@@ -118,33 +168,73 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([pivot_headers[1][0]], 'F1', 'F1', sheet, reportType, true);
       addIntoSheet([pivot_headers[1][1]], 'F2', 'F2', sheet, reportType);
 
-      addIntoSheet([pivot_headers[2][0]], 'G1', 'I1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[2][1]], 'G2', 'I2', sheet, reportType);
+      addIntoSheet([pivot_headers[2][0]], 'G1', 'J1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[2][1]], 'G2', 'J2', sheet, reportType);
 
-      addIntoSheet([pivot_headers[3][0]], 'J1', 'R1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[3][1]], 'J2', 'R2', sheet, reportType);
+      addIntoSheet([pivot_headers[3][0]], 'K1', 'S1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[3][1]], 'K2', 'S2', sheet, reportType);
 
       break;
   }
+
+  return total_columns;
 };
 
-const extractAndAddIntoSheet = (
-  empReports: IUserReport[],
+const extractAndAddIntoSheet = async (
+  subdomain: any,
+  queryParams: any,
+  empReports: IUsersReport,
   teamMemberIds: string[],
+  teamMembers: IUserDocument[],
   sheet: any,
-  reportType: string
+  reportType: string,
+  total_columns: number
 ) => {
+  const totalBranchIdsOfMembers: string[] = [];
+  const totalDeptIdsOfMembers: string[] = [];
+  const usersStructure: { [userId: string]: Structure } = {};
   const extractValuesIntoArr: any[][] = [];
+
+  const showBranch = queryParams.showBranch
+    ? JSON.parse(queryParams.showBranch)
+    : false;
+
+  const showDepartment = queryParams.showDepartment
+    ? JSON.parse(queryParams.showDepartment)
+    : false;
+
+  // get department, branch titles
+  for (const teamMember of teamMembers) {
+    if (teamMember.branchIds) {
+      totalBranchIdsOfMembers.push(...teamMember.branchIds);
+    }
+
+    if (teamMember.departmentIds) {
+      totalDeptIdsOfMembers.push(...teamMember.departmentIds);
+    }
+
+    usersStructure[teamMember._id] = {
+      branchIds: teamMember.branchIds ? teamMember.branchIds : [],
+      departmentIds: teamMember.departmentIds ? teamMember.departmentIds : []
+    };
+  }
+
+  const structuresDict = await returnDepartmentsBranchesDict(
+    subdomain,
+    totalBranchIdsOfMembers,
+    totalDeptIdsOfMembers
+  );
 
   let rowNum = 1;
 
   let startRowIdx = 2;
 
-  const endRowIdx = teamMemberIds.length + 1;
+  const endRowIdx = teamMemberIds.length + 2;
 
   switch (reportType) {
     case 'Урьдчилсан' || 'Preliminary':
-      for (const empReport of empReports) {
+      for (const userId of Object.keys(empReports)) {
+        const empReport = empReports[userId];
         extractValuesIntoArr.push([rowNum, ...Object.values(empReport)]);
         rowNum += 1;
       }
@@ -162,15 +252,51 @@ const extractAndAddIntoSheet = (
     case 'Сүүлд' || 'Final':
       startRowIdx = 3;
       rowNum = 3;
-      for (const empReport of empReports) {
-        extractValuesIntoArr.push([rowNum - 2, ...Object.values(empReport)]);
+
+      for (const userId of Object.keys(empReports)) {
+        if (!usersStructure[userId]) {
+          continue;
+        }
+        const userBranchIds = usersStructure[userId].branchIds;
+        const userDepartmentIds = usersStructure[userId].departmentIds;
+        const branchTitles: string[] = [];
+        const departmentTitles: string[] = [];
+
+        const empReport = empReports[userId];
+        const reportRow = [...Object.values(empReport)];
+
+        if (showBranch) {
+          for (const userBranchId of userBranchIds) {
+            if (structuresDict[userBranchId]) {
+              branchTitles.push(structuresDict[userBranchId]);
+            }
+          }
+          reportRow.unshift(branchTitles.join(','));
+        }
+
+        if (showDepartment) {
+          for (const userDeptId of userDepartmentIds) {
+            departmentTitles.push(structuresDict[userDeptId]);
+          }
+
+          if (departmentTitles.length) {
+            reportRow.unshift(departmentTitles.join(','));
+          } else {
+            reportRow.unshift('-');
+          }
+        }
+
+        reportRow.unshift(rowNum - 2);
+        extractValuesIntoArr.push(reportRow);
         rowNum += 1;
       }
+
+      const getEndColumn = getNextChar('A', total_columns);
 
       addIntoSheet(
         extractValuesIntoArr,
         `A${startRowIdx}`,
-        `P${endRowIdx}`,
+        `${getEndColumn}${endRowIdx}`,
         sheet,
         reportType
       );
@@ -180,7 +306,8 @@ const extractAndAddIntoSheet = (
       rowNum = 3;
       let userNum = 1;
 
-      for (const empReport of empReports) {
+      for (const userId of Object.keys(empReports)) {
+        const empReport = empReports[userId];
         const rowArray: any = [
           userNum,
           empReport.employeeId,
@@ -191,7 +318,7 @@ const extractAndAddIntoSheet = (
 
         addIntoSheet([rowArray], `A${rowNum}`, `E${rowNum}`, sheet, reportType);
 
-        if (empReport.scheduleReport.length) {
+        if (empReport.scheduleReport && empReport.scheduleReport.length) {
           empReport.scheduleReport.forEach(scheduleShift => {
             let checkInDevice = '-';
             let checkOutDevice = '-';
@@ -201,11 +328,23 @@ const extractAndAddIntoSheet = (
 
             if (getDeviceNames) {
               if (getDeviceNames.length === 2) {
-                checkInDevice = getDeviceNames[0];
-                checkOutDevice = getDeviceNames[1];
+                // checkInDevice = getDeviceNames[0];
+                // checkOutDevice = getDeviceNames[1];
+                if (
+                  getDeviceNames[0] &&
+                  getDeviceNames[0].includes('faceTerminal')
+                ) {
+                  checkInDevice = scheduleShift.deviceName || '-';
+                }
+                if (
+                  getDeviceNames[1] &&
+                  getDeviceNames[1].includes('faceTerminal')
+                ) {
+                  checkOutDevice = scheduleShift.deviceName || '-';
+                }
               } else {
-                checkInDevice = getDeviceNames[0];
-                checkOutDevice = getDeviceNames[0];
+                checkInDevice = scheduleShift.deviceName || '-';
+                checkOutDevice = scheduleShift.deviceName || '-';
               }
             }
             const shiftInfo: any = [];
@@ -233,21 +372,22 @@ const extractAndAddIntoSheet = (
               scheduledStart,
               scheduledEnd,
               scheduleShift.scheduledDuration,
+              scheduleShift.lunchBreakInHrs,
               shiftStart,
               checkInDevice,
               shiftEnd,
               checkOutDevice,
-              scheduleShift.deviceName,
-              scheduleShift.timeclockDuration,
-              scheduleShift.totalHoursOvertime,
+              scheduleShift.lunchBreakInHrs,
               scheduleShift.totalHoursOvernight,
+              scheduleShift.totalHoursOvertime,
+              scheduleShift.timeclockDuration,
               scheduleShift.totalMinsLate
             );
 
             addIntoSheet(
               [shiftInfo],
               `B${rowNum}`,
-              `Q${rowNum}`,
+              `S${rowNum}`,
               sheet,
               reportType
             );
@@ -269,55 +409,78 @@ const extractAndAddIntoSheet = (
 export const buildFile = async (
   models: IModels,
   subdomain: string,
-  query: any
+  params: any
 ) => {
-  const reportType = query.reportType;
+  const isCurrentUserAdmin = params.isCurrentUserAdmin;
+  const reportType = params.reportType;
   const userIds =
-    query.userIds instanceof Array || !query.userIds
-      ? query.userIds
-      : [query.userIds];
+    params.userIds instanceof Array || !params.userIds
+      ? params.userIds
+      : [params.userIds];
 
   const branchIds =
-    query.branchIds instanceof Array || !query.branchIds
-      ? query.branchIds
-      : [query.branchIds];
+    params.branchIds instanceof Array || !params.branchIds
+      ? params.branchIds
+      : [params.branchIds];
   const departmentIds =
-    query.departmentIds instanceof Array || !query.departmentIds
-      ? query.departmentIds
-      : [query.departmentIds];
+    params.departmentIds instanceof Array || !params.departmentIds
+      ? params.departmentIds
+      : [params.departmentIds];
 
-  const startDate = query.startDate;
-  const endDate = query.endDate;
+  const { currentUserId } = params;
+  const currentUser = await findTeamMember(subdomain, currentUserId);
+
+  const startDate = params.startDate;
+  const endDate = params.endDate;
 
   const startDateFormatted = dayjs(startDate).format(dateFormat);
   const endDateFormatted = dayjs(endDate).format(dateFormat);
 
   const { workbook, sheet } = await createXlsFile();
 
-  const teamMembersObject = await createTeamMembersObject(subdomain);
-
-  const teamMemberIds = Object.keys(teamMembersObject);
-
-  const teamMemberIdsFromFilter = await generateCommonUserIds(
-    subdomain,
-    userIds,
-    branchIds,
-    departmentIds
-  );
-
   let filterGiven = false;
+  let totalTeamMemberIds;
+  let totalMembers;
+
   if (userIds || branchIds || departmentIds) {
     filterGiven = true;
   }
 
-  const totalTeamMemberIds =
-    teamMemberIdsFromFilter.length || filterGiven
-      ? teamMemberIdsFromFilter
-      : teamMemberIds;
+  if (filterGiven) {
+    totalTeamMemberIds = await generateCommonUserIds(
+      subdomain,
+      userIds,
+      branchIds,
+      departmentIds
+    );
 
-  let report;
+    totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
+  } else {
+    // return supervisod users including current user
+    if (isCurrentUserAdmin) {
+      // return all team member ids
+      totalMembers = await findAllTeamMembers(subdomain);
+      totalTeamMemberIds = totalMembers.map(usr => usr._id);
+    } else {
+      // return supervisod users including current user
+      totalMembers = await returnSupervisedUsers(currentUser, subdomain);
+      totalTeamMemberIds = totalMembers.map(usr => usr._id);
+    }
+  }
 
-  prepareHeader(sheet, reportType);
+  const teamMembersObject = await createTeamMembersObject(
+    subdomain,
+    totalTeamMemberIds
+  );
+
+  let report: IUsersReport = {};
+
+  const totalColumnsNum = await prepareHeader(
+    sheet,
+    reportType,
+    params.showDepartment ? JSON.parse(params.showDepartment) : false,
+    params.showBranch ? JSON.parse(params.showBranch) : false
+  );
 
   switch (reportType) {
     case 'Урьдчилсан' || 'Preliminary':
@@ -354,11 +517,15 @@ export const buildFile = async (
       break;
   }
 
-  extractAndAddIntoSheet(
-    Object.values(report),
-    teamMemberIds,
+  await extractAndAddIntoSheet(
+    subdomain,
+    params,
+    report,
+    totalTeamMemberIds,
+    totalMembers,
     sheet,
-    reportType
+    reportType,
+    totalColumnsNum
   );
 
   return {

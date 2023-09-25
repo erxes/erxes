@@ -9,6 +9,7 @@ import {
   PageHeader,
   Step,
   Steps,
+  Toggle,
   __
 } from '@erxes/ui/src';
 import { StepWrapper } from '@erxes/ui/src/components/step/styles';
@@ -24,6 +25,7 @@ import {
   Padding,
   StepperContainer
 } from '../../styles';
+import { SelectCategories } from '../categories/SelectCategories';
 
 type Props = {
   detail?: any;
@@ -130,6 +132,15 @@ class Form extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
+                <ControlLabel>{__('Category')}</ControlLabel>
+                <SelectCategories
+                  name="categoryId"
+                  label="Category"
+                  initialValue={sync?.categoryId}
+                  onSelect={(value, name) => this.handleChange(name, value)}
+                />
+              </FormGroup>
+              <FormGroup>
                 <ControlLabel>{__('Sub domain')}</ControlLabel>
                 <FormControl
                   name="subdomain"
@@ -172,6 +183,17 @@ class Form extends React.Component<Props, State> {
                   </DateContainer>
                 </EndDateContainer>
               </CustomRangeContainer>
+              <FormGroup>
+                <ControlLabel>
+                  {__('Register customer when approved')}
+                </ControlLabel>
+                <Toggle
+                  checked={sync.checkApproved}
+                  onChange={() =>
+                    this.handleChange('checkApproved', !sync?.checkApproved)
+                  }
+                />
+              </FormGroup>
             </Padding>
           </Step>
           {this.props?.detail && (

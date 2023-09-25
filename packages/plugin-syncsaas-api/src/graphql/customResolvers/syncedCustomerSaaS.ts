@@ -31,5 +31,11 @@ export default {
     });
 
     return syncedCustomer ? syncedCustomer.syncedCustomerId : null;
+  },
+
+  async customerStatus({ customerId }, {}, { models }: IContext) {
+    const syncedCustomer = await models.SyncedCustomers.findOne({ customerId });
+
+    return syncedCustomer ? syncedCustomer?.status : null;
   }
 };

@@ -1,10 +1,10 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { FlexRowLeft, ToggleButton } from '../../styles';
+import { FilterItem, FlexRow, FlexRowLeft, ToggleButton } from '../../styles';
 
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import ScheduleForm from './ScheduleForm';
@@ -22,6 +22,8 @@ import Table from '@erxes/ui/src/components/table';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
 
 type Props = {
   currentUser: IUser;
@@ -191,23 +193,30 @@ function ScheduleList(props: Props) {
       >
         <Icon icon="subject" />
       </ToggleButton>
-      <div style={{ width: '20%' }}>
-        <Select
-          value={selectedScheduleStatus}
-          onChange={onSelectScheduleStatus}
-          placeholder="Select Schedule"
-          multi={false}
-          options={['Approved', 'Rejected', 'Pending'].map(el => ({
-            value: el,
-            label: el
-          }))}
-        />
-      </div>
+
+      <Title
+        style={{ marginRight: '10px' }}
+      >{` Total: ${scheduleOfMembers.length}`}</Title>
     </FlexRowLeft>
   );
 
   const actionBarRight = (
-    <>
+    <FlexRow>
+      <FilterItem>
+        <FormGroup>
+          <ControlLabel>Select type</ControlLabel>
+          <Select
+            value={selectedScheduleStatus}
+            onChange={onSelectScheduleStatus}
+            placeholder="Select Schedule"
+            multi={false}
+            options={['Approved', 'Rejected', 'Pending'].map(el => ({
+              value: el,
+              label: el
+            }))}
+          />
+        </FormGroup>
+      </FilterItem>
       <ModalTrigger
         title={__('Send schedule request')}
         size="lg"
@@ -223,7 +232,7 @@ function ScheduleList(props: Props) {
           content={adminConfigContent}
         />
       )}
-    </>
+    </FlexRow>
   );
 
   const actionBar = (

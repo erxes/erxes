@@ -1,3 +1,8 @@
+export type IDateColumn = {
+  month: number;
+  year: number;
+};
+
 export interface IRouterProps {
   history: any;
   location: any;

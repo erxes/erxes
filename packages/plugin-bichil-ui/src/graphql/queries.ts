@@ -51,46 +51,49 @@ const bichilTimeclockReport = `
                 ${userFields}
               }
             
-            scheduleReport {
-            timeclockDate
-            timeclockStart
-            timeclockEnd
-            timeclockDuration
-        
-            deviceName
-            deviceType
-        
-            scheduledStart
-            scheduledEnd
-            scheduledDuration
+              scheduleReport {
+                timeclockDate
+                timeclockStart
+                timeclockEnd
+                timeclockDuration
             
-            totalMinsLate
-            totalHoursOvertime
-            totalHoursOvernight
+                deviceName
+                deviceType
+            
+                scheduledStart
+                scheduledEnd
+                scheduledDuration
+                
+                totalMinsLate
+                totalHoursOvertime
+                totalHoursOvernight
+              }
+
+              branchTitles
+              departmentTitles
+            
+              totalMinsLate
+              totalAbsenceMins
+              totalMinsWorked
+              totalMinsScheduled
+
+              totalRegularHoursWorked
+              totalHoursWorked
+              totalMinsWorkedThisMonth
+              totalDaysWorked
+
+              totalHoursOvertime
+              totalHoursOvernight
+            
+              totalMinsScheduledThisMonth
+              totalDaysScheduled
+              totalHoursScheduled
+
+              totalDays
+              totalWeekendDays
+              totalHoursShiftRequest
+            
             }
-            
-            totalMinsLate
-            totalAbsenceMins
-            totalMinsWorked
-            totalMinsScheduled
-
-            totalRegularHoursWorked
-            totalHoursWorked
-            totalMinsWorkedThisMonth
-            totalDaysWorked
-
-            totalHoursOvertime
-            totalHoursOvernight
-          
-            totalMinsScheduledThisMonth
-            totalDaysScheduled
-            totalHoursScheduled
-
-            totalDays
-            totalWeekendDays
-            totalHoursShiftRequest
-            
-        }
         groupTotalMinsLate
         groupTotalAbsenceMins
         groupTotalMinsWorked

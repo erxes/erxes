@@ -8,13 +8,25 @@ import { returnDeviceTypes } from '../../utils';
 type Props = {
   bichilReport: IReport;
   reportType: string;
+  index: number;
+  showBranch: boolean;
+  showDepartment: boolean;
 };
 
-const ReportRow = (userReport: IUserReport, reportType: string) => {
+const ReportRow = (
+  userReport: IUserReport,
+  reportType: string,
+  showBranch: boolean,
+  showDepartment: boolean,
+  index: number
+) => {
   switch (reportType) {
     case 'Урьдчилсан':
       return (
         <tr key={Math.random()}>
+          <td>
+            <b>{index}</b>
+          </td>
           <td>{userReport.user.employeeId}</td>
           <td>{userReport.user.details?.lastName || '-'}</td>
           <td>{userReport.user.details?.firstName || '-'}</td>
@@ -28,7 +40,14 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
     case 'Сүүлд':
       return (
         <tr key={Math.random()}>
-          <td>{userReport.user.employeeId}</td>
+          <td>
+            <b>{index}</b>
+          </td>
+          {showDepartment && (
+            <td>{userReport.departmentTitles?.join(',\n') || '-'}</td>
+          )}
+          {showBranch && <td>{userReport.branchTitles?.join(',\n') || '-'}</td>}
+          <td>{userReport.user.employeeId || '-'}</td>
           <td>{userReport.user.details?.position || '-'}</td>
           <td>{userReport.user.details?.lastName || '-'}</td>
           <td>{userReport.user.details?.firstName || '-'}</td>
@@ -51,6 +70,9 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
     case 'Pivot':
       return (
         <tr key={Math.random()}>
+          <td>
+            <b>{index}</b>
+          </td>
           <td>{userReport.user.employeeId}</td>
           <td>{userReport.user.details?.lastName || '-'}</td>
           <td>{userReport.user.details?.firstName || '-'}</td>
@@ -190,11 +212,11 @@ const renderScheduleShiftsOfReport = scheduleReport => {
 };
 
 function TableRow(props: Props) {
-  const { reportType, bichilReport } = props;
+  const { reportType, bichilReport, index, showBranch, showDepartment } = props;
   return (
     <tbody>
       {bichilReport.groupReport.map(userReport =>
-        ReportRow(userReport, reportType)
+        ReportRow(userReport, reportType, showBranch, showDepartment, index)
       )}
     </tbody>
   );
