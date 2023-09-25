@@ -259,6 +259,22 @@ export const timeclockReportByUser = async (
     ]
   });
 
+  const requestsOfSelectedMonth = await models.Absences.find({
+    $and: [
+      { userId },
+      { solved: true },
+      { status: 'Approved' },
+      {
+        startTime: {
+          $gte: startOfSelectedMonth,
+          $lte: startOfNextMonth
+        }
+      }
+    ]
+  });
+
+  console.log('rqqq ', requestsOfSelectedMonth);
+
   let scheduledShiftStartSelectedDay;
   let scheduledShiftEndSelectedDay;
 
@@ -465,6 +481,7 @@ export const timeclockReportByUser = async (
       totalHoursBreakScheduled,
       totalHoursBreakSelecteDay,
 
+      requests: requestsOfSelectedMonth,
       scheduledShifts: scheduleShiftsSelectedMonth,
       timeclocks: timeclocksOfSelectedMonth,
 
