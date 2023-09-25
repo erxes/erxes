@@ -40,9 +40,15 @@ import {
 } from './models/Integrations';
 import { ILogModel, loadLogClass } from './models/Logs';
 import { ILogDocument } from './models/definitions/logs';
+import {
+  IPostConversationModel,
+  loadPostConversationClass
+} from './models/PostConversations';
+import { IPostConversationDocument } from './models/definitions/postConversations';
 
 export interface IModels {
   Comments: ICommentModel;
+  PostConversations: IPostConversationModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
   Posts: IPostModel;
@@ -96,6 +102,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'posts_facebooks',
     loadPostClass(models)
   );
+
+  models.PostConversations = db.model<
+    IPostConversationDocument,
+    IPostConversationModel
+  >('posts_conversations_facebooks', loadPostConversationClass(models));
 
   models.ConversationMessages = db.model<
     IConversationMessageDocument,

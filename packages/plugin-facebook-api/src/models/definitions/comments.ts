@@ -15,6 +15,8 @@ export interface IComment {
   permalink_url: string;
   userId?: string;
   customerId?: string;
+  conversationId: string;
+  createdAt?: Date;
 }
 
 export interface ICommentDocument extends IComment, Document {}
@@ -33,7 +35,9 @@ export const commentSchema = new Schema({
   content: String,
   erxesApiId: String,
   timestamp: Date,
-  isResolved: { type: Boolean, default: false }
+  conversationId: String,
+  isResolved: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now }
 });
 
 commentSchema.index({ postId: 1, commentId: 1 }, { unique: true });

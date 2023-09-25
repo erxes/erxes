@@ -144,6 +144,40 @@ export const getPostLink = async (
   }
 };
 
+export const getPostDetails = async (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  postId: string
+) => {
+  console.log(
+    '******************** ',
+    pageId,
+    pageTokens,
+    postId,
+    ' ********************'
+  );
+
+  let pageAccessToken;
+
+  try {
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+  } catch (e) {
+    debugError(`Error occurred while getting page access token: ${e.message}`);
+    throw new Error();
+  }
+
+  try {
+    const response: any = await graphRequest.get(`/${postId}`, pageAccessToken);
+
+    console.log('^^^^^^^^^^^^^^^^', response);
+
+    return response;
+  } catch (e) {
+    debugError(`Error occurred while getting facebook post: ${e.message}`);
+    return null;
+  }
+};
+
 export const unsubscribePage = async (
   pageId,
   pageToken

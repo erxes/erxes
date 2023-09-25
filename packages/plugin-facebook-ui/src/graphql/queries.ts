@@ -59,6 +59,46 @@ const facebookGetComments = `
   }
 `;
 
+const facebookGetPostMessages = `
+query FacebookPostMessages($conversationId: String!, $getFirst: Boolean, $skip: Int, $limit: Int) {
+  facebookPostMessages(conversationId: $conversationId, getFirst: $getFirst, skip: $skip, limit: $limit) {
+    _id
+    attachments {
+      duration
+      name
+      size
+      type
+      url
+    }
+    commentId
+    content
+    conversationId
+    createdAt
+    customer {
+      _id
+      avatar
+      firstName
+      lastName
+    }
+    customerId
+    user {
+      _id
+      email
+      username
+      details {
+        avatar
+        firstName
+        fullName
+        lastName
+        shortName
+        middleName
+      }
+    }
+    userId
+  }
+}
+`;
+
 const facebookGetCommentCount = `
   query facebookGetCommentCount($conversationId: String!, $isResolved: Boolean) {
     facebookGetCommentCount(conversationId: $conversationId, isResolved: $isResolved)
@@ -173,5 +213,6 @@ export default {
   facebookConversationMessages,
   facebookConversationMessagesCount,
   facebookGetPost,
-  facebookHasTaggedMessages
+  facebookHasTaggedMessages,
+  facebookGetPostMessages
 };

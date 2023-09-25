@@ -2,10 +2,12 @@ import { IModels } from './connectionResolver';
 import {
   getOrCreateComment,
   getOrCreateCustomer,
-  getOrCreatePost
+  getOrCreatePost,
+  getOrCreatePostConversation
 } from './store';
 import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
+import { sendInboxMessage } from './messageBroker';
 
 const receiveComment = async (
   models: IModels,
@@ -16,6 +18,17 @@ const receiveComment = async (
   const userId = params.from.id;
   const postId = params.post_id;
 
+  const integration = await models.Integrations.findOne({
+    $and: [
+      { facebookPageIds: { $in: pageId } },
+      { kind: INTEGRATION_KINDS.POST }
+    ]
+  });
+
+  if (!integration) {
+    throw new Error('Integration not found');
+  }
+
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
@@ -24,29 +37,50 @@ const receiveComment = async (
     INTEGRATION_KINDS.POST
   );
 
-  let post = await models.Posts.findOne({ postId, receipendId: customer._id });
-
-  if (!post) {
-    post = await getOrCreatePost(
-      models,
-      subdomain,
-      params,
-      pageId,
-      userId,
-      customer._id
-    );
-  }
-
-  return getOrCreateComment(
+  const postConversation = await getOrCreatePostConversation(
     models,
     subdomain,
+    postId,
+    integration,
+    customer,
+    params
+  );
+
+  await getOrCreateComment(
+    models,
+    subdomain,
+    postConversation._id,
     params,
     pageId,
     userId,
     params.verb || '',
-    post,
+    integration,
     customer
   );
+
+  try {
+    await sendInboxMessage({
+      subdomain,
+      action: 'conversationClientMessageInserted',
+      data: {
+        integrationId: integration.erxesApiId,
+        conversationId: postConversation.erxesApiId
+      }
+    });
+
+    // graphqlPubsub.publish('conversationMessageInserted', {
+    //   conversationMessageInserted: {
+    //     ...created.toObject(),
+    //     conversationId: conversation.erxesApiId
+    //   }
+    // });
+  } catch (e) {
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: conversation message duplication'
+        : e
+    );
+  }
 };
 
 export default receiveComment;

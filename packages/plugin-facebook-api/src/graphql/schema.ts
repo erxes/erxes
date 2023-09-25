@@ -67,6 +67,20 @@ export const types = `
     user: User
   }
 
+  type FacebookPostMessage {
+    _id: String!
+    ${commonCommentAndMessageFields}
+    attachments: [Attachment]
+    customerId: String
+    userId: String
+    createdAt: Date
+    commentId: String
+
+    customer: Customer
+    user: User
+  }
+
+
   type FacebookPost @key(fields: "_id") {
     _id: String!
     ${commonPostAndCommentFields}
@@ -92,6 +106,9 @@ export const queries = `
   facebookConversationMessagesCount(conversationId: String!): Int
   facebookGetPost(erxesApiId: String): FacebookPost
   facebookHasTaggedMessages(conversationId: String!): Boolean
+
+  facebookPostMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
+  facebookPostMessagesCount(conversationId: String!): Int
 `;
 
 export const mutations = `

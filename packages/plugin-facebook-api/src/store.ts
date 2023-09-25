@@ -4,6 +4,7 @@ import { getFileUploadConfigs, sendInboxMessage } from './messageBroker';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
+  getPostDetails,
   getPostLink,
   uploadMedia
 } from './utils';
@@ -11,6 +12,7 @@ import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
 import { IPostDocument } from './models/definitions/posts';
+import { IIntegrationDocument } from './models/Integrations';
 
 interface IDoc {
   postId?: string;
@@ -28,8 +30,7 @@ interface IDoc {
 export const generatePostDoc = async (
   postParams: IPostParams,
   pageId: string,
-  userId: string,
-  customerId: string
+  userId: string
 ) => {
   const {
     post_id,
@@ -69,7 +70,6 @@ export const generatePostDoc = async (
   const doc: IDoc = {
     postId: post_id || id,
     content: message || '...',
-    customerId,
     senderId: userId,
     permalink_url: '',
     recipientId: pageId
@@ -151,18 +151,90 @@ const generateCommentDoc = (
   return doc;
 };
 
+export const getOrCreatePostConversation = async (
+  models: IModels,
+  subdomain: string,
+  postId: string,
+  integration: IIntegrationDocument,
+  customer: ICustomerDocument,
+  params: ICommentParams
+) => {
+  const post = await models.Posts.findOne({
+    postId
+  });
+
+  if (!post) {
+    throw new Error('Post not found');
+  }
+
+  let postConversation = await models.PostConversations.findOne({
+    postId,
+    customerId: customer._id
+  });
+
+  if (!postConversation) {
+    postConversation = await models.PostConversations.create({
+      postId,
+      integrationId: integration._id,
+      customerId: customer._id,
+      content: post.content
+    });
+  }
+
+  // save on api
+  try {
+    const apiConversationResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer.erxesApiId,
+          integrationId: integration.erxesApiId,
+          content: post.content,
+          attachments: [],
+          conversationId: postConversation.erxesApiId,
+          updatedAt: params.created_time
+            ? (params.created_time * 1000).toString()
+            : new Date().toISOString()
+        })
+      },
+      isRPC: true
+    });
+
+    postConversation.erxesApiId = apiConversationResponse._id;
+
+    await postConversation.save();
+  } catch (e) {
+    await models.PostConversations.deleteOne({ _id: postConversation._id });
+    throw new Error(e);
+  }
+
+  return postConversation;
+};
+
 export const getOrCreatePost = async (
   models: IModels,
   subdomain: string,
   postParams: IPostParams,
   pageId: string,
-  userId: string,
-  customerId: string
+  userId: string
+  // customerId: string
 ) => {
+  const { post_id } = postParams;
+
+  if (!post_id) {
+    throw new Error('post_id is required');
+  }
+
   let post = await models.Posts.findOne({
-    postId: postParams.post_id,
-    customerId
+    postId: post_id,
+    senderId: userId
   });
+
+  if (post) {
+    return post;
+  }
 
   const integration = await models.Integrations.getIntegration({
     $and: [
@@ -173,17 +245,13 @@ export const getOrCreatePost = async (
 
   const { facebookPageTokensMap = {} } = integration;
 
-  if (post) {
-    return post;
-  }
-
   const postUrl = await getPostLink(
     pageId,
     facebookPageTokensMap,
     postParams.post_id || ''
   );
 
-  const doc = await generatePostDoc(postParams, pageId, userId, customerId);
+  const doc = await generatePostDoc(postParams, pageId, userId);
 
   if (!doc.attachments && doc.content === '...') {
     throw new Error();
@@ -222,22 +290,16 @@ export const getOrCreatePost = async (
 export const getOrCreateComment = async (
   models: IModels,
   subdomain: string,
+  conversationId: string,
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
   verb: string,
-  post: IPostDocument,
+  integration: IIntegrationDocument,
   customer: ICustomerDocument
 ) => {
   let comment = await models.Comments.findOne({
     commentId: commentParams.comment_id
-  });
-
-  const integration = await models.Integrations.getIntegration({
-    $and: [
-      { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST }
-    ]
   });
 
   await models.Accounts.getAccount({ _id: integration.accountId });
@@ -252,60 +314,10 @@ export const getOrCreateComment = async (
   }
 
   if (!comment) {
-    comment = await models.Comments.create(doc);
+    comment = await models.Comments.create({ ...doc, conversationId });
   }
 
-  try {
-    const apiConversationResponse = await sendInboxMessage({
-      subdomain,
-      action: 'integrations.receive',
-      data: {
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId: customer.erxesApiId,
-          integrationId: integration.erxesApiId,
-          content: post.content,
-          // attachments: formattedAttachments,
-          conversationId: post.erxesApiId,
-          updatedAt: doc.timestamp
-        })
-      },
-      isRPC: true
-    });
-
-    if (!post.erxesApiId) {
-      await models.Posts.updateOne(
-        { _id: post._id },
-        { $set: { erxesApiId: apiConversationResponse._id } }
-      );
-    }
-  } catch (e) {
-    throw new Error(e);
-  }
-
-  try {
-    await sendInboxMessage({
-      subdomain,
-      action: 'conversationClientMessageInserted',
-      data: {
-        integrationId: integration.erxesApiId,
-        conversationId: post.erxesApiId
-      }
-    });
-
-    // graphqlPubsub.publish('conversationMessageInserted', {
-    //   conversationMessageInserted: {
-    //     ...created.toObject(),
-    //     conversationId: conversation.erxesApiId
-    //   }
-    // });
-  } catch (e) {
-    throw new Error(
-      e.message.includes('duplicate')
-        ? 'Concurrent request: conversation message duplication'
-        : e
-    );
-  }
+  return models.Comments.getComment({ commentId: commentParams.comment_id });
 
   // if (post) {
   //   sendInboxMessage({

@@ -29,4 +29,4 @@ export const postSchema = new Schema({
   timestamp: Date
 });
 
-postSchema.index({ recipientId: 1, postId: 1 }, { unique: true });
+postSchema.index({ recipientId: 1, postId: 1 });
