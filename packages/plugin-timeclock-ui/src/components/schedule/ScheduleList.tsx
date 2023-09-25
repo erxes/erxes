@@ -487,7 +487,7 @@ function ScheduleList(props: Props) {
               <Tip text={'Approve Schedule'} placement="top">
                 <Button
                   size="small"
-                  icon="edit-1"
+                  icon="checked"
                   btnStyle="link"
                   onClick={() => {
                     confirm(
