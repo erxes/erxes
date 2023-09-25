@@ -4,6 +4,7 @@ import useConfig from "@/modules/auth/hooks/useConfig"
 import ChooseTheme from "@/modules/settings/ChooseTheme"
 import GolomtConfig from "@/modules/settings/components/GolomtConfig"
 import Grid from "@/modules/settings/components/Grid"
+import ProductSimilarityConfig from "@/modules/settings/components/ProductSimilarityConfig"
 import StatusExplain from "@/modules/settings/components/StatusExplain"
 import { configAtom, currentUserAtom } from "@/store/config.store"
 import { useAtom } from "jotai"
@@ -38,6 +39,7 @@ const Settings = () => {
       <ChooseTheme />
       <Grid config={config} />
       <GolomtConfig paymentTypes={config.paymentTypes} />
+      <ProductSimilarityConfig />
       <StatusExplain />
     </>
   )

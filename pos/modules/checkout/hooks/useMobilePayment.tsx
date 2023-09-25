@@ -6,6 +6,7 @@ import {
   customerAtom,
   customerTypeAtom,
   mobileAmountAtom,
+  orderNumberAtom,
 } from "@/store/order.store"
 import { gql, useLazyQuery, useMutation } from "@apollo/client"
 import { useAtom } from "jotai"
@@ -23,6 +24,7 @@ const useMobilePayment = ({
 }) => {
   const [config] = useAtom(paymentConfigAtom)
   const [activeOrder] = useAtom(activeOrderAtom)
+  const [orderNumber] = useAtom(orderNumberAtom)
   const [mobileAmount] = useAtom(mobileAmountAtom)
   const [customer] = useAtom(customerAtom)
   const [customerType] = useAtom(customerTypeAtom)
@@ -67,7 +69,7 @@ const useMobilePayment = ({
           contentTypeId: activeOrder,
           customerId: customer?._id || "empty",
           customerType: customerType || "customer",
-          description: activeOrder,
+          description: `${activeOrder} - ${orderNumber}`,
           paymentIds: paymentIds,
         },
       })

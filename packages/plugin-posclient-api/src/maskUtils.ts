@@ -1,5 +1,5 @@
-export const groupBySameMasksAggregator = () => {
-  return [
+export const groupBySameMasksAggregator = (isCount = false) => {
+  const sameArr = [
     {
       $addFields: {
         sameMasksLen: {
@@ -24,7 +24,28 @@ export const groupBySameMasksAggregator = () => {
     },
     {
       $unwind: '$sameMasks'
-    },
+    }
+  ];
+
+  if (isCount) {
+    return [
+      ...sameArr,
+      {
+        $group: {
+          _id: { sameMasks: '$sameMasks' },
+          product: { $first: '$code' }
+        }
+      },
+      {
+        $group: {
+          _id: { code: '$product' }
+        }
+      }
+    ];
+  }
+
+  return [
+    ...sameArr,
     { $sort: { 'product.code': 1 } },
     {
       $group: {
@@ -44,8 +65,8 @@ export const groupBySameMasksAggregator = () => {
   ];
 };
 
-export const groupByCategoryAggregator = () => {
-  return [
+export const groupByCategoryAggregator = (isCount = false) => {
+  const sameArr = [
     {
       $lookup: {
         from: 'product_categories',
@@ -75,7 +96,22 @@ export const groupByCategoryAggregator = () => {
           }
         }
       }
-    },
+    }
+  ];
+
+  if (isCount) {
+    return [
+      ...sameArr,
+      {
+        $group: {
+          _id: { same: '$same' }
+        }
+      }
+    ];
+  }
+
+  return [
+    ...sameArr,
     {
       $group: {
         _id: { same: '$same' },
@@ -107,4 +143,19 @@ export const getSimilaritiesProducts = async (models, filter, params) => {
     ...gd.product,
     hasSimilarity: gd.count > 1
   }));
+};
+
+export const getSimilaritiesProductsCount = async (models, filter, params) => {
+  const aggregates =
+    params.groupedSimilarity === 'config'
+      ? groupBySameMasksAggregator(true)
+      : groupByCategoryAggregator(true);
+  const groupedData = await models.Products.aggregate([
+    { $match: filter },
+    ...aggregates,
+    { $group: { _id: {}, count: { $sum: 1 } } }
+  ]);
+  console.log(groupedData);
+
+  return ((groupedData || [])[0] || {}).count || 0;
 };

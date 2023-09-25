@@ -19,15 +19,15 @@ on:
 
 jobs:
   pos-ui:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
-      - name: Use Node.js 16.14.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 16.14.x
+      - uses: actions/checkout@v3
 
-      - uses: actions/checkout@v2
+      - name: Use Node.js 18.17.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.17.x
 
       - name: Build
         run: |

@@ -17,7 +17,6 @@ export const orderFields = `
   origin
   type
   deliveryInfo
- 
 `
 export const orderItemBaseFields = `
  _id
@@ -316,6 +315,7 @@ const progressHistory = gql`
       modifiedAt
       paidDate
       dueDate
+      deliveryInfo
     }
   }
 `
