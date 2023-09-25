@@ -273,8 +273,6 @@ export const timeclockReportByUser = async (
     ]
   });
 
-  console.log('rqqq ', requestsOfSelectedMonth);
-
   let scheduledShiftStartSelectedDay;
   let scheduledShiftEndSelectedDay;
 

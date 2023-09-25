@@ -186,6 +186,27 @@ function ScheduleList(props: Props) {
     router.setParams(history, { scheduleStatus: e.value });
   };
 
+  const checkAndApproveSchedule = async (
+    scheduleOfMember: ISchedule
+  ): Promise<void> => {
+    const checkDuplicateShifts = await checkDuplicateScheduleShifts({
+      userIds: [scheduleOfMember.user._id],
+      shifts: scheduleOfMember.shifts.map(shift => ({
+        shiftStart: shift.shiftStart,
+        shiftEnd: shift.shiftEnd,
+        scheduleConfigId: shift.scheduleConfigId,
+        lunchBreakInMins: shift.lunchBreakInMins
+      })),
+      userType: 'admin',
+      checkOnly: true,
+      status: 'Approved'
+    });
+
+    if (!checkDuplicateShifts.length) {
+      solveSchedule(scheduleOfMember._id, 'Approved');
+    }
+  };
+
   const actionBarLeft = (
     <FlexRowLeft>
       <ToggleButton
@@ -471,25 +492,7 @@ function ScheduleList(props: Props) {
                   onClick={() => {
                     confirm(
                       'Are you sure to Approve according schedule ?'
-                    ).then(() => {
-                      const checkDuplicateShifts = checkDuplicateScheduleShifts(
-                        {
-                          userIds: [scheduleOfMember.user._id],
-                          shifts: scheduleOfMember.shifts.map(shift => ({
-                            shiftStart: shift.shiftStart,
-                            shiftEnd: shift.shiftEnd,
-                            scheduleConfigId: shift.scheduleConfigId,
-                            lunchBreakInMins: shift.lunchBreakInMins
-                          })),
-                          userType: 'admin',
-                          checkOnly: true
-                        }
-                      );
-
-                      if (!checkDuplicateShifts.length) {
-                        solveSchedule(scheduleOfMember._id, 'Approved');
-                      }
-                    });
+                    ).then(() => checkAndApproveSchedule(scheduleOfMember));
                   }}
                 />
               </Tip>
@@ -503,7 +506,7 @@ function ScheduleList(props: Props) {
               disabled={scheduleOfMember.solved}
               size="small"
               btnStyle="success"
-              onClick={() => solveSchedule(scheduleOfMember._id, 'Approved')}
+              onClick={() => checkAndApproveSchedule(scheduleOfMember)}
             >
               Approve
             </Button>
