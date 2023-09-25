@@ -128,4 +128,18 @@ export const setCoverDetailAtom = atom(
   }
 )
 
+export const resetCoverDetailAtom = atom(null, (get, set) => {
+  set(calcCashAtom, 0)
+  set(calcAmountsAtom, null)
+  set(beginDateAtom, null)
+  set(endDateAtom, null)
+  set(detailsAtom, [])
+  set(isCoverAmountsFetchedAtom, false)
+  set(cashAtom, cashInitial)
+  set(currentAmountsAtom, {})
+  set(descriptionAtom, "")
+  set(golomtResponseAtom, "")
+  set(tdbResponseAtom, "")
+})
+
 export const description = atom<string>("")

@@ -45,7 +45,7 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
       actionType === "delete" && toast({ description: "Амжилттай устлаа" })
     },
     onError,
-    refetchQueries: ["covers"],
+    refetchQueries: ["Covers"],
   }
 
   const [coversConfirm, { loading }] = useMutation(
