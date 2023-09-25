@@ -29,7 +29,6 @@ const BankAmountUi = ({
   const [currentAmounts, setCurrentAmounts] = useAtom(currentAmountsAtom)
   const calcAmount = (calcAmounts || {})[type] || 0
   const currentAmount = (currentAmounts || {})[type] || 0
-
   return (
     <Card>
       <div className="flex flex-row items-center justify-between p-4 pt-3">

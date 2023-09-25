@@ -1,4 +1,4 @@
-import { useParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import {
   calcCashAtom,
   cashAtom,
@@ -21,7 +21,7 @@ const CashAmounts = () => {
   const [cash, setCash] = useAtom(cashAtom)
   const calcCash = useAtomValue(calcCashAtom)
   const cashTotal = useAtomValue(currentCashTotalAtom)
-  const { id } = useParams()
+  const id = useSearchParams().get("id")
 
   const onChange = (value: string, idx: number) => {
     const formatedValue = Number(value) > 0 ? Number(value) : 0

@@ -4,7 +4,7 @@ import dynamic from "next/dynamic"
 
 import { getMode } from "@/lib/utils"
 
-const loading = () => <div className="h-16 w-full borde-b" />
+const loading = () => <div className="h-14 w-full borde-b" />
 
 const Market = dynamic(
   () => import("@/components/header/headerLayout.market"),

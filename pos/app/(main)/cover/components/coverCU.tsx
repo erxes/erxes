@@ -1,4 +1,4 @@
-import { useParams, useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import useUser from "@/modules/auth/hooks/useUser"
 import {
   beginDateAtom,
@@ -10,9 +10,10 @@ import {
   descriptionAtom,
   endDateAtom,
   golomtResponseAtom,
+  resetCoverDetailAtom,
   tdbResponseAtom,
 } from "@/store/cover.store"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { AlarmCheckIcon } from "lucide-react"
 
 import { Detail } from "@/types/cover.types"
@@ -29,13 +30,15 @@ const CoverCU = () => {
   const cash = useAtomValue(cashAtom)
   const calcCash = useAtomValue(calcCashAtom)
   const cashTotal = useAtomValue(currentCashTotalAtom)
+  // TODO: fix those
   const golomtResponse = useAtomValue(golomtResponseAtom)
   const tdbResponse = useAtomValue(tdbResponseAtom)
+  const resetCover = useSetAtom(resetCoverDetailAtom)
 
   const router = useRouter()
 
   const { userId } = useUser()
-  const { id } = useParams()
+  const id = useSearchParams().get("id")
   const { loading, coverCU } = useCoverCU()
 
   const handleClick = () => {
@@ -77,11 +80,14 @@ const CoverCU = () => {
         endDate,
         details,
       },
-      onCompleted: () => router.push("/cover"),
+      onCompleted: () => {
+        resetCover()
+        router.push("/cover")
+      },
     })
   }
 
-  if (!beginDate) return null
+  if (!endDate) return null
   return (
     <Button className="mt-4" loading={loading} onClick={handleClick}>
       <AlarmCheckIcon className="mr-1 h-4 w-4 -translate-x-1" />

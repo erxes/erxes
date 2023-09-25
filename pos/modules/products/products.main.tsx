@@ -24,7 +24,7 @@ const Products = () => {
   if (loading) return <div className="p-4">loading...</div>
 
   return (
-    <ScrollArea className="w-full pr-3 ">
+    <ScrollArea className="w-full pr-3">
       <div className="grid grid-cols-4 gap-x-2 gap-y-3">
         {products.map((product) => (
           <ProductItem key={product._id} {...product} />

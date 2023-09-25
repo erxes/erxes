@@ -2,9 +2,15 @@ import { Loader2Icon, LucideProps } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const Loader = ({ className }: { className?: string }) => {
+const Loader = ({
+  className,
+  style,
+}: {
+  className?: string
+  style?: object
+}) => {
   return (
-    <LoaderWrapper className={className}>
+    <LoaderWrapper className={className} style={style}>
       <LoaderIcon />
       <LoaderText />
     </LoaderWrapper>
@@ -23,12 +29,15 @@ export const LoaderIcon = ({ className, ...rest }: LucideProps) => {
 export const LoaderWrapper = ({
   className,
   children,
+  style,
 }: {
   className?: string
   children: React.ReactNode
+  style?: object
 }) => {
   return (
     <div
+      style={style}
       className={cn("flex items-center justify-center flex-auto", className)}
     >
       {children}
@@ -41,5 +50,3 @@ export const LoaderText = () => {
 }
 
 export default Loader
-
-// JSX.IntrinsicElements.div: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>

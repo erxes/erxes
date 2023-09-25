@@ -59,8 +59,6 @@ class UserForm extends React.Component<Props, State> {
   };
 
   collectValues = items => {
-    if (items.some(item => typeof item === 'string')) {
-    }
     return items.map(item => (typeof item === 'string' ? item : item.value));
   };
 

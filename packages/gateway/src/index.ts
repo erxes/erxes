@@ -160,7 +160,7 @@ const stopRouter = () => {
         subscriptionServer.dispose();
       } catch (e) {}
     }
-    stopRouter();
+    await stopRouter();
     process.exit(0);
   });
 });

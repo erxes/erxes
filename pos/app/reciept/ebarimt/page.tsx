@@ -3,19 +3,19 @@
 import { useCallback, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import useConfig from "@/modules/auth/hooks/useConfig"
-import { ebarimtDetail } from "@/modules/orders/graphql/queries"
-import useOrderDetail from "@/modules/orders/hooks/useOrderDetail"
+import { queries } from "@/modules/orders/graphql"
 import {
-  activeOrderAtom,
   printTypeAtom,
   putResponsesAtom,
   setOrderStatesAtom,
 } from "@/store/order.store"
-import { useAtom } from "jotai"
+import { useQuery } from "@apollo/client"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { BILL_TYPES } from "@/lib/constants"
 import { getMode } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/components/ui/use-toast"
 import Amount from "@/app/reciept/components/Amount"
 import EbarimtSkeleton from "@/app/reciept/components/Skeleton"
 import Footer from "@/app/reciept/components/footer"
@@ -24,30 +24,34 @@ import PutResponses from "@/app/reciept/components/putResponses"
 
 const Reciept = () => {
   const searchParams = useSearchParams()
-  const id = searchParams.get("id")
+  const _id = searchParams.get("id")
 
   const mode = getMode()
   const [type, setType] = useAtom(printTypeAtom)
-  const [putResponses] = useAtom(putResponsesAtom)
-  const [, setOrderStates] = useAtom(setOrderStatesAtom)
+  const putResponses = useAtomValue(putResponsesAtom)
+  const setOrderStates = useSetAtom(setOrderStatesAtom)
   const { config, loading } = useConfig("ebarimt")
+  const { onError } = useToast()
 
   const { hasCopy } = config.ebarimtConfig || {}
 
-  const { loading: loadingDetail } = useOrderDetail({
-    query: ebarimtDetail,
-    onCompleted: (data) => {
-      setOrderStates(data)
-      data.billType === BILL_TYPES.INNER && setType("inner")
-      return setTimeout(() => window.print(), 20)
-    },
+  const { loading: loadingDetail, data } = useQuery(queries.ebarimtDetail, {
+    fetchPolicy: "network-only",
+    onError,
+    skip: !_id,
+    variables: { _id },
   })
 
-  const [activeOrder, setActive] = useAtom(activeOrderAtom)
-
   useEffect(() => {
-    !!id && setActive(id)
-  }, [id, setActive])
+    if (data) {
+      const { orderDetail } = data
+      if (orderDetail._id === _id) {
+        setOrderStates(orderDetail)
+        data.billType === BILL_TYPES.INNER && setType("inner")
+        setTimeout(() => window.print(), 20)
+      }
+    }
+  }, [_id, data, setOrderStates, setType])
 
   const handleClick = () => typeof window !== "undefined" && window.print()
 
@@ -61,6 +65,7 @@ const Reciept = () => {
       setType("inner")
       return setTimeout(() => window.print(), 20)
     }
+
     const data = { message: "close" }
     window.parent.postMessage(data, "*")
   }, [hasCopy, mode, putResponses.length, setType, type])
@@ -72,7 +77,7 @@ const Reciept = () => {
     }
   }, [handleAfterPrint])
 
-  if (loading || loadingDetail || !activeOrder) return <EbarimtSkeleton />
+  if (loading || loadingDetail) return <EbarimtSkeleton />
 
   return (
     <>

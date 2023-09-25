@@ -1,3 +1,4 @@
+import { getPureDate } from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { graphqlPubsub } from '../../../configs';
 import { IModels } from '../../../connectionResolver';
@@ -376,9 +377,7 @@ const orderMutations = {
       throw new Error('Can not change cause: order is not paid');
     }
 
-    const oldBranchId = order.branchId;
-
-    if (params.dueDate && params.dueDate < new Date()) {
+    if (params.dueDate && params.dueDate < getPureDate(new Date())) {
       throw new Error('due date must be in future');
     }
 
@@ -410,7 +409,6 @@ const orderMutations = {
           data: {
             posToken: config.token,
             action: 'makePayment',
-            oldBranchId,
             order,
             items: await models.OrderItems.find({
               orderId: params._id
@@ -736,6 +734,16 @@ const orderMutations = {
           customerId: order.customerId
         }
       });
+
+      if (config.isOnline) {
+        const products = await models.Products.find({
+          _id: { $in: items.map(i => i.productId) }
+        }).lean();
+        for (const item of items) {
+          const product = products.find(p => p._id === item.productId) || {};
+          item.productName = `${product.code} - ${product.name}`;
+        }
+      }
 
       try {
         sendPosMessage({

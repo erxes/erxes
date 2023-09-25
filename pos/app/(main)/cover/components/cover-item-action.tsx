@@ -25,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { toast, useToast } from "@/components/ui/use-toast"
 
@@ -35,11 +36,6 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
   const [actionType, setActionType] = useState("")
   const [openSheet, setOpenSheet] = useState(false)
   const { onError } = useToast()
-  // const { iframeRef } = useReciept({
-  //   onCompleted() {
-  //     setOpenSheet(false)
-  //   },
-  // })
 
   const options = {
     variables: {
@@ -49,7 +45,7 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
       actionType === "delete" && toast({ description: "Амжилттай устлаа" })
     },
     onError,
-    refetchQueries: ["covers"],
+    refetchQueries: ["Covers"],
   }
 
   const [coversConfirm, { loading }] = useMutation(
@@ -88,7 +84,7 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
               {disabled ? (
                 "Өөрчлөх"
               ) : (
-                <Link href={`/cover?id=${_id}`}>Өөрчлөх</Link>
+                <Link href={`/cover/detail?id=${_id}`}>Өөрчлөх</Link>
               )}
             </DropdownMenuItem>
             <AlertDialogTrigger
@@ -137,14 +133,20 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
         open={openSheet}
         onOpenChange={() => setOpenSheet((prev) => !prev)}
       >
-        <SheetContent closable className="flex flex-col p-4 sm:max-w-xs">
-          {openSheet && (
-            <iframe
-              // ref={iframeRef}
-              src={"/reciept/cover?id=" + _id}
-              className="w-100 block flex-auto overflow-y-auto"
-            />
-          )}
+        <SheetContent
+          closable
+          className="flex flex-col p-4 sm:max-w-xs overflow-hidden"
+        >
+          <div className="flex-auto overflow-hidden ">
+            <ScrollArea className="h-full">
+              {openSheet && (
+                <iframe
+                  src={"/reciept/cover?id=" + _id}
+                  className="block flex-auto min-h-screen"
+                />
+              )}
+            </ScrollArea>
+          </div>
         </SheetContent>
       </Sheet>
     </>

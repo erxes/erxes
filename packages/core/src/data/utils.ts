@@ -596,7 +596,8 @@ export const uploadFileCloudflare = async (
   if (
     (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
     detectedType &&
-    isImage(detectedType.mime)
+    isImage(detectedType.mime) &&
+    !['image/heic', 'image/heif'].includes(detectedType.mime)
   ) {
     return uploadToCFImages(file, forcePrivate, models);
   }

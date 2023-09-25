@@ -35,9 +35,10 @@ const PaidTypes = () => {
       {!!cashAmount && <PaidType type="cash" amount={cashAmount} />}
       {!!mobileAmount && <PaidType type="mobile" amount={mobileAmount} />}
       {!!paidAmounts.length &&
-        mergePaidAmounts(paidAmounts).map(({ amount, type }) => (
-          <PaidType amount={amount} type={type} key={type} />
-        ))}
+        mergePaidAmounts(paidAmounts).map(
+          ({ amount, type }) =>
+            !!amount && <PaidType amount={amount} type={type} key={type} />
+        )}
     </>
   )
 }

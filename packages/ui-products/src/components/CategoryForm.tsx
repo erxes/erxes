@@ -105,7 +105,7 @@ class CategoryForm extends React.Component<Props, State> {
       code,
       attachment,
       isSimilarity,
-      similarities: isSimilarity && similarities
+      similarities: isSimilarity ? similarities : undefined
     };
   };
 
