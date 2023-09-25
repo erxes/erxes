@@ -142,7 +142,8 @@ export const initBroker = async cl => {
         data: {
           _id: order._id,
           status: 'onKitchen',
-          date: order.paidDate
+          date: order.paidDate,
+          description: order.description
         }
       };
     }
@@ -176,7 +177,8 @@ export const initBroker = async cl => {
       data: {
         _id: order._id,
         status: stage.name,
-        date: deal.stageChangedDate || deal.modifiedDate || deal.createdAt
+        date: deal.stageChangedDate || deal.modifiedDate || deal.createdAt,
+        description: order.description
       }
     };
   });

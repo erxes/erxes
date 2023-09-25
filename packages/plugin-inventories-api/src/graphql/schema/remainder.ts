@@ -5,6 +5,8 @@ export const types = `
     departmentId: String
     productId: String
     count: Float
+    soonIn: Float
+    soonOut: Float
     uom: String
     modifiedAt: Date
   }
@@ -24,6 +26,8 @@ export const types = `
     category: ProductCategory
     categoryId: String
     remainder: Float
+    soonIn: Float
+    soonOut: Float
     unitPrice: Float
     createdAt: Date
   }

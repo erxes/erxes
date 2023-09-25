@@ -3,12 +3,6 @@ const commonFields = `
   createdAt: Date
 `;
 
-const orderFields = `
-  status: String
-  customerId: String
-  number: String
-`;
-
 const PaidAmountDefs = `
   _id: String
   type: String
@@ -25,7 +19,9 @@ const paymentInputDefs = `
 
 const orderTypeFields = `
   ${commonFields}
-  ${orderFields}
+  status: String
+  customerId: String
+  number: String
   ${paymentInputDefs}
   paidAmounts: [PaidAmount]
 
@@ -41,6 +37,8 @@ const orderTypeFields = `
   type: String
   branchId: String
   deliveryInfo: JSON
+  description: String
+  isPre: Boolean
   origin: String
   customer: PosCustomer
   customerType: String,
@@ -67,6 +65,8 @@ const addEditParams = `
   dueDate: Date,
   status: String,
   buttonType: String
+  description: String
+  isPre: Boolean
 `;
 
 export const types = `
@@ -168,6 +168,9 @@ export const ordersQueryParams = `
   endDate: Date,
   dateType: String,
   isPaid: Boolean,
+  dueStartDate: Date,
+  dueEndDate: Date,
+  isPreExclude: Boolean,
   page: Int,
   perPage: Int,
   sortField: String,
@@ -179,7 +182,7 @@ export const mutations = `
   ordersEdit(_id: String!, ${addEditParams}): Order
   ordersMakePayment(_id: String!, doc: OrderPaymentInput): PosPutResponse
   orderChangeStatus(_id: String!, status: String): Order
-  ordersChange(_id: String!, dueDate: Date, branchId: String, deliveryInfo: JSON): Order
+  ordersChange(_id: String!, dueDate: Date, branchId: String, deliveryInfo: JSON, description: String): Order
   ordersAddPayment(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: [PaidAmountInput] ): Order
   ordersCancel(_id: String!): JSON
   ordersSettlePayment(_id: String!, billType: String!, registerNumber: String): PosPutResponse
@@ -187,7 +190,7 @@ export const mutations = `
   orderItemChangeStatus(_id: String!, status: String): PosOrderItem
   ordersConvertToDeal(_id: String!): Order
   afterFormSubmit(_id: String!, conversationId: String!): Order
-  ordersReturn(_id: String!, cashAmount: Float, paidAmounts: [PaidAmountInput]): Order
+  ordersReturn(_id: String!, cashAmount: Float, paidAmounts: [PaidAmountInput], description: String): Order
 `;
 
 export const queries = `
