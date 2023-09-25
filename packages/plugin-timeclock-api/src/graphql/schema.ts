@@ -181,7 +181,8 @@ export const types = `
 
     scheduledShifts: [Shift]
     timeclocks: [Timeclock]
-    
+    requests: [Absence]
+
     totalHoursWorkedSelectedDay: Float
     totalHoursScheduledSelectedDay: Float
     totalMinsLateSelectedDay: Float
