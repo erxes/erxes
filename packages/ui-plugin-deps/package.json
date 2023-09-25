@@ -17,7 +17,7 @@
     "postcss": "^8.2.1",
     "postcss-loader": "^4.1.0",
     "style-loader": "^3.3.0",
-    "typescript": "3.8.3",
+    "typescript": "4.9.5",
     "watch-sync": "^0.3.1",
     "webpack": "^5.57.1",
     "webpack-cli": "^4.9.0",
@@ -31,7 +31,7 @@
     "color": "^4.1.0",
     "dayjs": "1.8.15",
     "dotenv": "^10.0.0",
-    "graphql": "^15.8.0",
+    "graphql": "^16.7.1",
     "i18n-react": "0.6.4",
     "lodash": "4.17.15",
     "lodash.flowright": "3.5.0",
@@ -48,7 +48,6 @@
     "subscriptions-transport-ws": "0.11.0",
     "underscore": "^1.13.2",
     "underscore.string": "^3.3.5",
-    "validator": "12.1.0",
-    "xss": "^1.0.10"
+    "validator": "12.1.0"
   }
 }

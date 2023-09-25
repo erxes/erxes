@@ -7,7 +7,10 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext, IModels } from '../../../connectionResolver';
 import messageBroker, { sendTagsMessage } from '../../../messageBroker';
-import { getSimilaritiesProducts } from '../../../maskUtils';
+import {
+  getSimilaritiesProducts,
+  getSimilaritiesProductsCount
+} from '../../../maskUtils';
 import { Builder, countBySegment, countByTag } from '../../../utils';
 
 interface IQueryParams {
@@ -235,6 +238,10 @@ const productQueries = {
       commonQuerySelector,
       params
     );
+
+    if (params.groupedSimilarity) {
+      return await getSimilaritiesProductsCount(models, filter, params);
+    }
 
     return models.Products.find(filter).count();
   },
