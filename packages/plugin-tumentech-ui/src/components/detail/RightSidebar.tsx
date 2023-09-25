@@ -61,7 +61,8 @@ export default class RightSidebar extends React.Component<Props> {
         )}
 
         {loadDynamicComponent('carRightSidebarSection', {
-          ...this.props
+          ...this.props,
+          mainType: 'car'
         })}
 
         <Box title={__('Other')} name="showOthers">

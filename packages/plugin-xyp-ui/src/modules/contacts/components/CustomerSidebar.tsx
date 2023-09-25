@@ -17,6 +17,9 @@ import {
   ModalTrigger,
   Spinner
 } from '@erxes/ui/src/components';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+
 import { ButtonRelated, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import Select from 'react-select-plus';
@@ -31,8 +34,6 @@ type Props = {
   refetch: any;
   loading: any;
   error: string;
-  fieldsGroups: any;
-  customer: any;
 };
 
 function Sidebar({
@@ -42,12 +43,10 @@ function Sidebar({
   xypServiceList,
   refetch,
   error,
-  loading,
-  fieldsGroups,
-  customer
+  loading
 }: Props) {
   const [params, setParams] = useState({});
-  const [paramsOutput, setParamsOutput] = useState({});
+
   const [isOpen, setOpen] = useState(false);
   const [operation, setOperation] = useState<IOperation>({
     orgName: '',
@@ -63,15 +62,7 @@ function Sidebar({
     const operation = xypServiceList?.find(
       x => x.wsOperationName === value.value
     );
-    console.log(operation);
     setOperation(operation);
-  };
-
-  const onChangeParams = (name: any, value: any) => {
-    setParams(prev => ({ ...prev, [name]: value?.value }));
-  };
-  const onChangeParamsOutput = (name: any, value: any) => {
-    setParamsOutput(prev => ({ ...prev, [name]: value?.value }));
   };
 
   const renderServiceChooser = props => {
@@ -87,10 +78,10 @@ function Sidebar({
         ?.wsOperationDetail
     }));
 
-    const customerFields = fieldsGroups.data?.fieldsGroups.map(d => ({
-      label: d.name,
-      options: d?.fields?.map(x => ({ label: x.text, value: x._id }))
-    }));
+    const onChange = (e: any) => {
+      e.persist();
+      setParams(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
 
     return (
       <>
@@ -106,41 +97,19 @@ function Sidebar({
         <Box title="inputs">
           {operation.input.map((d: any) => (
             <div style={{ padding: 10 }} key={d?.wsInputDetail}>
-              <ControlLabel required={true}>{d?.wsInputDetail}</ControlLabel>
-              <Select
-                placeholder={__('Type to search...')}
-                value={d.wsInputName in params ? params[d.wsInputName] : ''}
-                onChange={value => {
-                  onChangeParams(d.wsInputName, value);
-                }}
-                isLoading={props.loading}
-                options={customerFields}
-                multi={false}
-              />
+              <FormGroup>
+                <ControlLabel required={false}>{d?.wsInputDetail}</ControlLabel>
+
+                <FormControl
+                  name={d.wsInputName}
+                  required={false}
+                  autoFocus={false}
+                  onChange={onChange}
+                />
+              </FormGroup>
             </div>
           ))}
         </Box>
-        {/* <Box title='outputs'>
-          {operation.output.map((d: any, index) => (
-            <div style={{ padding: 10 }} key={index}>
-              <ControlLabel required={true}>{d?.wsResponseDetail}</ControlLabel>
-              <Select
-                placeholder={__('Type to search...')}
-                value={
-                  d.wsResponseName in paramsOutput
-                    ? paramsOutput[d.wsResponseName]
-                    : ''
-                }
-                onChange={(value) => {
-                  onChangeParamsOutput(d.wsResponseName, value);
-                }}
-                isLoading={props.loading}
-                options={customerFields}
-                multi={false}
-              />
-            </div>
-          ))}
-        </Box> */}
 
         <ModalFooter>
           <Footer>
@@ -156,7 +125,7 @@ function Sidebar({
               <Button
                 btnStyle="success"
                 onClick={() => {
-                  fetchData(operation, params, paramsOutput, () => {});
+                  fetchData(operation, params, {}, () => {});
                 }}
                 icon="check-circle"
                 uppercase={false}
