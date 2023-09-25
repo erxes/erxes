@@ -17,6 +17,7 @@ import ProductsMerge from './detail/ProductsMerge';
 import ProductsPrintAction from './ProductPrintAction';
 import React from 'react';
 import Row from './ProductRow';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import Table from '@erxes/ui/src/components/table';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
@@ -117,12 +118,60 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
-  render() {
+  renderContent = () => {
     const {
       productsCount,
       loading,
-      queryParams,
       isAllSelected,
+      currentCategory
+    } = this.props;
+
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
+
+    if (currentCategory.productCount === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    }
+
+    return (
+      <>
+        {this.renderCount(currentCategory.productCount || productsCount)}
+        <Table hover={true}>
+          <thead>
+            <tr>
+              <th style={{ width: 60 }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
+              </th>
+              <th>{__('Code')}</th>
+              <th>{__('Name')}</th>
+              <th>{__('Type')}</th>
+              <th>{__('Category')}</th>
+              <th>{__('Unit Price')}</th>
+              <th>{__('Tags')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRow()}</tbody>
+        </Table>
+      </>
+    );
+  };
+
+  render() {
+    const {
+      productsCount,
+      queryParams,
       history,
       bulk,
       emptyBulk,
@@ -171,43 +220,6 @@ class List extends React.Component<IProps, State> {
         />
       </BarItems>
     );
-
-    let content = (
-      <>
-        {this.renderCount(currentCategory.productCount || productsCount)}
-        <Table hover={true}>
-          <thead>
-            <tr>
-              <th style={{ width: 60 }}>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Category')}</th>
-              <th>{__('Unit Price')}</th>
-              <th>{__('Tags')}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderRow()}</tbody>
-        </Table>
-      </>
-    );
-
-    if (currentCategory.productCount === 0) {
-      content = (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
 
     const productsMerge = props => {
       return (
@@ -308,7 +320,7 @@ class List extends React.Component<IProps, State> {
           <CategoryList queryParams={queryParams} history={history} />
         }
         footer={<Pagination count={productsCount} />}
-        content={content}
+        content={this.renderContent()}
         transparent={true}
         hasBorder={true}
       />

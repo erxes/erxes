@@ -1,15 +1,12 @@
-import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
 import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { Header } from '@erxes/ui-settings/src/styles';
 import { IProductCategory } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
 import React from 'react';
@@ -18,7 +15,6 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import TagFilter from '../../containers/TagFilter';
 import Tip from '@erxes/ui/src/components/Tip';
-import { TopHeader } from '@erxes/ui/src/styles/main';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { pluginsOfProductCategoryActions } from 'coreui/pluginUtils';
