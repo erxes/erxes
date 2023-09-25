@@ -32,7 +32,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.XypData = db.model<IXypconfigDocument, IXypDataModel>(
-    'Xypdata',
+    'xyp_data',
     loadxypConfigClass(models)
   );
 

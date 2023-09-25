@@ -110,8 +110,6 @@ const xypQueries = {
       throw new Error('Config not found');
     }
 
-    console.log(xypConfigs);
-
     return xypConfigs;
   }
 };

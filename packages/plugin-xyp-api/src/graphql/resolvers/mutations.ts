@@ -11,8 +11,10 @@ const xypMutations = {
   /**
    * Edits a new xyp
    */
-  async xypDataEdit(_root, { _id, ...doc }, { models, user }: IContext) {
+  async xypDataUpdate(_root, { _id, ...doc }, { models, user }: IContext) {
     // return Xyps.updateXyp(_id, doc);
+    console.log('up');
+    console.log(_id, doc);
     return models.XypData.updateXypData(_id, doc, user);
   },
   /**

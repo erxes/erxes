@@ -1,24 +1,23 @@
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql, useQuery, useMutation, useLazyQuery } from '@apollo/client';
 import React from 'react';
-
-import CustomerSidebar from '../components/CustomerSidebar';
-
-import { mutations, queries } from '../graphql';
+import { gql, useQuery, useMutation, useLazyQuery } from '@apollo/client';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import Alert from '@erxes/ui/src/utils/Alert';
+import CustomerSidebar from '../components/CustomerSidebar';
+import { mutations, queries } from '../graphql';
+import { IOperation } from '../types';
 
 type Props = {
   id: string;
+  mainType: string;
 };
-
 const CustomerSidebarContainer = (props: Props) => {
   const detail = useQuery(gql(queries.detail), {
-    variables: { contentTypeId: props.id, contentType: 'contacts:customers' },
+    variables: { contentTypeId: props.id, contentType: props.mainType },
     fetchPolicy: 'network-only'
   });
 
   const customer = useQuery(gql(queries.customerDetail), {
-    variables: { _id: props.id, contentType: 'contacts:customers' }
+    variables: { _id: props.id, contentType: props.mainType }
   });
 
   const serviceChoosen = useQuery(gql(queries.serviceChoosen), {
@@ -33,10 +32,10 @@ const CustomerSidebarContainer = (props: Props) => {
   });
 
   const [add] = useMutation(gql(mutations.add));
-  const [edit] = useMutation(gql(mutations.add));
+  const [edit] = useMutation(gql(mutations.edit));
   const [customerEdit] = useMutation(gql(mutations.customerEdit));
 
-  const fetchData = (serviceName: string, params: any, paramsOutput: any) => {
+  const fetchData = (operation: IOperation, params: any, paramsOutput: any) => {
     // params = regnum : "LRg7bBkPh3znA3Ecz"
     // key = xyp систем рүү service дуудах фараметрийн нэр // etc regnum
     // value = fieldsGroup field string id бөгөөд fieldsgroupээс шүүж, contacts-ын фиэлд нэрийг олно,
@@ -87,18 +86,11 @@ const CustomerSidebarContainer = (props: Props) => {
 
     xypRequest({
       variables: {
-        wsOperationName: serviceName,
+        wsOperationName: operation.wsOperationName,
         params: xypParams
       }
     }).then(({ data }) => {
-      let list: { field: string; value: any }[] = [];
       if (data?.xypRequest?.return?.resultCode === 0) {
-        for (const [key, value] of Object.entries(
-          data?.xypRequest?.return?.response
-        )) {
-          const obj = { field: key, value: value };
-          list.push(obj);
-        }
         const response = data?.xypRequest?.return?.response;
         const editCustomerParams = {};
         const customFieldsData: any[] = [];
@@ -119,35 +111,66 @@ const CustomerSidebarContainer = (props: Props) => {
           }
         }
 
-        if (true) {
-          customerEdit({
-            variables: {
-              customFieldsData: [...customFieldsData, ...filtered],
-              _id: props.id,
-              ...editCustomerParams
-            }
-          })
-            .then(({ data }) => {})
-            .catch(e => console.log(e));
+        // customerEdit({
+        //   variables: {
+        //     customFieldsData: [...customFieldsData, ...filtered],
+        //     _id: props.id,
+        //     ...editCustomerParams,
+        //   },
+        // })
+        //   .then(({ data }) => {})
+        //   .catch((e) => console.log(e));
+        let list: { field: string; value: any }[] = [];
+
+        for (const [key, value] of Object.entries(
+          data?.xypRequest?.return?.response
+        )) {
+          const obj = { field: key, value: value };
+          list.push(obj);
         }
-        // if (!detail?.data?.xypDataDetail) {
-        //   add({
-        //     variables: {
-        //       contentType: 'contacts:customers',
-        //       contentTypeId: props.id,
-        //       data: list,
-        //     },
-        //   }).then(({ data }) => {
-        //     detail.refetch();
-        //     if (data.xypDataAdd?._id) {
-        //       Alert.success('Successfully added an item');
-        //     } else {
-        //       Alert.error('error');
-        //     }
-        //   });
-        // } else {
-        //   Alert.success('Successfully Edited an item');
-        // }
+
+        const xypData = [
+          {
+            serviceName: operation.wsOperationName,
+            serviceDescription: operation.wsOperationDetail,
+            data: data?.xypRequest?.return?.response
+          }
+        ];
+        if (!detail?.data?.xypDataDetail) {
+          add({
+            variables: {
+              contentType: props.mainType,
+              contentTypeId: props.id,
+              data: xypData
+            }
+          }).then(({ data }) => {
+            detail.refetch();
+            if (data.xypDataAdd?._id) {
+              Alert.success('Successfully added an item');
+            } else {
+              Alert.error('error');
+            }
+          });
+        } else {
+          const unique = detail?.data?.xypDataDetail.data.filter(
+            d => d.serviceName != operation.wsOperationName
+          );
+          edit({
+            variables: {
+              _id: detail?.data?.xypDataDetail._id,
+              contentType: props.mainType,
+              contentTypeId: props.id,
+              data: [...unique, ...xypData]
+            }
+          }).then(({ data }) => {
+            detail.refetch();
+            if (data.xypDataUpdate?._id) {
+              Alert.success('Successfully edited an item');
+            } else {
+              Alert.error('error');
+            }
+          });
+        }
       } else {
         Alert.error(`${data?.xypRequest?.return?.resultMessage}`);
       }

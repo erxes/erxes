@@ -8,27 +8,20 @@ import {
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import { getEnv } from '@erxes/ui/src/utils';
-// import { FormGroup, ControlLabel, FormControl, Button } from '@erxes/ui';
 import {
   Button,
   ControlLabel,
   DataWithLoader,
-  DropdownToggle,
   EmptyState,
   ErrorMsg,
-  FilterableList,
-  FormControl,
-  FormGroup,
-  Icon,
-  Label,
-  LoadMore,
   ModalTrigger,
   Spinner
 } from '@erxes/ui/src/components';
-import { ButtonRelated } from '@erxes/ui/src/styles/main';
+import { ButtonRelated, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import Select from 'react-select-plus';
+import { IOperation } from '../types';
+import { Footer } from '@erxes/ui/src/styles/chooser';
 
 type Props = {
   xypdata: any;
@@ -53,20 +46,25 @@ function Sidebar({
   fieldsGroups,
   customer
 }: Props) {
-  const [serviceName, setServiceName] = useState('');
-  const [inputs, setInputs] = useState([]);
-  const [outputs, setOutputs] = useState([]);
   const [params, setParams] = useState({});
   const [paramsOutput, setParamsOutput] = useState({});
+  const [isOpen, setOpen] = useState(false);
+  const [operation, setOperation] = useState<IOperation>({
+    orgName: '',
+    wsOperationDetail: '',
+    wsOperationName: '',
+    wsVersion: '',
+    wsWsdlEndpoint: '',
+    input: [],
+    output: []
+  });
 
   const onChangeTag = (value: any) => {
-    setServiceName(value?.value);
     const operation = xypServiceList?.find(
       x => x.wsOperationName === value.value
     );
-
-    setOutputs(operation.output);
-    setInputs(operation.input);
+    console.log(operation);
+    setOperation(operation);
   };
 
   const onChangeParams = (name: any, value: any) => {
@@ -98,17 +96,16 @@ function Sidebar({
       <>
         <Select
           placeholder={__('Type to search...')}
-          value={serviceName}
+          value={operation.wsOperationName}
           onChange={onChangeTag}
           isLoading={props.loading}
-          // onInputChange={onInputChange}
           options={operationList}
           multi={false}
         />
         <div style={{ marginTop: 10 }} />
         <Box title="inputs">
-          {inputs.map((d: any) => (
-            <div style={{ padding: 10 }}>
+          {operation.input.map((d: any) => (
+            <div style={{ padding: 10 }} key={d?.wsInputDetail}>
               <ControlLabel required={true}>{d?.wsInputDetail}</ControlLabel>
               <Select
                 placeholder={__('Type to search...')}
@@ -123,9 +120,9 @@ function Sidebar({
             </div>
           ))}
         </Box>
-        <Box title="outputs">
-          {outputs.map((d: any) => (
-            <div style={{ padding: 10 }}>
+        {/* <Box title='outputs'>
+          {operation.output.map((d: any, index) => (
+            <div style={{ padding: 10 }} key={index}>
               <ControlLabel required={true}>{d?.wsResponseDetail}</ControlLabel>
               <Select
                 placeholder={__('Type to search...')}
@@ -134,7 +131,7 @@ function Sidebar({
                     ? paramsOutput[d.wsResponseName]
                     : ''
                 }
-                onChange={value => {
+                onChange={(value) => {
                   onChangeParamsOutput(d.wsResponseName, value);
                 }}
                 isLoading={props.loading}
@@ -143,23 +140,39 @@ function Sidebar({
               />
             </div>
           ))}
-        </Box>
-        <Button
-          btnStyle="simple"
-          onClick={() => {
-            fetchData(serviceName, params, paramsOutput, () => {});
-            // props.closeModal();
-          }}
-        >
-          fetch
-        </Button>
+        </Box> */}
+
+        <ModalFooter>
+          <Footer>
+            <div>
+              <Button
+                btnStyle="simple"
+                uppercase={false}
+                onClick={() => {}}
+                icon="times-circle"
+              >
+                Cancel
+              </Button>
+              <Button
+                btnStyle="success"
+                onClick={() => {
+                  fetchData(operation, params, paramsOutput, () => {});
+                }}
+                icon="check-circle"
+                uppercase={false}
+              >
+                Select
+              </Button>
+            </div>
+          </Footer>
+        </ModalFooter>
       </>
     );
   };
 
   const relServiceTrigger = (
     <ButtonRelated>
-      <span>{__('fetch data...')}</span>
+      <span>{__('Fetch data...')}</span>
     </ButtonRelated>
   );
 
@@ -171,23 +184,37 @@ function Sidebar({
       content={renderServiceChooser}
     />
   );
+  console.log('isopen', isOpen);
   const content = () => {
     return (
       <>
         <SidebarList className="no-link">
           {loading && <DataWithLoader data="This is data" loading objective />}
           {xypdata?.data?.map((d, index) => (
-            <li>
-              <FieldStyle>{d?.field}</FieldStyle>
-
-              <FieldStyle>
-                {typeof d?.value === 'object' ? 'object' : d.value}
+            <li key={index}>
+              <FieldStyle
+                onClick={() => {
+                  console.log('click');
+                  setOpen(true);
+                }}
+              >
+                {d?.serviceDescription}
               </FieldStyle>
+
+              {/* <FieldStyle>
+                {typeof d?.value === 'object' ? 'object' : d.value}
+              </FieldStyle> */}
             </li>
           ))}
         </SidebarList>
         {xypdata === null && <EmptyState icon="building" text="No data" />}
         {relQuickButtons}
+        <ModalTrigger
+          isOpen={isOpen}
+          title="Xyp систем мэдээлэл"
+          size="lg"
+          content={renderServiceChooser}
+        />
       </>
     );
   };
