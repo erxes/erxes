@@ -7,9 +7,14 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
 import { Option, PerPageButton } from './styles';
 
+type Props = {
+  count?: number;
+} & IRouterProps;
+
 // per page chooser component
-const PerPageChooser = ({ history }: IRouterProps) => {
+const PerPageChooser = ({ history, count }: Props) => {
   const currentPerPage = Number(router.getParam(history, 'perPage')) || 20;
+  console.log(count);
 
   const onClick = perPage => {
     router.setParams(history, { perPage });
@@ -38,20 +43,24 @@ const PerPageChooser = ({ history }: IRouterProps) => {
   };
 
   return (
-    <Dropdown className="dropdown-btn" drop="up">
-      <Dropdown.Toggle as={DropdownToggle} id="per-page-chooser">
-        <PerPageButton>
-          {currentPerPage} {__('per page')} <Icon icon="angle-up" />
-        </PerPageButton>
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        {renderOption(20)}
-        {renderOption(50)}
-        {renderOption(100)}
-        {renderOption(200)}
-      </Dropdown.Menu>
-    </Dropdown>
+    <>
+      {count && count >= 20 && (
+        <Dropdown className="dropdown-btn" drop="up">
+          <Dropdown.Toggle as={DropdownToggle} id="per-page-chooser">
+            <PerPageButton>
+              {currentPerPage} {__('per page')} <Icon icon="angle-up" />
+            </PerPageButton>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {count >= 20 && renderOption(20)}
+            {count >= 50 && renderOption(50)}
+            {count >= 100 && renderOption(100)}
+            {count >= 200 && renderOption(200)}
+          </Dropdown.Menu>
+        </Dropdown>
+      )}
+    </>
   );
 };
 
-export default withRouter<IRouterProps>(PerPageChooser);
+export default withRouter<Props>(PerPageChooser);
