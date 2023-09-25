@@ -17,6 +17,7 @@ export default function Structure() {
       }
       content={<BoxContainer />}
       leftSidebar={<SettingsSideBar />}
+      hasBorder={true}
     />
   );
 }

@@ -11,10 +11,8 @@ const ButtonContainer = styled.div`
 
 const FlexRow = styled.div`
   display: flex;
-  margin-bottom: ${dimensions.unitSpacing}px;
-  padding: 5px 30px 5px 0;
+  flex-direction: column;
   position: relative;
-  align-items: center;
 
   > label {
     margin: 0;
@@ -25,12 +23,6 @@ const FlexRow = styled.div`
   > *:first-child,
   input {
     margin-right: ${dimensions.unitSpacing}px;
-    flex: 3;
-  }
-
-  > *:nth-child(2),
-  > div {
-    flex: 2;
   }
 `;
 
@@ -111,8 +103,25 @@ const StructureList = styled(SidebarList)`
   }
 `;
 
-let DescriptionContent = styled.div`
+const StructureEditButton = styled.div`
+  cursor: pointer;
+  padding: 10px;
+  color: ${colors.textSecondary};
+
+  &:hover {
+    color: ${colors.textPrimary};
+  }
+`;
+
+const DescriptionContent = styled.div`
   text-align: center;
+  display: flex;
+
+  h4 {
+    margin-left: 8px;
+    font-size: 16px;
+    padding-bottom: 0;
+  }
 `;
 
 export {
@@ -124,5 +133,6 @@ export {
   FormTable,
   SideList,
   StructureList,
-  DescriptionContent
+  DescriptionContent,
+  StructureEditButton
 };
