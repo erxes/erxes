@@ -143,7 +143,7 @@ const getRelatedValue = async (
       defaultValue: []
     });
 
-    if (!!relatedValueProps[targetKey]) {
+    if (relatedValueProps && !!relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return activeContacts
         .filter(contacts =>
@@ -153,17 +153,8 @@ const getRelatedValue = async (
         .join(', ');
     }
 
-    return activeContacts
-      .map(contact => {
-        if (targetKey === 'customers') {
-          return `${contact?.firstName || ''} ${contact?.middleName ||
-            ''} ${contact?.lastName || ''}`;
-        }
-        if (targetKey === 'companies') {
-          return contact?.primaryName || '';
-        }
-      })
-      .join(', ');
+    const result = activeContacts.map(contact => contact?._id).join(', ');
+    return result;
   }
 
   return false;

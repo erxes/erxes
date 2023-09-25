@@ -336,9 +336,7 @@ const RABBITMQ_HOST = getEnv({ name: 'RABBITMQ_HOST' });
 const MESSAGE_BROKER_PREFIX = getEnv({ name: 'MESSAGE_BROKER_PREFIX' });
 
 httpServer.listen(PORT, async () => {
-  initApolloServer(app, httpServer).then(apolloServer => {
-    apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
-  });
+  await initApolloServer(app, httpServer);
 
   initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis, app }).catch(e => {
     debugError(`Error ocurred during message broker init ${e.message}`);

@@ -242,7 +242,7 @@ class Row extends React.Component<Props> {
           </td>
         )}
         <td>
-          <Label>{integration.leadData.loadType}</Label>
+          <Label lblStyle="simple">{integration.leadData.loadType}</Label>
         </td>
         <td>
           <ActionButtons>

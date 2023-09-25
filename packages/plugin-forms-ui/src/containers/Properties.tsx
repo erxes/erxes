@@ -62,10 +62,6 @@ const PropertiesContainer = (props: FinalProps) => {
     fieldsGetTypes
   } = props;
 
-  if (fieldsGroupsQuery.loading) {
-    return <Spinner objective={true} />;
-  }
-
   if (fieldsGetTypes.loading) {
     return <Spinner />;
   }

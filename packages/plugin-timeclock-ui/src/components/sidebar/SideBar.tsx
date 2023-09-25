@@ -2,7 +2,12 @@ import { router, __ } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React, { useState } from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { FlexColumnCustom, SidebarActions, SidebarHeader } from '../../styles';
+import {
+  FlexColumnCustom,
+  FlexRow,
+  SidebarActions,
+  SidebarHeader
+} from '../../styles';
 import { CustomRangeContainer } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Button from '@erxes/ui/src/components/Button';
@@ -21,8 +26,9 @@ type Props = {
   branches: IBranch[];
   departments: IDepartment[];
 };
-// get 1st of the next Month
+
 const NOW = new Date();
+// get 1st of the next Month
 const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
 // get 1st of this month
 const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
@@ -198,9 +204,84 @@ const LeftSideBar = (props: Props) => {
     return <SidebarActions>{renderSidebarActions()}</SidebarActions>;
   };
 
+  const onDateButtonClick = (type: string) => {
+    const startOfLastMonth = new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1);
+
+    if (type === 'today') {
+      setStartDate(NOW);
+      setEndDate(NOW);
+      setParams('startDate', NOW);
+      setParams('endDate', NOW);
+    }
+
+    if (type === 'last month') {
+      const endOfLastMonth = new Date(NOW);
+
+      setStartDate(startOfLastMonth);
+      setParams('startDate', startOfLastMonth);
+
+      // set 1st of current month
+      endOfLastMonth.setDate(1);
+      // Subtract 1 day to go back to the last day of the previous month
+      endOfLastMonth.setDate(endOfLastMonth.getDate() - 1);
+
+      setEndDate(endOfLastMonth);
+      setParams('endDate', endOfLastMonth);
+    }
+
+    if (type === 'last week') {
+      const startOfLastWeek = new Date(NOW);
+      const endOfLastWeek = new Date(NOW);
+
+      // Set the date to the beginning of the current week (Sunday)
+      startOfLastWeek.setDate(NOW.getDate() - NOW.getDay());
+
+      // Subtract 7 days to get to the start of the last week
+      startOfLastWeek.setDate(startOfLastWeek.getDate() - 6);
+
+      // Set the date to the end of the week (Sunday)
+      endOfLastWeek.setDate(NOW.getDate() - NOW.getDay() + 7);
+
+      // Subtract 7 days to get to the end of the last week
+      endOfLastWeek.setDate(endOfLastWeek.getDate() - 7);
+
+      setStartDate(startOfLastWeek);
+      setParams('startDate', startOfLastWeek);
+
+      setEndDate(endOfLastWeek);
+      setParams('endDate', endOfLastWeek);
+    }
+  };
+
   return (
     <Sidebar wide={true} hasBorder={true} header={renderSidebarHeader()}>
       <FlexColumnCustom marginNum={20}>
+        <FlexRow>
+          <Button
+            style={{ width: '30%' }}
+            size="small"
+            btnStyle="primary"
+            onClick={() => onDateButtonClick('today')}
+          >
+            Today
+          </Button>
+          <Button
+            style={{ width: '30%' }}
+            size="small"
+            btnStyle="primary"
+            onClick={() => onDateButtonClick('last week')}
+          >
+            Last week
+          </Button>
+          <Button
+            style={{ width: '30%' }}
+            size="small"
+            btnStyle="primary"
+            onClick={() => onDateButtonClick('last month')}
+          >
+            Last month
+          </Button>
+        </FlexRow>
         <div>
           <ControlLabel>Departments</ControlLabel>
           <Select

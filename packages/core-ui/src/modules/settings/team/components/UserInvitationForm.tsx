@@ -25,7 +25,7 @@ import Select from 'react-select-plus';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   usersGroups: IUserGroup[];
-  channels: any[]; //check - IChannel
+  channels: any[]; // check - IChannel
   units: IUnit[];
   departments: IDepartment[];
   branches: IBranch[];

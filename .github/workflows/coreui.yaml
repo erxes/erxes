@@ -17,15 +17,15 @@ on:
 
 jobs:
   ui:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
-      - name: Use Node.js 14.20.x
-        uses: actions/setup-node@v1
+      - name: Use Node.js 18.17.x
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.20.x
+          node-version: 18.17.x
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build
         run: |

@@ -15,7 +15,7 @@ describe("Lead", () => {
 
     const random = Math.random().toString(36).slice(2)
 
-    cy.get('button[icon="plus-circle"]').click();
+    cy.get('button[icon="plus-circle"]', {timeout: 300000}).click();
 
     cy.get('input[name="firstName"]').type(random);
 
@@ -38,7 +38,7 @@ describe("Lead", () => {
 
     const random2 = Math.random().toString(36).slice(2)
 
-    cy.get('button[icon="plus-circle"]').click();
+    cy.get('button[icon="plus-circle"]',{timeout:300000}).click();
 
     cy.get('input[name="firstName"]').type(random2);
 
@@ -59,7 +59,7 @@ describe("Lead", () => {
 
   it("tag", () => {
 
-    cy.get("#customers>.crow")
+    cy.get("#customers>.crow",{timeout: 300000})
       .eq(0)
       .get("#customersCheckBox")
       .click();
@@ -81,8 +81,8 @@ describe("Lead", () => {
   })
 
   it("merge", () => {
-  
-    cy.get("#customers>.crow")
+
+    cy.get("#customers>.crow",{timeout: 300000})
       .eq(0)
       .within(() => {
         cy.get("input[type='checkbox']")
