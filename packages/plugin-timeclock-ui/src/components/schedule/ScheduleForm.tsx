@@ -17,7 +17,6 @@ import {
   FlexRow,
   MarginX,
   MarginY,
-  CustomBoxWrapper,
   SortItem,
   CustomContainer
 } from '../../styles';
@@ -37,7 +36,6 @@ import Datetime from '@nateradebaugh/react-datetime';
 import { dateFormat, timeFormat } from '../../constants';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { FormControl } from '@erxes/ui/src/components/form';
-import Box from '@erxes/ui/src/components/Box';
 
 import * as icons from 'react-bootstrap-icons';
 
