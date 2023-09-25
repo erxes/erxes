@@ -453,9 +453,22 @@ const Row = styled.div`
   }
 `;
 
+const FlexBetween = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ItemCount = styled.span`
+  color: ${colors.colorLightGray};
+  font-weight: 500;
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
+  ItemCount,
+  FlexBetween,
   ActionButtons,
   ExpandWrapper,
   Description,
