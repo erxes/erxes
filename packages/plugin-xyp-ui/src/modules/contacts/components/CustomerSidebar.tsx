@@ -2,12 +2,7 @@ import styled from 'styled-components';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import React, { useState } from 'react';
 import Box from '@erxes/ui/src/components/Box';
-import {
-  FieldStyle,
-  SectionBodyItem,
-  SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 import {
   Button,
   ControlLabel,
@@ -22,6 +17,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import Select from 'react-select-plus';
 import { IOperation } from '../types';
 import { Footer } from '@erxes/ui/src/styles/chooser';
+import Table from '@erxes/ui/src/components/table';
 
 type Props = {
   xypdata: any;
@@ -48,7 +44,6 @@ function Sidebar({
 }: Props) {
   const [params, setParams] = useState({});
   const [paramsOutput, setParamsOutput] = useState({});
-  const [isOpen, setOpen] = useState(false);
   const [operation, setOperation] = useState<IOperation>({
     orgName: '',
     wsOperationDetail: '',
@@ -184,37 +179,81 @@ function Sidebar({
       content={renderServiceChooser}
     />
   );
-  console.log('isopen', isOpen);
+
+  const modalContent = d => {
+    const output =
+      (xypServiceList.find(x => x.wsOperationName === d?.serviceName)
+        ?.output as any) || [];
+
+    const renderOutput = (value: any) => {
+      return (
+        output?.find(x => x.wsResponseName === value)?.wsResponseDetail || value
+      );
+    };
+    const items = Object.keys(d.data).filter(
+      key => typeof d.data[key] !== 'object'
+    );
+
+    const renderRows = () => {
+      const rows = [] as any;
+      for (let i = 0; i < items.length; i += 3) {
+        const rowItems = items.slice(i, i + 3);
+
+        const row = (
+          <tr key={i}>
+            {rowItems.map((key, j) => (
+              <td key={j}>
+                <ControlLabel>{renderOutput(key)}</ControlLabel>
+                <div>
+                  {key.includes('image') ? (
+                    <img src={d.data[key]} style={{ height: 80 }} alt={key} />
+                  ) : (
+                    d.data[key]
+                  )}
+                </div>
+              </td>
+            ))}
+          </tr>
+        );
+
+        rows.push(row);
+      }
+    };
+
+    return (
+      <Table striped bordered responsive>
+        <tbody id="hurData"> {renderRows()}</tbody>
+      </Table>
+    );
+  };
+
+  const renderServiceName = (value: string) => {
+    if (value.includes('getCitizenIDCardInfo')) {
+      return 'Иргэний үнэмлэхний мэдээлэл';
+    }
+    if (value.includes('getVehicleInfo')) {
+      return 'Тээврийн хэрэгслийн мэдээлэл';
+    }
+    return value;
+  };
+
   const content = () => {
     return (
       <>
         <SidebarList className="no-link">
           {loading && <DataWithLoader data="This is data" loading objective />}
           {xypdata?.data?.map((d, index) => (
-            <li key={index}>
-              <FieldStyle
-                onClick={() => {
-                  console.log('click');
-                  setOpen(true);
-                }}
-              >
-                {d?.serviceDescription}
-              </FieldStyle>
-
-              {/* <FieldStyle>
-                {typeof d?.value === 'object' ? 'object' : d.value}
-              </FieldStyle> */}
-            </li>
+            <ModalTrigger
+              title={d?.serviceDescription}
+              trigger={<li key={index}>{renderServiceName(d?.serviceName)}</li>}
+              size="xl"
+              content={() => modalContent(d)}
+              key={d?.serviceName}
+            />
           ))}
         </SidebarList>
         {xypdata === null && <EmptyState icon="building" text="No data" />}
         {relQuickButtons}
-        <ModalTrigger
-          isOpen={isOpen}
-          title="Xyp систем мэдээлэл"
-          size="lg"
-          content={renderServiceChooser}
-        />
       </>
     );
   };
