@@ -154,11 +154,7 @@ export const SideBar = (props: Props) => {
               defaultChecked={checkedUsers.includes(user._id)}
             />
             &emsp;
-            <FieldStyle>
-              {user.details?.fullName !== ' ' && user.details?.fullName !== ''
-                ? user.details.fullName
-                : user.email}
-            </FieldStyle>
+            <FieldStyle>{user?.details?.fullName || user?.email}</FieldStyle>
             <div className="actions">
               <div
                 className="badge"

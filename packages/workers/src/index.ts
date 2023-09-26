@@ -123,7 +123,7 @@ httpServer.listen(PORT, async () => {
   }
 
   await initApolloServer(app, httpServer);
-  
+
   // connect to mongo database
   connect(mongoUrl).then(async () => {
     initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {

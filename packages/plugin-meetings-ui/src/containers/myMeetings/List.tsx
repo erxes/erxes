@@ -2,18 +2,18 @@ import React from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { Spinner } from '@erxes/ui/src/components';
 import { ListComponent } from '../../components/myMeetings/List';
 import { graphql } from '@apollo/client/react/hoc';
 import * as compose from 'lodash.flowright';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IMeeting, RemoveMutationResponse } from '../../types';
+import { RemoveMutationResponse } from '../../types';
+import { Spinner } from '@erxes/ui/src/components';
+import queryString from 'query-string';
 
 type Props = {
   history: any;
   queryParams: any;
-  meetings: IMeeting[];
 };
 
 type FinalProps = {
@@ -22,7 +22,41 @@ type FinalProps = {
   RemoveMutationResponse;
 
 const MyMeetingListContainer = (props: FinalProps) => {
-  const { queryParams, removeMutation } = props;
+  const { removeMutation } = props;
+
+  const queryParams = queryString.parse(location.search);
+  const {
+    page,
+    perPage,
+    createdAtFrom,
+    createdAtTo,
+    ownerId,
+    companyId,
+    searchValue
+  } = queryParams;
+  const { data, loading } = useQuery(gql(queries.meetings), {
+    variables: {
+      perPage: parseInt(perPage?.toString()) || 10,
+      page: parseInt(page?.toString()) || 1,
+      isPreviousSession: true,
+      createdAtFrom,
+      createdAtTo,
+      userId: ownerId,
+      companyId,
+      searchValue
+    }
+  });
+
+  const { data: countData, loading: countLoading } = useQuery(
+    gql(queries.meetingsCount),
+    {
+      variables: {
+        perPage: parseInt(perPage?.toString()) || 10,
+        page,
+        isPreviousSession: true
+      }
+    }
+  );
 
   const remove = (id: string) => {
     confirm('You are about to delete the item. Are you sure? ')
@@ -35,11 +69,14 @@ const MyMeetingListContainer = (props: FinalProps) => {
       })
       .catch(e => Alert.error(e.message));
   };
-
+  if (loading || countLoading) {
+    return <Spinner />;
+  }
   const updatedProps = {
     ...props,
     remove,
-    meetings: props.meetings
+    meetings: data.meetings,
+    count: countData?.meetingsTotalCount
   };
   return <ListComponent {...updatedProps} />;
 };
