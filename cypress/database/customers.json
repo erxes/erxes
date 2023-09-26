@@ -1,0 +1,92 @@
+[{
+  "_id": "y_CQ9kSn9Kx3xaJmPSYOj",
+  "state": "lead",
+  "sex": null,
+  "emails": [
+    "tester@gmail.com"
+  ],
+  "emailValidationStatus": "badsyntax",
+  "phones": [
+    "98986565"
+  ],
+  "addresses": [],
+  "phoneValidationStatus": "receives_sms",
+  "status": "Active",
+  "hasAuthority": "No",
+  "doNotDisturb": "No",
+  "isSubscribed": "Yes",
+  "relatedIntegrationIds": [],
+  "tagIds": [],
+  "mergedIds": [],
+  "deviceTokens": [],
+  "scopeBrandIds": [],
+  "createdAt": {
+    "date": "2023-09-26T06:04:08.494Z"
+  },
+  "modifiedAt": {
+    "date": "2023-09-26T06:04:08.494Z"
+  },
+  "firstName": "testdata",
+  "lastName": "lead",
+  "middleName": "one",
+  "primaryEmail": "tester@gmail.com",
+  "primaryPhone": "98986565",
+  "links": {
+    "facebook": "https://fortest.com",
+    "twitter": "https://fortest.com",
+    "youtube": "https://fortest.com",
+    "website": "https://fortest.com"
+  },
+  "ownerId": "dbtWgcicmtYSgRjja",
+  "customFieldsData": [],
+  "profileScore": 40,
+  "searchText": "tester@gmail.com 98986565 testdata lead",
+  "trackedData": [],
+  "__v": 0
+},
+{
+  "_id": "VJCaEgc2qsuLeuH9WsWXY",
+  "state": "lead",
+  "sex": null,
+  "emails": [
+    "fortest@gmail.com"
+  ],
+  "emailValidationStatus": "catchall",
+  "phones": [
+    "45657414"
+  ],
+  "addresses": [],
+  "phoneValidationStatus": "valid",
+  "status": "Active",
+  "hasAuthority": "No",
+  "doNotDisturb": "No",
+  "isSubscribed": "Yes",
+  "relatedIntegrationIds": [],
+  "tagIds": [],
+  "mergedIds": [],
+  "deviceTokens": [],
+  "scopeBrandIds": [],
+  "createdAt": {
+    "date": "2023-09-26T06:05:12.349Z"
+  },
+  "modifiedAt": {
+    "date": "2023-09-26T06:05:12.349Z"
+  },
+  "firstName": "fortest",
+  "lastName": "lead",
+  "middleName": "two",
+  "primaryEmail": "fortest@gmail.com",
+  "primaryPhone": "45657414",
+  "links": {
+    "facebook": "https://fortest.com",
+    "twitter": "https://fortest.com",
+    "youtube": "https://fortest.com",
+    "website": "https://fortest.com"
+  },
+  "ownerId": "dbtWgcicmtYSgRjja",
+  "customFieldsData": [],
+  "profileScore": 40,
+  "searchText": "fortest@gmail.com 45657414 fortest lead",
+  "trackedData": [],
+  "__v": 0
+}]

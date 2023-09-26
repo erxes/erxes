@@ -2,6 +2,8 @@ const MongoClient = require("mongodb").MongoClient;
 const { ObjectId } = require("mongodb");
 const users = require("./users.json");
 const tags = require("./tags.json");
+const companies = require("./companies.json");
+const customers = require("./customers.json");
 
 const DB = "erxes";
 
@@ -48,6 +50,9 @@ async function seedDB() {
 
     await dropAndSeed(client, "users", users);
     await dropAndSeed(client, "tags", tags);
+    await dropAndSeed(client, "companies", companies);
+    await dropAndSeed(client, "customers", customers);
+
 
     console.log("Database seeded! :)");
 

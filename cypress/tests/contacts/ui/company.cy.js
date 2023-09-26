@@ -48,7 +48,7 @@ describe("Contacts", () => {
 
   it("remove company", () => {
 
-    cy.contains(random, { timeout: 300000 })
+    cy.contains("testname", { timeout: 300000 })
     .parent()
     .parent()
     .parent()
