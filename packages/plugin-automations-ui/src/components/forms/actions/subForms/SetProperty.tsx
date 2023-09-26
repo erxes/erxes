@@ -1,6 +1,6 @@
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from '@erxes/ui/src';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -33,6 +33,10 @@ type State = {
   type: string;
   fields: FieldsCombinedByType[];
 };
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 class SetProperty extends React.Component<Props, State> {
   constructor(props) {
@@ -129,8 +133,13 @@ class SetProperty extends React.Component<Props, State> {
         name: 'name',
         label: 'label'
       };
+
+      const operatorType: string = chosenField.name.includes('customFieldsData')
+        ? capitalizeFirstLetter(chosenField.validation || chosenField.type)
+        : chosenField.type;
+
       const operators =
-        PROPERTY_OPERATOR[chosenField.type] || PROPERTY_OPERATOR.Default;
+        PROPERTY_OPERATOR[operatorType] || PROPERTY_OPERATOR.Default;
 
       const onChangeSelect = (field, e) => {
         const value = e.value;
@@ -200,7 +209,7 @@ class SetProperty extends React.Component<Props, State> {
             type={type}
             fieldType={this.getFieldType(chosenField)}
             isMulti={this.getIsMulti(chosenField)}
-            attrType={chosenField.type}
+            attrType={operatorType}
             options={chosenField.selectOptions}
           />
 
