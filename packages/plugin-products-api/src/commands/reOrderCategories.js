@@ -1,8 +1,7 @@
-import * as dotenv from 'dotenv';
+const dotenv = require('dotenv');
+const { MongoClient } = require('mongodb');
 
 dotenv.config();
-
-import { Collection, Db, MongoClient } from 'mongodb';
 
 const { MONGO_URL } = process.env;
 
@@ -12,11 +11,11 @@ if (!MONGO_URL) {
 
 const client = new MongoClient(MONGO_URL);
 
-let db: Db;
+let db;
+let ProductCategories;
 
-let ProductCategories: Collection<any>;
-
-const setOrder = async (categories, parentCategory?) => {
+const setOrder = async (categories, parentCategory) => {
+  console.log(parentCategory?.code)
   for (const category of categories) {
     const parentOrder = parentCategory ? parentCategory.order : '' || '';
     await ProductCategories.updateOne(
@@ -36,7 +35,7 @@ const setOrder = async (categories, parentCategory?) => {
 
 const command = async () => {
   await client.connect();
-  db = client.db() as Db;
+  db = client.db();
 
   ProductCategories = db.collection('product_categories');
 
