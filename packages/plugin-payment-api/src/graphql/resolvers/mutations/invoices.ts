@@ -14,6 +14,7 @@ type InvoiceParams = {
   paymentIds: string[];
   redirectUri: string;
   warningText: string;
+  data?: any;
 };
 
 const mutations = {
@@ -27,6 +28,8 @@ const mutations = {
       : 'http://localhost:4000';
 
     const cookies = requestInfo.cookies;
+
+    const { data } = params;
 
     const paymentCookies = Object.keys(cookies).filter(key =>
       key.includes('paymentData')
@@ -55,6 +58,7 @@ const mutations = {
 
     const invoice = await models.Invoices.create({
       ...params,
+      data,
       identifier: makeInvoiceNo(32)
     });
 
