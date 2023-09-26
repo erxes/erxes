@@ -26,7 +26,6 @@ const MyMeetingListContainer = (props: FinalProps) => {
 
   const queryParams = queryString.parse(location.search);
   const { page, perPage } = queryParams;
-  console.log(perPage, 'perPage');
   const { data, loading } = useQuery(gql(queries.meetings), {
     variables: {
       perPage: parseInt(perPage?.toString()) || 10,
@@ -60,7 +59,6 @@ const MyMeetingListContainer = (props: FinalProps) => {
   if (loading || countLoading) {
     return <Spinner />;
   }
-  console.log(countData, 'countData');
   const updatedProps = {
     ...props,
     remove,

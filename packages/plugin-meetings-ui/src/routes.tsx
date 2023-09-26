@@ -8,7 +8,6 @@ const List = asyncComponent(() =>
 );
 
 const meetings = ({ location, history }) => {
-  console.log(location.search, 'location.search');
   const queryParams = queryString.parse(location.search);
   const { meetingId } = queryParams;
   const routePath = location.pathname.split('/').slice(-1)[0];
