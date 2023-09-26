@@ -109,7 +109,22 @@ query MeetingDetail($_id: String!) {
 }
 `;
 
+const meetingsCount = `
+query meetingsTotalCount{
+ meetingsTotalCount
+}`;
+
+const meetingPinnedUsers = `
+query meetingPinnedUsers {
+  meetingPinnedUsers {
+      pinnedUserIds
+    userId
+  }
+}`;
+
 export default {
   meetings,
-  meetingDetail
+  meetingDetail,
+  meetingsCount,
+  meetingPinnedUsers
 };
