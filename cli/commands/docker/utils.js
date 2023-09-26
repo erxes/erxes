@@ -559,6 +559,10 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       }
     };
 
+    dockerComposeConfig.services["plugin-core-api"].deploy = deploy;
+    if(configs.core && Number(configs.core.replicas)) {
+      dockerComposeConfig.services["plugin-core-api"].deploy.replicas = Number(configs.core.replicas);
+    }
     dockerComposeConfig.services.coreui.deploy = deploy;
     dockerComposeConfig.services.gateway.deploy = deploy;
   }
