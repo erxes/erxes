@@ -12,24 +12,26 @@ type Props = {
 } & IRouterProps;
 
 // per page chooser component
-const PerPageChooser = ({ history, count }: Props) => {
+const PerPageChooser = ({ history }: Props) => {
   const currentPerPage = Number(router.getParam(history, 'perPage')) || 20;
-  console.log(count);
 
   const onClick = perPage => {
-    router.setParams(history, { perPage });
+    if (perPage !== currentPerPage) {
+      router.setParams(history, { perPage });
+      router.setParams(history, { page: 1 });
 
-    const storageValue = window.localStorage.getItem('pagination:perPage');
+      const storageValue = window.localStorage.getItem('pagination:perPage');
 
-    let items: any = {};
+      let items = {};
 
-    if (storageValue) {
-      items = JSON.parse(storageValue);
+      if (storageValue) {
+        items = JSON.parse(storageValue);
+      }
+
+      items[window.location.pathname] = perPage;
+
+      window.localStorage.setItem('pagination:perPage', JSON.stringify(items));
     }
-
-    items[window.location.pathname] = perPage;
-
-    window.localStorage.setItem('pagination:perPage', JSON.stringify(items));
   };
 
   const renderOption = n => {
@@ -43,23 +45,19 @@ const PerPageChooser = ({ history, count }: Props) => {
   };
 
   return (
-    <>
-      {count && count >= 20 && (
-        <Dropdown className="dropdown-btn" drop="up">
-          <Dropdown.Toggle as={DropdownToggle} id="per-page-chooser">
-            <PerPageButton>
-              {currentPerPage} {__('per page')} <Icon icon="angle-up" />
-            </PerPageButton>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {count >= 20 && renderOption(20)}
-            {count >= 50 && renderOption(50)}
-            {count >= 100 && renderOption(100)}
-            {count >= 200 && renderOption(200)}
-          </Dropdown.Menu>
-        </Dropdown>
-      )}
-    </>
+    <Dropdown className="dropdown-btn" drop="up">
+      <Dropdown.Toggle as={DropdownToggle} id="per-page-chooser">
+        <PerPageButton>
+          {currentPerPage} {__('per page')} <Icon icon="angle-up" />
+        </PerPageButton>
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        {renderOption(20)}
+        {renderOption(50)}
+        {renderOption(100)}
+        {renderOption(200)}
+      </Dropdown.Menu>
+    </Dropdown>
   );
 };
 
