@@ -34,21 +34,19 @@ const products = gql`
     }
   }
 `
+
 const productSimilarities = gql`
   query PoscProductSimilarities($id: String!, $groupedSimilarity: String) {
     poscProductSimilarities(_id: $id, groupedSimilarity: $groupedSimilarity) {
       products {
-        ${commonFields}
-        categoryId
-        unitPrice
-        type
+        _id
         description
-        remainder
-        hasSimilarity
+        unitPrice
+        name
         attachment {
           url
         }
-        hasSimilarity
+        customFieldsData
       }
       groups {
         fieldId

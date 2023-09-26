@@ -5,9 +5,8 @@ export const ORDER_TYPES = {
   LOSS: "loss",
   SPEND: "spend",
   REJECT: "reject",
-  BEFORE: "before",
-  ALL: ["take", "eat", "delivery", "loss", "spend", "reject", "before"],
-  SALES: ["take", "eat", "delivery", "before"],
+  ALL: ["take", "eat", "delivery", "loss", "spend", "reject"],
+  SALES: ["take", "eat", "delivery"],
   OUT: ["loss", "spend", "reject"],
 }
 
@@ -18,7 +17,6 @@ export const typeTextDef: any = {
   loss: "Хорогдол",
   spend: "Зарлагадсан",
   reject: "Гологдол",
-  before: "Урьдчилсан",
 }
 
 export const ORDER_STATUSES = {

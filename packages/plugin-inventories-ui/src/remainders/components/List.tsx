@@ -98,6 +98,8 @@ export default function ListComponent(props: Props) {
           <th>{__('Category')}</th>
           <th>{__('Unit Price')}</th>
           <th>{__('Remainder')}</th>
+          <th>{__('Soon In')}</th>
+          <th>{__('Soon Out')}</th>
           <th>{__('UOM')}</th>
         </tr>
       </thead>

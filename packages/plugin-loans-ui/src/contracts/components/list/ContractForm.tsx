@@ -9,7 +9,10 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-  SelectTeamMembers
+  SelectTeamMembers,
+  TabTitle,
+  Tabs as MainTabs,
+  Table
 } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
@@ -20,7 +23,7 @@ import { WEEKENDS } from '../../../constants';
 import SelectContractType, {
   ContractTypeById
 } from '../../../contractTypes/containers/SelectContractType';
-import SelectContract, { ContractById } from '../../containers/SelectContract';
+import SelectContract from '../../containers/SelectContract';
 import { IContract, IContractDoc } from '../../types';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
@@ -78,6 +81,8 @@ type State = {
   isPayFirstMonth?: boolean;
   isBarter?: boolean;
   downPayment?: number;
+  customPayment?: number;
+  customInterest?: number;
   config?: {
     maxAmount: number;
     minAmount: number;
@@ -86,12 +91,55 @@ type State = {
     maxInterest: number;
     minInterest: number;
   };
+  schedule: Schedule[];
+};
+
+type Schedule = {
+  order: number;
+  date: Date;
+  payment: number;
+  interest: number;
+  balance: number;
 };
 
 function isGreaterNumber(value: any, compareValue: any) {
   value = Number(value || 0);
   compareValue = Number(compareValue || 0);
   return value > compareValue;
+}
+
+interface ITabItem {
+  component: any;
+  label: string;
+}
+
+interface ITabs {
+  tabs: ITabItem[];
+}
+
+function Tabs({ tabs }: ITabs) {
+  const [tabIndex, setTabIndex] = React.useState(0);
+  return (
+    <>
+      <MainTabs grayBorder>
+        {tabs.map((tab, index) => (
+          <TabTitle
+            style={{
+              backgroundColor: index === tabIndex && 'rgba(128,128,128,0.2)'
+            }}
+            key={`tab${tab.label}`}
+            onClick={() => setTabIndex(index)}
+          >
+            {tab.label}
+          </TabTitle>
+        ))}
+      </MainTabs>
+
+      <div style={{ width: '100%', marginTop: 20 }}>
+        {tabs?.[tabIndex]?.component}
+      </div>
+    </>
+  );
 }
 
 class ContractForm extends React.Component<Props, State> {
@@ -137,7 +185,8 @@ class ContractForm extends React.Component<Props, State> {
       useHoliday: contract.useHoliday || false,
       relContractId: contract.relContractId || '',
       currency:
-        contract.currency || this.props.currentUser.configs?.dealCurrency[0]
+        contract.currency || this.props.currentUser.configs?.dealCurrency[0],
+      schedule: []
     };
   }
 
@@ -189,7 +238,8 @@ class ContractForm extends React.Component<Props, State> {
       useHoliday: Boolean(this.state.useHoliday),
       relContractId: this.state.relContractId,
       currency: this.state.currency,
-      downPayment: Number(this.state.downPayment || 0)
+      downPayment: Number(this.state.downPayment || 0),
+      schedule: this.state.schedule
     };
 
     if (this.state.leaseType === 'salvage') {
@@ -202,6 +252,7 @@ class ContractForm extends React.Component<Props, State> {
   };
 
   renderFormGroup = (label, props) => {
+    if (!label) return <FormControl {...props} />;
     return (
       <FormGroup>
         <ControlLabel required={!label.includes('Amount')}>
@@ -213,8 +264,89 @@ class ContractForm extends React.Component<Props, State> {
   };
 
   onChangeField = e => {
-    const name = (e.target as HTMLInputElement).name;
-    const value = (e.target as HTMLInputElement).value;
+    const name = (e?.target as HTMLInputElement)?.name;
+    let value: any = (e?.target as HTMLInputElement)?.value;
+
+    if ((e?.target as HTMLInputElement)?.type === 'checkbox')
+      value = (e.target as HTMLInputElement).checked;
+
+    if (
+      name === 'tenor' ||
+      name === 'leaseAmount' ||
+      name === 'customPayment' ||
+      name === 'customInterest' ||
+      name === 'scheduleDays' ||
+      name === 'isPayFirstMonth' ||
+      name === 'interestRate'
+    ) {
+      const tenor = Number(name === 'tenor' ? value : this.state.tenor);
+      const leaseAmount = Number(
+        name === 'leaseAmount' ? value : this.state.leaseAmount
+      );
+      const customPayment = Number(name === 'customPayment' ? value : 0);
+      const customInterest = Number(name === 'customInterest' ? value : 0);
+      const isPayFirstMonth =
+        name === 'isPayFirstMonth' ? value : this.state.isPayFirstMonth;
+      const interestRate =
+        name === 'interestRate' ? value : this.state.interestRate;
+
+      let schedules: Schedule[] = [];
+      let payment =
+        customPayment || leaseAmount / (tenor * this.state.scheduleDays.length);
+      let sumAmount = 0;
+      const dateRange = this.state.scheduleDays.sort((a, b) => a - b);
+
+      let mainDate = this.state.startDate;
+      let balance = this.state.leaseAmount;
+      for (let index = 0; index < tenor + 1; index++) {
+        dateRange.map((day, i) => {
+          const nDate = new Date(mainDate);
+          const year = nDate.getFullYear();
+          let month = nDate.getMonth();
+          if (i === 0 && (index !== 0 || isPayFirstMonth !== true))
+            month = nDate.getMonth() + 1;
+
+          if (day > 28 && new Date(year, month, day).getDate() !== day)
+            mainDate = new Date(year, month + 1, 0);
+          else mainDate = new Date(year, month, day);
+
+          if (isPayFirstMonth === true && mainDate < this.state.startDate) {
+            return;
+          }
+
+          let amount = payment;
+          if (
+            sumAmount + amount > leaseAmount ||
+            tenor * dateRange.length == schedules.length + 1
+          )
+            amount = leaseAmount - sumAmount;
+          amount = Number(amount.toFixed(0));
+          const element: Schedule = {
+            order: schedules.length + 1,
+            payment: amount,
+            interest:
+              customInterest ||
+              Number(((balance * interestRate) / 100 / 365).toFixed(0)),
+            balance,
+            date: mainDate
+          };
+          balance -= amount;
+          sumAmount += amount;
+          if (tenor * dateRange.length > schedules.length)
+            schedules.push(element);
+        });
+      }
+
+      this.setState({ schedule: schedules });
+    }
+    if (name === 'interestRate') {
+      this.setState({
+        interestRate: Number(value),
+        interestMonth: Number(value || 0) / 12
+      });
+      return;
+    }
+
     this.setState({ [name]: value } as any);
   };
 
@@ -470,10 +602,6 @@ class ContractForm extends React.Component<Props, State> {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeStartDate = value => {
-      this.setState({ startDate: value });
-    };
-
     const onChangeBranchId = value => {
       this.setState({ branchId: value });
     };
@@ -494,19 +622,6 @@ class ContractForm extends React.Component<Props, State> {
                   onSelect={this.onSelectContractType}
                   multi={false}
                 ></SelectContractType>
-              </FormGroup>
-
-              <FormGroup>
-                <ControlLabel required={true}>{__('Start Date')}</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={false}
-                    name="startDate"
-                    value={this.state.startDate}
-                    onChange={onChangeStartDate}
-                  />
-                </DateContainer>
               </FormGroup>
 
               <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
@@ -584,73 +699,8 @@ class ContractForm extends React.Component<Props, State> {
                   onChange: this.onChangeWithSalvage,
                   onClick: this.onFieldClick
                 })}
-
-              {this.renderFormGroup('Lease Amount', {
-                ...formProps,
-                type: 'number',
-                name: 'leaseAmount',
-                useNumberFormat: true,
-                fixed: 2,
-                value: this.state.leaseAmount || 0,
-                errors: this.checkValidation(),
-                onChange: this.onChangeWithSalvage,
-                onClick: this.onFieldClick
-              })}
-
-              {this.renderFormGroup('Fee Amount', {
-                ...formProps,
-                type: 'number',
-                name: 'feeAmount',
-                useNumberFormat: true,
-                fixed: 2,
-                value: this.state.feeAmount || 0,
-                onChange: this.onChangeWithSalvage,
-                onClick: this.onFieldClick
-              })}
-
-              {this.renderFormGroup('Tenor', {
-                ...formProps,
-                type: 'number',
-                name: 'tenor',
-                useNumberFormat: true,
-                value: this.state.tenor || 0,
-                errors: this.checkValidation(),
-                onChange: this.onChangeField,
-                onClick: this.onFieldClick
-              })}
             </FormColumn>
             <FormColumn>
-              {this.renderFormGroup('Interest Month', {
-                ...formProps,
-                type: 'number',
-                name: 'interestMonth',
-                value: this.state.interestMonth || 0,
-                useNumberFormat: true,
-                fixed: 2,
-                errors: this.checkValidation(),
-                onChange: this.onChangeInterest,
-                onClick: this.onFieldClick
-              })}
-
-              {this.renderFormGroup('Interest Rate', {
-                ...formProps,
-                type: 'number',
-                useNumberFormat: true,
-                fixed: 2,
-                name: 'interestRate',
-                value: this.state.interestRate || 0,
-                onChange: this.onChangeInterest,
-                onClick: this.onFieldClick
-              })}
-              {this.state.useSkipInterest &&
-                this.renderFormGroup('Skip Interest Calc /Month/', {
-                  ...formProps,
-                  type: 'number',
-                  name: 'skipInterestCalcMonth',
-                  value: this.state.skipInterestCalcMonth,
-                  onChange: this.onChangeField,
-                  onClick: this.onFieldClick
-                })}
               {this.renderFormGroup('Loss Percent', {
                 ...formProps,
                 type: 'number',
@@ -661,23 +711,6 @@ class ContractForm extends React.Component<Props, State> {
                 onChange: this.onChangeUnduePercent,
                 onClick: this.onFieldClick
               })}
-              <FormGroup>
-                <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="repayment"
-                  componentClass="select"
-                  value={this.state.repayment}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {['fixed', 'equal'].map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>{__('Currency')}</ControlLabel>
                 <FormControl
@@ -697,22 +730,16 @@ class ContractForm extends React.Component<Props, State> {
                   )}
                 </FormControl>
               </FormGroup>
-
-              <FormGroup>
-                <ControlLabel required>{__('Schedule Days')}</ControlLabel>
-                <Select
-                  required
-                  className="flex-item"
-                  placeholder={__('Choose an schedule Days')}
-                  value={this.state.scheduleDays}
-                  onChange={this.onSelectScheduleDays}
-                  multi={true}
-                  options={new Array(31).fill(1).map((row, index) => ({
-                    value: row + index,
-                    label: row + index
-                  }))}
-                />
-              </FormGroup>
+              {this.renderFormGroup('Fee Amount', {
+                ...formProps,
+                type: 'number',
+                name: 'feeAmount',
+                useNumberFormat: true,
+                fixed: 2,
+                value: this.state.feeAmount || 0,
+                onChange: this.onChangeWithSalvage,
+                onClick: this.onFieldClick
+              })}
               {this.state.useDebt && (
                 <>
                   {this.renderFormGroup('Debt', {
@@ -805,40 +832,6 @@ class ContractForm extends React.Component<Props, State> {
                 />
               </FormGroup>
 
-              <FormGroup>
-                <ControlLabel>{__('Weekends')}</ControlLabel>
-                <Select
-                  className="flex-item"
-                  placeholder={__('Choose an weekend days')}
-                  value={this.state.weekends}
-                  onChange={this.onSelectWeekends}
-                  multi={true}
-                  options={Object.keys(WEEKENDS).map(key => ({
-                    value: key,
-                    label: WEEKENDS[key]
-                  }))}
-                />
-              </FormGroup>
-
-              {this.renderFormGroup('Use Holiday', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'useHoliday',
-                checked: this.state.useHoliday || false,
-                onChange: this.onChangeCheckbox
-              })}
-              {this.renderFormGroup('Is Pay First Month', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'isPayFirstMonth',
-                checked: this.state.isPayFirstMonth || false,
-                onChange: this.onChangeCheckbox
-              })}
-
               {this.renderSalvage(formProps)}
             </FormColumn>
           </FormWrapper>
@@ -876,8 +869,227 @@ class ContractForm extends React.Component<Props, State> {
     );
   };
 
+  renderGraphic = (formProps: IFormProps) => {
+    const onChangeStartDate = value => {
+      this.setState({ startDate: value });
+    };
+
+    const onSelectScheduleDays = values => {
+      this.setState({ scheduleDays: values.map(val => val.value) });
+    };
+
+    return (
+      <>
+        <ScrollWrapper>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>{__('Start Date')}</ControlLabel>
+                <DateContainer>
+                  <DateControl
+                    {...formProps}
+                    required={false}
+                    name="startDate"
+                    value={this.state.startDate}
+                    onChange={onChangeStartDate}
+                  />
+                </DateContainer>
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="repayment"
+                  componentClass="select"
+                  value={this.state.repayment}
+                  onChange={this.onChangeField}
+                >
+                  {['fixed', 'equal', 'custom'].map((typeName, index) => (
+                    <option key={index} value={typeName}>
+                      {typeName}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
+              {this.renderFormGroup('Tenor', {
+                type: 'number',
+                name: 'tenor',
+                useNumberFormat: true,
+                value: this.state.tenor || 0,
+                max: 30,
+                onChange: this.onChangeField
+              })}
+            </FormColumn>
+            <FormColumn>
+              {this.renderFormGroup('Lease Amount', {
+                type: 'number',
+                name: 'leaseAmount',
+                useNumberFormat: true,
+                fixed: 2,
+                value: this.state.leaseAmount || 0,
+                onChange: this.onChangeField
+              })}
+              {this.state.repayment === 'custom' &&
+                this.renderFormGroup('Custom payment Amount', {
+                  type: 'number',
+                  name: 'customPayment',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  value: this.state.customPayment || 0,
+                  onChange: this.onChangeField
+                })}
+              {this.state.useSkipInterest &&
+                this.renderFormGroup('Skip Interest Calc /Month/', {
+                  type: 'number',
+                  name: 'skipInterestCalcMonth',
+                  value: this.state.skipInterestCalcMonth,
+                  onChange: this.onChangeField
+                })}
+              {this.state.repayment === 'custom' &&
+                this.renderFormGroup('Custom Interest', {
+                  ...formProps,
+                  type: 'number',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  name: 'customInterest',
+                  value: this.state.customInterest || 0,
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
+              {this.renderFormGroup('Interest Rate', {
+                ...formProps,
+                type: 'number',
+                useNumberFormat: true,
+                fixed: 2,
+                name: 'interestRate',
+                value: this.state.interestRate || 0,
+                onChange: this.onChangeField,
+                onClick: this.onFieldClick
+              })}
+            </FormColumn>
+
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required>{__('Schedule Days')}</ControlLabel>
+                <Select
+                  required
+                  className="flex-item"
+                  placeholder={__('Choose an schedule Days')}
+                  value={this.state.scheduleDays}
+                  onChange={onSelectScheduleDays}
+                  multi={true}
+                  options={new Array(31).fill(1).map((row, index) => ({
+                    value: row + index,
+                    label: row + index
+                  }))}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>{__('Weekends')}</ControlLabel>
+                <Select
+                  className="flex-item"
+                  placeholder={__('Choose an weekend days')}
+                  value={this.state.weekends}
+                  onChange={this.onChangeField}
+                  multi={true}
+                  options={Object.keys(WEEKENDS).map(key => ({
+                    value: key,
+                    label: WEEKENDS[key]
+                  }))}
+                />
+              </FormGroup>
+              {this.renderFormGroup('Use Holiday', {
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'useHoliday',
+                checked: this.state.useHoliday || false,
+                onChange: this.onChangeField
+              })}
+              {this.renderFormGroup('Is Pay First Month', {
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'isPayFirstMonth',
+                checked: this.state.isPayFirstMonth || false,
+                onChange: this.onChangeField
+              })}
+            </FormColumn>
+          </FormWrapper>
+          {this.state.repayment === 'custom' && (
+            <Table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>{__('Schedule day')}</th>
+                  <th>{__('Payment')}</th>
+                  <th>{__('Interest')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.schedule.map(mur => (
+                  <tr key={`schedule${mur.order}`}>
+                    <td>{mur.order}</td>
+                    <td>{mur.date.toLocaleDateString()}</td>
+                    <td>
+                      {this.renderFormGroup('', {
+                        className: 'flex-item',
+                        type: 'number',
+                        name: 'payment',
+                        value: mur.payment || 0,
+                        useNumberFormat: true,
+                        onChange: this.onChangeField
+                      })}
+                    </td>
+                    <td>
+                      {this.renderFormGroup('', {
+                        className: 'flex-item',
+                        type: 'number',
+                        name: 'interest',
+                        value: mur.interest || 0,
+                        useNumberFormat: true,
+                        onChange: this.onChangeField
+                      })}
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td>sum</td>
+                  <td>{this.state.schedule.length}</td>
+                  <td>
+                    {this.state.schedule
+                      .reduce((a, b) => a + b.payment, 0)
+                      .toLocaleString()}
+                  </td>
+                  <td>
+                    {this.state.schedule
+                      .reduce((a, b) => a + b.interest, 0)
+                      .toLocaleString()}
+                  </td>
+                </tr>
+              </tbody>
+            </Table>
+          )}
+        </ScrollWrapper>
+      </>
+    );
+  };
+
   render() {
-    return <Form renderContent={this.renderContent} />;
+    return (
+      <Tabs
+        tabs={[
+          {
+            label: 'Гэрээ',
+            component: <Form renderContent={this.renderContent} />
+          },
+          {
+            label: 'Хуваарь',
+            component: <Form renderContent={this.renderGraphic} />
+          }
+        ]}
+      />
+    );
   }
 }
 

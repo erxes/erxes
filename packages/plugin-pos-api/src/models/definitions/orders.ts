@@ -54,6 +54,8 @@ export interface IPosOrder {
   syncedErkhet?: Boolean;
   syncErkhetInfo?: string;
   deliveryInfo?: any;
+  description?: string;
+  isPre?: boolean;
   origin?: string;
   taxInfo?: any;
   convertDealId?: string;
@@ -135,7 +137,8 @@ const returnInfoSchema = new Schema({
   cashAmount: field({ type: Number }),
   paidAmounts: field({ type: [paidAmountSchema] }),
   returnAt: field({ type: Date }),
-  returnBy: field({ type: String })
+  returnBy: field({ type: String }),
+  description: field({ type: String })
 });
 
 export const posOrderSchema = schemaHooksWrapper(
@@ -193,6 +196,16 @@ export const posOrderSchema = schemaHooksWrapper(
       type: Object,
       optional: true,
       label: 'Delivery Info, address, map, etc'
+    }),
+    description: field({
+      type: String,
+      label: 'Description',
+      optional: true
+    }),
+    isPre: field({
+      type: Boolean,
+      label: 'Is Pre-Order',
+      optional: true
     }),
     origin: field({ type: String, optional: true, label: 'origin' }),
     taxInfo: field({ type: Object, optional: true }),

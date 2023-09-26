@@ -49,6 +49,7 @@ export const beginDateAtom = atom<Date | null>(null)
 export const endDateAtom = atom<Date | null>(null)
 export const currentAmountsAtom = atom<{ [key: string]: number }>({})
 export const detailsAtom = atom<Detail[]>([])
+export const isCoverAmountsFetchedAtom = atom<boolean>(false)
 
 const cashInitial = {
   _id: Math.random(),
@@ -74,6 +75,7 @@ export const setCoverAmountAtom = atom(
     set(currentAmountsAtom, rest)
   }
 )
+
 export const golomtResponseAtom = atom<string>("")
 export const tdbResponseAtom = atom<string>("")
 
@@ -125,5 +127,19 @@ export const setCoverDetailAtom = atom(
     set(descriptionAtom, description || "")
   }
 )
+
+export const resetCoverDetailAtom = atom(null, (get, set) => {
+  set(calcCashAtom, 0)
+  set(calcAmountsAtom, null)
+  set(beginDateAtom, null)
+  set(endDateAtom, null)
+  set(detailsAtom, [])
+  set(isCoverAmountsFetchedAtom, false)
+  set(cashAtom, cashInitial)
+  set(currentAmountsAtom, {})
+  set(descriptionAtom, "")
+  set(golomtResponseAtom, "")
+  set(tdbResponseAtom, "")
+})
 
 export const description = atom<string>("")

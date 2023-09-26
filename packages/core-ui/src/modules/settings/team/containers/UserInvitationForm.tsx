@@ -23,7 +23,7 @@ type WrapperProps = {
 } & ICommonFormProps;
 
 type Props = {
-  channelsQuery: any; //check - ChannelsQueryResponse
+  channelsQuery: any; // check - ChannelsQueryResponse
   unitsQuery: UnitsQueryResponse;
   departmentsQuery: DepartmentsQueryResponse;
   branchesQuery: BranchesQueryResponse;
@@ -50,7 +50,7 @@ const UserInviteFormContainer = (props: Props & ICommonFormProps) => {
 export default withProps<WrapperProps>(
   compose(
     graphql<{}, any>(gql(channelQueries.channels), {
-      //check - ChannelsQueryResponse
+      // check - ChannelsQueryResponse
       name: 'channelsQuery'
     }),
     graphql<{}, UnitsQueryResponse>(gql(queries.units), {

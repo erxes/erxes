@@ -60,6 +60,7 @@ type Props = {
   emailSignatures: IEmailSignature[];
   fetchMoreEmailTemplates: (page: number) => void;
   createdAt?: Date;
+  isEmptyEmail?: boolean;
   sendMail: ({
     variables,
     callback
@@ -97,6 +98,7 @@ type State = {
   emailSignature: string;
   name: string;
   showReply: string;
+  isRepliesRetrieved: boolean;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -160,10 +162,10 @@ class MailForm extends React.Component<Props, State> {
       from: mailWidget ? mailWidget.from : mailData.from || ([{}] as IEmail[]),
       subject: mailData.subject || mailWidget ? mailWidget.subject : '',
       emailSignature: '',
-      content: mailWidget
-        ? mailWidget.content
-        : mailData
+      content: mailData
         ? this.getContent(mailData, '')
+        : mailWidget
+        ? mailWidget.content
         : '',
 
       status: 'draft',
@@ -173,23 +175,25 @@ class MailForm extends React.Component<Props, State> {
       fileIds: [],
 
       name: `mail_${mailKey}`,
-      showReply: `reply_${mailKey}`
+      showReply: `reply_${mailKey}`,
+      isRepliesRetrieved: false
     };
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { name, content, to } = this.state;
+    const { name, content } = this.state;
+    const { isEmptyEmail, clear, emailTo } = this.props;
 
     if (prevState.content !== content) {
       localStorage.setItem(name, content);
     }
 
-    if (prevProps.clear !== this.props.clear) {
+    if (prevProps.clear !== clear || prevProps.isEmptyEmail !== isEmptyEmail) {
       this.clearContent();
     }
 
-    if (prevProps.emailTo !== this.props.emailTo) {
-      this.setState({ to: this.props.emailTo });
+    if (prevProps.emailTo !== emailTo) {
+      this.setState({ to: emailTo });
     }
   }
 
@@ -199,7 +203,7 @@ class MailForm extends React.Component<Props, State> {
     const content = localStorage.getItem(name);
 
     if (content && content !== this.state.content) {
-      this.setState({ content });
+      this.setState({ content: '' });
     }
 
     if ((content || '').length === 0 && showPrevEmails) {
@@ -261,25 +265,20 @@ class MailForm extends React.Component<Props, State> {
   getReplies(messageId?: string) {
     const { mails = [] } = this.props;
 
+    const { isRepliesRetrieved } = this.state;
+    this.setState({ isRepliesRetrieved: !isRepliesRetrieved });
+
     if (!messageId) {
       return '';
     }
 
-    let msgIndex = mails.findIndex(mail => {
+    const selectedMails = mails.filter(mail => {
       if (!mail) {
         return false;
       }
 
       return mail._id === messageId;
     });
-
-    if (msgIndex === -1) {
-      return '';
-    }
-
-    msgIndex = msgIndex === 0 ? (msgIndex += 1) : msgIndex;
-
-    const selectedMails = mails.splice(0, msgIndex);
 
     const previousEmails = selectedMails
       .map(mail => {
@@ -356,7 +355,8 @@ class MailForm extends React.Component<Props, State> {
       cc,
       bcc,
       subject,
-      kind
+      kind,
+      isRepliesRetrieved
     } = this.state;
 
     if (!to) {
@@ -378,7 +378,11 @@ class MailForm extends React.Component<Props, State> {
     const subjectValue = subject || mailData.subject || '';
 
     const updatedContent =
-      isForward || !isReply ? content : this.getReplies(messageId);
+      isForward || !isReply
+        ? content
+        : !isRepliesRetrieved
+        ? this.getReplies(messageId)
+        : content;
 
     const variables = {
       headerId,

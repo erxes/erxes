@@ -1,4 +1,4 @@
-import { useParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useMutation } from "@apollo/client"
 
 import { useToast } from "@/components/ui/use-toast"
@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { mutations } from "../graphql"
 
 const useCoverCU = () => {
-  const { id } = useParams()
+  const id = useSearchParams().get("id")
   const { onError } = useToast()
 
   const [createCover, { loading }] = useMutation(mutations.coversAdd, {

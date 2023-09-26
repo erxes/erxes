@@ -11,7 +11,6 @@ import {
   sendMessageBroker
 } from '../../../messageBroker';
 import { createLog, deleteLog, updateLog } from '../../../logUtils';
-import { INTEREST_CORRECTION_TYPE } from '../../../models/definitions/constants';
 
 const contractMutations = {
   contractsAdd: async (

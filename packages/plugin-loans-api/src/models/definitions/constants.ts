@@ -1,6 +1,7 @@
 export const REPAYMENT_TYPE = [
   { label: 'Equal Principal Payment', value: 'equal' }, // undsen tulbur tentsuu
-  { label: 'Fixed Rate Payment', value: 'fixed' } // niit tulbur tentsuu
+  { label: 'Fixed Rate Payment', value: 'fixed' }, // niit tulbur tentsuu
+  { label: 'Custom Rate Payment', value: 'custom' } // duriin tulbur
 ];
 
 export const CONTRACT_STATUS = {

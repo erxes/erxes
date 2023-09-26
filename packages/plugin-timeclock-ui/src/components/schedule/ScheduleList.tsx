@@ -7,7 +7,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { FilterItem, FlexRow, FlexRowLeft, ToggleButton } from '../../styles';
 
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import ScheduleForm from './ScheduleForm';
+import ScheduleForm from '../../containers/schedule/ScheduleForm';
 import { ISchedule, IScheduleConfig, IShift } from '../../types';
 import dayjs from 'dayjs';
 import {
@@ -24,6 +24,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import { confirm } from '@erxes/ui/src/utils';
 
 type Props = {
   currentUser: IUser;
@@ -37,7 +38,7 @@ type Props = {
   branches: IBranch[];
 
   scheduleOfMembers: ISchedule[];
-  scheduleConfigs: IScheduleConfig[];
+  scheduleConfigs?: IScheduleConfig[];
   totalCount: number;
 
   solveSchedule: (scheduleId: string, status: string) => void;
@@ -76,7 +77,8 @@ function ScheduleList(props: Props) {
     getActionBar,
     showSideBar,
     getPagination,
-    isCurrentUserSupervisor
+    isCurrentUserSupervisor,
+    checkDuplicateScheduleShifts
   } = props;
 
   const [selectedScheduleStatus, setScheduleStatus] = useState(
@@ -182,6 +184,27 @@ function ScheduleList(props: Props) {
   const onSelectScheduleStatus = e => {
     setScheduleStatus(e.value);
     router.setParams(history, { scheduleStatus: e.value });
+  };
+
+  const checkAndApproveSchedule = async (
+    scheduleOfMember: ISchedule
+  ): Promise<void> => {
+    const checkDuplicateShifts = await checkDuplicateScheduleShifts({
+      userIds: [scheduleOfMember.user._id],
+      shifts: scheduleOfMember.shifts.map(shift => ({
+        shiftStart: shift.shiftStart,
+        shiftEnd: shift.shiftEnd,
+        scheduleConfigId: shift.scheduleConfigId,
+        lunchBreakInMins: shift.lunchBreakInMins
+      })),
+      userType: 'admin',
+      checkOnly: true,
+      status: 'Approved'
+    });
+
+    if (!checkDuplicateShifts.length) {
+      solveSchedule(scheduleOfMember._id, 'Approved');
+    }
   };
 
   const actionBarLeft = (
@@ -446,16 +469,35 @@ function ScheduleList(props: Props) {
           onMouseLeave={() => setShowRemoveBtn(false)}
           style={{ textAlign: 'center' }}
         >
-          {showRemoveBtn && (
-            <Tip text={'Remove Schedule'} placement="top">
-              <Button
-                size="small"
-                icon="times-circle"
-                btnStyle="link"
-                onClick={() => removeSchedule(scheduleOfMember._id, 'schedule')}
-              />
-            </Tip>
-          )}
+          <FlexRow>
+            {showRemoveBtn && (
+              <Tip text={'Remove Schedule'} placement="top">
+                <Button
+                  size="small"
+                  icon="times-circle"
+                  btnStyle="link"
+                  onClick={() =>
+                    removeSchedule(scheduleOfMember._id, 'schedule')
+                  }
+                />
+              </Tip>
+            )}
+
+            {selectedScheduleStatus === 'Rejected' && showRemoveBtn && (
+              <Tip text={'Approve Schedule'} placement="top">
+                <Button
+                  size="small"
+                  icon="checked"
+                  btnStyle="link"
+                  onClick={() => {
+                    confirm(
+                      'Are you sure to Approve according schedule ?'
+                    ).then(() => checkAndApproveSchedule(scheduleOfMember));
+                  }}
+                />
+              </Tip>
+            )}
+          </FlexRow>
         </td>
 
         {selectedScheduleStatus === 'Pending' && (
@@ -464,7 +506,7 @@ function ScheduleList(props: Props) {
               disabled={scheduleOfMember.solved}
               size="small"
               btnStyle="success"
-              onClick={() => solveSchedule(scheduleOfMember._id, 'Approved')}
+              onClick={() => checkAndApproveSchedule(scheduleOfMember)}
             >
               Approve
             </Button>

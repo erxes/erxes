@@ -1,5 +1,4 @@
 const chalk = require('chalk');
-const execa = require('execa');
 const fs = require('fs');
 const cliProgress = require('cli-progress');
 const request = require('request');
@@ -7,6 +6,7 @@ const fse = require('fs-extra');
 const { resolve } = require('path');
 const exec = require('child_process').exec;
 const colors = require('colors');
+const { execSync } = require('child_process');
 
 const filePath = pathName => {
   if (pathName) {
@@ -143,14 +143,6 @@ module.exports.downloadLatesVersion = async configs => {
   log('Backing up build tar ...');
 
   await fse.copy(filePath('build.tar.gz'), filePath('build-backup.tar.gz'));
-};
-
-const runCommand = (command, args, pipe) => {
-  if (pipe) {
-    return execa(command, args).stdout.pipe(process.stdout);
-  }
-
-  return execa(command, args);
 };
 
 module.exports.startServices = async configs => {
@@ -482,7 +474,8 @@ module.exports.startServices = async configs => {
     )}`
   );
 
-  return runCommand('pm2', ['start', filePath('ecosystem.config.js')], false);
+  const ecosystemPath = filePath('ecosystem.config.js');
+  return execSync(`pm2 start ${ecosystemPath}`);
 };
 
 const generateNginxConf = async ({
@@ -555,6 +548,5 @@ const generateNginxConf = async ({
   );
 };
 
-module.exports.runCommand = runCommand;
 module.exports.downloadFile = downloadFile;
 module.exports.execCurl = execCurl;

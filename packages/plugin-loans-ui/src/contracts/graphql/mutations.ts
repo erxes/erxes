@@ -23,6 +23,7 @@ const commonFields = `
   $customerType: String,
 
   $collateralsData: JSON,
+  $schedule: JSON,
   $insurancesData: JSON,
 
   $debt: Float
@@ -73,6 +74,7 @@ const commonVariables = `
   customerType: $customerType,
 
   collateralsData: $collateralsData,
+  schedule: $schedule,
   insurancesData: $insurancesData,
 
   salvageAmount: $salvageAmount

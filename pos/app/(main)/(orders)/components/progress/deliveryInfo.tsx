@@ -1,13 +1,29 @@
-import { TruckIcon } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
-import { Button } from "@/components/ui/button"
+const DeliveryInfo = ({
+  deliveryInfo,
+}: {
+  deliveryInfo?: { description?: string }
+}) => {
+  const { description } = deliveryInfo || {}
 
-const DeliveryInfo = () => {
+  if ((description || "").length < 30) return <p>{description}</p>
   return (
-    <Button className="font-medium" size="sm" variant="outline">
-      <TruckIcon className="h-5 w-5 mr-1" strokeWidth={1.5} />
-      Хүргэлтийн дэлгэрэнгүй
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <p>{(description || "").slice(0, 30) + "..."}</p>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="max-w-md">{description || ""}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
 

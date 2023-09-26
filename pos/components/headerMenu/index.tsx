@@ -41,7 +41,7 @@ const HeaderMenu = () => {
       className={cn(
         "h-10 rounded-md bg-neutral-100",
         mode === "market" && "sm:ml-2",
-        mode === "main" && "sm:mr-2"
+        ["main", "coffee-shop"].includes(mode) && "sm:mr-2"
       )}
     >
       <NavigationMenu className="p-1">

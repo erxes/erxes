@@ -33,7 +33,7 @@ export const reserveRemSchema = schemaWrapper(
     branchId: field({ type: String, label: 'Branch' }),
     productId: field({ type: String, label: 'product' }),
     uom: field({ type: String, label: 'Uom' }),
-    remainder: field({ type: Number, label: '' }),
+    remainder: field({ type: Number, label: 'Remainder' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
     createdBy: field({ type: String, label: 'Created by' }),
     modifiedAt: field({

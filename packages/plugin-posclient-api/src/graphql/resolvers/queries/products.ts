@@ -7,7 +7,10 @@ import { sendPricingMessage } from '../../../messageBroker';
 import { Builder } from '../../../utils';
 import { checkRemainders } from '../../utils/products';
 import { IConfigDocument } from '../../../models/definitions/configs';
-import { getSimilaritiesProducts } from '../../../maskUtils';
+import {
+  getSimilaritiesProducts,
+  getSimilaritiesProductsCount
+} from '../../../maskUtils';
 
 interface ICommonParams {
   sortField?: string;
@@ -30,6 +33,7 @@ interface IProductParams extends ICommonParams {
   segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
+  categoryMeta?: string;
 }
 
 interface ICategoryParams extends ICommonParams {
@@ -56,6 +60,7 @@ const generateFilter = async (
     excludeIds,
     segment,
     segmentData,
+    categoryMeta,
     isKiosk,
     ...paginationArgs
   }: IProductParams
@@ -68,21 +73,6 @@ const generateFilter = async (
 
   if (type) {
     filter.type = type;
-  }
-
-  if (categoryId) {
-    const category = await models.ProductCategories.getProductCategory({
-      _id: categoryId
-    });
-
-    const relatedCategoryIds = (
-      await models.ProductCategories.find(
-        { order: { $regex: new RegExp(`^${category.order}`) } },
-        { _id: 1 }
-      ).lean()
-    ).map(c => c._id);
-
-    filter.categoryId = { $in: relatedCategoryIds };
   }
 
   if (ids && ids.length > 0) {
@@ -132,17 +122,52 @@ const generateFilter = async (
     filter.vendorId = vendorId;
   }
 
+  const $and: any[] = [{}];
+
+  if (categoryId) {
+    const category = await models.ProductCategories.getProductCategory({
+      _id: categoryId
+    });
+
+    const relatedCategoryIds = (
+      await models.ProductCategories.find(
+        { order: { $regex: new RegExp(`^${category.order}`) } },
+        { _id: 1 }
+      ).lean()
+    ).map(c => c._id);
+
+    $and.push({ categoryId: { $in: relatedCategoryIds } });
+  }
+
+  if (categoryMeta) {
+    const categoryFilter: any = {};
+    if (!isNaN(Number(categoryMeta))) {
+      categoryFilter.meta = { $lte: Number(categoryMeta) };
+    } else {
+      categoryFilter.meta = categoryMeta;
+    }
+
+    const categories = await models.ProductCategories.find(
+      { categoryFilter },
+      { _id: 1 }
+    ).lean();
+
+    $and.push({ categoryId: { $in: categories.map(c => c._id) } });
+  }
+
+  const lastFilter = { ...filter, $and };
+
   if (isKiosk) {
     return {
       $and: [
-        filter,
+        lastFilter,
         { categoryId: { $nin: config.kioskExcludeCategoryIds } },
         { _id: { $nin: config.kioskExcludeProductIds } }
       ]
     };
   }
 
-  return filter;
+  return lastFilter;
 };
 
 const generateFilterCat = async ({
@@ -221,6 +246,7 @@ const productQueries = {
       segment,
       segmentData,
       isKiosk,
+      categoryMeta,
       groupedSimilarity,
       sortField,
       sortDirection,
@@ -241,6 +267,7 @@ const productQueries = {
       boardId,
       segment,
       segmentData,
+      categoryMeta,
       isKiosk
     });
 
@@ -290,6 +317,8 @@ const productQueries = {
       boardId,
       segment,
       segmentData,
+      categoryMeta,
+      groupedSimilarity,
       isKiosk
     }: IProductParams,
     { models, config, subdomain }: IContext
@@ -307,8 +336,15 @@ const productQueries = {
       boardId,
       segment,
       segmentData,
+      categoryMeta,
       isKiosk
     });
+
+    if (groupedSimilarity) {
+      return await getSimilaritiesProductsCount(models, filter, {
+        groupedSimilarity
+      });
+    }
 
     return models.Products.find(filter).countDocuments();
   },

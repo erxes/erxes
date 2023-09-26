@@ -36,6 +36,7 @@ export const orderItemSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: getDateFieldDefinition('Created at'),
     productId: field({ type: String, label: 'Product' }),
+    productName: field({ type: String, label: 'Product Name if subtoken' }),
     count: getNumberFieldDefinition({ label: 'Count', positive: true }),
     unitPrice: getNumberFieldDefinition({
       label: 'Unit price',

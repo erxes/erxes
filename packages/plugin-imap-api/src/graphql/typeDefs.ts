@@ -1,10 +1,11 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 const types = `
   type IMap {
     _id: String!
     title: String
     mailData: JSON
+    createdAt: Date
   }
 
   type IMapIntegration {

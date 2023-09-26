@@ -47,7 +47,7 @@ class PutResponseRow extends React.Component<Props> {
   modalContent = _props => {
     const { order } = this.props;
 
-    return <Detail order={order} />;
+    return <Detail orderId={order._id} posToken={order.posToken} />;
   };
 
   render() {

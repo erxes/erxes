@@ -1,9 +1,6 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
-import {
-  types as LogTypes,
-  queries as LogQueries,
-} from './logTypeDefs';
+import { types as LogTypes, queries as LogQueries } from './logTypeDefs';
 
 import {
   types as EmailDeliveryTypes,
@@ -12,10 +9,10 @@ import {
 
 import {
   types as ActivityLogTypes,
-  queries as ActivityLogQueries,
+  queries as ActivityLogQueries
 } from './activityLogTypeDefs';
 
-const typeDefs = async(_serviceDiscovery) => {
+const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
@@ -34,6 +31,6 @@ const typeDefs = async(_serviceDiscovery) => {
       ${EmailDeliveryQueries}
     }
   `;
-}
+};
 
 export default typeDefs;

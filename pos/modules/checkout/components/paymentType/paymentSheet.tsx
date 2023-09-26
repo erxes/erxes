@@ -6,7 +6,7 @@ import { paymentSheetAtom } from "@/store/ui.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { ALL_BANK_CARD_TYPES, BANK_CARD_TYPES } from "@/lib/constants"
-import { cn, getMode } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { LoaderIcon, LoaderText, LoaderWrapper } from "@/components/ui/loader"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 
@@ -15,10 +15,8 @@ const PaymentSheet = () => {
   const type = useAtomValue(currentPaymentTypeAtom)
   const notPaidAmount = useAtomValue(unPaidAmountAtom)
   const setCurrentAmount = useSetAtom(currentAmountAtom)
-  const setCurrentPaymentType = useSetAtom(currentPaymentTypeAtom)
 
   useEffect(() => {
-    notPaidAmount === 0 && getMode() !== "market" && setCurrentPaymentType("")
     notPaidAmount > 0 && setCurrentAmount(notPaidAmount)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notPaidAmount])
@@ -35,7 +33,6 @@ const PaymentSheet = () => {
       >
         {openSheet && (
           <>
-            {type === "cash" && <CashSheet />}
             {type === "mobile" && <MobileSheet />}
             {type === BANK_CARD_TYPES.KHANBANK && <KhanSheet />}
             {type === BANK_CARD_TYPES.TDB && <TDBSheet />}
@@ -56,9 +53,6 @@ const Loading = () => (
   </LoaderWrapper>
 )
 
-const CashSheet = dynamic(() => import("../paymentTypes/cashSheet.market"), {
-  loading: Loading,
-})
 const MobileSheet = dynamic(
   () => import("../paymentTypes/mobileSheet.market"),
   {

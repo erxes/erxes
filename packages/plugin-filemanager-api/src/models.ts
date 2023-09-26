@@ -1,8 +1,8 @@
-import * as Random from 'meteor-random';
 import { Model } from 'mongoose';
 
 import { Document, Schema } from 'mongoose';
 import { IModels } from './connectionResolver';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 interface IFolder {
   createdAt: Date;
@@ -40,13 +40,13 @@ export interface IFolderModel extends Model<IFolderDocument> {
 export const loadFolderClass = (models: IModels) => {
   class Folder {
     public static async generateCode(code?: string) {
-      let generatedCode = code || Random.id().substr(0, 6);
+      let generatedCode = code || randomAlphanumeric(6);
 
       let prevBrand = await models.Folders.findOne({ code: generatedCode });
 
       // search until not existing one found
       while (prevBrand) {
-        generatedCode = Random.id().substr(0, 6);
+        generatedCode = randomAlphanumeric(6);
 
         prevBrand = await models.Folders.findOne({ code: generatedCode });
       }

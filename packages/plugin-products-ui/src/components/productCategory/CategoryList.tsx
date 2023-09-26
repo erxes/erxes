@@ -1,25 +1,23 @@
+import { __, router } from '@erxes/ui/src/utils';
+
 import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
+import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import { Header } from '@erxes/ui-settings/src/styles';
+import { IProductCategory } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { TopHeader } from '@erxes/ui/src/styles/main';
-import { __, router } from '@erxes/ui/src/utils';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
-import TagFilter from '../../containers/TagFilter';
-import { IProductCategory } from '../../types';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
-import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
+import React from 'react';
 import SegmentFilter from '../product/filters/SegmentFilter';
-import { pluginsOfProductCategoryActions } from 'coreui/pluginUtils';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import TagFilter from '../../containers/TagFilter';
+import Tip from '@erxes/ui/src/components/Tip';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { Header } from '@erxes/ui-settings/src/styles';
+import { pluginsOfProductCategoryActions } from 'coreui/pluginUtils';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -44,7 +42,7 @@ class List extends React.Component<IProps> {
 
     return (
       <ModalTrigger
-        title="Add category"
+        title="Manage category"
         trigger={trigger}
         size="lg"
         content={content}
@@ -63,7 +61,7 @@ class List extends React.Component<IProps> {
     return currentGroup === id;
   };
 
-  renderEditAction(category: IProductCategory) {
+  renderEditAction = (category: IProductCategory) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
@@ -73,9 +71,9 @@ class List extends React.Component<IProps> {
     );
 
     return this.renderFormTrigger(trigger, category);
-  }
+  };
 
-  renderRemoveAction(category: IProductCategory) {
+  renderRemoveAction = (category: IProductCategory) => {
     const { remove } = this.props;
 
     return (
@@ -85,51 +83,24 @@ class List extends React.Component<IProps> {
         </Tip>
       </Button>
     );
-  }
+  };
 
   renderContent() {
-    const { productCategories } = this.props;
+    const { productCategories, loading, queryParams } = this.props;
 
-    const result: React.ReactNode[] = [];
-
-    for (const category of productCategories) {
-      const order = category.order;
-
-      const m = order.match(/[/]/gi);
-
-      let space = '';
-
-      if (m) {
-        space = '\u00a0\u00a0'.repeat(m.length);
-      }
-
-      const name = category.isRoot ? (
-        `${category.code} - ${category.name} (${category.productCount})`
-      ) : (
-        <span>
-          {category.code} - {category.name} ({category.productCount})
-        </span>
-      );
-
-      result.push(
-        <SidebarListItem
-          key={category._id}
-          isActive={this.isActive(category._id)}
-        >
-          <Link to={`?categoryId=${category._id}`}>
-            {space}
-            {category.code} - {name}
-          </Link>
-          <ActionButtons>
-            {this.renderEditAction(category)}
-            {pluginsOfProductCategoryActions(category)}
-            {this.renderRemoveAction(category)}
-          </ActionButtons>
-        </SidebarListItem>
-      );
-    }
-
-    return result;
+    return (
+      <CollapsibleList
+        items={productCategories}
+        editAction={this.renderEditAction}
+        removeAction={this.renderRemoveAction}
+        additionalActions={pluginsOfProductCategoryActions}
+        loading={loading}
+        linkToText={'?categoryId='}
+        queryParams={queryParams}
+        isProductCategory={true}
+        treeView={true}
+      />
+    );
   }
 
   renderCategoryHeader() {
@@ -159,35 +130,12 @@ class List extends React.Component<IProps> {
     );
   }
 
-  renderCategoryList() {
-    const { productCategoriesCount, loading } = this.props;
-
-    return (
-      <SidebarList>
-        <DataWithLoader
-          data={this.renderContent()}
-          loading={loading}
-          count={productCategoriesCount}
-          emptyText="There is no product & service category"
-          emptyIcon="folder-2"
-          size="small"
-        />
-      </SidebarList>
-    );
-  }
-
   render() {
     return (
-      <Sidebar wide={true} hasBorder>
-        <Section
-          maxHeight={488}
-          collapsible={this.props.productCategoriesCount > 9}
-          noMargin
-          noShadow
-        >
-          {this.renderCategoryHeader()}
-          {this.renderCategoryList()}
-        </Section>
+      <Sidebar wide={true} hasBorder={true}>
+        {this.renderCategoryHeader()}
+        <SidebarList>{this.renderContent()}</SidebarList>
+
         {isEnabled('segments') && (
           <SegmentFilter loadingMainQuery={this.props.loading} />
         )}

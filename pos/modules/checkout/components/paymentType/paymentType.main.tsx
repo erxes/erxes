@@ -1,8 +1,8 @@
-import { currentAmountAtom, currentPaymentTypeAtom } from "@/store"
-import { unPaidAmountAtom } from "@/store/order.store"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { currentPaymentTypeAtom } from "@/store"
+import { useAtomValue, useSetAtom } from "jotai"
 import { XIcon } from "lucide-react"
 
+import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Keys from "@/app/(main)/checkout/components/Keys"
@@ -13,6 +13,7 @@ import PaymentSheet from "./paymentSheet"
 
 const PaymentType = () => {
   const setPaymentTerm = useSetAtom(currentPaymentTypeAtom)
+  const paymentTerm = useAtomValue(currentPaymentTypeAtom)
   const {
     handleValueChange,
     handlePay,
@@ -37,7 +38,7 @@ const PaymentType = () => {
             />
           </div>
           <span className="text-slate-300">
-            Үлдэгдэл: {notPaidAmount - currentAmount}₮
+            Үлдэгдэл: {(notPaidAmount - currentAmount).toLocaleString()}₮
           </span>
         </div>
         <div className="flex-auto flex items-center gap-1">
@@ -45,7 +46,9 @@ const PaymentType = () => {
             className="bg-green-500 hover:bg-green-500/90 whitespace-nowrap font-bold"
             loading={loading}
             onClick={handlePay}
-            disabled={notPaidAmount === 0}
+            disabled={
+              ALL_BANK_CARD_TYPES.includes(paymentTerm) && notPaidAmount === 0
+            }
           >
             Гүйлгээ хийх
           </Button>

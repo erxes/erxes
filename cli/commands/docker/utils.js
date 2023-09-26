@@ -564,8 +564,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   }
 
   if (configs.essyncer) {
+    const essyncer_tag = configs.essyncer.image_tag || image_tag;
     dockerComposeConfig.services.essyncer = {
-      image: `erxes/essyncer:${image_tag}`,
+      image: `erxes/essyncer:${essyncer_tag}`,
       environment: {
         ELASTICSEARCH_URL: `http://${configs.db_server_address ||
           (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
