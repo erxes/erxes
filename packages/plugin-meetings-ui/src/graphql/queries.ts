@@ -117,7 +117,7 @@ query meetingsTotalCount{
 const meetingPinnedUsers = `
 query meetingPinnedUsers {
   meetingPinnedUsers {
-      pinnedUserIds
+    pinnedUserIds
     userId
   }
 }`;
