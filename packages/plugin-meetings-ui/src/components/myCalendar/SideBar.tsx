@@ -4,16 +4,29 @@ import { colors } from '@erxes/ui/src/styles';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import React, { useState, useEffect } from 'react';
 import { IMeeting } from '../../types';
-import { IUser, IUserConversation } from '@erxes/ui/src/auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import * as moment from 'moment';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { ChatListSearch, ParticipantList } from '../../styles';
+import {
+  FlexColumnCustom,
+  MeetingListSearch,
+  ParticipantList
+} from '../../styles';
 import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { generateColorCode } from '../../utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { Button, Icon } from '@erxes/ui/src/components';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { SelectTeamMembers, ModalTrigger } from '@erxes/ui/src';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ChooseOwnerFormContainer } from '../../containers/myCalendar/ChooseOwnerForm';
+
+const { Section } = Wrapper.Sidebar;
 
 type Props = {
   closeModal?: () => void;
@@ -22,16 +35,26 @@ type Props = {
   queryParams: any;
   loading: boolean;
   participantUsers: IUser[];
+  pinnedUsers: string[];
 };
 
 export const SideBar = (props: Props) => {
-  const { queryParams, meetings, loading, participantUsers } = props;
-  const { meetingId } = queryParams;
+  const {
+    queryParams,
+    meetings,
+    loading,
+    participantUsers,
+    pinnedUsers
+  } = props;
+  const { meetingId, searchUserValue } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
+  const [searchUser, setSearchValue] = useState(searchUserValue);
+
+  console.log('object');
   const [checkedUsers, setCheckedUsers] = useState(
     queryParams.participantUserIds
       ? queryParams.participantUserIds.split(',')
-      : []
+      : ['hell']
   );
   const history = useHistory();
 
@@ -100,21 +123,6 @@ export const SideBar = (props: Props) => {
     });
   };
 
-  const otherMeetings = meetings => {
-    const today = moment(); // Get today's date
-    const tomorrow = moment().add(1, 'day'); // Get tomorrow's date
-
-    return meetings.filter(meeting => {
-      const meetingDate = moment(meeting.startDate);
-      return (
-        meeting.status !== 'completed' &&
-        !meetingDate.isSame(today, 'day') &&
-        meetingDate.isAfter(today) &&
-        !meetingDate.isSame(tomorrow, 'day')
-      );
-    });
-  };
-
   const handleSearch = (event: any) => {
     setFilteredMeeting(
       meetings.filter(meeting => {
@@ -123,6 +131,16 @@ export const SideBar = (props: Props) => {
           .includes(event.target.value.toLowerCase());
       })
     );
+  };
+  const handleSearchUser = (e: any) => {
+    const searchValue = e.target.value;
+
+    setSearchValue(searchValue);
+
+    setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchUserValue: searchValue });
+    }, 500);
   };
 
   const handleChange = (e, userId: string) => {
@@ -143,8 +161,22 @@ export const SideBar = (props: Props) => {
     }
   };
 
+  const clearUserFilter = () => {
+    router.setParams(history, {
+      searchUserValue: null
+    });
+  };
+
   const data = (
     <SidebarList style={{ padding: '10px 20px' }}>
+      <MeetingListSearch>
+        <FormControl
+          type="text"
+          placeholder="Search team member"
+          onChange={handleSearchUser}
+          defaultValue={searchUser}
+        />
+      </MeetingListSearch>
       {participantUsers.map((user: any) => {
         return (
           <ParticipantList key={user._id}>
@@ -166,19 +198,102 @@ export const SideBar = (props: Props) => {
           </ParticipantList>
         );
       })}
+
+      <Section.QuickButtons>
+        {router.getParam(history, 'searchUserValue') && (
+          <Button btnStyle="warning" onClick={clearUserFilter}>
+            Clear filter
+          </Button>
+        )}
+      </Section.QuickButtons>
     </SidebarList>
+  );
+
+  const emptyContent = () => {
+    return (
+      <>
+        <MeetingListSearch>
+          <FormControl
+            type="text"
+            placeholder="Search team member"
+            onChange={handleSearchUser}
+            defaultValue={searchUser}
+          />
+        </MeetingListSearch>
+        <Section.QuickButtons>
+          {router.getParam(history, 'searchUserValue') && (
+            <Button btnStyle="warning" onClick={clearUserFilter}>
+              Clear filter
+            </Button>
+          )}
+        </Section.QuickButtons>
+      </>
+    );
+  };
+
+  const renderTeamMemberForm = props => {
+    return (
+      <Form
+        renderContent={() => {
+          return (
+            <>
+              <FormGroup>
+                <div style={{ marginBottom: '0' }}>
+                  <ControlLabel>Team members </ControlLabel>
+                  <div style={{ width: '100%' }}>
+                    <SelectTeamMembers
+                      initialValue={['']}
+                      customField="userIds"
+                      filterParams={{}}
+                      queryParams={queryParams}
+                      label={'Select team member'}
+                      onSelect={() => {}}
+                      name="userId"
+                    />
+                  </div>
+                </div>
+              </FormGroup>
+            </>
+          );
+        }}
+        {...props}
+      />
+    );
+  };
+
+  const trigger = (
+    <a href="#settings" tabIndex={0}>
+      <Icon icon="plus-circle" />
+    </a>
+  );
+
+  const renderForm = ({ closeModal }) => {
+    return (
+      <ChooseOwnerFormContainer
+        closeModal={closeModal}
+        pinnedUserIds={pinnedUsers}
+      />
+    );
+  };
+
+  const extraButtons = (
+    <ModalTrigger
+      content={({ closeModal }) => renderForm({ closeModal })}
+      title={`Add members`}
+      trigger={trigger}
+    />
   );
 
   return (
     <LeftSidebar>
-      <ChatListSearch>
+      <MeetingListSearch>
         <FormControl
           type="text"
           placeholder="Search Meeting"
           round={true}
           onChange={handleSearch}
         />
-      </ChatListSearch>
+      </MeetingListSearch>
       {todayMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Today" name={`today`} isOpen={true}>
           <SidebarList noTextColor noBackground id="SideBar">
@@ -197,22 +312,39 @@ export const SideBar = (props: Props) => {
           </SidebarList>
         </Box>
       )}
-      {otherMeetings(filteredMeeting)?.length > 0 && (
-        <Box title="Other" name={`other`} isOpen={false}>
-          <SidebarList noTextColor noBackground id="SideBar">
-            {otherMeetings(filteredMeeting).map(meeting => {
-              return ListItem(meeting);
-            })}
-          </SidebarList>
-        </Box>
-      )}
-      <Box title="Other calendar" name={`showCaledar`} isOpen={true}>
+
+      <Box
+        title="Other calendar"
+        name={`showCaledar`}
+        isOpen={true}
+        extraButtons={extraButtons}
+        // collapsible={true}
+      >
         <DataWithLoader
           data={data}
           loading={loading}
           count={participantUsers?.length}
           emptyText={'Empty'}
           emptyIcon="leaf"
+          emptyContent={
+            <FlexColumnCustom marginNum={20}>
+              <MeetingListSearch>
+                <FormControl
+                  type="text"
+                  placeholder="Search team member"
+                  onChange={handleSearchUser}
+                  defaultValue={searchUser}
+                />
+              </MeetingListSearch>
+              <Section.QuickButtons>
+                {router.getParam(history, 'searchUserValue') && (
+                  <Button btnStyle="warning" onClick={clearUserFilter}>
+                    Clear filter
+                  </Button>
+                )}
+              </Section.QuickButtons>
+            </FlexColumnCustom>
+          }
           size="small"
           objective={true}
         />
