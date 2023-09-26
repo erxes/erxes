@@ -1,7 +1,7 @@
-import styled from 'styled-components';
-import { colors, dimensions } from '@erxes/ui/src/styles';
 import React, { useState } from 'react';
+import moment from 'moment';
 import Box from '@erxes/ui/src/components/Box';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import {
   Button,
@@ -12,6 +12,9 @@ import {
   ModalTrigger,
   Spinner
 } from '@erxes/ui/src/components';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+
 import { ButtonRelated, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import Select from 'react-select-plus';
@@ -27,8 +30,6 @@ type Props = {
   refetch: any;
   loading: any;
   error: string;
-  fieldsGroups: any;
-  customer: any;
 };
 
 function Sidebar({
@@ -38,12 +39,9 @@ function Sidebar({
   xypServiceList,
   refetch,
   error,
-  loading,
-  fieldsGroups,
-  customer
+  loading
 }: Props) {
   const [params, setParams] = useState({});
-  const [paramsOutput, setParamsOutput] = useState({});
   const [operation, setOperation] = useState<IOperation>({
     orgName: '',
     wsOperationDetail: '',
@@ -58,15 +56,7 @@ function Sidebar({
     const operation = xypServiceList?.find(
       x => x.wsOperationName === value.value
     );
-    console.log(operation);
     setOperation(operation);
-  };
-
-  const onChangeParams = (name: any, value: any) => {
-    setParams(prev => ({ ...prev, [name]: value?.value }));
-  };
-  const onChangeParamsOutput = (name: any, value: any) => {
-    setParamsOutput(prev => ({ ...prev, [name]: value?.value }));
   };
 
   const renderServiceChooser = props => {
@@ -82,10 +72,10 @@ function Sidebar({
         ?.wsOperationDetail
     }));
 
-    const customerFields = fieldsGroups.data?.fieldsGroups.map(d => ({
-      label: d.name,
-      options: d?.fields?.map(x => ({ label: x.text, value: x._id }))
-    }));
+    const onChange = (e: any) => {
+      e.persist();
+      setParams(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
 
     return (
       <>
@@ -101,41 +91,19 @@ function Sidebar({
         <Box title="inputs">
           {operation.input.map((d: any) => (
             <div style={{ padding: 10 }} key={d?.wsInputDetail}>
-              <ControlLabel required={true}>{d?.wsInputDetail}</ControlLabel>
-              <Select
-                placeholder={__('Type to search...')}
-                value={d.wsInputName in params ? params[d.wsInputName] : ''}
-                onChange={value => {
-                  onChangeParams(d.wsInputName, value);
-                }}
-                isLoading={props.loading}
-                options={customerFields}
-                multi={false}
-              />
+              <FormGroup>
+                <ControlLabel required={false}>{d?.wsInputDetail}</ControlLabel>
+
+                <FormControl
+                  name={d.wsInputName}
+                  required={false}
+                  autoFocus={false}
+                  onChange={onChange}
+                />
+              </FormGroup>
             </div>
           ))}
         </Box>
-        {/* <Box title='outputs'>
-          {operation.output.map((d: any, index) => (
-            <div style={{ padding: 10 }} key={index}>
-              <ControlLabel required={true}>{d?.wsResponseDetail}</ControlLabel>
-              <Select
-                placeholder={__('Type to search...')}
-                value={
-                  d.wsResponseName in paramsOutput
-                    ? paramsOutput[d.wsResponseName]
-                    : ''
-                }
-                onChange={(value) => {
-                  onChangeParamsOutput(d.wsResponseName, value);
-                }}
-                isLoading={props.loading}
-                options={customerFields}
-                multi={false}
-              />
-            </div>
-          ))}
-        </Box> */}
 
         <ModalFooter>
           <Footer>
@@ -151,7 +119,7 @@ function Sidebar({
               <Button
                 btnStyle="success"
                 onClick={() => {
-                  fetchData(operation, params, paramsOutput, () => {});
+                  fetchData(operation, params, {}, () => {});
                 }}
                 icon="check-circle"
                 uppercase={false}
@@ -180,36 +148,36 @@ function Sidebar({
     />
   );
 
-  const modalContent = d => {
-    const output =
-      (xypServiceList.find(x => x.wsOperationName === d?.serviceName)
-        ?.output as any) || [];
+  const renderServiceItem = (i, output) => {
+    const items = Object.keys(i).filter(key => typeof i[key] !== 'object');
 
     const renderOutput = (value: any) => {
-      return (
-        output?.find(x => x.wsResponseName === value)?.wsResponseDetail || value
-      );
+      return output?.find(x => x.wsResponseName === value) || null;
     };
-    const items = Object.keys(d.data).filter(
-      key => typeof d.data[key] !== 'object'
-    );
+    const renderData = (type: string, key: string) => {
+      if (type?.includes('Byte')) {
+        return <img height={80} src={`data:image/png;base64,${i[key]}`} />;
+      }
+      if (type?.includes('Date')) {
+        return moment(i[key]).format('YYYY-MM-DD');
+      }
+
+      return i[key];
+    };
 
     const renderRows = () => {
       const rows = [] as any;
       for (let i = 0; i < items.length; i += 3) {
         const rowItems = items.slice(i, i + 3);
-
         const row = (
           <tr key={i}>
             {rowItems.map((key, j) => (
               <td key={j}>
-                <ControlLabel>{renderOutput(key)}</ControlLabel>
+                <ControlLabel>
+                  {renderOutput(key)?.wsResponseDetail}
+                </ControlLabel>
                 <div>
-                  {key.includes('image') ? (
-                    <img src={d.data[key]} style={{ height: 80 }} alt={key} />
-                  ) : (
-                    d.data[key]
-                  )}
+                  {renderData(renderOutput(key)?.wsResponseDatatype, key)}
                 </div>
               </td>
             ))}
@@ -218,6 +186,8 @@ function Sidebar({
 
         rows.push(row);
       }
+
+      return rows;
     };
 
     return (
@@ -225,6 +195,45 @@ function Sidebar({
         <tbody id="hurData"> {renderRows()}</tbody>
       </Table>
     );
+  };
+
+  const modalContent = (d: any) => {
+    const output =
+      (xypServiceList.find(x => x.wsOperationName === d?.serviceName)
+        ?.output as any) || [];
+
+    if (d?.data?.list && d.data.list.length > 0) {
+      const renderListItems = (listItem: any, index: number) => {
+        const title =
+          listItem['name'] ||
+          listItem['title'] ||
+          listItem['markName'] + ' - ' + listItem['modelName'] ||
+          d?.serviceDescription ||
+          renderServiceName(d?.serviceName);
+
+        return (
+          <CollapseContent
+            title={__(title)}
+            compact={true}
+            open={false}
+            key={index}
+          >
+            {renderServiceItem(listItem, output)}
+          </CollapseContent>
+        );
+      };
+
+      return (
+        <Table striped bordered responsive key={d?.serviceDescription}>
+          <tbody id="hurData">
+            {d.data.list.map((listItem, index: number) =>
+              renderListItems(listItem, index)
+            )}
+          </tbody>
+        </Table>
+      );
+    }
+    return renderServiceItem(d.data, output);
   };
 
   const renderServiceName = (value: string) => {

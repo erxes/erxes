@@ -33,7 +33,7 @@ module.exports = {
       scope: 'xyp',
     },
   ],
-  carRightSidebarSection: './carSidebar',
+  carRightSidebarSection: './customerSidebar',
 
   // carRightSidebarSection: [
   //   {
