@@ -185,9 +185,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   }
 
   if (apiResponse.deeplink && isMobile) {
-    deeplink.href = apiResponse.deeplink;
-    deeplink.target = '_self';
-    deeplink.innerHTML = `Open in ${paymentObj.kind}`;
+    window.open(apiResponse.deeplink, '_self');
   }
 
   if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile){
@@ -206,7 +204,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     });
   }
 
-  let amountValue = data.invoice.amount
+  let amountValue = data.invoice.amount;
 
   if (data.invoice.couponAmount) {
     amountValue = data.invoice.amount - data.invoice.couponAmount;
