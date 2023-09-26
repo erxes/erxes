@@ -187,7 +187,7 @@ class MailForm extends React.Component<Props, State> {
 
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`,
-        
+
       isRepliesRetrieved: false
     };
   }
@@ -841,8 +841,8 @@ class MailForm extends React.Component<Props, State> {
             )}
             <SignatureChooser
               signatureContent={this.signatureContent}
-              brands={brands}
-              signatures={emailSignatures}
+              brands={brands || []}
+              signatures={emailSignatures || []}
               value={this.state.emailSignature}
               onSelect={this.handleSignatureSelection}
               hideSignature={this.handleSignatureHide}

@@ -355,7 +355,8 @@ const SignatureChooserFooter = styledTS<{
   justify-content: ${({ noSignatures }) =>
     noSignatures ? 'flex-end' : 'space-between'};
   align-items: center;
-  padding: 0 1rem;
+  padding: 0;
+  padding-left: 1rem;
   padding-top: 8px;
   border-top: 1px solid #e9ecef;
 `;
@@ -373,8 +374,27 @@ const SignatureHiderButton = styled.button`
   color: ${colors.textSecondary};
   &:hover {
     cursor: pointer;
-    text-decoration: underline;
     color: ${colors.textPrimary};
+  }
+`;
+
+// dropdown-item
+const SignatureDropdownWrapper = styled.div`
+  .dropdown-item {
+    padding: 0.5rem 1rem;
+    &:hover {
+      cursor: pointer;
+    }
+    &:active {
+      font-weight: bold;
+      color: ${colors.textPrimary};
+      background-color: ${rgba(colors.colorSecondary, 0.2)};
+    }
+  }
+  .active {
+    font-weight: bold;
+    color: ${colors.textPrimary};
+    background-color: ${rgba(colors.colorSecondary, 0.2)};
   }
 `;
 
@@ -403,5 +423,6 @@ export {
   Link,
   SignatureChooserFooter,
   SignatureOptionWrapper,
-  SignatureHiderButton
+  SignatureHiderButton,
+  SignatureDropdownWrapper
 };

@@ -16,13 +16,14 @@ import {
   UsersConfigEmailSignaturesMutationResponse,
   UsersConfigEmailSignaturesMutationVariables
 } from '../types';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
-  currentUser: IUser;
   closeModal: () => void;
 };
 
 type FinalProps = {
+  currentUser: IUser;
   brandsQuery: BrandsQueryResponse;
 } & Props &
   UsersConfigEmailSignaturesMutationResponse;
@@ -112,7 +113,7 @@ const WithQuery = withProps<Props>(
         })
       }
     )
-  )(SignatureContainer)
+  )(withCurrentUser(SignatureContainer))
 );
 
 const WithConsumer = props => {
