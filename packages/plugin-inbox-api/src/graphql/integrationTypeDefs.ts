@@ -9,7 +9,7 @@ export const types = ({ products, tags, forms }) => `
       : ''
   }
 
-  extend input InputRule {
+  input InputRule {
     _id : String!,
     kind: String!,
     text: String!,
