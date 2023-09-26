@@ -63,7 +63,7 @@ const MyMeetingListContainer = (props: FinalProps) => {
     ...props,
     remove,
     meetings: data.meetings,
-    count: countData.meetingsTotalCount
+    count: countData?.meetingsTotalCount
   };
   return <ListComponent {...updatedProps} />;
 };
