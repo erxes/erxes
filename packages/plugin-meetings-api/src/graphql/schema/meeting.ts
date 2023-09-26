@@ -12,6 +12,7 @@ const params = `
   status: String
   participantIds: [String]
   companyId: String
+  dealIds: [String]
   method: String
 `;
 export const meetingFilters = `
@@ -21,6 +22,7 @@ export const meetingFilters = `
     searchValue:String
     userId:String,
     participantIds: [String]
+    dealIds: [String]
     isPreviousSession: Boolean
     perPage: Int
     page: Int
@@ -29,6 +31,7 @@ export const meetingFilters = `
 export const queries = `
   meetings(${commonParams}, ${meetingFilters}): [Meeting]
   meetingDetail(_id: String!): Meeting
+  meetingsTotalCount: Int
 `;
 
 export const mutations = `

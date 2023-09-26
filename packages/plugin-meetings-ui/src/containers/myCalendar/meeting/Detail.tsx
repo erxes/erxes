@@ -53,6 +53,7 @@ const MeetingDetailContainer = (props: FinalProps) => {
   if ((meetingDetailQuery && meetingDetailQuery.loading) || loading) {
     return <Spinner />;
   }
+
   const updatedProps = {
     meetingDetail: meetingDetailQuery && meetingDetailQuery.meetingDetail,
     changeStatus,

@@ -16,6 +16,8 @@ import { IMeeting, ITopic } from '../../../types';
 
 import { TopicFormContainer } from '../../../containers/myCalendar/topic/Form';
 import Button from '@erxes/ui/src/components/Button';
+import { Link } from 'react-router-dom';
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 
 type Props = {
   meetingDetail: IMeeting;
@@ -23,7 +25,7 @@ type Props = {
 };
 export const MeetingDetail = (props: Props) => {
   const { meetingDetail, changeStatus } = props;
-  const { topics } = meetingDetail;
+  const { topics, deals } = meetingDetail;
   const { participantUser } = meetingDetail || {};
 
   const renderTopicItem = (topic: ITopic) => {
@@ -124,6 +126,22 @@ export const MeetingDetail = (props: Props) => {
                 return <>{user.details?.fullName},</>;
               return <>{user.details?.fullName}</>;
             })}
+          </MeetingDetailColumn>
+        </MeetingDetailRow>
+        <MeetingDetailRow>
+          <MeetingDetailColumn>
+            <DrawerDetail>
+              <span>Deals:</span>{' '}
+              {deals?.map(deal => {
+                const { boardId, _id, pipeline } = deal;
+                const link = `/deal/board?id=${boardId}&pipelineId=${pipeline._id}&itemId=${_id}`;
+                return (
+                  <>
+                    <Link to={link}>{deal.name} </Link>,
+                  </>
+                );
+              })}
+            </DrawerDetail>
           </MeetingDetailColumn>
         </MeetingDetailRow>
         <p className="description"> {meetingDetail.description}</p>

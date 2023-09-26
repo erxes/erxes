@@ -59,7 +59,8 @@ export default withCurrentUser(
             createdAtFrom,
             createdAtTo,
             ownerId,
-            companyId
+            companyId,
+            searchValue
           } = queryParams;
 
           return {
@@ -69,7 +70,8 @@ export default withCurrentUser(
               createdAtFrom,
               createdAtTo,
               userId: ownerId,
-              companyId
+              companyId,
+              searchValue
             }
           };
         }

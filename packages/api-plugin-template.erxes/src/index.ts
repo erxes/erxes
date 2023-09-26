@@ -224,74 +224,77 @@ async function startServer() {
   const apolloServer = await generateApolloServer(serviceDiscovery);
   await apolloServer.start();
 
-  app.use('/graphql', expressMiddleware(apolloServer, {
-    context: async ({ req, res }) => {
-      let user: any = null;
+  app.use(
+    '/graphql',
+    expressMiddleware(apolloServer, {
+      context: async ({ req, res }) => {
+        let user: any = null;
 
-      if (req.headers.user) {
-        if (Array.isArray(req.headers.user)) {
-          throw new Error(`Multiple user headers`);
-        }
-        const userJson = Buffer.from(req.headers.user, 'base64').toString(
-          'utf-8'
-        );
-        user = JSON.parse(userJson);
-      }
-
-      let context;
-
-      if (USE_BRAND_RESTRICTIONS !== 'true') {
-        context = {
-          brandIdSelector: {},
-          singleBrandIdSelector: {},
-          userBrandIdsSelector: {},
-          docModifier: doc => doc,
-          commonQuerySelector: {},
-          user,
-          res
-        };
-      } else {
-        let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
-        let brandIds = [];
-        let brandIdSelector = {};
-        let commonQuerySelector = {};
-        let commonQuerySelectorElk;
-        let userBrandIdsSelector = {};
-        let singleBrandIdSelector = {};
-
-        if (user) {
-          brandIds = user.brandIds || [];
-
-          if (scopeBrandIds.length === 0) {
-            scopeBrandIds = brandIds;
+        if (req.headers.user) {
+          if (Array.isArray(req.headers.user)) {
+            throw new Error(`Multiple user headers`);
           }
-
-          if (!user.isOwner && scopeBrandIds.length > 0) {
-            brandIdSelector = { _id: { $in: scopeBrandIds } };
-            commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
-            commonQuerySelectorElk = { terms: { scopeBrandIds } };
-            userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
-            singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
-          }
+          const userJson = Buffer.from(req.headers.user, 'base64').toString(
+            'utf-8'
+          );
+          user = JSON.parse(userJson);
         }
 
-        context = {
-          brandIdSelector,
-          singleBrandIdSelector,
-          docModifier: doc => ({ ...doc, scopeBrandIds }),
-          commonQuerySelector,
-          commonQuerySelectorElk,
-          userBrandIdsSelector,
-          user,
-          res
-        };
+        let context;
+
+        if (USE_BRAND_RESTRICTIONS !== 'true') {
+          context = {
+            brandIdSelector: {},
+            singleBrandIdSelector: {},
+            userBrandIdsSelector: {},
+            docModifier: doc => doc,
+            commonQuerySelector: {},
+            user,
+            res
+          };
+        } else {
+          let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+          let brandIds = [];
+          let brandIdSelector = {};
+          let commonQuerySelector = {};
+          let commonQuerySelectorElk;
+          let userBrandIdsSelector = {};
+          let singleBrandIdSelector = {};
+
+          if (user) {
+            brandIds = user.brandIds || [];
+
+            if (scopeBrandIds.length === 0) {
+              scopeBrandIds = brandIds;
+            }
+
+            if (!user.isOwner && scopeBrandIds.length > 0) {
+              brandIdSelector = { _id: { $in: scopeBrandIds } };
+              commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
+              commonQuerySelectorElk = { terms: { scopeBrandIds } };
+              userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
+              singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
+            }
+          }
+
+          context = {
+            brandIdSelector,
+            singleBrandIdSelector,
+            docModifier: doc => ({ ...doc, scopeBrandIds }),
+            commonQuerySelector,
+            commonQuerySelectorElk,
+            userBrandIdsSelector,
+            user,
+            res
+          };
+        }
+
+        await configs.apolloServerContext(context, req, res);
+
+        return context;
       }
-
-      await configs.apolloServerContext(context, req, res);
-
-      return context;
-    }
-  }));
+    })
+  );
 
   await new Promise<void>(resolve =>
     httpServer.listen({ port: PORT }, resolve)

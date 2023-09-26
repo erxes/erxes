@@ -10,6 +10,7 @@ const meetingFields = `
   status
   companyId
   participantIds
+  dealIds
    createdUser {
      _id
      username
@@ -39,8 +40,10 @@ export const meetingsFilterParamsDef = `
     userId: $userId
     isPreviousSession: $isPreviousSession
     participantIds: $participantIds
+    dealIds: $dealIds
     perPage: $perPage
     page: $page
+    searchValue: $searchValue
 `;
 
 export const meetingsFilterParams = `
@@ -51,8 +54,10 @@ export const meetingsFilterParams = `
     $userId: String
     $isPreviousSession: Boolean
     $participantIds: [String]
+    $dealIds: [String]
     $perPage: Int
     $page: Int
+    $searchValue: String
 `;
 
 const meetings = `
@@ -75,6 +80,14 @@ query MeetingDetail($_id: String!) {
     createdAt
     status
     companyId
+    deals{
+      _id
+      boardId
+      pipeline{
+        _id
+      }
+      name
+    }
     participantUser{
       _id
       details {
@@ -96,17 +109,22 @@ query MeetingDetail($_id: String!) {
 }
 `;
 
-const companies = `
-query companies {
-  companies {
-    _id
-    name
+const meetingsCount = `
+query meetingsTotalCount{
+ meetingsTotalCount
+}`;
+
+const meetingPinnedUsers = `
+query meetingPinnedUsers {
+  meetingPinnedUsers {
+      pinnedUserIds
+    userId
   }
-}
-`;
+}`;
 
 export default {
   meetings,
   meetingDetail,
-  companies
+  meetingsCount,
+  meetingPinnedUsers
 };

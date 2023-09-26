@@ -106,7 +106,9 @@ const startRouter = async (
 
   const devOptions = ['--dev', '--hot-reload'];
 
-  console.log("-------------------------------routerConfigPath--------------------------------")
+  console.log(
+    '-------------------------------routerConfigPath--------------------------------'
+  );
   console.log([
     ...(NODE_ENV === 'development' ? devOptions : []),
     '--log',
@@ -116,7 +118,9 @@ const startRouter = async (
     `--config`,
     routerConfigPath
   ]);
-  console.log("----------------------------------------------------------------------")
+  console.log(
+    '----------------------------------------------------------------------'
+  );
 
   const routerProcess = spawn(
     routerPath,
