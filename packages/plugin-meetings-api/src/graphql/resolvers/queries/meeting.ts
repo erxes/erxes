@@ -82,6 +82,11 @@ const meetingQueries = {
     }
 
     return await models.Meetings.meetingDetail(_id, user._id);
+  },
+  async meetingsTotalCount(_root, {}, { models, user }: IContext) {
+    const filter = await generateFilter({ isPreviousSession: true }, user);
+
+    return models.Meetings.find(filter).countDocuments();
   }
 };
 

@@ -31,6 +31,7 @@ export const meetingFilters = `
 export const queries = `
   meetings(${commonParams}, ${meetingFilters}): [Meeting]
   meetingDetail(_id: String!): Meeting
+  meetingsTotalCount: Int
 `;
 
 export const mutations = `

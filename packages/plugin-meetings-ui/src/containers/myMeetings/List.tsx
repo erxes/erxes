@@ -25,12 +25,25 @@ const MyMeetingListContainer = (props: FinalProps) => {
   const { removeMutation } = props;
 
   const queryParams = queryString.parse(location.search);
-  const { page, perPage } = queryParams;
+  const {
+    page,
+    perPage,
+    createdAtFrom,
+    createdAtTo,
+    ownerId,
+    companyId,
+    searchValue
+  } = queryParams;
   const { data, loading } = useQuery(gql(queries.meetings), {
     variables: {
       perPage: parseInt(perPage?.toString()) || 10,
       page: parseInt(page?.toString()) || 1,
-      isPreviousSession: true
+      isPreviousSession: true,
+      createdAtFrom,
+      createdAtTo,
+      userId: ownerId,
+      companyId,
+      searchValue
     }
   });
 
