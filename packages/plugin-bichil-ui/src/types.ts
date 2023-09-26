@@ -17,6 +17,9 @@ export interface IUserReport {
   user: IUser;
   scheduleReport: IScheduleReport[];
 
+  branchTitles?: string[];
+  departmentTitles?: string[];
+
   totalMinsWorked?: number;
   totalMinsWorkedToday?: number;
   totalMinsWorkedThisMonth?: number;

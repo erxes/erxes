@@ -9,7 +9,8 @@ export const OWNER_TYPES = {
   CUSTOMER: 'customer',
   TEAMMEMBER: 'user',
   COMPANY: 'company',
-  ALL: ['customer', 'user', 'company']
+  CPUSer: 'cpUser',
+  ALL: ['customer', 'user', 'company', 'cpUser']
 };
 
 export const VOUCHER_STATUS = {

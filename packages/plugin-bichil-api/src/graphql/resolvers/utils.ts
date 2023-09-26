@@ -636,7 +636,6 @@ export const bichilTimeclockReportFinal = async (
 
   userIds.forEach(async currUserId => {
     // assign team member info from teamMembersObj
-
     if (exportToXlsx) {
       usersReport[currUserId] = { ...teamMembersObj[currUserId] };
     }
@@ -824,7 +823,7 @@ export const bichilTimeclockReportPivot = async (
   exportToXlsx?: boolean
 ) => {
   const models = await generateModels(subdomain);
-  const usersReport: IUserReport = { scheduleReport: [] };
+  const usersReport: any = { scheduleReport: [] };
   const shiftsOfSchedule: any = [];
 
   // get the schedule data of this month

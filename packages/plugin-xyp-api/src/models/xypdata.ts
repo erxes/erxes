@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
 import {
-  xypConfigSchema,
+  xypDataSchema,
   IXypconfigDocument,
   IXypData
 } from './definitions/xypdata';
@@ -39,7 +39,7 @@ export const loadxypConfigClass = models => {
      * Update comment
      */
     public static async updateXypData(_id: string, doc: any, user: any) {
-      await models.XypData.updateOne(
+      const ret = await models.XypData.updateOne(
         { _id },
         {
           $set: {
@@ -49,6 +49,8 @@ export const loadxypConfigClass = models => {
           }
         }
       );
+      console.log('pisda');
+      console.log(ret);
       return models.XypData.findOne({ _id });
     }
     /*
@@ -58,6 +60,6 @@ export const loadxypConfigClass = models => {
       return models.XypData.deleteOne({ _id });
     }
   }
-  xypConfigSchema.loadClass(XypData);
-  return xypConfigSchema;
+  xypDataSchema.loadClass(XypData);
+  return xypDataSchema;
 };

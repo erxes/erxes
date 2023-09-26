@@ -28,15 +28,14 @@ type State = {
 let instance;
 const getColor = issue => {
   if (
-    !issue?.relType &&
-    !issue?.relTypeId &&
+    !issue?.taskIds.length &&
     !issue?.isRootCause &&
     issue?.status === 'closed'
   ) {
     return colors.colorCoreRed;
   }
 
-  if (issue?.relType && issue?.relTypeId) {
+  if (!!issue?.taskIds?.length) {
     return colors.colorCoreYellow;
   }
   if (issue.isRootCause) {
@@ -201,12 +200,12 @@ class Detail extends React.Component<Props, State> {
   renderPortableCard(issue) {
     const { detail } = this.props;
 
-    if (issue?.relType && issue?.relTypeId) {
-      return (
+    if (issue?.taskIds?.length) {
+      return (issue?.taskIds || []).map(taskId => (
         <div style={{ color: colors.colorCoreBlack }}>
-          <PortableCard type={issue.relType} id={issue.relTypeId} />
+          <PortableCard type={'task'} id={taskId} />
         </div>
-      );
+      ));
     }
 
     if (issue.isRootCause && detail.relType && detail.relTypeId) {

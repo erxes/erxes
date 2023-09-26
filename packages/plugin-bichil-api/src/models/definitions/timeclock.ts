@@ -335,6 +335,8 @@ export interface IScheduleReport {
   totalMinsLate?: string;
   totalHoursOvertime?: string;
   totalHoursOvernight?: string;
+
+  lunchBreakInHrs?: number;
 }
 
 export interface IUserReport {
@@ -362,28 +364,55 @@ export interface IUserReport {
   totalAbsenceMins?: number;
   totalMinsAbsenceThisMonth?: number;
 }
+export interface IUserAbsenceInfo {
+  totalHoursShiftRequest?: number;
+  totalHoursWorkedAbroad?: number;
+  totalHoursPaidAbsence?: number;
+  totalHoursUnpaidAbsence?: number;
+  totalHoursSick?: number;
+}
 
 export interface IUserExportReport {
   firstName?: string;
   lastName?: string;
   branchName?: string;
+  employeeId?: string;
+
   position?: string;
-
-  totalDays?: number;
-  totalWeekendDays?: number;
-
   totalDaysWorked?: number;
   totalHoursWorked?: string;
   totalRegularHoursWorked?: string;
+  totalDays?: number;
+  totalWeekendDays?: number;
 
   totalDaysScheduled?: number;
   totalHoursScheduled?: string;
 
   totalHoursOvertime?: string;
   totalHoursOvernight?: string;
-  totalMinsLate?: string;
+
+  totalHoursBreakScheduled?: string;
+  totalHoursBreakTaken?: string;
 
   totalHoursShiftRequest?: string;
+
+  absenceInfo?: IUserAbsenceInfo;
+
+  totalMinsLate?: number | string;
+  totalAbsenceMins?: number;
+
+  totalHoursWorkedSelectedDay?: number;
+  totalHoursScheduledSelectedDay?: number;
+  totalHoursAbsentSelectedDay?: number;
+  totalMinsLateSelectedDay?: number;
+
+  totalHoursWorkedSelectedMonth?: number;
+  totalHoursScheduledSelectedMonth?: number;
+  totalHoursAbsentSelectedMonth?: number;
+  totalMinsLateSelectedMonth?: number;
+
+  totalDaysScheduledSelectedMonth?: number;
+  totalDaysWorkedSelectedMonth?: number;
 
   scheduleReport?: IScheduleReport[];
 }

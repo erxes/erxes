@@ -1,44 +1,81 @@
-const rcfaDetail = `
-  query rcfaDetail($_id: String, $mainType: String, $mainTypeId: String) {
-    rcfaDetail(_id: $_id, mainType: $mainType, mainTypeId: $mainTypeId){
-    _id
-    mainType
-    mainTypeId
-    relType
-    relTypeId
-    status
-    createdAt
-    userId
-    closedAt
-    issues {
+const cardTypes = `_id, name `;
+
+const commonFields = `
+      _id
+      mainType
+      mainTypeId
+
+      mainTypeDetail{
+        ${cardTypes}
+      }
+
+      relType
+      relTypeId
+
+      relTypeDetail {
+        ${cardTypes}
+      }
+
+      status
+      createdAt
+      userId
+      closedAt
+`;
+
+const commonIssueFields = `
       _id
       rcfaId
       issue
       createdAt
       parentId
       status
-      relType
-      relTypeId
+      taskIds
       description
       isRootCause
+`;
+
+const listParams = `
+  $mainType: String,
+  $searchValue: String,
+  $page: Int,
+  $perPage: Int,
+  $createdAtFrom: String,
+  $createdAtTo: String,
+  $closedAtFrom: String,
+  $closedAtTo: String,
+  $status: String
+`;
+
+const listParamsDef = `
+  mainType: $mainType,
+  searchValue: $searchValue,
+  page: $page,
+  perPage: $perPage,
+  createdAtFrom: $createdAtFrom,
+  createdAtTo: $createdAtTo,
+  closedAtFrom: $closedAtFrom,
+  closedAtTo: $closedAtTo,
+  status: $status
+`;
+
+const rcfaDetail = `
+  query rcfaDetail($_id: String, $mainType: String, $mainTypeId: String) {
+    rcfaDetail(_id: $_id, mainType: $mainType, mainTypeId: $mainTypeId){
+
+    ${commonFields}
+
+    issues {
+      ${commonIssueFields}
     }
     }
   }
 `;
 
 const rcfaList = `
-query RcfaList($mainType: String, $searchValue: String, $page: Int, $perPage: Int, $createdAtFrom: String, $createdAtTo: String, $closedAtFrom: String, $closedAtTo: String, $status: String) {
-  rcfaList(mainType: $mainType, searchValue: $searchValue, page: $page, perPage: $perPage, createdAtFrom: $createdAtFrom, createdAtTo: $createdAtTo, closedAtFrom: $closedAtFrom, closedAtTo: $closedAtTo, status: $status) {
+query RcfaList(${listParams}) {
+  rcfaList(${listParamsDef}) {
     list {
-      _id
-      mainType
-      mainTypeId
-      relType
-      relTypeId
-      status
-      createdAt
-      userId
-      closedAt
+      ${commonFields}
     }
     totalCount
   }

@@ -1,13 +1,3 @@
-const add = `
-mutation xypDataAdd($contentType: String, $contentTypeId: String, $data: JSON){
-  xypDataAdd(contentType: $contentType, contentTypeId: $contentTypeId, data: $data) {
-    _id
-    data
-  }
-}
-
-`;
-
 const remove = `
   mutation xypRemove($_id: String!){
     xypRemove(_id: $_id)
@@ -15,9 +5,17 @@ const remove = `
   `;
 
 const edit = `
-  mutation xypEdit($contentType: String, $contentTypeId: String, $data: JSON){
-    xypEdit(contentType: $contentType, contentTypeId: $contentTypeId, data: $data){
+  mutation xypDataUpdate($_id:String!,$contentType: String, $contentTypeId: String, $data: JSON){
+    xypDataUpdate(_id: $_id,contentType: $contentType, contentTypeId: $contentTypeId, data: $data){
       _id
+    }
+  }`;
+
+const add = `
+  mutation xypDataAdd($contentType: String, $contentTypeId: String, $data: JSON){
+    xypDataAdd(contentType: $contentType, contentTypeId: $contentTypeId, data: $data) {
+      _id
+      data
     }
   }
   `;

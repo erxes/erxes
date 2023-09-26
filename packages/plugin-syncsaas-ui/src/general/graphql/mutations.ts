@@ -1,18 +1,22 @@
 const commonParams = `
     $name: String,
     $description: String,
+    $categoryId: String,
     $subdomain: String,
     $appToken: String,
     $startDate: String,
     $expireDate: String,
+    $checkApproved:Boolean,
 `;
 const commonParamsDef = `
     name: $name,
     description: $description,
+    categoryId: $categoryId,
     subdomain: $subdomain,
     appToken: $appToken,
     startDate: $startDate,
     expireDate: $expireDate,
+    checkApproved:$checkApproved
 `;
 
 const add = `

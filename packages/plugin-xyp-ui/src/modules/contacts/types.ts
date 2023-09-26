@@ -53,3 +53,13 @@ export type EditTypeMutationResponse = {
 export type RemoveTypeMutationResponse = {
   typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };
+
+export interface IOperation {
+  orgName: string;
+  wsOperationDetail: string;
+  wsOperationName: string; //"WS100101_getCitizenIDCardInfo"
+  wsVersion: string; //"1.3.0"
+  wsWsdlEndpoint: string; // 'https://xyp.gov.mn/citizen-1.3.0/ws?WSDL';
+  input: [];
+  output: [];
+}

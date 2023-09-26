@@ -1,33 +1,24 @@
-import React from 'react';
 import {
   BarItems,
   Box,
+  Button,
+  ControlLabel,
+  FormControl,
+  FormGroup,
   Icon,
   ModalTrigger,
-  Button,
-  FormControl,
-  __,
-  confirm,
-  FormGroup,
-  ControlLabel,
-  Tabs,
   TabTitle,
-  Form as CommonForm
+  Tabs,
+  __,
+  confirm
 } from '@erxes/ui/src/';
-import { IRCFA } from '../../../../plugin-rcfa-api/src/models/definitions/rcfa';
-import {
-  StyledContent,
-  Divider,
-  ListItem,
-  ItemBtn,
-  StyledListItem,
-  TriggerTabs,
-  TabAction
-} from '../../styles';
-import ResolverModal from './ResolverModal';
-import _loadsh from 'lodash';
 import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
-import { IFormProps } from '@erxes/ui/src/types';
+import _loadsh from 'lodash';
+import React from 'react';
+import { IRCFA } from '../../../../plugin-rcfa-api/src/models/definitions/rcfa';
+import { CreateRootAction } from '../../common/CreateRootAction';
+import { StyledContent, TabAction, TriggerTabs } from '../../styles';
+import ResolverModal from './ResolverModal';
 
 interface IRCFAIssues extends IRCFA {
   isEditing?: boolean;
@@ -132,45 +123,9 @@ class RCFASection extends React.Component<Props, State> {
   renderRootActionForm(issue) {
     const { createRootAction } = this.props;
 
-    if (issue?.relType && issue?.relTypeId) {
-      return null;
-    }
-
-    const trigger = <Button btnStyle="warning">{__('Create Action')}</Button>;
-
-    const content = ({ closeModal }) => {
-      const formContent = (formProps: IFormProps) => {
-        const handleSave = e => {
-          if (e.key === 'Enter') {
-            const { value } = e.currentTarget as HTMLInputElement;
-            const payload = {
-              issueId: issue._id,
-              name: value
-            };
-            createRootAction(payload);
-            closeModal();
-          }
-        };
-        return (
-          <>
-            <FormGroup>
-              <ControlLabel required>{__('Name')}</ControlLabel>
-              <FormControl
-                required
-                {...formProps}
-                type="text"
-                name="name"
-                onKeyPress={handleSave}
-              />
-            </FormGroup>
-          </>
-        );
-      };
-
-      return <CommonForm renderContent={formContent} />;
-    };
-
-    return <ModalTrigger title="RCFA" trigger={trigger} content={content} />;
+    return (
+      <CreateRootAction issue={issue} createRootAction={createRootAction} />
+    );
   }
 
   renderTree(closeModal, level: number, issues, parentId?) {
@@ -316,14 +271,12 @@ class RCFASection extends React.Component<Props, State> {
                 {this.props.detail.status === 'inProgress' &&
                   selectedIssue?.status === 'inProgress' && (
                     <>
-                      {!selectedIssue?.relType && !selectedIssue?.relTypeId && (
-                        <Button
-                          btnStyle="danger"
-                          onClick={closeIssue.bind(this, selectedIssue._id)}
-                        >
-                          {__('Close this root')}
-                        </Button>
-                      )}
+                      <Button
+                        btnStyle="danger"
+                        onClick={closeIssue.bind(this, selectedIssue._id)}
+                      >
+                        {__('Close this root')}
+                      </Button>
                       {this.renderRootActionForm(selectedIssue)}
                       {this.renderResolveForm({
                         issueId: selectedIssue._id,

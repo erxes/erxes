@@ -1,5 +1,6 @@
 import { generateModels, IModels } from './connectionResolver';
 import {
+  sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
@@ -21,6 +22,13 @@ export default {
         icon: 'file-plus',
         label: 'Change Score',
         description: 'Change Score',
+        isAvailable: true
+      },
+      {
+        type: 'loyalties:spin.create',
+        icon: 'file-plus',
+        label: 'Create Spin',
+        description: 'Create Spin',
         isAvailable: true
       }
     ]
@@ -80,6 +88,73 @@ const generateIds = async value => {
     return [...new Set(value.split(', '))];
   }
   return [];
+};
+
+const getOwner = async ({
+  models,
+  subdomain,
+  execution,
+  contentType,
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  execution: any;
+  contentType: string;
+  config: any;
+}) => {
+  let ownerType;
+  let ownerId;
+
+  if (
+    ['contacts:customer', 'core:user', 'contacts:company'].includes(
+      execution.triggerType
+    )
+  ) {
+    ownerType = contentType;
+    ownerId = execution.targetId;
+  }
+
+  if (['inbox:conversation', 'pos:posOrder'].includes(execution.triggerType)) {
+    ownerType = 'customer';
+    ownerId = execution.target.customerId;
+  }
+
+  if (
+    ['cards:task', 'cards:deal', 'cards:ticket', 'cards:purchase'].includes(
+      execution.triggerType
+    )
+  ) {
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: contentType,
+        mainTypeId: execution.targetId,
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (customerIds.length) {
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.find',
+        data: {
+          _id: { $in: customerIds }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (customers.length) {
+        ownerType = 'customer';
+        ownerId = customers[0]._id;
+      }
+    }
+  }
+  return { ownerType, ownerId };
 };
 
 const createVoucher = async ({
@@ -264,6 +339,51 @@ const addScore = async ({
   return { error: 'Not Selected Action configuration' };
 };
 
+const addSpin = async ({
+  models,
+  subdomain,
+  execution,
+  contentType,
+  config
+}: {
+  models: IModels;
+  subdomain: string;
+  execution: any;
+  contentType: string;
+  config: any;
+}) => {
+  let { ownerId, ownerType } = await getOwner({
+    models,
+    subdomain,
+    execution,
+    contentType,
+    config
+  });
+
+  if (ownerType === 'customer') {
+    const customerRelatedClientPortalUser = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: {
+        erxesCustomerId: ownerId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (customerRelatedClientPortalUser) {
+      ownerId = customerRelatedClientPortalUser._id;
+      ownerType = 'cpUser';
+    }
+  }
+
+  return await models.Spins.createSpin({
+    ownerId,
+    ownerType,
+    campaignId: config.spinCampaignId
+  });
+};
+
 const actionCreate = async ({ subdomain, action, execution }) => {
   const models = await generateModels(subdomain);
   const { config = {}, type } = action;
@@ -284,6 +404,14 @@ const actionCreate = async ({ subdomain, action, execution }) => {
 
       case 'loyalties:voucher.create':
         return createVoucher({
+          models,
+          subdomain,
+          execution,
+          contentType,
+          config
+        });
+      case 'loyalties:spin.create':
+        return addSpin({
           models,
           subdomain,
           execution,
