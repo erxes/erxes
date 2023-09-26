@@ -56,6 +56,7 @@ export const queries = `
   cpSchedules(contractId: String!, status: String): [LoanSchedule]
   schedules(contractId: String!, isFirst: Boolean, year: Float): [LoanSchedule]
   scheduleYears(contractId: String!): [ScheduleYear]
+  getGraphicValue(contract:JSON):[LoanSchedule]
 `;
 
 export const mutations = `

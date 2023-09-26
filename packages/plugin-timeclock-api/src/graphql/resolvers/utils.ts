@@ -512,6 +512,7 @@ export const timeclockReportByUser = async (
       totalHoursBreakSelecteDay,
       totalHoursAbsenceSelectedMonth,
 
+      requests: requestsOfSelectedMonth,
       scheduledShifts: scheduleShiftsSelectedMonth,
       timeclocks: timeclocksOfSelectedMonth,
 
