@@ -56,7 +56,9 @@ class SendWebhook extends React.Component<Props, State> {
     const { activeAction } = props;
 
     this.state = {
-      useSpecifiedFields: false,
+      useSpecifiedFields:
+        !!Object.keys(activeAction?.config?.specifiedFields || {}).length ||
+        false,
       config: activeAction?.config || {}
     };
   }
