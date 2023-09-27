@@ -28,7 +28,7 @@ type Props = {
   queryParams: any;
   loading: boolean;
   participantUsers: IUser[];
-  pinnedUsers?: {
+  pinnedUsers: {
     pinnedUserIds: string[];
     userId: string;
     pinnedUsersInfo: IUser[];
