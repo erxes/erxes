@@ -4,18 +4,11 @@ const pinnedUserMutations = {
   // /**
   //  * Creates a new pinnedUser
   //  */
-  async meetingPinnedUserAdd(
-    _root,
-    { pinnedUserIds },
-    { models, user }: IContext
-  ) {
-    return await models.PinnedUsers.createPinnedUser(pinnedUserIds, user);
-  },
 
   // /**
   //  * Edits a pinnedUser
   //  */
-  async meetingPinnedUserEdit(
+  async meetingPinnedUserUpdate(
     _root,
     { pinnedUserIds },
     { models, user }: IContext

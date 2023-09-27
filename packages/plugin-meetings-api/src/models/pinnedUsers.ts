@@ -8,10 +8,6 @@ import {
 import { checkLogin } from '@erxes/api-utils/src';
 
 export interface IPinnedUserModel extends Model<IPinnedUserDocument> {
-  createPinnedUser(
-    pinnedUserIds: String[],
-    user: IUser
-  ): Promise<IPinnedUserDocument>;
   updatePinnedUser(
     pinnedUserIds: String[],
     user: IUser
@@ -20,20 +16,20 @@ export interface IPinnedUserModel extends Model<IPinnedUserDocument> {
 
 export const loadPinnedUserClass = (model: IModels) => {
   class PinnedUser {
-    // create
-    public static async createPinnedUser(pinnedUserIds, user) {
+    // update
+    public static async updatePinnedUser(pinnedUserIds, user) {
+      const pinnedUsers = await model.PinnedUsers.findOne({ userId: user._id });
+
+      if (pinnedUsers) {
+        return await model.PinnedUsers.updateOne(
+          { userId: user._id },
+          { $set: { pinnedUserIds } }
+        ).then(err => console.error(err));
+      }
       return await model.PinnedUsers.create({
         pinnedUserIds,
         userId: user._id
       });
-    }
-
-    // update
-    public static async updatePinnedUser(pinnedUserIds, user) {
-      return await model.PinnedUsers.updateOne(
-        { userId: user._id },
-        { $set: { pinnedUserIds } }
-      ).then(err => console.error(err));
     }
   }
 
