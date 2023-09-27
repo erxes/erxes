@@ -117,8 +117,15 @@ query meetingsTotalCount{
 const meetingPinnedUsers = `
 query meetingPinnedUsers {
   meetingPinnedUsers {
-      pinnedUserIds
+    pinnedUserIds
     userId
+    pinnedUsersInfo{
+      _id
+      email
+      details {
+        fullName
+      }
+    }
   }
 }`;
 

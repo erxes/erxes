@@ -58,7 +58,7 @@ export const TopicForm = (props: Props) => {
     const { topic, renderButton, closeModal } = props;
     const { values, isSubmitted } = formProps;
     return (
-      <>
+      <div key={topic?._id}>
         <FormGroup>
           <ControlLabel required={true}>Topic name</ControlLabel>
           <FormControl
@@ -111,7 +111,7 @@ export const TopicForm = (props: Props) => {
             })}
           </ModalFooter>
         )}
-      </>
+      </div>
     );
   };
 

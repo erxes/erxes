@@ -58,11 +58,29 @@ const editTopic = `
   }
   `;
 
+const editPinnedUser = `
+ mutation meetingPinnedUserEdit($pinnedUserIds: [String]) {
+  meetingPinnedUserEdit(pinnedUserIds: $pinnedUserIds) {
+    userId
+    pinnedUserIds
+  }
+}
+  `;
+const addPinnedUser = `
+  mutation meetingPinnedUserAdd($pinnedUserIds: [String]) {
+    meetingPinnedUserAdd(pinnedUserIds: $pinnedUserIds) {
+      userId
+      pinnedUserIds
+  }
+}`;
+
 export default {
   addTopic,
   editTopic,
   addMeeting,
   remove,
   editMeeting,
-  editMeetingStatus
+  editMeetingStatus,
+  editPinnedUser,
+  addPinnedUser
 };

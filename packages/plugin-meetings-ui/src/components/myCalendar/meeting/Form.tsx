@@ -41,11 +41,13 @@ export const MeetingForm = (props: Props) => {
   const { companies } = companiesQuery || {};
   const { deals } = dealsQuery || {};
 
+  let dealInitialId = dealId ? [dealId] : '';
+
   const [userIds, setUserIds] = useState([props.currentUser._id] || []);
   const [companyId, setCompanyId] = useState('');
   const [title, setTitle] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
-  const [dealIds, setDealIds] = useState([dealId] || []);
+  const [dealIds, setDealIds] = useState(dealInitialId);
 
   const [startDate, setStartDate] = useState<string | Date>(
     calendarDate?.startDate || new Date()
@@ -67,7 +69,7 @@ export const MeetingForm = (props: Props) => {
     endDate: string | Date;
     companyId: string;
     method: string;
-    dealIds: string[];
+    dealIds: string[] | string;
   }) => {
     const finalValues = values;
 
@@ -90,7 +92,7 @@ export const MeetingForm = (props: Props) => {
     if (selectedMethod) {
       finalValues.method = selectedMethod;
     }
-    if (dealIds) {
+    if (dealIds && dealIds.length > 0) {
       finalValues.dealIds = dealIds;
     }
 

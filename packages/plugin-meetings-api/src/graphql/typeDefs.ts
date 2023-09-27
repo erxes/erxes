@@ -1,6 +1,10 @@
 import gql from 'graphql-tag';
 import { mutations as meetingMutations, queries } from './schema/meeting';
 import { mutations as topicMutations } from './schema/topic';
+import {
+  mutations as pinnedUserMutations,
+  queries as pinnedUserQueries
+} from './schema/pinnedUser';
 
 const types = `
   type Topic {
@@ -42,6 +46,12 @@ const types = `
     dealIds: [String]
     deals: [Deal]
   }
+
+  type PinnedUsers {
+    userId: String
+    pinnedUserIds: [String]
+    pinnedUsersInfo: [User]
+  }
 `;
 
 const typeDefs = async () => {
@@ -53,11 +63,13 @@ const typeDefs = async () => {
     
     extend type Query {
       ${queries}
+      ${pinnedUserQueries}
     }
     
     extend type Mutation {
       ${meetingMutations}
       ${topicMutations}
+      ${pinnedUserMutations}
     }
   `;
 };

@@ -18,7 +18,6 @@ import { queries as userQueries } from '@erxes/ui/src/team/graphql';
 
 type Props = {
   history: any;
-  searchFilter: string;
   queryParams: any;
   route?: string;
   perPage?: number;

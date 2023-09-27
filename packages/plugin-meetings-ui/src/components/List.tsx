@@ -76,7 +76,6 @@ function List(props: Props) {
             queryParams={queryParams}
             meetings={meetings}
             loading={loading}
-            participantUsers={participantUsers}
           />
         );
         break;
