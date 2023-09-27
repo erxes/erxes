@@ -32,7 +32,11 @@ const SideBarContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     participantUsers: data.users,
-    pinnedUsers: pinnedUsers.meetingPinnedUsers
+    pinnedUsers: pinnedUsers.meetingPinnedUsers || {
+      pinnedUserIds: [],
+      userId: '',
+      pinnedUsersInfo: []
+    }
   };
   return <SideBar {...updatedProps} />;
 };
