@@ -8,8 +8,11 @@ export interface IXypConfig {
 }
 
 const xypQueries = {
-  xypDataList(_root, {}, { models }: IContext) {
-    return models.XypData.find({});
+  xypDataList(_root, { contentType, contentTypeIds }, { models }: IContext) {
+    let query = {};
+    if (contentType) query['contentType'] = contentType;
+    if (contentTypeIds) query['contentTypeId'] = { $in: contentTypeIds };
+    return models.XypData.find(query);
   },
 
   xypDataDetail(

@@ -21,7 +21,7 @@ const queries = `
   xypServiceList:JSON
   xypServiceListChoosen:JSON
   xypRequest(params:JSON,wsOperationName:String!):JSON
-  xypDataList:[XypData]
+  xypDataList(contentType:String,contentTypeIds:[String]):[XypData]
   xypDataDetail(_id: String, contentType: String, contentTypeId: String): XypData
 `;
 
