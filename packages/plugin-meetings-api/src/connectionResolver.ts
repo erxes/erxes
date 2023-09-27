@@ -28,7 +28,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
 
   models.PinnedUsers = db.model<IPinnedUserDocument, IPinnedUserModel>(
-    'meeting_pinnedUsers',
+    'meeting_pinned_users',
     loadPinnedUserClass(models)
   );
 
