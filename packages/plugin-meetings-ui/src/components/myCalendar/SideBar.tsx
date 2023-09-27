@@ -39,7 +39,7 @@ export const SideBar = (props: Props) => {
   const { queryParams, meetings, loading, pinnedUsers } = props;
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
-  const { pinnedUsersInfo } = pinnedUsers;
+  const { pinnedUsersInfo = [] } = pinnedUsers;
 
   const [checkedUsers, setCheckedUsers] = useState(
     (queryParams.participantUserIds &&
@@ -52,8 +52,8 @@ export const SideBar = (props: Props) => {
     setFilteredMeeting(meetings);
   }, [meetings, meetings.length]);
 
-  const onClick = (meetingId: string) => {
-    router.setParams(history, { meetingId: meetingId });
+  const onClick = (_id: string) => {
+    router.setParams(history, { meetingId: _id });
   };
 
   const ListItem = meeting => {
@@ -149,7 +149,7 @@ export const SideBar = (props: Props) => {
 
   const data = (
     <SidebarList style={{ padding: '10px 20px' }}>
-      {pinnedUsersInfo.map((user: any) => {
+      {pinnedUsersInfo?.map((user: any) => {
         return (
           <ParticipantList key={user._id}>
             <FormControl
