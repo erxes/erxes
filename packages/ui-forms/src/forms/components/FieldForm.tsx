@@ -10,7 +10,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import { loadDynamicComponent, __, Alert } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 import React from 'react';
@@ -158,6 +158,24 @@ class FieldForm extends React.Component<Props, State> {
     e.persist();
 
     const { field } = this.state;
+
+    if (!field.text) {
+      return Alert.error('Enter a field label');
+    }
+
+    if (['check', 'select', 'multiSelect'].includes(field.type)) {
+      if (!field.options) return Alert.error('Enter a field options');
+      if (field.options.length <= 1)
+        return Alert.error('Enter more than 1 field options');
+
+      let iterator = 0;
+      for (const option of field.options) {
+        iterator++;
+        if (option === '') {
+          return Alert.error(`Enter a name at field option ${iterator}`);
+        }
+      }
+    }
 
     this.props.onSubmit(field);
   };

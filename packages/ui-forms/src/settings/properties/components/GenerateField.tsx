@@ -105,13 +105,13 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderMultiSelect(options: string[] = [], attrs) {
     const onChange = (ops: IOption[]) => {
-      const { field, onValueChange } = this.props;
+      const { field } = this.props;
+      const { onChange } = attrs;
 
-      if (onValueChange) {
+      if (onChange) {
         const value = ops.map(e => e.value).toString();
         this.setState({ value });
-
-        onValueChange({ _id: field._id, value });
+        onChange({ _id: field._id, value });
       }
     };
     return (
@@ -545,7 +545,6 @@ export default class GenerateField extends React.Component<Props, State> {
   onChange = (e, optionValue) => {
     const { field, onValueChange } = this.props;
     const { validation, type } = field;
-
     if (!e.target && !optionValue) {
       return;
     }
@@ -783,7 +782,6 @@ export default class GenerateField extends React.Component<Props, State> {
           {field.text}
         </ControlLabel>
         {this.renderAddButton()}
-
         {hasLogic && <LogicIndicator>Logic</LogicIndicator>}
         {subFieldIds.includes(field._id) && (
           <LogicIndicator>Sub Field</LogicIndicator>
@@ -791,7 +789,6 @@ export default class GenerateField extends React.Component<Props, State> {
         {field.description ? (
           <div dangerouslySetInnerHTML={{ __html: field.description }} />
         ) : null}
-
         {this.renderControl()}
       </FormGroup>
     );

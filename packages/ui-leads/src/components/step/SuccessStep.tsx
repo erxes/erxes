@@ -313,7 +313,7 @@ class SuccessStep extends React.Component<Props, State> {
           <FormControl
             id="thankContent"
             type="text"
-            componentClass="textarea"
+            componentClass="textinput"
             defaultValue={thankContent}
             onChange={onChangeContent}
           />
