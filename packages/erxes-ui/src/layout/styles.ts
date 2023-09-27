@@ -130,7 +130,6 @@ const ContenFooter = styled.div`
 const HeaderItems = styledTS<{
   rightAligned?: boolean;
   hasFlex?: boolean;
-  isNumber?: boolean;
 }>(styled.div)`
   align-self: center;
   flex: ${props => props.hasFlex && 1};
@@ -138,7 +137,6 @@ const HeaderItems = styledTS<{
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
-  ${props => props.isNumber && `color: ${colors.colorLightGray}`}
 `;
 
 const SideContent = styledTS<{

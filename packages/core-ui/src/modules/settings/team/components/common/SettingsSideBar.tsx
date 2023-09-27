@@ -3,7 +3,7 @@ import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeade
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList, __ } from '@erxes/ui/src';
 import { Link } from 'react-router-dom';
-import { HeaderItems } from '@erxes/ui/src/layout/styles';
+import { SidebarCounter, FieldStyle } from '@erxes/ui/src/layout/styles';
 
 function ListItem(url, text, totalCount?) {
   return (
@@ -12,10 +12,8 @@ function ListItem(url, text, totalCount?) {
         to={url}
         className={window.location.href.includes(url) ? 'active' : ''}
       >
-        {__(text)}
-        <HeaderItems rightAligned={true} isNumber={true}>
-          {totalCount}
-        </HeaderItems>
+        <FieldStyle>{__(text)}</FieldStyle>
+        <SidebarCounter nowrap={true}>{totalCount}</SidebarCounter>
       </Link>
     </li>
   );
