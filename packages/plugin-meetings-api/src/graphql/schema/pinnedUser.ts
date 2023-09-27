@@ -2,8 +2,7 @@ const params = `
   pinnedUserIds: [String]
 `;
 export const mutations = `
-  meetingPinnedUserAdd(${params}): PinnedUsers
-  meetingPinnedUserEdit(${params}): PinnedUsers
+  meetingPinnedUserUpdate(${params}): PinnedUsers
   `;
 
 export const queries = `

@@ -19,11 +19,7 @@ export const ChooseOwnerFormContainer = (props: Props) => {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={
-          object && object !== {}
-            ? mutations.editPinnedUser
-            : mutations.addPinnedUser
-        }
+        mutation={mutations.updatePinnedUser}
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
