@@ -46,7 +46,7 @@ const DeliveryInputs = () => {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
-        <CardTitle className="mb-2">Хүргэлтын мэдээлэл</CardTitle>
+        <CardTitle className="mb-2">Хүргэлтийн мэдээлэл</CardTitle>
         <div className="space-y-3">
           <div className="col-span-3 pb-1">
             <Label htmlFor="delivery" className="block pb-1">

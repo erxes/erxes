@@ -10,6 +10,7 @@ import { sendRequest } from '@erxes/api-utils/src';
 import { graphqlPubsub } from './configs';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import messageBroker from './messageBroker';
+import { makeInvoiceNo } from './utils';
 
 const router = Router();
 
@@ -143,7 +144,7 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       paymentKind,
       phone,
       domain,
-      identifier: invoice.identifier
+      identifier: makeInvoiceNo(32)
     });
   }
 
@@ -152,7 +153,8 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       ...invoiceData,
       selectedPaymentId,
       phone,
-      domain
+      domain,
+      identifier: makeInvoiceNo(32)
     });
   }
 

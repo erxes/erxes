@@ -8,6 +8,7 @@ import { getMode } from "@/lib/utils"
 export const searchAtom = atom<string>("")
 export const activeCategoryAtom = atom<string>("")
 export const activeCatName = atom<string>("")
+export const hiddenParentsAtom = atom<string[]>([])
 
 // local
 export const currentAmountAtom = atom<number>(0)

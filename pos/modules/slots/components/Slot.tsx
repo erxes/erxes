@@ -23,7 +23,7 @@ const className = cva("h-10 w-10 text-base font-bold px-0 relative ", {
 const MotionLabel = motion(Label)
 
 const Slot = ({
-  _id,
+  code,
   name,
   status,
   active,
@@ -35,8 +35,8 @@ const Slot = ({
     <Button className={className({ status })} Component={"div"}>
       {name}
       <RadioGroupItem
-        value={active ? "" : _id}
-        id={_id}
+        value={active ? "" : code}
+        id={code}
         className="peer sr-only"
       />
       <MotionLabel
@@ -47,7 +47,7 @@ const Slot = ({
         initial={{
           opacity: 0,
         }}
-        htmlFor={_id}
+        htmlFor={code}
       />
       <MotionLabel
         className="absolute -top-1.5 -right-1.5 bg-primary h-5 w-5 rounded-full border-2 border-white p-0.5 text-white"
@@ -57,7 +57,7 @@ const Slot = ({
           translateY: active ? 0 : 2,
           translateX: active ? 0 : -2,
         }}
-        htmlFor={_id}
+        htmlFor={code}
       >
         <Check className="h-3 w-3" strokeWidth={4} />
       </MotionLabel>

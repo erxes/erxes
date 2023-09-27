@@ -63,6 +63,8 @@ export const callbackHandler = async (req, res) => {
     }
 
     if (invoiceDoc.status === PAYMENT_STATUS.PAID) {
+      delete invoiceDoc.apiResponse;
+
       graphqlPubsub.publish('invoiceUpdated', {
         invoiceUpdated: {
           _id: invoiceDoc._id,

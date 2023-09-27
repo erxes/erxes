@@ -12,6 +12,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   const storepayInput = document.getElementById('storepayInput');
   const loader = document.querySelector('.loader');
   const deeplink = document.getElementById('deeplink');
+  const bankButtons = document.getElementById('bank-buttons');
 
   deeplink.href = '';
   deeplink.innerHTML = '';
@@ -183,14 +184,29 @@ async function onPaymentClick(payment, invoiceData, prefix) {
         });
     });
   }
+  
+  // hide bank buttons
+  bankButtons.style.display = 'none';
 
   if (apiResponse.deeplink && isMobile) {
+    deeplink.style.display = 'block';
+    deeplink.href = apiResponse.deeplink;
+    deeplink.target = '_self';
+    deeplink.innerHTML = `Open in ${paymentObj.kind}`;
+
     window.open(apiResponse.deeplink, '_self');
   }
 
   if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile){
     // hide qr image
     image.style.display = 'none';
+    bankButtons.style.display = 'block';
+
+    // clear previous bank buttons
+    while (bankButtons.firstChild) {
+      bankButtons.removeChild(bankButtons.firstChild);
+    }
+
     const urls = apiResponse.urls || [];
 
     urls.map((bankUrl) => {

@@ -35,6 +35,8 @@ export const orderItemFields = `
     discountPercent
     bonusCount
     manufacturedDate
+    description
+    attachment
 `
 
 const customerFields = `
@@ -368,7 +370,7 @@ const queries = {
   progressDetail,
   ordersAtWaiting,
   historyItemDetail,
-  ebarimtDetail
+  ebarimtDetail,
 }
 
 export default queries
