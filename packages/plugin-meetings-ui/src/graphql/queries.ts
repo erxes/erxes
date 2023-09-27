@@ -119,6 +119,13 @@ query meetingPinnedUsers {
   meetingPinnedUsers {
     pinnedUserIds
     userId
+    pinnedUsersInfo{
+      _id
+      email
+      details {
+        fullName
+      }
+    }
   }
 }`;
 

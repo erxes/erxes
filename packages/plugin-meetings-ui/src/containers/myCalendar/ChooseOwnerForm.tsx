@@ -17,7 +17,6 @@ export const ChooseOwnerFormContainer = (props: Props) => {
     callback,
     object
   }: IButtonMutateProps) => {
-    object && object !== {} ? console.log(object, 'o') : console.log(';a');
     return (
       <ButtonMutate
         mutation={

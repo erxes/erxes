@@ -15,8 +15,12 @@ const pinnedUserMutations = {
   // /**
   //  * Edits a pinnedUser
   //  */
-  async meetingPinnedUserEdit(_root, doc, { models, user }: IContext) {
-    return models.PinnedUsers.updatePinnedUser(doc, user);
+  async meetingPinnedUserEdit(
+    _root,
+    { pinnedUserIds },
+    { models, user }: IContext
+  ) {
+    return models.PinnedUsers.updatePinnedUser(pinnedUserIds, user);
   }
 };
 

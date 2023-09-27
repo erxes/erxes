@@ -55,7 +55,10 @@ const MeetingDetailContainer = (props: FinalProps) => {
   }
 
   const updatedProps = {
-    meetingDetail: meetingDetailQuery && meetingDetailQuery.meetingDetail,
+    meetingDetail:
+      meetingDetailQuery &&
+      meetingDetailQuery.meetingDetail &&
+      meetingDetailQuery.meetingDetail,
     changeStatus,
     meetings: data?.meetings
   };

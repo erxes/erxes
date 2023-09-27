@@ -30,7 +30,7 @@ export const loadPinnedUserClass = (model: IModels) => {
 
     // update
     public static async updatePinnedUser(pinnedUserIds, user) {
-      await model.PinnedUsers.updateOne(
+      return await model.PinnedUsers.updateOne(
         { userId: user._id },
         { $set: { pinnedUserIds } }
       ).then(err => console.error(err));

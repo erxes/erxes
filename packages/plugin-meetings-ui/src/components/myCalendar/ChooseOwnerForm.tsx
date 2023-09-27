@@ -33,7 +33,6 @@ const ChooseOwnerForm = (props: Props) => {
     const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
     const object = pinnedUserIds;
-    console.log(object, 'object');
 
     return (
       <>

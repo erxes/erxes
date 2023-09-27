@@ -50,7 +50,7 @@ const types = `
   type PinnedUsers {
     userId: String
     pinnedUserIds: [String]
-    participantUser: [User]
+    pinnedUsersInfo: [User]
   }
 `;
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { IMeeting } from '../../types';
 import SideBar from '../../components/myCalendar/SideBar';
-import { IUser } from '@erxes/ui/src/auth/types';
 import { gql, useQuery } from '@apollo/client';
 import { queries as userQueries } from '@erxes/ui/src/team/graphql';
 import { Spinner } from '@erxes/ui/src/components';
@@ -29,14 +28,11 @@ const SideBarContainer = (props: Props) => {
   if (loading || pinnedUserLoading) {
     return <Spinner />;
   }
-  console.log(
-    pinnedUsers.meetingsPinnedUsers,
-    'pinnedUsers.meetingsPinnedUsers'
-  );
+
   const updatedProps = {
     ...props,
     participantUsers: data.users,
-    pinnedUsers: pinnedUsers.meetingsPinnedUsers
+    pinnedUsers: pinnedUsers.meetingPinnedUsers
   };
   return <SideBar {...updatedProps} />;
 };
