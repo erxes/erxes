@@ -35,6 +35,7 @@ class PreviousDetailComponents extends React.Component<Props, State> {
     const onSelect = ({ value }) => {
       this.setState({ selectedMeetingId: value });
     };
+
     return (
       <>
         <FeatureRowItem>

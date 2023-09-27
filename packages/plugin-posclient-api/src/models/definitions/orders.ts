@@ -44,6 +44,8 @@ export interface IOrder {
   posToken?: string;
   subToken?: string;
   deliveryInfo?: any;
+  description?: string;
+  isPre?: boolean;
 
   //posSlot
   slotCode?: string;
@@ -73,7 +75,8 @@ const returnInfoSchema = new Schema({
   cashAmount: field({ type: Number }),
   paidAmounts: field({ type: [paidAmountSchema] }),
   returnAt: field({ type: Date }),
-  returnBy: field({ type: String })
+  returnBy: field({ type: String }),
+  description: field({ type: String })
 });
 
 export const orderSchema = schemaHooksWrapper(
@@ -194,6 +197,16 @@ export const orderSchema = schemaHooksWrapper(
       type: Object,
       optional: true,
       label: 'Delivery Info, address, map, etc'
+    }),
+    description: field({
+      type: String,
+      label: 'Description',
+      optional: true
+    }),
+    isPre: field({
+      type: Boolean,
+      label: 'Is Pre-Order',
+      optional: true
     }),
     origin: field({
       type: String,

@@ -48,6 +48,7 @@ const mutationParams = `
   redirectUri: String
   paymentIds: [String]
   warningText: String
+  data: JSON
 `;
 
 export const mutations = `

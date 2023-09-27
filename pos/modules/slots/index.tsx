@@ -27,7 +27,7 @@ const Slots = () => {
         ) : (
           <>
             {(poscSlots || []).map((slot: ISlot) => (
-              <Slot {...slot} key={slot._id} active={slot._id === activeSlot} />
+              <Slot {...slot} key={slot.code} active={slot.code === activeSlot} />
             ))}
           </>
         )}

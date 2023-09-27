@@ -107,7 +107,7 @@ export class SocialPayAPI extends BaseAPI {
       });
 
       if (header.code !== 200) {
-        return { error: body.response.desc };
+        return { error: body.error.errorDesc };
       }
 
       if (body.response.desc.includes('socialpay-payment')) {

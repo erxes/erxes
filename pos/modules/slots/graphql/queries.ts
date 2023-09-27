@@ -4,6 +4,8 @@ const slots = `
       _id
       code
       name
+      status
+      isPreDates
     }
   }
 `

@@ -183,6 +183,7 @@ const commonFields = `
   startDate: Date
   scheduleDays: [Float]
   insurancesData: JSON
+  schedule: JSON
   collateralsData: JSON
   customerId: String
   customerType: String

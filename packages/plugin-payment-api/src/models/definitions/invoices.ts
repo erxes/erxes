@@ -17,7 +17,7 @@ export interface IInvoice {
   createdAt: Date;
   resolvedAt?: Date;
   paymentKind: string;
-
+  data?: any;
   // monpay coupon
   couponCode?: string;
   couponAmount?: number;
@@ -84,6 +84,11 @@ export const invoiceSchema = schemaHooksWrapper(
       type: Date,
       optional: true,
       label: 'Resolved Date for invoice'
+    }),
+    data: field({
+      type: Object,
+      optional: true,
+      label: 'data'
     })
   }),
   'erxes_invoices'

@@ -6,13 +6,14 @@ import { IMeeting } from '../../types';
 '@erxes/ui/src/components/MemberAvatars';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Form from '../../containers/myCalendar/meeting/Form';
-
+import { useHistory } from 'react-router-dom';
 type Props = {
   meeting: IMeeting;
   remove: () => void;
 };
 export const Row = (props: Props) => {
   const { meeting, remove } = props;
+  const history = useHistory();
 
   const editTrigger = (
     <Button btnStyle="link">
@@ -33,7 +34,11 @@ export const Row = (props: Props) => {
   const content = props => <Form {...props} meeting={meeting} />;
 
   return (
-    <tr>
+    <tr
+      onClick={() => {
+        history.push(`/meetings/myCalendar?meetingId=${meeting._id}`);
+      }}
+    >
       <td>{meeting.title}</td>
       <td>{meeting.createdUser?.username || ''}</td>
       <td>{meeting.createdAt}</td>
