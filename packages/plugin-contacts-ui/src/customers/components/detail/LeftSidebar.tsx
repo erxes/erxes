@@ -1,18 +1,18 @@
-import BasicInfoSection from '../common/BasicInfoSection';
-import CustomFieldsSection from '@erxes/ui-contacts/src/customers/containers/CustomFieldsSection';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import React from 'react';
-
-import { ICustomer } from '../../types';
-import { IField } from '@erxes/ui/src/types';
 import {
   DevicePropertiesSection,
   TaggerSection,
   TrackedDataSection
 } from '../common';
+
+import BasicInfoSection from '../common/BasicInfoSection';
+import CustomFieldsSection from '@erxes/ui-contacts/src/customers/containers/CustomFieldsSection';
+import { ICustomer } from '../../types';
+import { IField } from '@erxes/ui/src/types';
+import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   customer: ICustomer;
@@ -42,6 +42,13 @@ export default class LeftSidebar extends React.Component<Props> {
           fieldsVisibility={fieldsVisibility}
           fields={fields}
         />
+        {isEnabled('tags') && (
+          <TaggerSection
+            data={customer}
+            type="contacts:customer"
+            refetchQueries={taggerRefetchQueries}
+          />
+        )}
         <CustomFieldsSection customer={customer} isDetail={true} />
         <DevicePropertiesSection
           customer={customer}
@@ -51,13 +58,6 @@ export default class LeftSidebar extends React.Component<Props> {
         />
         <TrackedDataSection customer={customer} />
         <WebsiteActivity urlVisits={customer.urlVisits || []} />
-        {isEnabled('tags') && (
-          <TaggerSection
-            data={customer}
-            type="contacts:customer"
-            refetchQueries={taggerRefetchQueries}
-          />
-        )}
       </Sidebar>
     );
   }

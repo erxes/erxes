@@ -110,6 +110,8 @@ export interface IIntegration {
   mainUser: string;
   user: string;
   password: string;
+  healthStatus?: string;
+  error?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -122,7 +124,9 @@ export const integrationSchema = new Schema({
   smtpPort: String,
   mainUser: String,
   user: String,
-  password: String
+  password: String,
+  healthStatus: String,
+  error: String
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {}

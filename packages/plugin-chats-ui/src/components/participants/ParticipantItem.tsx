@@ -19,6 +19,7 @@ type Props = {
   makeOrRemoveAdmin: () => void;
   addOrRemoveMember: () => void;
   isAdmin: boolean;
+  isWidget?: boolean;
 };
 
 type FinalProps = {
@@ -26,25 +27,15 @@ type FinalProps = {
 } & Props;
 
 const ParticipantItem = (props: FinalProps) => {
-  const { user, isAdmin } = props;
-  const actionsRef = useRef<HTMLElement>(null);
-
-  const handleMouseEnter = () => {
-    if (actionsRef && actionsRef.current) {
-      actionsRef.current.style.display = 'inline-block';
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (actionsRef && actionsRef.current) {
-      actionsRef.current.style.display = 'none';
-    }
-  };
+  const { user, isAdmin, isWidget } = props;
 
   const renderActionButtons = () => {
-    if (!isAdmin) return null;
+    if (!isAdmin) {
+      return null;
+    }
+
     return (
-      <ChatActions innerRef={actionsRef}>
+      <ChatActions>
         <Tip
           text={user.isAdmin ? 'Remove as Admin' : 'Make admin'}
           placement="bottom"
@@ -64,13 +55,10 @@ const ParticipantItem = (props: FinalProps) => {
   };
 
   return (
-    <ParticipantItemWrapper
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <ParticipantItemWrapper isWidget={isWidget}>
       <Link to={`/erxes-plugin-chat?userId=${user._id}`}>
-        <Avatar user={user} size={36} />
-        <ParticipantDetails>
+        <Avatar user={user} size={isWidget ? 28 : 36} />
+        <ParticipantDetails isWidget={isWidget}>
           <p>{user.details.fullName || user.email}</p>
           <span>
             {user.isAdmin ? 'Admin ' : ''}

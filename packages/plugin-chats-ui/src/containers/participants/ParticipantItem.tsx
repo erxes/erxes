@@ -12,10 +12,11 @@ type Props = {
   user: any;
   chatId: string;
   isAdmin: boolean;
+  isWidget?: boolean;
 };
 
 const ParticipantItemContainer = (props: Props) => {
-  const { user, chatId, isAdmin } = props;
+  const { user, chatId, isAdmin, isWidget } = props;
   const [adminMutation] = useMutation(gql(mutations.chatMakeOrRemoveAdmin));
   const [memberMutation] = useMutation(gql(mutations.chatAddOrRemoveMember));
 
@@ -63,6 +64,7 @@ const ParticipantItemContainer = (props: Props) => {
       makeOrRemoveAdmin={makeOrRemoveAdmin}
       addOrRemoveMember={addOrRemoveMember}
       isAdmin={isAdmin}
+      isWidget={isWidget}
     />
   );
 };

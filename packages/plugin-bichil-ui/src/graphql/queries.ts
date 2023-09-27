@@ -93,6 +93,18 @@ const bichilTimeclockReport = `
               totalWeekendDays
               totalHoursShiftRequest
             
+              shiftNotClosedDaysPerUser
+              shiftNotClosedFee
+              shiftNotClosedDeduction
+              latenessFee
+              totalMinsLateDeduction
+              totalDeduction
+              totalHoursVacation
+              totalHoursUnpaidAbsence
+              totalHoursSick
+
+
+              
             }
         groupTotalMinsLate
         groupTotalAbsenceMins
@@ -100,6 +112,11 @@ const bichilTimeclockReport = `
         groupTotalMinsScheduled
       }
       totalCount  
+      totalHoursScheduled
+      totalHoursWorked
+      totalShiftNotClosedDeduction
+      totalLateMinsDeduction
+      totalDeductionPerGroup
     }
   
   }`;

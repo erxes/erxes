@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 import { Model } from 'mongoose';
 import validator from 'validator';
 import { IModels } from '../connectionResolver';
@@ -59,7 +59,7 @@ export const loadFormClass = (models: IModels) => {
       let foundForm = true;
 
       do {
-        code = Random.id().substr(0, 6);
+        code = nanoid(6);
         foundForm = Boolean(await models.Forms.findOne({ code }));
       } while (foundForm);
 

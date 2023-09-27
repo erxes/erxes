@@ -53,6 +53,7 @@ export interface IProduct extends IProductCommonFields {
   taxType?: string;
   taxCode?: string;
   isCheckRems: { [token: string]: boolean };
+  sameMasks?: string[];
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -65,6 +66,15 @@ export interface IProductCategory extends IProductCommonFields {
   order: string;
   parentId?: string;
   status: string;
+  maskType?: string;
+  mask?: any;
+  isSimilarity?: boolean;
+  similarities: {
+    id: string;
+    groupId: string;
+    fieldId: string;
+    title: string;
+  }[];
 }
 
 export interface IProductCategoryDocument extends IProductCategory, Document {
@@ -149,7 +159,8 @@ export const productSchema = schemaWrapper(
       type: Object,
       optional: true,
       label: 'check remainder by token'
-    })
+    }),
+    sameMasks: field({ type: [String] })
   })
 );
 
@@ -173,7 +184,12 @@ export const productCategorySchema = schemaHooksWrapper(
       index: true
     }),
     createdAt: getDateFieldDefinition('Created at'),
-    tokens: field({ type: [String] })
+    tokens: field({ type: [String] }),
+    mask: field({ type: Object, label: 'Mask' }),
+    isSimilarity: field({ type: Boolean, label: 'is Similiraties' }),
+    similarities: field({
+      type: [{ id: String, groupId: String, fieldId: String, title: String }]
+    })
   }),
   'erxes_productCategorySchema'
 );

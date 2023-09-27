@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 const types = `
   type IMap {
@@ -35,6 +35,7 @@ const mutations = `
     bcc: [String]
     from: String!
     shouldResolve: Boolean
+    shouldOpen: Boolean
     headerId: String
     replyTo: [String]
     inReplyTo: String

@@ -1,6 +1,6 @@
 import mongoDb from 'mongodb';
 import fs from 'fs';
-import Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 
 var MongoClient = mongoDb.MongoClient;
 
@@ -68,7 +68,7 @@ var command = async () => {
 
     if (idOnSheet) {
       const city = {
-        _id: Random.id(),
+        _id: nanoid(),
         name: columns[1],
         code: columns[2],
         iso: columns[3],
@@ -81,7 +81,7 @@ var command = async () => {
       for (let j = 0; j < cityDistricts.length; j++) {
         const district = cityDistricts[j];
         const d = await Districts.insertOne({
-          _id: Random.id(),
+          _id: nanoid(),
           name: district.name,
           code: district.code,
           cityId: c.insertedId,
@@ -94,7 +94,7 @@ var command = async () => {
         for (let k = 0; k < districtQuarters.length; k++) {
           const quarter = districtQuarters[k];
           const q = await Quarters.insertOne({
-            _id: Random.id(),
+            _id: nanoid(),
             name: quarter.name,
             code: quarter.code,
             order: quarter.order,

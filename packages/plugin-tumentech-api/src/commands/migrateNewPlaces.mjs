@@ -1,6 +1,6 @@
 import mongoDb from 'mongodb';
 import fs from 'fs';
-import Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 
 var MongoClient = mongoDb.MongoClient;
 
@@ -32,7 +32,7 @@ var command = async () => {
   const places = placeRows.map((d) => {
     const columns = d.split(',');
     return {
-        _id: Random.id(),
+        _id: nanoid(),
         province: columns[0],
         code: columns[1],
         name: columns[2],
