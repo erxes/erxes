@@ -27,21 +27,21 @@ import { Column } from '@erxes/ui/src/styles/main';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import EmailTemplate from './emailTemplate/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAttachment, IOption } from '@erxes/ui/src/types';
+import { IAttachment } from '@erxes/ui/src/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Label } from '@erxes/ui/src/components/form/styles';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import MailChooser from './MailChooser';
-import SignatureChooser from './SignatureChooser';
 import { Meta } from './styles';
+import SignatureChooser from './SignatureChooser';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 const Signature = asyncComponent(() =>
   import(
@@ -220,10 +220,6 @@ class MailForm extends React.Component<Props, State> {
 
     if ((content || '').length === 0 && showPrevEmails) {
       this.setState({ showPrevEmails: false });
-    }
-
-    if (this.props.brandId) {
-      this.handleSignatureSelection(this.props.brandId);
     }
   }
 
@@ -532,67 +528,12 @@ class MailForm extends React.Component<Props, State> {
     this.setState({ content: this.findTemplate(value), templateId: value });
   };
 
-  removeSignature = ({
-    openingTag = '<data>',
-    closingTag = '</data>',
-    content
-  }) => {
-    const closingTagLength = closingTag.length + 1;
-    const firstIndexOfSignature = content.indexOf(openingTag);
-    const lastIndexOfSignature = content.indexOf(closingTag) + closingTagLength;
-    let contentWithoutSignature = '';
-    /** If tag is found removing it and appending new signature value to the editor content*/
-    if (firstIndexOfSignature > -1) {
-      contentWithoutSignature = content
-        .slice(0, firstIndexOfSignature)
-        .concat(content.slice(lastIndexOfSignature));
-
-      /** Although tag is removed empty <openingTag></closingTag> tags could be there since it's in editor content and not removed*/
-      const remainingDataTagIndx = contentWithoutSignature.indexOf(openingTag);
-      const lastRemainingDataTagIndx =
-        contentWithoutSignature.indexOf(closingTag) + closingTagLength;
-      /** If empty tag is found removing it*/
-      if (remainingDataTagIndx > -1) {
-        contentWithoutSignature = contentWithoutSignature
-          .slice(0, remainingDataTagIndx)
-          .concat(contentWithoutSignature.slice(lastRemainingDataTagIndx));
-      }
-    } else {
-      contentWithoutSignature = content;
-    }
-    return contentWithoutSignature;
+  onContentChange = content => {
+    this.setState({ content });
   };
 
-  handleSignatureHide = () => {
-    this.setState({
-      content: this.removeSignature({ content: this.state.content }),
-      emailSignature: ''
-    });
-  };
-
-  handleSignatureSelection = (value: string) => {
-    const { content, emailSignature } = this.state;
-
-    /** If the current selection is same as previous, do nothing */
-    if (emailSignature === value) {
-      return;
-    }
-
-    const brandSignature = this.props.emailSignatures?.find(
-      (signature: IEmailSignature) => signature?.brandId === value
-    );
-
-    /** If selected brand exists */
-    if (brandSignature) {
-      const signatureString = brandSignature.signature || '';
-
-      this.setState({
-        content: this.removeSignature({ content }).concat(
-          `<data><span> -- </span>${signatureString}</data>`
-        ),
-        emailSignature: value
-      });
-    }
+  onSignatureChange = emailSignature => {
+    this.setState({ emailSignature });
   };
 
   renderFromValue = () => {
@@ -769,8 +710,7 @@ class MailForm extends React.Component<Props, State> {
       history,
       conversationStatus,
       emailSignatures,
-      brands,
-      currentUser
+      brands
     } = this.props;
 
     const onSubmitResolve = e => this.onSubmit(e, true);
@@ -843,9 +783,10 @@ class MailForm extends React.Component<Props, State> {
               signatureContent={this.signatureContent}
               brands={brands || []}
               signatures={emailSignatures || []}
-              value={this.state.emailSignature}
-              onSelect={this.handleSignatureSelection}
-              hideSignature={this.handleSignatureHide}
+              emailSignature={this.state.emailSignature}
+              emailContent={this.state.content}
+              onContentChange={this.onContentChange}
+              onSignatureChange={this.onSignatureChange}
             />
           </ToolBar>
         </EditorFooter>
