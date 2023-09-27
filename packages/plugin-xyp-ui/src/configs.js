@@ -16,15 +16,6 @@ module.exports = {
     scope: 'xyp',
     module: './routes',
   },
-  menus: [
-    {
-      text: 'Xyp mongolia',
-      to: '/xyps',
-      image: '/images/icons/erxes-18.svg',
-      location: 'settings',
-      scope: 'xyp',
-    },
-  ],
 
   customerRightSidebarSection: [
     {

@@ -237,12 +237,6 @@ function Sidebar({
   };
 
   const renderServiceName = (value: string) => {
-    if (value.includes('getCitizenIDCardInfo')) {
-      return 'Иргэний үнэмлэхний мэдээлэл';
-    }
-    if (value.includes('getVehicleInfo')) {
-      return 'Тээврийн хэрэгслийн мэдээлэл';
-    }
     return value;
   };
 
@@ -254,7 +248,11 @@ function Sidebar({
           {xypdata?.data?.map((d, index) => (
             <ModalTrigger
               title={d?.serviceDescription}
-              trigger={<li key={index}>{renderServiceName(d?.serviceName)}</li>}
+              trigger={
+                <li key={index}>
+                  {d?.serviceDescription.replace('дамжуулах сервис', '')}
+                </li>
+              }
               size="xl"
               content={() => modalContent(d)}
               key={d?.serviceName}
