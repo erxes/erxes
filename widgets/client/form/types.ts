@@ -1,4 +1,4 @@
-import { IIntegration } from "../types";
+import { IIntegration } from '../types';
 
 export interface IConnectResponse {
   form: IForm;
@@ -58,6 +58,7 @@ export interface ICallout {
   body?: string;
   buttonText?: string;
   featuredImage?: string;
+  imgSize?: string;
   skip?: boolean;
 }
 
@@ -127,7 +128,6 @@ export interface ILocationOption {
   description?: string;
 }
 
-
 export type EnabledServices = {
   [key: string]: boolean;
-}
+};

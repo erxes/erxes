@@ -80,6 +80,7 @@ export interface ICallout extends Document {
   body?: string;
   buttonText?: string;
   featuredImage?: string;
+  imgSize?: string;
   skip?: boolean;
 }
 
@@ -261,6 +262,7 @@ export const calloutSchema = new Schema(
       optional: true,
       label: 'Featured image'
     }),
+    imgSize: field({ type: String, optional: true, label: 'Image size' }),
     skip: field({ type: Boolean, optional: true, label: 'Skip' })
   },
   { _id: false }

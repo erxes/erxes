@@ -252,7 +252,7 @@ class Lead extends React.Component<Props, State> {
           body: this.state.bodyValue,
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logo,
-          calloutImgSize: this.state.calloutImgSize,
+          imgSize: this.state.calloutImgSize,
           skip: this.state.isSkip
         },
         rules: (rules || []).filter(rule => rule.condition && rule.value),
