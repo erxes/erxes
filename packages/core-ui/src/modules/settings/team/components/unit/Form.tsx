@@ -80,13 +80,17 @@ export default function DepartmentForm(props: Props) {
             {...formProps}
             name="description"
             defaultValue={object.description}
-            autoFocus={true}
             componentClass="textarea"
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name="code" defaultValue={object.code} />
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
+          <FormControl
+            required={true}
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Supervisor')}</ControlLabel>
