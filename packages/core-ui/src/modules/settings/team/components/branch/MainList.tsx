@@ -2,7 +2,6 @@ import {
   Button,
   ModalTrigger,
   BarItems,
-  HeaderDescription,
   FormControl,
   Table,
   Wrapper,
@@ -13,13 +12,12 @@ import {
 } from '@erxes/ui/src';
 import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
 import React from 'react';
-import SettingsSideBar from '../common/SettingsSideBar';
+import SettingsSideBar from '../../containers/common/SettingSideBar';
 import Form from '../../containers/branch/Form';
 import { generateTree } from '../../utils';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { gql } from '@apollo/client';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { DescriptionContentRow } from '../common/DescriptionContentRow';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -240,7 +238,7 @@ class MainList extends React.Component<Props, State> {
   render() {
     const { listQuery } = this.props;
 
-    const { totalCount, totalUsersCount } = listQuery.branchesMain;
+    const { totalCount } = listQuery.branchesMain;
 
     const { selectedItems } = this.state;
 
@@ -262,19 +260,6 @@ class MainList extends React.Component<Props, State> {
       </Button>
     );
 
-    const headerDescription = (
-      <HeaderDescription
-        title="Branches"
-        icon="/images/actions/21.svg"
-        description=""
-        renderExtra={DescriptionContentRow({
-          label: 'branches',
-          totalCount,
-          teamMembersCount: totalUsersCount
-        })}
-      />
-    );
-
     return (
       <Wrapper
         header={
@@ -286,7 +271,6 @@ class MainList extends React.Component<Props, State> {
             ]}
           />
         }
-        mainHead={headerDescription}
         actionBar={
           <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
         }
@@ -301,6 +285,7 @@ class MainList extends React.Component<Props, State> {
         }
         leftSidebar={<SettingsSideBar />}
         footer={<Pagination count={totalCount || 0} />}
+        hasBorder={true}
       />
     );
   }

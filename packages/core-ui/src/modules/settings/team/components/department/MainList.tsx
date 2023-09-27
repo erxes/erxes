@@ -2,7 +2,6 @@ import {
   Button,
   ModalTrigger,
   BarItems,
-  HeaderDescription,
   FormControl,
   DataWithLoader,
   Wrapper,
@@ -17,12 +16,11 @@ import {
   IDepartment
 } from '@erxes/ui/src/team/types';
 import React from 'react';
-import SettingsSideBar from '../common/SettingsSideBar';
+import SettingsSideBar from '../../containers/common/SettingSideBar';
 import Form from '../../containers/department/Form';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { gql } from '@apollo/client';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { DescriptionContentRow } from '../common/DescriptionContentRow';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -243,7 +241,7 @@ class MainList extends React.Component<Props, State> {
   render() {
     const { listQuery } = this.props;
 
-    const { totalCount, totalUsersCount } = listQuery.departmentsMain;
+    const { totalCount } = listQuery.departmentsMain;
 
     const { selectedItems } = this.state;
 
@@ -265,19 +263,6 @@ class MainList extends React.Component<Props, State> {
       </Button>
     );
 
-    const headerDescription = (
-      <HeaderDescription
-        title="Departments"
-        icon="/images/actions/21.svg"
-        description=""
-        renderExtra={DescriptionContentRow({
-          label: 'departments',
-          totalCount,
-          teamMembersCount: totalUsersCount
-        })}
-      />
-    );
-
     return (
       <Wrapper
         header={
@@ -289,7 +274,6 @@ class MainList extends React.Component<Props, State> {
             ]}
           />
         }
-        mainHead={headerDescription}
         actionBar={
           <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />
         }
@@ -304,6 +288,7 @@ class MainList extends React.Component<Props, State> {
         }
         leftSidebar={<SettingsSideBar />}
         footer={<Pagination count={totalCount || 0} />}
+        hasBorder={true}
       />
     );
   }
