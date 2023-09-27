@@ -569,6 +569,46 @@ const timeclockMutations = {
 
     return models.Shifts.removeShift(_id);
   },
+
+  async editSchedule(_root, { _id, shifts }, { models }: IContext) {
+    const scheduleShiftUpdateOps: any[] = [];
+
+    for (const shift of shifts) {
+      if (!shift._id) {
+        scheduleShiftUpdateOps.push({
+          insertOne: {
+            document: {
+              scheduleId: _id,
+              ...shift
+            }
+          }
+        });
+        continue;
+      }
+
+      scheduleShiftUpdateOps.push({
+        updateOne: {
+          filter: {
+            _id: shift._id
+          },
+          update: {
+            $set: {
+              scheduleId: _id,
+              scheduleConfigId: shift.scheduleConfigId,
+              shiftStart: shift.shiftStart,
+              shiftEnd: shift.shiftEnd
+            }
+          }
+        }
+      });
+    }
+
+    if (scheduleShiftUpdateOps.length) {
+      await models.Shifts.bulkWrite(scheduleShiftUpdateOps);
+    }
+
+    return;
+  },
   payDateAdd(_root, { dateNums }, { models }: IContext) {
     return models.PayDates.createPayDate({ payDates: dateNums });
   },

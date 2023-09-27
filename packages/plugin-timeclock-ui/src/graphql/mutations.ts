@@ -243,6 +243,11 @@ mutation scheduleConfigOrderEdit($userId: String, $orderedList :[ConfigOrderInpu
   scheduleConfigOrderEdit(userId: $userId, orderedList: $orderedList)
 }`;
 
+const editSchedule = `
+mutation editSchedule($_id: String!, $shifts:[ShiftInput]){
+  editSchedule(_id: $_id, shifts: $shifts)
+}`;
+
 export default {
   sendScheduleRequest,
   submitSchedule,
@@ -281,5 +286,7 @@ export default {
 
   createTimeClockFromLog,
 
-  scheduleConfigOrderEdit
+  scheduleConfigOrderEdit,
+
+  editSchedule
 };
