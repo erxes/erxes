@@ -3,13 +3,15 @@ import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import SelectServices from '../components/SelectServices';
 
 const XYP_SERVICES_QUERY = gql`
-  query xypServiceList {
-    xypServiceList
+  query xypServiceList($url: String, $token: String) {
+    xypServiceList(url: $url, token: $token)
   }
 `;
 
-const Container = ({ onChange, value }) => {
-  const { data, loading, error } = useQuery(XYP_SERVICES_QUERY);
+const Container = ({ onChange, value, url, token }) => {
+  const { data, loading, error } = useQuery(XYP_SERVICES_QUERY, {
+    variables: { url, token }
+  });
 
   const onSearch = (searchValue: string) => {
     // getCategories({

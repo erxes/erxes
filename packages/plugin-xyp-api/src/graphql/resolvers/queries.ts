@@ -65,7 +65,17 @@ const xypQueries = {
     return response;
   },
 
-  async xypServiceList(_root, {}, { models, subdomain }: IContext) {
+  async xypServiceList(_root, { url, token }, { models, subdomain }: IContext) {
+    if (url && token) {
+      const response = await sendRequest({
+        url: url + '/list',
+        method: 'post',
+        headers: { token: token },
+        timeout: 9000
+      });
+      return response;
+    }
+
     const xypConfigs = await sendCommonMessage({
       subdomain,
       serviceName: 'core',

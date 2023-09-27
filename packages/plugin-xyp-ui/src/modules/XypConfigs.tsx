@@ -1,5 +1,3 @@
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -7,7 +5,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import Select from 'react-select-plus';
 import SelectServices from './settings/containers/SelectServices';
 
 type Props = {
@@ -26,7 +23,8 @@ const XypConfigs = (props: Props) => {
     token: '',
     servicelist: []
   };
-
+  console.log(' props.configsMap.XYP_CONFIGS');
+  console.log(props.configsMap?.XYP_CONFIGS);
   React.useEffect(() => {
     props.onChangeConfig('XYP_CONFIGS', props.configsMap.XYP_CONFIGS);
   }, [props.configsMap]);
@@ -76,6 +74,8 @@ const XypConfigs = (props: Props) => {
         <FormGroup>
           <ControlLabel>Operation</ControlLabel>
           <SelectServices
+            url={configs.url}
+            token={configs.token}
             value={configs.servicelist}
             onChange={value => {
               const list = value.map(d => d.value);

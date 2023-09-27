@@ -18,7 +18,7 @@ data: JSON
 `;
 
 const queries = `
-  xypServiceList:JSON
+  xypServiceList(url:String, token:String):JSON
   xypServiceListChoosen:JSON
   xypRequest(params:JSON,wsOperationName:String!):JSON
   xypDataList(contentType:String,contentTypeIds:[String]):[XypData]

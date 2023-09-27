@@ -7,7 +7,6 @@ module.exports = {
     './xypConfigs': './src/modules/XypConfigs.tsx',
     './customerSidebar':
       './src/modules/contacts/containers/CustomerSidebar.tsx',
-    './carSidebar': './src/modules/car/containers/CarSidebar.tsx',
   },
 
   extendSystemConfig: './xypConfigs',
@@ -25,12 +24,4 @@ module.exports = {
     },
   ],
   carRightSidebarSection: './customerSidebar',
-
-  // carRightSidebarSection: [
-  //   {
-  //     text: 'Xyp Section',
-  //     component: './customerSidebar',
-  //     scope: 'xyp',
-  //   },
-  // ],
 };

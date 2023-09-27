@@ -155,10 +155,10 @@ function Sidebar({
       return output?.find(x => x.wsResponseName === value) || null;
     };
     const renderData = (type: string, key: string) => {
-      if (type?.includes('Byte')) {
+      if (type?.toLowerCase()?.includes('byte')) {
         return <img height={80} src={`data:image/png;base64,${i[key]}`} />;
       }
-      if (type?.includes('Date')) {
+      if (type?.toLowerCase()?.includes('date')) {
         return moment(i[key]).format('YYYY-MM-DD');
       }
 
