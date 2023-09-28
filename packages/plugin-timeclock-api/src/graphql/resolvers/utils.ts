@@ -70,7 +70,7 @@ export const findBranchUsers = async (
   const branchUsers = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: { query: { branchIds: { $in: branchIds } } },
+    data: { query: { branchIds: { $in: branchIds }, isActive: true } },
     isRPC: true
   });
   return branchUsers;
@@ -83,7 +83,7 @@ export const findDepartmentUsers = async (
   const deptUsers = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: { query: { departmentIds: { $in: departmentIds } } },
+    data: { query: { departmentIds: { $in: departmentIds }, isActive: true } },
     isRPC: true
   });
   return deptUsers;
