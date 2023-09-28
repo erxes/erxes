@@ -205,8 +205,6 @@ const LeftSideBar = (props: Props) => {
   };
 
   const onDateButtonClick = (type: string) => {
-    const startOfLastMonth = new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1);
-
     if (type === 'today') {
       setStartDate(NOW);
       setEndDate(NOW);
@@ -214,42 +212,31 @@ const LeftSideBar = (props: Props) => {
       setParams('endDate', NOW);
     }
 
-    if (type === 'last month') {
-      const endOfLastMonth = new Date(NOW);
+    if (type === 'this month') {
+      const endOfThisMonth = new Date(startOfNextMonth - 1);
 
-      setStartDate(startOfLastMonth);
-      setParams('startDate', startOfLastMonth);
+      setStartDate(startOfThisMonth);
+      setParams('startDate', startOfThisMonth);
 
-      // set 1st of current month
-      endOfLastMonth.setDate(1);
-      // Subtract 1 day to go back to the last day of the previous month
-      endOfLastMonth.setDate(endOfLastMonth.getDate() - 1);
-
-      setEndDate(endOfLastMonth);
-      setParams('endDate', endOfLastMonth);
+      setEndDate(endOfThisMonth);
+      setParams('endDate', endOfThisMonth);
     }
 
-    if (type === 'last week') {
-      const startOfLastWeek = new Date(NOW);
-      const endOfLastWeek = new Date(NOW);
+    if (type === 'this week') {
+      const startOfThisWeek = new Date(NOW);
+      const endOfThisWeek = new Date(NOW);
 
-      // Set the date to the beginning of the current week (Sunday)
-      startOfLastWeek.setDate(NOW.getDate() - NOW.getDay());
-
-      // Subtract 7 days to get to the start of the last week
-      startOfLastWeek.setDate(startOfLastWeek.getDate() - 6);
+      // Set the date to the beginning of the current week (Monday)
+      startOfThisWeek.setDate(NOW.getDate() - NOW.getDay() + 1);
 
       // Set the date to the end of the week (Sunday)
-      endOfLastWeek.setDate(NOW.getDate() - NOW.getDay() + 7);
+      endOfThisWeek.setDate(startOfThisWeek.getDate() + 6);
 
-      // Subtract 7 days to get to the end of the last week
-      endOfLastWeek.setDate(endOfLastWeek.getDate() - 7);
+      setStartDate(startOfThisWeek);
+      setParams('startDate', startOfThisWeek);
 
-      setStartDate(startOfLastWeek);
-      setParams('startDate', startOfLastWeek);
-
-      setEndDate(endOfLastWeek);
-      setParams('endDate', endOfLastWeek);
+      setEndDate(endOfThisWeek);
+      setParams('endDate', endOfThisWeek);
     }
   };
 
@@ -269,17 +256,17 @@ const LeftSideBar = (props: Props) => {
             style={{ width: '30%' }}
             size="small"
             btnStyle="primary"
-            onClick={() => onDateButtonClick('last week')}
+            onClick={() => onDateButtonClick('this week')}
           >
-            Last week
+            This week
           </Button>
           <Button
             style={{ width: '30%' }}
             size="small"
             btnStyle="primary"
-            onClick={() => onDateButtonClick('last month')}
+            onClick={() => onDateButtonClick('this month')}
           >
-            Last month
+            This month
           </Button>
         </FlexRow>
         <div>
