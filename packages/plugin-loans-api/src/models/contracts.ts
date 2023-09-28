@@ -141,11 +141,11 @@ export const loadContractClass = (models: IModels) => {
           return {
             contractId: _id,
             status: SCHEDULE_STATUS.PENDING,
-            payDate: a.date,
+            payDate: a.payDate,
             balance: a.balance,
-            interestNonce: a.interest,
+            interestNonce: a.interestNonce,
             payment: a.payment,
-            total: a.interest + a.payment
+            total: a.interestNonce + a.payment
           };
         });
 

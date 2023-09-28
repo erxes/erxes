@@ -165,5 +165,13 @@
   "new classification": "Шилжих ангилал",
   "Transaction Date": "Гүйлгээний огноо",
   "Down payment": "Урьдчилгаа төлбөр",
-  "Interest correction": "Хүүгийн өөрчлөлт"
+  "Interest correction": "Хүүгийн өөрчлөлт",
+  "Skip Amount Calc /Month/": "Үндсэн зээлээс төлөгдөхгүй хугацаа/Сар/",
+  "Is Pay First Month": "Эхний сар төлөх эсэх",
+  "Is Barter": "Бартер эсэх",
+  "Custom payment Amount": "Дурын төлөх дүн",
+  "Custom Interest": "Дурын төлөх хүү",
+  "fixedMethod": "Тэнцүү төлбөр",
+  "equalMethod": "Үндсэн зээл тэнцүү",
+  "customMethod": "Дурын"
 }
