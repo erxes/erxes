@@ -6,7 +6,9 @@ import { queries } from '../graphql';
 import sanitizeHtml from 'sanitize-html';
 
 export const formatStr = (emailString?: string) => {
-  return emailString ? emailString.split(/[ ,]+/) : [];
+  return emailString
+    ? emailString.split(/[ , ]+/).filter(email => email !== '')
+    : [];
 };
 
 export const formatObj = (emailArray: IEmail[]) => {

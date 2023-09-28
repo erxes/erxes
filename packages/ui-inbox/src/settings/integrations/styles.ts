@@ -423,6 +423,48 @@ const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
   }
 `;
 
+const MailSuggestionContainer = styled.div`
+  margin-top: 5px;
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  background-color: white;
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  padding: 5px 0;
+  outline: none;
+`;
+
+const MailSuggestionItem = styled.div`
+  display: flex;
+  padding: 8px 14px;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+
+  p {
+    margin: 0;
+  }
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+
+  &.selected {
+    background-color: #f1f1f1;
+  }
+`;
+
+const MailColumn = styled.div`
+  flex: 1;
+  position: relative;
+`;
+
 export {
   MessengerPreview,
   IntegrationName,
@@ -455,5 +497,8 @@ export {
   ShowReplyButtonWrapper,
   ShowReplies,
   PopoverLinkWrapper,
-  SearchInput
+  SearchInput,
+  MailSuggestionContainer,
+  MailSuggestionItem,
+  MailColumn
 };

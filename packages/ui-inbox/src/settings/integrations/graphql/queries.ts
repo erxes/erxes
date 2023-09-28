@@ -220,6 +220,37 @@ const imapIntegrations = `
   }
 `;
 
+const contacts = `
+  query contactsMain($page: Int, $perPage: Int, $customerType: String, $leadType: String) {
+    leads: customersMain(page: $page, perPage: $perPage, type: $leadType) {
+      list {
+        _id
+        primaryEmail
+        firstName
+        lastName
+        avatar
+      }
+    }
+    customers: customersMain(page: $page, perPage: $perPage, type: $customerType) {
+      list {
+        _id
+        primaryEmail
+        firstName
+        lastName
+        avatar
+      }
+    }
+    companies : companiesMain(page: $page, perPage: $perPage) {
+        list {
+          _id
+          primaryName
+          primaryEmail
+          avatar
+        }
+      }
+  }
+`;
+
 export default {
   users,
   brands,
@@ -237,5 +268,6 @@ export default {
   integrationsGetTwitterAccount,
   integrationsGetFbPages,
   integrationsVideoCallUsageStatus,
-  imapIntegrations
+  imapIntegrations,
+  contacts
 };

@@ -52,6 +52,7 @@ type FinalProps = {
   currentUser: IUser;
   emailTemplatesQuery: any /*change type*/;
   emailTemplatesTotalCountQuery: any /*change type*/;
+  contactsMainQuery: any;
 } & Props;
 
 class MailFormContainer extends React.Component<
@@ -82,6 +83,7 @@ class MailFormContainer extends React.Component<
       closeModal,
       emailTemplatesQuery,
       emailTemplatesTotalCountQuery,
+      contactsMainQuery,
       currentUser,
       mails,
       messageId
@@ -254,6 +256,33 @@ class MailFormContainer extends React.Component<
       });
     };
 
+    const contacts = !contactsMainQuery.loading
+      ? [
+          ...contactsMainQuery?.customers?.list,
+          ...contactsMainQuery?.companies?.list,
+          ...contactsMainQuery?.leads?.list
+        ]
+          .filter(item => {
+            return item.primaryEmail !== null;
+          })
+          .map(item => {
+            const name =
+              !item.firstName || !item.lastName
+                ? item.primaryEmail?.substring(
+                    0,
+                    item.primaryEmail.indexOf('@')
+                  )
+                : `${item.firstName} ${item.lastName}` || item.primaryName;
+
+            return {
+              primaryName: name || item.primaryName,
+              primaryEmail: item.primaryEmail,
+              avatar: item.avatar,
+              id: item._id
+            };
+          })
+      : [];
+
     const updatedProps = {
       ...this.props,
       sendMail,
@@ -265,7 +294,8 @@ class MailFormContainer extends React.Component<
       mails,
       messageId,
       verifiedImapEmails: verifiedImapEmails || [],
-      verifiedEngageEmails: verifiedEngageEmails || []
+      verifiedEngageEmails: verifiedEngageEmails || [],
+      contacts: contacts || []
     };
 
     return <MailForm {...updatedProps} />;
@@ -293,6 +323,19 @@ const WithMailForm = withProps<Props>(
         fetchPolicy: 'cache-first'
       }),
       skip: !isEnabled('emailtemplates')
+    }),
+    graphql<Props, any>(gql(queries.contacts), {
+      name: 'contactsMainQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          page: 1,
+          perPage: 20,
+          leadType: 'lead',
+          customerType: 'customer'
+        },
+        fetchPolicy: 'cache-first'
+      }),
+      skip: !isEnabled('contacts')
     })
   )(withCurrentUser(MailFormContainer))
 );

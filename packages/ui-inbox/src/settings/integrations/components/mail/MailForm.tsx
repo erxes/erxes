@@ -13,6 +13,7 @@ import {
 import { FlexRow, Subject } from './styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import React, { ReactNode } from 'react';
+import ReactDOM from 'react-dom';
 import {
   formatObj,
   formatStr,
@@ -40,6 +41,13 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import {
+  MailColumn,
+  MailSuggestionContainer,
+  MailSuggestionItem
+} from '../../styles';
+import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -53,6 +61,7 @@ type Props = {
   replyAll?: boolean;
   brandId?: string;
   mails?: IMessage[];
+  contacts?: any[];
   messageId?: string;
   totalCount?: number;
   closeModal?: () => void;
@@ -99,12 +108,13 @@ type State = {
   name: string;
   showReply: string;
   isRepliesRetrieved: boolean;
+  selectedSuggestionIndex: number;
+  focusInput: string;
 };
 
 class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
     const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
     const mailWidget = JSON.parse(localStorage.getItem('emailWidgetData'));
@@ -176,7 +186,9 @@ class MailForm extends React.Component<Props, State> {
 
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`,
-      isRepliesRetrieved: false
+      isRepliesRetrieved: false,
+      selectedSuggestionIndex: -1,
+      focusInput: ''
     };
   }
 
@@ -449,10 +461,9 @@ class MailForm extends React.Component<Props, State> {
   };
 
   onSelectChange = <T extends keyof State>(name: T, e: any) => {
-    this.setState(({ [name]: e.currentTarget.value } as unknown) as Pick<
-      State,
-      keyof State
-    >);
+    this.setState(({
+      [name]: e.currentTarget.value
+    } as unknown) as Pick<State, keyof State>);
 
     this.prepareData();
   };
@@ -551,17 +562,153 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
+  getFilteredContacts = fieldName => {
+    const field = this.state[fieldName];
+    const { contacts } = this.props;
+
+    if (
+      field.length === 0 ||
+      field.substr(field.lastIndexOf(',') + 1).trim().length === 0
+    )
+      return [];
+
+    return (contacts || [])
+      .filter(item =>
+        [item.primaryEmail, item.primaryName].some(
+          prop =>
+            prop?.toLocaleLowerCase().includes(
+              field
+                .toLocaleLowerCase()
+                .substr(field.lastIndexOf(',') + 1)
+                .trim() || field.toLocaleLowerCase()
+            ) && !field?.includes(item.primaryEmail)
+        )
+      )
+      .slice(0, 5);
+  };
+
+  handleSuggestionClick = (item, fieldName) => {
+    const field = this.state[fieldName];
+    this.setState(
+      prevState =>
+        (({
+          [fieldName]: prevState[fieldName]
+            ? prevState[fieldName].replace(
+                new RegExp(
+                  '\\b' +
+                    field.substr(field.lastIndexOf(',') + 1).trim() +
+                    '\\b'
+                ),
+                ''
+              ) +
+              item.primaryEmail +
+              ', '
+            : item.primaryEmail + ', ',
+          focusInput: fieldName
+        } as unknown) as Pick<State, keyof State>)
+    );
+  };
+
+  handleKeyDown = (e, fieldName) => {
+    const { selectedSuggestionIndex } = this.state;
+    const filterContacts = this.getFilteredContacts(fieldName);
+
+    if (e.keyCode === 38 && selectedSuggestionIndex > 0) {
+      e.preventDefault();
+      this.setState(prevState => ({
+        selectedSuggestionIndex: prevState.selectedSuggestionIndex - 1
+      }));
+    } else if (
+      e.keyCode === 40 &&
+      selectedSuggestionIndex < filterContacts.length - 1
+    ) {
+      e.preventDefault();
+      this.setState(prevState => ({
+        selectedSuggestionIndex: prevState.selectedSuggestionIndex + 1
+      }));
+    } else if (e.keyCode === 13) {
+      const selectedItem = filterContacts[selectedSuggestionIndex];
+      if (selectedItem) {
+        this.handleSuggestionClick(selectedItem, fieldName);
+      }
+    }
+  };
+
+  renderMailSuggestions(fieldName) {
+    const { selectedSuggestionIndex } = this.state;
+    const filterContacts = this.getFilteredContacts(fieldName);
+    const field = this.state[fieldName];
+
+    return (
+      filterContacts.length !== 0 && (
+        <MailSuggestionContainer>
+          {filterContacts ? (
+            filterContacts?.map((item, index) => (
+              <MailSuggestionItem
+                key={index}
+                onMouseDown={e => {
+                  e.stopPropagation();
+                  this.handleSuggestionClick(item, fieldName);
+                }}
+                className={`${
+                  index === selectedSuggestionIndex ? 'selected' : ''
+                }`}
+              >
+                <Avatar
+                  src={
+                    item.avatar
+                      ? readFile(item.avatar, 40)
+                      : '/images/avatar-colored.svg'
+                  }
+                />
+                <Column>
+                  {item.primaryName && (
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html: item.primaryName.replace(
+                          new RegExp(
+                            `(${field
+                              .substr(field.lastIndexOf(',') + 1)
+                              .trim()})`,
+                            'gi'
+                          ),
+                          '<span style="font-weight: bold;">$1</span>'
+                        )
+                      }}
+                    />
+                  )}
+                  <p>{item.primaryEmail}</p>
+                </Column>
+              </MailSuggestionItem>
+            ))
+          ) : (
+            <Spinner />
+          )}
+        </MailSuggestionContainer>
+      )
+    );
+  }
+
   renderTo() {
     return (
       <FlexRow isEmail={true}>
         <label>To:</label>
-        <FormControl
-          autoFocus={this.props.isForward}
-          value={this.state.to}
-          onChange={this.onSelectChange.bind(this, 'to')}
-          name="to"
-          required={true}
-        />
+        <MailColumn>
+          <FormControl
+            autoFocus={this.props.isForward}
+            value={this.state.to}
+            onChange={e => this.onSelectChange('to', e)}
+            name="to"
+            required={true}
+            autoComplete="off"
+            onKeyDown={e => {
+              this.handleKeyDown(e, 'to');
+            }}
+            onFocus={() => this.setState({ focusInput: 'to' })}
+            onBlur={() => this.setState({ focusInput: '' })}
+          />
+          {this.renderMailSuggestions('to')}
+        </MailColumn>
         {this.renderRightSide()}
       </FlexRow>
     );
@@ -577,13 +724,20 @@ class MailForm extends React.Component<Props, State> {
     return (
       <FlexRow>
         <label>Cc:</label>
-        <FormControl
-          autoFocus={true}
-          componentClass="textarea"
-          onChange={this.onSelectChange.bind(this, 'cc')}
-          name="cc"
-          value={cc}
-        />
+        <MailColumn>
+          <FormControl
+            autoFocus={true}
+            onChange={this.onSelectChange.bind(this, 'cc')}
+            name="cc"
+            value={cc}
+            onKeyDown={e => {
+              this.handleKeyDown(e, 'cc');
+            }}
+            onFocus={() => this.setState({ focusInput: 'cc' })}
+            onBlur={() => this.setState({ focusInput: '' })}
+          />
+          {this.state.focusInput === 'cc' && this.renderMailSuggestions('cc')}
+        </MailColumn>
       </FlexRow>
     );
   }
@@ -598,13 +752,20 @@ class MailForm extends React.Component<Props, State> {
     return (
       <FlexRow>
         <label>Bcc:</label>
-        <FormControl
-          autoFocus={true}
-          onChange={this.onSelectChange.bind(this, 'bcc')}
-          componentClass="textarea"
-          name="bcc"
-          value={bcc}
-        />
+        <MailColumn>
+          <FormControl
+            autoFocus={true}
+            onChange={this.onSelectChange.bind(this, 'bcc')}
+            name="bcc"
+            value={bcc}
+            onKeyDown={e => {
+              this.handleKeyDown(e, 'bcc');
+            }}
+            onFocus={() => this.setState({ focusInput: 'bcc' })}
+            onBlur={() => this.setState({ focusInput: '' })}
+          />
+          {this.state.focusInput === 'bcc' && this.renderMailSuggestions('bcc')}
+        </MailColumn>
       </FlexRow>
     );
   }
