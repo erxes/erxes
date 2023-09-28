@@ -155,7 +155,6 @@ export const getSimilaritiesProductsCount = async (models, filter, params) => {
     ...aggregates,
     { $group: { _id: {}, count: { $sum: 1 } } }
   ]);
-  console.log(groupedData);
 
   return ((groupedData || [])[0] || {}).count || 0;
 };
