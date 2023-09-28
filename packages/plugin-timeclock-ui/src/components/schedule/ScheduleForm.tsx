@@ -56,7 +56,7 @@ type Props = {
 
   checkDuplicateScheduleShifts: (values: any) => any;
   scheduleConfigOrderEdit: (values: any) => any;
-  editSchedule: (scheduleId: string, shifts: any) => any;
+  editSchedule: (scheduleId: string, shifts: any, closeModal: any) => any;
 
   closeModal: any;
 };
@@ -90,7 +90,8 @@ function ScheduleForm(props: Props) {
         shiftStart: new Date(shift.shiftStart),
         shiftEnd: new Date(shift.shiftEnd),
         scheduleConfigId: shift.scheduleConfigId,
-        lunchBreakInMins: shift.lunchBreakInMins
+        lunchBreakInMins: shift.lunchBreakInMins,
+        inputChecked: shift.scheduleConfigId ? false : true
       };
     });
 
@@ -347,7 +348,7 @@ function ScheduleForm(props: Props) {
 
   const onSubmitClick = () => {
     if (scheduleId) {
-      editSchedule(scheduleId, pickSubset);
+      editSchedule(scheduleId, pickSubset, closeModal);
       return;
     }
 
@@ -364,7 +365,7 @@ function ScheduleForm(props: Props) {
 
   const onAdminSubmitClick = () => {
     if (scheduleId) {
-      editSchedule(scheduleId, pickSubset);
+      editSchedule(scheduleId, pickSubset, closeModal);
       return;
     }
 
@@ -590,21 +591,26 @@ function ScheduleForm(props: Props) {
   };
 
   const dateSelection = () => (
-    <div style={{ width: '78%', marginRight: '0.5rem' }}>
-      <OverlayTrigger
-        ref={overlay => setOverlayTrigger(overlay)}
-        placement="top-start"
-        trigger="click"
-        overlay={renderDateSelection()}
-        container={this}
-        rootClose={this}
-      >
-        <PopoverButton>
-          {__('Please select date')}
-          <Icon icon="angle-down" />
-        </PopoverButton>
-      </OverlayTrigger>
-    </div>
+    <FlexColumn marginNum={20}>
+      <FlexRow>
+        <div style={{ width: '60%' }}>
+          <OverlayTrigger
+            ref={overlay => setOverlayTrigger(overlay)}
+            placement="top-start"
+            trigger="click"
+            overlay={renderDateSelection()}
+            container={this}
+            rootClose={this}
+          >
+            <PopoverButton>
+              {__('Please select date')}
+              <Icon icon="angle-down" />
+            </PopoverButton>
+          </OverlayTrigger>
+        </div>
+        {displayStartEndBreak}
+      </FlexRow>
+    </FlexColumn>
   );
 
   const modalContent = () => (

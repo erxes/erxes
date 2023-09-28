@@ -61,10 +61,11 @@ const ScheduleFormContainer = (props: FinalProps) => {
       .catch(err => Alert.error(err.message));
   };
 
-  const editSchedule = (scheduleId: string, shifts: any) => {
+  const editSchedule = (scheduleId: string, shifts: any, closeModal: any) => {
     editScheduleMutation({ variables: { _id: scheduleId, shifts } })
       .then(() => {
         Alert.success('Successfully edited schedule');
+        closeModal();
       })
       .catch(err => Alert.error(err.message));
   };
