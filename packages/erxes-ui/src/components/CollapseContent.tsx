@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import Collapse from 'react-bootstrap/Collapse';
 import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { rgba } from '../styles/ecolor';
-import colors from '../styles/colors';
+
+import Collapse from 'react-bootstrap/Collapse';
 import Icon from './Icon';
+import colors from '../styles/colors';
+import { dimensions } from '../styles';
+import { rgba } from '../styles/ecolor';
+import styledTS from 'styled-components-ts';
 
 const Title = styledTS<{
   compact?: boolean;
@@ -23,6 +25,10 @@ const Title = styledTS<{
   h4 {
     font-weight: 500;
     margin: 0;
+  }
+
+  i {
+    line-height: ${dimensions.coreSpacing}px;
   }
 
   &:hover {
@@ -62,11 +68,16 @@ const Left = styled.div`
   align-items: center;
 `;
 
-const Container = styledTS<{ open: boolean }>(styled.div)`
+const Container = styledTS<{ open: boolean; transparent?: boolean }>(
+  styled.div
+)`
   margin-bottom: 10px;
-  box-shadow: 0 0 6px 1px rgba(0,0,0,0.08);
+  box-shadow: ${props =>
+    props.transparent ? 'none' : '0 0 6px 1px rgba(0,0,0,0.08)'};
   border-radius: 4px;
   background: ${props => (props.open ? colors.bgLight : colors.colorWhite)};
+  border-bottom: ${props =>
+    props.transparent ? `1px solid ${colors.borderPrimary}` : 'none'};
 
   &:last-child {
     margin-bottom: 0;
@@ -108,47 +119,62 @@ type Props = {
   imageBackground?: string;
   id?: string;
   full?: boolean;
+  transparent?: boolean;
 };
 
-function CollapseContent(props: Props) {
-  const [open, toggleCollapse] = useState<boolean>(props.open || false);
+function CollapseContent({
+  open,
+  onClick,
+  image,
+  imageBackground,
+  transparent,
+  contendId,
+  compact,
+  beforeTitle,
+  description,
+  title,
+  full,
+  id,
+  children
+}: Props) {
+  const [toggleOpen, toggleCollapse] = useState<boolean>(open || false);
 
-  const onClick = () => {
-    toggleCollapse(!open);
-    if (props.onClick) {
-      props.onClick();
+  const onTitleClick = () => {
+    toggleCollapse(!toggleOpen);
+
+    if (onClick) {
+      onClick();
     }
   };
-  const hasImage = props.image ? true : false;
+
+  const hasImage = image ? true : false;
 
   return (
-    <Container open={open} id={props.id}>
+    <Container open={toggleOpen} id={id} transparent={transparent}>
       <Title
-        href={props.contendId && `#${props.contendId}`}
-        id={props.contendId}
-        onClick={onClick}
-        compact={props.compact}
+        href={contendId && `#${contendId}`}
+        id={contendId}
+        onClick={onTitleClick}
+        compact={compact}
         hasImage={hasImage}
-        background={props.imageBackground}
+        background={imageBackground}
       >
         <Left>
-          {props.beforeTitle}
+          {beforeTitle}
           <div>
-            <h4>{props.title}</h4>
-            {props.description}
+            <h4>{title}</h4>
+            {description}
           </div>
         </Left>
         {hasImage ? (
-          <img alt="heading" src={props.image} />
+          <img alt="heading" src={image} />
         ) : (
           <Icon icon="angle-down" />
         )}
       </Title>
-      <Collapse in={open}>
+      <Collapse in={toggleOpen}>
         <div>
-          <Content full={hasImage || props.full || false}>
-            {props.children}
-          </Content>
+          <Content full={hasImage || full || false}>{children}</Content>
         </div>
       </Collapse>
     </Container>

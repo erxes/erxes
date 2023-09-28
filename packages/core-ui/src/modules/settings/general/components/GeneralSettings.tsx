@@ -1,24 +1,4 @@
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Button from 'modules/common/components/Button';
-import CollapseContent from 'modules/common/components/CollapseContent';
-import { FormControl } from 'modules/common/components/form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Info from 'modules/common/components/Info';
-import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import {
-  __,
-  uploadHandler,
-  readFile,
-  loadDynamicComponent
-} from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
-import React from 'react';
-import Select from 'react-select-plus';
 import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
 import {
   DATA_RETENTION_DURATION,
@@ -29,10 +9,31 @@ import {
   LOG_RETENTION_DURATION,
   SERVICE_TYPES
 } from '@erxes/ui-settings/src/general/constants';
-import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import {
+  __,
+  loadDynamicComponent,
+  readFile,
+  uploadHandler
+} from 'modules/common/utils';
+
 import ActivateInstallation from './ActivateInstallation';
+import Button from 'modules/common/components/Button';
+import CURRENCIES from '@erxes/ui/src/constants/currencies';
+import CollapseContent from 'modules/common/components/CollapseContent';
+import ControlLabel from 'modules/common/components/form/Label';
+import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
+import { FormControl } from 'modules/common/components/form';
+import FormGroup from 'modules/common/components/form/Group';
 import Header from '@erxes/ui-settings/src/general/components/Header';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import Info from 'modules/common/components/Info';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import React from 'react';
+import Select from 'react-select-plus';
 import { SelectTeamMembers } from '@erxes/ui/src';
+import TwitterPicker from 'react-color/lib/Twitter';
+import Wrapper from 'modules/layout/components/Wrapper';
 
 type Props = {
   currentLanguage: string;
@@ -226,6 +227,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     return (
       <CollapseContent
+        transparent={true}
         title={__('Cloudflare')}
         description={__('Cloudflare R2 Bucket, Images & Stream CDN configs')}
       >
@@ -279,7 +281,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title={__('General settings')}>
+        <CollapseContent transparent={true} title={__('General settings')}>
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
             <Select
@@ -326,7 +328,7 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title={__('Theme')}>
+        <CollapseContent transparent={true} title={__('Theme')}>
           {this.renderUploadImage(
             'THEME_LOGO',
             'Transparent PNG, around 3:1 aspect ratio. Max width: 600px.'
@@ -350,7 +352,7 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title={__('File upload')}>
+        <CollapseContent transparent={true} title={__('File upload')}>
           <Info>
             <a
               target="_blank"
@@ -415,7 +417,7 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title={__('Google Cloud Storage')}>
+        <CollapseContent transparent={true} title={__('Google Cloud Storage')}>
           <Info>
             <a
               target="_blank"
@@ -435,7 +437,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
         {this.renderCloudflare()}
 
-        <CollapseContent title="AWS S3">
+        <CollapseContent transparent={true} title="AWS S3">
           <Info>
             <a
               target="_blank"
@@ -456,7 +458,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('AWS_FORCE_PATH_STYLE')}
         </CollapseContent>
 
-        <CollapseContent title="AWS SES">
+        <CollapseContent transparent={true} title="AWS SES">
           <Info>
             <p>
               {__(
@@ -477,7 +479,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('AWS_SES_CONFIG_SET')}
         </CollapseContent>
 
-        <CollapseContent title="Google">
+        <CollapseContent transparent={true} title="Google">
           <Info>
             <a
               target="_blank"
@@ -502,7 +504,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('GOOGLE_MAP_API_KEY', 'Google Map Api Key')}
         </CollapseContent>
 
-        <CollapseContent title={__('Common mail config')}>
+        <CollapseContent transparent={true} title={__('Common mail config')}>
           <Info>
             <a
               target="_blank"
@@ -546,7 +548,7 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title={__('Custom mail service')}>
+        <CollapseContent transparent={true} title={__('Custom mail service')}>
           <Info>
             <a
               target="_blank"
@@ -563,7 +565,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('MAIL_HOST')}
         </CollapseContent>
 
-        <CollapseContent title={__('Data retention')}>
+        <CollapseContent transparent={true} title={__('Data retention')}>
           <ControlLabel>{KEY_LABELS.NOTIFICATION_DATA_RETENTION}</ControlLabel>
           <Select
             options={DATA_RETENTION_DURATION}
@@ -585,17 +587,17 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         </CollapseContent>
 
-        <CollapseContent title={__('Constants')}>
+        <CollapseContent transparent={true} title={__('Constants')}>
           {this.renderConstant('sex_choices')}
           {this.renderConstant('company_industry_types')}
           {this.renderConstant('social_links')}
         </CollapseContent>
 
-        <CollapseContent title={__('Connectivity Services')}>
+        <CollapseContent transparent={true} title={__('Connectivity Services')}>
           <ActivateInstallation />
         </CollapseContent>
 
-        <CollapseContent title="MessagePro">
+        <CollapseContent transparent={true} title="MessagePro">
           {this.renderItem('MESSAGE_PRO_API_KEY')}
           {this.renderItem('MESSAGE_PRO_PHONE_NUMBER')}
         </CollapseContent>
@@ -633,7 +635,7 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         content={content}
-        hasBorder
+        hasBorder={true}
       />
     );
   }
