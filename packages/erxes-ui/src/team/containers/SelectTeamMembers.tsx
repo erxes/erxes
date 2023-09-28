@@ -57,9 +57,6 @@ export default (props: {
     });
   }
 
-  console.log('initial value ', initialValue);
-  console.log('default value ', defaultValue);
-
   return (
     <SelectWithSearch
       label={label}
