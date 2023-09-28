@@ -5,7 +5,7 @@ RUN apt-get update -y && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN yarn global add @apollo/rover
+RUN yarn global add @apollo/rover@0.19.1
 RUN yarn cache clean
 
 WORKDIR /erxes-gateway

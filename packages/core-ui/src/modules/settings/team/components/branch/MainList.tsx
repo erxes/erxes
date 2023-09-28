@@ -2,7 +2,6 @@ import {
   Button,
   ModalTrigger,
   BarItems,
-  HeaderDescription,
   FormControl,
   Table,
   Wrapper,
@@ -13,13 +12,15 @@ import {
 } from '@erxes/ui/src';
 import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
 import React from 'react';
-import SettingsSideBar from '../common/SettingsSideBar';
+import SettingsSideBar from '../../containers/common/SettingSideBar';
 import Form from '../../containers/branch/Form';
 import { generateTree } from '../../utils';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { gql } from '@apollo/client';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { DescriptionContentRow } from '../common/DescriptionContentRow';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Tip from '@erxes/ui/src/components/Tip';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   listQuery: BranchesMainQueryResponse;
@@ -55,8 +56,24 @@ class MainList extends React.Component<Props, State> {
     }
   ];
 
+  remove = (_id?: string) => {
+    if (_id) {
+      this.props.deleteBranches([_id], () =>
+        this.setState({ selectedItems: [] })
+      );
+    } else {
+      this.props.deleteBranches(this.state.selectedItems, () =>
+        this.setState({ selectedItems: [] })
+      );
+    }
+  };
+
   renderForm() {
-    const trigger = <Button btnStyle="success">{__('Add Branch')}</Button>;
+    const trigger = (
+      <Button btnStyle="success" icon="plus-circle">
+        {__('Add Branch')}
+      </Button>
+    );
 
     const content = ({ closeModal }) => (
       <Form
@@ -122,7 +139,16 @@ class MainList extends React.Component<Props, State> {
     const onclick = e => {
       e.stopPropagation();
     };
+
     const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="top">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
+
+    return (
       <tr key={branch._id}>
         <td onClick={onclick}>
           <FormControl
@@ -136,21 +162,30 @@ class MainList extends React.Component<Props, State> {
         <td>{branch?.parent?.title || ''}</td>
         <td>{__(branch.address.replace(/\n/g, ''))}</td>
         <td>{branch.userCount}</td>
+        <td>
+          <ActionButtons>
+            <ModalTrigger
+              key={branch._id}
+              title="Edit Branch"
+              content={({ closeModal }) => (
+                <Form
+                  branch={branch}
+                  closeModal={closeModal}
+                  additionalRefetchQueries={this.refetchQueries()}
+                />
+              )}
+              trigger={trigger}
+            />
+            <Tip text={__('Delete')} placement="top">
+              <Button
+                btnStyle="link"
+                onClick={() => this.remove(branch._id)}
+                icon="times-circle"
+              />
+            </Tip>
+          </ActionButtons>
+        </td>
       </tr>
-    );
-    return (
-      <ModalTrigger
-        key={branch._id}
-        title="Edit Branch"
-        content={({ closeModal }) => (
-          <Form
-            branch={branch}
-            closeModal={closeModal}
-            additionalRefetchQueries={this.refetchQueries()}
-          />
-        )}
-        trigger={trigger}
-      />
     );
   }
 
@@ -169,16 +204,6 @@ class MainList extends React.Component<Props, State> {
       this.setState({ selectedItems: [] });
     };
 
-    const generateList = () => {
-      const list = branches.map(branch => {
-        if (!branches.find(dep => dep._id === branch.parentId)) {
-          branch.parentId = null;
-        }
-        return branch;
-      });
-      return list;
-    };
-
     return (
       <Table>
         <thead>
@@ -195,10 +220,14 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Parent')}</th>
             <th>{__('Address')}</th>
             <th>{__('Team member count')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>
-          {generateTree(generateList(), null, (branch, level) =>
+          {generateTree(branches, null, (branch, level) =>
+            this.renderRow(branch, level)
+          )}
+          {generateTree(branches, '', (branch, level) =>
             this.renderRow(branch, level)
           )}
         </tbody>
@@ -206,45 +235,31 @@ class MainList extends React.Component<Props, State> {
     );
   }
 
-  deleteBranches() {
-    const {} = this.state;
-  }
-
   render() {
-    const { listQuery, deleteBranches } = this.props;
+    const { listQuery } = this.props;
 
-    const { totalCount, totalUsersCount } = listQuery.branchesMain;
+    const { totalCount } = listQuery.branchesMain;
 
     const { selectedItems } = this.state;
-
-    const remove = () => {
-      deleteBranches(selectedItems, () => this.setState({ selectedItems: [] }));
-    };
 
     const rightActionBar = (
       <BarItems>
         {this.renderSearch()}
-        {!!selectedItems.length && (
-          <Button btnStyle="danger" onClick={remove}>
-            {__(`Remove ${selectedItems.length}`)}
-          </Button>
-        )}
         {this.renderForm()}
       </BarItems>
     );
 
-    const leftActionBar = (
-      <HeaderDescription
-        title="Branches"
-        icon="/images/actions/21.svg"
-        description=""
-        renderExtra={DescriptionContentRow({
-          label: 'branches',
-          totalCount: totalCount,
-          teamMembersCount: totalUsersCount
-        })}
-      />
+    const leftActionBar = selectedItems.length > 0 && (
+      <Button
+        btnStyle="danger"
+        size="small"
+        icon="times-circle"
+        onClick={() => this.remove()}
+      >
+        Remove
+      </Button>
     );
+
     return (
       <Wrapper
         header={
@@ -257,7 +272,7 @@ class MainList extends React.Component<Props, State> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />
+          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
         }
         content={
           <DataWithLoader
@@ -270,6 +285,7 @@ class MainList extends React.Component<Props, State> {
         }
         leftSidebar={<SettingsSideBar />}
         footer={<Pagination count={totalCount || 0} />}
+        hasBorder={true}
       />
     );
   }

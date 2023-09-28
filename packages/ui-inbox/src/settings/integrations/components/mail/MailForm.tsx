@@ -35,11 +35,19 @@ import { Label } from '@erxes/ui/src/components/form/styles';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import MailChooser from './MailChooser';
 import { Meta } from './styles';
+import SignatureChooser from './SignatureChooser';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+
+const Signature = asyncComponent(() =>
+  import(
+    /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
+  )
+);
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -74,6 +82,7 @@ type Props = {
   shrink?: boolean;
   clear?: boolean;
   conversationStatus?: string;
+  brands?: any[];
 };
 
 type State = {
@@ -107,7 +116,9 @@ class MailForm extends React.Component<Props, State> {
 
     const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
-    const mailWidget = JSON.parse(localStorage.getItem('emailWidgetData'));
+    const mailWidget = JSON.parse(
+      localStorage.getItem('emailWidgetData') || ''
+    );
 
     const cc = replyAll
       ? formatObj(mailData.cc || [])
@@ -176,6 +187,7 @@ class MailForm extends React.Component<Props, State> {
 
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`,
+
       isRepliesRetrieved: false
     };
   }
@@ -429,12 +441,6 @@ class MailForm extends React.Component<Props, State> {
     });
   };
 
-  changeEditorContent = (content: string, emailSignature: string) => {
-    this.setState({ content }, () => {
-      this.setState({ emailSignature });
-    });
-  };
-
   onEditorChange = e => {
     this.setState({ content: e.editor.getData() });
     this.prepareData();
@@ -520,6 +526,14 @@ class MailForm extends React.Component<Props, State> {
 
   templateChange = value => {
     this.setState({ content: this.findTemplate(value), templateId: value });
+  };
+
+  onContentChange = content => {
+    this.setState({ content });
+  };
+
+  onSignatureChange = emailSignature => {
+    this.setState({ emailSignature });
   };
 
   renderFromValue = () => {
@@ -682,6 +696,10 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
+  signatureContent = props => {
+    return <Signature {...props} />;
+  };
+
   renderButtons() {
     const {
       isReply,
@@ -690,7 +708,9 @@ class MailForm extends React.Component<Props, State> {
       totalCount,
       fetchMoreEmailTemplates,
       history,
-      conversationStatus
+      conversationStatus,
+      emailSignatures,
+      brands
     } = this.props;
 
     const onSubmitResolve = e => this.onSubmit(e, true);
@@ -759,6 +779,15 @@ class MailForm extends React.Component<Props, State> {
                 history={history}
               />
             )}
+            <SignatureChooser
+              signatureContent={this.signatureContent}
+              brands={brands || []}
+              signatures={emailSignatures || []}
+              emailSignature={this.state.emailSignature}
+              emailContent={this.state.content}
+              onContentChange={this.onContentChange}
+              onSignatureChange={this.onSignatureChange}
+            />
           </ToolBar>
         </EditorFooter>
       </div>

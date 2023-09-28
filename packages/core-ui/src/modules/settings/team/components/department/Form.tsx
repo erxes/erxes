@@ -18,7 +18,7 @@ type Props = {
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton } = props;
+  const { closeModal, renderButton, departments } = props;
   const object = props.department || ({} as any);
 
   const [userIds, setUserIds] = useState(
@@ -60,6 +60,14 @@ export default function DepartmentForm(props: Props) {
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
+
+    const generateOptions = () => {
+      return departments.map(branch => (
+        <option key={branch._id} value={branch._id}>
+          {branch.title}
+        </option>
+      ));
+    };
 
     return (
       <>
@@ -104,14 +112,16 @@ export default function DepartmentForm(props: Props) {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
-          <SelectDepartments
-            label="Choose parent"
+          <FormControl
+            {...formProps}
             name="parentId"
-            onSelect={onChangeParent}
-            initialValue={parentId}
-            multi={false}
-          />
-          {/* /> */}
+            componentClass="select"
+            defaultValue={parentId || null}
+            onChange={onChangeParent}
+          >
+            <option value="" />
+            {generateOptions()}
+          </FormControl>
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
