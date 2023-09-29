@@ -17,11 +17,12 @@ async function onPaymentClick(payment, invoiceData, prefix) {
 
   let isMobile = false;
 
-  console.log('navigator.userAgent', navigator.userAgent);
-  // show user agent in label
-  title.innerHTML = navigator.userAgent;
-
-  if (/Mobi/.test(navigator.userAgent)) {
+  if (
+    /Mobi/.test(navigator.userAgent) ||
+    navigator.userAgent === 'Android' ||
+    navigator.userAgent === 'iPhone' ||
+    navigator.userAgent === 'Social Pay'
+  ) {
     isMobile = true;
   }
 
