@@ -1,17 +1,18 @@
-import { dimensions } from '../styles';
-import { __ } from '../utils/core';
-import React from 'react';
 import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+
 import Button from './Button';
-import Tip from './Tip';
 import Icon from './Icon';
+import React from 'react';
+import Tip from './Tip';
+import { __ } from '../utils/core';
+import { dimensions } from '../styles';
+import styledTS from 'styled-components-ts';
 
 const MainDescription = styledTS<{
   expand: boolean;
 }>(styled.div)`
   width: 100%;
-  padding: 30px 10px 30px;
+  padding: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
   display: flex;
   align-items: center;
   flex-direction: row;
@@ -26,14 +27,14 @@ const MainDescription = styledTS<{
 
   h4 {
     margin: 0;
-    padding-bottom: 5px;
-    font-size: 18px;
+    padding-bottom: ${props => (props.expand ? '5px' : '0')};
+    font-size: ${props => (props.expand ? '18px' : '15px')};
     font-weight: 500;
   }
 `;
 
 const Description = styled.div`
-  max-width: 850px;
+  max-width: 80%;
   display: flex;
   align-items: center;
 `;

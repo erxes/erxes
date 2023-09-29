@@ -1,18 +1,19 @@
+import { Alert, __ } from 'coreui/utils';
+import { ContentBox, FlexRow } from '@erxes/ui-settings/src/styles';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
+
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import { FormControl } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __, Alert } from 'coreui/utils';
-import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
-import { ContentBox } from '@erxes/ui-settings/src/styles';
 import React from 'react';
-import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import { Verify } from '@erxes/ui-settings/src/general/components/styles';
 
 type Props = {
@@ -141,45 +142,48 @@ class EngageSettingsContent extends React.Component<Props, State> {
             {__('Learn more about Amazon SES configuration')}
           </a>
         </Info>
-        <FormGroup>
-          <ControlLabel>AWS SES Access key ID</ControlLabel>
-          <FormControl
-            {...formProps}
-            max={140}
-            name="accessKeyId"
-            defaultValue={configsMap.accessKeyId}
-          />
-        </FormGroup>
+        <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FormGroup>
+            <ControlLabel>AWS SES Access key ID</ControlLabel>
+            <FormControl
+              {...formProps}
+              max={140}
+              name="accessKeyId"
+              defaultValue={configsMap.accessKeyId}
+            />
+          </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>AWS SES Secret access key</ControlLabel>
-          <FormControl
-            {...formProps}
-            max={140}
-            name="secretAccessKey"
-            defaultValue={configsMap.secretAccessKey}
-          />
-        </FormGroup>
+          <FormGroup>
+            <ControlLabel>AWS SES Secret access key</ControlLabel>
+            <FormControl
+              {...formProps}
+              max={140}
+              name="secretAccessKey"
+              defaultValue={configsMap.secretAccessKey}
+            />
+          </FormGroup>
+        </FlexRow>
+        <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FormGroup>
+            <ControlLabel>AWS SES Region</ControlLabel>
+            <FormControl
+              {...formProps}
+              max={140}
+              name="region"
+              defaultValue={configsMap.region}
+            />
+          </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>AWS SES Region</ControlLabel>
-          <FormControl
-            {...formProps}
-            max={140}
-            name="region"
-            defaultValue={configsMap.region}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>AWS SES Config set</ControlLabel>
-          <FormControl
-            {...formProps}
-            max={140}
-            name="configSet"
-            defaultValue={configsMap.configSet}
-          />
-        </FormGroup>
+          <FormGroup>
+            <ControlLabel>AWS SES Config set</ControlLabel>
+            <FormControl
+              {...formProps}
+              max={140}
+              name="configSet"
+              defaultValue={configsMap.configSet}
+            />
+          </FormGroup>
+        </FlexRow>
 
         <FormGroup>
           <ControlLabel>Unverified emails limit</ControlLabel>
@@ -190,37 +194,36 @@ class EngageSettingsContent extends React.Component<Props, State> {
             defaultValue={configsMap.unverifiedEmailsLimit || 100}
           />
         </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Allowed email skip limit</ControlLabel>
-          <p>
-            The number of times that each customer can skip to open or click
-            campaign emails. If this limit is exceeded, then the customer will
-            automatically set to
-            <strong> unsubscribed </strong>mode.
-          </p>
-          <FormControl
-            {...formProps}
-            name="allowedEmailSkipLimit"
-            defaultValue={configsMap.allowedEmailSkipLimit || 10}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Customer limit per auto SMS campaign</ControlLabel>
-          <p>
-            The maximum number of customers that can receive auto SMS campaign
-            per each runtime.
-          </p>
-          <FormControl
-            {...formProps}
-            name="smsLimit"
-            defaultValue={configsMap.smsLimit || 0}
-            min={50}
-            max={100}
-          />
-        </FormGroup>
-
+        <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FormGroup>
+            <ControlLabel>Allowed email skip limit</ControlLabel>
+            <p>
+              The number of times that each customer can skip to open or click
+              campaign emails. If this limit is exceeded, then the customer will
+              automatically set to
+              <strong> unsubscribed </strong>mode.
+            </p>
+            <FormControl
+              {...formProps}
+              name="allowedEmailSkipLimit"
+              defaultValue={configsMap.allowedEmailSkipLimit || 10}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Customer limit per auto SMS campaign</ControlLabel>
+            <p>
+              The maximum number of customers that can receive auto SMS campaign
+              per each runtime.
+            </p>
+            <FormControl
+              {...formProps}
+              name="smsLimit"
+              defaultValue={configsMap.smsLimit || 0}
+              min={50}
+              max={100}
+            />
+          </FormGroup>
+        </FlexRow>
         <ModalFooter>
           {renderButton({
             name: 'configsMap',
@@ -236,17 +239,22 @@ class EngageSettingsContent extends React.Component<Props, State> {
   render() {
     return (
       <ContentBox id={'EngageSettingsMenu'}>
-        <CollapseContent title="General settings">
+        <CollapseContent
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+          title="General settings"
+        >
           <Form renderContent={this.renderContent} />
         </CollapseContent>
 
         <CollapseContent
+          beforeTitle={<Icon icon="shield-check" />}
+          transparent={true}
           title={__('Verify the email addresses that you send email from')}
         >
           {this.renderVerifiedEmails()}
 
           <Verify>
-            <Icon icon="shield-check" size={36} />
             <ControlLabel required={true}>Email</ControlLabel>
             <FormControl
               type="email"
@@ -262,23 +270,28 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </Button>
           </Verify>
         </CollapseContent>
-        <CollapseContent title={__('Send your first testing email')}>
-          <FormGroup>
-            <ControlLabel>From</ControlLabel>
-            <FormControl
-              placeholder="from@email.com"
-              onChange={this.onChangeCommon.bind(this, 'testFrom')}
-            />
-          </FormGroup>
+        <CollapseContent
+          beforeTitle={<Icon icon="envelope-upload" />}
+          transparent={true}
+          title={__('Send your first testing email')}
+        >
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            <FormGroup>
+              <ControlLabel>From</ControlLabel>
+              <FormControl
+                placeholder="from@email.com"
+                onChange={this.onChangeCommon.bind(this, 'testFrom')}
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>To</ControlLabel>
-            <FormControl
-              placeholder="to@email.com"
-              onChange={this.onChangeCommon.bind(this, 'testTo')}
-            />
-          </FormGroup>
-
+            <FormGroup>
+              <ControlLabel>To</ControlLabel>
+              <FormControl
+                placeholder="to@email.com"
+                onChange={this.onChangeCommon.bind(this, 'testTo')}
+              />
+            </FormGroup>
+          </FlexRow>
           <FormGroup>
             <ControlLabel>Content</ControlLabel>
             <FormControl

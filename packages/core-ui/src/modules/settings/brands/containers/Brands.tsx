@@ -1,20 +1,22 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { router as routerUtils, withProps } from 'modules/common/utils';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import DumbBrands from '../components/Brands';
-import { mutations, queries } from '../graphql';
+
 import {
   BrandDetailQueryResponse,
   BrandsCountQueryResponse,
   BrandsGetLastQueryResponse
 } from '@erxes/ui/src/brands/types';
-import Spinner from 'modules/common/components/Spinner';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { mutations, queries } from '../graphql';
+import { router as routerUtils, withProps } from 'modules/common/utils';
+
 import ButtonMutate from 'modules/common/components/ButtonMutate';
+import DumbBrands from '../components/Brands';
+import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import queryString from 'query-string';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   currentBrandId: string;
@@ -34,10 +36,6 @@ class Brands extends React.Component<FinalProps> {
       location,
       currentBrandId
     } = this.props;
-
-    if (brandDetailQuery.loading || brandsCountQuery.loading) {
-      return <Spinner objective={true} />;
-    }
 
     const queryParams = queryString.parse(location.search);
 
@@ -67,9 +65,9 @@ class Brands extends React.Component<FinalProps> {
       ...this.props,
       renderButton,
       queryParams: queryString.parse(location.search),
-      currentBrand: brandDetailQuery.brandDetail || {},
-      brandsTotalCount: brandsCountQuery.brandsTotalCount || 0,
-      loading: brandDetailQuery.loading
+      currentBrand: brandDetailQuery?.brandDetail || {},
+      brandsTotalCount: brandsCountQuery?.brandsTotalCount || 0,
+      loading: brandDetailQuery?.loading
     };
 
     return <DumbBrands {...extendedProps} />;

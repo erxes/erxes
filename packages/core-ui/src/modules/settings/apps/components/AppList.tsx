@@ -9,6 +9,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
 import Table from 'modules/common/components/table';
+import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
 import styled from 'styled-components';
@@ -131,7 +132,12 @@ export default class AppList extends React.Component<Props> {
       <Wrapper
         header={<Wrapper.Header title={__('Apps')} breadcrumb={breadcrumb} />}
         footer={<Pagination count={count} />}
-        actionBar={<Wrapper.ActionBar right={righActionBar} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={<Title>{__('Apps')}</Title>}
+            right={righActionBar}
+          />
+        }
         content={
           <DataWithLoader
             data={this.renderContent()}
