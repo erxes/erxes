@@ -21,18 +21,11 @@ const Title = styledTS<{
   position: relative;
   overflow: hidden;
   color: ${colors.textPrimary};
+  cursor: pointer;
 
   h4 {
-    font-weight: 500;
     margin: 0;
-  }
-
-  i {
-    line-height: ${dimensions.coreSpacing}px;
-  }
-
-  &:hover {
-    cursor: pointer;
+    font-weight: 400;
   }
 
   ${props =>
@@ -66,6 +59,15 @@ const Title = styledTS<{
 const Left = styled.div`
   display: flex;
   align-items: center;
+
+  .description {
+    color: ${colors.colorCoreGray};
+  }
+
+  > i {
+    margin-right: ${dimensions.unitSpacing}px;
+    transform: none !important;
+  }
 `;
 
 const Container = styledTS<{ open: boolean; transparent?: boolean }>(
@@ -77,7 +79,9 @@ const Container = styledTS<{ open: boolean; transparent?: boolean }>(
   border-radius: 4px;
   background: ${props => (props.open ? colors.bgLight : colors.colorWhite)};
   border-bottom: ${props =>
-    props.transparent ? `1px solid ${colors.borderPrimary}` : 'none'};
+    props.transparent && !props.open
+      ? `1px solid ${colors.borderPrimary}`
+      : 'none'};
 
   &:last-child {
     margin-bottom: 0;
@@ -87,6 +91,7 @@ const Container = styledTS<{ open: boolean; transparent?: boolean }>(
     font-size: 20px;
     transition: transform ease 0.3s;
     transform: ${props => props.open && 'rotate(180deg)'};
+    line-height: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -163,7 +168,7 @@ function CollapseContent({
           {beforeTitle}
           <div>
             <h4>{title}</h4>
-            {description}
+            <span className="description">{description}</span>
           </div>
         </Left>
         {hasImage ? (

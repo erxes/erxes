@@ -203,13 +203,26 @@ const Description = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-const FlexRow = styled.div`
+const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
+  styled.div
+)`
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  align-items: center;
+  align-items: ${props => (props.alignItems ? props.alignItems : 'center')};
+  justify-content: ${props =>
+    props.justifyContent ? props.justifyContent : 'flex-start'};
   flex: 1;
   margin-right: ${dimensions.coreSpacing}px;
+
+  > div {
+    flex: 1;
+    margin-right: ${dimensions.coreSpacing}px;
+
+    &:last-child {
+      margin: 0;
+    }
+  }
 `;
 
 const SubHeading = styled.h4`
@@ -446,9 +459,19 @@ const Row = styled.div`
   }
 `;
 
+const ImageWrapper = styled.div`
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  img {
+    max-width: 300px;
+    max-height: 300px;
+  }
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
+  ImageWrapper,
   ActionButtons,
   ExpandWrapper,
   Description,
