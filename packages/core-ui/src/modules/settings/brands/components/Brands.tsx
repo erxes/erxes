@@ -1,18 +1,18 @@
+import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
+import { IBrand } from '../types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import React from 'react';
+import Sidebar from '../containers/Sidebar';
 import Table from 'modules/common/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
-import React from 'react';
-import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
-import Sidebar from '../containers/Sidebar';
-import { IBrand } from '../types';
+import { __ } from '../../../common/utils';
 
 type Props = {
   brandsTotalCount: number;
@@ -26,8 +26,9 @@ class Brands extends React.Component<Props, {}> {
   renderContent() {
     const { currentBrand, queryParams, renderButton } = this.props;
 
-    if (!currentBrand._id)
+    if (!currentBrand._id) {
       return <EmptyState image="/images/actions/20.svg" text="No brand." />;
+    }
 
     return (
       <>
@@ -35,6 +36,7 @@ class Brands extends React.Component<Props, {}> {
           <thead>
             <tr>
               <th>{__('Brand name')}</th>
+              <th>{__('Description')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>
@@ -121,7 +123,7 @@ class Brands extends React.Component<Props, {}> {
           />
         }
         footer={currentBrand._id && <Pagination count={brandsTotalCount} />}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

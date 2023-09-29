@@ -5,6 +5,7 @@ import { gql, useQuery } from '@apollo/client';
 import { queries as userQueries } from '@erxes/ui/src/team/graphql';
 import { Spinner } from '@erxes/ui/src/components';
 import { queries } from '../../graphql';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   history: any;
@@ -12,6 +13,7 @@ type Props = {
   queryParams: any;
   meetings: IMeeting[];
   loading: boolean;
+  currentUser: IUser;
 };
 
 const SideBarContainer = (props: Props) => {
@@ -32,7 +34,7 @@ const SideBarContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     participantUsers: data.users,
-    pinnedUsers: pinnedUsers.meetingPinnedUsers || {
+    pinnedUsers: pinnedUsers?.meetingPinnedUsers || {
       pinnedUserIds: [],
       userId: '',
       pinnedUsersInfo: []

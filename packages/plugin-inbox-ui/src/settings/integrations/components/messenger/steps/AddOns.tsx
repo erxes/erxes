@@ -20,8 +20,8 @@ import { Options } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import React from 'react';
 import Select from 'react-select-plus';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
 import styled from 'styled-components';
+import { __ } from '@erxes/ui/src/utils';
 
 const WebsiteItem = styled.div`
   padding: 12px 16px 0 16px;

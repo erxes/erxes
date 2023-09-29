@@ -94,25 +94,28 @@ function CalendarComponent(props: Props) {
 
   return (
     <>
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        }}
-        height="80vh"
-        initialView="dayGridMonth"
-        editable={true}
-        selectMirror={true}
-        selectable={true}
-        dayMaxEvents={true}
-        events={events}
-        select={handleDateSelect}
-        eventContent={renderEventContent}
-        eventClick={handleEventClick}
-        eventChange={changeEvent}
-      />
+      <div style={{ width: '100%' }}>
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+          }}
+          height="80vh"
+          initialView="dayGridMonth"
+          editable={true}
+          selectMirror={true}
+          selectable={true}
+          dayMaxEvents={true}
+          events={{}}
+          select={handleDateSelect}
+          eventContent={renderEventContent}
+          eventClick={handleEventClick}
+          eventChange={changeEvent}
+          firstDay={1}
+        />
+      </div>
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton={true}>
           <Modal.Title>Create Meeting</Modal.Title>

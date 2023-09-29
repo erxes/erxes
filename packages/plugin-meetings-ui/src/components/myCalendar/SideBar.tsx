@@ -33,10 +33,11 @@ type Props = {
     userId: string;
     pinnedUsersInfo: IUser[];
   };
+  currentUser: IUser;
 };
 
 export const SideBar = (props: Props) => {
-  const { queryParams, meetings, loading, pinnedUsers } = props;
+  const { queryParams, meetings, loading, pinnedUsers, currentUser } = props;
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
   const { pinnedUsersInfo = [] } = pinnedUsers;
@@ -192,6 +193,7 @@ export const SideBar = (props: Props) => {
       <ChooseOwnerFormContainer
         closeModal={closeModal}
         pinnedUserIds={pinnedUsers.pinnedUserIds}
+        currentUser={currentUser}
       />
     );
   };

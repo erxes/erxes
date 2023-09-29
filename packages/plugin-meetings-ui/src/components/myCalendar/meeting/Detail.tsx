@@ -123,8 +123,8 @@ export const MeetingDetail = (props: Props) => {
             <span>Team members:</span>{' '}
             {meetingDetail?.participantUser?.map((user, index) => {
               if (index != meetingDetail?.participantUser?.length - 1)
-                return <>{user.details?.fullName},</>;
-              return <>{user.details?.fullName}</>;
+                return <div key={index}>{user.details?.fullName},</div>;
+              return <div key={index}>{user.details?.fullName}</div>;
             })}
           </MeetingDetailColumn>
         </MeetingDetailRow>

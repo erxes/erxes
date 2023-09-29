@@ -23,6 +23,7 @@ import {
   connectAndQueryTimeLogsFromMsSql
 } from '../../utils';
 import { fixDate } from '@erxes/api-utils/src';
+import { sendMobileNotification } from '../utils';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -398,6 +399,18 @@ const timeclockMutations = {
 
       return updated;
     }
+
+    // send mobile notification
+    sendMobileNotification(
+      [shiftRequest.userId || ''],
+      'requestSolved',
+      shiftRequest,
+      'request',
+      {
+        reason: shiftRequest.reason,
+        approved: status === 'Approved'
+      }
+    );
 
     // if request is check in/out request
     return models.Absences.updateAbsence(_id, {
