@@ -110,8 +110,6 @@ class GeneralSettings extends React.Component<Props, State> {
   renderItem = (key: string, description?: string, controlProps?: any) => {
     const { currentMap } = this.state;
 
-    console.log('currentMap', currentMap, key);
-
     return (
       <FormGroup>
         <ControlLabel>{__(JOURNALS_KEY_LABELS[key])}</ControlLabel>

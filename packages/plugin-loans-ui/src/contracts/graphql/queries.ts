@@ -124,7 +124,10 @@ export const contractsMain = `
 
 export const contractDetailFields = `
   branchId
-  
+  downPayment
+  skipAmountCalcMonth
+  customPayment
+  customInterest
   contractType {
     code
     name

@@ -416,6 +416,7 @@ export const mutations = `
   
   sendScheduleRequest(userId: String, shifts: [ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
   submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
+  editSchedule(_id: String!, shifts: [ShiftInput]): JSON
   checkDuplicateScheduleShifts(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], status: String): [DuplicateSchedule]
 
   solveAbsenceRequest(_id: String, status: String): Absence

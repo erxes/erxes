@@ -117,6 +117,7 @@ const schedulesMain = `
             status
             scheduleConfigId
             lunchBreakInMins
+            scheduleId
           }
           scheduleConfigId
           solved

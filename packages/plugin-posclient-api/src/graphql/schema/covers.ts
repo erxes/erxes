@@ -30,9 +30,9 @@ export const types = `
     modifiedBy: String
     note: String
 
-    user: User
-    createdUser:  User
-    modifiedUser:  User
+    user: PosUser
+    createdUser: PosUser
+    modifiedUser: PosUser
   }
 `;
 

@@ -19,17 +19,17 @@ import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import { WEEKENDS } from '../../../constants';
 import SelectContractType, {
   ContractTypeById
 } from '../../../contractTypes/containers/SelectContractType';
-import SelectContract from '../../containers/SelectContract';
 import { IContract, IContractDoc } from '../../types';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import { IContractType } from '../../../contractTypes/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { generateCustomGraphic } from '../../utils/customGraphic';
+import { LoanContract, LoanSchedule } from '../../interface/LoanContract';
 
 type Props = {
   currentUser: IUser;
@@ -40,49 +40,7 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  contractTypeId: string;
-  status: string;
-  description: string;
-  marginAmount: number;
-  leaseAmount: number;
-  feeAmount: number;
-  tenor: number;
-  interestRate: number;
-  interestMonth: number;
-  skipInterestCalcMonth: number;
-  repayment: string;
-  startDate: Date;
-  scheduleDays: number[];
-  customerId: string;
-  customerType: string;
-  branchId: string;
-  unduePercent: number;
-  undueCalcType: string;
-  currency: string;
-
-  debt: number;
-  debtTenor: number;
-  debtLimit: number;
-  salvageAmount: number;
-  salvagePercent: number;
-  salvageTenor: number;
-
-  relationExpertId: string;
-  leasingExpertId: string;
-  riskExpertId: string;
-  useDebt: boolean;
-  useMargin: boolean;
-  useSkipInterest: boolean;
-  leaseType: string;
-  weekends: number[];
-  useHoliday: boolean;
-  relContractId?: string;
-  isPayFirstMonth?: boolean;
-  isBarter?: boolean;
-  downPayment?: number;
-  customPayment?: number;
-  customInterest?: number;
+interface State extends LoanContract {
   config?: {
     maxAmount: number;
     minAmount: number;
@@ -91,16 +49,8 @@ type State = {
     maxInterest: number;
     minInterest: number;
   };
-  schedule: Schedule[];
-};
-
-type Schedule = {
-  order: number;
-  date: Date;
-  payment: number;
-  interest: number;
-  balance: number;
-};
+  schedule: LoanSchedule[];
+}
 
 function isGreaterNumber(value: any, compareValue: any) {
   value = Number(value || 0);
@@ -119,6 +69,7 @@ interface ITabs {
 
 function Tabs({ tabs }: ITabs) {
   const [tabIndex, setTabIndex] = React.useState(0);
+
   return (
     <>
       <MainTabs grayBorder>
@@ -184,9 +135,26 @@ class ContractForm extends React.Component<Props, State> {
       weekends: contract.weekends || [],
       useHoliday: contract.useHoliday || false,
       relContractId: contract.relContractId || '',
+      skipAmountCalcMonth: contract.skipAmountCalcMonth || 0,
+      customInterest: contract.customInterest,
+      customPayment: contract.customPayment,
       currency:
         contract.currency || this.props.currentUser.configs?.dealCurrency[0],
-      schedule: []
+      downPayment: contract.downPayment || 0,
+      schedule:
+        contract.repayment === 'custom'
+          ? generateCustomGraphic({
+              dateRange: contract.scheduleDays,
+              interestRate: contract.interestRate,
+              leaseAmount: contract.leaseAmount,
+              startDate: contract.startDate,
+              tenor: contract.tenor,
+              isPayFirstMonth: contract.isPayFirstMonth,
+              skipAmountCalcMonth: contract.skipAmountCalcMonth,
+              customPayment: contract.customPayment,
+              customInterest: contract.customInterest
+            })
+          : []
     };
   }
 
@@ -199,7 +167,11 @@ class ContractForm extends React.Component<Props, State> {
       finalValues._id = contract._id;
     }
 
-    const result = {
+    const result: State & {
+      createdBy: string;
+      createdAt: Date;
+      _id: string;
+    } = {
       _id: finalValues._id,
       ...this.state,
       contractTypeId: this.state.contractTypeId,
@@ -216,6 +188,9 @@ class ContractForm extends React.Component<Props, State> {
       unduePercent: Number(this.state.unduePercent),
       interestRate: Number(this.state.interestRate),
       skipInterestCalcMonth: Number(this.state.skipInterestCalcMonth),
+      skipAmountCalcMonth: Number(this.state.skipAmountCalcMonth),
+      customPayment: Number(this.state.customPayment),
+      customInterest: Number(this.state.customInterest),
       repayment: this.state.repayment,
       undueCalcType: this.state.undueCalcType || 'fromInterest',
       startDate: this.state.startDate,
@@ -270,73 +245,52 @@ class ContractForm extends React.Component<Props, State> {
     if ((e?.target as HTMLInputElement)?.type === 'checkbox')
       value = (e.target as HTMLInputElement).checked;
 
+    const repayment = name === 'repayment' ? value : this.state.repayment;
+
     if (
-      name === 'tenor' ||
-      name === 'leaseAmount' ||
-      name === 'customPayment' ||
-      name === 'customInterest' ||
-      name === 'scheduleDays' ||
-      name === 'isPayFirstMonth' ||
-      name === 'interestRate'
+      (name === 'repayment' && repayment === 'custom') ||
+      (repayment === 'custom' &&
+        (name === 'tenor' ||
+          name === 'leaseAmount' ||
+          name === 'customPayment' ||
+          name === 'customInterest' ||
+          name === 'scheduleDays' ||
+          name === 'isPayFirstMonth' ||
+          name === 'interestRate' ||
+          name === 'startDate')) ||
+      name === 'skipAmountCalcMonth'
     ) {
       const tenor = Number(name === 'tenor' ? value : this.state.tenor);
       const leaseAmount = Number(
         name === 'leaseAmount' ? value : this.state.leaseAmount
       );
-      const customPayment = Number(name === 'customPayment' ? value : 0);
-      const customInterest = Number(name === 'customInterest' ? value : 0);
+      const customPayment = Number(
+        name === 'customPayment' ? value : this.state.customPayment || 0
+      );
+      const customInterest = Number(
+        name === 'customInterest' ? value : this.state.customInterest || 0
+      );
       const isPayFirstMonth =
         name === 'isPayFirstMonth' ? value : this.state.isPayFirstMonth;
       const interestRate =
         name === 'interestRate' ? value : this.state.interestRate;
+      const startDate = name === 'startDate' ? value : this.state.startDate;
+      const scheduleDays =
+        name === 'scheduleDays' ? value : this.state.scheduleDays;
+      const skipAmountCalcMonth =
+        name === 'skipAmountCalcMonth' ? value : this.state.skipAmountCalcMonth;
 
-      let schedules: Schedule[] = [];
-      let payment =
-        customPayment || leaseAmount / (tenor * this.state.scheduleDays.length);
-      let sumAmount = 0;
-      const dateRange = this.state.scheduleDays.sort((a, b) => a - b);
-
-      let mainDate = this.state.startDate;
-      let balance = this.state.leaseAmount;
-      for (let index = 0; index < tenor + 1; index++) {
-        dateRange.map((day, i) => {
-          const nDate = new Date(mainDate);
-          const year = nDate.getFullYear();
-          let month = nDate.getMonth();
-          if (i === 0 && (index !== 0 || isPayFirstMonth !== true))
-            month = nDate.getMonth() + 1;
-
-          if (day > 28 && new Date(year, month, day).getDate() !== day)
-            mainDate = new Date(year, month + 1, 0);
-          else mainDate = new Date(year, month, day);
-
-          if (isPayFirstMonth === true && mainDate < this.state.startDate) {
-            return;
-          }
-
-          let amount = payment;
-          if (
-            sumAmount + amount > leaseAmount ||
-            tenor * dateRange.length == schedules.length + 1
-          )
-            amount = leaseAmount - sumAmount;
-          amount = Number(amount.toFixed(0));
-          const element: Schedule = {
-            order: schedules.length + 1,
-            payment: amount,
-            interest:
-              customInterest ||
-              Number(((balance * interestRate) / 100 / 365).toFixed(0)),
-            balance,
-            date: mainDate
-          };
-          balance -= amount;
-          sumAmount += amount;
-          if (tenor * dateRange.length > schedules.length)
-            schedules.push(element);
-        });
-      }
-
+      let schedules: LoanSchedule[] = generateCustomGraphic({
+        dateRange: scheduleDays,
+        interestRate,
+        leaseAmount,
+        startDate,
+        tenor,
+        customInterest,
+        customPayment,
+        isPayFirstMonth,
+        skipAmountCalcMonth
+      });
       this.setState({ schedule: schedules });
     }
     if (name === 'interestRate') {
@@ -348,114 +302,6 @@ class ContractForm extends React.Component<Props, State> {
     }
 
     this.setState({ [name]: value } as any);
-  };
-
-  onChangeInterest = e => {
-    const name = (e.target as HTMLInputElement).name;
-    const value = (e.target as HTMLInputElement).value;
-
-    if (name === 'interestRate') {
-      this.setState({
-        interestRate: Number(value),
-        interestMonth: Number(value || 0) / 12
-      });
-      return;
-    }
-
-    // interestMonth
-    this.setState({
-      interestRate: Number((Number(value || 0) * 12).toFixed(2)),
-      interestMonth: Number(value || 0)
-    });
-    return;
-  };
-
-  onChangeUnduePercent = e => {
-    const value = (e.target as HTMLInputElement).value;
-    // unduePercent
-    this.setState({
-      unduePercent: Number(value || 0)
-    });
-    return;
-  };
-
-  onChangeCheckbox = e => {
-    const name = (e.target as HTMLInputElement).name;
-    this.setState({ [name]: e.target.checked } as any);
-  };
-
-  onChangeWithSalvage = e => {
-    const name = (e.target as HTMLInputElement).name;
-    const value = (e.target as HTMLInputElement).value;
-
-    this.setState({ [name]: value } as any);
-
-    if (this.state.leaseType === 'finance') {
-      return;
-    }
-
-    const { leaseAmount } = this.state;
-
-    if (name === 'salvageAmount' && leaseAmount) {
-      if (Number(value) > leaseAmount) {
-        this.setState({ [name]: leaseAmount, salvagePercent: 100 });
-        return;
-      }
-      this.setState({ salvagePercent: (Number(value) * 100) / leaseAmount });
-      return;
-    }
-
-    if (name === 'salvagePercent') {
-      if (Number(value) > 100) {
-        this.setState({ [name]: 100, salvageAmount: leaseAmount });
-        return;
-      }
-      this.setState({ salvageAmount: (leaseAmount / 100) * Number(value) });
-      return;
-    }
-
-    if (name === 'leaseAmount') {
-      this.setState({
-        salvageAmount: (Number(value) * this.state.salvagePercent) / 100
-      });
-      return;
-    }
-  };
-
-  renderSalvage = (formProps: IFormProps) => {
-    if (this.state.leaseType === 'finance') {
-      return <></>;
-    }
-
-    return (
-      <>
-        {this.renderFormGroup('Salvage Percent', {
-          ...formProps,
-          type: 'number',
-          name: 'salvagePercent',
-          value: this.state.salvagePercent || 0,
-          onChange: this.onChangeWithSalvage,
-          required: true,
-          onClick: this.onFieldClick
-        })}
-        {this.renderFormGroup('Salvage Amount', {
-          ...formProps,
-          type: 'number',
-          name: 'salvageAmount',
-          value: this.state.salvageAmount || 0,
-          onChange: this.onChangeWithSalvage,
-          onClick: this.onFieldClick
-        })}
-        {this.renderFormGroup('Salvage Tenor', {
-          ...formProps,
-          type: 'number',
-          name: 'salvageTenor',
-          value: this.state.salvageTenor || 0,
-          onChange: this.onChangeField,
-          onClick: this.onFieldClick
-        })}
-      </>
-    );
   };
 
   onSelectTeamMember = (value, name) => {
@@ -517,18 +363,8 @@ class ContractForm extends React.Component<Props, State> {
     e.target.select();
   };
 
-  onSelectWeekends = values => {
-    this.setState({ weekends: values.map(val => val.value) });
-  };
-
   onSelectScheduleDays = values => {
     this.setState({ scheduleDays: values.map(val => val.value) });
-  };
-
-  onSelectRelContract = value => {
-    this.setState({
-      relContractId: value
-    });
   };
 
   checkValidation = (): any => {
@@ -624,6 +460,31 @@ class ContractForm extends React.Component<Props, State> {
                 ></SelectContractType>
               </FormGroup>
 
+              {this.renderFormGroup('Fee Amount', {
+                ...formProps,
+                type: 'number',
+                name: 'feeAmount',
+                useNumberFormat: true,
+                fixed: 2,
+                value: this.state.feeAmount || 0,
+                onChange: this.onChangeField,
+                onClick: this.onFieldClick
+              })}
+
+              {this.state.useMargin &&
+                this.renderFormGroup('Margin Amount', {
+                  ...formProps,
+                  type: 'number',
+                  name: 'marginAmount',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  value: this.state.marginAmount || 0,
+                  errors: this.checkValidation(),
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
+            </FormColumn>
+            <FormColumn>
               <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
                 {this.renderFormGroup('Is Organization', {
                   ...formProps,
@@ -647,7 +508,6 @@ class ContractForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
               )}
-
               {this.state.customerType === 'company' && (
                 <FormGroup>
                   <ControlLabel required={true}>{__('Company')}</ControlLabel>
@@ -660,7 +520,6 @@ class ContractForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
               )}
-
               {this.state.useMargin &&
                 this.renderFormGroup('Down payment', {
                   ...formProps,
@@ -670,125 +529,11 @@ class ContractForm extends React.Component<Props, State> {
                   fixed: 2,
                   value: this.state.downPayment || 0,
                   errors: this.checkValidation(),
-                  onChange: this.onChangeWithSalvage,
-                  onClick: this.onFieldClick
-                })}
-              {this.state.useMargin && (
-                <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
-                  {this.renderFormGroup('Is Barter', {
-                    ...formProps,
-                    className: 'flex-item',
-                    type: 'checkbox',
-                    componentClass: 'checkbox',
-                    name: 'isBarter',
-                    checked: this.state.isBarter || false,
-                    onChange: this.onChangeCheckbox
-                  })}
-                </div>
-              )}
-
-              {this.state.useMargin &&
-                this.renderFormGroup('Margin Amount', {
-                  ...formProps,
-                  type: 'number',
-                  name: 'marginAmount',
-                  useNumberFormat: true,
-                  fixed: 2,
-                  value: this.state.marginAmount || 0,
-                  errors: this.checkValidation(),
-                  onChange: this.onChangeWithSalvage,
+                  onChange: this.onChangeField,
                   onClick: this.onFieldClick
                 })}
             </FormColumn>
             <FormColumn>
-              {this.renderFormGroup('Loss Percent', {
-                ...formProps,
-                type: 'number',
-                name: 'unduePercent',
-                useNumberFormat: true,
-                fixed: 2,
-                value: this.state.unduePercent || 0,
-                onChange: this.onChangeUnduePercent,
-                onClick: this.onFieldClick
-              })}
-              <FormGroup>
-                <ControlLabel required={true}>{__('Currency')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="currency"
-                  componentClass="select"
-                  value={this.state.currency}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {this.props.currentUser.configs?.dealCurrency?.map(
-                    (typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {typeName}
-                      </option>
-                    )
-                  )}
-                </FormControl>
-              </FormGroup>
-              {this.renderFormGroup('Fee Amount', {
-                ...formProps,
-                type: 'number',
-                name: 'feeAmount',
-                useNumberFormat: true,
-                fixed: 2,
-                value: this.state.feeAmount || 0,
-                onChange: this.onChangeWithSalvage,
-                onClick: this.onFieldClick
-              })}
-              {this.state.useDebt && (
-                <>
-                  {this.renderFormGroup('Debt', {
-                    ...formProps,
-                    type: 'number',
-                    name: 'debt',
-                    useNumberFormat: true,
-                    fixed: 2,
-                    value: this.state.debt || 0,
-                    onChange: this.onChangeField,
-                    onClick: this.onFieldClick
-                  })}
-                  {this.renderFormGroup('Debt Tenor', {
-                    ...formProps,
-                    type: 'number',
-                    name: 'debtTenor',
-                    useNumberFormat: true,
-                    fixed: 2,
-                    value: this.state.debtTenor || 0,
-                    onChange: this.onChangeField,
-                    onClick: this.onFieldClick
-                  })}
-
-                  {this.renderFormGroup('Debt Limit', {
-                    ...formProps,
-                    type: 'number',
-                    name: 'debtLimit',
-                    useNumberFormat: true,
-                    fixed: 2,
-                    value: this.state.debtLimit || 0,
-                    onChange: this.onChangeField,
-                    onClick: this.onFieldClick
-                  })}
-                </>
-              )}
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>{__('Closed Contract')}</ControlLabel>
-                <SelectContract
-                  label={__('Choose closed contract')}
-                  name="relContractId"
-                  value={this.state.relContractId || ''}
-                  onSelect={this.onSelectRelContract}
-                  multi={false}
-                  filterParams={{ closeDate: this.state.startDate }}
-                  customOption={{ label: ' ', value: '' }}
-                ></SelectContract>
-              </FormGroup>
               <FormGroup>
                 <ControlLabel>{__('Branches')}</ControlLabel>
                 <SelectBranches
@@ -800,17 +545,6 @@ class ContractForm extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>{__('Relation Expert')}</ControlLabel>
-                <SelectTeamMembers
-                  label={__('Choose an relation expert')}
-                  name="relationExpertId"
-                  initialValue={this.state.relationExpertId}
-                  onSelect={this.onSelectTeamMember}
-                  multi={false}
-                />
-              </FormGroup>
-
-              <FormGroup>
                 <ControlLabel>{__('Leasing Expert')}</ControlLabel>
                 <SelectTeamMembers
                   label={__('Choose an leasing expert')}
@@ -820,19 +554,19 @@ class ContractForm extends React.Component<Props, State> {
                   multi={false}
                 />
               </FormGroup>
-
-              <FormGroup>
-                <ControlLabel>{__('Risk Expert')}</ControlLabel>
-                <SelectTeamMembers
-                  label={__('Choose an risk expert')}
-                  name="riskExpertId"
-                  initialValue={this.state.riskExpertId}
-                  onSelect={this.onSelectTeamMember}
-                  multi={false}
-                />
-              </FormGroup>
-
-              {this.renderSalvage(formProps)}
+              {this.state.useMargin && (
+                <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
+                  {this.renderFormGroup('Is Barter', {
+                    ...formProps,
+                    className: 'flex-item',
+                    type: 'checkbox',
+                    componentClass: 'checkbox',
+                    name: 'isBarter',
+                    checked: this.state.isBarter || false,
+                    onChange: this.onChangeField
+                  })}
+                </div>
+              )}
             </FormColumn>
           </FormWrapper>
           <FormWrapper>
@@ -870,6 +604,9 @@ class ContractForm extends React.Component<Props, State> {
   };
 
   renderGraphic = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
+
     const onChangeStartDate = value => {
       this.setState({ startDate: value });
     };
@@ -895,6 +632,23 @@ class ContractForm extends React.Component<Props, State> {
                   />
                 </DateContainer>
               </FormGroup>
+              {this.renderFormGroup('Lease Amount', {
+                type: 'number',
+                name: 'leaseAmount',
+                useNumberFormat: true,
+                fixed: 2,
+                value: this.state.leaseAmount || 0,
+                onChange: this.onChangeField
+              })}
+              {this.state.repayment === 'custom' &&
+                this.renderFormGroup('Skip Amount Calc /Month/', {
+                  type: 'number',
+                  name: 'skipAmountCalcMonth',
+                  value: this.state.skipAmountCalcMonth,
+                  onChange: this.onChangeField
+                })}
+            </FormColumn>
+            <FormColumn>
               <FormGroup>
                 <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
                 <FormControl
@@ -906,7 +660,7 @@ class ContractForm extends React.Component<Props, State> {
                 >
                   {['fixed', 'equal', 'custom'].map((typeName, index) => (
                     <option key={index} value={typeName}>
-                      {typeName}
+                      {__(typeName + 'Method')}
                     </option>
                   ))}
                 </FormControl>
@@ -919,16 +673,7 @@ class ContractForm extends React.Component<Props, State> {
                 max: 30,
                 onChange: this.onChangeField
               })}
-            </FormColumn>
-            <FormColumn>
-              {this.renderFormGroup('Lease Amount', {
-                type: 'number',
-                name: 'leaseAmount',
-                useNumberFormat: true,
-                fixed: 2,
-                value: this.state.leaseAmount || 0,
-                onChange: this.onChangeField
-              })}
+
               {this.state.repayment === 'custom' &&
                 this.renderFormGroup('Custom payment Amount', {
                   type: 'number',
@@ -945,29 +690,7 @@ class ContractForm extends React.Component<Props, State> {
                   value: this.state.skipInterestCalcMonth,
                   onChange: this.onChangeField
                 })}
-              {this.state.repayment === 'custom' &&
-                this.renderFormGroup('Custom Interest', {
-                  ...formProps,
-                  type: 'number',
-                  useNumberFormat: true,
-                  fixed: 2,
-                  name: 'customInterest',
-                  value: this.state.customInterest || 0,
-                  onChange: this.onChangeField,
-                  onClick: this.onFieldClick
-                })}
-              {this.renderFormGroup('Interest Rate', {
-                ...formProps,
-                type: 'number',
-                useNumberFormat: true,
-                fixed: 2,
-                name: 'interestRate',
-                value: this.state.interestRate || 0,
-                onChange: this.onChangeField,
-                onClick: this.onFieldClick
-              })}
             </FormColumn>
-
             <FormColumn>
               <FormGroup>
                 <ControlLabel required>{__('Schedule Days')}</ControlLabel>
@@ -984,28 +707,27 @@ class ContractForm extends React.Component<Props, State> {
                   }))}
                 />
               </FormGroup>
-              <FormGroup>
-                <ControlLabel>{__('Weekends')}</ControlLabel>
-                <Select
-                  className="flex-item"
-                  placeholder={__('Choose an weekend days')}
-                  value={this.state.weekends}
-                  onChange={this.onChangeField}
-                  multi={true}
-                  options={Object.keys(WEEKENDS).map(key => ({
-                    value: key,
-                    label: WEEKENDS[key]
-                  }))}
-                />
-              </FormGroup>
-              {this.renderFormGroup('Use Holiday', {
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'useHoliday',
-                checked: this.state.useHoliday || false,
-                onChange: this.onChangeField
+              {this.renderFormGroup('Interest Rate', {
+                ...formProps,
+                type: 'number',
+                useNumberFormat: true,
+                fixed: 2,
+                name: 'interestRate',
+                value: this.state.interestRate || 0,
+                onChange: this.onChangeField,
+                onClick: this.onFieldClick
               })}
+              {this.state.repayment === 'custom' &&
+                this.renderFormGroup('Custom Interest', {
+                  ...formProps,
+                  type: 'number',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  name: 'customInterest',
+                  value: this.state.customInterest || 0,
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
               {this.renderFormGroup('Is Pay First Month', {
                 className: 'flex-item',
                 type: 'checkbox',
@@ -1024,13 +746,14 @@ class ContractForm extends React.Component<Props, State> {
                   <th>{__('Schedule day')}</th>
                   <th>{__('Payment')}</th>
                   <th>{__('Interest')}</th>
+                  <th>{__('Total')}</th>
                 </tr>
               </thead>
               <tbody>
                 {this.state.schedule.map(mur => (
                   <tr key={`schedule${mur.order}`}>
                     <td>{mur.order}</td>
-                    <td>{mur.date.toLocaleDateString()}</td>
+                    <td>{mur.payDate.toLocaleDateString()}</td>
                     <td>
                       {this.renderFormGroup('', {
                         className: 'flex-item',
@@ -1046,8 +769,20 @@ class ContractForm extends React.Component<Props, State> {
                         className: 'flex-item',
                         type: 'number',
                         name: 'interest',
-                        value: mur.interest || 0,
+                        value: mur.interestNonce || 0,
                         useNumberFormat: true,
+                        onChange: this.onChangeField
+                      })}
+                    </td>
+                    <td>
+                      {this.renderFormGroup('', {
+                        className: 'flex-item',
+                        type: 'number',
+                        name: 'interest',
+                        value:
+                          (mur.payment || 0) + (mur.interestNonce || 0) || 0,
+                        useNumberFormat: true,
+                        disabled: true,
                         onChange: this.onChangeField
                       })}
                     </td>
@@ -1063,7 +798,15 @@ class ContractForm extends React.Component<Props, State> {
                   </td>
                   <td>
                     {this.state.schedule
-                      .reduce((a, b) => a + b.interest, 0)
+                      .reduce((a, b) => a + (b.interestNonce || 0), 0)
+                      .toLocaleString()}
+                  </td>
+                  <td>
+                    {this.state.schedule
+                      .reduce(
+                        (a, b) => a + (b.interestNonce || 0) + b.payment,
+                        0
+                      )
                       .toLocaleString()}
                   </td>
                 </tr>
@@ -1071,6 +814,19 @@ class ContractForm extends React.Component<Props, State> {
             </Table>
           )}
         </ScrollWrapper>
+        <ModalFooter>
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+            {__('Close')}
+          </Button>
+
+          {renderButton({
+            name: 'contract',
+            values: this.generateDoc(values),
+            disabled: !!Object.keys(this.checkValidation()).length,
+            isSubmitted,
+            object: this.props.contract
+          })}
+        </ModalFooter>
       </>
     );
   };

@@ -108,6 +108,9 @@ export interface IContract {
   isPayFirstMonth: boolean;
   downPayment: number;
   isBarter: boolean;
+  skipAmountCalcMonth: number;
+  customPayment: number;
+  customInterest: number;
   isStoppedInterest: boolean;
   stoppedInterestDate: Date;
 }
@@ -385,6 +388,21 @@ export const contractSchema = schemaHooksWrapper(
       type: Number,
       default: 0,
       label: 'Down payment'
+    }),
+    skipAmountCalcMonth: field({
+      type: Number,
+      default: 0,
+      label: 'skip Amount Calc Month'
+    }),
+    customPayment: field({
+      type: Number,
+      default: 0,
+      label: 'customPayment'
+    }),
+    customInterest: field({
+      type: Number,
+      default: 0,
+      label: 'customInterest'
     }),
     isBarter: field({
       type: Boolean,
