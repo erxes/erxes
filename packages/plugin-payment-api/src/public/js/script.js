@@ -17,6 +17,8 @@ async function onPaymentClick(payment, invoiceData, prefix) {
 
   let isMobile = false;
 
+  console.log('navigator.userAgent', navigator.userAgent);
+
   if (/Mobi/.test(navigator.userAgent)) {
     isMobile = true;
   }
