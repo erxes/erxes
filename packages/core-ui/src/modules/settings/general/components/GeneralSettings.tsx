@@ -724,13 +724,13 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('General system config')}
+            title={__('System Configuration')}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={
           <Header
-            title="System config"
+            title="System configuration"
             description={
               __(
                 'Set up your initial account settings so that things run smoothly in unison'
@@ -740,7 +740,7 @@ class GeneralSettings extends React.Component<Props, State> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('General system config')}</Title>}
+            left={<Title>{__('System Configuration')}</Title>}
             right={actionButtons}
           />
         }

@@ -22,14 +22,12 @@ class ActionBar extends React.PureComponent<Props> {
       bottom,
       zIndex,
       hasFlex,
-      noBorder,
       wideSpacing
     } = this.props;
 
     return (
       <ContentHeader
         background={background || 'colorWhite'}
-        noBorder={noBorder}
         zIndex={zIndex}
         wideSpacing={wideSpacing}
       >
