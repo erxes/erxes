@@ -1,13 +1,13 @@
-import React from 'react';
-
-import { __ } from '@erxes/ui/src/utils/core';
-import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import Info from '@erxes/ui/src/components/Info';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FormControl } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Button from '@erxes/ui/src/components/Button';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Info from '@erxes/ui/src/components/Info';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 const KEY_LABELS = {
   FACEBOOK_APP_ID: 'Facebook App Id',
@@ -73,7 +73,11 @@ export default class UpdateConfigs extends React.Component<Props, State> {
     };
 
     return (
-      <CollapseContent title="Facebook">
+      <CollapseContent
+        beforeTitle={<Icon icon="facebook" />}
+        transparent={true}
+        title="Facebook"
+      >
         <Info>
           <a
             target="_blank"
