@@ -127,9 +127,10 @@ const ContenFooter = styled.div`
   }
 `;
 
-const HeaderItems = styledTS<{ rightAligned?: boolean; hasFlex?: boolean }>(
-  styled.div
-)`
+const HeaderItems = styledTS<{
+  rightAligned?: boolean;
+  hasFlex?: boolean;
+}>(styled.div)`
   align-self: center;
   flex: ${props => props.hasFlex && 1};
   margin-left: ${props => props.rightAligned && 'auto'};

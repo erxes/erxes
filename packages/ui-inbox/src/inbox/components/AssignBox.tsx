@@ -151,7 +151,7 @@ class AssignBox extends React.Component<Props, State> {
     const links = [
       {
         title: __('Remove assignee'),
-        href: '#',
+        href: window.location.pathname + window.location.search,
         onClick: this.removeAssignee
       }
     ];

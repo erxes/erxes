@@ -9,7 +9,6 @@ import { __ } from 'modules/common/utils';
 import { IBranch } from '@erxes/ui/src/team/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import ContactInfoForm from '../common/ContactInfoForm';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -19,7 +18,7 @@ type Props = {
 };
 
 export default function BranchForm(props: Props) {
-  const { closeModal, renderButton } = props;
+  const { closeModal, renderButton, branches } = props;
   const object = props.branch || ({} as IBranch);
 
   const [userIds, setUserIds] = useState(
@@ -75,6 +74,14 @@ export default function BranchForm(props: Props) {
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
+    const generateOptions = () => {
+      return branches.map(branch => (
+        <option key={branch._id} value={branch._id}>
+          {branch.title}
+        </option>
+      ));
+    };
+
     return (
       <>
         <FormGroup>
@@ -120,13 +127,16 @@ export default function BranchForm(props: Props) {
 
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
-          <SelectBranches
-            label="Choose parent"
+          <FormControl
+            {...formProps}
             name="parentId"
-            initialValue={parentId || ''}
-            onSelect={onChangeParent}
-            multi={false}
-          />
+            componentClass="select"
+            defaultValue={parentId || null}
+            onChange={onChangeParent}
+          >
+            <option value="" />
+            {generateOptions()}
+          </FormControl>
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
