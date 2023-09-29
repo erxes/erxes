@@ -270,9 +270,13 @@ export const initFirebase = async (models: IModels): Promise<void> => {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
-      await admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
+      try {
+        await admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } catch (e) {
+        console.log(`initFireBase error: ${e.message}`);
+      }
     }
   }
 };
