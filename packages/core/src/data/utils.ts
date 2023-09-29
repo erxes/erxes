@@ -932,9 +932,9 @@ const readFromCR2 = async (key: string, models?: IModels) => {
             error.code === 'NoSuchKey' &&
             error.message.includes('key does not exist')
           ) {
-            debugBase(
-              `Error occurred when fetching r2 file with key: "${key}"`
-            );
+            console.log('key does not exist');
+
+            return resolve(null);
           }
 
           return reject(error);
