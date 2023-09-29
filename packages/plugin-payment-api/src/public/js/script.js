@@ -18,10 +18,13 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   let isMobile = false;
 
   console.log('navigator.userAgent', navigator.userAgent);
+  // show user agent in label
+  title.innerHTML = navigator.userAgent;
 
   if (/Mobi/.test(navigator.userAgent)) {
     isMobile = true;
   }
+
   image.src = '';
 
   storepayBtn.style.display = 'none';
