@@ -189,11 +189,11 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   if (apiResponse.deeplink && isMobile) {
     deeplink.style.display = 'block';
     deeplink.href = apiResponse.deeplink;
-    deeplink.target = '_self';
+    deeplink.target = 'blank';
     deeplink.innerHTML = `Open in ${paymentObj.kind}`;
 
-    // window.open(apiResponse.deeplink, '_self');
     window.location.href = apiResponse.deeplink;
+    window.open(apiResponse.deeplink, 'blank');
 
     console.log('opening deeplink: ', apiResponse.deeplink);
   }
@@ -215,7 +215,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
       bankButton.classList.add('bank');
       bankButton.innerHTML = `<img src="${bankUrl.logo}" class="urlLogo">`;
       bankButton.addEventListener('click', function() {
-        // window.open(bankUrl.link, '_self');
+        window.open(bankUrl.link, 'blank');
         window.location.href = bankUrl.link;
         console.log(bankUrl.link);
       });
