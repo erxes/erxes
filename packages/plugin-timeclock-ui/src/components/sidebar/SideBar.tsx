@@ -2,7 +2,12 @@ import { router, __ } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React, { useState } from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { FlexColumnCustom, SidebarActions, SidebarHeader } from '../../styles';
+import {
+  FlexColumnCustom,
+  FlexRow,
+  SidebarActions,
+  SidebarHeader
+} from '../../styles';
 import { CustomRangeContainer } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Button from '@erxes/ui/src/components/Button';
@@ -21,8 +26,9 @@ type Props = {
   branches: IBranch[];
   departments: IDepartment[];
 };
-// get 1st of the next Month
+
 const NOW = new Date();
+// get 1st of the next Month
 const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
 // get 1st of this month
 const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
@@ -198,9 +204,71 @@ const LeftSideBar = (props: Props) => {
     return <SidebarActions>{renderSidebarActions()}</SidebarActions>;
   };
 
+  const onDateButtonClick = (type: string) => {
+    if (type === 'today') {
+      setStartDate(NOW);
+      setEndDate(NOW);
+      setParams('startDate', NOW);
+      setParams('endDate', NOW);
+    }
+
+    if (type === 'this month') {
+      const endOfThisMonth = new Date(startOfNextMonth - 1);
+
+      setStartDate(startOfThisMonth);
+      setParams('startDate', startOfThisMonth);
+
+      setEndDate(endOfThisMonth);
+      setParams('endDate', endOfThisMonth);
+    }
+
+    if (type === 'this week') {
+      const startOfThisWeek = new Date(NOW);
+      const endOfThisWeek = new Date(NOW);
+
+      // Set the date to the beginning of the current week (Monday)
+      startOfThisWeek.setDate(NOW.getDate() - NOW.getDay() + 1);
+
+      // Set the date to the end of the week (Sunday)
+      endOfThisWeek.setDate(startOfThisWeek.getDate() + 6);
+
+      setStartDate(startOfThisWeek);
+      setParams('startDate', startOfThisWeek);
+
+      setEndDate(endOfThisWeek);
+      setParams('endDate', endOfThisWeek);
+    }
+  };
+
   return (
     <Sidebar wide={true} hasBorder={true} header={renderSidebarHeader()}>
       <FlexColumnCustom marginNum={20}>
+        <FlexRow>
+          <Button
+            style={{ width: '30%' }}
+            size="small"
+            btnStyle="primary"
+            onClick={() => onDateButtonClick('today')}
+          >
+            Today
+          </Button>
+          <Button
+            style={{ width: '30%' }}
+            size="small"
+            btnStyle="primary"
+            onClick={() => onDateButtonClick('this week')}
+          >
+            This week
+          </Button>
+          <Button
+            style={{ width: '30%' }}
+            size="small"
+            btnStyle="primary"
+            onClick={() => onDateButtonClick('this month')}
+          >
+            This month
+          </Button>
+        </FlexRow>
         <div>
           <ControlLabel>Departments</ControlLabel>
           <Select

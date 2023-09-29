@@ -8,14 +8,15 @@ import {
   Table,
   Wrapper,
   __,
-  ModalTrigger,
-  HeaderDescription
+  ModalTrigger
 } from '@erxes/ui/src';
 import { IUnit, UnitsMainQueryResponse } from '@erxes/ui/src/team/types';
 import React from 'react';
-import SettingsSideBar from '../common/SettingsSideBar';
+import SettingsSideBar from '../../containers/common/SettingSideBar';
 import Form from '../../containers/unit/Form';
-import { DescriptionContentRow } from '../common/DescriptionContentRow';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Tip from '@erxes/ui/src/components/Tip';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   listQuery: UnitsMainQueryResponse;
@@ -40,8 +41,22 @@ class MainList extends React.Component<Props, State> {
     };
   }
 
+  remove = (_id?: string) => {
+    if (_id) {
+      this.props.deleteUnits([_id], () => this.setState({ selectedItems: [] }));
+    } else {
+      this.props.deleteUnits(this.state.selectedItems, () =>
+        this.setState({ selectedItems: [] })
+      );
+    }
+  };
+
   renderForm() {
-    const trigger = <Button btnStyle="success">{__('Add Unit')}</Button>;
+    const trigger = (
+      <Button btnStyle="success" icon="plus-circle">
+        {__('Add Unit')}
+      </Button>
+    );
 
     const content = ({ closeModal }) => <Form closeModal={closeModal} />;
 
@@ -104,6 +119,14 @@ class MainList extends React.Component<Props, State> {
     };
 
     const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="top">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
+
+    return (
       <tr key={unit._id}>
         <td onClick={onclick}>
           <FormControl
@@ -117,18 +140,26 @@ class MainList extends React.Component<Props, State> {
         <td>{__(unit?.supervisor?.email)}</td>
         <td>{__(unit?.department?.title || '')}</td>
         <td>{unit.userIds?.length || 0}</td>
+        <td>
+          <ActionButtons>
+            <ModalTrigger
+              key={unit._id}
+              title="Edit Unit"
+              content={({ closeModal }) => (
+                <Form closeModal={closeModal} unit={unit} />
+              )}
+              trigger={trigger}
+            />
+            <Tip text={__('Delete')} placement="top">
+              <Button
+                btnStyle="link"
+                onClick={() => this.remove(unit._id)}
+                icon="times-circle"
+              />
+            </Tip>
+          </ActionButtons>
+        </td>
       </tr>
-    );
-
-    return (
-      <ModalTrigger
-        key={unit._id}
-        title="Edit Unit"
-        content={({ closeModal }) => (
-          <Form closeModal={closeModal} unit={unit} />
-        )}
-        trigger={trigger}
-      />
     );
   }
 
@@ -164,6 +195,7 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Supervisor')}</th>
             <th>{__('Department')}</th>
             <th>{__('Team member count')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{(units || []).map(unit => this.renderRow(unit))}</tbody>
@@ -171,39 +203,28 @@ class MainList extends React.Component<Props, State> {
     );
   }
   render() {
-    const { listQuery, deleteUnits } = this.props;
+    const { listQuery } = this.props;
 
-    const { totalCount, totalUsersCount } = listQuery.unitsMain;
+    const { totalCount } = listQuery.unitsMain;
 
     const { selectedItems } = this.state;
-
-    const remove = () => {
-      deleteUnits(selectedItems, () => this.setState({ selectedItems: [] }));
-    };
 
     const rightActionBar = (
       <BarItems>
         {this.renderSearch()}
-        {!!selectedItems.length && (
-          <Button btnStyle="danger" onClick={remove}>
-            {__('Remove')}
-          </Button>
-        )}
         {this.renderForm()}
       </BarItems>
     );
 
-    const leftActionBar = (
-      <HeaderDescription
-        title="Units"
-        icon="/images/actions/21.svg"
-        description=""
-        renderExtra={DescriptionContentRow({
-          label: 'units',
-          totalCount: totalCount,
-          teamMembersCount: totalUsersCount
-        })}
-      />
+    const leftActionBar = selectedItems.length > 0 && (
+      <Button
+        btnStyle="danger"
+        size="small"
+        icon="times-circle"
+        onClick={() => this.remove()}
+      >
+        Remove
+      </Button>
     );
 
     return (
@@ -231,6 +252,7 @@ class MainList extends React.Component<Props, State> {
         }
         leftSidebar={<SettingsSideBar />}
         footer={<Pagination count={totalCount} />}
+        hasBorder={true}
       />
     );
   }

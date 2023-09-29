@@ -81,8 +81,8 @@ class HeaderDescription extends React.PureComponent<Props, State> {
           <span>
             <h4>{__(title)}</h4>
             {this.state.expand && __(description)}
+            {this.state.expand && renderExtra && renderExtra}
           </span>
-          {this.state.expand && renderExtra && renderExtra}
         </Description>
         <Button btnStyle="link" onClick={this.onClick}>
           <Tip
