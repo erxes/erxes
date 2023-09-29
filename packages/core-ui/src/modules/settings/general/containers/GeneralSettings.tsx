@@ -10,6 +10,7 @@ import { mutations, queries } from '@erxes/ui-settings/src/general/graphql';
 import { AppConsumer } from 'appContext';
 import GeneralSettings from '../components/GeneralSettings';
 import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
@@ -22,6 +23,10 @@ type FinalProps = {
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, configsQuery, constantsQuery } = this.props;
+
+    if (configsQuery.loading) {
+      return <Spinner />;
+    }
 
     // create or update action
     const save = (map: IConfigsMap) => {
@@ -38,7 +43,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         });
     };
 
-    const configs = configsQuery?.configs || [];
+    const configs = configsQuery.configs || [];
 
     const configsMap = {};
 
