@@ -33,12 +33,16 @@ export const Row = (props: Props) => {
 
   const content = props => <Form {...props} meeting={meeting} />;
 
+  const onTrClick = () => {
+    history.push(`/meetings/myCalendar?meetingId=${meeting._id}`);
+  };
+
+  const onClick = e => {
+    e.stopPropagation();
+  };
+
   return (
-    <tr
-      onClick={() => {
-        history.push(`/meetings/myCalendar?meetingId=${meeting._id}`);
-      }}
-    >
+    <tr onClick={onTrClick}>
       <td>{meeting.title}</td>
       <td>{meeting.createdUser?.username || ''}</td>
       <td>{meeting.createdAt}</td>
@@ -51,7 +55,7 @@ export const Row = (props: Props) => {
         </FlexCenter>
       </td>
       <td>{meeting.status}</td>
-      <td>
+      <td onClick={onClick}>
         <ActionButtons>
           <ModalTrigger
             title="Edit tag"

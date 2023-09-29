@@ -21,8 +21,8 @@ type Props = {
 
 const LeftSideBar = (props: Props) => {
   const { history, queryParams } = props;
-  const [companyId, setCompanyId] = useState('');
-  const [userId, setUserId] = useState('');
+  const [companyId, setCompanyId] = useState(queryParams?.companyId || '');
+  const [userId, setUserId] = useState(queryParams?.ownerId || '');
   const [createdAtFrom, setCreatedForm] = useState(
     queryParams.createdAtFrom || ''
   );

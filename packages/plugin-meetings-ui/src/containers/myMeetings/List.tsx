@@ -44,7 +44,8 @@ const MyMeetingListContainer = (props: FinalProps) => {
       userId: ownerId,
       companyId,
       searchValue
-    }
+    },
+    fetchPolicy: 'no-cache'
   });
 
   const { data: countData, loading: countLoading } = useQuery(
