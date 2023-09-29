@@ -1,5 +1,3 @@
-const { doc } = require('prettier');
-
 async function onPaymentClick(payment, invoiceData, prefix) {
   const modalContent = document.querySelector('.modal-content');
   const image = document.getElementById('qr-code');
@@ -184,7 +182,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
         });
     });
   }
-  
+
   // hide bank buttons
   bankButtons.style.display = 'none';
 
@@ -196,9 +194,11 @@ async function onPaymentClick(payment, invoiceData, prefix) {
 
     // window.open(apiResponse.deeplink, '_self');
     window.location.href = apiResponse.deeplink;
+
+    console.log('opening deeplink: ', apiResponse.deeplink);
   }
 
-  if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile){
+  if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile) {
     // hide qr image
     image.style.display = 'none';
     bankButtons.style.display = 'block';
