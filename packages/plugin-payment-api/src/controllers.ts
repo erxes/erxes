@@ -119,15 +119,7 @@ router.post('/gateway/storepay', async (req, res) => {
 });
 
 router.post('/gateway/updateInvoice', async (req, res) => {
-  const {
-    selectedPaymentId,
-    paymentKind,
-    invoiceData,
-    phone,
-    userAgent
-  } = req.body;
-
-  console.log('userAgent', userAgent);
+  const { selectedPaymentId, paymentKind, invoiceData, phone } = req.body;
 
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);

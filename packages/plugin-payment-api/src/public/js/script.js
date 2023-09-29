@@ -21,7 +21,8 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     /Mobi/.test(navigator.userAgent) ||
     navigator.userAgent === 'Android' ||
     navigator.userAgent === 'iPhone' ||
-    navigator.userAgent === 'Social Pay'
+    navigator.userAgent === 'Social Pay' || 
+    navigator.userAgent === 'socialpay'
   ) {
     isMobile = true;
   }
@@ -58,7 +59,6 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     selectedPaymentId: paymentObj._id,
     invoiceData: invoiceObj,
     paymentKind: paymentObj.kind,
-    userAgent: navigator.userAgent,
   };
 
   loader.style.display = 'block';
@@ -201,8 +201,6 @@ async function onPaymentClick(payment, invoiceData, prefix) {
 
     window.location.href = apiResponse.deeplink;
     window.open(apiResponse.deeplink, 'blank');
-
-    console.log('opening deeplink: ', apiResponse.deeplink);
   }
 
   if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile) {
@@ -224,7 +222,6 @@ async function onPaymentClick(payment, invoiceData, prefix) {
       bankButton.addEventListener('click', function() {
         window.open(bankUrl.link, 'blank');
         window.location.href = bankUrl.link;
-        console.log(bankUrl.link);
       });
       document.getElementById('bank-buttons').appendChild(bankButton);
     });
