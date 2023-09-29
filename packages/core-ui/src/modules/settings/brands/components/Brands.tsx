@@ -36,6 +36,7 @@ class Brands extends React.Component<Props, {}> {
           <thead>
             <tr>
               <th>{__('Brand name')}</th>
+              <th>{__('Description')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>

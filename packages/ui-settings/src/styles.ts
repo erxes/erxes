@@ -197,10 +197,13 @@ const ExpandWrapper = styled.div`
   }
 `;
 
-const Description = styled.div`
+const Description = styledTS<{ noMargin?: boolean; halfWidth?: boolean }>(
+  styled.div
+)`
   color: ${colors.colorCoreGray};
   font-size: 12px;
-  margin-bottom: ${dimensions.coreSpacing}px;
+  max-width: ${props => props.halfWidth && '500px'};
+  margin-bottom: ${props => !props.noMargin && '20px'};
 `;
 
 const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
