@@ -184,6 +184,7 @@ export default function Home(props: Props) {
       header={
         <Wrapper.Header
           title={__('Team members')}
+          queryParams={queryParams}
           breadcrumb={[{ title: 'Team members' }]}
         />
       }
