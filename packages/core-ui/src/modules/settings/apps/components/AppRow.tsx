@@ -1,26 +1,23 @@
-import React from 'react';
-import dayjs from 'dayjs';
-import styled from 'styled-components';
-import copy from 'copy-text-to-clipboard';
+import { Alert, __ } from 'modules/common/utils';
+import { IApp, IAppParams } from '../types';
 
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
+import React from 'react';
 import Tip from 'modules/common/components/Tip';
-// import ModalTrigger from "modules/common/components/ModalTrigger";
-import { __, Alert } from 'modules/common/utils';
-import { IApp, IAppParams } from '../types';
-// import AppForm from './AppForm';
+import copy from 'copy-text-to-clipboard';
+import dayjs from 'dayjs';
+import styled from 'styled-components';
 
-const TokenWrapper = styled.span`
-  color: #e83e8c;
-  font-size: 87.5%;
-  background-color: rgb(230, 230, 255);
-  border-radius: 8px;
-
-  &:hover {
-    cursor: pointer;
-  }
+const TokenWrapper = styled.div`
+  color: #6569df;
+  font-weight: 500;
+  font-size: 11px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 type Props = {
@@ -39,27 +36,6 @@ export default class AppRow extends React.Component<Props> {
     const onClick = () => {
       removeApp(app._id);
     };
-
-    // const editTrigger = (
-    //   <Tip text="Edit" placement="top">
-    //     <Button
-    //       btnStyle="link"
-    //       onClick={() => console.log('asdf')}
-    //     >
-    //       <Icon icon="edit" />
-    //     </Button>
-    //   </Tip>
-    // );
-
-    // const content = (props) => (
-    //   <AppForm
-    //     {...props}
-    //     extended={true}
-    //     userGroups={userGroups}
-    //     addApp={addApp}
-    //     editApp={editApp}
-    //   />
-    // );
 
     const onClickToken = () => {
       copy(app.accessToken);
