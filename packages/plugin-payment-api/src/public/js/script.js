@@ -194,7 +194,8 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     deeplink.target = '_self';
     deeplink.innerHTML = `Open in ${paymentObj.kind}`;
 
-    window.open(apiResponse.deeplink, '_self');
+    // window.open(apiResponse.deeplink, '_self');
+    window.location.href = apiResponse.deeplink;
   }
 
   if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile){
@@ -214,7 +215,9 @@ async function onPaymentClick(payment, invoiceData, prefix) {
       bankButton.classList.add('bank');
       bankButton.innerHTML = `<img src="${bankUrl.logo}" class="urlLogo">`;
       bankButton.addEventListener('click', function() {
-        window.open(bankUrl.link, '_self');
+        // window.open(bankUrl.link, '_self');
+        window.location.href = bankUrl.link;
+        console.log(bankUrl.link);
       });
       document.getElementById('bank-buttons').appendChild(bankButton);
     });
