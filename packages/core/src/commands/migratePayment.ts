@@ -3,15 +3,13 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import { Collection, Db, MongoClient } from 'mongodb';
 
-// const { MONGO_URL } = process.env;
-// if (!MONGO_URL) {
-//   throw new Error(`Environment variable MONGO_URL not set.`);
-// }
-const localUrl = 'mongodb://localhost:27017/erxes';
-if (!localUrl) {
-  throw new Error(`Environment variable localUrl not set.`);
+const { MONGO_URL } = process.env;
+
+if (!MONGO_URL) {
+  throw new Error(`Environment variable MONGO_URL not set.`);
 }
-const client = new MongoClient(localUrl);
+
+const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
