@@ -6,7 +6,7 @@ export interface IPaymentType {
   status: string;
   paymentIds?: string[];
   paymentTypes?: any[];
-  erxesAppToken: string;
+  erxesAppToken?: string;
 }
 
 export interface IPaymentTypeDocument extends IPaymentType, Document {

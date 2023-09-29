@@ -32,6 +32,7 @@ export const loadPaymentTypeClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getPaymentType(_id: string) {
+      // tslint:disable-next-line:no-shadowed-variable
       const PaymentType = await models.PaymentTypes.findOne({ _id });
 
       if (!PaymentType) {

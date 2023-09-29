@@ -367,7 +367,6 @@ class ProductForm extends React.Component<Props, State> {
     const { saveProductsData, productsData, closeModal } = this.props;
 
     const { total, changePayData } = this.state;
-    console.log(this.props, 'this.prop');
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
@@ -646,6 +645,7 @@ class ProductForm extends React.Component<Props, State> {
         <PaymentForm
           total={total}
           payments={this.props.paymentsData}
+          dealQuery={this.props.dealQuery}
           paymentQuery={this.props.paymentQuery}
           onChangePaymentsData={onChangePaymentsData}
           currencies={this.props.currencies}

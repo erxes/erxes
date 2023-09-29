@@ -16,7 +16,6 @@ import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
 import { selectConfigOptions } from '../../utils';
-import { type } from 'os';
 
 type Props = {
   total: { currency?: string; amount?: number };
@@ -33,7 +32,9 @@ type Props = {
     icon?: string;
   };
   paymentQuery: any;
+  dealQuery: any;
 };
+
 type State = {
   paymentsData: IPaymentsData;
 };
@@ -53,20 +54,6 @@ class PaymentForm extends React.Component<Props, State> {
     this.props.calcChangePay();
   }
 
-  componentDidMount(): void {
-    const { paymentQuery } = this.props;
-
-    if (paymentQuery?.length) {
-      const updatedPaymentsData = { ...this.state.paymentsData };
-      console.log(paymentQuery.paymentTypes, ' paymentQuery.paymentType');
-      paymentQuery[0].paymentTypes.forEach(item => {
-        const { title, type, config, icon } = item;
-        updatedPaymentsData[title] = { title, type, config, icon };
-      });
-      this.setState({ paymentsData: updatedPaymentsData });
-    }
-  }
-
   renderAmount(amount) {
     if (amount < 0) {
       return <WrongLess>{amount.toLocaleString()}</WrongLess>;
@@ -82,19 +69,27 @@ class PaymentForm extends React.Component<Props, State> {
     ));
   }
 
-  paymentStateChange = (
-    kind: string,
-    title: string,
-    value: string | number
-  ) => {
-    const { onChangePaymentsData, calcChangePay } = this.props;
+  paymentStateChange = (kind: string, type: string, value: string | number) => {
+    const { onChangePaymentsData, calcChangePay, paymentQuery } = this.props;
     const { paymentsData } = this.state;
-
-    if (!paymentsData[title]) {
-      paymentsData[title] = {};
+    // Check if paymentsData[type] is falsy
+    if (!paymentsData[type]) {
+      paymentsData[type] = {};
+      if (paymentQuery?.length) {
+        paymentQuery[0].paymentTypes.forEach(item => {
+          if (type === item.type) {
+            paymentsData[type] = {
+              title: item.title,
+              type: item.type,
+              config: item.config,
+              icon: item.icon
+            };
+          }
+        });
+      }
     }
-    paymentsData[title][kind] = value;
 
+    paymentsData[type][kind] = value;
     calcChangePay();
     this.setState({ paymentsData });
     onChangePaymentsData(paymentsData);
@@ -111,15 +106,14 @@ class PaymentForm extends React.Component<Props, State> {
     const { paymentsData } = this.state;
     const onChange = e => {
       if (
-        (!paymentsData[type.title] || !paymentsData[type.title].currency) &&
+        (!paymentsData[type.type] || !paymentsData[type.type].currency) &&
         currencies.length > 0
       ) {
-        this.paymentStateChange('currency', type.title, currencies[0]);
+        this.paymentStateChange('currency', type.type, currencies[0]);
       }
-
       this.paymentStateChange(
         'amount',
-        type.title,
+        type.type,
         parseFloat((e.target as HTMLInputElement).value || '0')
       );
     };
@@ -127,7 +121,7 @@ class PaymentForm extends React.Component<Props, State> {
     const currencyOnChange = (currency: HTMLOptionElement) => {
       this.paymentStateChange(
         'currency',
-        type.title,
+        type.type,
         currency ? currency.value : ''
       );
     };
@@ -136,15 +130,14 @@ class PaymentForm extends React.Component<Props, State> {
       Object.keys(changePayData).forEach(key => {
         if (
           changePayData[key] > 0 &&
-          (!paymentsData[type.title] || !paymentsData[type.title].amount)
+          (!paymentsData[type.type] || !paymentsData[type.type].amount)
         ) {
-          if (!paymentsData[type.title]) {
-            paymentsData[type.title] = {};
+          if (!paymentsData[type.type]) {
+            paymentsData[type.type] = {};
           }
 
-          paymentsData[type.title].amount = changePayData[key];
-          paymentsData[type.title].currency = key;
-
+          paymentsData[type.type].amount = changePayData[key];
+          paymentsData[type.type].currency = key;
           changePayData[key] = 0;
 
           this.setState({ paymentsData });
@@ -156,35 +149,29 @@ class PaymentForm extends React.Component<Props, State> {
     };
 
     return (
-      <Flex key={type._id}>
+      <Flex key={type.type}>
         <ContentColumn>
           <ControlLabel>{__(type.title)}</ControlLabel>
         </ContentColumn>
         <ContentColumn>
-          <ControlLabel>{__(type.type)}</ControlLabel>
-        </ContentColumn>
-        <ContentColumn>
-          <ControlLabel>{__(type.config)}</ControlLabel>
-        </ContentColumn>
-        <ContentColumn>
           <FormControl
             value={
-              paymentsData[type.title] ? paymentsData[type.title].amount : ''
+              paymentsData[type.type] ? paymentsData[type.type].amount : ''
             }
             type="number"
             placeholder={__('Type amount')}
             min={0}
-            name={type.title}
+            name={type.type}
             onChange={onChange}
             onClick={onClick}
           />
         </ContentColumn>
         <ContentColumn>
           <Select
-            name={type.title}
+            name={type.type}
             placeholder={__('Choose currency')}
             value={
-              paymentsData[type.title] ? paymentsData[type.title].currency : 0
+              paymentsData[type.type] ? paymentsData[type.type].currency : 0
             }
             onChange={currencyOnChange}
             optionRenderer={this.selectOption}
@@ -196,8 +183,42 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderPayments() {
-    const payment_type = this.props.paymentQuery[0].paymentTypes;
-    return payment_type.map(type => this.renderPaymentsByType(type));
+    const payment_type = this.props.paymentQuery[0]?.paymentTypes;
+    const paymentData = this.props.dealQuery.paymentsData;
+    const mergedItems = { ...paymentData };
+
+    if (Array.isArray(payment_type)) {
+      for (const item of payment_type) {
+        if (item && item.type) {
+          const existingItem = mergedItems[item.type];
+          if (existingItem) {
+            // If the item already exists, merge properties from payment_type
+            mergedItems[item.type] = {
+              ...existingItem,
+              ...item
+            };
+          } else {
+            // If the item does not exist in paymentsData, add it
+            mergedItems[item.type] = item;
+          }
+        }
+      }
+    }
+
+    mergedItems[PAYMENT_TYPES.type] = PAYMENT_TYPES;
+
+    const result = Object.values(mergedItems);
+    result.sort((a, b) => {
+      if (a.type === 'cash' && b.type !== 'cash') {
+        return -1; // Move 'cash' type objects to the beginning
+      } else if (a.type !== 'cash' && b.type === 'cash') {
+        return 1; // Move 'cash' type objects to the beginning
+      } else {
+        return 0; // Maintain the order of other elements
+      }
+    });
+
+    return result.map(type => this.renderPaymentsByType(type));
   }
 
   render() {
