@@ -58,6 +58,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     selectedPaymentId: paymentObj._id,
     invoiceData: invoiceObj,
     paymentKind: paymentObj.kind,
+    userAgent: navigator.userAgent,
   };
 
   loader.style.display = 'block';
