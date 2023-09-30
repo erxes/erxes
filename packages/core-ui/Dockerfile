@@ -1,5 +1,5 @@
 ARG BASE_IMAGE
-FROM alpine:3.11
+FROM alpine:3.18.4
 RUN apk add --no-cache alpine-sdk && \
     cd /tmp && curl -s -LO https://github.com/jpmens/jo/releases/download/1.3/jo-1.3.tar.gz && \
     tar xzf jo-1.3.tar.gz && \
