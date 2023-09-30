@@ -21,6 +21,7 @@
     "@apollo/subgraph": "^2.4.12",
     "agentkeepalive": "^4.3.0",
     "amqplib": "^0.10.2",
+    "bullmq" : "~4.12.0",
     "crypto": "^1.0.1",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
