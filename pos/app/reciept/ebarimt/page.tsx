@@ -17,7 +17,6 @@ import { getMode } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import Amount from "@/app/reciept/components/Amount"
-import EbarimtSkeleton from "@/app/reciept/components/Skeleton"
 import Footer from "@/app/reciept/components/footer"
 import EbarimtHeader from "@/app/reciept/components/header"
 import PutResponses from "@/app/reciept/components/putResponses"
@@ -77,7 +76,7 @@ const Reciept = () => {
     }
   }, [handleAfterPrint])
 
-  if (loading || loadingDetail) return <EbarimtSkeleton />
+  if (loading || loadingDetail) return null
 
   return (
     <>

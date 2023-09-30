@@ -23,6 +23,14 @@ export const reportDateAtom = atom<Date | null>(null)
 
 export const productCountAtom = atom<number>(0)
 
+// dialog
+
+export const kioskModalView = atom<string>("")
+
+export const kioskDialogOpenAtom = atom<boolean>(false)
+
+export const ebarimtMainDialogOpenAtom = atom<boolean>(false)
+
 const JotaiProvider = ({ children }: { children: React.ReactNode }) => {
   return <Provider>{children}</Provider>
 }

@@ -75,7 +75,7 @@ export const addToCart = (
     return changeCartItem({ _id, count: count + 1 }, cart)
   }
 
-  const { unitPrice, _id, name } = product
+  const { unitPrice, _id, name, attachment } = product
 
   const cartItem = {
     _id: Math.random().toString(),
@@ -84,6 +84,7 @@ export const addToCart = (
     unitPrice,
     productName: name,
     status: ORDER_STATUSES.NEW as IOrderItemStatus,
+    productImgUrl: attachment?.url,
   }
 
   return [cartItem, ...cart]

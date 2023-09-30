@@ -28,7 +28,9 @@ export const useProducts = (props?: {
       categoryId: categoryId,
       searchValue: searchValue,
       page: 1,
-      groupedSimilarity: getMode() === "coffee-shop" ? groupedSimilarity : null,
+      groupedSimilarity:
+        getMode() === "coffee-shop" ? groupedSimilarity : undefined,
+      isKiosk: getMode() === "kiosk" ? true : undefined,
     },
     skip,
     onCompleted(data) {
@@ -41,6 +43,7 @@ export const useProducts = (props?: {
       categoryId,
       searchValue,
       groupedSimilarity: getMode() === "coffee-shop" ? "config" : null,
+      isKiosk: getMode() === "kiosk" ? true : undefined,
     },
     onCompleted(data) {
       setProductCount((data || {}).poscProductsTotalCount || 0)

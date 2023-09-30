@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/horizontalScrollMenu"
 
 import { queries } from "../auth/graphql"
-import CategoryItem from "./categoryItem.main"
+import CategoryItem from "./components/categoryItem/categoryItem.main"
 
 const InitialCategories = () => {
   const { data, loading } = useQuery(queries.getInitialCategories)

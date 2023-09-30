@@ -278,6 +278,8 @@ query ActiveOrders(${queryParamsDefs}) {
     number
     type
     paidDate
+    origin
+    slotCode
   }
 }
 `
