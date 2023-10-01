@@ -21,10 +21,10 @@ const eventsConnections = new Redis({
 function getMessageQueue(name: string): Queue {
   const queue = new Queue(name, {
     defaultJobOptions: {
-      attempts: 18,
+      attempts: 16,
       backoff: {
         type: 'exponential',
-        delay: 3000,
+        delay: 5,
       },
       removeOnComplete: true,
       removeOnFail: true,
@@ -37,10 +37,10 @@ function getMessageQueue(name: string): Queue {
 function getRpcQueue(name: string): Queue {
   const queue = new Queue(name, {
     defaultJobOptions: {
-      attempts: 4,
+      attempts: 3,
       backoff: {
         type: 'exponential',
-        delay: 1000,
+        delay: 3,
       },
       removeOnComplete: {
         age: 10
