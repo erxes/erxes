@@ -117,7 +117,7 @@ class MailForm extends React.Component<Props, State> {
     const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
     const mailWidget = JSON.parse(
-      localStorage.getItem('emailWidgetData') || ''
+      localStorage.getItem('emailWidgetData') || '{}'
     );
 
     const cc = replyAll
