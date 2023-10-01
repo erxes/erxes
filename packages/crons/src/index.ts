@@ -8,8 +8,6 @@ import {
   getService
 } from './serviceDiscovery';
 
-const { RABBITMQ_HOST } = process.env;
-
 const sendMessage = async (
   subdomain: string,
   action: string,
@@ -33,7 +31,7 @@ const sendMessage = async (
   }
 };
 
-initBroker({ RABBITMQ_HOST, redis })
+initBroker({ redis })
   .then(async () => {
     console.log('Crons is running ....');
 

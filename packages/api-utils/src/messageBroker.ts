@@ -1,11 +1,10 @@
-import * as amqplib from 'amqplib';
-import { v4 as uuid } from 'uuid';
-import { debugError, debugInfo } from './debuggers';
+import { debugInfo } from './debuggers';
 import { getPluginAddress } from './serviceDiscovery';
 import { Express } from 'express';
 import fetch from 'node-fetch';
 import * as Agent from 'agentkeepalive';
 import * as dotenv from 'dotenv';
+import * as bullmq from './bullmq';
 dotenv.config();
 
 const timeoutMs = Number(process.env.RPC_TIMEOUT) || 30000;
@@ -39,7 +38,6 @@ const showInfoDebug = () => {
   return true;
 };
 
-let channel;
 let queuePrefix;
 let redisClient;
 
@@ -82,39 +80,9 @@ export const doesQueueExist = async (
 
 export const consumeQueue = async (queueName, callback) => {
   queueName = queueName.concat(queuePrefix);
-
   debugInfo(`consumeQueue ${queueName}`);
-
   await checkQueueName(queueName);
-
-  await channel.assertQueue(queueName);
-
-  // TODO: learn more about this
-  // await channel.prefetch(10);
-
-  try {
-    channel.consume(
-      queueName,
-      async msg => {
-        if (msg !== null) {
-          try {
-            await callback(JSON.parse(msg.content.toString()), msg);
-          } catch (e) {
-            debugError(
-              `Error occurred during callback ${queueName} ${e.message}`
-            );
-          }
-
-          channel.ack(msg);
-        }
-      },
-      { noAck: false }
-    );
-  } catch (e) {
-    debugError(
-      `Error occurred during consumeq queue ${queueName} ${e.message}`
-    );
-  }
+  await bullmq.consumeQueue(queueName, callback);
 };
 
 function splitPluginProcedureName(queueName: string) {
@@ -184,7 +152,7 @@ export const sendRPCMessage = async (
         let argsJson = '"cannot stringify"';
         try {
           argsJson = JSON.stringify(args);
-        } catch (e) {}
+        } catch (e) { }
 
         throw new Error(
           `RPC HTTP error. Status code: ${response.status}. Remote plugin: ${pluginName}. Procedure: ${procedureName}.
@@ -208,7 +176,7 @@ export const sendRPCMessage = async (
           let argsJson = '"cannot stringify"';
           try {
             argsJson = JSON.stringify(args);
-          } catch (e) {}
+          } catch (e) { }
 
           throw new Error(
             `RPC HTTP timeout after ${timeoutMs}ms. Remote: ${pluginName}. Procedure: ${procedureName}.
@@ -262,67 +230,7 @@ export const sendRPCMessageMq = async (
     );
   }
 
-  const response = await new Promise((resolve, reject) => {
-    const correlationId = uuid();
-
-    return channel.assertQueue('', { exclusive: true }).then(q => {
-      const timeoutMs = message.timeout || process.env.RPC_TIMEOUT || 10000;
-      var interval = setInterval(() => {
-        channel.deleteQueue(q.queue);
-
-        clearInterval(interval);
-
-        debugError(`${queueName} ${JSON.stringify(message)} timedout`);
-
-        return resolve(message.defaultValue);
-      }, timeoutMs);
-
-      channel.consume(
-        q.queue,
-        msg => {
-          clearInterval(interval);
-
-          if (!msg) {
-            channel.deleteQueue(q.queue).catch(() => {});
-            return resolve(message?.defaultValue);
-          }
-
-          if (msg.properties.correlationId === correlationId) {
-            const res = JSON.parse(msg.content.toString());
-
-            if (res.status === 'success') {
-              if (showInfoDebug()) {
-                debugInfo(
-                  `RPC success response for queue ${queueName} ${JSON.stringify(
-                    res
-                  )}`
-                );
-              }
-
-              resolve(res.data);
-            } else {
-              debugInfo(
-                `RPC error response for queue ${queueName} ${res.errorMessage})}`
-              );
-
-              reject(new Error(res.errorMessage));
-            }
-
-            channel.deleteQueue(q.queue);
-          }
-        },
-        { noAck: true }
-      );
-
-      channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), {
-        correlationId,
-        replyTo: q.queue,
-        expiration: timeoutMs
-      });
-    });
-  });
-
-  return response;
+  return bullmq.sendRPCMessageMq(queueName, message);
 };
 
 export const consumeRPCQueueMq = async (queueName, callback) => {
@@ -332,51 +240,7 @@ export const consumeRPCQueueMq = async (queueName, callback) => {
 
   await checkQueueName(queueName);
 
-  try {
-    await channel.assertQueue(queueName);
-
-    // TODO: learn more about this
-    // await channel.prefetch(10);
-
-    channel.consume(queueName, async msg => {
-      if (msg !== null) {
-        if (showInfoDebug()) {
-          debugInfo(
-            `Received rpc ${queueName} queue message ${msg.content.toString()}`
-          );
-        }
-
-        let response;
-
-        try {
-          response = await callback(JSON.parse(msg.content.toString()));
-        } catch (e) {
-          debugError(
-            `Error occurred during callback ${queueName} ${e.message}`
-          );
-
-          response = {
-            status: 'error',
-            errorMessage: e.message
-          };
-        }
-
-        channel.sendToQueue(
-          msg.properties.replyTo,
-          Buffer.from(JSON.stringify(response)),
-          {
-            correlationId: msg.properties.correlationId
-          }
-        );
-
-        channel.ack(msg);
-      }
-    });
-  } catch (e) {
-    debugError(
-      `Error occurred during consume rpc queue ${queueName} ${e.message}`
-    );
-  }
+  return bullmq.consumeRPCQueueMq(queueName, callback);
 };
 
 export const sendMessage = async (queueName: string, data?: any) => {
@@ -386,77 +250,15 @@ export const sendMessage = async (queueName: string, data?: any) => {
     await checkQueueName(queueName, true);
   }
 
-  try {
-    const message = JSON.stringify(data || {});
-
-    if (showInfoDebug()) {
-      debugInfo(`Sending message ${message} to ${queueName}`);
-    }
-
-    await channel.assertQueue(queueName);
-    await channel.sendToQueue(queueName, Buffer.from(message));
-  } catch (e) {
-    debugError(`Error occurred during send queue ${queueName} ${e.message}`);
-  }
-};
-
-function RabbitListener() {}
-
-RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
-  const me = this;
-
-  return new Promise(function(resolve) {
-    amqplib
-      .connect(RABBITMQ_HOST, { noDelay: true })
-      .then(
-        function(conn) {
-          console.log(`Connected to rabbitmq server ${RABBITMQ_HOST}`);
-
-          conn.on('error', me.reconnect.bind(me, RABBITMQ_HOST));
-
-          return conn.createChannel().then(function(chan) {
-            channel = chan;
-            resolve(chan);
-          });
-        },
-        function connectionFailed(err) {
-          console.log('Failed to connect to rabbitmq server', err);
-          me.reconnect(RABBITMQ_HOST);
-        }
-      )
-      .catch(function(error) {
-        console.log('RabbitMQ: ', error);
-      });
-  });
-};
-
-RabbitListener.prototype.reconnect = function(RABBITMQ_HOST) {
-  const reconnectTimeout = 1000 * 60;
-
-  const me = this;
-
-  channel = undefined;
-
-  console.log(
-    `Scheduling reconnect to rabbitmq in ${reconnectTimeout / 1000}s`
-  );
-
-  setTimeout(function() {
-    console.log(`Now attempting reconnect to rabbitmq ...`);
-    me.connect(RABBITMQ_HOST);
-  }, reconnectTimeout);
+  return bullmq.sendMessage(queueName, data);
 };
 
 export const init = async ({
-  RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX,
   redis,
   app
 }) => {
   redisClient = redis;
-
-  const listener = new RabbitListener();
-  await listener.connect(`${RABBITMQ_HOST}?heartbeat=60`);
 
   queuePrefix = MESSAGE_BROKER_PREFIX || '';
 

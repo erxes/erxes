@@ -4,9 +4,9 @@ import { initBroker } from '../messageBroker';
 const { MONGO_URL = '' } = process.env;
 
 export const connect = async () => {
-  const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
+  const { MESSAGE_BROKER_PREFIX } = process.env;
 
-  await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
+  await initBroker({ MESSAGE_BROKER_PREFIX, redis }).catch(e => {
     console.log(`Error ocurred during message broker init ${e.message}`);
   });
 

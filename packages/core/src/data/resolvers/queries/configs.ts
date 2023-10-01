@@ -28,7 +28,6 @@ const configQueries = {
     const result = {
       version: '-',
       isUsingRedis: Boolean(process.env.REDIS_HOST),
-      isUsingRabbitMQ: Boolean(process.env.RABBITMQ_HOST),
       isUsingElkSyncer: Boolean(process.env.ELK_SYNCER !== 'false'),
       isLatest: false,
       releaseInfo: {}

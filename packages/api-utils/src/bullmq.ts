@@ -9,14 +9,12 @@ const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 const connectionOptions = {
   host: REDIS_HOST,
   port: parseInt(REDIS_PORT || '6379', 10) || 6379,
-  password: REDIS_PASSWORD
+  password: REDIS_PASSWORD,
+  maxRetriesPerRequest: null
 };
 
 const connection = new Redis(connectionOptions);
-const eventsConnections = new Redis({
-  ...connectionOptions,
-  maxRetriesPerRequest: null
-})
+const eventsConnections = new Redis(connectionOptions);
 
 function getMessageQueue(name: string): Queue {
   const queue = new Queue(name, {
@@ -43,7 +41,7 @@ function getRpcQueue(name: string): Queue {
         delay: 3,
       },
       removeOnComplete: {
-        age: 10
+        age: 5
       },
       removeOnFail: true,
     }, connection
@@ -124,7 +122,7 @@ export const sendMessage = async (queueName: string, data: any) => {
     const queue = getMessageQueue(queueName);
     await queue.add('message', data);
   } catch (e) {
-    debugError(`sendMessage: Error occurred ${queueName} ${e.message}`);
+    debugError(`sendMessage: Error occurred ${queueName}. ${e.message}`);
   }
 };
 
@@ -140,7 +138,7 @@ export const sendRPCMessageMq = async (queueName: string, data: any) => {
     await job.remove();
     return result;
   } catch (e) {
-    debugError(`sendRPCMessageMq: Error ${queueName} ${e.message}`);
+    debugError(`sendRPCMessageMq: Error ${queueName}. ${e.message}`);
     if (isNotConnectionError(e) && data.defaultValue) {
       return data.defaultValue;
     } else {

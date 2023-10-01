@@ -110,7 +110,6 @@ const {
   NODE_ENV,
   PORT = '3700',
   MONGO_URL = 'mongodb://localhost/erxes',
-  RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX,
   TEST_MONGO_URL = 'mongodb://localhost/erxes-test'
 } = process.env;
@@ -126,7 +125,7 @@ httpServer.listen(PORT, async () => {
   
   // connect to mongo database
   connect(mongoUrl).then(async () => {
-    initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
+    initBroker({ MESSAGE_BROKER_PREFIX, redis }).catch(e => {
       console.log(`Error ocurred during message broker init ${e.message}`);
     });
   });

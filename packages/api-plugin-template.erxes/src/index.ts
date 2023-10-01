@@ -41,7 +41,6 @@ const configs = require('../../src/configs').default;
 
 const {
   MONGO_URL,
-  RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX,
   PORT,
   USE_BRAND_RESTRICTIONS,
@@ -316,7 +315,6 @@ async function startServer() {
   const db = await connect(mongoUrl);
 
   const messageBrokerClient = await initBroker({
-    RABBITMQ_HOST,
     MESSAGE_BROKER_PREFIX,
     redis,
     app

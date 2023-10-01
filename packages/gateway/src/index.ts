@@ -31,7 +31,6 @@ const {
   CLIENT_PORTAL_DOMAINS,
   ALLOWED_ORIGINS,
   PORT,
-  RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX,
   SENTRY_DSN
 } = process.env;
@@ -121,7 +120,7 @@ const {
 
   await new Promise<void>(resolve => httpServer.listen({ port }, resolve));
 
-  await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis, app });
+  await initBroker({ MESSAGE_BROKER_PREFIX, redis, app });
 
   await setBeforeResolvers();
   await setAfterMutations();
