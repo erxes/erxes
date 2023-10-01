@@ -6,7 +6,7 @@ import { paymentSheetAtom } from "@/store/ui.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { ALL_BANK_CARD_TYPES, BANK_CARD_TYPES } from "@/lib/constants"
-import { cn } from "@/lib/utils"
+import { cn, getMode } from "@/lib/utils"
 import { LoaderIcon, LoaderText, LoaderWrapper } from "@/components/ui/loader"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 
@@ -29,7 +29,12 @@ const PaymentSheet = () => {
       }
     >
       <SheetContent
-        className={cn("flex flex-col", type === "mobile" && "sm:max-w-3xl")}
+        className={cn(
+          "flex flex-col",
+          type === "mobile" && "sm:max-w-3xl",
+          getMode() === "kiosk" && "h-2/3 rounded-t-3xl"
+        )}
+        side={getMode() === "kiosk" ? "bottom" : undefined}
       >
         {openSheet && (
           <>

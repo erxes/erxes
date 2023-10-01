@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { activeOrderAtom, setOrderStatesAtom } from "@/store/order.store"
-import { useQuery } from "@apollo/client"
+import { useLazyQuery } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import Loader from "@/components/ui/loader"
@@ -13,21 +13,26 @@ const OrderDetail = ({ children }: { children: React.ReactNode }) => {
   const setOrderStates = useSetAtom(setOrderStatesAtom)
   const { onError } = useToast()
 
-  const { loading, data } = useQuery(queries.orderDetail, {
-    fetchPolicy: "network-only",
-    onError,
-    skip: !_id,
-    variables: { _id },
-  })
+  const [getOrderDetail, { loading, data }] = useLazyQuery(
+    queries.orderDetail,
+    {
+      fetchPolicy: "network-only",
+      onError,
+    }
+  )
 
   useEffect(() => {
     if (data) {
       const { orderDetail } = data
-      if (orderDetail._id === _id) {
+      if (orderDetail?._id === _id) {
         setOrderStates(orderDetail)
       }
     }
   }, [_id, data, setOrderStates])
+
+  useEffect(() => {
+    getOrderDetail({ variables: { _id } })
+  }, [_id, getOrderDetail])
 
   if (loading) return <Loader />
 

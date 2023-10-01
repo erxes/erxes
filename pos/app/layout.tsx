@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-before-interactive-script-outside-document */
 import "@/styles/globals.css"
+
 import { Metadata } from "next"
 import Script from "next/script"
 import ApolloProvider from "@/modules/ApolloProvider"

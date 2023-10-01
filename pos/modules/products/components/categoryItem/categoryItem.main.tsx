@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import { queries } from "./graphql"
+import { queries } from "../../graphql"
 
 const CategoryItem = ({ _id }: { _id: string }) => {
   const [activeCat, setActiveCat] = useAtom(activeCategoryAtom)

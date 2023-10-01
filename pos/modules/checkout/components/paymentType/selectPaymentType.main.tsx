@@ -48,7 +48,7 @@ const SelectPaymentTypeMain = () => {
           disabled={disabledTerms || !notPaidAmount}
         />
       )}
-      {khan && (
+      {!!khan && (
         <Term
           Icon={LandmarkIcon}
           title="Хаан банк"

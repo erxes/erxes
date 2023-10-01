@@ -116,6 +116,7 @@ export const setOrderStatesAtom = atom(
       items,
       type,
       billType,
+      registerNumber,
       slotCode,
       deliveryInfo,
       cashAmount,
@@ -135,6 +136,7 @@ export const setOrderStatesAtom = atom(
     set(cartAtom, items)
     set(orderTypeAtom, type || "eat")
     set(billTypeAtom, billType || "1")
+    set(registerNumberAtom, registerNumber || "")
     set(slotCodeAtom, slotCode || null)
     set(deliveryInfoAtom, deliveryInfo || null)
     set(cashAmountAtom, cashAmount || 0)
