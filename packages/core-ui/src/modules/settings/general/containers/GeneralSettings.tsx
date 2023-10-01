@@ -1,16 +1,17 @@
-import { AppConsumer } from 'appContext';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
+
 import { Alert, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import GeneralSettings from '../components/GeneralSettings';
-import { mutations, queries } from '@erxes/ui-settings/src/general/graphql';
 import {
   ConfigsQueryResponse,
   IConfigsMap
 } from '@erxes/ui-settings/src/general/types';
+import { mutations, queries } from '@erxes/ui-settings/src/general/graphql';
+
+import { AppConsumer } from 'appContext';
+import GeneralSettings from '../components/GeneralSettings';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
@@ -21,10 +22,6 @@ type FinalProps = {
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, configsQuery, constantsQuery } = this.props;
-
-    if (configsQuery.loading) {
-      return <Spinner objective={true} />;
-    }
 
     // create or update action
     const save = (map: IConfigsMap) => {
@@ -41,7 +38,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         });
     };
 
-    const configs = configsQuery.configs || [];
+    const configs = configsQuery?.configs || [];
 
     const configsMap = {};
 
@@ -55,7 +52,7 @@ class SettingsContainer extends React.Component<FinalProps> {
           <GeneralSettings
             {...this.props}
             configsMap={configsMap}
-            constants={constantsQuery.configsConstants || {}}
+            constants={constantsQuery?.configsConstants || {}}
             save={save}
             currentLanguage={currentLanguage}
             changeLanguage={changeLanguage}
