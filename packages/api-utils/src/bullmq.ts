@@ -13,6 +13,10 @@ const connectionOptions = {
 };
 
 const connection = new Redis(connectionOptions);
+const eventsConnections = new Redis({
+  ...connectionOptions,
+  maxRetriesPerRequest: null
+})
 
 function getMessageQueue(name: string): Queue {
   const queue = new Queue(name, {
@@ -46,15 +50,14 @@ function getRpcQueue(name: string): Queue {
 
 async function getQueueEvents(name: string): Promise<QueueEvents> {
   const queueEvents = new QueueEvents(name, {
-    connection: {
-      ...connectionOptions, maxRetriesPerRequest: null
-    }
+    connection: eventsConnections
   });
   await queueEvents.waitUntilReady();
   return queueEvents;
 }
 
 async function cleanupQueue(queue: Queue) {
+  await queue.clean(0, 0, "completed");
   try {
     await queue.close();
   } catch (e) {
@@ -66,11 +69,6 @@ async function cleanupQueueEvents(queueEvents: QueueEvents) {
     await queueEvents.close();
   } catch (e) {
     debugError(`cleanupQueueEvents: close() error ${queueEvents.name}. ${e.message}`);
-  }
-  try {
-    await queueEvents.disconnect();
-  } catch (e) {
-    debugError(`cleanupQueueEvents: disconnect() error ${queueEvents.name}. ${e.message}`);
   }
 }
 export async function consumeQueue(queueName: string, callback: any) {
@@ -88,7 +86,7 @@ export async function consumeQueue(queueName: string, callback: any) {
     });
   } catch (e) {
     debugError(
-      `consumeQueue: Error occurred during new Worker(). ${queueName} ${e.message}`
+      `consumeQueue: Error occurred during "new Worker()". ${queueName} ${e.message}`
     );
   }
 }
@@ -114,7 +112,7 @@ export async function consumeRPCQueueMq(queueName: string, callback: any) {
 
   } catch (e) {
     debugError(
-      `consumeRPCQueueMq: Error occurred during new Worker(). ${queueName} ${e.message}`
+      `consumeRPCQueueMq: Error occurred during "new Worker()". ${queueName} ${e.message}`
     );
   }
 };
@@ -130,16 +128,23 @@ export const sendMessage = async (queueName: string, data: any) => {
 
 
 export const sendRPCMessageMq = async (queueName: string, data: any) => {
+  const timeoutMs = data.timeout || Number(process.env.RPC_TIMEOUT) || 30000;
+  const queue = getRpcQueue(queueName);
+  const queueEvents = await getQueueEvents(queueName);
+  const job = await queue.add('RPC', data);
+
   try {
-    const queue = getRpcQueue(queueName);
-    const queueEvents = await getQueueEvents(queueName);
-    const job = await queue.add('RPC', data);
-    const result = await job.waitUntilFinished(queueEvents);
-    await job.remove();
-    await cleanupQueueEvents(queueEvents);
-    await cleanupQueue(queue);
+    const result = await job.waitUntilFinished(queueEvents, timeoutMs);
     return result;
   } catch (e) {
     debugError(`sendRPCMessageMq: Error ${queueName} ${e.message}`);
+    if (isNotConnectionError(e) && data.defaultValue) {
+      return data.defaultValue;
+    } else {
+      throw e;
+    }
+  } finally {
+    await cleanupQueueEvents(queueEvents);
+    await cleanupQueue(queue);
   }
 }
