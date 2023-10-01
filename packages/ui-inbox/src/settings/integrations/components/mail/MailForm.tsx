@@ -124,13 +124,13 @@ class MailForm extends React.Component<Props, State> {
       ? formatObj(mailData.cc || [])
       : mailWidget
       ? mailWidget.cc
-      : '';
+      : '' || '';
 
     const bcc = replyAll
       ? formatObj(mailData.bcc || [])
       : mailWidget
       ? mailWidget.bcc
-      : '';
+      : '' || '';
 
     const [from] = mailData.from || ([{}] as IEmail[]);
     const sender =
@@ -142,7 +142,7 @@ class MailForm extends React.Component<Props, State> {
       ? mailWidget.to
       : isForward
       ? ''
-      : sender;
+      : sender || '';
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
       (localStorage.getItem(`reply_${mailKey}`) || '').length > 0;
@@ -152,7 +152,7 @@ class MailForm extends React.Component<Props, State> {
         ? mailData.attachments
         : mailWidget
         ? mailWidget.attachments
-        : [];
+        : [] || [];
 
     this.state = {
       cc,
