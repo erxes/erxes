@@ -9,6 +9,7 @@ export interface IRCFAQuestionModel extends Model<IRCFAIssuesDocument> {
   editIssue(_id: string, doc: any): Promise<IRCFAIssuesDocument>;
   removeIssue(_id: string): Promise<IRCFAIssuesDocument>;
   closeRootIssue(_id: string): Promise<IRCFAIssuesDocument>;
+  createTaskRcfaRoot(params): Promise<IRCFAIssuesDocument>;
   createActionRcfaRoot(params): Promise<IRCFAIssuesDocument>;
 }
 
@@ -31,10 +32,6 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
         const newDoc = await models.RCFA.create(rcfaDoc);
         doc.rcfaId = newDoc._id;
       } else {
-        if (rcfa?.status !== 'inProgress') {
-          throw new Error('RCFA is already in resolved');
-        }
-
         if (doc?.parentId) {
           const [issue]: {
             status?: string;
@@ -76,13 +73,10 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
     }
 
     public static async editIssue(_id, doc) {
-      await this.checkStatus(_id);
-
       return await models.Issues.updateOne({ _id }, { $set: { ...doc } });
     }
 
     public static async removeIssue(_id) {
-      await this.checkStatus(_id);
       const issue = await models.Issues.findOne({ _id });
 
       if (!issue?.parentId) {
@@ -130,7 +124,7 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
       );
     }
 
-    public static async createActionRcfaRoot(params) {
+    public static async createTaskRcfaRoot(params) {
       const { issueId, stageId, name } = params;
       if (!issueId || !name) {
         throw new Error('You should specify a issueID or name');
@@ -162,16 +156,54 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
       );
     }
 
-    public static async checkStatus(_id) {
-      const issue = await models.Issues.findOne({ _id });
+    public static async createActionRcfaRoot(params) {
+      const {
+        mainType,
+        mainTypeId,
+        destinationType,
+        destinationStageId,
+        issueId,
+        name
+      } = params;
 
-      const rcfa = await models.RCFA.findOne({ _id: issue?.rcfaId });
-
-      if (rcfa?.status !== 'inProgress') {
-        throw new Error(
-          'You cannot remove a issue that is already in resolved'
-        );
+      if (!destinationType || !destinationStageId || !issueId) {
+        throw new Error('Cannot resolve rcfa');
       }
+
+      const rcfa = await models.RCFA.findOne({ mainType, mainTypeId });
+
+      if (!rcfa) {
+        throw new Error('Something went wrong');
+      }
+
+      const issue = await models.Issues.findOne({ _id: issueId });
+
+      if (!issue) {
+        throw new Error('Issue not found');
+      }
+
+      const payload = {
+        type: destinationType,
+        sourceType: mainType,
+        itemId: mainTypeId,
+        name: name || issue?.issue || '',
+        stageId: destinationStageId
+      };
+
+      const newItem = await sendCardsMessage({
+        subdomain: subdomain,
+        action: 'createRelatedItem',
+        data: payload,
+        isRPC: true
+      });
+
+      return await models.Issues.updateOne(
+        { _id: issue?._id },
+        {
+          $addToSet: { actionIds: newItem._id },
+          $set: { isRootCause: true }
+        }
+      );
     }
   }
 

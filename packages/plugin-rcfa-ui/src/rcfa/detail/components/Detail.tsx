@@ -1,18 +1,27 @@
-import React from 'react';
-import { PageHeader, BarItems, Icon, colors, __ } from '@erxes/ui/src';
 import {
-  RoundButton,
+  BarItems,
+  Icon,
+  ModalTrigger,
+  PageHeader,
+  Sidebar,
+  __,
+  colors
+} from '@erxes/ui/src';
+import { Columns } from '@erxes/ui/src/styles/chooser';
+import { Column } from '@erxes/ui/src/styles/main';
+import jquery from 'jquery';
+import { jsPlumb } from 'jsplumb';
+import React from 'react';
+import PortableCard from '../../../common/PortableCard';
+import {
   Container,
+  CustomColumn,
+  CustomColumns,
+  RoundButton,
   TreeCard,
   ZoomActions,
-  ZoomIcon,
-  CustomColumn,
-  CustomColumns
+  ZoomIcon
 } from '../../../styles';
-import { Column } from '@erxes/ui/src/styles/main';
-import PortableCard from '../../../common/PortableCard';
-import { jsPlumb } from 'jsplumb';
-import jquery from 'jquery';
 type Props = {
   detail: any;
 };
@@ -26,6 +35,9 @@ type State = {
 };
 
 let instance;
+
+const { Section } = Sidebar;
+const { Title } = Section;
 const getColor = issue => {
   if (
     !issue?.taskIds.length &&
@@ -35,10 +47,10 @@ const getColor = issue => {
     return colors.colorCoreRed;
   }
 
-  if (!!issue?.taskIds?.length) {
+  if (!!issue?.taskIds?.length && !issue?.actionIds.length) {
     return colors.colorCoreYellow;
   }
-  if (issue.isRootCause) {
+  if (issue.isRootCause && !!issue?.actionIds?.length) {
     return colors.colorCoreGreen;
   }
   return colors.colorCoreBlue;
@@ -197,24 +209,48 @@ class Detail extends React.Component<Props, State> {
     );
   }
 
-  renderPortableCard(issue) {
-    const { detail } = this.props;
-
-    if (issue?.taskIds?.length) {
-      return (issue?.taskIds || []).map(taskId => (
-        <div style={{ color: colors.colorCoreBlack }}>
-          <PortableCard type={'task'} id={taskId} />
-        </div>
-      ));
-    }
-
-    if (issue.isRootCause && detail.relType && detail.relTypeId) {
+  renderCards({ title, ids, type }) {
+    const content = () => {
       return (
-        <div style={{ color: colors.colorCoreBlack }}>
-          <PortableCard type={detail.relType} id={detail.relTypeId} />
+        <div style={{ padding: '6px 20px' }}>
+          <>
+            {(ids || []).map(id => (
+              <div style={{ color: colors.colorCoreBlack, margin: 10 }}>
+                <PortableCard type={type} id={id} />
+              </div>
+            ))}
+          </>
         </div>
       );
+    };
+
+    const trigger = <Title>{`${title} (${ids?.length || 0})`}</Title>;
+
+    return <ModalTrigger title={title} trigger={trigger} content={content} />;
+  }
+
+  renderActions(issue) {
+    if (!issue?.actionIds?.length) {
+      return null;
     }
+
+    return this.renderCards({
+      title: 'Actions',
+      ids: issue?.actionIds,
+      type: 'task'
+    });
+  }
+
+  renderTasks(issue) {
+    if (!issue?.taskIds?.length) {
+      return null;
+    }
+
+    return this.renderCards({
+      title: 'Tasks',
+      ids: issue?.taskIds,
+      type: 'task'
+    });
   }
 
   renderTree(issues) {
@@ -229,7 +265,10 @@ class Detail extends React.Component<Props, State> {
                     <h5>{issue?.issue || ''}</h5>
                     <p>{issue?.description || ''}</p>
                   </div>
-                  {this.renderPortableCard(issue)}
+                  <Columns>
+                    {this.renderActions(issue)}
+                    {this.renderTasks(issue)}
+                  </Columns>
                 </TreeCard>
                 <Column>
                   {this.renderTree(

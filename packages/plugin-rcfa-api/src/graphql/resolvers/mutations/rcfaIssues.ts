@@ -28,6 +28,9 @@ const rcfaIssuesMutations = {
   },
   async createActionRcfaRoot(_root, params, { models }: IContext) {
     return await models.Issues.createActionRcfaRoot(params);
+  },
+  async createTaskRcfaRoot(_root, params, { models }: IContext) {
+    return await models.Issues.createTaskRcfaRoot(params);
   }
 };
 

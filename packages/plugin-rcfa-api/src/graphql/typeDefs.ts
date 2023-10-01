@@ -1,17 +1,13 @@
 import gql from 'graphql-tag';
 
-import {
-  mutations as rcfaMutations,
-  queries as rcfaQueries,
-  types as rcfaTypes
-} from './schema/rcfa';
+import { queries as rcfaQueries, types as rcfaTypes } from './schema/rcfa';
 import {
   mutations as rcfaQuestionMutations,
   queries as rcfaQuestionQueries,
   types as rcfaQuestionTypes
 } from './schema/issues';
 
-const typeDefs = async (serviceDiscovery: any) => {
+const typeDefs = async (_serviceDiscovery: any) => {
   return gql`
     scalar JSON
     scalar Date
@@ -36,7 +32,6 @@ const typeDefs = async (serviceDiscovery: any) => {
     }
     
     extend type Mutation {
-      ${rcfaMutations}
       ${rcfaQuestionMutations}
     }
   `;

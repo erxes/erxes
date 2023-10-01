@@ -12,7 +12,7 @@ import {
 import { IFormProps } from '@erxes/ui/src/types';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 
-export function CreateRootAction({ issue, createRootAction }) {
+export function CreateRootTask({ issue, createRootTask }) {
   const [data, setData] = useState({}) as any;
 
   const trigger = (
@@ -36,7 +36,7 @@ export function CreateRootAction({ issue, createRootAction }) {
             stageId: data.stageId,
             name: value
           };
-          createRootAction(payload);
+          createRootTask(payload);
           closeModal();
         }
       };
