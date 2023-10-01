@@ -58,19 +58,19 @@ async function cleanupQueue(queue: Queue) {
   try {
     await queue.close();
   } catch (e) {
-
+    debugError(`cleanupQueue: Error ${queue.name}. ${e.message}`);
   }
 }
 async function cleanupQueueEvents(queueEvents: QueueEvents) {
   try {
     await queueEvents.close();
   } catch (e) {
-
+    debugError(`cleanupQueueEvents: close() error ${queueEvents.name}. ${e.message}`);
   }
   try {
     await queueEvents.disconnect();
   } catch (e) {
-
+    debugError(`cleanupQueueEvents: disconnect() error ${queueEvents.name}. ${e.message}`);
   }
 }
 export async function consumeQueue(queueName: string, callback: any) {
@@ -88,7 +88,7 @@ export async function consumeQueue(queueName: string, callback: any) {
     });
   } catch (e) {
     debugError(
-      `consumeQueue: Error occurred ${queueName} ${e.message}`
+      `consumeQueue: Error occurred during new Worker(). ${queueName} ${e.message}`
     );
   }
 }
@@ -114,7 +114,7 @@ export async function consumeRPCQueueMq(queueName: string, callback: any) {
 
   } catch (e) {
     debugError(
-      `consumeRPCQueueMq: Error occurred ${queueName} ${e.message}`
+      `consumeRPCQueueMq: Error occurred during new Worker(). ${queueName} ${e.message}`
     );
   }
 };
@@ -133,7 +133,7 @@ export const sendRPCMessageMq = async (queueName: string, data: any) => {
   try {
     const queue = getRpcQueue(queueName);
     const queueEvents = await getQueueEvents(queueName);
-    const job = await queue.add('job', data);
+    const job = await queue.add('RPC', data);
     const result = await job.waitUntilFinished(queueEvents);
     await job.remove();
     await cleanupQueueEvents(queueEvents);
