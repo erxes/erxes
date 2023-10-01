@@ -21,10 +21,10 @@ const eventsConnections = new Redis({
 function getMessageQueue(name: string): Queue {
   const queue = new Queue(name, {
     defaultJobOptions: {
-      attempts: 19,
+      attempts: 18,
       backoff: {
         type: 'exponential',
-        delay: 1000,
+        delay: 3000,
       },
       removeOnComplete: true,
       removeOnFail: true,
@@ -42,6 +42,9 @@ function getRpcQueue(name: string): Queue {
         type: 'exponential',
         delay: 1000,
       },
+      removeOnComplete: {
+        age: 10
+      },
       removeOnFail: true,
     }, connection
   });
@@ -57,7 +60,6 @@ async function getQueueEvents(name: string): Promise<QueueEvents> {
 }
 
 async function cleanupQueue(queue: Queue) {
-  await queue.clean(0, 0, "completed");
   try {
     await queue.close();
   } catch (e) {
@@ -135,6 +137,7 @@ export const sendRPCMessageMq = async (queueName: string, data: any) => {
 
   try {
     const result = await job.waitUntilFinished(queueEvents, timeoutMs);
+    await job.remove();
     return result;
   } catch (e) {
     debugError(`sendRPCMessageMq: Error ${queueName} ${e.message}`);
