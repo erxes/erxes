@@ -689,7 +689,9 @@ class MailForm extends React.Component<Props, State> {
       <div>
         <UploaderWrapper>
           <Attachment
-            attachment={this.state.attachments[0] || ({} as IAttachment)}
+            attachment={
+              (this.state.attachments || [])[0] || ({} as IAttachment)
+            }
             attachments={this.state.attachments || ([] as IAttachment[])}
             removeAttachment={removeAttachment}
             withoutPreview={true}
