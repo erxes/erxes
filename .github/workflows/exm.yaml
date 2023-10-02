@@ -8,7 +8,7 @@ on:
       - exm-improve
     paths:
       - 'exm-web/**'
-      - '.github/workflows/exmweb.yaml'
+      - '.github/workflows/exm.yaml'
 
   pull_request:
     branches:
@@ -17,7 +17,7 @@ on:
       - exm-improve
     paths:
       - 'exm-web/**'
-      - '.github/workflows/exmweb.yaml'
+      - '.github/workflows/exm.yaml'
 
 jobs:
   exm-ui:
