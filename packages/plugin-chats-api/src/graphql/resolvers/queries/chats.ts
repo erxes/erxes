@@ -27,11 +27,13 @@ const chatQueries = {
           defaultValue: []
         });
 
-        filter.$and.push({ participantIds: { $in: userIds } });
+        filter.$and.push({ participantIds: { $in: [...userIds, user._id] } });
         filter.$or = [{ name: new RegExp(`.*${searchValue}.*`, 'i') }];
       } catch (e) {
         filter.$and.push({ participantIds: { $in: [user._id] } });
       }
+    } else {
+      filter.$and.push({ participantIds: { $in: [user._id] } });
     }
 
     if (type) {
