@@ -10,8 +10,6 @@ import {
   XCircleIcon,
 } from "lucide-react"
 
-import { readFile } from "@/lib/utils"
-import Avatar from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -19,6 +17,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import Image from "@/components/ui/image"
 
 import useChatsMutation from "../hooks/useChatsMutation"
 
@@ -105,16 +104,21 @@ const ParticipantItem = ({
     >
       <div className="flex items-center justify-between mb-2 p-2 hover:bg-[#F0F0F0]">
         <div className="flex items-center">
-          <Avatar
-            src={readFile(
-              (participant && participant.details?.avatar) ||
-                "/avatar-colored.svg"
-            )}
-            alt="User Profile"
-            width={500}
-            height={500}
-            className="w-10 h-10 rounded-full mr-2"
-          />
+          <div className="items-end flex mr-2">
+            <div className="w-12 h-12 rounded-full">
+              <Image
+                src={
+                  (participant && participant.details?.avatar) ||
+                  "/avatar-colored.svg"
+                }
+                alt="avatar"
+                width={60}
+                height={60}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+            </div>
+          </div>
+
           <div className="">
             <p className="text-sm font-semibold text-[#444]">
               {participant?.details?.fullName || participant?.email}

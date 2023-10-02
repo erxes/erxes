@@ -5,9 +5,8 @@ import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { useAtomValue } from "jotai"
 import { PenSquareIcon } from "lucide-react"
 
-import { readFile } from "@/lib/utils"
-import Avatar from "@/components/ui/avatar"
 import { Dialog, DialogTrigger } from "@/components/ui/dialog"
+import Image from "@/components/ui/image"
 
 import { useChatDetail } from "../hooks/useChatDetail"
 import ParticipantList from "./ParticipantList"
@@ -49,18 +48,23 @@ const RightSideBar = () => {
       <>
         <div className="flex items-center justify-between pb-4 border-b">
           <div className="flex items-center">
-            <Avatar
-              src={readFile(
-                (chatDetail &&
-                  chatDetail.featuredImage &&
-                  chatDetail.featuredImage[0]?.url) ||
-                  "/avatar-colored.svg"
-              )}
-              alt="User Profile"
-              width={500}
-              height={500}
-              className="w-12 h-12 rounded-full mr-2"
-            />
+            <div className="items-end flex mr-2">
+              <div className="w-12 h-12 rounded-full">
+                <Image
+                  src={
+                    (chatDetail &&
+                      chatDetail.featuredImage &&
+                      chatDetail.featuredImage[0]?.url) ||
+                    "/avatar-colored.svg"
+                  }
+                  alt="avatar"
+                  width={60}
+                  height={60}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              </div>
+            </div>
+
             <h3 className="text-2xl font-semibold text-[#444]">
               {chatDetail.name}
             </h3>

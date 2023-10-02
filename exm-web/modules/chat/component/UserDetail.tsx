@@ -2,22 +2,23 @@
 
 import { IUser } from "@/modules/auth/types"
 
-import { readFile } from "@/lib/utils"
-import Avatar from "@/components/ui/avatar"
+import Image from "@/components/ui/image"
 
 const UserDetail = ({ user }: { user: IUser }) => {
   return (
     <>
       <div className="flex flex-col justify-center items-center pb-3 border-b">
-        <Avatar
-          src={readFile(
-            (user && user.details?.avatar) || "/avatar-colored.svg"
-          )}
-          alt="User Profile"
-          width={500}
-          height={500}
-          className="w-20 h-20 rounded-full mb-2"
-        />
+        <div className="items-end flex mr-2">
+          <div className="w-12 h-12 rounded-full">
+            <Image
+              src={(user && user.details?.avatar) || "/avatar-colored.svg"}
+              alt="avatar"
+              width={60}
+              height={60}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+          </div>
+        </div>
 
         <div className="flex flex-col justify-center items-center">
           <h3 className="text-2xl font-semibold text-[#444]">
