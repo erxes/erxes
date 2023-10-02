@@ -83,7 +83,7 @@ const getURL = () => {
   if (NEXT_PUBLIC_MAIN_API_DOMAIN.includes("localhost")) {
     return `${NEXT_PUBLIC_MAIN_API_DOMAIN}/upload-file`
   }
-  return `${NEXT_PUBLIC_MAIN_API_DOMAIN}upload-file`
+  return `${NEXT_PUBLIC_MAIN_API_DOMAIN}/upload-file`
 }
 
 const uploadHandler = (params: Params) => {
