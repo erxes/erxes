@@ -146,7 +146,7 @@ export const loadRemainderClass = (models: IModels) => {
         action: 'find',
         data: {
           query,
-          sort: {},
+          sort: { code: 1 },
           skip,
           limit
         },
@@ -181,15 +181,24 @@ export const loadRemainderClass = (models: IModels) => {
 
       for (const rem of remainders) {
         if (!Object.keys(remaindersByProductId).includes(rem.productId)) {
-          remaindersByProductId[rem.productId] = 0;
+          remaindersByProductId[rem.productId] = [];
         }
-        remaindersByProductId[rem.productId] =
-          remaindersByProductId[rem.productId] + rem.count;
+        remaindersByProductId[rem.productId].push(rem);
       }
 
       for (const product of products) {
-        const count = remaindersByProductId[product._id] || 0;
-        product.remainder = count;
+        product.remainder = (remaindersByProductId[product._id] || []).reduce(
+          (sum, cur) => sum + (Number(cur.count) || 0),
+          0
+        );
+        product.soonIn = (remaindersByProductId[product._id] || []).reduce(
+          (sum, cur) => sum + (Number(cur.soonIn) || 0),
+          0
+        );
+        product.soonOut = (remaindersByProductId[product._id] || []).reduce(
+          (sum, cur) => sum + (Number(cur.soonOut) || 0),
+          0
+        );
       }
 
       return { totalCount, products };
@@ -278,7 +287,13 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       branchId: string,
       departmentId: string,
-      productsData: { productId: string; uom: string; diffCount: number }[],
+      productsData: {
+        productId: string;
+        uom: string;
+        diffCount?: number;
+        diffSoonIn?: number;
+        diffSoonOut?: number;
+      }[],
       isCensus: false
     ) {
       let bulkOps: {
@@ -306,19 +321,27 @@ export const loadRemainderClass = (models: IModels) => {
       for (const data of productsData) {
         const product = productById[data.productId];
         const ratio = getRatio(product, data.uom || product.uom);
-        const diffCount = data.diffCount / (ratio || 1);
-        if (!diffCount) {
+        const diffCount = (data.diffCount || 0) / (ratio || 1);
+        const diffSoonIn = (data.diffSoonIn || 0) / (ratio || 1);
+        const diffSoonOut = (data.diffSoonOut || 0) / (ratio || 1);
+
+        if (!(diffCount || diffSoonIn || diffSoonOut)) {
           continue;
+        }
+
+        const update: any = {
+          $inc: { count: diffCount, soonIn: diffSoonIn, soonOut: diffSoonOut },
+          $set: { productId: data.productId, branchId, departmentId }
+        };
+
+        if (diffCount) {
+          update.$push = { shortLogs: { count: diffCount, date: new Date() } };
         }
 
         bulkOps.push({
           updateOne: {
             filter: { productId: data.productId, branchId, departmentId },
-            update: {
-              $inc: { count: diffCount },
-              $set: { productId: data.productId, branchId, departmentId },
-              $push: { shortLogs: { count: diffCount, date: new Date() } }
-            },
+            update,
             upsert: true
           }
         });

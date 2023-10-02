@@ -1,5 +1,3 @@
-const { doc } = require('prettier');
-
 async function onPaymentClick(payment, invoiceData, prefix) {
   const modalContent = document.querySelector('.modal-content');
   const image = document.getElementById('qr-code');
@@ -12,15 +10,23 @@ async function onPaymentClick(payment, invoiceData, prefix) {
   const storepayInput = document.getElementById('storepayInput');
   const loader = document.querySelector('.loader');
   const deeplink = document.getElementById('deeplink');
+  const bankButtons = document.getElementById('bank-buttons');
 
   deeplink.href = '';
   deeplink.innerHTML = '';
 
   let isMobile = false;
 
-  if (/Mobi/.test(navigator.userAgent)) {
+  if (
+    /Mobi/.test(navigator.userAgent) ||
+    navigator.userAgent === 'Android' ||
+    navigator.userAgent === 'iPhone' ||
+    navigator.userAgent === 'Social Pay' || 
+    navigator.userAgent === 'socialpay'
+  ) {
     isMobile = true;
   }
+
   image.src = '';
 
   storepayBtn.style.display = 'none';
@@ -184,15 +190,29 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     });
   }
 
+  // hide bank buttons
+  bankButtons.style.display = 'none';
+
   if (apiResponse.deeplink && isMobile) {
+    deeplink.style.display = 'block';
     deeplink.href = apiResponse.deeplink;
-    deeplink.target = '_self';
+    deeplink.target = 'blank';
     deeplink.innerHTML = `Open in ${paymentObj.kind}`;
+
+    window.location.href = apiResponse.deeplink;
+    window.open(apiResponse.deeplink, 'blank');
   }
 
-  if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile){
+  if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile) {
     // hide qr image
     image.style.display = 'none';
+    bankButtons.style.display = 'block';
+
+    // clear previous bank buttons
+    while (bankButtons.firstChild) {
+      bankButtons.removeChild(bankButtons.firstChild);
+    }
+
     const urls = apiResponse.urls || [];
 
     urls.map((bankUrl) => {
@@ -200,13 +220,14 @@ async function onPaymentClick(payment, invoiceData, prefix) {
       bankButton.classList.add('bank');
       bankButton.innerHTML = `<img src="${bankUrl.logo}" class="urlLogo">`;
       bankButton.addEventListener('click', function() {
-        window.open(bankUrl.link, '_self');
+        window.open(bankUrl.link, 'blank');
+        window.location.href = bankUrl.link;
       });
       document.getElementById('bank-buttons').appendChild(bankButton);
     });
   }
 
-  let amountValue = data.invoice.amount
+  let amountValue = data.invoice.amount;
 
   if (data.invoice.couponAmount) {
     amountValue = data.invoice.amount - data.invoice.couponAmount;

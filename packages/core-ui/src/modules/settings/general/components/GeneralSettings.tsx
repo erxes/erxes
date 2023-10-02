@@ -1,5 +1,10 @@
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
+import {
+  ContentBox,
+  FlexRow,
+  ImageWrapper,
+  Title
+} from '@erxes/ui-settings/src/styles';
 import {
   DATA_RETENTION_DURATION,
   FILE_MIME_TYPES,
@@ -26,7 +31,7 @@ import { FormControl } from 'modules/common/components/form';
 import FormGroup from 'modules/common/components/form/Group';
 import Header from '@erxes/ui-settings/src/general/components/Header';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
-import { ImageWrapper } from 'modules/settings/styles';
+import Icon from 'modules/common/components/Icon';
 import Info from 'modules/common/components/Info';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -228,15 +233,23 @@ class GeneralSettings extends React.Component<Props, State> {
 
     return (
       <CollapseContent
+        transparent={true}
         title={__('Cloudflare')}
         description={__('Cloudflare R2 Bucket, Images & Stream CDN configs')}
+        beforeTitle={<Icon icon="comment-upload" />}
       >
-        {this.renderItem('CLOUDFLARE_ACCOUNT_ID')}
-        {this.renderItem('CLOUDFLARE_API_TOKEN')}
-        {this.renderItem('CLOUDFLARE_ACCESS_KEY_ID')}
-        {this.renderItem('CLOUDFLARE_SECRET_ACCESS_KEY')}
-        {this.renderItem('CLOUDFLARE_BUCKET_NAME')}
-        {this.renderItem('CLOUDFLARE_ACCOUNT_HASH')}
+        <FlexRow alignItems="flex-start" justifyContent="space-between">
+          {this.renderItem('CLOUDFLARE_ACCOUNT_ID')}
+          {this.renderItem('CLOUDFLARE_API_TOKEN')}
+        </FlexRow>
+        <FlexRow alignItems="flex-start" justifyContent="space-between">
+          {this.renderItem('CLOUDFLARE_ACCESS_KEY_ID')}
+          {this.renderItem('CLOUDFLARE_SECRET_ACCESS_KEY')}
+        </FlexRow>
+        <FlexRow alignItems="flex-start" justifyContent="space-between">
+          {this.renderItem('CLOUDFLARE_BUCKET_NAME')}
+          {this.renderItem('CLOUDFLARE_ACCOUNT_HASH')}
+        </FlexRow>
         <FormGroup>
           <ControlLabel>{KEY_LABELS.CLOUDFLARE_USE_CDN}</ControlLabel>
           <p>{__('Upload images/videos to Cloudflare cdn')}</p>
@@ -281,7 +294,11 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title={__('General settings')}>
+        <CollapseContent
+          transparent={true}
+          title={__('General settings')}
+          beforeTitle={<Icon icon="settings" />}
+        >
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
             <Select
@@ -328,31 +345,42 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title={__('Theme')}>
-          {this.renderUploadImage(
-            'THEME_LOGO',
-            'Transparent PNG, around 3:1 aspect ratio. Max width: 600px.'
-          )}
-          {this.renderUploadImage('THEME_FAVICON', '16x16px transparent PNG.')}
+        <CollapseContent
+          transparent={true}
+          title={__('Theme')}
+          beforeTitle={<Icon icon="puzzle" />}
+        >
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderUploadImage(
+              'THEME_LOGO',
+              'Transparent PNG, around 3:1 aspect ratio. Max width: 600px.'
+            )}
+            {this.renderUploadImage(
+              'THEME_FAVICON',
+              '16x16px transparent PNG.'
+            )}
+            <FormGroup>
+              <ControlLabel>{__('Text color')}</ControlLabel>
+              <p>{__('Used on the login page text')}</p>
+              {this.renderColorPicker('THEME_TEXT_COLOR')}
+            </FormGroup>
 
+            <FormGroup>
+              <ControlLabel>{__('Background')}</ControlLabel>
+              <p>{__('Used on the login background')}</p>
+              {this.renderColorPicker('THEME_BACKGROUND')}
+            </FormGroup>
+          </FlexRow>
           {this.renderItem('THEME_MOTTO', '', 'textarea')}
 
           {this.renderItem('THEME_LOGIN_PAGE_DESCRIPTION', '', 'textarea')}
-
-          <FormGroup>
-            <ControlLabel>{__('Text color')}</ControlLabel>
-            <p>{__('Used on the login page text')}</p>
-            {this.renderColorPicker('THEME_TEXT_COLOR')}
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>{__('Background')}</ControlLabel>
-            <p>{__('Used on the login background')}</p>
-            {this.renderColorPicker('THEME_BACKGROUND')}
-          </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title={__('File upload')}>
+        <CollapseContent
+          transparent={true}
+          title={__('File upload')}
+          beforeTitle={<Icon icon="file-upload-alt" />}
+        >
           <Info>
             <a
               target="_blank"
@@ -362,62 +390,75 @@ class GeneralSettings extends React.Component<Props, State> {
               {__('Learn how to set file uploading') + '.'}
             </a>
           </Info>
-          <FormGroup>
-            <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
-            {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
-            <Select
-              value={configsMap.UPLOAD_FILE_TYPES}
-              options={mimeTypeOptions}
-              onChange={this.onChangeMultiCombo.bind(this, 'UPLOAD_FILE_TYPES')}
-              multi={true}
-              delimiter=","
-              simpleValue={true}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{KEY_LABELS.WIDGETS_UPLOAD_FILE_TYPES}</ControlLabel>
-            {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
-            <Select
-              value={configsMap.WIDGETS_UPLOAD_FILE_TYPES}
-              options={mimeTypeOptions}
-              onChange={this.onChangeMultiCombo.bind(
-                this,
-                'WIDGETS_UPLOAD_FILE_TYPES'
-              )}
-              multi={true}
-              delimiter=","
-              simpleValue={true}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
-            <Select
-              options={SERVICE_TYPES}
-              value={configsMap.UPLOAD_SERVICE_TYPE || 'AWS'}
-              clearable={false}
-              onChange={this.onChangeSingleCombo.bind(
-                this,
-                'UPLOAD_SERVICE_TYPE'
-              )}
-            />
-          </FormGroup>
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            <FormGroup>
+              <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
+              {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
+              <Select
+                value={configsMap.UPLOAD_FILE_TYPES}
+                options={mimeTypeOptions}
+                onChange={this.onChangeMultiCombo.bind(
+                  this,
+                  'UPLOAD_FILE_TYPES'
+                )}
+                multi={true}
+                delimiter=","
+                simpleValue={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>
+                {KEY_LABELS.WIDGETS_UPLOAD_FILE_TYPES}
+              </ControlLabel>
+              {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
+              <Select
+                value={configsMap.WIDGETS_UPLOAD_FILE_TYPES}
+                options={mimeTypeOptions}
+                onChange={this.onChangeMultiCombo.bind(
+                  this,
+                  'WIDGETS_UPLOAD_FILE_TYPES'
+                )}
+                multi={true}
+                delimiter=","
+                simpleValue={true}
+              />
+            </FormGroup>
+          </FlexRow>
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            <FormGroup>
+              <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
+              <Select
+                options={SERVICE_TYPES}
+                value={configsMap.UPLOAD_SERVICE_TYPE || 'AWS'}
+                clearable={false}
+                onChange={this.onChangeSingleCombo.bind(
+                  this,
+                  'UPLOAD_SERVICE_TYPE'
+                )}
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>{KEY_LABELS.FILE_SYSTEM_PUBLIC}</ControlLabel>
-            <Select
-              options={FILE_SYSTEM_TYPES}
-              value={configsMap.FILE_SYSTEM_PUBLIC || 'true'}
-              clearable={false}
-              searchable={false}
-              onChange={this.onChangeSingleCombo.bind(
-                this,
-                'FILE_SYSTEM_PUBLIC'
-              )}
-            />
-          </FormGroup>
+            <FormGroup>
+              <ControlLabel>{KEY_LABELS.FILE_SYSTEM_PUBLIC}</ControlLabel>
+              <Select
+                options={FILE_SYSTEM_TYPES}
+                value={configsMap.FILE_SYSTEM_PUBLIC || 'true'}
+                clearable={false}
+                searchable={false}
+                onChange={this.onChangeSingleCombo.bind(
+                  this,
+                  'FILE_SYSTEM_PUBLIC'
+                )}
+              />
+            </FormGroup>
+          </FlexRow>
         </CollapseContent>
 
-        <CollapseContent title={__('Google Cloud Storage')}>
+        <CollapseContent
+          transparent={true}
+          title={__('Google Cloud Storage')}
+          beforeTitle={<Icon icon="cloud-1" />}
+        >
           <Info>
             <a
               target="_blank"
@@ -437,7 +478,11 @@ class GeneralSettings extends React.Component<Props, State> {
 
         {this.renderCloudflare()}
 
-        <CollapseContent title="AWS S3">
+        <CollapseContent
+          transparent={true}
+          title="AWS S3"
+          beforeTitle={<Icon icon="server-network" />}
+        >
           <Info>
             <a
               target="_blank"
@@ -447,10 +492,14 @@ class GeneralSettings extends React.Component<Props, State> {
               {__('Learn how to set AWS S3 Variables')}
             </a>
           </Info>
-          {this.renderItem('AWS_ACCESS_KEY_ID')}
-          {this.renderItem('AWS_SECRET_ACCESS_KEY')}
-          {this.renderItem('AWS_BUCKET')}
-          {this.renderItem('AWS_PREFIX')}
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem('AWS_ACCESS_KEY_ID')}
+            {this.renderItem('AWS_SECRET_ACCESS_KEY')}
+          </FlexRow>
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem('AWS_BUCKET')}
+            {this.renderItem('AWS_PREFIX')}
+          </FlexRow>
           {this.renderItem(
             'AWS_COMPATIBLE_SERVICE_ENDPOINT',
             __('Used when using s3 compatible service')
@@ -458,7 +507,11 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('AWS_FORCE_PATH_STYLE')}
         </CollapseContent>
 
-        <CollapseContent title="AWS SES">
+        <CollapseContent
+          transparent={true}
+          title="AWS SES"
+          beforeTitle={<Icon icon="shield-check" />}
+        >
           <Info>
             <p>
               {__(
@@ -473,13 +526,21 @@ class GeneralSettings extends React.Component<Props, State> {
               {__('Learn how to set Amazon SES variables')}
             </a>
           </Info>
-          {this.renderItem('AWS_SES_ACCESS_KEY_ID')}
-          {this.renderItem('AWS_SES_SECRET_ACCESS_KEY')}
-          {this.renderItem('AWS_REGION')}
-          {this.renderItem('AWS_SES_CONFIG_SET')}
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem('AWS_SES_ACCESS_KEY_ID')}
+            {this.renderItem('AWS_SES_SECRET_ACCESS_KEY')}
+          </FlexRow>
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem('AWS_REGION')}
+            {this.renderItem('AWS_SES_CONFIG_SET')}
+          </FlexRow>
         </CollapseContent>
 
-        <CollapseContent title="Google">
+        <CollapseContent
+          transparent={true}
+          title="Google"
+          beforeTitle={<Icon icon="google" />}
+        >
           <Info>
             <a
               target="_blank"
@@ -489,22 +550,34 @@ class GeneralSettings extends React.Component<Props, State> {
               {__('Learn how to set Google variables')}
             </a>
           </Info>
-          {this.renderItem('GOOGLE_PROJECT_ID')}
-          {this.renderItem('GOOGLE_CLIENT_ID')}
-          {this.renderItem('GOOGLE_CLIENT_SECRET')}
-          {this.renderItem(
-            'GOOGLE_GMAIL_TOPIC',
-            'The topic value created in Gmail setup'
-          )}
-
-          {this.renderItem(
-            'GOOGLE_APPLICATION_CREDENTIALS_JSON',
-            'Firebase config for notifications'
-          )}
-          {this.renderItem('GOOGLE_MAP_API_KEY', 'Google Map Api Key')}
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem('GOOGLE_PROJECT_ID')}
+            {this.renderItem('GOOGLE_CLIENT_ID')}
+          </FlexRow>
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem(
+              'GOOGLE_CLIENT_SECRET',
+              'Client Secret key are required for authentication and authorization purposes'
+            )}
+            {this.renderItem(
+              'GOOGLE_GMAIL_TOPIC',
+              'The topic value created in Gmail setup'
+            )}
+          </FlexRow>
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem(
+              'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+              'Firebase config for notifications'
+            )}
+            {this.renderItem('GOOGLE_MAP_API_KEY', 'Google Map Api Key')}
+          </FlexRow>
         </CollapseContent>
 
-        <CollapseContent title={__('Common mail config')}>
+        <CollapseContent
+          transparent={true}
+          title={__('Common mail config')}
+          beforeTitle={<Icon icon="envelopes" />}
+        >
           <Info>
             <a
               target="_blank"
@@ -548,7 +621,11 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title={__('Custom mail service')}>
+        <CollapseContent
+          transparent={true}
+          title={__('Custom mail service')}
+          beforeTitle={<Icon icon="server-alt" />}
+        >
           <Info>
             <a
               target="_blank"
@@ -558,48 +635,81 @@ class GeneralSettings extends React.Component<Props, State> {
               {__('Learn the case of custom email service')}
             </a>
           </Info>
-          {this.renderItem('MAIL_SERVICE')}
-          {this.renderItem('MAIL_PORT')}
-          {this.renderItem('MAIL_USER')}
-          {this.renderItem('MAIL_PASS')}
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem('MAIL_SERVICE')}
+            {this.renderItem('MAIL_PORT')}
+          </FlexRow>
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem('MAIL_USER')}
+            {this.renderItem('MAIL_PASS')}
+          </FlexRow>
           {this.renderItem('MAIL_HOST')}
         </CollapseContent>
 
-        <CollapseContent title={__('Data retention')}>
-          <ControlLabel>{KEY_LABELS.NOTIFICATION_DATA_RETENTION}</ControlLabel>
-          <Select
-            options={DATA_RETENTION_DURATION}
-            value={configsMap.NOTIFICATION_DATA_RETENTION || 3}
-            clearable={false}
-            searchable={false}
-            onChange={this.onChangeSingleCombo.bind(
-              this,
-              'NOTIFICATION_DATA_RETENTION'
-            )}
-          />
-          <ControlLabel>{KEY_LABELS.LOG_DATA_RETENTION}</ControlLabel>
-          <Select
-            options={LOG_RETENTION_DURATION}
-            value={configsMap.LOG_DATA_RETENTION || 1}
-            clearable={false}
-            searchable={false}
-            onChange={this.onChangeSingleCombo.bind(this, 'LOG_DATA_RETENTION')}
-          />
+        <CollapseContent
+          transparent={true}
+          title={__('Data retention')}
+          beforeTitle={<Icon icon="cloud-data-connection" />}
+        >
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            <FormGroup>
+              <ControlLabel>
+                {KEY_LABELS.NOTIFICATION_DATA_RETENTION}
+              </ControlLabel>
+              <Select
+                options={DATA_RETENTION_DURATION}
+                value={configsMap.NOTIFICATION_DATA_RETENTION || 3}
+                clearable={false}
+                searchable={false}
+                onChange={this.onChangeSingleCombo.bind(
+                  this,
+                  'NOTIFICATION_DATA_RETENTION'
+                )}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{KEY_LABELS.LOG_DATA_RETENTION}</ControlLabel>
+              <Select
+                options={LOG_RETENTION_DURATION}
+                value={configsMap.LOG_DATA_RETENTION || 1}
+                clearable={false}
+                searchable={false}
+                onChange={this.onChangeSingleCombo.bind(
+                  this,
+                  'LOG_DATA_RETENTION'
+                )}
+              />
+            </FormGroup>
+          </FlexRow>
         </CollapseContent>
 
-        <CollapseContent title={__('Constants')}>
+        <CollapseContent
+          transparent={true}
+          title={__('Constants')}
+          beforeTitle={<Icon icon="link-1" />}
+        >
           {this.renderConstant('sex_choices')}
           {this.renderConstant('company_industry_types')}
           {this.renderConstant('social_links')}
         </CollapseContent>
 
-        <CollapseContent title={__('Connectivity Services')}>
+        <CollapseContent
+          transparent={true}
+          title={__('Connectivity Services')}
+          beforeTitle={<Icon icon="share-alt" />}
+        >
           <ActivateInstallation />
         </CollapseContent>
 
-        <CollapseContent title="MessagePro">
-          {this.renderItem('MESSAGE_PRO_API_KEY')}
-          {this.renderItem('MESSAGE_PRO_PHONE_NUMBER')}
+        <CollapseContent
+          transparent={true}
+          title="MessagePro"
+          beforeTitle={<Icon icon="comment-alt-verify" />}
+        >
+          <FlexRow alignItems="flex-start" justifyContent="space-between">
+            {this.renderItem('MESSAGE_PRO_API_KEY')}
+            {this.renderItem('MESSAGE_PRO_PHONE_NUMBER')}
+          </FlexRow>
         </CollapseContent>
 
         {loadDynamicComponent(
@@ -614,13 +724,13 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('General system config')}
+            title={__('System Configuration')}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={
           <Header
-            title="System config"
+            title="System configuration"
             description={
               __(
                 'Set up your initial account settings so that things run smoothly in unison'
@@ -630,12 +740,12 @@ class GeneralSettings extends React.Component<Props, State> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('General system config')}</Title>}
+            left={<Title>{__('System Configuration')}</Title>}
             right={actionButtons}
           />
         }
         content={content}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

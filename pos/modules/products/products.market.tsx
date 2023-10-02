@@ -4,7 +4,7 @@ import ProductItem from "./components/productItem/productItem.market"
 import { useProducts } from "./hooks/useProducts"
 
 const Products = () => {
-  const { products, loading, handleLoadMore } = useProducts()
+  const { products, loading } = useProducts()
 
   if (loading) return <div className="mt-4">loading...</div>
 

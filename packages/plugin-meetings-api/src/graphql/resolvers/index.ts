@@ -1,6 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
-import { Meeting, Topic } from './mutations';
+import { Meeting, Topic, PinnedUser } from './mutations';
 import Query from './queries';
 
 import customResolvers from './customResolvers';
@@ -11,7 +11,8 @@ const resolvers: any = async () => ({
 
   Mutation: {
     ...Meeting,
-    ...Topic
+    ...Topic,
+    ...PinnedUser
   },
   Query
 });

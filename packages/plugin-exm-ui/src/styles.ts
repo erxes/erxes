@@ -94,15 +94,6 @@ export const Colors = styled.div`
   }
 `;
 
-export const WelcomeContent = styled.div`
-  > div {
-    margin-top: 20px;
-    input {
-      margin-top: 50px;
-    }
-  }
-`;
-
 export const UploadItems = styled.div`
   display: flex;
   height: 34px;

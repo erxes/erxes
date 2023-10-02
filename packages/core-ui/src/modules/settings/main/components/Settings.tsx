@@ -145,7 +145,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Structure',
-              '/images/icons/erxes-23.svg',
+              '/images/icons/erxes-15.svg',
               '/settings/structure',
               'usersAll',
               teamPermissions

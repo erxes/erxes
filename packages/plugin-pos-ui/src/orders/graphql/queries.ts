@@ -46,6 +46,7 @@ export const orderFields = `
   createdAt
   status
   paidDate
+  dueDate
   number
   customerId
   customerType
@@ -70,7 +71,8 @@ export const orderFields = `
   department
 
   syncedErkhet
-
+  description
+  isPre
   posName
   origin
   user {

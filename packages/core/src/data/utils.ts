@@ -270,9 +270,13 @@ export const initFirebase = async (models: IModels): Promise<void> => {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
-      await admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
+      try {
+        await admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } catch (e) {
+        console.log(`initFireBase error: ${e.message}`);
+      }
     }
   }
 };
@@ -930,9 +934,9 @@ const readFromCR2 = async (key: string, models?: IModels) => {
             error.code === 'NoSuchKey' &&
             error.message.includes('key does not exist')
           ) {
-            debugBase(
-              `Error occurred when fetching r2 file with key: "${key}"`
-            );
+            console.log('file does not exist with key: ', key);
+
+            return resolve(null);
           }
 
           return reject(error);

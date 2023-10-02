@@ -1,15 +1,14 @@
 const fse = require("fs-extra");
-const execa = require("execa");
 const start = require('./start');
 const { filePath, log, execCommand } = require('./utils');
+const { execSync } = require('child_process');
 
 module.exports = async function() {
   try {
     log('Stopping pm2 processes ...');
 
-    // stop services
     try {
-      await execa("pm2", ["delete", 'all']);
+      execSync("pm2 delete all", { stdio: 'inherit' });
     } catch (e) {
       console.log(e.message);
     }

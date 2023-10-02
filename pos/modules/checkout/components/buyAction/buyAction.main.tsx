@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
+import ShowDeliveryInfo from "@/modules/orders/components/DeliveryInputs/ShowDeliveryInfo"
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
 import {
   activeOrderAtom,
@@ -48,22 +49,25 @@ const BuyAction = () => {
       >
         Захиалах
       </Button>
-      {ORDER_TYPES.SALES.includes(type) ? (
-        <Button
-          size="lg"
-          className="col-span-2 bg-green-500 hover:bg-green-500/90"
-          loading={loading && isPay}
-          disabled={disabled}
-          onClick={() => {
-            setButtonType("pay")
-            setTimeout(() => orderCU())
-          }}
-        >
-          Төлбөр төлөх
-        </Button>
-      ) : (
-        <OrderFinish />
-      )}
+      <div className="flex items-center col-span-2 gap-2">
+        <ShowDeliveryInfo />
+        {ORDER_TYPES.SALES.includes(type) ? (
+          <Button
+            size="lg"
+            className="bg-green-500 hover:bg-green-500/90 flex-auto"
+            loading={loading && isPay}
+            disabled={disabled}
+            onClick={() => {
+              setButtonType("pay")
+              setTimeout(() => orderCU())
+            }}
+          >
+            Төлбөр төлөх
+          </Button>
+        ) : (
+          <OrderFinish />
+        )}
+      </div>
     </>
   )
 }

@@ -347,6 +347,57 @@ const Link = styled.a`
   cursor: pointer;
 `;
 
+const SignatureChooserFooter = styledTS<{
+  noSignatures: boolean;
+}>(styled.div)`
+  display: flex;
+  width: 100%;
+  justify-content: ${({ noSignatures }) =>
+    noSignatures ? 'flex-end' : 'space-between'};
+  align-items: center;
+  padding: 0;
+  padding-left: 1rem;
+  padding-top: 8px;
+  border-top: 1px solid #e9ecef;
+`;
+
+const SignatureOptionWrapper = styled.div`
+  min-width: 260px;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const SignatureHiderButton = styled.button`
+  all: unset;
+  color: ${colors.textSecondary};
+  &:hover {
+    cursor: pointer;
+    color: ${colors.textPrimary};
+  }
+`;
+
+// dropdown-item
+const SignatureDropdownWrapper = styled.div`
+  .dropdown-item {
+    padding: 0.5rem 1rem;
+    &:hover {
+      cursor: pointer;
+    }
+    &:active {
+      font-weight: bold;
+      color: ${colors.textPrimary};
+      background-color: ${rgba(colors.colorSecondary, 0.2)};
+    }
+  }
+  .active {
+    font-weight: bold;
+    color: ${colors.textPrimary};
+    background-color: ${rgba(colors.colorSecondary, 0.2)};
+  }
+`;
+
 export {
   Attachments,
   FlexRow,
@@ -369,5 +420,9 @@ export {
   WidgetWrapper,
   UploaderWrapper,
   WidgetButton,
-  Link
+  Link,
+  SignatureChooserFooter,
+  SignatureOptionWrapper,
+  SignatureHiderButton,
+  SignatureDropdownWrapper
 };

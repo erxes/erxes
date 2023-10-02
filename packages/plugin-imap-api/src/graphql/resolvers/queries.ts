@@ -26,7 +26,8 @@ const queries = {
           subject: message.subject,
           body: message.body,
           attachments: message.attachments
-        }
+        },
+        createdAt: message.createdAt
       };
     });
   },

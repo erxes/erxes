@@ -1,7 +1,7 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import CalendarComponent from '../../../components/myCalendar/meeting/Calendar';
-import { IMeeting, MeetingsQueryResponse } from '../../../types';
+import { IMeeting } from '../../../types';
 import { gql, useMutation } from '@apollo/client';
 import { mutations } from '../../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
@@ -10,7 +10,6 @@ type Props = {
   meetings?: IMeeting[];
   queryParams: any;
   currentUser: IUser;
-  events: any;
 };
 export const CalendarContainer = (props: Props) => {
   const [changeMeetingDate] = useMutation(gql(mutations.editMeeting), {

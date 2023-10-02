@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { activeCategoryAtom, productCountAtom, searchAtom } from "@/store"
+import { similarityConfigAtom } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
@@ -14,6 +15,7 @@ export const useProducts = (props?: {
   onCompleted?: (product: IProduct[]) => void
 }): IUseProducts => {
   const { skip, perPage, onCompleted } = props || {}
+  const groupedSimilarity = useAtomValue(similarityConfigAtom)
 
   const [search] = useAtom(searchAtom)
   const [searchValue, setSearchValue] = useState(search)
@@ -26,7 +28,9 @@ export const useProducts = (props?: {
       categoryId: categoryId,
       searchValue: searchValue,
       page: 1,
-      groupedSimilarity: getMode() === "coffee-shop" ? "config" : null,
+      groupedSimilarity:
+        getMode() === "coffee-shop" ? groupedSimilarity : undefined,
+      isKiosk: getMode() === "kiosk" ? true : undefined,
     },
     skip,
     onCompleted(data) {
@@ -39,6 +43,7 @@ export const useProducts = (props?: {
       categoryId,
       searchValue,
       groupedSimilarity: getMode() === "coffee-shop" ? "config" : null,
+      isKiosk: getMode() === "kiosk" ? true : undefined,
     },
     onCompleted(data) {
       setProductCount((data || {}).poscProductsTotalCount || 0)

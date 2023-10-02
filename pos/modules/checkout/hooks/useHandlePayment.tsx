@@ -18,8 +18,7 @@ const useHandlePayment = () => {
   const { addPayment, loading } = useAddPayment()
 
   const handleValueChange = (val: string) => {
-    const numericValue = parseFloat(val.replace(/[^0-9.]/g, ""))
-
+    const numericValue = parseFloat(val.replace(/[^0-9.-]/g, ""))
     if (!isNaN(numericValue)) {
       setCurrentAmount(
         numericValue > notPaidAmount
@@ -28,6 +27,8 @@ const useHandlePayment = () => {
             : notPaidAmount
           : numericValue
       )
+    } else {
+      setCurrentAmount(0)
     }
   }
 
@@ -36,13 +37,11 @@ const useHandlePayment = () => {
       return setOpenSheet(true)
     }
     if (type === "cash") {
-      if (currentAmount > notPaidAmount) {
-        return setOpenSheet(true)
-      }
       return addPayment({
         variables: {
           _id,
-          cashAmount: currentAmount,
+          cashAmount:
+            currentAmount > notPaidAmount ? notPaidAmount : currentAmount,
         },
       })
     }
@@ -56,7 +55,14 @@ const useHandlePayment = () => {
       })
     }
   }
-  return { handleValueChange, handlePay, loading, currentAmount, notPaidAmount }
+  return {
+    handleValueChange,
+    handlePay,
+    loading,
+    currentAmount,
+    notPaidAmount,
+    setCurrentAmount,
+  }
 }
 
 export default useHandlePayment

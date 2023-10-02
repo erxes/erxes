@@ -1,16 +1,17 @@
 import { useState } from "react"
 import useCheckRegister from "@/modules/checkout/hooks/useCheckRegister"
 import { registerNumberAtom } from "@/store/order.store"
-import { useAtom } from "jotai"
+import { useSetAtom } from "jotai"
+import { CornerDownLeft } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { LoaderIcon } from "@/components/ui/loader"
 
 const CheckRegister = () => {
   const [current, setCurrent] = useState("")
-  const [, setRegister] = useAtom(registerNumberAtom)
+  const setRegister = useSetAtom(registerNumberAtom)
   const { checkRegister, loading, data } = useCheckRegister()
   const { found, name } = data || {}
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -42,9 +43,15 @@ const CheckRegister = () => {
           value={current}
           onChange={(e) => setCurrent(e.target.value)}
         ></Input>
-        {loading && (
-          <LoaderIcon className="absolute right-2 top-2" strokeWidth={1} />
-        )}
+        <Button
+          className="absolute right-0 top-0 bg-white"
+          type="submit"
+          loading={loading}
+          variant={"outline"}
+        >
+          {!loading && <CornerDownLeft className="h-4 w-4 -ml-1 mr-2" />}
+          Enter
+        </Button>
       </div>
       {data && (
         <p
@@ -57,12 +64,12 @@ const CheckRegister = () => {
         </p>
       )}
 
-      <input
+      {/* <input
         type="submit"
         className="absolute"
         style={{ left: -9999, width: 1, height: 1 }}
         tabIndex={-1}
-      />
+      /> */}
     </form>
   )
 }

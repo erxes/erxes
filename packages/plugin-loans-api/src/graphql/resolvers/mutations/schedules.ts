@@ -51,6 +51,7 @@ const scheduleMutations = {
     const contract = await models.Contracts.getContract({
       _id: contractId
     });
+
     await reGenerateSchedules(models, contract, perHolidays);
 
     return 'ok';

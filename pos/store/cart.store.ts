@@ -12,16 +12,26 @@ interface IUpdateItem {
   _id: string
   count?: number
   isTake?: boolean
+  description?: string
+  attachment?: { url?: string } | null
 }
 
-export const changeCount = (
+export const changeCartItem = (
   product: IUpdateItem,
   cart: OrderItem[]
 ): OrderItem[] => {
-  const { _id, count, isTake } = product
+  const { _id, count, ...rest } = product
 
-  if (typeof isTake !== "undefined") {
-    return cart.map((item) => (item._id === _id ? { ...item, isTake } : item))
+  const fieldKeys = Object.keys(rest)
+  if (fieldKeys.length) {
+    for (let key = 0; key < fieldKeys.length; key++) {
+      const value = rest[fieldKeys[key] as keyof typeof rest]
+      if (typeof value !== "undefined") {
+        return cart.map((item) =>
+          item._id === _id ? { ...item, [fieldKeys[key]]: value } : item
+        )
+      }
+    }
   }
 
   if (typeof count !== "undefined") {
@@ -44,19 +54,28 @@ export const addToCart = (
   cart: OrderItem[]
 ): OrderItem[] => {
   const prevItem = cart.find(
-    ({ productId, status, manufacturedDate, isTake }) =>
+    ({
+      productId,
+      status,
+      manufacturedDate,
+      isTake,
+      description,
+      attachment,
+    }) =>
       productId === product._id &&
       status === ORDER_STATUSES.NEW &&
       manufacturedDate == product.manufacturedDate &&
-      !isTake
+      !isTake &&
+      !description &&
+      !attachment
   )
 
   if (prevItem) {
     const { _id, count } = prevItem
-    return changeCount({ _id, count: count + 1 }, cart)
+    return changeCartItem({ _id, count: count + 1 }, cart)
   }
 
-  const { unitPrice, _id, name } = product
+  const { unitPrice, _id, name, attachment } = product
 
   const cartItem = {
     _id: Math.random().toString(),
@@ -65,6 +84,7 @@ export const addToCart = (
     unitPrice,
     productName: name,
     status: ORDER_STATUSES.NEW as IOrderItemStatus,
+    productImgUrl: attachment?.url,
   }
 
   return [cartItem, ...cart]
@@ -84,6 +104,8 @@ export const orderItemInput = atom<OrderItemInput[]>((get) =>
       isTake,
       status,
       manufacturedDate,
+      description,
+      attachment,
     }) => ({
       _id,
       productId,
@@ -93,6 +115,8 @@ export const orderItemInput = atom<OrderItemInput[]>((get) =>
       isTake,
       status,
       manufacturedDate,
+      description,
+      attachment,
     })
   )
 )
@@ -111,7 +135,7 @@ export const addToCartAtom = atom(
 export const updateCartAtom = atom(
   () => "",
   (get, set, update: IUpdateItem) => {
-    set(cartAtom, changeCount(update, get(cartAtom)))
+    set(cartAtom, changeCartItem(update, get(cartAtom)))
   }
 )
 export const setCartAtom = atom(

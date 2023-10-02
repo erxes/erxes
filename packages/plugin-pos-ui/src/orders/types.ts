@@ -41,6 +41,8 @@ export type IOrder = {
     primaryEmail: string;
     lastName: string;
   };
+  description: string;
+  isPre: boolean;
   origin?: string;
   syncedErkhet: boolean;
   convertDealId: string;

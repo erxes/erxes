@@ -33,11 +33,15 @@ const SyncConfig = ({
     queries.getWholeConfig,
     {
       onCompleted(data) {
-        const {} = data?.currentConfig || {}
+        const { } = data?.currentConfig || {}
         success()
       },
     }
   )
+
+  const [syncConfigProductsConfigs] = useMutation(mutations.syncConfig, {
+    variables: { type: 'productsConfigs' }
+  })
 
   const [syncConfig, { loading }] = useMutation(mutations.syncConfig, {
     variables: {
@@ -47,6 +51,9 @@ const SyncConfig = ({
       if (configType !== "config") {
         return success()
       }
+
+      syncConfigProductsConfigs();
+
       getWholeConfig()
     },
     onError(error) {

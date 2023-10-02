@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -24,6 +24,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import { confirm } from '@erxes/ui/src/utils';
 
 type Props = {
   currentUser: IUser;
@@ -76,13 +77,14 @@ function ScheduleList(props: Props) {
     getActionBar,
     showSideBar,
     getPagination,
-    isCurrentUserSupervisor
+    isCurrentUserSupervisor,
+    checkDuplicateScheduleShifts
   } = props;
 
   const [selectedScheduleStatus, setScheduleStatus] = useState(
     router.getParam(history, 'scheduleStatus') || ''
   );
-  const [showRemoveBtn, setShowRemoveBtn] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
 
   const [isSideBarOpen, setIsOpen] = useState(
     localStorage.getItem('isSideBarOpen') === 'true' ? true : false
@@ -146,14 +148,30 @@ function ScheduleList(props: Props) {
     </Button>
   );
 
-  const modalContent = ({ closeModal }) => (
-    <ScheduleForm modalContentType={''} closeModal={closeModal} {...props} />
+  const modalContent = (closeModal, scheduleOfMember?: ISchedule) => (
+    <ScheduleForm
+      modalContentType={''}
+      closeModal={closeModal}
+      {...props}
+      scheduleOfMember={scheduleOfMember}
+    />
   );
 
-  const adminConfigContent = ({ closeModal }) => {
+  const adminConfigContent = (closeModal, scheduleOfMember?: ISchedule) => {
+    let sortedSchedule: any = scheduleOfMember;
+
+    sortedSchedule = {
+      ...scheduleOfMember,
+      shifts: scheduleOfMember?.shifts.sort(
+        (a, b) =>
+          new Date(a.shiftStart).getTime() - new Date(b.shiftStart).getTime()
+      )
+    };
+
     return (
       <ScheduleForm
         modalContentType={'adminConfig'}
+        scheduleOfMember={sortedSchedule}
         closeModal={closeModal}
         {...props}
       />
@@ -182,6 +200,27 @@ function ScheduleList(props: Props) {
   const onSelectScheduleStatus = e => {
     setScheduleStatus(e.value);
     router.setParams(history, { scheduleStatus: e.value });
+  };
+
+  const checkAndApproveSchedule = async (
+    scheduleOfMember: ISchedule
+  ): Promise<void> => {
+    const checkDuplicateShifts = await checkDuplicateScheduleShifts({
+      userIds: [scheduleOfMember.user._id],
+      shifts: scheduleOfMember.shifts.map(shift => ({
+        shiftStart: shift.shiftStart,
+        shiftEnd: shift.shiftEnd,
+        scheduleConfigId: shift.scheduleConfigId,
+        lunchBreakInMins: shift.lunchBreakInMins
+      })),
+      userType: 'admin',
+      checkOnly: true,
+      status: 'Approved'
+    });
+
+    if (!checkDuplicateShifts.length) {
+      solveSchedule(scheduleOfMember._id, 'Approved');
+    }
   };
 
   const actionBarLeft = (
@@ -221,7 +260,7 @@ function ScheduleList(props: Props) {
         title={__('Send schedule request')}
         size="lg"
         trigger={trigger}
-        content={modalContent}
+        content={({ closeModal }) => modalContent(closeModal)}
       />
 
       {isCurrentUserSupervisor && (
@@ -229,7 +268,7 @@ function ScheduleList(props: Props) {
           size="lg"
           title={__('Schedule config - Admin')}
           trigger={adminConfigTrigger}
-          content={adminConfigContent}
+          content={({ closeModal }) => adminConfigContent(closeModal)}
         />
       )}
     </FlexRow>
@@ -256,13 +295,16 @@ function ScheduleList(props: Props) {
           <th
             rowSpan={2}
             style={{ border: '1px solid #EEE' }}
-            onMouseOver={() => setShowRemoveBtn(true)}
-            onMouseLeave={() => setShowRemoveBtn(false)}
+            onMouseOver={() => setShowButtons(true)}
+            onMouseLeave={() => setShowButtons(false)}
           >
             {''}
           </th>
           {selectedScheduleStatus === 'Pending' && (
-            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+            <th
+              rowSpan={2}
+              style={{ textAlign: 'center', border: '1px solid #EEE' }}
+            >
               {__('Action')}
             </th>
           )}
@@ -439,43 +481,92 @@ function ScheduleList(props: Props) {
       totalHoursScheduled -= totalBreakInHours;
     }
 
+    const editScheduleTrigger = (
+      <Button size="small" icon="edit" btnStyle="link" />
+    );
+
     return (
       <tr style={{ textAlign: 'left' }}>
         <td
-          onMouseOver={() => setShowRemoveBtn(true)}
-          onMouseLeave={() => setShowRemoveBtn(false)}
+          onMouseOver={() => setShowButtons(true)}
+          onMouseLeave={() => setShowButtons(false)}
           style={{ textAlign: 'center' }}
         >
-          {showRemoveBtn && (
-            <Tip text={'Remove Schedule'} placement="top">
-              <Button
-                size="small"
-                icon="times-circle"
-                btnStyle="link"
-                onClick={() => removeSchedule(scheduleOfMember._id, 'schedule')}
-              />
-            </Tip>
+          {showButtons && (
+            <FlexRow>
+              {isCurrentUserSupervisor &&
+                selectedScheduleStatus === 'Approved' && (
+                  <ModalTrigger
+                    size="lg"
+                    title={__('Edit schedule - Admin')}
+                    trigger={editScheduleTrigger}
+                    content={({ closeModal }) =>
+                      adminConfigContent(closeModal, scheduleOfMember)
+                    }
+                  />
+                )}
+
+              {selectedScheduleStatus !== 'Approved' && (
+                <ModalTrigger
+                  size="lg"
+                  title={__('Edit schedule request')}
+                  trigger={editScheduleTrigger}
+                  content={({ closeModal }) =>
+                    modalContent(closeModal, scheduleOfMember)
+                  }
+                />
+              )}
+              {isCurrentUserSupervisor && (
+                <Tip text={'Remove Schedule'} placement="top">
+                  <Button
+                    size="small"
+                    icon="times-circle"
+                    btnStyle="link"
+                    onClick={() =>
+                      removeSchedule(scheduleOfMember._id, 'schedule')
+                    }
+                  />
+                </Tip>
+              )}
+              {selectedScheduleStatus === 'Rejected' &&
+                isCurrentUserSupervisor && (
+                  <Tip text={'Approve Schedule'} placement="top">
+                    <Button
+                      size="small"
+                      icon="checked"
+                      btnStyle="link"
+                      onClick={() => {
+                        confirm(
+                          'Are you sure to Approve according schedule ?'
+                        ).then(() => checkAndApproveSchedule(scheduleOfMember));
+                      }}
+                    />
+                  </Tip>
+                )}
+            </FlexRow>
           )}
         </td>
 
         {selectedScheduleStatus === 'Pending' && (
           <td>
-            <Button
-              disabled={scheduleOfMember.solved}
-              size="small"
-              btnStyle="success"
-              onClick={() => solveSchedule(scheduleOfMember._id, 'Approved')}
-            >
-              Approve
-            </Button>
-            <Button
-              disabled={scheduleOfMember.solved}
-              size="small"
-              btnStyle="danger"
-              onClick={() => solveSchedule(scheduleOfMember._id, 'Rejected')}
-            >
-              Reject
-            </Button>
+            <FlexRow>
+              <Button
+                disabled={scheduleOfMember.solved}
+                size="small"
+                btnStyle="success"
+                onClick={() => checkAndApproveSchedule(scheduleOfMember)}
+              >
+                Approve
+              </Button>
+              <Button
+                disabled={scheduleOfMember.solved}
+                size="small"
+                btnStyle="danger"
+                onClick={() => solveSchedule(scheduleOfMember._id, 'Rejected')}
+              >
+                Reject
+              </Button>
+            </FlexRow>
           </td>
         )}
         <td>{name}</td>

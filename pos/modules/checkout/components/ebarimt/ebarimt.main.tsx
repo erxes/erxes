@@ -1,7 +1,10 @@
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import usePrintBill from "@/modules/checkout/hooks/usePrintBill"
+import { ebarimtMainDialogOpenAtom } from "@/store"
 import {
   activeOrderAtom,
+  orderTotalAmountAtom,
   setInitialAtom,
   unPaidAmountAtom,
 } from "@/store/order.store"
@@ -23,12 +26,15 @@ import BillType from "./billType"
 
 const EbarimtMain = () => {
   const unpaidAmount = useAtomValue(unPaidAmountAtom)
+  const orderTotalAmount = useAtomValue(orderTotalAmountAtom)
   const setInitial = useSetAtom(setInitialAtom)
   const activeOrder = useAtomValue(activeOrderAtom)
-  const [open] = useAtom(ebarimtSheetAtom)
+  const openEbarimt = useAtomValue(ebarimtSheetAtom)
   const router = useRouter()
+  const [openDialog, setOpenDialog] = useAtom(ebarimtMainDialogOpenAtom)
 
   const { changeVisiblity, loading, disabled, printBill } = usePrintBill()
+
   const { iframeRef } = useReciept({
     onCompleted() {
       changeVisiblity(false)
@@ -37,47 +43,51 @@ const EbarimtMain = () => {
     },
   })
 
+  useEffect(() => {
+    if (orderTotalAmount && unpaidAmount === 0) {
+      setOpenDialog(true)
+    }
+  }, [orderTotalAmount, setOpenDialog, unpaidAmount])
+
   return (
-    <>
-      <Dialog>
-        <DialogTrigger asChild>
+    <Dialog open={openDialog} onOpenChange={() => setOpenDialog(!open)}>
+      <DialogTrigger asChild>
+        <Button
+          className="font-bold bg-green-500 hover:bg-green-400"
+          size="lg"
+          disabled={unpaidAmount === 0}
+        >
+          Баримт хэвлэх
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Төлбөрийн баримт авах</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 h-36 min-h-fit">
+          <BillType />
+        </div>
+        <DialogFooter>
           <Button
-            className="font-bold bg-green-500 hover:bg-green-400"
-            size="lg"
-            disabled={unpaidAmount > 0}
+            type="submit"
+            disabled={disabled}
+            onClick={printBill}
+            loading={loading}
+            className="font-semibold"
           >
             Баримт хэвлэх
           </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Төлбөрийн баримт авах</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 h-36 min-h-fit">
-            <BillType />
-          </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              disabled={disabled}
-              onClick={printBill}
-              loading={loading}
-              className="font-semibold"
-            >
-              Баримт хэвлэх
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-        {open && (
-          <iframe
-            ref={iframeRef}
-            src={"/reciept/ebarimt?id=" + activeOrder}
-            className="absolute h-1 w-1"
-            style={{ top: 10000, left: 10000 }}
-          />
-        )}
-      </Dialog>
-    </>
+        </DialogFooter>
+      </DialogContent>
+      {openEbarimt && (
+        <iframe
+          ref={iframeRef}
+          src={"/reciept/ebarimt?id=" + activeOrder}
+          className="absolute h-1 w-1"
+          style={{ top: 10000, left: 10000 }}
+        />
+      )}
+    </Dialog>
   )
 }
 

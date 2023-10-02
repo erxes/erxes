@@ -2,15 +2,15 @@
 
 import { useState } from "react"
 import dynamic from "next/dynamic"
-import { activeCatName, activeCategoryAtom } from "@/store"
+import { activeCategoryAtom, activeCatName } from "@/store"
 import { useAtomValue } from "jotai"
 import { MenuIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
-import InitialCategories from "./InitialCategories"
 import ProductCount from "./components/productCount"
+import InitialCategories from "./InitialCategories"
 
 const Categories = dynamic(() => import("./components/CategoriesSheet"))
 
@@ -31,9 +31,9 @@ const ProductCategories = () => {
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="sm:max-w-4xl w-full flex flex-col overflow-hidden h-screen p-4 pr-0"
+          className="sm:max-w-md w-full flex flex-col overflow-hidden h-screen p-4 pr-0"
         >
-          <Categories setOpen={setOpen} />
+          {open && <Categories setOpen={setOpen} />}
         </SheetContent>
       </Sheet>
       <InitialCategories />

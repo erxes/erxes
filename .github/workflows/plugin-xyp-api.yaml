@@ -1,0 +1,66 @@
+name: Plugin xyp Api CI
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - build-test
+    paths:
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-xyp-api/**'
+      - '.github/workflows/plugin-xyp-api.yaml'
+  pull_request:
+    branches:
+      - dev
+      - staging
+      - build-test
+    paths:
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-xyp-api/**'
+      - '.github/workflows/plugin-xyp-api.yaml'
+
+jobs:
+  api:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 18.17.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.17.x
+
+      # https://github.com/actions/cache/blob/main/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-plugin-xyp-api-${{ hashFiles('yarn.lock', 'plugin-xyp-api/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-plugin-xyp-api-
+            ${{ runner.os }}-yarn-
+
+      - name: Build
+        run: |
+          cp -r builder dist
+          cd dist
+          yarn install
+          yarn build plugin xyp
+          cd plugin-xyp-api/.erxes
+          cd dist/main/.erxes/src
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
+        run: |
+          cd dist/plugin-xyp-api/.erxes
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/plugin-xyp-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/plugin-xyp-api:${GITHUB_REF#refs/heads/}

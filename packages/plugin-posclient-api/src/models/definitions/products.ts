@@ -189,6 +189,11 @@ export const productCategorySchema = schemaHooksWrapper(
     isSimilarity: field({ type: Boolean, label: 'is Similiraties' }),
     similarities: field({
       type: [{ id: String, groupId: String, fieldId: String, title: String }]
+    }),
+    maskType: field({
+      type: String,
+      optional: true,
+      label: 'Mask type'
     })
   }),
   'erxes_productCategorySchema'

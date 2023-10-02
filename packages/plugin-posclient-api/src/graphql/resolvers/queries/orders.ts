@@ -17,6 +17,10 @@ interface ISearchParams {
   customerType?: string;
   isPaid?: boolean;
   statuses: string[];
+  dueStartDate?: Date;
+  dueEndDate?: Date;
+  isPreExclude?: boolean;
+  slotCode?: string;
 }
 
 const generateFilter = (config: IConfig, params: ISearchParams) => {
@@ -28,7 +32,11 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     endDate,
     isPaid,
     dateType,
-    customerType
+    customerType,
+    dueStartDate,
+    dueEndDate,
+    isPreExclude,
+    slotCode
   } = params;
   const filter: any = {
     $or: [{ posToken: config.token }, { subToken: config.token }]
@@ -45,6 +53,10 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     filter.customerId = customerId;
   }
 
+  if (slotCode) {
+    filter.slotCode = slotCode;
+  }
+
   if (customerType) {
     filter.customerType =
       customerType === 'customer'
@@ -54,6 +66,10 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
 
   if (isPaid !== undefined) {
     filter.paidDate = { $exists: isPaid };
+  }
+
+  if (isPreExclude) {
+    filter.isPre = { $ne: true };
   }
 
   const dateQry: any = {};
@@ -67,10 +83,20 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     const dateTypes = {
       paid: 'paidDate',
       created: 'createdAt',
-      due: 'dueDate',
       default: 'modifiedAt'
     };
     filter[dateTypes[dateType || 'default']] = dateQry;
+  }
+
+  const dueDateQry: any = {};
+  if (dueStartDate) {
+    dueDateQry.$gte = getPureDate(dueStartDate);
+  }
+  if (dueEndDate) {
+    dueDateQry.$lte = getPureDate(dueEndDate);
+  }
+  if (Object.keys(dueDateQry).length) {
+    filter.dueDate = dueDateQry;
   }
 
   return { ...filter, status: { $in: statuses } };
@@ -159,14 +185,14 @@ const orderQueries = {
     { posUser, models, config }: IContext
   ) {
     if (posUser) {
-      return models.Orders.findOne({ _id });
+      return models.Orders.findOne({ _id, posToken: config.token });
     }
 
     if (!customerId) {
       throw new Error('Not found');
     }
 
-    return models.Orders.findOne({ _id, customerId, posToken: config.token });
+    return models.Orders.findOne({ _id, posToken: config.token, customerId });
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {

@@ -5,11 +5,7 @@ import FormControl from '../../../../modules/common/form/Control';
 import Tip from '../../../../modules/common/Tip';
 import Icon from '../../../../modules/common/Icon';
 import { SmallLoader } from '../../../../modules/common/ButtonMutate';
-import {
-  readFile,
-  uploadHandler,
-  deleteHandler
-} from '../../../utils';
+import { readFile, uploadHandler, deleteHandler } from '../../../utils';
 // local
 import {
   ChatEditor,
@@ -162,17 +158,17 @@ const Editor = (props: Props) => {
           onKeyDown={handleKeyDown}
         />
         <Tip text={'Audio'}>
-            <label>
-              <Icon icon="audio" />
-              <input type="file" multiple={true} />
-            </label>
-          </Tip>
-          <Tip text={'Audio'}>
-            <VoiceRecorder
-              attachments={attachments}
-              setAttachments={setAttachments}
-            />
-          </Tip>
+          <label>
+            <Icon icon="audio" />
+            <input type="file" multiple={true} />
+          </label>
+        </Tip>
+        <Tip text={'Audio'}>
+          <VoiceRecorder
+            attachments={attachments}
+            setAttachments={setAttachments}
+          />
+        </Tip>
         <Tip placement="top" text={'Attach file'}>
           <label>
             <Icon icon="clip" size={18} />

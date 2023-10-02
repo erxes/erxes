@@ -1,23 +1,20 @@
-import Link from "next/link"
-import { X } from "lucide-react"
+"use client"
 
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import dynamic from "next/dynamic"
+
+import { getMode } from "@/lib/utils"
+
+const Main = dynamic(() => import("./layout.main"))
+const Kiosk = dynamic(() => import("./layout.kiosk"))
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const mode = getMode()
   return (
-    <div className="relative flex flex-auto items-center justify-center bg-black text-white">
-      <Button
-        Component={Link}
-        variant="ghost"
-        size={"sm"}
-        href="/"
-        className="absolute top-4 right-4 px-2 rounded-full bg-black hover:bg-slate-800 hover:text-white"
-      >
-        <X className="w-5 h-5" />
-      </Button>
-      <ScrollArea>{children}</ScrollArea>
-    </div>
+    <>
+      {" "}
+      {["main", "coffee-shop"].includes(mode) && <Main>{children}</Main>}
+      {mode === "kiosk" && <Kiosk>{children}</Kiosk>}
+    </>
   )
 }
 

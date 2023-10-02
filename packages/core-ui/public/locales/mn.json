@@ -2422,5 +2422,13 @@
   "Down payment": "Урьдчилгаа төлбөр",
   "Interest correction": "Хүүгийн өөрчлөлт",
   "Stored Interest": "Хүү хуримтлал",
-  "Is get E-Barimt": "И-Баримт авах эсэх"
+  "Is get E-Barimt": "И-Баримт авах эсэх",
+  "Skip Amount Calc /Month/":"Үндсэн зээлээс төлөгдөхгүй хугацаа/Сар/",
+  "Is Pay First Month":"Эхний сар төлөх эсэх",
+  "Is Barter":"Бартер эсэх",
+  "Custom payment Amount":"Дурын төлөх дүн",
+  "Custom Interest":"Дурын төлөх хүү",
+  "fixedMethod":"Тэнцүү төлбөр",
+  "equalMethod":"Үндсэн зээл тэнцүү",
+  "customMethod":"Дурын"
 }

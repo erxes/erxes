@@ -1,4 +1,4 @@
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import {
   Content,
@@ -215,6 +215,20 @@ class CreateMessenger extends React.Component<Props, State> {
 
     if (!brandId) {
       return Alert.error('Choose a brand');
+    }
+
+    if (channelIds.length < 1) {
+      return Alert.error('Choose a channel');
+    }
+
+    if (messengerApps.websites && messengerApps.websites.length > 0) {
+      for (const website of messengerApps.websites) {
+        if (website.url === '') return Alert.error(`Set Website URL`);
+        if (website.description === '')
+          return Alert.error(`Set Website Description`);
+        if (website.buttonText === '')
+          return Alert.error(`Set Website Button Text`);
+      }
     }
 
     if (skillData && Object.keys(skillData).length !== 0) {

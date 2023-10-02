@@ -100,11 +100,18 @@ const ordersFinish = gql`
   }
 `
 
+const ordersCancel = gql`
+  mutation OrdersCancel($id: String!) {
+    ordersCancel(_id: $id)
+  }
+`
+
 const mutations = {
   ordersAddPayment,
   ordersSettlePayment,
   generateInvoiceUrl,
   ordersFinish,
+  ordersCancel,
 }
 
 export default mutations

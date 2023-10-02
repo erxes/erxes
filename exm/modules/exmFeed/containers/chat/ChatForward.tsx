@@ -4,6 +4,7 @@ import { useMutation } from '@apollo/client';
 import Alert from '../../../utils/Alert';
 import ChatForward from '../../components/chat/ChatForward';
 import { IUser } from '../../../auth/types';
+import { useState } from 'react';
 
 type Props = {
   currentUser: IUser;

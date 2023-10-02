@@ -23,6 +23,7 @@ import {
   connectAndQueryTimeLogsFromMsSql
 } from '../../utils';
 import { fixDate } from '@erxes/api-utils/src';
+import { sendMobileNotification } from '../utils';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -399,6 +400,18 @@ const timeclockMutations = {
       return updated;
     }
 
+    // send mobile notification
+    sendMobileNotification(
+      [shiftRequest.userId || ''],
+      'requestSolved',
+      shiftRequest,
+      'request',
+      {
+        reason: shiftRequest.reason,
+        approved: status === 'Approved'
+      }
+    );
+
     // if request is check in/out request
     return models.Absences.updateAbsence(_id, {
       status: `${shiftRequest.reason} / ${status}`,
@@ -575,6 +588,63 @@ const timeclockMutations = {
     }
 
     return models.Shifts.removeShift(_id);
+  },
+
+  async editSchedule(_root, { _id, shifts }, { models }: IContext) {
+    const scheduleShiftUpdateOps: any[] = [];
+    const scheduleShiftIds: string[] = [];
+    const prevScheduleShiftIds: string[] = (
+      await models.Shifts.find({
+        scheduleId: _id
+      })
+    ).map(s => s._id);
+
+    for (const shift of shifts) {
+      if (!shift._id) {
+        scheduleShiftUpdateOps.push({
+          insertOne: {
+            document: {
+              scheduleId: _id,
+              ...shift
+            }
+          }
+        });
+        continue;
+      }
+
+      scheduleShiftIds.push(shift._id);
+
+      scheduleShiftUpdateOps.push({
+        updateOne: {
+          filter: {
+            _id: shift._id
+          },
+          update: {
+            $set: {
+              scheduleId: _id,
+              scheduleConfigId: shift.scheduleConfigId,
+              shiftStart: shift.shiftStart,
+              shiftEnd: shift.shiftEnd
+            }
+          }
+        }
+      });
+    }
+
+    // compare prev shift and incoming shift ids, delete if any is missing
+    const set = new Set(scheduleShiftIds);
+
+    // Use the spread operator to convert the Sets back to arrays
+    const removeShiftIds = prevScheduleShiftIds.filter(item => !set.has(item));
+
+    if (removeShiftIds.length) {
+      await models.Shifts.deleteMany({ _id: { $in: removeShiftIds } });
+    }
+    if (scheduleShiftUpdateOps.length) {
+      await models.Shifts.bulkWrite(scheduleShiftUpdateOps);
+    }
+
+    return;
   },
   payDateAdd(_root, { dateNums }, { models }: IContext) {
     return models.PayDates.createPayDate({ payDates: dateNums });

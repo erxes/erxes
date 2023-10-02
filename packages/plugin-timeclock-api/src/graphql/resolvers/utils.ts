@@ -12,6 +12,7 @@ import {
   IUsersReport
 } from '../../models/definitions/timeclock';
 import { customFixDate } from '../../utils';
+import { sendMobileNotification } from '../utils';
 
 // milliseconds to mins
 const MMSTOMINS = 60000;
@@ -70,7 +71,7 @@ export const findBranchUsers = async (
   const branchUsers = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: { query: { branchIds: { $in: branchIds } } },
+    data: { query: { branchIds: { $in: branchIds }, isActive: true } },
     isRPC: true
   });
   return branchUsers;
@@ -83,7 +84,7 @@ export const findDepartmentUsers = async (
   const deptUsers = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: { query: { departmentIds: { $in: departmentIds } } },
+    data: { query: { departmentIds: { $in: departmentIds }, isActive: true } },
     isRPC: true
   });
   return deptUsers;
@@ -159,6 +160,8 @@ export const createScheduleShiftsByUserIds = async (
   // create shifts of each schedule
   await models.Shifts.bulkWrite(shiftsBulkCreateOps);
 
+  // send mobile notification to schedule created users
+  sendMobileNotification(userIds, 'scheduleCreated', schedule, 'schedule');
   return schedule;
 };
 
@@ -512,6 +515,7 @@ export const timeclockReportByUser = async (
       totalHoursBreakSelecteDay,
       totalHoursAbsenceSelectedMonth,
 
+      requests: requestsOfSelectedMonth,
       scheduledShifts: scheduleShiftsSelectedMonth,
       timeclocks: timeclocksOfSelectedMonth,
 
