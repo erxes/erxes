@@ -284,21 +284,21 @@ export const getTransportData = async (req, res, subdomain) => {
 
   const models = await generateModels(subdomain);
 
-  const config = await sendCoreMessage({
-    subdomain,
-    action: 'configs.findOne',
-    data: {
-      query: {
-        code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
-      }
-    },
-    isRPC: true,
-    defaultValue: null
-  });
+  // const config = await sendCoreMessage({
+  //   subdomain,
+  //   action: 'configs.findOne',
+  //   data: {
+  //     query: {
+  //       code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+  //     }
+  //   },
+  //   isRPC: true,
+  //   defaultValue: null
+  // });
 
-  if (!config) {
-    return res.json([]);
-  }
+  // if (!config) {
+  //   return res.json([]);
+  // }
 
   const lastData = await models.TransportDatas.find({})
     .sort({ tid: -1 })
@@ -308,60 +308,64 @@ export const getTransportData = async (req, res, subdomain) => {
 
   const lastTransport = await models.TransportDatas.findOne({ tid: lastTid });
 
-  let range = 'A:O';
+  // let range = 'A:O';
 
-  if (lastTid > 0 && lastTransport) {
-    range = lastTransport.range;
-  }
+  // if (lastTid > 0 && lastTransport) {
+  //   range = lastTransport.range;
+  // }
 
-  const auth = new google.auth.GoogleAuth({
-    credentials: JSON.parse(config.value),
-    scopes: ['https://www.googleapis.com/auth/spreadsheets']
-  });
+  // const auth = new google.auth.GoogleAuth({
+  //   credentials: JSON.parse(config.value),
+  //   scopes: ['https://www.googleapis.com/auth/spreadsheets']
+  // });
 
-  const authClientObject = await auth.getClient();
-  const sheets = google.sheets({ version: 'v4', auth: authClientObject });
+  // const authClientObject = await auth.getClient();
+  // // const sheets = google.sheets({ version: 'v4', auth: authClientObject });
+  // const sheets = google.sheets({
+  //   version: 'v4',
+  //   auth: authClientObject
+  // })
 
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId:
-      process.env.TRANSPORT_SPREADSHEET_ID ||
-      '18CwXZcOU4THxhvkvdA80mPNmGg7xsWpEfkHJh1M1bg0',
-    range
-  });
+  // const response = await sheets.spreadsheets.values.get({
+  //   spreadsheetId:
+  //     process.env.TRANSPORT_SPREADSHEET_ID ||
+  //     '18CwXZcOU4THxhvkvdA80mPNmGg7xsWpEfkHJh1M1bg0',
+  //   range
+  // });
 
-  const sheetData = response.data;
+  // const sheetData = response.data;
 
-  const rows = sheetData.values || [];
+  // const rows = sheetData.values || [];
 
-  const data: any[] = [];
+  // const data: any[] = [];
 
-  for (const [index, value] of rows.entries()) {
-    if (index < 3) {
-      continue;
-    }
+  // for (const [index, value] of rows.entries()) {
+  //   if (index < 3) {
+  //     continue;
+  //   }
 
-    const obj = {
-      tid: Number(value[0]),
-      from: value[1],
-      to: value[2],
-      payloadtype: value[3],
-      weight: value[4],
-      payloadsize: value[5],
-      trantype: value[6],
-      vehicletype: value[7],
-      trunktype: value[8],
-      tran_start_dt: moment(new Date(value[9])).format('YYYY-MM-DD'),
-      year: Number(value[10]),
-      month: Number(value[11]),
-      week: Number(value[12]),
-      day: Number(value[13]),
-      range: `A${index + 1}:O${index + 1}`
-    };
+  //   const obj = {
+  //     tid: Number(value[0]),
+  //     from: value[1],
+  //     to: value[2],
+  //     payloadtype: value[3],
+  //     weight: value[4],
+  //     payloadsize: value[5],
+  //     trantype: value[6],
+  //     vehicletype: value[7],
+  //     trunktype: value[8],
+  //     tran_start_dt: moment(new Date(value[9])).format('YYYY-MM-DD'),
+  //     year: Number(value[10]),
+  //     month: Number(value[11]),
+  //     week: Number(value[12]),
+  //     day: Number(value[13]),
+  //     range: `A${index + 1}:O${index + 1}`
+  //   };
 
-    data.push(obj);
-  }
+  //   data.push(obj);
+  // }
 
-  await models.TransportDatas.insertMany(data);
+  // await models.TransportDatas.insertMany(data);
 
   await models.TransportDatas.find({});
 
