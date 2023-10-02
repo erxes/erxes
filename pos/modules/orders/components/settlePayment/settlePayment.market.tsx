@@ -1,5 +1,5 @@
 import usePrintBill from "@/modules/checkout/hooks/usePrintBill"
-import { activeOrderAtom, setInitialAtom } from "@/store/order.store"
+import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { ebarimtSheetAtom } from "@/store/ui.store"
 import { useAtom, useSetAtom } from "jotai"
 
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 // import { Sheet, SheetContent } from "@/components/ui/sheet"
 
 const MakePayment = () => {
-  const [activeOrder] = useAtom(activeOrderAtom)
+  const [activeOrder] = useAtom(activeOrderIdAtom)
   const setInitial = useSetAtom(setInitialAtom)
 
   const { changeVisiblity, loading, disabled, printBill } = usePrintBill()

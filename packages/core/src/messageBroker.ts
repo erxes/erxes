@@ -299,6 +299,30 @@ export const initBroker = async options => {
     };
   });
 
+  consumeRPCQueue(
+    'core:users.getIdsBySearchParams',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { searchValue } = data;
+
+      const query: any = {};
+
+      query.$or = [
+        { email: new RegExp(`.*${searchValue}.*`, 'i') },
+        { employeeId: new RegExp(`.*${searchValue}.*`, 'i') },
+        { username: new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.fullName': new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.position': new RegExp(`.*${searchValue}.*`, 'i') }
+      ];
+
+      return {
+        status: 'success',
+        data: await models.Users.find(query).distinct('_id')
+      };
+    }
+  );
+
   consumeRPCQueue('core:departments.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

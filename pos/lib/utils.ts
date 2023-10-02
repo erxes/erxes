@@ -10,6 +10,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 export const READ_FILE = "/read-file?key="
+
 export const readFile = (url: string = "") => {
   if (url.includes(READ_FILE)) {
     const apiUrl = url.split(READ_FILE)[0]

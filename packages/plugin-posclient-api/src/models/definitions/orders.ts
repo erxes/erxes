@@ -15,6 +15,11 @@ export interface IPaidAmount {
   info?: any;
 }
 
+export interface IMobileAmount {
+  _id?: string;
+  amount: number;
+}
+
 export interface IOrder {
   status?: string;
   createdAt?: Date;
@@ -27,6 +32,7 @@ export interface IOrder {
   customerType?: string;
   cashAmount?: number;
   mobileAmount?: number;
+  mobileAmounts?: IMobileAmount[];
   paidAmounts?: IPaidAmount[];
   totalAmount: number;
   finalAmount?: number;
@@ -71,6 +77,11 @@ const paidAmountSchema = new Schema({
   info: field({ type: Object })
 });
 
+const mobileAmountSchema = new Schema({
+  _id: field({ pkey: true }),
+  amount: field({ type: Number })
+});
+
 const returnInfoSchema = new Schema({
   cashAmount: field({ type: Number }),
   paidAmounts: field({ type: [paidAmountSchema] }),
@@ -111,6 +122,11 @@ export const orderSchema = schemaHooksWrapper(
     mobileAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Mobile amount'
+    }),
+    mobileAmounts: field({
+      type: [mobileAmountSchema],
+      optional: true,
+      label: 'Mobile amounts'
     }),
     paidAmounts: field({ type: [paidAmountSchema], label: 'Paid amounts' }),
     totalAmount: getNumberFieldDefinition({

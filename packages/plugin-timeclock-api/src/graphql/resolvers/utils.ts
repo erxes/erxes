@@ -12,6 +12,7 @@ import {
   IUsersReport
 } from '../../models/definitions/timeclock';
 import { customFixDate } from '../../utils';
+import { sendMobileNotification } from '../utils';
 
 // milliseconds to mins
 const MMSTOMINS = 60000;
@@ -159,6 +160,8 @@ export const createScheduleShiftsByUserIds = async (
   // create shifts of each schedule
   await models.Shifts.bulkWrite(shiftsBulkCreateOps);
 
+  // send mobile notification to schedule created users
+  sendMobileNotification(userIds, 'scheduleCreated', schedule, 'schedule');
   return schedule;
 };
 

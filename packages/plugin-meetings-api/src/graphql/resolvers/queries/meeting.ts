@@ -20,7 +20,7 @@ const generateFilter = async (params, user) => {
     participantIds.length > 0 &&
     !participantIds.includes('')
   ) {
-    selector.participantIds = { $in: participantIds };
+    selector.participantIds = { $in: [user._id, ...participantIds] };
   }
   if (userId) {
     selector.createdBy = userId;

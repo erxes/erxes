@@ -2,14 +2,14 @@
 
 import { cartAtom } from "@/store/cart.store"
 import { AnimatePresence } from "framer-motion"
-import { useAtom } from "jotai"
+import { useAtomValue } from "jotai"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import CartItem from "../cartItem/cartItem.main"
 
 const Cart = () => {
-  const [cart] = useAtom(cartAtom)
+  const cart = useAtomValue(cartAtom)
   return (
     <ScrollArea className="flex flex-auto flex-col border-t">
       <AnimatePresence>

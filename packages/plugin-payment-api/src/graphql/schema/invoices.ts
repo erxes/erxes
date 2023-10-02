@@ -33,6 +33,7 @@ export const types = `
     idOfProvider: String
     errorDescription: String
     pluginData: JSON
+    data: JSON
   }
 `;
 

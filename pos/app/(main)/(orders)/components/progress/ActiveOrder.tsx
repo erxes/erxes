@@ -22,8 +22,8 @@ import {
 
 import ActiveOrderItem from "./ActiveOrderItem"
 import ChangeOrderStatus from "./ChangeOrderStatus"
+import Description from "./description"
 import TimerBadge from "./TimerBadge"
-import DeliveryInfo from "./deliveryInfo"
 
 const ActiveOrder = ({
   number,
@@ -33,7 +33,7 @@ const ActiveOrder = ({
   dueDate,
   items,
   _id,
-  deliveryInfo,
+  description,
 }: IOrder) => {
   const numberArr = (number || "").split("_")
   const colNum = useAtomValue(columnNumberAtom)
@@ -87,7 +87,7 @@ const ActiveOrder = ({
         </CollapsibleContent>
 
         <CardFooter className="justify-between gap-2">
-          <DeliveryInfo deliveryInfo={deliveryInfo} />
+          <Description description={description} />
           <ChangeOrderStatus _id={_id} items={items} status={status} />
         </CardFooter>
       </Card>

@@ -3,7 +3,10 @@ import { useLazyQuery } from "@apollo/client"
 
 const useCheckRegister = () => {
   const [checkRegister, { loading, data }] = useLazyQuery(
-    queries.ordersCheckCompany
+    queries.ordersCheckCompany,
+    {
+      fetchPolicy: "network-only",
+    }
   )
   const { ordersCheckCompany } = data || {}
 

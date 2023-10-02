@@ -171,6 +171,7 @@ export const ordersQueryParams = `
   dueStartDate: Date,
   dueEndDate: Date,
   isPreExclude: Boolean,
+  slotCode: String,
   page: Int,
   perPage: Int,
   sortField: String,

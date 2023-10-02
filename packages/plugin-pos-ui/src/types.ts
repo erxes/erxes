@@ -70,6 +70,9 @@ export type IPos = {
   allowTypes?: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+
+  branchTitle?: string;
+  departmentTitle?: string;
 };
 
 export type ISlot = {

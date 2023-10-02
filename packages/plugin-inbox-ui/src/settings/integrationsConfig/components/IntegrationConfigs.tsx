@@ -1,15 +1,17 @@
+import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
+import { __, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FormControl } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Info from '@erxes/ui/src/components/Info';
-import { loadDynamicComponent, __ } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
-import { KEY_LABELS } from '@erxes/ui-settings/src/general/constants';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Info from '@erxes/ui/src/components/Info';
+import { KEY_LABELS } from '@erxes/ui-settings/src/general/constants';
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -76,7 +78,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     return (
       <ContentBox id={'IntegrationSettingsMenu'}>
-        <CollapseContent title="Twitter">
+        <CollapseContent
+          beforeTitle={<Icon icon="twitter-alt" />}
+          transparent={true}
+          title="Twitter"
+        >
           <Info>
             <a
               target="_blank"
@@ -93,7 +99,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('TWITTER_WEBHOOK_ENV')}
         </CollapseContent>
 
-        <CollapseContent title="Nylas">
+        <CollapseContent
+          beforeTitle={<Icon icon="database-alt" />}
+          transparent={true}
+          title="Nylas"
+        >
           <Info>
             <a
               target="_blank"
@@ -114,7 +124,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('MICROSOFT_CLIENT_SECRET')}
         </CollapseContent>
 
-        <CollapseContent title="Video call">
+        <CollapseContent
+          beforeTitle={<Icon icon="videocamera" />}
+          transparent={true}
+          title="Video call"
+        >
           <Info>
             <a
               target="_blank"
@@ -143,7 +157,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('VIDEO_CALL_MESSAGE_FOR_TIME_DELAY')}
         </CollapseContent>
 
-        <CollapseContent title="Sunshine Conversations API">
+        <CollapseContent
+          beforeTitle={<Icon icon="comments" />}
+          transparent={true}
+          title="Sunshine Conversations API"
+        >
           <Info>
             <a
               target="_blank"
@@ -163,7 +181,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
           )}
         </CollapseContent>
 
-        <CollapseContent title="WhatsApp Chat-API">
+        <CollapseContent
+          beforeTitle={<Icon icon="whatsapp" />}
+          transparent={true}
+          title="WhatsApp Chat-API"
+        >
           <Info>
             <a
               target="_blank"
@@ -177,7 +199,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('CHAT_API_WEBHOOK_CALLBACK_URL')}
         </CollapseContent>
 
-        <CollapseContent title="Telnyx SMS">
+        <CollapseContent
+          beforeTitle={<Icon icon="comment-alt-check" />}
+          transparent={true}
+          title="Telnyx SMS"
+        >
           {this.renderItem('TELNYX_API_KEY')}
         </CollapseContent>
 

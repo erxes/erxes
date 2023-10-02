@@ -3,24 +3,24 @@ import OrderCUButton from "@/modules/orders/components/orderCUButton/orderCUButt
 import MakePayment from "@/modules/orders/components/settlePayment/settlePayment.market"
 import { totalAmountAtom } from "@/store/cart.store"
 import {
-  activeOrderAtom,
+  activeOrderIdAtom,
   getTotalPaidAmountAtom,
   orderTotalAmountAtom,
 } from "@/store/order.store"
-import { useAtom } from "jotai"
+import { useAtomValue } from "jotai"
 
 import { Label } from "@/components/ui/label"
 
-import OddAmount from "./components/OddAmount/OddAmount"
 import BillType from "./components/ebarimt/billType"
+import OddAmount from "./components/OddAmount/OddAmount"
 import PaidTypes from "./components/paymentType/paidTypes"
 import PaymentTypes from "./components/paymentTypes/paymentTypes.market"
 
 const Checkout = () => {
-  const [activeOrder] = useAtom(activeOrderAtom)
-  const [paidAmount] = useAtom(getTotalPaidAmountAtom)
-  const [totalAmount] = useAtom(totalAmountAtom)
-  const [orderTotal] = useAtom(orderTotalAmountAtom)
+  const activeOrder = useAtomValue(activeOrderIdAtom)
+  const paidAmount = useAtomValue(getTotalPaidAmountAtom)
+  const totalAmount = useAtomValue(totalAmountAtom)
+  const orderTotal = useAtomValue(orderTotalAmountAtom)
 
   const isReadyToPrint = !!activeOrder && paidAmount === totalAmount
   const isItemsRegistered = !!activeOrder && orderTotal === totalAmount

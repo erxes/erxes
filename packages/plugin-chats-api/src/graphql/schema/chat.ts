@@ -116,7 +116,8 @@ const paginationParams = `
 `;
 
 export const queries = `
-  chats(type: ChatType, position: String, ${paginationParams}): ChatResponse
+  chats(type: ChatType, position: String, searchValue: String, ${paginationParams}): ChatResponse
+  chatsPinned: ChatResponse
   chatDetail(_id: String!): Chat
   getUnreadChatCount: Int
   chatMessages(chatId: String, isPinned: Boolean, ${paginationParams}): ChatMessageResponse

@@ -42,10 +42,7 @@ const useConfig = (
       if (type === "ebarimt") {
         setEbarimtConfig(currentConfig)
       }
-      if (type === "cover") {
-        setCoverConfig(currentConfig)
-      }
-      if (type === "payment") {
+      if (["cover", "payment"].includes(type)) {
         const { paymentTypes, ...rest } = currentConfig
 
         const paymentTypeWithConfig = paymentTypes.map((pt: IPaymentType) => ({
@@ -53,8 +50,16 @@ const useConfig = (
           config: strToObj(pt.config),
         }))
 
-        setPaymentConfig({ ...rest, paymentTypes: paymentTypeWithConfig })
+        const config = { ...rest, paymentTypes: paymentTypeWithConfig }
+
+        if (type === "cover") {
+          setCoverConfig(config)
+        }
+        if (type === "payment") {
+          setPaymentConfig(config)
+        }
       }
+
       if (type === "main") {
         setConfig(currentConfig)
       }

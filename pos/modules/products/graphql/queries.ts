@@ -19,8 +19,24 @@ const productCategories = gql`
 `
 
 const products = gql`
-  query poscProducts($searchValue: String, $type: String, $categoryId: String, $page: Int, $perPage: Int, $groupedSimilarity: String) {
-    poscProducts(searchValue: $searchValue, categoryId: $categoryId, type: $type, page: $page, perPage: $perPage, groupedSimilarity: $groupedSimilarity) {
+  query poscProducts(
+    $searchValue: String,
+    $type: String, 
+    $categoryId: String, 
+    $page: Int, 
+    $perPage: Int, 
+    $isKiosk: Boolean, 
+    $groupedSimilarity: String
+    ) {
+    poscProducts(
+      searchValue: $searchValue, 
+      categoryId: $categoryId, 
+      type: $type, 
+      page: $page, 
+      perPage: $perPage, 
+      isKiosk: $isKiosk, 
+      groupedSimilarity: $groupedSimilarity
+    )  {
       ${commonFields}
       categoryId
       unitPrice
@@ -62,12 +78,14 @@ const productsCount = gql`
     $type: String
     $searchValue: String
     $groupedSimilarity: String
+    $isKiosk: Boolean
   ) {
     poscProductsTotalCount(
       categoryId: $categoryId
       type: $type
       searchValue: $searchValue
       groupedSimilarity: $groupedSimilarity
+      isKiosk: $isKiosk
     )
   }
 `
@@ -87,6 +105,18 @@ const getInitialCategory = gql`
   }
 `
 
+const getKioskCategory = gql`
+  query InitialCategory($_id: String) {
+    poscProductCategoryDetail(_id: $_id) {
+      _id
+      name
+      attachment {
+        url
+      }
+    }
+  }
+`
+
 const queries = {
   productCategories,
   products,
@@ -94,5 +124,6 @@ const queries = {
   getPriceInfo,
   getInitialCategory,
   productSimilarities,
+  getKioskCategory,
 }
 export default queries
