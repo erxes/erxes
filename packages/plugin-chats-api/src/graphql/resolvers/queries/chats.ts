@@ -12,7 +12,10 @@ const chatQueries = {
     { models, user, subdomain }
   ) => {
     const filter: any = {
-      $and: [{ isPinnedUserIds: { $nin: [user._id] } }]
+      $and: [
+        { isPinnedUserIds: { $nin: [user._id] } },
+        { participantIds: { $in: [user._id] } }
+      ]
     };
 
     if (searchValue) {
@@ -27,8 +30,10 @@ const chatQueries = {
           defaultValue: []
         });
 
-        filter.$and.push({ participantIds: { $in: [...userIds, user._id] } });
-        filter.$or = [{ name: new RegExp(`.*${searchValue}.*`, 'i') }];
+        filter.$or = [
+          { name: new RegExp(`.*${searchValue}.*`, 'i') },
+          { participantIds: { $in: [...userIds] } }
+        ];
       } catch (e) {
         filter.$and.push({ participantIds: { $in: [user._id] } });
       }

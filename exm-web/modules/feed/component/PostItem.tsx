@@ -287,7 +287,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
         </CardHeader>
         <CardContent className="p-0">
           <div className="px-4">
-            <div className="text-sm font-semibold text-slate-800">
+            <div className="text-sm font-semibold text-slate-800 overflow-x-hidden">
               <b className="text-[#444] text-base font-bold">{feed.title}</b>
             </div>
             <div className="my-1 overflow-x-hidden">
