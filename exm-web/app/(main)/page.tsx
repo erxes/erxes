@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic"
 
 const Feed = dynamic(() => import("@/modules/feed/component/Feed"))
+
 const RightSideBar = dynamic(
   () => import("@/modules/feed/component/RightSideBar")
 )

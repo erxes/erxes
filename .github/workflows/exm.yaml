@@ -31,7 +31,7 @@ jobs:
 
       - name: Build
         run: |
-          cd pos
+          cd exm-web
           rm -rf node_modules
           yarn install --frozen-lockfile
           yarn build
@@ -39,7 +39,7 @@ jobs:
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
-          cd pos
+          cd exm-web
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           DOCKER_BUILDKIT=1 docker build -t erxes/exm:${GITHUB_REF#refs/heads/} -f Dockerfile .
           docker push erxes/exm:${GITHUB_REF#refs/heads/}
