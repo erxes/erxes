@@ -46,14 +46,14 @@ export const AttachmentWithPreview = ({
 
     return (
       <div id="gallery" className={cn("relative w-full", className)}>
-        <div className="relative h-56 overflow-hidden md:h-96">
-          <div className="relative aspect-[5/3]" data-carousel-item={true}>
+        <div className="relative h-full overflow-hidden">
+          <div className="relative" data-carousel-item={true}>
             <Image
               alt="image"
               src={images[index]?.url || ""}
-              width={800}
-              height={800}
-              className="w-full h-56 object-contain cursor-pointer"
+              width={2000}
+              height={2000}
+              className="w-full h-full object-contain cursor-pointer max-h-[800px]"
             />
           </div>
         </div>
