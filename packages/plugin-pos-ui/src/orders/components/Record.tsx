@@ -53,7 +53,9 @@ class Record extends React.Component<Props> {
   modalContent = _props => {
     const { order } = this.props;
 
-    return <Detail order={{ ...order, _id: order._id.split('_')[0] }} />;
+    return (
+      <Detail orderId={order._id.split('_')[0]} posToken={order.posToken} />
+    );
   };
 
   render() {
