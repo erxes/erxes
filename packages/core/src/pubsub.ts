@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { redisOptions } from 'erxes-inmemory-storage';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
-import * as Redis from 'ioredis';
+import Redis from 'ioredis';
 
 // load environment variables
 dotenv.config();
