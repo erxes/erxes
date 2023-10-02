@@ -34,7 +34,7 @@ const Image: FC<
 
   const updatedProps = {
     ...rest,
-    src: error ? fallbackImage : readFile(src) || "/user.png",
+    src: error ? fallbackImage : readFile(src, width as number) || "/user.png",
     alt,
     fill: !width && !height ? true : undefined,
     width,
@@ -44,6 +44,7 @@ const Image: FC<
   return (
     <NextImage
       {...updatedProps}
+      quality={100}
       onError={() => setError}
       onLoadingComplete={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}

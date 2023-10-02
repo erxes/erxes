@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
@@ -9,6 +8,7 @@ import { ClockIcon, MapPinIcon, UsersIcon } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import Image from "@/components/ui/image"
 import LoadingPost from "@/components/ui/loadingPost"
 
 import { useEvents } from "../hooks/useEvent"
@@ -55,12 +55,12 @@ const RightSideBar = () => {
           <Image
             src={
               currentUser.details && currentUser.details.avatar
-                ? readFile(currentUser?.details?.avatar)
+                ? currentUser?.details?.avatar
                 : "/user.png"
             }
             alt="User Profile"
-            width={500}
-            height={500}
+            width={100}
+            height={100}
             className="w-10 h-10 rounded-full"
           />
           <div className="ml-3 mt-2">

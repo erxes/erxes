@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import PostForm from "@/modules/feed/component/form/PostForm"
@@ -10,7 +9,6 @@ import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
 import {
   AlertTriangleIcon,
-  CheckCircleIcon,
   ClockIcon,
   ExternalLinkIcon,
   HeartIcon,
@@ -21,7 +19,6 @@ import {
   TrashIcon,
   UserIcon,
   UsersIcon,
-  XCircleIcon,
 } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
@@ -33,6 +30,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import Image from "@/components/ui/image"
 import LoadingCard from "@/components/ui/loading-card"
 import LoadingPost from "@/components/ui/loadingPost"
 import {
@@ -262,14 +260,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Image
-                src={
-                  userDetail?.avatar
-                    ? readFile(userDetail?.avatar)
-                    : "/user.png"
-                }
+                src={userDetail?.avatar || "/user.png"}
                 alt="User Profile"
-                width={500}
-                height={500}
+                width={100}
+                height={100}
                 className="w-10 h-10 rounded-full"
               />
               <div className="ml-3">
