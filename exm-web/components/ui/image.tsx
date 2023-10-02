@@ -30,11 +30,13 @@ const Image: FC<
 
   const [error, setError] = useState(null)
 
-  const fallbackImage = "/user.png"
+  const fallbackImage = "/avatar-colored.svg"
 
   const updatedProps = {
     ...rest,
-    src: error ? fallbackImage : readFile(src, width as number) || "/user.png",
+    src: error
+      ? fallbackImage
+      : readFile(src, width as number) || "/avatar-colored.svg",
     alt,
     fill: !width && !height ? true : undefined,
     width,

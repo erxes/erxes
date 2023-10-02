@@ -111,7 +111,7 @@ const EventForm = ({
   }
 
   return (
-    <DialogContent>
+    <DialogContent className="max-h-[80vh] overflow-auto">
       <DialogHeader>
         <DialogTitle>Create event</DialogTitle>
       </DialogHeader>

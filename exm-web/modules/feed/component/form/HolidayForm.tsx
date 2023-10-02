@@ -84,7 +84,7 @@ const HolidayForm = ({
   }
 
   return (
-    <DialogContent>
+    <DialogContent className="max-h-[80vh] overflow-auto">
       <DialogHeader>
         <DialogTitle>Create public holiday</DialogTitle>
       </DialogHeader>

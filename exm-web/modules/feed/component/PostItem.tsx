@@ -191,6 +191,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   }
 
   const renderFeedActions = () => {
+    if (feed.contentType === "Welcome") {
+      return null
+    }
+
     return (
       <Popover>
         <PopoverTrigger asChild={true}>
@@ -199,16 +203,18 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-40 p-3">
-          <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-            {currentUser.isOwner || currentUser._id === user._id
-              ? editAction()
-              : ""}
-          </div>
-          <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-            {currentUser.isOwner || currentUser._id === user._id
-              ? deleteAction()
-              : ""}
-          </div>
+          {currentUser.isOwner || currentUser._id === user._id ? (
+            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
+              {editAction()}
+            </div>
+          ) : null}
+
+          {currentUser.isOwner || currentUser._id === user._id ? (
+            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
+              {deleteAction()}
+            </div>
+          ) : null}
+
           <div
             className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
             onClick={() => pinFeed(feed._id)}

@@ -88,7 +88,7 @@ const BravoForm = ({
   }
 
   return (
-    <DialogContent>
+    <DialogContent className="max-h-[80vh] overflow-auto">
       <DialogHeader>
         <DialogTitle>Create bravo</DialogTitle>
       </DialogHeader>
