@@ -92,13 +92,17 @@ export const ChatItem = ({
       onMouseEnter={() => setShowAction(true)}
       onMouseLeave={() => setShowAction(false)}
     >
-      <Image
-        src={readFile((user && user.details?.avatar) || "/avatar-colored.svg")}
-        alt="User Profile"
-        width={500}
-        height={500}
-        className="w-12 h-12 rounded-full mr-4"
-      />
+      <div className="w-12 h-12 rounded-full mr-4 ">
+        <Image
+          src={readFile(
+            (user && user.details?.avatar) || "/avatar-colored.svg"
+          )}
+          alt="User Profile"
+          width={500}
+          height={500}
+          className="object-cover"
+        />
+      </div>
 
       <div className="text-sm text-[#444] w-full">
         <p>
