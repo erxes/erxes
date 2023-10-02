@@ -123,7 +123,7 @@ const getStatus = (config, buttonType, doc, order?) => {
   return ORDER_STATUSES.NEW;
 };
 
-const orderAdd = async (models, lastDoc, config) => {
+const orderAdd = async (models: IModels, lastDoc, config) => {
   try {
     const number = await generateOrderNumber(models, config);
 
@@ -991,6 +991,11 @@ const orderMutations = {
     }
 
     let _id = doc._id || '';
+
+    if (!_id) {
+      delete doc._id;
+    }
+
     if (doc._id) {
       await ordersEdit(doc as IOrderEditParams, {
         posUser,
