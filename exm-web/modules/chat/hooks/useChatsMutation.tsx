@@ -11,6 +11,13 @@ const useChatsMutation = () => {
     toast({ description: error.message, variant: "destructive" })
   }
 
+  const [editChatMutation, { loading: loadingEdit }] = useMutation(
+    mutations.chatEdit
+  )
+
+  const [adminMutation] = useMutation(mutations.chatMakeOrRemoveAdmin)
+  const [memberMutation] = useMutation(mutations.chatAddOrRemoveMember)
+
   const [togglePinnedChat, { loading }] = useMutation(
     mutations.chatToggleIsPinned,
     {
@@ -25,9 +32,38 @@ const useChatsMutation = () => {
     })
   }
 
+  const makeOrRemoveAdmin = (chatId: string, userId: string) => {
+    adminMutation({
+      variables: { id: chatId, userId },
+      refetchQueries: ["chats", "chatDetail"],
+    })
+  }
+
+  const chatEdit = (chatId: string, name?: string, featuredImage?: any[]) => {
+    editChatMutation({
+      variables: { _id: chatId, name, featuredImage },
+      refetchQueries: ["chats", "chatDetail"],
+    })
+  }
+
+  const addOrRemoveMember = (
+    chatId: string,
+    type: string,
+    userIds: string[]
+  ) => {
+    memberMutation({
+      variables: { id: chatId, type, userIds },
+      refetchQueries: ["chats", "chatDetail"],
+    })
+  }
+
   return {
     togglePinned,
+    makeOrRemoveAdmin,
+    addOrRemoveMember,
+    chatEdit,
     loading,
+    loadingEdit,
   }
 }
 

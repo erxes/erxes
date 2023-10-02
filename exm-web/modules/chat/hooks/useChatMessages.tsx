@@ -1,9 +1,6 @@
 import { useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
-import { IUser } from "@/modules/types"
 import { useMutation, useQuery, useSubscription } from "@apollo/client"
-import { useAtomValue } from "jotai"
 
 import { mutations, queries, subscriptions } from "../graphql"
 import { IChatMessage } from "../types"

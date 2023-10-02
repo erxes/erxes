@@ -94,7 +94,11 @@ export const ChatItem = ({
       <div className="items-end flex mr-2">
         <div className="w-12 h-12 rounded-full">
           <Image
-            src={(user && user.details?.avatar) || "/avatar-colored.svg"}
+            src={
+              (chat.type === "direct"
+                ? user && user.details?.avatar
+                : chat && chat.featuredImage[0]?.url) || "/avatar-colored.svg"
+            }
             alt="avatar"
             width={60}
             height={60}

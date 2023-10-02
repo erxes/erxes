@@ -16,7 +16,7 @@ export interface IChat {
   name: string
   type: string
   isSeen: string
-  featuredImage: string
+  eaturedImage: any[]
   createdAt: string
   createdUser: IUser
   participantUsers: IUser[]
