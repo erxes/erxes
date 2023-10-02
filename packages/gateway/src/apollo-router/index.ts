@@ -30,7 +30,9 @@ export const stopRouter = (sig: NodeJS.Signals) => {
   if (!routerProcess) {
     return;
   }
-  try { routerProcess.kill(sig); } catch (e) {
+  try {
+    routerProcess.kill(sig);
+  } catch (e) {
     console.error(e);
   }
 };
@@ -96,9 +98,7 @@ const createRouterConfig = async () => {
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
 };
 
-export const startRouter = async (
-  proxyTargets: ErxesProxyTarget[]
-) => {
+export const startRouter = async (proxyTargets: ErxesProxyTarget[]) => {
   await supergraphCompose(proxyTargets);
   await createRouterConfig();
   await downloadRouter();

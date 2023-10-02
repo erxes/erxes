@@ -51,9 +51,7 @@ export function makeSubscriptionSchema({ typeDefs, resolvers }: any) {
   });
 }
 
-export async function startSubscriptionServer(
-  httpServer: http.Server
-) {
+export async function startSubscriptionServer(httpServer: http.Server) {
   const wsServer = new ws.Server({
     server: httpServer,
     path: '/graphql'
