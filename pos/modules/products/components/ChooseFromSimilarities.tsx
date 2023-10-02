@@ -128,7 +128,7 @@ const ChooseFromSimilarities = (
     <div className="space-y-3">
       <ProductItemImage src={attachment?.url || ""} />
       <ProductItemTitle>{name}</ProductItemTitle>
-      <ProductItemDescription>{description}</ProductItemDescription>
+      <ProductItemDescription description={description} />
       <ProductItemPriceWithWrapper unitPrice={unitPrice}>
         <ProductItemButton onClick={handleAdd}>Нэмэх</ProductItemButton>
       </ProductItemPriceWithWrapper>

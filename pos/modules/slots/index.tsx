@@ -15,6 +15,8 @@ const Slots = () => {
   const { poscSlots } = data || {}
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
 
+  if (!(poscSlots || []).length && !loading) return null
+
   return (
     <ScrollArea>
       <RadioGroup
@@ -27,7 +29,11 @@ const Slots = () => {
         ) : (
           <>
             {(poscSlots || []).map((slot: ISlot) => (
-              <Slot {...slot} key={slot.code} active={slot.code === activeSlot} />
+              <Slot
+                {...slot}
+                key={slot.code}
+                active={slot.code === activeSlot}
+              />
             ))}
           </>
         )}

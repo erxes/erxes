@@ -34,7 +34,7 @@ const Progress = () => {
 
   if (loading) return <div></div>
 
-  const { number, modifiedAt, items, deliveryInfo, type } =
+  const { number, modifiedAt, items, description, type } =
     data?.orderDetail || {}
 
   return (
@@ -64,15 +64,10 @@ const Progress = () => {
         ))}
       </div>
 
-      {type === "delivery" && !!deliveryInfo && (
+      {!!description && (
         <div>
           <div className="font-semibold">Хүргэлтын мэдээлэл:</div>
-          {Object.keys(deliveryInfo).map((key) => (
-            <div className="flex" key={key}>
-              <span className="font-semibold pr-1">{key}:</span>
-              <span>{deliveryInfo[key]}</span>
-            </div>
-          ))}
+          <div>{description}</div>
         </div>
       )}
     </div>

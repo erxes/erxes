@@ -42,7 +42,6 @@ const MainIndexPage = () => {
               <Cart />
               <div className="grid flex-none grid-cols-2 gap-2 p-4">
                 <TotalAmount />
-
                 <ChooseType />
                 <BuyAction />
               </div>

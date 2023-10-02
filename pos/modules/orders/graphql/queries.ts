@@ -16,7 +16,8 @@ export const orderFields = `
   printedEbarimt
   origin
   type
-  deliveryInfo
+  description
+  isPre
 `
 export const orderItemBaseFields = `
  _id
@@ -151,7 +152,7 @@ const historyDetail = gql`
         lastName
       }
 
-      deliveryInfo
+      description
 
       items {
         ${orderItemFields}
@@ -198,7 +199,7 @@ export const progressDetail = gql`
         unitPrice
         count
       }
-      deliveryInfo
+      description
       type
     }
   }
@@ -319,7 +320,7 @@ const progressHistory = gql`
       modifiedAt
       paidDate
       dueDate
-      deliveryInfo
+      description
     }
   }
 `

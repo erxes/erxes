@@ -1,6 +1,6 @@
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
 import { cartAtom } from "@/store/cart.store"
-import { activeOrderAtom } from "@/store/order.store"
+import { activeOrderIdAtom } from "@/store/order.store"
 import { useAtom, useSetAtom } from "jotai"
 
 import { cn } from "@/lib/utils"
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 
 const OrderCUButton = ({ variant }: { variant?: "outline" }) => {
   const [cart] = useAtom(cartAtom)
-  const setActive = useSetAtom(activeOrderAtom)
+  const setActive = useSetAtom(activeOrderIdAtom)
   const { orderCU, loading } = useOrderCU((id) => setActive(id))
 
   return (

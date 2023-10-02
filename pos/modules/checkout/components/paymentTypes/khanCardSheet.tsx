@@ -20,6 +20,7 @@ const KhanCardSheet = () => {
   })
 
   useEffect(() => {
+    console.log("hi")
     sendTransaction({ amount, number, billType: "1" })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

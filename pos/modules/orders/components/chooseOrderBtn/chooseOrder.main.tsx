@@ -1,4 +1,4 @@
-import { activeOrderAtom, setInitialAtom } from "@/store/order.store"
+import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { cva } from "class-variance-authority"
 import { useAtom } from "jotai"
 import { CheckIcon } from "lucide-react"
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/tooltip"
 
 const ChooseOrder = ({ number, status, _id, slotCode, origin }: IOrder) => {
-  const [activeOrder, setActiveOrder] = useAtom(activeOrderAtom)
+  const [activeOrder, setActiveOrder] = useAtom(activeOrderIdAtom)
   const [, setInitialState] = useAtom(setInitialAtom)
 
   return (

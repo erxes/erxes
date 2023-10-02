@@ -1,4 +1,4 @@
-import { debug } from './configs';
+import { debug, graphqlPubsub } from './configs';
 import * as _ from 'underscore';
 import { IModels } from './connectionResolver';
 import {
@@ -210,3 +210,48 @@ export class Builder {
     };
   }
 }
+
+export const updateMobileAmount = async (models, paymentParams: any[]) => {
+  const firstData = (paymentParams || [])[0] || {};
+  const { contentTypeId } = firstData;
+  const { posToken } = firstData.data;
+  const orderSelector = { _id: contentTypeId, posToken };
+
+  for (const payData of paymentParams) {
+    const { contentTypeId, amount, _id } = payData;
+    const { posToken } = payData.data;
+
+    if (
+      orderSelector._id !== contentTypeId ||
+      orderSelector.posToken !== posToken
+    ) {
+      continue;
+    }
+
+    await models.Orders.updateOne(orderSelector, {
+      $addToSet: { mobileAmounts: { _id, amount } }
+    });
+  }
+
+  const order = await models.Orders.findOne(orderSelector).lean();
+  const sumMobileAmount = (order.mobileAmounts || []).reduce(
+    (sum, i) => sum + i.amount,
+    0
+  );
+
+  await models.Orders.updateOne(orderSelector, {
+    $set: { mobileAmount: sumMobileAmount }
+  });
+
+  graphqlPubsub.publish('ordersOrdered', {
+    ordersOrdered: {
+      ...order,
+      mobileAmount: sumMobileAmount,
+      _id: order._id,
+      status: order.status,
+      customerId: order.customerId
+    }
+  });
+
+  return sumMobileAmount;
+};
