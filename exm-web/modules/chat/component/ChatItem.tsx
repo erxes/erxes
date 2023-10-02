@@ -9,7 +9,6 @@ import relativeTime from "dayjs/plugin/relativeTime"
 import { useAtomValue } from "jotai"
 import { MoreHorizontalIcon } from "lucide-react"
 
-import { readFile } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import Image from "@/components/ui/image"
 import {
@@ -94,12 +93,10 @@ export const ChatItem = ({
     >
       <div className="w-12 h-12 rounded-full mr-4 ">
         <Image
-          src={readFile(
-            (user && user.details?.avatar) || "/avatar-colored.svg"
-          )}
+          src={(user && user.details?.avatar) || "/avatar-colored.svg"}
           alt="User Profile"
-          width={500}
-          height={500}
+          width={60}
+          height={60}
           className="object-cover"
         />
       </div>

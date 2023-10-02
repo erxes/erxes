@@ -5,8 +5,8 @@ import dayjs from "dayjs"
 import calendar from "dayjs/plugin/calendar"
 import { useAtomValue } from "jotai"
 
-import Avatar from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card"
+import Image from "@/components/ui/image"
 
 import { currentUserAtom } from "../../../JotaiProiveder"
 import { IChatMessage } from "../../types"
@@ -31,13 +31,15 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
       <div className={`flex ${isMe ? "justify-end" : "justify-start"} h-full`}>
         <div className="items-end flex">
           {isMe ? null : (
-            <Avatar
-              src={userDetail.avatar}
-              alt="avatar"
-              width={500}
-              height={500}
-              className="w-10 h-10 rounded-full mb-2"
-            />
+            <div className="w-12 h-12 rounded-full mr-4 ">
+              <Image
+                src={userDetail.avatar}
+                alt="avatar"
+                width={60}
+                height={60}
+                className="w-10 h-10 rounded-full mb-2"
+              />
+            </div>
           )}
         </div>
         <div className="m-2">
@@ -48,13 +50,15 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
 
         <div className="items-end flex">
           {!isMe ? null : (
-            <Avatar
-              src={userDetail.avatar}
-              alt="avatar"
-              width={500}
-              height={500}
-              className="w-10 h-10 rounded-full mb-2"
-            />
+            <div className="w-12 h-12 rounded-full mr-4 ">
+              <Image
+                src={userDetail.avatar}
+                alt="avatar"
+                width={60}
+                height={60}
+                className="w-10 h-10 rounded-full mb-2"
+              />
+            </div>
           )}
         </div>
       </div>
