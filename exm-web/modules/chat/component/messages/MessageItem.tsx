@@ -31,7 +31,7 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
       <div className={`flex ${isMe ? "justify-end" : "justify-start"} h-full`}>
         <div className="items-end flex">
           {isMe ? null : (
-            <div className="w-12 h-12 rounded-full mr-4 ">
+            <div className="w-12 h-12 rounded-full">
               <Image
                 src={userDetail.avatar}
                 alt="avatar"
@@ -50,7 +50,7 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
 
         <div className="items-end flex">
           {!isMe ? null : (
-            <div className="w-12 h-12 rounded-full mr-4 ">
+            <div className="w-12 h-12 rounded-full">
               <Image
                 src={userDetail.avatar}
                 alt="avatar"

@@ -91,14 +91,16 @@ export const ChatItem = ({
       onMouseEnter={() => setShowAction(true)}
       onMouseLeave={() => setShowAction(false)}
     >
-      <div className="w-12 h-12 rounded-full mr-4 ">
-        <Image
-          src={(user && user.details?.avatar) || "/avatar-colored.svg"}
-          alt="User Profile"
-          width={60}
-          height={60}
-          className="object-cover rounded-full"
-        />
+      <div className="items-end flex mr-2">
+        <div className="w-12 h-12 rounded-full">
+          <Image
+            src={(user && user.details?.avatar) || "/avatar-colored.svg"}
+            alt="avatar"
+            width={60}
+            height={60}
+            className="w-12 h-12 rounded-full object-cover"
+          />
+        </div>
       </div>
 
       <div className="text-sm text-[#444] w-full">

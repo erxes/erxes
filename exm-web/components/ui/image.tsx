@@ -48,12 +48,6 @@ const Image: FC<
       onError={() => setError}
       onLoadingComplete={handleComplete}
       className={cn(className, isImageLoading && "blur-10xl", "text-black")}
-      //     sizes={
-      //       sizes ||
-      //       `(max-width: 768px) 20vw,
-      // (max-width: 1200px) 15vw,
-      // 15vw`
-      //     }
     />
   )
 }
