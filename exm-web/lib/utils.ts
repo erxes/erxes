@@ -29,7 +29,7 @@ export const readFile = (value: string, width?: number): string => {
 
   const NEXT_PUBLIC_MAIN_API_DOMAIN = env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
 
-  let url = `${NEXT_PUBLIC_MAIN_API_DOMAIN}/pl:core/read-file?key=${value}`
+  let url = `${NEXT_PUBLIC_MAIN_API_DOMAIN}/read-file?key=${value}`
 
   if (width) {
     url += `&width=${width}`
