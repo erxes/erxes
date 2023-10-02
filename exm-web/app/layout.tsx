@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: "Exm ",
+  title: "exm",
   description: "exm",
   icons: {
     icon: "/favicon.png",
