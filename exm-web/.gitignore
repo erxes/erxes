@@ -1,35 +1,43 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
 .DS_Store
-*.pem
+node_modules
+/node_modules
+dist
+.next
+out
+.env
+*.un~
+*.swp
+*.swo
+*.log
+build
+.env.local
+.env.development.local
+.env.development
+.env.test.local
+.env.production.local
+package-lock.json
+dump.rdb
+oplog.timestamp
+dump
+gitinfo.json
+ecosystem.config.js
+src/private/xlsTemplateOutputs
+src/private/uploads
+engages-email-sender/src/__tests__/coverage/
+widgets/static
+*.js.map
+tsconfig.tsbuildinfo
+packages/plugin*/.erxes
+packages/core-ui/public/js/plugins.js
+/api/src/__tests__/coverage
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+/enabled-services.js
+cli/permissions.json
+cli/enabled-services.js
+cli/configs.json
+essyncer/plugins.json
+packages/core/src/private/uploads/
+packages/workers/src/private/uploads/
 
-# local env files
-.env*.local
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+docker/data/**
+docker/rabbitmq-data/**

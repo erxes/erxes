@@ -263,10 +263,14 @@ export default class SubscriptionResolver {
         return merge(payloadData, Object.values(response.data)[0]);
       }
     } catch (error) {
-      console.error('----------------- subscription resolver request error ---------------------------');
+      console.error(
+        '----------------- subscription resolver request error ---------------------------'
+      );
       console.error('query', query);
       console.error('error', error);
-      console.error('---------------------------------------------------------------------------------');
+      console.error(
+        '---------------------------------------------------------------------------------'
+      );
     }
   }
 

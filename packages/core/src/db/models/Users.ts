@@ -882,6 +882,12 @@ export const loadUserClass = (models: IModels) => {
     public static findUsers(query: any, options?: any) {
       const filter = { ...query, role: { $ne: USER_ROLES.SYSTEM } };
 
+      try {
+        models.Users.find(filter, options).lean();
+      } catch (e) {
+        console.log(e);
+      }
+
       return models.Users.find(filter, options).lean();
     }
   }

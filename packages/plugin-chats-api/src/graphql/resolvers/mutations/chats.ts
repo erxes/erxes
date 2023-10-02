@@ -64,13 +64,17 @@ const chatMutations = {
       }
     });
 
-    graphqlPubsub.publish('chatInserted', {
-      userId: user._id
-    });
+    for (const participant of allParticipantIds) {
+      if (participant !== user._id) {
+        graphqlPubsub.publish('chatInserted', {
+          userId: participant
+        });
 
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
-    });
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: participant
+        });
+      }
+    }
 
     return chat;
   },
@@ -149,20 +153,9 @@ const chatMutations = {
         updated = true;
 
         seen = false;
-
-        // if (seenInfo.lastSeenMessageId !== lastMessage._id) {
-        //   seenInfo.lastSeenMessageId = lastMessage._id;
-        //   seenInfo.seenDate = new Date();
-
-        //   updated = true;
-        // }
       }
 
       if (updated) {
-        graphqlPubsub.publish('chatUnreadCountChanged', {
-          userId: user._id
-        });
-
         await models.Chats.updateOne(
           { _id: chat._id },
           { $set: { seenInfos } }
@@ -300,13 +293,15 @@ const chatMutations = {
     });
 
     for (const reciever of recievers) {
-      graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: reciever
-      });
+      if (reciever !== user._id) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: reciever
+        });
 
-      graphqlPubsub.publish('chatInserted', {
-        userId: reciever
-      });
+        graphqlPubsub.publish('chatInserted', {
+          userId: reciever
+        });
+      }
     }
 
     return message;
@@ -490,13 +485,15 @@ const chatMutations = {
     });
 
     for (const reciever of recievers) {
-      graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: reciever
-      });
+      if (reciever !== user._id) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: reciever
+        });
 
-      graphqlPubsub.publish('chatInserted', {
-        userId: reciever
-      });
+        graphqlPubsub.publish('chatInserted', {
+          userId: reciever
+        });
+      }
     }
 
     return message;

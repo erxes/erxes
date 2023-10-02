@@ -9,23 +9,23 @@ import {
   NoEvent,
   FeedWrapper,
   FlexAlignCenter
-} from "../styles";
-import { MainContainer, SideContainer } from "../../layout/styles";
-import React, { useState } from "react";
-import { TabTitle, Tabs } from "../../common/tabs";
+} from '../styles';
+import { MainContainer, SideContainer } from '../../layout/styles';
+import React, { useState } from 'react';
+import { TabTitle, Tabs } from '../../common/tabs';
 
-import ChatList from "../containers/chat/ChatList";
-import Form from "../containers/feed/Form";
-import { IUser } from "../../auth/types";
+import ChatList from '../containers/chat/ChatList';
+import Form from '../containers/feed/Form';
+import { IUser } from '../../auth/types';
 // import Icon from '../../common/Icon';
-import List from "../containers/feed/List";
-import ThankForm from "../containers/feed/ThankForm";
-import ThankList from "../containers/feed/ThankList";
-import { Wrapper } from "../../layout";
-import { __ } from "../../../utils";
-import WidgetChatWindow from "../containers/chat/WidgetChatWindow";
-import Icon from "../../common/Icon";
-import { readFile } from "../../common/utils";
+import List from '../containers/feed/List';
+import ThankForm from '../containers/feed/ThankForm';
+import ThankList from '../containers/feed/ThankList';
+import { Wrapper } from '../../layout';
+import { __ } from '../../../utils';
+import WidgetChatWindow from '../containers/chat/WidgetChatWindow';
+import Icon from '../../common/Icon';
+import { readFile } from '../../common/utils';
 
 type Props = {
   queryParams: any;
@@ -33,13 +33,13 @@ type Props = {
   currentUser: IUser;
 };
 
-const LOCALSTORAGE_KEY = "erxes_active_chats";
+const LOCALSTORAGE_KEY = 'erxes_active_chats';
 
 export default function Home(props: Props) {
-  const [currentTab, setCurrentTab] = useState("post");
+  const [currentTab, setCurrentTab] = useState('post');
   const { queryParams, currentUser, todayEvents } = props;
   const [activeChatIds, setActiveChatIds] = useState<any[]>(
-    JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || "[]")
+    JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]')
   );
 
   const onClickTab = (type: string) => {
@@ -65,7 +65,7 @@ export default function Home(props: Props) {
   };
 
   const renderTabContent = () => {
-    if (currentTab === "thankyou") {
+    if (currentTab === 'thankyou') {
       return (
         <>
           <ThankForm queryParams={queryParams} />
@@ -74,7 +74,7 @@ export default function Home(props: Props) {
       );
     }
 
-    if (currentTab === "welcome") {
+    if (currentTab === 'welcome') {
       return (
         <>
           <List queryParams={queryParams} contentType={currentTab} />
@@ -84,7 +84,7 @@ export default function Home(props: Props) {
 
     return (
       <>
-        <Form contentType={currentTab} />
+        <Form contentType={currentTab} currentUser={currentUser} />
         <List queryParams={queryParams} contentType={currentTab} />
       </>
     );
@@ -115,7 +115,10 @@ export default function Home(props: Props) {
                       <FlexAlignCenter key={e._id}>
                         {e.images.length > 0 && (
                           <div className="image-wrapper">
-                            <img src={readFile(e.images[0].url)} alt="event-img" />
+                            <img
+                              src={readFile(e.images[0].url)}
+                              alt="event-img"
+                            />
                           </div>
                         )}
                         <div>
@@ -155,32 +158,32 @@ export default function Home(props: Props) {
             <MainContainer>
               <Tabs full={true}>
                 <TabTitle
-                  className={currentTab === "post" ? "active" : ""}
-                  onClick={() => onClickTab("post")}
+                  className={currentTab === 'post' ? 'active' : ''}
+                  onClick={() => onClickTab('post')}
                 >
                   Post
                 </TabTitle>
                 <TabTitle
-                  className={currentTab === "event" ? "active" : ""}
-                  onClick={() => onClickTab("event")}
+                  className={currentTab === 'event' ? 'active' : ''}
+                  onClick={() => onClickTab('event')}
                 >
                   Event
                 </TabTitle>
                 <TabTitle
-                  className={currentTab === "bravo" ? "active" : ""}
-                  onClick={() => onClickTab("bravo")}
+                  className={currentTab === 'bravo' ? 'active' : ''}
+                  onClick={() => onClickTab('bravo')}
                 >
                   Bravo
                 </TabTitle>
                 <TabTitle
-                  className={currentTab === "publicHoliday" ? "active" : ""}
-                  onClick={() => onClickTab("publicHoliday")}
+                  className={currentTab === 'publicHoliday' ? 'active' : ''}
+                  onClick={() => onClickTab('publicHoliday')}
                 >
                   Public holiday
                 </TabTitle>
                 <TabTitle
-                  className={currentTab === "welcome" ? "active" : ""}
-                  onClick={() => onClickTab("welcome")}
+                  className={currentTab === 'welcome' ? 'active' : ''}
+                  onClick={() => onClickTab('welcome')}
                 >
                   Welcome
                 </TabTitle>
@@ -210,7 +213,7 @@ export default function Home(props: Props) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={"Feed"} />}
+      header={<Wrapper.Header title={'Feed'} />}
       content={renderContent()}
       transparent={true}
       initialOverflow={true}
