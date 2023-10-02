@@ -156,19 +156,19 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             <AlertTriangleIcon size={30} color={"#6569DF"} /> Are you sure?
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col items-center justify-center sm:justify-center sm:space-x-2">
             <Button
               className="font-semibold rounded-full bg-[#F2F2F2] hover:bg-[#F2F2F2] text-black"
               onClick={() => setFormOpen(false)}
             >
-              <XCircleIcon size={16} className="mr-1" />
               No, Cancel
             </Button>
+
             <Button
-              className="font-semibold rounded-full bg-[#3ECC38] hover:bg-[#3ECC38]"
+              type="submit"
+              className="font-semibold rounded-full"
               onClick={() => deleteFeed(feed._id)}
             >
-              <CheckCircleIcon size={16} className="mr-1" />
               Yes, I am
             </Button>
           </DialogFooter>
@@ -178,7 +178,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
     return (
       <>
-        <Dialog open={formOpen} onOpenChange={() => setOpen(!formOpen)}>
+        <Dialog open={formOpen} onOpenChange={() => setFormOpen(!formOpen)}>
           <DialogTrigger asChild={true} id="delete-form">
             <div className="text-black flex items-center">
               <TrashIcon size={16} className="mr-1" />
@@ -263,7 +263,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             <div className="flex items-center">
               <Image
                 src={
-                  userDetail.avatar ? readFile(userDetail.avatar) : "/user.png"
+                  userDetail?.avatar
+                    ? readFile(userDetail?.avatar)
+                    : "/user.png"
                 }
                 alt="User Profile"
                 width={500}
@@ -272,9 +274,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
               />
               <div className="ml-3">
                 <div className="text-sm font-bold text-gray-700 mb-1">
-                  {userDetail.fullName ||
-                    userDetail.username ||
-                    userDetail.email}
+                  {userDetail?.fullName ||
+                    userDetail?.username ||
+                    userDetail?.email}
                 </div>
                 <div className="text-xs text-[#666] font-normal">
                   {dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")}{" "}
