@@ -41,8 +41,6 @@ export const useChatMessages = (): IUseChats => {
     refetch()
   }, [id])
 
-  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-
   const [sendMessageMutation] = useMutation(mutations.chatMessageAdd, {
     refetchQueries: ["chatMessages", "chats"],
   })

@@ -27,7 +27,7 @@ export const useChats = ({
     fetchMore,
     refetch: refetchChat,
   } = useQuery(queries.chats, {
-    variables: { limit: 10, searchValue },
+    variables: { limit: 20, searchValue },
   })
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
