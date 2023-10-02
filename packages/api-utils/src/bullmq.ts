@@ -96,7 +96,8 @@ export async function consumeRPCQueueMq(queueName: string, callback: any) {
   try {
     new Worker(queueName, async job => {
       try {
-        return await callback(job.data);
+        const result= await callback(job.data);
+        return result;
       } catch (e) {
         debugError(
           `consumeRPCQueueMq: Error occurred during callback ${queueName} ${e.message}`
@@ -127,7 +128,7 @@ export const sendMessage = async (queueName: string, data: any) => {
 };
 
 
-export const sendRPCMessageMq = async (queueName: string, data: any) => {
+export const RPC = async (queueName: string, data: any): Promise<any> => {
   const timeoutMs = data.timeout || Number(process.env.RPC_TIMEOUT) || 30000;
   const queue = getRpcQueue(queueName);
   const queueEvents = await getQueueEvents(queueName);
@@ -140,12 +141,24 @@ export const sendRPCMessageMq = async (queueName: string, data: any) => {
   } catch (e) {
     debugError(`sendRPCMessageMq: Error ${queueName}. ${e.message}`);
     if (isNotConnectionError(e) && data.defaultValue) {
-      return data.defaultValue;
+      return {
+        status: 'success',
+        data: data.defaultValue
+      };
     } else {
       throw e;
     }
   } finally {
     await cleanupQueueEvents(queueEvents);
     await cleanupQueue(queue);
+  }
+}
+
+export const sendRPCMessageMq = async (queueName: string, data: any): Promise<any> => {
+  const result = await RPC(queueName, data);
+  if (result.status === 'success') {
+    return result.data;
+  } else {
+    throw new Error(result.errorMessage);
   }
 }
