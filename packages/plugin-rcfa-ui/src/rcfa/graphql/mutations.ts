@@ -24,19 +24,9 @@ const removeIssue = `
   }
 `;
 
-const resolveRCFA = `
-mutation ResolveRCFA($mainType: String, $mainTypeId: String, $destinationType: String, $destinationStageId: String,$issueId:String) {
-  resolveRCFA(mainType: $mainType, mainTypeId: $mainTypeId, destinationType: $destinationType, destinationStageId: $destinationStageId,issueId:$issueId) {
-    _id
-    mainType
-    mainTypeId
-    relType
-    relTypeId
-    status
-    createdAt
-    userId
-    closedAt
-  }
+const createActionInRoot = `
+mutation CreateActionRcfaRoot($mainType: String, $mainTypeId: String, $destinationType: String, $destinationStageId: String,$issueId:String,$name:String) {
+  createActionRcfaRoot(mainType: $mainType, mainTypeId: $mainTypeId, destinationType: $destinationType, destinationStageId: $destinationStageId,issueId:$issueId,name:$name) 
 }
 `;
 
@@ -46,9 +36,9 @@ mutation CloseRcfaRoot($_id: String) {
 }
 `;
 
-const createActionInRoot = `
-mutation CreateActionRcfaRoot($issueId: String,$stageId:String, $name: String) {
-  createActionRcfaRoot(issueId: $issueId,stageId:$stageId, name: $name)
+const createTaskInRoot = `
+mutation CreateTaskRcfaRoot($issueId: String,$stageId:String, $name: String) {
+  createTaskRcfaRoot(issueId: $issueId,stageId:$stageId, name: $name)
 }
 `;
 
@@ -56,7 +46,7 @@ export default {
   addIssue,
   editIssue,
   removeIssue,
-  resolveRCFA,
   closeIssue,
+  createTaskInRoot,
   createActionInRoot
 };

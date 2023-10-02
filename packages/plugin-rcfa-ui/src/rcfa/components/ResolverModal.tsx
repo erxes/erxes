@@ -5,7 +5,7 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
 import { mutations } from '../graphql';
 import * as compose from 'lodash.flowright';
-import { __ } from '@erxes/ui/src';
+import { Alert, ControlLabel, FormControl, FormGroup, __ } from '@erxes/ui/src';
 import { graphql } from '@apollo/client/react/hoc';
 import { refetchQueries } from '../containers/Section';
 
@@ -14,11 +14,10 @@ type Props = {
   mainTypeId: string;
   issueId: string;
   closeModal: () => void;
-  callback: () => void;
 };
 
 type FinalProps = {
-  resolveRCFA: any;
+  createActionInRoot: any;
 } & Props;
 
 type State = {
@@ -43,8 +42,7 @@ class rcfaCreateTaskModal extends React.Component<FinalProps, State> {
       mainType,
       mainTypeId,
       closeModal,
-      callback,
-      resolveRCFA,
+      createActionInRoot,
       issueId
     } = this.props;
     const { stageId } = this.state;
@@ -53,19 +51,27 @@ class rcfaCreateTaskModal extends React.Component<FinalProps, State> {
       this.setState({ [name]: value } as Pick<State, keyof State>);
     };
 
-    const create = async () => {
-      const payload = {
-        mainType,
-        destinationType: 'task',
-        itemId: mainTypeId,
-        destinationStageId: stageId,
-        issueId
-      };
+    const create = async e => {
+      if (e.key === 'Enter') {
+        const { value } = e.currentTarget as HTMLInputElement;
+        const payload = {
+          mainType,
+          destinationType: 'task',
+          itemId: mainTypeId,
+          destinationStageId: stageId,
+          issueId,
+          name: value
+        };
 
-      await resolveRCFA({ variables: payload });
-
-      callback();
-      closeModal();
+        await createActionInRoot({ variables: payload })
+          .then(() => {
+            Alert.success('Action created successfully');
+            closeModal();
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      }
     };
 
     return (
@@ -80,10 +86,20 @@ class rcfaCreateTaskModal extends React.Component<FinalProps, State> {
           onChangeStage={stageId => onSelect(stageId, 'stageId')}
         />
 
-        {stageId && <Button onClick={create}>{__('Done')}</Button>}
-        <Button onClick={closeModal} btnStyle="simple">
-          {__('Close')}
-        </Button>
+        {stageId && (
+          <>
+            <FormGroup>
+              <ControlLabel required>{__('Name')}</ControlLabel>
+              <FormControl
+                required
+                type="text"
+                name="name"
+                placeholder="Type a name and press enter"
+                onKeyPress={create}
+              />
+            </FormGroup>
+          </>
+        )}
       </>
     );
   }
@@ -91,8 +107,8 @@ class rcfaCreateTaskModal extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(mutations.resolveRCFA), {
-      name: 'resolveRCFA',
+    graphql<Props>(gql(mutations.createActionInRoot), {
+      name: 'createActionInRoot',
       options: ({ mainTypeId }) => ({
         refetchQueries: refetchQueries({ mainTypeId })
       })
