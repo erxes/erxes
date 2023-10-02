@@ -50,13 +50,15 @@ const chatMutations = {
       user._id
     );
 
+    const recievers = allParticipantIds.filter(value => user._id !== value);
+
     sendCoreMessage({
       subdomain: 'os',
       action: 'sendMobileNotification',
       data: {
         title: doc.title,
         body: doc.description,
-        receivers: allParticipantIds,
+        recievers,
         data: {
           type: 'chats',
           id: chat._id
@@ -274,9 +276,11 @@ const chatMutations = {
 
     const chat = await models.Chats.getChat(message.chatId, user._id);
 
-    const recievers = chat.participantIds.filter(
+    let recievers = chat.participantIds.filter(
       value => !chat.muteUserIds.includes(value)
     );
+
+    recievers = chat.participantIds.filter(value => user._id !== value);
 
     sendCoreMessage({
       subdomain: 'os',
@@ -466,9 +470,11 @@ const chatMutations = {
 
     const chat = await models.Chats.getChat(message.chatId, user._id);
 
-    const recievers = chat.participantIds.filter(
+    let recievers = chat.participantIds.filter(
       value => !chat.muteUserIds.includes(value)
     );
+
+    recievers = recievers.filter(value => user._id !== value);
 
     sendCoreMessage({
       subdomain: 'os',

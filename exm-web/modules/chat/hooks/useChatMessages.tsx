@@ -1,5 +1,9 @@
+import { useEffect } from "react"
 import { useSearchParams } from "next/navigation"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { IUser } from "@/modules/types"
 import { useMutation, useQuery, useSubscription } from "@apollo/client"
+import { useAtomValue } from "jotai"
 
 import { mutations, queries, subscriptions } from "../graphql"
 import { IChatMessage } from "../types"
@@ -26,9 +30,18 @@ export const useChatMessages = (): IUseChats => {
 
   const id = searchParams.get("id") as string
 
-  const { data, loading, fetchMore, error } = useQuery(queries.chatMessages, {
-    variables: { chatId: id, skip: 0, limit: 30 },
-  })
+  const { data, loading, fetchMore, error, refetch } = useQuery(
+    queries.chatMessages,
+    {
+      variables: { chatId: id, skip: 0, limit: 30 },
+    }
+  )
+
+  useEffect(() => {
+    refetch()
+  }, [id])
+
+  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const [sendMessageMutation] = useMutation(mutations.chatMessageAdd, {
     refetchQueries: ["chatMessages", "chats"],

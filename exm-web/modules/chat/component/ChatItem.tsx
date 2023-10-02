@@ -10,8 +10,8 @@ import { useAtomValue } from "jotai"
 import { MoreHorizontalIcon } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
-import Avatar from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card"
+import Image from "@/components/ui/image"
 import {
   Popover,
   PopoverContent,
@@ -92,7 +92,7 @@ export const ChatItem = ({
       onMouseEnter={() => setShowAction(true)}
       onMouseLeave={() => setShowAction(false)}
     >
-      <Avatar
+      <Image
         src={readFile((user && user.details?.avatar) || "/avatar-colored.svg")}
         alt="User Profile"
         width={500}
