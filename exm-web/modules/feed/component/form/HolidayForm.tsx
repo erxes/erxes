@@ -31,7 +31,9 @@ const FormSchema = z.object({
   title: z.string({
     required_error: "Please enter an title",
   }),
-  description: z.string().optional(),
+  description: z.string({
+    required_error: "Please enter an description",
+  }),
   createdAt: z.date().optional(),
 })
 
@@ -49,6 +51,7 @@ const HolidayForm = ({
   const callBack = (result: string) => {
     if (result === "success") {
       setOpen(false)
+      form.reset()
     }
   }
 

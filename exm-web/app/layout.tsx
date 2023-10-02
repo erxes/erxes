@@ -33,11 +33,6 @@ export default function RootLayout({
           type="text/javascript"
           src="/js/env.js"
         />
-        {/* <Script
-            strategy="beforeInteractive"
-            type="text/javascript"
-            src="/js/main.js"
-          /> */}
       </head>
       <body
         className={cn(

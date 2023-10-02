@@ -42,7 +42,9 @@ const FormSchema = z.object({
   title: z.string({
     required_error: "Please enter an title",
   }),
-  description: z.string().optional(),
+  description: z.string({
+    required_error: "Please enter an description",
+  }),
   departmentIds: z.array(z.string()).optional(),
   branchIds: z.array(z.string()).optional(),
   unitId: z.string().optional(),
@@ -65,6 +67,7 @@ const PostForm = ({
   const callBack = (result: string) => {
     if (result === "success") {
       setOpen(false)
+      form.reset()
     }
   }
 

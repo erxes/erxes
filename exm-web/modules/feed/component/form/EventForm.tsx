@@ -40,7 +40,9 @@ const FormSchema = z.object({
   title: z.string({
     required_error: "Please enter an title",
   }),
-  description: z.string().optional(),
+  description: z.string({
+    required_error: "Please enter an description",
+  }),
   where: z.string().optional(),
   startDate: z.date(),
   endDate: z.date(),
@@ -63,6 +65,7 @@ const EventForm = ({
   const callBack = (result: string) => {
     if (result === "success") {
       setOpen(false)
+      form.reset()
     }
   }
 
