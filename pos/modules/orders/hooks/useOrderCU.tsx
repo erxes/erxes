@@ -10,7 +10,8 @@ import { mutations } from "../graphql"
 
 const useOrderCU = (onCompleted?: (id: string) => void) => {
   const { toast } = useToast()
-  const { customer, type, _id, ...rest } = useAtomValue(orderValuesAtom)
+  const { customer, type, _id, slotCode, ...rest } =
+    useAtomValue(orderValuesAtom)
 
   const origin = getMode()
 
@@ -21,6 +22,7 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
     customerId: (customer as Customer)?._id,
     origin,
     type: type || "eat",
+    slotCode: slotCode || null,
   }
 
   const onError = (error: ApolloError) => {
@@ -28,11 +30,12 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
   }
 
   const [ordersAdd, { loading }] = useMutation(mutations.ordersAdd, {
-    variables: variables,
+    variables,
     onCompleted(data) {
       const { _id } = (data || {}).ordersAdd || {}
       onCompleted && onCompleted(_id)
     },
+    refetchQueries: ["orderDetail"],
     onError,
   })
 

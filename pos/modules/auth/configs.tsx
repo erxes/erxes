@@ -31,11 +31,11 @@ const Configs = ({ children }: { children: ReactNode }) => {
   useQuery(queries.configs, {
     onCompleted: (data) => {
       setConfigs(data.posclientConfigs)
-      setLoadingConfigs(false)
+      setTimeout(() => setLoadingConfigs(false), 20)
     },
     onError: (error) => {
-      setLoadingConfigs(false)
       onError(error)
+      setTimeout(() => setLoadingConfigs(false), 20)
     },
   })
 

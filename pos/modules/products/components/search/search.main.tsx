@@ -12,11 +12,13 @@ const Search: React.FC = () => {
   const [focused, setFocused] = useState(false)
   const [search, setSearch] = useAtom(searchAtom)
 
+  const show = focused || search
+
   return (
     <motion.div
       animate={{
-        width: focused ? 270 : "2.5rem",
-        borderRadius: focused ? 8 : 24,
+        width: show ? 270 : "2.5rem",
+        borderRadius: show ? 8 : 24,
       }}
       className="relative mr-3 flex flex-none border"
     >

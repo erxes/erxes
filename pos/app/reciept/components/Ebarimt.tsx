@@ -49,10 +49,10 @@ const Ebarimt = ({
     <div className="flex items-center border-t pt-1">
       {!type && (
         <div className="w-1/2">
-          <QRCodeSVG value={qrData || ""} />
+          {!!qrData && <QRCodeSVG value={qrData || ""} />}
         </div>
       )}
-      <div className="font-base w-1/2 text-[11px]">{renderLotteryCode()} </div>
+      <div className="font-base w-1/2 text-[11px]">{renderLotteryCode()}</div>
     </div>
   )
 }

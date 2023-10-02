@@ -13,6 +13,7 @@ import segments from './segments';
 import dashboards from './dashboards';
 import imports from './imports';
 import exporter from './exporter';
+import payment from './payment';
 import { exportFileRunner } from './exporterByUrl';
 export let debug;
 export let graphqlPubsub;
@@ -61,6 +62,7 @@ export default {
     permissions,
     dashboards,
     imports,
-    exporter
+    exporter,
+    payment
   }
 };

@@ -1,54 +1,49 @@
-import { useEffect, useState } from "react"
-import { activeCatName, activeCategoryAtom } from "@/store"
+import { useCallback, useMemo } from "react"
+import { activeCategoryAtom, activeCatName, hiddenParentsAtom } from "@/store"
+import { motion } from "framer-motion"
 import { useAtom, useSetAtom } from "jotai"
-import { ArrowRight, ChevronRightIcon } from "lucide-react"
+import { Minus, Plus } from "lucide-react"
 
 import { ICategory } from "@/types/product.types"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import useProductCategories from "../hooks/useProductCategories"
-import SubCategory from "./SubCategory"
 
-const CategoriesSheet = ({
+const CategoriesSheetNew = ({
   setOpen,
 }: {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
-  const setCatName = useSetAtom(activeCatName)
-  const { categories, loading } = useProductCategories()
-
   const getCategoryByField = (value: string, field: keyof ICategory) =>
     categories.find((e) => e[field] === value)
-
-  const getSubCats = (parentOrder: string, tier?: number) =>
-    categories.filter(
-      ({ order }) =>
-        order !== parentOrder &&
-        order.includes(parentOrder) &&
-        (tier ? (order || "").split("/").length <= tier : true)
-    )
-
-  const rootCats = getSubCats("", 3) || []
-
+  const setCatName = useSetAtom(activeCatName)
   const [activeCat, setActiveCat] = useAtom(activeCategoryAtom)
+  const [hiddenParents, setHiddenParents] = useAtom(hiddenParentsAtom)
 
-  const [activeParent, setActiveParent] = useState<string | null>(
-    rootCats[0]?.order || ""
-  )
-
-  useEffect(() => {
-    const activeCategoryOrder = getCategoryByField(activeCat, "_id")?.order
-    const activeCategoryParent = rootCats.find((c) =>
-      activeCategoryOrder?.includes(c.order)
-    )?.order
-    if (activeCategoryParent! == activeParent) {
-      setActiveParent(activeCategoryParent || "")
+  const { categories, loading } = useProductCategories((cats) => {
+    if (!hiddenParents.length) {
+      const defaultHiddenCats: string[] = []
+      cats.forEach((cat: ICategory) => {
+        if (cat.order.split("/").length === 4) {
+          !!cats.find(
+            (e: ICategory) =>
+              e.order?.includes(cat.order) && e.order.length > cat.order.length
+          ) && defaultHiddenCats.push(cat.order)
+        }
+      })
+      setHiddenParents(defaultHiddenCats)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeParent])
+  })
 
-  if (loading) return <div>Loading...</div>
+  const sortedCategories = useMemo(
+    () =>
+      [...(categories || [])].sort(
+        (a, b) => a.order.split("/").length - b.order.split("/").length
+      ),
+    [categories]
+  )
 
   const chooseCat = (_id: string) => {
     setActiveCat(activeCat === _id ? "" : _id)
@@ -56,70 +51,95 @@ const CategoriesSheet = ({
     setOpen(false)
   }
 
+  const shortestLength = sortedCategories[0]?.order?.split("/").length
+
+  const renderP = useCallback(
+    (length: number) =>
+      Array.from({ length: length - shortestLength }, (e, i) => (
+        <div key={i} className="px-3 h-7">
+          <p className="border-l h-7" />
+        </div>
+      )),
+    [shortestLength]
+  )
+
+  const handleChangeView = useCallback(
+    (cat: ICategory) => {
+      const { order } = cat
+      if (hiddenParents.includes(order)) {
+        setHiddenParents(hiddenParents.filter((e) => e !== order))
+      } else {
+        setHiddenParents([...hiddenParents, order])
+      }
+    },
+    [hiddenParents, setHiddenParents]
+  )
+
+  const checkIsHidden = useCallback(
+    (order: string) => {
+      const hiddenParent = hiddenParents.find(
+        (e) => order.includes(e) && order.length > e.length
+      )
+      return !!hiddenParent
+    },
+    [hiddenParents]
+  )
+
+  const checkHasChildren = useCallback(
+    (order: string) =>
+      !!categories.find(
+        (e: ICategory) =>
+          e.order?.includes(order) && e.order.length > order.length
+      ),
+    [categories]
+  )
+
+  const isHiddenChild = useCallback(
+    (order: string) => hiddenParents.includes(order),
+    [hiddenParents]
+  )
+
+  if (loading) return <>loading..</>
+
   return (
-    <div className="grid grid-cols-3 gap-2 overflow-hidden flex-auto">
-      <ScrollArea className="overflow-hidden max-h-full">
-        <div className="space-y-1 pr-3">
-          {rootCats.map((e) => (
+    <ScrollArea className="overflow-hidden">
+      {categories.map((cat) => (
+        <motion.div
+          className={cn("flex items-center overflow-hidden")}
+          key={cat._id}
+          animate={{
+            height: checkIsHidden(cat.order) ? 0 : "auto",
+            opacity: checkIsHidden(cat.order) ? 0 : 1,
+          }}
+        >
+          {renderP(cat.order.split("/").length)}
+          {checkHasChildren(cat.order) ? (
             <Button
-              variant={activeParent === e.order ? "default" : "outline"}
-              className="text-sm w-full justify-start items-center font-semibold lowercase"
-              key={e._id}
-              size="sm"
-              onClick={() => setActiveParent(e.order)}
+              className="h-6 w-6 p-0"
+              variant="outline"
+              onClick={() => handleChangeView(cat)}
             >
-              <ChevronRightIcon className="h-5 w-5 mr-1" strokeWidth={2} />
-              {e.name}
+              {isHiddenChild(cat.order) ? (
+                <Plus className="h-4 w-4" strokeWidth={1.7} />
+              ) : (
+                <Minus className="h-4 w-4" strokeWidth={1.7} />
+              )}
             </Button>
-          ))}
+          ) : (
+            <div className="h-7 w-0" />
+          )}
           <Button
-            variant={"link"}
-            className=" font-semibold text-sm"
-            onClick={() => {
-              chooseCat("")
-            }}
+            variant={activeCat === cat._id ? "default" : "ghost"}
+            size="sm"
+            className="h-7 px-2"
+            onClick={() => chooseCat(cat._id)}
           >
-            Бүгдийг үзэх <ArrowRight className="h-5 w-5 ml-2" />
+            {cat.name}
           </Button>
-        </div>
-      </ScrollArea>
-      <ScrollArea className="overflow-hidden max-h-full col-span-2">
-        {activeParent && (
-          <div className="bg-slate-100 p-3 rounded mb-3 mx-3 flex justify-between items-center">
-            <h1 className="text-base font-bold">
-              {getCategoryByField(activeParent, "order")?.name}
-            </h1>
-            <Button
-              variant={"link"}
-              className="h-auto p-0 font-semibold text-sm"
-              onClick={() =>
-                chooseCat(getCategoryByField(activeParent, "order")?._id || "")
-              }
-            >
-              Бүгдийг үзэх <ArrowRight className="h-5 w-5 ml-2" />
-            </Button>
-          </div>
-        )}
-        <div className="grid grid-cols-2 gap-5 px-3">
-          {activeParent &&
-            Array.from({ length: 2 }).map((_, idx) => (
-              <div className="space-y-5" key={idx}>
-                {getSubCats(activeParent, 4)
-                  .filter((_, i) => i % 2 === idx)
-                  .map((category) => (
-                    <SubCategory
-                      {...category}
-                      subCats={getSubCats(category.order)}
-                      key={category._id}
-                      chooseCat={chooseCat}
-                    />
-                  ))}
-              </div>
-            ))}
-        </div>
-      </ScrollArea>
-    </div>
+        </motion.div>
+      ))}
+    </ScrollArea>
   )
 }
 
-export default CategoriesSheet
+export default CategoriesSheetNew

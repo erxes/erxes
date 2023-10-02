@@ -112,7 +112,9 @@ export const getProductsData = async (
         parentId: category.parentId,
         order: category.order,
         attachment: category.attachment,
-        meta: category.meta
+        meta: category.meta,
+        isSimilarity: category.isSimilarity,
+        similarities: category.similarities
       });
     }
 

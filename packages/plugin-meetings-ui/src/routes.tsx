@@ -15,7 +15,6 @@ const meetings = ({ location, history }) => {
   return (
     <List
       meetingId={meetingId}
-      searchFilter={location.search}
       history={history}
       queryParams={queryParams}
       route={routePath}

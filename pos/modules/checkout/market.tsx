@@ -11,6 +11,7 @@ import { useAtom } from "jotai"
 
 import { Label } from "@/components/ui/label"
 
+import OddAmount from "./components/OddAmount/OddAmount"
 import BillType from "./components/ebarimt/billType"
 import PaidTypes from "./components/paymentType/paidTypes"
 import PaymentTypes from "./components/paymentTypes/paymentTypes.market"
@@ -21,7 +22,7 @@ const Checkout = () => {
   const [totalAmount] = useAtom(totalAmountAtom)
   const [orderTotal] = useAtom(orderTotalAmountAtom)
 
-  const isReadyToPrint = !!activeOrder && paidAmount >= totalAmount
+  const isReadyToPrint = !!activeOrder && paidAmount === totalAmount
   const isItemsRegistered = !!activeOrder && orderTotal === totalAmount
 
   return (
@@ -38,7 +39,8 @@ const Checkout = () => {
           {isReadyToPrint && <BillType />}
         </div>
       </div>
-      <div className="flex-none space-y-3">
+      <div className="flex-none space-y-2">
+        <OddAmount />
         <TotalAmount />
         <OrderCUButton variant={isReadyToPrint ? "outline" : undefined} />
         {isReadyToPrint && <MakePayment />}

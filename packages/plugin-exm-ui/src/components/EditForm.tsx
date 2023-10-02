@@ -11,10 +11,10 @@ type Props = {
 };
 
 function EditFrom(props: Props) {
-  const [currentTab, setCurrentTab] = useState('General');
+  const [currentTab, setCurrentTab] = useState('Mobile Gallery');
 
   const renderTabContent = () => {
-    if (currentTab === 'General') {
+    if (currentTab === 'Mobile Gallery') {
       return <General {...props} />;
     }
 
@@ -25,16 +25,16 @@ function EditFrom(props: Props) {
     <>
       <Tabs full={true}>
         <TabTitle
-          className={currentTab === 'General' ? 'active' : ''}
-          onClick={() => setCurrentTab('General')}
+          className={currentTab === 'Mobile Gallery' ? 'active' : ''}
+          onClick={() => setCurrentTab('Mobile Gallery')}
         >
-          {__('General')}
+          {__('Mobile Gallery')}
         </TabTitle>
         <TabTitle
-          className={currentTab === 'Mobile App' ? 'active' : ''}
-          onClick={() => setCurrentTab('Mobile App')}
+          className={currentTab === 'Web Appearance' ? 'active' : ''}
+          onClick={() => setCurrentTab('Web Appearance')}
         >
-          {__('Mobile App')}
+          {__('Web Appearance')}
         </TabTitle>
       </Tabs>
       {renderTabContent()}

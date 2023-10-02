@@ -203,19 +203,35 @@ const ExpandWrapper = styled.div`
   }
 `;
 
-const Description = styled.div`
+const Description = styledTS<{ noMargin?: boolean; halfWidth?: boolean }>(
+  styled.div
+)`
   color: ${colors.colorCoreGray};
   font-size: 12px;
-  margin-bottom: ${dimensions.coreSpacing}px;
+  max-width: ${props => props.halfWidth && '500px'};
+  margin-bottom: ${props => !props.noMargin && '20px'};
 `;
 
-const FlexRow = styled.div`
+const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
+  styled.div
+)`
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  align-items: center;
+  align-items: ${props => (props.alignItems ? props.alignItems : 'center')};
+  justify-content: ${props =>
+    props.justifyContent ? props.justifyContent : 'flex-start'};
   flex: 1;
   margin-right: ${dimensions.coreSpacing}px;
+
+  > div {
+    flex: 1;
+    margin-right: ${dimensions.coreSpacing}px;
+
+    &:last-child {
+      margin: 0;
+    }
+  }
 `;
 
 const SubHeading = styled.h4`
@@ -329,7 +345,6 @@ const SidebarList = styled.div`
 
 const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  max-width: 640px;
   margin: 0 auto;
 `;
 
@@ -453,9 +468,32 @@ const Row = styled.div`
   }
 `;
 
+const FlexBetween = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ItemCount = styled.span`
+  color: ${colors.colorLightGray};
+  font-weight: 500;
+`;
+
+const ImageWrapper = styled.div`
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  img {
+    max-width: 300px;
+    max-height: 300px;
+  }
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
+  ItemCount,
+  FlexBetween,
+  ImageWrapper,
   ActionButtons,
   ExpandWrapper,
   Description,

@@ -1,18 +1,9 @@
 
 var amqplib = require('amqplib');
-var shell = require('shelljs');
 
 var open = amqplib.connect(process.env.RABBITMQ_HOST);
 var queueName = 'managePluginInstall';
-
-var runCommand = (command, method='exec') => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      shell[method](command);
-      resolve('done');
-    }, 500)
-  });
-}
+const { execSync } = require('child_process');
 
 var sleep = ms => {
   return new Promise(resolve => {
@@ -50,43 +41,43 @@ open
 
             sendMessage(ch, 'started');
 
-            await runCommand('..', 'cd');
+            execSync('cd ..');
 
             // Update configs.json
-            await runCommand(`npm run erxes installer-update-configs ${data.type} ${data.name}`);
+            execSync(`npm run erxes installer-update-configs ${data.type} ${data.name}`);
 
             if (data.type === 'install') {
               sendMessage(ch, 'Running up ....');
-              await runCommand(`npm run erxes up -- --fromInstaller`);
+              execSync(`npm run erxes up -- --fromInstaller`);
 
               sendMessage(ch, 'Syncing ui ....');
-              await runCommand(`npm run erxes syncui ${data.name}`);
+              execSync(`npm run erxes syncui ${data.name}`);
 
               sendMessage(ch, 'Restarting coreui ....');
-              await runCommand(`npm run erxes restart coreui`);
+              execSync(`npm run erxes restart coreui`);
 
               sendMessage(ch, 'Waiting for 10 seconds for plugin api....');
               await sleep(10000);
 
               sendMessage(ch, 'Restarting gateway ...');
-              await runCommand(`npm run erxes restart gateway`);
+              execSync(`npm run erxes restart gateway`);
             }
 
             if (data.type === 'uninstall') {
               sendMessage(ch, 'Running up');
-              await runCommand(`npm run erxes up -- --fromInstaller`);
+              execSync(`npm run erxes up -- --fromInstaller`);
 
               sendMessage(ch, `Removing ${data.name} service ....`);
-              await runCommand(`npm run erxes remove-service erxes_plugin_${data.name}_api`);
+              execSync(`npm run erxes remove-service erxes_plugin_${data.name}_api`);
 
               sendMessage(ch, `Restarting coreui ....`);
-              await runCommand(`npm run erxes restart coreui`);
+              execSync(`npm run erxes restart coreui`);
 
               sendMessage(ch, `Restarting gateway ....`);
-              await runCommand(`npm run erxes restart gateway`);
+              execSync(`npm run erxes restart gateway`);
             }
 
-            await runCommand('installer', 'cd');
+            execSync('cd installer');
 
             sendMessage(ch, `done`);
 

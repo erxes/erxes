@@ -40,7 +40,7 @@ const mutations = {
 
     const { ALL_AUTO_INIT } = process.env;
     if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
-      doc.isOnline = true;
+      doc.onServer = true;
     }
 
     const updatedDocument = await models.Pos.posEdit(_id, { ...doc });

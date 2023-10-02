@@ -1,23 +1,27 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { IUser } from '@erxes/ui/src/auth/types';
-import {
-  router as routerUtils,
-  withProps,
-  getSubdomain
-} from '@erxes/ui/src/utils';
-import ConversationList from '../../components/leftSidebar/ConversationList';
-import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
-import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
   IConversation
 } from '@erxes/ui-inbox/src/inbox/types';
+import {
+  getSubdomain,
+  router as routerUtils,
+  withProps
+} from '@erxes/ui/src/utils';
+import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
+
+import AnimatedLoader from '@erxes/ui/src/components/AnimatedLoader';
+import ConversationList from '../../components/leftSidebar/ConversationList';
 import { ConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { InboxManagementActionConsumer } from '../InboxCore';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   currentUser?: IUser;
@@ -91,6 +95,10 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
 
   render() {
     const { history, conversationsQuery } = this.props;
+
+    if (conversationsQuery.loading) {
+      return <Spinner />;
+    }
 
     const conversations = conversationsQuery.conversations || [];
 

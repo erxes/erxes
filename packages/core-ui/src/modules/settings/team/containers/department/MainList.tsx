@@ -10,6 +10,7 @@ import MainListCompoenent from '../../components/department/MainList';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+
 type Props = {
   queryParams: any;
   history: any;

@@ -32,7 +32,7 @@ const MobileSheet = () => {
 
   if (!invoiceUrl) return <div></div>
 
-  return <iframe src={invoiceUrl} className="min-h-full" />
+  return <iframe src={invoiceUrl} className="min-h-full relative z-10" />
 }
 
 export default MobileSheet

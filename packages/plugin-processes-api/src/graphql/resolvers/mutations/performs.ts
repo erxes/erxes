@@ -1,4 +1,4 @@
-// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import {
   MODULE_NAMES,
@@ -8,6 +8,36 @@ import {
 } from '../../../logUtils';
 import { sendInventoriesMessage } from '../../../messageBroker';
 import { IPerform } from '../../../models/definitions/performs';
+
+const sendInv = async (
+  subdomain: string,
+  productsData: any[],
+  branchId?: string,
+  departmentId?: string,
+  multiplierCount = 0,
+  multiplierSoonIn = 0,
+  multiplierSoonOut = 0
+) => {
+  if (!branchId || !departmentId || !productsData.length) {
+    return;
+  }
+
+  await sendInventoriesMessage({
+    subdomain,
+    action: 'remainders.updateMany',
+    data: {
+      branchId,
+      departmentId,
+      productsData: (productsData || []).map(ip => ({
+        productId: ip.productId,
+        uom: ip.uom,
+        diffCount: multiplierCount * ip.quantity,
+        diffSoonIn: multiplierSoonIn * ip.quantity,
+        diffSoonOut: multiplierSoonOut * ip.quantity
+      }))
+    }
+  });
+};
 
 const performMutations = {
   /**
@@ -26,6 +56,25 @@ const performMutations = {
       createdAt: new Date(),
       createdBy: user._id
     });
+
+    await sendInv(
+      subdomain,
+      doc.inProducts,
+      doc.inBranchId,
+      doc.inDepartmentId,
+      0,
+      0,
+      1
+    );
+    await sendInv(
+      subdomain,
+      doc.outProducts,
+      doc.outBranchId,
+      doc.outDepartmentId,
+      0,
+      1,
+      0
+    );
 
     await putCreateLog(
       models,
@@ -69,6 +118,43 @@ const performMutations = {
       perform
     );
 
+    await sendInv(
+      subdomain,
+      perform.inProducts,
+      perform.inBranchId,
+      perform.inDepartmentId,
+      0,
+      0,
+      -1
+    );
+    await sendInv(
+      subdomain,
+      doc.inProducts,
+      doc.inBranchId,
+      doc.inDepartmentId,
+      0,
+      0,
+      1
+    );
+    await sendInv(
+      subdomain,
+      perform.outProducts,
+      perform.outBranchId,
+      perform.outDepartmentId,
+      0,
+      -1,
+      0
+    );
+    await sendInv(
+      subdomain,
+      doc.outProducts,
+      doc.outBranchId,
+      doc.outDepartmentId,
+      0,
+      1,
+      0
+    );
+
     await putUpdateLog(
       models,
       subdomain,
@@ -99,6 +185,25 @@ const performMutations = {
 
     const removeResponse = await models.Performs.removePerform(_id);
 
+    await sendInv(
+      subdomain,
+      perform.inProducts,
+      perform.inBranchId,
+      perform.inDepartmentId,
+      0,
+      0,
+      -1
+    );
+    await sendInv(
+      subdomain,
+      perform.outProducts,
+      perform.outBranchId,
+      perform.outDepartmentId,
+      0,
+      -1,
+      0
+    );
+
     await putDeleteLog(
       models,
       subdomain,
@@ -123,35 +228,24 @@ const performMutations = {
       throw new Error('Already confirmed');
     }
 
-    // processes in or inventories credit
-    await sendInventoriesMessage({
+    await sendInv(
       subdomain,
-      action: 'remainders.updateMany',
-      data: {
-        branchId: perform.inBranchId,
-        departmentId: perform.inDepartmentId,
-        productsData: (perform.inProducts || []).map(ip => ({
-          productId: ip.productId,
-          uom: ip.uom,
-          diffCount: -1 * ip.quantity
-        }))
-      }
-    });
-
-    // processes out or inventories debit
-    await sendInventoriesMessage({
+      perform.inProducts,
+      perform.inBranchId,
+      perform.inDepartmentId,
+      -1,
+      0,
+      -1
+    );
+    await sendInv(
       subdomain,
-      action: 'remainders.updateMany',
-      data: {
-        branchId: perform.outBranchId,
-        departmentId: perform.outDepartmentId,
-        productsData: (perform.outProducts || []).map(op => ({
-          productId: op.productId,
-          uom: op.uom,
-          diffCount: op.quantity
-        }))
-      }
-    });
+      perform.outProducts,
+      perform.outBranchId,
+      perform.outDepartmentId,
+      1,
+      -1,
+      0
+    );
 
     const updatedPerform = await models.Performs.updatePerform(
       _id,
@@ -193,36 +287,6 @@ const performMutations = {
       throw new Error('Cannot be abort because not confirmed');
     }
 
-    // processes in or inventories credit
-    await sendInventoriesMessage({
-      subdomain,
-      action: 'remainders.updateMany',
-      data: {
-        branchId: perform.inBranchId,
-        departmentId: perform.inDepartmentId,
-        productsData: (perform.inProducts || []).map(data => ({
-          productId: data.productId,
-          uom: data.uom,
-          diffCount: data.quantity
-        }))
-      }
-    });
-
-    // processes out or inventories debit
-    await sendInventoriesMessage({
-      subdomain,
-      action: 'remainders.updateMany',
-      data: {
-        branchId: perform.outBranchId,
-        departmentId: perform.outDepartmentId,
-        productsData: (perform.outProducts || []).map(data => ({
-          productId: data.productId,
-          uom: data.uom,
-          diffCount: -1 * data.quantity
-        }))
-      }
-    });
-
     const updatedPerform = await models.Performs.updatePerform(
       _id,
       {
@@ -232,6 +296,25 @@ const performMutations = {
         modifiedBy: user._id
       },
       perform
+    );
+
+    await sendInv(
+      subdomain,
+      perform.inProducts,
+      perform.inBranchId,
+      perform.inDepartmentId,
+      1,
+      0,
+      1
+    );
+    await sendInv(
+      subdomain,
+      perform.outProducts,
+      perform.outBranchId,
+      perform.outDepartmentId,
+      -1,
+      1,
+      0
     );
 
     await putUpdateLog(
@@ -252,6 +335,6 @@ const performMutations = {
   }
 };
 
-// moduleCheckPermission(workMutations, 'manageWorks');
+moduleCheckPermission(performMutations, 'manageWorks');
 
 export default performMutations;

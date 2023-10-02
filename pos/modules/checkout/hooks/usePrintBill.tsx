@@ -1,5 +1,4 @@
 import { mutations } from "@/modules/checkout/graphql"
-import { queries } from "@/modules/orders/graphql"
 import {
   activeOrderAtom,
   billTypeAtom,
@@ -9,20 +8,20 @@ import {
 } from "@/store/order.store"
 import { setEbarimtSheetAtom } from "@/store/ui.store"
 import { useMutation } from "@apollo/client"
-import { useAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 
 import { BILL_TYPES } from "@/lib/constants"
 import { useToast } from "@/components/ui/use-toast"
 
 import useRenderEbarimt from "./useRenderBillTypes"
 
-const usePrintBill = () => {
-  const [_id] = useAtom(activeOrderAtom)
-  const [billType] = useAtom(billTypeAtom)
-  const [registerNumber] = useAtom(registerNumberAtom)
-  const [paidDate] = useAtom(paidDateAtom)
-  const [unPaidAmount] = useAtom(unPaidAmountAtom)
-  const [, changeVisiblity] = useAtom(setEbarimtSheetAtom)
+const usePrintBill = (onCompleted?: () => void) => {
+  const _id = useAtomValue(activeOrderAtom)
+  const billType = useAtomValue(billTypeAtom)
+  const registerNumber = useAtomValue(registerNumberAtom)
+  const paidDate = useAtomValue(paidDateAtom)
+  const unPaidAmount = useAtomValue(unPaidAmountAtom)
+  const changeVisiblity = useSetAtom(setEbarimtSheetAtom)
   const { onError } = useToast()
   const { skipEbarimt } = useRenderEbarimt()
   const disabled = unPaidAmount > 0
@@ -36,6 +35,7 @@ const usePrintBill = () => {
         registerNumber,
       },
       onCompleted() {
+        !!onCompleted && onCompleted()
         changeVisiblity(true)
       },
       refetchQueries: ["orderDetail"],

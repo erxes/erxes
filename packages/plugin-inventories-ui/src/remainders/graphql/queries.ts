@@ -33,6 +33,8 @@ export const remainderProductFields = `
     name
   }
   remainder
+  soonIn
+  soonOut
   uom
 `;
 

@@ -72,7 +72,8 @@ export const loadMeetingClass = (model: IModels) => {
         createdBy: user._id
       });
       if (result) {
-        return model.Meetings.deleteOne({ _id });
+        await model.Meetings.deleteOne({ _id });
+        return await model.Topics.deleteMany({ meetingId: _id });
       }
       throw new Error('You cannot remove ');
     }

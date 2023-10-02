@@ -23,6 +23,7 @@ const commonFields = `
   $customerType: String,
 
   $collateralsData: JSON,
+  $schedule: JSON,
   $insurancesData: JSON,
 
   $debt: Float
@@ -47,6 +48,9 @@ const commonFields = `
   $currency:String
   $isPayFirstMonth: Boolean
   $downPayment: Float
+  $skipAmountCalcMonth: Float
+  $customPayment: Float
+  $customInterest: Float
   $isBarter: Boolean
 `;
 
@@ -73,6 +77,7 @@ const commonVariables = `
   customerType: $customerType,
 
   collateralsData: $collateralsData,
+  schedule: $schedule,
   insurancesData: $insurancesData,
 
   salvageAmount: $salvageAmount
@@ -97,6 +102,9 @@ const commonVariables = `
   currency: $currency
   isPayFirstMonth: $isPayFirstMonth
   downPayment: $downPayment
+  skipAmountCalcMonth: $skipAmountCalcMonth
+  customPayment: $customPayment
+  customInterest: $customInterest
   isBarter: $isBarter
 `;
 

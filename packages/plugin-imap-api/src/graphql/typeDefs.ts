@@ -5,6 +5,7 @@ const types = `
     _id: String!
     title: String
     mailData: JSON
+    createdAt: Date
   }
 
   type IMapIntegration {

@@ -1,13 +1,15 @@
+import { gql, useQuery } from '@apollo/client';
+
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { FlexRow } from '../../styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Info from '@erxes/ui/src/components/Info';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { gql, useQuery } from '@apollo/client';
-import styled from 'styled-components';
+import { __ } from '@erxes/ui/src/utils';
 import { queries } from '../graphql';
+import styled from 'styled-components';
 
 type Props = {
   emailConfig: any;
@@ -86,35 +88,37 @@ const EmailConfigForm = (props: Props) => {
 
   return (
     <>
-      <FormGroup>
-        <ControlLabel>Email</ControlLabel>
-        <p>{emailText}</p>
+      <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FormGroup>
+          <ControlLabel>Email</ControlLabel>
+          <p>{emailText}</p>
 
-        <FormControl
-          type="email"
-          rows={5}
-          value={email}
-          onChange={onChangeEmail}
-        />
-      </FormGroup>
+          <FormControl
+            type="email"
+            rows={5}
+            value={email}
+            onChange={onChangeEmail}
+          />
+        </FormGroup>
 
-      <FormGroup>
-        <ControlLabel>Type</ControlLabel>
-        <p>Choose "custom" to change the template of transactional emails.</p>
+        <FormGroup>
+          <ControlLabel>Type</ControlLabel>
+          <p>Choose "custom" to change the template of transactional emails.</p>
 
-        <FormControl
-          componentClass="select"
-          value={type}
-          onChange={onChangeType}
-        >
-          <option key="simple" value="simple">
-            Simple
-          </option>
-          <option key="custom" value="custom">
-            Custom
-          </option>
-        </FormControl>
-      </FormGroup>
+          <FormControl
+            componentClass="select"
+            value={type}
+            onChange={onChangeType}
+          >
+            <option key="simple" value="simple">
+              Simple
+            </option>
+            <option key="custom" value="custom">
+              Custom
+            </option>
+          </FormControl>
+        </FormGroup>
+      </FlexRow>
 
       <FormGroup>
         <ControlLabel>Template</ControlLabel>

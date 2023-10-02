@@ -23,7 +23,7 @@ const OrderFinish = () => {
   return (
     <Button
       size="lg"
-      className="col-span-2 bg-green-500 hover:bg-green-500/90"
+      className="flex-auto bg-green-500 hover:bg-green-500/90"
       loading={loading}
       onClick={() =>
         finishOrder({

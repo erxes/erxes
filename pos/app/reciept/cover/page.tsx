@@ -123,13 +123,15 @@ const Cover = () => {
               <>
                 <span className="w-1/3">{ps.paidDetail}</span>
                 <span className="w-1/3 text-center">
-                  {Number(ps.paidDetail) - (ps.paidSummary[0].amount || 0)}
+                  {Number(ps.paidDetail) - (ps.paidSummary[0]?.amount || 0)}
                 </span>
               </>
             ) : (
               <div className="w-2/3" />
             )}
-            <span className="w-1/3 text-right">{ps.paidSummary[0].amount}</span>
+            <span className="w-1/3 text-right">
+              {ps.paidSummary[0]?.amount}
+            </span>
           </div>
           <Separator />
           {ALL_BANK_CARD_TYPES.includes(ps.paidType) && (

@@ -21,6 +21,7 @@ export interface IMeeting {
   companyId: string;
 
   participantIds: string[];
+  dealIds: string[];
 }
 
 export interface IMeetingDocument extends IMeeting, Document {
@@ -52,5 +53,6 @@ export const meetingSchema = new Schema({
     default: 'scheduled'
   }),
 
-  participantIds: field({ type: [String], optional: true })
+  participantIds: field({ type: [String], optional: true }),
+  dealIds: field({ type: [String] })
 });

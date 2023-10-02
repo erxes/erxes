@@ -2,7 +2,6 @@ import classnames from 'classnames';
 import { TEXT_COLORS } from '@erxes/ui-cards/src/boards/constants';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __, uploadHandler } from 'coreui/utils';
 import {
   BackgroundSelector,
   SubItem,
@@ -13,6 +12,7 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
+import { __, uploadHandler } from '@erxes/ui/src/utils';
 
 type Props = {
   onChange: (

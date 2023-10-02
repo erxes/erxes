@@ -15,10 +15,8 @@ const PaymentSheet = () => {
   const type = useAtomValue(currentPaymentTypeAtom)
   const notPaidAmount = useAtomValue(unPaidAmountAtom)
   const setCurrentAmount = useSetAtom(currentAmountAtom)
-  const setCurrentPaymentType = useSetAtom(currentPaymentTypeAtom)
 
   useEffect(() => {
-    notPaidAmount === 0 && getMode() !== "market" && setCurrentPaymentType("")
     notPaidAmount > 0 && setCurrentAmount(notPaidAmount)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notPaidAmount])
@@ -31,11 +29,15 @@ const PaymentSheet = () => {
       }
     >
       <SheetContent
-        className={cn("flex flex-col", type === "mobile" && "sm:max-w-3xl")}
+        className={cn(
+          "flex flex-col",
+          type === "mobile" && "sm:max-w-3xl",
+          getMode() === "kiosk" && "h-2/3 rounded-t-3xl"
+        )}
+        side={getMode() === "kiosk" ? "bottom" : undefined}
       >
         {openSheet && (
           <>
-            {type === "cash" && <CashSheet />}
             {type === "mobile" && <MobileSheet />}
             {type === BANK_CARD_TYPES.KHANBANK && <KhanSheet />}
             {type === BANK_CARD_TYPES.TDB && <TDBSheet />}
@@ -56,9 +58,6 @@ const Loading = () => (
   </LoaderWrapper>
 )
 
-const CashSheet = dynamic(() => import("../paymentTypes/cashSheet.market"), {
-  loading: Loading,
-})
 const MobileSheet = dynamic(
   () => import("../paymentTypes/mobileSheet.market"),
   {

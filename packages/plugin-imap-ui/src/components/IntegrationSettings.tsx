@@ -1,11 +1,13 @@
-import React from 'react';
-import { gql } from '@apollo/client';
-import styled from 'styled-components';
-import { graphql } from '@apollo/client/react/hoc';
 import * as compose from 'lodash.flowright';
-import { __ } from '@erxes/ui/src/utils/core';
+
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
+import styled from 'styled-components';
 
 const Shell = styled.div`
   width: 100%;
@@ -104,7 +106,11 @@ class Logs extends React.Component<any> {
     const logs = logsQuery.imapLogs || [];
 
     return (
-      <CollapseContent title="IMAP">
+      <CollapseContent
+        title="IMAP"
+        beforeTitle={<Icon icon="envelope-edit" />}
+        transparent={true}
+      >
         <Shell>
           <div className="shell-wrap">
             <p className="shell-top-bar">{__('Log messages')}</p>

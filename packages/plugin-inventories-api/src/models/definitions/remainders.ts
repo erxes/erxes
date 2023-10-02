@@ -37,6 +37,8 @@ export interface IRemainder {
   departmentId: string;
   productId: string;
   count: number;
+  soonIn?: number;
+  soonOut?: number;
   shortLogs: any[];
 }
 
@@ -54,6 +56,8 @@ export const remainderSchema = schemaHooksWrapper(
     status: field({ type: String, label: 'Status' }),
     productId: field({ type: String, index: true }),
     count: field({ type: Number, label: 'Count' }),
+    soonIn: field({ type: Number, optional: true, label: 'Soon In' }),
+    soonOut: field({ type: Number, optional: true, label: 'Soon Out' }),
 
     modifiedAt: field({
       type: Date,

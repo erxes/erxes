@@ -65,6 +65,7 @@ export interface IOrderChangeParams {
   dueDate?: Date;
   branchId?: string;
   deliveryInfo?: string;
+  description?: string;
 }
 
 const getTaxInfo = (config: IConfig) => {
@@ -86,7 +87,8 @@ const getStatus = (config, buttonType, doc, order?) => {
     if (
       type === 'paid' &&
       order.status === ORDER_STATUSES.PENDING &&
-      doc.paidDate
+      doc.paidDate &&
+      !order.isPre
     ) {
       return ORDER_STATUSES.NEW;
     }
@@ -104,6 +106,10 @@ const getStatus = (config, buttonType, doc, order?) => {
     }
 
     return order.status;
+  }
+
+  if (doc.isPre) {
+    return ORDER_STATUSES.PENDING;
   }
 
   if (type === 'click' && buttonType !== 'order') {
@@ -150,7 +156,7 @@ const ordersAdd = async (
     subdomain: string;
   }
 ) => {
-  const { totalAmount, type, customerId, customerType, branchId } = doc;
+  const { totalAmount, type, customerId, customerType, branchId, isPre } = doc;
   if (!posUser && !doc.customerId) {
     throw new Error('order has not owner');
   }
@@ -170,7 +176,8 @@ const ordersAdd = async (
     branchId,
     customerId,
     customerType,
-    userId: posUser ? posUser._id : ''
+    userId: posUser ? posUser._id : '',
+    isPre
   };
 
   try {
@@ -248,6 +255,13 @@ const ordersEdit = async (
 
   checkOrderStatus(order);
 
+  if (
+    order.isPre &&
+    (order.cashAmount || order.mobileAmount || (order.paidAmounts || []).length)
+  ) {
+    throw new Error('Confirmed and isPre orders cannot be edited');
+  }
+
   await validateOrder(subdomain, models, config, doc);
 
   await cleanOrderItems(doc._id, doc.items, models);
@@ -260,6 +274,7 @@ const ordersEdit = async (
 
   let status = getStatus(config, doc.buttonType, doc, order);
 
+  // dont change isPre
   const updatedOrder = await models.Orders.updateOrder(doc._id, {
     deliveryInfo: doc.deliveryInfo,
     branchId: config.isOnline ? doc.branchId : config.branchId,
@@ -275,6 +290,7 @@ const ordersEdit = async (
     departmentId: config.departmentId,
     taxInfo: getTaxInfo(config),
     dueDate: doc.dueDate,
+    description: doc.description,
     status
   });
 
@@ -398,10 +414,11 @@ const orderMutations = {
     if (params.branchId) doc.branchId = params.branchId;
 
     if (params.deliveryInfo) doc.deliveryInfo = params.deliveryInfo;
+    if (params.description) doc.description = params.description;
 
     const changedOrder = await models.Orders.updateOrder(params._id, doc);
 
-    if (changedOrder.paidDate) {
+    if (changedOrder.paidDate || changedOrder.isPre) {
       try {
         sendPosMessage({
           subdomain,
@@ -500,7 +517,7 @@ const orderMutations = {
               modifiedAt: now,
               status: getStatus(
                 config,
-                '',
+                'settle',
                 { ...order, paidDate: now },
                 { ...order }
               )
@@ -557,7 +574,7 @@ const orderMutations = {
       mobileAmount?: number;
       paidAmounts?: IPaidAmount[];
     },
-    { models }: IContext
+    { models, config, subdomain }: IContext
   ) {
     const order = await models.Orders.getOrder(_id);
 
@@ -583,7 +600,37 @@ const orderMutations = {
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 
-    return models.Orders.findOne({ _id: order._id });
+    const newOrder = await models.Orders.getOrder(order._id);
+
+    if (newOrder?.isPre) {
+      const items = await models.OrderItems.find({ orderId: newOrder._id });
+      if (config.isOnline) {
+        const products = await models.Products.find({
+          _id: { $in: items.map(i => i.productId) }
+        }).lean();
+        for (const item of items) {
+          const product = products.find(p => p._id === item.productId) || {};
+          item.productName = `${product.code} - ${product.name}`;
+        }
+      }
+
+      try {
+        sendPosMessage({
+          subdomain,
+          action: 'createOrUpdateOrders',
+          data: {
+            posToken: config.token,
+            action: 'makePayment',
+            order,
+            items
+          }
+        });
+      } catch (e) {
+        debugError(`Error occurred while sending data to erxes: ${e.message}`);
+      }
+    }
+
+    return newOrder;
   },
 
   async ordersCancel(_root, { _id }, { models }: IContext) {
@@ -596,6 +643,13 @@ const orderMutations = {
         .length > 0
     ) {
       throw new Error('Card payment exists for this order');
+    }
+
+    if (
+      order.isPre &&
+      (order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
+    ) {
+      throw new Error('Cannot cancel cause PreOrder added payment');
     }
 
     if (order.synced === true) {
@@ -715,7 +769,7 @@ const orderMutations = {
               modifiedAt: now,
               status: getStatus(
                 config,
-                '',
+                'settle',
                 { ...order, paidDate: now },
                 { ...order }
               )
@@ -971,7 +1025,7 @@ const orderMutations = {
             billType: BILL_TYPES.INNER,
             status: getStatus(
               config,
-              '',
+              'finish',
               { ...order, paidDate: now },
               { ...order }
             )
@@ -1032,20 +1086,40 @@ const orderMutations = {
 
     let order = await models.Orders.getOrder(_id);
 
+    if (order.returnInfo && order.returnInfo.returnAt) {
+      throw new Error('Order is already returned');
+    }
+
     const amount =
       (cashAmount || 0) +
       (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
-    if (!order.paidDate) {
-      throw new Error('Order yet not paid');
-    }
+    if (order.isPre) {
+      if (
+        !(order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
+      ) {
+        throw new Error('Order yet not paid');
+      }
 
-    if (order.totalAmount != amount) {
-      throw new Error('Amount exceeds total amount');
-    }
+      const savedPaidAmount =
+        (order.cashAmount || 0) +
+        (order.mobileAmount || 0) +
+        (order.paidAmounts || []).reduce(
+          (sum, i) => Number(sum) + Number(i.amount),
+          0
+        );
 
-    if (order.returnInfo && order.returnInfo.returnAt) {
-      throw new Error('Order is already returned');
+      if (savedPaidAmount !== amount) {
+        throw new Error('Amount exceeds total amount');
+      }
+    } else {
+      if (!order.paidDate) {
+        throw new Error('Order yet not paid');
+      }
+
+      if (order.totalAmount != amount) {
+        throw new Error('Amount exceeds total amount');
+      }
     }
 
     const modifier: any = {

@@ -97,6 +97,9 @@ export const types = () => `
     lastStoredDate:Date
     isPayFirstMonth: Boolean
     downPayment: Float
+    skipAmountCalcMonth: Float
+    customPayment: Float
+    customInterest: Float
     isBarter: Boolean
   }
 
@@ -183,6 +186,7 @@ const commonFields = `
   startDate: Date
   scheduleDays: [Float]
   insurancesData: JSON
+  schedule: JSON
   collateralsData: JSON
   customerId: String
   customerType: String
@@ -206,7 +210,10 @@ const commonFields = `
   currency:String
   isPayFirstMonth: Boolean
   downPayment: Float
+  skipAmountCalcMonth: Float
   isBarter: Boolean
+  customPayment: Float
+  customInterest: Float
 `;
 
 const interestCorrectionFields = `

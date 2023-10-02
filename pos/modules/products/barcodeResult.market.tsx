@@ -16,6 +16,8 @@ const BarcodeResult = () => {
   const [, addToCart] = useAtom(addToCartAtom)
   const { toast } = useToast()
 
+  const [searchValue, manufactureDate] = barcode.split("_")
+
   const [getProducts, { loading }] = useLazyQuery(queries.products, {
     onCompleted(data) {
       const { poscProducts: products } = data || {}
@@ -25,7 +27,9 @@ const BarcodeResult = () => {
         })
       }
       if (products.length === 1) {
-        addToCart(products[0])
+        addToCart(
+          manufactureDate ? { ...products[0], manufactureDate } : products[0]
+        )
       }
       return setBarcodeAtom("")
     },
@@ -34,9 +38,12 @@ const BarcodeResult = () => {
   useEffect(() => {
     if (loading) return
     if (!!barcode) {
-      getProducts({ variables: { searchValue: barcode, perPage: 5 } })
+      getProducts({
+        variables: { searchValue, perPage: 5 },
+      })
     }
-  }, [barcode, getProducts, loading])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [barcode])
 
   if (loading)
     return (

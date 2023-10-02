@@ -42,6 +42,7 @@ type Props = {
   closeReply?: () => void;
   callback?: () => void;
   queryParams?: any;
+  isEmptyEmail?: boolean;
   shrink?: boolean;
   clear?: boolean;
   conversationStatus?: string;
@@ -260,6 +261,7 @@ class MailFormContainer extends React.Component<
       fetchMoreEmailTemplates,
       emailTemplates: emailTemplatesQuery?.emailTemplates || [],
       emailSignatures: currentUser.emailSignatures || [],
+      brands: currentUser.brands || [],
       totalCount: emailTemplatesTotalCount,
       mails,
       messageId,

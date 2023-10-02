@@ -59,7 +59,7 @@ const findAllTeamMembersWithEmpId = (subdomain: string) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { employeeId: { $exists: true } }
+      query: { employeeId: { $exists: true }, isActive: true }
     },
     isRPC: true,
     defaultValue: []
@@ -71,7 +71,10 @@ const findTeamMembers = (subdomain: string, userIds: string[]) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { employeeId: { $exists: true }, _id: { $in: userIds } }
+      query: {
+        _id: { $in: userIds },
+        isActive: true
+      }
     },
     isRPC: true,
     defaultValue: []
@@ -1043,7 +1046,7 @@ const createTeamMembersObject = async (subdomain: any, userIds: string[]) => {
     subdomain,
     action: 'users.find',
     data: {
-      query: { _id: { $in: userIds } }
+      query: { _id: { $in: userIds }, isActive: true }
     },
     isRPC: true,
     defaultValue: []

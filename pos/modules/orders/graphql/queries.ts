@@ -17,7 +17,6 @@ export const orderFields = `
   origin
   type
   deliveryInfo
- 
 `
 export const orderItemBaseFields = `
  _id
@@ -36,6 +35,8 @@ export const orderItemFields = `
     discountPercent
     bonusCount
     manufacturedDate
+    description
+    attachment
 `
 
 const customerFields = `
@@ -165,7 +166,7 @@ const historyDetail = gql`
   }
 `
 
-export const ebarimtDetail = gql`
+const ebarimtDetail = gql`
   query EbarimtDetail($_id: String) {
     orderDetail(_id: $_id) {
       ${commonDetailFields}
@@ -277,6 +278,8 @@ query ActiveOrders(${queryParamsDefs}) {
     number
     type
     paidDate
+    origin
+    slotCode
   }
 }
 `
@@ -316,6 +319,7 @@ const progressHistory = gql`
       modifiedAt
       paidDate
       dueDate
+      deliveryInfo
     }
   }
 `
@@ -368,6 +372,7 @@ const queries = {
   progressDetail,
   ordersAtWaiting,
   historyItemDetail,
+  ebarimtDetail,
 }
 
 export default queries

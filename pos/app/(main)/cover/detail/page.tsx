@@ -2,9 +2,12 @@
 
 import { useSearchParams } from "next/navigation"
 import useConfig from "@/modules/auth/hooks/useConfig"
-import { setCoverDetailAtom } from "@/store/cover.store"
+import {
+  isCoverAmountsFetchedAtom,
+  setCoverDetailAtom,
+} from "@/store/cover.store"
 import { useQuery } from "@apollo/client"
-import { useAtom } from "jotai"
+import { useSetAtom } from "jotai"
 
 import Loader from "@/components/ui/loader"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -19,7 +22,8 @@ const CoverDetail = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get("id")
   const { onError } = useToast()
-  const [, setCover] = useAtom(setCoverDetailAtom)
+  const setCover = useSetAtom(setCoverDetailAtom)
+  const setIsFetched = useSetAtom(isCoverAmountsFetchedAtom)
 
   const { loading: loadingConfig } = useConfig("cover")
 
@@ -30,6 +34,7 @@ const CoverDetail = () => {
     onCompleted(data) {
       const { coverDetail } = data || {}
       setCover(coverDetail || {})
+      setIsFetched(true)
     },
     onError,
   })

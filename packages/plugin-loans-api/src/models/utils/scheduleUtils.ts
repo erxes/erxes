@@ -233,7 +233,7 @@ export const reGenerateSchedules = async (
   // diff from startDate to nextDate valid: max 42 min 10 day, IsValid then undefined or equal nextMonthDay
   let nextDate: any = undefined;
 
-  if (diffDay > 42 || contract.isPayFirstMonth === true) {
+  if (diffDay > 42) {
     nextDate = new Date(
       contract.startDate.getFullYear(),
       contract.startDate.getMonth(),
@@ -336,6 +336,76 @@ export const reGenerateSchedules = async (
 
   await models.FirstSchedules.deleteMany({ contractId: contract._id });
   await models.FirstSchedules.insertMany(bulkEntries);
+};
+
+export const getGraphicValue = async (
+  contract: any,
+  perHolidays: IPerHoliday[]
+) => {
+  let bulkEntries: any[] = [];
+  let balance = contract.leaseAmount;
+  let startDate: Date = contract.startDate;
+  let tenor = contract.tenor;
+
+  if (tenor === 0) {
+    return;
+  }
+
+  startDate.setDate(startDate.getDate() + 1);
+
+  const firstNextDate = getNextMonthDay(
+    contract.startDate,
+    contract.scheduleDays
+  );
+
+  const diffDay = getDiffDay(contract.startDate, firstNextDate);
+
+  // diff from startDate to nextDate valid: max 42 min 10 day, IsValid then undefined or equal nextMonthDay
+  let nextDate: any = undefined;
+
+  if (diffDay > 42) {
+    nextDate = new Date(
+      contract.startDate.getFullYear(),
+      contract.startDate.getMonth(),
+      contract.scheduleDays?.[0] || 1
+    );
+  } else if (diffDay < 10) {
+    nextDate = new Date(
+      firstNextDate.getFullYear(),
+      firstNextDate.getMonth() + 1,
+      contract.scheduleDays?.[0] || 1
+    );
+  }
+
+  bulkEntries = await scheduleHelper(
+    contract,
+    bulkEntries,
+    startDate,
+    balance,
+    tenor,
+    contract.salvageAmount || 0,
+    contract.salvageTenor || 0,
+    nextDate,
+    perHolidays
+  );
+
+  if (bulkEntries.length) {
+    const preEntry: any = bulkEntries[bulkEntries.length - 1];
+    startDate = preEntry.payDate;
+  }
+  bulkEntries = await scheduleHelper(
+    contract,
+    bulkEntries,
+    startDate,
+    contract.salvageAmount || 0,
+    contract.salvageTenor || 0,
+    0,
+    0,
+    nextDate,
+    perHolidays
+  );
+
+  return bulkEntries;
 };
 
 export const fixSchedules = async (
