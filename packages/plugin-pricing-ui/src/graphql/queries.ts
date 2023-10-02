@@ -135,11 +135,13 @@ const pricingPlans = `
         details {
           fullName
         }
+        email
       }
       updatedUser {
         details {
           fullName
         }
+        email
       }
     }
   }

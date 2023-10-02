@@ -21,7 +21,7 @@ type FinalProps = {
   editRcfaQuestions: any;
   deleteRcfaIssue: any;
   closeRcfaIssue: any;
-  createActionInRoot: any;
+  createTaskInRoot: any;
 } & Props;
 
 class SectionContainer extends React.Component<FinalProps> {
@@ -36,7 +36,7 @@ class SectionContainer extends React.Component<FinalProps> {
       editRcfaQuestions,
       closeRcfaIssue,
       deleteRcfaIssue,
-      createActionInRoot,
+      createTaskInRoot,
       mainType,
       mainTypeId
     } = this.props;
@@ -78,8 +78,8 @@ class SectionContainer extends React.Component<FinalProps> {
       });
     };
 
-    const createRootAction = variables => {
-      createActionInRoot({ variables })
+    const createRootTask = variables => {
+      createTaskInRoot({ variables })
         .then(() => {
           Alert.success('Successfully created root action');
         })
@@ -97,8 +97,7 @@ class SectionContainer extends React.Component<FinalProps> {
       editIssue,
       removeIssue,
       closeIssue,
-      createRootAction,
-      createActionInRoot,
+      createRootTask,
       mainType,
       mainTypeId
     };
@@ -144,8 +143,8 @@ export default withProps<Props>(
       name: 'closeRcfaIssue',
       options: props => ({ refetchQueries: refetchQueries(props) })
     }),
-    graphql<Props>(gql(mutations.createActionInRoot), {
-      name: 'createActionInRoot',
+    graphql<Props>(gql(mutations.createTaskInRoot), {
+      name: 'createTaskInRoot',
       options: props => ({ refetchQueries: refetchQueries(props) })
     })
   )(SectionContainer)

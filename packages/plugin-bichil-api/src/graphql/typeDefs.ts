@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 const types = `
 
@@ -49,6 +49,24 @@ const types = `
     totalMinsLateThisMonth: Int
     totalMinsAbsenceThisMonth: Int
 
+
+    leftWork: String
+    paidBonus: String
+    paidBonus2: String
+
+    shiftNotClosedDaysPerUser: String
+    shiftNotClosedFee: String
+    shiftNotClosedDeduction: String
+
+    latenessFee: String
+    totalMinsLateDeduction: Float
+
+    totalDeduction: Float
+
+    totalHoursVacation : Float
+    totalHoursUnpaidAbsence : Float
+    totalHoursSick : Float
+    
   }
 
   type BichilScheduleReport {
@@ -73,6 +91,12 @@ const types = `
   type BichilReportsListResponse {
     list: [BichilReport]
     totalCount: Float
+
+    totalHoursScheduled: Float
+    totalHoursWorked: Float
+    totalShiftNotClosedDeduction: Float
+    totalLateMinsDeduction: Float
+    totalDeductionPerGroup: Float
   }
 
   type BichilSalaryReport {

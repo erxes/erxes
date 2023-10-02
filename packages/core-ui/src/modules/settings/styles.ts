@@ -1,10 +1,11 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
+
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { DateContainer } from 'modules/common/styles/main';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
+import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import { lighten } from '@erxes/ui/src/styles/ecolor';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -143,6 +144,15 @@ const MenuFooter = styled.footer`
   padding: 10px 20px;
 `;
 
+const ImageWrapper = styled.div`
+  width: 100%;
+
+  > img {
+    width: 100%;
+    margin-bottom: ${dimensions.coreSpacing}px;
+  }
+`;
+
 export {
   FlexItem,
   ModuleBox,
@@ -150,5 +160,6 @@ export {
   WidgetApperance,
   BackgroundSelector,
   SidebarListItem,
+  ImageWrapper,
   MenuFooter
 };

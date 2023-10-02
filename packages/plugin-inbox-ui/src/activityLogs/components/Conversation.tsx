@@ -1,8 +1,3 @@
-import { Link } from 'react-router-dom';
-import React from 'react';
-import dayjs from 'dayjs';
-import xss from 'xss';
-
 import {
   ActivityDate,
   ActivityIcon,
@@ -25,9 +20,13 @@ import {
 
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
 import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
+import xss from 'xss';
 
 type Props = {
   activity: any;

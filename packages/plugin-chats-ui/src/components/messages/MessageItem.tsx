@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { convertFromHTML } from 'draft-js';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
@@ -16,8 +16,10 @@ import {
   MessageBody,
   MessageOption,
   MessageContent,
-  MessageAttachmentWrapper
+  MessageAttachmentWrapper,
+  MessageBy
 } from '../../styles';
+import ChatForward from '../../containers/chats/ChatForward';
 
 dayjs.extend(calendar);
 
@@ -25,6 +27,7 @@ type Props = {
   message: any;
   setReply: (text: string) => void;
   isWidget?: boolean;
+  chatType?: string;
 };
 
 type FinalProps = {
@@ -32,78 +35,95 @@ type FinalProps = {
 } & Props;
 
 const MessageItem = (props: FinalProps) => {
-  const { message, currentUser, isWidget } = props;
-  const actionRef = useRef<HTMLElement>(null);
+  const { message, currentUser, isWidget, chatType } = props;
+  const {
+    relatedMessage,
+    content,
+    attachments,
+    createdAt,
+    createdUser
+  } = message;
 
-  const isMe = currentUser._id === message.createdUser._id;
+  const { details, email } = createdUser;
+
+  const isMe = currentUser._id === createdUser._id;
   const draftContent =
-    message.relatedMessage && convertFromHTML(message.relatedMessage.content);
-
-  const handleMouseEnter = () => {
-    if (actionRef && actionRef.current) {
-      const element = actionRef.current;
-
-      if (element && element.style) {
-        element.style.visibility = 'visible';
-      }
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (actionRef && actionRef.current) {
-      const element = actionRef.current;
-
-      if (element && element.style) {
-        element.style.visibility = 'hidden';
-      }
-    }
-  };
+    relatedMessage && convertFromHTML(relatedMessage.content);
 
   const renderAttachments = () => {
-    return (message.attachments || []).map(attachment => (
+    return (attachments || []).map(attachment => (
       <Attachment
         key={attachment._id}
         attachment={attachment || {}}
         simple={true}
+        small={true}
+        imgPreviewWidth={200}
       />
     ));
   };
 
+  const userInfo =
+    relatedMessage &&
+    relatedMessage.createdUser &&
+    (relatedMessage.createdUser.details.fullName ||
+      relatedMessage.createdUser.email);
+
+  const renderReplyText = () => {
+    if (isMe) {
+      return (
+        <>
+          You replied to{' '}
+          {relatedMessage.createdUser._id === currentUser._id
+            ? 'yourself'
+            : userInfo}
+        </>
+      );
+    }
+
+    return (
+      <>
+        {(details.fullName || email) + 'replied to '}
+        {relatedMessage.createdUser._id === createdUser._id
+          ? 'themself'
+          : userInfo}
+      </>
+    );
+  };
+
   return (
-    <MessageItemWrapper
-      me={isMe}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <MessageItemWrapper me={isMe}>
       <div style={{ flex: 1 }} />
       <MessageWrapper me={isMe}>
         {draftContent && (
-          <MessageReply>
+          <MessageReply me={isMe}>
             <b>
-              {message.relatedMessage.createdUser &&
-                (message.relatedMessage.createdUser.details.fullName ||
-                  message.relatedMessage.createdUser.email)}
-              :&nbsp;
+              <Icon icon="reply" /> {renderReplyText()}
             </b>
             <p>{draftContent.contentBlocks[0].text}</p>
           </MessageReply>
         )}
-        {message.content !== '<p></p>' && (
+        {chatType === 'group' && !isMe && !draftContent && (
+          <MessageBy>{createdUser && (details.fullName || email)}</MessageBy>
+        )}
+        {content !== '<p></p>' && (
           <MessageBody me={isMe}>
+            <ChatForward
+              content={content}
+              attachments={attachments}
+              currentUser={currentUser}
+              isWidget={isWidget}
+            />
             <Tip placement="top" text="Reply">
-              <MessageOption
-                onClick={() => props.setReply(message)}
-                innerRef={actionRef}
-              >
-                <Icon icon="reply" color="secondary" />
+              <MessageOption onClick={() => props.setReply(message)}>
+                <Icon icon="reply" color="#9d9d9d" />
               </MessageOption>
             </Tip>
             <Tip
-              placement={isMe ? 'left' : 'right'}
-              text={message.createdAt && dayjs(message.createdAt).calendar()}
+              placement="top"
+              text={createdAt && dayjs(createdAt).calendar()}
             >
               <MessageContent
-                dangerouslySetInnerHTML={{ __html: message.content || '' }}
+                dangerouslySetInnerHTML={{ __html: content || '' }}
                 me={isMe}
               />
             </Tip>
@@ -113,7 +133,7 @@ const MessageItem = (props: FinalProps) => {
           {renderAttachments()}
         </MessageAttachmentWrapper>
       </MessageWrapper>
-      {!isMe && <Avatar user={message.createdUser} size={36} showTip={true} />}
+      {!isMe && <Avatar user={createdUser} size={36} showTip={true} />}
     </MessageItemWrapper>
   );
 };

@@ -10,9 +10,9 @@ const sendErrorMessage = messsage => {
 
 export const postHandler = async (req, res) => {
   const subdomain = getSubdomain(req);
-  const { action } = req.params || {};
+  const { action } = req.headers || {};
 
-  const { data } = req.body || {};
+  const { data = {}, triggerType = '' } = req.body || {};
 
   if (!action) {
     res.send(sendErrorMessage('no action type in request params'));
@@ -20,37 +20,51 @@ export const postHandler = async (req, res) => {
   }
 
   if (action === 'customerApproved') {
-    res.send(await customerRequest(subdomain, data));
+    res.send(await customerRequest(subdomain, data, triggerType));
     return;
   }
 
-  if (action === 'doneDeal') {
-    res.send(await dealDone(subdomain, data));
+  if (action === 'dealStageChanged') {
+    res.send(await dealDone(subdomain, data, triggerType));
     return;
   }
 
   res.send(sendErrorMessage('sendErrorMessage'));
 };
 
-const customerRequest = async (subdomain, data) => {
+const generateIds = value => {
+  if (value.includes(', ')) {
+    return value.split(', ');
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    return [value];
+  }
+
+  return [];
+};
+
+const customerRequest = async (subdomain, data, triggerType) => {
   const models = await generateModels(subdomain);
 
-  const { triggerType = '', target = {} } = data || {};
-
-  if (!triggerType || !Object.keys(target).length) {
+  if (!triggerType || !Object.keys(data).length) {
     return 'no data';
   }
 
   let syncCustomerIds: any = {};
 
   if (triggerType.includes('cards')) {
-    const { customers } = target;
+    const { customers } = data;
 
-    syncCustomerIds = customers;
+    syncCustomerIds = generateIds(customers);
   }
 
   if (triggerType.includes('contacts')) {
-    syncCustomerIds = target?._id ? [target._id] : [];
+    syncCustomerIds = data?._id ? [data._id] : [];
   }
 
   const customersSyncs = await models.SyncedCustomers.find({
@@ -100,16 +114,14 @@ const customerRequest = async (subdomain, data) => {
   return { message: 'done' };
 };
 
-const dealDone = async (subdomain, data) => {
-  const { triggerType, target } = data;
-
+const dealDone = async (subdomain, data, triggerType) => {
   if (!triggerType.includes('cards')) {
     return 'unsupported trigger type';
   }
 
   const models = await generateModels(subdomain);
 
-  const syncedDeal = await models.SyncedDeals.findOne({ dealId: target?._id });
+  const syncedDeal = await models.SyncedDeals.findOne({ dealId: data?._id });
 
   if (!syncedDeal) {
     return 'not found deal';
@@ -120,7 +132,7 @@ const dealDone = async (subdomain, data) => {
     return 'something went wrong';
   }
 
-  const dealDetail = await models.SyncedDeals.dealDetail(sync, target?._id);
+  const dealDetail = await models.SyncedDeals.dealDetail(sync, data?._id);
 
   const customerIds = await models.SyncedCustomers.find({
     syncedCustomerId: syncedDeal.syncedCustomerId

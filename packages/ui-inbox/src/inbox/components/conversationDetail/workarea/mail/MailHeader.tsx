@@ -102,19 +102,13 @@ class MailHeader extends React.Component<Props, State> {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
-              <a href="#action" onClick={onToggleReply}>
-                Reply
-              </a>
+              <a onClick={onToggleReply}>Reply</a>
             </li>
             <li>
-              <a href="#action" onClick={onToggleReplyAll}>
-                Reply all
-              </a>
+              <a onClick={onToggleReplyAll}>Reply all</a>
             </li>
             <li>
-              <a href="#action" onClick={onToggleForward}>
-                Forward
-              </a>
+              <a onClick={onToggleForward}>Forward</a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
@@ -183,19 +177,6 @@ class MailHeader extends React.Component<Props, State> {
     );
   };
 
-  renderSubject = (subject: string) => {
-    if (!this.state.isDetailExpanded) {
-      return null;
-    }
-
-    return (
-      <Flex>
-        <Title>{__('Subject')}:</Title>
-        <Addresses>{subject}</Addresses>
-      </Flex>
-    );
-  };
-
   renderSecondaryContent = mailData => {
     const { message, isContentCollapsed } = this.props;
 
@@ -207,14 +188,11 @@ class MailHeader extends React.Component<Props, State> {
     }
 
     return (
-      <>
-        <AddressContainer isExpanded={this.state.isDetailExpanded}>
-          {this.renderAddress('To:', mailData.to)}
-          {this.renderAddress('Cc:', mailData.cc)}
-          {this.renderAddress('Bcc:', mailData.bcc)}
-        </AddressContainer>
-        {this.renderSubject(mailData.subject || '')}
-      </>
+      <AddressContainer isExpanded={this.state.isDetailExpanded}>
+        {this.renderAddress('To:', mailData.to)}
+        {this.renderAddress('Cc:', mailData.cc)}
+        {this.renderAddress('Bcc:', mailData.bcc)}
+      </AddressContainer>
     );
   };
 

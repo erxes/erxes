@@ -12,6 +12,7 @@ import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { putActivityLog } from '../logUtils';
 
 export const getEmailRecipientTypes = async () => {
   let reciepentTypes = [...EMAIL_RECIPIENTS_TYPES];
@@ -181,6 +182,18 @@ const getSegmentEmails = async ({
   });
 };
 
+const generateFromEmail = (sender, fromUserEmail) => {
+  if (sender && fromUserEmail) {
+    return `${sender} <${fromUserEmail}>`;
+  }
+
+  if (fromUserEmail) {
+    return fromUserEmail;
+  }
+
+  return null;
+};
+
 export const generateDoc = async ({
   subdomain,
   target,
@@ -188,8 +201,8 @@ export const generateDoc = async ({
   triggerType,
   config
 }) => {
-  const { templateId, fromUserId } = config;
-  const [serviceName] = triggerType.split(':');
+  const { templateId, fromUserId, sender } = config;
+  const [serviceName, type] = triggerType.split(':');
 
   const template = await sendEmailTemplateMessage({
     subdomain,
@@ -213,13 +226,21 @@ export const generateDoc = async ({
       })
     : null;
 
+  const replacedContent = (template?.content || '').replace(
+    new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, 'g'),
+    '{{ $1 }}'
+  );
+
   const { subject, content } = await sendCommonMessage({
     subdomain,
     serviceName,
     action: 'automations.replacePlaceHolders',
     data: {
       target,
-      config: { subject: config.subject, content: template.content }
+      config: {
+        subject: config.subject,
+        content: replacedContent
+      }
     },
     isRPC: true,
     defaultValue: {}
@@ -239,7 +260,8 @@ export const generateDoc = async ({
 
   return {
     title: subject,
-    fromEmail: fromUser?.email,
+    fromUser,
+    fromEmail: generateFromEmail(sender, fromUser?.email),
     toEmails: toEmails.filter(email => fromUser?.email !== email),
     customHtml: content
   };
@@ -320,6 +342,28 @@ export const getRecipientEmails = async ({
   return [...new Set(toEmails)];
 };
 
+const setActivityLog = async ({
+  subdomain,
+  triggerType,
+  target,
+  user,
+  responses
+}) => {
+  for (const response of responses || []) {
+    if (response?.messageId) {
+      await putActivityLog(subdomain, {
+        action: 'putActivityLog',
+        data: {
+          contentType: triggerType,
+          contentId: target._id,
+          createdBy: 'automation',
+          action: 'sendEmail'
+        }
+      });
+    }
+  }
+};
+
 export const handleEmail = async ({
   subdomain,
   target,
@@ -327,7 +371,7 @@ export const handleEmail = async ({
   triggerType,
   config
 }) => {
-  const data: any = await generateDoc({
+  const { fromUser, ...params }: any = await generateDoc({
     subdomain,
     triggerType,
     target,
@@ -335,18 +379,26 @@ export const handleEmail = async ({
     execution
   });
 
-  if (!data) {
+  if (!params) {
     return { error: 'Something went wrong fetching data' };
   }
 
   try {
     const responses = await sendEmails({
       subdomain,
-      params: data
+      params: params
     });
 
-    delete data?.customHtml;
-    return { ...data, responses };
+    await setActivityLog({
+      subdomain,
+      triggerType,
+      target,
+      user: fromUser,
+      responses
+    });
+
+    delete params?.customHtml;
+    return { ...params, responses };
   } catch (err) {
     return { error: err.message };
   }

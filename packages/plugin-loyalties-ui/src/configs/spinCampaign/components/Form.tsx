@@ -58,15 +58,16 @@ class Form extends React.Component<Props, State> {
       finalValues._id = spinCampaign._id;
     }
 
-    spinCampaign.buyScore = Number(spinCampaign.buyScore || 0);
-    spinCampaign.awards =
-      (spinCampaign.awards &&
-        spinCampaign.awards.sort((a, b) => a.probability - b.probability)) ||
-      [];
-
     return {
       ...finalValues,
-      ...spinCampaign
+      ...spinCampaign,
+      buyScore: Number(spinCampaign.buyScore || 0),
+      awards:
+        (spinCampaign.awards &&
+          spinCampaign.awards.sort(
+            (a, b) => (a.probability || 0) - (b.probability || 0)
+          )) ||
+        []
     };
   };
 
@@ -139,11 +140,11 @@ class Form extends React.Component<Props, State> {
   renderAward = (award: ISpinCampaignAward, formProps) => {
     const changeAward = (key, value) => {
       const { spinCampaign } = this.state;
-      award[key] = value;
-      spinCampaign.awards = (spinCampaign.awards || []).map(
-        a => (a._id === award._id && award) || a
+
+      const awards = (spinCampaign.awards || []).map(
+        a => (a._id === award._id && { ...award, [key]: value }) || a
       );
-      this.setState({ spinCampaign });
+      this.setState({ spinCampaign: { ...spinCampaign, awards } });
     };
     const onChangeName = e => {
       e.preventDefault();

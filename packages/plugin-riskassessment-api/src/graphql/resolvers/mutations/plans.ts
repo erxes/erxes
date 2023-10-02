@@ -62,6 +62,14 @@ const plansMutations = {
 
   async removeRiskAssessmentPlanSchedule(_root, { _id }, { models }: IContext) {
     return await models.Plans.removeSchedule(_id);
+  },
+
+  async bulkUpdateRiskAssessmentSchedule(
+    _root,
+    { datas },
+    { models }: IContext
+  ) {
+    return await models.Plans.bulkUpdateSchedules(datas);
   }
 };
 

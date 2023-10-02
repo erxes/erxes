@@ -34,5 +34,6 @@ export const rcfaIssuessSchema = new Schema({
   createdAt: field({ type: Date, default: Date.now }),
   closedAt: field({ type: Date, default: Date.now }),
   taskIds: field({ type: [String], optional: true }),
+  actionIds: field({ type: [String], optional: true }),
   description: field({ type: String, optional: true })
 });

@@ -29,6 +29,7 @@ type Structure = {
 };
 
 const dateFormat = 'YYYY-MM-DD';
+const dateFormat2 = 'YYYY.MM.DD';
 /**
  * Creates blank workbook
  */
@@ -56,7 +57,8 @@ const addIntoSheet = async (
   endRowIdx: string,
   sheet: any,
   reportType: string,
-  merged?: boolean
+  merged?: boolean,
+  customStyles?: any
 ) => {
   let r;
   switch (reportType) {
@@ -71,22 +73,37 @@ const addIntoSheet = async (
       break;
   }
 
+  r.style('horizontalAlignment', 'center');
+
   if (merged) {
     r.style({ horizontalAlignment: 'center', verticalAlignment: 'center' });
     r.merged(true);
     r.style('bold', true);
-    r.style('fill', 'fffe00');
-    sheet.row(2).style('bold', true);
+
     if (reportType === 'Сүүлд' || 'Final') {
-      sheet.column('E').width(50);
-      sheet.column('C').width(15);
+      sheet.column('B').width(30);
+      sheet.column('C').width(30);
       sheet.column('D').width(15);
-      sheet.column('I').width(15);
-      sheet.column('J').width(15);
-      sheet.column('K').width(15);
-      sheet.column('N').width(20);
-      sheet.column('O').width(20);
+      sheet.column('E').width(30);
+      sheet.column('F').width(25);
+      sheet.column('G').width(15);
+      sheet.column('H').width(15);
+      sheet.column('K').width(30);
+
+      sheet.column('M').width(20);
+      sheet.column('N').width(15);
       sheet.column('P').width(20);
+      sheet.column('Q').width(20);
+      sheet.column('R').width(20);
+      sheet.column('S').width(20);
+      sheet.column('T').width(20);
+      sheet.column('U').width(30);
+
+      sheet.row(1).height(40);
+
+      sheet.column('Q').style('numberFormat', '#,##0.00');
+      sheet.column('S').style('numberFormat', '#,##0.00');
+      sheet.column('T').style('numberFormat', '#,##0.00');
     }
     if (reportType === 'Pivot') {
       sheet.column('E').width(50);
@@ -99,6 +116,12 @@ const addIntoSheet = async (
     }
   }
 
+  if (customStyles) {
+    for (const cStyle of customStyles) {
+      r.style(cStyle.style, cStyle.value);
+    }
+  }
+
   r.value(values);
 };
 
@@ -106,7 +129,9 @@ const prepareHeader = async (
   sheet: any,
   reportType: string,
   showDepartment?: boolean,
-  showBranch?: boolean
+  showBranch?: boolean,
+  startDate?: Date,
+  endDate?: Date
 ) => {
   let total_columns = 0;
 
@@ -121,41 +146,74 @@ const prepareHeader = async (
       let column_start = 'A';
       let column_end = 'A';
 
-      if (showBranch || showDepartment) {
-        const structure: string[] = [];
+      // if (showBranch || showDepartment) {
+      //   const structure: string[] = [];
 
-        if (showDepartment) {
-          structure.push('Цех, тасаг, багийн нэр');
-        }
-        if (showBranch) {
-          structure.push('Салбар нэгж');
-        }
-        final_headers.unshift([['Structure'], ['№', ...structure]]);
-      } else {
-        final_headers.unshift([[''], ['№']]);
-      }
+      //   if (showDepartment) {
+      //     structure.push('Цех, тасаг, багийн нэр');
+      //   }
+      //   if (showBranch) {
+      //     structure.push('Салбар нэгж');
+      //   }
+      //   final_headers.unshift([['Structure'], ['№', ...structure]]);
+      // } else {
+      //   final_headers.unshift([[''], ['№']]);
+      // }
 
       for (const header of final_headers) {
+        total_columns += header[1].length;
         column_end = getNextChar(column_start, header[1].length - 1);
+
+        if (!header[0][0].length) {
+          addIntoSheet(
+            [header[1]],
+            `${column_start}3`,
+            `${column_end}4`,
+            sheet,
+            reportType,
+            true
+          );
+          column_start = getNextChar(column_end, 1);
+          continue;
+        }
+
         addIntoSheet(
           [header[0]],
-          `${column_start}1`,
-          `${column_end}1`,
+          `${column_start}3`,
+          `${column_end}3`,
           sheet,
           reportType,
           true
         );
         addIntoSheet(
           [header[1]],
-          `${column_start}2`,
-          `${column_end}2`,
+          `${column_start}4`,
+          `${column_end}4`,
           sheet,
           reportType
         );
         column_start = getNextChar(column_end, 1);
-
-        total_columns += header[1].length;
       }
+
+      addIntoSheet(
+        'БЭРС ФИНАНС ББСБ ХХК',
+        'A1',
+        `${column_end}1`,
+        sheet,
+        reportType,
+        true
+      );
+
+      addIntoSheet(
+        `${dayjs(startDate).format(dateFormat2)} - ${dayjs(endDate).format(
+          dateFormat2
+        )}`,
+        'A2',
+        `${column_end}2`,
+        sheet,
+        reportType,
+        true
+      );
 
       break;
 
@@ -188,7 +246,8 @@ const extractAndAddIntoSheet = async (
   teamMembers: IUserDocument[],
   sheet: any,
   reportType: string,
-  total_columns: number
+  total_columns: number,
+  deductionInfo?: any
 ) => {
   const totalBranchIdsOfMembers: string[] = [];
   const totalDeptIdsOfMembers: string[] = [];
@@ -228,8 +287,7 @@ const extractAndAddIntoSheet = async (
   let rowNum = 1;
 
   let startRowIdx = 2;
-
-  const endRowIdx = teamMemberIds.length + 2;
+  let endRowIdx = teamMemberIds.length + 2;
 
   switch (reportType) {
     case 'Урьдчилсан' || 'Preliminary':
@@ -250,58 +308,144 @@ const extractAndAddIntoSheet = async (
       break;
 
     case 'Сүүлд' || 'Final':
-      startRowIdx = 3;
-      rowNum = 3;
+      startRowIdx = 5;
+      rowNum = 5;
+
+      let startRowIdxPerBranch: number = startRowIdx;
+      let endRowIdxPerBranch: number = startRowIdxPerBranch;
+
+      const numeration: number[][] = [];
+
+      const groupedByBranch: { [branchTitle: string]: any } = {};
 
       for (const userId of Object.keys(empReports)) {
         if (!usersStructure[userId]) {
           continue;
         }
+
+        const userReport: any[] = Object.values(empReports[userId]);
         const userBranchIds = usersStructure[userId].branchIds;
-        const userDepartmentIds = usersStructure[userId].departmentIds;
         const branchTitles: string[] = [];
-        const departmentTitles: string[] = [];
 
-        const empReport = empReports[userId];
-        const reportRow = [...Object.values(empReport)];
-
-        if (showBranch) {
-          for (const userBranchId of userBranchIds) {
-            if (structuresDict[userBranchId]) {
-              branchTitles.push(structuresDict[userBranchId]);
-            }
-          }
-          reportRow.unshift(branchTitles.join(','));
-        }
-
-        if (showDepartment) {
-          for (const userDeptId of userDepartmentIds) {
-            departmentTitles.push(structuresDict[userDeptId]);
-          }
-
-          if (departmentTitles.length) {
-            reportRow.unshift(departmentTitles.join(','));
-          } else {
-            reportRow.unshift('-');
+        for (const userBranchId of userBranchIds) {
+          if (structuresDict[userBranchId]) {
+            branchTitles.push(structuresDict[userBranchId]);
           }
         }
 
-        reportRow.unshift(rowNum - 2);
-        extractValuesIntoArr.push(reportRow);
-        rowNum += 1;
+        for (const userBranchTitle of branchTitles) {
+          if (userBranchTitle in groupedByBranch) {
+            groupedByBranch[userBranchTitle] = [
+              ...groupedByBranch[userBranchTitle],
+              userReport
+            ];
+            continue;
+          }
+
+          groupedByBranch[userBranchTitle] = [userReport];
+        }
       }
 
-      const getEndColumn = getNextChar('A', total_columns);
+      for (const branchTitle of Object.keys(groupedByBranch)) {
+        const getUserReportEndColumn = getNextChar('C', total_columns);
+        const getTotalUsersLengthPerBranch =
+          groupedByBranch[branchTitle].length - 1;
+
+        endRowIdxPerBranch =
+          startRowIdxPerBranch + getTotalUsersLengthPerBranch;
+
+        endRowIdx = endRowIdxPerBranch;
+
+        addIntoSheet(
+          [[branchTitle]],
+          `B${startRowIdxPerBranch}`,
+          `B${endRowIdxPerBranch}`,
+          sheet,
+          reportType,
+          true,
+          [{ style: 'bold', value: false }]
+        );
+
+        addIntoSheet(
+          groupedByBranch[branchTitle],
+          `C${startRowIdxPerBranch}`,
+          `${getUserReportEndColumn}${endRowIdxPerBranch}`,
+          sheet,
+          reportType
+        );
+
+        startRowIdxPerBranch = endRowIdxPerBranch + 1;
+      }
+
+      for (let num = 1; num < endRowIdx - 3; num++) {
+        numeration.push([num]);
+      }
+
+      // add numeration
+      addIntoSheet(
+        numeration,
+        `A${startRowIdx}`,
+        `A${endRowIdx}`,
+        sheet,
+        reportType,
+        false,
+        [{ style: 'horizontalAlignment', value: 'center' }]
+      );
+
+      endRowIdx++;
 
       addIntoSheet(
-        extractValuesIntoArr,
-        `A${startRowIdx}`,
-        `${getEndColumn}${endRowIdx}`,
+        deductionInfo.totalHoursScheduled,
+        `F${endRowIdx}`,
+        `F${endRowIdx}`,
         sheet,
-        reportType
+        reportType,
+        false,
+        [{ style: 'bold', value: true }]
+      );
+
+      addIntoSheet(
+        deductionInfo.totalHoursWorked,
+        `G${endRowIdx}`,
+        `G${endRowIdx}`,
+        sheet,
+        reportType,
+        false,
+        [{ style: 'bold', value: true }]
+      );
+
+      addIntoSheet(
+        deductionInfo.totalShiftNotClosedDeduction,
+        `P${endRowIdx}`,
+        `P${endRowIdx}`,
+        sheet,
+        reportType,
+        false,
+        [{ style: 'bold', value: true }]
+      );
+
+      addIntoSheet(
+        deductionInfo.totalLateMinsDeduction,
+        `S${endRowIdx}`,
+        `S${endRowIdx}`,
+        sheet,
+        reportType,
+        false,
+        [{ style: 'bold', value: true }]
+      );
+
+      addIntoSheet(
+        deductionInfo.totalDeductionPerGroup,
+        `T${endRowIdx}`,
+        `T${endRowIdx}`,
+        sheet,
+        reportType,
+        false,
+        [{ style: 'bold', value: true }]
       );
 
       break;
+
     case 'Pivot':
       rowNum = 3;
       let userNum = 1;
@@ -474,12 +618,14 @@ export const buildFile = async (
   );
 
   let report: IUsersReport = {};
-
+  let deductionInfo = {};
   const totalColumnsNum = await prepareHeader(
     sheet,
     reportType,
     params.showDepartment ? JSON.parse(params.showDepartment) : false,
-    params.showBranch ? JSON.parse(params.showBranch) : false
+    params.showBranch ? JSON.parse(params.showBranch) : false,
+    startDate,
+    endDate
   );
 
   switch (reportType) {
@@ -495,7 +641,7 @@ export const buildFile = async (
       break;
 
     case 'Сүүлд' || 'Final':
-      report = await bichilTimeclockReportFinal(
+      const reportFinal = await bichilTimeclockReportFinal(
         subdomain,
         totalTeamMemberIds,
         startDate,
@@ -503,6 +649,10 @@ export const buildFile = async (
         teamMembersObject,
         true
       );
+
+      report = reportFinal.report;
+      deductionInfo = reportFinal.deductionInfo;
+
       break;
     case 'Pivot':
       report = await bichilTimeclockReportPivot(
@@ -525,7 +675,8 @@ export const buildFile = async (
     totalMembers,
     sheet,
     reportType,
-    totalColumnsNum
+    totalColumnsNum,
+    deductionInfo
   );
 
   return {

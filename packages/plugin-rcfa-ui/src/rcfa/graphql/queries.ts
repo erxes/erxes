@@ -30,6 +30,7 @@ const commonIssueFields = `
       parentId
       status
       taskIds
+      actionIds
       description
       isRootCause
 `;

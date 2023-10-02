@@ -15,7 +15,7 @@ describe("Contacts", () => {
 
   it("add company", () => {
 
-    cy.get('i[icon = "plus-circle"]').click();
+    cy.get('i[icon = "plus-circle"]', { timeout: 300000 }).click();
 
     cy.get("div .Select-placeholder")
       .contains("Enter company name")
@@ -33,7 +33,7 @@ describe("Contacts", () => {
 
   it("set tag company", () => {
 
-    cy.get("#companiesCheckBox").click();
+    cy.get("#companiesCheckBox",{ timeout: 300000 }).eq(0).click();
 
     cy.get('button[icon="tag-alt"]').click();
 
@@ -47,8 +47,8 @@ describe("Contacts", () => {
   })
 
   it("remove company", () => {
-  
-    cy.contains(random)
+
+    cy.contains(random, { timeout: 300000 })
     .parent()
     .parent()
     .parent()

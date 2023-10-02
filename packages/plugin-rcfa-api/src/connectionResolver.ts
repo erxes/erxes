@@ -25,7 +25,7 @@ export const loadClasses = (
   models = {} as IModels;
 
   models.RCFA = db.model<IRCFADocument, IRCFAModel>(
-    'rcfa_conformity',
+    'rcfa_conformities',
     loadRCFAClass(models, subdomain)
   );
 

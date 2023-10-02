@@ -7,6 +7,7 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import cronjobs from './cronjobs/automations';
 import tags from './tags';
+import logs from './logUtils';
 
 export let mainDb;
 export let debug;
@@ -17,7 +18,12 @@ export default {
   name: 'automations',
   permissions,
   // for fixing permissions
-  meta: { permissions, cronjobs, tags },
+  meta: {
+    permissions,
+    cronjobs,
+    tags,
+    logs: { providesActivityLog: true, consumers: logs }
+  },
   graphql: async sd => {
     serviceDiscovery = sd;
 

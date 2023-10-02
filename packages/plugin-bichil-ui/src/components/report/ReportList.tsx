@@ -9,26 +9,13 @@ type Props = {
   reportType: string;
 
   queryParams: any;
+  deductionInfo: any;
 };
 function ReportList(props: Props) {
-  const { bichilReports, reportType, queryParams } = props;
-
-  const showBranch = queryParams.showBranch
-    ? JSON.parse(queryParams.showBranch)
-    : false;
-
-  const showDepartment = queryParams.showDepartment
-    ? JSON.parse(queryParams.showDepartment)
-    : false;
+  const { bichilReports, reportType, deductionInfo } = props;
 
   const renderTableHead = () => {
-    return (
-      <TableHeaders
-        reportType={reportType}
-        showBranch={showBranch}
-        showDepartment={showDepartment}
-      />
-    );
+    return <TableHeaders reportType={reportType} />;
   };
 
   return (
@@ -41,10 +28,37 @@ function ReportList(props: Props) {
             key={Math.random()}
             bichilReport={report}
             reportType={reportType}
-            showBranch={showBranch}
-            showDepartment={showDepartment}
           />
         ))}
+
+      <tr>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>
+          <b>{deductionInfo.totalHoursScheduled}</b>
+        </td>
+        <td>
+          <b>{deductionInfo.totalHoursWorked}</b>
+        </td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>
+          <b>{deductionInfo.totalShiftNotClosedDeduction}</b>
+        </td>
+        <td>{''}</td>
+        <td>{''}</td>
+        <td>
+          <b>{deductionInfo.totalLateMinsDeduction?.toFixed(2)}</b>
+        </td>
+        <td>
+          <b>{deductionInfo.totalDeductionPerGroup?.toFixed(2)}</b>
+        </td>
+      </tr>
     </Table>
   );
 }

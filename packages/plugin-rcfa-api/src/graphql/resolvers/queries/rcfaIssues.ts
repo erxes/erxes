@@ -1,4 +1,4 @@
-import { generateModels, IContext, IModels } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 
 const RCFAIssuesQueries = {
   async rcfaIssues(_root, { mainType, mainTypeId }, { models }: IContext) {

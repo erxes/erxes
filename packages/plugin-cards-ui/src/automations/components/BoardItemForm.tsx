@@ -17,6 +17,7 @@ type Props = {
   activeAction: IAction;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   triggerType: string;
+  triggerConfig: any;
   pipelineLabels?: IPipelineLabel[];
   users: IUser[];
 };
@@ -118,7 +119,7 @@ class BoardItemForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { triggerType, users, activeAction } = this.props;
+    const { triggerType, users, activeAction, triggerConfig } = this.props;
     const { config, pipelineLabels } = this.state;
 
     const userOptions = users.map(u => ({
@@ -143,12 +144,16 @@ class BoardItemForm extends React.Component<Props, State> {
             config={config}
             onChange={this.onChange}
             triggerType={triggerType}
+            triggerConfig={triggerConfig}
+            attrWithSegmentConfig={true}
           />
           <PlaceHolderInput
             inputName="description"
             label="Description"
             config={config}
             onChange={this.onChange}
+            triggerConfig={triggerConfig}
+            attrWithSegmentConfig={true}
             triggerType={triggerType}
           />
           <PlaceHolderInput
@@ -221,6 +226,20 @@ class BoardItemForm extends React.Component<Props, State> {
           <SelectFields
             config={config}
             onSelect={this.onChange}
+            triggerConfig={triggerConfig}
+            customAttributions={[
+              {
+                _id: String(Math.random()),
+                name: 'attachments',
+                label: 'Attachments',
+                type: 'files',
+                excludeAttr: true,
+                callback: () =>
+                  this.setState({
+                    config: { ...config, attachments: '{{ attachments }}' }
+                  })
+              }
+            ]}
             label="Add Fields"
             excludedNames={[
               'name',

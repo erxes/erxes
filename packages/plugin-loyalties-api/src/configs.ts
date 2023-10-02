@@ -17,7 +17,8 @@ export default {
   name: 'loyalties',
   permissions,
   meta: {
-    logs: { loyalties: logs },
+    logs: { consumers: logs },
+
     automations,
     // for fixing permissions
     permissions
