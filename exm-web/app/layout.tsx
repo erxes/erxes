@@ -4,9 +4,12 @@ import "./globals.css"
 import { Metadata } from "next"
 import Script from "next/script"
 import JotaiProvider from "@/modules/JotaiProiveder"
+import CheckAuth from "@/modules/auth/checkAuth"
+import Configs from "@/modules/auth/configs"
 
 import { fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: "Exm ",
@@ -44,8 +47,13 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <ApolloProvider>
-          <JotaiProvider>{children}</JotaiProvider>
+          <JotaiProvider>
+            <Configs>
+              <CheckAuth>{children}</CheckAuth>
+            </Configs>
+          </JotaiProvider>
         </ApolloProvider>
+        <Toaster />
       </body>
     </html>
   )
