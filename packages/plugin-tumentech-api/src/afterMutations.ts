@@ -2,6 +2,7 @@ import { afterDealCreate, afterDealUpdate } from './afterMutations/deals';
 
 export default {
   'cards:deal': ['create', 'update'],
+  'contacts:customer': ['create']
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -17,5 +18,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
     return;
   }
-  
+
+  if (type === 'contacts:customer' && action === 'create') {
+    console.log('PARAMS', params);
+    return;
+  }
 };
