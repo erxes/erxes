@@ -55,6 +55,7 @@ export interface IPosOrder {
   userId?: string;
   items?: IPosOrderItem[];
   branchId: string;
+  subBranchId: string;
   departmentId: string;
   posToken: string;
   syncedErkhet?: Boolean;
@@ -200,6 +201,7 @@ export const posOrderSchema = schemaHooksWrapper(
     items: field({ type: [posOrderItemSchema], label: 'items' }),
     branchId: field({ type: String, label: 'Branch' }),
     departmentId: field({ type: String, label: 'Department' }),
+    subBranchId: field({ type: String, label: 'Sub Branch' }),
     posToken: field({ type: String, optional: true, label: 'Token' }),
 
     syncedErkhet: field({ type: Boolean, default: false }),

@@ -45,6 +45,7 @@ export interface IOrder {
   type?: string;
   branchId?: string;
   departmentId?: string;
+  subBranchId?: string;
   synced?: boolean;
   origin?: string;
   posToken?: string;
@@ -169,6 +170,7 @@ export const orderSchema = schemaHooksWrapper(
     }),
     branchId: field({ type: String, optional: true, label: 'Branch' }),
     departmentId: field({ type: String, optional: true, label: 'Branch' }),
+    subBranchId: field({ type: String, optional: true, label: 'Sub Branch' }),
     userId: field({
       type: String,
       optional: true,
