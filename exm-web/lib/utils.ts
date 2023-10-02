@@ -35,16 +35,6 @@ export const readFile = (value: string, width?: number): string => {
     url += `&width=${width}`
   }
 
-  if (NEXT_PUBLIC_MAIN_API_DOMAIN.includes("localhost")) {
-    url = `${NEXT_PUBLIC_MAIN_API_DOMAIN}/read-file?key=${value}`
-
-    if (width) {
-      url += `&width=${width}`
-    }
-
-    return url
-  }
-
   return url
 }
 

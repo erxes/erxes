@@ -7,6 +7,8 @@ const nextConfig = {
         hostname: "localhost",
       },
     ],
+
+    domains: ["s3.ap-southeast-1.amazonaws.com"],
   },
 }
 
