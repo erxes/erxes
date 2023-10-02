@@ -202,10 +202,14 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
         </PopoverTrigger>
         <PopoverContent className="w-40 p-3">
           <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-            {editAction()}
+            {currentUser.isOwner || currentUser._id === user._id
+              ? editAction()
+              : ""}
           </div>
           <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-            {deleteAction()}
+            {currentUser.isOwner || currentUser._id === user._id
+              ? deleteAction()
+              : ""}
           </div>
           <div
             className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
