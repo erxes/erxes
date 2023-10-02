@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
+import { withProps } from '@erxes/ui/src/utils';
 import {
   TimeClockMutationResponse,
   BranchesQueryResponse,
@@ -15,8 +15,9 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import erxesQuery from '@erxes/ui/src/team/graphql/queries';
-import { removeParams } from '@erxes/ui/src/utils/router';
 import { queries } from '../graphql';
+import { removeParams } from '@erxes/ui/src/utils/router';
+
 
 type Props = {
   currentUser: IUser;
@@ -63,15 +64,10 @@ class ListContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    if (!listScheduleConfigsQuery.scheduleConfigs) {
-      listScheduleConfigsQuery.refetch();
-    }
-
     const currentUserId = currentUser._id;
 
     const updatedProps = {
       ...this.props,
-      scheduleConfigs: listScheduleConfigsQuery.scheduleConfigs || [],
       isCurrentUserAdmin: isCurrentUserAdmin(this.props),
       isCurrentUserSupervisor:
         this.props.currentUser.permissionActions &&

@@ -24,11 +24,11 @@ export interface IDonateCampaignDocument
   _id: string;
 }
 
-const donateAwardSchema = new Schema(
+export const donateAwardSchema = new Schema(
   {
-    _id: { type: String },
-    minScore: { type: Number },
-    voucherCampaignId: { type: String }
+    _id: field({ pkey: true }),
+    minScore: field({ type: Number, label: 'Min score' }),
+    voucherCampaignId: field({ type: String, label: 'Voucher campaign' })
   },
   { _id: false }
 );
@@ -36,6 +36,6 @@ const donateAwardSchema = new Schema(
 export const donateCampaignSchema = new Schema({
   ...commonCampaignSchema,
 
-  awards: field({ type: [donateAwardSchema] }),
+  awards: field({ type: [donateAwardSchema], label: 'Awards' }),
   maxScore: field({ type: Number })
 });

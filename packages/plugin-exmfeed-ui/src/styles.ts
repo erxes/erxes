@@ -1,5 +1,82 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { keyframes } from 'styled-components';
+
+export const AttachmentContainer = styledTS<{ attachmentLength: number }>(
+  styled.div
+)`
+  > div {
+    display: flex;
+    margin-top: 5px;
+    
+    > img {
+      object-fit: cover;
+      max-height: 200px;
+      border-right: 1px solid #ddd;
+      border-top: 1px solid #ddd;
+      margin-right: 5px;
+      border-left: 1px solid #ddd;
+      ${props => (props.attachmentLength === 3 ? `width: 50%;` : `width: 33%;`)}
+
+      &:first-child {
+        border-left: none;
+      }
+      &:last-child {
+        margin-right: 0;
+        border-right: none;
+      }
+    }
+  }
+
+  > img {
+    object-fit: cover;
+
+    ${props =>
+      props.attachmentLength === 1 || props.attachmentLength > 2
+        ? `
+      width: 100%;
+      border-top: 1px solid #ddd;
+      max-height: 400px;
+      `
+        : props.attachmentLength === 2
+        ? `
+      width: 50%;
+      height: 400px;
+      &:last-child {
+        width: calc(50% - 5px);
+        margin-left: 5px;
+      }`
+        : ``}
+  }
+`;
+
+export const MoreAttachment = styled.div`
+  height: fit-content;
+  width: fit-content;
+  margin: auto;
+`;
+
+export const fadeIn = keyframes`
+  0% {
+    opacity: 0;
+	}
+	
+  100% {
+    opacity: 1;
+  }
+`;
+
+export const slideDown = keyframes`
+  0% {
+    transform: translateY(-20px);
+    opacity: 0.7;
+	}
+	
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
 
 export const FeedLayout = styled.div`
   flex: 1;

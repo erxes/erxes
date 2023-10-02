@@ -103,6 +103,13 @@ export interface IContract {
 
   dealId?: string;
   currency: string;
+  storedInterest: number;
+  lastStoredDate: Date;
+  isPayFirstMonth: boolean;
+  downPayment: number;
+  isBarter: boolean;
+  isStoppedInterest: boolean;
+  stoppedInterestDate: Date;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -357,6 +364,41 @@ export const contractSchema = schemaHooksWrapper(
       type: String,
       default: 'MNT',
       label: 'contract currency of lease'
+    }),
+    storedInterest: field({
+      type: Number,
+      optional: true,
+      default: 0,
+      label: 'Stored Interest'
+    }),
+    lastStoredDate: field({
+      type: Date,
+      optional: true,
+      label: 'Last Stored Date'
+    }),
+    isPayFirstMonth: field({
+      type: Boolean,
+      default: false,
+      label: 'Is pay first month'
+    }),
+    downPayment: field({
+      type: Number,
+      default: 0,
+      label: 'Down payment'
+    }),
+    isBarter: field({
+      type: Boolean,
+      default: false,
+      label: 'Is Barter'
+    }),
+    isStoppedInterest: field({
+      type: Boolean,
+      default: false,
+      label: 'Is stopped interest'
+    }),
+    stoppedInterestDate: field({
+      type: Date,
+      label: 'Stopped interest date'
     })
   }),
   'erxes_contractSchema'

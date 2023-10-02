@@ -43,7 +43,12 @@ class List extends React.Component<IProps> {
     );
 
     return (
-      <ModalTrigger title="Add category" trigger={trigger} content={content} />
+      <ModalTrigger
+        title="Add category"
+        trigger={trigger}
+        size="lg"
+        content={content}
+      />
     );
   }
 

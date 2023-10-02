@@ -3,7 +3,7 @@ import {
   Conversations,
   ConversationMessages,
   IConversation,
-  IConversationMessages
+  Integrations
 } from '../models';
 import { sendInboxMessage } from '../messageBroker';
 import { graphqlPubsub } from '../configs';
@@ -65,31 +65,27 @@ const messageListen = async (
           : e
       );
     }
+  }
 
-    try {
-      const apiConversationResponse = await sendInboxMessage({
-        subdomain,
-        action: 'integrations.receive',
-        data: {
-          action: 'create-or-update-conversation',
-          payload: JSON.stringify({
-            customerId: customer.contactsId,
-            integrationId,
-            content: message.message.text || '',
-            attachments: null,
-            conversationId: conversation.erxesApiId,
-            updatedAt: message.timestamp
-          })
-        },
-        isRPC: true
-      });
-
-      conversation.erxesApiId = apiConversationResponse._id;
-
-      await conversation.save();
-    } catch (e) {
-      throw new Error(e);
-    }
+  try {
+    await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer.contactsId,
+          integrationId,
+          content: message.message.text || '',
+          conversationId: conversation.erxesApiId,
+          createdAt: message.timestamp
+        })
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+  } catch (e) {
+    console.error(e);
   }
 
   try {
@@ -106,21 +102,12 @@ const messageListen = async (
       messageObj.attachments = [{ type: 'image', url: message.message.media }];
     }
 
-    const conversationMessage: IConversationMessages = await ConversationMessages.create(
-      messageObj
-    );
+    const conversationMessage = await ConversationMessages.create(messageObj);
 
     await sendInboxMessage({
       subdomain,
       action: 'conversationClientMessageInserted',
       data: {
-        ...conversationMessage.toObject(),
-        conversationId: conversation.erxesApiId
-      }
-    });
-
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: {
         ...conversationMessage.toObject(),
         conversationId: conversation.erxesApiId
       }

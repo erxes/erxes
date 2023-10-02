@@ -14,6 +14,14 @@ const chatAdd = `
   }
 `;
 
+const chatEdit = `
+  mutation chatEdit($id: String!, $name: String) {
+    chatEdit(_id: $id, name: $name) {
+      _id
+    }
+  }
+`;
+
 const chatRemove = `
   mutation chatRemove($id: String!) {
     chatRemove(_id: $id)
@@ -44,12 +52,22 @@ const chatToggleIsPinned = `
   }
 `;
 
+const chatForward = `
+  mutation chatForward($chatId: String, $userIds: [String], $content: String, $attachments: [JSON]) {
+    chatForward(chatId: $chatId, userIds: $userIds, content: $content, attachments: $attachments) {
+      _id
+    }
+  }
+`;
+
 export default {
   chatMessageAdd,
   chatAdd,
+  chatEdit,
   chatRemove,
   chatMarkAsRead,
   chatMakeOrRemoveAdmin,
   chatAddOrRemoveMember,
-  chatToggleIsPinned
+  chatToggleIsPinned,
+  chatForward
 };

@@ -22,6 +22,7 @@ export interface ITumentechDeal {
   estimatedCloseDate: Date;
   trackingData: ITrackingData[];
   geometry: string;
+  tripDistance: number;
   createdAt: Date;
 }
 
@@ -70,6 +71,10 @@ export const tumentechDealSchema = schemaHooksWrapper(
     geometry: field({
       type: String,
       label: 'Geometry Id'
+    }),
+    tripDistance: field({
+      type: Number,
+      label: 'Trip distance'
     }),
     createdAt: field({ type: Date, label: 'Created at' })
   }),

@@ -2,7 +2,15 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export type ReportsQueryResponse = {
-  bichilTimeclockReport: { list: IReport[]; totalCount: number };
+  bichilTimeclockReport: {
+    list: IReport[];
+    totalCount: number;
+    totalHoursScheduled: number;
+    totalHoursWorked: number;
+    totalShiftNotClosedDeduction: number;
+    totalLateMinsDeduction: number;
+    totalDeductionPerGroup: number;
+  };
 } & QueryResponse;
 
 export interface IReport {
@@ -16,6 +24,9 @@ export interface IReport {
 export interface IUserReport {
   user: IUser;
   scheduleReport: IScheduleReport[];
+
+  branchTitles?: string[];
+  departmentTitles?: string[];
 
   totalMinsWorked?: number;
   totalMinsWorkedToday?: number;
@@ -42,6 +53,19 @@ export interface IUserReport {
   totalHoursShiftRequest?: number;
   totalDays?: number;
   totalWeekendDays?: number;
+
+  shiftNotClosedDaysPerUser?: number;
+  shiftNotClosedFee?: number;
+  shiftNotClosedDeduction?: number;
+
+  latenessFee?: number;
+  totalMinsLateDeduction?: number;
+
+  totalDeduction?: number;
+
+  totalHoursVacation?: number;
+  totalHoursUnpaidAbsence?: number;
+  totalHoursSick?: number;
 }
 
 export interface IScheduleReport {

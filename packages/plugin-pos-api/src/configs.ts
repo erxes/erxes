@@ -5,12 +5,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
-import {
-  posInit,
-  posSyncConfig,
-  posSyncOrders,
-  unfetchOrderInfo
-} from './routes';
+import { posInit, posSyncConfig, unfetchOrderInfo } from './routes';
 import afterMutations from './afterMutations';
 import automations from './automations';
 import forms from './forms';
@@ -18,6 +13,7 @@ import segments from './segments';
 import dashboards from './dashboards';
 import imports from './imports';
 import exporter from './exporter';
+import { exportFileRunner } from './exporterByUrl';
 export let debug;
 export let graphqlPubsub;
 export let mainDb;
@@ -28,12 +24,10 @@ export default {
   permissions,
   getHandlers: [
     { path: `/pos-init`, method: posInit },
-    { path: `/pos-sync-config`, method: posSyncConfig }
+    { path: `/pos-sync-config`, method: posSyncConfig },
+    { path: `/file-export`, method: exportFileRunner }
   ],
-  postHandlers: [
-    { path: `/api/unfetch-order-info`, method: unfetchOrderInfo },
-    { path: `/pos-sync-orders`, method: posSyncOrders }
-  ],
+  postHandlers: [{ path: `/api/unfetch-order-info`, method: unfetchOrderInfo }],
   graphql: async sd => {
     serviceDiscovery = sd;
     return {
@@ -64,6 +58,7 @@ export default {
     automations,
     forms,
     segments,
+    permissions,
     dashboards,
     imports,
     exporter

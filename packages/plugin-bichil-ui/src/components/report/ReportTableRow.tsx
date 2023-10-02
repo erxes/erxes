@@ -8,13 +8,22 @@ import { returnDeviceTypes } from '../../utils';
 type Props = {
   bichilReport: IReport;
   reportType: string;
+  index: number;
+  deductionInfo?: any;
 };
 
-const ReportRow = (userReport: IUserReport, reportType: string) => {
+const ReportRow = (
+  userReport: IUserReport,
+  reportType: string,
+  index: number
+) => {
   switch (reportType) {
     case 'Урьдчилсан':
       return (
         <tr key={Math.random()}>
+          <td>
+            <b>{index}</b>
+          </td>
           <td>{userReport.user.employeeId}</td>
           <td>{userReport.user.details?.lastName || '-'}</td>
           <td>{userReport.user.details?.firstName || '-'}</td>
@@ -26,31 +35,42 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
       );
 
     case 'Сүүлд':
+      const getLastName = userReport.user.details?.lastName || '';
+      const getFirstName = userReport.user.details?.firstName || '';
+      const getFullName = `${getLastName.charAt(0)}.${getFirstName}`;
+
       return (
-        <tr key={Math.random()}>
-          <td>{userReport.user.employeeId}</td>
+        <tr>
+          <td>{getFullName || '-'}</td>
+          <td>{userReport.user.employeeId || '-'}</td>
+
           <td>{userReport.user.details?.position || '-'}</td>
-          <td>{userReport.user.details?.lastName || '-'}</td>
-          <td>{userReport.user.details?.firstName || '-'}</td>
 
-          <td>{userReport.totalDays}</td>
-          <td>{userReport.totalWeekendDays}</td>
-
-          <td>{userReport.totalDaysScheduled}</td>
           <td>{userReport.totalHoursScheduled}</td>
+          <td>{userReport.totalHoursWorked}</td>
 
-          <td>{userReport.totalDaysWorked}</td>
-          <td>{userReport.totalRegularHoursWorked}</td>
-          <td>{userReport.totalHoursShiftRequest}</td>
-          <td>{userReport.totalHoursOvertime}</td>
+          <td>{userReport.totalHoursVacation}</td>
+          <td>{userReport.totalHoursUnpaidAbsence}</td>
+          <td>{userReport.totalHoursSick}</td>
 
-          <td>{userReport.totalMinsLate}</td>
+          <td>{userReport.shiftNotClosedDaysPerUser}</td>
+          <td>{userReport.shiftNotClosedFee}</td>
+          <td>{userReport.shiftNotClosedDeduction}</td>
+
+          <td>{userReport.totalMinsLate?.toFixed(2)}</td>
+          <td>{userReport.latenessFee}</td>
+          <td>{userReport.totalMinsLateDeduction?.toFixed(2)}</td>
+
+          <td>{userReport.totalDeduction?.toFixed(2)}</td>
         </tr>
       );
 
     case 'Pivot':
       return (
         <tr key={Math.random()}>
+          <td>
+            <b>{index}</b>
+          </td>
           <td>{userReport.user.employeeId}</td>
           <td>{userReport.user.details?.lastName || '-'}</td>
           <td>{userReport.user.details?.firstName || '-'}</td>
@@ -190,11 +210,31 @@ const renderScheduleShiftsOfReport = scheduleReport => {
 };
 
 function TableRow(props: Props) {
-  const { reportType, bichilReport } = props;
+  const { reportType, bichilReport, index } = props;
+  if (reportType === 'Сүүлд') {
+    const { groupTitle } = bichilReport;
+    const groupReportLength = bichilReport.groupReport.length;
+
+    return (
+      <tbody>
+        <>
+          <tr>
+            <td rowSpan={groupReportLength + 1} style={{ textAlign: 'center' }}>
+              <b>{groupTitle}</b>
+            </td>
+          </tr>
+          {bichilReport.groupReport.map((userReport, i) =>
+            ReportRow(userReport, reportType, i)
+          )}
+        </>
+      </tbody>
+    );
+  }
+
   return (
     <tbody>
       {bichilReport.groupReport.map(userReport =>
-        ReportRow(userReport, reportType)
+        ReportRow(userReport, reportType, index)
       )}
     </tbody>
   );

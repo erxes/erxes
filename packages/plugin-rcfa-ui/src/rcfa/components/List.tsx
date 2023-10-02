@@ -42,7 +42,7 @@ class rcfaTable extends React.Component<Props, State> {
               <th>{__('Status')}</th>
               <th>{__('Created at')}</th>
               <th>{__('Closed at')}</th>
-              <th>{__('Detail')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>

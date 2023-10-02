@@ -8,9 +8,11 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { ListQueryVariables, OrderRecordsQueryResponse } from '../types';
 import { queries } from '../graphql';
 import { withRouter } from 'react-router-dom';
-import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
+import { Bulk, getEnv, withProps, router, Spinner } from '@erxes/ui/src';
 import { FILTER_PARAMS } from '../../constants';
 import { IQueryParams } from '@erxes/ui/src/types';
+import { OrderRecordsCountQueryResponse } from '../../../.erxes/plugin-src/orders/types';
+import { generateParams } from './List';
 
 type Props = {
   queryParams: any;
@@ -19,6 +21,7 @@ type Props = {
 
 type FinalProps = {
   ordersQuery: OrderRecordsQueryResponse;
+  ordersCountQuery: OrderRecordsCountQueryResponse;
 } & Props &
   IRouterProps;
 
@@ -92,24 +95,42 @@ class OrdersContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { ordersQuery } = this.props;
+    const { ordersQuery, ordersCountQuery } = this.props;
 
-    if (ordersQuery.loading) {
+    if (ordersQuery.loading || ordersCountQuery.loading) {
       return <Spinner />;
     }
 
     const list = ordersQuery.posOrderRecords || [];
+    const count = ordersCountQuery.posOrderRecordsCount || [];
+
+    const exportOrderRecords = headers => {
+      const { REACT_APP_API_URL } = getEnv();
+      const { queryParams } = this.props;
+      const params = generateParams({ queryParams });
+
+      const stringified = queryString.stringify({
+        ...params
+      });
+
+      window.open(
+        `${REACT_APP_API_URL}/pl:pos/file-export?${stringified}`,
+        '_blank'
+      );
+    };
 
     const updatedProps = {
       ...this.props,
       orders: list,
+      count,
       loading: ordersQuery.loading,
 
       onFilter: this.onFilter,
       onSelect: this.onSelect,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
+      exportRecord: exportOrderRecords
     };
 
     const ordersList = props => {
@@ -124,25 +145,6 @@ class OrdersContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParams = ({ queryParams }) => ({
-  ...router.generatePaginationParams(queryParams || {}),
-  sortField: queryParams.sortField,
-  sortDirection: queryParams.sortDirection
-    ? parseInt(queryParams.sortDirection, 10)
-    : undefined,
-  search: queryParams.search,
-  paidStartDate: queryParams.paidStartDate,
-  paidEndDate: queryParams.paidEndDate,
-  createdStartDate: queryParams.createdStartDate,
-  createdEndDate: queryParams.createdEndDate,
-  paidDate: queryParams.paidDate,
-  userId: queryParams.userId,
-  customerId: queryParams.customerId,
-  customerType: queryParams.customerType,
-  posId: queryParams.posId,
-  types: queryParams.types && queryParams.types.split(',')
-});
-
 export default withProps<Props>(
   compose(
     graphql<
@@ -151,6 +153,17 @@ export default withProps<Props>(
       ListQueryVariables
     >(gql(queries.posOrderRecords), {
       name: 'ordersQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams }),
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<
+      { queryParams: any },
+      OrderRecordsCountQueryResponse,
+      ListQueryVariables
+    >(gql(queries.posOrderRecordsCount), {
+      name: 'ordersCountQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
         fetchPolicy: 'network-only'

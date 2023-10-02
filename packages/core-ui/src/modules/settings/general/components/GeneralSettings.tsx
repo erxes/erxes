@@ -1,24 +1,4 @@
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Button from 'modules/common/components/Button';
-import CollapseContent from 'modules/common/components/CollapseContent';
-import { FormControl } from 'modules/common/components/form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Info from 'modules/common/components/Info';
-import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import {
-  __,
-  uploadHandler,
-  readFile,
-  loadDynamicComponent
-} from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
-import React from 'react';
-import Select from 'react-select-plus';
 import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
 import {
   DATA_RETENTION_DURATION,
@@ -29,10 +9,32 @@ import {
   LOG_RETENTION_DURATION,
   SERVICE_TYPES
 } from '@erxes/ui-settings/src/general/constants';
-import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import {
+  __,
+  loadDynamicComponent,
+  readFile,
+  uploadHandler
+} from 'modules/common/utils';
+
 import ActivateInstallation from './ActivateInstallation';
+import Button from 'modules/common/components/Button';
+import CURRENCIES from '@erxes/ui/src/constants/currencies';
+import CollapseContent from 'modules/common/components/CollapseContent';
+import ControlLabel from 'modules/common/components/form/Label';
+import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
+import { FormControl } from 'modules/common/components/form';
+import FormGroup from 'modules/common/components/form/Group';
 import Header from '@erxes/ui-settings/src/general/components/Header';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import { ImageWrapper } from 'modules/settings/styles';
+import Info from 'modules/common/components/Info';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import React from 'react';
+import Select from 'react-select-plus';
 import { SelectTeamMembers } from '@erxes/ui/src';
+import TwitterPicker from 'react-color/lib/Twitter';
+import Wrapper from 'modules/layout/components/Wrapper';
 
 type Props = {
   currentLanguage: string;
@@ -184,9 +186,9 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[field]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         {value ? (
-          <p>
+          <ImageWrapper>
             <img alt={field} src={readFile(value)} />
-          </p>
+          </ImageWrapper>
         ) : null}
         <input type="file" onChange={this.handleLogoChange.bind(this, field)} />
       </FormGroup>
@@ -218,6 +220,35 @@ class GeneralSettings extends React.Component<Props, State> {
           multi={true}
         />
       </FormGroup>
+    );
+  }
+
+  renderCloudflare() {
+    const { configsMap } = this.state;
+
+    return (
+      <CollapseContent
+        title={__('Cloudflare')}
+        description={__('Cloudflare R2 Bucket, Images & Stream CDN configs')}
+      >
+        {this.renderItem('CLOUDFLARE_ACCOUNT_ID')}
+        {this.renderItem('CLOUDFLARE_API_TOKEN')}
+        {this.renderItem('CLOUDFLARE_ACCESS_KEY_ID')}
+        {this.renderItem('CLOUDFLARE_SECRET_ACCESS_KEY')}
+        {this.renderItem('CLOUDFLARE_BUCKET_NAME')}
+        {this.renderItem('CLOUDFLARE_ACCOUNT_HASH')}
+        <FormGroup>
+          <ControlLabel>{KEY_LABELS.CLOUDFLARE_USE_CDN}</ControlLabel>
+          <p>{__('Upload images/videos to Cloudflare cdn')}</p>
+          <FormControl
+            componentClass={'checkbox'}
+            checked={configsMap.CLOUDFLARE_USE_CDN}
+            onChange={(e: any) => {
+              this.onChangeConfig('CLOUDFLARE_USE_CDN', e.target.checked);
+            }}
+          />
+        </FormGroup>
+      </CollapseContent>
     );
   }
 
@@ -403,6 +434,8 @@ class GeneralSettings extends React.Component<Props, State> {
             {this.renderItem('GOOGLE_CLOUD_STORAGE_BUCKET')}
           </FormGroup>
         </CollapseContent>
+
+        {this.renderCloudflare()}
 
         <CollapseContent title="AWS S3">
           <Info>

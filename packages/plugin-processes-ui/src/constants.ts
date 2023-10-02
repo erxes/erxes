@@ -1,3 +1,9 @@
+export const PERFORM_STATUSES = {
+  '': 'All',
+  confirmed: 'Confirmed',
+  draft: 'Draft'
+};
+
 export const JOB_TYPE_CHOISES = {
   job: 'Facture',
   end: 'End Point',

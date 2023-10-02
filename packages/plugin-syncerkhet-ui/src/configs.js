@@ -21,7 +21,7 @@ module.exports = {
     },
     {
       text: 'Sync Erkhet',
-      url: '/check-synced-deals?dateType=firstOrMove',
+      url: '/sync-erkhet-history',
       icon: 'icon-file-check-alt',
       location: "mainNavigation",
       scope: 'syncerkhet',

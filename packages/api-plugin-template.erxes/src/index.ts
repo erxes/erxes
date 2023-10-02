@@ -9,8 +9,10 @@ import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import { filterXSS } from 'xss';
-import { buildSubgraphSchema } from '@apollo/federation';
-import { ApolloServer } from 'apollo-server-express';
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import * as cookieParser from 'cookie-parser';
 
 import * as http from 'http';
@@ -22,7 +24,6 @@ import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import pubsub from './pubsub';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import * as ws from 'ws';
 
@@ -99,7 +100,7 @@ if (configs.getHandlers) {
 
 app.disable('x-powered-by');
 
-app.use(cors());
+app.use(cors(configs.corsOptions || {}));
 
 app.use(cookieParser());
 
@@ -208,7 +209,22 @@ const generateApolloServer = async serviceDiscovery => {
     ]),
 
     // for graceful shutdown
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
+  });
+};
+
+async function startServer() {
+  const serviceDiscovery = {
+    getServices,
+    getService,
+    isAvailable,
+    isEnabled
+  };
+
+  const apolloServer = await generateApolloServer(serviceDiscovery);
+  await apolloServer.start();
+
+  app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }) => {
       let user: any = null;
 
@@ -275,25 +291,7 @@ const generateApolloServer = async serviceDiscovery => {
 
       return context;
     }
-  });
-};
-
-async function startServer() {
-  const serviceDiscovery = {
-    getServices,
-    getService,
-    isAvailable,
-    isEnabled
-  };
-
-  const apolloServer = await generateApolloServer(serviceDiscovery);
-  await apolloServer.start();
-
-  apolloServer.applyMiddleware({
-    app,
-    path: '/graphql',
-    cors: configs.corsOptions || {}
-  });
+  }));
 
   await new Promise<void>(resolve =>
     httpServer.listen({ port: PORT }, resolve)
@@ -309,7 +307,7 @@ async function startServer() {
   }
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
+    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`
   );
 
   const mongoUrl = MONGO_URL || '';
@@ -493,7 +491,7 @@ async function startServer() {
     if (imports) {
       if (imports.prepareImportDocs) {
         consumeRPCQueue(
-          `${configs.name}:imports:prepareImportDocs`,
+          `${configs.name}:imports.prepareImportDocs`,
           async args => ({
             status: 'success',
             data: await imports.prepareImportDocs(args)
@@ -503,7 +501,7 @@ async function startServer() {
 
       if (imports.insertImportItems) {
         consumeRPCQueue(
-          `${configs.name}:imports:insertImportItems`,
+          `${configs.name}:imports.insertImportItems`,
           async args => ({
             status: 'success',
             data: await imports.insertImportItems(args)
@@ -515,7 +513,7 @@ async function startServer() {
     if (exporter) {
       if (exporter.prepareExportData) {
         consumeRPCQueue(
-          `${configs.name}:exporter:prepareExportData`,
+          `${configs.name}:exporter.prepareExportData`,
           async args => ({
             status: 'success',
             data: await exporter.prepareExportData(args)
@@ -525,7 +523,7 @@ async function startServer() {
 
       if (exporter.getExportDocs) {
         consumeRPCQueue(
-          `${configs.name}:exporter:getExportDocs`,
+          `${configs.name}:exporter.getExportDocs`,
           async args => ({
             status: 'success',
             data: await exporter.getExportDocs(args)

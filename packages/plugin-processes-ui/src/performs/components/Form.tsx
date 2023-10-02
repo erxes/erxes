@@ -29,6 +29,7 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { confirm } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { __ } from 'coreui/utils';
 import React from 'react';
 import { JOB_TYPE_CHOISES } from '../../constants';
@@ -37,8 +38,8 @@ import { queries } from '../../job/graphql';
 import { IOverallWorkDet } from '../../overallWork/types';
 import { AddTrigger, TableOver } from '../../styles';
 import { IProductsData } from '../../types';
-import SeriesPrint from '../containers/SeriesPrint';
 import { IPerform } from '../types';
+import FormPrintAction from './FormPrintAction';
 import PerformDetail from './PerformDetail';
 
 type Props = {
@@ -67,7 +68,6 @@ type State = {
   resultProducts: IProductsData[];
   inProducts: IProductsData[];
   outProducts: IProductsData[];
-  categoryId: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -154,8 +154,7 @@ class Form extends React.Component<Props, State> {
       needProducts,
       resultProducts,
       inProducts,
-      outProducts,
-      categoryId: ''
+      outProducts
     };
   }
 
@@ -410,8 +409,6 @@ class Form extends React.Component<Props, State> {
       <ProductChooser
         {...props}
         onSelect={productOnChange}
-        onChangeCategory={categoryId => this.setStateWrapper({ categoryId })}
-        categoryId={this.state.categoryId}
         data={{
           name: 'Product',
           products: productsData.filter(p => p.product).map(p => p.product)
@@ -508,7 +505,7 @@ class Form extends React.Component<Props, State> {
           <thead>
             <tr>
               <th>
-                {__('Out Products')} {(productsData || []).length}
+                {__('Receipt Products')} {(productsData || []).length}
               </th>
               <th>{__('UOM')}</th>
               <th>{__('Quantity')}</th>
@@ -544,7 +541,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('In Products', inProducts || [], 'inProducts')}
+        {this.renderProducts('Spend Products', inProducts || [], 'inProducts')}
       </SidebarList>
     );
   }
@@ -554,7 +551,11 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('Out Products', outProducts || [], 'outProducts')}
+        {this.renderProducts(
+          'Receipt Products',
+          outProducts || [],
+          'outProducts'
+        )}
       </SidebarList>
     );
   }
@@ -653,7 +654,7 @@ class Form extends React.Component<Props, State> {
       return (
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{__(`Send Branch`)}</ControlLabel>
+            <ControlLabel>{__(`Spend Branch`)}</ControlLabel>
             <SelectBranches
               label="Choose branch"
               name="inBranchId"
@@ -667,7 +668,7 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__(`Send Department`)}</ControlLabel>
+            <ControlLabel>{__(`Spend Department`)}</ControlLabel>
             <SelectDepartments
               label="Choose department"
               name="inDepartmentId"
@@ -689,12 +690,13 @@ class Form extends React.Component<Props, State> {
       <FormColumn>
         <FormGroup>
           <ControlLabel>
-            {__(`In Branch`)}: {this.renderLocLabel(overallWorkDetail.inBranch)}
+            {__(`Spend Branch`)}:{' '}
+            {this.renderLocLabel(overallWorkDetail.inBranch)}
           </ControlLabel>
         </FormGroup>
         <FormGroup>
           <ControlLabel>
-            {__(`In Department`)}:{' '}
+            {__(`Spend Department`)}:{' '}
             {this.renderLocLabel(overallWorkDetail.inDepartment)}
           </ControlLabel>
         </FormGroup>
@@ -888,42 +890,17 @@ class Form extends React.Component<Props, State> {
     return;
   }
 
-  printSeries = () => {
+  renderDocuments() {
     const { perform } = this.props;
-
     if (!perform || !perform._id) {
-      return;
-    }
-    window.open(`/processes/seriesNumberPrint/${perform._id}`);
-  };
-
-  renderPrintBtn() {
-    const { perform } = this.props;
-    if (!perform || !perform._id || !perform.series) {
       return <></>;
     }
-    const trigger = (
-      <Button
-        btnStyle="simple"
-        onClick={this.printSeries}
-        icon="print"
-        uppercase={false}
-      >
-        Print
-      </Button>
-    );
 
-    const modalContent = props => <SeriesPrint {...props} id={perform._id} />;
+    if (!isEnabled('documents')) {
+      return <></>;
+    }
 
-    return (
-      <ModalTrigger
-        title={__('Print performance series')}
-        size="xl"
-        trigger={trigger}
-        autoOpenKey="showPrintSeriesModal"
-        content={modalContent}
-      />
-    );
+    return <FormPrintAction perform={perform} />;
   }
 
   renderConfirmOrAbort() {
@@ -1112,8 +1089,10 @@ class Form extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
             </FormColumn>
+
+            <FormColumn>{this.renderDocuments()}</FormColumn>
+
             <FormColumn>
-              {this.renderPrintBtn()}
               <Button
                 btnStyle="simple"
                 onClick={closeModal}

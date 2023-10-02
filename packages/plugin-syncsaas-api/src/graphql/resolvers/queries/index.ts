@@ -1,3 +1,3 @@
 import syncQueries from './sync';
-
-export { syncQueries };
+import categoriesQueries from './categories';
+export { syncQueries, categoriesQueries };

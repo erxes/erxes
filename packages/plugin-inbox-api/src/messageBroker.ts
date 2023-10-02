@@ -103,10 +103,9 @@ export const initBroker = cl => {
     }
   );
 
-  consumeRPCQueue(
-    'inbox:integrations.receive',
-    async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
-  );
+  consumeRPCQueue('inbox:integrations.receive', async ({ subdomain, data }) => {
+    return receiveRpcMessage(subdomain, data);
+  });
 
   consumeQueue(
     'inbox:integrationsNotification',
@@ -254,6 +253,27 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'inbox:conversations.changeStatus',
+    async ({ subdomain, data: { id, status } }) => {
+      const models = await generateModels(subdomain);
+
+      if (id && status) {
+        return {
+          status: 'success',
+          data: await models.Conversations.updateOne(
+            { _id: id },
+            { status: status }
+          )
+        };
+      }
+      return {
+        status: 'error',
+        data: []
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'inbox:conversations.count',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
@@ -288,6 +308,15 @@ export const initBroker = cl => {
     return {
       status: 'success',
       data: await models.Channels.updateUserChannels(channelIds, userId)
+    };
+  });
+
+  consumeRPCQueue('inbox:channels.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Channels.find(data)
     };
   });
 

@@ -143,7 +143,7 @@ const productMutations = {
     { _id, ...doc }: IProductCategoriesEdit,
     { user, models, subdomain }: IContext
   ) {
-    const productCategory = await models.ProductCategories.getProductCatogery({
+    const productCategory = await models.ProductCategories.getProductCategory({
       _id
     });
     const updated = await models.ProductCategories.updateProductCategory(
@@ -175,7 +175,7 @@ const productMutations = {
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
   ) {
-    const productCategory = await models.ProductCategories.getProductCatogery({
+    const productCategory = await models.ProductCategories.getProductCategory({
       _id
     });
     const removed = await models.ProductCategories.removeProductCategory(_id);
@@ -207,7 +207,7 @@ const productMutations = {
 
 checkPermission(productMutations, 'productsAdd', 'manageProducts');
 checkPermission(productMutations, 'productsEdit', 'manageProducts');
-checkPermission(productMutations, 'productsRemove', 'manageProducts');
+checkPermission(productMutations, 'productsRemove', 'removeProducts');
 checkPermission(productMutations, 'productsMerge', 'productsMerge');
 
 checkPermission(productMutations, 'productCategoriesAdd', 'manageProducts');

@@ -1,3 +1,97 @@
+# [1.3.0](https://github.com/erxes/erxes/compare/1.2.3...1.3.0) (2023-09-20)
+
+
+### Bug Fixes
+
+* **cards:** comment ([#4458](https://github.com/erxes/erxes/issues/4458)) ([a2ffa44](https://github.com/erxes/erxes/commit/a2ffa447dba36efb47d16cc6d07291d0df541cc4))
+* **cards:** conversation convert trigger ([ba059ce](https://github.com/erxes/erxes/commit/ba059ce3461ae87a5e13c5d8ae1f65c227f03ac6))
+* **client portal:** cards filter params ([#4449](https://github.com/erxes/erxes/issues/4449)) ([a2a55e9](https://github.com/erxes/erxes/commit/a2a55e9ec5152a9e1fc2aece40312dbdad1e7fd2))
+* **clientportal:** cards filter ([c3894b1](https://github.com/erxes/erxes/commit/c3894b162c764e1a706f7f99a7d5319f8247a58d))
+* **clientportal:** currentuser null error ([bedf91e](https://github.com/erxes/erxes/commit/bedf91ea695082b792b47d88600758bc718eaff3))
+* **clientportal:** list bugs ([086658d](https://github.com/erxes/erxes/commit/086658de6d2cd0fd92b660cfc4947803dddc4566))
+* **clientportal:** notifications ([083b23e](https://github.com/erxes/erxes/commit/083b23e22aad0fb950e4c88996dbb8b43696fc41))
+* **core:** currentUser query cache miss ([7acf8cd](https://github.com/erxes/erxes/commit/7acf8cd6d1413b2288de0c10dfc6e20cb42b0272))
+* **core:** file upload not recognizing csv mime type ([7ab7cec](https://github.com/erxes/erxes/commit/7ab7cec5cfce368fa11cecaef770b8445814c33a))
+* **emailWidget:** search bar of email template chooser ([#4622](https://github.com/erxes/erxes/issues/4622)) ([5e6dd99](https://github.com/erxes/erxes/commit/5e6dd992aaa1fee6b5da959f4a1688ca8f3d32ac))
+* **inbox:** conversation messages not showing ([7877416](https://github.com/erxes/erxes/commit/787741657db061e3bb6b846e8b7801628de66774))
+* **inbox:** play video attachment of conversation ([9bcd1d6](https://github.com/erxes/erxes/commit/9bcd1d66b8d3956914f7c0b710c66d7d98d0b077))
+* **inbox:** play video attachment of conversation ([2d27610](https://github.com/erxes/erxes/commit/2d27610276bf43eb839d3d9322ff3f094d66be2a))
+* **integration:** messenger form select ([#4620](https://github.com/erxes/erxes/issues/4620)) ([0b75e92](https://github.com/erxes/erxes/commit/0b75e92cf72431c22cbbeae886454a6dd0f0e6f4))
+* **nav:** more button style ([#4455](https://github.com/erxes/erxes/issues/4455)) ([63cd926](https://github.com/erxes/erxes/commit/63cd9265bc67a6a1c5cc66ab5ecfc690d568dd66))
+* **permission:** member avatar ([#4627](https://github.com/erxes/erxes/issues/4627)) ([5a703d3](https://github.com/erxes/erxes/commit/5a703d3e7fef3ce4f08362f67e133b7d2bc9937e))
+* products category ([4fa853e](https://github.com/erxes/erxes/commit/4fa853ee39d07ddca5239a1a4016fa68d0bce768))
+* **products:** import barcodes and subuoms ([b54acc4](https://github.com/erxes/erxes/commit/b54acc4f766473fc283fe20a1aa1a94a7c6ccb07))
+* rpc timeout ([125eef5](https://github.com/erxes/erxes/commit/125eef5bc63aedb13f8ec9b13ce487825b1e1805))
+* **widgets:** change asterisk color of required field ([9953a7f](https://github.com/erxes/erxes/commit/9953a7f3c30d975e6af9a150fe75f984333f8d04))
+* **widgets:** continue if form field type is productCategory and not required ([62324c0](https://github.com/erxes/erxes/commit/62324c0212bf8a7d202c16a4c70c787bfe23308f))
+* **widgets:** improve subfields css ([a587176](https://github.com/erxes/erxes/commit/a587176a0630fb8df965ec23b88f705457813bd5))
+
+
+* perf:(products) products uom related to uomCode  (#4502) ([08c37ad](https://github.com/erxes/erxes/commit/08c37ada997d566f65fcc8a5b6376ecc701f52ff)), closes [#4502](https://github.com/erxes/erxes/issues/4502)
+
+
+### Features
+
+* **core:** add cloudflare images & stream ([#4606](https://github.com/erxes/erxes/issues/4606)) ([0669abf](https://github.com/erxes/erxes/commit/0669abf2d16a5c72704895a653bac9e8ea3fb3ae))
+* **core:** integrate cloudflare r2 as a file upload ([#4592](https://github.com/erxes/erxes/issues/4592)) ([c921114](https://github.com/erxes/erxes/commit/c9211146d819fc715579f24f08d1ebda4fbae310))
+
+
+### Performance Improvements
+
+* **clientportal:** add avatar upload ([751dccd](https://github.com/erxes/erxes/commit/751dccd3b610d7a800c7a1d0435dbffbe5919869))
+* **clientportal:** fix responsive ([7a983f9](https://github.com/erxes/erxes/commit/7a983f90268d0b4637bfe5e1e4ac416f99153bd3))
+* **clientportal:** improve cards detail ([913c37e](https://github.com/erxes/erxes/commit/913c37e1958045c221cb94f02fb2808096ace118))
+* **clientportal:** update cards ([a7387fe](https://github.com/erxes/erxes/commit/a7387fe5a7f611acb4684aa5fa90fd2f37d85f9f))
+* **clientportal:** update cards ([1c7c541](https://github.com/erxes/erxes/commit/1c7c541427500b105441ab76d0d731e3f503825a))
+* **clientportal:** update notification ([56d9344](https://github.com/erxes/erxes/commit/56d93441828b68daf5102c3e92586f784e280818))
+* **core:** resize image using Jimp ([768485a](https://github.com/erxes/erxes/commit/768485a8cc81e19fa9e3141bde2c871414f095ff))
+* **core:** resize image using Jimp ([b7dc498](https://github.com/erxes/erxes/commit/b7dc4983605da0469f6ed876e28754feda406c52))
+* **inbox:** email send popup improvement ([#4433](https://github.com/erxes/erxes/issues/4433)) ([105ca0f](https://github.com/erxes/erxes/commit/105ca0f0b644282c2f55305698910ec965295177))
+* **inbox:** improve inbox sidebar loading state ([0cb0eae](https://github.com/erxes/erxes/commit/0cb0eae2465bafad446abe45fc064c653ec27bb6))
+* **inbox:** optimize user and customer avatar sizes ([7e9ad5b](https://github.com/erxes/erxes/commit/7e9ad5b9d07d7cd1a0156b2a54c7fc7a9192a24a))
+* index conversations by tagIds ([60bace9](https://github.com/erxes/erxes/commit/60bace946cd3b7c7dc5c085faf4189110d41642d))
+
+
+### Reverts
+
+* Revert "fix Date custom scalar" ([e49904b](https://github.com/erxes/erxes/commit/e49904b52d8bc2994f4dc574e871909bf53d06fc))
+
+
+### BREAKING CHANGES
+
+* must run plugin-product-api/src/command/migrateUom.js
+
+## [1.2.3](https://github.com/erxes/erxes/compare/1.2.0...1.2.3) (2023-06-06)
+
+
+### Bug Fixes
+
+* **clientportal:** change apollo import ([c090b32](https://github.com/erxes/erxes/commit/c090b32618b053bb2267064e70536c988a63ff66))
+* **clientportal:** update settings ([3b4da72](https://github.com/erxes/erxes/commit/3b4da722290c9d74b684773782535c775f92a056))
+* **coreui:** fix core ui input ([0396524](https://github.com/erxes/erxes/commit/0396524ef392fa953b295130b4ba8e57b7f1680e))
+* **inbox:** facebook messenger text overlapping ([8290402](https://github.com/erxes/erxes/commit/82904020a0854c6d1543f3f9dbc019cfbc8c80ed))
+* **knowledgebase:**  category form([#4400](https://github.com/erxes/erxes/issues/4400)) ([01eaddf](https://github.com/erxes/erxes/commit/01eaddf42f721c2821f39e30f6e06f56ae462efc))
+* **knowledgebase:** category form ([#4404](https://github.com/erxes/erxes/issues/4404)) ([7db8279](https://github.com/erxes/erxes/commit/7db82793f4ec40a359de0e7f685e3d49f8491b37))
+* **knowledgebase:** show selected parent category when add article ([#4398](https://github.com/erxes/erxes/issues/4398)) ([0f12836](https://github.com/erxes/erxes/commit/0f128364b49ee24b6924b2376e3e46b2c57765f3))
+* **modaltrigger:** hotfix ([#4431](https://github.com/erxes/erxes/issues/4431)) ([7ba46e1](https://github.com/erxes/erxes/commit/7ba46e1046ecf884f7fd10dcba6e6505c9fa419e))
+* **navigation:** fix navigation more button  ([06f54a2](https://github.com/erxes/erxes/commit/06f54a2f13d2c02f00053260a66115ca0f837680))
+* trying to mutate immutable array ([c696c71](https://github.com/erxes/erxes/commit/c696c71c30a9b509d86f2e1eb4928f9114a3b2bd))
+
+
+### Performance Improvements
+
+* **clientportal:** huge refactor ([1c44630](https://github.com/erxes/erxes/commit/1c44630700ab1e2e326f2a2ed58f688b837ff37c))
+* **clientportal:** merge cards and some refactor ([7584571](https://github.com/erxes/erxes/commit/758457194039dbd6fc192f3f1ca654143ce3208b))
+* **clientportal:** update cp user ([275dd6e](https://github.com/erxes/erxes/commit/275dd6ebbf36a2c1e362630926e1ed664bfd7944))
+* **clientportal:** Update UI([#4403](https://github.com/erxes/erxes/issues/4403)) ([625f0ac](https://github.com/erxes/erxes/commit/625f0aca54ac83829ce9920cc9e25a899c6c4601))
+
+
+### Reverts
+
+* Revert "try without webpack - singleton" ([df78bf6](https://github.com/erxes/erxes/commit/df78bf60e43e1d3bfa31d2bcd825c3efcc818e3f))
+
+
+
 ## [1.2.1](https://github.com/erxes/erxes/compare/1.2.0...1.2.1) (2023-06-06)
 
 

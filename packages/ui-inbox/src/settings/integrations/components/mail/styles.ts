@@ -2,6 +2,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 
 import { Attachment } from '@erxes/ui-inbox/src/inbox/styles';
 import { SelectWrapper } from '@erxes/ui/src/components/form/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -49,6 +50,12 @@ const LeftSection = styled.div`
 const MailEditorWrapper = styled.div`
   position: relative;
   background: ${colors.colorWhite};
+  overflow-y: hidden;
+  min-height: 350px;
+
+  .cke_contents {
+    min-height: 350px;
+  }
 
   .cke {
     border: 0;
@@ -105,18 +112,18 @@ const Attachments = styled.div`
   border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
-const FlexRow = styled.div`
+const FlexRow = styledTS<{ isEmail?: boolean }>(styled.div)`
   display: flex;
   align-items: center;
+  height: ${props => props.isEmail && '28px'};
 
   > label {
-    margin: 2px ${dimensions.unitSpacing}px 2px 0;
+    margin: ${props =>
+      props.isEmail
+        ? `auto ${dimensions.unitSpacing}px auto 0`
+        : `2px ${dimensions.unitSpacing}px 2px 0`};
     color: ${colors.colorCoreGray};
     align-self: baseline;
-
-    &.from {
-      margin-top: 7px;
-    }
   }
 `;
 
@@ -180,7 +187,7 @@ const SpaceBetweenRow = styled.div`
 `;
 
 const Subject = styledTS<{ noBorder?: boolean }>(styled.div)`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
   border-bottom:${props =>
     !props.noBorder && `1px solid ${colors.borderPrimary}`};
 
@@ -248,7 +255,8 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
 `;
 
 const NewEmailHeader = styled.h5`
-  background: ${colors.bgActive};
+  background: ${rgba(colors.colorSecondary, 0.1)};
+  color: ${colors.colorSecondary};
   margin-bottom: 0;
   margin-top: 0;
   padding: 10px 20px;
@@ -261,9 +269,11 @@ const NewEmailHeader = styled.h5`
   i {
     margin-left: 5px;
     padding: 5px;
+    border-radius: 5px;
+    transition: all ease 0.3s;
 
     &:hover {
-      background: ${colors.bgGray};
+      background: ${rgba(colors.colorSecondary, 0.3)};
     }
   }
 
@@ -272,22 +282,39 @@ const NewEmailHeader = styled.h5`
   }
 `;
 
-const WidgetWrapper = styledTS<{ show: boolean; shrink: boolean }>(styled.div)`
+const WidgetWrapper = styledTS<{
+  show: boolean;
+  shrink: boolean;
+  fullScreen?: boolean;
+}>(styled.div)`
   position: fixed;
-  bottom: ${dimensions.unitSpacing}px;
-  right: ${dimensions.coreSpacing}px;
-  display: flex;
   flex-direction: column;
   z-index: 300;
   justify-content: flex-end;
   align-content: flex-end;
   background: #fff;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
   border-radius: 8px;
-  width: ${props => (props.shrink ? '260px' : '600px')};
   overflow: hidden;
+  width: ${({ fullScreen, shrink }) =>
+    fullScreen ? '75vw' : shrink ? '260px' : '600px'};
+  ${({ fullScreen }) =>
+    fullScreen
+      ? `
+    left: 50%;
+    top: 6%;
+    transform: translate(-50%, 0);
+    box-shadow: 0 0 0 50vmax rgba(0,0,0,.3);
+  `
+      : `
+    bottom: ${dimensions.unitSpacing}px;
+    right: ${dimensions.coreSpacing}px; 
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 0px 3px -4px;
+  `}
+  ${({ show }) => (show ? 'display: flex;' : 'display:none;')} 
 
-  ${props => !props.show && 'display:none;'}
+  .Select-arrow-zone {
+    padding: 0;
+  }
 `;
 
 const UploaderWrapper = styled.div`

@@ -69,6 +69,14 @@ export const getProductsData = async (
 ) => {
   const groups = await models.ProductGroups.groups(pos._id);
 
+  let checkExcludeCategoryIds: string[] = [];
+  if (pos.isCheckRemainder && pos.checkExcludeCategoryIds.length) {
+    checkExcludeCategoryIds = await getChildCategories(
+      subdomain,
+      pos.checkExcludeCategoryIds
+    );
+  }
+
   const productGroups: any = [];
 
   for (const group of groups) {
@@ -156,6 +164,7 @@ export const getProductsData = async (
         }))
       },
       isRPC: true,
+      isMQ: true,
       defaultValue: {},
       timeout: 50000
     });
@@ -168,6 +177,15 @@ export const getProductsData = async (
         if (product.unitPrice < 0) {
           product.unitPrice = 0;
         }
+      }
+
+      if (
+        pos.isCheckRemainder &&
+        !checkExcludeCategoryIds.includes(product.categoryId)
+      ) {
+        product.isCheckRem = true;
+      } else {
+        product.isCheckRem = false;
       }
 
       if (!Object.keys(productsByCatId).includes(product.categoryId)) {
@@ -268,91 +286,18 @@ export const posSyncConfig = async (req, res) => {
       return res.send({
         slots: await models.PosSlots.find({ posId: pos._id }).lean()
       });
+    case 'productsConfigs':
+      return res.send(
+        await sendProductsMessage({
+          subdomain,
+          action: 'productsConfigs.getConfig',
+          data: { code: 'similarityGroup' },
+          isRPC: true
+        })
+      );
   }
 
   return res.send({ error: 'wrong type' });
-};
-
-export const posSyncOrders = async (req, res) => {
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
-
-  const token = req.headers['pos-token'];
-  const { orders, putResponses } = req.body;
-
-  const pos = await models.Pos.findOne({ token }).lean();
-
-  if (!pos) {
-    return res.send({ error: 'not found pos' });
-  }
-
-  const resOrderIds: any[] = [];
-  const putResponseIds: any[] = [];
-
-  try {
-    let orderBulkOps: Array<{
-      updateOne: {
-        filter: { _id: string };
-        update: any;
-        upsert: true;
-      };
-    }> = [];
-
-    for (const order of orders) {
-      resOrderIds.push(order._id);
-      orderBulkOps.push({
-        updateOne: {
-          filter: { _id: order._id },
-          update: {
-            $set: {
-              ...order,
-              posToken: token,
-              branchId: pos.branchId,
-              departmentId: pos.departmentId
-            }
-          },
-          upsert: true
-        }
-      });
-    }
-
-    if (orderBulkOps.length) {
-      await models.PosOrders.bulkWrite(orderBulkOps);
-    }
-
-    let bulkOps: Array<{
-      updateOne: {
-        filter: { _id: string };
-        update: any;
-        upsert: true;
-      };
-    }> = [];
-
-    for (const putResponse of putResponses) {
-      putResponseIds.push(putResponse._id);
-      bulkOps.push({
-        updateOne: {
-          filter: { _id: putResponse._id },
-          update: { $set: { ...putResponse, posToken: token } },
-          upsert: true
-        }
-      });
-    }
-
-    if (bulkOps.length) {
-      await sendEbarimtMessage({
-        subdomain,
-        action: 'putresponses.bulkWrite',
-        data: {
-          bulkOps
-        }
-      });
-    }
-
-    return res.send({ resOrderIds, putResponseIds });
-  } catch (e) {
-    return res.send({ error: e.message });
-  }
 };
 
 export const unfetchOrderInfo = async (req, res) => {

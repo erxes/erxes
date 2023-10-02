@@ -148,6 +148,7 @@ class Form extends React.Component<Props, State> {
           <SelectCustomFields
             label="Choose custom field"
             name="customField"
+            configs={configs}
             initialValue={customFieldId}
             onSelect={onChangeCustomFields}
             type={!!boardId && !!pipelineId ? cardType : ''}

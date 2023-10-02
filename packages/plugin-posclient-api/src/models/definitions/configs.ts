@@ -73,6 +73,8 @@ export interface IConfig {
   checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes: string[];
+  isCheckRemainder: boolean;
+  checkExcludeCategoryIds: string[];
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -159,15 +161,26 @@ export const configSchema = new Schema({
   }),
   checkRemainder: field({ type: Boolean, optional: true }),
   permissionConfig: field({ type: Object, optional: true }),
-  allowTypes: field({ type: [String], label: 'Allow Types' })
+  allowTypes: field({ type: [String], label: 'Allow Types' }),
+  isCheckRemainder: field({ type: Boolean, optional: true }),
+  checkExcludeCategoryIds: field({ type: [String] }),
+  status: field({ type: String, optional: true })
 });
 
-export const productGroupSchema = new Schema({
+// products config
+export interface IProductsConfig {
+  code: string;
+  value: any;
+}
+
+export interface IProductsConfigDocument extends IProductsConfig, Document {
+  _id: string;
+}
+
+// Mongoose schemas ===========
+
+export const productsConfigSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String }),
-  description: field({ type: String }),
-  posId: field({ type: String }),
-  categoryIds: field({ type: [String], optional: true }),
-  excludedCategoryIds: field({ type: [String], optional: true }),
-  excludedProductIds: field({ type: [String], optional: true })
+  code: field({ type: String, unique: true }),
+  value: field({ type: Object })
 });

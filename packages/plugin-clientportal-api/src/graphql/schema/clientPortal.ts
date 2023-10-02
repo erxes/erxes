@@ -187,6 +187,11 @@ ${
     baseFont: String
     headingFont: String
   }
+
+  input ItemDate {
+    month: Int
+    year: Int
+  }
 `;
 
 export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
@@ -207,10 +212,10 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Ticket]
-    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Deal]
-    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Purchase]
-    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String): [Task]
+    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Ticket]
+    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Deal]
+    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Purchase]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Task]
     clientPortalTicket(_id: String!): Ticket
    `
       : ''

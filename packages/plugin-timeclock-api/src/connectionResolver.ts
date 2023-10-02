@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
-import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IAbsenceModel,
   ITimeModel,
@@ -22,7 +22,9 @@ import {
   ITimeLogModel,
   loadTimeLogClass,
   IReportCheckModel,
-  loadReportCheckClass
+  loadReportCheckClass,
+  IScheduleConfigOrderModel,
+  loadScheduleConfigOrderClass
 } from './models/Timeclock';
 import {
   IAbsenceDocument,
@@ -31,6 +33,7 @@ import {
   IPayDateDocument,
   IReportCheckDocument,
   IScheduleConfigDocument,
+  IScheduleConfigOrderDocument,
   IScheduleDocument,
   IShiftDocument,
   ITimeClockDocument,
@@ -46,6 +49,7 @@ export interface IModels {
   Shifts: IShiftModel;
   PayDates: IPayDateModel;
   ScheduleConfigs: IScheduleConfigModel;
+  ScheduleConfigOrder: IScheduleConfigOrderModel;
   DeviceConfigs: IDeviceConfigModel;
   ReportChecks: IReportCheckModel;
 }
@@ -94,6 +98,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IScheduleConfigDocument,
     IScheduleConfigModel
   >('timeclock_schedule_config', loadScheduleConfigClass(models));
+
+  models.ScheduleConfigOrder = db.model<
+    IScheduleConfigOrderDocument,
+    IScheduleConfigOrderModel
+  >('timeclock_schedule_config_order', loadScheduleConfigOrderClass(models));
 
   models.DeviceConfigs = db.model<IDeviceConfigDocument, IDeviceConfigModel>(
     'timeclock_device_config',

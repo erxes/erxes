@@ -48,6 +48,20 @@ export const findBranches = async (subdomain: string, branchIds: string[]) => {
   return branches;
 };
 
+export const findDepartments = async (
+  subdomain: string,
+  departmentIds: string[]
+) => {
+  const departments = await sendCoreMessage({
+    subdomain,
+    action: 'departments.find',
+    data: { _id: { $in: departmentIds } },
+    isRPC: true
+  });
+
+  return departments;
+};
+
 export const findUser = async (subdomain: string, userId: string) => {
   const user = await sendCoreMessage({
     subdomain,
@@ -96,6 +110,49 @@ export const findAllTeamMembers = async (subdomain: string) => {
   });
 
   return users;
+};
+
+export const findTeamMember = (subdomain: string, userId: string[]) => {
+  return sendCoreMessage({
+    subdomain,
+    action: 'users.findOne',
+    data: {
+      _id: userId
+    },
+    isRPC: true
+  });
+};
+export const findTeamMembers = (subdomain: string, userIds: string[]) => {
+  return sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: { _id: { $in: userIds } }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+};
+
+export const returnDepartmentsBranchesDict = async (
+  subdomain: any,
+  branchIds: string[],
+  departmentIds: string[]
+): Promise<{ [_id: string]: string }> => {
+  const dictionary: { [_id: string]: string } = {};
+
+  const branches = await findBranches(subdomain, branchIds);
+  const departments = await findDepartments(subdomain, departmentIds);
+
+  for (const branch of branches) {
+    dictionary[branch._id] = branch.title;
+  }
+
+  for (const department of departments) {
+    dictionary[department._id] = department.title;
+  }
+
+  return dictionary;
 };
 
 export const findAllTeamMembersWithEmpId = async (subdomain: string) => {
@@ -163,17 +220,73 @@ export const generateCommonUserIds = async (
   return totalUserIds;
 };
 
-export const createTeamMembersObject = async (subdomain: string) => {
-  const teamMembers = await findAllTeamMembers(subdomain);
+export const returnSupervisedUsers = async (
+  currentUser: IUserDocument,
+  subdomain: string
+): Promise<IUserDocument[]> => {
+  const supervisedDepartmenIds = (
+    await sendCoreMessage({
+      subdomain,
+      action: `departments.find`,
+      data: {
+        supervisorId: currentUser._id
+      },
+      isRPC: true,
+      defaultValue: []
+    })
+  ).map(dept => dept._id);
 
+  const supervisedBranchIds = (
+    await sendCoreMessage({
+      subdomain,
+      action: `branches.find`,
+      data: {
+        query: {
+          supervisorId: currentUser._id
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    })
+  ).map(branch => branch._id);
+
+  const findTotalSupervisedUsers: IUserDocument[] = [];
+
+  findTotalSupervisedUsers.push(
+    ...(await findDepartmentUsers(subdomain, supervisedDepartmenIds))
+  );
+
+  findTotalSupervisedUsers.push(
+    ...(await findBranchUsers(subdomain, supervisedBranchIds)),
+    currentUser
+  );
+
+  return findTotalSupervisedUsers;
+};
+
+export const createTeamMembersObject = async (
+  subdomain: any,
+  userIds: string[]
+) => {
   const teamMembersObject = {};
+
+  const teamMembers = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: { _id: { $in: userIds } }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 
   for (const teamMember of teamMembers) {
     teamMembersObject[teamMember._id] = {
-      employeeId: teamMember.employeeId,
-      position: teamMember.details.position,
-      lastName: teamMember.details.lastName,
-      firstName: teamMember.details.firstName
+      fullName: `${teamMember.details.lastName?.charAt(0)}.${
+        teamMember.details.firstName
+      }`,
+      employeeId: teamMember.employeeId || '-',
+      position: teamMember.details.position || '-'
     };
   }
 
@@ -422,7 +535,13 @@ export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
     bulkWriteOps.push({
       updateOne: {
         filter: { _id: unfinishedShift._id },
-        update: { $set: { shiftEnd: midnightOfShiftDay, shiftActive: false } }
+        update: {
+          $set: {
+            shiftEnd: midnightOfShiftDay,
+            shiftActive: false,
+            shiftNotClosed: true
+          }
+        }
       }
     });
   }

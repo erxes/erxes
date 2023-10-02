@@ -12,6 +12,7 @@ function TableHeaders(props: Props) {
     case 'Урьдчилсан':
       return (
         <tr>
+          <th>{__('№')}</th>
           <th>{__('Team member Id')}</th>
           <th>{__('Last Name')}</th>
           <th>{__('First Name')}</th>
@@ -25,25 +26,54 @@ function TableHeaders(props: Props) {
       return (
         <>
           <tr>
-            <th rowSpan={2}>{__('Team member Id')}</th>
-            <th rowSpan={2}>{__('Position')}</th>
-            <th rowSpan={2}>{__('Last Name')}</th>
-            <th rowSpan={2}>{__('First Name')}</th>
-            <th rowSpan={2}>{__('Total Days of Calendar')}</th>
-            <th rowSpan={2}>{__('Total Weekend Days')}</th>
-            <th colSpan={2}>{__('Scheduled time')}</th>
-            <th colSpan={6} style={{ textAlign: 'center' }}>
-              {__('Timeclock info')}
+            {/* <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('№')}
+            </th> */}
+            <th
+              rowSpan={2}
+              style={{ textAlign: 'center', border: '1px solid #EEE' }}
+            >
+              {__('Салбар')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Овог нэр')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Ажилтаны код')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Албан тушаал')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Ажилвал зохих цаг')}
+            </th>
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Ажилласан цаг')}
+            </th>
+            <th
+              colSpan={3}
+              style={{ textAlign: 'center', border: '1px solid #EEE' }}
+            >
+              {__('Хүсэлт')}
+            </th>
+            <th
+              colSpan={7}
+              style={{ textAlign: 'center', border: '1px solid #EEE' }}
+            >
+              {__('Суутгал')}
             </th>
           </tr>
           <tr>
-            <td>{__('Days')}</td>
-            <td>{__('Hours')}</td>
-            <td>{__('Worked days')}</td>
-            <td>{__('Worked hours')}</td>
-            <td>{__('Shift request')}</td>
-            <td>{__('Overtime')}</td>
-            <td>{__('Mins Late')}</td>
+            <th>{__('Ээлжийн амралт')}</th>
+            <th>{__('Чөлөөтэй цаг')}</th>
+            <th>{__('Өвчтэй')}</th>
+            <th>{__('Бүртгэл дутуу')}</th>
+            <th>{__('Б/Д мөнгө')}</th>
+            <th>{__('Үр дүн хасалт')}</th>
+            <th>{__('Хоцорсон миниут')}</th>
+            <th>{__('Хоцролтын мөнгө')}</th>
+            <th>{__('Үр дүн хасалт')}</th>
+            <th>{__('Суутгал нэгдсэн')}</th>
           </tr>
         </>
       );
@@ -72,23 +102,24 @@ function TableHeaders(props: Props) {
             </th>
           </tr>
           <tr>
-            <td>{__('Team member Id')}</td>
-            <td>{__('Last Name')}</td>
-            <td>{__('First Name')}</td>
-            <td>{__('Position')}</td>
-            <td>{__('Date')}</td>
-            <td>{__('Planned Check In')}</td>
-            <td>{__('Planned Check Out')}</td>
-            <td>{__('Planned Duration')}</td>
-            <td>{__('Check In')}</td>
-            <td>{__('In Device')}</td>
-            <td>{__('Check Out')}</td>
-            <td>{__('Out Device')}</td>
-            <td>{__('Location')}</td>
-            <td>{__('Duration')}</td>
-            <td>{__('Overtime')}</td>
-            <td>{__('Overnight')}</td>
-            <td>{__('Mins Late')}</td>
+            <th>{__('№')}</th>
+            <th>{__('Team member Id')}</th>
+            <th>{__('Last Name')}</th>
+            <th>{__('First Name')}</th>
+            <th>{__('Position')}</th>
+            <th>{__('Date')}</th>
+            <th>{__('Planned Check In')}</th>
+            <th>{__('Planned Check Out')}</th>
+            <th>{__('Planned Duration')}</th>
+            <th>{__('Check In')}</th>
+            <th>{__('In Device')}</th>
+            <th>{__('Check Out')}</th>
+            <th>{__('Out Device')}</th>
+            <th>{__('Location')}</th>
+            <th>{__('Duration')}</th>
+            <th>{__('Overtime')}</th>
+            <th>{__('Overnight')}</th>
+            <th>{__('Mins Late')}</th>
           </tr>
         </>
       );

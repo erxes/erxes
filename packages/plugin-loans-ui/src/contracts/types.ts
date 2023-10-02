@@ -120,6 +120,7 @@ export interface ICloseInfo {
   interestNonce?: number;
   payment?: number;
   insurance?: number;
+  storedInterest?: number;
   debt?: number;
   total?: number;
 }

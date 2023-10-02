@@ -4,7 +4,7 @@ import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
 
 const generateFilterQuery = async ({ isOnline }, commonQuerySelector) => {
-  const query: any = commonQuerySelector;
+  const query: any = { ...commonQuerySelector, status: { $ne: 'deleted' } };
   if (isOnline) {
     query.isOnline = isOnline === 'online';
   }

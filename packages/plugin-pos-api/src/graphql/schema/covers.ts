@@ -46,6 +46,7 @@ const queryParams = `
   endDate: Date
   userId: String
   posId: String
+  posToken: String
 `;
 
 export const mutations = `
@@ -55,5 +56,6 @@ export const mutations = `
 
 export const queries = `
   posCovers(${queryParams}): [PosCover]
+  posCoversCount(${queryParams}): Int
   posCoverDetail(_id: String!): PosCover
 `;

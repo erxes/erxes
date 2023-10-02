@@ -289,9 +289,7 @@ function List(props: Props) {
         <Icon icon="subject" />
       </ToggleButton>
 
-      <Title capitalize={true}>
-        {__(new Date().toDateString().slice(0, -4))}
-      </Title>
+      <Title capitalize={true}>{` Total: ${timeclocks.length}`}</Title>
     </FlexRowLeft>
   );
 

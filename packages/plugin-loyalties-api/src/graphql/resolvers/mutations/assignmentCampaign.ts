@@ -1,30 +1,77 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { IAssignmentCampaign } from '../../../models/definitions/assignmentCampaigns';
-
+import {
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog,
+  MODULE_NAMES
+} from '../../../logUtils';
 const assignmentsMutations = {
   async assignmentCampaignsAdd(
     _root,
     doc: IAssignmentCampaign,
-    { models }: IContext
+    { models, subdomain, user }: IContext
   ) {
-    return models.AssignmentCampaigns.createAssignmentCampaign(doc);
+    const create = await models.AssignmentCampaigns.createAssignmentCampaign(
+      doc
+    );
+    await putCreateLog(
+      models,
+      subdomain,
+      { type: MODULE_NAMES.ASSINGNMENT, newData: create, object: create },
+      user
+    );
+    return;
   },
 
   async assignmentCampaignsEdit(
     _root,
     { _id, ...doc }: IAssignmentCampaign & { _id: string },
-    { models }: IContext
+    { models, subdomain, user }: IContext
   ) {
-    return models.AssignmentCampaigns.updateAssignmentCampaign(_id, doc);
+    const assignmentCampaign = await models.AssignmentCampaigns.findOne({
+      _id
+    });
+
+    const update = await models.AssignmentCampaigns.updateAssignmentCampaign(
+      _id,
+      doc
+    );
+    await putUpdateLog(
+      models,
+      subdomain,
+      {
+        type: MODULE_NAMES.ASSINGNMENT,
+        object: assignmentCampaign,
+        newData: doc,
+        updatedDocument: update
+      },
+      user
+    );
+    return update;
   },
 
   async assignmentCampaignsRemove(
     _root,
     { _ids }: { _ids: string[] },
-    { models }: IContext
+    { models, subdomain, user }: IContext
   ) {
-    return models.AssignmentCampaigns.removeAssignmentCampaigns(_ids);
+    const assignmentCampaign: IAssignmentCampaign[] = await models.AssignmentCampaigns.find(
+      {
+        _id: { $in: _ids }
+      }
+    ).lean();
+
+    const removed = models.AssignmentCampaigns.removeAssignmentCampaigns(_ids);
+
+    await putDeleteLog(
+      models,
+      subdomain,
+      { type: MODULE_NAMES.ASSINGNMENT, object: assignmentCampaign },
+      user
+    );
+    return removed;
   }
 };
 

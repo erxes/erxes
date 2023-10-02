@@ -19,6 +19,9 @@ import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectC
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { __ } from '@erxes/ui/src/utils';
 import { queries as campaignQueries } from '../../../configs/voucherCampaign/graphql';
+import { getOwnerTypes } from '../../common/constants';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import SelectClientPortalUser from '../../../common/SelectClientPortalUsers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -105,39 +108,56 @@ class VoucherForm extends React.Component<Props, State> {
 
   renderOwner = () => {
     const { voucher } = this.state;
-    if (voucher.ownerType === 'customer') {
-      return (
-        <SelectCustomers
-          label="Customer"
-          name="ownerId"
-          multi={false}
-          initialValue={voucher.ownerId}
-          onSelect={this.onChangeOwnerId}
-        />
-      );
-    }
 
-    if (voucher.ownerType === 'user') {
-      return (
-        <SelectTeamMembers
-          label="Team member"
-          name="ownerId"
-          multi={false}
-          initialValue={voucher.ownerId}
-          onSelect={this.onChangeOwnerId}
-        />
-      );
-    }
+    const { ownerType } = voucher;
 
-    return (
-      <SelectCompanies
-        label="Company"
-        name="ownerId"
-        multi={false}
-        initialValue={voucher.ownerId}
-        onSelect={this.onChangeOwnerId}
-      />
-    );
+    switch (ownerType) {
+      case 'customer':
+        return (
+          <SelectCustomers
+            label="Customer"
+            name="ownerId"
+            multi={false}
+            initialValue={voucher.ownerId}
+            onSelect={this.onChangeOwnerId}
+          />
+        );
+      case 'user':
+        return (
+          <SelectTeamMembers
+            label="Team member"
+            name="ownerId"
+            multi={false}
+            initialValue={voucher.ownerId}
+            onSelect={this.onChangeOwnerId}
+          />
+        );
+      case 'company':
+        return (
+          <SelectCompanies
+            label="Company"
+            name="ownerId"
+            multi={false}
+            initialValue={voucher.ownerId}
+            onSelect={this.onChangeOwnerId}
+          />
+        );
+      case 'cpUser':
+        return (
+          isEnabled('clientportal') && (
+            <SelectClientPortalUser
+              label="Client portal User"
+              name="ownerId"
+              multi={false}
+              initialValue={voucher.ownerId}
+              onSelect={this.onChangeOwnerId}
+            />
+          )
+        );
+
+      default:
+        return null;
+    }
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -173,18 +193,11 @@ class VoucherForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'customer'} value={'customer'}>
-                {' '}
-                {'customer'}{' '}
-              </option>
-              <option key={'user'} value={'user'}>
-                {' '}
-                {'user'}{' '}
-              </option>
-              <option key={'company'} value={'company'}>
-                {' '}
-                {'company'}{' '}
-              </option>
+              {getOwnerTypes().map(ownerType => (
+                <option key={ownerType.name} value={ownerType.name}>
+                  {ownerType.label}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
 
@@ -203,14 +216,11 @@ class VoucherForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'new'} value={'new'}>
-                {' '}
-                {'new'}{' '}
-              </option>
-              <option key={'used'} value={'used'}>
-                {' '}
-                {'used'}{' '}
-              </option>
+              {['new', 'status'].map(status => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
         </ScrollWrapper>

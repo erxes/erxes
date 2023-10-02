@@ -36,6 +36,40 @@ export const initBroker = async cl => {
   client = cl;
   const { consumeQueue, consumeRPCQueue } = client;
 
+  consumeRPCQueue(
+    `posclient:configs.manage${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await receivePosConfig(subdomain, models, data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    `posclient:configs.remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { posId, posToken } = data;
+
+      const config = await models.Configs.findOne({ token: posToken }).lean();
+      if (!config) {
+        throw new Error('not found config from posclient');
+      }
+
+      await models.Configs.updateOne(
+        { token: posToken },
+        { $set: { status: 'deleted' } }
+      );
+      return {
+        status: 'success',
+        data: {}
+      };
+    }
+  );
+
   consumeQueue(
     `posclient:crudData${channelToken}`,
     async ({ subdomain, data }) => {
@@ -52,9 +86,6 @@ export const initBroker = async cl => {
             break;
           case 'user':
             await receiveUser(models, data);
-            break;
-          case 'pos':
-            await receivePosConfig(subdomain, models, data);
             break;
           case 'productGroups':
             const { productGroups = [] } = data;
@@ -129,6 +160,20 @@ export const initBroker = async cl => {
           customerId: order.customerId,
           customerType: order.customerType
         }
+      });
+    }
+  );
+
+  consumeQueue(
+    `posclient:erxes-posclient-to-pos-api-remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { order } = data;
+
+      await models.Orders.deleteOne({
+        _id: order._id,
+        posToken: order.posToken,
+        subToken: order.subToken
       });
     }
   );

@@ -52,6 +52,7 @@ export default {
       handleDailyJob: checkContractScheduleAnd
     },
     documents,
+    permissions,
     forms,
     imports,
     exporter,

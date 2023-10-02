@@ -2,8 +2,12 @@ import { Bichils } from '../../models';
 import { IContext } from '../../connectionResolver';
 import {
   findAllTeamMembers,
+  findAllTeamMembersWithEmpId,
+  findTeamMembers,
   generateCommonUserIds,
-  paginateArray
+  paginateArray,
+  returnDepartmentsBranchesDict,
+  returnSupervisedUsers
 } from '../../utils';
 import {
   bichilTimeclockReportFinal,
@@ -34,38 +38,52 @@ const bichilQueries = {
       endDate,
       page,
       perPage,
-      reportType
+      reportType,
+      isCurrentUserAdmin
     },
-    { subdomain, models }: IContext
+    { subdomain, user }: IContext
   ) {
     let filterGiven = false;
+    let totalTeamMemberIds;
+    let totalMembers;
+
+    const totalBranchIdsOfMembers: string[] = [];
+    const totalDeptIdsOfMembers: string[] = [];
+
+    type Structure = {
+      departmentIds: string[];
+      branchIds: string[];
+    };
+
+    const usersStructure: { [userId: string]: Structure } = {};
+
     if (userIds || branchIds || departmentIds) {
       filterGiven = true;
     }
 
-    const teamMemberIdsFromFilter = await generateCommonUserIds(
-      subdomain,
-      userIds,
-      branchIds,
-      departmentIds
-    );
+    if (filterGiven) {
+      totalTeamMemberIds = await generateCommonUserIds(
+        subdomain,
+        userIds,
+        branchIds,
+        departmentIds
+      );
+
+      totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
+    } else {
+      if (isCurrentUserAdmin) {
+        // return all team member ids
+        totalMembers = await findAllTeamMembers(subdomain);
+        totalTeamMemberIds = totalMembers.map(usr => usr._id);
+      } else {
+        // return supervisod users including current user
+        totalMembers = await returnSupervisedUsers(user, subdomain);
+        totalTeamMemberIds = totalMembers.map(usr => usr._id);
+      }
+    }
 
     const returnReport: IReport[] = [];
-
-    const teamMembers = await findAllTeamMembers(subdomain);
-    const teamMemberIds: string[] = [];
-
-    for (const teamMember of teamMembers) {
-      if (!teamMember.employeeId) {
-        continue;
-      }
-
-      teamMemberIds.push(teamMember._id);
-    }
-    const totalTeamMemberIds =
-      teamMemberIdsFromFilter.length || filterGiven
-        ? teamMemberIdsFromFilter
-        : teamMemberIds;
+    let deductionInfo;
 
     switch (reportType) {
       case 'Урьдчилсан' || 'Preliminary':
@@ -85,20 +103,79 @@ const bichilQueries = {
 
         break;
       case 'Сүүлд' || 'Final':
+        const paginatedTeamMembers = paginateArray(totalMembers, perPage, page);
+        const paginatedTeamMemberIds = paginatedTeamMembers.map(e => e._id);
+
+        for (const teamMember of paginatedTeamMembers) {
+          if (teamMember.branchIds) {
+            totalBranchIdsOfMembers.push(...teamMember.branchIds);
+          }
+
+          if (teamMember.departmentIds) {
+            totalDeptIdsOfMembers.push(...teamMember.departmentIds);
+          }
+
+          usersStructure[teamMember._id] = {
+            branchIds: teamMember.branchIds ? teamMember.branchIds : [],
+            departmentIds: teamMember.departmentIds
+              ? teamMember.departmentIds
+              : []
+          };
+        }
+
+        const structuresDict = await returnDepartmentsBranchesDict(
+          subdomain,
+          totalBranchIdsOfMembers,
+          totalDeptIdsOfMembers
+        );
+
         const reportFinal: any = await bichilTimeclockReportFinal(
           subdomain,
-          paginateArray(totalTeamMemberIds, perPage, page),
+          paginatedTeamMemberIds,
           startDate,
           endDate,
           false
         );
 
-        for (const userId of Object.keys(reportFinal)) {
+        const getReport = reportFinal.report;
+        deductionInfo = reportFinal.deductionInfo;
+
+        const groupedByBranch: { [branchTitle: string]: any } = {};
+
+        for (const userId of Object.keys(getReport)) {
+          const userBranchIds = usersStructure[userId].branchIds;
+          const branchTitles: string[] = [];
+
+          for (const userBranchId of userBranchIds) {
+            if (structuresDict[userBranchId]) {
+              branchTitles.push(structuresDict[userBranchId]);
+            }
+          }
+
+          for (const userBranchTitle of branchTitles) {
+            if (userBranchTitle in groupedByBranch) {
+              groupedByBranch[userBranchTitle] = [
+                ...groupedByBranch[userBranchTitle],
+                { userId, ...getReport[userId] }
+              ];
+              continue;
+            }
+
+            groupedByBranch[userBranchTitle] = [
+              { userId, ...getReport[userId] }
+            ];
+          }
+        }
+
+        for (const branchTitle of Object.keys(groupedByBranch)) {
           returnReport.push({
-            groupReport: [{ userId, ...reportFinal[userId] }]
+            groupTitle: branchTitle,
+            groupReport: groupedByBranch[branchTitle]
           });
         }
+
         break;
+
       case 'Pivot':
         const reportPivot: any = await bichilTimeclockReportPivot(
           subdomain,
@@ -120,7 +197,8 @@ const bichilQueries = {
 
     return {
       list: returnReport,
-      totalCount: totalTeamMemberIds.length
+      totalCount: totalTeamMemberIds.length,
+      ...deductionInfo
     };
   },
 

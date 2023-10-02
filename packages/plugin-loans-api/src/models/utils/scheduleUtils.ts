@@ -221,15 +221,19 @@ export const reGenerateSchedules = async (
     return;
   }
 
+  startDate.setDate(startDate.getDate() + 1);
+
   const firstNextDate = getNextMonthDay(
     contract.startDate,
     contract.scheduleDays
   );
+
   const diffDay = getDiffDay(contract.startDate, firstNextDate);
 
-  // diff from startDate to nextDate valid: max 42 min 10 day, IsValid then undifined or equal nextMonthDay
+  // diff from startDate to nextDate valid: max 42 min 10 day, IsValid then undefined or equal nextMonthDay
   let nextDate: any = undefined;
-  if (diffDay > 42) {
+
+  if (diffDay > 42 || contract.isPayFirstMonth === true) {
     nextDate = new Date(
       contract.startDate.getFullYear(),
       contract.startDate.getMonth(),

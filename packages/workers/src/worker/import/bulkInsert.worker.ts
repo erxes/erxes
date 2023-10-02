@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 import * as _ from 'underscore';
-import messageBroker from '../../messageBroker';
+import { sendRPCMessage } from '../../messageBroker';
 import { generateModels } from '../../connectionResolvers';
 import { connect } from '../utils';
 
@@ -35,8 +35,8 @@ const create = async ({
 
   const [serviceName, type] = contentType.split(':');
 
-  const result = await await messageBroker().sendRPCMessage(
-    `${serviceName}:imports:insertImportItems`,
+  const result = await sendRPCMessage(
+    `${serviceName}:imports.insertImportItems`,
     {
       subdomain,
       data: {
@@ -98,21 +98,18 @@ connect().then(async () => {
   };
 
   try {
-    bulkDoc = await messageBroker().sendRPCMessage(
-      `${serviceName}:imports:prepareImportDocs`,
-      {
-        subdomain,
-        data: {
-          result,
-          properties,
-          contentType: type,
-          user,
-          scopeBrandIds,
-          useElkSyncer
-        },
-        timeout: 5 * 60 * 1000 // 5 minutes
-      }
-    );
+    bulkDoc = await sendRPCMessage(`${serviceName}:imports.prepareImportDocs`, {
+      subdomain,
+      data: {
+        result,
+        properties,
+        contentType: type,
+        user,
+        scopeBrandIds,
+        useElkSyncer
+      },
+      timeout: 5 * 60 * 1000 // 5 minutes
+    });
   } catch (e) {
     let startRow = 1;
     let endRow = WORKER_BULK_LIMIT;

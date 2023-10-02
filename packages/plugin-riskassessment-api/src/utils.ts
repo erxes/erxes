@@ -207,6 +207,23 @@ export const getAsssignedUsers = async (
   return assignedUsers;
 };
 
+const getOptionsValues = optionsValues => {
+  return optionsValues
+    .split('\n')
+    .map(item => {
+      if (item.match(/=/g)) {
+        const label = item?.substring(0, item.indexOf('=')).trim();
+        const value = Number(
+          item.substring(item?.indexOf('=') + 1, item.length)
+        );
+        if (!Number.isNaN(value)) {
+          return { label, value };
+        }
+      }
+    }, [])
+    .filter(item => item);
+};
+
 export const calculateFormResponses = async ({
   responses,
   fields,
@@ -232,20 +249,7 @@ export const calculateFormResponses = async ({
     const field = fields.find(field => field._id === key);
 
     if (field?.optionsValues) {
-      const optValues = field?.optionsValues
-        .split('\n')
-        .map(item => {
-          if (item.match(/=/g)) {
-            const label = item?.substring(0, item.indexOf('=')).trim();
-            const value = Number(
-              item.substring(item?.indexOf('=') + 1, item.length)
-            );
-            if (!Number.isNaN(value)) {
-              return { label, value };
-            }
-          }
-        }, [])
-        .filter(item => item);
+      const optValues = getOptionsValues(field?.optionsValues);
 
       if (generalcalculateMethod === 'ByPercent') {
         const scores = optValues.map(option => option.value);

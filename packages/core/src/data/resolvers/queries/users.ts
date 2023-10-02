@@ -159,6 +159,21 @@ interface IListArgs {
 
 const NORMAL_USER_SELECTOR = { role: { $ne: USER_ROLES.SYSTEM } };
 
+const getChildIds = async (model, ids) => {
+  const items = await model.find({ _id: { $in: ids } });
+  const orderQry: any[] = [];
+  for (const item of items) {
+    orderQry.push({
+      order: { $regex: new RegExp(item.order) }
+    });
+  }
+
+  const allItems = await model.find({
+    $or: orderQry
+  });
+  return allItems.map(i => i._id);
+};
+
 const queryBuilder = async (
   models: IModels,
   params: IListArgs,
@@ -206,7 +221,11 @@ const queryBuilder = async (
   }
 
   if (ids && ids.length > 0) {
-    return { _id: { [excludeIds ? '$nin' : '$in']: ids }, isActive: true };
+    if (excludeIds) {
+      selector._id = { $nin: ids };
+    } else {
+      return { _id: { $in: ids }, isActive: true };
+    }
   }
 
   if (status) {
@@ -225,12 +244,14 @@ const queryBuilder = async (
     selector.departmentIds = { $in: [departmentId] };
   }
 
-  if (!!branchIds?.length) {
-    selector.branchIds = { $in: branchIds };
+  if (branchIds && branchIds.length) {
+    selector.branchIds = { $in: await getChildIds(models.Branches, branchIds) };
   }
 
-  if (!!departmentIds?.length) {
-    selector.departmentIds = { $in: departmentIds };
+  if (departmentIds && departmentIds.length) {
+    selector.departmentIds = {
+      $in: await getChildIds(models.Departments, departmentIds)
+    };
   }
 
   if (unitId) {

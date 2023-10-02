@@ -72,7 +72,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { pos } = this.props;
-    const isOnline = pos.isOnline ? 'online pos' : 'offline pos';
+    const isOnline = pos.isOnline ? 'online' : 'offline pos';
     const onServer = pos.onServer ? 'On server' : 'Without main server';
 
     const createdUser = pos.user || {

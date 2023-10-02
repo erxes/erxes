@@ -42,14 +42,6 @@ export function disconnect() {
 /**
  * Health check status
  */
-export const mongoStatus = () => {
-  return new Promise((resolve, reject) => {
-    mongoose.connection.db.admin().ping((err, result) => {
-      if (err) {
-        return reject(err);
-      }
-
-      return resolve(result);
-    });
-  });
+export const mongoStatus = async () => {
+  return mongoose.connection.db.admin().ping();
 };

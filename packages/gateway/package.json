@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "NODE_ENV=development yarn watchTemplate & nodemon src/index.ts",
     "watchTemplate": "nodemon src/commands/watch-template.ts",
+    "watchTemplateForCli": "yarn ts-node src/commands/watch-template.ts",
     "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts",
     "build": "yarn tsc -p tsconfig.prod.json && node fix-build.js"
   },
@@ -13,16 +14,14 @@
     "@graphql-tools/schema": "^9.0.16",
     "@sentry/node": "^7.50.0",
     "agentkeepalive": "^4.3.0",
-    "apollo-server-errors": "^3.3.1",
-    "apollo-server-express": "^3.6.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.4",
     "dotenv": "^10.0.0",
     "erxes-api-utils": "^0.0.34",
     "erxes-telemetry": "^1.0.4",
     "express": "^4.17.2",
+    "graphql": "^16.7.1",
     "get-port": "^5.1.1",
-    "graphql": "^15.8.0",
     "graphql-parse-resolve-info": "^4.13.0",
     "graphql-redis-subscriptions": "^2.4.2",
     "graphql-subscriptions": "^2.0.0",
@@ -48,7 +47,6 @@
     "@types/node": "^17.0.3",
     "node-watch": "^0.7.3",
     "nodemon": "^2.0.15",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.5.4"
+    "typescript": "4.9.5"
   }
 }

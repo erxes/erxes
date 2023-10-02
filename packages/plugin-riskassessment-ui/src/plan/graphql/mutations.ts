@@ -27,8 +27,8 @@ const addPlan = `
 `;
 
 const updatePlan = `
-    mutation UpdateRiskAssessmentPlan($id: String,${commonPlanParams}) {
-      updateRiskAssessmentPlan(_id: $id,${commonPlanParamsDef})
+    mutation UpdateRiskAssessmentPlan($_id: String,${commonPlanParams}) {
+      updateRiskAssessmentPlan(_id: $_id,${commonPlanParamsDef})
     }
 `;
 
@@ -36,6 +36,30 @@ const removePlan = `
     mutation RemoveRiskAssessmentPlan($ids: [String]) {
       removeRiskAssessmentPlan(ids: $ids)
     }
+`;
+
+const duplicatePlan = `
+  mutation DuplicateRiskAssessmentPlan($id: String) {
+    duplicateRiskAssessmentPlan(_id: $id) {
+      _id
+    }
+  }
+`;
+
+const changeStatus = `
+mutation ChangeStatusRiskAssessmentPlan($_id: String, $status: String) {
+  changeStatusRiskAssessmentPlan(_id: $_id, status: $status) {
+    _id
+  }
+}
+`;
+
+const forceStartPlan = `
+  mutation ForceStartRiskAssessmentPlan($id: String) {
+    forceStartRiskAssessmentPlan(_id: $id) {
+      _id
+    }
+  }
 `;
 
 const commonScheduleParams = `
@@ -84,6 +108,9 @@ export default {
   addPlan,
   updatePlan,
   removePlan,
+  duplicatePlan,
+  changeStatus,
+  forceStartPlan,
   addSchedule,
   updateSchedule,
   removeSchedule

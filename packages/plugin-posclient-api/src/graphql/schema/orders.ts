@@ -47,6 +47,7 @@ const orderTypeFields = `
   items: [PosOrderItem]
   user: PosUser
   putResponses: [PosPutResponse]
+  returnInfo: JSON
 
   slotCode: String
 `;
@@ -89,6 +90,8 @@ export const types = `
     productImgUrl: String
     status: String
     manufacturedDate: String
+    description: String
+    attachment: JSON
   }
 
   type PosPutResponse {
@@ -142,6 +145,8 @@ export const types = `
     isTake: Boolean
     status: String
     manufacturedDate: String
+    description: String
+    attachment: JSON
   }
 
   input PaidAmountInput {
@@ -182,6 +187,7 @@ export const mutations = `
   orderItemChangeStatus(_id: String!, status: String): PosOrderItem
   ordersConvertToDeal(_id: String!): Order
   afterFormSubmit(_id: String!, conversationId: String!): Order
+  ordersReturn(_id: String!, cashAmount: Float, paidAmounts: [PaidAmountInput]): Order
 `;
 
 export const queries = `

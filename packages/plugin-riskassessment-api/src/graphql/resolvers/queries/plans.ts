@@ -1,5 +1,5 @@
 import { paginate } from '@erxes/api-utils/src';
-import { IContext, models } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 import { generateSort } from '../../../utils';
 
 const generateFilters = params => {
@@ -7,6 +7,75 @@ const generateFilters = params => {
 
   if (params.isArchived) {
     filter.status = 'archived';
+  }
+
+  if (!!params?.plannerIds?.length) {
+    filter.plannerId = { $in: params?.plannerIds || [] };
+  }
+
+  if (params?.structureIds?.length) {
+    filter.structureTypeId = { $in: params?.structureIds };
+  }
+
+  if (params.searchValue) {
+    filter.name = { $regex: new RegExp(params.searchValue, 'i') };
+  }
+
+  if (params.createDateFrom) {
+    filter.createDate = { $gte: params.createdAtFrom };
+  }
+
+  if (params.createDateTo) {
+    filter.createDate = { ...filter?.createDate, $gte: params.createDateTo };
+  }
+
+  if (params.startDateFrom) {
+    filter.startDate = { $gte: params.startDateFrom };
+  }
+
+  if (params.startDateTo) {
+    filter.startDate = { ...filter?.startDate, $gte: params.startDateTo };
+  }
+
+  if (params.closeDateFrom) {
+    filter.closeDate = { $gte: params.closeDateFrom };
+  }
+
+  if (params.closeDateTo) {
+    filter.closeDate = {
+      ...filter?.closeDate,
+      $gte: params.closeDateTo
+    };
+  }
+
+  if (params.createdAtFrom) {
+    filter.createdAt = { $gte: params.createdAtFrom };
+  }
+
+  if (params.createdAtTo) {
+    filter.createdAt = {
+      ...filter?.createdAt,
+      $gte: params.createdAtTo
+    };
+  }
+
+  if (params.modifiedAtFrom) {
+    filter.modifiedAt = { $gte: params.modifiedAtFrom };
+  }
+
+  if (params.modifiedAtTo) {
+    filter.modifiedAt = {
+      ...filter?.modifiedAt,
+      $gte: params.modifiedAtTo
+    };
+  }
+
+  if (params.tagIds) {
+    filter.tagId = { $in: params.tagIds };
+  }
+
+  if (params.status) {
+    filter.status = { $in: params.status };
   }
 
   return filter;

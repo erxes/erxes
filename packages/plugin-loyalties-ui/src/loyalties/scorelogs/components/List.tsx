@@ -65,6 +65,8 @@ class ScoreLogsListComponent extends React.Component<IProps> {
           return 'settings/team';
         case 'company':
           return 'companies';
+        case 'cpUser':
+          return 'settings/client-portal/users';
       }
     };
     const email = (type, owner) => {
@@ -78,6 +80,8 @@ class ScoreLogsListComponent extends React.Component<IProps> {
           return owner?.email;
         case 'company':
           return owner?.primaryEmail ? owner?.primaryEmail : owner?.primaryName;
+        case 'cpUser':
+          return owner?.email || '-';
       }
     };
     const name = (type, owner) => {
@@ -91,6 +95,10 @@ class ScoreLogsListComponent extends React.Component<IProps> {
           return owner?.details?.fullName;
         case 'company':
           return owner?.primaryName;
+        case 'cpUser':
+          return owner?.username || (owner?.firstName && owner?.lastName)
+            ? `${owner?.firstName} ${owner.lastName}`
+            : '-';
       }
     };
 

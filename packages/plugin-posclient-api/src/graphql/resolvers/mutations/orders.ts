@@ -1,3 +1,4 @@
+import { getPureDate } from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { graphqlPubsub } from '../../../configs';
 import { IModels } from '../../../connectionResolver';
@@ -161,7 +162,7 @@ const ordersAdd = async (
     throw new Error('Please logout and reLogin');
   }
 
-  await validateOrder(models, doc);
+  await validateOrder(subdomain, models, config, doc);
 
   const orderDoc = {
     totalAmount,
@@ -203,7 +204,9 @@ const ordersAdd = async (
         isPackage: item.isPackage,
         isTake: item.isTake,
         status: ORDER_ITEM_STATUSES.NEW,
-        manufacturedDate: item.manufacturedDate
+        manufacturedDate: item.manufacturedDate,
+        description: item.description,
+        attachment: item.attachment
       });
     }
 
@@ -245,7 +248,7 @@ const ordersEdit = async (
 
   checkOrderStatus(order);
 
-  await validateOrder(models, doc);
+  await validateOrder(subdomain, models, config, doc);
 
   await cleanOrderItems(doc._id, doc.items, models);
 
@@ -374,9 +377,7 @@ const orderMutations = {
       throw new Error('Can not change cause: order is not paid');
     }
 
-    const oldBranchId = order.branchId;
-
-    if (params.dueDate && params.dueDate < new Date()) {
+    if (params.dueDate && params.dueDate < getPureDate(new Date())) {
       throw new Error('due date must be in future');
     }
 
@@ -408,7 +409,6 @@ const orderMutations = {
           data: {
             posToken: config.token,
             action: 'makePayment',
-            oldBranchId,
             order,
             items: await models.OrderItems.find({
               orderId: params._id
@@ -655,7 +655,8 @@ const orderMutations = {
           ebarimtConfig,
           items,
           billType,
-          registerNumber
+          registerNumber,
+          config.paymentTypes
         );
 
         ebarimtConfig.districtName = getDistrictName(
@@ -733,6 +734,16 @@ const orderMutations = {
           customerId: order.customerId
         }
       });
+
+      if (config.isOnline) {
+        const products = await models.Products.find({
+          _id: { $in: items.map(i => i.productId) }
+        }).lean();
+        for (const item of items) {
+          const product = products.find(p => p._id === item.productId) || {};
+          item.productName = `${product.code} - ${product.name}`;
+        }
+      }
 
       try {
         sendPosMessage({
@@ -957,6 +968,7 @@ const orderMutations = {
           $set: {
             paidDate: now,
             modifiedAt: now,
+            billType: BILL_TYPES.INNER,
             status: getStatus(
               config,
               '',
@@ -999,6 +1011,109 @@ const orderMutations = {
 
       return e;
     }
+  },
+
+  async ordersReturn(
+    _root,
+    {
+      _id,
+      cashAmount,
+      paidAmounts
+    }: {
+      _id: string;
+      cashAmount?: number;
+      paidAmounts?: IPaidAmount[];
+    },
+    { subdomain, models, posUser, config }: IContext
+  ) {
+    if (!config.adminIds.includes(posUser._id)) {
+      throw new Error('Order return admin required');
+    }
+
+    let order = await models.Orders.getOrder(_id);
+
+    const amount =
+      (cashAmount || 0) +
+      (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
+
+    if (!order.paidDate) {
+      throw new Error('Order yet not paid');
+    }
+
+    if (order.totalAmount != amount) {
+      throw new Error('Amount exceeds total amount');
+    }
+
+    if (order.returnInfo && order.returnInfo.returnAt) {
+      throw new Error('Order is already returned');
+    }
+
+    const modifier: any = {
+      $set: {
+        status: ORDER_STATUSES.RETURN,
+        returnInfo: {
+          cashAmount,
+          paidAmounts,
+          returnAt: new Date(),
+          returnBy: posUser._id
+        },
+        cashAmount: cashAmount
+          ? (order.cashAmount || 0) - Number(cashAmount.toFixed(2))
+          : order.cashAmount || 0,
+        paidAmounts: (order.paidAmounts || []).concat(
+          (paidAmounts || []).map(a => ({ ...a, amount: -1 * a.amount }))
+        )
+      }
+    };
+
+    const ebarimtConfig = config.ebarimtConfig;
+
+    if (!ebarimtConfig) {
+      throw new Error('Please check ebarimt config');
+    }
+
+    let returnResponses = (await models.PutResponses.returnBill({
+      contentId: _id,
+      contentType: 'pos',
+      number: order.number || '',
+      config: ebarimtConfig
+    })) as any;
+
+    if (returnResponses.error) {
+      returnResponses = [];
+    }
+
+    await models.Orders.updateOne({ _id: order._id }, modifier);
+
+    order = await models.Orders.getOrder(_id);
+
+    await graphqlPubsub.publish('ordersOrdered', {
+      ordersOrdered: {
+        ...order,
+        _id: order._id,
+        status: order.status,
+        customerId: order.customerId,
+        customerType: order.customerType
+      }
+    });
+
+    try {
+      sendPosMessage({
+        subdomain,
+        action: 'createOrUpdateOrders',
+        data: {
+          posToken: config.token,
+          action: 'makePayment',
+          responses: returnResponses,
+          order,
+          items: await models.OrderItems.find({ orderId: _id }).lean()
+        }
+      });
+    } catch (e) {
+      debugError(`Error occurred while sending data to erxes: ${e.message}`);
+    }
+
+    return models.Orders.findOne({ _id: order._id });
   }
 };
 

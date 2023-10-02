@@ -1,12 +1,10 @@
-import React from 'react';
-import { __, withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
-import { queries } from '../../graphql';
-import { jsPlumb } from 'jsplumb';
-import jquery from 'jquery';
+import { graphql } from '@apollo/client/react/hoc';
 import { EmptyState, Spinner } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { queries } from '../../graphql';
 import DetailComponent from '../components/Detail';
 
 type Props = {

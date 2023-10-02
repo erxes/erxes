@@ -9,6 +9,7 @@ import { PosProductsQueryResponse } from '../types';
 import { queries } from '../graphql';
 import { FILTER_PARAMS } from '../../constants';
 import queryString from 'query-string';
+import { generateParams } from './List';
 
 type Props = {
   queryParams: any;
@@ -126,6 +127,12 @@ class ProductListContainer extends React.Component<FinalProps> {
   }
 }
 
+export const genParams = ({ queryParams }) => ({
+  ...generateParams({ queryParams }),
+  searchValue: queryParams.searchValue,
+  categoryId: queryParams.categoryId
+});
+
 export default withProps<Props>(
   compose(
     graphql<Props, PosProductsQueryResponse, { page: number; perPage: number }>(
@@ -133,21 +140,7 @@ export default withProps<Props>(
       {
         name: 'posProductsQuery',
         options: ({ queryParams }) => ({
-          variables: {
-            ...router.generatePaginationParams(queryParams || {}),
-            categoryId: queryParams.categoryId,
-            searchValue: queryParams.searchValue,
-            search: queryParams.search,
-            paidStartDate: queryParams.paidStartDate,
-            paidEndDate: queryParams.paidEndDate,
-            createdStartDate: queryParams.createdStartDate,
-            createdEndDate: queryParams.createdEndDate,
-            paidDate: queryParams.paidDate,
-            userId: queryParams.userId,
-            customerId: queryParams.customerId,
-            customerType: queryParams.customerType,
-            posId: queryParams.posId
-          },
+          variables: genParams({ queryParams }),
           fetchPolicy: 'network-only'
         })
       }

@@ -7,9 +7,11 @@ const productFields = `
   code
   categoryId
   vendorId
+  status,
   description
   unitPrice
   barcodes
+  variants
   barcodeDescription
   ${
     isEnabled('tags')
@@ -52,7 +54,9 @@ const products = `
     $type: String,
     $categoryId: String,
     $tag: String,
+    $status: String,
     $searchValue: String,
+    $vendorId: String,
     $perPage: Int,
     $page: Int $ids: [String],
     $excludeIds: Boolean,
@@ -65,7 +69,9 @@ const products = `
       type: $type,
       categoryId: $categoryId,
       tag: $tag,
+      status: $status,
       searchValue: $searchValue,
+      vendorId: $vendorId,
       perPage: $perPage,
       page: $page ids: $ids,
       excludeIds: $excludeIds,
@@ -108,6 +114,10 @@ const productCategories = `
 
       isRoot
       productCount
+      maskType
+      mask
+      isSimilarity
+      similarities
     }
   }
 `;

@@ -2,6 +2,8 @@ import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
 import { PARTICIPATION_STATUSES } from '../constants';
+import { graphqlPubsub } from '../configs';
+
 import {
   IParticipant,
   IParticipantDocument,
@@ -57,6 +59,10 @@ export const loadParticipantClass = (models: IModels) => {
       if (!participant) {
         throw new Error(`Participant not found with id ${_id}`);
       }
+
+      graphqlPubsub.publish('participantsChanged', {
+        participantsChanged: participant
+      });
 
       await models.Participants.updateOne({ _id }, { $set: { ...doc } });
       return models.Participants.findOne({ _id });

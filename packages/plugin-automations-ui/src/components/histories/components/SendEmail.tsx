@@ -1,6 +1,7 @@
 import React from 'react';
 import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
 import {
+  Button,
   ControlLabel,
   FormGroup,
   Label,
@@ -49,7 +50,7 @@ class SendEmail extends React.Component<Props> {
     const getLabelText = response => {
       if (response.error) {
         return typeof response?.error === 'object'
-          ? `${response?.error?.error || ''}`
+          ? JSON.stringify(response.error || {})
           : `${response?.error}`;
       }
 
@@ -100,7 +101,7 @@ class SendEmail extends React.Component<Props> {
   }
 
   render() {
-    const trigger = <p>See Detail</p>;
+    const trigger = <Button size="small" icon="eye" btnStyle="simple" />;
 
     return (
       <ModalTrigger

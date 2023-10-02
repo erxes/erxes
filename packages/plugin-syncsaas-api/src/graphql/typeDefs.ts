@@ -1,10 +1,16 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   mutations as syncMutations,
   queries as syncQueries,
   types as syncTypes
 } from './schema/Sync';
+
+import {
+  mutations as categoriesMutations,
+  queries as categoriesQueries,
+  types as categoriesTypes
+} from './schema/categories';
 
 const typeDefs = async (serviceDiscovery: any) => {
   return gql`
@@ -23,13 +29,16 @@ const typeDefs = async (serviceDiscovery: any) => {
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
     ${syncTypes}
+    ${categoriesTypes}
 
     extend type Query {
       ${syncQueries}
+      ${categoriesQueries}
     }
     
     extend type Mutation {
       ${syncMutations}
+      ${categoriesMutations}
     }
   `;
 };

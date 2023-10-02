@@ -1,3 +1,7 @@
+import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
+
+const allUsers = teamQueries.allUsers;
+
 const chats = `
   query chats($type: ChatType, $limit: Int, $skip: Int) {
     chats(type: $type, limit: $limit, skip: $skip) {
@@ -7,6 +11,7 @@ const chats = `
         type
         isSeen
         isPinned
+        isPinnedUserIds
         lastMessage {
           content
           createdAt
@@ -160,5 +165,6 @@ export default {
   chatMessages,
   getChatIdByUserIds,
   getUnreadChatCount,
-  notificationsGetConfigurations
+  notificationsGetConfigurations,
+  allUsers
 };

@@ -29,6 +29,7 @@ const mailParamsDef = `
   $bcc: [String] ,
   $from: String!,
   $shouldResolve: Boolean,
+  $shouldOpen: Boolean,
   $attachments: [JSON],
   $customerId: String
 `;
@@ -50,6 +51,7 @@ const mailParams = `
   bcc: $bcc,
   from: $from,
   shouldResolve: $shouldResolve,
+  shouldOpen: $shouldOpen,
   attachments: $attachments,
   customerId: $customerId
 `;
@@ -87,8 +89,8 @@ const integrationsCreateExternalIntegration = `
 `;
 
 const integrationsEditCommonFields = `
-  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String], $data: JSON) {
-    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId, channelIds: $channelIds, data: $data) {
+  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String], $details: JSON) {
+    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId, channelIds: $channelIds, details: $details) {
       _id
     }
   }

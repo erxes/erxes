@@ -257,7 +257,7 @@ export const queries = `
   cars(${tumentechParams}): [Car]
   carCounts(${tumentechParams}, only: String): JSON
   carDetail(_id: String!): Car
-  carCategories(parentId: String, searchValue: String, onlyParent: Boolean): [CarCategory]
+  carCategories(parentId: String, searchValue: String, onlyParent: Boolean, ids: [String]): [CarCategory]
   carCategoriesTotalCount: Int
   carCategoryDetail(_id: String): CarCategory
   carCategoryMatchProducts(carCategoryId: String): CarCategoryProducts

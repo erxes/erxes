@@ -45,7 +45,9 @@ const stopRouter = () => {
   if (!apolloRouterProcess) {
     return;
   }
-  apolloRouterProcess.kill('SIGTERM');
+  try {
+    apolloRouterProcess.kill('SIGKILL');
+  } catch (e) {}
 };
 
 (async () => {
@@ -55,6 +57,8 @@ const stopRouter = () => {
   app.get('/health', async (_req, res) => {
     res.end('ok');
   });
+
+  await publishRefreshEnabledServices();
 
   if (SENTRY_DSN) {
     Sentry.init({
@@ -98,8 +102,6 @@ const stopRouter = () => {
   app.use(cors(corsOptions));
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
-
-  await publishRefreshEnabledServices();
 
   apolloRouterProcess = await apolloRouter(targets);
 
@@ -149,14 +151,16 @@ const stopRouter = () => {
   process.on(sig, async () => {
     console.log(`Exiting on signal ${sig}`);
     if (NODE_ENV === 'development') {
-      publishRefreshEnabledServices();
+      try {
+        publishRefreshEnabledServices();
+      } catch (e) {}
     }
     if (subscriptionServer) {
       try {
         subscriptionServer.dispose();
       } catch (e) {}
     }
-    stopRouter();
+    await stopRouter();
     process.exit(0);
   });
 });

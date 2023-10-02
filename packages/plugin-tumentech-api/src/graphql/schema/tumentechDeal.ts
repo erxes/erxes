@@ -18,6 +18,7 @@ export const types = ({ cards }) => `
     productSubCategoryId: String
     trackingData: [TrackingData]
     geometry: String
+    tripDistance: Float
     tripStartedDate: Date
     tripFinishedData: Date
     estimatedCloseDate: Date

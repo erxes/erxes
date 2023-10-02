@@ -1,12 +1,8 @@
-import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
+import { ICustomField } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import * as _ from 'lodash';
 import { IModels } from '../connectionResolver';
-import {
-  sendCardsMessage,
-  sendContactsMessage,
-  sendFormsMessage
-} from '../messageBroker';
+import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
 import {
   IProduct,
   IProductCategory,
@@ -16,6 +12,11 @@ import {
   productSchema,
   PRODUCT_STATUSES
 } from './definitions/products';
+import {
+  checkCodeMask,
+  checkSameMaskConfig,
+  initCustomField
+} from '../maskUtils';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -56,20 +57,41 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
     }
 
+    static fixBarcodes(barcodes?, variants?) {
+      if (barcodes && barcodes.length) {
+        barcodes = barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, '').replace(/_/g, ''));
+
+        if (variants) {
+          const undefinedVariantCodes = Object.keys(variants).filter(
+            key => !(barcodes || []).includes(key)
+          );
+          if (undefinedVariantCodes.length) {
+            for (const unDefCode of undefinedVariantCodes) {
+              delete variants[unDefCode];
+            }
+          }
+        }
+      }
+
+      return { barcodes, variants };
+    }
+
     /**
      * Create a product
      */
     public static async createProduct(doc: IProduct) {
+      doc.code = doc.code
+        .replace(/\*/g, '')
+        .replace(/_/g, '')
+        .replace(/ /g, '');
       await this.checkCodeDuplication(doc.code);
 
-      if (doc.barcodes) {
-        doc.barcodes = doc.barcodes
-          .filter(bc => bc)
-          .map(bc => bc.replace(/\s/g, ''));
-      }
+      doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
 
       if (doc.categoryCode) {
-        const category = await models.ProductCategories.getProductCatogery({
+        const category = await models.ProductCategories.getProductCategory({
           code: doc.categoryCode
         });
         doc.categoryId = category._id;
@@ -93,14 +115,25 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         doc.vendorId = vendor?._id;
       }
 
-      doc.customFieldsData = await sendFormsMessage({
-        subdomain,
-        action: 'fields.prepareCustomFieldsData',
-        data: doc.customFieldsData,
-        isRPC: true
+      const category = await models.ProductCategories.getProductCategory({
+        _id: doc.categoryId
       });
 
+      if (!(await checkCodeMask(category, doc.code))) {
+        throw new Error('Code is not validate of category mask');
+      }
+
+      doc.sameMasks = await checkSameMaskConfig(models, doc);
+
       doc.uom = await models.Uoms.checkUOM(doc);
+
+      doc.customFieldsData = await initCustomField(
+        subdomain,
+        category,
+        doc.code,
+        [],
+        doc.customFieldsData
+      );
 
       return models.Products.create(doc);
     }
@@ -111,29 +144,41 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     public static async updateProduct(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
 
-      if (product.code !== doc.code) {
-        await this.checkCodeDuplication(doc.code);
-      }
+      const category = await models.ProductCategories.getProductCategory({
+        _id: doc.categoryId || product.categoryId
+      });
 
       if (doc.code) {
+        doc.code = doc.code.replace(/\*/g, '');
         doc.uom = await models.Uoms.checkUOM(doc);
+        doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
+
+        if (product.code !== doc.code) {
+          await this.checkCodeDuplication(doc.code);
+        }
+
+        if (!(await checkCodeMask(category, doc.code))) {
+          throw new Error('Code is not validate of category mask');
+        }
+
+        doc.sameMasks = await checkSameMaskConfig(models, doc);
       }
 
-      if (doc.barcodes) {
-        doc.barcodes = doc.barcodes
-          .filter(bc => bc)
-          .map(bc => bc.replace(/\s/g, ''));
-      }
+      doc.customFieldsData = await initCustomField(
+        subdomain,
+        category,
+        doc.code || product.code,
+        product.customFieldsData,
+        doc.customFieldsData
+      );
 
-      if (doc.customFieldsData) {
-        // clean custom field values
-        doc.customFieldsData = await sendFormsMessage({
-          subdomain,
-          action: 'fields.prepareCustomFieldsData',
-          data: doc.customFieldsData,
-          isRPC: true
-        });
-      }
+      doc.customFieldsData = await initCustomField(
+        subdomain,
+        category,
+        doc.code || product.code,
+        product.customFieldsData,
+        doc.customFieldsData
+      );
 
       await models.Products.updateOne({ _id }, { $set: doc });
 
@@ -300,7 +345,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 };
 
 export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
-  getProductCatogery(selector: any): Promise<IProductCategoryDocument>;
+  getProductCategory(selector: any): Promise<IProductCategoryDocument>;
   createProductCategory(
     doc: IProductCategory
   ): Promise<IProductCategoryDocument>;
@@ -318,7 +363,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      * Get Product Cagegory
      */
 
-    public static async getProductCatogery(selector: any) {
+    public static async getProductCategory(selector: any) {
       const productCategory = await models.ProductCategories.findOne(selector);
 
       if (!productCategory) {
@@ -365,7 +410,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       _id: string,
       doc: IProductCategory
     ) {
-      const category = await models.ProductCategories.getProductCatogery({
+      const category = await models.ProductCategories.getProductCategory({
         _id
       });
 
@@ -384,15 +429,9 @@ export const loadProductCategoryClass = (models: IModels) => {
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const productCategory = await models.ProductCategories.getProductCatogery(
-        {
-          _id
-        }
-      );
-
       const childCategories = await models.ProductCategories.find({
         $and: [
-          { order: { $regex: new RegExp(productCategory.order, 'i') } },
+          { order: { $regex: new RegExp(`^${category.order}`, 'i') } },
           { _id: { $ne: _id } }
         ]
       });
@@ -403,7 +442,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       childCategories.forEach(async childCategory => {
         let order = childCategory.order;
 
-        order = order.replace(productCategory.order, doc.order);
+        order = order.replace(category.order, doc.order);
 
         await models.ProductCategories.updateOne(
           { _id: childCategory._id },
@@ -418,7 +457,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      * Remove Product category
      */
     public static async removeProductCategory(_id: string) {
-      await models.ProductCategories.getProductCatogery({ _id });
+      await models.ProductCategories.getProductCategory({ _id });
 
       let count = await models.Products.countDocuments({
         categoryId: _id,

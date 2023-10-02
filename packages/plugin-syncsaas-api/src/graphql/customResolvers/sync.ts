@@ -13,14 +13,43 @@ export default {
       return null;
     }
 
-    const response = await sendRequest({
-      url: `${SAAS_CORE_URL}/check-subdomain`,
-      method: 'GET',
-      headers: {
-        origin: `${subdomain}..app.erxes.io`
-      }
-    });
+    let response;
+
+    try {
+      response = await sendRequest({
+        url: `${SAAS_CORE_URL}/check-subdomain`,
+        method: 'GET',
+        headers: {
+          origin: `${subdomain}..app.erxes.io`
+        }
+      });
+    } catch (error) {
+      return null;
+    }
 
     return response ? response : null;
+  },
+
+  async customersDetail(parent, args, { models }: IContext, info) {
+    const { variableValues } = info;
+
+    const { customerId, customerIds, status, excludeCustomerIds } =
+      variableValues || {};
+
+    let selector: any = {
+      $or: [{ customerId }, { customerId: { $in: customerIds } }]
+    };
+
+    if (status) {
+      selector.status = status;
+    }
+
+    if (!!excludeCustomerIds?.length) {
+      selector.customerId = {
+        $nin: excludeCustomerIds
+      };
+    }
+
+    return await models.SyncedCustomers.find(selector);
   }
 };
