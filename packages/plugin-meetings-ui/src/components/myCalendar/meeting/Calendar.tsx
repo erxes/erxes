@@ -108,7 +108,7 @@ function CalendarComponent(props: Props) {
           selectMirror={true}
           selectable={true}
           dayMaxEvents={true}
-          events={{}}
+          events={events}
           select={handleDateSelect}
           eventContent={renderEventContent}
           eventClick={handleEventClick}
