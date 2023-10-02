@@ -4,8 +4,7 @@ import { useState } from "react"
 import { XCircle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-
-import Image from "./ui/image"
+import Image from "@/components/ui/image"
 
 export const AttachmentWithPreview = ({
   images,
@@ -52,6 +51,8 @@ export const AttachmentWithPreview = ({
             <Image
               alt="image"
               src={images[index]?.url || ""}
+              width={800}
+              height={800}
               className="w-full h-56 object-contain cursor-pointer"
             />
           </div>

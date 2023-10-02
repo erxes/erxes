@@ -6,6 +6,10 @@ const nextConfig = {
         protocol: "http",
         hostname: "localhost",
       },
+      {
+        protocol: "https",
+        hostname: "**",
+      },
     ],
 
     domains: ["s3.ap-southeast-1.amazonaws.com"],
