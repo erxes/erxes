@@ -97,7 +97,7 @@ export const ChatItem = ({
           alt="User Profile"
           width={60}
           height={60}
-          className="object-cover"
+          className="object-cover rounded-full"
         />
       </div>
 

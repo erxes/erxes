@@ -37,7 +37,7 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
                 alt="avatar"
                 width={60}
                 height={60}
-                className="w-10 h-10 rounded-full mb-2"
+                className="w-10 h-10 rounded-full mb-2 object-cover"
               />
             </div>
           )}
@@ -56,7 +56,7 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
                 alt="avatar"
                 width={60}
                 height={60}
-                className="w-10 h-10 rounded-full mb-2"
+                className="w-10 h-10 rounded-full mb-2 object-cover"
               />
             </div>
           )}
