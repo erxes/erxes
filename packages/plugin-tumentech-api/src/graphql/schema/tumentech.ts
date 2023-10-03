@@ -214,6 +214,11 @@ type TopupListResponse {
   totalCount: Int,
 }
 
+type TumenTripTotal{
+  total:Float
+  numberOfWorks:Int
+}
+
 input ParticipantsRemove {
   dealId: String!
   tripId: String!
@@ -277,6 +282,8 @@ export const queries = `
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
 
   tumentechCategoryIcons: [String]
+
+  tumentechTripDistance(driverId:String!):TumenTripTotal
 `;
 
 const tumentechCommonFields = `
