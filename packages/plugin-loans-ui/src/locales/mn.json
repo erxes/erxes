@@ -173,5 +173,7 @@
   "Custom Interest": "Дурын төлөх хүү",
   "fixedMethod": "Тэнцүү төлбөр",
   "equalMethod": "Үндсэн зээл тэнцүү",
-  "customMethod": "Дурын"
+  "customMethod": "Дурын",
+  "Schedule day": "Хуваарьт өдөр",
+  "Day": "Өдөр"
 }
