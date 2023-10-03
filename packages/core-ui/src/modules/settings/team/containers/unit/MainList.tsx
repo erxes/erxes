@@ -42,15 +42,7 @@ class MainList extends React.Component<FinalProps> {
           .mutate({
             mutation: gql(mutations.unitsRemove),
             variables: { ids },
-            refetchQueries: [
-              {
-                query: gql(queries.units),
-                variables: {
-                  withoutUserFilter: true,
-                  searchValue: undefined
-                }
-              }
-            ]
+            refetchQueries: ['unitsMain']
           })
           .then(() => {
             callback();

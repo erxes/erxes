@@ -337,6 +337,29 @@ export const statusToDone = async ({
 
   await updateCustomer({ subdomain, doneOrder });
 
+  if (pos.isOnline && doneOrder.branchId) {
+    const toPos = await models.Pos.findOne({
+      branchId: doneOrder.branchId
+    }).lean();
+
+    // paid order info to offline pos
+    if (toPos) {
+      await sendPosclientMessage({
+        subdomain,
+        action: 'erxes-posclient-to-pos-api',
+        data: {
+          order: {
+            ...doneOrder,
+            posToken: doneOrder.posToken,
+            subToken: toPos.token,
+            status: 'reDoing'
+          }
+        },
+        pos: toPos
+      });
+    }
+  }
+
   return {
     status: 'success'
   };
@@ -411,6 +434,11 @@ const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
   }
   let resp;
 
+  if (newOrder.isPre && !newOrder.paidDate) {
+    // TODO: CallPrepaymentFromSubServices erkhet rmq beldeh, holboh
+    return;
+  }
+
   if (newOrder.status === 'return') {
     resp = await sendSyncerkhetMessage({
       subdomain,
@@ -465,9 +493,53 @@ const syncInventoriesRem = async ({
     multiplier = -1;
   }
 
+  if (newOrder.isPre) {
+    if (!newOrder.paidDate) {
+      if (
+        newOrder.branchId &&
+        (!oldBranchId || oldBranchId !== newOrder.branchId)
+      ) {
+        sendInventoriesMessage({
+          subdomain,
+          action: 'remainders.updateMany',
+          data: {
+            branchId: newOrder.branchId,
+            departmentId: newOrder.departmentId,
+            productsData: (newOrder.items || []).map(item => ({
+              productId: item.productId,
+              uom: item.uom,
+              diffSoonOut: item.count * multiplier
+            }))
+          }
+        });
+      }
+
+      if (oldBranchId && oldBranchId !== newOrder.branchId) {
+        sendInventoriesMessage({
+          subdomain,
+          action: 'remainders.updateMany',
+          data: {
+            branchId: oldBranchId,
+            departmentId: newOrder.departmentId,
+            productsData: (newOrder.items || []).map(item => ({
+              productId: item.productId,
+              uom: item.uom,
+              diffSoonOut: -1 * item.count * multiplier
+            }))
+          }
+        });
+      }
+
+      return;
+    }
+  }
+  // ene doorhuudiig bas paidDate shalgah tuhai bodoh
+  // jich bas jururiin salbariin zb bodoh, neg salbar deer l zaragdaj baiga avch salbar deer zuvhun tur hadgalah
+  // ene ni techstore bas adil baina
+
   if (
-    (!oldBranchId && newOrder.branchId) ||
-    (oldBranchId && oldBranchId !== newOrder.branchId)
+    newOrder.branchId &&
+    (!oldBranchId || oldBranchId !== newOrder.branchId)
   ) {
     sendInventoriesMessage({
       subdomain,
@@ -478,7 +550,8 @@ const syncInventoriesRem = async ({
         productsData: (newOrder.items || []).map(item => ({
           productId: item.productId,
           uom: item.uom,
-          diffCount: -1 * item.count * multiplier
+          diffCount: -1 * item.count * multiplier,
+          diffSoonOut: newOrder.isPre ? -1 * item.count * multiplier : 0
         }))
       }
     });
@@ -494,7 +567,8 @@ const syncInventoriesRem = async ({
         productsData: (newOrder.items || []).map(item => ({
           productId: item.productId,
           uom: item.uom,
-          diffCount: item.count * multiplier
+          diffCount: item.count * multiplier,
+          diffSoonOut: newOrder.isPre ? item.count * multiplier : 0
         }))
       }
     });
@@ -508,8 +582,7 @@ export const syncOrderFromClient = async ({
   items,
   pos,
   posToken,
-  responses,
-  oldBranchId
+  responses
 }: {
   subdomain: string;
   models: IModels;
@@ -518,8 +591,10 @@ export const syncOrderFromClient = async ({
   pos: IPosDocument;
   posToken: string;
   responses;
-  oldBranchId: string;
 }) => {
+  const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
+  const oldBranchId = oldOrder ? oldOrder.branchId : '';
+
   for (const response of responses || []) {
     if (response && response._id) {
       await sendEbarimtMessage({
@@ -580,6 +655,26 @@ export const syncOrderFromClient = async ({
           order: { ...newOrder, posToken, subToken: toPos.token }
         },
         pos: toPos
+      });
+    }
+
+    // change branch and before another pos synced then remove from befort sync
+    if (
+      oldOrder &&
+      oldOrder.branchId &&
+      newOrder.branchId !== oldOrder.branchId
+    ) {
+      const toCancelPos = await models.Pos.findOne({
+        branchId: oldOrder.branchId
+      }).lean();
+
+      await sendPosclientMessage({
+        subdomain,
+        action: 'erxes-posclient-to-pos-api-remove',
+        data: {
+          order: { ...newOrder, posToken, subToken: toPos.token }
+        },
+        pos: toCancelPos
       });
     }
   }

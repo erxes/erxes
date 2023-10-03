@@ -1,20 +1,23 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 // erxes
-import Avatar from "../../../../modules/common/nameCard/Avatar";
-import Icon from "../../../../modules/common/Icon";
-import { IUser } from "../../../auth/types";
+import Avatar from '../../../../modules/common/nameCard/Avatar';
+import Icon from '../../../../modules/common/Icon';
+import { IUser } from '../../../auth/types';
 // local
-import MessageList from "../../containers/chat/MessageList";
-import Editor from "../../containers/chat/Editor";
-import ReplyInfo from "./ReplyInfo";
+import MessageList from '../../containers/chat/MessageList';
+import Editor from '../../containers/chat/Editor';
+import ReplyInfo from './ReplyInfo';
 import {
   ChatGroupAvatar,
   WidgetChatWindowWrapper,
   WidgetChatWindowHeader,
   MinimizedWidgetChatWindow,
-} from "../../styles";
-import { OverlayTrigger, Popover } from "react-bootstrap";
-import ParticipantList from "./participants/ParticipantList";
+  AvatarImg
+} from '../../styles';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import ParticipantList from './participants/ParticipantList';
+import GroupChatAction from '../../containers/chat/GroupChatAction';
+import { readFile } from '../../../utils';
 
 type Props = {
   chat: any;
@@ -51,6 +54,7 @@ const WidgetChatWindow = (props: Props) => {
 
   const popoverContent = (
     <Popover id="groupMembers-popover">
+      <GroupChatAction chat={chat} />
       <ParticipantList chat={chat} />
     </Popover>
   );
@@ -61,7 +65,7 @@ const WidgetChatWindow = (props: Props) => {
         <MinimizedWidgetChatWindow onClick={() => handleMinimize()}>
           <WidgetChatWindowHeader>
             <div>
-              {chat.type === "direct" ? (
+              {chat.type === 'direct' ? (
                 <Avatar user={user} size={23} />
               ) : (
                 <ChatGroupAvatar>
@@ -71,7 +75,7 @@ const WidgetChatWindow = (props: Props) => {
               )}
               <p>
                 {chat.name || user.details?.fullName || user.email}
-                {chat.type === "direct" && (
+                {chat.type === 'direct' && (
                   <div className="position">{user.details?.position}</div>
                 )}
               </p>
@@ -93,23 +97,32 @@ const WidgetChatWindow = (props: Props) => {
       <WidgetChatWindowWrapper onKeyDown={handleKeyDown}>
         <WidgetChatWindowHeader>
           <div>
-            {chat.type === "direct" ? (
+            {chat.type === 'direct' ? (
               <Avatar user={user} size={32} />
             ) : (
               <ChatGroupAvatar>
-                <Avatar user={users[0]} size={24} />
-                <Avatar user={users[1]} size={24} />
+                {chat.featuredImage.length > 0 ? (
+                  <AvatarImg
+                    alt={'author'}
+                    src={readFile(chat && chat.featuredImage[0].url, 60)}
+                  />
+                ) : (
+                  <>
+                    <Avatar user={users[0]} size={24} />
+                    <Avatar user={users[1]} size={24} />{' '}
+                  </>
+                )}
               </ChatGroupAvatar>
             )}
             <p>
               <div className="name">
                 {chat.name || user?.details?.fullName || user?.email}
               </div>
-              {chat.type === "direct" && (
+              {chat.type === 'direct' && (
                 <div className="position">{user.details?.position}</div>
               )}
             </p>
-            {chat.type === "group" && (
+            {chat.type === 'group' && (
               <OverlayTrigger
                 trigger="click"
                 rootClose={false}

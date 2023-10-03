@@ -24,7 +24,12 @@ export const syncLogSchema = schemaWrapper(
     _id: field({ pkey: true }),
     contentType: field({ type: String, label: 'type', index: true }),
     contentId: field({ type: String, label: 'content', index: true }),
-    createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Created at',
+      index: true
+    }),
     createdBy: field({ type: String, label: 'Created by' }),
     consumeData: field({ type: Object }),
     consumeStr: field({ type: String }),

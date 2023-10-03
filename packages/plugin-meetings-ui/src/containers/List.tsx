@@ -18,7 +18,6 @@ import { queries as userQueries } from '@erxes/ui/src/team/graphql';
 
 type Props = {
   history: any;
-  searchFilter: string;
   queryParams: any;
   route?: string;
   perPage?: number;
@@ -59,7 +58,8 @@ export default withCurrentUser(
             createdAtFrom,
             createdAtTo,
             ownerId,
-            companyId
+            companyId,
+            searchValue
           } = queryParams;
 
           return {
@@ -69,7 +69,8 @@ export default withCurrentUser(
               createdAtFrom,
               createdAtTo,
               userId: ownerId,
-              companyId
+              companyId,
+              searchValue
             }
           };
         }

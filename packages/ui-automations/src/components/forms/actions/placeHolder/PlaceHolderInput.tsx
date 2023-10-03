@@ -10,11 +10,13 @@ import React from 'react';
 import SelectDate from './SelectDate';
 import SelectOption from './SelectOption';
 import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import AttriibutionForms from '../../../../containers/forms/actions/AttriibutionForms';
 
 type Props = {
   onChange: (config: any) => void;
   onKeyPress?: (value: string) => void;
   triggerType: string;
+  triggerConfig?: any;
   inputName: string;
   label: string;
   type?: string;
@@ -28,6 +30,7 @@ type Props = {
   excludeAttr?: boolean;
   customAttributions?: FieldsCombinedByType[];
   additionalContent?: JSX.Element;
+  attrWithSegmentConfig?: boolean;
 };
 
 type State = {
@@ -133,10 +136,33 @@ class PlaceHolderInput extends React.Component<Props, State> {
       inputName,
       attrType,
       attrTypes,
-      fieldType
+      triggerConfig,
+      fieldType,
+      attrWithSegmentConfig
     } = this.props;
     if (excludeAttr || fieldType === 'stage') {
       return '';
+    }
+
+    if (attrWithSegmentConfig) {
+      return (
+        <AttriibutionForms segmentId={triggerConfig?.contentId}>
+          {config => {
+            return (
+              <Attribution
+                inputName={inputName}
+                config={this.state.config}
+                setConfig={conf => this.onSelect(conf)}
+                triggerType={this.props.triggerType}
+                onlySet={this.getOnlySet()}
+                fieldType={fieldType}
+                attrConfig={config}
+                customAttributions={this.props.customAttributions}
+              />
+            );
+          }}
+        </AttriibutionForms>
+      );
     }
 
     return (

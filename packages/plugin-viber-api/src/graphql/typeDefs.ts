@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 import { attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
 import { DocumentNode } from 'graphql';
 

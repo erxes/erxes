@@ -1,10 +1,10 @@
-import gql from "graphql-tag";
-import { mutations } from "../../graphql";
-import { useMutation } from "@apollo/client";
-import Alert from "../../../utils/Alert";
-import ChatForward from "../../components/chat/ChatForward";
-import { IUser } from "../../../auth/types";
-import { useState } from "react";
+import gql from 'graphql-tag';
+import { mutations } from '../../graphql';
+import { useMutation } from '@apollo/client';
+import Alert from '../../../utils/Alert';
+import ChatForward from '../../components/chat/ChatForward';
+import { IUser } from '../../../auth/types';
+import { useState } from 'react';
 
 type Props = {
   currentUser: IUser;
@@ -13,32 +13,44 @@ type Props = {
 };
 
 const ChatForwardContainer = (props: Props) => {
-  const [forwardedChatIds, setForwardedChatIds] = useState([]);
-
   const [chatForward] = useMutation(gql(mutations.chatForward));
 
-  const forwardChat = (chatId?: string) => {
-    chatForward({
-      variables: {
-        chatId,
-        content: props.content,
-        attachments: props.attachments,
-      },
-    })
-      .then(() => {
-        setForwardedChatIds([...forwardedChatIds, chatId]);
+  const forwardChat = (id?: string, type?: string) => {
+    if (type === 'group') {
+      chatForward({
+        variables: {
+          chatId: id,
+          content: props.content,
+          attachments: props.attachments
+        }
       })
-      .catch((error) => {
-        Alert.error(error.message);
-      });
+        .then(() => {
+          Alert.success('sent');
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
+    }
+
+    if (type === 'direct') {
+      chatForward({
+        variables: {
+          userIds: [id],
+          content: props.content,
+          attachments: props.attachments
+        }
+      })
+        .then(() => {
+          Alert.success('sent');
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
+    }
   };
 
   return (
-    <ChatForward
-      currentUser={props.currentUser}
-      forwardedChatIds={forwardedChatIds}
-      forwardChat={forwardChat}
-    />
+    <ChatForward currentUser={props.currentUser} forwardChat={forwardChat} />
   );
 };
 

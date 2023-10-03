@@ -18,20 +18,20 @@ export default {
 
     const { triggerType } = execution;
 
-    const [serviceName] = triggerType.split(':');
+    const [serviceName, contentType] = triggerType.split(':');
 
     let { target } = execution;
     const { config } = action;
 
     const { url, method, specifiedFields } = config || {};
 
-    if (Object.keys(specifiedFields || {}).length) {
+    if (!!Object.keys(specifiedFields || {}).length) {
       const replacedContent = await sendCommonMessage({
         subdomain,
         serviceName,
         action: 'automations.replacePlaceHolders',
         data: {
-          target,
+          target: { ...specifiedFields, _id: target?._id, type: contentType },
           config: specifiedFields
         },
         isRPC: true,
@@ -46,6 +46,11 @@ export default {
       return acc;
     }, {});
 
+    const params = (config.params || []).reduce((acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    }, {});
+
     try {
       await sendRequest({
         url,
@@ -54,6 +59,7 @@ export default {
           'Content-Type': 'application/json',
           ...headers
         },
+        params,
         body: {
           actionType: 'automations.webhook',
           triggerType,
@@ -64,6 +70,7 @@ export default {
         url,
         method: method || 'POST',
         headers,
+        params,
         data: target,
         status: 'success'
       };

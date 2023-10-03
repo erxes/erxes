@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import * as redis from 'redis';
+import Redis from 'redis';
 
 // load environment variables
 dotenv.config();

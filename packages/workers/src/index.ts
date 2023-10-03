@@ -122,9 +122,7 @@ httpServer.listen(PORT, async () => {
     mongoUrl = TEST_MONGO_URL;
   }
 
-  initApolloServer(app, httpServer).then(apolloServer => {
-    apolloServer.applyMiddleware({ app, path: '/graphql' });
-  });
+  await initApolloServer(app, httpServer);
 
   // connect to mongo database
   connect(mongoUrl).then(async () => {

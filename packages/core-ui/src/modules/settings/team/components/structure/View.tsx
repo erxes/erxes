@@ -3,9 +3,11 @@ import { SidebarCounter } from '@erxes/ui/src/layout/styles';
 import { IStructure } from '@erxes/ui/src/team/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __, readFile } from 'modules/common/utils';
-import Box from '@erxes/ui/src/components/Box';
 import Icon from '@erxes/ui/src/components/Icon';
-import { StructureList } from '../../styles';
+import { StructureList, StructureEditButton } from '../../styles';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import _ from 'lodash';
 
 type Props = {
   structure: IStructure;
@@ -14,9 +16,9 @@ type Props = {
 
 export default function View({ structure, showEdit }: Props) {
   const edit = (
-    <a href="#settings" onClick={showEdit} tabIndex={0}>
-      <Icon icon="edit" size={8} />
-    </a>
+    <StructureEditButton>
+      <Icon icon="edit" onClick={showEdit} size={14} />
+    </StructureEditButton>
   );
 
   const renderRow = (name: string, value: any, nowrap?: boolean) => {
@@ -38,12 +40,13 @@ export default function View({ structure, showEdit }: Props) {
     : supervisor.email;
 
   return (
-    <Box
-      extraButtons={edit}
-      isOpen={true}
-      title={__('Structure')}
-      name="showStructure"
-    >
+    <>
+      <Wrapper.ActionBar
+        background="bgWhite"
+        left={<Title capitalize={true}>{__('Structure')}</Title>}
+        right={edit}
+        wideSpacing={true}
+      />
       <StructureList className="no-link">
         {renderRow('Name', title)}
         {renderRow('Description', description, true)}
@@ -63,6 +66,6 @@ export default function View({ structure, showEdit }: Props) {
           </li>
         )}
       </StructureList>
-    </Box>
+    </>
   );
 }

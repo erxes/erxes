@@ -1,7 +1,7 @@
 import * as classNames from 'classnames';
 import * as dayjs from 'dayjs';
 import * as React from 'react';
-import * as xss from 'xss';
+import xss from 'xss';
 import { defaultAvatar } from '../../icons/Icons';
 import { IUser } from '../../types';
 import { __, readFile, urlify } from '../../utils';

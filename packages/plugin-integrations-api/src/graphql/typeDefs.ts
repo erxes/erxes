@@ -1,12 +1,12 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as IntegrationTypes,
   queries as IntegrationQueries,
-  mutations as IntegrationMutations,
+  mutations as IntegrationMutations
 } from './integrationTypeDefs';
 
-const typeDefs = async(_serviceDiscovery) => {
+const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
@@ -21,6 +21,6 @@ const typeDefs = async(_serviceDiscovery) => {
       ${IntegrationMutations}
     }
   `;
-}
+};
 
 export default typeDefs;

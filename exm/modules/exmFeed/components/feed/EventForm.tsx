@@ -1,20 +1,21 @@
-import { CustomRangeContainer, UploadItems } from "../../styles";
-import { IButtonMutateProps, IFormProps } from "../../../common/types";
-import React, { useState } from "react";
-import { description, getDepartmentOptions, title } from "../../utils";
+import { CustomRangeContainer, UploadItems } from '../../styles';
+import { IButtonMutateProps, IFormProps } from '../../../common/types';
+import React, { useState } from 'react';
+import { description, getDepartmentOptions, title } from '../../utils';
 
-import ControlLabel from "../../../common/form/Label";
-import DateControl from "../../../common/form/DateControl";
-import { Form, FormGroup } from "../../../common/form";
-import FormControl from "../../../common/form/Control";
-import GenerateFields from "../GenerateFields";
-import Select from "react-select-plus";
-import SelectTeamMembers from "../../../common/team/containers/SelectTeamMembers";
-import Uploader from "../../../common/Uploader";
-import { CreateFormContainer, CreateInput, FlexRow } from "../../styles";
-import ModalTrigger from "../../../common/ModalTrigger";
-import NameCard from "../../../common/nameCard/NameCard";
-import { __ } from "../../../../utils";
+import ControlLabel from '../../../common/form/Label';
+import DateControl from '../../../common/form/DateControl';
+import { Form, FormGroup } from '../../../common/form';
+import FormControl from '../../../common/form/Control';
+import GenerateFields from '../GenerateFields';
+import Select from 'react-select-plus';
+import SelectTeamMembers from '../../../common/team/containers/SelectTeamMembers';
+import Uploader from '../../../common/Uploader';
+import { CreateFormContainer, CreateInput, FlexRow } from '../../styles';
+import ModalTrigger from '../../../common/ModalTrigger';
+import NameCard from '../../../common/nameCard/NameCard';
+import { __ } from '../../../../utils';
+import { IUser } from '../../../auth/types';
 
 type Props = {
   item?: any;
@@ -25,10 +26,18 @@ type Props = {
   isEdit?: boolean;
   branches: any[];
   units: any[];
+  currentUser: IUser;
 };
 
 export default function EventForm(props: Props) {
-  const { item = {}, fields, departments, branches, units } = props;
+  const {
+    item = {},
+    fields,
+    departments,
+    branches,
+    units,
+    currentUser
+  } = props;
 
   const [attachments, setAttachment] = useState(item.attachments || []);
   const [images, setImages] = useState(item.images || []);
@@ -39,15 +48,15 @@ export default function EventForm(props: Props) {
   const itemEventData = item.eventData || {};
 
   const [eventData, setEventData] = useState({
-    visibility: itemEventData.visibility || "public",
-    where: itemEventData.where || "",
+    visibility: itemEventData.visibility || 'public',
+    where: itemEventData.where || '',
     startDate: itemEventData.startDate,
-    endDate: itemEventData.endDate,
+    endDate: itemEventData.endDate
   });
 
   const [departmentIds, setDepartmentIds] = useState(item?.departmentIds || []);
   const [branchIds, setBranchIds] = useState(item?.branchIds || []);
-  const [unitId, setUnitId] = useState(item?.unitId || "");
+  const [unitId, setUnitId] = useState(item?.unitId || '');
 
   const onChangeDepartment = (option: any) => {
     setDepartmentIds(option.map((data) => data.value) || []);
@@ -58,7 +67,7 @@ export default function EventForm(props: Props) {
   };
 
   const onChangeUnit = (option: any) => {
-    setUnitId(option?.value || "");
+    setUnitId(option?.value || '');
   };
 
   const onChangeEventData = (key, value) => {
@@ -75,10 +84,10 @@ export default function EventForm(props: Props) {
           <FormControl
             componentClass="radio"
             name="visibility"
-            checked={eventData.visibility === "public"}
+            checked={eventData.visibility === 'public'}
             value="public"
             onChange={(e: any) =>
-              onChangeEventData("visibility", e.target.value)
+              onChangeEventData('visibility', e.target.value)
             }
           >
             Public
@@ -87,15 +96,15 @@ export default function EventForm(props: Props) {
             componentClass="radio"
             name="visibility"
             value="private"
-            checked={eventData.visibility === "private"}
+            checked={eventData.visibility === 'private'}
             onChange={(e: any) =>
-              onChangeEventData("visibility", e.target.value)
+              onChangeEventData('visibility', e.target.value)
             }
           >
             Private
           </FormControl>
         </FormGroup>
-        {eventData.visibility === "private" && (
+        {eventData.visibility === 'private' && (
           <>
             <SelectTeamMembers
               label="Invite people"
@@ -112,9 +121,9 @@ export default function EventForm(props: Props) {
             value={eventData.startDate}
             required={true}
             name="startDate"
-            onChange={(date) => onChangeEventData("startDate", date)}
-            placeholder={"Start date (required)"}
-            dateFormat={"YYYY-MM-DD HH:mm:ss"}
+            onChange={(date) => onChangeEventData('startDate', date)}
+            placeholder={'Start date (required)'}
+            dateFormat={'YYYY-MM-DD HH:mm:ss'}
             timeFormat={true}
           />
           <DateControl
@@ -122,9 +131,9 @@ export default function EventForm(props: Props) {
             value={eventData.endDate}
             required={true}
             name="endDate"
-            placeholder={"End date (required)"}
-            onChange={(date) => onChangeEventData("endDate", date)}
-            dateFormat={"YYYY-MM-DD HH:mm:ss"}
+            placeholder={'End date (required)'}
+            onChange={(date) => onChangeEventData('endDate', date)}
+            dateFormat={'YYYY-MM-DD HH:mm:ss'}
             timeFormat={true}
           />
         </CustomRangeContainer>
@@ -137,7 +146,7 @@ export default function EventForm(props: Props) {
             placeholder="Where"
             componentClass="textarea"
             value={eventData.where}
-            onChange={(e: any) => onChangeEventData("where", e.target.value)}
+            onChange={(e: any) => onChangeEventData('where', e.target.value)}
           />
         </FormGroup>
         <Select
@@ -204,7 +213,7 @@ export default function EventForm(props: Props) {
           values: {
             title: values.title,
             description: values.description ? values.description : null,
-            contentType: "event",
+            contentType: 'event',
             attachments,
             images,
             recipientIds,
@@ -212,10 +221,10 @@ export default function EventForm(props: Props) {
             eventData,
             departmentIds,
             branchIds,
-            unitId,
+            unitId
           },
           isSubmitted,
-          callback: closeModal ? closeModal : insideCloseModal,
+          callback: closeModal ? closeModal : insideCloseModal
         })}
       </>
     );
@@ -234,12 +243,12 @@ export default function EventForm(props: Props) {
   return (
     <CreateFormContainer>
       <FlexRow>
-        <NameCard.Avatar user={{}} size={45} />
+        <NameCard.Avatar user={currentUser} size={45} />
         <ModalTrigger
           dialogClassName="create-post"
           size="lg"
           title="Create post"
-          trigger={<CreateInput>{__("Create new event")}</CreateInput>}
+          trigger={<CreateInput>{__('Create new event')}</CreateInput>}
           content={content}
         />
       </FlexRow>

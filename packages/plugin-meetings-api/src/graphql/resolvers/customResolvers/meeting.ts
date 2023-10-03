@@ -1,10 +1,8 @@
-import { IContext } from '../../../messageBroker';
+import { IContext, sendCardsMessage } from '../../../messageBroker';
 import { IMeeting } from '../../../models/definitions/meeting';
 
 export default {
   async topics({ id }, {}, { models }: IContext) {
-    const selector: any = {};
-
     if (!id) return null;
 
     return await models.Topics.find({ meetingId: id });
@@ -28,5 +26,18 @@ export default {
         _id: meeting.createdBy
       }
     );
+  },
+
+  async deals({ dealIds }: IMeeting) {
+    if (!dealIds?.length) {
+      return [];
+    }
+
+    return (dealIds || [])?.map(async dealId => {
+      return {
+        __typename: 'Deal',
+        _id: dealId
+      };
+    });
   }
 };

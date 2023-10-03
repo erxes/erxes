@@ -11,11 +11,15 @@ import { mutations, queries, subscriptions } from '../../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
 import * as router from '@erxes/ui/src/utils/router';
+
 type Props = {
   chatId?: string;
   hasOptions?: boolean;
   isWidget?: boolean;
   handleClickItem?: (chatId: string) => void;
+  isForward?: boolean;
+  forwardChat?: (id: string, type: string) => void;
+  forwardedChatIds?: string[];
 };
 
 type FinalProps = {
@@ -26,10 +30,9 @@ const ChatListContainer = (props: FinalProps) => {
   const { currentUser, isWidget, chatId } = props;
   const [togglePinnedChat] = useMutation(gql(mutations.chatToggleIsPinned));
   const history = useHistory();
-  const limit = parseInt(router.getParam(history, 'limit'));
+  const limit = parseInt(router.getParam(history, 'limit'), 20);
 
   const [loadingMore, setLoadingMore] = useState(false);
-  const [isToggled, setIsToggled] = useState(false);
 
   const { loading, error, data, refetch, fetchMore } = useQuery(
     gql(queries.chats),
@@ -38,17 +41,19 @@ const ChatListContainer = (props: FinalProps) => {
     }
   );
 
+  const usersQuery = useQuery(gql(queries.allUsers), {
+    variables: {
+      isActive: true
+    }
+  });
+
   const togglePinned = () => {
     togglePinnedChat({
       variables: { id: chatId },
       refetchQueries: [{ query: gql(queries.chats) }]
-    })
-      .then(data => {
-        setIsToggled(data?.data?.chatToggleIsPinned || false);
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+    }).catch(e => {
+      Alert.error(e.message);
+    });
   };
 
   if (isWidget) {
@@ -57,7 +62,7 @@ const ChatListContainer = (props: FinalProps) => {
 
   useSubscription(gql(subscriptions.chatInserted), {
     variables: { userId: currentUser._id },
-    onSubscriptionData: ({ subscriptionData: { data } }) => {
+    onSubscriptionData: () => {
       refetch();
     }
   });
@@ -71,7 +76,7 @@ const ChatListContainer = (props: FinalProps) => {
       },
       updateQuery(prev, { fetchMoreResult }) {
         const result = fetchMoreResult.chats.list || [];
-        const totalCount = fetchMoreResult.chats.totalCount || 1;
+        const totalCounts = fetchMoreResult.chats.totalCount || 1;
         setLoadingMore(false);
         if (result.length > 0) {
           return {
@@ -79,7 +84,7 @@ const ChatListContainer = (props: FinalProps) => {
             chats: {
               ...prev.chats,
               list: [...result],
-              totalCount: totalCount
+              totalCount: totalCounts
             }
           };
         }
@@ -112,6 +117,8 @@ const ChatListContainer = (props: FinalProps) => {
       loadEarlierChat={loadEarlierChat}
       loading={loading}
       totalCount={totalCount}
+      allUsers={usersQuery?.data?.allUsers}
+      forwardChat={props.forwardChat}
     />
   );
 };

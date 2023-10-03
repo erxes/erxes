@@ -12,10 +12,8 @@
     "@types/body-parser": "^1.17.0",
     "aws-sdk": "^2.493.0",
     "body-parser": "^1.17.1",
-    "meteor-random": "^0.0.3",
     "nodemailer": "^6.2.1",
-    "telnyx": "^1.7.2",
-    "xss": "^1.0.6"
+    "telnyx": "^1.7.2"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"

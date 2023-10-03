@@ -7,14 +7,20 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext, IModels } from '../../../connectionResolver';
 import messageBroker, { sendTagsMessage } from '../../../messageBroker';
-import { Builder, countBySegment, countByTag, IListArgs } from '../../../utils';
+import {
+  getSimilaritiesProducts,
+  getSimilaritiesProductsCount
+} from '../../../maskUtils';
+import { Builder, countBySegment, countByTag } from '../../../utils';
 
 interface IQueryParams {
   ids?: string[];
   excludeIds?: boolean;
   type?: string;
+  status?: string;
   categoryId?: string;
   searchValue?: string;
+  vendorId?: string;
   tag: string;
   page?: number;
   perPage?: number;
@@ -24,7 +30,7 @@ interface IQueryParams {
   boardId?: string;
   segment?: string;
   segmentData?: string;
-  groupCatDiffVals: boolean;
+  groupedSimilarity?: string;
 }
 
 const generateFilter = async (
@@ -37,6 +43,7 @@ const generateFilter = async (
     type,
     categoryId,
     searchValue,
+    vendorId,
     tag,
     ids,
     excludeIds,
@@ -52,6 +59,9 @@ const generateFilter = async (
 
   filter.status = { $ne: PRODUCT_STATUSES.DELETED };
 
+  if (params.status) {
+    filter.status = params.status;
+  }
   if (type) {
     filter.type = type;
   }
@@ -115,6 +125,10 @@ const generateFilter = async (
     const { list } = await qb.runQueries();
 
     filter._id = { $in: list.map(l => l._id) };
+  }
+
+  if (vendorId) {
+    filter.vendorId = vendorId;
   }
 
   return filter;
@@ -194,6 +208,10 @@ const productQueries = {
       sort = { [sortField]: sortDirection || 1 };
     }
 
+    if (params.groupedSimilarity) {
+      return await getSimilaritiesProducts(models, filter, params);
+    }
+
     return afterQueryWrapper(
       subdomain,
       'products',
@@ -220,6 +238,10 @@ const productQueries = {
       commonQuerySelector,
       params
     );
+
+    if (params.groupedSimilarity) {
+      return await getSimilaritiesProductsCount(models, filter, params);
+    }
 
     return models.Products.find(filter).count();
   },
@@ -259,6 +281,112 @@ const productQueries = {
     }
 
     return counts;
+  },
+
+  async productSimilarities(
+    _root,
+    { _id, groupedSimilarity },
+    { models }: IContext
+  ) {
+    const product = await models.Products.getProduct({ _id });
+
+    if (groupedSimilarity === 'config') {
+      const getRegex = str => {
+        return new RegExp(
+          `^${str
+            .replace(/\./g, '\\.')
+            .replace(/\*/g, '.')
+            .replace(/_/g, '.')}.*`,
+          'igu'
+        );
+      };
+
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup'
+      );
+
+      const codeMasks = Object.keys(similarityGroups);
+      const customFieldIds = (product.customFieldsData || []).map(
+        cf => cf.field
+      );
+
+      const matchedMasks = codeMasks.filter(
+        cm =>
+          product.code.match(getRegex(cm)) &&
+          (similarityGroups[cm].rules || [])
+            .map(sg => sg.fieldId)
+            .filter(sgf => customFieldIds.includes(sgf)).length ===
+            (similarityGroups[cm].rules || []).length
+      );
+
+      if (!matchedMasks.length) {
+        return {
+          products: await models.Products.find({ _id })
+        };
+      }
+
+      const codeRegexs: any[] = [];
+      const fieldIds: string[] = [];
+      const groups: { title: string; fieldId: string }[] = [];
+      for (const matchedMask of matchedMasks) {
+        codeRegexs.push({ code: { $in: [getRegex(matchedMask)] } });
+
+        for (const rule of similarityGroups[matchedMask].rules || []) {
+          const { fieldId, title } = rule;
+          if (!fieldIds.includes(fieldId)) {
+            fieldIds.push(fieldId);
+            groups.push({ title, fieldId });
+          }
+        }
+      }
+
+      const filters: any = {
+        $and: [
+          {
+            $or: codeRegexs,
+            'customFieldsData.field': { $in: fieldIds }
+          }
+        ]
+      };
+
+      return {
+        products: await models.Products.find(filters).sort({ code: 1 }),
+        groups
+      };
+    }
+
+    const category = await models.ProductCategories.getProductCategory({
+      _id: product.categoryId
+    });
+    if (
+      !category.isSimilarity ||
+      !category.similarities ||
+      !category.similarities.length
+    ) {
+      return {
+        products: await models.Products.find({ _id })
+      };
+    }
+
+    const fieldIds = category.similarities.map(r => r.fieldId);
+    const filters: any = {
+      $and: [
+        {
+          categoryId: category._id,
+          'customFieldsData.field': { $in: fieldIds }
+        }
+      ]
+    };
+
+    const groups: {
+      title: string;
+      fieldId: string;
+    }[] = category.similarities.map(r => ({ ...r }));
+
+    return {
+      products: await models.Products.find(filters).sort({ code: 1 }),
+      groups
+    };
   },
 
   async productCategories(

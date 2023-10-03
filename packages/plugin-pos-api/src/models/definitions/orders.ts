@@ -1,3 +1,4 @@
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
@@ -13,6 +14,8 @@ export interface IPosOrderItem {
   isPackage?: boolean;
   isTake?: boolean;
   manufacturedDate?: string;
+  description?: string;
+  attachment?: IAttachment;
 }
 export interface IPosOrderItemDocument extends IPosOrderItem, Document {
   _id: string;
@@ -51,6 +54,8 @@ export interface IPosOrder {
   syncedErkhet?: Boolean;
   syncErkhetInfo?: string;
   deliveryInfo?: any;
+  description?: string;
+  isPre?: boolean;
   origin?: string;
   taxInfo?: any;
   convertDealId?: string;
@@ -114,7 +119,9 @@ const posOrderItemSchema = schemaHooksWrapper(
       label: 'inner or skip ebarimt',
       default: false
     }),
-    manufacturedDate: field({ type: String, label: 'manufactured' })
+    manufacturedDate: field({ type: String, label: 'manufactured' }),
+    description: field({ type: String, label: 'Description' }),
+    attachment: field({ type: Object, label: 'Attachment' })
   }),
   'erxes_posOrderItem'
 );
@@ -130,7 +137,8 @@ const returnInfoSchema = new Schema({
   cashAmount: field({ type: Number }),
   paidAmounts: field({ type: [paidAmountSchema] }),
   returnAt: field({ type: Date }),
-  returnBy: field({ type: String })
+  returnBy: field({ type: String }),
+  description: field({ type: String })
 });
 
 export const posOrderSchema = schemaHooksWrapper(
@@ -188,6 +196,16 @@ export const posOrderSchema = schemaHooksWrapper(
       type: Object,
       optional: true,
       label: 'Delivery Info, address, map, etc'
+    }),
+    description: field({
+      type: String,
+      label: 'Description',
+      optional: true
+    }),
+    isPre: field({
+      type: Boolean,
+      label: 'Is Pre-Order',
+      optional: true
     }),
     origin: field({ type: String, optional: true, label: 'origin' }),
     taxInfo: field({ type: Object, optional: true }),

@@ -71,6 +71,15 @@ const tagFields = isEnabled('tags')
       }`
   : '';
 
+const tagsFields = isEnabled('tags')
+  ? `tags {
+        _id
+        name
+        colorCode
+        order
+      }`
+  : '';
+
 const customerFields = isEnabled('contacts')
   ? `
       customers {
@@ -111,7 +120,7 @@ export const commonFields = `
   boardId
   ${companyFields}
   ${customerFields}
-  ${tagFields}
+  ${tagsFields}
   tagIds
   startDate
   closeDate

@@ -18,14 +18,14 @@ import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IPos } from '../../types';
 
 type Props = {
-  onChangePayments: (
+  order: IOrderDet;
+  onChangePayments?: (
     _id: string,
     cashAmount: number,
     mobileAmount: number,
     paidAmounts: any[]
   ) => void;
-  order: IOrderDet;
-  pos: IPos;
+  pos?: IPos;
 };
 
 type State = {
@@ -42,7 +42,7 @@ class OrderDetail extends React.Component<Props, State> {
     const paidAmounts: any[] = [...order.paidAmounts] || [];
     const paidKeys: string[] = paidAmounts.map(pa => pa.type);
 
-    for (const emptyType of (pos.paymentTypes || []).filter(
+    for (const emptyType of (pos?.paymentTypes || []).filter(
       pt => !paidKeys.includes(pt.type)
     )) {
       paidAmounts.push({
@@ -105,7 +105,7 @@ class OrderDetail extends React.Component<Props, State> {
     const { paidAmounts } = this.state;
     return paidAmounts.map(paidAmount => {
       const { pos } = this.props;
-      const { paymentTypes } = pos;
+      const { paymentTypes } = pos || {};
 
       return (
         <li key={paidAmount._id}>
@@ -143,7 +143,7 @@ class OrderDetail extends React.Component<Props, State> {
   }
 
   save = () => {
-    const { order } = this.props;
+    const { order, onChangePayments } = this.props;
     const { totalAmount } = order;
     const { paidAmounts, cashAmount, mobileAmount } = this.state;
 
@@ -160,12 +160,13 @@ class OrderDetail extends React.Component<Props, State> {
       return;
     }
 
-    this.props.onChangePayments(
-      this.props.order._id,
-      cashAmount,
-      mobileAmount,
-      (paidAmounts || []).filter(pa => Number(pa.amount) !== 0)
-    );
+    onChangePayments &&
+      onChangePayments(
+        this.props.order._id,
+        cashAmount,
+        mobileAmount,
+        (paidAmounts || []).filter(pa => Number(pa.amount) !== 0)
+      );
   };
 
   generateLabel = customer => {
@@ -200,7 +201,7 @@ class OrderDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { order } = this.props;
+    const { order, pos } = this.props;
 
     return (
       <SidebarList>
@@ -265,11 +266,13 @@ class OrderDetail extends React.Component<Props, State> {
           this.displayValue(order, 'totalAmount')
         )}
         {this.renderReturnInfo()}
-        <ul>
-          {this.renderEditRow('Cash Amount', 'cashAmount')}
-          {this.renderEditRow('Mobile Amount', 'mobileAmount')}
-          {this.renderEditPaid()}
-        </ul>
+        {pos && (
+          <ul>
+            {this.renderEditRow('Cash Amount', 'cashAmount')}
+            {this.renderEditRow('Mobile Amount', 'mobileAmount')}
+            {this.renderEditPaid()}
+          </ul>
+        )}
 
         <Button btnStyle="success" size="small" onClick={this.save} icon="edit">
           Save Payments Change

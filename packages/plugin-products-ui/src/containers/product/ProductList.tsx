@@ -50,10 +50,6 @@ class ProductListContainer extends React.Component<FinalProps> {
       history
     } = this.props;
 
-    if (productsQuery.loading) {
-      return false;
-    }
-
     const products = productsQuery.products || [];
 
     // remove action
@@ -147,6 +143,7 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             categoryId: queryParams.categoryId,
+            status: queryParams.productStatus,
             tag: queryParams.tag,
             searchValue: queryParams.searchValue,
             type: queryParams.type,
@@ -163,6 +160,7 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         variables: {
           categoryId: queryParams.categoryId,
+          status: queryParams.productStatus,
           tag: queryParams.tag,
           searchValue: queryParams.searchValue,
           type: queryParams.type,

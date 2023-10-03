@@ -168,7 +168,8 @@ const StepContent = styledTS<{ direction?: string; fullWidth?: boolean }>(
 )`
   width: ${props =>
     props.direction === 'vertical' ? 'calc(100% - 35px)' : '100%'};
-  height: 100%;
+  height: ${props =>
+    props.direction === 'vertical' ? 'calc(100% - 35px)' : 'calc(100% - 55px)'};
   margin-left: ${props => props.direction && 'auto'};
  overflow: ${props => props.fullWidth && 'hidden'};
 `;

@@ -28,6 +28,10 @@ const MessageListContainer = (props: Props) => {
     }
   );
 
+  const chatDetailQuery = useQuery(gql(queries.chatDetail), {
+    variables: { id: chatId }
+  });
+
   useEffect(() => {
     refetch();
     setLatestMessages([]);
@@ -97,6 +101,7 @@ const MessageListContainer = (props: Props) => {
       setReply={props.setReply}
       loadEarlierMessage={loadEarlierMessage}
       isWidget={isWidget}
+      chatType={chatDetailQuery?.data?.chatDetail?.type}
     />
   );
 };

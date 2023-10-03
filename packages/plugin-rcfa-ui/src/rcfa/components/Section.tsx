@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   ControlLabel,
+  EmptyState,
   FormControl,
   FormGroup,
   Icon,
@@ -16,7 +17,7 @@ import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
 import _loadsh from 'lodash';
 import React from 'react';
 import { IRCFA } from '../../../../plugin-rcfa-api/src/models/definitions/rcfa';
-import { CreateRootAction } from '../../common/CreateRootAction';
+import { CreateRootTask } from '../../common/CreateRootTask';
 import { StyledContent, TabAction, TriggerTabs } from '../../styles';
 import ResolverModal from './ResolverModal';
 
@@ -32,7 +33,7 @@ type Props = {
   editIssue: (_id: string, doc: any) => void;
   removeIssue: (_id: string) => void;
   closeIssue: (_id: string) => void;
-  createRootAction: (variables: any) => void;
+  createRootTask: (variables: any) => void;
   mainTypeId: string;
   mainType: string;
 };
@@ -92,11 +93,13 @@ class RCFASection extends React.Component<Props, State> {
     addIssue({ issue: value, parentId }, callback);
   }
 
-  renderResolveForm({ issueId, callback }) {
+  renderCreateActionForm({ issueId, selectedIssue }) {
     const { mainType, mainTypeId } = this.props;
 
     const trigger = (
-      <Button btnStyle="success">{__('Set Root a Cause')}</Button>
+      <Button btnStyle="success">
+        {__(`Set Root a Cause (${selectedIssue?.actionIds?.length || 0})`)}
+      </Button>
     );
 
     const resolverContent = ({ closeModal }) => {
@@ -106,26 +109,23 @@ class RCFASection extends React.Component<Props, State> {
           mainTypeId={mainTypeId}
           issueId={issueId}
           closeModal={closeModal}
-          callback={callback}
         />
       );
     };
 
     return (
       <ModalTrigger
-        title="Create related card"
+        title="Create action"
         content={resolverContent}
         trigger={trigger}
       />
     );
   }
 
-  renderRootActionForm(issue) {
-    const { createRootAction } = this.props;
+  renderRootTaskForm(issue) {
+    const { createRootTask } = this.props;
 
-    return (
-      <CreateRootAction issue={issue} createRootAction={createRootAction} />
-    );
+    return <CreateRootTask issue={issue} createRootTask={createRootTask} />;
   }
 
   renderTree(closeModal, level: number, issues, parentId?) {
@@ -244,15 +244,14 @@ class RCFASection extends React.Component<Props, State> {
                 </TabTitle>
               );
             })}
-            {this.props.detail.status === 'inProgress' &&
-              selectedIssue?.status === 'inProgress' && (
-                <Button
-                  style={{ marginLeft: 'auto' }}
-                  btnStyle="link"
-                  icon="focus-add"
-                  onClick={handleAddIssue}
-                />
-              )}
+            {selectedIssue?.status === 'inProgress' && (
+              <Button
+                style={{ marginLeft: 'auto' }}
+                btnStyle="link"
+                icon="focus-add"
+                onClick={handleAddIssue}
+              />
+            )}
           </Tabs>
         </TriggerTabs>
         {toShow.some(id => issueIds.includes(id)) && (
@@ -268,22 +267,21 @@ class RCFASection extends React.Component<Props, State> {
                 />
               </FormGroup>
               <ModalFooter style={{ paddingBottom: '20px' }}>
-                {this.props.detail.status === 'inProgress' &&
-                  selectedIssue?.status === 'inProgress' && (
-                    <>
-                      <Button
-                        btnStyle="danger"
-                        onClick={closeIssue.bind(this, selectedIssue._id)}
-                      >
-                        {__('Close this root')}
-                      </Button>
-                      {this.renderRootActionForm(selectedIssue)}
-                      {this.renderResolveForm({
-                        issueId: selectedIssue._id,
-                        callback: closeModal
-                      })}
-                    </>
-                  )}
+                {selectedIssue?.status === 'inProgress' && (
+                  <>
+                    <Button
+                      btnStyle="danger"
+                      onClick={closeIssue.bind(this, selectedIssue._id)}
+                    >
+                      {__('Close this root')}
+                    </Button>
+                    {this.renderRootTaskForm(selectedIssue)}
+                    {this.renderCreateActionForm({
+                      issueId: selectedIssue._id,
+                      selectedIssue
+                    })}
+                  </>
+                )}
               </ModalFooter>
             </StyledContent>
             {this.state.issues.find(issue => issue.parentId === selectedIssueId)
@@ -309,15 +307,12 @@ class RCFASection extends React.Component<Props, State> {
 
   renderContent() {
     const { issues } = this.state;
-    const { removeIssue, detail } = this.props;
+    const { detail } = this.props;
 
     let icon = 'plus-circle';
 
     if (!_loadsh.isEmpty(detail)) {
       icon = 'edit-alt';
-      if (detail.status !== 'inProgress') {
-        icon = 'search';
-      }
     }
 
     const trigger = (
@@ -357,7 +352,7 @@ class RCFASection extends React.Component<Props, State> {
           {!_loadsh.isEmpty(detail || {}) && issues.length > 0 ? (
             <p>{issues[issues?.length - 1]?.issue}</p>
           ) : (
-            <p>No questions there.</p>
+            <EmptyState icon="info-circle" text="There has no rcfa issues" />
           )}
         </StyledContent>
       </Box>

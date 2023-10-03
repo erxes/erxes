@@ -17,7 +17,16 @@ export default function Row(props: Props) {
     toggleBulk
   } = props;
 
-  const { code, name, category, unitPrice, remainder, uom } = product;
+  const {
+    code,
+    name,
+    category,
+    unitPrice,
+    remainder,
+    uom,
+    soonIn,
+    soonOut
+  } = product;
 
   const handleChange = () => {
     if (toggleBulk) toggleBulk(product, !isChecked);
@@ -37,6 +46,8 @@ export default function Row(props: Props) {
       <td>{category ? category.name : ''}</td>
       <td>{(unitPrice || 0).toLocaleString()}</td>
       <td>{(remainder || 0).toLocaleString()}</td>
+      <td>{(soonIn || 0).toLocaleString()}</td>
+      <td>{(soonOut || 0).toLocaleString()}</td>
       <td>{uom || ''}</td>
     </tr>
   );

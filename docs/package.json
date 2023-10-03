@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "docusaurus start --port 4300",
-    "build": "docusaurus build",
-    "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy",
-    "generateDocs": "npx spectaql --embeddable --target-dir static/developers/docs/references spectaql.yml"
+    "start": "NODE_OPTIONS=--openssl-legacy-provider docusaurus start --port 4300",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider docusaurus build",
+    "swizzle": "NODE_OPTIONS=--openssl-legacy-provider docusaurus swizzle",
+    "deploy": "NODE_OPTIONS=--openssl-legacy-provider docusaurus deploy",
+    "generateDocs": "NODE_OPTIONS=--openssl-legacy-provider npx spectaql --embeddable --target-dir static/developers/docs/references spectaql.yml"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-alpha.75",

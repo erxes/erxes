@@ -44,8 +44,21 @@ const ListContainer = (props: FinalProps) => {
 
   const {
     list = [],
-    totalCount = 0
+    totalCount = 0,
+    totalHoursScheduled = 0,
+    totalHoursWorked = 0,
+    totalShiftNotClosedDeduction = 0,
+    totalLateMinsDeduction = 0,
+    totalDeductionPerGroup = 0
   } = bichilTimeclockReportQuery.bichilTimeclockReport;
+
+  const deductionInfo = {
+    totalHoursScheduled,
+    totalHoursWorked,
+    totalShiftNotClosedDeduction,
+    totalLateMinsDeduction,
+    totalDeductionPerGroup
+  };
 
   const updatedProps = {
     ...props,
@@ -53,7 +66,8 @@ const ListContainer = (props: FinalProps) => {
     bichilReports: list,
     totalCount,
     branchId,
-    deptId
+    deptId,
+    deductionInfo
   };
 
   return <ReportList {...updatedProps} />;

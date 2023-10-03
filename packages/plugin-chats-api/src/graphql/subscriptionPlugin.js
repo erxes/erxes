@@ -9,7 +9,7 @@ module.exports = {
     chatUnreadCountChanged(userId: String!): Int
     chatTypingStatusChanged(chatId: String!) : ChatTypingStatusChangedResponse
   `,
-  generateResolvers: (graphqlPubsub) => {
+  generateResolvers: graphqlPubsub => {
     return {
       chatMessageInserted: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
@@ -17,7 +17,7 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.chatMessageInserted._id },
-            buildQueryUsingSelections: (selections) => `
+            buildQueryUsingSelections: selections => `
               query Subscription_GetChatMessage($_id: String!) {
                 chatMessageDetail(_id: $_id) {
                   ${selections}

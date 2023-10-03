@@ -2,18 +2,23 @@ import { fixDate } from '@erxes/api-utils/src';
 import * as dayjs from 'dayjs';
 import { generateModels, IModels } from '../../connectionResolver';
 import {
+  IAbsence,
   IAbsenceDocument,
+  IAbsenceTypeDocument,
   IScheduleDocument,
   IShiftDocument,
+  IUserAbsenceInfo,
   IUserReport,
   IUsersReport
 } from '../../models/definitions/timeclock';
 import { calculateWeekendDays, customFixDate } from '../../utils';
 
-// milliseconds to hrs
-const MMSTOHRS = 3600000;
-// milliseconds to mins
+/// milliseconds to mins
 const MMSTOMINS = 60000;
+// milliseconds to hrs
+const MMSTOHRS = MMSTOMINS * 60;
+// millieseconds to days
+const MMSTODAYS = MMSTOHRS * 24;
 
 export const createScheduleShiftsByUserIds = async (
   userIds: string[],
@@ -566,9 +571,18 @@ export const bichilTimeclockReportFinal = async (
   teamMembersObj?: any,
   exportToXlsx?: boolean
 ) => {
+  let totalHoursScheduled = 0;
+  let totalHoursWorked = 0;
+  let totalShiftNotClosedDeduction = 0;
+  let totalLateMinsDeduction = 0;
+  let totalDeductionPerGroup = 0;
+
   const models = await generateModels(subdomain);
   const usersReport: IUsersReport = {};
   const shiftsOfSchedule: any = [];
+
+  const shiftNotClosedFee = 3000;
+  const latenessFee = 200;
 
   // get the schedule data of this month
   const schedules = await models.Schedules.find({
@@ -614,11 +628,7 @@ export const bichilTimeclockReportFinal = async (
 
   const schedulesObj = createSchedulesObj(userIds, schedules, shiftsOfSchedule);
 
-  const shiftRequestAbsenceTypes = await models.AbsenceTypes.find({
-    shiftRequest: true
-  });
-
-  const absences = await models.Absences.find({
+  const requests = await models.Absences.find({
     userId: { $in: userIds },
     solved: true,
     startTime: {
@@ -628,13 +638,18 @@ export const bichilTimeclockReportFinal = async (
     endTime: {
       $gte: fixDate(startDate),
       $lte: customFixDate(endDate)
-    },
-    absenceTypeId: { $in: shiftRequestAbsenceTypes.map(absType => absType._id) }
+    }
   });
 
-  const absencesObj = createAbsencesObj(userIds, absences);
+  const relatedAbsenceTypes = await models.AbsenceTypes.find({
+    _id: { $in: requests.map(request => request.absenceTypeId) }
+  });
+
+  const relatedAbsences = await returnTotalAbsences(requests, models);
 
   userIds.forEach(async currUserId => {
+    let shiftNotClosedDaysPerUser = 0;
+
     // assign team member info from teamMembersObj
     if (exportToXlsx) {
       usersReport[currUserId] = { ...teamMembersObj[currUserId] };
@@ -679,6 +694,20 @@ export const bichilTimeclockReportFinal = async (
       currUserTimeclocks.forEach(currUserTimeclock => {
         const shiftStart = currUserTimeclock.shiftStart;
         const shiftEnd = currUserTimeclock.shiftEnd;
+
+        const nextDay = dayjs(shiftStart)
+          .add(1, 'day')
+          .format('YYYY-MM-DD');
+
+        const midnightOfShiftDay = new Date(nextDay + ' 00:00:00');
+
+        if (
+          currUserTimeclock.shiftNotClosed ||
+          shiftEnd?.getTime() === midnightOfShiftDay.getTime()
+        ) {
+          shiftNotClosedDaysPerUser += 1;
+        }
+
         if (shiftStart && shiftEnd) {
           // get time in hours
           const totalHoursWorkedPerShift =
@@ -774,44 +803,80 @@ export const bichilTimeclockReportFinal = async (
       new Date(endDate)
     );
 
-    // calculate absence - shift request time
+    // total hours scheduled
+    // total hours worked
+    // Ээлжийн амралт	Чөлөөтэй цаг	Өвчтэй
+    // blank
+    // blank
+    // blank
+    // shiftNotClosedDaysPerUser
+    // shiftNotClosedFee 3000
+    // shiftNotClosedDeduction
+    // totalMinsLate
+    // latenessFee 200
+    // totalMinsLateDeduction
+    // totalDeduction
 
-    let totalShiftRequestHours = 0;
+    const userAbsenceInfo: IUserAbsenceInfo = returnUserAbsenceInfo(
+      {
+        requestsVacation: relatedAbsences.requestsVacation.filter(
+          absence => absence.userId === currUserId
+        ),
+        requestsUnpaidAbsence: relatedAbsences.requestsUnpaidAbsence.filter(
+          absence => absence.userId === currUserId
+        ),
+        requestsSick: relatedAbsences.requestsSick.filter(
+          absence => absence.userId === currUserId
+        )
+      },
+      relatedAbsenceTypes
+    );
 
-    const currEmpShiftRequests = absencesObj[currUserId];
+    const shiftNotClosedDeduction =
+      shiftNotClosedDaysPerUser * shiftNotClosedFee;
+    const totalMinsLateDeduction = totalMinsLatePerUser * latenessFee;
+    const totalDeduction = shiftNotClosedDeduction + totalMinsLateDeduction;
 
-    if (currEmpShiftRequests) {
-      for (const empShiftRequest of currEmpShiftRequests) {
-        const getShiftRequestDuration = Math.abs(
-          empShiftRequest.startTime.getTime() -
-            empShiftRequest.endTime.getTime()
-        );
-
-        totalShiftRequestHours += getShiftRequestDuration / MMSTOHRS;
-      }
-    }
+    totalHoursScheduled += totalHoursScheduledPerUser;
+    totalHoursWorked += totalHoursWorkedPerUser;
+    totalShiftNotClosedDeduction += shiftNotClosedDeduction;
+    totalLateMinsDeduction += totalMinsLateDeduction;
+    totalDeductionPerGroup += totalDeduction;
 
     usersReport[currUserId] = {
       ...usersReport[currUserId],
 
-      totalDays: totalDaysBetweenInterval,
-      totalWeekendDays: totalWeekendDaysBetweenInterval,
-
-      totalDaysScheduled: totalDaysScheduledPerUser,
       totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
+      totalHoursWorked: totalHoursWorkedPerUser.toFixed(2),
 
-      totalDaysWorked: totalDaysWorkedPerUser,
-      totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
+      ...userAbsenceInfo,
 
-      totalHoursShiftRequest: totalShiftRequestHours.toFixed(2),
+      leftWork: '-',
+      paidBonus: '-',
+      paidBonus2: '-',
 
-      totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
+      shiftNotClosedDaysPerUser,
+      shiftNotClosedFee,
+      shiftNotClosedDeduction,
 
-      totalMinsLate: totalMinsLatePerUser.toFixed(2)
+      totalMinsLate: totalMinsLatePerUser,
+      latenessFee,
+      totalMinsLateDeduction,
+
+      totalDeduction
     };
   });
 
-  return usersReport;
+  return {
+    report: usersReport,
+    deductionInfo: {
+      totalHoursScheduled,
+      totalHoursWorked,
+      totalShiftNotClosedDeduction,
+      totalLateMinsDeduction,
+      totalDeductionPerGroup
+    }
+  };
 };
 
 export const bichilTimeclockReportPivot = async (
@@ -1042,22 +1107,124 @@ const createSchedulesObj = (
   return returnObject;
 };
 
-const createAbsencesObj = (
-  userIds: string[],
-  totalAbsences: IAbsenceDocument[]
-) => {
-  const returnAbsenceObject = {};
+const returnTotalAbsences = async (
+  totalRequests: IAbsence[],
+  models?: IModels
+): Promise<{
+  requestsVacation: IAbsence[];
+  requestsUnpaidAbsence: IAbsence[];
+  requestsSick: IAbsence[];
+}> => {
+  const requestsVacation = totalRequests.filter(request =>
+    request.reason.toLocaleLowerCase().includes('ээлжийн амралт')
+  );
 
-  for (const userId of userIds) {
-    const currEmpAbsences = totalAbsences.filter(
-      absence =>
-        absence.userId === userId && absence.status?.includes('Approved')
+  const requestsUnpaidAbsence = totalRequests.filter(request =>
+    request.reason.toLocaleLowerCase().includes('чөлөөтэй')
+  );
+
+  const requestsSick = totalRequests.filter(request =>
+    request.reason.toLowerCase().includes('өвчтэй')
+  );
+
+  return {
+    requestsVacation,
+    requestsUnpaidAbsence,
+    requestsSick
+  };
+};
+
+const returnUserAbsenceInfo = (
+  relatedAbsences: any,
+  relatedAbsenceTypes: IAbsenceTypeDocument[]
+): IUserAbsenceInfo => {
+  let totalHoursVacation = 0;
+  let totalHoursUnpaidAbsence = 0;
+  let totalHoursSick = 0;
+
+  relatedAbsences.requestsVacation.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursVacation += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
     );
 
-    if (currEmpAbsences.length) {
-      returnAbsenceObject[userId] = currEmpAbsences;
-    }
-  }
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
 
-  return returnAbsenceObject;
+      totalHoursVacation +=
+        getTotalDays * (absenceType.requestHoursPerDay || 0);
+      return;
+    }
+
+    totalHoursVacation +=
+      (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
+  });
+
+  relatedAbsences.requestsUnpaidAbsence.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursUnpaidAbsence += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursUnpaidAbsence +=
+        getTotalDays * (absenceType.requestHoursPerDay || 0);
+      return;
+    }
+
+    totalHoursUnpaidAbsence +=
+      (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
+  });
+
+  relatedAbsences.requestsSick.forEach(request => {
+    if (request.totalHoursOfAbsence) {
+      totalHoursSick += parseFloat(request.totalHoursOfAbsence);
+      return;
+    }
+
+    const absenceType = relatedAbsenceTypes.find(
+      absType => absType._id === request.absenceTypeId
+    );
+
+    if (absenceType && absenceType.requestTimeType === 'by day') {
+      const getTotalDays = request.requestDates
+        ? request.requestDates.length
+        : Math.ceil(
+            (request.endTime.getTime() - request.startTime.getTime()) /
+              MMSTODAYS
+          );
+
+      totalHoursSick += getTotalDays * (absenceType.requestHoursPerDay || 0);
+      return;
+    }
+
+    totalHoursSick +=
+      (request.endTime.getTime() - request.startTime.getTime()) / MMSTOHRS;
+  });
+
+  return {
+    totalHoursVacation,
+    totalHoursUnpaidAbsence,
+    totalHoursSick
+  };
 };

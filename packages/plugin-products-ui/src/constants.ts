@@ -7,7 +7,8 @@ export const PRODUCT_TYPE_CHOISES = {
 export const PRODUCT_CATEGORIES_STATUS = ['active', 'disabled', 'archived'];
 export const PRODUCT_CATEGORIES_STATUS_FILTER = {
   disabled: 'Disabled',
-  archived: 'Archived'
+  archived: 'Archived',
+  deleted: 'Deleted'
 };
 
 export const CONFIGS_KEY_LABELS = {

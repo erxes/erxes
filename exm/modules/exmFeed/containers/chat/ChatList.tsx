@@ -1,24 +1,23 @@
-import ChatList from "../../components/chat/ChatList";
-import { IUser } from "../../../auth/types";
-import gql from "graphql-tag";
-import { queries, mutations } from "../../graphql";
-import { useQuery, useMutation } from "@apollo/client";
-import Alert from "../../../utils/Alert";
+import ChatList from '../../components/chat/ChatList';
+import { IUser } from '../../../auth/types';
+import gql from 'graphql-tag';
+import { queries, mutations } from '../../graphql';
+import { useQuery, useMutation } from '@apollo/client';
+import Alert from '../../../utils/Alert';
 
 type Props = {
   currentUser: IUser;
   handleActive?: (chatId: string) => void;
   isForward?: boolean;
-  forwardChat?: (chatId?: string) => void;
-  forwardedChatIds?: string[];
+  forwardChat?: (id?: string, type?: string) => void;
 };
 
 const ChatListContainer = (props: Props) => {
   const { currentUser } = props;
   const usersQuery = useQuery(gql(queries.allUsers), {
     variables: {
-      isActive: true,
-    },
+      isActive: true
+    }
   });
   const chatsQuery = useQuery(gql(queries.chats));
   const [togglePinnedChat] = useMutation(gql(mutations.chatToggleIsPinned));
@@ -26,7 +25,7 @@ const ChatListContainer = (props: Props) => {
   const togglePinned = (chatId) => {
     togglePinnedChat({
       variables: { id: chatId },
-      refetchQueries: [{ query: gql(queries.chats) }],
+      refetchQueries: [{ query: gql(queries.chats) }]
     }).catch((error) => {
       Alert.error(error.message);
     });

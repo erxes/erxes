@@ -1,7 +1,8 @@
-import React from 'react';
-import { IMessage, IConversation } from '../../../../types';
-import SimpleMessage from '../conversation/messages/SimpleMessage';
+import { IConversation, IMessage } from '../../../../types';
+
 import Mail from './Mail';
+import React from 'react';
+import SimpleMessage from '../conversation/messages/SimpleMessage';
 
 type Props = {
   detailQuery?: any;
@@ -44,6 +45,7 @@ class MailConversation extends React.Component<Props, {}> {
           conversationId={conversation._id}
           isLast={length === index + 1}
           message={message}
+          conversationStatus={conversation.status}
           integrationId={_id}
           brandId={brandId}
           mails={mails}

@@ -117,6 +117,7 @@ const schedulesMain = `
             status
             scheduleConfigId
             lunchBreakInMins
+            scheduleId
           }
           scheduleConfigId
           solved
@@ -365,6 +366,20 @@ query timeclockDepartments($searchValue: String){
   }
 }`;
 
+const scheduleConfigOrder = `
+query scheduleConfigOrder($userId: String){
+  scheduleConfigOrder(userId: $userId){
+    _id
+    userId
+    orderedList {
+      order
+      pinned
+      scheduleConfigId
+      label
+    }
+  }
+}`;
+
 export default {
   timeclockReports,
   branches,
@@ -385,6 +400,7 @@ export default {
 
   scheduleConfigs,
   deviceConfigs,
+  scheduleConfigOrder,
 
   timeclockBranches,
   timeclockDepartments

@@ -24,11 +24,18 @@ export default {
     return response ? response : null;
   },
 
-  async syncedCustomerId({ _id, customerId }, args, { models }: IContext) {
-    const syncedCustomer = await models.SyncedCustomers.findOne({
-      syncId: _id,
-      customerId
-    });
+  async syncedCustomerId(
+    { _id, syncId, customerId },
+    args,
+    { models }: IContext
+  ) {
+    let selector = { syncId: _id, customerId };
+
+    if (syncId) {
+      selector.syncId = syncId;
+    }
+
+    const syncedCustomer = await models.SyncedCustomers.findOne(selector);
 
     return syncedCustomer ? syncedCustomer.syncedCustomerId : null;
   },

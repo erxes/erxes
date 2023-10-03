@@ -6,8 +6,33 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage } from '../../../messageBroker';
 
 const chatQueries = {
-  chats: async (_root, { type, limit, skip, position }, { models, user }) => {
-    const filter: any = { participantIds: { $in: [user._id] } };
+  chats: async (
+    _root,
+    { type, limit, skip, position, searchValue },
+    { models, user, subdomain }
+  ) => {
+    const filter: any = {
+      $and: [{ isPinnedUserIds: { $nin: [user._id] } }]
+    };
+
+    if (searchValue) {
+      try {
+        const userIds = await sendCoreMessage({
+          subdomain,
+          action: 'users.getIdsBySearchParams',
+          data: {
+            searchValue: searchValue
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        filter.$and.push({ participantIds: { $in: userIds } });
+        filter.$or = [{ name: new RegExp(`.*${searchValue}.*`, 'i') }];
+      } catch (e) {
+        filter.$and.push({ participantIds: { $in: [user._id] } });
+      }
+    }
 
     if (type) {
       filter.type = type;
@@ -28,6 +53,26 @@ const chatQueries = {
       list: [...chats],
       totalCount: await models.Chats.countDocuments(filter)
     };
+    return result;
+  },
+
+  chatsPinned: async (_root, _params, { models, user }) => {
+    const filter: any = {
+      $and: [
+        { participantIds: { $in: [user._id] } },
+        { isPinnedUserIds: { $in: [user._id] } }
+      ]
+    };
+
+    const chats = await models.Chats.find({
+      ...filter
+    }).sort({ updatedAt: -1 });
+
+    const result = {
+      list: [...chats],
+      totalCount: await models.Chats.countDocuments(filter)
+    };
+
     return result;
   },
 
@@ -101,12 +146,6 @@ const chatQueries = {
 
     const chat = await models.Chats.getChat(chatId, user._id);
 
-    if (await getIsSeen(models, chat, user)) {
-      graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: user._id
-      });
-    }
-
     const seenList: any[] = [];
 
     for (const info of chat.seenInfos || []) {
@@ -144,6 +183,10 @@ const chatQueries = {
         s => s.lastSeenMessageId === message._id
       );
     }
+
+    graphqlPubsub.publish('chatUnreadCountChanged', {
+      userId: user._id
+    });
 
     return {
       list,

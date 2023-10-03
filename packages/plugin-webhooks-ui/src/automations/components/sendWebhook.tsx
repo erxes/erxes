@@ -15,7 +15,7 @@ import { IAction } from '@erxes/ui-automations/src/types';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import { Columns } from '@erxes/ui/src/styles/chooser';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
-import { EndColumn, FirstColumn, ListItem } from '../styles';
+import { EndColumn, FirstColumn, ListItem, Padding } from '../styles';
 import Select from 'react-select-plus';
 
 type Props = {
@@ -56,13 +56,95 @@ class SendWebhook extends React.Component<Props, State> {
     const { activeAction } = props;
 
     this.state = {
-      useSpecifiedFields: false,
+      useSpecifiedFields:
+        !!Object.keys(activeAction?.config?.specifiedFields || {}).length ||
+        false,
       config: activeAction?.config || {}
     };
   }
 
   onChange(config) {
     this.setState({ config });
+  }
+
+  renderParam(param) {
+    const { config } = this.state;
+
+    const { params } = config || {};
+
+    const onChange = e => {
+      const { name, value } = e.currentTarget as HTMLInputElement;
+
+      const updatedParams = params.map(h =>
+        h._id === param._id ? { ...h, [name]: value } : h
+      );
+
+      this.setState({ config: { ...config, params: updatedParams } });
+    };
+
+    const handleRemove = () => {
+      const updatedParams = params.filter(h => h._id !== param._id);
+      this.setState({ config: { ...config, params: updatedParams } });
+    };
+
+    return (
+      <ListItem key={param._id}>
+        <Columns>
+          <FirstColumn>
+            <FormGroup>
+              <FormControl
+                name="key"
+                placeholder="key"
+                value={param?.key}
+                onChange={onChange}
+              />
+            </FormGroup>
+          </FirstColumn>
+          <EndColumn>
+            <FormGroup>
+              <FormControl
+                name="value"
+                value={param?.value}
+                placeholder="value"
+                onChange={onChange}
+              />
+            </FormGroup>
+          </EndColumn>
+          <Button
+            icon="trash-alt"
+            iconColor={colors.colorCoreRed}
+            btnStyle="link"
+            onClick={handleRemove}
+          />
+        </Columns>
+      </ListItem>
+    );
+  }
+
+  renderParams() {
+    const { config } = this.state;
+
+    const addParam = () => {
+      this.setState({
+        config: {
+          ...config,
+          params: [
+            ...(config?.params || []),
+            { _id: Math.random(), key: '', value: '' }
+          ]
+        }
+      });
+    };
+
+    return (
+      <>
+        {(config?.params || []).map(param => this.renderParam(param))}
+        <LinkButton onClick={addParam}>
+          <Icon icon="plus-1" />
+          {'Add param'}
+        </LinkButton>
+      </>
+    );
   }
 
   renderHeader(header) {
@@ -206,6 +288,11 @@ class SendWebhook extends React.Component<Props, State> {
           <DrawerDetail>
             <ControlLabel>{__('Headers (optional)  ')}</ControlLabel>
             {this.renderHeaders()}
+          </DrawerDetail>
+          <Padding />
+          <DrawerDetail>
+            <ControlLabel>{__('Params (optional)  ')}</ControlLabel>
+            {this.renderParams()}
           </DrawerDetail>
           <FormGroup>
             <ControlLabel>{__('Use specified fields')}</ControlLabel>

@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 
 export const field = (options: any) => {
   const { pkey, type, optional } = options;
@@ -9,7 +9,7 @@ export const field = (options: any) => {
 
   if (pkey) {
     options.type = String;
-    options.default = () => Random.id();
+    options.default = () => nanoid();
   }
 
   return options;

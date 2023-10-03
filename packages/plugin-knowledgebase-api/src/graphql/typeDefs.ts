@@ -1,9 +1,9 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as KnowledgeBaseTypes,
   queries as KnowledgeBaseQueries,
-  mutations as KnowledgeBaseMutations,
+  mutations as KnowledgeBaseMutations
 } from './knowledgeBaseTypeDefs';
 
 const typeDefs = gql`

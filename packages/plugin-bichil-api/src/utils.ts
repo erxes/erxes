@@ -282,10 +282,11 @@ export const createTeamMembersObject = async (
 
   for (const teamMember of teamMembers) {
     teamMembersObject[teamMember._id] = {
+      fullName: `${teamMember.details.lastName?.charAt(0)}.${
+        teamMember.details.firstName
+      }`,
       employeeId: teamMember.employeeId || '-',
-      position: teamMember.details.position || '-',
-      lastName: teamMember.details.lastName || '-',
-      firstName: teamMember.details.firstName || '-'
+      position: teamMember.details.position || '-'
     };
   }
 
@@ -534,7 +535,13 @@ export const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
     bulkWriteOps.push({
       updateOne: {
         filter: { _id: unfinishedShift._id },
-        update: { $set: { shiftEnd: midnightOfShiftDay, shiftActive: false } }
+        update: {
+          $set: {
+            shiftEnd: midnightOfShiftDay,
+            shiftActive: false,
+            shiftNotClosed: true
+          }
+        }
       }
     });
   }

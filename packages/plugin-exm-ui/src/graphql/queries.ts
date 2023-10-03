@@ -16,19 +16,19 @@ const exmGet = `
         subContentId
       }
       
-      welcomeContent {
-        _id
-        title
-        content
-        image
-      }
-      
       appearance {
         primaryColor
         secondaryColor
+        bodyColor
+        headerColor
+        footerColor
       }
       
       logo
+      url
+      favicon
+      webName
+      webDescription
     }
   }
 `;

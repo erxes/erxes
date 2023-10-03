@@ -5,12 +5,6 @@ const commonFields = `
   createdAt: Date
 `;
 
-const orderFields = `
-  status: String
-  customerId: String
-  number: String
-`;
-
 const PaidAmountDefs = `
   _id: String
   type: String
@@ -27,7 +21,9 @@ const paymentInputDefs = `
 
 const orderTypeFields = `
   ${commonFields}
-  ${orderFields}
+  status: String
+  customerId: String
+  number: String
   ${paymentInputDefs}
   paidAmounts: [PaidAmount]
 
@@ -43,6 +39,8 @@ const orderTypeFields = `
   type: String
   branchId: String
   deliveryInfo: JSON
+  description: String
+  isPre: Boolean
   origin: String
   customer: PosCustomer
   customerType: String,
@@ -75,6 +73,8 @@ export const types = `
     productImgUrl: String
     status: String
     manufacturedDate: String
+    description: String
+    attachment: JSON
   }
 
   type PosPutResponse {

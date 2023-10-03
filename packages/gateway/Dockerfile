@@ -1,10 +1,12 @@
-FROM node:14.21.3-bullseye-slim
+FROM node:18.17.1-bullseye-slim
 
-RUN apt-get update -y
-RUN apt-get install -y curl
-# RUN apt-get install -y heaptrack
+RUN apt-get update -y && apt-get install -y \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN yarn global add @apollo/rover
+RUN yarn global add @apollo/rover@0.19.1
+RUN yarn cache clean
 
 WORKDIR /erxes-gateway
 RUN chown -R node:node /erxes-gateway

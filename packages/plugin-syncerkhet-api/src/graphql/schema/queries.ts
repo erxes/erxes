@@ -26,4 +26,5 @@ export const queries = `
   ): [erkhetRemainder]  
   syncHistories(${commonHistoryParams}): [SyncHistory]
   syncHistoriesCount(${commonHistoryParams}): Int
+  erkhetDebt(contentType: String!, contentId: String!, startDate: Date, endDate: Date, isMore: Boolean): JSON
 `;
