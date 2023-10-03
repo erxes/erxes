@@ -276,10 +276,6 @@ const chatQueries = {
       graphqlPubsub.publish('chatInserted', {
         userId: user._id
       });
-
-      // graphqlPubsub.publish("chatUnreadCountChanged", {
-      //   userId: user._id,
-      // });
     }
 
     return chat._id;
