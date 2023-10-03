@@ -84,15 +84,16 @@ const PostForm = ({
     }
   }
 
-  const { departmentOptions, branchOptions, unitOptions } = useTeamMembers({
-    departmentIds,
-    branchIds,
-    unitIds: [unitId],
-    unitSearchValue,
-    branchSearchValue,
-    departmentSearchValue,
-    reload,
-  })
+  const { departmentOptions, branchOptions, unitOptions, loading } =
+    useTeamMembers({
+      departmentIds,
+      branchIds,
+      unitIds: [unitId],
+      unitSearchValue,
+      branchSearchValue,
+      departmentSearchValue,
+      reload,
+    })
 
   const { feedMutation, loading: mutationLoading } = useFeedMutation({
     callBack,
@@ -200,18 +201,24 @@ const PostForm = ({
               <FormItem>
                 <FormLabel>Departments</FormLabel>
                 <FormControl>
-                  <Select
-                    onMenuClose={() => setReload(false)}
-                    onMenuOpen={() => setReload(true)}
-                    isMulti={true}
-                    value={departmentOptions?.filter((departmentOption) =>
-                      departmentIds.includes(departmentOption?.value)
-                    )}
-                    placeholder="Select departments"
-                    isSearchable={true}
-                    onInputChange={seDepartmentSearchvalue}
-                    onChange={(data) => onChangeMultiValue("department", data)}
-                  />
+                  {loading && !reload && !seDepartmentSearchvalue ? (
+                    <Input disabled={true} placeholder="Loading..." />
+                  ) : (
+                    <Select
+                      onMenuClose={() => setReload(false)}
+                      onMenuOpen={() => setReload(true)}
+                      isMulti={true}
+                      value={departmentOptions?.filter((departmentOption) =>
+                        departmentIds.includes(departmentOption?.value)
+                      )}
+                      placeholder="Select departments"
+                      isSearchable={true}
+                      onInputChange={seDepartmentSearchvalue}
+                      onChange={(data) =>
+                        onChangeMultiValue("department", data)
+                      }
+                    />
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -225,19 +232,23 @@ const PostForm = ({
               <FormItem>
                 <FormLabel>Branches</FormLabel>
                 <FormControl>
-                  <Select
-                    onMenuClose={() => setReload(false)}
-                    onMenuOpen={() => setReload(true)}
-                    isMulti={true}
-                    options={branchOptions}
-                    defaultValue={branchOptions?.filter((branchOption) =>
-                      branchIds?.includes(branchOption?.value)
-                    )}
-                    placeholder="Select branches"
-                    isSearchable={true}
-                    onInputChange={setBranchSearchvalue}
-                    onChange={(data) => onChangeMultiValue("branch", data)}
-                  />
+                  {loading && !reload && branchSearchValue ? (
+                    <Input disabled={true} placeholder="Loading..." />
+                  ) : (
+                    <Select
+                      onMenuClose={() => setReload(false)}
+                      onMenuOpen={() => setReload(true)}
+                      isMulti={true}
+                      options={branchOptions}
+                      defaultValue={branchOptions?.filter((branchOption) =>
+                        branchIds?.includes(branchOption?.value)
+                      )}
+                      placeholder="Select branches"
+                      isSearchable={true}
+                      onInputChange={setBranchSearchvalue}
+                      onChange={(data) => onChangeMultiValue("branch", data)}
+                    />
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -251,21 +262,25 @@ const PostForm = ({
               <FormItem>
                 <FormLabel>Unit</FormLabel>
                 <FormControl>
-                  <Select
-                    onMenuClose={() => setReload(false)}
-                    onMenuOpen={() => setReload(true)}
-                    isClearable={true}
-                    options={unitOptions}
-                    placeholder="Select units"
-                    value={unitOptions?.filter(
-                      (unitOption) => unitOption.value === unitId
-                    )}
-                    isSearchable={true}
-                    onInputChange={setUnitsSearchvalue}
-                    onChange={(data) => {
-                      setUnitd(data?.value || "")
-                    }}
-                  />
+                  {loading && !reload && unitSearchValue ? (
+                    <Input disabled={true} placeholder="Loading..." />
+                  ) : (
+                    <Select
+                      onMenuClose={() => setReload(false)}
+                      onMenuOpen={() => setReload(true)}
+                      isClearable={true}
+                      options={unitOptions}
+                      placeholder="Select units"
+                      value={unitOptions?.filter(
+                        (unitOption) => unitOption.value === unitId
+                      )}
+                      isSearchable={true}
+                      onInputChange={setUnitsSearchvalue}
+                      onChange={(data) => {
+                        setUnitd(data?.value || "")
+                      }}
+                    />
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>

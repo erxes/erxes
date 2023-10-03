@@ -19,7 +19,7 @@ export const useChatNotif = (): IUseChats => {
 
   const { data, loading, refetch } = useQuery(queries.getUnreadChatCount, {})
   const { refetch: refetchChat } = useQuery(queries.chats, {
-    variables: { limit: 1 },
+    variables: { limit: 20 },
   })
 
   let unreadCount = 0
@@ -37,11 +37,11 @@ export const useChatNotif = (): IUseChats => {
 
       if (!pathname.includes("/chats")) {
         const audio = new Audio("/sound/notify.mp3")
+        refetch()
+        refetchChat()
         audio.play()
       }
-
       refetch()
-      refetchChat()
     },
   })
 

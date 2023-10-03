@@ -181,6 +181,10 @@ const chatQueries = {
       }
 
       if (updated) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
+        });
+
         await models.Chats.updateOne(
           { _id: chat._id },
           { $set: { seenInfos } }
@@ -227,10 +231,6 @@ const chatQueries = {
         s => s.lastSeenMessageId === message._id
       );
     }
-
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
-    });
 
     return {
       list,
