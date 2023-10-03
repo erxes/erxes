@@ -322,6 +322,8 @@ const queryParams = `
   reportType: String
   scheduleStatus: String
   isCurrentUserAdmin: Boolean
+
+  searchValue: String
 `;
 
 const commonParams = `

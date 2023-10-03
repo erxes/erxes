@@ -37,6 +37,7 @@ const listParamsDef = `
   $reportType: String
   $scheduleStatus: String
   $isCurrentUserAdmin: Boolean
+  $searchValue: String
 `;
 
 const listParamsValue = `
@@ -50,6 +51,7 @@ const listParamsValue = `
   reportType: $reportType
   scheduleStatus: $scheduleStatus
   isCurrentUserAdmin: $isCurrentUserAdmin
+  searchValue: $searchValue
 `;
 
 const timelogsMain = `
