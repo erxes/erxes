@@ -37,6 +37,14 @@ const ChatList = () => {
     }
   }, [inView, handleLoadMore])
 
+  if (loading) {
+    return (
+      <div className="mt-4">
+        <LoadingCard type="chatlist" />
+      </div>
+    )
+  }
+
   const renderAction = () => {
     return (
       <Dialog open={open} onOpenChange={() => setOpen(!open)}>
