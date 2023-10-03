@@ -73,7 +73,7 @@ const ordersFinish = gql`
     $branchId: String
     $customerId: String
     $customerType: String
-    $description: string
+    $description: String
     $billType: String
     $registerNumber: String
     $slotCode: String
