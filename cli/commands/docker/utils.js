@@ -366,7 +366,7 @@ const deployDbs = async () => {
     }
 
     dockerComposeConfig.services.redis = {
-      image: 'redis:5.0.5',
+      image: 'redis:7.2.1',
       command: `redis-server --appendonly yes --requirepass ${configs.redis.password}`,
       ports: [`${REDIS_PORT}:6379`],
       networks: ['erxes'],

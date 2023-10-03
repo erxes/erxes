@@ -12,6 +12,7 @@ import {
   IUsersReport
 } from '../../models/definitions/timeclock';
 import { customFixDate } from '../../utils';
+import { sendMobileNotification } from '../utils';
 
 // milliseconds to mins
 const MMSTOMINS = 60000;
@@ -159,18 +160,18 @@ export const createScheduleShiftsByUserIds = async (
   // create shifts of each schedule
   await models.Shifts.bulkWrite(shiftsBulkCreateOps);
 
+  // send mobile notification to schedule created users
+  sendMobileNotification(userIds, 'scheduleCreated', schedule, 'schedule');
   return schedule;
 };
 
 export const timeclockReportByUser = async (
-  subdomain: string,
+  models: IModels,
   userId: string,
   selectedMonth: string,
   selectedYear: string,
   selectedDate?: string
 ) => {
-  const models = await generateModels(subdomain);
-
   let report: any = {
     scheduleReport: [],
     userId,
@@ -259,19 +260,53 @@ export const timeclockReportByUser = async (
     ]
   });
 
-  const requestsOfSelectedMonth = await models.Absences.find({
-    $and: [
-      { userId },
-      { solved: true },
-      { status: 'Approved' },
-      {
-        startTime: {
-          $gte: startOfSelectedMonth,
-          $lte: startOfNextMonth
-        }
-      }
-    ]
+  const totalRequestsOfUser = await models.Absences.find({
+    userId,
+    solved: true,
+    checkInOutRequest: { $exists: false },
+    status: { $regex: /Approved/, $options: 'gi' }
   });
+
+  const requestsOfSelectedMonth = totalRequestsOfUser.filter(
+    req =>
+      dayjs(req.startTime) >= dayjs(startOfSelectedMonth) &&
+      dayjs(req.startTime) < dayjs(startOfNextMonth)
+  );
+
+  const absenceTypeIds = requestsOfSelectedMonth.map(req => req.absenceTypeId);
+  let totalHoursAbsenceSelectedMonth = 0;
+
+  const absenceTypes = await models.AbsenceTypes.find({
+    _id: { $in: absenceTypeIds }
+  });
+
+  for (const request of requestsOfSelectedMonth) {
+    if (request.totalHoursOfAbsence) {
+      totalHoursAbsenceSelectedMonth += parseFloat(request.totalHoursOfAbsence);
+      continue;
+    }
+    // absence by hour
+    if (request.absenceTimeType === 'by hour' && request.endTime) {
+      const getTotalHoursOfAbsence =
+        (new Date(request.endTime).getTime() -
+          new Date(request.startTime).getTime()) /
+        MMSTOHRS;
+
+      totalHoursAbsenceSelectedMonth += getTotalHoursOfAbsence;
+      continue;
+    }
+    // absence by day
+    if (request.absenceTimeType === 'by day' && request.requestDates) {
+      const getAbsenceType = absenceTypes.find(
+        absType => absType._id === request.absenceTypeId
+      );
+
+      const getTotalHoursOfAbsence =
+        request.requestDates.length * (getAbsenceType?.requestHoursPerDay || 0);
+
+      totalHoursAbsenceSelectedMonth += getTotalHoursOfAbsence;
+    }
+  }
 
   let scheduledShiftStartSelectedDay;
   let scheduledShiftEndSelectedDay;
@@ -478,6 +513,7 @@ export const timeclockReportByUser = async (
       totalHoursBreakTaken,
       totalHoursBreakScheduled,
       totalHoursBreakSelecteDay,
+      totalHoursAbsenceSelectedMonth,
 
       requests: requestsOfSelectedMonth,
       scheduledShifts: scheduleShiftsSelectedMonth,

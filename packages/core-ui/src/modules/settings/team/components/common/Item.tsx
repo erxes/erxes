@@ -69,7 +69,7 @@ function BlockItem({
     >
       <span onClick={() => onClick(item._id)}>
         {icon && <Icon icon={icon} />}
-        {item.code} - {item.title}
+        {item.code} - {item.title} ({item.users.length})
       </span>
       <ActionButtons>
         {editButton}

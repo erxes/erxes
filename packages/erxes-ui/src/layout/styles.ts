@@ -102,22 +102,18 @@ const ContentBox = styledTS<{
 const ContentHeader = styledTS<{
   background: string;
   zIndex?: number;
-  noBorder?: boolean;
   wideSpacing?: boolean;
 }>(styled.div)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   padding: ${props => (props.wideSpacing ? '0 0 12px 0' : 0)};
-  margin: ${props => (props.wideSpacing ? '12px 20px 0 20px' : '0 20px')};
-  border-bottom: ${props =>
-    !props.noBorder && `1px solid ${colors.borderPrimary}`};
+  margin: ${props => (props.wideSpacing ? '12px 20px 0 20px' : '10px 20px')};
   z-index: ${props => props.zIndex || 2};
 `;
 
 const HeaderContent = styled.div`
   display: flex;
   justify-content: space-between;
-  min-height: ${dimensions.headerSpacing}px;
 `;
 
 const ContenFooter = styled.div`
