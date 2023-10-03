@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import calendar from "dayjs/plugin/calendar"
@@ -15,11 +15,18 @@ import { IChatMessage } from "../../types"
 
 dayjs.extend(calendar)
 
-const MessageItem = ({ message }: { message: IChatMessage }) => {
+const MessageItem = ({
+  message,
+  setReply,
+}: {
+  message: IChatMessage
+  setReply: (message: any) => void
+}) => {
   const { relatedMessage, content, attachments, createdAt, createdUser } =
     message
 
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
+  const [showAction, setShowAction] = useState(false)
 
   const isMe = useMemo(
     () => currentUser?._id === createdUser._id,
@@ -57,7 +64,7 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
   }
 
   return (
-    <>
+    <div className="mt-2">
       {relatedMessage && (
         <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
           <div className="max-w-md">
@@ -71,7 +78,11 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
         </div>
       )}
 
-      <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+        onMouseEnter={() => setShowAction(true)}
+        onMouseLeave={() => setShowAction(false)}
+      >
         <div className="flex items-end">
           {isMe ? null : (
             <div className="w-12 h-12 rounded-full">
@@ -86,7 +97,21 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
           )}
         </div>
 
-        <div className="m-2 max-w-xs">
+        <div
+          className={`${
+            isMe ? "flex-row" : "flex-row-reverse"
+          } max-w-xs flex items-center`}
+        >
+          {showAction ? (
+            <div>
+              <ReplyIcon
+                size={16}
+                className={`${isMe ? "mr-1" : "ml-1"} cursor-pointer`}
+                onClick={() => setReply(message)}
+              />
+            </div>
+          ) : null}
+
           <Card className="p-4 rounded-2xl">
             <div dangerouslySetInnerHTML={{ __html: content || "" }} />
           </Card>
@@ -106,7 +131,7 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
           )}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

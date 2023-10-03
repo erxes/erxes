@@ -2,6 +2,8 @@ import React, { useState } from "react"
 import { Paperclip, SendHorizontal } from "lucide-react"
 
 type IProps = {
+  reply: any
+  setReply: (reply: any) => void
   sendMessage: ({
     content,
     relatedId,
@@ -13,9 +15,10 @@ type IProps = {
   }) => void
 }
 
-const Editor = ({ sendMessage }: IProps) => {
+const Editor = ({ sendMessage, reply, setReply }: IProps) => {
   const [message, setMessage] = useState("")
   const [attachments, setAttachment] = useState([])
+  const relatedId = (reply && reply._id) || null
 
   const handleInputChange = (e: any) => {
     setMessage(e.target.value)
@@ -28,10 +31,11 @@ const Editor = ({ sendMessage }: IProps) => {
   }
 
   const onSubmit = () => {
-    sendMessage({ content: message, attachments: [] })
+    sendMessage({ content: message, relatedId, attachments: [] })
 
     setAttachment([])
     setMessage("")
+    setReply(null)
   }
 
   const onEnterPress = (e: any) => {
