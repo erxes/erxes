@@ -39,12 +39,20 @@ import { IFeed } from "../../types"
 import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
-  title: z.string({
-    required_error: "Please enter an title",
-  }),
-  description: z.string({
-    required_error: "Please enter an description",
-  }),
+  title: z
+    .string({
+      required_error: "Please enter an title",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an title",
+    }),
+  description: z
+    .string({
+      required_error: "Please enter an description",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an description",
+    }),
   departmentIds: z.array(z.string()).optional(),
   branchIds: z.array(z.string()).optional(),
   unitId: z.string().optional(),
@@ -66,8 +74,10 @@ const PostForm = ({
 
   const callBack = (result: string) => {
     if (result === "success") {
-      setOpen(false)
+      setAttachments([])
+      setImage([])
       form.reset()
+      setOpen(false)
     }
   }
 

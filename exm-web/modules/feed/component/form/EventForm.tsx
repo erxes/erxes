@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { XCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -31,19 +32,35 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
+import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
-  title: z.string({
-    required_error: "Please enter an title",
-  }),
-  description: z.string({
-    required_error: "Please enter an description",
-  }),
-  where: z.string().optional(),
+  title: z
+    .string({
+      required_error: "Please enter an title",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an title",
+    }),
+  description: z
+    .string({
+      required_error: "Please enter an description",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an description",
+    }),
+  where: z
+    .string({
+      required_error: "Where must be chosen",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Where must be chosen",
+    }),
   startDate: z.date(),
   endDate: z.date(),
   departmentIds: z.array(z.string()).optional(),
@@ -61,6 +78,9 @@ const EventForm = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
+
+  const [images, setImage] = useState(feed?.images || [])
+  const [attachments, setAttachments] = useState(feed?.attachments || [])
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -108,6 +128,22 @@ const EventForm = ({
       },
       feed?._id || ""
     )
+  }
+
+  const deleteAttachment = (index: number) => {
+    const updated = [...attachments]
+
+    updated.splice(index, 1)
+
+    setAttachments(updated)
+  }
+
+  const deleteImage = (index: number) => {
+    const updated = [...images]
+
+    updated.splice(index, 1)
+
+    setImage(updated)
   }
 
   return (
@@ -287,6 +323,36 @@ const EventForm = ({
               </FormItem>
             )}
           />
+
+          <Uploader
+            defaultFileList={images || []}
+            onChange={setImage}
+            type={"image"}
+          />
+          {images && images.length > 0 && (
+            <AttachmentWithPreview
+              images={images}
+              className="mt-2"
+              deleteImage={deleteImage}
+            />
+          )}
+
+          <Uploader
+            defaultFileList={attachments || []}
+            onChange={setAttachments}
+          />
+
+          {(attachments || []).map((attachment, index) => {
+            return (
+              <div
+                key={index}
+                className="flex items-center border-y text-sm font-semibold text-[#444] p-2.5"
+              >
+                {attachment.name}{" "}
+                <XCircle size={18} onClick={() => deleteAttachment(index)} />
+              </div>
+            )
+          })}
 
           <Button type="submit" className="font-semibold w-full rounded-full">
             Post

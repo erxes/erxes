@@ -30,12 +30,20 @@ import useFeedMutation from "../../hooks/useFeedMutation"
 import { IFeed } from "../../types"
 
 const FormSchema = z.object({
-  title: z.string({
-    required_error: "Please enter an title",
-  }),
-  description: z.string({
-    required_error: "Please enter an description",
-  }),
+  title: z
+    .string({
+      required_error: "Please enter an title",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an title",
+    }),
+  description: z
+    .string({
+      required_error: "Please enter an description",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an description",
+    }),
   recipientIds: z.array(z.string()).optional(),
 })
 
