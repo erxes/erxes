@@ -143,9 +143,10 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: generateParams(queryParams),
           notifyOnNetworkStatusChange: true,
-          fetchPolicy: 'network-only',
+          fetchPolicy: 'network-only'
           // every minute
-          pollInterval: 60000
+          // commented this line because it was causing the page to refresh every minute and it was glitchy
+          // pollInterval: 60000
         })
       }
     ),
