@@ -1,9 +1,11 @@
 "use client"
 
 import React, { useMemo } from "react"
+import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import calendar from "dayjs/plugin/calendar"
 import { useAtomValue } from "jotai"
+import { ReplaceIcon, ReplyIcon } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
 import Image from "@/components/ui/image"
@@ -17,7 +19,7 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
   const { relatedMessage, content, attachments, createdAt, createdUser } =
     message
 
-  const currentUser = useAtomValue(currentUserAtom)
+  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const isMe = useMemo(
     () => currentUser?._id === createdUser._id,
@@ -26,10 +28,51 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
 
   const userDetail = createdUser.details || {}
 
+  const userInfo =
+    relatedMessage &&
+    relatedMessage.createdUser &&
+    (relatedMessage.createdUser.details.fullName ||
+      relatedMessage.createdUser.email)
+
+  const renderReplyText = () => {
+    if (isMe) {
+      return (
+        <div className="text-xs text-[#444] font-medium">
+          You replied to{" "}
+          {relatedMessage.createdUser._id === currentUser._id
+            ? "yourself"
+            : userInfo}
+        </div>
+      )
+    }
+
+    return (
+      <div className="text-xs text-[#444] font-medium">
+        {(userDetail.fullName || createdUser.email) + "replied to "}
+        {relatedMessage.createdUser._id === createdUser._id
+          ? "themself"
+          : userInfo}
+      </div>
+    )
+  }
+
   return (
-    <div>
-      <div className={`flex ${isMe ? "justify-end" : "justify-start"} h-full`}>
-        <div className="items-end flex">
+    <>
+      {relatedMessage && (
+        <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+          <div className="max-w-md">
+            <div className="flex">
+              <ReplyIcon size={16} /> {renderReplyText()}
+            </div>
+            <p className="truncate bg-[#ededfb] p-2 rounded-2xl">
+              {relatedMessage.content}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+        <div className="flex items-end">
           {isMe ? null : (
             <div className="w-12 h-12 rounded-full">
               <Image
@@ -42,13 +85,14 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
             </div>
           )}
         </div>
+
         <div className="m-2 max-w-xs">
           <Card className="p-4 rounded-2xl">
             <div dangerouslySetInnerHTML={{ __html: content || "" }} />
           </Card>
         </div>
 
-        <div className="items-end flex">
+        <div className="flex items-end">
           {!isMe ? null : (
             <div className="w-12 h-12 rounded-full">
               <Image
@@ -62,7 +106,7 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
           )}
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
