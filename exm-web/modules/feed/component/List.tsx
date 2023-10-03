@@ -12,7 +12,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { useFeeds } from "../hooks/useFeed"
 import { IFeed } from "../types"
-import PostItem from "./PostItem"
+
+const PostItem = dynamic(() => import("./PostItem"))
 
 const FeedForm = dynamic(() => import("../component/form/FeedForm"))
 

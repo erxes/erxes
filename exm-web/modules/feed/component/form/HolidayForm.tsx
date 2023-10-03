@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -23,17 +23,27 @@ import {
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
 import { Textarea } from "@/components/ui/textarea"
+import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { IFeed } from "../../types"
+import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
-  title: z.string({
-    required_error: "Please enter an title",
-  }),
-  description: z.string({
-    required_error: "Please enter an description",
-  }),
+  title: z
+    .string({
+      required_error: "Please enter an title",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an title",
+    }),
+  description: z
+    .string({
+      required_error: "Please enter an description",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an description",
+    }),
   createdAt: z.date().optional(),
 })
 
@@ -47,6 +57,7 @@ const HolidayForm = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
+  const [images, setImage] = useState(feed?.images || [])
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -81,6 +92,14 @@ const HolidayForm = ({
       },
       feed?._id || ""
     )
+  }
+
+  const deleteImage = (index: number) => {
+    const updated = [...images]
+
+    updated.splice(index, 1)
+
+    setImage(updated)
   }
 
   return (
@@ -146,6 +165,19 @@ const HolidayForm = ({
               </FormItem>
             )}
           />
+
+          <Uploader
+            defaultFileList={images || []}
+            onChange={setImage}
+            type={"image"}
+          />
+          {images && images.length > 0 && (
+            <AttachmentWithPreview
+              images={images}
+              className="mt-2"
+              deleteImage={deleteImage}
+            />
+          )}
 
           <Button type="submit" className="font-semibold w-full rounded-full">
             Post

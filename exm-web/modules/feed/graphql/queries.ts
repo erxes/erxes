@@ -14,6 +14,15 @@ const userFields = `
   }
 `
 
+export const commonStructureParamsDef = `
+    $ids: [String]
+    $excludeIds: Boolean,
+    $perPage: Int,
+    $page: Int
+    $searchValue: String,
+    $status:String,
+`
+
 const commonFeedFields = `
   _id
   title
@@ -115,27 +124,27 @@ const fields = `
   }
 `
 
-const departmentField = `
-  _id
-  title
-  description
-  parentId
-  code
-  supervisorId
-  userIds
-`
-
 const departments = gql`
-  query departments {
-    departments {
-      ${departmentField}
+  query departments(
+    $ids: [String]
+    $searchValue: String
+    $excludeIds: Boolean
+  ) {
+    departments(ids: $ids, searchValue: $searchValue, excludeIds: $excludeIds) {
+      _id
+      title
+      description
+      parentId
+      code
+      supervisorId
+      userIds
     }
   }
 `
 
 const branches = gql`
-  query branches {
-    branches {
+  query branches($ids: [String], $searchValue: String, $excludeIds: Boolean) {
+    branches(ids: $ids, searchValue: $searchValue, excludeIds: $excludeIds) {
       _id
       code
       title
@@ -145,8 +154,8 @@ const branches = gql`
 `
 
 const unitsMain = gql`
-  query unitsMain {
-    unitsMain {
+  query unitsMain($ids: [String], $searchValue: String, $excludeIds: Boolean) {
+    unitsMain(ids: $ids, searchValue: $searchValue, excludeIds: $excludeIds) {
       list {
         _id
         title

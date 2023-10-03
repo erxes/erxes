@@ -7,6 +7,7 @@ import JotaiProvider from "@/modules/JotaiProiveder"
 import CheckAuth from "@/modules/auth/checkAuth"
 import Configs from "@/modules/auth/configs"
 
+import "react-select-plus/dist/react-select-plus.css"
 import { fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"

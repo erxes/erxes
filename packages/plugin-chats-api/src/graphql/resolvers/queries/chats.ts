@@ -127,12 +127,12 @@ const chatQueries = {
           { _id: chat._id },
           { $set: { seenInfos } }
         );
+
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
+        });
       }
     }
-
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
-    });
 
     return chat;
   },

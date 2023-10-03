@@ -25,7 +25,7 @@ import ParticipantItem from "./ParticipantItem"
 
 const ParticipantList = ({ chat }: { chat: IChat }) => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-  const [userIds, setUserIds] = useState([])
+  const [userIds, setUserIds] = useState([] as any)
   const [open, setOpen] = useState(false)
 
   const { data: usersData, loading } = useQuery(queries.users)
