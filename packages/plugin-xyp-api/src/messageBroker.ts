@@ -54,11 +54,56 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('xyp:insert', async ({ subdomain, data }) => {
+  consumeRPCQueue('xyp:insertOrUpdate', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
+
+    const existingData = await models.XypData.findOne({
+      contentType: data.contentType,
+      contentTypeId: data.contentTypeId
+    });
+
+    const newData = data.data;
+
+    if (!existingData) {
+      return {
+        status: 'success',
+        data: await models.XypData.createXypData(data)
+      };
+    }
+
+    for (const obj of newData) {
+      const serviceIndex = existingData.data.findIndex(
+        e => e.serviceName === obj.serviceName
+      );
+
+      if (serviceIndex === -1) {
+        await models.XypData.updateOne(
+          { _id: existingData._id },
+          {
+            $push: {
+              data: obj
+            }
+          }
+        );
+      } else {
+        existingData.data[serviceIndex] = obj;
+        await models.XypData.updateOne(
+          { _id: existingData._id },
+          {
+            $set: {
+              data: existingData.data
+            }
+          }
+        );
+      }
+    }
+
     return {
       status: 'success',
-      data: await models.XypData.createXypData(data)
+      data: await models.XypData.findOne({
+        contentType: data.contentType,
+        contentTypeId: data.contentTypeId
+      })
     };
   });
 };
