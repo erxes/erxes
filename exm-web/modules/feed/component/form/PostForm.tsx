@@ -208,6 +208,7 @@ const PostForm = ({
                       onMenuClose={() => setReload(false)}
                       onMenuOpen={() => setReload(true)}
                       isMulti={true}
+                      options={departmentOptions}
                       value={departmentOptions?.filter((departmentOption) =>
                         departmentIds.includes(departmentOption?.value)
                       )}
