@@ -8,9 +8,21 @@ import { __DEV__ } from "@apollo/client/utilities/globals"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { useAtomValue } from "jotai"
-import { MoreHorizontalIcon } from "lucide-react"
+import {
+  AlertTriangleIcon,
+  CheckCircleIcon,
+  MoreHorizontalIcon,
+  XCircleIcon,
+} from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 import {
   Popover,
@@ -31,10 +43,11 @@ export const ChatItem = ({
 }) => {
   const router = useRouter()
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-  const { togglePinned } = useChatsMutation()
+  const { togglePinned, chatDelete } = useChatsMutation()
   const searchParams = useSearchParams()
 
   const [showAction, setShowAction] = useState(false)
+  const [open, setOpen] = useState(false)
 
   const chatId = searchParams.get("id")
 
@@ -51,7 +64,7 @@ export const ChatItem = ({
   }
 
   const onDelete = () => {
-    console.log("delete")
+    chatDelete(chat._id)
   }
 
   const onPin = () => {
@@ -59,6 +72,33 @@ export const ChatItem = ({
   }
 
   const renderChatActions = () => {
+    const renderForm = () => {
+      return (
+        <DialogContent>
+          <div className="flex flex-col items-center justify-center">
+            <AlertTriangleIcon size={30} color={"#6569DF"} /> Are you sure?
+          </div>
+
+          <DialogFooter className="flex justify-between">
+            <Button
+              className="font-semibold rounded-full bg-[#F2F2F2] hover:bg-[#F2F2F2] text-black"
+              onClick={() => setOpen(false)}
+            >
+              <XCircleIcon size={16} className="mr-1" />
+              No, Cancel
+            </Button>
+            <Button
+              className="font-semibold rounded-full bg-[#3ECC38] hover:bg-[#3ECC38]"
+              onClick={onDelete}
+            >
+              <CheckCircleIcon size={16} className="mr-1" />
+              Yes, I am
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      )
+    }
+
     const renderDelete = () => {
       if (chat.type === "direct") {
         return null
@@ -66,12 +106,15 @@ export const ChatItem = ({
 
       if (currentUser.isOwner || currentUser._id === createdUser._id) {
         return (
-          <div
-            className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-rose-600 text-xs"
-            onClick={onDelete}
-          >
-            Delete Chat
-          </div>
+          <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+            <DialogTrigger asChild={true}>
+              <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-rose-600 text-xs">
+                Delete Chat
+              </div>
+            </DialogTrigger>
+
+            {renderForm()}
+          </Dialog>
         )
       }
     }

@@ -14,6 +14,7 @@ const useChatsMutation = () => {
   const [editChatMutation, { loading: loadingEdit }] = useMutation(
     mutations.chatEdit
   )
+  const [deleteChatMutation] = useMutation(mutations.chatRemove)
 
   const [adminMutation] = useMutation(mutations.chatMakeOrRemoveAdmin)
   const [memberMutation] = useMutation(mutations.chatAddOrRemoveMember)
@@ -46,6 +47,13 @@ const useChatsMutation = () => {
     })
   }
 
+  const chatDelete = (chatId: string) => {
+    deleteChatMutation({
+      variables: { id: chatId },
+      refetchQueries: ["chats", "chatDetail"],
+    })
+  }
+
   const addOrRemoveMember = (
     chatId: string,
     type: string,
@@ -62,6 +70,7 @@ const useChatsMutation = () => {
     makeOrRemoveAdmin,
     addOrRemoveMember,
     chatEdit,
+    chatDelete,
     loading,
     loadingEdit,
   }
