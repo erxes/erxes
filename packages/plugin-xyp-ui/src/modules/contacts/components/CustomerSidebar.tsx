@@ -149,6 +149,7 @@ function Sidebar({
   );
 
   const renderServiceItem = (i, output) => {
+    console.log('i=', i);
     const items = Object.keys(i).filter(key => typeof i[key] !== 'object');
 
     const renderOutput = (value: any) => {
@@ -198,6 +199,7 @@ function Sidebar({
   };
 
   const modalContent = (d: any) => {
+    if (!d.data) return <div>мэдээлэл байхгүй</div>;
     const output =
       (xypServiceList.find(x => x.wsOperationName === d?.serviceName)
         ?.output as any) || [];
@@ -210,7 +212,6 @@ function Sidebar({
           listItem['markName'] + ' - ' + listItem['modelName'] ||
           d?.serviceDescription ||
           renderServiceName(d?.serviceName);
-
         return (
           <CollapseContent
             title={__(title)}

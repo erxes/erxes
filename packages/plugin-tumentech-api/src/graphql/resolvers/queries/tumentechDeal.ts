@@ -1,5 +1,4 @@
 import { paginate } from '@erxes/api-utils/src';
-
 import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage } from '../../../messageBroker';
 
@@ -72,7 +71,7 @@ const tumentechDealsQuery = {
         }).count()
       };
     }
-    console.log(filter);
+
     return {
       list: paginate(
         models.TumentechDeals.find(filter)
@@ -85,6 +84,39 @@ const tumentechDealsQuery = {
       ),
       totalCount: models.TumentechDeals.find(filter).count()
     };
+  },
+
+  tumentechTripDistance: async (
+    _root,
+    {
+      driverId
+    }: {
+      driverId?: string;
+    },
+    { models, subdomain }: IContext
+  ) => {
+    console.log(driverId);
+
+    // driverIds: driverId,
+    const tumenDeals = await models.TumentechDeals.aggregate([
+      // Stage 1: Filter documents
+      {
+        $match: { driverIds: driverId, tripFinishedData: { $ne: null } }
+      },
+      // Stage 2: Group remaining documents by pizza name and calculate total quantity
+      {
+        $group: {
+          _id: '$driverIds',
+          total: { $sum: '$tripDistance' },
+          numberOfWorks: { $sum: 1 }
+        }
+      }
+    ]);
+
+    console.log(tumenDeals);
+
+    if (tumenDeals?.length > 0) return tumenDeals[0];
+    else return null;
   },
 
   tumentechDealDetail: async (

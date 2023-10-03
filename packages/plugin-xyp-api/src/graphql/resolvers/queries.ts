@@ -59,7 +59,7 @@ const xypQueries = {
         params,
         wsOperationName
       },
-      timeout: 5000
+      timeout: 10000
     });
 
     return response;
