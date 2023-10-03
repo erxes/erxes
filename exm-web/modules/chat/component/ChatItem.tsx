@@ -186,6 +186,7 @@ export const ChatItem = ({
         </p>
         <div className="flex justify-between w-full text-xs">
           <p
+            className="truncate max-w-[150px]"
             dangerouslySetInnerHTML={
               {
                 __html: (chat?.lastMessage && chat?.lastMessage.content) || "",

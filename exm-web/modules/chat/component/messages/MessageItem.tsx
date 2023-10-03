@@ -42,7 +42,7 @@ const MessageItem = ({ message }: { message: IChatMessage }) => {
             </div>
           )}
         </div>
-        <div className="m-2">
+        <div className="m-2 max-w-xs">
           <Card className="p-4 rounded-2xl">
             <div dangerouslySetInnerHTML={{ __html: content || "" }} />
           </Card>
