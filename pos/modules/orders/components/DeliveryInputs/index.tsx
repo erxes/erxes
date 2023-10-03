@@ -1,10 +1,6 @@
-import {
-  deliveryInfoAtom,
-  dueDateAtom,
-  setDeliveryInfoAtom,
-} from "@/store/order.store"
+import { descriptionAtom, dueDateAtom } from "@/store/order.store"
 import { format, setHours, setMinutes } from "date-fns"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useAtom } from "jotai"
 import { EraserIcon, SlidersHorizontalIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -20,8 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 
 const DeliveryInputs = () => {
-  const setDeliveryInfo = useSetAtom(setDeliveryInfoAtom)
-  const deliveryInfo = useAtomValue(deliveryInfoAtom)
+  const [description, setDescription] = useAtom(descriptionAtom)
   const [dueDate, setDueDate] = useAtom(dueDateAtom)
 
   const chageTimeOfDate = (date: string, time: string) =>
@@ -54,8 +49,8 @@ const DeliveryInputs = () => {
             </Label>
             <Textarea
               className="max-h-20"
-              value={(deliveryInfo || {}).description}
-              onChange={(e) => setDeliveryInfo(e.target.value)}
+              value={description || ""}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
           <div className="col-span-2">

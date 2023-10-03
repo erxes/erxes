@@ -4,12 +4,10 @@ const ordersAddPayment = gql`
   mutation ordersAddPayment(
     $_id: String!
     $cashAmount: Float
-    $mobileAmount: Float
     $paidAmounts: [PaidAmountInput]
   ) {
     ordersAddPayment(
       _id: $_id
-      mobileAmount: $mobileAmount
       cashAmount: $cashAmount
       paidAmounts: $paidAmounts
     ) {
@@ -49,6 +47,7 @@ const generateInvoiceUrl = `
     $email: String
     $paymentIds: [String]
     $phone: String
+    $data: JSON
   ) {
     generateInvoiceUrl(
       amount: $amount
@@ -60,6 +59,7 @@ const generateInvoiceUrl = `
       email: $email
       paymentIds: $paymentIds
       phone: $phone
+      data: $data
     )
   }
 `
@@ -73,7 +73,7 @@ const ordersFinish = gql`
     $branchId: String
     $customerId: String
     $customerType: String
-    $deliveryInfo: JSON
+    $description: String
     $billType: String
     $registerNumber: String
     $slotCode: String
@@ -88,7 +88,7 @@ const ordersFinish = gql`
       branchId: $branchId
       customerId: $customerId
       customerType: $customerType
-      deliveryInfo: $deliveryInfo
+      description: $description
       billType: $billType
       registerNumber: $registerNumber
       slotCode: $slotCode

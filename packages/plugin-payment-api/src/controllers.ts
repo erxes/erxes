@@ -43,22 +43,25 @@ router.post('/gateway/manualCheck', async (req, res) => {
   const status = await models.Invoices.checkInvoice(invoiceId);
 
   if (status === 'paid') {
-    const invoice = await models.Invoices.getInvoice({ _id: invoiceId });
+    const invoiceDoc = await models.Invoices.getInvoice(
+      { _id: invoiceId },
+      true
+    );
 
     graphqlPubsub.publish('invoiceUpdated', {
       invoiceUpdated: {
-        _id: invoice._id,
+        _id: invoiceDoc._id,
         status: 'paid'
       }
     });
 
-    const [serviceName] = invoice.contentType.split(':');
+    const [serviceName] = invoiceDoc.contentType.split(':');
 
     if (await isEnabled(serviceName)) {
       messageBroker().sendMessage(`${serviceName}:paymentCallback`, {
         subdomain,
         data: {
-          ...invoice,
+          ...invoiceDoc,
           apiResponse: 'success'
         }
       });
@@ -66,7 +69,7 @@ router.post('/gateway/manualCheck', async (req, res) => {
 
     redisUtils.removeInvoice(invoiceId);
 
-    res.clearCookie(`paymentData_${invoice.contentTypeId}`);
+    res.clearCookie(`paymentData_${invoiceDoc.contentTypeId}`);
   }
 
   return res.json({ status });

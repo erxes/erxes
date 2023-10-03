@@ -301,10 +301,10 @@ export const sendEmail = async (models: IModels, data: any) => {
       prepareEmailParams(customer, data, configs.configSet)
     );
 
-    debugEngages(`Sent email to: ${customer.primaryEmail}`);
+    debugEngages(`Sent email to: ${customer?.primaryEmail}`);
   } catch (e) {
     debugError(
-      `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
+      `Error occurred while sending email to ${customer?.primaryEmail}: ${e.message}`
     );
   }
 };

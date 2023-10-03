@@ -184,16 +184,11 @@ class Pos extends React.Component<Props, State> {
       checkExcludeCategoryIds: pos.checkExcludeCategoryIds || []
     };
 
-    if (pos.isOnline) {
-      doc = {
-        ...doc,
-        branchId: ''
-      };
-    } else {
+    if (!pos.isOnline) {
       doc = {
         ...doc,
         beginNumber: '',
-        allowBranchIds: ''
+        allowBranchIds: []
       };
     }
 

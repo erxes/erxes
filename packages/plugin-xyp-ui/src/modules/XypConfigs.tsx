@@ -6,6 +6,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import SelectServices from './settings/containers/SelectServices';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   onChangeConfig: (code: string, value: any) => void;
@@ -68,7 +69,11 @@ const XypConfigs = (props: Props) => {
 
   return (
     <>
-      <CollapseContent title="Xyp">
+      <CollapseContent
+        transparent={true}
+        title={__('Xypdan')}
+        beforeTitle={<Icon icon="favorite" />}
+      >
         {renderItem('url')}
         {renderItem('token')}
         <FormGroup>

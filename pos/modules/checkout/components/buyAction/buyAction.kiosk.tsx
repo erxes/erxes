@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation"
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
-import { activeOrderAtom } from "@/store/order.store"
+import { activeOrderIdAtom } from "@/store/order.store"
 import { useSetAtom } from "jotai"
 
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,7 @@ import TotalAmount from "../totalAmount/totalAmount.kiosk"
 
 const BuyAction = () => {
   const router = useRouter()
-  const setActiveOrder = useSetAtom(activeOrderAtom)
+  const setActiveOrder = useSetAtom(activeOrderIdAtom)
 
   const onCompleted = (_id: string) => {
     router.push("/checkout?orderId=" + _id)

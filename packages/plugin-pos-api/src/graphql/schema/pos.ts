@@ -96,6 +96,9 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     user: User
     ${posCommonFields}
     catProdMappings: [CatProd]
+
+    branchTitle: String
+    departmentTitle: String
   }
 
   type PosSlot {

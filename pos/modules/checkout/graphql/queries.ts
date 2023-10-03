@@ -6,18 +6,6 @@ const ordersCheckCompany = gql`
   }
 `
 
-const invoices = `
-  query Invoices($contentType: String, $contentTypeId: String) {
-    invoices(contentType: $contentType, contentTypeId: $contentTypeId) {
-      _id
-      amount
-      status
-      apiResponse
-      pluginData
-    }
-  }
-`
-
-const queries = { ordersCheckCompany, invoices }
+const queries = { ordersCheckCompany }
 
 export default queries

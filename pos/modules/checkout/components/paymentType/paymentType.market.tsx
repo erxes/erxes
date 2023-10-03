@@ -1,13 +1,13 @@
 import { useEffect } from "react"
 import { CheckIcon } from "lucide-react"
 
+import { HARD_PAYMENT_TYPES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 import useHandlePayment from "../../hooks/useHandlePayment"
 import { useCheckNotSplit } from "../../hooks/usePaymentType"
-import PaymentSheet from "./paymentSheet"
 import SelectPaymentType from "./selectPaymentType.market"
 
 const PaymentType = () => {
@@ -18,6 +18,7 @@ const PaymentType = () => {
     currentAmount,
     notPaidAmount,
     setCurrentAmount,
+    type,
   } = useHandlePayment()
 
   const { disableInput } = useCheckNotSplit()
@@ -45,10 +46,13 @@ const PaymentType = () => {
         loading={loading}
         iconOnly={true}
         onClick={handlePay}
+        disabled={
+          HARD_PAYMENT_TYPES.includes(type) &&
+          (notPaidAmount === 0 || currentAmount === 0)
+        }
       >
         <CheckIcon className=" h-4 w-4" />
       </Button>
-      <PaymentSheet />
     </div>
   )
 }

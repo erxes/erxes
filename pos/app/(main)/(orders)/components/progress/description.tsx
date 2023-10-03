@@ -5,13 +5,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const DeliveryInfo = ({
-  deliveryInfo,
-}: {
-  deliveryInfo?: { description?: string }
-}) => {
-  const { description } = deliveryInfo || {}
-
+const Description = ({ description }: { description?: string }) => {
   if ((description || "").length < 30) return <p>{description}</p>
   return (
     <TooltipProvider>
@@ -27,4 +21,4 @@ const DeliveryInfo = ({
   )
 }
 
-export default DeliveryInfo
+export default Description

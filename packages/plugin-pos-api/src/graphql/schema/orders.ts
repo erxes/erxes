@@ -25,8 +25,10 @@ const posOrderFields = contactsEnabled => `
   posName: String,
   branchId: String,
   departmentId: String,
+  subBranchId: String,
   branch: JSON,
   department: JSON,
+  subBranch: JSON,
   user: User,
   ${
     contactsEnabled

@@ -44,7 +44,6 @@ export const setWholeConfig = atom(
       ISettingsConfig
   ) => {
     const {
-      erxesAppToken,
       paymentIds,
       paymentTypes,
       permissionConfig,
@@ -69,7 +68,6 @@ export const setWholeConfig = atom(
       waitingScreen,
     })
     set(paymentConfigAtom, {
-      erxesAppToken,
       paymentIds,
       paymentTypes,
       permissionConfig,

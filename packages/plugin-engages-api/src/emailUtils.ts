@@ -73,7 +73,7 @@ export const prepareEmailParams = (
 
   return {
     from: `${sender} <${fromEmail}>`,
-    to: customer.primaryEmail.toLocaleLowerCase().trim(),
+    to: (customer?.primaryEmail || '').toLocaleLowerCase().trim(),
     replyTo,
     subject: replacedSubject,
     attachments: prepareAttachments(attachments),

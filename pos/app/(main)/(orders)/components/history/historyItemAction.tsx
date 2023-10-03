@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { detailIdAtom } from "@/store/history.store"
-import { activeOrderAtom } from "@/store/order.store"
+import { activeOrderIdAtom } from "@/store/order.store"
 import { CellContext } from "@tanstack/react-table"
 import { useSetAtom } from "jotai"
 import { MoreHorizontal } from "lucide-react"
@@ -24,7 +24,7 @@ import PaymentDetail from "./paymentDetail"
 const HistoryItemAction = ({ row }: CellContext<IOrderHistory, unknown>) => {
   const { _id, paidDate, number, totalAmount } = row.original || {}
   const router = useRouter()
-  const setActiveOrder = useSetAtom(activeOrderAtom)
+  const setActiveOrder = useSetAtom(activeOrderIdAtom)
   const setOpenDetail = useSetAtom(detailIdAtom)
   const [showEbarimt, setShowEbarimt] = useState(false)
   const { iframeRef } = useReciept({
