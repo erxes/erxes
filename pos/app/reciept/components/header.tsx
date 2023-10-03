@@ -6,11 +6,13 @@ import {
 } from "@/store/order.store"
 import { format } from "date-fns"
 import { useAtom } from "jotai"
+import { ebarimtConfigAtom } from "@/store/config.store"
 
 const EbarimtHeader = () => {
   const [user] = useAtom(orderUserAtom)
   const [number] = useAtom(orderNumberAtom)
   const [paidDate] = useAtom(paidDateAtom)
+  const [ebarimtConfig] = useAtom(ebarimtConfigAtom)
 
   const renderUser = () => {
     if (!user?.firstName) return
@@ -33,7 +35,7 @@ const EbarimtHeader = () => {
           width={100}
           className="h-8 w-auto object-contain"
         />
-        <p className="pl-2 font-bold leading-5">Erxes Mongolia LLC</p>
+        <p className="pl-2 font-bold leading-5">{ebarimtConfig?.name}</p>
       </header>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
