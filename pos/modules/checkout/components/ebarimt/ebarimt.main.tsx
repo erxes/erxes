@@ -44,7 +44,7 @@ const EbarimtMain = () => {
   })
 
   useEffect(() => {
-    if (orderTotalAmount && unpaidAmount === 0) {
+    if (orderTotalAmount > 0 && unpaidAmount === 0) {
       setOpenDialog(true)
     }
   }, [orderTotalAmount, setOpenDialog, unpaidAmount])
