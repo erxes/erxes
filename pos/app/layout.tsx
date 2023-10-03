@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-before-interactive-script-outside-document */
 import "@/styles/globals.css"
+
 import { Metadata } from "next"
 import Script from "next/script"
-import ApolloProvider from "@/modules/ApolloProvider"
 import JotaiProvider from "@/store"
 
 import { siteConfig } from "@/config/site"
@@ -48,9 +48,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             fontSans.variable
           )}
         >
-          <ApolloProvider>
-            <JotaiProvider>{children}</JotaiProvider>
-          </ApolloProvider>
+          <JotaiProvider>{children}</JotaiProvider>
           <Toaster />
         </body>
       </html>
