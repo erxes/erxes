@@ -199,6 +199,7 @@ RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
           console.log(`Connected to rabbitmq server ${RABBITMQ_HOST}`);
 
           conn.on('error', me.reconnect.bind(me, RABBITMQ_HOST));
+          conn.on('close', me.reconnect.bind(me, RABBITMQ_HOST));
 
           return conn.createChannel().then(function(chan) {
             channel = chan;

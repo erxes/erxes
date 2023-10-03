@@ -22,7 +22,7 @@ const Ebarimt = ({
       return (
         <div>
           <p>
-            <span className="text-[10px]">Компанийн РД:</span>{" "}
+            <span className="text-[10px]">РД:</span>{" "}
             <span className="font-semibold">{registerNumber}</span>
           </p>
           <p>

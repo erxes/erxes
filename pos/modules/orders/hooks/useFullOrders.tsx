@@ -2,9 +2,9 @@
 import { useCallback, useEffect } from "react"
 import {
   DocumentNode,
-  WatchQueryFetchPolicy,
   gql,
   useLazyQuery,
+  WatchQueryFetchPolicy,
 } from "@apollo/client"
 
 import { IOrder } from "@/types/order.types"
@@ -25,6 +25,8 @@ interface IVariables {
   page?: number
   sortField?: string | null
   sortDirection?: number | null
+  isPreExclude?: boolean | null
+  slotCode?: string | null
 }
 
 interface IFullOrdersResult {

@@ -13,8 +13,12 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions"
 import { getMainDefinition } from "@apollo/client/utilities"
 import { createClient } from "graphql-ws"
 
+import { getEnv } from "@/lib/utils"
+
+const env = getEnv()
+
 const httpLink: any = new HttpLink({
-  uri: `${process.env.NEXT_PUBLIC_MAIN_API_DOMAIN}/graphql`,
+  uri: `${env.NEXT_PUBLIC_MAIN_API_DOMAIN}/graphql`,
   credentials: "include",
 })
 
@@ -23,7 +27,7 @@ const authLink = setContext((_, { headers }) => {
     headers: {
       ...headers,
       "Access-Control-Allow-Origin": (
-        process.env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
+        env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
       ).replace("/gateway", ""),
     },
   }
@@ -33,7 +37,7 @@ const wsLink: any =
   typeof window !== "undefined"
     ? new GraphQLWsLink(
         createClient({
-          url: process.env.NEXT_PUBLIC_MAIN_SUBS_DOMAIN || "",
+          url: env.NEXT_PUBLIC_MAIN_SUBS_DOMAIN || "",
         })
       )
     : null
@@ -55,8 +59,6 @@ const splitLink =
         httpLinkWithMiddleware
       )
     : httpLinkWithMiddleware
-
-console.log(splitLink, wsLink)
 
 export const client = new ApolloClient({
   ssrMode: typeof window !== "undefined",

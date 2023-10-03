@@ -48,7 +48,7 @@ export interface IOrderCommon {
   type?: IOrderType
   customerId?: string
   customerType?: CustomerType
-  deliveryInfo?: { [key: string]: string; description: string }
+  description?: string
   billType?: IBillType
   registerNumber?: string
   slotCode?: string
@@ -115,6 +115,7 @@ export interface IOrder extends IOrderCommon {
   putResponses: IPutResponse[]
   user: IOrderUser
   sloteCode?: string
+  isPre?: boolean
 }
 
 export interface IOrderHistory {

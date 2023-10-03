@@ -9,6 +9,7 @@ import { mutations } from "./graphql"
 
 const LoginContainer = () => {
   const { toast } = useToast()
+
   const [login, { loading }] = useMutation(mutations.login, {
     onCompleted() {
       return (window.location.href = "/")

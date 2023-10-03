@@ -1,4 +1,6 @@
+"use client"
 import Cart from "@/modules/checkout/components/cart/cart.market"
+import PaymentSheet from "@/modules/checkout/components/paymentType/paymentSheet"
 import Checkout from "@/modules/checkout/market"
 import Customer from "@/modules/customer"
 import OrderDetail from "@/modules/orders/OrderDetail"
@@ -21,6 +23,7 @@ const Market = () => {
             <Customer />
             <Checkout />
           </OrderDetail>
+          <PaymentSheet />
         </div>
       </section>
     </BarcodeListener>

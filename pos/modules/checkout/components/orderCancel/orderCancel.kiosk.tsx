@@ -1,4 +1,4 @@
-import { activeOrderAtom, setInitialAtom } from "@/store/order.store"
+import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { useMutation } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
 
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import mutations from "../../graphql/mutations"
 
 const OrderCancel = () => {
-  const id = useAtomValue(activeOrderAtom)
+  const id = useAtomValue(activeOrderIdAtom)
   const setInitialState = useSetAtom(setInitialAtom)
 
   const reset = () => setInitialState()

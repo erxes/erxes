@@ -1,6 +1,6 @@
 import { getEnv } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { makeInvoiceNo } from '../../../utils';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 type InvoiceParams = {
   amount: number;
@@ -59,7 +59,7 @@ const mutations = {
     const invoice = await models.Invoices.create({
       ...params,
       data,
-      identifier: makeInvoiceNo(32)
+      identifier: randomAlphanumeric(32)
     });
 
     const base64 = Buffer.from(

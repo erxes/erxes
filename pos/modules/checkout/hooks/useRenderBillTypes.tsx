@@ -16,9 +16,12 @@ const useRenderEbarimt = () => {
     ?.filter((pt) => pt?.config?.skipEbarimt)
     .map((pt) => pt.type)
 
-  const skipEbarimt = !!paidAmounts.find((pa) =>
-    skipEbarimtPts?.includes(pa.type)
-  )
+  const skipEbarimt =
+    paidAmounts.reduce(
+      (total, pa) =>
+        skipEbarimtPts?.includes(pa.type) ? total + pa.amount : total,
+      0
+    ) > 0
 
   return { allowInnerBill, skipEbarimt }
 }

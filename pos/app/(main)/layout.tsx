@@ -1,6 +1,7 @@
 "use client"
 
 import "@/styles/globals.css"
+
 import dynamic from "next/dynamic"
 import CheckAuth from "@/modules/auth/checkAuth"
 import Configs from "@/modules/auth/configs"

@@ -1,4 +1,4 @@
-import { activeOrderAtom, unPaidAmountAtom } from "@/store/order.store"
+import { activeOrderIdAtom, unPaidAmountAtom } from "@/store/order.store"
 import { useAtomValue } from "jotai"
 import { XIcon } from "lucide-react"
 
@@ -12,7 +12,7 @@ import { submitClassName } from "./paymentType.market"
 const CancelPayment = ({ type, amount }: { type: string; amount: number }) => {
   const { addPayment, loading } = useAddPayment()
   const notPaid = useAtomValue(unPaidAmountAtom)
-  const _id = useAtomValue(activeOrderAtom)
+  const _id = useAtomValue(activeOrderIdAtom)
 
   if (
     ALL_BANK_CARD_TYPES.includes(type) ||

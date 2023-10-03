@@ -258,6 +258,15 @@ export const initBroker = async options => {
   });
 
   consumeRPCQueue(
+    'core:configs.createOrUpdateConfig',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return await models.Configs.createOrUpdateConfig(data);
+    }
+  );
+
+  consumeRPCQueue(
     'core:configs.findOne',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
@@ -322,6 +331,15 @@ export const initBroker = async options => {
       };
     }
   );
+
+  consumeRPCQueue('core:users.checkLoginAuth', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Users.checkLoginAuth(data)
+    };
+  });
 
   consumeRPCQueue('core:departments.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

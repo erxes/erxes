@@ -1,38 +1,38 @@
 import { gql } from "@apollo/client"
 
 const addEditParamDefs = `
-    $items: [OrderItemInput],
-    $totalAmount: Float!,
-    $type: String!, 
-    $customerId: String, 
-    $customerType: String, 
-    $slotCode: String, 
-    $registerNumber: String, 
-    $billType: String, 
-    $origin: String, 
-    $deliveryInfo: JSON
+    $items: [OrderItemInput]
+    $totalAmount: Float!
+    $type: String! 
+    $customerId: String 
+    $customerType: String 
+    $slotCode: String 
+    $registerNumber: String 
+    $billType: String 
+    $origin: String 
+    $description: String
     $buttonType: String
     $dueDate: Date
 `
 
 const addEditParams = `
-    items: $items, 
-    totalAmount: $totalAmount, 
-    type: $type, 
-    customerId: $customerId, 
-    customerType: $customerType, 
-    slotCode: $slotCode, 
-    registerNumber: $registerNumber, 
-    billType: $billType, 
-    origin: $origin, 
-    deliveryInfo: $deliveryInfo
+    items: $items 
+    totalAmount: $totalAmount 
+    type: $type 
+    customerId: $customerId 
+    customerType: $customerType 
+    slotCode: $slotCode 
+    registerNumber: $registerNumber
+    billType: $billType 
+    origin: $origin
+    description: $description
     buttonType: $buttonType
     dueDate: $dueDate
 `
 
 const ordersAdd = gql`
-  mutation ordersAdd(${addEditParamDefs}) {
-    ordersAdd(${addEditParams}) {
+  mutation ordersAdd(${addEditParamDefs}, $isPre: Boolean) {
+    ordersAdd(${addEditParams}, isPre: $isPre) {
      _id
     }
   }

@@ -49,6 +49,9 @@ export const posCommonFields = `
   allowTypes
   isCheckRemainder
   checkExcludeCategoryIds
+
+  branchTitle
+  departmentTitle
 `;
 
 const commonParamDefs = `
