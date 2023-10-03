@@ -25,7 +25,7 @@ const Golomt = () => {
     fetch(
       endPoint(
         { ...initialData, operationCode: "59" },
-        golomt?.config?.path || ""
+        golomt?.config?.port || ""
       )
     )
       .then((res) => res.json())

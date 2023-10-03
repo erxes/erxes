@@ -48,6 +48,8 @@ export interface IAbsence {
   totalHoursOfAbsence?: string;
 
   requestDates?: string[];
+
+  note?: string;
 }
 export interface IAbsenceType {
   name: string;
@@ -273,6 +275,7 @@ export const absenceSchema = new Schema({
   endTime: field({ type: Date, label: 'Absence ending time', index: true }),
 
   holidayName: field({ type: String, label: 'holiday name' }),
+  note: field({ type: String, label: 'holiday name', optional: true }),
 
   requestDates: field({
     type: [String],

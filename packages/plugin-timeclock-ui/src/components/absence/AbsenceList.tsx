@@ -16,8 +16,14 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import { FlexRowLeft, ToggleButton } from '../../styles';
+import {
+  FlexCenter,
+  FlexColumn,
+  FlexRowLeft,
+  ToggleButton
+} from '../../styles';
 import { Title } from '@erxes/ui-settings/src/styles';
+import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
 
 type Props = {
   currentUser: IUser;
@@ -34,7 +40,7 @@ type Props = {
 
   isCurrentUserAdmin: boolean;
 
-  solveAbsence: (absenceId: string, status: string) => void;
+  solveAbsence: (absenceId: string, variables: any) => void;
   submitRequest: (
     userId: string,
     reason: string,
@@ -64,6 +70,7 @@ function AbsenceList(props: Props) {
     totalCount
   } = props;
 
+  const [note, setNote] = useState('');
   const [isSideBarOpen, setIsOpen] = useState(
     localStorage.getItem('isSideBarOpen') === 'true' ? true : false
   );
@@ -182,6 +189,29 @@ function AbsenceList(props: Props) {
     setSeeDates(!seeDates);
   };
 
+  const rejectRequestContent = (closeModal, absenceId: string) => {
+    return (
+      <FlexColumn marginNum={15}>
+        <ControlLabel>Please leave a note</ControlLabel>
+        <FormControl
+          type="text"
+          name="requestNote"
+          onChange={e => setNote(e.target.value)}
+        />
+        <FlexCenter>
+          <Button
+            onClick={() =>
+              solveAbsence(absenceId, { status: 'Rejected', note })
+            }
+          >
+            Submit
+          </Button>
+        </FlexCenter>
+      </FlexColumn>
+    );
+  };
+  const rejectBtn = <Button btnStyle="danger">Reject</Button>;
+
   const ListAbsenceContent = (absence: IAbsence) => {
     const startTime = new Date(absence.startTime);
     const endTime = new Date(absence.endTime);
@@ -285,7 +315,7 @@ function AbsenceList(props: Props) {
         </td>
         <td>
           {absence.solved ? (
-            __(absence.status)
+            __(absence.status.split('/')[1])
           ) : absence.reason.toLowerCase().includes('check') ? (
             <>
               <ModalTrigger
@@ -296,31 +326,38 @@ function AbsenceList(props: Props) {
                   openCheckInOutForm(contentProps, absence, absence.reason)
                 }
               />
-
-              <Button
-                btnStyle="danger"
-                onClick={() => solveAbsence(absence._id, 'Rejected')}
-              >
-                Reject
-              </Button>
+              <ModalTrigger
+                title="Reject request"
+                trigger={rejectBtn}
+                content={({ closeModal }) =>
+                  rejectRequestContent(closeModal, absence._id)
+                }
+              />
             </>
           ) : (
             <>
               <Button
                 btnStyle="success"
-                onClick={() => solveAbsence(absence._id, 'Approved')}
+                onClick={() =>
+                  solveAbsence(absence._id, { status: 'Approved' })
+                }
               >
                 Approve
               </Button>
-              <Button
-                btnStyle="danger"
-                onClick={() => solveAbsence(absence._id, 'Rejected')}
-              >
-                Reject
-              </Button>
+              <ModalTrigger
+                title="Reject request"
+                trigger={rejectBtn}
+                content={({ closeModal }) =>
+                  rejectRequestContent(closeModal, absence._id)
+                }
+              />
             </>
           )}
         </td>
+        <td style={{ wordBreak: 'break-all', width: '10%' }}>
+          {absence.note || '-'}
+        </td>
+
         <td>
           <Tip text={__('Delete')} placement="top">
             <Button
@@ -353,6 +390,7 @@ function AbsenceList(props: Props) {
           <th rowSpan={2}>{__('Explanation')}</th>
           <th rowSpan={2}>{__('Attachment')}</th>
           <th rowSpan={2}>{__('Status')}</th>
+          <th rowSpan={2}>{__('Note')}</th>
           <th rowSpan={2}>{__('Action')}</th>
         </tr>
       </thead>

@@ -140,8 +140,8 @@ const checkDuplicateScheduleShifts = `
   }`;
 
 const solveAbsenceRequest = `
-  mutation solveAbsenceRequest($_id: String, $status: String){
-    solveAbsenceRequest(_id: $_id, status: $status){
+  mutation solveAbsenceRequest($_id: String, $status: String, $note: String){
+    solveAbsenceRequest(_id: $_id, status: $status, note:$note){
       _id
     }
   }  

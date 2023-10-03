@@ -1,20 +1,9 @@
 "use client"
 
-import dynamic from "next/dynamic"
-
 import { getMode } from "@/lib/utils"
-import Loader from "@/components/ui/loader"
 
-const Main = dynamic(() => import("./layout.main"), {
-  loading() {
-    return <Loader className="h-screen"></Loader>
-  },
-})
-const Kiosk = dynamic(() => import("./layout.kiosk"), {
-  loading() {
-    return <Loader className="h-screen"></Loader>
-  },
-})
+import Kiosk from "./layout.kiosk"
+import Main from "./layout.main"
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const mode = getMode()

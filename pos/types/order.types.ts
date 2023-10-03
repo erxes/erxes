@@ -115,6 +115,7 @@ export interface IOrder extends IOrderCommon {
   putResponses: IPutResponse[]
   user: IOrderUser
   sloteCode?: string
+  isPre?: boolean
 }
 
 export interface IOrderHistory {

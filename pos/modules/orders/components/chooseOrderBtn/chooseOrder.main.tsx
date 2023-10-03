@@ -1,7 +1,7 @@
 import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { cva } from "class-variance-authority"
 import { useAtom } from "jotai"
-import { CheckIcon } from "lucide-react"
+import { AlarmClockIcon, CheckIcon } from "lucide-react"
 
 import { IOrder } from "@/types/order.types"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const ChooseOrder = ({ number, status, _id, slotCode, origin }: IOrder) => {
+const ChooseOrder = ({
+  number,
+  status,
+  _id,
+  slotCode,
+  origin,
+  isPre,
+}: IOrder) => {
   const [activeOrder, setActiveOrder] = useAtom(activeOrderIdAtom)
   const [, setInitialState] = useAtom(setInitialAtom)
 
@@ -26,6 +33,12 @@ const ChooseOrder = ({ number, status, _id, slotCode, origin }: IOrder) => {
               activeOrder === _id ? setInitialState() : setActiveOrder(_id)
             }
           >
+            {isPre && (
+              <AlarmClockIcon
+                className="h-5 w-5 mr-1 -ml-1"
+                strokeWidth={2.2}
+              />
+            )}
             {(number || "").split("_")[1]}
             {slotCode && ` (${slotCode})`}
             {origin === "kiosk" && "*"}
