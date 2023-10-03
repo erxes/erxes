@@ -58,6 +58,11 @@ export const ChatItem = ({
       : users?.[0]
 
   const createdUser = chat.createdUser || ({} as IUser)
+  const isSeen = chat
+    ? chat.lastMessage?.createdUser?._id === currentUser?._id
+      ? true
+      : chat.isSeen
+    : true
 
   const handleClick = () => {
     router.push(`/chats/detail?id=${chat._id}`)
@@ -142,8 +147,8 @@ export const ChatItem = ({
 
   return (
     <Card
-      className={`${
-        chatId === chat._id ? "bg-[#F0F0F0]" : "bg-transparent"
+      className={`${chatId === chat._id ? "bg-[#f0eef9]" : "bg-transparent"} ${
+        isSeen ? "" : "font-bold"
       } px-6 rounded-none py-2.5 cursor-pointer flex items-center shadow-none border-none hover:bg-[#F0F0F0] relative`}
       onClick={handleClick}
       onMouseEnter={() => setShowAction(true)}
@@ -165,7 +170,7 @@ export const ChatItem = ({
         </div>
       </div>
 
-      <div className="text-sm text-[#444] w-full">
+      <div className={`text-sm text-[#444] w-full`}>
         <p>
           {chat && chat.type === "direct" ? (
             <>
@@ -179,7 +184,7 @@ export const ChatItem = ({
             chat?.name
           )}
         </p>
-        <div className="flex justify-between w-full text-xs font-normal">
+        <div className="flex justify-between w-full text-xs">
           <p
             dangerouslySetInnerHTML={
               {
