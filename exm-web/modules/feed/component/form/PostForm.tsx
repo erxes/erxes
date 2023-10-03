@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { XCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
+import Select from "react-select"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -12,7 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { FacetedFilter } from "@/components/ui/faceted-filter"
 import {
   Form,
   FormControl,
@@ -23,13 +23,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
@@ -65,8 +58,19 @@ const PostForm = ({
   feed?: IFeed
   setOpen: (open: boolean) => void
 }) => {
+  const inputRef = useRef(null) as any
+
+  const [departmentIds, setDepartmentIds] = useState(feed?.departmentIds || [])
+  const [branchIds, setBranchIds] = useState(feed?.branchIds || [])
+  const [unitId, setUnitd] = useState(feed?.unitId || "")
+
+  const [reload, setReload] = useState(false)
+
   const [images, setImage] = useState(feed?.images || [])
   const [attachments, setAttachments] = useState(feed?.attachments || [])
+  const [unitSearchValue, setUnitsSearchvalue] = useState("")
+  const [branchSearchValue, setBranchSearchvalue] = useState("")
+  const [departmentSearchValue, seDepartmentSearchvalue] = useState("")
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -81,7 +85,16 @@ const PostForm = ({
     }
   }
 
-  const { departments, branches, unitsMain, loading } = useTeamMembers()
+  const { departmentOptions, branchOptions, unitOptions } = useTeamMembers({
+    departmentIds,
+    branchIds,
+    unitIds: [unitId],
+    unitSearchValue,
+    branchSearchValue,
+    departmentSearchValue,
+    reload,
+  })
+
   const { feedMutation, loading: mutationLoading } = useFeedMutation({
     callBack,
   })
@@ -111,6 +124,12 @@ const PostForm = ({
     form.reset({ ...defaultValues })
   }, [feed])
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [unitSearchValue])
+
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     feedMutation(
       {
@@ -119,12 +138,20 @@ const PostForm = ({
         contentType: "post",
         images,
         attachments,
-        departmentIds: data.departmentIds,
-        branchIds: data.branchIds,
-        unitId: data.unitId || "",
+        departmentIds,
+        branchIds,
+        unitId,
       },
       feed?._id || ""
     )
+  }
+
+  const onChangeMultiValue = (type: string, datas: any) => {
+    const onchangeFunc = type === "department" ? setDepartmentIds : setBranchIds
+
+    const ids = datas.map((data: any) => data.value)
+
+    onchangeFunc(ids)
   }
 
   return (
@@ -176,23 +203,21 @@ const PostForm = ({
           <FormField
             control={form.control}
             name="departmentIds"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Departments</FormLabel>
                 <FormControl>
-                  {loading ? (
-                    <Input disabled={true} placeholder="Loading..." />
-                  ) : (
-                    <FacetedFilter
-                      options={(departments || []).map((department: any) => ({
-                        label: department.title,
-                        value: department._id,
-                      }))}
-                      title="Departments"
-                      values={field.value}
-                      onSelect={field.onChange}
-                    />
-                  )}
+                  <Select
+                    ref={inputRef}
+                    isMulti={true}
+                    value={departmentOptions?.filter((departmentOption) =>
+                      departmentIds.includes(departmentOption?.value)
+                    )}
+                    placeholder="Select departments"
+                    isSearchable={true}
+                    onInputChange={seDepartmentSearchvalue}
+                    onChange={(data) => onChangeMultiValue("department", data)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -202,23 +227,23 @@ const PostForm = ({
           <FormField
             control={form.control}
             name="branchIds"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Branches</FormLabel>
                 <FormControl>
-                  {loading ? (
-                    <Input disabled={true} placeholder="Loading..." />
-                  ) : (
-                    <FacetedFilter
-                      options={(branches || []).map((branch: any) => ({
-                        label: branch.title,
-                        value: branch._id,
-                      }))}
-                      title="Branches"
-                      values={field.value}
-                      onSelect={field.onChange}
-                    />
-                  )}
+                  <Select
+                    onMenuOpen={() => setReload(true)}
+                    ref={inputRef}
+                    isMulti={true}
+                    options={branchOptions}
+                    defaultValue={branchOptions?.filter((branchOption) =>
+                      branchIds?.includes(branchOption?.value)
+                    )}
+                    placeholder="Select branches"
+                    isSearchable={true}
+                    onInputChange={setBranchSearchvalue}
+                    onChange={(data) => onChangeMultiValue("branch", data)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -232,22 +257,20 @@ const PostForm = ({
               <FormItem>
                 <FormLabel>Unit</FormLabel>
                 <FormControl>
-                  {loading ? (
-                    <Input disabled={true} placeholder="Loading..." />
-                  ) : (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="">
-                        <SelectValue placeholder="choose unit" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(unitsMain.list || []).map((unit: any) => (
-                          <SelectItem key={unit._id} value={unit._id}>
-                            {unit.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  <Select
+                    isClearable={true}
+                    ref={inputRef}
+                    options={unitOptions}
+                    placeholder="Select units"
+                    value={unitOptions?.filter(
+                      (unitOption) => unitOption.value === unitId
+                    )}
+                    isSearchable={true}
+                    onInputChange={setUnitsSearchvalue}
+                    onChange={(data) => {
+                      setUnitd(data?.value || "")
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

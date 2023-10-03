@@ -56,6 +56,7 @@
     "react-horizontal-scrolling-menu": "^4.0.4",
     "react-intersection-observer": "^9.4.4",
     "react-merge-refs": "^2.0.2",
+    "react-select": "^5.7.7",
     "sharp": "^0.31.3",
     "tailwind-merge": "^1.13.2",
     "tailwind-scrollbar-hide": "^1.1.7",

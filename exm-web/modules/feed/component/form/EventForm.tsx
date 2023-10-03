@@ -92,7 +92,7 @@ const EventForm = ({
   const { feedMutation, loading: mutationLoading } = useFeedMutation({
     callBack,
   })
-  const { branches, departments, unitsMain, loading } = useTeamMembers()
+  const { branches, departments, unitsMain, loading } = useTeamMembers({})
 
   useEffect(() => {
     let defaultValues = {} as any

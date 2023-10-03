@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import Image from "next/image"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { useAtomValue } from "jotai"
@@ -10,10 +11,10 @@ import { Card, CardHeader } from "@/components/ui/card"
 import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 
-import BravoForm from "./BravoForm"
-import EventForm from "./EventForm"
-import HolidayForm from "./HolidayForm"
-import PostForm from "./PostForm"
+const BravoForm = dynamic(() => import("./BravoForm"))
+const EventForm = dynamic(() => import("./EventForm"))
+const HolidayForm = dynamic(() => import("./HolidayForm"))
+const PostForm = dynamic(() => import("./PostForm"))
 
 const FeedForm = ({ contentType }: { contentType: string }) => {
   const currentUser = useAtomValue(currentUserAtom)
@@ -88,7 +89,7 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
           </Card>
         </div>
 
-        {renderForm()}
+        {open ? renderForm() : null}
       </Dialog>
     </>
   )
