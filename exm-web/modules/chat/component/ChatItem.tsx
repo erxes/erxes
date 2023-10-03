@@ -109,19 +109,17 @@ export const ChatItem = ({
         return null
       }
 
-      if (currentUser.isOwner || currentUser._id === createdUser._id) {
-        return (
-          <Dialog open={open} onOpenChange={() => setOpen(!open)}>
-            <DialogTrigger asChild={true}>
-              <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-rose-600 text-xs">
-                Delete Chat
-              </div>
-            </DialogTrigger>
+      return (
+        <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+          <DialogTrigger asChild={true}>
+            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-rose-600 text-xs">
+              Delete Chat
+            </div>
+          </DialogTrigger>
 
-            {renderForm()}
-          </Dialog>
-        )
-      }
+          {renderForm()}
+        </Dialog>
+      )
     }
 
     return (
