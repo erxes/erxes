@@ -10,7 +10,7 @@ import { sendRequest } from '@erxes/api-utils/src';
 import { graphqlPubsub } from './configs';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import messageBroker from './messageBroker';
-import { makeInvoiceNo } from './utils';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 const router = Router();
 
@@ -143,13 +143,18 @@ router.post('/gateway/updateInvoice', async (req, res) => {
     invoice.status !== 'paid' &&
     invoice.selectedPaymentId !== selectedPaymentId
   ) {
-    await models.Invoices.updateInvoice(invoice._id, {
+    const doc: any = {
       selectedPaymentId,
       paymentKind,
       phone,
-      domain,
-      identifier: makeInvoiceNo(32)
-    });
+      domain
+    };
+
+    if (!invoice.selectedPaymentId) {
+      doc.identifier = randomAlphanumeric(32);
+    }
+
+    await models.Invoices.updateInvoice(invoice._id, doc);
   }
 
   if (!invoice) {
@@ -158,7 +163,7 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       selectedPaymentId,
       phone,
       domain,
-      identifier: makeInvoiceNo(32)
+      identifier: randomAlphanumeric(32)
     });
   }
 
