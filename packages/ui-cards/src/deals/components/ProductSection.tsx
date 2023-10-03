@@ -129,6 +129,7 @@ function ProductSection({
   return (
     <Box
       title={__('Product & Service')}
+      isOpen={products.length > 0}
       extraButtons={renderProductFormModal(
         <button>
           <Icon icon="edit-3" />
