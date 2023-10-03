@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { XCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -58,8 +58,6 @@ const PostForm = ({
   feed?: IFeed
   setOpen: (open: boolean) => void
 }) => {
-  const inputRef = useRef(null) as any
-
   const [departmentIds, setDepartmentIds] = useState(feed?.departmentIds || [])
   const [branchIds, setBranchIds] = useState(feed?.branchIds || [])
   const [unitId, setUnitd] = useState(feed?.unitId || "")
@@ -82,6 +80,7 @@ const PostForm = ({
       setImage([])
       form.reset()
       setOpen(false)
+      setReload(false)
     }
   }
 
@@ -123,12 +122,6 @@ const PostForm = ({
     }
     form.reset({ ...defaultValues })
   }, [feed])
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [unitSearchValue])
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     feedMutation(
@@ -208,7 +201,8 @@ const PostForm = ({
                 <FormLabel>Departments</FormLabel>
                 <FormControl>
                   <Select
-                    ref={inputRef}
+                    onMenuClose={() => setReload(false)}
+                    onMenuOpen={() => setReload(true)}
                     isMulti={true}
                     value={departmentOptions?.filter((departmentOption) =>
                       departmentIds.includes(departmentOption?.value)
@@ -232,8 +226,8 @@ const PostForm = ({
                 <FormLabel>Branches</FormLabel>
                 <FormControl>
                   <Select
+                    onMenuClose={() => setReload(false)}
                     onMenuOpen={() => setReload(true)}
-                    ref={inputRef}
                     isMulti={true}
                     options={branchOptions}
                     defaultValue={branchOptions?.filter((branchOption) =>
@@ -253,13 +247,14 @@ const PostForm = ({
           <FormField
             control={form.control}
             name="unitId"
-            render={({ field }) => (
+            render={({}) => (
               <FormItem>
                 <FormLabel>Unit</FormLabel>
                 <FormControl>
                   <Select
+                    onMenuClose={() => setReload(false)}
+                    onMenuOpen={() => setReload(true)}
                     isClearable={true}
-                    ref={inputRef}
                     options={unitOptions}
                     placeholder="Select units"
                     value={unitOptions?.filter(

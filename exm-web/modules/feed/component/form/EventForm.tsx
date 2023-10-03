@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { XCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
+import Select from "react-select"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -24,13 +25,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
@@ -79,20 +73,40 @@ const EventForm = ({
     resolver: zodResolver(FormSchema),
   })
 
+  const [departmentIds, setDepartmentIds] = useState(feed?.departmentIds || [])
+  const [branchIds, setBranchIds] = useState(feed?.branchIds || [])
+  const [unitId, setUnitd] = useState(feed?.unitId || "")
+
+  const [reload, setReload] = useState(false)
+
   const [images, setImage] = useState(feed?.images || [])
   const [attachments, setAttachments] = useState(feed?.attachments || [])
+  const [unitSearchValue, setUnitsSearchvalue] = useState("")
+  const [branchSearchValue, setBranchSearchvalue] = useState("")
+  const [departmentSearchValue, seDepartmentSearchvalue] = useState("")
 
   const callBack = (result: string) => {
     if (result === "success") {
       setOpen(false)
       form.reset()
+      setReload(false)
     }
   }
 
   const { feedMutation, loading: mutationLoading } = useFeedMutation({
     callBack,
   })
-  const { branches, departments, unitsMain, loading } = useTeamMembers({})
+
+  const { departmentOptions, branchOptions, unitOptions } = useTeamMembers({
+    departmentIds,
+    branchIds,
+    unitIds: [unitId],
+
+    branchSearchValue,
+    departmentSearchValue,
+    unitSearchValue,
+    reload,
+  })
 
   useEffect(() => {
     let defaultValues = {} as any
@@ -116,9 +130,9 @@ const EventForm = ({
         title: data.title,
         description: data.description ? data.description : "",
         contentType: "event",
-        departmentIds: data?.departmentIds || [],
-        branchIds: data?.branchIds || [],
-        unitId: data.unitId || "",
+        departmentIds,
+        branchIds,
+        unitId,
         eventData: {
           visibility: "public",
           where: data.where || "",
@@ -144,6 +158,14 @@ const EventForm = ({
     updated.splice(index, 1)
 
     setImage(updated)
+  }
+
+  const onChangeMultiValue = (type: string, datas: any) => {
+    const onchangeFunc = type === "department" ? setDepartmentIds : setBranchIds
+
+    const ids = datas.map((data: any) => data.value)
+
+    onchangeFunc(ids)
   }
 
   return (
@@ -242,27 +264,25 @@ const EventForm = ({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="departmentIds"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Departments</FormLabel>
                 <FormControl>
-                  {loading ? (
-                    <Input disabled={true} placeholder="Loading..." />
-                  ) : (
-                    <FacetedFilter
-                      options={(departments || []).map((department: any) => ({
-                        label: department.title,
-                        value: department._id,
-                      }))}
-                      title="Departments"
-                      values={field.value}
-                      onSelect={field.onChange}
-                    />
-                  )}
+                  <Select
+                    onMenuClose={() => setReload(false)}
+                    onMenuOpen={() => setReload(true)}
+                    isMulti={true}
+                    value={departmentOptions?.filter((departmentOption) =>
+                      departmentIds.includes(departmentOption?.value)
+                    )}
+                    placeholder="Select departments"
+                    isSearchable={true}
+                    onInputChange={seDepartmentSearchvalue}
+                    onChange={(data) => onChangeMultiValue("department", data)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -272,23 +292,23 @@ const EventForm = ({
           <FormField
             control={form.control}
             name="branchIds"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Branches</FormLabel>
                 <FormControl>
-                  {loading ? (
-                    <Input disabled={true} placeholder="Loading..." />
-                  ) : (
-                    <FacetedFilter
-                      options={(branches || []).map((branch: any) => ({
-                        label: branch.title,
-                        value: branch._id,
-                      }))}
-                      title="Branches"
-                      values={field.value}
-                      onSelect={field.onChange}
-                    />
-                  )}
+                  <Select
+                    onMenuClose={() => setReload(false)}
+                    onMenuOpen={() => setReload(true)}
+                    isMulti={true}
+                    options={branchOptions}
+                    defaultValue={branchOptions?.filter((branchOption) =>
+                      branchIds?.includes(branchOption?.value)
+                    )}
+                    placeholder="Select branches"
+                    isSearchable={true}
+                    onInputChange={setBranchSearchvalue}
+                    onChange={(data) => onChangeMultiValue("branch", data)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -298,26 +318,25 @@ const EventForm = ({
           <FormField
             control={form.control}
             name="unitId"
-            render={({ field }) => (
+            render={({}) => (
               <FormItem>
                 <FormLabel>Unit</FormLabel>
                 <FormControl>
-                  {loading ? (
-                    <Input disabled={true} placeholder="Loading..." />
-                  ) : (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="">
-                        <SelectValue placeholder="сонгох" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(unitsMain?.list || []).map((unit: any) => (
-                          <SelectItem key={unit._id} value={unit._id}>
-                            {unit.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  <Select
+                    onMenuClose={() => setReload(false)}
+                    onMenuOpen={() => setReload(true)}
+                    isClearable={true}
+                    options={unitOptions}
+                    placeholder="Select units"
+                    value={unitOptions?.filter(
+                      (unitOption) => unitOption.value === unitId
+                    )}
+                    isSearchable={true}
+                    onInputChange={setUnitsSearchvalue}
+                    onChange={(data) => {
+                      setUnitd(data?.value || "")
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

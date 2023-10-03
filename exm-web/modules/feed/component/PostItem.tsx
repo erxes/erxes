@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
-import PostForm from "@/modules/feed/component/form/PostForm"
 import { useFeedDetail } from "@/modules/feed/hooks/useFeedDetail"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
@@ -43,9 +43,11 @@ import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
 import { useReactionQuery } from "../hooks/useReactionQuery"
-import BravoForm from "./form/BravoForm"
-import EventForm from "./form/EventForm"
-import HolidayForm from "./form/HolidayForm"
+
+const BravoForm = dynamic(() => import("./form/BravoForm"))
+const EventForm = dynamic(() => import("./form/EventForm"))
+const HolidayForm = dynamic(() => import("./form/HolidayForm"))
+const PostForm = dynamic(() => import("./form/PostForm"))
 
 const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
@@ -138,7 +140,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             </div>
           </DialogTrigger>
 
-          {renderForm()}
+          {open ? renderForm() : null}
         </Dialog>
       </>
     )
