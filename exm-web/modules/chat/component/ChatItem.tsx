@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { IUser } from "@/modules/auth/types"
 import { __DEV__ } from "@apollo/client/utilities/globals"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -29,7 +30,7 @@ export const ChatItem = ({
   isPinned: boolean
 }) => {
   const router = useRouter()
-  const currentUser = useAtomValue(currentUserAtom)
+  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
   const { togglePinned } = useChatsMutation()
   const searchParams = useSearchParams()
 
@@ -42,6 +43,8 @@ export const ChatItem = ({
     users?.length > 1
       ? users?.filter((u) => u._id !== currentUser?._id)[0]
       : users?.[0]
+
+  const createdUser = chat.createdUser || ({} as IUser)
 
   const handleClick = () => {
     router.push(`/chats/detail?id=${chat._id}`)
@@ -56,6 +59,23 @@ export const ChatItem = ({
   }
 
   const renderChatActions = () => {
+    const renderDelete = () => {
+      if (chat.type === "direct") {
+        return null
+      }
+
+      if (currentUser.isOwner || currentUser._id === createdUser._id) {
+        return (
+          <div
+            className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-rose-600 text-xs"
+            onClick={onDelete}
+          >
+            Delete Chat
+          </div>
+        )
+      }
+    }
+
     return (
       <Popover>
         <PopoverTrigger asChild={true}>
@@ -71,12 +91,7 @@ export const ChatItem = ({
             {isPinned ? "Unpin" : "Pin"}
           </div>
 
-          <div
-            className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-rose-600 text-xs"
-            onClick={onDelete}
-          >
-            Delete Chat
-          </div>
+          {renderDelete()}
         </PopoverContent>
       </Popover>
     )
