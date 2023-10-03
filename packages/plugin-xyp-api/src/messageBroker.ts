@@ -2,6 +2,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { IXypConfig } from './graphql/resolvers/queries';
 import { sendRequest } from '@erxes/api-utils/src';
+import { generateModels } from './connectionResolver';
 // import { Xyps } from "./models";
 
 let client;
@@ -9,22 +10,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue, consumeRPCQueue } = client;
-
-  consumeQueue('xyp:send', async ({ data }) => {
-    // Xyps.send(data);
-
-    return {
-      status: 'success'
-    };
-  });
-
-  consumeRPCQueue('xyp:find', async ({ data }) => {
-    return {
-      status: 'success'
-      // data: await Xyps.find({})
-    };
-  });
+  const { consumeRPCQueue } = client;
 
   consumeRPCQueue('xyp:fetch', async ({ subdomain, data }) => {
     const xypConfigs = await sendCommonMessage({
@@ -65,6 +51,14 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: response
+    };
+  });
+
+  consumeRPCQueue('xyp:insert', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.XypData.createXypData(data)
     };
   });
 };
