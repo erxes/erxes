@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
+import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
 import SelectUsers from "@/components/select/SelectUsers"
 
@@ -59,11 +60,17 @@ const BravoForm = ({
   })
 
   const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
+  const [success, setSuccess] = useState(false)
 
   const callBack = (result: string) => {
     if (result === "success") {
-      setOpen(false)
       form.reset()
+      setSuccess(true)
+
+      setTimeout(() => {
+        setSuccess(false)
+        setOpen(false)
+      }, 1000)
     }
   }
 
@@ -100,6 +107,7 @@ const BravoForm = ({
       </DialogHeader>
 
       {mutationLoading ? <LoadingPost /> : null}
+      {success ? <SuccessPost /> : null}
 
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
