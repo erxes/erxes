@@ -33,7 +33,6 @@ export default async function cpUserMiddleware(
       'clientPortalVerifyOTP',
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
-      'clientPortalRefreshToken',
       'clientPortalKnowledgeBaseTopicDetail'
     ].includes(operationName)
   ) {
