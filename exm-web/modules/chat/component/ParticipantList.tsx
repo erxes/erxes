@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { FacetedFilter } from "@/components/ui/faceted-filter"
 import { Input } from "@/components/ui/input"
+import LoadingPost from "@/components/ui/loadingPost"
 
 import useChatsMutation from "../hooks/useChatsMutation"
 import { IChat } from "../types"
@@ -32,11 +33,18 @@ const ParticipantList = ({ chat }: { chat: IChat }) => {
 
   const { users } = usersData || {}
 
-  const { addOrRemoveMember } = useChatsMutation()
+  const callBack = (result: string) => {
+    if (result === "success") {
+      setOpen(false)
+    }
+  }
+
+  const { addOrRemoveMember, loading: mutationLoading } = useChatsMutation({
+    callBack,
+  })
 
   const addMember = () => {
     addOrRemoveMember(chat._id, "add", userIds)
-    setOpen(false)
   }
 
   const isAdmin =
@@ -51,6 +59,8 @@ const ParticipantList = ({ chat }: { chat: IChat }) => {
           <DialogHeader>
             <DialogTitle>Create bravo</DialogTitle>
           </DialogHeader>
+
+          {mutationLoading ? <LoadingPost /> : null}
 
           {loading ? (
             <Input disabled={true} placeholder="Loading..." />

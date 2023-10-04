@@ -134,6 +134,8 @@ const EventForm = ({
         departmentIds,
         branchIds,
         unitId,
+        images,
+        attachments,
         eventData: {
           visibility: "public",
           where: data.where || "",

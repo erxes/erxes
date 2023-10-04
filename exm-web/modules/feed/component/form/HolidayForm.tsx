@@ -89,6 +89,7 @@ const HolidayForm = ({
         description: data.description ? data.description : "",
         contentType: "publicHoliday",
         createdAt: data.createdAt,
+        images,
       },
       feed?._id || ""
     )

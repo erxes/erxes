@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Uploader from "@/modules/feed/component/form/uploader/Uploader"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import LoadingPost from "@/components/ui/loadingPost"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useChatsMutation from "../../hooks/useChatsMutation"
@@ -38,7 +38,15 @@ export const GroupChatAction = ({
   chat: IChat
   setOpen: (open: boolean) => void
 }) => {
-  const { chatEdit, loadingEdit } = useChatsMutation()
+  const callBack = (result: string) => {
+    if (result === "success") {
+      setOpen(false)
+    }
+  }
+
+  const { chatEdit, loading } = useChatsMutation({
+    callBack,
+  })
 
   const [featuredImage, setFeaturedImage] = useState(chat?.featuredImage || [])
 
@@ -53,8 +61,9 @@ export const GroupChatAction = ({
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     chatEdit(chat._id, data.name, featuredImage)
 
-    if (!loadingEdit) {
+    if (!loading) {
       setOpen(false)
+      form.reset()
     }
   }
 
@@ -62,11 +71,22 @@ export const GroupChatAction = ({
     resolver: zodResolver(FormSchema),
   })
 
+  useEffect(() => {
+    let defaultValues = {} as any
+
+    if (chat) {
+      defaultValues = { ...chat }
+    }
+    form.reset({ ...defaultValues })
+  }, [chat])
+
   return (
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Chat edit</DialogTitle>
       </DialogHeader>
+
+      {loading ? <LoadingPost /> : null}
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
@@ -80,7 +100,6 @@ export const GroupChatAction = ({
                     {...field}
                     placeholder="name"
                     defaultValue={field.value}
-                    // onChange={(e: any) => SetName(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />

@@ -66,7 +66,11 @@ const MessageItem = ({
   return (
     <div className="mt-2">
       {relatedMessage && (
-        <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+        <div
+          className={`flex ${
+            isMe ? "justify-end" : "justify-start"
+          } text-xs text-[#444] font-medium`}
+        >
           <div className="max-w-md">
             <div className="flex">
               <ReplyIcon size={16} /> {renderReplyText()}
@@ -85,13 +89,13 @@ const MessageItem = ({
       >
         <div className="flex items-end">
           {isMe ? null : (
-            <div className="w-12 h-12 rounded-full">
+            <div className="w-10 h-10 rounded-full mr-2 mb-2">
               <Image
                 src={userDetail.avatar}
                 alt="avatar"
                 width={60}
                 height={60}
-                className="w-10 h-10 rounded-full mb-2 object-cover"
+                className="w-10 h-10 rounded-full object-cover"
               />
             </div>
           )}
