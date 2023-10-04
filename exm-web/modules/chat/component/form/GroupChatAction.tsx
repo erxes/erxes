@@ -1,7 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Uploader from "@/modules/feed/component/form/uploader/Uploader"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -9,13 +12,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import LoadingPost from "@/components/ui/loadingPost"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useChatsMutation from "../../hooks/useChatsMutation"
 import { IChat } from "../../types"
+
+const FormSchema = z.object({
+  name: z.string({ required_error: "Please enter group chat name" }),
+})
 
 export const GroupChatAction = ({
   chat,
@@ -34,7 +48,6 @@ export const GroupChatAction = ({
     callBack,
   })
 
-  const [name, SetName] = useState(chat?.name || "")
   const [featuredImage, setFeaturedImage] = useState(chat?.featuredImage || [])
 
   const deleteImage = (index: number) => {
@@ -45,44 +58,76 @@ export const GroupChatAction = ({
     setFeaturedImage(updated)
   }
 
-  const editAction = () => {
-    chatEdit(chat._id, name, featuredImage)
+  const onSubmit = (data: z.infer<typeof FormSchema>) => {
+    chatEdit(chat._id, data.name, featuredImage)
+
+    if (!loading) {
+      setOpen(false)
+      form.reset()
+    }
   }
 
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+  })
+
+  useEffect(() => {
+    let defaultValues = {} as any
+
+    if (chat) {
+      defaultValues = { ...chat }
+    }
+    form.reset({ ...defaultValues })
+  }, [chat])
+
   return (
-    <>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Chat Item edit</DialogTitle>
-        </DialogHeader>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Chat edit</DialogTitle>
+      </DialogHeader>
 
-        {loading ? <LoadingPost /> : null}
-
-        <Label>Change group chat name</Label>
-        <Input
-          defaultValue={name}
-          onChange={(e: any) => SetName(e.target.value)}
-        />
-
-        <Label>Change group chat image</Label>
-        <Uploader
-          defaultFileList={featuredImage || []}
-          onChange={setFeaturedImage}
-          type={"image"}
-        />
-
-        {featuredImage && featuredImage.length > 0 && (
-          <AttachmentWithPreview
-            images={featuredImage}
-            className="mt-2"
-            deleteImage={deleteImage}
+      {loading ? <LoadingPost /> : null}
+      <Form {...form}>
+        <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Group chat Name</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="name"
+                    defaultValue={field.value}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        )}
 
-        <Button className="rounded-full" onClick={editAction}>
-          Update
-        </Button>
-      </DialogContent>
-    </>
+          {featuredImage && featuredImage.length === 0 && (
+            <Uploader
+              defaultFileList={featuredImage || []}
+              onChange={setFeaturedImage}
+              type={"image"}
+            />
+          )}
+
+          {featuredImage && featuredImage.length > 0 && (
+            <AttachmentWithPreview
+              images={featuredImage}
+              className="mt-2"
+              deleteImage={deleteImage}
+            />
+          )}
+
+          <Button type="submit" className="font-semibold w-full rounded-full">
+            Update
+          </Button>
+        </form>
+      </Form>
+    </DialogContent>
   )
 }

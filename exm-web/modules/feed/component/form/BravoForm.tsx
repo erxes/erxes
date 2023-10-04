@@ -1,8 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
-import { queries } from "@/common/team/graphql"
-import { useQuery } from "@apollo/client"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -13,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { FacetedFilter } from "@/components/ui/faceted-filter"
 import {
   Form,
   FormControl,
@@ -25,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
 import { Textarea } from "@/components/ui/textarea"
+import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { IFeed } from "../../types"
@@ -44,7 +42,9 @@ const FormSchema = z.object({
     .refine((val) => val.length !== 0, {
       message: "Please enter an description",
     }),
-  recipientIds: z.array(z.string()).optional(),
+  userIds: z.array(z.object({})).refine((val) => val.length !== 0, {
+    message: "Please choose users",
+  }),
 })
 
 const BravoForm = ({
@@ -58,6 +58,8 @@ const BravoForm = ({
     resolver: zodResolver(FormSchema),
   })
 
+  const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
+
   const callBack = (result: string) => {
     if (result === "success") {
       setOpen(false)
@@ -68,10 +70,6 @@ const BravoForm = ({
   const { feedMutation, loading: mutationLoading } = useFeedMutation({
     callBack,
   })
-
-  const { data: usersData, loading } = useQuery(queries.users)
-
-  const { users } = usersData || {}
 
   useEffect(() => {
     let defaultValues = {} as any
@@ -89,7 +87,7 @@ const BravoForm = ({
         title: data.title,
         description: data.description ? data.description : "",
         contentType: "bravo",
-        recipientIds: data.recipientIds || [],
+        recipientIds,
       },
       feed?._id || ""
     )
@@ -143,24 +141,16 @@ const BravoForm = ({
 
           <FormField
             control={form.control}
-            name="recipientIds"
+            name="userIds"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Choose one</FormLabel>
+                <FormLabel>Select users</FormLabel>
                 <FormControl>
-                  {loading ? (
-                    <Input disabled={true} placeholder="Loading..." />
-                  ) : (
-                    <FacetedFilter
-                      options={(users || []).map((user: any) => ({
-                        label: user?.details?.fullName || user.email,
-                        value: user._id,
-                      }))}
-                      title="Users"
-                      values={field.value}
-                      onSelect={field.onChange}
-                    />
-                  )}
+                  <SelectUsers
+                    userIds={recipientIds}
+                    onChange={setRecipientIds}
+                    field={field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

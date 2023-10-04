@@ -7,6 +7,7 @@ import { IUser } from "@/modules/auth/types"
 import { useQuery } from "@apollo/client"
 import { useAtomValue } from "jotai"
 import { PlusIcon } from "lucide-react"
+import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -16,9 +17,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { FacetedFilter } from "@/components/ui/faceted-filter"
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
+import SelectUsers from "@/components/select/SelectUsers"
 
 import useChatsMutation from "../hooks/useChatsMutation"
 import { IChat } from "../types"
@@ -28,10 +29,6 @@ const ParticipantList = ({ chat }: { chat: IChat }) => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
   const [userIds, setUserIds] = useState([] as any)
   const [open, setOpen] = useState(false)
-
-  const { data: usersData, loading } = useQuery(queries.users)
-
-  const { users } = usersData || {}
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -57,24 +54,13 @@ const ParticipantList = ({ chat }: { chat: IChat }) => {
       return (
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create bravo</DialogTitle>
+            <DialogTitle>Add member</DialogTitle>
           </DialogHeader>
 
           {mutationLoading ? <LoadingPost /> : null}
 
-          {loading ? (
-            <Input disabled={true} placeholder="Loading..." />
-          ) : (
-            <FacetedFilter
-              options={(users || []).map((user: any) => ({
-                label: user?.details?.fullName || user.email,
-                value: user._id,
-              }))}
-              title="Users"
-              values={userIds}
-              onSelect={setUserIds}
-            />
-          )}
+          <SelectUsers userIds={userIds} onChange={setUserIds} />
+
           <Button
             className="font-semibold w-full rounded-full"
             onClick={addMember}
