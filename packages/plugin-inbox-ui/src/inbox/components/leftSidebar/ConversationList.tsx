@@ -1,10 +1,11 @@
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import LoadMore from '@erxes/ui/src/components/LoadMore';
-import { __ } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
 import ConversationItem from '../../containers/leftSidebar/ConversationItem';
-import React from 'react';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { ConversationItems } from './styles';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import LoadMore from '@erxes/ui/src/components/LoadMore';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   conversations: IConversation[];
@@ -14,9 +15,16 @@ type Props = {
   toggleRowCheckbox: (conversation: IConversation[], checked: boolean) => void;
   loading: boolean;
   totalCount: number;
+  onLoadMore: (skip: number) => void;
 };
 
 export default class ConversationList extends React.Component<Props> {
+  onLoadMore = () => {
+    const { conversations, onLoadMore } = this.props;
+
+    onLoadMore(conversations.length);
+  };
+
   render() {
     const {
       conversations,
@@ -25,8 +33,10 @@ export default class ConversationList extends React.Component<Props> {
       onChangeConversation,
       toggleRowCheckbox,
       loading,
-      totalCount
+      totalCount,
+      onLoadMore
     } = this.props;
+    console.log('ccccc', conversations);
 
     return (
       <React.Fragment>
@@ -53,7 +63,23 @@ export default class ConversationList extends React.Component<Props> {
           />
         )}
 
-        <LoadMore all={totalCount} perPage={10} loading={loading} />
+        <Button
+          block={true}
+          btnStyle="link"
+          onClick={this.onLoadMore}
+          icon="redo"
+          uppercase={false}
+        >
+          {loading ? 'Loading...' : 'Load more'}
+        </Button>
+
+        {/* <LoadMore
+          all={totalCount}
+          perPage={10}
+          loading={loading}
+          length={conversations.length}
+          fetchMore={fetchMore}
+        /> */}
       </React.Fragment>
     );
   }
