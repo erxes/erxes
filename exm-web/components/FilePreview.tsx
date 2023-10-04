@@ -63,9 +63,9 @@ export const FilePreview = ({
   }
 
   const renderImagePreview = () => {
-    return (
-      <div className="mr-1 w-[80px] h-[80px] shrink-0">
-        {deleteImage && (
+    if (deleteImage) {
+      return (
+        <div className="mr-1 w-[80px] h-[80px] shrink-0">
           <button
             type="button"
             className="absolute top-0 bg-white p-1 rounded-full"
@@ -73,16 +73,29 @@ export const FilePreview = ({
           >
             <XCircle size={18} />
           </button>
-        )}
 
-        <Image
-          alt="image"
-          src={fileUrl || ""}
-          width={500}
-          height={500}
-          className="object-contain w-[80px] h-[80px]"
-        />
-      </div>
+          <Image
+            alt="image"
+            src={fileUrl || ""}
+            width={500}
+            height={500}
+            className="object-contain w-[80px] h-[80px]"
+          />
+        </div>
+      )
+    }
+    return (
+      <a href={readFile(fileUrl)}>
+        <div className="mr-1 w-[80px] h-[80px] shrink-0">
+          <Image
+            alt="image"
+            src={fileUrl || ""}
+            width={500}
+            height={500}
+            className="object-contain w-[80px] h-[80px]"
+          />
+        </div>
+      </a>
     )
   }
 
