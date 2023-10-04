@@ -49,6 +49,7 @@ const Image: FC<
     return (
       <NextImage
         {...updatedProps}
+        quality={90}
         onLoadingComplete={handleComplete}
         className={cn(className, isImageLoading && "blur-2xl", "text-black")}
         sizes={
@@ -64,6 +65,7 @@ const Image: FC<
   return (
     <NextImage
       {...updatedProps}
+      quality={90}
       loader={!srcI.startsWith("/") ? cloudflareLoader : undefined}
       onLoadingComplete={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}
@@ -78,7 +80,7 @@ const Image: FC<
 }
 
 export function cloudflareLoader({ src, width, quality }: ImageLoaderProps) {
-  const params = [`width=${width}`, `quality=${quality || 75}`, "format=auto"]
+  const params = [`width=${width}`, `quality=${quality || 90}`, "format=auto"]
   return `https://erxes.io/cdn-cgi/image/${params.join(",")}/${src}`
 }
 
