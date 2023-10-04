@@ -11,6 +11,7 @@ import { useInView } from "react-intersection-observer"
 import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import LoadingCard from "@/components/ui/loading-card"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { useChats } from "../hooks/useChats"
 import { ChatItem } from "./ChatItem"
@@ -106,7 +107,7 @@ const ChatList = () => {
   }
 
   return (
-    <div className="w-full overflow-auto h-screen">
+    <ScrollArea className="w-full overflow-auto h-screen">
       <div className="flex items-center justify-between p-6">
         <h3 className="text-2xl font-semibold text-[#444]">Chats</h3>
         {renderAction()}
@@ -133,7 +134,7 @@ const ChatList = () => {
           </div>
         )}
       </div>
-    </div>
+    </ScrollArea>
   )
 }
 
