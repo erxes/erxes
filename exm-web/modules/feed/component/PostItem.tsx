@@ -217,15 +217,18 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             </div>
           ) : null}
 
-          <div
-            className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
-            onClick={() => pinFeed(feed._id)}
-          >
-            <PinIcon size={16} className="mr-1" />
-            <span className="text-black font-medium">
-              {feed.isPinned ? "UnPin" : "Pin"}
-            </span>
-          </div>
+          {feed.contentType === "event" &&
+          new Date(feed.eventData?.endDate || "") < new Date() ? null : (
+            <div
+              className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
+              onClick={() => pinFeed(feed._id)}
+            >
+              <PinIcon size={16} className="mr-1" />
+              <span className="text-black font-medium">
+                {feed.isPinned ? "UnPin" : "Pin"}
+              </span>
+            </div>
+          )}
         </PopoverContent>
       </Popover>
     )

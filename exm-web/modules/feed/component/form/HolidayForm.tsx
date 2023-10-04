@@ -169,6 +169,7 @@ const HolidayForm = ({
                     date={field.value}
                     setDate={field.onChange}
                     className="w-full"
+                    fromDate={new Date()}
                   />
                 </FormControl>
                 <FormMessage />

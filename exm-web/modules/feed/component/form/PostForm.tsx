@@ -37,14 +37,14 @@ const FormSchema = z.object({
     .string({
       required_error: "Please enter an title",
     })
-    .refine((val) => val.length !== 0, {
+    .refine((val) => val.trim().length !== 0, {
       message: "Please enter an title",
     }),
   description: z
     .string({
       required_error: "Please enter an description",
     })
-    .refine((val) => val.length !== 0, {
+    .refine((val) => val.trim().length !== 0, {
       message: "Please enter an description",
     }),
   departmentIds: z.array(z.string()).optional(),
