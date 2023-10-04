@@ -41,6 +41,7 @@ const ParticipantList = ({ chat }: { chat: IChat }) => {
   })
 
   const addMember = () => {
+    setUserIds([])
     addOrRemoveMember(chat._id, "add", userIds)
   }
 
@@ -84,7 +85,7 @@ const ParticipantList = ({ chat }: { chat: IChat }) => {
           </div>
         </DialogTrigger>
 
-        {renderForm()}
+        {open ? renderForm() : null}
       </Dialog>
     )
   }

@@ -193,7 +193,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   }
 
   const renderFeedActions = () => {
-    if (feed.contentType === "Welcome") {
+    if (feed.contentType === "welcome") {
       return null
     }
 

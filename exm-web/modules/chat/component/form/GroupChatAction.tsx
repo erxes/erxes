@@ -63,6 +63,7 @@ export const GroupChatAction = ({
 
     if (!loading) {
       setOpen(false)
+      setFeaturedImage([])
       form.reset()
     }
   }

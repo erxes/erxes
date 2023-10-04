@@ -60,7 +60,7 @@ const ChatList = () => {
     if (pinnedChats.length !== 0) {
       return (
         <>
-          <h3 className="mx-6">Resent</h3>
+          <h3 className="mx-6">Recent</h3>
           {chats.map((c: any) => (
             <ChatItem
               key={c._id}
