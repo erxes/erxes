@@ -24,6 +24,9 @@ type FinalProps = {
 const ListContainer = (props: FinalProps) => {
   const { uomsQuery, uomsCountQuery, uomsRemove } = props;
 
+  if (uomsQuery.loading || uomsCountQuery.loading) {
+    return <Spinner />;
+  }
   const remove = uom => {
     confirm(`This action will remove the uom. Are you sure?`)
       .then(() => {

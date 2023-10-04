@@ -258,6 +258,7 @@ class PermissionList extends React.Component<Props> {
             title={__('Permissions')}
             queryParams={queryParams}
             breadcrumb={breadcrumb}
+            filterTitle={this.props.currentGroupName}
           />
         }
         actionBar={this.renderActionBar()}
