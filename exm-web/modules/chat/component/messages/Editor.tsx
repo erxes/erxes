@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Paperclip, SendHorizontal } from "lucide-react"
 
-// import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
+import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 import uploadHandler from "@/components/uploader/uploadHandler"
 
 type IProps = {
@@ -20,7 +20,7 @@ type IProps = {
 
 const Editor = ({ sendMessage, reply, setReply }: IProps) => {
   const [message, setMessage] = useState("")
-  const [attachments, setAttachments] = useState([])
+  const [attachments, setAttachments] = useState<any[]>([])
   const relatedId = (reply && reply._id) || null
 
   const handleInputChange = (e: any) => {
@@ -45,10 +45,10 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
       },
 
       afterUpload: ({ response, fileInfo }) => {
-        // setAttachments([
-        //   ...attachments,
-        //   Object.assign({ url: response }, fileInfo),
-        // ])
+        setAttachments([
+          ...attachments,
+          Object.assign({ url: response }, fileInfo),
+        ])
       },
     })
   }
@@ -85,13 +85,13 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
         className="resize-none rounded-2xl px-4 pt-4 w-full  focus:outline-none"
       />
 
-      {/* {attachments && attachments.length > 0 && (
+      {attachments && attachments.length > 0 && (
         <AttachmentWithPreview
           images={attachments}
           className="w-[100px]"
           deleteImage={deleteImage}
         />
-      )} */}
+      )}
 
       <label className="cursor-pointer mx-2">
         <input
