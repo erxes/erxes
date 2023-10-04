@@ -12,7 +12,10 @@ type Props = {
 };
 const CustomerSidebarContainer = (props: Props) => {
   const detail = useQuery(gql(queries.detail), {
-    variables: { contentTypeId: props.id, contentType: props.mainType },
+    variables: {
+      contentTypeId: props.id,
+      contentType: `contacts:${props.mainType}`
+    },
     fetchPolicy: 'network-only'
   });
 
@@ -32,7 +35,7 @@ const CustomerSidebarContainer = (props: Props) => {
     xypRequest({
       variables: {
         wsOperationName: operation.wsOperationName,
-        params: params
+        params
       }
     }).then(({ data }) => {
       if (data?.xypRequest?.return?.resultCode === 0) {
@@ -46,7 +49,7 @@ const CustomerSidebarContainer = (props: Props) => {
         if (!detail?.data?.xypDataDetail) {
           add({
             variables: {
-              contentType: props.mainType,
+              contentType: `contacts:${props.mainType}`,
               contentTypeId: props.id,
               data: xypData
             }
@@ -60,12 +63,12 @@ const CustomerSidebarContainer = (props: Props) => {
           });
         } else {
           const unique = detail?.data?.xypDataDetail.data.filter(
-            d => d.serviceName != operation.wsOperationName
+            d => d.serviceName !== operation.wsOperationName
           );
           edit({
             variables: {
               _id: detail?.data?.xypDataDetail._id,
-              contentType: props.mainType,
+              contentType: `contacts:${props.mainType}`,
               contentTypeId: props.id,
               data: [...unique, ...xypData]
             }
@@ -96,7 +99,7 @@ const CustomerSidebarContainer = (props: Props) => {
     xypServiceList: xypServiceList?.data?.xypServiceList || [],
     serviceChoosenLoading: serviceChoosen.loading,
     list: serviceChoosen?.data?.xypServiceListChoosen,
-    fetchData: fetchData
+    fetchData
   };
 
   return <CustomerSidebar {...updatedProps} />;
