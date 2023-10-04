@@ -1,6 +1,9 @@
 import React, { useState } from "react"
 import { Paperclip, SendHorizontal } from "lucide-react"
 
+import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
+import uploadHandler from "@/components/uploader/uploadHandler"
+
 type IProps = {
   reply: any
   setReply: (reply: any) => void
@@ -17,29 +20,49 @@ type IProps = {
 
 const Editor = ({ sendMessage, reply, setReply }: IProps) => {
   const [message, setMessage] = useState("")
-  const [attachments, setAttachment] = useState([])
+  const [attachments, setAttachments] = useState([])
   const relatedId = (reply && reply._id) || null
 
   const handleInputChange = (e: any) => {
     setMessage(e.target.value)
   }
 
-  const handleAttachmentChange = (e: any) => {
-    const file = e.target.files
+  const deleteImage = (index: number) => {
+    const updated = [...attachments]
 
-    setAttachment(file)
+    updated.splice(index, 1)
+
+    setAttachments(updated)
+  }
+
+  const handleAttachmentChange = (e: any) => {
+    const files = e.target.files
+
+    uploadHandler({
+      files,
+      beforeUpload: () => {
+        return
+      },
+
+      afterUpload: ({ response, fileInfo }) => {
+        setAttachments([
+          ...attachments,
+          Object.assign({ url: response }, fileInfo),
+        ])
+      },
+    })
   }
 
   const onSubmit = () => {
-    sendMessage({ content: message, relatedId, attachments: [] })
+    sendMessage({ content: message, relatedId, attachments })
 
-    setAttachment([])
+    setAttachments([])
     setMessage("")
     setReply(null)
   }
 
   const onEnterPress = (e: any) => {
-    if (e.keyCode == 13 && e.shiftKey == false) {
+    if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault()
       onSubmit()
     }
@@ -61,6 +84,14 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
         style={textareaStyle}
         className="resize-none rounded-2xl px-4 pt-4 w-full  focus:outline-none"
       />
+
+      {attachments && attachments.length > 0 && (
+        <AttachmentWithPreview
+          images={attachments}
+          className="w-[100px]"
+          deleteImage={deleteImage}
+        />
+      )}
 
       <label className="cursor-pointer mx-2">
         <input
