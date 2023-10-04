@@ -293,7 +293,7 @@ export const posSyncConfig = async (req, res) => {
         await sendProductsMessage({
           subdomain,
           action: 'productsConfigs.getConfig',
-          data: { code: 'similarityGroup' },
+          data: { code: 'similarityGroup', defaultValue: {} },
           isRPC: true
         })
       );
