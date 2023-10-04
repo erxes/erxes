@@ -101,7 +101,7 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
       routerUtils.setParams(history, { _id: conversation._id });
     };
 
-    const onLoadMore = (skip: number) => {
+    const onLoadMore = () => {
       return conversationsQuery.fetchMore({
         variables: {
           skip: conversations.length
@@ -115,6 +115,7 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
           const prevConversationIds = prevConversations.map(
             (conversation: IConversation) => conversation._id
           );
+
           const fetchedConversations: IConversation[] = [];
 
           for (const conversation of fetchMoreResult.conversations) {
@@ -122,7 +123,7 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
               fetchedConversations.push(conversation);
             }
           }
-          console.log(prevConversations, fetchedConversations);
+
           return {
             ...prevResult,
             conversations: [...prevConversations, ...fetchedConversations]
