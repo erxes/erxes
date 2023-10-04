@@ -320,9 +320,9 @@ const PostForm = ({
             return (
               <div
                 key={index}
-                className="flex items-center border-y text-sm font-semibold text-[#444] p-2.5"
+                className="flex items-center border-y text-sm font-semibold text-[#444] p-2.5 justify-between max-w-[445px] break-all"
               >
-                {attachment.name}{" "}
+                <p className="max-w-[400px]">{attachment.name}</p>
                 <XCircle size={18} onClick={() => deleteAttachment(index)} />
               </div>
             )

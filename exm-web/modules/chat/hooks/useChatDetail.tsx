@@ -16,6 +16,8 @@ export const useChatDetail = (): IUseChats => {
 
   const { data, loading } = useQuery(queries.chatDetail, {
     variables: { id },
+    skip: !id,
+    fetchPolicy: "network-only",
   })
 
   const chatDetail = data ? (data || {}).chatDetail : {}
