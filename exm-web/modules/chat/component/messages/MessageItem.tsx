@@ -5,10 +5,11 @@ import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import calendar from "dayjs/plugin/calendar"
 import { useAtomValue } from "jotai"
-import { ReplaceIcon, ReplyIcon } from "lucide-react"
+import { ReplyIcon } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
 import Image from "@/components/ui/image"
+import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import { currentUserAtom } from "../../../JotaiProiveder"
 import { IChatMessage } from "../../types"
@@ -116,6 +117,9 @@ const MessageItem = ({
             </div>
           ) : null}
 
+          {attachments && attachments.length > 0 && (
+            <AttachmentWithPreview images={attachments} className="w-[100px]" />
+          )}
           <Card className="p-4 rounded-2xl">
             <div dangerouslySetInnerHTML={{ __html: content || "" }} />
           </Card>
