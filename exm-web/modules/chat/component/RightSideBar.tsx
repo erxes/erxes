@@ -82,7 +82,7 @@ const RightSideBar = () => {
   }
 
   return (
-    <div className="w-full overflow-auto h-screen p-6">
+    <div className="overflow-auto h-screen p-6">
       <h3 className="text-[#444] font-bold text-xl mb-4">Details</h3>
       {chatDetail?.type === "group" ? renderGroup() : renderDirect()}
     </div>
