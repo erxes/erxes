@@ -16,7 +16,8 @@ const useChatsMutation = ({
   }
 
   const [editChatMutation, { loading: loadingEdit }] = useMutation(
-    mutations.chatEdit
+    mutations.chatEdit,
+    { refetchQueries: ["chats", "chatDetail"] }
   )
   const [deleteChatMutation, { loading: loadingDelete }] = useMutation(
     mutations.chatRemove

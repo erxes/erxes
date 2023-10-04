@@ -64,7 +64,7 @@ const useFeedMutation = ({
       callBack("success")
 
       return toast({
-        description: `Successfully Deleted`,
+        description: `Success`,
       })
     })
   }
@@ -76,7 +76,7 @@ const useFeedMutation = ({
       callBack("success")
 
       return toast({
-        description: `Successfully Pinned`,
+        description: `Success`,
       })
     })
   }

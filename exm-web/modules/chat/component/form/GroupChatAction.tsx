@@ -28,7 +28,11 @@ import useChatsMutation from "../../hooks/useChatsMutation"
 import { IChat } from "../../types"
 
 const FormSchema = z.object({
-  name: z.string({ required_error: "Please enter group chat name" }),
+  name: z
+    .string({ required_error: "Please enter group chat name" })
+    .refine((val) => val.trim().length !== 0, {
+      message: "Please enter group chat name",
+    }),
 })
 
 export const GroupChatAction = ({
@@ -49,6 +53,8 @@ export const GroupChatAction = ({
   })
 
   const [featuredImage, setFeaturedImage] = useState(chat?.featuredImage || [])
+
+  const [imageUploading, setImageUploading] = useState(false)
 
   const deleteImage = (index: number) => {
     const updated = [...featuredImage]
@@ -113,6 +119,7 @@ export const GroupChatAction = ({
               defaultFileList={featuredImage || []}
               onChange={setFeaturedImage}
               type={"image"}
+              setUploading={setImageUploading}
             />
           )}
 
@@ -124,7 +131,11 @@ export const GroupChatAction = ({
             />
           )}
 
-          <Button type="submit" className="font-semibold w-full rounded-full">
+          <Button
+            type="submit"
+            className="font-semibold w-full rounded-full"
+            disabled={imageUploading}
+          >
             Update
           </Button>
         </form>

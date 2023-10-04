@@ -71,6 +71,8 @@ const PostForm = ({
   const [branchSearchValue, setBranchSearchvalue] = useState("")
   const [departmentSearchValue, seDepartmentSearchvalue] = useState("")
   const [success, setSuccess] = useState(false)
+  const [imageUploading, setImageUploading] = useState(false)
+  const [attachmentUploading, setAttachmentUploading] = useState(false)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -302,6 +304,7 @@ const PostForm = ({
             defaultFileList={images || []}
             onChange={setImage}
             type={"image"}
+            setUploading={setImageUploading}
           />
           {images && images.length > 0 && (
             <AttachmentWithPreview
@@ -314,6 +317,7 @@ const PostForm = ({
           <Uploader
             defaultFileList={attachments || []}
             onChange={setAttachments}
+            setUploading={setAttachmentUploading}
           />
 
           {(attachments || []).map((attachment, index) => {
@@ -328,7 +332,11 @@ const PostForm = ({
             )
           })}
 
-          <Button type="submit" className="font-semibold w-full rounded-full">
+          <Button
+            type="submit"
+            className="font-semibold w-full rounded-full"
+            disabled={imageUploading || attachmentUploading}
+          >
             Post
           </Button>
         </form>
