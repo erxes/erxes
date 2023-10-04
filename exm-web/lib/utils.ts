@@ -38,19 +38,33 @@ export const readFileImage = (value: string, width?: number): string => {
   return url
 }
 
-export const readFile = (url: string = "") => {
+export const readFile = (url: string = "", width?: any) => {
   const READ_FILE = "/read-file?key="
 
   const env = getEnv()
   const NEXT_PUBLIC_MAIN_API_DOMAIN = env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
 
+  let fixedUrl = url
+
   if ((url || "").includes(READ_FILE)) {
     const apiUrl = url.split(READ_FILE)[0]
 
-    return url.replace(apiUrl, NEXT_PUBLIC_MAIN_API_DOMAIN || "")
+    fixedUrl = url.replace(apiUrl, NEXT_PUBLIC_MAIN_API_DOMAIN || "")
+
+    if (width) {
+      fixedUrl += `&width=${width}`
+    }
+
+    return fixedUrl
   }
   if (!(url || "").includes("http") && !(url || "").startsWith("/")) {
-    return NEXT_PUBLIC_MAIN_API_DOMAIN + READ_FILE + url
+    fixedUrl = NEXT_PUBLIC_MAIN_API_DOMAIN + READ_FILE + url
+
+    if (width) {
+      fixedUrl += `&width=${width}`
+    }
+
+    return fixedUrl
   }
 
   return url
