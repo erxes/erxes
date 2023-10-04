@@ -31,7 +31,7 @@ const Image: FC<
   const handleComplete = () => setIsImageLoading(false)
 
   useEffect(() => {
-    const fixedSrc = readFile(src || "")
+    const fixedSrc = readFile(src || "", width)
     setSrcI(fixedSrc)
   }, [src])
 
@@ -49,15 +49,9 @@ const Image: FC<
     return (
       <NextImage
         {...updatedProps}
-        quality={90}
+        quality={100}
         onLoadingComplete={handleComplete}
         className={cn(className, isImageLoading && "blur-2xl", "text-black")}
-        sizes={
-          sizes ||
-          `(max-width: 768px) 20vw,
-    (max-width: 1200px) 15vw,
-    15vw`
-        }
       />
     )
   }
@@ -65,22 +59,16 @@ const Image: FC<
   return (
     <NextImage
       {...updatedProps}
-      quality={90}
+      quality={100}
       loader={!srcI.startsWith("/") ? cloudflareLoader : undefined}
       onLoadingComplete={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}
-      sizes={
-        sizes ||
-        `(max-width: 768px) 20vw,
-  (max-width: 1200px) 15vw,
-  15vw`
-      }
     />
   )
 }
 
 export function cloudflareLoader({ src, width, quality }: ImageLoaderProps) {
-  const params = [`width=${width}`, `quality=${quality || 90}`, "format=auto"]
+  const params = [`width=${width}`, `quality=${quality || 100}`, "format=auto"]
   return `https://erxes.io/cdn-cgi/image/${params.join(",")}/${src}`
 }
 

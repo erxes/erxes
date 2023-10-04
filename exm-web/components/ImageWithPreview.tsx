@@ -58,8 +58,8 @@ export const ImageWithPreview = ({
               key={i}
               alt="image"
               src={image?.url || ""}
-              width={2000}
-              height={2000}
+              width={1000}
+              height={1000}
               className="w-full h-full object-contain cursor-pointer max-h-[800px]"
             />
           ))}
