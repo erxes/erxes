@@ -96,7 +96,23 @@ export const ChatForm = ({
       </DialogHeader>
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
-          <SelectUsers form={form} userIds={userIds} onChange={setUserIds} />
+          <FormField
+            control={form.control}
+            name="userIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Select users</FormLabel>
+                <FormControl>
+                  <SelectUsers
+                    userIds={userIds}
+                    onChange={setUserIds}
+                    field={field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {userIds && userIds.length > 1 ? (
             <FormField

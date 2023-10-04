@@ -139,10 +139,22 @@ const BravoForm = ({
             )}
           />
 
-          <SelectUsers
-            userIds={recipientIds}
-            onChange={setRecipientIds}
-            form={form}
+          <FormField
+            control={form.control}
+            name="userIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Select users</FormLabel>
+                <FormControl>
+                  <SelectUsers
+                    userIds={recipientIds}
+                    onChange={setRecipientIds}
+                    field={field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
           <Button type="submit" className="font-semibold w-full rounded-full">
