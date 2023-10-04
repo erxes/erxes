@@ -1,16 +1,15 @@
-import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
-import { IMessageDocument } from '../../models/definitions/conversationMessages';
-import { countByConversations } from '../../conversationUtils';
-
+import { IContext, IModels } from '../../connectionResolver';
+import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import {
   checkPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
-import { IContext, IModels } from '../../connectionResolver';
-import { sendFormsMessage } from '../../messageBroker';
+import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
+import { IMessageDocument } from '../../models/definitions/conversationMessages';
+import { countByConversations } from '../../conversationUtils';
 import { paginate } from '@erxes/api-utils/src';
+import { sendFormsMessage } from '../../messageBroker';
 
 interface ICountBy {
   [index: string]: number;
@@ -40,9 +39,12 @@ const conversationQueries: any = {
 
     // filter by ids of conversations
     if (params && params.ids) {
-      return models.Conversations.find({ _id: { $in: params.ids } }).sort({
-        updatedAt: -1
-      });
+      return models.Conversations.find({ _id: { $in: params.ids } })
+        .sort({
+          updatedAt: -1
+        })
+        .skip(params.skip || 0)
+        .limit(params.limit || 0);
     }
 
     serverTiming.startTime('buildQuery');
@@ -63,6 +65,7 @@ const conversationQueries: any = {
 
     const conversations = await models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
+      .skip(params.skip || 0)
       .limit(params.limit || 0);
 
     serverTiming.endTime('conversationsQuery');

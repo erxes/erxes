@@ -17,7 +17,6 @@ import { ConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/
 import { IUser } from '@erxes/ui/src/auth/types';
 import { InboxManagementActionConsumer } from '../InboxCore';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
@@ -95,10 +94,6 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
   render() {
     const { history, conversationsQuery } = this.props;
 
-    if (conversationsQuery.loading) {
-      return <Spinner />;
-    }
-
     const conversations = conversationsQuery.conversations || [];
 
     // on change conversation
@@ -106,8 +101,40 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
       routerUtils.setParams(history, { _id: conversation._id });
     };
 
+    const onLoadMore = () => {
+      return conversationsQuery.fetchMore({
+        variables: {
+          skip: conversations.length
+        },
+        updateQuery: (prevResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult || fetchMoreResult.conversations.length === 0) {
+            return prevResult;
+          }
+
+          const prevConversations = prevResult.conversations || [];
+          const prevConversationIds = prevConversations.map(
+            (conversation: IConversation) => conversation._id
+          );
+
+          const fetchedConversations: IConversation[] = [];
+
+          for (const conversation of fetchMoreResult.conversations) {
+            if (!prevConversationIds.includes(conversation._id)) {
+              fetchedConversations.push(conversation);
+            }
+          }
+
+          return {
+            ...prevResult,
+            conversations: [...prevConversations, ...fetchedConversations]
+          };
+        }
+      });
+    };
+
     const updatedProps = {
       ...this.props,
+      onLoadMore,
       conversations,
       onChangeConversation,
       loading: conversationsQuery.loading,
