@@ -181,6 +181,10 @@ const chatQueries = {
       }
 
       if (updated) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
+        });
+
         await models.Chats.updateOne(
           { _id: chat._id },
           { $set: { seenInfos } }
@@ -228,10 +232,6 @@ const chatQueries = {
       );
     }
 
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
-    });
-
     return {
       list,
       totalCount: await models.ChatMessages.find(filter).countDocuments()
@@ -276,10 +276,6 @@ const chatQueries = {
       graphqlPubsub.publish('chatInserted', {
         userId: user._id
       });
-
-      // graphqlPubsub.publish("chatUnreadCountChanged", {
-      //   userId: user._id,
-      // });
     }
 
     return chat._id;

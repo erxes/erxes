@@ -120,20 +120,6 @@ const MessageItem = ({
             <div dangerouslySetInnerHTML={{ __html: content || "" }} />
           </Card>
         </div>
-
-        <div className="flex items-end">
-          {!isMe ? null : (
-            <div className="w-10 h-10 rounded-full ml-2 mb-2">
-              <Image
-                src={userDetail.avatar}
-                alt="avatar"
-                width={60}
-                height={60}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-            </div>
-          )}
-        </div>
       </div>
     </div>
   )

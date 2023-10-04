@@ -266,14 +266,6 @@ const chatMutations = {
       }
     );
 
-    graphqlPubsub.publish('chatMessageInserted', {
-      chatMessageInserted: message
-    });
-
-    graphqlPubsub.publish('chatReceivedNotification', {
-      chatReceivedNotification: message
-    });
-
     const chat = await models.Chats.getChat(message.chatId, user._id);
 
     let recievers = chat.participantIds.filter(
@@ -304,6 +296,10 @@ const chatMutations = {
 
         graphqlPubsub.publish('chatInserted', {
           userId: reciever
+        });
+
+        graphqlPubsub.publish('chatMessageInserted', {
+          chatMessageInserted: message
         });
       }
     }
