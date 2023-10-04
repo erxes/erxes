@@ -118,6 +118,8 @@ const command = async () => {
 
         const response = await JSON.parse(res.body);
 
+        console.log(response);
+
         const xypData = {
           serviceName: service.value,
           serviceDescription: service.label,
