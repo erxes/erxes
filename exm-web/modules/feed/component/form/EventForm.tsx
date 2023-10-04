@@ -34,34 +34,47 @@ import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
 import Uploader from "./uploader/Uploader"
 
-const FormSchema = z.object({
-  title: z
-    .string({
-      required_error: "Please enter an title",
-    })
-    .refine((val) => val.length !== 0, {
-      message: "Please enter an title",
-    }),
-  description: z
-    .string({
-      required_error: "Please enter an description",
-    })
-    .refine((val) => val.length !== 0, {
-      message: "Please enter an description",
-    }),
-  where: z
-    .string({
-      required_error: "Where must be chosen",
-    })
-    .refine((val) => val.length !== 0, {
-      message: "Where must be chosen",
-    }),
-  startDate: z.date(),
-  endDate: z.date(),
-  departmentIds: z.array(z.string()).optional(),
-  branchIds: z.array(z.string()).optional(),
-  unitId: z.string().optional(),
-})
+const FormSchema = z
+  .object({
+    title: z
+      .string({
+        required_error: "Please enter an title",
+      })
+      .refine((val) => val.trim().length !== 0, {
+        message: "Please enter an title",
+      }),
+    description: z
+      .string({
+        required_error: "Please enter an description",
+      })
+      .refine((val) => val.trim().length !== 0, {
+        message: "Please enter an description",
+      }),
+    where: z
+      .string({
+        required_error: "Where must be chosen",
+      })
+      .refine((val) => val.trim().length !== 0, {
+        message: "Where must be chosen",
+      }),
+    startDate: z.date(),
+    endDate: z.date(),
+    departmentIds: z.array(z.string()).optional(),
+    branchIds: z.array(z.string()).optional(),
+    unitId: z.string().optional(),
+  })
+  .refine(
+    ({ startDate, endDate }) => {
+      if (endDate && startDate && endDate < startDate) {
+        return false
+      }
+      return true
+    },
+    {
+      message: "End date must be later than the start date!",
+      path: ["endDate"],
+    }
+  )
 
 const EventForm = ({
   feed,
@@ -201,6 +214,7 @@ const EventForm = ({
                   <DatePicker
                     date={field.value}
                     setDate={field.onChange}
+                    fromDate={new Date()}
                     className="w-full"
                   />
                 </FormControl>
