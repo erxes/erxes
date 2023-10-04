@@ -45,7 +45,7 @@ const FormSchema = z.object({
     .refine((val) => val.length !== 0, {
       message: "Please enter an description",
     }),
-  createdAt: z.date().optional(),
+  createdAt: z.date(),
 })
 
 const HolidayForm = ({
@@ -77,17 +77,18 @@ const HolidayForm = ({
   const { feedMutation, loading: mutationLoading } = useFeedMutation({
     callBack,
   })
+  const [imageUploading, setImageUploading] = useState(false)
 
   useEffect(() => {
     let defaultValues = {} as any
-    let date = {} as any
 
     if (feed) {
       defaultValues = { ...feed }
-      date = { ...feed.eventData }
+
+      defaultValues.createdAt = new Date(defaultValues.createdAt || "")
     }
 
-    form.reset({ ...defaultValues, ...date })
+    form.reset({ ...defaultValues })
   }, [feed])
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
@@ -181,6 +182,7 @@ const HolidayForm = ({
             defaultFileList={images || []}
             onChange={setImage}
             type={"image"}
+            setUploading={setImageUploading}
           />
           {images && images.length > 0 && (
             <AttachmentWithPreview
@@ -190,7 +192,11 @@ const HolidayForm = ({
             />
           )}
 
-          <Button type="submit" className="font-semibold w-full rounded-full">
+          <Button
+            type="submit"
+            className="font-semibold w-full rounded-full"
+            disabled={imageUploading}
+          >
             Post
           </Button>
         </form>

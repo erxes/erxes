@@ -8,7 +8,7 @@ const SuccessPost = ({ text }: { text?: string }) => {
       <div className="backdrop-blur-sm z-10 flex flex-col items-center justify-center absolute w-full h-full">
         <CheckCircle2 color="green" size={50} className="mb-5" />
         <h3 className="text-md font-semibold text-[#444]">
-          {(text && text) || "Sucessfully posted !"}
+          {(text && text) || "Success !"}
         </h3>
       </div>
     </>
