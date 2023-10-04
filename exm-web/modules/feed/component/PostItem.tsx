@@ -38,7 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
+import { ImageWithPreview } from "@/components/ImageWithPreview"
 
 import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
@@ -330,7 +330,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           })}
 
           {feed.images && feed.images.length > 0 && (
-            <AttachmentWithPreview images={feed.images} className="mt-2" />
+            <ImageWithPreview images={feed.images} className="mt-2" />
           )}
         </CardContent>
 
