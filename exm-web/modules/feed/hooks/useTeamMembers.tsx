@@ -88,8 +88,6 @@ export const useTeamMembers = ({
     return { label: units.title, value: units._id }
   })
 
-  console.log(branchOptions)
-
   return {
     departments,
     branches,
