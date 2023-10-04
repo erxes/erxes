@@ -8,10 +8,12 @@ export const AttachmentWithChatPreview = ({
   images,
   className,
   deleteImage,
+  isDownload,
 }: {
   images: any[]
   className?: string
   deleteImage?: (index: number) => void
+  isDownload?: boolean
 }) => {
   const renderAttachmentPreview = () => {
     if (images && images.length === 0) {
@@ -28,6 +30,7 @@ export const AttachmentWithChatPreview = ({
               fileName={image.name}
               deleteImage={deleteImage}
               fileIndex={i}
+              isDownload={isDownload}
             />
           ))}
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import { ExternalLinkIcon, XCircle } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
@@ -10,11 +10,13 @@ export const FilePreview = ({
   fileName,
   deleteImage,
   fileIndex,
+  isDownload,
 }: {
   fileUrl: string
   fileName?: string
   fileIndex: number
   deleteImage?: (index: number) => void
+  isDownload?: boolean
 }) => {
   if (!fileUrl || !fileUrl.split) {
     return null
@@ -31,18 +33,31 @@ export const FilePreview = ({
   const renderFile = () => {
     return (
       <div className="relative">
-        <button
-          type="button"
-          className="absolute top-0 bg-white p-1 rounded-full"
-          onClick={() => onDelete(fileIndex)}
-        >
-          <XCircle size={18} />
-        </button>
-        <div className="mr-1 p-2 rounded-lg bg-[#F0F0F0]">
-          <div className="flex items-center text-sm font-semibold text-[#444] break-words">
-            <ExternalLinkIcon size={18} /> {fileName}
-          </div>{" "}
-        </div>
+        {deleteImage && (
+          <button
+            type="button"
+            className="absolute top-0 bg-white p-1 rounded-full"
+            onClick={() => onDelete(fileIndex)}
+          >
+            <XCircle size={18} />
+          </button>
+        )}
+
+        {isDownload ? (
+          <a href={readFile(fileUrl)}>
+            <div className="mr-1 p-2 rounded-lg bg-[#F0F0F0]">
+              <div className="flex items-center text-sm font-semibold text-[#444] break-words">
+                <ExternalLinkIcon size={18} /> {fileName}
+              </div>{" "}
+            </div>
+          </a>
+        ) : (
+          <div className="mr-1 p-2 rounded-lg bg-[#F0F0F0]">
+            <div className="flex items-center text-sm font-semibold text-[#444] break-words">
+              <ExternalLinkIcon size={18} /> {fileName}
+            </div>{" "}
+          </div>
+        )}
       </div>
     )
   }
@@ -50,13 +65,15 @@ export const FilePreview = ({
   const renderImagePreview = () => {
     return (
       <div className="mr-1 w-[80px] h-[80px] shrink-0">
-        <button
-          type="button"
-          className="absolute bg-white p-1 rounded-full"
-          onClick={() => onDelete(fileIndex)}
-        >
-          <XCircle size={18} />
-        </button>
+        {deleteImage && (
+          <button
+            type="button"
+            className="absolute top-0 bg-white p-1 rounded-full"
+            onClick={() => onDelete(fileIndex)}
+          >
+            <XCircle size={18} />
+          </button>
+        )}
 
         <Image
           alt="image"

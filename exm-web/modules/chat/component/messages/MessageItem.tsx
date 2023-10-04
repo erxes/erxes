@@ -9,7 +9,7 @@ import { ReplyIcon } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
 import Image from "@/components/ui/image"
-import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
+import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
 
 import { currentUserAtom } from "../../../JotaiProiveder"
 import { IChatMessage } from "../../types"
@@ -117,12 +117,24 @@ const MessageItem = ({
             </div>
           ) : null}
 
-          {attachments && attachments.length > 0 && (
-            <AttachmentWithPreview images={attachments} className="w-[100px]" />
-          )}
-          <Card className="p-4 rounded-2xl">
-            <div dangerouslySetInnerHTML={{ __html: content || "" }} />
-          </Card>
+          <div>
+            {attachments && attachments.length > 0 ? (
+              <>
+                <AttachmentWithChatPreview
+                  images={attachments}
+                  className="m-2 rounded-lg"
+                  isDownload={true}
+                />
+                <Card className="p-4 rounded-2xl">
+                  <div dangerouslySetInnerHTML={{ __html: content || "" }} />
+                </Card>
+              </>
+            ) : (
+              <Card className="p-4 rounded-2xl">
+                <div dangerouslySetInnerHTML={{ __html: content || "" }} />
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </div>
