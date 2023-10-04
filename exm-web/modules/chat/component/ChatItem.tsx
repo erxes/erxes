@@ -8,12 +8,7 @@ import { __DEV__ } from "@apollo/client/utilities/globals"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { useAtomValue } from "jotai"
-import {
-  AlertTriangleIcon,
-  CheckCircleIcon,
-  MoreHorizontalIcon,
-  XCircleIcon,
-} from "lucide-react"
+import { AlertTriangleIcon, MoreHorizontalIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -24,6 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
+import LoadingPost from "@/components/ui/loadingPost"
 import {
   Popover,
   PopoverContent,
@@ -43,7 +39,18 @@ export const ChatItem = ({
 }) => {
   const router = useRouter()
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-  const { togglePinned, chatDelete } = useChatsMutation()
+
+  const callBack = (result: string) => {
+    if (result === "success") {
+      setOpen(false)
+    }
+  }
+
+  const {
+    togglePinned,
+    chatDelete,
+    loading: mutationLoading,
+  } = useChatsMutation({ callBack })
   const searchParams = useSearchParams()
 
   const [showAction, setShowAction] = useState(false)
@@ -80,23 +87,25 @@ export const ChatItem = ({
     const renderForm = () => {
       return (
         <DialogContent>
+          {mutationLoading ? <LoadingPost /> : null}
+
           <div className="flex flex-col items-center justify-center">
             <AlertTriangleIcon size={30} color={"#6569DF"} /> Are you sure?
           </div>
 
-          <DialogFooter className="flex justify-between">
+          <DialogFooter className="flex flex-col items-center justify-center sm:justify-center sm:space-x-2">
             <Button
               className="font-semibold rounded-full bg-[#F2F2F2] hover:bg-[#F2F2F2] text-black"
               onClick={() => setOpen(false)}
             >
-              <XCircleIcon size={16} className="mr-1" />
               No, Cancel
             </Button>
+
             <Button
-              className="font-semibold rounded-full bg-[#3ECC38] hover:bg-[#3ECC38]"
+              type="submit"
+              className="font-semibold rounded-full"
               onClick={onDelete}
             >
-              <CheckCircleIcon size={16} className="mr-1" />
               Yes, I am
             </Button>
           </DialogFooter>

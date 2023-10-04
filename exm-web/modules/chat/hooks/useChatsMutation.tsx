@@ -4,7 +4,11 @@ import { useToast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
 
-const useChatsMutation = () => {
+const useChatsMutation = ({
+  callBack,
+}: {
+  callBack: (result: string) => void
+}) => {
   const { toast } = useToast()
 
   const onError = (error: ApolloError) => {
@@ -14,10 +18,16 @@ const useChatsMutation = () => {
   const [editChatMutation, { loading: loadingEdit }] = useMutation(
     mutations.chatEdit
   )
-  const [deleteChatMutation] = useMutation(mutations.chatRemove)
+  const [deleteChatMutation, { loading: loadingDelete }] = useMutation(
+    mutations.chatRemove
+  )
 
-  const [adminMutation] = useMutation(mutations.chatMakeOrRemoveAdmin)
-  const [memberMutation] = useMutation(mutations.chatAddOrRemoveMember)
+  const [adminMutation, { loading: loadingAdmin }] = useMutation(
+    mutations.chatMakeOrRemoveAdmin
+  )
+  const [memberMutation, { loading: loadingMember }] = useMutation(
+    mutations.chatAddOrRemoveMember
+  )
 
   const [togglePinnedChat, { loading }] = useMutation(
     mutations.chatToggleIsPinned,
@@ -30,6 +40,8 @@ const useChatsMutation = () => {
   const togglePinned = (chatId: string) => {
     togglePinnedChat({
       variables: { id: chatId },
+    }).then(() => {
+      callBack("success")
     })
   }
 
@@ -37,6 +49,8 @@ const useChatsMutation = () => {
     adminMutation({
       variables: { id: chatId, userId },
       refetchQueries: ["chats", "chatDetail"],
+    }).then(() => {
+      callBack("success")
     })
   }
 
@@ -44,6 +58,8 @@ const useChatsMutation = () => {
     editChatMutation({
       variables: { _id: chatId, name, featuredImage },
       refetchQueries: ["chats", "chatDetail"],
+    }).then(() => {
+      callBack("success")
     })
   }
 
@@ -51,6 +67,8 @@ const useChatsMutation = () => {
     deleteChatMutation({
       variables: { id: chatId },
       refetchQueries: ["chats", "chatDetail"],
+    }).then(() => {
+      callBack("success")
     })
   }
 
@@ -62,6 +80,8 @@ const useChatsMutation = () => {
     memberMutation({
       variables: { id: chatId, type, userIds },
       refetchQueries: ["chats", "chatDetail"],
+    }).then(() => {
+      callBack("success")
     })
   }
 
@@ -71,8 +91,8 @@ const useChatsMutation = () => {
     addOrRemoveMember,
     chatEdit,
     chatDelete,
-    loading,
-    loadingEdit,
+    loading:
+      loading || loadingEdit || loadingDelete || loadingAdmin || loadingMember,
   }
 }
 

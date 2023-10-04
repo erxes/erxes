@@ -2,13 +2,7 @@
 
 import { useState } from "react"
 import { IUser } from "@/modules/auth/types"
-import {
-  AlertTriangleIcon,
-  CheckCircleIcon,
-  ShieldOffIcon,
-  UserXIcon,
-  XCircleIcon,
-} from "lucide-react"
+import { AlertTriangleIcon, ShieldOffIcon, UserXIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
+import LoadingPost from "@/components/ui/loadingPost"
 
 import useChatsMutation from "../hooks/useChatsMutation"
 
@@ -33,7 +28,15 @@ const ParticipantItem = ({
   const [open, setOpen] = useState(false)
   const [showAction, setShowAction] = useState(false)
 
-  const { makeOrRemoveAdmin, addOrRemoveMember } = useChatsMutation()
+  const callBack = (result: string) => {
+    if (result === "success") {
+      setOpen(false)
+    }
+  }
+
+  const { makeOrRemoveAdmin, addOrRemoveMember, loading } = useChatsMutation({
+    callBack,
+  })
 
   const adminMutation = () => {
     makeOrRemoveAdmin(chatId, participant._id)
@@ -51,23 +54,25 @@ const ParticipantItem = ({
     const renderForm = () => {
       return (
         <DialogContent>
+          {loading ? <LoadingPost /> : null}
+
           <div className="flex flex-col items-center justify-center">
             <AlertTriangleIcon size={30} color={"#6569DF"} /> Are you sure?
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col items-center justify-center sm:justify-center sm:space-x-2">
             <Button
               className="font-semibold rounded-full bg-[#F2F2F2] hover:bg-[#F2F2F2] text-black"
               onClick={() => setOpen(false)}
             >
-              <XCircleIcon size={16} className="mr-1" />
               No, Cancel
             </Button>
+
             <Button
-              className="font-semibold rounded-full bg-[#3ECC38] hover:bg-[#3ECC38]"
+              type="submit"
+              className="font-semibold rounded-full"
               onClick={userMutation}
             >
-              <CheckCircleIcon size={16} className="mr-1" />
               Yes, I am
             </Button>
           </DialogFooter>

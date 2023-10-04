@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import LoadingPost from "@/components/ui/loadingPost"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useChatsMutation from "../../hooks/useChatsMutation"
@@ -23,7 +24,15 @@ export const GroupChatAction = ({
   chat: IChat
   setOpen: (open: boolean) => void
 }) => {
-  const { chatEdit, loadingEdit } = useChatsMutation()
+  const callBack = (result: string) => {
+    if (result === "success") {
+      setOpen(false)
+    }
+  }
+
+  const { chatEdit, loading } = useChatsMutation({
+    callBack,
+  })
 
   const [name, SetName] = useState(chat?.name || "")
   const [featuredImage, setFeaturedImage] = useState(chat?.featuredImage || [])
@@ -38,10 +47,6 @@ export const GroupChatAction = ({
 
   const editAction = () => {
     chatEdit(chat._id, name, featuredImage)
-
-    if (!loadingEdit) {
-      setOpen(false)
-    }
   }
 
   return (
@@ -50,6 +55,8 @@ export const GroupChatAction = ({
         <DialogHeader>
           <DialogTitle>Chat Item edit</DialogTitle>
         </DialogHeader>
+
+        {loading ? <LoadingPost /> : null}
 
         <Label>Change group chat name</Label>
         <Input
