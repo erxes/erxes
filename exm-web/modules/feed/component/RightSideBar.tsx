@@ -9,19 +9,14 @@ import { ClockIcon, MapPinIcon, UsersIcon } from "lucide-react"
 import { readFile } from "@/lib/utils"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import Image from "@/components/ui/image"
-import LoadingPost from "@/components/ui/loadingPost"
 
 import { useEvents } from "../hooks/useEvent"
 
 const RightSideBar = () => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-  const { events, loading } = useEvents()
+  const { events } = useEvents()
 
   const today = dayjs(new Date()).format("YYYY-MM-DD")
-
-  if (loading) {
-    return <LoadingPost />
-  }
 
   const todayEvents =
     events &&

@@ -57,7 +57,7 @@ const ParticipantList = ({ chat }: { chat: IChat }) => {
             <DialogTitle>Add member</DialogTitle>
           </DialogHeader>
 
-          {mutationLoading ? <LoadingPost /> : null}
+          {mutationLoading ? <LoadingPost text="Adding" /> : null}
 
           <SelectUsers userIds={userIds} onChange={setUserIds} />
 

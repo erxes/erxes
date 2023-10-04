@@ -86,7 +86,7 @@ export const GroupChatAction = ({
         <DialogTitle>Chat edit</DialogTitle>
       </DialogHeader>
 
-      {loading ? <LoadingPost /> : null}
+      {loading ? <LoadingPost text="Creating chat" /> : null}
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField

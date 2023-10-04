@@ -54,7 +54,7 @@ const ParticipantItem = ({
     const renderForm = () => {
       return (
         <DialogContent>
-          {loading ? <LoadingPost /> : null}
+          {loading ? <LoadingPost text="Loading" /> : null}
 
           <div className="flex flex-col items-center justify-center">
             <AlertTriangleIcon size={30} color={"#6569DF"} /> Are you sure?

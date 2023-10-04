@@ -62,6 +62,10 @@ const useFeedMutation = ({
       variables: { _id },
     }).then(() => {
       callBack("success")
+
+      return toast({
+        description: `Successfully Deleted`,
+      })
     })
   }
 
@@ -70,6 +74,10 @@ const useFeedMutation = ({
       variables: { _id },
     }).then(() => {
       callBack("success")
+
+      return toast({
+        description: `Successfully Pinned`,
+      })
     })
   }
 
