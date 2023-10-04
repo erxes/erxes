@@ -280,8 +280,9 @@ const EventForm = ({
                       onMenuOpen={() => setReload(true)}
                       isMulti={true}
                       options={departmentOptions}
-                      value={departmentOptions?.filter((departmentOption) =>
-                        departmentIds.includes(departmentOption?.value)
+                      defaultValue={departmentOptions?.filter(
+                        (departmentOption) =>
+                          departmentIds.includes(departmentOption?.value)
                       )}
                       placeholder="Select departments"
                       isSearchable={true}

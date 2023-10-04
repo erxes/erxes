@@ -64,6 +64,7 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
 
       <label className="cursor-pointer mx-2">
         <input
+          autoComplete="off"
           multiple={true}
           type="file"
           accept="image/*, .pdf, .doc, .docx"
