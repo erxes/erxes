@@ -31,6 +31,9 @@ type Props = {
 type State = {
   assigneesForList: IAssignee[];
   loading: boolean;
+  keysPressed: any;
+  cursor: number;
+  verifiedUsers: any[];
 };
 
 class AssignBox extends React.Component<Props, State> {
@@ -39,13 +42,69 @@ class AssignBox extends React.Component<Props, State> {
 
     this.state = {
       assigneesForList: [],
-      loading: true
+      verifiedUsers: [],
+      loading: true,
+      keysPressed: {},
+      cursor: 0
     };
   }
 
   componentDidMount() {
     this.fetchUsers();
+    document.addEventListener('keydown', this.handleArrowSelection);
   }
+
+  componentDidUpdate(
+    prevProps: Readonly<Props>,
+    prevState: Readonly<State>
+  ): void {
+    if (prevState.cursor && prevState.cursor !== this.state.cursor) {
+      this.setState({
+        assigneesForList: this.generateAssignParams(
+          this.state.verifiedUsers,
+          this.props.targets
+        )
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleArrowSelection);
+  }
+
+  handleArrowSelection = (event: any) => {
+    const { cursor } = this.state;
+
+    const maxCursor: number = this.state.assigneesForList.length;
+
+    switch (event.keyCode) {
+      case 13:
+        const element = document.getElementsByClassName(
+          'team-members-' + cursor
+        )[0] as HTMLElement;
+
+        if (element) {
+          element.click();
+        }
+        break;
+      case 38:
+        // Arrow move up
+        if (cursor > 0) {
+          this.setState({ cursor: cursor - 1 });
+        }
+        break;
+      case 40:
+        // Arrow move down
+        if (cursor < maxCursor - 1) {
+          this.setState({ cursor: cursor + 1 });
+        } else {
+          this.setState({ cursor: 0 });
+        }
+        break;
+      default:
+        break;
+    }
+  };
 
   fetchUsers = (e?) => {
     const searchValue = e ? e.target.value : '';
@@ -60,12 +119,12 @@ class AssignBox extends React.Component<Props, State> {
           }
         })
         .then((response: { loading: boolean; data: { users?: IUser[] } }) => {
-          const verifiedUsers = response.data.users || [];
+          this.setState({ verifiedUsers: response.data.users || [] });
 
           this.setState({
             loading: response.loading,
             assigneesForList: this.generateAssignParams(
-              verifiedUsers,
+              this.state.verifiedUsers,
               this.props.targets
             )
           });
@@ -77,7 +136,7 @@ class AssignBox extends React.Component<Props, State> {
   };
 
   generateAssignParams(assignees: IUser[] = [], targets: IConversation[] = []) {
-    return assignees.map(assignee => {
+    return assignees.map((assignee, i) => {
       const count = targets.reduce((memo, target) => {
         let index = 0;
 
@@ -103,7 +162,8 @@ class AssignBox extends React.Component<Props, State> {
         title:
           (assignee.details && assignee.details.fullName) || assignee.email,
         avatar: getUserAvatar(assignee, 60),
-        selectedBy: state
+        selectedBy: state,
+        className: `team-members-${i} ${this.state.cursor === i && 'active'}`
       };
     });
   }

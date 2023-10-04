@@ -36,7 +36,57 @@ type Props = {
   currentConversation: IConversation;
 };
 
-export default class ActionBar extends React.Component<Props> {
+type State = {
+  keysPressed: any;
+};
+
+export default class ActionBar extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      keysPressed: {}
+    };
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('keyup', this.handleKeyUp);
+  }
+
+  handleKeyDown = (event: any) => {
+    const { keysPressed } = this.state;
+    const key = event.key;
+    const assignElement = document.getElementById('conversationAssignTrigger');
+    const tagElement = document.getElementById('conversationTags');
+
+    this.setState({ keysPressed: { ...keysPressed, [key]: true } }, () => {
+      if (
+        this.state.keysPressed.Control === true &&
+        this.state.keysPressed.a === true
+      ) {
+        assignElement.click();
+      }
+      if (this.state.keysPressed.Control === true && event.keyCode === 49) {
+        tagElement.click();
+      }
+      if (this.state.keysPressed.Control === true && event.keyCode === 50) {
+        document.getElementById('dropdown-convert-to').click();
+      }
+    });
+  };
+
+  handleKeyUp = (event: any) => {
+    delete this.state.keysPressed[event.key];
+
+    this.setState({ keysPressed: { ...this.state.keysPressed } });
+  };
+
   render() {
     const { currentConversation } = this.props;
 

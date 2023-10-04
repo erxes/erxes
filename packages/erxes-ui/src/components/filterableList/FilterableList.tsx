@@ -140,7 +140,7 @@ class FilterableList extends React.Component<Props, State> {
   }
 
   renderItem(item: any, hasChildren: boolean) {
-    const { showCheckmark = true } = this.props;
+    const { showCheckmark = true, treeView } = this.props;
     const { key } = this.state;
 
     if (key && item.title.toLowerCase().indexOf(key.toLowerCase()) < 0) {
@@ -153,14 +153,16 @@ class FilterableList extends React.Component<Props, State> {
     return (
       <FlexRow key={item._id}>
         <li
-          className={showCheckmark ? item.selectedBy : ''}
+          className={`${
+            showCheckmark ? item.selectedBy : ''
+          }  ${item.className && item.className}`}
           style={item.style}
           onClick={!hasChildren ? onClick : undefined}
         >
           {this.renderIcons(item, hasChildren, isOpen)}
 
           <i
-            className={item.iconClass}
+            className={`${item.iconClass} ${item.className && item.className}`}
             style={{ color: item.iconColor }}
             onClick={hasChildren ? onClick : undefined}
           />

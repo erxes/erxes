@@ -19,12 +19,20 @@ type Props = {
   singleSelect?: boolean;
 };
 
-class Tagger extends React.Component<Props, { tagsForList: any[] }> {
+type State = {
+  tagsForList: any[];
+  keysPressed: any;
+  cursor: number;
+};
+
+class Tagger extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      tagsForList: this.generateTagsParams(props.tags, props.targets)
+      tagsForList: this.generateTagsParams(props.tags, props.targets),
+      keysPressed: {},
+      cursor: 0
     };
   }
 
@@ -34,11 +42,54 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
     });
   }
 
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleArrowSelection);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleArrowSelection);
+  }
+
+  handleArrowSelection = (event: any) => {
+    const { cursor } = this.state;
+
+    const maxCursor: number = this.state.tagsForList.length;
+
+    switch (event.keyCode) {
+      case 13:
+        const element = document.getElementsByClassName(
+          'tag-' + cursor
+        )[0] as HTMLElement;
+
+        if (element) {
+          element.click();
+          this.tag(this.props.tags);
+        }
+        break;
+      case 38:
+        // Arrow move up
+        if (cursor > 0) {
+          this.setState({ cursor: cursor - 1 });
+        }
+        break;
+      case 40:
+        // Arrow move down
+        if (cursor < maxCursor - 1) {
+          this.setState({ cursor: cursor + 1 });
+        } else {
+          this.setState({ cursor: 0 });
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
   /**
    * Returns array of tags object
    */
   generateTagsParams(tags: ITag[] = [], targets: any[] = []) {
-    return tags.map(({ _id, name, colorCode, parentId }) => {
+    return tags.map(({ _id, name, colorCode, parentId }, i) => {
       // Current tag's selection state (all, some or none)
       const count = targets.reduce(
         (memo, target) => memo + ((target.tagIds || []).includes(_id) ? 1 : 0),
@@ -61,7 +112,10 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
         iconClass: 'icon-tag-alt',
         iconColor: colorCode,
         parentId,
-        selectedBy: state
+        selectedBy: state,
+        className: this.state
+          ? `tag-${i} ${this.state.cursor === i && 'active'}`
+          : ''
       };
     });
   }

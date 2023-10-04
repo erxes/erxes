@@ -23,6 +23,12 @@ const FlexRow = styled.div`
   > li {
     flex: 1;
     display: flex !important;
+
+    &.active {
+      color: rgb(55, 55, 55);
+      background: rgb(240, 240, 240);
+      outline: 0px;
+    }
   }
 `;
 
