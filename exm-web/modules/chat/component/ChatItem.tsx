@@ -64,7 +64,6 @@ export const ChatItem = ({
       ? users?.filter((u) => u._id !== currentUser?._id)[0]
       : users?.[0]
 
-  const createdUser = chat.createdUser || ({} as IUser)
   const isSeen = chat
     ? chat.lastMessage?.createdUser?._id === currentUser?._id
       ? true
@@ -87,7 +86,7 @@ export const ChatItem = ({
     const renderForm = () => {
       return (
         <DialogContent>
-          {mutationLoading ? <LoadingPost /> : null}
+          {mutationLoading ? <LoadingPost text="Leaving" /> : null}
 
           <div className="flex flex-col items-center justify-center">
             <AlertTriangleIcon size={30} color={"#6569DF"} /> Are you sure?
@@ -122,11 +121,11 @@ export const ChatItem = ({
         <Dialog open={open} onOpenChange={() => setOpen(!open)}>
           <DialogTrigger asChild={true}>
             <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-rose-600 text-xs">
-              Delete Chat
+              Leave Chat
             </div>
           </DialogTrigger>
 
-          {renderForm()}
+          {open ? renderForm() : null}
         </Dialog>
       )
     }

@@ -80,9 +80,13 @@ const useChatsMutation = ({
     memberMutation({
       variables: { id: chatId, type, userIds },
       refetchQueries: ["chats", "chatDetail"],
-    }).then(() => {
-      callBack("success")
     })
+      .then(() => {
+        callBack("success")
+      })
+      .catch((e) => {
+        onError(e)
+      })
   }
 
   return {

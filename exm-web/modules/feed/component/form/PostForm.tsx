@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
+import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
@@ -69,6 +70,7 @@ const PostForm = ({
   const [unitSearchValue, setUnitsSearchvalue] = useState("")
   const [branchSearchValue, setBranchSearchvalue] = useState("")
   const [departmentSearchValue, seDepartmentSearchvalue] = useState("")
+  const [success, setSuccess] = useState(false)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -79,8 +81,13 @@ const PostForm = ({
       setAttachments([])
       setImage([])
       form.reset()
-      setOpen(false)
       setReload(false)
+      setSuccess(true)
+
+      setTimeout(() => {
+        setSuccess(false)
+        setOpen(false)
+      }, 1000)
     }
   }
 
@@ -155,6 +162,8 @@ const PostForm = ({
       </DialogHeader>
 
       {mutationLoading ? <LoadingPost /> : null}
+
+      {success ? <SuccessPost /> : null}
 
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
