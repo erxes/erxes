@@ -38,7 +38,7 @@ const Image: FC<
 
   const updatedProps = {
     ...rest,
-    src: srcI,
+    src: readFile(src || ""),
     alt,
     fill: !width && !height ? true : undefined,
     width,
