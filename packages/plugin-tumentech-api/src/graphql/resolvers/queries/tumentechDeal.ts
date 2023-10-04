@@ -11,7 +11,8 @@ const tumentechDealsQuery = {
       perPage,
       dealIds,
       stageId,
-      driverType
+      driverType,
+      pipelineId
     }: {
       dealId?: string;
       dealIds?: [string];
@@ -19,6 +20,7 @@ const tumentechDealsQuery = {
       perPage?: number;
       stageId?: string;
       driverType?: number;
+      pipelineId?: string;
     },
     { models, subdomain }: IContext
   ) => {
@@ -71,7 +73,46 @@ const tumentechDealsQuery = {
         }).count()
       };
     }
+    if (pipelineId) {
+      const stages = await sendCardsMessage({
+        subdomain,
+        action: 'stages.find',
+        data: { pipelineId: pipelineId },
+        isRPC: true
+      });
 
+      dealQuery.stageId = { $in: (stages || []).map(s => s._id) };
+
+      const deals = await sendCardsMessage({
+        subdomain,
+        action: 'deals.find',
+        data: dealQuery,
+        isRPC: true
+      });
+
+      const dealsIdsList = deals.map(d => d._id) || [];
+
+      const result = paginate(
+        models.TumentechDeals.find({
+          dealId: { $in: dealsIdsList }
+          // driverType,
+        })
+          .sort({ createdAt: -1 })
+          .lean(),
+        {
+          page: page || 1,
+          perPage: perPage || 20
+        }
+      );
+
+      return {
+        list: result,
+        totalCount: models.TumentechDeals.find({
+          dealId: { $in: dealsIdsList },
+          driverType
+        }).count()
+      };
+    }
     return {
       list: paginate(
         models.TumentechDeals.find(filter)
@@ -112,8 +153,6 @@ const tumentechDealsQuery = {
         }
       }
     ]);
-
-    console.log(tumenDeals);
 
     if (tumenDeals?.length > 0) return tumenDeals[0];
     else return null;
