@@ -117,9 +117,9 @@ const MessageItem = ({
             </div>
           ) : null}
 
-          {attachments && attachments.length > 0 && (
+          {/* {attachments && attachments.length > 0 && (
             <AttachmentWithPreview images={attachments} className="w-[100px]" />
-          )}
+          )} */}
           <Card className="p-4 rounded-2xl">
             <div dangerouslySetInnerHTML={{ __html: content || "" }} />
           </Card>
