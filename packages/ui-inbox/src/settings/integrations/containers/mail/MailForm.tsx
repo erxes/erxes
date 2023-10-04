@@ -18,6 +18,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { withRouter } from 'react-router-dom';
+import { ContactQueryResponse } from '../../types';
 
 type Props = {
   detailQuery?: any;
@@ -52,7 +53,7 @@ type FinalProps = {
   currentUser: IUser;
   emailTemplatesQuery: any /*change type*/;
   emailTemplatesTotalCountQuery: any /*change type*/;
-  contactsMainQuery: any;
+  contactsMainQuery: ContactQueryResponse;
 } & Props;
 
 class MailFormContainer extends React.Component<
@@ -262,23 +263,25 @@ class MailFormContainer extends React.Component<
           ...contactsMainQuery?.companies?.list,
           ...contactsMainQuery?.leads?.list
         ]
-          .filter(item => {
-            return item.primaryEmail !== null;
+          .filter(contact => {
+            return contact.primaryEmail !== null;
           })
-          .map(item => {
-            const name =
-              !item.firstName || !item.lastName
-                ? item.primaryEmail?.substring(
-                    0,
-                    item.primaryEmail.indexOf('@')
-                  )
-                : `${item.firstName} ${item.lastName}` || item.primaryName;
+          .map(contact => {
+            const {
+              _id,
+              firstName,
+              lastName,
+              primaryName,
+              primaryEmail,
+              avatar
+            } = contact;
 
             return {
-              primaryName: name || item.primaryName,
-              primaryEmail: item.primaryEmail,
-              avatar: item.avatar,
-              id: item._id
+              primaryName:
+                primaryName || `${firstName || ''} ${lastName || ''}`,
+              primaryEmail: primaryEmail,
+              avatar: avatar,
+              id: _id
             };
           })
       : [];

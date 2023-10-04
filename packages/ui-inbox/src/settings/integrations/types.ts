@@ -195,6 +195,21 @@ export interface ISkillData {
   }>;
 }
 
+export type IContact = {
+  _id?: string;
+  firstName?: string;
+  lastName?: string;
+  primaryName?: string;
+  primaryEmail: string;
+  avatar: string;
+};
+
+export type ContactQueryResponse = {
+  customers: { list: IContact[] };
+  companies: { list: IContact[] };
+  leads: { list: IContact[] };
+} & QueryResponse;
+
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;

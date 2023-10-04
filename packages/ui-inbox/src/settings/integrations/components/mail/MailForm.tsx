@@ -13,7 +13,6 @@ import {
 import { FlexRow, Subject } from './styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import React, { ReactNode } from 'react';
-import ReactDOM from 'react-dom';
 import {
   formatObj,
   formatStr,
@@ -47,7 +46,7 @@ import {
   MailSuggestionItem
 } from '../../styles';
 import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import { IContact } from '../../types';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -61,7 +60,7 @@ type Props = {
   replyAll?: boolean;
   brandId?: string;
   mails?: IMessage[];
-  contacts?: any[];
+  contacts?: IContact[];
   messageId?: string;
   totalCount?: number;
   closeModal?: () => void;
@@ -187,7 +186,7 @@ class MailForm extends React.Component<Props, State> {
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`,
       isRepliesRetrieved: false,
-      selectedSuggestionIndex: -1,
+      selectedSuggestionIndex: 0,
       focusInput: ''
     };
   }
@@ -562,130 +561,132 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  getFilteredContacts = fieldName => {
+  getFilteredContacts = (fieldName: string) => {
     const field = this.state[fieldName];
     const { contacts } = this.props;
 
     if (
-      field.length === 0 ||
-      field.substr(field.lastIndexOf(',') + 1).trim().length === 0
-    )
+      field.trim() === '' ||
+      field.substr(field.lastIndexOf(',') + 1).trim() === ''
+    ) {
       return [];
+    }
+
+    const filterLowerCase = field
+      .toLowerCase()
+      .substr(field.lastIndexOf(',') + 1)
+      .trim();
 
     return (contacts || [])
-      .filter(item =>
-        [item.primaryEmail, item.primaryName].some(
+      .filter(contact =>
+        [contact.primaryEmail, contact.primaryName].some(
           prop =>
-            prop?.toLocaleLowerCase().includes(
-              field
-                .toLocaleLowerCase()
-                .substr(field.lastIndexOf(',') + 1)
-                .trim() || field.toLocaleLowerCase()
-            ) && !field?.includes(item.primaryEmail)
+            prop?.toLowerCase().includes(filterLowerCase) &&
+            !field?.includes(contact.primaryEmail)
         )
       )
       .slice(0, 5);
   };
 
-  handleSuggestionClick = (item, fieldName) => {
+  handleSuggestionClick = (contact: IContact, fieldName: string) => {
     const field = this.state[fieldName];
-    this.setState(
-      prevState =>
-        (({
-          [fieldName]: prevState[fieldName]
-            ? prevState[fieldName].replace(
-                new RegExp(
-                  '\\b' +
-                    field.substr(field.lastIndexOf(',') + 1).trim() +
-                    '\\b'
-                ),
-                ''
-              ) +
-              item.primaryEmail +
-              ', '
-            : item.primaryEmail + ', ',
-          focusInput: fieldName
-        } as unknown) as Pick<State, keyof State>)
-    );
+    const updatedField = field
+      ? field.replace(
+          new RegExp(`${field.substr(field.lastIndexOf(',') + 1).trim()}$`),
+          ''
+        ) +
+        contact.primaryEmail +
+        ', '
+      : contact.primaryEmail + ', ';
+
+    this.setState(({
+      [fieldName]: updatedField,
+      focusInput: fieldName
+    } as unknown) as Pick<State, keyof State>);
   };
 
-  handleKeyDown = (e, fieldName) => {
+  handleKeyDown = (e: any, fieldName: string) => {
     const { selectedSuggestionIndex } = this.state;
     const filterContacts = this.getFilteredContacts(fieldName);
 
     if (e.keyCode === 38 && selectedSuggestionIndex > 0) {
       e.preventDefault();
-      this.setState(prevState => ({
-        selectedSuggestionIndex: prevState.selectedSuggestionIndex - 1
-      }));
-    } else if (
+      this.setState({
+        selectedSuggestionIndex: selectedSuggestionIndex - 1
+      });
+    }
+
+    if (
       e.keyCode === 40 &&
       selectedSuggestionIndex < filterContacts.length - 1
     ) {
       e.preventDefault();
-      this.setState(prevState => ({
-        selectedSuggestionIndex: prevState.selectedSuggestionIndex + 1
-      }));
-    } else if (e.keyCode === 13) {
+      this.setState({
+        selectedSuggestionIndex: selectedSuggestionIndex + 1
+      });
+    }
+
+    if (e.keyCode === 13) {
       const selectedItem = filterContacts[selectedSuggestionIndex];
-      if (selectedItem) {
-        this.handleSuggestionClick(selectedItem, fieldName);
-      }
+      selectedItem && this.handleSuggestionClick(selectedItem, fieldName);
     }
   };
 
-  renderMailSuggestions(fieldName) {
-    const { selectedSuggestionIndex } = this.state;
+  renderMailSuggestions(fieldName: string) {
     const filterContacts = this.getFilteredContacts(fieldName);
-    const field = this.state[fieldName];
+
+    if (filterContacts.length === 0) {
+      return null;
+    }
 
     return (
-      filterContacts.length !== 0 && (
-        <MailSuggestionContainer>
-          {filterContacts ? (
-            filterContacts?.map((item, index) => (
-              <MailSuggestionItem
-                key={index}
-                onMouseDown={e => {
-                  e.stopPropagation();
-                  this.handleSuggestionClick(item, fieldName);
-                }}
-                className={`${
-                  index === selectedSuggestionIndex ? 'selected' : ''
-                }`}
-              >
-                <Avatar
-                  src={
-                    item.avatar
-                      ? readFile(item.avatar, 40)
-                      : '/images/avatar-colored.svg'
-                  }
-                />
-                <Column>
-                  {item.primaryName && (
-                    <p
-                      dangerouslySetInnerHTML={{
-                        __html: item.primaryName.replace(
-                          new RegExp(
-                            `(${field
-                              .substr(field.lastIndexOf(',') + 1)
-                              .trim()})`,
-                            'gi'
-                          ),
-                          '<span style="font-weight: bold;">$1</span>'
-                        )
-                      }}
-                    />
-                  )}
-                  <p>{item.primaryEmail}</p>
-                </Column>
-              </MailSuggestionItem>
-            ))
-          ) : (
-            <Spinner />
+      <MailSuggestionContainer>
+        {filterContacts.map((contact, index) =>
+          this.renderMailSuggestionsRow(contact, index, fieldName)
+        )}
+      </MailSuggestionContainer>
+    );
+  }
+
+  renderMailSuggestionsRow(
+    contact: IContact,
+    index: number,
+    fieldName: string
+  ) {
+    const { selectedSuggestionIndex } = this.state;
+    const { primaryName, primaryEmail, avatar } = contact;
+    const field = this.state[fieldName];
+    const fieldRegex = new RegExp(
+      `(${field.substr(field.lastIndexOf(',') + 1).trim()})`,
+      'gi'
+    );
+
+    return (
+      <MailSuggestionItem
+        key={index}
+        onMouseDown={e => {
+          e.preventDefault();
+          this.handleSuggestionClick(contact, fieldName);
+        }}
+        className={`${index === selectedSuggestionIndex ? 'selected' : ''}`}
+      >
+        <Avatar
+          src={avatar ? readFile(avatar, 40) : '/images/avatar-colored.svg'}
+        />
+        <Column>
+          {primaryName && (
+            <p
+              dangerouslySetInnerHTML={{
+                __html: primaryName.replace(
+                  fieldRegex,
+                  '<span style="font-weight: bold;">$1</span>'
+                )
+              }}
+            />
           )}
-        </MailSuggestionContainer>
-      )
+          <p>{primaryEmail}</p>
+        </Column>
+      </MailSuggestionItem>
     );
   }
 
@@ -707,7 +708,7 @@ class MailForm extends React.Component<Props, State> {
             onFocus={() => this.setState({ focusInput: 'to' })}
             onBlur={() => this.setState({ focusInput: '' })}
           />
-          {this.renderMailSuggestions('to')}
+          {this.state.focusInput === 'to' && this.renderMailSuggestions('to')}
         </MailColumn>
         {this.renderRightSide()}
       </FlexRow>
