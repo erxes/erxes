@@ -1,5 +1,8 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
+import { IXypConfig } from './graphql/resolvers/queries';
+import { sendRequest } from '@erxes/api-utils/src';
+import { generateModels } from './connectionResolver';
 // import { Xyps } from "./models";
 
 let client;
@@ -7,20 +10,100 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue, consumeRPCQueue } = client;
+  const { consumeRPCQueue } = client;
 
-  consumeQueue('xyp:send', async ({ data }) => {
-    // Xyps.send(data);
+  consumeRPCQueue('xyp:fetch', async ({ subdomain, data }) => {
+    const xypConfigs = await sendCommonMessage({
+      subdomain,
+      serviceName: 'core',
+      action: 'configs.findOne',
+      data: {
+        query: {
+          code: 'XYP_CONFIGS'
+        }
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!xypConfigs) {
+      return {
+        status: 'failed',
+        message: 'XYP CONFIGS not found'
+      };
+    }
+
+    const { params, wsOperationName } = data;
+
+    const config: IXypConfig = xypConfigs && xypConfigs.value;
+
+    const response = await sendRequest({
+      url: config.url + '/api',
+      method: 'post',
+      headers: { token: config.token },
+      body: {
+        params,
+        wsOperationName
+      },
+      timeout: 5000
+    });
 
     return {
-      status: 'success'
+      status: 'success',
+      data: response
     };
   });
 
-  consumeRPCQueue('xyp:find', async ({ data }) => {
+  consumeRPCQueue('xyp:insertOrUpdate', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const existingData = await models.XypData.findOne({
+      contentType: data.contentType,
+      contentTypeId: data.contentTypeId
+    });
+
+    const newData = data.data;
+
+    if (!existingData) {
+      return {
+        status: 'success',
+        data: await models.XypData.createXypData(data)
+      };
+    }
+
+    for (const obj of newData) {
+      const serviceIndex = existingData.data.findIndex(
+        e => e.serviceName === obj.serviceName
+      );
+
+      if (serviceIndex === -1) {
+        await models.XypData.updateOne(
+          { _id: existingData._id },
+          {
+            $push: {
+              data: obj
+            }
+          }
+        );
+      } else {
+        existingData.data[serviceIndex] = obj;
+        await models.XypData.updateOne(
+          { _id: existingData._id },
+          {
+            $set: {
+              data: existingData.data
+            }
+          }
+        );
+      }
+    }
+
     return {
-      status: 'success'
-      // data: await Xyps.find({})
+      status: 'success',
+      data: await models.XypData.findOne({
+        contentType: data.contentType,
+        contentTypeId: data.contentTypeId
+      })
     };
   });
 };

@@ -1,5 +1,6 @@
 "use client"
 
+import SelectSlot from "@/modules/slots/components/selectSlot"
 import { SetAtom } from "@/store"
 import { defaultFilter } from "@/store/history.store"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -42,9 +43,17 @@ const FormSchema = z.object({
       to: z.date(),
     })
     .optional(),
+  dueRange: z
+    .object({
+      from: z.date(),
+      to: z.date(),
+    })
+    .optional(),
   statuses: z.array(z.string()).optional(),
-  isPaid: z.boolean().optional(),
+  isPaid: z.string(),
   sort: z.string().optional(),
+  slotCode: z.string(),
+  isPreExclude: z.boolean(),
 })
 
 const Filter = ({
@@ -58,7 +67,7 @@ const Filter = ({
   loading?: boolean
   allowedStatuses?: string[]
 }) => {
-  const { searchValue, startDate, endDate, isPaid, sortField, sortDirection } =
+  const { searchValue, startDate, endDate, sortField, sortDirection } =
     defaultFilter
 
   const defaultValues = {
@@ -68,7 +77,9 @@ const Filter = ({
       to: new Date(endDate || defaultFilter.startDate),
     },
     statuses: allowedStatuses || ORDER_STATUSES.ALL,
-    isPaid: typeof isPaid === "boolean" ? isPaid : undefined,
+    isPaid: "all",
+    slotCode: "all",
+    isPreExclude: false,
     sort:
       sortField && sortDirection
         ? sortField + (sortDirection === 1 ? "_asc" : "_desc")
@@ -87,6 +98,8 @@ const Filter = ({
     statuses,
     isPaid,
     sort,
+    slotCode,
+    isPreExclude,
   }: z.infer<typeof FormSchema>) => {
     const { from, to } = range || {}
     const sortField = sort?.split("_")[0]
@@ -98,7 +111,9 @@ const Filter = ({
       statuses: (statuses || []) as IOrderStatus[],
       startDate: formatISO(new Date(from || subDays(new Date(), 10))),
       endDate: formatISO(new Date(to || new Date())),
-      isPaid: typeof isPaid === "boolean" ? isPaid : undefined,
+      isPaid: isPaid === "all" ? undefined : isPaid === "paid",
+      slotCode: slotCode === "all" ? undefined : slotCode,
+      isPreExclude,
       sortField,
       sortDirection,
     })
@@ -108,7 +123,7 @@ const Filter = ({
     <div className="px-4">
       <Form {...form}>
         <form
-          className="grid grid-cols-4 items-end gap-2"
+          className="grid grid-cols-4 items-end gap-y-3 gap-x-2"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField
@@ -156,7 +171,7 @@ const Filter = ({
                         value: status,
                       })
                     )}
-                    title="Төлөвүүд"
+                    title="Төлөв сонгох"
                     values={field.value}
                     onSelect={field.onChange}
                   />
@@ -202,20 +217,65 @@ const Filter = ({
             control={form.control}
             name="isPaid"
             render={({ field }) => (
-              <FormItem className="flex h-10 items-center space-x-2">
+              <FormItem>
+                <FormLabel>Төлбөр</FormLabel>
                 <FormControl>
-                  <Switch
-                    checked={!!field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="col-span-2">
+                      <SelectValue placeholder="Ангилал сонгох" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Бүгд</SelectItem>
+                      <SelectItem value="paid">Төлөгдсөн</SelectItem>
+                      <SelectItem value="notPaid">Төлөгдөөгүй</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
-                <FormLabel>Төлбөр төлсөн эсэx</FormLabel>
+
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div />
-          <Button type="submit" disabled={loading}>
+
+          <FormField
+            control={form.control}
+            name="slotCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Байрлал сонгох</FormLabel>
+                <FormControl>
+                  <SelectSlot
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="">hi</div>
+          <FormField
+            control={form.control}
+            name="isPreExclude"
+            render={({ field }) => (
+              <FormItem className="flex h-10 items-center gap-x-2 space-y-0">
+                <FormControl>
+                  <Switch
+                    id="isPreExclude"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel htmlFor="isPreExclude">
+                  Урьдчилсан захиалгыг нуух
+                </FormLabel>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit" disabled={loading} className="col-start-3">
             <SearchIcon className="h-5 w-5 mr-1" />
             Хайх
           </Button>

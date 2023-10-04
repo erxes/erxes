@@ -21,7 +21,6 @@ import { paymentSheetAtom } from "./ui.store"
 export const activeOrderIdAtom = atom<string>("")
 export const orderNumberAtom = atom<string>("")
 export const buttonTypeAtom = atom<string | null>(null)
-export const isPreAtom = atom<boolean>(false)
 
 // customer
 export const customerAtom = atom<Customer | null>(null)
@@ -44,6 +43,7 @@ export const slotCodeAtom = atom<string | null>(null)
 export const descriptionAtom = atom<string | null>(null)
 
 export const dueDateAtom = atom<string | undefined>(undefined)
+export const isPreAtom = atom<boolean | undefined>(undefined)
 
 // payment
 export const orderTotalAmountAtom = atom<number>(0)
@@ -87,7 +87,9 @@ export const setInitialAtom = atom(
     set(orderNumberAtom, "")
     set(paymentSheetAtom, false)
     set(customerSearchAtom, "")
-    set(dueDateAtom, undefined), set(buttonTypeAtom, null)
+    set(dueDateAtom, undefined)
+    set(isPreAtom, undefined)
+    set(buttonTypeAtom, null)
   }
 )
 
@@ -116,6 +118,7 @@ export const setOrderStatesAtom = atom(
       user,
       number,
       dueDate,
+      isPre,
     }: IOrder
   ) => {
     set(activeOrderIdAtom, _id || "")
@@ -137,6 +140,7 @@ export const setOrderStatesAtom = atom(
     set(orderNumberAtom, number || "")
     set(customerSearchAtom, customer?.primaryPhone || customer?._id || "")
     set(dueDateAtom, dueDate)
+    set(isPreAtom, isPre)
   }
 )
 
@@ -155,4 +159,5 @@ export const orderValuesAtom = atom((get) => ({
   description: get(descriptionAtom),
   buttonType: get(buttonTypeAtom),
   dueDate: get(dueDateAtom),
+  isPre: get(isPreAtom),
 }))

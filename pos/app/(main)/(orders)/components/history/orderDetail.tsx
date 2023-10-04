@@ -4,6 +4,7 @@ import { useQuery } from "@apollo/client"
 import { format } from "date-fns"
 import { useAtom } from "jotai"
 import {
+  AlarmClockIcon,
   CalendarCheckIcon,
   CalendarClockIcon,
   CalendarIcon,
@@ -61,6 +62,7 @@ const OrderDetail = () => {
     modifiedAt,
     createdAt,
     dueDate,
+    isPre,
     slotCode,
     user,
     cashAmount,
@@ -119,6 +121,13 @@ const OrderDetail = () => {
                 title="Дуусах огноо /DueDate/"
                 value={formatDate(dueDate)}
                 Icon={CalendarClockIcon}
+              />
+            )}
+            {!!isPre && (
+              <DescriptionCard
+                title="Урьдчилсан захиалга эсэх"
+                value={isPre ? "Тийм" : "Үгүй"}
+                Icon={AlarmClockIcon}
               />
             )}
             {!!slotCode && (

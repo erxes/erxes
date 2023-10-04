@@ -1,9 +1,9 @@
-const commonFields = `
+export const commonFields = `
   _id: String!
   createdAt: Date
 `;
 
-const PaidAmountDefs = `
+export const PaidAmountDefs = `
   _id: String
   type: String
   amount: Float
@@ -17,7 +17,7 @@ const paymentInputDefs = `
   registerNumber: String
 `;
 
-const orderTypeFields = `
+export const orderTypeFields = `
   ${commonFields}
   status: String
   customerId: String

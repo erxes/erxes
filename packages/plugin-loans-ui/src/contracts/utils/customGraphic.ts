@@ -12,6 +12,12 @@ type Params = {
   skipAmountCalcMonth: number;
 };
 
+export const getDiffDay = (fromDate: Date, toDate: Date) => {
+  const date1 = fromDate;
+  const date2 = toDate;
+  return (date2.getTime() - date1.getTime()) / (1000 * 3600 * 24);
+};
+
 export function generateCustomGraphic({
   dateRange,
   interestRate,
@@ -53,15 +59,24 @@ export function generateCustomGraphic({
       )
         amount = leaseAmount - sumAmount;
       amount = Number(amount.toFixed(0));
+
+      const diffDay = Number(getDiffDay(nDate, mainDate).toFixed(0));
+
+      const mustPayinterest =
+        Number(customInterest) ||
+        Number(
+          Number(((balance * interestRate) / 100 / 365) * diffDay).toFixed(0)
+        ) ||
+        0;
+      const mustpayment = amount || 0;
       const element: LoanSchedule = {
         order: schedules.length + 1,
-        payment: amount || 0,
-        interestNonce:
-          customInterest ||
-          Number(((balance * interestRate) / 100 / 365).toFixed(0)) ||
-          0,
+        payment: mustpayment,
+        interestNonce: mustPayinterest,
         balance,
-        payDate: mainDate
+        diffDay,
+        payDate: mainDate,
+        total: mustpayment + mustPayinterest
       };
       balance -= amount;
       sumAmount += amount;

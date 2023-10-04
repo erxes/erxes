@@ -40,6 +40,8 @@ export interface IAbsence {
   absenceTimeType: string;
   requestDates: string[];
   totalHoursOfAbsence: string;
+
+  note?: string;
 }
 export interface IAbsenceType {
   _id: string;
