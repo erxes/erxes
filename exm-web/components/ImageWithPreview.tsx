@@ -1,7 +1,5 @@
 "use client"
 
-import { useState } from "react"
-import { XCircle } from "lucide-react"
 import Slider from "react-slick"
 
 import { cn } from "@/lib/utils"

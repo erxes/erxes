@@ -1,13 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { queries } from "@/common/team/graphql"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
-import { useQuery } from "@apollo/client"
 import { useAtomValue } from "jotai"
 import { PlusIcon } from "lucide-react"
-import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,7 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
 import SelectUsers from "@/components/select/SelectUsers"
 

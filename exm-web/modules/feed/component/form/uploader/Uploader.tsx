@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { Image as ImageIcon, Paperclip } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
