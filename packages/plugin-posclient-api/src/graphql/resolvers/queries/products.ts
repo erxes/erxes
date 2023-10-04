@@ -140,17 +140,32 @@ const generateFilter = async (
   }
 
   if (categoryMeta) {
-    const categoryFilter: any = {};
+    let categoryFilter: any[] = [];
+
     if (!isNaN(Number(categoryMeta))) {
-      categoryFilter.meta = { $lte: Number(categoryMeta) };
+      categoryFilter = [
+        {
+          $project: {
+            _id: 1,
+            meta: 1,
+            intMeta: {
+              $convert: { input: '$meta', to: 'int', onError: '', onNull: '' }
+            }
+          }
+        },
+        { $match: { intMeta: { $lte: Number(categoryMeta) } } }
+      ];
     } else {
-      categoryFilter.meta = categoryMeta;
+      categoryFilter = [
+        { $project: { _id: 1, meta: 1 } },
+        { $match: { meta: { $eq: categoryMeta } } }
+      ];
     }
 
-    const categories = await models.ProductCategories.find(
-      { categoryFilter },
-      { _id: 1 }
-    ).lean();
+    const categories = await models.ProductCategories.aggregate([
+      { $match: { tokens: { $in: [token] }, meta: { $exists: true } } },
+      ...categoryFilter
+    ]);
 
     $and.push({ categoryId: { $in: categories.map(c => c._id) } });
   }
