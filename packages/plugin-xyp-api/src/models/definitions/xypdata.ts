@@ -7,13 +7,13 @@ import {
 } from '@erxes/api-utils/src/definitions/common';
 
 export interface IXypData {
-  contentType: String;
-  contentTypeId: String;
-  data: ICustomField;
+  contentType: string;
+  contentTypeId: string;
+  data: any;
 
-  createdBy: String;
+  createdBy: string;
   createdAt: Date;
-  updatedBy: String;
+  updatedBy: string;
   updatedAt: Date;
 }
 export interface IXypconfigDocument extends IXypData, Document {

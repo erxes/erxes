@@ -555,14 +555,14 @@ export const prepareOrderDoc = async (
   doc.totalAmount = 0;
   for (const item of items) {
     const fixedUnitPrice = Number(
-      (
+      Number(
         ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-        item.unitPrice ||
-        0
+          item.unitPrice ||
+          0
       ).toFixed(2)
     );
 
-    item.unitPrice = fixedUnitPrice;
+    item.unitPrice = isNaN(fixedUnitPrice) ? 0 : fixedUnitPrice;
     doc.totalAmount += (item.count || 0) * fixedUnitPrice;
   }
 
