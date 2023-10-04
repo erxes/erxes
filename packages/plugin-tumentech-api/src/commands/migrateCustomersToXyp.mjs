@@ -103,6 +103,9 @@ const command = async () => {
     };
 
     for (const driver of drivers) {
+        if (!driver.code) {
+            continue;
+        }
         if (driver.code.length !== 10) {
             continue;
         }
