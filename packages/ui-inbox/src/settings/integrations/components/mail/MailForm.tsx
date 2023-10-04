@@ -103,19 +103,21 @@ class MailForm extends React.Component<Props, State> {
 
     const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
-    const mailWidget = JSON.parse(localStorage.getItem('emailWidgetData'));
+    const mailWidget = JSON.parse(
+      localStorage.getItem('emailWidgetData') || '{}'
+    );
 
     const cc = replyAll
       ? formatObj(mailData.cc || [])
       : mailWidget
       ? mailWidget.cc
-      : '';
+      : '' || '';
 
     const bcc = replyAll
       ? formatObj(mailData.bcc || [])
       : mailWidget
       ? mailWidget.bcc
-      : '';
+      : '' || '';
 
     const [from] = mailData.from || ([{}] as IEmail[]);
     const sender =
@@ -127,7 +129,7 @@ class MailForm extends React.Component<Props, State> {
       ? mailWidget.to
       : isForward
       ? ''
-      : sender;
+      : sender || '';
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
       (localStorage.getItem(`reply_${mailKey}`) || '').length > 0;
@@ -137,7 +139,7 @@ class MailForm extends React.Component<Props, State> {
         ? mailData.attachments
         : mailWidget
         ? mailWidget.attachments
-        : [];
+        : [] || [];
 
     this.state = {
       cc,
@@ -687,7 +689,9 @@ class MailForm extends React.Component<Props, State> {
       <div>
         <UploaderWrapper>
           <Attachment
-            attachment={this.state.attachments[0] || ({} as IAttachment)}
+            attachment={
+              (this.state.attachments || [])[0] || ({} as IAttachment)
+            }
             attachments={this.state.attachments || ([] as IAttachment[])}
             removeAttachment={removeAttachment}
             withoutPreview={true}

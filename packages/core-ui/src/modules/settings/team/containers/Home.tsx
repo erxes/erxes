@@ -56,7 +56,7 @@ function HomeContainer(props: Props) {
 
   const totalCount = totalCountQuery.loading
     ? 0
-    : totalCountQuery.data.usersTotalCount || 0;
+    : totalCountQuery.data?.usersTotalCount || 0;
 
   return (
     <Home

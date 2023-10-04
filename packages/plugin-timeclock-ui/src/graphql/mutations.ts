@@ -140,8 +140,8 @@ const checkDuplicateScheduleShifts = `
   }`;
 
 const solveAbsenceRequest = `
-  mutation solveAbsenceRequest($_id: String, $status: String){
-    solveAbsenceRequest(_id: $_id, status: $status){
+  mutation solveAbsenceRequest($_id: String, $status: String, $note: String){
+    solveAbsenceRequest(_id: $_id, status: $status, note:$note){
       _id
     }
   }  
@@ -243,6 +243,11 @@ mutation scheduleConfigOrderEdit($userId: String, $orderedList :[ConfigOrderInpu
   scheduleConfigOrderEdit(userId: $userId, orderedList: $orderedList)
 }`;
 
+const editSchedule = `
+mutation editSchedule($_id: String!, $shifts:[ShiftInput]){
+  editSchedule(_id: $_id, shifts: $shifts)
+}`;
+
 export default {
   sendScheduleRequest,
   submitSchedule,
@@ -281,5 +286,7 @@ export default {
 
   createTimeClockFromLog,
 
-  scheduleConfigOrderEdit
+  scheduleConfigOrderEdit,
+
+  editSchedule
 };
