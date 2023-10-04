@@ -1,5 +1,3 @@
-// import { getEnv } from "../../utils/configs"
-
 import { getEnv } from "@/lib/utils"
 
 import { toast } from "../ui/use-toast"

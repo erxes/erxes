@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Paperclip, SendHorizontal } from "lucide-react"
 
-// import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
+import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
 import uploadHandler from "@/components/uploader/uploadHandler"
 
 type IProps = {
@@ -20,7 +20,7 @@ type IProps = {
 
 const Editor = ({ sendMessage, reply, setReply }: IProps) => {
   const [message, setMessage] = useState("")
-  const [attachments, setAttachments] = useState([])
+  const [attachments, setAttachments] = useState<any[]>([])
   const relatedId = (reply && reply._id) || null
 
   const handleInputChange = (e: any) => {
@@ -45,10 +45,10 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
       },
 
       afterUpload: ({ response, fileInfo }) => {
-        // setAttachments([
-        //   ...attachments,
-        //   Object.assign({ url: response }, fileInfo),
-        // ])
+        setAttachments([
+          ...attachments,
+          Object.assign({ url: response }, fileInfo),
+        ])
       },
     })
   }
@@ -75,39 +75,43 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
   }
 
   return (
-    <div className="flex items-center px-2 bg-white rounded-2xl focus:outline-none focus:border-black">
-      <textarea
-        value={message}
-        onKeyDown={onEnterPress}
-        onChange={handleInputChange}
-        placeholder="Type a message..."
-        style={textareaStyle}
-        className="resize-none rounded-2xl px-4 pt-4 w-full  focus:outline-none"
-      />
+    <>
+      <div>
+        {attachments && attachments.length > 0 && (
+          <AttachmentWithChatPreview
+            images={attachments}
+            className="m-2 rounded-lg"
+            deleteImage={deleteImage}
+          />
+        )}
+      </div>
 
-      {/* {attachments && attachments.length > 0 && (
-        <AttachmentWithPreview
-          images={attachments}
-          className="w-[100px]"
-          deleteImage={deleteImage}
+      <div className="flex items-center px-2 bg-white rounded-2xl focus:outline-none focus:border-black">
+        <textarea
+          value={message}
+          onKeyDown={onEnterPress}
+          onChange={handleInputChange}
+          placeholder="Type a message..."
+          style={textareaStyle}
+          className="resize-none rounded-2xl px-4 pt-4 w-full  focus:outline-none"
         />
-      )} */}
 
-      <label className="cursor-pointer mx-2">
-        <input
-          autoComplete="off"
-          multiple={true}
-          type="file"
-          accept="image/*, .pdf, .doc, .docx"
-          onChange={handleAttachmentChange}
-          className="hidden"
-        />
-        <Paperclip size={18} />
-      </label>
-      <label onClick={onSubmit} className="mr-2">
-        <SendHorizontal size={18} />
-      </label>
-    </div>
+        <label className="cursor-pointer mx-2">
+          <input
+            autoComplete="off"
+            multiple={true}
+            type="file"
+            accept="image/*, .pdf, .doc, .docx"
+            onChange={handleAttachmentChange}
+            className="hidden"
+          />
+          <Paperclip size={18} />
+        </label>
+        <label onClick={onSubmit} className="mr-2">
+          <SendHorizontal size={18} />
+        </label>
+      </div>
+    </>
   )
 }
 

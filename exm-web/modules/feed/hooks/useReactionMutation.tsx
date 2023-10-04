@@ -1,6 +1,6 @@
-import { useMutation, useQuery } from "@apollo/client"
+import { useMutation } from "@apollo/client"
 
-import { mutations, queries } from "../graphql"
+import { mutations } from "../graphql"
 
 export interface IUsePosts {
   loadingReaction: boolean
