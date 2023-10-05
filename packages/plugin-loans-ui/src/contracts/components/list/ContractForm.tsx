@@ -209,7 +209,7 @@ class ContractForm extends React.Component<Props, State> {
       relationExpertId: this.state.relationExpertId,
       leasingExpertId: this.state.leasingExpertId,
       riskExpertId: this.state.riskExpertId,
-      weekends: this.state.weekends.map((week) => Number(week)),
+      weekends: this.state.weekends.map(week => Number(week)),
       useHoliday: Boolean(this.state.useHoliday),
       relContractId: this.state.relContractId,
       currency: this.state.currency,
@@ -236,7 +236,7 @@ class ContractForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = (e) => {
+  onChangeField = e => {
     const name = (e?.target as HTMLInputElement)?.name;
     let value: any = (e?.target as HTMLInputElement)?.value;
 
@@ -306,7 +306,7 @@ class ContractForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as any);
   };
 
-  onSelectContractType = (value) => {
+  onSelectContractType = value => {
     const contractTypeObj: IContractType = ContractTypeById[value];
 
     var changingStateValue: any = {
@@ -345,19 +345,19 @@ class ContractForm extends React.Component<Props, State> {
     this.setState({ ...changingStateValue });
   };
 
-  onSelectCustomer = (value) => {
+  onSelectCustomer = value => {
     this.setState({
       customerId: value
     });
   };
 
-  onCheckCustomerType = (e) => {
+  onCheckCustomerType = e => {
     this.setState({
       customerType: e.target.checked ? 'company' : 'customer'
     });
   };
 
-  onFieldClick = (e) => {
+  onFieldClick = e => {
     e.target.select();
   };
 
@@ -432,7 +432,7 @@ class ContractForm extends React.Component<Props, State> {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeBranchId = (value) => {
+    const onChangeBranchId = value => {
       this.setState({ branchId: value });
     };
 
@@ -602,13 +602,13 @@ class ContractForm extends React.Component<Props, State> {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeStartDate = (value) => {
+    const onChangeStartDate = value => {
       this.setState({ startDate: value });
     };
 
-    const onSelectScheduleDays = (values) => {
+    const onSelectScheduleDays = values => {
       this.onChangeField({
-        target: { name: 'scheduleDays', value: values.map((val) => val.value) }
+        target: { name: 'scheduleDays', value: values.map(val => val.value) }
       });
     };
 
@@ -750,7 +750,7 @@ class ContractForm extends React.Component<Props, State> {
                 </tr>
               </thead>
               <tbody>
-                {this.state.schedule.map((mur) => (
+                {this.state.schedule.map(mur => (
                   <tr key={`schedule${mur.order}`}>
                     <td style={{ textAlign: 'center' }}>{mur.order}</td>
                     <td style={{ textAlign: 'center' }}>{mur.diffDay}</td>

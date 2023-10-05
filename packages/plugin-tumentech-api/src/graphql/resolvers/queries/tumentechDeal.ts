@@ -145,9 +145,6 @@ const tumentechDealsQuery = {
     },
     { models, subdomain }: IContext
   ) => {
-    console.log(driverId);
-
-    // driverIds: driverId,
     const tumenDeals = await models.TumentechDeals.aggregate([
       // Stage 1: Filter documents
       {
@@ -164,7 +161,7 @@ const tumentechDealsQuery = {
     ]);
 
     if (tumenDeals?.length > 0) return tumenDeals[0];
-    else return null;
+    return null;
   },
 
   tumentechDealDetail: async (

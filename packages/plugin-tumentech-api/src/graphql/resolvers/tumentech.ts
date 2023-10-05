@@ -1,5 +1,9 @@
 import { IContext } from '../../connectionResolver';
-import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendXypMessage
+} from '../../messageBroker';
 import { IParticipantDocument } from '../../models/definitions/participants';
 import {
   ICarCategoryDocument,
@@ -46,6 +50,18 @@ const Cars = {
     });
 
     return customers;
+  },
+
+  async xypdata(car: ICarDocument, {}, { models, subdomain }: IContext) {
+    const xyp = await sendXypMessage({
+      subdomain,
+      action: 'xyp.find',
+      data: { _id: car._id },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    return xyp;
   },
 
   async companies(car: ICarDocument, {}, { subdomain }: IContext) {
