@@ -254,7 +254,11 @@ class PermissionList extends React.Component<Props> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Permissions')} breadcrumb={breadcrumb} />
+          <Wrapper.Header
+            title={__('Permissions')}
+            queryParams={queryParams}
+            breadcrumb={breadcrumb}
+          />
         }
         actionBar={this.renderActionBar()}
         leftSidebar={<GroupList queryParams={queryParams} />}
