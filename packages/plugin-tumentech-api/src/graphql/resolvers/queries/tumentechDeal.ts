@@ -12,7 +12,8 @@ const tumentechDealsQuery = {
       dealIds,
       stageId,
       driverType,
-      pipelineId
+      pipelineId,
+      isFilterCreatedBy
     }: {
       dealId?: string;
       dealIds?: [string];
@@ -21,11 +22,15 @@ const tumentechDealsQuery = {
       stageId?: string;
       driverType?: number;
       pipelineId?: string;
+      isFilterCreatedBy?: boolean | false;
     },
     { models, subdomain, cpUser }: IContext
   ) => {
     const filter: any = {};
-    filter.createdBy = cpUser.userId;
+
+    if (isFilterCreatedBy) {
+      filter.createdBy = cpUser.userId;
+    }
 
     if (dealIds) {
       filter.dealId = { $in: dealIds || [] };
@@ -56,7 +61,7 @@ const tumentechDealsQuery = {
       const result = paginate(
         models.TumentechDeals.find({
           dealId: { $in: dealsIdsList },
-          createdBy: cpUser.userId
+          createdBy: isFilterCreatedBy ? cpUser.userId : undefined
           // driverType,
         })
           .sort({ createdAt: -1 })
@@ -71,7 +76,7 @@ const tumentechDealsQuery = {
         list: result,
         totalCount: models.TumentechDeals.find({
           dealId: { $in: dealsIdsList },
-          createdBy: cpUser.userId
+          createdBy: isFilterCreatedBy ? cpUser.userId : undefined
           // driverType,
         }).count()
       };
@@ -98,7 +103,7 @@ const tumentechDealsQuery = {
       const result = paginate(
         models.TumentechDeals.find({
           dealId: { $in: dealsIdsList },
-          createdBy: cpUser.userId
+          createdBy: isFilterCreatedBy ? cpUser.userId : undefined
         })
           .sort({ createdAt: -1 })
           .lean(),
@@ -111,7 +116,7 @@ const tumentechDealsQuery = {
       return {
         list: result,
         totalCount: models.TumentechDeals.find({
-          createdBy: cpUser.userId,
+          createdBy: isFilterCreatedBy ? cpUser.userId : undefined,
           dealId: { $in: dealsIdsList }
           // driverType,
         }).count()
@@ -164,14 +169,26 @@ const tumentechDealsQuery = {
 
   tumentechDealDetail: async (
     _root,
-    { _id, dealId }: { _id: string; dealId?: string },
+    {
+      _id,
+      dealId,
+      isFilterCreatedBy
+    }: { _id: string; dealId?: string; isFilterCreatedBy?: boolean },
     { models, cpUser }: IContext
   ) => {
     if (dealId) {
-      return models.TumentechDeals.getTumentechDeal(_id, dealId, cpUser.userId);
+      return models.TumentechDeals.getTumentechDeal(
+        _id,
+        dealId,
+        isFilterCreatedBy ? cpUser.userId : undefined
+      );
     }
 
-    return models.TumentechDeals.getTumentechDeal(_id, '', cpUser.userId);
+    return models.TumentechDeals.getTumentechDeal(
+      _id,
+      '',
+      isFilterCreatedBy ? cpUser.userId : undefined
+    );
   }
 };
 

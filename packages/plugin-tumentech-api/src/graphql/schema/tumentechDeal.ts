@@ -34,8 +34,8 @@ export const types = ({ cards }) => `
 `;
 
 export const queries = `
-    tumentechDeals(page: Int, perPage: Int, dealIds: [String],stageId: String, driverType: Int, pipelineId: String): TumentechDealsResponse
-    tumentechDealDetail(_id: String, dealId: String): TumentechDeal
+    tumentechDeals(page: Int, perPage: Int, dealIds: [String],stageId: String, driverType: Int, pipelineId: String, isFilterCreatedBy: Boolean): TumentechDealsResponse
+    tumentechDealDetail(_id: String, dealId: String, isFilterCreatedBy: Boolean): TumentechDeal
 `;
 
 const params = `

@@ -26,9 +26,6 @@ export const loadTumentechDealClass = (models: IModels) => {
       dealId: string,
       userId: string
     ) {
-      if (!userId) {
-        throw new Error('Please provide userId');
-      }
       if (!_id && !dealId) {
         throw new Error('Please provide _id or dealId ');
       }
