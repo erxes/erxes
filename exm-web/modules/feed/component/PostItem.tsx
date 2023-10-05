@@ -9,6 +9,7 @@ import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
 import {
   AlertTriangleIcon,
+  CheckCircle2Icon,
   ClockIcon,
   ExternalLinkIcon,
   HeartIcon,
@@ -16,6 +17,7 @@ import {
   MoreHorizontalIcon,
   PencilIcon,
   PinIcon,
+  StarIcon,
   TrashIcon,
   UserIcon,
   UsersIcon,
@@ -69,6 +71,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const {
     deleteFeed,
     pinFeed,
+    eventAction,
     loading: mutationLoading,
   } = useFeedMutation({
     callBack,
@@ -89,6 +92,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const idExists = emojiReactedUser.some(
     (item: any) => item._id === currentUser._id
   )
+
+  const isGoing = feed.eventData?.goingUserIds.includes(currentUser._id)
+
+  const isInterest = feed.eventData?.interestedUserIds.includes(currentUser._id)
 
   const urlRegex = /(https?:\/\/[^\s]+)/g
 
@@ -113,6 +120,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
   const reactionAdd = () => {
     reactionMutation(feed._id)
+  }
+
+  const handleEventAction = (type: string) => {
+    eventAction(feed._id, type)
   }
 
   const editAction = () => {
@@ -291,6 +302,50 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             </div>
 
             <div className="flex items-center cursor-pointer">
+              {feed.contentType === "event" && (
+                <>
+                  <div
+                    className={`cursor-pointer flex items-center p-2 ${
+                      isGoing ? "bg-[#6569DF]" : "bg-[#F0F0F0]"
+                    } mr-1 rounded-lg`}
+                    onClick={() => handleEventAction("going")}
+                  >
+                    <CheckCircle2Icon
+                      size={16}
+                      className="mr-1"
+                      color={`${isGoing ? "white" : "black"}`}
+                    />
+                    <span
+                      className={`${
+                        isGoing ? "text-white" : "text-black"
+                      } text-xs`}
+                    >
+                      Going
+                    </span>
+                  </div>
+
+                  <div
+                    className={`cursor-pointer flex items-center p-2 ${
+                      isInterest ? "bg-[#6569DF]" : "bg-[#F0F0F0]"
+                    } mr-1 rounded-lg`}
+                    onClick={() => handleEventAction("interested")}
+                  >
+                    <StarIcon
+                      size={16}
+                      className="mr-1"
+                      color={`${isInterest ? "white" : "black"}`}
+                    />
+                    <span
+                      className={`${
+                        isInterest ? "text-white" : "text-black"
+                      } text-xs`}
+                    >
+                      Interest
+                    </span>
+                  </div>
+                </>
+              )}
+
               {feed.isPinned && <PinIcon size={18} color={"#FF0000"} />}
               {renderFeedActions()}
             </div>

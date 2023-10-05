@@ -39,6 +39,14 @@ const useFeedMutation = ({
     onError,
   })
 
+  const [eventGoingOrInterested, { loading: loadingEvent }] = useMutation(
+    mutations.eventGoingOrInterested,
+    {
+      refetchQueries: ["feed", "exmFeedDetail"],
+      onError,
+    }
+  )
+
   const feedMutation = (variables: IFeedVariable, _id?: string) => {
     if (!_id) {
       feedAdd({
@@ -81,11 +89,25 @@ const useFeedMutation = ({
     })
   }
 
+  const eventAction = (id: string, type: string) => {
+    eventGoingOrInterested({
+      variables: { id, goingOrInterested: type },
+    }).then(() => {
+      callBack("success")
+
+      return toast({
+        description: `Success`,
+      })
+    })
+  }
+
   return {
     feedMutation,
     deleteFeed,
     pinFeed,
-    loading: loading || loadingEdit || loadingDelete || loadingPin,
+    eventAction,
+    loading:
+      loading || loadingEdit || loadingDelete || loadingPin || loadingEvent,
   }
 }
 
