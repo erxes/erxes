@@ -254,6 +254,7 @@ export type LastConversationQueryResponse = {
 export type ConversationsQueryResponse = {
   conversations: IConversation[];
   subscribeToMore: (variables) => void;
+  fetchMore?: any;
 } & QueryResponse;
 
 export type ConversationDetailQueryResponse = {
