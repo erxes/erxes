@@ -3,6 +3,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { IOptions } from '../../types';
 import Button from '@erxes/ui/src/components/Button';
+import { useHistory } from 'react-router-dom';
 
 type Props = {
   relType: string;
@@ -18,6 +19,7 @@ type Props = {
   description?: string;
   attachments?: any[];
   bookingProductId?: string;
+  autoOpenKey?: string;
 };
 
 export default function ConvertTrigger(props: Props) {
@@ -34,8 +36,10 @@ export default function ConvertTrigger(props: Props) {
     subject,
     description,
     attachments,
-    bookingProductId
+    bookingProductId,
+    autoOpenKey
   } = props;
+  const history = useHistory();
 
   if (url) {
     return (
@@ -52,23 +56,36 @@ export default function ConvertTrigger(props: Props) {
 
   const trigger = <Button btnStyle="link">{title}</Button>;
 
-  const content = formProps => (
-    <AddForm
-      options={options}
-      {...formProps}
-      type={type}
-      description={description}
-      attachments={attachments}
-      refetch={refetch}
-      relType={relType}
-      relTypeIds={relTypeIds}
-      mailSubject={subject}
-      assignedUserIds={assignedUserIds}
-      sourceConversationId={sourceConversationId}
-      showSelect={true}
-      bookingProductId={bookingProductId}
+  const content = formProps => {
+    return (
+      <AddForm
+        options={options}
+        {...formProps}
+        type={type}
+        description={description}
+        attachments={attachments}
+        refetch={refetch}
+        relType={relType}
+        relTypeIds={relTypeIds}
+        mailSubject={subject}
+        assignedUserIds={assignedUserIds}
+        sourceConversationId={sourceConversationId}
+        showSelect={true}
+        bookingProductId={bookingProductId}
+        closeModal={() => close()}
+      />
+    );
+  };
+
+  return (
+    <ModalTrigger
+      title={title}
+      autoOpenKey={autoOpenKey && autoOpenKey}
+      trigger={trigger}
+      content={content}
+      onExit={() => {
+        history.push(history.location.pathname + history.location.search);
+      }}
     />
   );
-
-  return <ModalTrigger title={title} trigger={trigger} content={content} />;
 }

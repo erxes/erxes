@@ -75,9 +75,6 @@ export default class ActionBar extends React.Component<Props, State> {
       if (this.state.keysPressed.Control === true && event.keyCode === 49) {
         tagElement.click();
       }
-      if (this.state.keysPressed.Control === true && event.keyCode === 50) {
-        document.getElementById('dropdown-convert-to').click();
-      }
     });
   };
 

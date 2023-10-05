@@ -50,6 +50,8 @@ type Props = {
 
 type State = {
   cursor: number;
+  keysPressed: any;
+  showDropdown: boolean;
 };
 
 export default class ConvertTo extends React.Component<Props, State> {
@@ -57,39 +59,59 @@ export default class ConvertTo extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      cursor: 0
+      cursor: 0,
+      keysPressed: {},
+      showDropdown: false
     };
   }
 
   componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
     document.addEventListener('keydown', this.handleArrowSelection);
   }
 
   componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('keyup', this.handleKeyUp);
     document.removeEventListener('keydown', this.handleArrowSelection);
   }
+
+  handleKeyDown = (event: any) => {
+    const { keysPressed } = this.state;
+    const key = event.key;
+
+    this.setState({ keysPressed: { ...keysPressed, [key]: true } }, () => {
+      if (this.state.keysPressed.Control === true && event.keyCode === 50) {
+        document.getElementById('dropdown-convert-to').click();
+        this.setState({ showDropdown: !this.state.showDropdown });
+      }
+    });
+  };
+
+  handleKeyUp = (event: any) => {
+    delete this.state.keysPressed[event.key];
+
+    this.setState({ keysPressed: { ...this.state.keysPressed } });
+  };
 
   handleArrowSelection = (event: any) => {
     const { cursor } = this.state;
 
     const maxCursor: number = 4;
 
-    const dropdownOpen = document
-      .getElementById('convert-dropdown')
-      .className.includes('show');
-
     switch (event.keyCode) {
       case 13:
-        if (dropdownOpen && cursor === 0) {
+        if (this.state.showDropdown && cursor === 0) {
           window.location.hash = 'showTicketConvertModal';
         }
-        if (dropdownOpen && cursor === 1) {
+        if (this.state.showDropdown && cursor === 1) {
           window.location.hash = 'showDealConvertModal';
         }
-        if (dropdownOpen && cursor === 2) {
+        if (this.state.showDropdown && cursor === 2) {
           window.location.hash = 'showTaskConvertModal';
         }
-        if (dropdownOpen && cursor === 3) {
+        if (this.state.showDropdown && cursor === 3) {
           window.location.hash = 'showPurchaseConvertModal';
         }
         break;
@@ -144,9 +166,18 @@ export default class ConvertTo extends React.Component<Props, State> {
 
     return (
       <Container>
-        <Dropdown id="convert-dropdown">
+        <Dropdown
+          show={window.location.hash === '' ? this.state.showDropdown : true}
+          onToggle={() =>
+            this.setState({ showDropdown: !this.state.showDropdown })
+          }
+        >
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-            <Button>
+            <Button
+              onClick={() =>
+                this.setState({ showDropdown: !this.state.showDropdown })
+              }
+            >
               {__('Convert')} <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>

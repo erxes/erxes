@@ -105,6 +105,13 @@ class ModalTrigger extends React.Component<Props, State> {
         })
       : null;
 
+    const onHideHandler = () => {
+      this.closeModal();
+      if (onExit) {
+        onExit();
+      }
+    };
+
     return (
       <>
         {triggerComponent}
@@ -113,7 +120,7 @@ class ModalTrigger extends React.Component<Props, State> {
           dialogClassName={dialogClassName}
           size={size}
           show={isOpen}
-          onHide={this.closeModal}
+          onHide={onHideHandler}
           backdrop={backDrop}
           enforceFocus={enforceFocus}
           onExit={onExit}

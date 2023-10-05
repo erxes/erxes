@@ -43,11 +43,15 @@ class Tagger extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    document.addEventListener('keydown', this.handleArrowSelection);
+    if (this.props.type === 'inbox:conversation') {
+      document.addEventListener('keydown', this.handleArrowSelection);
+    }
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleArrowSelection);
+    if (this.props.type === 'inbox:conversation') {
+      document.removeEventListener('keydown', this.handleArrowSelection);
+    }
   }
 
   handleArrowSelection = (event: any) => {
@@ -113,9 +117,11 @@ class Tagger extends React.Component<Props, State> {
         iconColor: colorCode,
         parentId,
         selectedBy: state,
-        className: this.state
-          ? `tag-${i} ${this.state.cursor === i && 'active'}`
-          : ''
+        itemClassName:
+          this.props.type === 'inbox:conversation' && this.state
+            ? `tag-${i}`
+            : '',
+        itemActiveClass: this.state.cursor === i && 'active'
       };
     });
   }

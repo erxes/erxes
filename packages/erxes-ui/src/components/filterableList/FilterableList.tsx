@@ -153,16 +153,16 @@ class FilterableList extends React.Component<Props, State> {
     return (
       <FlexRow key={item._id}>
         <li
-          className={`${
-            showCheckmark ? item.selectedBy : ''
-          }  ${item.className && item.className}`}
+          className={`${showCheckmark ? item.selectedBy : ''}  ${
+            !treeView ? item.itemClassName : !hasChildren && item.itemClassName
+          } ${item.itemActiveClass}`}
           style={item.style}
           onClick={!hasChildren ? onClick : undefined}
         >
           {this.renderIcons(item, hasChildren, isOpen)}
 
           <i
-            className={`${item.iconClass} ${item.className && item.className}`}
+            className={`${item.iconClass} ${treeView && item.itemClassName}`}
             style={{ color: item.iconColor }}
             onClick={hasChildren ? onClick : undefined}
           />
