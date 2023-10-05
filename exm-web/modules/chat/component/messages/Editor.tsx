@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { Paperclip, SendHorizontal } from "lucide-react"
 
+import { useToast } from "@/components/ui/use-toast"
 import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
 import uploadHandler from "@/components/uploader/uploadHandler"
 
@@ -22,6 +23,9 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
   const [message, setMessage] = useState("")
   const [attachments, setAttachments] = useState<any[]>([])
   const relatedId = (reply && reply._id) || null
+  const { toast } = useToast()
+
+  const [loading, setLoading] = useState(false)
 
   const handleInputChange = (e: any) => {
     setMessage(e.target.value)
@@ -41,10 +45,12 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
     uploadHandler({
       files,
       beforeUpload: () => {
+        setLoading(true)
         return
       },
 
       afterUpload: ({ response, fileInfo }) => {
+        setLoading(false)
         setAttachments([
           ...attachments,
           Object.assign({ url: response }, fileInfo),
@@ -54,7 +60,13 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
   }
 
   const onSubmit = () => {
-    sendMessage({ content: message, relatedId, attachments })
+    if (message) {
+      sendMessage({ content: message, relatedId, attachments })
+    } else {
+      return toast({
+        description: `Please enter message`,
+      })
+    }
 
     setAttachments([])
     setMessage("")
@@ -96,20 +108,25 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
           className="resize-none rounded-2xl px-4 pt-4 w-full  focus:outline-none"
         />
 
-        <label className="cursor-pointer mx-2">
-          <input
-            autoComplete="off"
-            multiple={true}
-            type="file"
-            accept="image/*, .pdf, .doc, .docx"
-            onChange={handleAttachmentChange}
-            className="hidden"
-          />
-          <Paperclip size={18} />
-        </label>
-        <label onClick={onSubmit} className="mr-2">
-          <SendHorizontal size={18} />
-        </label>
+        {loading ? (
+          <p className="mr-2">uploading...</p>
+        ) : (
+          <>
+            <label className="cursor-pointer mx-2">
+              <input
+                autoComplete="off"
+                multiple={true}
+                type="file"
+                onChange={handleAttachmentChange}
+                className="hidden"
+              />
+              <Paperclip size={18} />
+            </label>
+            <label onClick={onSubmit} className="mr-2">
+              <SendHorizontal size={18} />
+            </label>
+          </>
+        )}
       </div>
     </>
   )
