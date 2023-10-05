@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 import Query from './Query';
 import Mutation from './Mutation';
 import ForumCategory from './ForumCategory';

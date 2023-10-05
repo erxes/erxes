@@ -10,6 +10,7 @@ import { IEmailTemplate } from '../types';
 
 type Props = {
   object?: IEmailTemplate;
+  contentType?: string;
 } & ICommonFormProps;
 
 type State = {
@@ -69,6 +70,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             autoGrow={true}
             isSubmitted={formProps.isSaved}
             name={`emailTemplates_${object._id || 'create'}`}
+            contentType={this?.props?.contentType}
           />
         </FormGroup>
       </>

@@ -11,6 +11,7 @@ import {
   receiveUser
 } from './graphql/utils/syncUtils';
 import { sendRPCMessageMq } from '@erxes/api-utils/src/messageBroker';
+import { updateMobileAmount } from './utils';
 
 let client;
 
@@ -161,6 +162,33 @@ export const initBroker = async cl => {
           customerType: order.customerType
         }
       });
+    }
+  );
+
+  consumeQueue(
+    `posclient:erxes-posclient-to-pos-api-remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { order } = data;
+
+      await models.Orders.deleteOne({
+        _id: order._id,
+        posToken: order.posToken,
+        subToken: order.subToken
+      });
+    }
+  );
+
+  consumeQueue(
+    `posclient:paymentCallbackClient${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { status } = data;
+      if (status !== 'paid') {
+        return;
+      }
+
+      await updateMobileAmount(models, [data]);
     }
   );
 

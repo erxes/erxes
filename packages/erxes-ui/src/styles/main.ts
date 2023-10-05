@@ -1,6 +1,7 @@
 import { colors, dimensions, typography } from '../styles';
-import { rgba } from '../styles/ecolor';
 import styled, { css } from 'styled-components';
+
+import { rgba } from '../styles/ecolor';
 import styledTS from 'styled-components-ts';
 
 const Flex = styled.div`
@@ -30,16 +31,16 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
     }
   }
 
-  > div {
-    margin-left: 10px;
-  }
-
-  > button {
-    margin-left: 10px;
+  > div, > button {
+    margin-left: ${dimensions.unitSpacing}px;
   }
 
   .dropdown {
     display: ${props => (props.isSmall ? 'inline-block' : 'block')};
+  }
+
+  > button:first-child {
+    margin: 0;
   }
 `;
 

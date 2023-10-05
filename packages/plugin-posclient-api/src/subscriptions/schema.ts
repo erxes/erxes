@@ -1,58 +1,9 @@
-import { ordersQueryParams } from '../graphql/schema/orders';
-
-const commonFields = `
-  _id: String!
-  createdAt: Date
-`;
-
-const orderFields = `
-  status: String
-  customerId: String
-  number: String
-`;
-
-const PaidAmountDefs = `
-  _id: String
-  type: String
-  amount: Float
-  info: JSON
-`;
-
-const paymentInputDefs = `
-  cashAmount: Float
-  mobileAmount: Float
-  billType: String
-  registerNumber: String
-`;
-
-const orderTypeFields = `
-  ${commonFields}
-  ${orderFields}
-  ${paymentInputDefs}
-  paidAmounts: [PaidAmount]
-
-  paidDate: Date
-  dueDate: Date
-  modifiedAt: Date
-  totalAmount: Float
-  finalAmount: Float
-  shouldPrintEbarimt: Boolean
-  printedEbarimt: Boolean
-  billId: String
-  oldBillId: String
-  type: String
-  branchId: String
-  deliveryInfo: JSON
-  origin: String
-  customer: PosCustomer
-  customerType: String,
-  items: [PosOrderItem]
-  user: PosUser
-  putResponses: [PosPutResponse]
-  returnInfo: JSON
-
-  slotCode: String
-`;
+import {
+  commonFields,
+  ordersQueryParams,
+  orderTypeFields,
+  PaidAmountDefs
+} from '../graphql/schema/orders';
 
 export const types = `
   type PaidAmount {
@@ -75,6 +26,8 @@ export const types = `
     productImgUrl: String
     status: String
     manufacturedDate: String
+    description: String
+    attachment: JSON
   }
 
   type PosPutResponse {
@@ -145,14 +98,14 @@ export const types = `
     details: PosUserDetailsType
   }
 
+  type Order {
+    ${orderTypeFields}
+  }
+
   type OrderDetail {
     ${orderTypeFields}
     deal: JSON
     dealLink: String
-  }
-
-  type Order {
-    ${orderTypeFields}
   }
 `;
 

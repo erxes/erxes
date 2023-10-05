@@ -11,12 +11,12 @@ import { Modal } from 'react-bootstrap';
 import { IMeeting } from '../../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { RenderEvent } from '../../../styles';
+import { generateColorCode } from '../../../utils';
 
 type Props = {
   meetings?: IMeeting[];
   queryParams: any;
   currentUser: IUser;
-  events: any;
   changeDateMeeting: (
     _id: string,
     start: string,
@@ -26,21 +26,26 @@ type Props = {
 };
 
 function CalendarComponent(props: Props) {
-  const {
-    events,
-    queryParams,
-    currentUser,
-    meetings,
-    changeDateMeeting
-  } = props;
+  const { queryParams, currentUser, meetings, changeDateMeeting } = props;
   const [showModal, setShowModal] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [updatedMeetings, setMeetings] = useState(meetings);
   const history = useHistory();
 
   useEffect(() => {
     setShowModal(false);
-  }, [meetings]);
+    setMeetings(meetings);
+  }, [meetings, meetings.length]);
+
+  const events =
+    updatedMeetings?.map((meeting: IMeeting) => ({
+      title: meeting.title,
+      start: new Date(meeting.startDate), // Year, Month (0-11), Day, Hour, Minute
+      end: new Date(meeting.endDate),
+      id: meeting._id,
+      color: generateColorCode(meeting.createdBy)
+    })) || [];
 
   const handleDateSelect = selectInfo => {
     let calendarApi = selectInfo.view.calendar;
@@ -89,25 +94,28 @@ function CalendarComponent(props: Props) {
 
   return (
     <>
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        }}
-        height="80vh"
-        initialView="dayGridMonth"
-        editable={true}
-        selectMirror={true}
-        selectable={true}
-        dayMaxEvents={true}
-        initialEvents={events}
-        select={handleDateSelect}
-        eventContent={renderEventContent}
-        eventClick={handleEventClick}
-        eventChange={changeEvent}
-      />
+      <div style={{ width: '100%' }}>
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+          }}
+          height="80vh"
+          initialView="dayGridMonth"
+          editable={true}
+          selectMirror={true}
+          selectable={true}
+          dayMaxEvents={true}
+          events={events}
+          select={handleDateSelect}
+          eventContent={renderEventContent}
+          eventClick={handleEventClick}
+          eventChange={changeEvent}
+          firstDay={1}
+        />
+      </div>
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton={true}>
           <Modal.Title>Create Meeting</Modal.Title>

@@ -9,20 +9,15 @@ import {
   Colors,
   Logos,
   AppearanceWrapper,
-  WelcomeContent
+  TeamPortal,
+  FeatureRow,
+  FeatureRowItem
 } from '../styles';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorPick, ColorPicker } from '../styles';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { IExm, IWelcomeContent } from '../types';
-
-const getEmptyPage = () => ({
-  _id: Math.random().toString(),
-  image: undefined,
-  title: '',
-  content: ''
-});
+import { IExm } from '../types';
 
 type Props = {
   exm: IExm;
@@ -31,35 +26,33 @@ type Props = {
 
 export default function Appearance(props: Props) {
   const { exm, edit } = props;
+
   const exmLogo = exm.logo;
+  const exmFavicon = exm.favicon;
   const exmAppearance = exm.appearance;
-  const exmPages = exm.welcomeContent || ([] as IWelcomeContent[]);
   const [logo, setLogo] = useState(exmLogo);
+  const [favicon, setFavicon] = useState(exmFavicon);
+  const [url, setUrl] = useState(exm.url || '');
+  const [webName, setWebName] = useState(exm.webName || '');
+  const [webDescription, setWebDescription] = useState(
+    exm.webDescription || ''
+  );
   const [appearance, setAppearance] = useState(
     exmAppearance
       ? {
           primaryColor: exmAppearance.primaryColor,
-          secondaryColor: exmAppearance.secondaryColor
+          secondaryColor: exmAppearance.secondaryColor,
+          bodyColor: exmAppearance.bodyColor,
+          headerColor: exmAppearance.headerColor,
+          footerColor: exmAppearance.footerColor
         }
-      : { primaryColor: 'red', secondaryColor: 'green' }
-  );
-
-  const [welcomeContent, setWelcomeContent] = useState(
-    exmPages.length > 0
-      ? exmPages.map(e => ({
-          _id: e._id,
-          title: e.title,
-          content: e.content,
-          image: e.image
-            ? {
-                name: e.image.name,
-                url: e.image.url,
-                size: e.image.size,
-                type: e.image.type
-              }
-            : undefined
-        }))
-      : [getEmptyPage()]
+      : {
+          primaryColor: 'red',
+          secondaryColor: 'green',
+          bodyColor: '',
+          headerColor: '',
+          footerColor: ''
+        }
   );
 
   const onSave = () => {
@@ -73,33 +66,23 @@ export default function Appearance(props: Props) {
             type: logo.type
           }
         : undefined,
-      welcomeContent,
-      appearance
+      appearance,
+      webName,
+      webDescription,
+      url,
+      favicon: favicon
+        ? {
+            name: favicon.name,
+            url: favicon.url,
+            size: favicon.size,
+            type: favicon.type
+          }
+        : undefined
     });
-  };
-
-  const onChangePageCount = (type: string, _id?: string) => {
-    if (type === 'add') {
-      setWelcomeContent([...welcomeContent, getEmptyPage()]);
-    } else {
-      const modifiedContents = welcomeContent.filter(f => f._id !== _id);
-
-      setWelcomeContent(modifiedContents);
-    }
   };
 
   const onChangeColor = (key: string, value: any) => {
     setAppearance({ ...appearance, [key]: value });
-  };
-
-  const onChangePageItem = (_id: string, key: string, value: any) => {
-    const page = welcomeContent.find(f => f._id === _id);
-
-    if (page) {
-      page[key] = value;
-
-      setWelcomeContent([...welcomeContent]);
-    }
   };
 
   const onChangeAttachment = (e: any) => {
@@ -136,58 +119,66 @@ export default function Appearance(props: Props) {
     );
   };
 
-  const renderWelcomeContent = (page, index: number) => {
-    const image = welcomeContent[index].image;
-
-    return (
-      <div key={index}>
-        <button
-          style={{ float: 'right' }}
-          onClick={() => onChangePageCount('remove', page._id)}
-        >
-          X
-        </button>
-        <ControlLabel>Page {index + 1}</ControlLabel>
-        <Uploader
-          defaultFileList={image ? [image] : []}
-          onChange={(e: any) => {
-            return onChangePageItem(page._id, 'image', e[0]);
-          }}
-          single={true}
-        />
-        <FormControl
-          name="title"
-          placeholder="Title"
-          value={page.title}
-          onChange={(e: any) => {
-            return onChangePageItem(page._id, 'title', e.target.value);
-          }}
-        />
-        <FormControl
-          name="description"
-          placeholder="Description"
-          componentClass="textarea"
-          value={page.content}
-          onChange={(e: any) => {
-            return onChangePageItem(page._id, 'content', e.target.value);
-          }}
-        />
-      </div>
-    );
-  };
-
   return (
     <AppearanceWrapper>
       <GeneralWrapper>
+        <TeamPortal>
+          <p>EXM Web Appearance</p>
+          <FeatureRow>
+            <FeatureRowItem>
+              <ControlLabel>{__('Name your exm')}</ControlLabel>
+              <FormControl
+                value={webName}
+                placeholder="Name"
+                onChange={(e: any) => setWebName(e.target.value)}
+              />
+            </FeatureRowItem>
+            <FeatureRowItem>
+              <ControlLabel>{__('Describe your team portal')}</ControlLabel>
+              <FormControl
+                value={webDescription}
+                placeholder="Description"
+                onChange={(e: any) => setWebDescription(e.target.value)}
+              />
+            </FeatureRowItem>
+          </FeatureRow>
+          <FeatureRow>
+            <FeatureRowItem>
+              <ControlLabel>{__('Website')}</ControlLabel>
+              <FormControl
+                value={url}
+                placeholder="website"
+                onChange={(e: any) => setUrl(e.target.value)}
+              />
+            </FeatureRowItem>
+          </FeatureRow>
+        </TeamPortal>
         <Logos>
-          <p>Logos</p>
-          <ControlLabel>{__('Logo 128x128 or 256x256')}</ControlLabel>
-          <Uploader
-            defaultFileList={logo ? [logo] : []}
-            onChange={(e: any) => onChangeAttachment(e.length ? e[0] : null)}
-            single={true}
-          />
+          <p>Logo and favicon</p>
+          <FeatureRow>
+            <FeatureRowItem>
+              <p>Logos</p>
+              <ControlLabel>{__('Logo 128x128 or 256x256')}</ControlLabel>
+              <Uploader
+                defaultFileList={logo ? [logo] : []}
+                onChange={(e: any) =>
+                  onChangeAttachment(e.length ? e[0] : null)
+                }
+                single={true}
+              />
+            </FeatureRowItem>
+            <FeatureRowItem>
+              <p>Favicon</p>
+              <ControlLabel>{__('Logo 128x128 or 256x256')}</ControlLabel>
+              <Uploader
+                defaultFileList={favicon ? [favicon] : []}
+                onChange={(e: any) => setFavicon(e.length ? e[0] : null)}
+                single={true}
+              />
+            </FeatureRowItem>
+          </FeatureRow>
         </Logos>
+
         <Colors>
           <p>Colors</p>
           <div>
@@ -198,14 +189,19 @@ export default function Appearance(props: Props) {
             <ControlLabel>{__('Secondary color')}</ControlLabel>
             {renderColorSelect('secondaryColor', appearance.secondaryColor)}
           </div>
+          <div>
+            <ControlLabel>{__('Body color')}</ControlLabel>
+            {renderColorSelect('bodyColor', appearance.bodyColor)}
+          </div>
+          <div>
+            <ControlLabel>{__('Header color')}</ControlLabel>
+            {renderColorSelect('headerColor', appearance.headerColor)}
+          </div>
+          <div>
+            <ControlLabel>{__('Footer color')}</ControlLabel>
+            {renderColorSelect('footerColor', appearance.footerColor)}
+          </div>
         </Colors>
-        <WelcomeContent>
-          <p>Welcome content</p>
-          <Button onClick={() => onChangePageCount('add')}>+ Add Page</Button>
-          {welcomeContent.map((page, index) =>
-            renderWelcomeContent(page, index)
-          )}
-        </WelcomeContent>
         <Button btnStyle="success" onClick={onSave}>
           Save
         </Button>

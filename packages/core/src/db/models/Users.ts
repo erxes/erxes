@@ -112,6 +112,13 @@ export interface IUserModel extends Model<IUserDocument> {
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
   login(params: ILoginParams): { token: string; refreshToken: string };
+  checkLoginAuth({
+    email,
+    password
+  }: {
+    email: string;
+    password?: string;
+  }): Promise<IUserDocument>;
   getTokenFields(user: IUserDocument);
   logout(_user: IUserDocument, token: string): string;
   createSystemUser(doc: IAppDocument): IUserDocument;
@@ -882,7 +889,43 @@ export const loadUserClass = (models: IModels) => {
     public static findUsers(query: any, options?: any) {
       const filter = { ...query, role: { $ne: USER_ROLES.SYSTEM } };
 
+      try {
+        models.Users.find(filter, options).lean();
+      } catch (e) {
+        console.log(e);
+      }
+
       return models.Users.find(filter, options).lean();
+    }
+
+    public static async checkLoginAuth({
+      email,
+      password
+    }: {
+      email: string;
+      password: string;
+    }) {
+      const user = await models.Users.findOne({
+        $or: [
+          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { username: { $regex: new RegExp(`^${email}$`, 'i') } }
+        ],
+        isActive: true
+      });
+
+      if (!user || !user.password) {
+        // user with provided email not found
+        throw new Error('Invalid login');
+      }
+
+      const valid = await this.comparePassword(password, user.password);
+
+      if (!valid) {
+        // bad password
+        throw new Error('Invalid login');
+      }
+
+      return user;
     }
   }
 

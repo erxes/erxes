@@ -1,3 +1,4 @@
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
@@ -13,6 +14,8 @@ export interface IPosOrderItem {
   isPackage?: boolean;
   isTake?: boolean;
   manufacturedDate?: string;
+  description?: string;
+  attachment?: IAttachment;
 }
 export interface IPosOrderItemDocument extends IPosOrderItem, Document {
   _id: string;
@@ -22,6 +25,11 @@ export interface IPaidAmount {
   type: string;
   amount: number;
   info?: any;
+}
+
+export interface IMobileAmount {
+  _id?: string;
+  amount: number;
 }
 
 export interface IPosOrder {
@@ -34,6 +42,7 @@ export interface IPosOrder {
   customerType?: string;
   cashAmount?: number;
   mobileAmount?: number;
+  mobileAmounts: IMobileAmount[];
   paidAmounts?: IPaidAmount[];
   totalAmount?: number;
   finalAmount?: number;
@@ -46,11 +55,14 @@ export interface IPosOrder {
   userId?: string;
   items?: IPosOrderItem[];
   branchId: string;
+  subBranchId: string;
   departmentId: string;
   posToken: string;
   syncedErkhet?: Boolean;
   syncErkhetInfo?: string;
   deliveryInfo?: any;
+  description?: string;
+  isPre?: boolean;
   origin?: string;
   taxInfo?: any;
   convertDealId?: string;
@@ -114,7 +126,9 @@ const posOrderItemSchema = schemaHooksWrapper(
       label: 'inner or skip ebarimt',
       default: false
     }),
-    manufacturedDate: field({ type: String, label: 'manufactured' })
+    manufacturedDate: field({ type: String, label: 'manufactured' }),
+    description: field({ type: String, label: 'Description' }),
+    attachment: field({ type: Object, label: 'Attachment' })
   }),
   'erxes_posOrderItem'
 );
@@ -126,11 +140,17 @@ const paidAmountSchema = new Schema({
   info: field({ type: Object })
 });
 
+const mobileAmountSchema = new Schema({
+  _id: field({ pkey: true }),
+  amount: field({ type: Number })
+});
+
 const returnInfoSchema = new Schema({
   cashAmount: field({ type: Number }),
   paidAmounts: field({ type: [paidAmountSchema] }),
   returnAt: field({ type: Date }),
-  returnBy: field({ type: String })
+  returnBy: field({ type: String }),
+  description: field({ type: String })
 });
 
 export const posOrderSchema = schemaHooksWrapper(
@@ -145,6 +165,11 @@ export const posOrderSchema = schemaHooksWrapper(
     customerType: field({ type: String, label: 'Customer type' }),
     cashAmount: field({ type: Number, label: 'Cash amount' }),
     mobileAmount: field({ type: Number, label: 'Mobile amount' }),
+    mobileAmounts: field({
+      type: [mobileAmountSchema],
+      optional: true,
+      label: 'Mobile amounts'
+    }),
     paidAmounts: field({ type: [paidAmountSchema], label: 'Paid amounts' }),
     totalAmount: field({ type: Number, label: 'Total amount' }),
     finalAmount: field({ type: Number, label: 'finalAmount' }),
@@ -176,6 +201,7 @@ export const posOrderSchema = schemaHooksWrapper(
     items: field({ type: [posOrderItemSchema], label: 'items' }),
     branchId: field({ type: String, label: 'Branch' }),
     departmentId: field({ type: String, label: 'Department' }),
+    subBranchId: field({ type: String, label: 'Sub Branch' }),
     posToken: field({ type: String, optional: true, label: 'Token' }),
 
     syncedErkhet: field({ type: Boolean, default: false }),
@@ -188,6 +214,16 @@ export const posOrderSchema = schemaHooksWrapper(
       type: Object,
       optional: true,
       label: 'Delivery Info, address, map, etc'
+    }),
+    description: field({
+      type: String,
+      label: 'Description',
+      optional: true
+    }),
+    isPre: field({
+      type: Boolean,
+      label: 'Is Pre-Order',
+      optional: true
     }),
     origin: field({ type: String, optional: true, label: 'origin' }),
     taxInfo: field({ type: Object, optional: true }),

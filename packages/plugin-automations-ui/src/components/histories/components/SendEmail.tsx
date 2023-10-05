@@ -50,7 +50,7 @@ class SendEmail extends React.Component<Props> {
     const getLabelText = response => {
       if (response.error) {
         return typeof response?.error === 'object'
-          ? `${response?.error?.error || ''}`
+          ? JSON.stringify(response.error || {})
           : `${response?.error}`;
       }
 

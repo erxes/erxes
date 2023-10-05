@@ -28,6 +28,7 @@ import {
   connectorPaintStyle,
   createInitialConnections,
   deleteConnection,
+  getTriggerConfig,
   getTriggerType,
   hoverPaintStyle,
   noEndPoint,
@@ -793,6 +794,11 @@ class AutomationForm extends React.Component<Props, State> {
               addAction={this.addAction}
               closeModal={onBackAction}
               triggerType={getTriggerType(actions, triggers, activeAction.id)}
+              triggerConfig={getTriggerConfig(
+                actions,
+                triggers,
+                activeAction.id
+              )}
               actionsConst={actionsConst}
               propertyTypesConst={propertyTypesConst}
             />

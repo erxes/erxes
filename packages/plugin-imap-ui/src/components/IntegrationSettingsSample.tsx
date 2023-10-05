@@ -1,5 +1,6 @@
-import React from 'react';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
 
 class Settings extends React.Component<any> {
@@ -8,7 +9,11 @@ class Settings extends React.Component<any> {
 
     return (
       <div>
-        <CollapseContent title="IMAP">
+        <CollapseContent
+          title="IMAP"
+          beforeTitle={<Icon icon="envelope-edit" />}
+          transparent={true}
+        >
           {renderItem('imap_host', '', '', '', 'Host')}
           {renderItem('imap_user', '', '', '', 'User')}
           {renderItem('imap_password', '', '', '', 'Password')}

@@ -18,7 +18,10 @@
     "http-proxy-middleware": "^2.0.6",
     "jsonwebtoken": "^8.5.1",
     "nodejs-file-downloader": "^4.10.6",
-    "sqlstring": "^2.3.2",
-    "ts-node": "^10.4.0"
+    "sqlstring": "^2.3.2"
+  },
+  "resolutions": {
+    "@cubejs-backend/server/**/graphql" : "^16.7.1",
+    "@cubejs-backend/server-core/**/graphql" : "^16.7.1"
   }
 }

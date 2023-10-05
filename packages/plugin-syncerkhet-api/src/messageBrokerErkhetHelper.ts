@@ -131,7 +131,7 @@ export const sendRPCMessage = async (
     const correlationId = uuid();
 
     return channel.assertQueue('', { exclusive: true }).then(q => {
-      const timeoutMs = message.timeout || process.env.RPC_TIMEOUT || 55000;
+      const timeoutMs = message.timeout || process.env.RPC_TIMEOUT || 590000;
       var interval = setInterval(() => {
         channel.deleteQueue(q.queue);
 
@@ -199,6 +199,7 @@ RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
           console.log(`Connected to rabbitmq server ${RABBITMQ_HOST}`);
 
           conn.on('error', me.reconnect.bind(me, RABBITMQ_HOST));
+          conn.on('close', me.reconnect.bind(me, RABBITMQ_HOST));
 
           return conn.createChannel().then(function(chan) {
             channel = chan;

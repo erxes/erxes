@@ -19,7 +19,6 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { dateFormat, timeFormat } from '../../constants';
 import * as dayjs from 'dayjs';
-import { AlertContainer } from '../../styles';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
@@ -44,7 +43,7 @@ type Props = {
   shiftStatus?: string;
 
   requestedShifts?: IShift[];
-  scheduleConfigs: IScheduleConfig[];
+  scheduleConfigs?: IScheduleConfig[];
 
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
@@ -145,79 +144,85 @@ const ListContainer = (props: FinalProps) => {
     }
   };
 
-  const checkDuplicateScheduleShifts = (variables: any) => {
-    const { userType } = variables;
+  const checkDuplicateScheduleShifts = async (variables: any) => {
+    const { userType, checkOnly } = variables;
     let duplicateSchedules: ISchedule[] = [];
 
-    checkDuplicateScheduleShiftsMutation({
+    const res = await checkDuplicateScheduleShiftsMutation({
       variables
-    })
-      .then(res => {
-        duplicateSchedules = res.data.checkDuplicateScheduleShifts;
-        if (!duplicateSchedules.length) {
-          Alert.success('No duplicate schedules');
-          if (checkInput(variables)) {
-            userType === 'admin'
-              ? submitSchedule(variables)
-              : submitRequest(variables);
-          }
-        }
+    });
 
-        const usersWithDuplicateShifts: {
-          [userId: string]: { userInfo: string; shiftInfo: string[] };
-        } = {};
+    duplicateSchedules = await res.data.checkDuplicateScheduleShifts;
+    if (!duplicateSchedules.length) {
+      Alert.success('No duplicate schedules');
+      if (checkOnly) {
+        return duplicateSchedules;
+      }
+      if (checkInput(variables)) {
+        userType === 'admin'
+          ? submitSchedule(variables)
+          : submitRequest(variables);
+      }
+    }
 
-        for (const duplicateSchedule of duplicateSchedules) {
-          const { user } = duplicateSchedule;
-          const { details } = user;
+    const usersWithDuplicateShifts: {
+      [userId: string]: { userInfo: string; shiftInfo: string[] };
+    } = {};
 
-          const getUserInfo =
-            user && details && details.fullName
-              ? details.fullName
-              : user.email || user.employeeId;
+    for (const duplicateSchedule of duplicateSchedules) {
+      const { user } = duplicateSchedule;
+      const { details } = user;
 
-          const duplicateShifts: string[] = [];
+      const getUserInfo =
+        user && details && details.fullName
+          ? details.fullName
+          : user.email || user.employeeId;
 
-          for (const shift of duplicateSchedule.shifts) {
-            const shiftDay = dayjs(shift.shiftStart).format(dateFormat);
-            const shiftStart = dayjs(shift.shiftStart).format(timeFormat);
-            const shiftEnd = dayjs(shift.shiftEnd).format(timeFormat);
-            const shiftRequest = duplicateSchedule.solved ? '' : '(Request)';
+      const duplicateShifts: string[] = [];
 
-            duplicateShifts.push(
-              `${shiftRequest} ${shiftDay} ${shiftStart} ~ ${shiftEnd}`
-            );
-          }
+      for (const shift of duplicateSchedule.shifts) {
+        const shiftDay = dayjs(shift.shiftStart).format(dateFormat);
+        const shiftStart = dayjs(shift.shiftStart).format(timeFormat);
+        const shiftEnd = dayjs(shift.shiftEnd).format(timeFormat);
+        const shiftRequest = duplicateSchedule.solved ? '' : '(Request)';
 
-          usersWithDuplicateShifts[user._id] = {
-            userInfo: getUserInfo || '-',
-            shiftInfo: duplicateShifts
-          };
-        }
-
-        const alertMessages: any = [];
-        for (const userId of Object.keys(usersWithDuplicateShifts)) {
-          const displayDuplicateShifts = usersWithDuplicateShifts[
-            userId
-          ].shiftInfo.join('\n');
-
-          const displayUserInfo = usersWithDuplicateShifts[userId].userInfo;
-
-          alertMessages.push(
-            (Alert.error(
-              `${displayUserInfo} has duplicate schedule:\n${displayDuplicateShifts}`
-            ),
-            200000)
-          );
-        }
-
-        return (
-          <AlertContainer>
-            <>{alertMessages.map(alertMessage => alertMessage)}</>
-          </AlertContainer>
+        duplicateShifts.push(
+          `${shiftDay} ${shiftStart} ~ ${shiftEnd} ${shiftRequest} `
         );
-      })
-      .catch(err => Alert.error(err.message));
+      }
+
+      if (user._id in usersWithDuplicateShifts) {
+        const prev = usersWithDuplicateShifts[user._id];
+        const prevShiftInfo = usersWithDuplicateShifts[user._id].shiftInfo;
+        usersWithDuplicateShifts[user._id] = {
+          ...prev,
+          shiftInfo: [...prevShiftInfo, ...duplicateShifts]
+        };
+
+        continue;
+      }
+
+      usersWithDuplicateShifts[user._id] = {
+        userInfo: getUserInfo || '-',
+        shiftInfo: duplicateShifts
+      };
+    }
+
+    const alertMessages: any = [];
+    for (const userId of Object.keys(usersWithDuplicateShifts)) {
+      const displayDuplicateShifts = usersWithDuplicateShifts[
+        userId
+      ].shiftInfo.join('\n');
+
+      const displayUserInfo = usersWithDuplicateShifts[userId].userInfo;
+
+      alertMessages.push(
+        (Alert.error(
+          `${displayUserInfo} has duplicate schedule:\n${displayDuplicateShifts}`
+        ),
+        200000)
+      );
+    }
 
     return duplicateSchedules;
   };

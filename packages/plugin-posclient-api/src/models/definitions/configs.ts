@@ -167,12 +167,20 @@ export const configSchema = new Schema({
   status: field({ type: String, optional: true })
 });
 
-export const productGroupSchema = new Schema({
+// products config
+export interface IProductsConfig {
+  code: string;
+  value: any;
+}
+
+export interface IProductsConfigDocument extends IProductsConfig, Document {
+  _id: string;
+}
+
+// Mongoose schemas ===========
+
+export const productsConfigSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String }),
-  description: field({ type: String }),
-  posId: field({ type: String }),
-  categoryIds: field({ type: [String], optional: true }),
-  excludedCategoryIds: field({ type: [String], optional: true }),
-  excludedProductIds: field({ type: [String], optional: true })
+  code: field({ type: String, unique: true }),
+  value: field({ type: Object })
 });

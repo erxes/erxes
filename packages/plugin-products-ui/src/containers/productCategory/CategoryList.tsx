@@ -1,16 +1,19 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import List from '../../components/productCategory/CategoryList';
-import { mutations, queries } from '../../graphql';
 import {
   ProductCategoriesCountQueryResponse,
   ProductCategoryRemoveMutationResponse,
   ProductsQueryResponse
 } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import List from '../../components/productCategory/CategoryList';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+
 type Props = { history: any; queryParams: any };
 
 type FinalProps = {
@@ -79,7 +82,7 @@ export default withProps<Props>(
         name: 'productCategoriesQuery',
         options: ({ queryParams }) => ({
           variables: {
-            status: queryParams.status,
+            status: queryParams.categoryStatus,
             parentId: queryParams.parentId
           },
           refetchQueries: getRefetchQueries(),

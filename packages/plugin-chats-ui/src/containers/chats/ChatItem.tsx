@@ -9,22 +9,29 @@ import * as router from '@erxes/ui/src/utils/router';
 // local
 import Component from '../../components/chats/ChatItem';
 import { queries, mutations } from '../../graphql';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
-  chat: any;
-  active: boolean;
-  isPinned: boolean;
+  chat?: any;
+  active?: boolean;
+  isPinned?: boolean;
   isWidget?: boolean;
   hasOptions?: boolean;
   handlePin: (chatId: string) => void;
   handleClickItem?: (chatId: string) => void;
+  currentUser?: IUser;
+  notContactUser?: IUser;
+  isForward?: boolean;
+  forwardChat?: (id: string, type: string) => void;
+  forwardedChatIds?: string[];
 };
 
 const ChatItemContainer = (props: Props) => {
-  const { chat, active } = props;
+  const { chat, active, handleClickItem, isWidget } = props;
   const history = useHistory();
   const [removeMutation] = useMutation(gql(mutations.chatRemove));
   const [markAsReadMutation] = useMutation(gql(mutations.chatMarkAsRead));
+  const [chatAddMutation] = useMutation(gql(mutations.chatAdd));
 
   const remove = () => {
     confirm()
@@ -56,7 +63,41 @@ const ChatItemContainer = (props: Props) => {
     });
   };
 
-  return <Component {...props} remove={remove} markAsRead={markAsRead} />;
+  const createChat = (userIds: string[]) => {
+    if (isWidget) {
+      chatAddMutation({
+        variables: { type: 'direct', participantIds: userIds || [] }
+      })
+        .then(({ data }) => {
+          if (handleClickItem) {
+            handleClickItem(data.chatAdd._id);
+          }
+          if (props.forwardChat) {
+            props.forwardChat(userIds[0], 'direct');
+          }
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    } else {
+      if (props.forwardChat) {
+        props.forwardChat(userIds[0], 'direct');
+      } else {
+        router.removeParams(history, 'id', 'userIds');
+        router.setParams(history, { userId: userIds[0] });
+      }
+    }
+  };
+
+  return (
+    <Component
+      {...props}
+      remove={remove}
+      markAsRead={markAsRead}
+      forwardChat={props.forwardChat}
+      createChat={createChat}
+    />
+  );
 };
 
 export default ChatItemContainer;

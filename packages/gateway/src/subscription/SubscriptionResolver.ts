@@ -18,11 +18,6 @@ import {
   ResolveTree
 } from 'graphql-parse-resolve-info';
 import fetch from 'node-fetch';
-import {
-  AuthenticationError,
-  ApolloError,
-  ForbiddenError
-} from 'apollo-server-errors';
 
 function fieldPathsAsStrings(obj: { [key: string]: any }) {
   const paths = (obj = {}, head = ''): string[] => {
@@ -268,34 +263,19 @@ export default class SubscriptionResolver {
         return merge(payloadData, Object.values(response.data)[0]);
       }
     } catch (error) {
-      console.error(error);
+      console.error(
+        '----------------- subscription resolver request error ---------------------------'
+      );
+      console.error('query', query);
+      console.error('error', error);
+      console.error(
+        '---------------------------------------------------------------------------------'
+      );
     }
   }
 
   private async query(graphqlRequest: GraphQLRequest): Promise<FetchResult> {
-    try {
-      const response = await toPromise(
-        execute(this.apolloLink, graphqlRequest)
-      );
-      return response;
-    } catch (error) {
-      const status = error.statusCode ? error.statusCode : null;
-      const message = error.bodyText ? error.bodyText : null;
-      let apolloError: ApolloError;
-      switch (status) {
-        case 401:
-          apolloError = new AuthenticationError(message);
-          break;
-        case 403:
-          apolloError = new ForbiddenError(message);
-          break;
-        case 502:
-          apolloError = new ApolloError('Bad Gateway', status);
-          break;
-        default:
-          apolloError = new ApolloError(message, status);
-      }
-      return apolloError;
-    }
+    const response = await toPromise(execute(this.apolloLink, graphqlRequest));
+    return response;
   }
 }

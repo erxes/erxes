@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
@@ -364,6 +364,127 @@ const CustomCollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
   }
 `;
 
+const SortItem = styledTS<{
+  isDragging: boolean;
+  isModal: boolean;
+  column?: number;
+}>(styled.div)`
+  background: ${colors.colorWhite};
+  display: block;
+  padding:10px;
+  margin-bottom: 10px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  border-left: 2px solid transparent; 
+  border-top: ${props =>
+    !props.isDragging ? `1px solid ${colors.borderPrimary}` : 'none'};
+  border-radius: 4px;
+  box-shadow: ${props =>
+    props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : 'none'};
+  left: ${props =>
+    props.isDragging && props.isModal ? '40px!important' : 'auto'};
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:hover {
+    box-shadow: 0 2px 8px ${colors.shadowPrimary};
+    border-color: ${colors.colorSecondary};
+    border-top: none;
+  }
+  ${props =>
+    props.column &&
+    css`
+      width: ${100 / props.column}%;
+      display: inline-block;
+    `}
+`;
+
+const CustomBoxWrapper = styled.div`
+  h3 {
+    margin: 0;
+  }
+
+  a {
+    &::before {
+      margin: 0;
+    }
+  }
+`;
+
+const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
+  background: ${props => (props.pinned ? colors.colorSecondary : '#f5f5f5')};
+  border-radius: 50%;
+  border: 1px solid ${colors.borderPrimary};
+  width: ${dimensions.coreSpacing}px;
+  height: ${dimensions.coreSpacing}px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: -5px;
+  top: -5px;
+
+  i {
+    filter: ${props => !props.pinned && 'brightness(30%)'};
+  }
+
+  &:hover {
+    background: ${colors.colorSecondary};
+
+    i {
+      filter: none;
+    }
+  }
+`;
+
+const CustomContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all ease 0.3s;
+  padding: 15px 0;
+
+  &:hover {
+    color: ${colors.colorSecondary};
+  }
+
+  > label {
+    &:hover {
+      color: ${colors.colorSecondary};
+    }
+    cursor: pointer;
+    transition: all ease 0.3s;
+  }
+`;
+
+const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
+  position: relative;
+
+  margin-right: 10px;
+  input {
+    border: 1px solid ${colors.borderPrimary};
+    padding: 20px 20px 20px 30px;
+    border-radius: 20px;
+    width: ${props => (props.isInPopover ? '250px' : '350px')};
+    margin:  ${props => props.isInPopover && '5px 5px 0'};
+    background: ${colors.colorWhite};
+
+    @media (max-width: 1300px) {
+      min-width: 260px;
+    }
+  }
+
+  i {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 15px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
 export {
   FilterItem,
   FilterWrapper,
@@ -396,5 +517,10 @@ export {
   CustomCollapseRow,
   CustomLabel,
   AlertContainer,
-  CustomWidth
+  CustomWidth,
+  CustomBoxWrapper,
+  RoundBox,
+  SortItem,
+  CustomContainer,
+  SearchInput
 };

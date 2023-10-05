@@ -1,24 +1,25 @@
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'modules/common/utils';
-import UserList from '../containers/UserList';
-import Sidebar from './Sidebar';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
 import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
-import { router } from '@erxes/ui/src/utils';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import UserInvitationForm from '../containers/UserInvitationForm';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Select from 'react-select-plus';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import Sidebar from './Sidebar';
+import UserInvitationForm from '../containers/UserInvitationForm';
+import UserList from '../containers/UserList';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'modules/common/utils';
+import { colors } from '@erxes/ui/src/styles';
+import { router } from '@erxes/ui/src/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '@erxes/ui/src/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import Pagination from 'modules/common/components/pagination/Pagination';
 
 const ActiveColor = styledTS<{ active: boolean }>(styled.div)`
   background: ${props =>
@@ -175,7 +176,7 @@ export default function Home(props: Props) {
       hasFlex={true}
       right={righActionBar}
       left={renderFilter}
-      wideSpacing
+      wideSpacing={true}
     />
   );
 
@@ -184,6 +185,7 @@ export default function Home(props: Props) {
       header={
         <Wrapper.Header
           title={__('Team members')}
+          queryParams={queryParams}
           breadcrumb={[{ title: 'Team members' }]}
         />
       }
@@ -192,7 +194,7 @@ export default function Home(props: Props) {
       content={<UserList history={history} queryParams={queryParams} />}
       transparent={true}
       footer={<Pagination count={totalCount} />}
-      hasBorder
+      hasBorder={true}
     />
   );
 }

@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 import { DocumentNode } from 'graphql';
 import { types, queries } from './schema';
 

@@ -32,11 +32,7 @@ const FormContainer = (props: Props) => {
     return (
       <ButtonMutate
         mutation={object._id ? mutations.unitsEdit : mutations.unitsAdd}
-        refetchQueries={[
-          {
-            query: gql(queries.units)
-          }
-        ]}
+        refetchQueries={['unitsMain']}
         variables={values}
         isSubmitted={isSubmitted}
         type="submit"

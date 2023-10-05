@@ -9,8 +9,10 @@ import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import { filterXSS } from 'xss';
-import { buildSubgraphSchema } from '@apollo/federation';
-import { ApolloServer } from 'apollo-server-express';
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import * as cookieParser from 'cookie-parser';
 
 import * as http from 'http';
@@ -22,7 +24,6 @@ import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import pubsub from './pubsub';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import * as ws from 'ws';
 
@@ -99,7 +100,7 @@ if (configs.getHandlers) {
 
 app.disable('x-powered-by');
 
-app.use(cors());
+app.use(cors(configs.corsOptions || {}));
 
 app.use(cookieParser());
 
@@ -208,73 +209,7 @@ const generateApolloServer = async serviceDiscovery => {
     ]),
 
     // for graceful shutdown
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: async ({ req, res }) => {
-      let user: any = null;
-
-      if (req.headers.user) {
-        if (Array.isArray(req.headers.user)) {
-          throw new Error(`Multiple user headers`);
-        }
-        const userJson = Buffer.from(req.headers.user, 'base64').toString(
-          'utf-8'
-        );
-        user = JSON.parse(userJson);
-      }
-
-      let context;
-
-      if (USE_BRAND_RESTRICTIONS !== 'true') {
-        context = {
-          brandIdSelector: {},
-          singleBrandIdSelector: {},
-          userBrandIdsSelector: {},
-          docModifier: doc => doc,
-          commonQuerySelector: {},
-          user,
-          res
-        };
-      } else {
-        let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
-        let brandIds = [];
-        let brandIdSelector = {};
-        let commonQuerySelector = {};
-        let commonQuerySelectorElk;
-        let userBrandIdsSelector = {};
-        let singleBrandIdSelector = {};
-
-        if (user) {
-          brandIds = user.brandIds || [];
-
-          if (scopeBrandIds.length === 0) {
-            scopeBrandIds = brandIds;
-          }
-
-          if (!user.isOwner && scopeBrandIds.length > 0) {
-            brandIdSelector = { _id: { $in: scopeBrandIds } };
-            commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
-            commonQuerySelectorElk = { terms: { scopeBrandIds } };
-            userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
-            singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
-          }
-        }
-
-        context = {
-          brandIdSelector,
-          singleBrandIdSelector,
-          docModifier: doc => ({ ...doc, scopeBrandIds }),
-          commonQuerySelector,
-          commonQuerySelectorElk,
-          userBrandIdsSelector,
-          user,
-          res
-        };
-      }
-
-      await configs.apolloServerContext(context, req, res);
-
-      return context;
-    }
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
   });
 };
 
@@ -289,11 +224,77 @@ async function startServer() {
   const apolloServer = await generateApolloServer(serviceDiscovery);
   await apolloServer.start();
 
-  apolloServer.applyMiddleware({
-    app,
-    path: '/graphql',
-    cors: configs.corsOptions || {}
-  });
+  app.use(
+    '/graphql',
+    expressMiddleware(apolloServer, {
+      context: async ({ req, res }) => {
+        let user: any = null;
+
+        if (req.headers.user) {
+          if (Array.isArray(req.headers.user)) {
+            throw new Error(`Multiple user headers`);
+          }
+          const userJson = Buffer.from(req.headers.user, 'base64').toString(
+            'utf-8'
+          );
+          user = JSON.parse(userJson);
+        }
+
+        let context;
+
+        if (USE_BRAND_RESTRICTIONS !== 'true') {
+          context = {
+            brandIdSelector: {},
+            singleBrandIdSelector: {},
+            userBrandIdsSelector: {},
+            docModifier: doc => doc,
+            commonQuerySelector: {},
+            user,
+            res
+          };
+        } else {
+          let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+          let brandIds = [];
+          let brandIdSelector = {};
+          let commonQuerySelector = {};
+          let commonQuerySelectorElk;
+          let userBrandIdsSelector = {};
+          let singleBrandIdSelector = {};
+
+          if (user) {
+            brandIds = user.brandIds || [];
+
+            if (scopeBrandIds.length === 0) {
+              scopeBrandIds = brandIds;
+            }
+
+            if (!user.isOwner && scopeBrandIds.length > 0) {
+              brandIdSelector = { _id: { $in: scopeBrandIds } };
+              commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
+              commonQuerySelectorElk = { terms: { scopeBrandIds } };
+              userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
+              singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
+            }
+          }
+
+          context = {
+            brandIdSelector,
+            singleBrandIdSelector,
+            docModifier: doc => ({ ...doc, scopeBrandIds }),
+            commonQuerySelector,
+            commonQuerySelectorElk,
+            userBrandIdsSelector,
+            user,
+            res
+          };
+        }
+
+        await configs.apolloServerContext(context, req, res);
+
+        return context;
+      }
+    })
+  );
 
   await new Promise<void>(resolve =>
     httpServer.listen({ port: PORT }, resolve)
@@ -309,7 +310,7 @@ async function startServer() {
   }
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
+    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`
   );
 
   const mongoUrl = MONGO_URL || '';

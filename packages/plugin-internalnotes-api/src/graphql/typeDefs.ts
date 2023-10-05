@@ -1,12 +1,8 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
-import {
-  types,
-  queries,
-  mutations
-} from './schema/internalNote';
+import { types, queries, mutations } from './schema/internalNote';
 
-const typeDefs = async (_serviceDiscovery) => {
+const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date

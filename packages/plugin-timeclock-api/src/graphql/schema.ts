@@ -18,7 +18,7 @@ export const types = `
     _id: String! @external
   }
 
-  type Timeclock {
+  type Timeclock @key(fields: "_id"){
     _id: String!
     user: User
     shiftStart: Date
@@ -46,7 +46,7 @@ export const types = `
     deviceName: String
   }
 
-  type Absence {
+  type Absence @key(fields: "_id"){
     _id: String!
     user: User
     holidayName: String
@@ -61,6 +61,8 @@ export const types = `
     absenceTimeType: String
     requestDates: [String]
     totalHoursOfAbsence: String
+
+    note: String
   }
 
   type AbsenceType {
@@ -86,6 +88,13 @@ export const types = `
     lunchBreakInMins: Int
   }
 
+  input ConfigOrderInput {
+   scheduleConfigId: String
+   order: Int
+   pinned: Boolean
+   label: String 
+  }
+
   type Shift{
     _id: String
     scheduleConfigId: String
@@ -97,7 +106,7 @@ export const types = `
     lunchBreakInMins: Int
   }
 
-  type Schedule {
+  type Schedule @key(fields: "_id"){
     _id: String!
     user: User
     shifts: [Shift]
@@ -174,7 +183,8 @@ export const types = `
 
     scheduledShifts: [Shift]
     timeclocks: [Timeclock]
-    
+    requests: [Absence]
+
     totalHoursWorkedSelectedDay: Float
     totalHoursScheduledSelectedDay: Float
     totalMinsLateSelectedDay: Float
@@ -219,6 +229,19 @@ export const types = `
     shiftStart: String
     shiftEnd: String
     configDays: [ConfigDay]
+  }
+  
+  type ScheduleConfigOrderItem {
+    order: Int
+    pinned: Boolean
+    scheduleConfigId: String
+    label: String
+  }
+  
+  type ScheduleConfigOrder {
+    _id: String!
+    userId: String
+    orderedList: [ScheduleConfigOrderItem]
   }
 
   type ConfigDay {
@@ -301,6 +324,8 @@ const queryParams = `
   reportType: String
   scheduleStatus: String
   isCurrentUserAdmin: Boolean
+
+  searchValue: String
 `;
 
 const commonParams = `
@@ -369,6 +394,8 @@ export const queries = `
   scheduleConfigs: [ScheduleConfig]
   
   deviceConfigs(${queryParams}): DeviceConfigsListResponse
+  scheduleConfigOrder(userId: String): ScheduleConfigOrder
+
   payDates: [PayDate]
   holidays: [Absence]
 
@@ -393,9 +420,10 @@ export const mutations = `
   
   sendScheduleRequest(userId: String, shifts: [ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
   submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
+  editSchedule(_id: String!, shifts: [ShiftInput]): JSON
   checkDuplicateScheduleShifts(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], status: String): [DuplicateSchedule]
 
-  solveAbsenceRequest(_id: String, status: String): Absence
+  solveAbsenceRequest(_id: String, status: String, note: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): Shift
   
@@ -403,6 +431,8 @@ export const mutations = `
   scheduleConfigEdit(_id : String ,scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
   scheduleConfigRemove(_id : String ): JSON
   
+  scheduleConfigOrderEdit(userId: String, orderedList:[ConfigOrderInput]): JSON
+
   payDateAdd(dateNums: [Int]): PayDate
   payDateEdit(_id: String, dateNums: [Int]): PayDate
   payDateRemove(_id: String): JSON

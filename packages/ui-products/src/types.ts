@@ -63,6 +63,8 @@ export interface IProductCategory {
   meta: string;
   maskType: string;
   mask: any;
+  isSimilarity: boolean;
+  similarities: any[];
 }
 
 export type MutationVariables = {
@@ -89,7 +91,12 @@ export type ProductRemoveMutationResponse = {
 
 export type ProductsQueryResponse = {
   loading: boolean;
-  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
+  refetch: (variables?: {
+    searchValue?: string;
+    perPage?: number;
+    categoryId?: string;
+    vendorId?: string;
+  }) => void;
   products: IProduct[];
 };
 

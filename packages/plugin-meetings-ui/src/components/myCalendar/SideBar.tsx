@@ -4,16 +4,22 @@ import { colors } from '@erxes/ui/src/styles';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import React, { useState, useEffect } from 'react';
 import { IMeeting } from '../../types';
-import { IUser, IUserConversation } from '@erxes/ui/src/auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import * as moment from 'moment';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { ChatListSearch, ParticipantList } from '../../styles';
+import { MeetingListSearch, ParticipantList } from '../../styles';
 import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { generateColorCode } from '../../utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { Button, Icon } from '@erxes/ui/src/components';
+import { ModalTrigger } from '@erxes/ui/src';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { ChooseOwnerFormContainer } from '../../containers/myCalendar/ChooseOwnerForm';
+
+const { Section } = Wrapper.Sidebar;
 
 type Props = {
   closeModal?: () => void;
@@ -22,16 +28,24 @@ type Props = {
   queryParams: any;
   loading: boolean;
   participantUsers: IUser[];
+  pinnedUsers: {
+    pinnedUserIds: string[];
+    userId: string;
+    pinnedUsersInfo: IUser[];
+  };
+  currentUser: IUser;
 };
 
 export const SideBar = (props: Props) => {
-  const { queryParams, meetings, loading, participantUsers } = props;
+  const { queryParams, meetings, loading, pinnedUsers, currentUser } = props;
   const { meetingId } = queryParams;
   const [filteredMeeting, setFilteredMeeting] = useState(meetings);
+  const { pinnedUsersInfo = [] } = pinnedUsers;
+
   const [checkedUsers, setCheckedUsers] = useState(
-    queryParams.participantUserIds
-      ? queryParams.participantUserIds.split(',')
-      : []
+    (queryParams.participantUserIds &&
+      queryParams.participantUserIds.split(',')) ||
+      []
   );
   const history = useHistory();
 
@@ -39,8 +53,8 @@ export const SideBar = (props: Props) => {
     setFilteredMeeting(meetings);
   }, [meetings, meetings.length]);
 
-  const onClick = (meetingId: string) => {
-    router.setParams(history, { meetingId: meetingId });
+  const onClick = (_id: string) => {
+    router.setParams(history, { meetingId: _id });
   };
 
   const ListItem = meeting => {
@@ -100,21 +114,6 @@ export const SideBar = (props: Props) => {
     });
   };
 
-  const otherMeetings = meetings => {
-    const today = moment(); // Get today's date
-    const tomorrow = moment().add(1, 'day'); // Get tomorrow's date
-
-    return meetings.filter(meeting => {
-      const meetingDate = moment(meeting.startDate);
-      return (
-        meeting.status !== 'completed' &&
-        !meetingDate.isSame(today, 'day') &&
-        meetingDate.isAfter(today) &&
-        !meetingDate.isSame(tomorrow, 'day')
-      );
-    });
-  };
-
   const handleSearch = (event: any) => {
     setFilteredMeeting(
       meetings.filter(meeting => {
@@ -128,14 +127,14 @@ export const SideBar = (props: Props) => {
   const handleChange = (e, userId: string) => {
     router.removeParams(history, meetingId);
     const isChecked = e.target.checked;
-    if (isChecked && !checkedUsers.includes(userId)) {
+    if (isChecked && !checkedUsers?.includes(userId)) {
       setCheckedUsers([...checkedUsers, userId]);
       const participantIds = [...checkedUsers, userId];
       const queryString = 'participantUserIds=' + participantIds.join(',');
 
       return history.push(`${window.location.pathname}?${queryString}`);
     } else {
-      const uncheckedUser = checkedUsers.filter(user => user !== userId);
+      const uncheckedUser = checkedUsers?.filter(user => user !== userId);
       setCheckedUsers(uncheckedUser);
       const queryString = 'participantUserIds=' + uncheckedUser.join(',');
 
@@ -143,22 +142,24 @@ export const SideBar = (props: Props) => {
     }
   };
 
+  const clearUserFilter = () => {
+    router.setParams(history, {
+      searchUserValue: null
+    });
+  };
+
   const data = (
     <SidebarList style={{ padding: '10px 20px' }}>
-      {participantUsers.map((user: any) => {
+      {pinnedUsersInfo?.map((user: any) => {
         return (
           <ParticipantList key={user._id}>
             <FormControl
               componentClass="checkbox"
               onChange={e => handleChange(e, user._id)}
-              defaultChecked={checkedUsers.includes(user._id)}
+              defaultChecked={checkedUsers?.includes(user._id)}
             />
             &emsp;
-            <FieldStyle>
-              {user.details?.fullName !== ' ' && user.details?.fullName !== ''
-                ? user.details.fullName
-                : user.email}
-            </FieldStyle>
+            <FieldStyle>{user?.details?.fullName || user?.email}</FieldStyle>
             <div className="actions">
               <div
                 className="badge"
@@ -170,19 +171,51 @@ export const SideBar = (props: Props) => {
           </ParticipantList>
         );
       })}
+
+      <Section.QuickButtons>
+        {router.getParam(history, 'searchUserValue') && (
+          <Button btnStyle="warning" onClick={clearUserFilter}>
+            Clear filter
+          </Button>
+        )}
+      </Section.QuickButtons>
     </SidebarList>
+  );
+
+  const trigger = (
+    <a href="#settings" tabIndex={0}>
+      <Icon icon="plus-circle" />
+    </a>
+  );
+
+  const renderForm = ({ closeModal }) => {
+    return (
+      <ChooseOwnerFormContainer
+        closeModal={closeModal}
+        pinnedUserIds={pinnedUsers.pinnedUserIds}
+        currentUser={currentUser}
+      />
+    );
+  };
+
+  const extraButtons = (
+    <ModalTrigger
+      content={({ closeModal }) => renderForm({ closeModal })}
+      title={`Add members`}
+      trigger={trigger}
+    />
   );
 
   return (
     <LeftSidebar>
-      <ChatListSearch>
+      <MeetingListSearch>
         <FormControl
           type="text"
           placeholder="Search Meeting"
           round={true}
           onChange={handleSearch}
         />
-      </ChatListSearch>
+      </MeetingListSearch>
       {todayMeetings(filteredMeeting)?.length > 0 && (
         <Box title="Today" name={`today`} isOpen={true}>
           <SidebarList noTextColor noBackground id="SideBar">
@@ -201,20 +234,18 @@ export const SideBar = (props: Props) => {
           </SidebarList>
         </Box>
       )}
-      {otherMeetings(filteredMeeting)?.length > 0 && (
-        <Box title="Other" name={`other`} isOpen={false}>
-          <SidebarList noTextColor noBackground id="SideBar">
-            {otherMeetings(filteredMeeting).map(meeting => {
-              return ListItem(meeting);
-            })}
-          </SidebarList>
-        </Box>
-      )}
-      <Box title="Other calendar" name={`showCaledar`} isOpen={true}>
+
+      <Box
+        title="Other calendar"
+        name={`showCaledar`}
+        isOpen={true}
+        extraButtons={extraButtons}
+        // collapsible={true}
+      >
         <DataWithLoader
           data={data}
           loading={loading}
-          count={participantUsers?.length}
+          count={pinnedUsersInfo?.length}
           emptyText={'Empty'}
           emptyIcon="leaf"
           size="small"

@@ -3,6 +3,7 @@ const posOrderFields = contactsEnabled => `
   createdAt: Date,
   status: String,
   paidDate: Date,
+  dueDate: Date,
   number: String,
   customerId: String,
   customerType: String,
@@ -24,8 +25,10 @@ const posOrderFields = contactsEnabled => `
   posName: String,
   branchId: String,
   departmentId: String,
+  subBranchId: String,
   branch: JSON,
   department: JSON,
+  subBranch: JSON,
   user: User,
   ${
     contactsEnabled
@@ -35,8 +38,10 @@ const posOrderFields = contactsEnabled => `
       : ''
   }
   syncedErkhet: Boolean,
-  origin: String
-  convertDealId: String
+  description: String,
+  isPre: Boolean,
+  origin: String,
+  convertDealId: String,
   returnInfo: JSON
 `;
 
@@ -132,5 +137,5 @@ export const queries = `
 
 export const mutations = `
   posOrderReturnBill(_id: String!): PosOrder
-  posOrderChangePayments(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: JSON): PosOrder
+  posOrderChangePayments(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: JSON, description: String): PosOrder
 `;

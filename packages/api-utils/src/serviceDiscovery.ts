@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import redisClient from './redis';
-import * as Redis from 'ioredis';
+import Redis from 'ioredis';
 dotenv.config();
 
 const REDIS_CHANNEL_REFRESH_ENABLED_SERVICES = 'refresh_enabled_services';

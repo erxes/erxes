@@ -69,11 +69,12 @@ export const checkRemainders = async (
     return products;
   }
 
-  let branchIds = paramBranchId
+  const branchIds = paramBranchId
     ? [paramBranchId]
     : config.isOnline
-    ? config.allowBranchIds
-    : config.branchId;
+    ? config.allowBranchIds || []
+    : (config.branchId && [config.branchId]) || [];
+  const departmentIds = config.departmentId ? [config.departmentId] : [];
   const productIds = products.map(p => p._id);
 
   if (config.checkRemainder) {
@@ -82,7 +83,7 @@ export const checkRemainders = async (
       action: 'remainders',
       data: {
         productIds,
-        departmentIds: config.departmentId,
+        departmentIds,
         branchIds
       },
       isRPC: true,
@@ -101,7 +102,15 @@ export const checkRemainders = async (
     for (const product of products) {
       product.remainders = remainderByProductId[product._id];
       product.remainder = (remainderByProductId[product._id] || []).reduce(
-        (sum, cur) => sum + cur.count,
+        (sum, cur) => sum + (Number(cur.count) || 0),
+        0
+      );
+      product.soonIn = (remainderByProductId[product._id] || []).reduce(
+        (sum, cur) => sum + (Number(cur.soonIn) || 0),
+        0
+      );
+      product.soonOut = (remainderByProductId[product._id] || []).reduce(
+        (sum, cur) => sum + (Number(cur.soonOut) || 0),
         0
       );
     }

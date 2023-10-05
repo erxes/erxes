@@ -33,6 +33,7 @@ export const types = `
     idOfProvider: String
     errorDescription: String
     pluginData: JSON
+    data: JSON
   }
 `;
 
@@ -48,6 +49,7 @@ const mutationParams = `
   redirectUri: String
   paymentIds: [String]
   warningText: String
+  data: JSON
 `;
 
 export const mutations = `

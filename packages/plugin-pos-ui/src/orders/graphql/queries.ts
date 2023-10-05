@@ -46,6 +46,7 @@ export const orderFields = `
   createdAt
   status
   paidDate
+  dueDate
   number
   customerId
   customerType
@@ -70,7 +71,8 @@ export const orderFields = `
   department
 
   syncedErkhet
-
+  description
+  isPre
   posName
   origin
   user {
@@ -254,6 +256,9 @@ const posOrderRecords = `
   query posOrderRecords(${listParamsDef}) {
     posOrderRecords(${listParamsValue}) {
       ${orderFields}
+      ${
+        isEnabled('contacts')
+          ? `
       customer {
         _id
         code
@@ -262,6 +267,9 @@ const posOrderRecords = `
         primaryEmail
         lastName
       }
+      `
+          : ''
+      }      
     }
   }
 `;

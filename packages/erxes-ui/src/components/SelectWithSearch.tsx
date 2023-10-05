@@ -77,7 +77,9 @@ const content = (option: IOption): React.ReactNode => (
   <>
     <Avatar
       src={
-        option.avatar ? readFile(option.avatar) : '/images/avatar-colored.svg'
+        option.avatar
+          ? readFile(option.avatar, 40)
+          : '/images/avatar-colored.svg'
       }
     />
     {option.label}
@@ -388,7 +390,7 @@ class Wrapper extends React.Component<
     return (
       <Component
         {...this.props}
-        initialValuesProvided={initialValue ? true : false}
+        initialValuesProvided={initialValues.length ? true : false}
         initialValues={initialValues}
         abortController={abortController}
         search={this.search}

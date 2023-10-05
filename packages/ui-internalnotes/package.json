@@ -11,7 +11,6 @@
     "react-select-plus": "^1.0.0-rc.5",
     "react-to-print": "^2.13.0",
     "styled-components": "^3.2.6",
-    "styled-components-ts": "^0.0.14",
-    "xss": "^1.0.3"
+    "styled-components-ts": "^0.0.14"
   }
 }

@@ -65,7 +65,8 @@ var plugins = [
   { name: 'grants', api: true, ui: true },
   { name: 'loans', api: true, ui: true },
   { name: 'viber', api: true, ui: true },
-  { name: 'meetings', api: true, ui: true }
+  { name: 'meetings', api: true, ui: true },
+  { name: 'xyp', api: true, ui: true },
 ];
 
 const pluginsMap = {};

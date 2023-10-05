@@ -1,4 +1,4 @@
-import { CONTRACT_STATUS } from './definitions/constants';
+import { CONTRACT_STATUS, SCHEDULE_STATUS } from './definitions/constants';
 import {
   contractSchema,
   ICloseVariable,
@@ -14,18 +14,6 @@ import { ITransaction } from './definitions/transactions';
 import { ICollateralDataDoc } from './definitions/contracts';
 import { IInsurancesData } from './definitions/contracts';
 import { ICollateralData } from './definitions/contracts';
-
-const getLeaseAmount = (collateralsData: ICollateralDataDoc[]) => {
-  let lease = 0;
-  let margin = 0;
-
-  for (const data of collateralsData) {
-    lease += parseFloat(data.leaseAmount.toString());
-    margin += parseFloat(data.marginAmount.toString());
-  }
-
-  return { lease, margin };
-};
 
 const getInsurancAmount = (
   insurancesData: IInsurancesData[],
@@ -72,9 +60,10 @@ export const loadContractClass = (models: IModels) => {
     /**
      * Create a contract
      */
-    public static async createContract(
-      doc: IContract
-    ): Promise<IContractDocument> {
+    public static async createContract({
+      schedule,
+      ...doc
+    }: IContract & { schedule: any }): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
       doc.number = await getNumber(models, doc.contractTypeId);
@@ -83,7 +72,30 @@ export const loadContractClass = (models: IModels) => {
         doc.insurancesData || [],
         doc.collateralsData || []
       );
+
+      if (doc.repayment === 'custom' && !schedule) {
+        throw new Error('Custom graphic not exists');
+      }
+
       const contract = await models.Contracts.create(doc);
+
+      if (doc.repayment === 'custom' && schedule.length > 0) {
+        const schedules = schedule.map(a => {
+          return {
+            contractId: contract._id,
+            status: SCHEDULE_STATUS.PENDING,
+            payDate: a.date,
+
+            balance: a.balance,
+            interestNonce: a.interest,
+            payment: a.payment,
+            total: a.interest + a.payment
+          };
+        });
+
+        await models.FirstSchedules.insertMany(schedules);
+        await models.Schedules.insertMany(schedules);
+      }
 
       return contract;
     }
@@ -93,7 +105,7 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async updateContract(
       _id,
-      doc: IContract
+      { schedule, ...doc }: IContract & { schedule: any }
     ): Promise<IContractDocument | null> {
       const oldContract = await models.Contracts.getContract({
         _id
@@ -114,6 +126,32 @@ export const loadContractClass = (models: IModels) => {
         doc.collateralsData || []
       );
       await models.Contracts.updateOne({ _id }, { $set: doc });
+      const transactions = await models.Transactions.find({
+        contractId: _id
+      }).lean();
+      if (
+        doc.repayment === 'custom' &&
+        schedule.length > 0 &&
+        transactions.length === 0
+      ) {
+        await models.FirstSchedules.deleteMany({ contractId: _id });
+        await models.Schedules.deleteMany({ contractId: _id });
+
+        const schedules = schedule.map(a => {
+          return {
+            contractId: _id,
+            status: SCHEDULE_STATUS.PENDING,
+            payDate: a.payDate,
+            balance: a.balance,
+            interestNonce: a.interestNonce,
+            payment: a.payment,
+            total: a.interestNonce + a.payment
+          };
+        });
+
+        await models.FirstSchedules.insertMany(schedules);
+        await models.Schedules.insertMany(schedules);
+      }
 
       const contract = await models.Contracts.findOne({ _id });
       return contract;

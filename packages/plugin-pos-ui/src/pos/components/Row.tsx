@@ -95,6 +95,12 @@ class Row extends React.Component<Props> {
           <strong>{onServer}</strong>
         </td>
         <td>
+          <strong>{pos.branchTitle || ''}</strong>
+        </td>
+        <td>
+          <strong>{pos.departmentTitle || ''}</strong>
+        </td>
+        <td>
           <div key={createdUser._id}>
             <Capitalize>
               {createdUser.details && createdUser.details.fullName}

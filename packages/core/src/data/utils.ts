@@ -270,9 +270,13 @@ export const initFirebase = async (models: IModels): Promise<void> => {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
-      await admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
+      try {
+        await admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } catch (e) {
+        console.log(`initFireBase error: ${e.message}`);
+      }
     }
   }
 };
@@ -457,11 +461,13 @@ const createCFR2 = async (models?: IModels) => {
     accessKeyId: string;
     secretAccessKey: string;
     signatureVersion: 'v4';
+    region: string;
   } = {
     endpoint: CLOUDFLARE_ENDPOINT,
     accessKeyId: CLOUDFLARE_ACCESS_KEY_ID,
     secretAccessKey: CLOUDFLARE_SECRET_ACCESS_KEY,
-    signatureVersion: 'v4'
+    signatureVersion: 'v4',
+    region: 'auto'
   };
 
   return new AWS.S3(options);
@@ -594,7 +600,8 @@ export const uploadFileCloudflare = async (
   if (
     (CLOUDFLARE_USE_CDN === 'true' || CLOUDFLARE_USE_CDN === true) &&
     detectedType &&
-    isImage(detectedType.mime)
+    isImage(detectedType.mime) &&
+    !['image/heic', 'image/heif'].includes(detectedType.mime)
   ) {
     return uploadToCFImages(file, forcePrivate, models);
   }
@@ -869,19 +876,36 @@ const readFromCFImages = async (
     models
   );
 
+  const CLOUDFLARE_BUCKET_NAME = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models
+  );
+
+  let fileName = key;
+
+  if (!key.startsWith(CLOUDFLARE_BUCKET_NAME)) {
+    fileName = `${CLOUDFLARE_BUCKET_NAME}/${key}`;
+  }
+
   if (!CLOUDFLARE_ACCOUNT_HASH) {
     throw new Error('Cloudflare Account Hash is not configured');
   }
 
-  let url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${key}/public`;
+  let url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/public`;
 
   if (width) {
-    url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${key}/w=${width}`;
+    url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/w=${width}`;
   }
 
   return new Promise(resolve => {
     fetch(url)
-      .then(res => res.buffer())
+      .then(res => {
+        if (!res.ok || res.status !== 200) {
+          return readFromCR2(key, models);
+        }
+        return res.buffer();
+      })
       .then(buffer => resolve(buffer))
       .catch(_err => {
         return readFromCR2(key, models);
@@ -910,9 +934,9 @@ const readFromCR2 = async (key: string, models?: IModels) => {
             error.code === 'NoSuchKey' &&
             error.message.includes('key does not exist')
           ) {
-            debugBase(
-              `Error occurred when fetching r2 file with key: "${key}"`
-            );
+            console.log('file does not exist with key: ', key);
+
+            return resolve(null);
           }
 
           return reject(error);

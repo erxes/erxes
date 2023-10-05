@@ -17,7 +17,6 @@
     "react-gantt-timeline": "0.4.3",
     "react-router-dom": "^5.1.2",
     "react-transition-group": "^2.5.1",
-    "request-idle-callback": "^1.0.2",
-    "xss": "^1.0.3"
+    "request-idle-callback": "^1.0.2"
   }
 }

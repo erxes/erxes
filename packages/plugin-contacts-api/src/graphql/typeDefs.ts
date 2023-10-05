@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as customerTypes,
@@ -12,7 +12,7 @@ import {
   mutations as CompanyMutations
 } from './company';
 
-const typeDefs = async (serviceDiscovery) =>  {
+const typeDefs = async serviceDiscovery => {
   const tagsEnabled = await serviceDiscovery.isEnabled('tags');
   const inboxEnabled = await serviceDiscovery.isEnabled('inbox');
 
@@ -37,21 +37,23 @@ const typeDefs = async (serviceDiscovery) =>  {
     }
   
     ${
-      tagsEnabled ? 
-      `
+      tagsEnabled
+        ? `
         extend type Tag @key(fields: "_id") {
           _id: String! @external
         }
-      ` : ''
+      `
+        : ''
     }
 
     ${
-      inboxEnabled ? 
-      `
+      inboxEnabled
+        ? `
         extend type Integration @key(fields: "_id") {
           _id: String! @external
         }
-      ` : ''
+      `
+        : ''
     }
 
 
@@ -68,6 +70,6 @@ const typeDefs = async (serviceDiscovery) =>  {
       ${CompanyMutations}
     }
   `;
-}
+};
 
 export default typeDefs;

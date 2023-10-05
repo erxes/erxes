@@ -24,17 +24,18 @@ const {
   APOLLO_ROUTER_PORT
 } = process.env;
 
-// let _apolloRouterPort: number | undefined;
-// export const getApolloRouterPort = async (): Promise<number> => {
-// if(!_apolloRouterPort) {
-//   _apolloRouterPort = Number(APOLLO_ROUTER_PORT) || (await getPort());
-// }
-// if(!_apolloRouterPort){
-//   throw new Error("Cannot find free port for Apollo Router");
-// }
-// console.log("router port ", _apolloRouterPort);
-// return _apolloRouterPort;
-// }
+let routerProcess: ChildProcess | undefined = undefined;
+
+export const stopRouter = (sig: NodeJS.Signals) => {
+  if (!routerProcess) {
+    return;
+  }
+  try {
+    routerProcess.kill(sig);
+  } catch (e) {
+    console.error(e);
+  }
+};
 
 export const apolloRouterPort = Number(APOLLO_ROUTER_PORT) || 50_000;
 
@@ -97,16 +98,14 @@ const createRouterConfig = async () => {
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
 };
 
-const startRouter = async (
-  proxyTargets: ErxesProxyTarget[]
-): Promise<ChildProcess> => {
+export const startRouter = async (proxyTargets: ErxesProxyTarget[]) => {
   await supergraphCompose(proxyTargets);
   await createRouterConfig();
   await downloadRouter();
 
   const devOptions = ['--dev', '--hot-reload'];
 
-  const routerProcess = spawn(
+  routerProcess = spawn(
     routerPath,
     [
       ...(NODE_ENV === 'development' ? devOptions : []),
@@ -117,10 +116,6 @@ const startRouter = async (
       `--config`,
       routerConfigPath
     ],
-    { stdio: 'inherit' }
+    { stdio: 'pipe' }
   );
-
-  return routerProcess;
 };
-
-export default startRouter;

@@ -5,6 +5,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Settings from './settings/containers/Settings';
 import HolidaySettings from './settings/components/HolidaySettings';
 import UndueSettings from './settings/components/UndueSettings';
+import MainSettings from './settings/components/MainSettings';
 
 const ContractList = asyncComponent(() =>
   import(/* webpackChunkName: "ContractList" */ './contracts/containers/List')
@@ -144,6 +145,10 @@ const undueSettings = () => {
   return <Settings components={UndueSettings}></Settings>;
 };
 
+const mainSettings = () => {
+  return <Settings components={MainSettings} />;
+};
+
 const holidaySettings = () => {
   return <Settings components={HolidaySettings}></Settings>;
 };
@@ -189,6 +194,7 @@ const LoanRoutes = () => {
         path="/erxes-plugin-loan/holiday-settings"
         component={holidaySettings}
       />
+      <Route path="/erxes-plugin-loan/main-settings" component={mainSettings} />
       <Route
         path="/erxes-plugin-loan/periodLock-list"
         component={periodLockLists}

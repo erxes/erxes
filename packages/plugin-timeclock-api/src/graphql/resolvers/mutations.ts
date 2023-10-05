@@ -8,8 +8,8 @@ import {
   IShift,
   ITimeClock,
   IAbsenceType,
-  IDeviceConfig,
-  IDeviceConfigDocument
+  IDeviceConfigDocument,
+  IDeviceConfig
 } from '../../models/definitions/timeclock';
 import {
   createScheduleShiftsByUserIds,
@@ -23,6 +23,7 @@ import {
   connectAndQueryTimeLogsFromMsSql
 } from '../../utils';
 import { fixDate } from '@erxes/api-utils/src';
+import { sendMobileNotification } from '../utils';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -256,6 +257,7 @@ const timeclockMutations = {
     { _id, status, ...doc }: IAbsenceEdit,
     { models }: IContext
   ) {
+    const dateFormat = 'MM/DD/YYYY';
     const shiftRequest = await models.Absences.getAbsence(_id);
     let updated = models.Absences.updateAbsence(_id, {
       status,
@@ -270,106 +272,174 @@ const timeclockMutations = {
     const findUserScheduleShifts = await models.Shifts.find({
       scheduleId: {
         $in: findUserSchedules.map(schedule => schedule._id)
-      },
-      shiftStart: {
-        $gte: fixDate(shiftRequest.startTime)
       }
     });
 
-    if (!shiftRequest.checkInOutRequest) {
-      const findAbsenceType = await models.AbsenceTypes.getAbsenceType(
-        shiftRequest.absenceTypeId || ''
-      );
+    if (shiftRequest.checkInOutRequest) {
+      // if request is check in/out request
+      return models.Absences.updateAbsence(_id, {
+        status: `${shiftRequest.reason} / ${status}`,
+        solved: true,
+        ...doc
+      });
+    }
 
-      // if request is shift request
-      if (findAbsenceType && findAbsenceType.shiftRequest) {
-        updated = models.Absences.updateAbsence(_id, {
-          status: `Shift request / ${status}`,
-          ...doc
+    const findAbsenceType = await models.AbsenceTypes.getAbsenceType(
+      shiftRequest.absenceTypeId || ''
+    );
+
+    // if request is shift request
+    if (findAbsenceType && findAbsenceType.shiftRequest) {
+      updated = models.Absences.updateAbsence(_id, {
+        status: `Shift request / ${status}`,
+        ...doc
+      });
+
+      // if shift request is approved
+      if (status === 'Approved') {
+        const schedule = await models.Schedules.createSchedule({
+          userId: shiftRequest.userId,
+          solved: true,
+          status: 'Approved',
+          createdByRequest: true
         });
 
-        // if shift request is approved
-        if (status === 'Approved') {
-          if (findAbsenceType.requestTimeType === 'by day') {
-            const requestDates = shiftRequest.requestDates || [];
+        if (
+          shiftRequest.absenceTimeType === 'by day' ||
+          findAbsenceType.requestTimeType === 'by day'
+        ) {
+          const requestDates = shiftRequest.requestDates || [];
 
-            const schedule = await models.Schedules.createSchedule({
+          const scheduleShiftsWriteOps: any[] = [];
+          const scheduleShiftUpdateOps: any[] = [];
+          const timeclockBulkWriteOps: any[] = [];
+
+          for (const requestDate of requestDates) {
+            const requestStartTime = new Date(requestDate + ' 09:00:00');
+            const requestEndTime = dayjs(requestStartTime)
+              .add(findAbsenceType.requestHoursPerDay, 'hour')
+              .toDate();
+
+            timeclockBulkWriteOps.push({
               userId: shiftRequest.userId,
-              solved: true,
-              status: 'Approved',
-              createdByRequest: true
+              shiftStart: requestStartTime,
+              shiftEnd: requestEndTime,
+              shiftActive: false,
+              deviceType: 'Shift request'
             });
 
-            const scheduleShiftsWriteOps: any[] = [];
-            const scheduleShiftUpdateOps: any[] = [];
-            const timeclockBulkWriteOps: any[] = [];
-
-            for (const requestDate of requestDates) {
-              const requestStartTime = new Date(requestDate + ' 09:00:00');
-              const requestEndTime = dayjs(requestStartTime)
-                .add(findAbsenceType.requestHoursPerDay, 'hour')
-                .toDate();
-
-              timeclockBulkWriteOps.push({
-                userId: shiftRequest.userId,
-                shiftStart: requestStartTime,
-                shiftEnd: requestEndTime,
-                shiftActive: false,
-                deviceType: 'Shift request'
-              });
-
-              const findOverrideShift = findUserScheduleShifts.find(
-                shift =>
-                  dayjs(new Date(shift.shiftStart || '')).format(
-                    'MM/DD/YYYY'
-                  ) === requestDate
-              );
-              if (findOverrideShift) {
-                scheduleShiftUpdateOps.push({
-                  updateOne: {
-                    filter: {
-                      _id: findOverrideShift._id
-                    },
-                    update: {
-                      $set: {
-                        scheduleId: schedule._id,
-                        shiftStart: requestStartTime,
-                        shiftEnd: requestEndTime,
-                        solved: true,
-                        status: 'Approved'
-                      }
+            const findOverrideShift = findUserScheduleShifts.find(
+              shift =>
+                dayjs(new Date(shift.shiftStart || '')).format(dateFormat) ===
+                requestDate
+            );
+            if (findOverrideShift) {
+              scheduleShiftUpdateOps.push({
+                updateOne: {
+                  filter: {
+                    _id: findOverrideShift._id
+                  },
+                  update: {
+                    $set: {
+                      scheduleId: findOverrideShift.scheduleId,
+                      shiftStart: requestStartTime,
+                      shiftEnd: requestEndTime,
+                      solved: true,
+                      status: 'Approved'
                     }
-                  }
-                });
-
-                continue;
-              }
-
-              scheduleShiftsWriteOps.push({
-                insertOne: {
-                  document: {
-                    scheduleId: schedule._id,
-                    shiftStart: requestStartTime,
-                    shiftEnd: requestEndTime,
-                    solved: true,
-                    status: 'Approved'
                   }
                 }
               });
+
+              continue;
             }
 
-            if (scheduleShiftsWriteOps.length) {
-              await models.Shifts.bulkWrite(scheduleShiftsWriteOps);
-            }
-            if (scheduleShiftUpdateOps.length) {
-              await models.Shifts.bulkWrite(scheduleShiftUpdateOps);
-            }
-            await models.Timeclocks.insertMany(timeclockBulkWriteOps);
-            return;
+            scheduleShiftsWriteOps.push({
+              insertOne: {
+                document: {
+                  scheduleId: schedule._id,
+                  shiftStart: requestStartTime,
+                  shiftEnd: requestEndTime,
+                  solved: true,
+                  status: 'Approved'
+                }
+              }
+            });
           }
 
-          //  shift request - by time
-          if (shiftRequest.userId) {
+          if (scheduleShiftsWriteOps.length) {
+            await models.Shifts.bulkWrite(scheduleShiftsWriteOps);
+          }
+          if (scheduleShiftUpdateOps.length) {
+            await models.Shifts.bulkWrite(scheduleShiftUpdateOps);
+          }
+          await models.Timeclocks.insertMany(timeclockBulkWriteOps);
+          return;
+        }
+
+        let overrideScheduleShiftFound = false;
+
+        //  shift request - by time
+        if (shiftRequest.userId && shiftRequest.endTime) {
+          const scheduleShiftUpdateOps: any[] = [];
+
+          const requestStartTime = shiftRequest.startTime;
+          const requestEndTime = shiftRequest.endTime;
+
+          for (const userScheduleShift of findUserScheduleShifts) {
+            const shiftStart = new Date(
+              userScheduleShift.shiftStart || ''
+            ).getTime();
+            const shiftEnd = new Date(
+              userScheduleShift.shiftEnd || ''
+            ).getTime();
+
+            // overriding cases
+            if (
+              (shiftStart >= requestStartTime.getTime() &&
+                shiftEnd <= requestEndTime.getTime()) ||
+              (shiftEnd >= requestStartTime.getTime() &&
+                shiftEnd <= requestEndTime.getTime()) ||
+              (shiftStart >= requestStartTime.getTime() &&
+                shiftEnd <= requestEndTime.getTime()) ||
+              (shiftStart <= requestEndTime.getTime() &&
+                shiftEnd >= requestEndTime.getTime())
+            ) {
+              scheduleShiftUpdateOps.push({
+                updateOne: {
+                  filter: {
+                    _id: userScheduleShift._id
+                  },
+                  update: {
+                    $set: {
+                      scheduleId: userScheduleShift.scheduleId,
+                      shiftStart: requestStartTime,
+                      shiftEnd: requestEndTime,
+                      solved: true,
+                      status: 'Approved'
+                    }
+                  }
+                }
+              });
+
+              overrideScheduleShiftFound = true;
+            }
+          }
+
+          // create timeclock - since request is shift request
+          await models.Timeclocks.createTimeClock({
+            userId: shiftRequest.userId,
+            shiftStart: shiftRequest.startTime,
+            shiftEnd: shiftRequest.endTime,
+            shiftActive: false,
+            deviceType: 'Shift request'
+          });
+
+          if (scheduleShiftUpdateOps.length) {
+            await models.Shifts.bulkWrite(scheduleShiftUpdateOps);
+          }
+
+          if (!overrideScheduleShiftFound) {
             const newSchedule = await models.Schedules.createSchedule({
               userId: shiftRequest.userId,
               solved: true,
@@ -384,14 +454,6 @@ const timeclockMutations = {
               solved: true,
               status: 'Approved'
             });
-
-            await models.Timeclocks.createTimeClock({
-              userId: shiftRequest.userId,
-              shiftStart: shiftRequest.startTime,
-              shiftEnd: shiftRequest.endTime,
-              shiftActive: false,
-              deviceType: 'Shift request'
-            });
           }
         }
       }
@@ -399,12 +461,17 @@ const timeclockMutations = {
       return updated;
     }
 
-    // if request is check in/out request
-    return models.Absences.updateAbsence(_id, {
-      status: `${shiftRequest.reason} / ${status}`,
-      solved: true,
-      ...doc
-    });
+    // send mobile notification
+    sendMobileNotification(
+      [shiftRequest.userId || ''],
+      'requestSolved',
+      shiftRequest,
+      'request',
+      {
+        reason: shiftRequest.reason,
+        approved: status === 'Approved'
+      }
+    );
   },
 
   async solveScheduleRequest(
@@ -576,6 +643,63 @@ const timeclockMutations = {
 
     return models.Shifts.removeShift(_id);
   },
+
+  async editSchedule(_root, { _id, shifts }, { models }: IContext) {
+    const scheduleShiftUpdateOps: any[] = [];
+    const scheduleShiftIds: string[] = [];
+    const prevScheduleShiftIds: string[] = (
+      await models.Shifts.find({
+        scheduleId: _id
+      })
+    ).map(s => s._id);
+
+    for (const shift of shifts) {
+      if (!shift._id) {
+        scheduleShiftUpdateOps.push({
+          insertOne: {
+            document: {
+              scheduleId: _id,
+              ...shift
+            }
+          }
+        });
+        continue;
+      }
+
+      scheduleShiftIds.push(shift._id);
+
+      scheduleShiftUpdateOps.push({
+        updateOne: {
+          filter: {
+            _id: shift._id
+          },
+          update: {
+            $set: {
+              scheduleId: _id,
+              scheduleConfigId: shift.scheduleConfigId,
+              shiftStart: shift.shiftStart,
+              shiftEnd: shift.shiftEnd
+            }
+          }
+        }
+      });
+    }
+
+    // compare prev shift and incoming shift ids, delete if any is missing
+    const set = new Set(scheduleShiftIds);
+
+    // Use the spread operator to convert the Sets back to arrays
+    const removeShiftIds = prevScheduleShiftIds.filter(item => !set.has(item));
+
+    if (removeShiftIds.length) {
+      await models.Shifts.deleteMany({ _id: { $in: removeShiftIds } });
+    }
+    if (scheduleShiftUpdateOps.length) {
+      await models.Shifts.bulkWrite(scheduleShiftUpdateOps);
+    }
+
+    return;
+  },
   payDateAdd(_root, { dateNums }, { models }: IContext) {
     return models.PayDates.createPayDate({ payDates: dateNums });
   },
@@ -725,6 +849,24 @@ const timeclockMutations = {
     { models }: IContext
   ) {
     return models.DeviceConfigs.removeDeviceConfig(_id);
+  },
+  scheduleConfigOrderEdit(
+    _root,
+    { userId, ...params },
+    { models, user }: IContext
+  ) {
+    const getUserId = userId || user._id;
+
+    const query = { userId: getUserId };
+    const update = {
+      $set: {
+        userId: getUserId,
+        ...params
+      }
+    };
+    const options = { upsert: true };
+
+    return models.ScheduleConfigOrder.updateOne(query, update, options);
   },
 
   checkReport(_root, doc, { models, user }: IContext) {

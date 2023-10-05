@@ -102,7 +102,7 @@ class AssignBox extends React.Component<Props, State> {
         _id: assignee._id,
         title:
           (assignee.details && assignee.details.fullName) || assignee.email,
-        avatar: getUserAvatar(assignee),
+        avatar: getUserAvatar(assignee, 60),
         selectedBy: state
       };
     });
@@ -151,7 +151,7 @@ class AssignBox extends React.Component<Props, State> {
     const links = [
       {
         title: __('Remove assignee'),
-        href: '#',
+        href: window.location.pathname + window.location.search,
         onClick: this.removeAssignee
       }
     ];

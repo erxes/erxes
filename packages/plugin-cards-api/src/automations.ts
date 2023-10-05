@@ -143,7 +143,7 @@ const getRelatedValue = async (
       defaultValue: []
     });
 
-    if (!!relatedValueProps[targetKey]) {
+    if (relatedValueProps && !!relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return activeContacts
         .filter(contacts =>
@@ -153,17 +153,8 @@ const getRelatedValue = async (
         .join(', ');
     }
 
-    return activeContacts
-      .map(contact => {
-        if (targetKey === 'customers') {
-          return `${contact?.firstName || ''} ${contact?.middleName ||
-            ''} ${contact?.lastName || ''}`;
-        }
-        if (targetKey === 'companies') {
-          return contact?.primaryName || '';
-        }
-      })
-      .join(', ');
+    const result = activeContacts.map(contact => contact?._id).join(', ');
+    return result;
   }
 
   return false;
@@ -523,6 +514,21 @@ const actionCreate = async ({
       });
     }
     newData.customFieldsData = customFieldsData;
+  }
+
+  if (newData.hasOwnProperty('attachments')) {
+    const [serviceName, itemType] = triggerType.split(':');
+    if (serviceName === 'cards') {
+      const modelsMap = {
+        ticket: models.Tickets,
+        task: models.Tasks,
+        deal: models.Deals,
+        purchase: models.Purchases
+      };
+
+      const item = await modelsMap[itemType].findOne({ _id: target._id });
+      newData.attachments = item.attachments;
+    }
   }
 
   try {

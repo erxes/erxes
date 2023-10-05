@@ -76,7 +76,6 @@ type State = {
   currentTab: string;
   changePayData: { [currency: string]: number };
   tempId: string;
-  categoryId?: string;
   filterValues: any;
   advancedView?: boolean;
 };
@@ -522,10 +521,6 @@ class ProductForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeCategory = (categoryId: string) => {
-    this.setState({ categoryId });
-  };
-
   calculatePerProductAmount = (
     type: string,
     productData: IProductData,
@@ -600,8 +595,6 @@ class ProductForm extends React.Component<Props, State> {
       <ProductChooser
         {...props}
         onSelect={productOnChange}
-        onChangeCategory={this.onChangeCategory}
-        categoryId={this.state.categoryId}
         data={{
           name: 'Product',
           products: []

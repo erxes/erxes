@@ -56,10 +56,7 @@ const generateFilter = params => {
 const erkhetQueries = {
   async syncHistories(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
-    return paginate(
-      models.SyncLogs.find(selector).sort({ createdAt: -1 }),
-      params
-    );
+    return paginate(models.SyncLogs.find(selector), params);
   },
 
   async syncHistoriesCount(_root, params, { models }: IContext) {
