@@ -180,6 +180,7 @@ type ProductCarCategories {
 type ParticipantsTotalCount {
   dealId: String
   count: Int
+  revealedPhoneCount: Int
 }
 type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   _id: String!
