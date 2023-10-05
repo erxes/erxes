@@ -4,18 +4,19 @@ import {
   Divider,
   WrongLess
 } from '../../styles';
-
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Flex } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IPaymentsData } from '../../types';
+import { IPaymentsData, IDeal, IMobileAmounts } from '../../types';
 import { PAYMENT_TYPES } from '../../constants';
 import React from 'react';
 import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
 import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
 import { selectConfigOptions } from '../../utils';
+import { __ } from '@erxes/ui/src';
+import PaymentModal from './PaymentModal';
 
 type Props = {
   total: { currency?: string; amount?: number };
@@ -32,7 +33,8 @@ type Props = {
     icon?: string;
   };
   paymentQuery: any;
-  dealQuery: any;
+  dealQuery: IDeal;
+  mobileAmounts?: any;
 };
 
 type State = {
@@ -68,7 +70,6 @@ class PaymentForm extends React.Component<Props, State> {
       </div>
     ));
   }
-
   paymentStateChange = (kind: string, type: string, value: string | number) => {
     const { onChangePaymentsData, calcChangePay, paymentQuery } = this.props;
     const { paymentsData } = this.state;
@@ -166,17 +167,30 @@ class PaymentForm extends React.Component<Props, State> {
             onClick={onClick}
           />
         </ContentColumn>
+
         <ContentColumn>
-          <Select
-            name={type.type}
-            placeholder={__('Choose currency')}
-            value={
-              paymentsData[type.type] ? paymentsData[type.type].currency : 0
-            }
-            onChange={currencyOnChange}
-            optionRenderer={this.selectOption}
-            options={selectConfigOptions(currencies, CURRENCIES)}
-          />
+          {type.type === 'mobile' && this.props.mobileAmounts === null ? (
+            <PaymentModal
+              payment={this.props.paymentQuery}
+              paymentsData={paymentsData}
+              dealQuery={this.props.dealQuery}
+            />
+          ) : (
+            type.type !== 'mobile' && (
+              <Select
+                name={type.type}
+                placeholder={__('Choose currency')}
+                value={
+                  type.type !== 'mobile' && paymentsData[type.type]
+                    ? paymentsData[type.type].currency
+                    : 0
+                }
+                onChange={currencyOnChange}
+                optionRenderer={this.selectOption}
+                options={selectConfigOptions(currencies, CURRENCIES)}
+              />
+            )
+          )}
         </ContentColumn>
       </Flex>
     );
@@ -204,17 +218,26 @@ class PaymentForm extends React.Component<Props, State> {
         }
       }
     }
-
-    mergedItems[PAYMENT_TYPES.type] = PAYMENT_TYPES;
+    PAYMENT_TYPES.map(item => {
+      mergedItems[item.type] = item;
+    });
+    // mergedItems[PAYMENT_TYPES.type] = PAYMENT_TYPES;
 
     const result = Object.values(mergedItems);
     result.sort((a, b) => {
-      if (a.type === 'cash' && b.type !== 'cash') {
-        return -1; // Move 'cash' type objects to the beginning
-      } else if (a.type !== 'cash' && b.type === 'cash') {
-        return 1; // Move 'cash' type objects to the beginning
+      const typeA = a.type || '';
+      const typeB = b.type || '';
+
+      if (typeA === 'cash') {
+        return -1; // "cash" should come before others
+      } else if (typeB === 'cash') {
+        return 1; // "cash" should come before others
+      } else if (typeA === 'mobile') {
+        return -1; // "mobile" should come after "cash"
+      } else if (typeB === 'mobile') {
+        return 1; // "mobile" should come after "cash"
       } else {
-        return 0; // Maintain the order of other elements
+        return typeA.localeCompare(typeB); // Sort other types alphabetically
       }
     });
 
@@ -223,7 +246,6 @@ class PaymentForm extends React.Component<Props, State> {
 
   render() {
     const { total } = this.props;
-
     return (
       <>
         <ContentRowTitle>
@@ -236,9 +258,9 @@ class PaymentForm extends React.Component<Props, State> {
             {this.renderTotal(this.props.changePayData)}
           </ContentColumn>
         </ContentRowTitle>
-        <Divider />
 
         {this.renderPayments()}
+
         {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))}
       </>
     );

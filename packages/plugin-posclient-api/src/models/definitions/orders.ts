@@ -15,7 +15,7 @@ export interface IPaidAmount {
   info?: any;
 }
 
-export interface IMobileAmount {
+export interface IMobileAmounts {
   _id?: string;
   amount: number;
 }
@@ -32,7 +32,7 @@ export interface IOrder {
   customerType?: string;
   cashAmount?: number;
   mobileAmount?: number;
-  mobileAmounts?: IMobileAmount[];
+  mobileAmounts?: IMobileAmounts[];
   paidAmounts?: IPaidAmount[];
   totalAmount: number;
   finalAmount?: number;

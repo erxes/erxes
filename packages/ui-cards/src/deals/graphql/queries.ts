@@ -81,6 +81,7 @@ export const dealFields = `
   products
   productsData
   paymentsData
+  mobileAmounts
   unUsedAmount
   amount
 `;

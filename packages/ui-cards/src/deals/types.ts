@@ -70,7 +70,10 @@ export interface IPaymentType {
   paymentTypes?: any[];
   erxesAppToken: string;
 }
-
+export interface IMobileAmounts {
+  _id?: string;
+  amount?: number;
+}
 export type DealsTotalAmountsQueryResponse = {
   dealsTotalAmounts: IDealTotalAmount[];
   refetch: () => void;
@@ -86,12 +89,14 @@ export interface IDeal extends IItem {
   products?: any;
   paymentsData?: IPaymentsData;
   paymentType?: IPaymentType[];
+  mobileAmounts?: IMobileAmounts[];
 }
 
 export interface IDealParams extends IItemParams {
   productsData?: IProductData[];
   paymentsData?: IPaymentsData;
   paymentType?: IPaymentType[];
+  mobileAmounts?: IMobileAmounts[];
 }
 
 export type DealsQueryResponse = {

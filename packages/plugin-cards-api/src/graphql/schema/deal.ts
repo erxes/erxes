@@ -35,6 +35,7 @@ export const types = ({ contacts, tags }) => `
     products: JSON
     productsData: JSON
     paymentsData: JSON
+    mobileAmounts: JSON
     paymentTypeData: JSON
     ${commonTypes}
   }
@@ -70,6 +71,7 @@ type PaymentType {
 const dealMutationParams = `
   paymentsData: JSON,
   productsData: JSON,
+  mobileAmounts: JSON,
   paymentTypeData: JSON,
 `;
 const paymentCommonFields = `
