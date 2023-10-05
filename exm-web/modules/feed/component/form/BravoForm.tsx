@@ -43,7 +43,7 @@ const FormSchema = z.object({
     .refine((val) => val.trim().length !== 0, {
       message: "Please enter an description",
     }),
-  userIds: z.array(z.object({})).refine((val) => val.length !== 0, {
+  recipientIds: z.array(z.object({})).refine((val) => val.length !== 0, {
     message: "Please choose users",
   }),
 })
@@ -83,6 +83,8 @@ const BravoForm = ({
 
     if (feed) {
       defaultValues = { ...feed }
+
+      defaultValues.recipientIds = feed.recipientIds ? [{}] : []
     }
 
     form.reset({ ...defaultValues })
@@ -149,7 +151,7 @@ const BravoForm = ({
 
           <FormField
             control={form.control}
-            name="userIds"
+            name="recipientIds"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Select users</FormLabel>
