@@ -121,7 +121,7 @@ class Tagger extends React.Component<Props, State> {
           this.props.type === 'inbox:conversation' && this.state
             ? `tag-${i}`
             : '',
-        itemActiveClass: this.state.cursor === i && 'active'
+        itemActiveClass: this.state && this.state.cursor === i && 'active'
       };
     });
   }

@@ -163,7 +163,8 @@ class AssignBox extends React.Component<Props, State> {
           (assignee.details && assignee.details.fullName) || assignee.email,
         avatar: getUserAvatar(assignee, 60),
         selectedBy: state,
-        className: `team-members-${i} ${this.state.cursor === i && 'active'}`
+        itemClassName: `team-members-${i}`,
+        itemActiveClass: this.state.cursor === i && 'active'
       };
     });
   }
