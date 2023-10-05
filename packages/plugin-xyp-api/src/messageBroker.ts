@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
-// import { Xyps } from "./models";
+import { generateModels } from './connectionResolver';
 
 let client;
 
@@ -9,18 +9,21 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue('xyp:send', async ({ data }) => {
-    // Xyps.send(data);
-
+  consumeQueue('xyp.send', async ({ data }) => {
     return {
       status: 'success'
     };
   });
 
-  consumeRPCQueue('xyp:find', async ({ data }) => {
+  consumeRPCQueue('xyp.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
-      status: 'success'
-      // data: await Xyps.find({})
+      status: 'success',
+      data: await models.XypData.findOne({
+        contentType: 'car',
+        contentTypeId: data?._id
+      })
     };
   });
 };

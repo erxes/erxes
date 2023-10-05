@@ -3,7 +3,7 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ contacts, cards }) => `
+export const types = ({ contacts, cards, xyp }) => `
 
   ${attachmentType}
   ${attachmentInput}
@@ -11,6 +11,17 @@ export const types = ({ contacts, cards }) => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+
+  ${
+    xyp
+      ? `
+        extend type XypData @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+      : ''
+  }
+
 
   ${
     contacts
@@ -67,6 +78,14 @@ type Car {
       ? `
     customers: [Customer]
     companies: [Company]
+    `
+      : ''
+  }
+
+  ${
+    xyp
+      ? `
+    xypdata: XypData
     `
       : ''
   }
@@ -155,6 +174,7 @@ type Car {
   backAttachments: [Attachment]
   floorAttachments: [Attachment]
   transformationAttachments: [Attachment]
+  
 }
 
 type CarsListResponse {

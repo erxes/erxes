@@ -40,10 +40,12 @@ import {
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
   const cardsAvailable = await serviceDiscovery.isEnabled('cards');
+  const xypAvailable = await serviceDiscovery.isEnabled('xyp');
 
   const isEnabled = {
     contacts: isContactsEnabled,
-    cards: cardsAvailable
+    cards: cardsAvailable,
+    xyp: xypAvailable
   };
 
   return gql`
