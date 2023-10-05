@@ -23,6 +23,7 @@ type Props = {
   contentType?: string;
   videoCallData?: IVideoCallData;
   toggleVideo: () => void;
+  _id: string;
 };
 
 class Message extends React.Component<Props> {
@@ -32,16 +33,16 @@ class Message extends React.Component<Props> {
     const name = messengerAppData.customer.firstName || 'N/A';
 
     return (
-      <div className="app-message-box">
-        <div className="user-info">
+      <div className='app-message-box'>
+        <div className='user-info'>
           <img src={readFile(image)} />
           <h2>
             {__('Meet with')} {name}
           </h2>
         </div>
-        <div className="call-button">
+        <div className='call-button'>
           <h3>{__('Meeting Ready')}</h3>
-          <a href={messengerAppData.hangoutLink} target="_blank">
+          <a href={messengerAppData.hangoutLink} target='_blank'>
             <button>Join Call</button>
           </a>
         </div>
@@ -56,7 +57,7 @@ class Message extends React.Component<Props> {
     if (hasAttachment) {
       const result: React.ReactNode[] = [];
 
-      attachments.map(att => {
+      attachments.map((att) => {
         result.push(<Attachment attachment={att} />);
       });
 
@@ -75,16 +76,16 @@ class Message extends React.Component<Props> {
       content,
       contentType,
       videoCallData,
-      textColor
+      textColor,
     } = this.props;
     const messageClasses = classNames('erxes-message', {
       attachment: attachments && attachments.length > 0,
-      'from-customer': !user
+      'from-customer': !user,
     });
 
     const messageBackground = {
       backgroundColor: !user ? color : '',
-      color: !user ? textColor : ''
+      color: !user ? textColor : '',
     };
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL) {
@@ -115,16 +116,16 @@ class Message extends React.Component<Props> {
   }
 
   render() {
-    const { user, createdAt } = this.props;
+    const { user, createdAt, _id } = this.props;
     const itemClasses = classNames({ 'from-customer': !user });
 
     return (
-      <li className={itemClasses}>
+      <li className={itemClasses} key={_id}>
         {user ? <User user={user} /> : null}
         {this.renderContent()}
-        <div className="date">
+        <div className='date'>
           <span
-            className="erxes-tooltip"
+            className='erxes-tooltip'
             data-tooltip={dayjs(createdAt).format('YYYY-MM-DD, HH:mm:ss')}
           >
             {dayjs(createdAt).format('LT')}
