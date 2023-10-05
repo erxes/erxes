@@ -286,32 +286,33 @@ const WidgetWrapper = styledTS<{
   show: boolean;
   shrink: boolean;
   fullScreen?: boolean;
+  displayNone?: boolean;
 }>(styled.div)`
-  position: fixed;
-  flex-direction: column;
-  z-index: 300;
-  justify-content: flex-end;
-  align-content: flex-end;
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  width: ${({ fullScreen, shrink }) =>
-    fullScreen ? '75vw' : shrink ? '260px' : '600px'};
-  ${({ fullScreen }) =>
-    fullScreen
-      ? `
-    left: 50%;
-    top: 6%;
-    transform: translate(-50%, 0);
-    box-shadow: 0 0 0 50vmax rgba(0,0,0,.3);
-  `
-      : `
-    bottom: ${dimensions.unitSpacing}px;
-    right: ${dimensions.coreSpacing}px; 
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 0px 3px -4px;
-  `}
-  ${({ show }) => (show ? 'display: flex;' : 'display:none;')} 
-
+  
+flex-direction: column;
+z-index: 300;
+justify-content: flex-end;
+align-content: flex-end;
+background: #fff;
+border-radius: 8px;
+overflow: hidden;
+width: ${({ fullScreen, shrink }) =>
+  fullScreen ? '75vw' : shrink ? '260px' : '600px'};
+${({ fullScreen }) =>
+  fullScreen
+    ? `
+position: fixed;
+left: 50%;
+top: 6%;
+transform: translate(-50%, 0);
+box-shadow: 0 0 0 50vmax rgba(0,0,0,.3);
+`
+    : `
+box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 0px 3px -4px;
+`} 
+${({ show }) => (show ? 'display: flex;' : 'display:none;')} 
+${({ displayNone }) => (displayNone ? 'display:none;' : 'display: flex;')} 
+  margin-right: 5px;
   .Select-arrow-zone {
     padding: 0;
   }
@@ -398,6 +399,19 @@ const SignatureDropdownWrapper = styled.div`
   }
 `;
 
+const EmailWidgetsWrapper = styled.div`
+  display: flex;
+  position: absolute;
+  height: 600px;
+  right: 50px;
+  width: min-content;
+  bottom: 0;
+  z-index: 1;
+  align-items: end;
+  overflow: hidden;
+  justify-content: end;
+>`;
+
 export {
   Attachments,
   FlexRow,
@@ -424,5 +438,6 @@ export {
   SignatureChooserFooter,
   SignatureOptionWrapper,
   SignatureHiderButton,
-  SignatureDropdownWrapper
+  SignatureDropdownWrapper,
+  EmailWidgetsWrapper
 };

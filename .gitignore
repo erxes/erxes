@@ -10,6 +10,7 @@ out
 *.swo
 *.log
 build
+/dock
 .env.local
 .env.development.local
 .env.development
