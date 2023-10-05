@@ -82,20 +82,27 @@ const RightSideBar = () => {
 
               return (
                 <Card key={item._id} className="border-0 mb-2">
-                  <CardHeader className="text-[#444] font-semibold">
+                  <CardHeader className="text-[#644BB9] font-bold text-lg">
                     Today's events
                   </CardHeader>
                   <CardContent className="px-4">
+                    <div className="flex items-center mb-1">
+                      <MapPinIcon size={16} className="mr-1" />
+                      {item.eventData?.where || ""}
+                    </div>
                     {item.images && item.images.length > 0 && (
-                      <div className="">
-                        <img
-                          src={readFile(item.images[0].url)}
-                          alt="event-img"
+                      <div className="w-full h-[150px]">
+                        <Image
+                          src={item.images[0].url}
+                          alt="event photo"
+                          width={500}
+                          height={500}
+                          className="w-full h-full rounded-lg object-cover"
                         />
                       </div>
                     )}
                     <div>
-                      <h3 className="font-semibold">{item.title}</h3>
+                      <h3 className="font-semibold text-lg">{item.title}</h3>
                       <div className="text-[#444]">{item.eventData.where}</div>
 
                       <div className="text-[#444] text-xs mt-1">
@@ -115,11 +122,6 @@ const RightSideBar = () => {
                           &nbsp;Going •&nbsp;
                           <b>{item.eventData?.interestedUserIds?.length}</b>
                           &nbsp;Interested
-                        </div>
-
-                        <div className="flex items-center mb-2">
-                          <MapPinIcon size={16} className="mr-1" />
-                          {item.eventData?.where || ""}
                         </div>
                       </div>
                     </div>
