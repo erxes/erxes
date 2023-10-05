@@ -1,13 +1,14 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import usePrintBill from "@/modules/checkout/hooks/usePrintBill"
 import { kioskDialogOpenAtom } from "@/store"
 import {
-  activeOrderAtom,
+  activeOrderIdAtom,
+  mobileAmountAtom,
   orderNumberAtom,
   orderTotalAmountAtom,
+  putResponsesAtom,
   setInitialAtom,
-  unPaidAmountAtom,
 } from "@/store/order.store"
 import { ebarimtSheetAtom } from "@/store/ui.store"
 import { AspectRatio } from "@radix-ui/react-aspect-ratio"
@@ -19,14 +20,16 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 const SuccessDialog = () => {
   const number = useAtomValue(orderNumberAtom)
-  const unPaidAmount = useAtomValue(unPaidAmountAtom)
+  const mobileAmount = useAtomValue(mobileAmountAtom)
   const orderTotalAmount = useAtomValue(orderTotalAmountAtom)
 
   const open = useAtomValue(ebarimtSheetAtom)
   const setInitial = useSetAtom(setInitialAtom)
   const router = useRouter()
-  const activeOrder = useAtomValue(activeOrderAtom)
+  const activeOrder = useAtomValue(activeOrderIdAtom)
   const setKioskDialogOpen = useSetAtom(kioskDialogOpenAtom)
+  const putResponses = useAtomValue(putResponsesAtom)
+  const [openSuccesDialog, setOpenSuccesDialog] = useState(false)
 
   const { changeVisiblity, printBill } = usePrintBill()
 
@@ -34,6 +37,7 @@ const SuccessDialog = () => {
     onCompleted() {
       changeVisiblity(false)
       setKioskDialogOpen(false)
+      setOpenSuccesDialog(true)
     },
   })
 
@@ -43,13 +47,16 @@ const SuccessDialog = () => {
   }
 
   useEffect(() => {
-    if (unPaidAmount === 0 && !!orderTotalAmount) {
-      printBill()
+    if (!!orderTotalAmount && mobileAmount === orderTotalAmount) {
+      if (!putResponses.length) {
+        printBill()
+      }
     }
-  }, [printBill, unPaidAmount, orderTotalAmount])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileAmount, orderTotalAmount, putResponses])
 
   return (
-    <Dialog>
+    <Dialog open={openSuccesDialog}>
       <DialogContent className="max-w-full bg-transparent w-full h-screen flex flex-col justify-end items-center">
         <div className="bg-black rounded-2xl p-6 text-white w-full max-w-sm text-center flex items-center">
           <AspectRatio ratio={0.8}>

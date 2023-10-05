@@ -1,27 +1,27 @@
 import { currentPaymentTypeAtom } from "@/store"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import { XIcon } from "lucide-react"
 
-import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
+import { HARD_PAYMENT_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Keys from "@/app/(main)/checkout/components/Keys"
 
 import useHandlePayment from "../../hooks/useHandlePayment"
 import { useCheckNotSplit } from "../../hooks/usePaymentType"
-import PaymentSheet from "./paymentSheet"
 
 const PaymentType = () => {
   const setPaymentTerm = useSetAtom(currentPaymentTypeAtom)
-  const paymentTerm = useAtomValue(currentPaymentTypeAtom)
   const {
     handleValueChange,
     handlePay,
     loading,
     currentAmount,
     notPaidAmount,
+    type,
   } = useHandlePayment()
   const { disableInput } = useCheckNotSplit()
+  
 
   return (
     <div>
@@ -47,7 +47,8 @@ const PaymentType = () => {
             loading={loading}
             onClick={handlePay}
             disabled={
-              ALL_BANK_CARD_TYPES.includes(paymentTerm) && notPaidAmount === 0
+              HARD_PAYMENT_TYPES.includes(type) &&
+              (notPaidAmount === 0 || currentAmount === 0)
             }
           >
             Гүйлгээ хийх
@@ -63,7 +64,6 @@ const PaymentType = () => {
         </div>
       </div>
       <Keys />
-      <PaymentSheet />
     </div>
   )
 }

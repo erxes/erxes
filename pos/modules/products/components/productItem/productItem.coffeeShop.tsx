@@ -30,7 +30,7 @@ const ProductItem = (props: IProduct) => {
       </ProductItemWrapper>
       <Dialog open={open} onOpenChange={() => setOpen(false)}>
         <DialogContent>
-          {open && <ChooseSimilarities {...props} setOpen={setOpen}/>}
+          {open && <ChooseSimilarities {...props} setOpen={setOpen} />}
         </DialogContent>
       </Dialog>
     </>
@@ -56,11 +56,12 @@ const ProductContent = ({
   unitPrice,
   description,
   hasSimilarity,
+  code,
 }: IProduct) => (
   <>
     <ProductItemImage src={attachment?.url || ""} />
-    <ProductItemTitle>{name}</ProductItemTitle>
-    <ProductItemDescription>{description || ""}</ProductItemDescription>
+    <ProductItemTitle>{`${code} - ${name}`}</ProductItemTitle>
+    <ProductItemDescription description={description} />
     <ProductItemPriceWithWrapper unitPrice={unitPrice}>
       {hasSimilarity && <ProductItemButton>Нэмэх</ProductItemButton>}
     </ProductItemPriceWithWrapper>
@@ -109,14 +110,17 @@ export const ProductItemTitle = ({
 }
 
 export const ProductItemDescription = ({
-  children,
+  description,
   className,
 }: {
-  children: React.ReactNode
+  description?: string | null
   className?: string
 }) => {
   return (
-    <div className={cn("text-neutral-500 mb-3", className)}>{children}</div>
+    <div
+      className={cn("text-neutral-500 mb-3", className)}
+      dangerouslySetInnerHTML={{ __html: description || "" }}
+    />
   )
 }
 
@@ -131,7 +135,9 @@ export const ProductItemPriceWithWrapper = ({
 }) => {
   return (
     <div className={cn("flex items-center justify-between", className)}>
-      <div className="font-black text-base">{(unitPrice || 0).toLocaleString()}₮</div>
+      <div className="font-black text-base">
+        {(unitPrice || 0).toLocaleString()}₮
+      </div>
       {children}
     </div>
   )

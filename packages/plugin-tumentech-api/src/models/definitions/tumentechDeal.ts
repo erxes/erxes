@@ -24,6 +24,7 @@ export interface ITumentechDeal {
   geometry: string;
   tripDistance: number;
   createdAt: Date;
+  createdBy: string;
 }
 
 export interface ITumentechDealDocument extends ITumentechDeal, Document {
@@ -76,7 +77,8 @@ export const tumentechDealSchema = schemaHooksWrapper(
       type: Number,
       label: 'Trip distance'
     }),
-    createdAt: field({ type: Date, label: 'Created at' })
+    createdAt: field({ type: Date, label: 'Created at' }),
+    createdBy: field({ type: String, label: 'Created by' })
   }),
   'erxes_tumentech_deals'
 );

@@ -3,13 +3,13 @@ import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
 import redisUtils from '../redisUtils';
-import { makeInvoiceNo } from '../utils';
 import {
   IInvoice,
   IInvoiceDocument,
   invoiceSchema
 } from './definitions/invoices';
 import ErxesPayment from '../api/ErxesPayment';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
   getInvoice(doc: any, leanObject?: boolean): IInvoiceDocument;
@@ -47,7 +47,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       const invoice = await models.Invoices.create({
         ...doc,
-        identifier: doc.identifier || makeInvoiceNo(32)
+        identifier: doc.identifier || randomAlphanumeric(32)
       });
 
       const api = new ErxesPayment(payment, doc.domain);
@@ -89,7 +89,7 @@ export const loadInvoiceClass = (models: IModels) => {
           );
 
           const api = new ErxesPayment(payment, doc.domain);
-          invoice.identifier = doc.identifier || makeInvoiceNo(32);
+          invoice.identifier = doc.identifier || randomAlphanumeric(32);
 
           const apiResponse = await api.createInvoice(invoice);
 
@@ -100,7 +100,8 @@ export const loadInvoiceClass = (models: IModels) => {
                 apiResponse,
                 paymentKind: payment.kind,
                 selectedPaymentId: payment._id,
-                createdAt: new Date()
+                createdAt: new Date(),
+                identifier: doc.identifier
               }
             }
           );
@@ -119,7 +120,7 @@ export const loadInvoiceClass = (models: IModels) => {
           );
 
           const api = new ErxesPayment(payment, doc.domain);
-          invoice.identifier = doc.identifier || makeInvoiceNo(32);
+          invoice.identifier = doc.identifier || randomAlphanumeric(32);
 
           const apiResponse = await api.createInvoice(invoice);
 
@@ -179,7 +180,7 @@ export const loadInvoiceClass = (models: IModels) => {
       new ErxesPayment(prevPayment).cancelInvoice(invoice);
 
       try {
-        invoice.identifier = doc.identifier || makeInvoiceNo(32);
+        invoice.identifier = doc.identifier || randomAlphanumeric(32);
         const apiResponse = await new ErxesPayment(
           newPayment,
           doc.domain

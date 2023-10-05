@@ -1,3 +1,4 @@
+import { cp } from 'fs';
 import { IContext } from '../../../connectionResolver';
 import { ITumentechDeal } from '../../../models/definitions/tumentechDeal';
 import { sendRequest } from '@erxes/api-utils/src';
@@ -47,22 +48,28 @@ const tumentechDealMutations = {
   tumentechDealAdd: async (
     _root,
     doc: ITumentechDeal,
-    { models }: IContext
+    { models, cpUser }: IContext
   ) => {
     doc.createdAt = new Date();
+    doc.createdBy = cpUser.userId;
 
     if (doc.startPlaceId && doc.endPlaceId) {
       doc = await generateGeometry(doc, models);
     }
+
     return models.TumentechDeals.createTumentechDeal(doc);
   },
 
   tumentechDealEdit: async (
     _root,
     doc: ITumentechDealEdit,
-    { models }: IContext
+    { models, cpUser }: IContext
   ) => {
-    const oldDoc = await models.TumentechDeals.getTumentechDeal(doc._id, '');
+    const oldDoc = await models.TumentechDeals.getTumentechDeal(
+      doc._id,
+      '',
+      cpUser.userId
+    );
 
     if (
       doc.startPlaceId !== oldDoc.startPlaceId ||
@@ -83,7 +90,7 @@ const tumentechDealMutations = {
   tumentechDealAddTrackingData: async (
     _root,
     { dealId, carId, trackingData },
-    { models }: IContext
+    { models, cpUser }: IContext
   ) => {
     const deal =
       (await models.TumentechDeals.findOne({ dealId })) || ({} as any);
@@ -112,7 +119,7 @@ const tumentechDealMutations = {
       { $set: { trackingData: deal.trackingData } }
     );
 
-    return models.TumentechDeals.getTumentechDeal(deal._id);
+    return models.TumentechDeals.getTumentechDeal(deal._id, '', cpUser.userId);
   }
 };
 

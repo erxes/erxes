@@ -16,6 +16,8 @@ export const isValidURL = (url: string) => {
 }
 
 export const readFile = (value: string, width?: number): string => {
+  const env = getEnv()
+
   if (
     !value ||
     isValidURL(value) ||
@@ -25,10 +27,9 @@ export const readFile = (value: string, width?: number): string => {
     return value
   }
 
-  const NEXT_PUBLIC_MAIN_API_DOMAIN =
-    process.env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
+  const NEXT_PUBLIC_MAIN_API_DOMAIN = env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
 
-  let url = `${NEXT_PUBLIC_MAIN_API_DOMAIN}/gateway/pl:core/read-file?key=${value}`
+  let url = `${NEXT_PUBLIC_MAIN_API_DOMAIN}/read-file?key=${value}`
 
   if (width) {
     url += `&width=${width}`

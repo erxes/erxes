@@ -256,6 +256,9 @@ const posOrderRecords = `
   query posOrderRecords(${listParamsDef}) {
     posOrderRecords(${listParamsValue}) {
       ${orderFields}
+      ${
+        isEnabled('contacts')
+          ? `
       customer {
         _id
         code
@@ -264,6 +267,9 @@ const posOrderRecords = `
         primaryEmail
         lastName
       }
+      `
+          : ''
+      }      
     }
   }
 `;

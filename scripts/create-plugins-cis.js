@@ -24,7 +24,8 @@ var plugins = [
   { name: 'mobinet', ui: true, api: true },
   { name: 'dac', ui: true, api: true },
   { name: 'rcfa', ui: true, api: true },
-  { name: 'syncsaas', ui: true, api: true }
+  { name: 'syncsaas', ui: true, api: true },
+  { name: 'golomtces', ui: false, api: true }
 ];
 
 const pluginsMap = {};

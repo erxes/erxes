@@ -123,7 +123,7 @@ const getStatus = (config, buttonType, doc, order?) => {
   return ORDER_STATUSES.NEW;
 };
 
-const orderAdd = async (models, lastDoc, config) => {
+const orderAdd = async (models: IModels, lastDoc, config) => {
   try {
     const number = await generateOrderNumber(models, config);
 
@@ -189,7 +189,8 @@ const ordersAdd = async (
       ...doc,
       ...orderDoc,
       totalAmount: getTotalAmount(preparedDoc.items),
-      branchId: doc.branchId || config.branchId,
+      branchId: config.branchId || doc.branchId,
+      subBranchId: doc.branchId,
       posToken: config.token,
       departmentId: config.departmentId,
       taxInfo: getTaxInfo(config),
@@ -277,7 +278,8 @@ const ordersEdit = async (
   // dont change isPre
   const updatedOrder = await models.Orders.updateOrder(doc._id, {
     deliveryInfo: doc.deliveryInfo,
-    branchId: config.isOnline ? doc.branchId : config.branchId,
+    branchId: config.branchId || doc.branchId,
+    subBranchId: doc.branchId,
     customerId: doc.customerId,
     customerType: doc.customerType,
     userId: posUser ? posUser._id : '',
@@ -411,7 +413,14 @@ const orderMutations = {
 
     if (params.dueDate) doc.dueDate = params.dueDate;
 
-    if (params.branchId) doc.branchId = params.branchId;
+    if (params.branchId) {
+      if (config.branchId) {
+        doc.subBranchId = params.branchId;
+      } else {
+        doc.branchId = params.branchId;
+        doc.subBranchId = params.branchId;
+      }
+    }
 
     if (params.deliveryInfo) doc.deliveryInfo = params.deliveryInfo;
     if (params.description) doc.description = params.description;
@@ -566,12 +575,10 @@ const orderMutations = {
     {
       _id,
       cashAmount,
-      mobileAmount,
       paidAmounts
     }: {
       _id: string;
       cashAmount?: number;
-      mobileAmount?: number;
       paidAmounts?: IPaidAmount[];
     },
     { models, config, subdomain }: IContext
@@ -580,7 +587,6 @@ const orderMutations = {
 
     const amount =
       (cashAmount || 0) +
-      (mobileAmount || 0) +
       (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
     checkOrderStatus(order);
@@ -591,9 +597,6 @@ const orderMutations = {
         cashAmount: cashAmount
           ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
-        mobileAmount: mobileAmount
-          ? (order.mobileAmount || 0) + Number(mobileAmount.toFixed(2))
-          : order.mobileAmount || 0,
         paidAmounts: (order.paidAmounts || []).concat(paidAmounts || [])
       }
     };
@@ -639,6 +642,7 @@ const orderMutations = {
     checkOrderStatus(order);
 
     if (
+      order.mobileAmount ||
       (order.paidAmounts || []).filter(pa => Object.keys(pa.info).length)
         .length > 0
     ) {
@@ -987,6 +991,11 @@ const orderMutations = {
     }
 
     let _id = doc._id || '';
+
+    if (!_id) {
+      delete doc._id;
+    }
+
     if (doc._id) {
       await ordersEdit(doc as IOrderEditParams, {
         posUser,

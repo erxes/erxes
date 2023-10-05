@@ -44,7 +44,6 @@ const currentConfig = gql`
 const getPaymentConfig = gql`
   query GetPaymentConfig {
     currentConfig {
-      erxesAppToken
       paymentIds
       paymentTypes
       permissionConfig
@@ -110,7 +109,6 @@ const getWholeConfig = gql`
   query WholeConfig {
     currentConfig {
       ${configFields}
-      erxesAppToken
       paymentIds
       paymentTypes
       permissionConfig

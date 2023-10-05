@@ -16,7 +16,8 @@ export const orderFields = `
   printedEbarimt
   origin
   type
-  deliveryInfo
+  description
+  isPre
 `
 export const orderItemBaseFields = `
  _id
@@ -97,6 +98,7 @@ const orderDetail = gql`
         ${customerFields}
       }
       dueDate
+      isPre
       customerType
     }
   }
@@ -122,6 +124,7 @@ const historyDetail = gql`
       createdAt
       status
       number
+      isPre
       dueDate
       modifiedAt
       type
@@ -151,7 +154,7 @@ const historyDetail = gql`
         lastName
       }
 
-      deliveryInfo
+      description
 
       items {
         ${orderItemFields}
@@ -198,7 +201,7 @@ export const progressDetail = gql`
         unitPrice
         count
       }
-      deliveryInfo
+      description
       type
     }
   }
@@ -223,6 +226,10 @@ export const queryParamsDefs = `
   $perPage: Int,
   $sortField: String,
   $sortDirection: Int
+  $isPreExclude: Boolean
+  $slotCode: String
+  $dueStartDate: Date
+  $dueEndDate: Date
 `
 
 export const queryParamsValues = `
@@ -238,6 +245,10 @@ export const queryParamsValues = `
   perPage: $perPage,
   sortField: $sortField,
   sortDirection: $sortDirection,
+  isPreExclude: $isPreExclude,
+  slotCode: $slotCode
+  dueStartDate: $dueStartDate
+  dueEndDate: $dueEndDate
 `
 
 const fullOrders = gql`
@@ -280,6 +291,7 @@ query ActiveOrders(${queryParamsDefs}) {
     paidDate
     origin
     slotCode
+    isPre
   }
 }
 `
@@ -319,7 +331,8 @@ const progressHistory = gql`
       modifiedAt
       paidDate
       dueDate
-      deliveryInfo
+      isPre
+      description
     }
   }
 `

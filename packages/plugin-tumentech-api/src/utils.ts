@@ -416,3 +416,24 @@ export const updateTrackingData = async (req, res, subdomain) => {
     response: { status: 'success' }
   });
 };
+
+export const isRegisterNumberValid = (value: string) => {
+  if (value.length !== 10) {
+    return false;
+  }
+
+  // Check if the first two characters are Cyrillic letters
+  const firstTwoCharacters = value.slice(0, 2);
+  if (!/^[А-Яа-я]+$/.test(firstTwoCharacters)) {
+    return false;
+  }
+
+  // Check if the remaining characters are numbers
+  const remainingCharacters = value.slice(2);
+  if (!/^\d+$/.test(remainingCharacters)) {
+    return false;
+  }
+
+  // If all checks pass, the input is valid
+  return true;
+};

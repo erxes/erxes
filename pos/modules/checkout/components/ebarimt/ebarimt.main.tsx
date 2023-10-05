@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation"
 import usePrintBill from "@/modules/checkout/hooks/usePrintBill"
 import { ebarimtMainDialogOpenAtom } from "@/store"
 import {
-  activeOrderAtom,
+  activeOrderIdAtom,
   orderTotalAmountAtom,
   setInitialAtom,
   unPaidAmountAtom,
@@ -28,7 +28,7 @@ const EbarimtMain = () => {
   const unpaidAmount = useAtomValue(unPaidAmountAtom)
   const orderTotalAmount = useAtomValue(orderTotalAmountAtom)
   const setInitial = useSetAtom(setInitialAtom)
-  const activeOrder = useAtomValue(activeOrderAtom)
+  const activeOrder = useAtomValue(activeOrderIdAtom)
   const openEbarimt = useAtomValue(ebarimtSheetAtom)
   const router = useRouter()
   const [openDialog, setOpenDialog] = useAtom(ebarimtMainDialogOpenAtom)
@@ -44,18 +44,18 @@ const EbarimtMain = () => {
   })
 
   useEffect(() => {
-    if (orderTotalAmount && unpaidAmount === 0) {
+    if (orderTotalAmount > 0 && unpaidAmount === 0) {
       setOpenDialog(true)
     }
   }, [orderTotalAmount, setOpenDialog, unpaidAmount])
 
   return (
-    <Dialog open={openDialog} onOpenChange={() => setOpenDialog(!open)}>
+    <Dialog open={openDialog} onOpenChange={() => setOpenDialog(!openDialog)}>
       <DialogTrigger asChild>
         <Button
           className="font-bold bg-green-500 hover:bg-green-400"
           size="lg"
-          disabled={unpaidAmount === 0}
+          disabled={disabled}
         >
           Баримт хэвлэх
         </Button>

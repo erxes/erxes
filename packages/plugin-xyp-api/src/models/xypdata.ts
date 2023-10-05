@@ -7,7 +7,7 @@ import {
 
 export interface IXypDataModel extends Model<IXypconfigDocument> {
   getXypData(doc: any): IXypconfigDocument;
-  createXypData(doc: any, user: any): IXypconfigDocument;
+  createXypData(doc: any, user?: any): IXypconfigDocument;
   updateXypData(_id: string, doc: any, user: any): IXypconfigDocument;
   removeXypData(_id: string): IXypconfigDocument;
 }

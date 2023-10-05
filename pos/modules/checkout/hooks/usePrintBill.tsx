@@ -1,6 +1,6 @@
 import { mutations } from "@/modules/checkout/graphql"
 import {
-  activeOrderAtom,
+  activeOrderIdAtom,
   billTypeAtom,
   paidDateAtom,
   registerNumberAtom,
@@ -16,7 +16,7 @@ import { useToast } from "@/components/ui/use-toast"
 import useRenderEbarimt from "./useRenderBillTypes"
 
 const usePrintBill = (onCompleted?: () => void) => {
-  const _id = useAtomValue(activeOrderAtom)
+  const _id = useAtomValue(activeOrderIdAtom)
   const billType = useAtomValue(billTypeAtom)
   const registerNumber = useAtomValue(registerNumberAtom)
   const paidDate = useAtomValue(paidDateAtom)

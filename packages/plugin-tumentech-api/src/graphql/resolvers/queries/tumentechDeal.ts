@@ -11,7 +11,8 @@ const tumentechDealsQuery = {
       perPage,
       dealIds,
       stageId,
-      driverType
+      driverType,
+      pipelineId
     }: {
       dealId?: string;
       dealIds?: [string];
@@ -19,10 +20,12 @@ const tumentechDealsQuery = {
       perPage?: number;
       stageId?: string;
       driverType?: number;
+      pipelineId?: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain, cpUser }: IContext
   ) => {
     const filter: any = {};
+    filter.createdBy = cpUser.userId;
 
     if (dealIds) {
       filter.dealId = { $in: dealIds || [] };
@@ -52,7 +55,8 @@ const tumentechDealsQuery = {
 
       const result = paginate(
         models.TumentechDeals.find({
-          dealId: { $in: dealsIdsList }
+          dealId: { $in: dealsIdsList },
+          createdBy: cpUser.userId
           // driverType,
         })
           .sort({ createdAt: -1 })
@@ -67,11 +71,52 @@ const tumentechDealsQuery = {
         list: result,
         totalCount: models.TumentechDeals.find({
           dealId: { $in: dealsIdsList },
-          driverType
+          createdBy: cpUser.userId
+          // driverType,
         }).count()
       };
     }
+    if (pipelineId) {
+      const stages = await sendCardsMessage({
+        subdomain,
+        action: 'stages.find',
+        data: { pipelineId: pipelineId },
+        isRPC: true
+      });
 
+      dealQuery.stageId = { $in: (stages || []).map(s => s._id) };
+
+      const deals = await sendCardsMessage({
+        subdomain,
+        action: 'deals.find',
+        data: dealQuery,
+        isRPC: true
+      });
+
+      const dealsIdsList = deals.map(d => d._id) || [];
+
+      const result = paginate(
+        models.TumentechDeals.find({
+          dealId: { $in: dealsIdsList },
+          createdBy: cpUser.userId
+        })
+          .sort({ createdAt: -1 })
+          .lean(),
+        {
+          page: page || 1,
+          perPage: perPage || 20
+        }
+      );
+
+      return {
+        list: result,
+        totalCount: models.TumentechDeals.find({
+          createdBy: cpUser.userId,
+          dealId: { $in: dealsIdsList }
+          // driverType,
+        }).count()
+      };
+    }
     return {
       list: paginate(
         models.TumentechDeals.find(filter)
@@ -117,13 +162,13 @@ const tumentechDealsQuery = {
   tumentechDealDetail: async (
     _root,
     { _id, dealId }: { _id: string; dealId?: string },
-    { models }: IContext
+    { models, cpUser }: IContext
   ) => {
     if (dealId) {
-      return models.TumentechDeals.getTumentechDeal(_id, dealId);
+      return models.TumentechDeals.getTumentechDeal(_id, dealId, cpUser.userId);
     }
 
-    return models.TumentechDeals.getTumentechDeal(_id);
+    return models.TumentechDeals.getTumentechDeal(_id, '', cpUser.userId);
   }
 };
 

@@ -2,10 +2,10 @@
 
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import ShowDeliveryInfo from "@/modules/orders/components/DeliveryInputs/ShowDeliveryInfo"
+import DeliveryInputs from "@/modules/orders/components/DeliveryInputs"
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
 import {
-  activeOrderAtom,
+  activeOrderIdAtom,
   buttonTypeAtom,
   orderTypeAtom,
 } from "@/store/order.store"
@@ -20,7 +20,7 @@ const OrderFinish = dynamic(() => import("../orderFinish"), {
 
 const BuyAction = () => {
   const [buttonType, setButtonType] = useAtom(buttonTypeAtom)
-  const setActiveOrder = useSetAtom(activeOrderAtom)
+  const setActiveOrder = useSetAtom(activeOrderIdAtom)
   const type = useAtomValue(orderTypeAtom)
   const router = useRouter()
   const isPay = buttonType === "pay"
@@ -50,7 +50,7 @@ const BuyAction = () => {
         Захиалах
       </Button>
       <div className="flex items-center col-span-2 gap-2">
-        <ShowDeliveryInfo />
+        <DeliveryInputs />
         {ORDER_TYPES.SALES.includes(type) ? (
           <Button
             size="lg"

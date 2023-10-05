@@ -337,9 +337,10 @@ export const statusToDone = async ({
 
   await updateCustomer({ subdomain, doneOrder });
 
-  if (pos.isOnline && doneOrder.branchId) {
+  if (pos.isOnline && doneOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
-      branchId: doneOrder.branchId
+      branchId: doneOrder.subBranchId,
+      _id: { $ne: pos._id }
     }).lean();
 
     // paid order info to offline pos
@@ -641,9 +642,10 @@ export const syncOrderFromClient = async ({
 
   await createDealPerOrder({ subdomain, pos, newOrder });
 
-  if (pos.isOnline && newOrder.branchId) {
+  if (pos.isOnline && newOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
-      branchId: newOrder.branchId
+      branchId: newOrder.subBranchId,
+      _id: { $ne: pos._id }
     }).lean();
 
     // paid order info to offline pos
@@ -661,21 +663,24 @@ export const syncOrderFromClient = async ({
     // change branch and before another pos synced then remove from befort sync
     if (
       oldOrder &&
-      oldOrder.branchId &&
-      newOrder.branchId !== oldOrder.branchId
+      oldOrder.subBranchId &&
+      newOrder.subBranchId !== oldOrder.subBranchId
     ) {
       const toCancelPos = await models.Pos.findOne({
-        branchId: oldOrder.branchId
+        branchId: oldOrder.subBranchId,
+        _id: { $ne: pos._id }
       }).lean();
 
-      await sendPosclientMessage({
-        subdomain,
-        action: 'erxes-posclient-to-pos-api-remove',
-        data: {
-          order: { ...newOrder, posToken, subToken: toPos.token }
-        },
-        pos: toCancelPos
-      });
+      if (toCancelPos) {
+        await sendPosclientMessage({
+          subdomain,
+          action: 'erxes-posclient-to-pos-api-remove',
+          data: {
+            order: { ...newOrder, posToken, subToken: toPos.token }
+          },
+          pos: toCancelPos
+        });
+      }
     }
   }
 

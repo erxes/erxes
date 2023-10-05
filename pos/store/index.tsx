@@ -1,5 +1,6 @@
 "use client"
 
+import ApolloProvider from "@/modules/ApolloProvider"
 import { atom, Provider } from "jotai"
 
 import { getMode } from "@/lib/utils"
@@ -32,7 +33,11 @@ export const kioskDialogOpenAtom = atom<boolean>(false)
 export const ebarimtMainDialogOpenAtom = atom<boolean>(false)
 
 const JotaiProvider = ({ children }: { children: React.ReactNode }) => {
-  return <Provider>{children}</Provider>
+  return (
+    <Provider>
+      <ApolloProvider>{children}</ApolloProvider>
+    </Provider>
+  )
 }
 
 export type SetAtom<Args extends any[], Result> = (...args: Args) => Result

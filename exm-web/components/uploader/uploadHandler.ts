@@ -1,4 +1,7 @@
 // import { getEnv } from "../../utils/configs"
+
+import { getEnv } from "@/lib/utils"
+
 import { toast } from "../ui/use-toast"
 
 type FileInfo = {
@@ -35,8 +38,9 @@ export const deleteHandler = (params: {
   url?: string
   afterUpload: ({ status }: { status: string }) => any
 }) => {
-  const NEXT_PUBLIC_MAIN_API_DOMAIN =
-    process.env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
+  const env = getEnv()
+
+  const NEXT_PUBLIC_MAIN_API_DOMAIN = env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
 
   let url = `${NEXT_PUBLIC_MAIN_API_DOMAIN}/gateway/pl:core/delete-file`
 
@@ -72,13 +76,14 @@ export const deleteHandler = (params: {
 }
 
 const getURL = () => {
-  const NEXT_PUBLIC_MAIN_API_DOMAIN =
-    process.env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
+  const env = getEnv()
+
+  const NEXT_PUBLIC_MAIN_API_DOMAIN = env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
 
   if (NEXT_PUBLIC_MAIN_API_DOMAIN.includes("localhost")) {
     return `${NEXT_PUBLIC_MAIN_API_DOMAIN}/upload-file`
   }
-  return `${NEXT_PUBLIC_MAIN_API_DOMAIN}/gateway/pl:core/upload-file`
+  return `${NEXT_PUBLIC_MAIN_API_DOMAIN}upload-file`
 }
 
 const uploadHandler = (params: Params) => {
