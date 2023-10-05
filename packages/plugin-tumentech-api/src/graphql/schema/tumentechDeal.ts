@@ -23,6 +23,7 @@ export const types = ({ cards }) => `
     tripFinishedData: Date
     estimatedCloseDate: Date
     createdAt: Date
+    createdBy: String
   }
 
 

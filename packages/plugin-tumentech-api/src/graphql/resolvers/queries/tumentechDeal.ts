@@ -22,9 +22,10 @@ const tumentechDealsQuery = {
       driverType?: number;
       pipelineId?: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain, cpUser }: IContext
   ) => {
     const filter: any = {};
+    filter.createdBy = cpUser.userId;
 
     if (dealIds) {
       filter.dealId = { $in: dealIds || [] };
@@ -54,7 +55,8 @@ const tumentechDealsQuery = {
 
       const result = paginate(
         models.TumentechDeals.find({
-          dealId: { $in: dealsIdsList }
+          dealId: { $in: dealsIdsList },
+          createdBy: cpUser.userId
           // driverType,
         })
           .sort({ createdAt: -1 })
@@ -69,7 +71,8 @@ const tumentechDealsQuery = {
         list: result,
         totalCount: models.TumentechDeals.find({
           dealId: { $in: dealsIdsList },
-          driverType
+          createdBy: cpUser.userId
+          // driverType,
         }).count()
       };
     }
@@ -94,8 +97,8 @@ const tumentechDealsQuery = {
 
       const result = paginate(
         models.TumentechDeals.find({
-          dealId: { $in: dealsIdsList }
-          // driverType,
+          dealId: { $in: dealsIdsList },
+          createdBy: cpUser.userId
         })
           .sort({ createdAt: -1 })
           .lean(),
@@ -108,8 +111,9 @@ const tumentechDealsQuery = {
       return {
         list: result,
         totalCount: models.TumentechDeals.find({
-          dealId: { $in: dealsIdsList },
-          driverType
+          createdBy: cpUser.userId,
+          dealId: { $in: dealsIdsList }
+          // driverType,
         }).count()
       };
     }
@@ -161,13 +165,13 @@ const tumentechDealsQuery = {
   tumentechDealDetail: async (
     _root,
     { _id, dealId }: { _id: string; dealId?: string },
-    { models }: IContext
+    { models, cpUser }: IContext
   ) => {
     if (dealId) {
-      return models.TumentechDeals.getTumentechDeal(_id, dealId);
+      return models.TumentechDeals.getTumentechDeal(_id, dealId, cpUser.userId);
     }
 
-    return models.TumentechDeals.getTumentechDeal(_id);
+    return models.TumentechDeals.getTumentechDeal(_id, '', cpUser.userId);
   }
 };
 
