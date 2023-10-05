@@ -2,7 +2,12 @@
 
 import { useState } from "react"
 import { IUser } from "@/modules/auth/types"
-import { AlertTriangleIcon, ShieldOffIcon, UserXIcon } from "lucide-react"
+import {
+  AlertTriangleIcon,
+  MoreVerticalIcon,
+  ShieldOffIcon,
+  UserXIcon,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -13,6 +18,11 @@ import {
 } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 import LoadingPost from "@/components/ui/loadingPost"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 import useChatsMutation from "../hooks/useChatsMutation"
 
@@ -26,7 +36,6 @@ const ParticipantItem = ({
   isAdmin: boolean
 }) => {
   const [open, setOpen] = useState(false)
-  const [showAction, setShowAction] = useState(false)
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -81,32 +90,39 @@ const ParticipantItem = ({
     }
 
     return (
-      <div className="flex">
-        <div
-          className="p-2 bg-[#F0F0F0] rounded-full cursor-pointer mr-2 z-10"
-          onClick={adminMutation}
-        >
-          <ShieldOffIcon size={18} />
-        </div>
-        <Dialog open={open} onOpenChange={() => setOpen(!open)}>
-          <DialogTrigger asChild={true}>
-            <div className="p-2 bg-[#F0F0F0] rounded-full cursor-pointer mr-2 z-10">
-              <UserXIcon size={18} />
-            </div>
-          </DialogTrigger>
+      <Popover>
+        <PopoverTrigger asChild={true} className="relative cursor-pointer">
+          <div className="p-2 bg-white rounded-full absolute right-1 ">
+            <MoreVerticalIcon size={18} />
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-44 p-3">
+          <div
+            className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-xs flex items-center"
+            onClick={adminMutation}
+          >
+            <ShieldOffIcon size={18} className="mr-1" />
+            {participant.isAdmin ? "Remove as Admin" : "Make admin"}
+          </div>
 
-          {renderForm()}
-        </Dialog>
-      </div>
+          <div>
+            <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+              <DialogTrigger asChild={true}>
+                <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-xs flex items-center">
+                  <UserXIcon size={18} className="mr-1" /> Remove user
+                </div>
+              </DialogTrigger>
+
+              {renderForm()}
+            </Dialog>
+          </div>
+        </PopoverContent>
+      </Popover>
     )
   }
 
   return (
-    <div
-      className="mt-4"
-      onMouseEnter={() => setShowAction(true)}
-      onMouseLeave={() => setShowAction(false)}
-    >
+    <div className="mt-4">
       <div className="flex items-center justify-between mb-2 p-2 hover:bg-[#F0F0F0]">
         <div className="flex items-center">
           <div className="items-end flex mr-2">
@@ -134,7 +150,7 @@ const ParticipantItem = ({
             </p>
           </div>
         </div>
-        {showAction ? renderActionButtons() : null}
+        {renderActionButtons()}
       </div>
     </div>
   )
