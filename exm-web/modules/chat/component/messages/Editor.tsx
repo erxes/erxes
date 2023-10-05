@@ -91,7 +91,7 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
       <div>
         {attachments && attachments.length > 0 && (
           <AttachmentWithChatPreview
-            images={attachments}
+            attachments={attachments || []}
             className="m-2 rounded-lg"
             deleteImage={deleteImage}
           />
