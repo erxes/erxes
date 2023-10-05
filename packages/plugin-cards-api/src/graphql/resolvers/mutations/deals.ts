@@ -215,7 +215,7 @@ const dealMutations = {
       proccessId,
       'deal',
       user,
-      ['productsData', 'paymentsData'],
+      ['productsData', 'paymentsData', 'mobileAmounts'],
       models.Deals.createDeal
     );
   },

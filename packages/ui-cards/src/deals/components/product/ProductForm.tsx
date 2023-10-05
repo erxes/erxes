@@ -6,7 +6,12 @@ import {
   ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
-import { IDeal, IPaymentsData, IProductData } from '../../types';
+import {
+  IDeal,
+  IPaymentsData,
+  IProductData,
+  IMobileAmounts
+} from '../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -638,6 +643,7 @@ class ProductForm extends React.Component<Props, State> {
         <PaymentForm
           total={total}
           payments={this.props.paymentsData}
+          mobileAmounts={this.props.dealQuery.mobileAmounts}
           dealQuery={this.props.dealQuery}
           paymentQuery={this.props.paymentQuery}
           onChangePaymentsData={onChangePaymentsData}
