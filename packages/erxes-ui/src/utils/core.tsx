@@ -804,3 +804,7 @@ export const shortStrToDate = (
 
   return intgr;
 };
+
+export const getGqlString = doc => {
+  return doc.loc && doc.loc.source.body;
+};
