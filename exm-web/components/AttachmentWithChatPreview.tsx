@@ -5,25 +5,25 @@ import { cn } from "@/lib/utils"
 import { FilePreview } from "./FilePreview"
 
 export const AttachmentWithChatPreview = ({
-  images,
+  attachments,
   className,
   deleteImage,
   isDownload,
 }: {
-  images: any[]
+  attachments: any[]
   className?: string
   deleteImage?: (index: number) => void
   isDownload?: boolean
 }) => {
   const renderAttachmentPreview = () => {
-    if (images && images.length === 0) {
+    if (attachments && attachments.length === 0) {
       return null
     }
 
     return (
       <div id="gallery" className={cn("relative w-full", className)}>
         <div className="flex w-full overflow-x-auto">
-          {images.map((image: any, i: number) => (
+          {attachments.map((image: any, i: number) => (
             <FilePreview
               key={i}
               fileUrl={image.url}
@@ -31,6 +31,7 @@ export const AttachmentWithChatPreview = ({
               deleteImage={deleteImage}
               fileIndex={i}
               isDownload={isDownload}
+              attachments={attachments}
             />
           ))}
         </div>

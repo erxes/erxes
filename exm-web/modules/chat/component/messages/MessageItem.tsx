@@ -120,14 +120,14 @@ const MessageItem = ({
           <div>
             {attachments && attachments.length > 0 ? (
               <>
-                <AttachmentWithChatPreview
-                  images={attachments}
-                  className="m-2 rounded-lg"
-                  isDownload={true}
-                />
                 <Card className="p-4 rounded-2xl">
                   <div dangerouslySetInnerHTML={{ __html: content || "" }} />
                 </Card>
+                <AttachmentWithChatPreview
+                  attachments={attachments}
+                  className="m-2 rounded-lg"
+                  isDownload={true}
+                />
               </>
             ) : (
               <Card className="p-4 rounded-2xl">

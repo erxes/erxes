@@ -3,6 +3,8 @@ import { ExternalLinkIcon, XCircle } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
 
+import { AttachmentWithPreview } from "./AttachmentWithPreview"
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "./ui/dialog"
 import Image from "./ui/image"
 
 export const FilePreview = ({
@@ -11,12 +13,14 @@ export const FilePreview = ({
   deleteImage,
   fileIndex,
   isDownload,
+  attachments,
 }: {
   fileUrl: string
   fileName?: string
   fileIndex: number
   deleteImage?: (index: number) => void
   isDownload?: boolean
+  attachments?: any[]
 }) => {
   if (!fileUrl || !fileUrl.split) {
     return null
@@ -28,6 +32,15 @@ export const FilePreview = ({
     }
 
     return
+  }
+
+  const renderImageForm = () => {
+    return (
+      <DialogContent>
+        <DialogHeader />
+        <AttachmentWithPreview images={attachments || []} />
+      </DialogContent>
+    )
   }
 
   const renderFile = () => {
@@ -84,18 +97,25 @@ export const FilePreview = ({
         </div>
       )
     }
+
     return (
-      <a href={readFile(fileUrl)}>
-        <div className="mr-1 w-[80px] h-[80px] shrink-0">
-          <Image
-            alt="image"
-            src={fileUrl || ""}
-            width={500}
-            height={500}
-            className="object-contain w-[80px] h-[80px]"
-          />
-        </div>
-      </a>
+      <>
+        <Dialog>
+          <DialogTrigger asChild={true}>
+            <div className="mr-1 w-[80px] h-[80px] shrink-0 cursor-pointer">
+              <Image
+                alt="image"
+                src={fileUrl || ""}
+                width={500}
+                height={500}
+                className="object-contain w-[80px] h-[80px]"
+              />
+            </div>
+          </DialogTrigger>
+
+          {renderImageForm()}
+        </Dialog>
+      </>
     )
   }
 
@@ -135,9 +155,6 @@ export const FilePreview = ({
     case "rar":
     case "mp3":
     case "pdf":
-    // case "xls":
-    //   filePreview = renderFile(fileExtension)
-    //   break
     default:
       filePreview = renderFile()
   }
