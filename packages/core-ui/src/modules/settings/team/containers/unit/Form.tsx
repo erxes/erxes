@@ -11,6 +11,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 type Props = {
   unit?: IUnit;
   closeModal: () => void;
+  additionalRefetchQueries?: any[];
 };
 
 const FormContainer = (props: Props) => {
@@ -32,7 +33,16 @@ const FormContainer = (props: Props) => {
     return (
       <ButtonMutate
         mutation={object._id ? mutations.unitsEdit : mutations.unitsAdd}
-        refetchQueries={['unitsMain']}
+        refetchQueries={[
+          {
+            query: gql(queries.units),
+            variables: {
+              withoutUserFilter: true,
+              searchValue: undefined
+            }
+          },
+          ...(props.additionalRefetchQueries || [])
+        ]}
         variables={values}
         isSubmitted={isSubmitted}
         type="submit"
