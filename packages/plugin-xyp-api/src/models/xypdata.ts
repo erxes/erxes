@@ -49,8 +49,6 @@ export const loadxypConfigClass = models => {
           }
         }
       );
-      console.log('pisda');
-      console.log(ret);
       return models.XypData.findOne({ _id });
     }
     /*
