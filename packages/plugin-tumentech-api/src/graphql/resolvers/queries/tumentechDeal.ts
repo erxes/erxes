@@ -61,7 +61,7 @@ const tumentechDealsQuery = {
       const result = paginate(
         models.TumentechDeals.find({
           dealId: { $in: dealsIdsList },
-          createdBy: isFilterCreatedBy ? cpUser.userId : undefined
+          ...(isFilterCreatedBy && { createdBy: cpUser.userId })
           // driverType,
         })
           .sort({ createdAt: -1 })
@@ -76,7 +76,7 @@ const tumentechDealsQuery = {
         list: result,
         totalCount: models.TumentechDeals.find({
           dealId: { $in: dealsIdsList },
-          createdBy: isFilterCreatedBy ? cpUser.userId : undefined
+          ...(isFilterCreatedBy && { createdBy: cpUser.userId })
           // driverType,
         }).count()
       };
@@ -103,7 +103,7 @@ const tumentechDealsQuery = {
       const result = paginate(
         models.TumentechDeals.find({
           dealId: { $in: dealsIdsList },
-          createdBy: isFilterCreatedBy ? cpUser.userId : undefined
+          ...(isFilterCreatedBy && { createdBy: cpUser.userId })
         })
           .sort({ createdAt: -1 })
           .lean(),
@@ -116,7 +116,7 @@ const tumentechDealsQuery = {
       return {
         list: result,
         totalCount: models.TumentechDeals.find({
-          createdBy: isFilterCreatedBy ? cpUser.userId : undefined,
+          ...(isFilterCreatedBy && { createdBy: cpUser.userId }),
           dealId: { $in: dealsIdsList }
           // driverType,
         }).count()
