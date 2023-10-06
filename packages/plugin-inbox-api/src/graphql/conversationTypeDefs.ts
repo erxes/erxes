@@ -225,7 +225,7 @@ const filterParams = `
 export const queries = ({ forms }) => `
   conversationMessage(_id: String!): ConversationMessage
   
-  conversations(${filterParams}): [Conversation]
+  conversations(${filterParams}, skip: Int): [Conversation]
 
   conversationMessages(
     conversationId: String!
