@@ -12,7 +12,6 @@ import {
 } from '@erxes/ui/src/utils';
 import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
 
-import AnimatedLoader from '@erxes/ui/src/components/AnimatedLoader';
 import ConversationList from '../../components/leftSidebar/ConversationList';
 import { ConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -107,8 +106,40 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
       routerUtils.setParams(history, { _id: conversation._id });
     };
 
+    const onLoadMore = () => {
+      return conversationsQuery.fetchMore({
+        variables: {
+          skip: conversations.length
+        },
+        updateQuery: (prevResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult || fetchMoreResult.conversations.length === 0) {
+            return prevResult;
+          }
+
+          const prevConversations = prevResult.conversations || [];
+          const prevConversationIds = prevConversations.map(
+            (conversation: IConversation) => conversation._id
+          );
+
+          const fetchedConversations: IConversation[] = [];
+
+          for (const conversation of fetchMoreResult.conversations) {
+            if (!prevConversationIds.includes(conversation._id)) {
+              fetchedConversations.push(conversation);
+            }
+          }
+
+          return {
+            ...prevResult,
+            conversations: [...prevConversations, ...fetchedConversations]
+          };
+        }
+      });
+    };
+
     const updatedProps = {
       ...this.props,
+      onLoadMore,
       conversations,
       onChangeConversation,
       loading: conversationsQuery.loading,
@@ -144,9 +175,10 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: generateParams(queryParams),
           notifyOnNetworkStatusChange: true,
-          fetchPolicy: 'network-only',
+          fetchPolicy: 'network-only'
           // every minute
-          pollInterval: 60000
+          // commented this line because it was causing the page to refresh every minute and it was glitchy
+          // pollInterval: 60000
         })
       }
     ),

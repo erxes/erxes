@@ -1,8 +1,9 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 import { IXypConfig } from './graphql/resolvers/queries';
 import { sendRequest } from '@erxes/api-utils/src';
-import { generateModels } from './connectionResolver';
+
 // import { Xyps } from "./models";
 
 let client;
@@ -54,6 +55,17 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('xyp.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.XypData.findOne({
+        contentType: 'car',
+        contentTypeId: data?._id
+      })
+    };
+  });
   consumeRPCQueue('xyp:insertOrUpdate', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

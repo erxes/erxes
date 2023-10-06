@@ -18,7 +18,7 @@ export const types = `
     _id: String! @external
   }
 
-  type Timeclock {
+  type Timeclock @key(fields: "_id"){
     _id: String!
     user: User
     shiftStart: Date
@@ -46,7 +46,7 @@ export const types = `
     deviceName: String
   }
 
-  type Absence {
+  type Absence @key(fields: "_id"){
     _id: String!
     user: User
     holidayName: String
@@ -106,7 +106,7 @@ export const types = `
     lunchBreakInMins: Int
   }
 
-  type Schedule {
+  type Schedule @key(fields: "_id"){
     _id: String!
     user: User
     shifts: [Shift]

@@ -2,17 +2,19 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import mutations from './mutations';
 import queries from './queries';
-// import { Types } from '../../models';
+import { IContext } from '../../connectionResolver';
 
-const Xyp = {
-  currentType(xyp, _args) {
-    // return Types.findOne({ _id: xyp.typeId });
+const XypData = {
+  async __resolveReference({ _id }, { models }: IContext) {
+    console.log('resolverference', _id);
+    const customer = await models.XypData.findOne({ _id });
+    return customer;
   }
 };
 
 const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
-  Xyp,
+  XypData,
   Mutation: {
     ...mutations
   },
