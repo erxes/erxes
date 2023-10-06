@@ -120,8 +120,8 @@ const PaymentModal: FC<PaymentModalProps> = ({
   }, []);
 
   return (
-    <Button style={{ fontsize: '100px' }} onClick={onClickPay}>
-      <Icon icon="dollar-alt" /> {__('Pay')}
+    <Button  onClick={onClickPay}>
+    {__('Pay')}
     </Button>
   );
 };
