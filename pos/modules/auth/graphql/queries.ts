@@ -164,6 +164,16 @@ const getAllowTypes = gql`
     }
   }
 `
+const uiOptions = gql`
+  query UiOptions {
+    currentConfig {
+      uiOptions {
+        bgImage
+        logo
+      }
+    }
+  }
+`
 
 const queries = {
   posCurrentUser,
@@ -180,6 +190,7 @@ const queries = {
   getAllowTypes,
   getWaitingConfig,
   getPaymentTypes,
+  uiOptions,
 }
 
 export default queries
