@@ -3,7 +3,6 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { IOptions } from '../../types';
 import Button from '@erxes/ui/src/components/Button';
-import { useHistory } from 'react-router-dom';
 
 type Props = {
   relType: string;
@@ -39,7 +38,6 @@ export default function ConvertTrigger(props: Props) {
     bookingProductId,
     autoOpenKey
   } = props;
-  const history = useHistory();
 
   if (url) {
     return (
@@ -54,38 +52,29 @@ export default function ConvertTrigger(props: Props) {
     );
   }
 
-  const trigger = <Button btnStyle="link">{title}</Button>;
+  const trigger = (
+    <Button btnStyle="link" id={autoOpenKey}>
+      {title}
+    </Button>
+  );
 
-  const content = formProps => {
-    return (
-      <AddForm
-        options={options}
-        {...formProps}
-        type={type}
-        description={description}
-        attachments={attachments}
-        refetch={refetch}
-        relType={relType}
-        relTypeIds={relTypeIds}
-        mailSubject={subject}
-        assignedUserIds={assignedUserIds}
-        sourceConversationId={sourceConversationId}
-        showSelect={true}
-        bookingProductId={bookingProductId}
-        closeModal={() => close()}
-      />
-    );
-  };
-
-  return (
-    <ModalTrigger
-      title={title}
-      autoOpenKey={autoOpenKey && autoOpenKey}
-      trigger={trigger}
-      content={content}
-      onExit={() => {
-        history.push(history.location.pathname + history.location.search);
-      }}
+  const content = formProps => (
+    <AddForm
+      options={options}
+      {...formProps}
+      type={type}
+      description={description}
+      attachments={attachments}
+      refetch={refetch}
+      relType={relType}
+      relTypeIds={relTypeIds}
+      mailSubject={subject}
+      assignedUserIds={assignedUserIds}
+      sourceConversationId={sourceConversationId}
+      showSelect={true}
+      bookingProductId={bookingProductId}
     />
   );
+
+  return <ModalTrigger title={title} trigger={trigger} content={content} />;
 }

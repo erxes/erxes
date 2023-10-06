@@ -103,16 +103,16 @@ export default class ConvertTo extends React.Component<Props, State> {
     switch (event.keyCode) {
       case 13:
         if (this.state.showDropdown && cursor === 0) {
-          window.location.hash = 'showTicketConvertModal';
+          document.getElementById('showTicketConvertModal').click();
         }
         if (this.state.showDropdown && cursor === 1) {
-          window.location.hash = 'showDealConvertModal';
+          document.getElementById('showDealConvertModal').click();
         }
         if (this.state.showDropdown && cursor === 2) {
-          window.location.hash = 'showTaskConvertModal';
+          document.getElementById('showTaskConvertModal').click();
         }
         if (this.state.showDropdown && cursor === 3) {
-          window.location.hash = 'showPurchaseConvertModal';
+          document.getElementById('showPurchaseConvertModal').click();
         }
         break;
       case 38:
