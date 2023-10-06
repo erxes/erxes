@@ -1,17 +1,17 @@
-import React from 'react';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Form from '../../components/unit/Form';
 import { mutations, queries } from '@erxes/ui/src/team/graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import Form from '../../components/unit/Form';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IUnit } from '@erxes/ui/src/team/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client';
-import { IUnit } from '@erxes/ui/src/team/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   unit?: IUnit;
   closeModal: () => void;
-  additionalRefetchQueries?: any[];
 };
 
 const FormContainer = (props: Props) => {
@@ -35,13 +35,8 @@ const FormContainer = (props: Props) => {
         mutation={object._id ? mutations.unitsEdit : mutations.unitsAdd}
         refetchQueries={[
           {
-            query: gql(queries.units),
-            variables: {
-              withoutUserFilter: true,
-              searchValue: undefined
-            }
-          },
-          ...(props.additionalRefetchQueries || [])
+            query: gql(queries.units)
+          }
         ]}
         variables={values}
         isSubmitted={isSubmitted}
