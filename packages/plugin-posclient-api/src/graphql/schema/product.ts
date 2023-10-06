@@ -45,6 +45,8 @@ export const types = `
     subUoms: JSON
     category: PosProductCategory
     remainder: Float
+    soonIn: Float
+    soonOut: Float
     remainders: [JSON]
     isCheckRem: Boolean
     hasSimilarity: Boolean

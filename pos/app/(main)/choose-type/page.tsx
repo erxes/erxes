@@ -2,9 +2,11 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { queries } from "@/modules/auth/graphql"
 import { orderTypeAtom } from "@/store/order.store"
+import { useQuery } from "@apollo/client"
 import { useSetAtom } from "jotai"
-import { ArrowLeft, ShoppingBagIcon, SoupIcon } from "lucide-react"
+import { ArrowLeft, Loader, ShoppingBagIcon, SoupIcon } from "lucide-react"
 
 import { IOrderType } from "@/types/order.types"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
@@ -19,6 +21,10 @@ const Page = () => {
     setType(type)
     router.push("/home")
   }
+  const { data, loading } = useQuery(queries.uiOptions)
+  const { uiOptions } = data?.currentConfig || {}
+
+  if (loading) return <Loader className="h-screen" />
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-between relative ">
@@ -36,7 +42,7 @@ const Page = () => {
         <div className="w-4/12 text-center">
           <AspectRatio ratio={1.6}>
             <Image
-              src="https://seeklogo.com/images/Y/yoshinoya-logo-0838D5BF03-seeklogo.com.png"
+              src={uiOptions?.logo || "/logo-dark.png"}
               alt=""
               className="object-contain p-3"
               sizes={"100vw"}

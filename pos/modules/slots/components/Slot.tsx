@@ -5,6 +5,11 @@ import { Check } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
 import { Button } from "@/components/ui/button"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import { Label } from "@/components/ui/label"
 
 const className = cva("h-10 w-10 text-base font-bold px-0 relative ", {
@@ -32,36 +37,41 @@ const Slot = ({
   active: boolean
 }) => {
   return (
-    <Button className={className({ status })} Component={"div"}>
-      {name}
-      <RadioGroupItem
-        value={active ? "" : code}
-        id={code}
-        className="peer sr-only"
-      />
-      <MotionLabel
-        className="absolute inset-0 border-primary rounded-md border-2"
-        animate={{
-          opacity: active ? 1 : 0,
-        }}
-        initial={{
-          opacity: 0,
-        }}
-        htmlFor={code}
-      />
-      <MotionLabel
-        className="absolute -top-1.5 -right-1.5 bg-primary h-5 w-5 rounded-full border-2 border-white p-0.5 text-white"
-        initial={{ opacity: 0, translateY: 2, translateX: -2 }}
-        animate={{
-          opacity: active ? 1 : 0,
-          translateY: active ? 0 : 2,
-          translateX: active ? 0 : -2,
-        }}
-        htmlFor={code}
-      >
-        <Check className="h-3 w-3" strokeWidth={4} />
-      </MotionLabel>
-    </Button>
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <Button className={className({ status })} Component={"div"}>
+          {name}
+          <RadioGroupItem
+            value={active ? "" : code}
+            id={code}
+            className="peer sr-only"
+          />
+          <MotionLabel
+            className="absolute inset-0 border-primary rounded-md border-2"
+            animate={{
+              opacity: active ? 1 : 0,
+            }}
+            initial={{
+              opacity: 0,
+            }}
+            htmlFor={code}
+          />
+          <MotionLabel
+            className="absolute -top-1.5 -right-1.5 bg-primary h-5 w-5 rounded-full border-2 border-white p-0.5 text-white"
+            initial={{ opacity: 0, translateY: 2, translateX: -2 }}
+            animate={{
+              opacity: active ? 1 : 0,
+              translateY: active ? 0 : 2,
+              translateX: active ? 0 : -2,
+            }}
+            htmlFor={code}
+          >
+            <Check className="h-3 w-3" strokeWidth={4} />
+          </MotionLabel>
+        </Button>
+      </HoverCardTrigger>
+      <HoverCardContent side="right"></HoverCardContent>
+    </HoverCard>
   )
 }
 

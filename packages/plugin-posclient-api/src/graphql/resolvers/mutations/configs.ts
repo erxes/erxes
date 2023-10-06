@@ -122,7 +122,10 @@ const configMutations = {
         await importSlots(models, slots, token);
         break;
       case 'productsConfigs':
-        await models.ProductsConfigs.createOrUpdateConfig(response);
+        await models.ProductsConfigs.createOrUpdateConfig({
+          code: 'similarityGroup',
+          value: response
+        });
         break;
     }
     return 'success';
