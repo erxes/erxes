@@ -159,6 +159,11 @@ const PopoverList = styledTS<{ center?: boolean }>(styled(RootList))`
       color: ${colors.colorCoreDarkGray};
     }
 
+    &.active{
+      color: rgb(55, 55, 55);
+      background: ${colors.bgLight};
+      outline: 0px;
+    }
   }
 `;
 

@@ -75,6 +75,9 @@ class Tagger extends React.Component<Props, State> {
         if (cursor > 0) {
           this.setState({ cursor: cursor - 1 });
         }
+        if (cursor === 0) {
+          this.setState({ cursor: maxCursor });
+        }
         break;
       case 40:
         // Arrow move down
