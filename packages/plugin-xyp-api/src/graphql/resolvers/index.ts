@@ -2,7 +2,7 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import mutations from './mutations';
 import queries from './queries';
-import { IContext, models } from '../../connectionResolver';
+import { IContext } from '../../connectionResolver';
 
 const XypData = {
   async __resolveReference({ _id }, { models }: IContext) {
