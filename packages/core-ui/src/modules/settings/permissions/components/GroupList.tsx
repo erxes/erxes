@@ -63,10 +63,6 @@ class GroupList extends React.Component<IProps> {
     return currentGroup === id;
   };
 
-  clearGroupFilter = () => {
-    router.setParams(this.props.history, { groupId: null });
-  };
-
   renderEditAction(object: IUserGroupDocument) {
     const trigger = (
       <Button btnStyle="link">
@@ -152,18 +148,7 @@ class GroupList extends React.Component<IProps> {
     return (
       <>
         <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title>
-          {__('User groups')}
-          <Section.QuickButtons>
-            {router.getParam(this.props.history, 'groupId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearGroupFilter}>
-                <Tip text={__('Clear filter')}>
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
-            )}
-          </Section.QuickButtons>
-        </Section.Title>
+        <Section.Title>{__('User groups')}</Section.Title>
       </>
     );
   }
