@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { Spinner } from '@erxes/ui/src/components';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../../graphql';

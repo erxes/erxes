@@ -136,8 +136,8 @@ class ContractForm extends React.Component<Props, State> {
       useHoliday: contract.useHoliday || false,
       relContractId: contract.relContractId || '',
       skipAmountCalcMonth: contract.skipAmountCalcMonth || 0,
-      customInterest: contract.customInterest,
-      customPayment: contract.customPayment,
+      customInterest: contract.customInterest || 0,
+      customPayment: contract.customPayment || 0,
       currency:
         contract.currency || this.props.currentUser.configs?.dealCurrency[0],
       downPayment: contract.downPayment || 0,
@@ -413,16 +413,20 @@ class ContractForm extends React.Component<Props, State> {
       this.state.config &&
       isGreaterNumber(this.state.config.minInterest, this.state.interestMonth)
     )
-      errors.interestMonth = errorWrapper(
-        `${__('Interest must greater than')} ${this.state.config.minInterest}`
+      errors.interestRate = errorWrapper(
+        `${__('Interest must greater than')} ${(
+          this.state.config.minInterest * 12
+        ).toFixed(0)}`
       );
 
     if (
       this.state.config &&
       isGreaterNumber(this.state.interestMonth, this.state.config.maxInterest)
     )
-      errors.interestMonth = errorWrapper(
-        `${__('Interest must less than')} ${this.state.config.maxInterest}`
+      errors.interestRate = errorWrapper(
+        `${__('Interest must less than')} ${(
+          this.state.config.maxInterest * 12
+        ).toFixed(0)}`
       );
 
     return errors;
@@ -523,7 +527,6 @@ class ContractForm extends React.Component<Props, State> {
                   useNumberFormat: true,
                   fixed: 2,
                   value: this.state.downPayment || 0,
-                  errors: this.checkValidation(),
                   onChange: this.onChangeField,
                   onClick: this.onFieldClick
                 })}
@@ -636,6 +639,7 @@ class ContractForm extends React.Component<Props, State> {
                 required: true,
                 fixed: 2,
                 value: this.state.leaseAmount || 0,
+                errors: this.checkValidation(),
                 onChange: this.onChangeField
               })}
               {this.state.repayment === 'custom' &&
@@ -668,8 +672,9 @@ class ContractForm extends React.Component<Props, State> {
                 name: 'tenor',
                 useNumberFormat: true,
                 value: this.state.tenor || 0,
+                errors: this.checkValidation(),
                 required: true,
-                max: 30,
+                max: this.state.config?.maxTenor,
                 onChange: this.onChangeField
               })}
 
@@ -713,6 +718,7 @@ class ContractForm extends React.Component<Props, State> {
                 fixed: 2,
                 name: 'interestRate',
                 value: this.state.interestRate || 0,
+                errors: this.checkValidation(),
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
               })}

@@ -46,7 +46,6 @@ class ContractFromContainer extends React.Component<FinalProps> {
           callback={afterSave}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
           disabled={disabled}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
