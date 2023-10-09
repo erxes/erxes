@@ -1,9 +1,10 @@
-import { getConfig } from './utils';
 import { sendContactsMessage } from '../messageBroker';
 import { validCompanyCode } from './customerToErkhet';
+import { generateModels } from '../connectionResolver';
 
 export const consumeCustomer = async (subdomain, doc, old_code, action) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
+  const models = await generateModels(subdomain);
+  const config = await models.Configs.getConfig('ERKHET', {});
 
   const isCompany = await validCompanyCode(config, doc.code);
 

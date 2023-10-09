@@ -52,7 +52,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
 
     data.pos.erkhetConfig = {
       ...pos.erkhetConfig,
-      getRemainderApiUrl: configs.getRemainderApiUrl,
+      url: configs.url,
       apiKey: configs.apiKey,
       apiSecret: configs.apiSecret,
       apiToken: configs.apiToken

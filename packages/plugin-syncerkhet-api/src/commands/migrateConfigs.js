@@ -27,6 +27,9 @@ const command = async () => {
 
     if (config) {
       console.log(key)
+      if (key === 'ERKHET') {
+        config.value.url = 'https://erkhet.biz'
+      }
       await SyncerkhetConfigs.updateOne({ code: key }, {
         $set: {
           _id: config._id,

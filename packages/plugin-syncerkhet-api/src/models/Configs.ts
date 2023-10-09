@@ -1,14 +1,9 @@
 import { Model } from 'mongoose';
-import {
-  COMPANY_INDUSTRY_TYPES,
-  SEX_OPTIONS,
-  SOCIAL_LINKS
-} from '@erxes/api-utils/src/constants';
 import { configSchema, IConfig, IConfigDocument } from './definitions/configs';
 import { IModels } from '../connectionResolver';
 
 export interface IConfigModel extends Model<IConfigDocument> {
-  getConfig(code: string): Promise<IConfigDocument>;
+  getConfig(code: string, defaultValue?: any): Promise<any>;
   createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
 }
 
@@ -17,14 +12,14 @@ export const loadConfigClass = (models: IModels) => {
     /*
      * Get a Config
      */
-    public static async getConfig(code: string) {
+    public static async getConfig(code: string, defaultValue: any) {
       const config = await models.Configs.findOne({ code });
 
-      if (!config) {
-        throw new Error('Config not found');
+      if (!config || !config.code) {
+        return defaultValue;
       }
 
-      return config;
+      return config.value;
     }
 
     /**

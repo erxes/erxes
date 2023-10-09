@@ -11,7 +11,7 @@ export const KEY_LABELS = {
   customerDefaultName: 'customer Default Name',
   customerCategoryCode: 'customer Category Code',
   companyCategoryCode: 'company Category Code',
-  getRemainderApiUrl: 'Get Remainder url'
+  url: 'erkhet url'
 };
 
 export const menuSyncerkhet = [

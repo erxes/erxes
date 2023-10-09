@@ -93,10 +93,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('apiKey')}
           {this.renderItem('apiSecret')}
           {this.renderItem('apiToken')}
-          {this.renderItem(
-            'getRemainderApiUrl',
-            'Get remainder from erkhet api url'
-          )}
+          {this.renderItem('url', 'default: "https://erkhet.biz"')}
         </CollapseContent>
         <CollapseContent title="Product to erkhet">
           {this.renderItem('costAccount', 'Cost Account fullCode on erkhet')}

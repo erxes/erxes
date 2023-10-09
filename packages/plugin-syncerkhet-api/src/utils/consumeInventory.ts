@@ -1,7 +1,9 @@
+import { generateModels } from '../connectionResolver';
 import { sendProductsMessage } from '../messageBroker';
-import { getConfig } from './utils';
 
 export const consumeInventory = async (subdomain, doc, old_code, action) => {
+  const models = await generateModels(subdomain);
+
   const product = await sendProductsMessage({
     subdomain,
     action: 'findOne',
@@ -18,7 +20,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       isRPC: true
     });
 
-    const config = await getConfig(subdomain, 'ERKHET', {});
+    const config = await models.Configs.getConfig('ERKHET', {});
 
     const document: any = {
       name: doc.nickname || doc.name,

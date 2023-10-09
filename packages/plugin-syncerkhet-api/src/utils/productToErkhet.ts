@@ -18,7 +18,7 @@ export const productCategoryToErkhet = async (
     isRPC: true
   });
 
-  const config = await getConfig(subdomain, 'ERKHET', {});
+  const config = await models.Configs.getConfig('ERKHET', {});
 
   const sendData = {
     action,
@@ -59,7 +59,7 @@ export const productToErkhet = async (
     ratioMeasureUnit = subUom.ratio;
   }
 
-  const config = await getConfig(subdomain, 'ERKHET', {});
+  const config = await models.Configs.getConfig('ERKHET', {});
 
   const sendData = {
     action,

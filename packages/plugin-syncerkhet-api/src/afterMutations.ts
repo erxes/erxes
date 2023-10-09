@@ -4,7 +4,7 @@ import {
   productToErkhet,
   productCategoryToErkhet
 } from './utils/productToErkhet';
-import { getConfig, sendCardInfo } from './utils/utils';
+import { sendCardInfo } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
 import { generateModels } from './connectionResolver';
 
@@ -52,10 +52,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
           return;
         }
 
-        const configs = await getConfig(subdomain, 'ebarimtConfig', {});
-        const moveConfigs = await getConfig(subdomain, 'stageInMoveConfig', {});
-        const returnConfigs = await getConfig(
-          subdomain,
+        const configs = await models.Configs.getConfig('ebarimtConfig', {});
+        const moveConfigs = await models.Configs.getConfig(
+          'stageInMoveConfig',
+          {}
+        );
+        const returnConfigs = await models.Configs.getConfig(
           'returnEbarimtConfig',
           {}
         );
@@ -65,7 +67,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const returnConfig = {
             ...returnConfigs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {}))
+            ...(await models.Configs.getConfig('ERKHET', {}))
           };
 
           const orderInfos = [
@@ -104,7 +106,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const moveConfig = {
             ...moveConfigs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {}))
+            ...(await models.Configs.getConfig('ERKHET', {}))
           };
 
           const postData = await getMoveData(subdomain, moveConfig, deal);
@@ -142,7 +144,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const config = {
             ...configs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {}))
+            ...(await models.Configs.getConfig('ERKHET', {}))
           };
           const postData = await getPostData(subdomain, config, deal);
 

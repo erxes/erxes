@@ -1,4 +1,5 @@
-import { sendCardsMessage, sendCoreMessage } from '../messageBroker';
+import { IModels } from '../connectionResolver';
+import { sendCardsMessage } from '../messageBroker';
 import { sendRPCMessage } from '../messageBrokerErkhet';
 
 export const toErkhet = (models, syncLog, config, sendData, action) => {
@@ -16,13 +17,8 @@ export const toErkhet = (models, syncLog, config, sendData, action) => {
   });
 };
 
-export const getConfig = async (subdomain, code, defaultValue?) => {
-  return await sendCoreMessage({
-    subdomain,
-    action: 'getConfig',
-    data: { code, defaultValue },
-    isRPC: true
-  });
+export const getConfig = async (models: IModels, code, defaultValue?) => {
+  return models.Configs.getConfig(code, defaultValue);
 };
 
 export const sendCardInfo = async (subdomain, deal, config, value) => {

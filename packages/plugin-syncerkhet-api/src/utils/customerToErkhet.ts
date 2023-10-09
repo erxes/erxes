@@ -1,4 +1,4 @@
-import { getConfig, toErkhet } from './utils';
+import { toErkhet } from './utils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
 export const customerToErkhet = async (
@@ -8,7 +8,7 @@ export const customerToErkhet = async (
   params,
   action
 ) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
+  const config = await models.Configs.getConfig('ERKHET', {});
 
   const customer = params.updatedDocument || params.object;
   const oldCustomer = params.object;
@@ -75,7 +75,7 @@ export const companyToErkhet = async (
   action,
   user
 ) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
+  const config = await models.Configs.getConfig('ERKHET', {});
   const company = params.updatedDocument || params.object;
 
   const oldCompany = params.object;
