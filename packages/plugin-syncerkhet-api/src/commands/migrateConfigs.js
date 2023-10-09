@@ -26,10 +26,6 @@ const command = async () => {
     const config = await Configs.findOne({ code: key });
 
     if (config) {
-      console.log(key)
-      if (key === 'ERKHET') {
-        config.value.url = 'https://erkhet.biz'
-      }
       await SyncerkhetConfigs.updateOne({ code: key }, {
         $set: {
           _id: config._id,

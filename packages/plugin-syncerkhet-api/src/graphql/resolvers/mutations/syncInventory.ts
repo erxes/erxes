@@ -11,12 +11,7 @@ const inventoryMutations = {
   async toCheckProducts(_root, _params, { subdomain, models }: IContext) {
     const config = await models.Configs.getConfig('ERKHET', {});
 
-    if (
-      !config.url ||
-      !config.apiToken ||
-      !config.apiKey ||
-      !config.apiSecret
-    ) {
+    if (!config.apiToken || !config.apiKey || !config.apiSecret) {
       throw new Error('Erkhet config not found.');
     }
 
@@ -53,7 +48,7 @@ const inventoryMutations = {
     const productCodes = products.map(p => p.code) || [];
 
     const response = await sendRequest({
-      url: config.url + '/get-api/',
+      url: process.env.ERKHET_URL + '/get-api/',
       method: 'GET',
       params: {
         kind: 'inventory',
@@ -131,12 +126,7 @@ const inventoryMutations = {
   async toCheckCategories(_root, _params, { subdomain, models }: IContext) {
     const config = await models.Configs.getConfig('ERKHET', {});
 
-    if (
-      !config.url ||
-      !config.apiToken ||
-      !config.apiKey ||
-      !config.apiSecret
-    ) {
+    if (!config.apiToken || !config.apiKey || !config.apiSecret) {
       throw new Error('Erkhet config not found.');
     }
 
@@ -157,7 +147,7 @@ const inventoryMutations = {
     }
 
     const response = await sendRequest({
-      url: config.url + '/get-api/',
+      url: process.env.ERKHET_URL + '/get-api/',
       method: 'GET',
       params: {
         kind: 'inv_category',

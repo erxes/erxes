@@ -56,7 +56,8 @@ const erkhetQueries = {
       const codes = (products || []).map(item => item.code);
 
       const response = await sendRequest({
-        url: `${configs.url || 'https://erkhet.biz'}/get-api/?kind=remainder`,
+        url: `${process.env.ERKHET_URL ||
+          'https://erkhet.biz'}/get-api/?kind=remainder`,
         method: 'GET',
         params: {
           kind: 'remainder',
@@ -196,7 +197,8 @@ const erkhetQueries = {
       }
 
       const response = await sendRequest({
-        url: `${configs.url || 'https://erkhet.biz'}/get-api/?kind=remainder`,
+        url: `${process.env.ERKHET_URL ||
+          'https://erkhet.biz'}/get-api/?kind=remainder`,
         method: 'GET',
         params: sendParams,
         timeout: 8000
