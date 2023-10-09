@@ -158,6 +158,7 @@ class FilterableList extends React.Component<Props, State> {
           } ${item.itemActiveClass}`}
           style={item.style}
           onClick={!hasChildren ? onClick : undefined}
+          tabIndex={1}
         >
           {this.renderIcons(item, hasChildren, isOpen)}
 

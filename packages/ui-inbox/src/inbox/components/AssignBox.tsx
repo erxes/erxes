@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import debounce from 'lodash/debounce';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
 import { __, Alert, getUserAvatar } from 'coreui/utils';
-import React from 'react';
+import React, { useRef } from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
@@ -77,12 +77,12 @@ class AssignBox extends React.Component<Props, State> {
 
     const maxCursor: number = this.state.assigneesForList.length;
 
+    const element = document.getElementsByClassName(
+      'team-members-' + cursor
+    )[0] as HTMLElement;
+
     switch (event.keyCode) {
       case 13:
-        const element = document.getElementsByClassName(
-          'team-members-' + cursor
-        )[0] as HTMLElement;
-
         if (element) {
           element.click();
         }
@@ -90,15 +90,18 @@ class AssignBox extends React.Component<Props, State> {
       case 38:
         // Arrow move up
         if (cursor > 0) {
-          this.setState({ cursor: cursor - 1 });
+          this.setState({ cursor: cursor - 1 }, () => element.focus());
+        }
+        if (cursor === 0) {
+          this.setState({ cursor: maxCursor - 1 }, () => element.focus());
         }
         break;
       case 40:
         // Arrow move down
         if (cursor < maxCursor - 1) {
-          this.setState({ cursor: cursor + 1 });
+          this.setState({ cursor: cursor + 1 }, () => element.focus());
         } else {
-          this.setState({ cursor: 0 });
+          this.setState({ cursor: 0 }, () => element.focus());
         }
         break;
       default:

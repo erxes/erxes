@@ -29,6 +29,10 @@ const FlexRow = styled.div`
       background: rgb(240, 240, 240);
       outline: 0px;
     }
+
+    &:focus {
+      outline: none;
+    }
   }
 `;
 
