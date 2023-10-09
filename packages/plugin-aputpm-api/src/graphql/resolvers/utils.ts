@@ -11,6 +11,34 @@ const generateDateFilter = value => {
   return filter;
 };
 
+const generateChildrenIds = async ({ subdomain, action, query }) => {
+  const orders = (
+    await sendCoreMessage({
+      subdomain,
+      action,
+      data: {
+        query
+      },
+      isRPC: true,
+      defaultValue: []
+    })
+  ).map(item => item.order);
+
+  const ids = (
+    await sendCoreMessage({
+      subdomain,
+      action: action,
+      data: {
+        query: { order: { $regex: orders.join('|'), $options: 'i' } }
+      },
+      isRPC: true,
+      defaultValue: []
+    })
+  ).map(item => item._id);
+
+  return ids;
+};
+
 const queryBuilderCards = async ({ subdomain, params }) => {
   let filter: any = { status: { $ne: 'archived' } };
 
@@ -87,11 +115,23 @@ const queryBuilderCards = async ({ subdomain, params }) => {
   }
 
   if (!!branchIds?.length) {
-    filter.branchIds = { $in: branchIds };
+    filter.branchIds = {
+      $in: generateChildrenIds({
+        subdomain,
+        action: 'branches.find',
+        query: { _id: { $in: branchIds } }
+      })
+    };
   }
 
   if (!!departmentIds?.length) {
-    filter.departmentIds = { $in: departmentIds };
+    filter.departmentIds = {
+      $in: generateChildrenIds({
+        subdomain,
+        action: 'departments.find',
+        query: { _id: { $in: departmentIds } }
+      })
+    };
   }
 
   if (!!assignedUserIds?.length) {
@@ -119,17 +159,29 @@ const queryBuilderCards = async ({ subdomain, params }) => {
   return filter;
 };
 
-const queryBuilderUsers = params => {
+const queryBuilderUsers = ({ subdomain, params }) => {
   let filter: any = { isActive: true };
 
   const { branchIds, departmentIds } = params || {};
 
   if (!!branchIds?.length) {
-    filter.branchIds = { $in: branchIds };
+    filter.branchIds = {
+      $in: generateChildrenIds({
+        subdomain,
+        action: 'branches.find',
+        query: { _id: { $in: branchIds } }
+      })
+    };
   }
 
   if (!!departmentIds?.length) {
-    filter.departmentIds = { $in: departmentIds };
+    filter.departmentIds = {
+      $in: generateChildrenIds({
+        subdomain,
+        action: 'departments.find',
+        query: { _id: { $in: departmentIds } }
+      })
+    };
   }
   return filter;
 };
@@ -150,10 +202,7 @@ const getCardsTypeMBAction = cardType => {
 };
 
 export const generateCreatedUsersCards = async ({ subdomain, params }) => {
-  console.log({ params });
   const query = await queryBuilderCards({ subdomain, params: params });
-
-  console.log({ params });
 
   const cards = await sendCardsMessage({
     subdomain,
@@ -172,7 +221,7 @@ export const generateCreatedUsersCards = async ({ subdomain, params }) => {
     action: 'users.find',
     data: {
       query: {
-        ...queryBuilderUsers(params),
+        ...queryBuilderUsers({ subdomain, params }),
         _id: { $in: [...new Set(createdUserIds)] }
       }
     },
