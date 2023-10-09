@@ -13,6 +13,9 @@ const ChipText = (props: any) => {
   const segment = query.segmentDetail;
   const form = query.formDetail;
   const forum = query.forumCategory;
+  const branch = query.branchDetail;
+  const department = query.departmentDetail;
+  const unit = query.unitDetail;
 
   return (
     (brand && brand.name) ||
@@ -20,7 +23,10 @@ const ChipText = (props: any) => {
     (tag && tag.name) ||
     (segment && segment.name) ||
     (form && form.title) ||
-    (forum && forum.name)
+    (forum && forum.name) ||
+    (branch && branch.title) ||
+    (department && department.title) ||
+    (unit && unit.title)
   );
 };
 

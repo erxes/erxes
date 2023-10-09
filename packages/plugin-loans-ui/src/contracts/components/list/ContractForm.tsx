@@ -136,8 +136,8 @@ class ContractForm extends React.Component<Props, State> {
       useHoliday: contract.useHoliday || false,
       relContractId: contract.relContractId || '',
       skipAmountCalcMonth: contract.skipAmountCalcMonth || 0,
-      customInterest: contract.customInterest,
-      customPayment: contract.customPayment,
+      customInterest: contract.customInterest || 0,
+      customPayment: contract.customPayment || 0,
       currency:
         contract.currency || this.props.currentUser.configs?.dealCurrency[0],
       downPayment: contract.downPayment || 0,
@@ -209,7 +209,7 @@ class ContractForm extends React.Component<Props, State> {
       relationExpertId: this.state.relationExpertId,
       leasingExpertId: this.state.leasingExpertId,
       riskExpertId: this.state.riskExpertId,
-      weekends: this.state.weekends.map((week) => Number(week)),
+      weekends: this.state.weekends.map(week => Number(week)),
       useHoliday: Boolean(this.state.useHoliday),
       relContractId: this.state.relContractId,
       currency: this.state.currency,
@@ -236,7 +236,7 @@ class ContractForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = (e) => {
+  onChangeField = e => {
     const name = (e?.target as HTMLInputElement)?.name;
     let value: any = (e?.target as HTMLInputElement)?.value;
 
@@ -306,7 +306,7 @@ class ContractForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as any);
   };
 
-  onSelectContractType = (value) => {
+  onSelectContractType = value => {
     const contractTypeObj: IContractType = ContractTypeById[value];
 
     var changingStateValue: any = {
@@ -345,19 +345,19 @@ class ContractForm extends React.Component<Props, State> {
     this.setState({ ...changingStateValue });
   };
 
-  onSelectCustomer = (value) => {
+  onSelectCustomer = value => {
     this.setState({
       customerId: value
     });
   };
 
-  onCheckCustomerType = (e) => {
+  onCheckCustomerType = e => {
     this.setState({
       customerType: e.target.checked ? 'company' : 'customer'
     });
   };
 
-  onFieldClick = (e) => {
+  onFieldClick = e => {
     e.target.select();
   };
 
@@ -413,16 +413,20 @@ class ContractForm extends React.Component<Props, State> {
       this.state.config &&
       isGreaterNumber(this.state.config.minInterest, this.state.interestMonth)
     )
-      errors.interestMonth = errorWrapper(
-        `${__('Interest must greater than')} ${this.state.config.minInterest}`
+      errors.interestRate = errorWrapper(
+        `${__('Interest must greater than')} ${(
+          this.state.config.minInterest * 12
+        ).toFixed(0)}`
       );
 
     if (
       this.state.config &&
       isGreaterNumber(this.state.interestMonth, this.state.config.maxInterest)
     )
-      errors.interestMonth = errorWrapper(
-        `${__('Interest must less than')} ${this.state.config.maxInterest}`
+      errors.interestRate = errorWrapper(
+        `${__('Interest must less than')} ${(
+          this.state.config.maxInterest * 12
+        ).toFixed(0)}`
       );
 
     return errors;
@@ -432,7 +436,7 @@ class ContractForm extends React.Component<Props, State> {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeBranchId = (value) => {
+    const onChangeBranchId = value => {
       this.setState({ branchId: value });
     };
 
@@ -523,7 +527,6 @@ class ContractForm extends React.Component<Props, State> {
                   useNumberFormat: true,
                   fixed: 2,
                   value: this.state.downPayment || 0,
-                  errors: this.checkValidation(),
                   onChange: this.onChangeField,
                   onClick: this.onFieldClick
                 })}
@@ -602,13 +605,13 @@ class ContractForm extends React.Component<Props, State> {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeStartDate = (value) => {
+    const onChangeStartDate = value => {
       this.setState({ startDate: value });
     };
 
-    const onSelectScheduleDays = (values) => {
+    const onSelectScheduleDays = values => {
       this.onChangeField({
-        target: { name: 'scheduleDays', value: values.map((val) => val.value) }
+        target: { name: 'scheduleDays', value: values.map(val => val.value) }
       });
     };
 
@@ -636,6 +639,7 @@ class ContractForm extends React.Component<Props, State> {
                 required: true,
                 fixed: 2,
                 value: this.state.leaseAmount || 0,
+                errors: this.checkValidation(),
                 onChange: this.onChangeField
               })}
               {this.state.repayment === 'custom' &&
@@ -668,8 +672,9 @@ class ContractForm extends React.Component<Props, State> {
                 name: 'tenor',
                 useNumberFormat: true,
                 value: this.state.tenor || 0,
+                errors: this.checkValidation(),
                 required: true,
-                max: 30,
+                max: this.state.config?.maxTenor,
                 onChange: this.onChangeField
               })}
 
@@ -713,6 +718,7 @@ class ContractForm extends React.Component<Props, State> {
                 fixed: 2,
                 name: 'interestRate',
                 value: this.state.interestRate || 0,
+                errors: this.checkValidation(),
                 onChange: this.onChangeField,
                 onClick: this.onFieldClick
               })}
@@ -750,7 +756,7 @@ class ContractForm extends React.Component<Props, State> {
                 </tr>
               </thead>
               <tbody>
-                {this.state.schedule.map((mur) => (
+                {this.state.schedule.map(mur => (
                   <tr key={`schedule${mur.order}`}>
                     <td style={{ textAlign: 'center' }}>{mur.order}</td>
                     <td style={{ textAlign: 'center' }}>{mur.diffDay}</td>
