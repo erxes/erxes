@@ -22,7 +22,7 @@ export const AttachmentWithChatPreview = ({
 
     return (
       <div id="gallery" className={cn("relative w-full", className)}>
-        <div className="flex w-full overflow-x-auto">
+        <div className="flex w-full">
           {attachments.map((image: any, i: number) => (
             <FilePreview
               key={i}

@@ -5,14 +5,16 @@ import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import calendar from "dayjs/plugin/calendar"
 import { useAtomValue } from "jotai"
-import { ReplyIcon } from "lucide-react"
+import { ArrowBigUpDashIcon, ReplyIcon } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
+import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
 
 import { currentUserAtom } from "../../../JotaiProiveder"
 import { IChatMessage } from "../../types"
+import { ForwardForm } from "../form/ForwardForm"
 
 dayjs.extend(calendar)
 
@@ -28,6 +30,7 @@ const MessageItem = ({
 
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
   const [showAction, setShowAction] = useState(false)
+  const [open, setOpen] = useState(false)
 
   const isMe = useMemo(
     () => currentUser?._id === createdUser._id,
@@ -61,6 +64,22 @@ const MessageItem = ({
           ? "themself"
           : userInfo}
       </div>
+    )
+  }
+
+  const renderForward = () => {
+    return (
+      <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+        <DialogTrigger asChild={true}>
+          <ArrowBigUpDashIcon
+            size={18}
+            className={`${isMe ? "mr-1" : "ml-1"} cursor-pointer`}
+            onClick={() => setReply(message)}
+          />
+        </DialogTrigger>
+
+        <ForwardForm setOpen={setOpen} />
+      </Dialog>
     )
   }
 
@@ -108,7 +127,8 @@ const MessageItem = ({
           } max-w-xs flex items-center`}
         >
           {showAction ? (
-            <div>
+            <div className={`flex ${isMe ? "flex-row" : "flex-row-reverse"}`}>
+              {renderForward()}
               <ReplyIcon
                 size={16}
                 className={`${isMe ? "mr-1" : "ml-1"} cursor-pointer`}
@@ -125,7 +145,7 @@ const MessageItem = ({
                 </Card>
                 <AttachmentWithChatPreview
                   attachments={attachments}
-                  className="m-2 rounded-lg"
+                  className="m-2 overflow-x-auto w-60"
                   isDownload={true}
                 />
               </>
