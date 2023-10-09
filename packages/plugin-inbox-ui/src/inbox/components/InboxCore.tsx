@@ -103,7 +103,7 @@ class Inbox extends React.Component<Props, State> {
 
     const shortcutHelp = (
       <AdditionalMenu>
-        <Tip text="Shortcut help" placement="bottom">
+        <Tip text="Help shortcuts" placement="bottom">
           <Icon
             icon="info-circle"
             size={18}
@@ -131,7 +131,7 @@ class Inbox extends React.Component<Props, State> {
         </Contents>
         <ShortcutModal show={shortcutModalShow} onHide={() => modalHandler()}>
           <ShortcutHeaderWrapper>
-            <h3>Shortcut help</h3>
+            <h3>Help shortcuts</h3>
           </ShortcutHeaderWrapper>
           <div>
             <ShortcutItem>

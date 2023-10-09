@@ -46,6 +46,7 @@ export default function ConvertTrigger(props: Props) {
         onClick={() => {
           window.open(url, '_blank');
         }}
+        id={autoOpenKey}
       >
         {title}
       </Button>
