@@ -116,7 +116,7 @@ const queryBuilderCards = async ({ subdomain, params }) => {
 
   if (!!branchIds?.length) {
     filter.branchIds = {
-      $in: generateChildrenIds({
+      $in: await generateChildrenIds({
         subdomain,
         action: 'branches.find',
         query: { _id: { $in: branchIds } }
@@ -126,7 +126,7 @@ const queryBuilderCards = async ({ subdomain, params }) => {
 
   if (!!departmentIds?.length) {
     filter.departmentIds = {
-      $in: generateChildrenIds({
+      $in: await generateChildrenIds({
         subdomain,
         action: 'departments.find',
         query: { _id: { $in: departmentIds } }
@@ -156,17 +156,18 @@ const queryBuilderCards = async ({ subdomain, params }) => {
   if (closedAt) {
     filter.closedAt = generateDateFilter(closedAt);
   }
+
   return filter;
 };
 
-const queryBuilderUsers = ({ subdomain, params }) => {
+const queryBuilderUsers = async ({ subdomain, params }) => {
   let filter: any = { isActive: true };
 
   const { branchIds, departmentIds } = params || {};
 
   if (!!branchIds?.length) {
     filter.branchIds = {
-      $in: generateChildrenIds({
+      $in: await generateChildrenIds({
         subdomain,
         action: 'branches.find',
         query: { _id: { $in: branchIds } }
@@ -176,7 +177,7 @@ const queryBuilderUsers = ({ subdomain, params }) => {
 
   if (!!departmentIds?.length) {
     filter.departmentIds = {
-      $in: generateChildrenIds({
+      $in: await generateChildrenIds({
         subdomain,
         action: 'departments.find',
         query: { _id: { $in: departmentIds } }
@@ -221,7 +222,7 @@ export const generateCreatedUsersCards = async ({ subdomain, params }) => {
     action: 'users.find',
     data: {
       query: {
-        ...queryBuilderUsers({ subdomain, params }),
+        ...(await queryBuilderUsers({ subdomain, params })),
         _id: { $in: [...new Set(createdUserIds)] }
       }
     },
