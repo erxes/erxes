@@ -41,7 +41,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         });
     };
 
-    const config = configsQuery.configsGetValue || [];
+    const config = configsQuery.syncerkhetConfigsGetValue || {};
 
     const configsMap = { [config.code]: config.value };
 

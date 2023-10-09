@@ -1,8 +1,8 @@
 // Settings
 
 const updateConfigs = `
-  mutation configsUpdate($configsMap: JSON!) {
-    configsUpdate(configsMap: $configsMap)
+  mutation syncerkhetConfigsUpdate($configsMap: JSON!) {
+    syncerkhetConfigsUpdate(configsMap: $configsMap)
   }
 `;
 
