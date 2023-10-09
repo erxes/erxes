@@ -253,7 +253,6 @@ export const MeetingForm = (props: Props) => {
             name="dealIds"
             initialValue={object?.dealIds || dealIds}
             onSelect={onDealSelect}
-            customOption={{ value: '', label: '...Clear deal filter' }}
             multi={true}
           />
         </FormGroup>
