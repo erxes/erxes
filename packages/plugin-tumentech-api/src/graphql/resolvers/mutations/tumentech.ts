@@ -34,6 +34,7 @@ const carMutations = {
     );
 
     const xypEnabled = await isEnabled('xyp');
+    return car;
 
     if (!xypEnabled) {
       return car;
