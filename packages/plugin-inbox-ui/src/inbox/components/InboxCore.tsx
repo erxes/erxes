@@ -28,6 +28,7 @@ const AdditionalMenu = styled.div`
   cursor: pointer;
   display: inline-flex;
   position: relative;
+  margin-bottom: 3px;
 
   i {
     position: absolute;
@@ -105,7 +106,7 @@ class Inbox extends React.Component<Props, State> {
         <Tip text="Shortcut help" placement="bottom">
           <Icon
             icon="info-circle"
-            size={25}
+            size={18}
             onClick={() => modalHandler()}
             color="#9f9f9f"
           />

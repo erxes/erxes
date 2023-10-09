@@ -67,7 +67,8 @@ class Tagger extends React.Component<Props, State> {
 
         if (element) {
           element.click();
-          this.tag(this.props.tags);
+          this.tag(this.state.tagsForList);
+          document.getElementById('conversationTags').click();
         }
         break;
       case 38:
