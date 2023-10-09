@@ -1,11 +1,13 @@
 import { sendContactsMessage } from '../messageBroker';
 import { validCompanyCode } from './customerToErkhet';
-import { generateModels } from '../connectionResolver';
 
-export const consumeCustomer = async (subdomain, doc, old_code, action) => {
-  const models = await generateModels(subdomain);
-  const config = await models.Configs.getConfig('ERKHET', {});
-
+export const consumeCustomer = async (
+  subdomain,
+  config,
+  doc,
+  old_code,
+  action
+) => {
   const isCompany = await validCompanyCode(config, doc.code);
 
   if (isCompany) {

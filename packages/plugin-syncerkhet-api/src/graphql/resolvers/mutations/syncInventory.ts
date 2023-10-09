@@ -264,25 +264,44 @@ const inventoryMutations = {
   async toSyncProducts(
     _root,
     { action, products }: { action: string; products: any[] },
-    { subdomain }: IContext
+    { subdomain, models }: IContext
   ) {
+    const config = models.Configs.getConfig('ERKHET', {});
     try {
       switch (action) {
         case 'CREATE': {
           for (const product of products) {
-            await consumeInventory(subdomain, product, product.code, 'create');
+            await consumeInventory(
+              subdomain,
+              config,
+              product,
+              product.code,
+              'create'
+            );
           }
           break;
         }
         case 'UPDATE': {
           for (const product of products) {
-            await consumeInventory(subdomain, product, product.code, 'update');
+            await consumeInventory(
+              subdomain,
+              config,
+              product,
+              product.code,
+              'update'
+            );
           }
           break;
         }
         case 'DELETE': {
           for (const product of products) {
-            await consumeInventory(subdomain, product, product.code, 'delete');
+            await consumeInventory(
+              subdomain,
+              config,
+              product,
+              product.code,
+              'delete'
+            );
           }
           break;
         }
