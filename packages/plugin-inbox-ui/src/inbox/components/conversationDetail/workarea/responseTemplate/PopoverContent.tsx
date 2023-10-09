@@ -83,7 +83,7 @@ class PopoverContent extends React.Component<Props, State> {
           this.setState({ cursor: cursor - 1 });
         }
         if (cursor === 0) {
-          this.setState({ cursor: this.state.maxCursor });
+          this.setState({ cursor: this.state.maxCursor - 1 });
         }
         break;
       case 40:
