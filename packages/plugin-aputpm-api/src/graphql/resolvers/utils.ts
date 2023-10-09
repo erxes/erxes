@@ -150,7 +150,10 @@ const getCardsTypeMBAction = cardType => {
 };
 
 export const generateCreatedUsersCards = async ({ subdomain, params }) => {
+  console.log({ params });
   const query = await queryBuilderCards({ subdomain, params: params });
+
+  console.log({ params });
 
   const cards = await sendCardsMessage({
     subdomain,
