@@ -3,6 +3,7 @@ import {
   PopoverFooter,
   PopoverList
 } from '@erxes/ui/src/components/filterableList/styles';
+import { __, router } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import { CenterContent } from '@erxes/ui/src/styles/main';
@@ -17,7 +18,6 @@ import { PopoverLinkWrapper } from '../styles';
 import React from 'react';
 import { SearchInput } from '../../../styles';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __, router } from '@erxes/ui/src/utils';
 
 type Props = {
   fetchMoreEmailTemplates: (page: number) => void;
@@ -119,8 +119,7 @@ class EmailTemplate extends React.Component<Props, State> {
         <Popover.Title as="h3">{__('Email Templates')}</Popover.Title>
         <Popover.Content>
           <PopoverBody>
-            <SearchInput isInPopover={true}>
-              <Icon icon="search-1" />
+            <SearchInput>
               <FormControl
                 type="text"
                 placeholder={__('Type to search')}
