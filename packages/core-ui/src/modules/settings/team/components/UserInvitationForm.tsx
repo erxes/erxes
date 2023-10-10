@@ -147,6 +147,16 @@ class UserInvitationForm extends React.Component<Props, State> {
     this.setState({ entries: entries.filter((item, index) => index !== i) });
   };
 
+  beforeSubmit = () => {
+    const { entries } = this.state;
+
+    for (const entry of entries) {
+      if (!entry.email || !entry.groupId) {
+        return Alert.warning('Please fill all required fields');
+      }
+    }
+  };
+
   renderRemoveInput = (i: number) => {
     const { entries } = this.state;
 
@@ -374,6 +384,7 @@ class UserInvitationForm extends React.Component<Props, State> {
             name: 'team member invitation',
             values: this.generateDoc(),
             isSubmitted,
+            beforeSubmit: this.beforeSubmit,
             callback: closeModal
           })}
         </ModalFooter>
