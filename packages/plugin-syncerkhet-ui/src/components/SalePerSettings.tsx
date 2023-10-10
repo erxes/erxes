@@ -13,7 +13,7 @@ import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex
 import Select from 'react-select-plus';
 import React from 'react';
 import { IConfigsMap } from '../types';
-import { FieldsCombinedByType } from '../../../ui-forms/src/settings/properties/types';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';

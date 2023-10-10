@@ -7,7 +7,7 @@ import React from 'react';
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import Header from './Header';
-import PerSettings from './PerSettings';
+import PerSettings from './MovePerSettings';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -32,20 +32,17 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap } = this.state;
 
-    if (!configsMap.ebarimtConfig) {
-      configsMap.ebarimtConfig = {};
+    if (!configsMap.stageInMoveConfig) {
+      configsMap.stageInMoveConfig = {};
     }
 
     // must save prev item saved then new item
-    configsMap.ebarimtConfig.newEbarimtConfig = {
-      title: 'New Erkhet Config',
+    configsMap.stageInMoveConfig.newStageInMoveConfig = {
+      title: 'New Erkhet Move Config',
       boardId: '',
       pipelineId: '',
       stageId: '',
-      userEmail: '',
-      hasVat: false,
-      hasCitytax: false,
-      defaultPay: 'debtAmount'
+      userEmail: ''
     };
 
     this.setState({ configsMap });
@@ -53,8 +50,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
   delete = (currentConfigKey: string) => {
     const { configsMap } = this.state;
-    delete configsMap.ebarimtConfig[currentConfigKey];
-    delete configsMap.ebarimtConfig['newEbarimtConfig'];
+    delete configsMap.stageInMoveConfig[currentConfigKey];
+    delete configsMap.stageInMoveConfig['newStageInMoveConfig'];
 
     this.setState({ configsMap });
 
@@ -65,6 +62,7 @@ class GeneralSettings extends React.Component<Props, State> {
     return Object.keys(configs).map(key => {
       return (
         <PerSettings
+          key={key}
           configsMap={this.state.configsMap}
           config={configs[key]}
           currentConfigKey={key}
@@ -77,7 +75,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
   renderContent() {
     const { configsMap } = this.state;
-    const configs = configsMap.ebarimtConfig || {};
+    const configs = configsMap.stageInMoveConfig || {};
 
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
@@ -89,7 +87,7 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Erkhet config') }
+      { title: __('Erkhet movement config') }
     ];
 
     const actionButtons = (
@@ -106,12 +104,15 @@ class GeneralSettings extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Erkhet config')} breadcrumb={breadcrumb} />
+          <Wrapper.Header
+            title={__('Erkhet movement config')}
+            breadcrumb={breadcrumb}
+          />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Erkhet configs')}</Title>}
+            left={<Title>{__('Erkhet move configs')}</Title>}
             right={actionButtons}
           />
         }
