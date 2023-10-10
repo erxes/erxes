@@ -56,7 +56,7 @@ const Cars = {
     const xyp = await sendXypMessage({
       subdomain,
       action: 'xyp.find',
-      data: { _id: car._id },
+      data: { _id: car._id, contentType: 'tumentech:car' },
       isRPC: true,
       defaultValue: {}
     });

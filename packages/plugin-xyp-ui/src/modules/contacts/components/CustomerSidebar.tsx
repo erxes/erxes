@@ -149,7 +149,6 @@ function Sidebar({
   );
 
   const renderServiceItem = (i, output) => {
-    console.log('i=', i);
     const items = Object.keys(i).filter(key => typeof i[key] !== 'object');
 
     const renderOutput = (value: any) => {
