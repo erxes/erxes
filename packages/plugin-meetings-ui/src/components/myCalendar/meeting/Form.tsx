@@ -5,7 +5,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IButtonMutateProps, IFormProps, IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __, Alert } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IMeeting } from '../../../types';
@@ -44,7 +44,7 @@ export const MeetingForm = (props: Props) => {
   let dealInitialId = dealId ? [dealId] : '';
 
   const [userIds, setUserIds] = useState([props.currentUser._id] || []);
-  const [companyId, setCompanyId] = useState('');
+  const [companyId, setCompanyId] = useState(meeting?.companyId || '');
   const [title, setTitle] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [dealIds, setDealIds] = useState(dealInitialId);
@@ -53,7 +53,7 @@ export const MeetingForm = (props: Props) => {
     calendarDate?.startDate || new Date()
   );
   const [endDate, setEndDate] = useState<string | Date>(
-    calendarDate?.endDate || new Date()
+    calendarDate?.endDate || ''
   );
 
   useEffect(() => {
@@ -112,7 +112,9 @@ export const MeetingForm = (props: Props) => {
   };
 
   const onEndDateChange = dateVal => {
-    setEndDate(dateVal);
+    if (new Date() < dateVal) {
+      setEndDate(dateVal);
+    } else Alert.warning('Please choose the correct date');
   };
 
   const renderDatePicker = () => {
@@ -160,7 +162,6 @@ export const MeetingForm = (props: Props) => {
     const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
     const object = meeting || ({} as IMeeting);
-
     let dealOptions =
       (deals &&
         deals.map((deal: any) => ({
@@ -182,6 +183,7 @@ export const MeetingForm = (props: Props) => {
             name="companyId"
             onSelect={onCompanySelect}
             multi={false}
+            initialValue={companyId}
           />
         </FormGroup>
 
@@ -263,7 +265,7 @@ export const MeetingForm = (props: Props) => {
           </Button>
 
           {renderButton({
-            passedName: 'meetings',
+            passedName: 'meeting',
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,

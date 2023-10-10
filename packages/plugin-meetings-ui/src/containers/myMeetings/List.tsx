@@ -34,6 +34,7 @@ const MyMeetingListContainer = (props: FinalProps) => {
     companyId,
     searchValue
   } = queryParams;
+
   const { data, loading } = useQuery(gql(queries.meetings), {
     variables: {
       perPage: parseInt(perPage?.toString()) || 10,
@@ -44,8 +45,7 @@ const MyMeetingListContainer = (props: FinalProps) => {
       userId: ownerId,
       companyId,
       searchValue
-    },
-    fetchPolicy: 'no-cache'
+    }
   });
 
   const { data: countData, loading: countLoading } = useQuery(
