@@ -18,7 +18,7 @@ import { allowTypesAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
 
 // order
-export const activeOrderIdAtom = atom<string>("")
+export const activeOrderIdAtom = atom<string | null>(null)
 export const orderNumberAtom = atom<string>("")
 export const buttonTypeAtom = atom<string | null>(null)
 
@@ -31,7 +31,6 @@ export const orderTypeAtom = atom<IOrderType>("eat")
 
 // ebarimt
 export const registerNumberAtom = atom<string>("")
-
 export const billTypeAtom = atom<IBillType>(null)
 export const putResponsesAtom = atom<IPutResponse[]>([])
 export const printTypeAtom = atom<string | null>(null)
@@ -77,7 +76,7 @@ export const setInitialAtom = atom(
     set(billTypeAtom, null)
     set(slotCodeAtom, null)
     set(descriptionAtom, null)
-    set(activeOrderIdAtom, "")
+    set(activeOrderIdAtom, null)
     set(cashAmountAtom, 0)
     set(mobileAmountAtom, 0)
     set(paidAmountsAtom, [])
@@ -121,7 +120,7 @@ export const setOrderStatesAtom = atom(
       isPre,
     }: IOrder
   ) => {
-    set(activeOrderIdAtom, _id || "")
+    set(activeOrderIdAtom, _id || null)
     set(customerAtom, customer || null)
     set(customerTypeAtom, customerType || "")
     set(cartAtom, items)
@@ -145,7 +144,6 @@ export const setOrderStatesAtom = atom(
 )
 
 // getOrderValue
-
 export const orderValuesAtom = atom((get) => ({
   items: get(orderItemInput),
   totalAmount: get(totalAmountAtom),
