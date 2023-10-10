@@ -80,6 +80,8 @@ query MeetingDetail($_id: String!) {
     createdAt
     status
     companyId
+    participantIds
+    dealIds
     deals{
       _id
       boardId
