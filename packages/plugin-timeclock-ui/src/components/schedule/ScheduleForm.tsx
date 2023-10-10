@@ -178,7 +178,10 @@ function ScheduleForm(props: Props) {
 
   const [contentType, setContentType] = useState('By Date Range');
 
-  const [userIds, setUserIds] = useState([scheduleOfMember?.user?._id]);
+  const [userIds, setUserIds] = useState(
+    scheduleOfMember?.user?._id ? [scheduleOfMember?.user?._id] : []
+  );
+
   const [departmentIds, setDepartmentIds] = useState([]);
   const [branchIds, setBranchIds] = useState([]);
 
