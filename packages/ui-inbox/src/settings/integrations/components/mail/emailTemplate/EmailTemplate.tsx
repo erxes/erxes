@@ -3,10 +3,8 @@ import {
   PopoverFooter,
   PopoverList
 } from '@erxes/ui/src/components/filterableList/styles';
-import { __, router } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
-import { CenterContent } from '@erxes/ui/src/styles/main';
 import { ResponseTemplateStyled as EmailTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -18,13 +16,16 @@ import { PopoverLinkWrapper } from '../styles';
 import React from 'react';
 import { SearchInput } from '../../../styles';
 import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   fetchMoreEmailTemplates: (page: number) => void;
-  targets: Array<{ value: string; label: string }>;
+  emailTemplates: Array<{ value: string; label: string }>;
   onSelect: (id: string) => void;
+  onSearch: (searchValue: string) => void;
   totalCount?: number;
   history: any;
+  loading?: boolean;
 };
 
 type State = {
@@ -43,16 +44,10 @@ class EmailTemplate extends React.Component<Props, State> {
   }
 
   onSearch = e => {
-    const { history } = this.props;
-
-    const emailTemplatesSearch = e.target.value;
-
-    router.setParams(history, { emailTemplatesSearch });
-
-    this.setState({ page: 1 });
+    return this.props.onSearch(e ? e.target.value : '');
   };
 
-  handleFetch = () => {
+  onLoadMore = () => {
     this.setState(
       {
         page: this.state.page + 1
@@ -63,57 +58,50 @@ class EmailTemplate extends React.Component<Props, State> {
     );
   };
 
-  handleClick(value: string) {
+  handleClick = (value: string) => {
     this.props.onSelect(value);
     this.hidePopover();
-  }
+  };
 
   hidePopover = () => {
     this.overlayRef.hide();
   };
 
   renderContent() {
-    const { targets = [] } = this.props;
+    const { emailTemplates } = this.props;
 
-    if (!targets || targets.length === 0) {
+    if (!emailTemplates || emailTemplates.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
     }
 
-    return targets.map(item => {
-      const onClick = () => this.handleClick(item.value);
-
-      return (
-        <li key={item.value} onClick={onClick}>
-          {item.label}
-        </li>
-      );
-    });
+    return emailTemplates.map(item => (
+      <li key={item.value} onClick={() => this.handleClick(item.value)}>
+        {item.label}
+      </li>
+    ));
   }
 
   renderLoadMore() {
-    const { totalCount, targets } = this.props;
+    const { totalCount, emailTemplates, loading } = this.props;
 
-    if (totalCount === targets.length || targets.length < 20) {
+    if (totalCount === emailTemplates.length || emailTemplates.length < 20) {
       return null;
     }
 
     return (
-      <CenterContent>
-        <Button
-          size="small"
-          btnStyle="primary"
-          onClick={this.handleFetch}
-          icon="angle-double-down"
-        >
-          Load More
-        </Button>
-      </CenterContent>
+      <Button
+        block={true}
+        btnStyle="link"
+        onClick={this.onLoadMore}
+        icon="redo"
+        uppercase={false}
+      >
+        {loading ? 'Loading...' : 'Load more'}
+      </Button>
     );
   }
 
   render() {
-    const { history } = this.props;
-
     const popover = (
       <Popover id="templates-popover">
         <Popover.Title as="h3">{__('Email Templates')}</Popover.Title>
@@ -124,7 +112,6 @@ class EmailTemplate extends React.Component<Props, State> {
                 type="text"
                 placeholder={__('Type to search')}
                 onChange={this.onSearch}
-                value={router.getParam(history, 'emailTemplatesSearch')}
               />
             </SearchInput>
             <PopoverList>
