@@ -1,0 +1,90 @@
+[{
+    "_id": "lqWxhFtoKjEcOfkYpgJsq",
+    "names": [
+      "admin",
+      "testname"
+    ],
+    "emails": [
+      "qateam@gmail.com"
+    ],
+    "phones": [
+      "99997777"
+    ],
+    "addresses": [],
+    "status": "Active",
+    "doNotDisturb": "No",
+    "isSubscribed": "Yes",
+    "tagIds": [],
+    "mergedIds": [],
+    "scopeBrandIds": [],
+    "primaryName": "testname",
+    "primaryPhone": "99997777",
+    "primaryEmail": "qateam@gmail.com",
+    "size": 30,
+    "industry": ",Aerospace & Defense",
+    "parentCompanyId": "",
+    "ownerId": "dbtWgcicmtYSgRjja",
+    "businessType": "Customer",
+    "description": "for test data",
+    "links": {
+      "facebook": "https://qateam.com",
+      "twitter": "https://qateam.com",
+      "youtube": "https://qateam.com",
+      "website": "https://qateam.com"
+    },
+    "code": "testcode324891",
+    "location": "Mongolia",
+    "trackedData": [],
+    "customFieldsData": [],
+    "createdAt": {
+      "date": "2023-09-26T05:54:30.576Z"
+    },
+    "modifiedAt": {
+      "date": "2023-09-26T05:54:30.576Z"
+    },
+    "searchText": "admin testname qateam@gmail.com 99997777  ,Aerospace & Defense  for test data testcode324891",
+    "__v": 0
+  },
+  {
+    "_id": "WDdcDFUTskndGfRIh6lfe",
+    "names": [
+      "fortestdata"
+    ],
+    "emails": [
+      "fortest@gmail.com"
+    ],
+    "phones": [],
+    "addresses": [],
+    "status": "Active",
+    "doNotDisturb": "No",
+    "isSubscribed": "Yes",
+    "tagIds": [],
+    "mergedIds": [],
+    "scopeBrandIds": [],
+    "primaryName": "fortestdata",
+    "primaryEmail": "fortest@gmail.com",
+    "size": 20,
+    "industry": ",Containers & Packaging",
+    "parentCompanyId": "",
+    "ownerId": "dbtWgcicmtYSgRjja",
+    "businessType": "Press",
+    "description": "asdasf",
+    "links": {
+      "facebook": "https://fortest.com",
+      "twitter": "https://fortest.com",
+      "youtube": "https://fortest.com",
+      "website": "https://fortest.com"
+    },
+    "code": "testcode78912",
+    "location": "American Samoa",
+    "trackedData": [],
+    "customFieldsData": [],
+    "createdAt": {
+      "date": "2023-09-26T05:55:48.912Z"
+    },
+    "modifiedAt": {
+      "date": "2023-09-26T05:55:48.912Z"
+    },
+    "searchText": "fortestdata fortest@gmail.com   ,Containers & Packaging  asdasf testcode78912",
+    "__v": 0
+  }]
