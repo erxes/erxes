@@ -151,6 +151,7 @@ export type IButtonMutateProps = {
   confirmationUpdate?: boolean;
   callback?: (data?: any) => void;
   resetSubmit?: () => void;
+  beforeSubmit?: () => void;
   size?: string;
   object?: any;
   text?: string;
