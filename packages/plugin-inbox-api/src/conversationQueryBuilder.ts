@@ -1,8 +1,10 @@
 import * as _ from 'underscore';
-import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { fixDate } from '@erxes/api-utils/src/core';
+
 import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
+
+import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { IModels } from './connectionResolver';
+import { fixDate } from '@erxes/api-utils/src/core';
 
 interface IIn {
   $in: string[];
@@ -37,6 +39,7 @@ export interface IListArgs {
   sortDirection?: number;
   segment?: string;
   searchValue?: string;
+  skip?: number;
 }
 
 interface IUserArgs {

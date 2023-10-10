@@ -1,10 +1,10 @@
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import LoadMore from '@erxes/ui/src/components/LoadMore';
-import { __ } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
 import ConversationItem from '../../containers/leftSidebar/ConversationItem';
-import React from 'react';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { ConversationItems } from './styles';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   conversations: IConversation[];
@@ -14,9 +14,30 @@ type Props = {
   toggleRowCheckbox: (conversation: IConversation[], checked: boolean) => void;
   loading: boolean;
   totalCount: number;
+  onLoadMore: () => void;
 };
 
 export default class ConversationList extends React.Component<Props> {
+  renderLoadMore() {
+    const { loading, conversations, totalCount, onLoadMore } = this.props;
+
+    if (conversations.length >= totalCount) {
+      return null;
+    }
+
+    return (
+      <Button
+        block={true}
+        btnStyle="link"
+        onClick={() => onLoadMore()}
+        icon="redo"
+        uppercase={false}
+      >
+        {loading ? 'Loading...' : 'Load more'}
+      </Button>
+    );
+  }
+
   render() {
     const {
       conversations,
@@ -24,8 +45,7 @@ export default class ConversationList extends React.Component<Props> {
       selectedConversations,
       onChangeConversation,
       toggleRowCheckbox,
-      loading,
-      totalCount
+      loading
     } = this.props;
 
     return (
@@ -53,7 +73,7 @@ export default class ConversationList extends React.Component<Props> {
           />
         )}
 
-        <LoadMore all={totalCount} perPage={10} loading={loading} />
+        {this.renderLoadMore()}
       </React.Fragment>
     );
   }

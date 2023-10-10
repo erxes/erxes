@@ -35,6 +35,9 @@ const FormContainer = (props: Props) => {
     object,
     callback
   }: IButtonMutateProps) => {
+    if (!values.parentId) {
+      values.parentId = null;
+    }
     return (
       <ButtonMutate
         mutation={
