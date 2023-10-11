@@ -12,7 +12,7 @@ export interface IUsePosts {
 export const useReactionMutaion = ({
   callBack,
 }: {
-  callBack: (result: string) => void
+  callBack?: (result: string) => void
 }): IUsePosts => {
   const [reactionAdd, { loading: loadingReaction }] = useMutation(
     mutations.emojiReact,
@@ -51,7 +51,9 @@ export const useReactionMutaion = ({
     commentRemove({
       variables: { _id: contentId },
     }).then(() => {
-      callBack("success")
+      if (callBack) {
+        callBack("success")
+      }
     })
   }
 

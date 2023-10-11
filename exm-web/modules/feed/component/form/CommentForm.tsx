@@ -39,11 +39,7 @@ const CommentForm = ({
   emojiReactedUser: string[]
   emojiCount: number
 }) => {
-  const callBack = (result: string) => {
-    return null
-  }
-
-  const { reactionMutation, commentMutation } = useReactionMutaion({ callBack })
+  const { reactionMutation, commentMutation } = useReactionMutaion({})
 
   const { comments, commentsCount, loading, handleLoadMore } = useComments(
     feed._id
