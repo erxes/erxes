@@ -29,7 +29,7 @@ export const endPoint = (data: object, path?: string) =>
 const terminalID = getLocal("golomtId")
 
 const useGolomt = () => {
-  const { type } = usePaymentType(BANK_CARD_TYPES.GOLOMT)
+  const { type } = usePaymentType(BANK_CARD_TYPES.GOLOMT) || {}
 
   return { isIncluded: type && terminalID }
 }
@@ -39,7 +39,7 @@ export const useGolomtTransaction = (options: {
   onError: (data: any) => void
 }) => {
   const { onCompleted, onError } = options
-  const { config } = usePaymentType(BANK_CARD_TYPES.GOLOMT)
+  const { config } = usePaymentType(BANK_CARD_TYPES.GOLOMT) || {}
   const { port } = config || {}
 
   const sendData = { ...initialData, ...config, terminalID }

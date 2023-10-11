@@ -1,13 +1,23 @@
 import { ebarimtConfigAtom } from "@/store/config.store"
-import { printTypeAtom } from "@/store/order.store"
-import { useAtom } from "jotai"
+import { descriptionAtom, printTypeAtom } from "@/store/order.store"
+import { useAtomValue } from "jotai"
 
 const Footer = () => {
-  const [type] = useAtom(printTypeAtom)
-  const [config] = useAtom(ebarimtConfigAtom)
+  const type = useAtomValue(printTypeAtom)
+  const config = useAtomValue(ebarimtConfigAtom)
+  const description = useAtomValue(descriptionAtom)
   const { footerText } = config?.ebarimtConfig || {}
+
   if (type === "inner") return null
-  return <div className="text-[11px]">{footerText}</div>
+
+  return (
+    <>
+      {!!description && (
+        <div className="text-[11px]">Тайлбар: {description}</div>
+      )}
+      <div className="text-[11px]">{footerText}</div>
+    </>
+  )
 }
 
 export default Footer

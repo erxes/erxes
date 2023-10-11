@@ -15,9 +15,13 @@ import {
 import { IMeeting, ITopic } from '../../../types';
 
 import { TopicFormContainer } from '../../../containers/myCalendar/topic/Form';
+import Form from '../../../containers/myCalendar/meeting/Form';
+
 import Button from '@erxes/ui/src/components/Button';
 import { Link } from 'react-router-dom';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import queries from '../../../graphql/queries';
+import { gql } from '@apollo/client';
 
 type Props = {
   meetingDetail: IMeeting;
@@ -85,6 +89,25 @@ export const MeetingDetail = (props: Props) => {
       trigger={trigger}
       content={modalContent}
       enforceFocus={false}
+    />
+  );
+
+  const editTrigger = (
+    <Button id={'EditMeetingButton'} btnStyle="success" icon="edit-3">
+      Edit
+    </Button>
+  );
+
+  const editModalContent = props => (
+    <Form
+      {...props}
+      meeting={meetingDetail}
+      refetch={[
+        {
+          query: gql(queries.meetingDetail),
+          variables: { _id: meetingDetail._id }
+        }
+      ]}
     />
   );
 
@@ -195,6 +218,14 @@ export const MeetingDetail = (props: Props) => {
               ? 'Start meeting'
               : 'End meeting'}
           </Button>
+
+          <ModalTrigger
+            title={__('Edit meeting')}
+            trigger={editTrigger}
+            content={editModalContent}
+            enforceFocus={false}
+            size="xl"
+          />
         </MeetingDetailFooter>
       )}
     </MeetingWrapper>

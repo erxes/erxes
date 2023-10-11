@@ -72,6 +72,7 @@ const OrderDetail = () => {
     paidAmounts,
     paidDate,
     items,
+    description,
   } = data?.orderDetail || {}
   const { primaryPhone, primaryEmail, email } = user || {}
 
@@ -143,6 +144,18 @@ const OrderDetail = () => {
               value={`${primaryEmail || email || ""} ${primaryPhone || ""}`}
               Icon={UserCog}
             />
+            {!!description && (
+              <Card className="col-span-3">
+                <CardHeader className="p-2 pb-1">
+                  <CardTitle className="text-xs text-slate-500 font-medium ">
+                    Тайлбар
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex px-2 pb-2 items-center">
+                  <div className="text-sm text-slate-800">{description}</div>
+                </CardContent>
+              </Card>
+            )}
           </div>
           <Payment
             cashAmount={cashAmount}
@@ -167,7 +180,7 @@ const DescriptionCard = ({
   value: string
   Icon: LucideIcon
 }) => (
-  <Card className="">
+  <Card>
     <CardHeader className="p-2 pb-1">
       <CardTitle className="text-xs text-slate-500 font-medium ">
         {title}

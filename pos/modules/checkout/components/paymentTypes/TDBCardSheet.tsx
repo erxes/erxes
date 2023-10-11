@@ -17,7 +17,7 @@ const TDBCardSheet = () => {
 
   useEffect(() => {
     TDBTransaction({
-      _id,
+      _id: _id || "",
       amount,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps

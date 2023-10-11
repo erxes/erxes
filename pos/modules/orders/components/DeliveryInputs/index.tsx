@@ -1,7 +1,7 @@
 import {
-  activeOrderIdAtom,
   descriptionAtom,
   dueDateAtom,
+  getTotalPaidAmountAtom,
   isPreAtom,
 } from "@/store/order.store"
 import { format, setHours, setMinutes } from "date-fns"
@@ -25,8 +25,8 @@ import { Textarea } from "@/components/ui/textarea"
 const DeliveryInputs = () => {
   const [description, setDescription] = useAtom(descriptionAtom)
   const [dueDate, setDueDate] = useAtom(dueDateAtom)
-  const activeOrderId = useAtomValue(activeOrderIdAtom)
   const [isPre, setIsPre] = useAtom(isPreAtom)
+  const paidAmount = useAtomValue(getTotalPaidAmountAtom)
 
   const chageTimeOfDate = (date: string, time: string) =>
     setMinutes(
@@ -42,7 +42,7 @@ const DeliveryInputs = () => {
     setDueDate(formattedDate)
   }
 
-  const disableOnPre = !!activeOrderId && isPre
+  const disableOnPre = paidAmount > 0 && isPre
 
   return (
     <Popover>
@@ -79,7 +79,7 @@ const DeliveryInputs = () => {
               id="isPre"
               checked={isPre}
               onCheckedChange={() => setIsPre(!isPre)}
-              disabled={!!activeOrderId}
+              disabled={paidAmount > 0}
             />
             <Label htmlFor="isPre">Урьдчилсан захиалга эсэх</Label>
           </div>

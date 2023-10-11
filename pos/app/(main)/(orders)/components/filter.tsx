@@ -36,7 +36,6 @@ import { Switch } from "@/components/ui/switch"
 
 const FormSchema = z.object({
   searchValue: z.string(),
-  dateType: z.string().optional(),
   range: z
     .object({
       from: z.date(),
@@ -93,7 +92,7 @@ const Filter = ({
 
   const onSubmit = ({
     searchValue,
-    dateType,
+    dueRange,
     range,
     statuses,
     isPaid,
@@ -116,6 +115,8 @@ const Filter = ({
       isPreExclude,
       sortField,
       sortDirection,
+      dueStartDate: dueRange?.from ? formatISO(dueRange?.from) : undefined,
+      dueEndDate: dueRange?.to ? formatISO(dueRange?.to) : undefined,
     })
   }
 
@@ -150,7 +151,6 @@ const Filter = ({
                     date={field.value}
                     setDate={field.onChange}
                     toDate={new Date()}
-                    className=""
                   />
                 </FormControl>
                 <FormMessage />
@@ -254,7 +254,22 @@ const Filter = ({
               </FormItem>
             )}
           />
-          <div className="">hi</div>
+          <FormField
+            control={form.control}
+            name="dueRange"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Дуусах огноо /DueDate/ - ны хүрээ</FormLabel>
+                <FormControl>
+                  <DatePickerWithRange
+                    date={field.value}
+                    setDate={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="isPreExclude"

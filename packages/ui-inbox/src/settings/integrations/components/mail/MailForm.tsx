@@ -25,10 +25,11 @@ import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import EmailTemplate from './emailTemplate/EmailTemplate';
+import EmailTemplate from '../../containers/mail/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachment } from '@erxes/ui/src/types';
 import { IEmailSignature } from '@erxes/ui/src/auth/types';
+import { IEmailTemplate } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Label } from '@erxes/ui/src/components/form/styles';
@@ -50,7 +51,7 @@ const Signature = asyncComponent(() =>
 );
 
 type Props = {
-  emailTemplates: any[] /*change type*/;
+  emailTemplates: IEmailTemplate[] /*change type*/;
   currentUser: IUser;
   fromEmail?: string;
   emailTo?: string;
@@ -69,6 +70,7 @@ type Props = {
   fetchMoreEmailTemplates: (page: number) => void;
   createdAt?: Date;
   isEmptyEmail?: boolean;
+  loading?: boolean;
   sendMail: ({
     variables,
     callback
@@ -97,6 +99,7 @@ type State = {
   hasCc?: boolean;
   hasBcc?: boolean;
   hasSubject?: boolean;
+  loading?: boolean;
   kind: string;
   content: string;
   isSubmitLoading: boolean;
@@ -710,7 +713,8 @@ class MailForm extends React.Component<Props, State> {
       history,
       conversationStatus,
       emailSignatures,
-      brands
+      brands,
+      loading
     } = this.props;
 
     const onSubmitResolve = e => this.onSubmit(e, true);
@@ -779,6 +783,7 @@ class MailForm extends React.Component<Props, State> {
                 fetchMoreEmailTemplates={fetchMoreEmailTemplates}
                 targets={generateEmailTemplateParams(emailTemplates || [])}
                 history={history}
+                loading={loading}
               />
             )}
             <SignatureChooser
