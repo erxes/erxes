@@ -1,5 +1,9 @@
 import { PriceContainer, Right, Status } from '../../boards/styles/item';
-import { renderAmount, renderPriority } from '../../boards/utils';
+import {
+  renderAmount,
+  renderPriority,
+  renderPercentedAmount
+} from '../../boards/utils';
 
 import Assignees from '../../boards/components/Assignees';
 import { Content } from '../../boards/styles/stage';
@@ -15,6 +19,8 @@ import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { colors } from '@erxes/ui/src/styles';
 import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
+import { StageInfo } from '../../boards/styles/stage';
+import { Flex } from '@erxes/ui/src/styles/main';
 
 type Props = {
   stageId?: string;
@@ -106,6 +112,13 @@ class DealItem extends React.PureComponent<Props> {
       customProperties
     } = item;
 
+    const probability =
+      item.stage.probability === 'Won'
+        ? '100%'
+        : item.stage.probability === 'Lost'
+        ? '0%'
+        : item.stage.probability;
+
     return (
       <>
         <h5>
@@ -123,8 +136,15 @@ class DealItem extends React.PureComponent<Props> {
         />
 
         <PriceContainer>
-          {renderAmount(item.unUsedAmount || {}, false)}
-          {renderAmount(item.amount)}
+          <StageInfo>
+            <Flex>
+              <span>Total:</span> {renderAmount(item.amount)}
+            </Flex>
+            <Flex>
+              <span>Forecasted ({probability}):</span>{' '}
+              {renderPercentedAmount(item.amount, parseInt(probability, 10))}
+            </Flex>
+          </StageInfo>
 
           <Right>
             <Assignees users={item.assignedUsers} />

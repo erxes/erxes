@@ -53,12 +53,22 @@ type Props = {
   viewType: string;
 };
 
-class MainActionBar extends React.Component<Props> {
+type State = {
+  showDetail: boolean;
+};
+
+class MainActionBar extends React.Component<Props, State> {
   static defaultProps = {
     viewType: 'board',
     boardText: 'Board',
     pipelineText: 'Pipeline'
   };
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { showDetail: false };
+  }
 
   renderBoards() {
     const { currentBoard, boards } = this.props;
@@ -358,6 +368,36 @@ class MainActionBar extends React.Component<Props> {
     );
   };
 
+  renderSalesDetail = () => {
+    return (
+      (window.location.pathname.includes('deal/board') ||
+        window.location.pathname.includes('deal/calendar')) && (
+        <Button
+          btnStyle="link"
+          size="small"
+          icon={this.state.showDetail ? 'eye-slash' : 'eye'}
+          onClick={() =>
+            this.setState(
+              {
+                showDetail: !this.state.showDetail
+              },
+              () => {
+                localStorage.setItem(
+                  'showSalesDetail',
+                  `${this.state.showDetail}`
+                );
+                const storageChangeEvent = new Event('storageChange');
+                window.dispatchEvent(storageChangeEvent);
+              }
+            )
+          }
+        >
+          {this.state.showDetail ? 'Hide detail' : 'Show detail'}
+        </Button>
+      )
+    );
+  };
+
   render() {
     const {
       currentBoard,
@@ -416,6 +456,7 @@ class MainActionBar extends React.Component<Props> {
         ) : null}
 
         {this.renderVisibility()}
+        {this.renderSalesDetail()}
       </BarItems>
     );
 
