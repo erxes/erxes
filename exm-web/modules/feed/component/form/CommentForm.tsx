@@ -219,18 +219,20 @@ const CommentForm = ({
 
         {renderComments()}
 
-        <div className="flex items-center justify-between mt-2">
-          <p
-            className="cursor-pointer text-[#444] hover:underline underline-offset-2"
-            onClick={handleLoadMore}
-          >
-            View more comments
-          </p>
+        {commentsCount > 0 && (
+          <div className="flex items-center justify-between mt-2">
+            <p
+              className="cursor-pointer text-[#444] hover:underline underline-offset-2"
+              onClick={handleLoadMore}
+            >
+              {commentsCount !== comments.length ? "View more comments" : ""}
+            </p>
 
-          <p className="text-[#444] mr-2" onClick={handleLoadMore}>
-            {comments.length} / {commentsCount}
-          </p>
-        </div>
+            <p className="text-[#444] mr-2" onClick={handleLoadMore}>
+              {comments.length} / {commentsCount}
+            </p>
+          </div>
+        )}
 
         {loading && <LoadingCard />}
       </ScrollArea>
