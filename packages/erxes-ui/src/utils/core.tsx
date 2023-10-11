@@ -543,14 +543,17 @@ export function numberFormatter(value = '', fixed) {
     fixed &&
     `${value}`.includes('.') &&
     `${value}`.split('.')?.[1]?.length > fixed
-  )
+  ) {
     value = Number(value).toFixed(fixed);
+  }
 
   return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 export function numberParser(value, fixed) {
-  if (value === '-') return '-';
+  if (value === '-') {
+    return '-';
+  }
   if (RegExp('-', 'g').test(value)) {
     value = value.replace(RegExp('-', 'g'), '');
     value = `-${value}`;
@@ -559,7 +562,7 @@ export function numberParser(value, fixed) {
   value = value!.replace(/(,*)/g, '');
 
   if (value?.includes('.')) {
-    var numberValues = value.split('.');
+    const numberValues = value.split('.');
     numberValues[0] = Number(numberValues[0]);
 
     if (fixed && numberValues[1].length > fixed) {
@@ -795,7 +798,9 @@ export const shortStrToDate = (
 
   intgr = intgr * multiplier + BEGIN_DIFF;
 
-  if (resultType === 'd') return new Date(intgr);
+  if (resultType === 'd') {
+    return new Date(intgr);
+  }
 
   return intgr;
 };

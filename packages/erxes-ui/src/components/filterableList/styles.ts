@@ -1,6 +1,7 @@
+import { colors, dimensions } from '../../styles';
+
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '../../styles';
 
 const PopoverHeader = styled.div`
   display: block !important;
@@ -113,7 +114,7 @@ const PopoverBody = styled.div`
     max-height: unset;
   }
 
-  min-width: 260px;
+  min-width: 300px;
 `;
 
 const PopoverFooter = styled.div`
