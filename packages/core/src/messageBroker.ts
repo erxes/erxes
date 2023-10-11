@@ -457,11 +457,11 @@ export const initBroker = async options => {
   consumeRPCQueue('core:branches.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { query } = data;
+    const { query, fields } = data;
 
     return {
       status: 'success',
-      data: await models.Branches.find(query).lean()
+      data: await models.Branches.find(query, fields).lean()
     };
   });
 
