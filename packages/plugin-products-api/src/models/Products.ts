@@ -248,6 +248,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       let tagIds: string[] = [];
       let barcodes: string[] = [];
       const name: string = productFields.name || '';
+      const shortName: string = productFields.shortName || '';
       const type: string = productFields.type || '';
       const description: string = productFields.description || '';
       const barcodeDescription: string = productFields.barcodeDescription || '';
@@ -299,6 +300,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         barcodeDescription,
         mergedIds: productIds,
         name,
+        shortName,
         type,
         uom: await models.Uoms.checkUOM({ ...productFields }),
         description,
