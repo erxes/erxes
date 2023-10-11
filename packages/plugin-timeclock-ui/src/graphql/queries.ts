@@ -181,6 +181,7 @@ const requestsMain = `
           absenceTimeType
           requestDates
           totalHoursOfAbsence
+          note
         }
         totalCount
   }

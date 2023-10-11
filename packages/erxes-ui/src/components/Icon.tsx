@@ -13,6 +13,7 @@ type Props = {
   style?: any;
   color?: string;
   isActive?: boolean;
+  id?: string;
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
 };
 

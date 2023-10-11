@@ -258,6 +258,15 @@ export const initBroker = async options => {
   });
 
   consumeRPCQueue(
+    'core:configs.createOrUpdateConfig',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return await models.Configs.createOrUpdateConfig(data);
+    }
+  );
+
+  consumeRPCQueue(
     'core:configs.findOne',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
@@ -296,6 +305,39 @@ export const initBroker = async options => {
     return {
       status: 'success',
       data: await models.Users.findUsers(data, { _id: 1 })
+    };
+  });
+
+  consumeRPCQueue(
+    'core:users.getIdsBySearchParams',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { searchValue } = data;
+
+      const query: any = {};
+
+      query.$or = [
+        { email: new RegExp(`.*${searchValue}.*`, 'i') },
+        { employeeId: new RegExp(`.*${searchValue}.*`, 'i') },
+        { username: new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.fullName': new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.position': new RegExp(`.*${searchValue}.*`, 'i') }
+      ];
+
+      return {
+        status: 'success',
+        data: await models.Users.find(query).distinct('_id')
+      };
+    }
+  );
+
+  consumeRPCQueue('core:users.checkLoginAuth', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Users.checkLoginAuth(data)
     };
   });
 

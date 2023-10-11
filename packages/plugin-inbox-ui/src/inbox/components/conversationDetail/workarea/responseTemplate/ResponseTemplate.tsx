@@ -22,14 +22,47 @@ type Props = {
 };
 
 type State = {
-  key?: string;
-  brandId?: string;
-  searchValue: string;
-  options: IResponseTemplate[];
+  keysPressed: any;
 };
 
 class ResponseTemplate extends React.Component<Props, State> {
   private overlayRef;
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      keysPressed: {}
+    };
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('keyup', this.handleKeyUp);
+  }
+
+  handleKeyDown = (event: any) => {
+    const { keysPressed } = this.state;
+    const key = event.key;
+    const element = document.getElementById('overlay-trigger-button');
+
+    this.setState({ keysPressed: { ...keysPressed, [key]: true } }, () => {
+      if (this.state.keysPressed.Control === true && event.keyCode === 51) {
+        element.click();
+      }
+    });
+  };
+
+  handleKeyUp = (event: any) => {
+    delete this.state.keysPressed[event.key];
+
+    this.setState({ keysPressed: { ...this.state.keysPressed } });
+  };
 
   hidePopover = () => {
     this.overlayRef.hide();
@@ -66,7 +99,7 @@ class ResponseTemplate extends React.Component<Props, State> {
             this.overlayRef = overlayTrigger;
           }}
         >
-          <Button btnStyle="link">
+          <Button btnStyle="link" id="overlay-trigger-button">
             <Tip text={__('Response template')}>
               <Icon icon="file-bookmark-alt" />
             </Tip>

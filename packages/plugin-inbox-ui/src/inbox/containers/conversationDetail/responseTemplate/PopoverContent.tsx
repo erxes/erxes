@@ -27,6 +27,7 @@ type FinalProps = {
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
   responseTemplatesTotalCountQuery: ResponseTemplatesTotalCountQueryResponse;
 } & Props;
+
 const PopoverContentContainer = (props: FinalProps) => {
   const {
     brands,

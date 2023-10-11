@@ -1,8 +1,8 @@
-import { fadeIn, slideDown } from "../utils/animations";
-import React from "react";
-import styled from "styled-components";
-import { readFile } from "../utils/core";
-import CommonPortal from "./CommonPortal";
+import { fadeIn, slideDown } from '../utils/animations';
+import React from 'react';
+import styled from 'styled-components';
+import { readFile } from '../utils/core';
+import CommonPortal from './CommonPortal';
 
 export const PreviewWrapper = styled.div`
   position: fixed;
@@ -55,7 +55,7 @@ export const Image = styled.img`
 `;
 
 const KEYCODES = {
-  ESCAPE: 27,
+  ESCAPE: 27
 };
 
 type Props = {
@@ -63,6 +63,7 @@ type Props = {
   src?: string;
   onLoad?: () => void;
   full?: boolean;
+  imgPreviewWidth?: number;
 };
 
 type State = {
@@ -77,34 +78,34 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    document.addEventListener("keydown", this.handleKeydown);
+    document.addEventListener('keydown', this.handleKeydown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", this.handleKeydown);
+    document.removeEventListener('keydown', this.handleKeydown);
   }
 
-  handleKeydown = (e) => {
+  handleKeydown = e => {
     if (e.keyCode === KEYCODES.ESCAPE && this.state.visible) {
       this.setState({ visible: false });
     }
   };
 
   render() {
-    const { alt, src, onLoad } = this.props;
+    const { alt, src, onLoad, imgPreviewWidth } = this.props;
 
     return (
       <>
         <Image
           {...this.props}
-          src={readFile(src || "")}
+          src={readFile(src || '', imgPreviewWidth)}
           onLoad={onLoad}
           onClick={this.toggleImage}
         />
         {this.state.visible && (
           <CommonPortal>
             <PreviewWrapper onClick={this.toggleImage}>
-              <img alt={alt} src={readFile(src || "")} />
+              <img alt={alt} src={readFile(src || '')} />
             </PreviewWrapper>
           </CommonPortal>
         )}
