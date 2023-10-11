@@ -60,6 +60,7 @@ export interface IUserDoc {
   branchIds: string[];
   departmentIds: string[];
   employeeId?: string;
+  newUser?: boolean;
 }
 
 export interface IUser extends IUserDoc {

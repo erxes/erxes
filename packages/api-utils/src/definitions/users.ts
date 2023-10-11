@@ -61,6 +61,7 @@ export interface IUser {
   departmentIds?: string[];
   branchIds?: string[];
   employeeId?: string;
+  newUser?: boolean;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -198,6 +199,11 @@ export const userSchema = schemaWrapper(
       type: String,
       label: 'Linked app id',
       optional: true
+    }),
+    newUser: field({
+      type: Boolean,
+      optional: true,
+      label: 'is new user'
     }),
     employeeId: field({
       type: String,

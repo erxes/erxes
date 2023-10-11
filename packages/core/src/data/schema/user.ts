@@ -71,6 +71,8 @@ export const types = `
     score: Float
     leaderBoardPosition: Int
     employeeId: String
+
+    newUser: Boolean
   }
 
   type UserMovement {

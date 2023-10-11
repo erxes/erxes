@@ -332,6 +332,7 @@ export const loadUserClass = (models: IModels) => {
         registrationToken: token,
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
+        newUser: true,
         brandIds
       });
 
