@@ -9,21 +9,22 @@ import {
   IndicatorItem,
   LoadingContent,
   StageFooter,
+  StageInfo,
   StageRoot,
   StageTitle
 } from '../../styles/stage';
+import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
+import { IItem, IOptions, IStage } from '../../types';
+import { renderAmount, renderPercentedAmount } from '../../utils';
+
+import { AddForm } from '../../containers/portable';
+import { Draggable } from 'react-beautiful-dnd';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
-import { AddForm } from '../../containers/portable';
-import { IItem, IOptions, IStage } from '../../types';
-import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
-import { OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
-import { Row } from '@erxes/ui-settings/src/styles';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   loadingItems: () => boolean;
@@ -84,7 +85,17 @@ export default class Stage extends React.Component<Props, State> {
         return clearInterval(handle);
       }
     }, 1000);
+
+    window.addEventListener('storageChange', this.handleStorageChange);
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('storageChange', this.handleStorageChange);
+  }
+
+  handleStorageChange = () => {
+    this.forceUpdate();
+  };
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     const { stage, index, length, items, loadingItems } = this.props;
@@ -340,6 +351,49 @@ export default class Stage extends React.Component<Props, State> {
       return <EmptyState icon="columns-1" text="No stage" size="small" />;
     }
 
+    const probability =
+      stage.probability === 'Won'
+        ? '100%'
+        : stage.probability === 'Lost'
+        ? '0%'
+        : stage.probability;
+
+    const detail = () => {
+      if (
+        window.location.pathname.includes('deal') &&
+        Object.keys(stage.amount).length > 0
+      ) {
+        const forecast = () => {
+          if (!probability) {
+            return null;
+          }
+
+          return (
+            <div>
+              <span>{__('Forecasted') + `(${probability}):`}</span>
+              {renderPercentedAmount(stage.amount, parseInt(probability, 10))}
+            </div>
+          );
+        };
+
+        return (
+          <StageInfo
+            showAll={
+              localStorage.getItem('showSalesDetail') === 'true' ? true : false
+            }
+          >
+            <div>
+              <span>{__('Total') + ':'}</span>
+              {renderAmount(stage.amount)}
+            </div>
+            {forecast()}
+          </StageInfo>
+        );
+      }
+
+      return null;
+    };
+
     return (
       <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => (
@@ -353,10 +407,7 @@ export default class Stage extends React.Component<Props, State> {
                   </div>
                   {this.renderCtrl()}
                 </StageTitle>
-                <Row>
-                  {renderAmount(stage.amount)}
-                  {renderAmount(stage.unUsedAmount, false)}
-                </Row>
+                {detail()}
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
