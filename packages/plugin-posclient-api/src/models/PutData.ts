@@ -81,6 +81,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       code: detail.inventoryCode,
       barCode: detail.barcode || this.defaultGScode,
       name: product.name,
+      shortName: product.shortName,
       measureUnit: product.uom || 'ш',
       qty: formatNumber(detail.count),
       unitPrice: formatNumber(detail.amount / (detail.count || 1)),

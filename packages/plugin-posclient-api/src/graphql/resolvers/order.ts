@@ -115,6 +115,7 @@ export default {
           stocks: items.map(item => ({
             code: productById[item.productId].code,
             name: productById[item.productId].name,
+            shortName: productById[item.productId].shortName,
             measureUnit: productById[item.productId].uom || 'ш',
             qty: item.count,
             unitPrice: item.unitPrice,
