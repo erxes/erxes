@@ -12,6 +12,8 @@ import {
   mutations as CompanyMutations
 } from './company';
 
+import { types as contactsTypes, queries as contactQueries } from './contacts';
+
 const typeDefs = async serviceDiscovery => {
   const tagsEnabled = await serviceDiscovery.isEnabled('tags');
   const inboxEnabled = await serviceDiscovery.isEnabled('inbox');
@@ -59,10 +61,12 @@ const typeDefs = async serviceDiscovery => {
 
     ${customerTypes(tagsEnabled, inboxEnabled)}
     ${companyTypes(tagsEnabled)}
+    ${contactsTypes}
     
     extend type Query {
       ${CustomerQueries}
       ${CompanyQueries}
+      ${contactQueries}
     }
 
     extend type Mutation {

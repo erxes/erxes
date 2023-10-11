@@ -15,9 +15,13 @@ import {
 import { IMeeting, ITopic } from '../../../types';
 
 import { TopicFormContainer } from '../../../containers/myCalendar/topic/Form';
+import Form from '../../../containers/myCalendar/meeting/Form';
+
 import Button from '@erxes/ui/src/components/Button';
 import { Link } from 'react-router-dom';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import queries from '../../../graphql/queries';
+import { gql } from '@apollo/client';
 
 type Props = {
   meetingDetail: IMeeting;
@@ -88,6 +92,25 @@ export const MeetingDetail = (props: Props) => {
     />
   );
 
+  const editTrigger = (
+    <Button id={'EditMeetingButton'} btnStyle="success" icon="edit-3">
+      Edit
+    </Button>
+  );
+
+  const editModalContent = props => (
+    <Form
+      {...props}
+      meeting={meetingDetail}
+      refetch={[
+        {
+          query: gql(queries.meetingDetail),
+          variables: { _id: meetingDetail._id }
+        }
+      ]}
+    />
+  );
+
   const renderTabContent = () => {
     return (
       <>
@@ -96,6 +119,11 @@ export const MeetingDetail = (props: Props) => {
             <Icon icon="calendar-alt" color={colors.colorCoreBlue} /> &nbsp;
             {meetingDetail?.startDate &&
               moment(meetingDetail?.startDate).format(
+                'ddd, MMMM DD, YYYY • HH:mm a'
+              )}{' '}
+            -{' '}
+            {meetingDetail?.endDate &&
+              moment(meetingDetail?.endDate).format(
                 'ddd, MMMM DD, YYYY • HH:mm a'
               )}
           </MeetingDetailColumn>
@@ -123,8 +151,8 @@ export const MeetingDetail = (props: Props) => {
             <span>Team members:</span>{' '}
             {meetingDetail?.participantUser?.map((user, index) => {
               if (index != meetingDetail?.participantUser?.length - 1)
-                return <div key={index}>{user.details?.fullName},</div>;
-              return <div key={index}>{user.details?.fullName}</div>;
+                return <span key={index}>{user.details?.fullName},</span>;
+              return <span key={index}>{user.details?.fullName}</span>;
             })}
           </MeetingDetailColumn>
         </MeetingDetailRow>
@@ -195,6 +223,14 @@ export const MeetingDetail = (props: Props) => {
               ? 'Start meeting'
               : 'End meeting'}
           </Button>
+
+          <ModalTrigger
+            title={__('Edit meeting')}
+            trigger={editTrigger}
+            content={editModalContent}
+            enforceFocus={false}
+            size="xl"
+          />
         </MeetingDetailFooter>
       )}
     </MeetingWrapper>

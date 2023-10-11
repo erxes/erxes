@@ -39,6 +39,7 @@ const EbarimtMain = () => {
     onCompleted() {
       changeVisiblity(false)
       setInitial()
+      setOpenDialog(false)
       router.push("/")
     },
   })

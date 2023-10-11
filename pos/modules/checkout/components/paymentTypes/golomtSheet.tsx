@@ -18,7 +18,7 @@ const GolomtSheet = () => {
   })
 
   useEffect(() => {
-    sendTransaction({ amount, _id })
+    sendTransaction({ amount, _id: _id || "" })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

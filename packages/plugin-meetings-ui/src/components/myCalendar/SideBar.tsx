@@ -226,7 +226,7 @@ export const SideBar = (props: Props) => {
         </Box>
       )}
       {tommorowMeetings(filteredMeeting)?.length > 0 && (
-        <Box title="Tommorow" name={`tomorrow`} isOpen={true}>
+        <Box title="Tomorrow" name={`tomorrow`} isOpen={true}>
           <SidebarList noTextColor noBackground id="SideBar">
             {tommorowMeetings(filteredMeeting)?.map(meeting => {
               return ListItem(meeting);

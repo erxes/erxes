@@ -31,7 +31,9 @@ export const Row = (props: Props) => {
     );
   };
 
-  const content = props => <Form {...props} meeting={meeting} />;
+  const content = props => (
+    <Form {...props} meeting={meeting} refetch={['meetings']} />
+  );
 
   const onTrClick = () => {
     history.push(`/meetings/myCalendar?meetingId=${meeting._id}`);
@@ -58,7 +60,7 @@ export const Row = (props: Props) => {
       <td onClick={onClick}>
         <ActionButtons>
           <ModalTrigger
-            title="Edit tag"
+            title="Edit meeting"
             trigger={editTrigger}
             content={content}
           />

@@ -1,8 +1,7 @@
-import AddForm from '../../containers/portable/AddForm';
-import Button from '@erxes/ui/src/components/Button';
-import { IOptions } from '../../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
+import AddForm from '../../containers/portable/AddForm';
+import { IOptions } from '../../types';
 
 type Props = {
   relType: string;
