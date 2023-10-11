@@ -513,6 +513,8 @@ export {
   CreatedDate,
   LeftContent,
   Row,
+  FlexBetween,
+  ItemCount,
   SpaceFormsWrapper,
   CommentWrapper,
   TicketComment,
