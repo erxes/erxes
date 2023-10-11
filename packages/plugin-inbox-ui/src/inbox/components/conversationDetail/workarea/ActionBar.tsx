@@ -72,17 +72,23 @@ export default class ActionBar extends React.Component<Props, State> {
     this.setState({ keysPressed: { ...keysPressed, [key]: true } }, () => {
       if (
         this.state.keysPressed.Control === true &&
-        this.state.keysPressed.a === true
+        this.state.keysPressed.a === true &&
+        assignElement
       ) {
         assignElement.click();
       }
-      if (this.state.keysPressed.Control === true && event.keyCode === 49) {
+      if (
+        this.state.keysPressed.Control === true &&
+        event.keyCode === 49 &&
+        tagElement
+      ) {
         tagElement.click();
         this.setState({ disableTreeView: true });
       }
       if (
         this.state.keysPressed.Control === true &&
-        this.state.keysPressed.k === true
+        this.state.keysPressed.k === true &&
+        shortcutElement
       ) {
         shortcutElement.click();
         this.setState({ disableTreeView: true });
