@@ -1,5 +1,4 @@
-import Image from "next/image"
-import { ebarimtConfigAtom } from "@/store/config.store"
+  import { ebarimtConfigAtom } from "@/store/config.store"
 import {
   customerAtom,
   orderNumberAtom,
@@ -8,6 +7,8 @@ import {
 } from "@/store/order.store"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
+
+import Image from "@/components/ui/image"
 
 const EbarimtHeader = () => {
   const user = useAtomValue(orderUserAtom)
