@@ -140,23 +140,24 @@ class DealColumn extends React.Component<Props, {}> {
     });
 
     const detail = () => {
-      if (deals.length > 0) {
-        return (
-          <>
-            <li>
-              <span>Total ({deals.length}): </span>
-              {this.renderPercentedAmount(totalAmountArray)}
-            </li>
-            <li>
-              <span>Forecasted: </span>
-              {this.renderPercentedAmount(forecastArray)}
-            </li>
-          </>
-        );
+      if (!deals || deals.length === 0) {
+        return null;
       }
 
-      return null;
+      return (
+        <>
+          <li>
+            <span>Total ({deals.length}): </span>
+            {this.renderPercentedAmount(totalAmountArray)}
+          </li>
+          <li>
+            <span>Forecasted: </span>
+            {this.renderPercentedAmount(forecastArray)}
+          </li>
+        </>
+      );
     };
+
     return (
       <Amount
         showAll={
