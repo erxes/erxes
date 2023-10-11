@@ -1,14 +1,15 @@
 import { Contents, HeightedWrapper } from '@erxes/ui/src/layout/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 
 import Header from '@erxes/ui/src/layout/components/Header';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Modal } from 'react-bootstrap';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import styled from 'styled-components';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { Modal } from 'react-bootstrap';
-import { colors } from '@erxes/ui/src/styles';
+import styledTS from 'styled-components-ts';
 
 const Sidebar = asyncComponent(() =>
   import(
@@ -36,7 +37,7 @@ const AdditionalMenu = styled.div`
   }
 `;
 
-const ShortcutModal = styled(Modal)`
+const ShortcutModal = styledTS<{ show?: boolean; onHide? }>(styled(Modal))`
   & > div {
     border-radius: 10px;
     overflow: hidden;
@@ -50,7 +51,7 @@ const ShortcutHeaderWrapper = styled.div`
   padding: 0.5em 0;
   border-bottom: 1px solid ${colors.borderDarker};
 
-  h3 {
+  h4 {
     margin: 10px;
   }
 `;
@@ -59,7 +60,7 @@ const ShortcutItem = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  padding: 0.75em 1em;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderDarker};
 
   p {
@@ -103,9 +104,9 @@ class Inbox extends React.Component<Props, State> {
 
     const shortcutHelp = (
       <AdditionalMenu>
-        <Tip text="Help shortcuts" placement="bottom">
+        <Tip text="Help keyboard shortcuts" placement="bottom">
           <Icon
-            icon="info-circle"
+            icon="keyboard-alt"
             size={18}
             onClick={() => modalHandler()}
             color="#9f9f9f"
@@ -131,7 +132,7 @@ class Inbox extends React.Component<Props, State> {
         </Contents>
         <ShortcutModal show={shortcutModalShow} onHide={() => modalHandler()}>
           <ShortcutHeaderWrapper>
-            <h3>Help shortcuts</h3>
+            <h4>Help keyboard shortcuts</h4>
           </ShortcutHeaderWrapper>
           <div>
             <ShortcutItem>

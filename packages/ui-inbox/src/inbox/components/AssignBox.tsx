@@ -1,12 +1,13 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import debounce from 'lodash/debounce';
+import { Alert, __, getUserAvatar } from 'coreui/utils';
+
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
-import { __, Alert, getUserAvatar } from 'coreui/utils';
-import React, { useRef } from 'react';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import client from '@erxes/ui/src/apolloClient';
+import debounce from 'lodash/debounce';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
 interface IAssignee {
   _id: string;
@@ -58,7 +59,7 @@ class AssignBox extends React.Component<Props, State> {
     prevProps: Readonly<Props>,
     prevState: Readonly<State>
   ): void {
-    if (prevState.cursor && prevState.cursor !== this.state.cursor) {
+    if (prevState.cursor !== this.state.cursor) {
       this.setState({
         assigneesForList: this.generateAssignParams(
           this.state.verifiedUsers,
@@ -101,7 +102,7 @@ class AssignBox extends React.Component<Props, State> {
         if (cursor < maxCursor - 1) {
           this.setState({ cursor: cursor + 1 }, () => element.focus());
         } else {
-          this.setState({ cursor: 0 }, () => element.focus());
+          this.setState({ cursor: 0 });
         }
         break;
       default:

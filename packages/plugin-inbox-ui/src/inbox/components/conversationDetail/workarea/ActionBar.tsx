@@ -1,20 +1,21 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import Button from '@erxes/ui/src/components/Button';
+import { ActionBarLeft, AssignText, AssignTrigger } from './styles';
+import { __, getUserAvatar } from 'coreui/utils';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+
+import AssignBoxPopover from '../../assignBox/AssignBoxPopover';
 import { AvatarImg } from '@erxes/ui/src/components/filterableList/styles';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
-import Tags from '@erxes/ui/src/components/Tags';
-import { __, getUserAvatar } from 'coreui/utils';
-import AssignBoxPopover from '../../assignBox/AssignBoxPopover';
+import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
+import React from 'react';
 import Resolver from '../../../containers/Resolver';
 import Tagger from '../../../containers/Tagger';
-import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
+import Tags from '@erxes/ui/src/components/Tags';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import { ActionBarLeft, AssignText, AssignTrigger } from './styles';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 const Participators = asyncComponent(
   () =>
