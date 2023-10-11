@@ -14,6 +14,7 @@ import {
   ExternalLinkIcon,
   HeartIcon,
   MapPinIcon,
+  MessageCircleIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PinIcon,
@@ -45,6 +46,7 @@ import { ImageWithPreview } from "@/components/ImageWithPreview"
 import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
 import { useReactionQuery } from "../hooks/useReactionQuery"
+import CommentForm from "./form/CommentForm"
 
 const BravoForm = dynamic(() => import("./form/BravoForm"))
 const EventForm = dynamic(() => import("./form/EventForm"))
@@ -152,6 +154,27 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           </DialogTrigger>
 
           {open ? renderForm() : null}
+        </Dialog>
+      </>
+    )
+  }
+
+  const renderComment = () => {
+    return (
+      <>
+        <Dialog open={formOpen} onOpenChange={() => setFormOpen(!formOpen)}>
+          <DialogTrigger asChild={true} id="delete-form">
+            <div className="cursor-pointer flex items-center pt-2">
+              <MessageCircleIcon size={20} className="mr-1" color="black" />
+            </div>
+          </DialogTrigger>
+
+          <CommentForm
+            feed={feed}
+            currentId={currentUser._id}
+            emojiReactedUser={emojiReactedUser}
+            emojiCount={emojiCount}
+          />
         </Dialog>
       </>
     )
@@ -394,7 +417,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
         <CardFooter className="border-t mt-5 pb-2">
           <div
-            className="cursor-pointer flex items-center pt-2"
+            className="cursor-pointer flex items-center pt-2 mr-4"
             onClick={reactionAdd}
           >
             <HeartIcon
@@ -405,6 +428,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             />
             <span className="font-bold text-base">{emojiCount}</span>
           </div>
+          {renderComment()}
         </CardFooter>
       </Card>
     </>

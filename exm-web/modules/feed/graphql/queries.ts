@@ -307,9 +307,17 @@ const getChatIdByUserIds = `
   }
 `
 
-const comments = `
-  query comments($contentId: String!, $contentType: ReactionContentType!, $parentId: String) {
-    comments(contentId: $contentId, contentType: $contentType, parentId: $parentId) {
+const comments = gql`
+  query comments(
+    $contentId: String!
+    $contentType: ReactionContentType!
+    $parentId: String
+  ) {
+    comments(
+      contentId: $contentId
+      contentType: $contentType
+      parentId: $parentId
+    ) {
       list {
         _id
         comment
