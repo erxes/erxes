@@ -201,6 +201,7 @@ const stageCommon = `
   code
   age
   defaultTick
+  probability
 `;
 
 const stages = `
