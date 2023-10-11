@@ -139,13 +139,9 @@ class DealColumn extends React.Component<Props, {}> {
       );
     });
 
-    return (
-      <Amount
-        showAll={
-          localStorage.getItem('showSalesDetail') === 'true' ? true : false
-        }
-      >
-        {deals.length > 0 && (
+    const detail = () => {
+      if (deals.length > 0) {
+        return (
           <>
             <li>
               <span>Total ({deals.length}): </span>
@@ -156,7 +152,18 @@ class DealColumn extends React.Component<Props, {}> {
               {this.renderPercentedAmount(forecastArray)}
             </li>
           </>
-        )}
+        );
+      }
+
+      return null;
+    };
+    return (
+      <Amount
+        showAll={
+          localStorage.getItem('showSalesDetail') === 'true' ? true : false
+        }
+      >
+        {detail()}
         {totalForType.map(type => {
           if (type.name === 'In progress') {
             return null;

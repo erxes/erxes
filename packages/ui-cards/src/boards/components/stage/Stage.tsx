@@ -357,6 +357,29 @@ export default class Stage extends React.Component<Props, State> {
         ? '0%'
         : stage.probability;
 
+    const detail = () => {
+      if (window.location.pathname.includes('deal')) {
+        return (
+          <StageInfo
+            showAll={
+              localStorage.getItem('showSalesDetail') === 'true' ? true : false
+            }
+          >
+            <div>
+              <span>{__('Total') + ':'}</span>
+              {renderAmount(stage.amount)}
+            </div>
+            <div>
+              <span>{__('Forecasted') + `(${probability}):`}</span>
+              {renderPercentedAmount(stage.amount, parseInt(probability, 10))}
+            </div>
+          </StageInfo>
+        );
+      }
+
+      return null;
+    };
+
     return (
       <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => (
@@ -370,27 +393,7 @@ export default class Stage extends React.Component<Props, State> {
                   </div>
                   {this.renderCtrl()}
                 </StageTitle>
-                {window.location.pathname.includes('deal') && (
-                  <StageInfo
-                    showAll={
-                      localStorage.getItem('showSalesDetail') === 'true'
-                        ? true
-                        : false
-                    }
-                  >
-                    <div>
-                      <span>{__('Total') + ':'}</span>
-                      {renderAmount(stage.amount)}
-                    </div>
-                    <div>
-                      <span>{__('Forecasted') + `(${probability}):`}</span>
-                      {renderPercentedAmount(
-                        stage.amount,
-                        parseInt(probability, 10)
-                      )}
-                    </div>
-                  </StageInfo>
-                )}
+                {detail()}
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>

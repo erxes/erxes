@@ -368,34 +368,37 @@ class MainActionBar extends React.Component<Props, State> {
     );
   };
 
+  onDetailShowHandler = () => {
+    this.setState(
+      {
+        showDetail: !this.state.showDetail
+      },
+      () => {
+        localStorage.setItem('showSalesDetail', `${this.state.showDetail}`);
+        const storageChangeEvent = new Event('storageChange');
+        window.dispatchEvent(storageChangeEvent);
+      }
+    );
+  };
+
   renderSalesDetail = () => {
-    return (
-      (window.location.pathname.includes('deal/board') ||
-        window.location.pathname.includes('deal/calendar')) && (
+    if (
+      window.location.pathname.includes('deal/board') ||
+      window.location.pathname.includes('deal/calendar')
+    ) {
+      return (
         <Button
           btnStyle="link"
           size="small"
           icon={this.state.showDetail ? 'eye-slash' : 'eye'}
-          onClick={() =>
-            this.setState(
-              {
-                showDetail: !this.state.showDetail
-              },
-              () => {
-                localStorage.setItem(
-                  'showSalesDetail',
-                  `${this.state.showDetail}`
-                );
-                const storageChangeEvent = new Event('storageChange');
-                window.dispatchEvent(storageChangeEvent);
-              }
-            )
-          }
+          onClick={() => this.onDetailShowHandler()}
         >
           {this.state.showDetail ? 'Hide detail' : 'Show detail'}
         </Button>
-      )
-    );
+      );
+    }
+
+    return null;
   };
 
   render() {
