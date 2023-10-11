@@ -9,21 +9,22 @@ import {
   IndicatorItem,
   LoadingContent,
   StageFooter,
+  StageInfo,
   StageRoot,
-  StageTitle,
-  StageInfo
+  StageTitle
 } from '../../styles/stage';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
-import { AddForm } from '../../containers/portable';
+import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
 import { IItem, IOptions, IStage } from '../../types';
 import { renderAmount, renderPercentedAmount } from '../../utils';
+
+import { AddForm } from '../../containers/portable';
+import { Draggable } from 'react-beautiful-dnd';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
 import ItemList from '../stage/ItemList';
-import { OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   loadingItems: () => boolean;
@@ -358,7 +359,23 @@ export default class Stage extends React.Component<Props, State> {
         : stage.probability;
 
     const detail = () => {
-      if (window.location.pathname.includes('deal')) {
+      if (
+        window.location.pathname.includes('deal') &&
+        Object.keys(stage.amount).length > 0
+      ) {
+        const forecast = () => {
+          if (!probability) {
+            return null;
+          }
+
+          return (
+            <div>
+              <span>{__('Forecasted') + `(${probability}):`}</span>
+              {renderPercentedAmount(stage.amount, parseInt(probability, 10))}
+            </div>
+          );
+        };
+
         return (
           <StageInfo
             showAll={
@@ -369,10 +386,7 @@ export default class Stage extends React.Component<Props, State> {
               <span>{__('Total') + ':'}</span>
               {renderAmount(stage.amount)}
             </div>
-            <div>
-              <span>{__('Forecasted') + `(${probability}):`}</span>
-              {renderPercentedAmount(stage.amount, parseInt(probability, 10))}
-            </div>
+            {forecast()}
           </StageInfo>
         );
       }

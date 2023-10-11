@@ -1,8 +1,9 @@
+import { IOptions, IStage } from '../../boards/types';
 import { PriceContainer, Right, Status } from '../../boards/styles/item';
 import {
   renderAmount,
-  renderPriority,
-  renderPercentedAmount
+  renderPercentedAmount,
+  renderPriority
 } from '../../boards/utils';
 
 import Assignees from '../../boards/components/Assignees';
@@ -10,17 +11,16 @@ import { Content } from '../../boards/styles/stage';
 import Details from '../../boards/components/Details';
 import DueDateLabel from '../../boards/components/DueDateLabel';
 import EditForm from '../../boards/containers/editForm/EditForm';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { IDeal } from '../types';
-import { IOptions } from '../../boards/types';
+import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 import { ItemContainer } from '../../boards/styles/common';
 import ItemFooter from '../../boards/components/portable/ItemFooter';
 import Labels from '../../boards/components/label/Labels';
 import React from 'react';
+import { StageInfo } from '../../boards/styles/stage';
 import { __ } from '@erxes/ui/src/utils';
 import { colors } from '@erxes/ui/src/styles';
-import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
-import { StageInfo } from '../../boards/styles/stage';
-import { Flex } from '@erxes/ui/src/styles/main';
 
 type Props = {
   stageId?: string;
@@ -109,15 +109,41 @@ class DealItem extends React.PureComponent<Props> {
       startDate,
       closeDate,
       isComplete,
+      stage = {} as IStage,
       customProperties
     } = item;
 
     const probability =
-      item.stage.probability === 'Won'
+      stage.probability === 'Won'
         ? '100%'
-        : item.stage.probability === 'Lost'
+        : stage.probability === 'Lost'
         ? '0%'
-        : item.stage.probability;
+        : stage.probability;
+
+    const forecast = () => {
+      if (!probability) {
+        return null;
+      }
+
+      return (
+        <Flex>
+          <span>Forecasted ({probability}):</span>{' '}
+          {renderPercentedAmount(item.amount, parseInt(probability, 10))}
+        </Flex>
+      );
+    };
+
+    const total = () => {
+      if (Object.keys(item.amount).length === 0) {
+        return null;
+      }
+
+      return (
+        <Flex>
+          <span>Total:</span> {renderAmount(item.amount)}
+        </Flex>
+      );
+    };
 
     return (
       <>
@@ -137,13 +163,8 @@ class DealItem extends React.PureComponent<Props> {
 
         <PriceContainer>
           <StageInfo>
-            <Flex>
-              <span>Total:</span> {renderAmount(item.amount)}
-            </Flex>
-            <Flex>
-              <span>Forecasted ({probability}):</span>{' '}
-              {renderPercentedAmount(item.amount, parseInt(probability, 10))}
-            </Flex>
+            {total()}
+            {forecast()}
           </StageInfo>
 
           <Right>
