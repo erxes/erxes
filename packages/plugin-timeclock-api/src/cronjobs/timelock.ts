@@ -46,7 +46,7 @@ const createLogWhenImportedFromMssql = async (
 const connectAndImportFromMysql = async (subdomain: string) => {
   // get time data from yesterday till now
   const format = 'YYYY-MM-DD HH:mm:ss';
-  const NOW = dayjs(new Date('2023-06-20 04:20:00'));
+  const NOW = dayjs(Date.now());
   const YESTERDAY = NOW.add(-1, 'day');
 
   try {
@@ -95,7 +95,6 @@ export default {
   },
   handleMinutelyJob: async ({ subdomain }) => {
     console.log('minutely job is working');
-
-    await connectAndImportFromMysql(subdomain);
+    // await connectAndImportFromMysql(subdomain);
   }
 };
