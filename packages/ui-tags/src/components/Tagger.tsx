@@ -11,6 +11,7 @@ type Props = {
   targets?: any[];
   event?: 'onClick' | 'onExit';
   className?: string;
+  disableTreeView?: boolean;
 
   // from container
   loading: boolean;
@@ -67,6 +68,7 @@ class Tagger extends React.Component<Props, State> {
 
         if (element) {
           element.click();
+
           this.tag(this.state.tagsForList);
           document.getElementById('conversationTags').click();
         }
@@ -150,7 +152,7 @@ class Tagger extends React.Component<Props, State> {
   };
 
   render() {
-    const { className, event, type, loading } = this.props;
+    const { className, event, type, loading, disableTreeView } = this.props;
 
     if (loading) {
       return <Spinner objective={true} />;
@@ -167,7 +169,7 @@ class Tagger extends React.Component<Props, State> {
       className,
       links,
       selectable: true,
-      treeView: true,
+      treeView: disableTreeView ? false : true,
       items: JSON.parse(JSON.stringify(this.state.tagsForList)),
       isIndented: true,
       singleSelect: this.props.singleSelect

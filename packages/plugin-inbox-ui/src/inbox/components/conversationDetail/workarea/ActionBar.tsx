@@ -39,6 +39,7 @@ type Props = {
 
 type State = {
   keysPressed: any;
+  disableTreeView: boolean;
 };
 
 export default class ActionBar extends React.Component<Props, State> {
@@ -46,7 +47,8 @@ export default class ActionBar extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      keysPressed: {}
+      keysPressed: {},
+      disableTreeView: false
     };
   }
 
@@ -75,6 +77,7 @@ export default class ActionBar extends React.Component<Props, State> {
       }
       if (this.state.keysPressed.Control === true && event.keyCode === 49) {
         tagElement.click();
+        this.setState({ disableTreeView: true });
       }
     });
   };
@@ -93,7 +96,10 @@ export default class ActionBar extends React.Component<Props, State> {
     const participatedUsers = currentConversation.participatedUsers || [];
 
     const tagTrigger = (
-      <PopoverButton id="conversationTags">
+      <PopoverButton
+        id="conversationTags"
+        onClick={() => this.setState({ disableTreeView: false })}
+      >
         {tags.length ? (
           <Tags tags={tags} limit={1} />
         ) : (
@@ -119,7 +125,11 @@ export default class ActionBar extends React.Component<Props, State> {
     const actionBarRight = (
       <BarItems>
         {isEnabled('tags') && (
-          <Tagger targets={[currentConversation]} trigger={tagTrigger} />
+          <Tagger
+            targets={[currentConversation]}
+            trigger={tagTrigger}
+            disableTreeView={this.state.disableTreeView}
+          />
         )}
         {isEnabled('cards') && <ConvertTo conversation={currentConversation} />}
 
