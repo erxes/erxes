@@ -1,23 +1,24 @@
 import * as React from 'react';
-import client from '@erxes/ui/src/apolloClient';
 import * as compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import { mutations, queries } from '../../graphql';
 
+import { IEmailTemplate } from '../../types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import MailForm from '../../components/mail/MailForm';
+import client from '@erxes/ui/src/apolloClient';
 import debounce from 'lodash/debounce';
-import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
 import { mutations as engageMutations } from '@erxes/ui-engage/src/graphql';
+import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import queryString from 'query-string';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withRouter } from 'react-router-dom';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import queryString from 'query-string';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   detailQuery?: any;
@@ -42,8 +43,10 @@ type Props = {
   closeReply?: () => void;
   callback?: () => void;
   queryParams?: any;
+  isEmptyEmail?: boolean;
   shrink?: boolean;
   clear?: boolean;
+  conversationStatus?: string;
 } & IRouterProps;
 
 type FinalProps = {
@@ -153,18 +156,29 @@ class MailFormContainer extends React.Component<
       }
 
       return fetchMore({
-        variables: { page },
+        variables: { page, perPage: 20 },
         updateQuery: (prev, { fetchMoreResult }) => {
           if (!fetchMoreResult) {
             return prev;
           }
 
-          return Object.assign({}, prev, {
-            emailTemplates: [
-              ...prev.emailTemplates,
-              ...fetchMoreResult.emailTemplates
-            ]
-          });
+          const prevEmailTemplates = prev.emailTemplates || [];
+          const prevEmailTempIds = prevEmailTemplates.map(
+            (emailTemplate: IEmailTemplate) => emailTemplate._id
+          );
+
+          const fetchedEmailTemplates: IEmailTemplate[] = [];
+
+          for (const emailTemplate of fetchMoreResult.emailTemplates) {
+            if (!prevEmailTempIds.includes(emailTemplate._id)) {
+              fetchedEmailTemplates.push(emailTemplate);
+            }
+          }
+
+          return {
+            ...prev,
+            emailTemplates: [...prevEmailTemplates, ...fetchedEmailTemplates]
+          };
         }
       });
     };
@@ -257,8 +271,10 @@ class MailFormContainer extends React.Component<
       sendMail,
       currentUser,
       fetchMoreEmailTemplates,
+      loading: emailTemplatesQuery.loading,
       emailTemplates: emailTemplatesQuery?.emailTemplates || [],
       emailSignatures: currentUser.emailSignatures || [],
+      brands: currentUser.brands || [],
       totalCount: emailTemplatesTotalCount,
       mails,
       messageId,
