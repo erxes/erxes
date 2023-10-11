@@ -1,11 +1,11 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import React from 'react';
 import { colors } from '../../styles';
 import { rgba } from '../../styles/ecolor';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const Item = styledTS<{ isLast }>(styled.li)`
+const Item = styledTS<{ isLast?: boolean }>(styled.li)`
   display: inline-block;
   color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   text-transform: capitalize;
