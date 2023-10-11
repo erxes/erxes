@@ -13,6 +13,7 @@ type Props = {
   refetchQueries?: any[];
   parentTagId?: string;
   singleSelect?: boolean;
+  disableTreeView?: boolean;
 };
 
 function TaggerPopover(props: Props) {
@@ -21,6 +22,7 @@ function TaggerPopover(props: Props) {
     container,
     refetchQueries,
     parentTagId,
+    disableTreeView,
     ...taggerProps
   } = props;
 
@@ -31,6 +33,7 @@ function TaggerPopover(props: Props) {
         <Tagger
           parentTagId={parentTagId}
           event="onExit"
+          disableTreeView={disableTreeView}
           {...taggerProps}
           refetchQueries={refetchQueries}
         />
