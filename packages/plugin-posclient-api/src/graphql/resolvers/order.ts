@@ -33,8 +33,8 @@ export default {
         _id: company._id,
         code: company.code,
         primaryPhone: company.primaryPhone,
-        firstName: company.primaryName,
         primaryEmail: company.primaryEmail,
+        firstName: company.primaryName,
         lastName: ''
       };
     }
@@ -52,8 +52,8 @@ export default {
         _id: user._id,
         code: user.code,
         primaryPhone: (user.details && user.details.operatorPhone) || '',
-        firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         primaryEmail: user.email,
+        firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         lastName: user.username
       };
     }
@@ -70,8 +70,8 @@ export default {
       _id: customer._id,
       code: customer.code,
       primaryPhone: customer.primaryPhone,
-      firstName: customer.firstName,
       primaryEmail: customer.primaryEmail,
+      firstName: customer.firstName,
       lastName: customer.lastName
     };
   },
