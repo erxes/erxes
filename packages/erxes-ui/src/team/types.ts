@@ -52,7 +52,7 @@ export type EditMutationResponse = {
 
 export type UserConverationsQueryResponse = {
   userConversations: {
-    list: any[]; //check - IConversation
+    list: any[]; // check - IConversation
     totalCount: number;
   };
 } & QueryResponse;

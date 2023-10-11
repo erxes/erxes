@@ -17,6 +17,8 @@ export interface ITimeclock {
   inDeviceType?: string;
   outDeviceType?: string;
   branchName?: string;
+
+  shiftNotClosed?: boolean;
 }
 export interface ITimelog {
   _id: string;
@@ -42,6 +44,8 @@ export interface IAbsence {
   totalHoursOfAbsence: string;
 
   note?: string;
+
+  absenceType?: string;
 }
 export interface IAbsenceType {
   _id: string;

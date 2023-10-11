@@ -11,14 +11,12 @@ const usePossiblePaymentTerms = () => {
   const config = useAtomValue(paymentConfigAtom)
   const notPaidAmount = useAtomValue(unPaidAmountAtom)
   const { paymentIds } = config || {}
-  const { loading: loadingKhan, isAlive: khan } = useKhanCard({
-    skipCheck: true,
-  })
+  const { loading: loadingKhan, isAlive: khan } = useKhanCard()
   const { paymentType: tdb } = useTDB()
   const { isIncluded: golomt } = useGolomt()
   const { mappedPts, paidNotSplit } = useCheckNotSplit()
 
-  const disabledTerms = !!paidNotSplit 
+  const disabledTerms = !!paidNotSplit
 
   return {
     loadingKhan,
@@ -28,7 +26,7 @@ const usePossiblePaymentTerms = () => {
     tdb,
     golomt,
     mappedPts,
-    notPaidAmount
+    notPaidAmount,
   }
 }
 
