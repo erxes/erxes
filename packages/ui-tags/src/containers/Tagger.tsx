@@ -1,5 +1,6 @@
 import * as compose from 'lodash.flowright';
 
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   ITagTypes,
   TagMutationResponse,
@@ -11,7 +12,6 @@ import React from 'react';
 import Tagger from '../components/Tagger';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { Alert, withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   // targets can be conversation, customer, company etc ...
@@ -23,6 +23,7 @@ type Props = {
   refetchQueries?: any[];
   parentTagId?: string;
   singleSelect?: boolean;
+  disableTreeView?: boolean;
 };
 
 type FinalProps = {
