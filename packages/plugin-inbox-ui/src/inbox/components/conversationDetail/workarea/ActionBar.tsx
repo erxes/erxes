@@ -67,6 +67,7 @@ export default class ActionBar extends React.Component<Props, State> {
     const key = event.key;
     const assignElement = document.getElementById('conversationAssignTrigger');
     const tagElement = document.getElementById('conversationTags');
+    const shortcutElement = document.getElementById('help-shortcuts');
 
     this.setState({ keysPressed: { ...keysPressed, [key]: true } }, () => {
       if (
@@ -77,6 +78,13 @@ export default class ActionBar extends React.Component<Props, State> {
       }
       if (this.state.keysPressed.Control === true && event.keyCode === 49) {
         tagElement.click();
+        this.setState({ disableTreeView: true });
+      }
+      if (
+        this.state.keysPressed.Control === true &&
+        this.state.keysPressed.k === true
+      ) {
+        shortcutElement.click();
         this.setState({ disableTreeView: true });
       }
     });

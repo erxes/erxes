@@ -104,12 +104,13 @@ class Inbox extends React.Component<Props, State> {
 
     const shortcutHelp = (
       <AdditionalMenu>
-        <Tip text="Help keyboard shortcuts" placement="bottom">
+        <Tip text="Help shortcuts (Ctrl + K)" placement="bottom">
           <Icon
             icon="keyboard-alt"
             size={18}
             onClick={() => modalHandler()}
             color="#9f9f9f"
+            id="help-shortcuts"
           />
         </Tip>
       </AdditionalMenu>
