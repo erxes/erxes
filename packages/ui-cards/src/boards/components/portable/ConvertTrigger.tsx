@@ -1,8 +1,7 @@
-import AddForm from '../../containers/portable/AddForm';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
+import AddForm from '../../containers/portable/AddForm';
 import { IOptions } from '../../types';
-import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   relType: string;
@@ -39,18 +38,17 @@ export default function ConvertTrigger(props: Props) {
 
   if (url) {
     return (
-      <Button
-        btnStyle="link"
+      <a
         onClick={() => {
           window.open(url, '_blank');
         }}
       >
         {title}
-      </Button>
+      </a>
     );
   }
 
-  const trigger = <Button btnStyle="link">{title}</Button>;
+  const trigger = <a>{title}</a>;
 
   const content = formProps => (
     <AddForm
