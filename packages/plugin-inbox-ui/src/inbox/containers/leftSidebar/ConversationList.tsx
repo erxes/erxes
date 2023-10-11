@@ -17,6 +17,7 @@ import { ConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/
 import { IUser } from '@erxes/ui/src/auth/types';
 import { InboxManagementActionConsumer } from '../InboxCore';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';

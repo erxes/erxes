@@ -11,8 +11,8 @@ import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { ToggleWrapper } from '../widgetPreview/styles';
-import timezones from '@erxes/ui/src/constants/timezones';
 import { __ } from '@erxes/ui/src/utils';
+import timezones from '@erxes/ui/src/constants/timezones';
 
 type Props = {
   onChange: (
@@ -218,25 +218,9 @@ class Availability extends React.Component<Props> {
 
           <FormGroup>
             <ControlLabel required={true}>Response rate</ControlLabel>
-            <FormControl
-              value="auto"
-              componentClass="radio"
-              checked={false}
-              disabled
-              inline={true}
-            >
-              {__(
-                'Automatically calculated depending on your First Response Rate in Reports'
-              )}
-            </FormControl>
-            <FormControl
-              value="manual"
-              componentClass="radio"
-              checked={true}
-              inline={true}
-            >
+            <Description>
               {__('Set to display your pre defined response rate')}
-            </FormControl>
+            </Description>
             <Select
               required={true}
               value={this.props.responseRate}

@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.4.27",
+  "version": "0.4.28",
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -18,6 +18,10 @@
   "bin": {
     "erxes": "./bin/erxes.js",
     "pm2": "./node_modules/pm2/bin/pm2"
+  },
+  "scripts": {
+    "start": "./bin/erxes.js dev",
+    "restart": "pm2 restart all"
   },
   "dependencies": {
     "chalk": "^4.1.0",

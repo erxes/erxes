@@ -34,6 +34,7 @@ const allUsers = `
       details {
         avatar
         fullName
+        position
         ${nameFields}
       }
     }

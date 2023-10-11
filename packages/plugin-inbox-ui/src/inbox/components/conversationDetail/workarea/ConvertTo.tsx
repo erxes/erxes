@@ -1,19 +1,20 @@
+import {
+  IConversation,
+  IMail,
+  IMessage
+} from '@erxes/ui-inbox/src/inbox/types';
+
 import Button from '@erxes/ui/src/components/Button';
+import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
-import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
 import PurchaseConvertTrigger from '@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger';
-import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
 import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
+import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
+import { __ } from '@erxes/ui/src/utils/core';
 import styled from 'styled-components';
-import {
-  IMessage,
-  IConversation,
-  IMail
-} from '@erxes/ui-inbox/src/inbox/types';
 
 const Container = styled.div`
   display: inline-block;

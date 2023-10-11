@@ -1,17 +1,10 @@
-import {
-  loadDynamicComponent,
-  Alert,
-  __,
-  confirm,
-  router
-} from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
 import { Count, Title } from '@erxes/ui/src/styles/main';
 import { IProduct, IProductCategory } from '../../types';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import CategoryList from '../../containers/productCategory/CategoryList';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Form from '@erxes/ui-products/src/containers/ProductForm';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -21,15 +14,16 @@ import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import ProductsMerge from './detail/ProductsMerge';
+import ProductsPrintAction from './ProductPrintAction';
 import React from 'react';
 import Row from './ProductRow';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import Table from '@erxes/ui/src/components/table';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
-import ProductsPrintAction from './ProductPrintAction';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -124,12 +118,60 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
-  render() {
+  renderContent = () => {
     const {
       productsCount,
       loading,
-      queryParams,
       isAllSelected,
+      currentCategory
+    } = this.props;
+
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
+
+    if (currentCategory.productCount === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    }
+
+    return (
+      <>
+        {this.renderCount(currentCategory.productCount || productsCount)}
+        <Table hover={true}>
+          <thead>
+            <tr>
+              <th style={{ width: 60 }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
+              </th>
+              <th>{__('Code')}</th>
+              <th>{__('Name')}</th>
+              <th>{__('Type')}</th>
+              <th>{__('Category')}</th>
+              <th>{__('Unit Price')}</th>
+              <th>{__('Tags')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRow()}</tbody>
+        </Table>
+      </>
+    );
+  };
+
+  render() {
+    const {
+      productsCount,
+      queryParams,
       history,
       bulk,
       emptyBulk,
@@ -178,43 +220,6 @@ class List extends React.Component<IProps, State> {
         />
       </BarItems>
     );
-
-    let content = (
-      <>
-        {this.renderCount(currentCategory.productCount || productsCount)}
-        <Table hover={true}>
-          <thead>
-            <tr>
-              <th style={{ width: 60 }}>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Category')}</th>
-              <th>{__('Unit Price')}</th>
-              <th>{__('Tags')}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderRow()}</tbody>
-        </Table>
-      </>
-    );
-
-    if (currentCategory.productCount === 0) {
-      content = (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
 
     const productsMerge = props => {
       return (
@@ -315,17 +320,9 @@ class List extends React.Component<IProps, State> {
           <CategoryList queryParams={queryParams} history={history} />
         }
         footer={<Pagination count={productsCount} />}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={loading}
-            count={productsCount}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
+        content={this.renderContent()}
         transparent={true}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

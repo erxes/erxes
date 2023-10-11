@@ -1,4 +1,4 @@
-import { BoxItem, Content, Reply } from './style';
+import { BoxItem, Content, MailSubject, Reply } from './style';
 
 import Attachments from './Attachments';
 import Button from '@erxes/ui/src/components/Button';
@@ -6,6 +6,7 @@ import { IMessage } from '../../../../types';
 import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import MailHeader from './MailHeader';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
 import { cleanHtml } from '../../../../../settings/integrations/containers/utils';
 
 type Props = {
@@ -15,8 +16,9 @@ type Props = {
   conversationId?: string;
   customerId?: string;
   isLast: boolean;
-  brandId?: string;
   mails: IMessage[];
+  brandId?: string;
+  conversationStatus?: string;
 };
 
 type State = {
@@ -108,7 +110,8 @@ class Mail extends React.PureComponent<Props, State> {
       integrationId,
       customerId,
       brandId,
-      mails
+      mails,
+      conversationStatus
     } = this.props;
 
     return (
@@ -126,6 +129,7 @@ class Mail extends React.PureComponent<Props, State> {
           toggleReply={this.toggleReply}
           integrationId={integrationId}
           refetchQueries={['detailQuery']}
+          conversationStatus={conversationStatus}
           mailData={mailData}
           brandId={brandId}
           mails={mails}
@@ -187,6 +191,17 @@ class Mail extends React.PureComponent<Props, State> {
     return (
       <>
         <BoxItem toggle={this.state.isCollapsed}>
+          {message.mailData && (
+            <Tip text={message.mailData.subject || ''} placement="top-start">
+              <MailSubject>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: message.mailData.subject || ''
+                  }}
+                />
+              </MailSubject>
+            </Tip>
+          )}
           <MailHeader
             message={message}
             isContentCollapsed={this.state.isCollapsed}
