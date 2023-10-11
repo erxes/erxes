@@ -23,10 +23,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import LoadingPost from "@/components/ui/loadingPost"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
+import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
@@ -61,6 +64,7 @@ const FormSchema = z
     departmentIds: z.array(z.string()).optional(),
     branchIds: z.array(z.string()).optional(),
     unitId: z.string().optional(),
+    recipientIds: z.array(z.string()).optional(),
   })
   .refine(
     ({ startDate, endDate }) => {
@@ -86,6 +90,9 @@ const EventForm = ({
     resolver: zodResolver(FormSchema),
   })
 
+  const [visibility, setVisibility] = useState(
+    feed?.eventData?.visibility || "public"
+  )
   const [departmentIds, setDepartmentIds] = useState(feed?.departmentIds || [])
   const [branchIds, setBranchIds] = useState(feed?.branchIds || [])
   const [unitId, setUnitd] = useState(feed?.unitId || "")
@@ -100,6 +107,7 @@ const EventForm = ({
   const [success, setSuccess] = useState(false)
   const [imageUploading, setImageUploading] = useState(false)
   const [attachmentUploading, setAttachmentUploading] = useState(false)
+  const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -140,6 +148,8 @@ const EventForm = ({
       defaultValues = { ...feed }
       date = { ...feed.eventData }
 
+      defaultValues.recipientIds = feed.recipientIds ? [{}] : []
+
       date.startDate = new Date(date.startDate)
 
       date.endDate = new Date(date.endDate)
@@ -159,8 +169,9 @@ const EventForm = ({
         unitId,
         images,
         attachments,
+        recipientIds,
         eventData: {
-          visibility: "public",
+          visibility,
           where: data.where || "",
           startDate: data.startDate,
           endDate: data.endDate,
@@ -203,8 +214,44 @@ const EventForm = ({
       {mutationLoading ? <LoadingPost /> : null}
       {success ? <SuccessPost /> : null}
 
+      <RadioGroup
+        className="flex font-semibold"
+        value={visibility}
+        onValueChange={(value) => setVisibility(value)}
+      >
+        <div>
+          <RadioGroupItem value="public" id="1" className="mr-1" />
+          <Label htmlFor="1">Public</Label>
+        </div>
+
+        <div>
+          <RadioGroupItem value="private" id="2" className="mr-1" />
+          <Label htmlFor="2">Private</Label>
+        </div>
+      </RadioGroup>
+
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
+          {visibility === "private" && (
+            <FormField
+              control={form.control}
+              name="recipientIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select users</FormLabel>
+                  <FormControl>
+                    <SelectUsers
+                      userIds={recipientIds}
+                      onChange={setRecipientIds}
+                      field={field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
           <FormField
             control={form.control}
             name="startDate"
