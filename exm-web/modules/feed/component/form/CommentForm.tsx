@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import {
   ClockIcon,
   HeartIcon,
   MapPinIcon,
+  SendHorizontal,
   UserIcon,
   UsersIcon,
 } from "lucide-react"
@@ -16,32 +18,51 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
-import { Input } from "@/components/ui/input"
+import LoadingCard from "@/components/ui/loading-card"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { toast } from "@/components/ui/use-toast"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
-import { ImageWithPreview } from "@/components/ImageWithPreview"
 
+import { useComments } from "../../hooks/useComment"
 import { useReactionMutaion } from "../../hooks/useReactionMutation"
 import { IFeed } from "../../types"
+import CommentItem from "../CommentItem"
 
 const CommentForm = ({
   feed,
-  currentId,
+  currentUserId,
   emojiReactedUser,
   emojiCount,
 }: {
   feed: IFeed
-  currentId: string
+  currentUserId: string
   emojiReactedUser: string[]
   emojiCount: number
 }) => {
-  const { reactionMutation, commentMutation, deleteComment } =
-    useReactionMutaion()
+  const callBack = (result: string) => {
+    return null
+  }
+
+  const { reactionMutation, commentMutation } = useReactionMutaion({ callBack })
+
+  const { comments, commentsCount, loading, handleLoadMore } = useComments(
+    feed._id
+  )
+
+  const [comment, setComment] = useState("")
 
   const user = feed.createdUser || ({} as IUser)
   const userDetail = user.details
 
-  const idExists = emojiReactedUser.some((item: any) => item._id === currentId)
+  const textareaStyle = {
+    minHeight: "50px",
+    height: `${Math.max(50, comment.split("\n").length * 20)}px`,
+    maxHeight: "300px",
+  }
+
+  const idExists = emojiReactedUser.some(
+    (item: any) => item._id === currentUserId
+  )
 
   const urlRegex = /(https?:\/\/[^\s]+)/g
 
@@ -61,6 +82,33 @@ const CommentForm = ({
       links = matches
     } else {
       updatedDescription = feed.description
+    }
+  }
+
+  if (loading) {
+    return <LoadingCard />
+  }
+
+  const handleInputChange = (e: any) => {
+    setComment(e.target.value)
+  }
+
+  const onSubmit = () => {
+    if (comment) {
+      commentMutation(feed._id, comment)
+    } else {
+      return toast({
+        description: `Please enter comment`,
+      })
+    }
+
+    setComment("")
+  }
+
+  const onEnterPress = (e: any) => {
+    if (e.keyCode === 13 && e.shiftKey === false) {
+      e.preventDefault()
+      onSubmit()
     }
   }
 
@@ -96,6 +144,12 @@ const CommentForm = ({
         </div>
       </div>
     )
+  }
+
+  const renderComments = () => {
+    return comments.map((item: any, i: number) => (
+      <CommentItem key={i} comment={item} currentUserId={currentUserId} />
+    ))
   }
 
   return (
@@ -163,29 +217,37 @@ const CommentForm = ({
           </div>
         </div>
 
-        <div className="flex items-start mt-2">
-          <Image
-            src={userDetail?.avatar || "/user.png"}
-            alt="User Profile"
-            width={100}
-            height={100}
-            className="w-10 h-10 rounded-full shrink-0"
-          />
-          <div className="ml-3 bg-[#F8F9FA] p-1 rounded-lg">
-            <div className="text-sm font-bold text-gray-700">
-              {userDetail?.fullName ||
-                userDetail?.username ||
-                userDetail?.email}
-            </div>
-            <p>sda</p>
-            {/* <div className="text-xs text-[#666] font-normal">
-              {dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")}
-            </div> */}
-          </div>
+        {renderComments()}
+
+        <div className="flex items-center justify-between mt-2">
+          <p
+            className="cursor-pointer text-[#444] hover:underline underline-offset-2"
+            onClick={handleLoadMore}
+          >
+            View more comments
+          </p>
+
+          <p className="text-[#444] mr-2" onClick={handleLoadMore}>
+            {comments.length} / {commentsCount}
+          </p>
         </div>
+
+        {loading && <LoadingCard />}
       </ScrollArea>
 
-      <Input />
+      <div className="flex items-center px-2 rounded-2xl border">
+        <textarea
+          value={comment}
+          onKeyDown={onEnterPress}
+          onChange={handleInputChange}
+          placeholder="Type a message..."
+          style={textareaStyle}
+          className="resize-none rounded-2xl px-4 pt-4 w-full  focus:outline-none"
+        />
+        <label onClick={onSubmit} className="mr-2">
+          <SendHorizontal size={18} />
+        </label>
+      </div>
     </DialogContent>
   )
 }

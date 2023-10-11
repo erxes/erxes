@@ -1,12 +1,12 @@
 import { useQuery } from "@apollo/client"
 
 import { queries } from "../graphql"
-import { IFeed } from "../types"
+import { IComment } from "../types"
 
 export interface IUsePosts {
   loading: boolean
-  feeds: IFeed[]
-  feedsCount: number
+  comments: IComment[]
+  commentsCount: number
   handleLoadMore: () => void
 }
 
@@ -14,35 +14,33 @@ export const useComments = (contentId: string): IUsePosts => {
   const { data, loading, fetchMore } = useQuery(queries.comments, {
     variables: {
       contentId,
-      contentTypes: "exmFeed",
+      contentType: "exmFeed",
       limit: 10,
     },
   })
 
-  console.log(data, "data")
-
   const handleLoadMore = () => {
-    const feedLength = data.exmFeed.list.length || 0
+    const commentLength = data.comments.list.length || 0
 
     fetchMore({
       variables: {
-        skip: feedLength,
+        skip: commentLength,
       },
       updateQuery(prev, { fetchMoreResult }) {
         if (!fetchMoreResult) {
           return prev
         }
 
-        const fetchedExmFeed = fetchMoreResult.exmFeed.list || []
+        const fetchedComment = fetchMoreResult.comments.list || []
 
-        const prevExmFeed = prev.exmFeed.list || []
+        const prevComment = prev.comments.list || []
 
-        if (fetchedExmFeed) {
+        if (fetchedComment) {
           return {
             ...prev,
-            exmFeed: {
-              ...prev.exmFeed,
-              list: [...prevExmFeed, ...fetchedExmFeed],
+            comments: {
+              ...prev.comments,
+              list: [...prevComment, ...fetchedComment],
             },
           }
         }
@@ -50,13 +48,15 @@ export const useComments = (contentId: string): IUsePosts => {
     })
   }
 
-  const feeds = (data || {}).exmFeed ? (data || {}).exmFeed.list : []
-  const feedsCount = (data || {}).exmFeed ? (data || {}).exmFeed.totalCount : 0
+  const comments = (data || {}).comments ? (data || {}).comments.list : []
+  const commentsCount = (data || {}).comments
+    ? (data || {}).comments.totalCount
+    : 0
 
   return {
     loading,
-    feeds,
-    feedsCount,
+    comments,
+    commentsCount,
     handleLoadMore,
   }
 }

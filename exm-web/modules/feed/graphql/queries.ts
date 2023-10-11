@@ -312,11 +312,15 @@ const comments = gql`
     $contentId: String!
     $contentType: ReactionContentType!
     $parentId: String
+    $limit: Int
+    $skip: Int
   ) {
     comments(
       contentId: $contentId
       contentType: $contentType
       parentId: $parentId
+      limit: $limit
+      skip: $skip
     ) {
       list {
         _id
@@ -337,6 +341,7 @@ const comments = gql`
         parentId
         contentId
       }
+      totalCount
     }
   }
 `

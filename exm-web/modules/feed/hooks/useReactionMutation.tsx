@@ -3,13 +3,17 @@ import { useMutation } from "@apollo/client"
 import { mutations } from "../graphql"
 
 export interface IUsePosts {
-  loadingReaction: boolean
+  loading: boolean
   reactionMutation: (contentId: string) => void
   commentMutation: (contentId: string, comment: string) => void
   deleteComment: (contentId: string) => void
 }
 
-export const useReactionMutaion = (): IUsePosts => {
+export const useReactionMutaion = ({
+  callBack,
+}: {
+  callBack: (result: string) => void
+}): IUsePosts => {
   const [reactionAdd, { loading: loadingReaction }] = useMutation(
     mutations.emojiReact,
     {
@@ -46,6 +50,8 @@ export const useReactionMutaion = (): IUsePosts => {
   const deleteComment = (contentId: string) => {
     commentRemove({
       variables: { _id: contentId },
+    }).then(() => {
+      callBack("success")
     })
   }
 
@@ -53,6 +59,6 @@ export const useReactionMutaion = (): IUsePosts => {
     reactionMutation,
     commentMutation,
     deleteComment,
-    loadingReaction,
+    loading: loadingReaction || loadingComment || loadingCommentDelete,
   }
 }

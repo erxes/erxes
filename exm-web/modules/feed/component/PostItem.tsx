@@ -56,6 +56,7 @@ const PostForm = dynamic(() => import("./form/PostForm"))
 const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
+  const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const callBack = (result: string) => {
@@ -78,7 +79,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   } = useFeedMutation({
     callBack,
   })
-  const { reactionMutation } = useReactionMutaion()
+  const { reactionMutation } = useReactionMutaion({
+    callBack,
+  })
 
   if (loading) {
     return <LoadingCard />
@@ -162,19 +165,24 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const renderComment = () => {
     return (
       <>
-        <Dialog open={formOpen} onOpenChange={() => setFormOpen(!formOpen)}>
+        <Dialog
+          open={commentOpen}
+          onOpenChange={() => setCommentOpen(!commentOpen)}
+        >
           <DialogTrigger asChild={true} id="delete-form">
             <div className="cursor-pointer flex items-center pt-2">
               <MessageCircleIcon size={20} className="mr-1" color="black" />
             </div>
           </DialogTrigger>
 
-          <CommentForm
-            feed={feed}
-            currentId={currentUser._id}
-            emojiReactedUser={emojiReactedUser}
-            emojiCount={emojiCount}
-          />
+          {commentOpen && (
+            <CommentForm
+              feed={feed}
+              currentUserId={currentUser._id}
+              emojiReactedUser={emojiReactedUser}
+              emojiCount={emojiCount}
+            />
+          )}
         </Dialog>
       </>
     )
