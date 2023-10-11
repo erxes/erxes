@@ -26,6 +26,7 @@ export const ImageWithPreview = ({
           centerPadding={"60px"}
           slidesToShow={1}
           arrows={true}
+          dots={true}
           responsive={[
             {
               breakpoint: 1024,

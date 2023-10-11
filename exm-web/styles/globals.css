@@ -95,3 +95,17 @@
   border-radius: 999px !important;
   background: black !important;
 }
+
+.slick-dots {
+  bottom: 0 !important;
+}
+
+.slick-dots li {
+  margin: 0 !important;
+  width: 15px !important;
+}
+
+.slick-dots li button:before {
+  color: #fff !important;
+  font-size: 8px !important;
+}
