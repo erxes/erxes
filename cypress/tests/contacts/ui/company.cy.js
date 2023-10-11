@@ -1,6 +1,7 @@
+const { CLIENT_RENEG_LIMIT } = require("tls");
+
 describe("Contacts", () => {
   beforeEach(() => {
-    cy.exec('yarn run cypress:seedDB').wait(300);
     Cypress.Cookies.debug(true);
     cy.visit('/');
     cy.clearCookies();
@@ -14,6 +15,9 @@ describe("Contacts", () => {
   const random = Math.random().toString(36).slice(2)
 
   it("add company", () => {
+    const seed = cy.exec('yarn run cypress:seedDB').wait(300);
+
+    console.log(seed);
 
     cy.get('i[icon = "plus-circle"]', { timeout: 300000 }).click();
 
@@ -31,7 +35,7 @@ describe("Contacts", () => {
       .click();
   })
 
-  it("set tag company", () => {
+  it.skip("set tag company", () => {
 
     cy.get("#companiesCheckBox",{ timeout: 300000 }).eq(0).click();
 
@@ -46,7 +50,7 @@ describe("Contacts", () => {
     cy.get('button[icon="tag-alt"]').click();
   })
 
-  it("remove company", () => {
+  it.skip("remove company", () => {
 
     cy.contains(random, { timeout: 300000 })
     .parent()

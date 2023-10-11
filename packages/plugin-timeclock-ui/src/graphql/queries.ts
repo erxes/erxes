@@ -117,6 +117,7 @@ const schedulesMain = `
             status
             scheduleConfigId
             lunchBreakInMins
+            scheduleId
           }
           scheduleConfigId
           solved
@@ -180,6 +181,7 @@ const requestsMain = `
           absenceTimeType
           requestDates
           totalHoursOfAbsence
+          note
         }
         totalCount
   }

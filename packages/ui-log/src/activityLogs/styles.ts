@@ -34,7 +34,7 @@ const ActivityRow = styledTS<{ isConversation?: boolean }>(styled(WhiteBox))`
   position: relative;
   overflow: visible;
   margin-bottom: ${dimensions.coreSpacing}px;
-  border-radius: 2px;
+  border-radius: 5px;
   height: auto;
   transition:height 0.3s ease-out;
 

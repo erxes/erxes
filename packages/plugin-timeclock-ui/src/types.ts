@@ -17,6 +17,8 @@ export interface ITimeclock {
   inDeviceType?: string;
   outDeviceType?: string;
   branchName?: string;
+
+  shiftNotClosed?: boolean;
 }
 export interface ITimelog {
   _id: string;
@@ -40,6 +42,10 @@ export interface IAbsence {
   absenceTimeType: string;
   requestDates: string[];
   totalHoursOfAbsence: string;
+
+  note?: string;
+
+  absenceType?: string;
 }
 export interface IAbsenceType {
   _id: string;
@@ -138,6 +144,7 @@ export interface ISchedule {
   totalBreakInMins?: number;
 }
 export interface IShift {
+  _id?: string;
   user?: IUser;
   date?: Date;
   shiftStart: Date;
@@ -183,6 +190,7 @@ export interface IScheduleForm {
 }
 
 export interface IScheduleDate {
+  _id?: string;
   overnightShift?: boolean;
 
   scheduleConfigId?: string;
@@ -442,4 +450,5 @@ export type ScheduleMutationResponse = {
   }) => Promise<any>;
 
   scheduleConfigOrderEditMutation: (params: { variables: any }) => Promise<any>;
+  editScheduleMutation: (params: { variables: any }) => Promise<any>;
 };
