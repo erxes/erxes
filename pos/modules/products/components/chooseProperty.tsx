@@ -33,7 +33,7 @@ const ChooseProperty = ({
         value={value}
         onValueChange={handleChange}
       >
-        {properties.sort().map((property: any) => (
+        {properties.map((property: any) => (
           <div key={property}>
             <RadioGroupItem
               value={property}

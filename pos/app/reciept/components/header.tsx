@@ -1,40 +1,53 @@
 import Image from "next/image"
+import { ebarimtConfigAtom } from "@/store/config.store"
 import {
+  customerAtom,
   orderNumberAtom,
   orderUserAtom,
   paidDateAtom,
 } from "@/store/order.store"
 import { format } from "date-fns"
-import { useAtom } from "jotai"
-import { ebarimtConfigAtom } from "@/store/config.store"
+import { useAtomValue } from "jotai"
 
 const EbarimtHeader = () => {
-  const [user] = useAtom(orderUserAtom)
-  const [number] = useAtom(orderNumberAtom)
-  const [paidDate] = useAtom(paidDateAtom)
-  const [ebarimtConfig] = useAtom(ebarimtConfigAtom)
+  const user = useAtomValue(orderUserAtom)
+  const number = useAtomValue(orderNumberAtom)
+  const paidDate = useAtomValue(paidDateAtom)
+  const ebarimtConfig = useAtomValue(ebarimtConfigAtom)
+  const customer = useAtomValue(customerAtom)
 
-  const renderUser = () => {
-    if (!user?.firstName) return
+  const renderPerson = (isCus?: boolean) => {
+    const person = isCus ? customer : user
+    const { _id, primaryPhone, firstName, primaryEmail, lastName } =
+      person || {}
+
+    if (!_id) return
+
+    if (!isCus && !firstName) return
+
     return (
-      <div>
-        <div>Ажилтан: </div>
+      <div className="flex items-center gap-1">
+        <div>{isCus ? "Харилцагч" : "Ажилтан"}:</div>
         <span>
-          {user.firstName} {user.lastName}
+          {firstName || ""} {lastName || ""}
+          {isCus && ` ${primaryPhone || ""} ${primaryEmail}`}
         </span>
       </div>
     )
   }
+
   return (
     <>
       <header className="flex items-center justify-center">
-        <Image
-          src="/erxes-logo.png"
-          alt=""
-          height={32}
-          width={100}
-          className="h-8 w-auto object-contain"
-        />
+        {ebarimtConfig?.uiOptions?.receiptIcon && (
+          <Image
+            src={ebarimtConfig?.uiOptions?.receiptIcon}
+            alt=""
+            height={32}
+            width={100}
+            className="h-8 w-auto object-contain"
+          />
+        )}
         <p className="pl-2 font-bold leading-5">{ebarimtConfig?.name}</p>
       </header>
       <div className="flex items-center justify-between">
@@ -49,7 +62,8 @@ const EbarimtHeader = () => {
         </div>
       </div>
 
-      {renderUser()}
+      {renderPerson()}
+      {renderPerson(true)}
     </>
   )
 }

@@ -153,9 +153,7 @@ const historyDetail = gql`
         primaryEmail
         lastName
       }
-
       description
-
       items {
         ${orderItemFields}
       }
@@ -173,6 +171,7 @@ const ebarimtDetail = gql`
   query EbarimtDetail($_id: String) {
     orderDetail(_id: $_id) {
       ${commonDetailFields}
+      description
       items {
         ${orderItemBaseFields}
       }

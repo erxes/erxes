@@ -32,7 +32,7 @@ export const useTDBTransaction = (options: {
 }) => {
   const { onCompleted, onError } = options
   const paymentType = usePaymentType(BANK_CARD_TYPES.TDB)
-  const { port } = paymentType.config || {}
+  const { port } = paymentType?.config || {}
 
   const TDBTransaction = async (variables: { _id: string; amount: number }) => {
     const { _id, amount } = variables
