@@ -107,6 +107,7 @@ class ModalTrigger extends React.Component<Props, State> {
 
     const onHideHandler = () => {
       this.closeModal();
+
       if (onExit) {
         onExit();
       }
