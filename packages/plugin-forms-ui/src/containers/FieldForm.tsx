@@ -1,3 +1,3 @@
-import FieldForm from '@erxes/ui-forms/src/forms/components/FieldForm';
+import FieldForm from '@erxes/ui-forms/src/forms/containers/FieldForm';
 
 export default FieldForm;
