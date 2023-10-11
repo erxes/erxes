@@ -323,15 +323,18 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('productsConfigs.getConfig', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    const { code } = data;
+  consumeRPCQueue(
+    'products:productsConfigs.getConfig',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { code, defaultValue } = data;
 
-    return {
-      status: 'success',
-      data: await models.ProductsConfigs.getConfig(code)
-    };
-  });
+      return {
+        status: 'success',
+        data: await models.ProductsConfigs.getConfig(code, defaultValue)
+      };
+    }
+  );
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {

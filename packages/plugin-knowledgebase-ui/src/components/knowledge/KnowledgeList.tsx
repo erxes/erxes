@@ -1,13 +1,13 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { Header } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import React from 'react';
-import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
+import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import KnowledgeRow from './KnowledgeRow';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 
 type Props = {
   queryParams: any;
@@ -79,7 +79,7 @@ class KnowledgeList extends React.Component<Props> {
     const { topics, loading } = this.props;
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder>
+      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder={true}>
         <DataWithLoader
           data={this.renderTopics()}
           loading={loading}
