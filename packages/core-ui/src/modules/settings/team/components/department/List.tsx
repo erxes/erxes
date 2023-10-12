@@ -82,13 +82,15 @@ export default function List({ listQuery }: Props) {
     );
   };
 
-  return (
-    <BlockList
-      allDatas={allDepartments}
-      renderForm={renderForm}
-      title="Department"
-      renderEditAction={renderEditAction}
-      renderRemoveAction={renderRemoveAction}
-    />
-  );
+  return null;
+
+  // return (
+  //   <BlockList
+  //     allDatas={allDepartments}
+  //     renderForm={renderForm}
+  //     title="Department"
+  //     renderEditAction={renderEditAction}
+  //     renderRemoveAction={renderRemoveAction}
+  //   />
+  // );
 }
