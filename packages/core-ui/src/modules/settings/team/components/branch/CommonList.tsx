@@ -1,5 +1,5 @@
 import React from 'react';
-import { ModalTrigger, Button, Tip, Icon } from '@erxes/ui/src/components';
+import { Button, Tip, Icon } from '@erxes/ui/src/components';
 import { gql, useMutation } from '@apollo/client';
 import { __ } from 'modules/common/utils';
 import BlockList from '../common/BlockList';
@@ -15,6 +15,7 @@ interface CommonListProps<T> {
   removeMutation: string;
   FormComponent: React.ComponentType<{ data?: Item; closeModal: () => void }>;
   dataKey: string;
+  renderFormTrigger;
 }
 
 const CommonList = <T extends Item>({
@@ -22,27 +23,13 @@ const CommonList = <T extends Item>({
   title,
   removeMutation,
   FormComponent,
-  dataKey
+  dataKey,
+  renderFormTrigger
 }: CommonListProps<T>) => {
   const allItems = listQuery.data[dataKey] || [];
 
   const renderForm = ({ closeModal }) => {
     return <FormComponent closeModal={closeModal} />;
-  };
-
-  const renderFormTrigger = (trigger: React.ReactNode, items: T) => {
-    console.log(items);
-    const content = ({ closeModal }) => (
-      <FormComponent data={items} closeModal={closeModal} />
-    );
-
-    return (
-      <ModalTrigger
-        title={`Edit a ${title}`}
-        trigger={trigger}
-        content={content}
-      />
-    );
   };
 
   const renderEditAction = (item: T) => {
@@ -84,8 +71,6 @@ const CommonList = <T extends Item>({
       </Button>
     );
   };
-
-  //   return null;
 
   return (
     <BlockList
