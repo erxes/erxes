@@ -19,9 +19,17 @@ export const initBrokerErkhet = async () => {
     const { object, old_code, action, api_key, api_secret } = data;
     const models = await generateModels(subdomain);
 
-    const config = await models.Configs.getConfig('ERKHET', {});
+    const configs = await models.Configs.getConfig('erkhetConfig', {});
+    const allConfigs = (Object.values(configs) || []) as any[];
 
-    if (!(config.apiKey === api_key && config.apiSecret === api_secret)) {
+    const config = allConfigs.find(
+      c =>
+        c.apiKey === api_key &&
+        c.apiSecret === api_secret &&
+        c.apiToken === subdomain
+    );
+
+    if (!config) {
       return;
     }
 

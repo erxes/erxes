@@ -15,6 +15,8 @@ export const consumeInventory = async (
     defaultValue: {}
   });
 
+  const brandIds = product.scopeBrandIds;
+
   if ((action === 'update' && old_code) || action === 'create') {
     const productCategory = await sendProductsMessage({
       subdomain,
@@ -22,6 +24,10 @@ export const consumeInventory = async (
       data: { code: doc.category_code },
       isRPC: true
     });
+
+    if (!brandIds.includes(config.brandId)) {
+      brandIds.push(config.brandId);
+    }
 
     const document: any = {
       name: doc.nickname || doc.name,
@@ -39,7 +45,8 @@ export const consumeInventory = async (
       description: eval('`' + config.consumeDescription + '`'),
       status: 'active',
       taxType: doc.vat_type || '',
-      taxCode: doc.vat_type_code || ''
+      taxCode: doc.vat_type_code || '',
+      scopeBrandIds: brandIds
     };
 
     if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {
@@ -73,12 +80,25 @@ export const consumeInventory = async (
       });
     }
   } else if (action === 'delete' && product) {
-    await sendProductsMessage({
-      subdomain,
-      action: 'removeProducts',
-      data: { _ids: [product._id] },
-      isRPC: true
-    });
+    const anotherBrandIds = brandIds.filter(b => b && b !== config.brandId);
+    if (anotherBrandIds.length) {
+      await sendProductsMessage({
+        subdomain,
+        action: 'updateProduct',
+        data: {
+          _id: product._id,
+          doc: { ...product, scopeBrandIds: anotherBrandIds }
+        },
+        isRPC: true
+      });
+    } else {
+      await sendProductsMessage({
+        subdomain,
+        action: 'removeProducts',
+        data: { _ids: [product._id] },
+        isRPC: true
+      });
+    }
   }
 };
 
