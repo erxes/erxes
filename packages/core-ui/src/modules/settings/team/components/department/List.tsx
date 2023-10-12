@@ -1,10 +1,17 @@
 import React from 'react';
 
 import Form from '../../containers/department/Form';
-import Item from '../../containers/department/Item';
 import BlockList from '../common/BlockList';
-import { generateTree } from '../../utils';
-import { EmptyState } from '@erxes/ui/src/components';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from 'modules/common/utils';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Tip from '@erxes/ui/src/components/Tip';
+import Button from '@erxes/ui/src/components/Button';
+import { IDepartment } from '@erxes/ui/src/team/types';
+import { gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { mutations } from '@erxes/ui/src/team/graphql';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 
 type Props = {
   listQuery: any;
@@ -17,25 +24,61 @@ export default function List({ listQuery }: Props) {
     return <Form closeModal={closeModal} />;
   };
 
-  const renderChildren = (parentId?) => {
-    if(allDepartments.length === 0){
-      return <EmptyState icon="ban" text="No department" size="small" />
+  const renderFormTrigger = (
+    trigger: React.ReactNode,
+    department?: IDepartment
+  ) => {
+    const content = ({ closeModal }) => (
+      <Form department={department} closeModal={closeModal} />
+    );
+
+    return (
+      <ModalTrigger title={`Edit a Unit`} trigger={trigger} content={content} />
+    );
+  };
+
+  const renderEditAction = (department: IDepartment) => {
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    return renderFormTrigger(trigger, department);
+  };
+
+  const [deleteMutation] = useMutation(gql(mutations.departmentsRemove));
+
+  const deleteItem = (_id: string, callback: () => void) => {
+    confirm().then(() => {
+      deleteMutation({ variables: { ids: [_id] } })
+        .then(() => {
+          callback();
+
+          Alert.success('Successfully deleted');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
+  const renderRemoveAction = (department: IDepartment) => {
+    if (!deleteItem) {
+      return null;
     }
 
-    return generateTree(
-      allDepartments,
-      parentId,
-      (node, level) => {
-        return (
-          <Item
-            key={node._id}
-            level={level}
-            department={node}
-            refetch={listQuery.refetch}
-          />
-        );
-      },
-      -1
+    return (
+      <Button
+        btnStyle="link"
+        onClick={() => deleteItem(department._id, listQuery.refetch)}
+      >
+        <Tip text={__('Remove')} placement="bottom">
+          <Icon icon="cancel-1" />
+        </Tip>
+      </Button>
     );
   };
 
@@ -43,8 +86,9 @@ export default function List({ listQuery }: Props) {
     <BlockList
       allDatas={allDepartments}
       renderForm={renderForm}
-      renderItems={renderChildren(null)}
       title="Department"
+      renderEditAction={renderEditAction}
+      renderRemoveAction={renderRemoveAction}
     />
   );
 }

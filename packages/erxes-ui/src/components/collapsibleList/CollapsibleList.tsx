@@ -11,11 +11,11 @@ import {
   ToggleIcon
 } from './styles';
 
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { SidebarList } from '../../layout/styles';
 import EmptyState from '../EmptyState';
 import Icon from '../Icon';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import { SidebarList } from '../../layout/styles';
 import Spinner from '../Spinner';
 
 type Props = {
@@ -26,6 +26,9 @@ type Props = {
   linkToText?: string;
   isProductCategory?: boolean;
   queryParams?: any;
+  isTeam?: boolean;
+  queryParamName?: string;
+  level?: number;
 
   // hooks
   onClick?: (items: any[], id: string) => void;
@@ -62,8 +65,10 @@ class CollapsibleList extends React.Component<Props, State> {
   };
 
   isActive = (id: string) => {
-    const { queryParams } = this.props;
-    const currentGroup = queryParams.categoryId || '';
+    const { queryParams, queryParamName } = this.props;
+
+    const paramName = queryParamName || '';
+    const currentGroup = queryParams[paramName] || '';
 
     return currentGroup === id;
   };
@@ -93,9 +98,10 @@ class CollapsibleList extends React.Component<Props, State> {
   renderActions = (item: any) => {
     const { editAction, removeAction, additionalActions } = this.props;
 
-    if (!editAction || !removeAction || !additionalActions) {
-      return null;
-    }
+    // if (!editAction || !removeAction || !additionalActions) {
+    //   console.log('false');
+    //   return null;
+    // }
 
     return (
       <ActionButtons>
@@ -107,7 +113,16 @@ class CollapsibleList extends React.Component<Props, State> {
   };
 
   renderItemName = (item: any) => {
-    const { isProductCategory } = this.props;
+    const { isProductCategory, isTeam } = this.props;
+
+    if (isTeam) {
+      return (
+        <FlexBetween>
+          {item.code} - {item.title}
+          <ItemCount className="product-count">{item.users.length}</ItemCount>
+        </FlexBetween>
+      );
+    }
 
     if (isProductCategory) {
       return (
