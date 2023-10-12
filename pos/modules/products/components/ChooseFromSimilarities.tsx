@@ -41,10 +41,9 @@ const ChooseFromSimilarities = (
       if (products?.length) {
         setChosen(products.find((product: IProduct) => product._id === _id))
       }
-
-      const customFields = products.map(
-        (product: IProduct) => product.customFieldsData
-      )
+      const customFields: any = [...products]
+        .sort((a: IProduct, b: IProduct) => a.unitPrice - b.unitPrice)
+        .map((product: IProduct) => product.customFieldsData)
 
       const getFieldValues = (fieldId: string) => {
         const array: string[] = customFields.map(
