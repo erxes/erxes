@@ -491,8 +491,6 @@ const ImageWrapper = styled.div`
 export {
   MarkdownWrapper,
   FlexItem,
-  ItemCount,
-  FlexBetween,
   ImageWrapper,
   ActionButtons,
   ExpandWrapper,

@@ -42,9 +42,11 @@ export interface ISubUom {
 
 export interface IProduct {
   name: string;
+  shortName?: string;
   categoryId?: string;
   categoryCode?: string;
   type?: string;
+  scopeBrandIds?: string[];
   description?: string;
   barcodes?: string[];
   variants: { [code: string]: { image?: IAttachment; name?: string } };
@@ -78,6 +80,7 @@ export interface IProductCategory {
   name: string;
   code: string;
   order: string;
+  scopeBrandIds?: string[];
   description?: string;
   meta?: string;
   parentId?: string;
@@ -109,6 +112,7 @@ export const productSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
+    shortName: field({ type: String, optional: true, label: 'Short name' }),
     code: field({ type: String, unique: true, label: 'Code' }),
     categoryId: field({ type: String, label: 'Category' }),
     type: field({

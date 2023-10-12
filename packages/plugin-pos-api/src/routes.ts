@@ -8,6 +8,7 @@ import {
   sendProductsMessage,
   sendSyncerkhetMessage
 } from './messageBroker';
+import { USER_FIELDS } from './contants';
 
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };
@@ -21,7 +22,8 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
         query: {
           _id: { $in: pos.adminIds },
           isActive: true
-        }
+        },
+        fields: USER_FIELDS
       },
       isRPC: true
     });
@@ -36,7 +38,8 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
         query: {
           _id: { $in: pos.cashierIds },
           isActive: true
-        }
+        },
+        fields: USER_FIELDS
       },
       isRPC: true
     });
