@@ -9,11 +9,11 @@ interface Item {
   _id: string;
 }
 
-interface CommonListProps<T extends Item> {
+interface CommonListProps<T> {
   listQuery: any;
   title: string;
   removeMutation: string;
-  FormComponent: React.FC<{ closeModal: () => void; data?: T }>;
+  FormComponent: React.ComponentType<{ data?: Item; closeModal: () => void }>;
   dataKey: string;
 }
 
@@ -30,7 +30,8 @@ const CommonList = <T extends Item>({
     return <FormComponent closeModal={closeModal} />;
   };
 
-  const renderFormTrigger = (trigger: React.ReactNode, items?: T) => {
+  const renderFormTrigger = (trigger: React.ReactNode, items: T) => {
+    console.log(items);
     const content = ({ closeModal }) => (
       <FormComponent data={items} closeModal={closeModal} />
     );
