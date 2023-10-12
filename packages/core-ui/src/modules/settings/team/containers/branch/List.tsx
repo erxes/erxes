@@ -7,7 +7,7 @@ import { __ } from 'modules/common/utils';
 import Box from '@erxes/ui/src/components/Box';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { MenuFooter } from 'modules/settings/styles';
-import CommonItem from '../../components/branch/CommonItem';
+import CommonItem from '../../components/common/CommonItem';
 
 export default function ListContainer() {
   const branchListQuery = useQuery(gql(queries.branches), {

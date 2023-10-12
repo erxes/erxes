@@ -1,4 +1,4 @@
-import BranchList from '../containers/branch/List';
+import List from '../containers/branch/List';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
@@ -10,7 +10,7 @@ export default function LeftSidebar({
 }) {
   return (
     <Sidebar hasBorder>
-      <BranchList />
+      <List />
       {loadDynamicComponent('teamMemberSidebarComp', {
         loadingMainQuery
       })}

@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Tip, Icon } from '@erxes/ui/src/components';
 import { gql, useMutation } from '@apollo/client';
 import { __ } from 'modules/common/utils';
-import BlockList from '../common/BlockList';
+import BlockList from './BlockList';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 
 interface Item {
