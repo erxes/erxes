@@ -1,78 +1,44 @@
 import { Document, Schema } from 'mongoose';
-import { field } from './utils';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface IGoal {
-  notifType?: string;
-  title?: string;
-  content?: string;
-  link?: string;
-  contentType?: string;
-  contentTypeId?: string;
-  receiver?: string;
-  action?: string;
+  entity: string;
+  contributionType: string;
+  chooseBoard: string;
+  frequency: string;
+  metric: string;
+  goalType: string;
+  contribution: string;
+  chooseStage: string;
+  startDate: string;
+  endDate: string;
+  target: string;
 }
 
 export interface IGoalDocument extends IGoal, Document {
   _id: string;
-  createdUser?: string;
-  receiver: string;
-  date: Date;
-  isRead: boolean;
+  createdAt: Date;
 }
 
-export const goalSchema = new Schema({
-  _id: field({ pkey: true }),
-  notifType: field({
-    type: String
+export const goalSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    entity: field({ type: String, label: 'Choose Entity' }),
+    contributionType: field({
+      type: String,
+      label: 'Contribution Type'
+    }),
+    chooseBoard: field({ type: String, label: 'Choose Board,Pipeline' }),
+    frequency: field({ type: String, label: 'Frequency' }),
+    metric: field({ type: String, label: 'Metric' }),
+    goalType: field({ type: String, label: 'Choose Goal Type' }),
+    contribution: field({ type: String, label: 'contribution' }),
+    startDate: field({ type: String, lable: 'StartDate Durable' }),
+    endDate: field({ type: String, label: 'EndDate Durable' }),
+    target: field({ type: String, label: 'Target' })
   }),
-  action: field({
-    type: String,
-    optional: true
-  }),
-  title: field({ type: String }),
-  link: field({ type: String }),
-  content: field({ type: String }),
-  createdUser: field({ type: String }),
-  receiver: field({ type: String, index: true }),
-  contentType: field({ type: String, index: true }),
-  contentTypeId: field({ type: String, index: true }),
-  date: field({
-    type: Date,
-    default: Date.now,
-    index: true
-  }),
-  isRead: field({
-    type: Boolean,
-    default: false,
-    index: true
-  })
-});
+  'erxes_goals'
+);
 
-goalSchema.index({
-  receiver: 1,
-  isRead: 1,
-  title: 1,
-  notifType: 1,
-  contentType: 1,
-  date: 1
-});
-
-export interface IConfig {
-  user?: string;
-  notifType?: string;
-  isAllowed?: boolean;
-}
-
-export interface IConfigDocument extends IConfig, Document {
-  _id: string;
-}
-
-export const configSchema = new Schema({
-  _id: field({ pkey: true }),
-  // to whom this config is related
-  user: field({ type: String }),
-  notifType: field({
-    type: String
-  }),
-  isAllowed: field({ type: Boolean })
-});
+// for goals query. increases search speed, avoids in-memory sorting
+goalSchema.index({ type: 1, IGoal: 1, name: 1 });

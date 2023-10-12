@@ -1,33 +1,42 @@
+import * as serverTiming from 'server-timing';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
+import { generateModels } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
-import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-
-export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
+import dashboards from './dashboards';
 
 export let debug;
+export let graphqlPubsub;
+export let mainDb;
+export let serviceDiscovery;
 
 export default {
   name: 'goals',
-  graphql: sd => {
+  hasDashboard: true,
+  graphql: async sd => {
     serviceDiscovery = sd;
     return {
-      typeDefs,
-      resolvers
+      typeDefs: await typeDefs(sd),
+      resolvers: await resolvers(sd)
     };
   },
-  hasSubscriptions: true,
-  segment: {},
-  apolloServerContext: async (context, req) => {
+  apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
 
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
+
+    context.serverTiming = {
+      startTime: res.startTime,
+      endTime: res.endTime,
+      setMetric: res.setMetric
+    };
+
+    return context;
   },
+  middlewares: [(serverTiming as any)()],
 
   onServerInit: async options => {
     mainDb = options.db;
@@ -36,5 +45,7 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-  }
+  },
+
+  meta: { dashboards }
 };

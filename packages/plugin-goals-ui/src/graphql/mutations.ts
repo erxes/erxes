@@ -1,56 +1,80 @@
-const add = `
-  mutation goalssAdd($name: String!, $expiryDate: Date, $typeId:String) {
-    goalssAdd(name:$name, expiryDate: $expiryDate, typeId:$typeId) {
-      name
+const commonFields = `
+    $entity: String
+    $contributionType: String
+    $chooseBoard: String
+    $frequency:String
+    $metric:String
+    $goalType: String
+    $contribution:String
+    $startDate:String
+    $endDate:String
+    $target:String
+`;
+
+const commonVariables = `
+  entity:$entity
+  contributionType:$contributionType
+  chooseBoard:$chooseBoard
+  frequency:$frequency
+  metric:$metric
+  goalType:$goalType
+  contribution:$contribution
+  startDate:$startDate
+  endDate:$endDate
+  target:$target
+
+`;
+
+const goalTypesAdd = `
+  mutation goalsAdd(${commonFields}) {
+    goalsAdd(${commonVariables}) {
       _id
-      expiryDate
-      typeId
+      entity
+      contributionType
+      chooseBoard 
+      frequency
+      metric
+      goalType
+      contribution
+      startDate
+      endDate
+      target
     }
   }
 `;
 
-const remove = `
-  mutation goalssRemove($_id: String!){
-    goalssRemove(_id: $_id)
-  }
-  `;
-
-const edit = `
-  mutation goalssEdit($_id: String!, $name:String, $expiryDate:Date, $checked:Boolean, $typeId:String){
-    goalssEdit(_id: $_id, name: $name, expiryDate:$expiryDate, checked:$checked, typeId:$typeId){
+const goalTypesEdit = `
+  mutation goalsEdit($_id: String!, ${commonFields}) {
+    goalsEdit(_id: $_id, ${commonVariables}) {
       _id
+      entity
+      contributionType
+      chooseBoard 
+      frequency
+      metric
+      goalType
+      contribution
+      startDate
+      endDate
+      target
     }
-  }
-  `;
-
-const addType = `
-  mutation typesAdd($name: String!){
-    goalsTypesAdd(name:$name){
-      name
-      _id
-    }
-  }
-  `;
-
-const removeType = `
-  mutation typesRemove($_id:String!){
-    goalsTypesRemove(_id:$_id)
   }
 `;
 
-const editType = `
-  mutation typesEdit($_id: String!, $name:String){
-    goalsTypesEdit(_id: $_id, name: $name){
-      _id
-    }
+// const goalTypesRemove = `
+//   mutation goalsRemove($_id: String) {
+//     goalsRemove(_id: $_id)
+//   }
+// `;
+
+const goalTypesRemove = `
+  mutation goalsRemove($ goalTypeIds: [String]) {
+    goalsRemove( goalTypeIds: $ goalTypeIds)
   }
 `;
 
 export default {
-  add,
-  remove,
-  edit,
-  addType,
-  removeType,
-  editType
+  goalTypesAdd,
+  goalTypesEdit,
+  goalTypesRemove
 };

@@ -1,56 +1,93 @@
-export interface IGoals {
-  _id: string;
-  name?: string;
+export interface IGoalTypeDoc {
   createdAt?: Date;
-  expiryDate?: Date;
-  totalObjectCount?: number;
-  checked?: boolean;
-  typeId?: string;
-  currentType?: IType;
+  entity: string;
+  contributionType: string;
+  chooseBoard: string;
+  frequency: string;
+  metric: string;
+  goalType: string;
+  contribution: string;
+  chooseStage: string;
+  startDate: string;
+  endDate: string;
+  target: string;
 }
 
-export interface IType {
+export interface IGoalType extends IGoalTypeDoc {
   _id: string;
-  name: string;
 }
 
-// queries
-export type GoalsQueryResponse = {
-  goalss: IGoals[];
-  refetch: () => void;
-  loading: boolean;
-};
-export type TypeQueryResponse = {
-  goalsTypes: IType[];
-  refetch: () => void;
-  loading: boolean;
-};
-
-// mutations
-export type MutationVariables = {
-  _id?: string;
-  name: string;
-  createdAt?: Date;
-  expiryDate?: Date;
-  checked?: boolean;
-  type?: string;
-};
-export type AddMutationResponse = {
-  addMutation: (params: { variables: MutationVariables }) => Promise<any>;
-};
+// mutation types
 
 export type EditMutationResponse = {
-  editMutation: (params: { variables: MutationVariables }) => Promise<any>;
+  goalTypesEdit: (params: { variables: IGoalType }) => Promise<any>;
+};
+
+export type RemoveMutationVariables = {
+  goalTypeIds: string[];
 };
 
 export type RemoveMutationResponse = {
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  goalTypesRemove: (params: {
+    variables: RemoveMutationVariables;
+  }) => Promise<any>;
 };
 
-export type EditTypeMutationResponse = {
-  typesEdit: (params: { variables: MutationVariables }) => Promise<any>;
+export type MergeMutationVariables = {
+  goalTypeIds: string[];
+  goalTypeFields: any;
 };
 
-export type RemoveTypeMutationResponse = {
-  typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
+export type MergeMutationResponse = {
+  goalTypesMerge: (params: {
+    variables: MergeMutationVariables;
+  }) => Promise<any>;
+};
+
+export type AddMutationResponse = {
+  goalTypesAdd: (params: { variables: IGoalTypeDoc }) => Promise<any>;
+};
+
+// query types
+
+export type ListQueryVariables = {
+  page?: number;
+  perPage?: number;
+  ids?: string[];
+  searchValue?: string;
+  sortField?: string;
+  sortDirection?: number;
+};
+
+type ListConfig = {
+  name: string;
+  label: string;
+  order: number;
+};
+
+export type MainQueryResponse = {
+  goalTypesMain: { list: IGoalType[]; totalCount: number };
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GoalTypesQueryResponse = {
+  goalTypes: IGoalType[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ListConfigQueryResponse = {
+  fieldsDefaultColumnsConfig: ListConfig[];
+  loading: boolean;
+};
+
+export type DetailQueryResponse = {
+  goalTypeDetail: IGoalType;
+  loading: boolean;
+};
+
+export type CountQueryResponse = {
+  loading: boolean;
+  refetch: () => void;
 };

@@ -1,17 +1,17 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
-import GoalMutations from './goalMutations';
-import GoalQueries from './goalQueries';
-import Goal from './goal';
 
-const resolvers: any = {
+import { Goals as GoalMutations } from './mutations';
+
+import { Goals as GoalQueries } from './queries';
+
+const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
-  Goal,
   Mutation: {
     ...GoalMutations
   },
   Query: {
     ...GoalQueries
   }
-};
+});
 
 export default resolvers;
