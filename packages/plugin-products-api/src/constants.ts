@@ -1,6 +1,7 @@
 export const PRODUCT_INFO = {
   code: 'Code',
   name: 'Name',
+  shortName: 'Short name',
   type: 'Type',
   category: 'Category',
   vendor: 'Vendor',
@@ -18,6 +19,7 @@ export const PRODUCT_INFO = {
   ALL: [
     { field: 'code', label: 'Code' },
     { field: 'name', label: 'Name' },
+    { field: 'shortName', label: 'Short name' },
     { field: 'type', label: 'Type' },
     { field: 'category', label: 'Category' },
     { field: 'vendor', label: 'Vendor' },

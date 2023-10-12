@@ -131,12 +131,17 @@ export const initBroker = cl => {
 
   consumeRPCQueue(
     'contacts:customers.findActiveCustomers',
-    async ({ subdomain, data: { selector, fields } }) => {
+    async ({ subdomain, data: { selector, fields, skip, limit } }) => {
       const models = await generateModels(subdomain);
 
       return {
         status: 'success',
-        data: await models.Customers.findActiveCustomers(selector, fields)
+        data: await models.Customers.findActiveCustomers(
+          selector,
+          fields,
+          skip,
+          limit
+        )
       };
     }
   );
@@ -155,12 +160,17 @@ export const initBroker = cl => {
 
   consumeRPCQueue(
     'contacts:companies.findActiveCompanies',
-    async ({ subdomain, data: { selector, fields } }) => {
+    async ({ subdomain, data: { selector, fields, skip, limit } }) => {
       const models = await generateModels(subdomain);
 
       return {
         status: 'success',
-        data: await models.Companies.findActiveCompanies(selector, fields)
+        data: await models.Companies.findActiveCompanies(
+          selector,
+          fields,
+          skip,
+          limit
+        )
       };
     }
   );

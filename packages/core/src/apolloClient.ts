@@ -38,39 +38,81 @@ export const initApolloServer = async (app, httpServer) => {
       }
     ]),
     // for graceful shutdowns
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
   });
 
   await apolloServer.start();
 
-  app.use('/graphql', expressMiddleware(apolloServer, {
-    context: async ({ req, res }) => {
-      const subdomain = getSubdomain(req);
-      const models = await generateModels(subdomain);
+  app.use(
+    '/graphql',
+    expressMiddleware(apolloServer, {
+      context: async ({ req, res }) => {
+        const subdomain = getSubdomain(req);
+        const models = await generateModels(subdomain);
 
-      let user: any = null;
+        let user: any = null;
 
-      if (req.headers.user) {
-        const userJson = Buffer.from(req.headers.user, 'base64').toString(
-          'utf-8'
-        );
-        user = JSON.parse(userJson);
-      }
+        if (req.headers.user) {
+          const userJson = Buffer.from(req.headers.user, 'base64').toString(
+            'utf-8'
+          );
+          user = JSON.parse(userJson);
+        }
 
-      const dataLoaders: IDataLoaders = generateAllDataLoaders(models);
+        const dataLoaders: IDataLoaders = generateAllDataLoaders(models);
 
-      const requestInfo = {
-        secure: req.secure,
-        cookies: req.cookies
-      };
+        const requestInfo = {
+          secure: req.secure,
+          cookies: req.cookies
+        };
 
-      if (USE_BRAND_RESTRICTIONS !== 'true') {
+        if (USE_BRAND_RESTRICTIONS !== 'true') {
+          return {
+            brandIdSelector: {},
+            singleBrandIdSelector: {},
+            userBrandIdsSelector: {},
+            docModifier: doc => doc,
+            commonQuerySelector: {},
+            user,
+            res,
+            requestInfo,
+            dataLoaders,
+            subdomain,
+            models
+          };
+        }
+
+        let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+        let brandIds = [];
+        let brandIdSelector = {};
+        let commonQuerySelector = {};
+        let commonQuerySelectorElk;
+        let userBrandIdsSelector = {};
+        let singleBrandIdSelector = {};
+
+        if (user) {
+          brandIds = user.brandIds || [];
+
+          if (scopeBrandIds.length === 0) {
+            scopeBrandIds = brandIds;
+          }
+
+          if (!user.isOwner && scopeBrandIds.length > 0) {
+            brandIdSelector = { _id: { $in: scopeBrandIds } };
+            commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
+            commonQuerySelectorElk = { terms: { scopeBrandIds } };
+            userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
+            singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
+          }
+        }
+
         return {
-          brandIdSelector: {},
-          singleBrandIdSelector: {},
-          userBrandIdsSelector: {},
-          docModifier: doc => doc,
-          commonQuerySelector: {},
+          brandIdSelector,
+          singleBrandIdSelector,
+          docModifier: doc => ({ ...doc, scopeBrandIds }),
+          commonQuerySelector,
+          commonQuerySelectorElk,
+          userBrandIdsSelector,
           user,
           res,
           requestInfo,
@@ -79,47 +121,8 @@ export const initApolloServer = async (app, httpServer) => {
           models
         };
       }
-
-      let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
-      let brandIds = [];
-      let brandIdSelector = {};
-      let commonQuerySelector = {};
-      let commonQuerySelectorElk;
-      let userBrandIdsSelector = {};
-      let singleBrandIdSelector = {};
-
-      if (user) {
-        brandIds = user.brandIds || [];
-
-        if (scopeBrandIds.length === 0) {
-          scopeBrandIds = brandIds;
-        }
-
-        if (!user.isOwner && scopeBrandIds.length > 0) {
-          brandIdSelector = { _id: { $in: scopeBrandIds } };
-          commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
-          commonQuerySelectorElk = { terms: { scopeBrandIds } };
-          userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
-          singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
-        }
-      }
-
-      return {
-        brandIdSelector,
-        singleBrandIdSelector,
-        docModifier: doc => ({ ...doc, scopeBrandIds }),
-        commonQuerySelector,
-        commonQuerySelectorElk,
-        userBrandIdsSelector,
-        user,
-        res,
-        requestInfo,
-        dataLoaders,
-        subdomain,
-        models
-      };
-    }
-  }));
+    })
+  );
 
   return apolloServer;
 };

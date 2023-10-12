@@ -28,7 +28,12 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
 
   fillSearchText(doc: ICompany): string;
 
-  findActiveCompanies(selector, fields?): Promise<ICompanyDocument[]>;
+  findActiveCompanies(
+    selector,
+    fields?,
+    skip?,
+    limit?
+  ): Promise<ICompanyDocument[]>;
   getCompany(_id: string): Promise<ICompanyDocument>;
 
   // createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
@@ -200,11 +205,14 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       return doc;
     }
 
-    public static async findActiveCompanies(selector, fields) {
+    public static async findActiveCompanies(selector, fields?, skip?, limit?) {
       return models.Companies.find(
         { ...selector, status: { $ne: 'deleted' } },
         fields
-      ).lean();
+      )
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .lean();
     }
 
     /**

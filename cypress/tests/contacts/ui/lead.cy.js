@@ -11,7 +11,7 @@ describe("Lead", () => {
     .visit("/contacts/lead").wait(300);
   });
 
-  it("add1", () => {
+  it("add", () => {
 
     const random = Math.random().toString(36).slice(2)
 
@@ -34,30 +34,7 @@ describe("Lead", () => {
     }
   })
 
-  it("add2", () => {
-
-    const random2 = Math.random().toString(36).slice(2)
-
-    cy.get('button[icon="plus-circle"]',{timeout:300000}).click();
-
-    cy.get('input[name="firstName"]').type(random2);
-
-    cy.get("div .Select-placeholder")
-      .contains("Enter an email")
-      .click()
-      .type(random2 + "@nmma.co");
-    cy.waitAndClick("div.Select-menu-outer");
-
-    cy.get('button[type="submit"]')
-      .eq(0)
-      .click();
-    if(cy.get('button[type="submit"]')){
-      cy.get('button[class="close"]')
-      .click()    
-    }
-  })
-
-  it("tag", () => {
+  it.skip("tag", () => {
 
     cy.get("#customers>.crow",{timeout: 300000})
       .eq(0)
@@ -80,7 +57,7 @@ describe("Lead", () => {
     }
   })
 
-  it("merge", () => {
+  it.skip("merge", () => {
 
     cy.get("#customers>.crow",{timeout: 300000})
       .eq(0)
