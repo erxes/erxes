@@ -119,7 +119,7 @@ function GenerateAddFormFields(props: Props) {
           if (field.field === 'departmentIds') {
             return (
               <FormGroup>
-                <ControlLabel>Branches</ControlLabel>
+                <ControlLabel>Departments</ControlLabel>
                 <SelectDepartments
                   label="Choose department"
                   name="departments"
