@@ -60,7 +60,8 @@ type State = {
   attachments?: IAttachment[];
   description?: string;
   tagIds?: string[];
-
+  branchIds?: string[];
+  departmentIds?: string[];
   relationData?: any;
 };
 
@@ -120,7 +121,9 @@ class AddForm extends React.Component<Props, State> {
       description,
       attachments,
       tagIds,
-      relationData
+      relationData,
+      departmentIds,
+      branchIds
     } = this.state;
 
     let { customFieldsData } = this.state;
@@ -229,6 +232,14 @@ class AddForm extends React.Component<Props, State> {
 
     if (relationData) {
       doc.relationData = relationData;
+    }
+
+    if (branchIds) {
+      doc.branchIds = branchIds;
+    }
+
+    if (departmentIds) {
+      doc.departmentIds = departmentIds;
     }
 
     // before save, disable save button

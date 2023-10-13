@@ -407,15 +407,20 @@ export const initBroker = async options => {
   consumeRPCQueue('core:users.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { query, sort = {} } = data;
+    const { query, sort = {}, fields, skip, limit } = data;
 
     return {
       status: 'success',
-      data: await models.Users.find({
-        ...query,
-        role: { $ne: USER_ROLES.SYSTEM }
-      })
+      data: await models.Users.find(
+        {
+          ...query,
+          role: { $ne: USER_ROLES.SYSTEM }
+        },
+        fields
+      )
         .sort(sort)
+        .skip(skip || 0)
+        .limit(limit || 0)
         .lean()
     };
   });
@@ -457,11 +462,11 @@ export const initBroker = async options => {
   consumeRPCQueue('core:branches.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { query } = data;
+    const { query, fields } = data;
 
     return {
       status: 'success',
-      data: await models.Branches.find(query).lean()
+      data: await models.Branches.find(query, fields).lean()
     };
   });
 

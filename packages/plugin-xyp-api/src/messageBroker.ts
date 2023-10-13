@@ -61,7 +61,7 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await models.XypData.findOne({
-        contentType: 'car',
+        contentType: data?.contentType,
         contentTypeId: data?._id
       })
     };

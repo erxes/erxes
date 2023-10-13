@@ -65,8 +65,8 @@ export const types = `
     _id: String!
     code: String
     primaryPhone: String
-    firstName: String
     primaryEmail: String
+    firstName: String
     lastName: String
     primaryAddress: JSON
     addresses: [JSON]
