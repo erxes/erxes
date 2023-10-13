@@ -13,7 +13,7 @@ const useKhanCard = (args?: { skipCheck?: boolean }) => {
   const [loading, setLoading] = useState(true)
   const [isAlive, setIsAlive] = useState(false)
 
-  const { type } = usePaymentType(BANK_CARD_TYPES.KHANBANK)
+  const { type } = usePaymentType(BANK_CARD_TYPES.KHANBANK) || {}
 
   const checkIsAlive = (options?: {
     onCompleted?: () => void

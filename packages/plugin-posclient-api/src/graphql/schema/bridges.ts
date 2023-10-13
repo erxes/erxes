@@ -3,39 +3,16 @@ export const types = `
     _id: String!
     code: String
     primaryPhone: String
-    firstName: String
     primaryEmail: String
+    firstName: String
     lastName: String
     primaryAddress: JSON
     addresses: [JSON]
   }
 `;
 
-const queryParams = `
-  page: Int
-  perPage: Int
-  segment: String
-  type: String
-  tag: String
-  ids: [String]
-  excludeIds: Boolean
-  searchValue: String
-  autoCompletion: Boolean
-  autoCompletionType: String
-  brand: String
-  integration: String
-  form: String
-  startDate: String
-  endDate: String
-  leadStatus: String
-  sortField: String
-  sortDirection: Int
-  sex: Int
-  birthDate: Date
-`;
-
 export const queries = `
-  poscCustomers(${queryParams}): [PosCustomer]
+  poscCustomers(searchValue: String!, type: String, perPage: Int, page: Int): [PosCustomer]
   poscCustomerDetail(_id: String!, type: String): PosCustomer
 `;
 

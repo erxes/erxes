@@ -9,11 +9,11 @@ interface IStock {
 
 const Stocks = ({ stocks }: { stocks: IStock[] }) => {
   const renderItem = (item: any, idx: number) => {
-    const { unitPrice, totalAmount, name, qty } = item
+    const { unitPrice, totalAmount, name, qty, shortName } = item
     return (
       <div key={idx}>
         <div className="flex items-start leading-none">
-          <div className="w-5/12">{name}</div>
+          <div className="w-5/12">{shortName || name}</div>
           <div className="w-3/12 text-center">{formatNum(unitPrice)}</div>
           <div className="w-1/12 text-right">{formatNum(qty)}</div>
           <div className="w-3/12 text-right">{formatNum(totalAmount)}</div>

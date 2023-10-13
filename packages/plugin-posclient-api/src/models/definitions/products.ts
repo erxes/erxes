@@ -37,6 +37,7 @@ export interface IPrice {
 
 export interface IProduct extends IProductCommonFields {
   categoryId?: string;
+  shortName?: string;
   type?: string;
   barcodes?: string[];
   barcodeDescription?: string;
@@ -94,6 +95,7 @@ export const productSchema = schemaWrapper(
     _id: field({ pkey: true }),
     categoryId: field({ type: String, label: 'Category' }),
     name: field({ type: String, label: 'Name' }),
+    shortName: field({ type: String, optional: true, label: 'Short name' }),
     code: field({ type: String, label: 'Code' }),
     barcodes: field({
       type: [String],

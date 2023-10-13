@@ -5,6 +5,7 @@ import CompanyQueries from './companyQueries';
 import CompanyMutations from './companyMutations';
 import Customer from './customer';
 import Company from './company';
+import ContactQueries from './contactQueries';
 
 const resolvers: any = {
   ...customScalars,
@@ -16,7 +17,8 @@ const resolvers: any = {
   },
   Query: {
     ...CustomerQueries,
-    ...CompanyQueries
+    ...CompanyQueries,
+    ...ContactQueries
   }
 };
 

@@ -95,10 +95,6 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
   render() {
     const { history, conversationsQuery } = this.props;
 
-    if (conversationsQuery.loading) {
-      return <Spinner />;
-    }
-
     const conversations = conversationsQuery.conversations || [];
 
     // on change conversation
