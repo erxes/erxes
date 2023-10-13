@@ -23,22 +23,11 @@ type Props = {
   onLoadMore: (skip: number) => void;
 };
 
-const Amount = styledTS<{ showAll: boolean }>(styled.ul)`
+const Amount = styled.ul`
   list-style: none;
   overflow: hidden;
   margin: 0 0 5px;
   padding: 0 16px;
-
-  ${props =>
-    props.showAll === false
-      ? `
-  height: 20px;
-  overflow: hidden;
-  transition: all 300ms ease-out;
-  `
-      : `
-  height: unset;
-  `}
 
   li {
     padding-right: 5px;
@@ -139,8 +128,12 @@ class DealColumn extends React.Component<Props, {}> {
       );
     });
 
-    const detail = () => {
+    const renderDetail = () => {
       if (!deals || deals.length === 0) {
+        return null;
+      }
+
+      if (localStorage.getItem('showSalesDetail') === 'false') {
         return null;
       }
 
@@ -159,28 +152,25 @@ class DealColumn extends React.Component<Props, {}> {
     };
 
     return (
-      <Amount
-        showAll={
-          localStorage.getItem('showSalesDetail') === 'true' ? true : false
-        }
-      >
-        {detail()}
-        {totalForType.map(type => {
-          if (type.name === 'In progress') {
-            return null;
-          }
+      <Amount>
+        {renderDetail()}
+        {localStorage.getItem('showSalesDetail') === 'true' &&
+          totalForType.map(type => {
+            if (type.name === 'In progress') {
+              return null;
+            }
 
-          const percent = type.name === 'Won' ? '100%' : '0%';
+            const percent = type.name === 'Won' ? '100%' : '0%';
 
-          return (
-            <li key={type._id}>
-              <span>
-                {type.name} ({percent}):{' '}
-              </span>
-              {this.renderAmount(type.currencies)}
-            </li>
-          );
-        })}
+            return (
+              <li key={type._id}>
+                <span>
+                  {type.name} ({percent}):{' '}
+                </span>
+                {this.renderAmount(type.currencies)}
+              </li>
+            );
+          })}
       </Amount>
     );
   }

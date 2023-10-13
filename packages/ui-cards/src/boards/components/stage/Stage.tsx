@@ -358,11 +358,8 @@ export default class Stage extends React.Component<Props, State> {
         ? '0%'
         : stage.probability;
 
-    const detail = () => {
-      if (
-        window.location.pathname.includes('deal') &&
-        Object.keys(stage.amount).length > 0
-      ) {
+    const renderDetail = () => {
+      if (window.location.pathname.includes('deal')) {
         const forecast = () => {
           if (!probability) {
             return null;
@@ -377,16 +374,14 @@ export default class Stage extends React.Component<Props, State> {
         };
 
         return (
-          <StageInfo
-            showAll={
-              localStorage.getItem('showSalesDetail') === 'true' ? true : false
-            }
-          >
-            <div>
-              <span>{__('Total') + ':'}</span>
-              {renderAmount(stage.amount)}
-            </div>
-            {forecast()}
+          <StageInfo>
+            {Object.keys(stage.amount).length > 0 && (
+              <div>
+                <span>{__('Total') + ':'}</span>
+                {renderAmount(stage.amount)}
+              </div>
+            )}
+            {localStorage.getItem('showSalesDetail') === 'true' && forecast()}
           </StageInfo>
         );
       }
@@ -407,7 +402,7 @@ export default class Stage extends React.Component<Props, State> {
                   </div>
                   {this.renderCtrl()}
                 </StageTitle>
-                {detail()}
+                {renderDetail()}
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>

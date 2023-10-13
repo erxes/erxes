@@ -415,6 +415,8 @@ class MainActionBar extends React.Component<Props, State> {
 
     const type = options.type;
 
+    localStorage.setItem('showSalesDetail', `false`);
+
     const actionBarLeft = (
       <BarItems>
         <HeaderLabel>
