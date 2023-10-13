@@ -30,18 +30,40 @@ const ShortcutItem = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
   border-bottom: 1px solid ${colors.borderDarker};
 
   p {
     color: ${colors.colorCoreBlack};
     margin: 0;
+    display: flex;
+    align-items: center;
   }
 
-  span {
+  i {
     color: ${colors.colorCoreGray};
-    margin-left: auto;
+    margin-right: ${dimensions.unitSpacing}px;
   }
+
+  > span {
+    margin-left: auto;
+    display: flex;
+    align-items: flex-start;
+
+    > span {
+      margin: 0 ${dimensions.unitSpacing - 5}px;
+    }
+  }
+`;
+
+const ItemBlock = styled.div`
+  background: ${colors.borderPrimary};
+  padding: 2px 5px;
+  min-width: ${dimensions.coreSpacing}px;
+  text-align: center;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid ${colors.shadowPrimary};
 `;
 
 type Props = {
@@ -60,28 +82,64 @@ class InboxShortcuts extends React.Component<Props> {
         </ShortcutHeaderWrapper>
         <div>
           <ShortcutItem>
-            <p>Resolve or open conversation</p>
-            <span>ctrl + x</span>
+            <p>
+              <Icon size={16} icon="comment-check" />
+              Resolve or Open conversation
+            </p>
+            <span>
+              <ItemBlock>ctrl</ItemBlock> <span>+</span>{' '}
+              <ItemBlock>x</ItemBlock>
+            </span>
           </ShortcutItem>
           <ShortcutItem>
-            <p>Assign member to conversation</p>
-            <span>ctrl + a</span>
+            <p>
+              <Icon size={16} icon="user-plus" />
+              Assign member to Conversation
+            </p>
+            <span>
+              <ItemBlock>ctrl</ItemBlock> <span>+</span>{' '}
+              <ItemBlock>a</ItemBlock>
+            </span>
           </ShortcutItem>
           <ShortcutItem>
-            <p>Activate or deactivate internal notes</p>
-            <span>ctrl + i</span>
+            <p>
+              <Icon size={16} icon="file-bookmark-alt" />
+              Activate or Deactivate internal notes
+            </p>
+            <span>
+              <ItemBlock>ctrl</ItemBlock> <span>+</span>{' '}
+              <ItemBlock>i</ItemBlock>
+            </span>
           </ShortcutItem>
           <ShortcutItem>
-            <p>Tag conversation</p>
-            <span>ctrl + 1</span>
+            <p>
+              <Icon size={16} icon="tag-alt" />
+              Tag Conversation
+            </p>
+            <span>
+              <ItemBlock>ctrl</ItemBlock> <span>+</span>{' '}
+              <ItemBlock>1</ItemBlock>
+            </span>
           </ShortcutItem>
           <ShortcutItem>
-            <p>Convert conversation</p>
-            <span>ctrl + 2</span>
+            <p>
+              <Icon size={16} icon="comments" />
+              Convert Conversation
+            </p>
+            <span>
+              <ItemBlock>ctrl</ItemBlock> <span>+</span>{' '}
+              <ItemBlock>2</ItemBlock>
+            </span>
           </ShortcutItem>
           <ShortcutItem>
-            <p>Open response template</p>
-            <span>ctrl + 3</span>
+            <p>
+              <Icon size={16} icon="file-landscape" />
+              Open Response template
+            </p>
+            <span>
+              <ItemBlock>ctrl</ItemBlock> <span>+</span>{' '}
+              <ItemBlock>3</ItemBlock>
+            </span>
           </ShortcutItem>
         </div>
       </ShortcutModal>
