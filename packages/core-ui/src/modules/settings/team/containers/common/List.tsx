@@ -28,33 +28,41 @@ export default function ListContainer() {
     return <Spinner />;
   }
 
+  const RenderErrorBox = ({ error, title, name }) => (
+    <Box isOpen={true} title={__(title)} name={name}>
+      <MenuFooter>
+        <ErrorMsg>{error.message}</ErrorMsg>
+      </MenuFooter>
+    </Box>
+  );
+
   if (branchListQuery.error) {
     return (
-      <Box isOpen={true} title={__('Branch')} name="showBranch">
-        <MenuFooter>
-          <ErrorMsg>{branchListQuery.error.message}</ErrorMsg>
-        </MenuFooter>
-      </Box>
-    );
-  }
-
-  if (departmentListQuery.error) {
-    return (
-      <Box isOpen={true} title={__('Department')} name="showDepartment">
-        <MenuFooter>
-          <ErrorMsg>{departmentListQuery.error?.message || 'Error'}</ErrorMsg>
-        </MenuFooter>
-      </Box>
+      <RenderErrorBox
+        error={branchListQuery.error}
+        title={'Branch'}
+        name="showBranch"
+      />
     );
   }
 
   if (unitListQuery.error) {
     return (
-      <Box isOpen={true} title={__('Unit')} name="showUnit">
-        <MenuFooter>
-          <ErrorMsg>{unitListQuery.error.message}</ErrorMsg>
-        </MenuFooter>
-      </Box>
+      <RenderErrorBox
+        error={unitListQuery.error}
+        title={'Unit'}
+        name="showUnit"
+      />
+    );
+  }
+
+  if (departmentListQuery.error) {
+    return (
+      <RenderErrorBox
+        error={departmentListQuery.error}
+        title={'Department'}
+        name="showDepartment"
+      />
     );
   }
 
