@@ -32,8 +32,7 @@ const AdditionalMenu = styled.div`
   margin-bottom: 3px;
 
   i {
-    position: absolute;
-    bottom: -12px;
+    margin-right: ${dimensions.unitSpacing}px;
   }
 `;
 
