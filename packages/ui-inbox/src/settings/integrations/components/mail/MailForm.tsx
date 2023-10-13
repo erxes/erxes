@@ -42,6 +42,7 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
 const Signature = asyncComponent(() =>
   import(
@@ -109,7 +110,9 @@ type State = {
   showReply: string;
   isRepliesRetrieved: boolean;
 };
-
+{
+  /* @ts-ignore*/
+}
 class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -819,8 +822,39 @@ class MailForm extends React.Component<Props, State> {
   renderBody() {
     return (
       <MailEditorWrapper>
-        {this.renderShowReplies()}
-        <EditorCK
+        {/* {this.renderShowReplies()} */}
+
+        <RichTextEditor>
+          <RichTextEditor.Toolbar sticky stickyOffset={60}>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Bold />
+              <RichTextEditor.Italic />
+              {/* <RichTextEditor.Underline /> */}
+              <RichTextEditor.Strikethrough />
+            </RichTextEditor.ControlsGroup>
+
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.H1 />
+              <RichTextEditor.H2 />
+              <RichTextEditor.H3 />
+            </RichTextEditor.ControlsGroup>
+
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.BulletList />
+              <RichTextEditor.OrderedList />
+            </RichTextEditor.ControlsGroup>
+
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.AlignLeft />
+              <RichTextEditor.AlignRight />
+              <RichTextEditor.AlignCenter />
+              <RichTextEditor.AlignJustify />
+            </RichTextEditor.ControlsGroup>
+          </RichTextEditor.Toolbar>
+          <RichTextEditor.Content />
+        </RichTextEditor>
+
+        {/* <EditorCK
           toolbar={MAIL_TOOLBARS_CONFIG}
           removePlugins="elementspath"
           content={this.state.content}
@@ -830,7 +864,7 @@ class MailForm extends React.Component<Props, State> {
           autoGrow={true}
           autoGrowMinHeight={300}
           autoGrowMaxHeight={300}
-        />
+        /> */}
       </MailEditorWrapper>
     );
   }

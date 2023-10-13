@@ -7,6 +7,13 @@
     "@nateradebaugh/react-datetime": "4.0.0-rc.10",
     "@types/styled-components": "^3.0.0",
     "ckeditor4-react": "^1.0.0",
+    "@tiptap/pm": "^2.1.11",
+    "@tiptap/react": "^2.1.11",
+    "@tiptap/starter-kit": "^2.1.11",
+    "@tiptap/extension-text-style": "^2.1.12",
+    "@tiptap/extension-bullet-list": "^2.1.12",
+    "@tiptap/extension-list-item": "^2.1.12",
+    "@tiptap/extension-text-align": "^2.1.12",
     "color": "3.1.2",
     "dayjs": "^1.8.15",
     "draft-js": "^0.10.5",
@@ -36,6 +43,6 @@
     "styled-components-ts": "^0.0.14",
     "validator": "12.1.0",
     "xss": "1.0.14",
-    "video.js":"^8.5.2"
+    "video.js": "^8.5.2"
   }
 }

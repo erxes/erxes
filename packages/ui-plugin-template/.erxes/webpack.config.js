@@ -4,8 +4,8 @@ const path = require("path");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+//   .BundleAnalyzerPlugin;
 const { MFLiveReloadPlugin } = require("@module-federation/fmr");
 
 const configs = require("./plugin-src/configs");
@@ -215,7 +215,7 @@ module.exports = (env, args) => {
             standalone: false, // false uses chrome extention
           })
         : false,
-      new BundleAnalyzerPlugin()
+      // new BundleAnalyzerPlugin()
     ].filter(Boolean),
   };
 };
