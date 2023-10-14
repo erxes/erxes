@@ -68,7 +68,7 @@ class EmailTemplate extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { emailTemplates } = this.props;
+    const { emailTemplates = [] } = this.props;
 
     if (!emailTemplates || emailTemplates.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
@@ -82,9 +82,12 @@ class EmailTemplate extends React.Component<Props, State> {
   }
 
   renderLoadMore() {
-    const { totalCount, emailTemplates, loading } = this.props;
+    const { totalCount, emailTemplates = [], loading } = this.props;
 
-    if (totalCount === emailTemplates.length || emailTemplates.length < 20) {
+    if (
+      totalCount === (emailTemplates || []).length ||
+      (emailTemplates || []).length < 20
+    ) {
       return null;
     }
 
