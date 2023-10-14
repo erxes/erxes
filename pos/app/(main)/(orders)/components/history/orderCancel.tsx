@@ -43,7 +43,17 @@ export const OrderCancelTrigger = ({
   )
 }
 
-const OrderCancel = ({ _id, number }: { _id: string; number: string }) => {
+const OrderCancel = ({
+  _id,
+  number,
+  refetchQueries,
+  onCompleted,
+}: {
+  _id: string
+  number: string
+  refetchQueries?: string[]
+  onCompleted?: () => void
+}) => {
   const [open, changeOpen] = useAtom(openCancelDialogAtom)
   const { onError } = useToast()
 
@@ -53,12 +63,13 @@ const OrderCancel = ({ _id, number }: { _id: string; number: string }) => {
     },
     onCompleted() {
       changeOpen(null)
+      !!onCompleted && onCompleted()
     },
     onError(error) {
       onError(error)
       changeOpen(null)
     },
-    refetchQueries: ["OrdersHistory"],
+    refetchQueries: refetchQueries || ["OrdersHistory"],
   })
 
   return (

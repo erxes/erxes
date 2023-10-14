@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react"
-import { activeCategoryAtom, productCountAtom, searchAtom } from "@/store"
+import {
+  activeCategoryAtom,
+  modeAtom,
+  productCountAtom,
+  searchAtom,
+} from "@/store"
 import { similarityConfigAtom } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { IProduct, IUseProducts } from "@/types/product.types"
-import { getMode } from "@/lib/utils"
 
 import { queries } from "../graphql"
 
@@ -21,6 +25,10 @@ export const useProducts = (props?: {
   const [searchValue, setSearchValue] = useState(search)
   const categoryId = useAtomValue(activeCategoryAtom)
   const setProductCount = useSetAtom(productCountAtom)
+  const mode = useAtomValue(modeAtom)
+
+  const isCafe = mode === "coffee-shop"
+  const isKiosk = mode === "kiosk"
 
   const { data, loading, fetchMore } = useQuery(queries.products, {
     variables: {
@@ -28,9 +36,8 @@ export const useProducts = (props?: {
       categoryId: categoryId,
       searchValue: searchValue,
       page: 1,
-      groupedSimilarity:
-        getMode() === "coffee-shop" ? groupedSimilarity : undefined,
-      isKiosk: getMode() === "kiosk" ? true : undefined,
+      groupedSimilarity: isCafe ? groupedSimilarity : undefined,
+      isKiosk: isKiosk ? true : undefined,
     },
     skip,
     onCompleted(data) {
@@ -42,8 +49,8 @@ export const useProducts = (props?: {
     variables: {
       categoryId,
       searchValue,
-      groupedSimilarity: getMode() === "coffee-shop" ? "config" : null,
-      isKiosk: getMode() === "kiosk" ? true : undefined,
+      groupedSimilarity: isCafe ? groupedSimilarity : null,
+      isKiosk: isKiosk ? true : undefined,
     },
     onCompleted(data) {
       setProductCount((data || {}).poscProductsTotalCount || 0)

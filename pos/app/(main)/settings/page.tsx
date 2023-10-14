@@ -5,6 +5,7 @@ import ChooseTheme from "@/modules/settings/ChooseTheme"
 import GolomtConfig from "@/modules/settings/components/GolomtConfig"
 import Grid from "@/modules/settings/components/Grid"
 import ProductSimilarityConfig from "@/modules/settings/components/ProductSimilarityConfig"
+import ScrollerWidth from "@/modules/settings/components/ScrollerWidth"
 import StatusExplain from "@/modules/settings/components/StatusExplain"
 import { configAtom, currentUserAtom } from "@/store/config.store"
 import { useAtom } from "jotai"
@@ -40,6 +41,7 @@ const Settings = () => {
       <Grid config={config} />
       <GolomtConfig paymentTypes={config.paymentTypes} />
       <ProductSimilarityConfig />
+      <ScrollerWidth />
       <StatusExplain />
     </>
   )

@@ -5,8 +5,8 @@ import "@/styles/globals.css"
 import dynamic from "next/dynamic"
 import CheckAuth from "@/modules/auth/checkAuth"
 import Configs from "@/modules/auth/configs"
-
-import { getMode } from "@/lib/utils"
+import { modeAtom } from "@/store"
+import { useAtomValue } from "jotai"
 
 const EventListener = dynamic(() => import("@/modules/kiosk/EventListener"))
 
@@ -15,12 +15,13 @@ interface LayoutProps {
 }
 
 export default function RootLayout({ children }: LayoutProps) {
+  const mode = useAtomValue(modeAtom)
   return (
     <Configs>
       <CheckAuth>
         <div className="relative flex h-screen flex-col">{children}</div>
       </CheckAuth>
-      {getMode() === "kiosk" && (
+      {mode === "kiosk" && (
         <>
           <style>
             {`

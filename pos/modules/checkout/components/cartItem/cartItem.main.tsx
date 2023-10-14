@@ -4,7 +4,7 @@ import { useSetAtom } from "jotai"
 import { ChevronDown, Minus, Plus } from "lucide-react"
 
 import { OrderItem } from "@/types/order.types"
-import { formatNum } from "@/lib/utils"
+import { cn, formatNum } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -33,11 +33,12 @@ const CartItem = ({
   _id,
   description,
   attachment,
-}: OrderItem) => {
+  idx,
+}: OrderItem & { idx: number }) => {
   const changeItem = useSetAtom(updateCartAtom)
 
   return (
-    <Collapsible>
+    <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
       <motion.div
         variants={itemVariants}
         animate="animate"
@@ -48,7 +49,7 @@ const CartItem = ({
           duration: 0.3,
         }}
       >
-        <div className="flex items-stretch overflow-hidden">
+        <div className={"flex items-stretch overflow-hidden"}>
           <Label
             className="flex w-1/12 flex-col justify-between pt-4 pb-3"
             htmlFor={_id}
