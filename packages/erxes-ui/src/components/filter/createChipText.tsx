@@ -1,11 +1,17 @@
+import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
+import { FilterLoading } from '../../styles/main';
 
 const ChipText = (props: any) => {
   const { query } = props;
 
   if (query.loading) {
-    return '-';
+    return <FilterLoading />;
   }
+
+  // if (query.loading) {
+  //   return '-';
+  // }
 
   const brand = query.brandDetail;
   const channel = query.channelDetail;
