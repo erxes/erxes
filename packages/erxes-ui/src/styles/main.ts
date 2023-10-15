@@ -508,12 +508,13 @@ const spin = keyframes`
 `;
 
 const FilterLoading = styled.div`
-  border: 2px solid #f3f3f3;
+  border: 2px solid #adaee0;
   border-top: 2px solid #3498db;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  animation: ${spin} 2s linear infinite;
+  margin: 0px 30px 0px 30px;
+  width: 18px;
+  height: 18px;
+  animation: ${spin} 1s linear infinite;
 `;
 
 export {
