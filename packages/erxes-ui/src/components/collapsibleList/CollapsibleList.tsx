@@ -98,11 +98,6 @@ class CollapsibleList extends React.Component<Props, State> {
   renderActions = (item: any) => {
     const { editAction, removeAction, additionalActions } = this.props;
 
-    // if (!editAction || !removeAction || !additionalActions) {
-    //   console.log('false');
-    //   return null;
-    // }
-
     return (
       <ActionButtons>
         {editAction && editAction(item || ({} as any))}
