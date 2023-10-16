@@ -135,8 +135,6 @@ class Home extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{queryParams.type || 'All integrations'}</Title>}
             right={this.renderSearch()}
-            withMargin
-            wide
             background="colorWhite"
           />
         }
@@ -149,7 +147,6 @@ class Home extends React.Component<Props, State> {
         }
         hasBorder={true}
         transparent={true}
-        noPadding
       />
     );
   }

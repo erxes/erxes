@@ -33,7 +33,6 @@ export interface IEmailDeliveryModel extends Model<IEmailDeliveriesDocument> {
   updateEmailDeliveryStatus(_id: string, status: string): Promise<void>;
 }
 
-
 export const EMAIL_DELIVERY_STATUS = {
   PENDING: 'pending',
   RECEIVED: 'received',

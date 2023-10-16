@@ -64,7 +64,6 @@ class DetailInfo extends React.PureComponent<Props> {
             email={email}
             status={status}
             customerId={this.props.customer._id}
-            showDefault={true}
           />
         </SidebarCounter>
       </li>

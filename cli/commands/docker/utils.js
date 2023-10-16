@@ -366,7 +366,7 @@ const deployDbs = async () => {
     }
 
     dockerComposeConfig.services.redis = {
-      image: 'redis:5.0.5',
+      image: 'redis:7.2.1',
       command: `redis-server --appendonly yes --requirepass ${configs.redis.password}`,
       ports: [`${REDIS_PORT}:6379`],
       networks: ['erxes'],
@@ -559,6 +559,10 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       }
     };
 
+    dockerComposeConfig.services["plugin-core-api"].deploy = deploy;
+    if(configs.core && Number(configs.core.replicas)) {
+      dockerComposeConfig.services["plugin-core-api"].deploy.replicas = Number(configs.core.replicas);
+    }
     dockerComposeConfig.services.coreui.deploy = deploy;
     dockerComposeConfig.services.gateway.deploy = deploy;
   }

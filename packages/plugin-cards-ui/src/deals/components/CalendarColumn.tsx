@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import options from '@erxes/ui-cards/src/deals/options';
 import { IDeal, IDealTotalAmount } from '@erxes/ui-cards/src/deals/types';
 import Deal from '@erxes/ui-cards/src/deals/components/DealItem';
+import styledTS from 'styled-components-ts';
 
 type Props = {
   deals: IDeal[];
@@ -22,15 +23,30 @@ type Props = {
   onLoadMore: (skip: number) => void;
 };
 
-const Amount = styled.ul`
+const Amount = styledTS<{ showAll: boolean }>(styled.ul)`
   list-style: none;
   overflow: hidden;
   margin: 0 0 5px;
   padding: 0 16px;
 
+  ${props =>
+    props.showAll === false
+      ? `
+  height: 20px;
+  overflow: hidden;
+  transition: all 300ms ease-out;
+  `
+      : `
+  height: unset;
+  `}
+
   li {
     padding-right: 5px;
     font-size: 12px;
+
+    > div {
+      float: right;
+    }
 
     span {
       font-weight: bold;
@@ -45,9 +61,25 @@ const Amount = styled.ul`
       content: '';
     }
   }
+
+  div {
+    display: inline;
+  }
 `;
 
 class DealColumn extends React.Component<Props, {}> {
+  componentDidMount() {
+    window.addEventListener('storageChange', this.handleStorageChange);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('storageChange', this.handleStorageChange);
+  }
+
+  handleStorageChange = () => {
+    this.forceUpdate();
+  };
+
   onLoadMore = () => {
     const { deals, onLoadMore } = this.props;
     onLoadMore(deals.length);
@@ -69,7 +101,7 @@ class DealColumn extends React.Component<Props, {}> {
 
   renderAmount(currencies: [{ name: string; amount: number }]) {
     return currencies.map((total, index) => (
-      <div key={index} style={{ display: 'inline' }}>
+      <div key={index}>
         {total.amount.toLocaleString()}{' '}
         <span>
           {total.name}
@@ -80,19 +112,102 @@ class DealColumn extends React.Component<Props, {}> {
   }
 
   renderTotalAmount() {
-    const { dealTotalAmounts } = this.props;
+    const { dealTotalAmounts, deals } = this.props;
     const totalForType = dealTotalAmounts || [];
 
-    return (
-      <Amount>
-        {totalForType.map(type => (
-          <li key={type._id}>
-            <span>{type.name}: </span>
-            {this.renderAmount(type.currencies)}
+    const forecastArray = [];
+    const totalAmountArray = [];
+
+    dealTotalAmounts.map(total =>
+      total.currencies.map(currency => totalAmountArray.push(currency))
+    );
+
+    this.props.deals.map(deal => {
+      const probability =
+        deal.stage.probability === 'Won'
+          ? '100%'
+          : deal.stage.probability === 'Lost'
+          ? '0%'
+          : deal.stage.probability;
+
+      Object.keys(deal.amount).map(key =>
+        forecastArray.push({
+          name: key,
+          amount: deal.amount[key] as number,
+          probability: parseInt(probability, 10)
+        })
+      );
+    });
+
+    const detail = () => {
+      if (!deals || deals.length === 0) {
+        return null;
+      }
+
+      return (
+        <>
+          <li>
+            <span>Total ({deals.length}): </span>
+            {this.renderPercentedAmount(totalAmountArray)}
           </li>
-        ))}
+          <li>
+            <span>Forecasted: </span>
+            {this.renderPercentedAmount(forecastArray)}
+          </li>
+        </>
+      );
+    };
+
+    return (
+      <Amount
+        showAll={
+          localStorage.getItem('showSalesDetail') === 'true' ? true : false
+        }
+      >
+        {detail()}
+        {totalForType.map(type => {
+          if (type.name === 'In progress') {
+            return null;
+          }
+
+          const percent = type.name === 'Won' ? '100%' : '0%';
+
+          return (
+            <li key={type._id}>
+              <span>
+                {type.name} ({percent}):{' '}
+              </span>
+              {this.renderAmount(type.currencies)}
+            </li>
+          );
+        })}
       </Amount>
     );
+  }
+
+  renderPercentedAmount(currencies) {
+    const sumByName = {};
+
+    currencies.forEach(item => {
+      const { name, amount, probability = 100 } = item;
+      if (sumByName[name] === undefined) {
+        sumByName[name] = (amount * probability) / 100;
+      } else {
+        sumByName[name] += (amount * probability) / 100;
+      }
+    });
+
+    return Object.keys(sumByName).map((key, index) => (
+      <div key={index}>
+        {sumByName[key].toLocaleString(undefined, {
+          maximumFractionDigits: 0
+        })}{' '}
+        <span>
+          {key}
+          {index < Object.keys(sumByName).length - 1 && ','}&nbsp;
+        </span>
+      </div>
+    ));
   }
 
   renderFooter() {

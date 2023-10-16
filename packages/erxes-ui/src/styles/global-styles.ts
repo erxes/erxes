@@ -512,6 +512,14 @@ a:hover {
   display: none !important;
 }
 
+#chatGroupMembers-popover {
+  padding: 10px 0;
+  z-index: 50;
+}
+#chatGroupMembers-popover .arrow {
+  display: none;
+}
+
 /* select  */
 
 .Select-control {
@@ -722,6 +730,20 @@ a:hover {
 }
 
 /* react datetime */
+
+.rdt input {
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none !important;
+  border-bottom: 1px solid;
+  border-color: #DDD;
+  background: transparent;
+}
+
+.rdt input:hover {
+  border-color: #AAA;
+}
 
 .rdtPicker {
   box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15) !important;

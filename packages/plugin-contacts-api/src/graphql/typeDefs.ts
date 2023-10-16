@@ -12,7 +12,9 @@ import {
   mutations as CompanyMutations
 } from './company';
 
-const typeDefs = async (serviceDiscovery) =>  {
+import { types as contactsTypes, queries as contactQueries } from './contacts';
+
+const typeDefs = async serviceDiscovery => {
   const tagsEnabled = await serviceDiscovery.isEnabled('tags');
   const inboxEnabled = await serviceDiscovery.isEnabled('inbox');
 
@@ -37,30 +39,34 @@ const typeDefs = async (serviceDiscovery) =>  {
     }
   
     ${
-      tagsEnabled ? 
-      `
+      tagsEnabled
+        ? `
         extend type Tag @key(fields: "_id") {
           _id: String! @external
         }
-      ` : ''
+      `
+        : ''
     }
 
     ${
-      inboxEnabled ? 
-      `
+      inboxEnabled
+        ? `
         extend type Integration @key(fields: "_id") {
           _id: String! @external
         }
-      ` : ''
+      `
+        : ''
     }
 
 
     ${customerTypes(tagsEnabled, inboxEnabled)}
     ${companyTypes(tagsEnabled)}
+    ${contactsTypes}
     
     extend type Query {
       ${CustomerQueries}
       ${CompanyQueries}
+      ${contactQueries}
     }
 
     extend type Mutation {
@@ -68,6 +74,6 @@ const typeDefs = async (serviceDiscovery) =>  {
       ${CompanyMutations}
     }
   `;
-}
+};
 
 export default typeDefs;

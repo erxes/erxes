@@ -11,13 +11,14 @@ import { removeParams, setParams } from '../../utils/router';
 
 interface IProps extends IRouterProps {
   queryParams?: any;
+  filterTitle?: string; // Define the prop here
 }
 
 const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, history }: IProps) {
+function Filter({ queryParams = {}, filterTitle, history }: IProps) {
   const onClickClose = paramKey => {
     for (const key of paramKey) {
       removeParams(history, key);
@@ -65,12 +66,12 @@ function Filter({ queryParams = {}, history }: IProps) {
       const id = queryParams[paramKey];
 
       let graphqlQuery = gql`
-          query ${type}Detail($id: String!) {
-            ${type}Detail(_id: $id) {
-              ${fields}
-            }
+        query ${type}Detail($id: String!) {
+          ${type}Detail(_id: $id) {
+            ${fields}
           }
-        `;
+        }
+      `;
 
       if (type === 'forum') {
         graphqlQuery = gql`
@@ -138,9 +139,6 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('awaitingResponse', true, 'Awaiting Response')}
       {renderFilterWithData('brandId', 'brand')}
       {renderFilterParam('integrationType', false)}
-      {renderFilterParam('departmentId', true, 'Department')}
-      {renderFilterParam('unitId', true, 'Unit')}
-      {renderFilterParam('branchId', true, 'Branch')}
       {renderFilterWithData('tag', 'tag')}
       {renderFilterWithData('segment', 'segment')}
       {renderFilterParam('segmentData', true, 'Temporary segment')}
@@ -148,6 +146,10 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterWithData('brand', 'brand')}
       {renderFilterWithDate()}
       {renderFilterWithData('form', 'form', '_id title')}
+      {renderFilterWithData('branchId', 'branch', '_id title')}
+      {renderFilterWithData('departmentId', 'department', '_id title')}
+      {renderFilterWithData('unitId', 'unit', '_id title')}
+      {renderFilterParam('groupId', true, filterTitle)}
     </Filters>
   );
 }

@@ -1,4 +1,4 @@
-import { Divider, SidebarContent } from '../styles';
+import { Divider, SidebarContent, SidebarFooter } from '../styles';
 import { IField, ILocationOption } from '@erxes/ui/src/types';
 import { IFieldGroup, LogicParams } from '../types';
 
@@ -193,13 +193,13 @@ class GenerateGroup extends React.Component<Props, State> {
     this.setState({ data, editing: true });
   };
 
-  renderButtons() {
+  renderButtons(isModal?: boolean) {
     if (!this.state.editing) {
       return null;
     }
 
     return (
-      <Sidebar.Footer>
+      <SidebarFooter>
         <Button
           btnStyle="simple"
           onClick={this.cancelEditing}
@@ -207,10 +207,19 @@ class GenerateGroup extends React.Component<Props, State> {
         >
           Discard
         </Button>
-        <Button btnStyle="success" onClick={this.save} icon="check-circle">
-          Save
-        </Button>
-      </Sidebar.Footer>
+        <div>
+          {this.props.fieldGroup.isMultiple && isModal && (
+            <Tip placement="top" text="Add Group Input">
+              <Button btnStyle="primary" onClick={this.onAddGroupInput}>
+                <Icon icon="plus-circle" />
+              </Button>
+            </Tip>
+          )}
+          <Button btnStyle="success" onClick={this.save} icon="check-circle">
+            Save
+          </Button>
+        </div>
+      </SidebarFooter>
     );
   }
 
@@ -441,28 +450,13 @@ class GenerateGroup extends React.Component<Props, State> {
     });
   }
 
-  modalContent = (fieldGroup: IFieldGroup) => {
-    let extraButtons = <></>;
-    if (fieldGroup.isMultiple) {
-      extraButtons = (
-        <Tip placement="top" text="Add Group Input">
-          <button onClick={this.onAddGroupInput}>
-            <Icon icon="plus-circle" />
-          </button>
-        </Tip>
-      );
-    }
+  modalContent = () => {
     return (
-      <Box
-        extraButtons={extraButtons}
-        title={fieldGroup.name}
-        name="showCustomFields"
-        isOpen={true}
-      >
+      <>
         {this.renderContent()}
-        {this.renderButtons()}
+        {this.renderButtons(true)}
         {this.renderChildGroups()}
-      </Box>
+      </>
     );
   };
 
@@ -489,12 +483,12 @@ class GenerateGroup extends React.Component<Props, State> {
         <>
           {
             <ModalTrigger
-              title={'Edit'}
+              title={fieldGroup.name}
               trigger={
                 <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
               }
-              size="xl"
-              content={() => this.modalContent(fieldGroup)}
+              content={() => this.modalContent()}
+              paddingContent="less-padding"
             />
           }
           <Tip placement="top" text="Add Group Input">
@@ -508,12 +502,12 @@ class GenerateGroup extends React.Component<Props, State> {
     if (!fieldGroup.isMultiple) {
       extraButtons = (
         <ModalTrigger
-          title={'Edit'}
+          title={fieldGroup.name}
           trigger={
             <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
           }
-          size="xl"
-          content={() => this.modalContent(fieldGroup)}
+          content={() => this.modalContent()}
+          paddingContent="less-padding"
         />
       );
     }
