@@ -22,28 +22,23 @@ export const changeCartItem = (
 ): OrderItem[] => {
   const { _id, count, ...rest } = product
 
+  const currentItem = cart.find((item) => item._id === _id) || ({} as OrderItem)
+  const exceptCurrent = cart.filter((item) => item._id !== _id)
+
   const fieldKeys = Object.keys(rest)
   if (fieldKeys.length) {
     for (let key = 0; key < fieldKeys.length; key++) {
       const value = rest[fieldKeys[key] as keyof typeof rest]
       if (typeof value !== "undefined") {
-        return cart.map((item) =>
-          item._id === _id ? { ...item, [fieldKeys[key]]: value } : item
-        )
+        return [{ ...currentItem, [fieldKeys[key]]: value }, ...exceptCurrent]
       }
     }
   }
 
   if (typeof count !== "undefined") {
-    const newCart = cart.map((item) =>
-      item._id === _id ? { ...item, count } : item
-    )
+    if (count === -1) return exceptCurrent
 
-    if (count === -1) {
-      return newCart.filter((item) => item._id !== _id)
-    }
-
-    return newCart
+    return [{ ...currentItem, count }, ...exceptCurrent]
   }
 
   return cart

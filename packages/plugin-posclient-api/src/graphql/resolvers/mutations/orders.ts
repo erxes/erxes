@@ -157,7 +157,7 @@ const ordersAdd = async (
   }
 ) => {
   const { totalAmount, type, customerId, customerType, branchId, isPre } = doc;
-  if (!posUser && !doc.customerId) {
+  if (!posUser && !doc.customerId && customerType !== 'visitor') {
     throw new Error('order has not owner');
   }
 

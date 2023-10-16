@@ -1,12 +1,13 @@
 "use client"
 
-import { getMode } from "@/lib/utils"
+import { modeAtom } from "@/store"
+import { useAtomValue } from "jotai"
 
 import Kiosk from "./layout.kiosk"
 import Main from "./layout.main"
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const mode = getMode()
+  const mode = useAtomValue(modeAtom)
   return (
     <>
       {["main", "coffee-shop"].includes(mode) && <Main>{children}</Main>}
