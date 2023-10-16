@@ -9,10 +9,6 @@ const ChipText = (props: any) => {
     return <FilterLoading />;
   }
 
-  // if (query.loading) {
-  //   return '-';
-  // }
-
   const brand = query.brandDetail;
   const channel = query.channelDetail;
   const tag = query.tagDetail;
