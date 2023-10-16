@@ -30,6 +30,7 @@ import {
   Templates,
   TemplateInfo
 } from '@erxes/ui-emailtemplates/src/styles';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -68,6 +69,28 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
+  renderEditAction = object => {
+    const { save } = this.props;
+
+    const content = props => {
+      return this.renderForm({ ...props, object, save });
+    };
+
+    return (
+      <ModalTrigger
+        enforceFocus={false}
+        title="Edit"
+        size="lg"
+        trigger={
+          <div>
+            <Icon icon="edit" /> Edit
+          </div>
+        }
+        content={content}
+      />
+    );
+  };
+
   renderDisableAction = object => {
     const { changeStatus } = this.props;
     const _id = object._id;
@@ -92,9 +115,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
 
     return (
       <Button onClick={onClick} btnStyle="link">
-        <Tip text={__(text)} placement="top">
-          <Icon icon={icon} />
-        </Tip>
+        <Icon icon={icon} /> {text}
       </Button>
     );
   };
@@ -182,32 +203,40 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   //   );
   // };
 
-  renderRow = ({ objects }) => {
+  removeTemplate = object => {
+    this.props.remove(object._id);
+  };
+
+  renderBlock = ({ objects }) => {
     return objects.map((object, index) => {
       return (
         <Template key={index} isLongName={object.name > 46}>
           <h5>{object.brand.name}</h5>
           <h5>{object.name}</h5>
           <TemplateBox>
-            <Actions></Actions>
+            <Actions>
+              {this.renderEditAction(object)}
+              <div onClick={this.removeTemplate.bind(this, object)}>
+                <Icon icon="cancel-1" /> Delete
+              </div>
+              {this.renderDisableAction(object)}
+            </Actions>
             <IframePreview>
-              <iframe srcDoc={object.content} />
+              <iframe title="response-iframe" srcDoc={object.content} />
             </IframePreview>
           </TemplateBox>
-          <TemplateInfo>
-            <p>CreatedAt</p>
-            <p>16 Oct 2023</p>
-          </TemplateInfo>
-          <TemplateInfo>
-            <p>Created by</p>
-            <p>erxes Inc</p>
-          </TemplateInfo>
         </Template>
       );
     });
   };
 
+  // renderContent = () => {
+  //   return <Templates>{this.renderBlock(objects:objects)}</Templates>;
+  // };
+
   render() {
+    console.log(this.props.renderButton);
+
     return (
       <List
         formTitle="New response template"
@@ -229,7 +258,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         }
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
-        renderContent={this.renderRow}
+        renderContent={this.renderBlock}
         size="lg"
         {...this.props}
         center={true}
