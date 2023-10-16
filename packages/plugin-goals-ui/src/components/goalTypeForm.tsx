@@ -20,11 +20,28 @@ import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import dayjs from 'dayjs';
+import { IBoard, IPipeline, IStage } from '../types';
+import { SidebarFilters } from '../styles';
+import Select from 'react-select-plus';
+import { selectOptions } from '../utils';
+import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
+const { Section } = Wrapper.Sidebar;
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
   closeModal: () => void;
   selectedMembers: string[];
+  boards: IBoard[];
+  pipelines: IPipeline[];
+  stages: IStage[];
+  boardId?: string;
+  pipelineId?: string;
+  stageId?: string;
+  onChangeBoard: (value: string) => void;
+  onChangePipeline: (value: string) => void;
+  onChangeStage: (value: string, callback?: () => void) => void;
+  callback?: () => void;
+  translator?: (key: string, options?: any) => string;
 };
 
 type State = {
@@ -111,14 +128,54 @@ class GoalTypeForm extends React.Component<Props, State> {
   onChangeEndDate = value => {
     this.setState({ endDate: value });
   };
+  renderOptions = option => {
+    return (
+      <div className="simple-option">
+        <span>{option.label}</span>
+      </div>
+    );
+  };
+  renderSelect(placeholder, value, onChange, options) {
+    return (
+      <Select
+        isRequired={true}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        optionRenderer={this.renderOptions}
+        options={options}
+        clearable={false}
+      />
+    );
+  }
   renderContent = (formProps: IFormProps) => {
     const goalType = this.props.goalType || ({} as IGoalType);
     const { closeModal, renderButton, selectedMembers } = this.props;
     const { values, isSubmitted } = formProps;
-
+    console.log(selectedMembers, 'selectedMembers');
+    const {
+      boards,
+      pipelines,
+      stages,
+      boardId,
+      pipelineId,
+      stageId,
+      onChangeBoard,
+      onChangePipeline,
+      onChangeStage,
+      callback
+    } = this.props;
+    const __ = (key: string, options?: any) => {
+      const { translator } = this.props;
+      if (!translator) {
+        return key;
+      }
+      return translator(key, options);
+    };
     const onChange = items => {
       this.setState({ selectedMembers: items });
     };
+
     return (
       <>
         <ScrollWrapper>
@@ -143,32 +200,42 @@ class GoalTypeForm extends React.Component<Props, State> {
                   ))}
                 </FormControl>
               </FormGroup>
-
               <FormGroup>
-                <ControlLabel required={true}>
-                  {__('contribution type')}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="contributionType"
-                  componentClass="select"
-                  value={this.state.contributionType}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {CONTRIBUTION.map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
+                <ControlLabel>Board</ControlLabel>
+                {this.renderSelect(
+                  __('Choose a board'),
+                  boardId,
+                  board => onChangeBoard(board.value),
+                  selectOptions(boards)
+                )}
               </FormGroup>
 
-              {this.renderFormGroup('choose board,pipeline', {
+              <FormGroup>
+                <ControlLabel>Pipeline</ControlLabel>
+                {this.renderSelect(
+                  __('Choose a pipeline'),
+                  pipelineId,
+                  pipeline => onChangePipeline(pipeline.value),
+                  selectOptions(pipelines)
+                )}
+              </FormGroup>
+
+              <FormGroup>
+                <ControlLabel>Stage</ControlLabel>
+                {this.renderSelect(
+                  __('Choose a stage'),
+
+                  stageId,
+                  stage => onChangeStage(stage.value, callback),
+                  selectOptions(stages)
+                )}
+              </FormGroup>
+
+              {/* {this.renderFormGroup('choose board,pipeline', {
                 ...formProps,
                 name: 'chooseBoard',
                 defaultValue: goalType.chooseBoard || ''
-              })}
+              })} */}
               <FormGroup>
                 <ControlLabel required={true}>{__('frequency')}</ControlLabel>
                 <FormControl
@@ -234,9 +301,9 @@ class GoalTypeForm extends React.Component<Props, State> {
                   ))}
                 </FormControl>
               </FormGroup>
+
               <FormGroup>
                 <ControlLabel>contribution</ControlLabel>
-
                 <SelectTeamMembers
                   label="Choose members"
                   name="selectedMembers"
@@ -250,11 +317,30 @@ class GoalTypeForm extends React.Component<Props, State> {
                 name: 'contribution',
                 defaultValue: goalType.contribution || ''
               })} */}
-              {this.renderFormGroup('choose stage', {
+              {/* {this.renderFormGroup('choose stage', {
                 ...formProps,
                 name: 'chooseStage',
                 defaultValue: goalType.chooseStage || ''
-              })}
+              })} */}
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('contribution type')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="contributionType"
+                  componentClass="select"
+                  value={this.state.contributionType}
+                  required={true}
+                  onChange={this.onChangeField}
+                >
+                  {CONTRIBUTION.map((typeName, index) => (
+                    <option key={index} value={typeName}>
+                      {typeName}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
               <FormGroup>
                 <ControlLabel>{__('metric')}:</ControlLabel>
                 <FormControl
@@ -272,22 +358,25 @@ class GoalTypeForm extends React.Component<Props, State> {
                   ))}
                 </FormControl>
               </FormGroup>
-              {this.renderFormGroup('target', {
-                ...formProps,
-                name: 'target',
-                type: 'number',
-                defaultValue: goalType.target || 0
-              })}
-
-              {this.renderFormGroup('specific period goals', {
-                ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'period',
-                checked: this.state.period,
-                onChange: this.onChangeField
-              })}
+              <FormGroup>
+                {this.renderFormGroup('target', {
+                  ...formProps,
+                  name: 'target',
+                  type: 'number',
+                  defaultValue: goalType.target || 0
+                })}
+              </FormGroup>
+              <FormGroup>
+                {this.renderFormGroup('specific period goals', {
+                  ...formProps,
+                  className: 'flex-item',
+                  type: 'checkbox',
+                  componentClass: 'checkbox',
+                  name: 'period',
+                  checked: this.state.period,
+                  onChange: this.onChangeField
+                })}
+              </FormGroup>
             </FormColumn>
           </FormWrapper>
         </ScrollWrapper>

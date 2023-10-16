@@ -22,6 +22,7 @@ import { IGoalType } from '../types';
 import GoalTypeRow from './goalTypeRow';
 import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
+import { IBoard, IPipeline, IStage } from '../types';
 interface IProps extends IRouterProps {
   goalTypes: IGoalType[];
   loading: boolean;
@@ -39,6 +40,15 @@ interface IProps extends IRouterProps {
   ) => void;
   history: any;
   queryParams: any;
+  boards: IBoard[];
+  pipelines: IPipeline[];
+  stages: IStage[];
+  boardId?: string;
+  pipelineId?: string;
+  stageId?: string;
+  onChangeBoard: (value: string) => void;
+  onChangePipeline: (value: string) => void;
+  onChangeStage: (value: string, callback?: () => void) => void;
 }
 
 type State = {
@@ -149,7 +159,7 @@ class GoalTypesList extends React.Component<IProps, State> {
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('Add goalType')}
+        {__('Add Goal')}
       </Button>
     );
 
@@ -180,6 +190,7 @@ class GoalTypesList extends React.Component<IProps, State> {
     }
 
     const goalTypeForm = props => {
+      console.log(this.props, 'asdiojoads');
       return <GoalTypeForm {...props} queryParams={queryParams} />;
     };
 
