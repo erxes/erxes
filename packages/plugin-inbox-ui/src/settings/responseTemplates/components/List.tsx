@@ -28,7 +28,8 @@ import {
   Template,
   TemplateBox,
   Templates,
-  TemplateInfo
+  TemplateInfo,
+  RowTitle
 } from '@erxes/ui-emailtemplates/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
@@ -207,12 +208,14 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     this.props.remove(object._id);
   };
 
-  renderBlock = ({ objects }) => {
-    return objects.map((object, index) => {
+  renderBlock = () => {
+    return this.props.objects.map((object, index) => {
       return (
-        <Template key={index} isLongName={object.name > 46}>
-          <h5>{object.brand.name}</h5>
-          <h5>{object.name}</h5>
+        <Template key={index} isLongName={object.name > 5}>
+          <RowTitle>
+            <h5>{object.brand.name}</h5>
+            <h5>{object.name}</h5>
+          </RowTitle>
           <TemplateBox>
             <Actions>
               {this.renderEditAction(object)}
@@ -230,9 +233,9 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     });
   };
 
-  // renderContent = () => {
-  //   return <Templates>{this.renderBlock(objects:objects)}</Templates>;
-  // };
+  renderContent = () => {
+    return <Templates>{this.renderBlock()}</Templates>;
+  };
 
   render() {
     console.log(this.props.renderButton);
@@ -258,11 +261,9 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         }
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
-        renderContent={this.renderBlock}
+        renderContent={this.renderContent}
         size="lg"
         {...this.props}
-        center={true}
-        hasBorder={false}
       />
     );
   }

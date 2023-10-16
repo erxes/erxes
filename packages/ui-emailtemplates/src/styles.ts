@@ -147,6 +147,12 @@ const Template = styledTS<{ isLongName?: boolean }>(styled.div)`
   }
 `;
 
+const RowTitle = styled.h5`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
 const TemplateInfo = styled.div`
   display: flex;
   justify-content: space-between;
@@ -171,5 +177,6 @@ export {
   IframePreview,
   IframeFullScreen,
   TemplateInfo,
-  TemplateWrapper
+  TemplateWrapper,
+  RowTitle
 };
