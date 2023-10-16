@@ -5,6 +5,7 @@ import { useSetAtom } from "jotai"
 
 import { IProduct } from "@/types/product.types"
 import { cn } from "@/lib/utils"
+import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Button } from "@/components/ui/button"
 import { CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
@@ -25,6 +26,7 @@ const ProductItem = (props: IProduct) => {
         onClick={() =>
           hasSimilarity ? setOpen(true) : addToCart({ name, _id, unitPrice })
         }
+        className="relative"
       >
         <ProductContent {...props} />
       </ProductItemWrapper>
@@ -63,7 +65,11 @@ const ProductContent = ({
     <ProductItemTitle>{`${code} - ${name}`}</ProductItemTitle>
     <ProductItemDescription description={description} />
     <ProductItemPriceWithWrapper unitPrice={unitPrice}>
-      {hasSimilarity && <ProductItemButton>Нэмэх</ProductItemButton>}
+      {hasSimilarity && (
+        <Button className="absolute h-auto rounded-r-none right-0 px-3 border-r">
+          Сонгох...
+        </Button>
+      )}
     </ProductItemPriceWithWrapper>
   </>
 )
@@ -79,14 +85,18 @@ export const ProductItemImage = ({
 }) => {
   const size = (big ? 2 : 1) * 100
   return (
-    <Image
-      src={src}
-      alt=""
-      width={size}
-      height={size}
-      className={cn("w-full object-contain h-24", className)}
-      quality={100}
-    />
+    <div className={className}>
+      <AspectRatio>
+        <Image
+          src={src}
+          alt=""
+          width={size}
+          height={size}
+          className={"w-full object-contain h-full"}
+          quality={100}
+        />
+      </AspectRatio>
+    </div>
   )
 }
 
@@ -100,7 +110,7 @@ export const ProductItemTitle = ({
   return (
     <CardTitle
       className={cn(
-        "font-semibold text-sm pt-1 leading-none h-8 mb-2 overflow-hidden",
+        "font-semibold text-sm leading-none h-8 my-2 overflow-hidden",
         className
       )}
     >

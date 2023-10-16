@@ -105,6 +105,7 @@ const fieldQueries = {
     { models }: IContext
   ) {
     const query: IFieldsQuery = { contentType };
+    console.log('query', query);
 
     if (contentTypeId) {
       query.contentTypeId = contentTypeId;
@@ -125,7 +126,8 @@ const fieldQueries = {
 
       const erxesDefinedGroup = await models.FieldsGroups.findOne({
         contentType,
-        isDefinedByErxes: true
+        isDefinedByErxes: true,
+        code: { $exists: false }
       });
 
       if (erxesDefinedGroup) {

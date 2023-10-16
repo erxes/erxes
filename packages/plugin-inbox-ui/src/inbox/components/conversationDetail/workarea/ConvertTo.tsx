@@ -82,11 +82,16 @@ export default class ConvertTo extends React.Component<Props, State> {
   handleKeyDown = (event: any) => {
     const { keysPressed } = this.state;
     const key = event.key;
+    const showConvertTo = document.getElementById('dropdown-convert-to');
 
     if (document.getElementsByClassName('modal-dialog').length === 0) {
       this.setState({ keysPressed: { ...keysPressed, [key]: true } }, () => {
-        if (this.state.keysPressed.Control === true && event.keyCode === 50) {
-          document.getElementById('dropdown-convert-to').click();
+        if (
+          this.state.keysPressed.Control === true &&
+          event.keyCode === 50 &&
+          showConvertTo
+        ) {
+          showConvertTo.click();
           this.setState({ showDropdown: !this.state.showDropdown });
         }
       });
@@ -106,20 +111,27 @@ export default class ConvertTo extends React.Component<Props, State> {
 
     const maxCursor: number = 4;
 
+    const showTicketConvert = document.getElementById('showTicketConvertModal');
+    const showDealConvert = document.getElementById('showDealConvertModal');
+    const showTaskConvert = document.getElementById('showTaskConvertModal');
+    const showPurchaseConvert = document.getElementById(
+      'showPurchaseConvertModal'
+    );
+
     switch (event.keyCode) {
       case 13:
         if (document.getElementsByClassName('modal-dialog').length === 0) {
-          if (this.state.showDropdown && cursor === 0) {
-            document.getElementById('showTicketConvertModal').click();
+          if (this.state.showDropdown && cursor === 0 && showTicketConvert) {
+            showTicketConvert.click();
           }
-          if (this.state.showDropdown && cursor === 1) {
-            document.getElementById('showDealConvertModal').click();
+          if (this.state.showDropdown && cursor === 1 && showDealConvert) {
+            showDealConvert.click();
           }
-          if (this.state.showDropdown && cursor === 2) {
-            document.getElementById('showTaskConvertModal').click();
+          if (this.state.showDropdown && cursor === 2 && showTaskConvert) {
+            showTaskConvert.click();
           }
-          if (this.state.showDropdown && cursor === 3) {
-            document.getElementById('showPurchaseConvertModal').click();
+          if (this.state.showDropdown && cursor === 3 && showPurchaseConvert) {
+            showPurchaseConvert.click();
           }
         }
         break;
@@ -175,7 +187,7 @@ export default class ConvertTo extends React.Component<Props, State> {
     return (
       <Container>
         <Dropdown
-          show={window.location.hash === '' ? this.state.showDropdown : true}
+          show={this.state.showDropdown}
           onToggle={() =>
             this.setState({ showDropdown: !this.state.showDropdown })
           }
@@ -183,7 +195,7 @@ export default class ConvertTo extends React.Component<Props, State> {
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
             <Button
               size="small"
-              btnStyle="link"
+              btnStyle="simple"
               onClick={() =>
                 this.setState({ showDropdown: !this.state.showDropdown })
               }

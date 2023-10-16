@@ -1,22 +1,20 @@
 import dynamic from "next/dynamic"
-import { currentPaymentTypeAtom } from "@/store"
+import { currentPaymentTypeAtom, modeAtom } from "@/store"
 import { paymentSheetAtom } from "@/store/ui.store"
 import { useAtom, useAtomValue } from "jotai"
 
 import { ALL_BANK_CARD_TYPES, BANK_CARD_TYPES } from "@/lib/constants"
-import { cn, getMode } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { LoaderIcon, LoaderText, LoaderWrapper } from "@/components/ui/loader"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 
 import HandleNotPaidAmount from "./HandleNotPaidAmount"
 
-const mode = getMode()
-
-const isKiosk = mode === "kiosk"
-
 const PaymentSheet = () => {
   const [openSheet, setOpenSheet] = useAtom(paymentSheetAtom)
   const type = useAtomValue(currentPaymentTypeAtom)
+  const mode = useAtomValue(modeAtom)
+  const isKiosk = mode === "kiosk"
 
   return (
     <>

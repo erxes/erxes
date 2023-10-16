@@ -13,6 +13,8 @@ const Slots = () => {
   const { slots, loading } = useSlots()
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
 
+  if (!loading && !slots.length) return null
+
   return (
     <ScrollArea>
       <RadioGroup

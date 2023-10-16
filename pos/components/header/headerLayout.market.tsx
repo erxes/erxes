@@ -1,3 +1,4 @@
+import ActiveOrders from "@/modules/orders/ActiveOrders.market"
 import { currentUserAtom } from "@/store/config.store"
 import { useAtom } from "jotai"
 
@@ -17,6 +18,7 @@ const HeaderLayout = ({ children }: { children?: React.ReactNode }) => {
         <p className="hidden flex-auto text-center text-black/60 sm:block">
           {fullName ? `${fullName} ${position ? `(${position})` : ""}` : email}
         </p>
+        <ActiveOrders />
         <Logo />
         <HeaderMenu />
       </div>

@@ -25,7 +25,7 @@ const CartItem = ({
 
   return (
     <motion.div
-      className="mb-0.5 flex items-center rounded bg-gray-100 px-4"
+      className="mb-0.5 flex items-center rounded bg-gray-100 px-4 first:bg-primary/10 first:font-medium"
       variants={itemVariants}
       initial="initial"
       exit="exit"

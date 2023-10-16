@@ -1,9 +1,9 @@
+import { modeAtom } from "@/store"
 import { orderValuesAtom } from "@/store/order.store"
 import { ApolloError, useMutation } from "@apollo/client"
 import { useAtomValue } from "jotai"
 
 import { Customer } from "@/types/customer.types"
-import { getMode } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
@@ -13,7 +13,7 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
   const { customer, type, _id, slotCode, ...rest } =
     useAtomValue(orderValuesAtom)
 
-  const origin = getMode()
+  const origin = useAtomValue(modeAtom)
 
   // TODO: get type default from config
   const variables = {

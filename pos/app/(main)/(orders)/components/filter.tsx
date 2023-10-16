@@ -4,7 +4,7 @@ import SelectSlot from "@/modules/slots/components/selectSlot"
 import { SetAtom } from "@/store"
 import { defaultFilter } from "@/store/history.store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { formatISO, subDays } from "date-fns"
+import { formatISO, setHours, setMinutes, setSeconds, subDays } from "date-fns"
 import { SetStateAction } from "jotai"
 import { SearchIcon, XIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -33,6 +33,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+
+const toEnd = (d: string | Date) =>
+  setHours(setMinutes(setSeconds(new Date(d), 59), 59), 23)
 
 const FormSchema = z.object({
   searchValue: z.string(),
@@ -109,14 +112,14 @@ const Filter = ({
       searchValue,
       statuses: (statuses || []) as IOrderStatus[],
       startDate: formatISO(new Date(from || subDays(new Date(), 10))),
-      endDate: formatISO(new Date(to || new Date())),
+      endDate: formatISO(toEnd(to || new Date())),
       isPaid: isPaid === "all" ? undefined : isPaid === "paid",
       slotCode: slotCode === "all" ? undefined : slotCode,
       isPreExclude,
       sortField,
       sortDirection,
       dueStartDate: dueRange?.from ? formatISO(dueRange?.from) : undefined,
-      dueEndDate: dueRange?.to ? formatISO(dueRange?.to) : undefined,
+      dueEndDate: dueRange?.to ? formatISO(toEnd(dueRange?.to)) : undefined,
     })
   }
 
