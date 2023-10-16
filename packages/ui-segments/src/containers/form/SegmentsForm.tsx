@@ -199,7 +199,10 @@ export default withProps<Props>(
     graphql<Props, HeadSegmentsQueryResponse, { contentType: string }>(
       gql(queries.headSegments),
       {
-        name: 'headSegmentsQuery'
+        name: 'headSegmentsQuery',
+        options: ({ contentType }) => ({
+          variables: { contentType }
+        })
       }
     ),
     graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(

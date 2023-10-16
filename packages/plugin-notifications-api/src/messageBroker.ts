@@ -195,3 +195,35 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
     ...args
   });
 };
+
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
+};
+
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args
+  });
+};
