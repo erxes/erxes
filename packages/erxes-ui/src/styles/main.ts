@@ -509,11 +509,11 @@ const spin = keyframes`
 
 const FilterLoading = styled.div`
   border: 2px solid #adaee0;
-  border-top: 2px solid #3498db;
+  border-top: 2px solid #6569df;
   border-radius: 50%;
-  margin: 0px 30px 0px 30px;
-  width: 18px;
-  height: 18px;
+  margin: 1px 30px 1px 30px;
+  width: 15px;
+  height: 15px;
   animation: ${spin} 1s linear infinite;
 `;
 
