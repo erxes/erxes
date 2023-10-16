@@ -117,12 +117,19 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     );
   };
 
-  handleKeyDown = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
-      const { value, name } = e.currentTarget as HTMLInputElement;
-
-      router.setParams(this.props.history, { [name]: value });
+  handleKeyDown = (
+    e: React.KeyboardEvent<Element> | React.MouseEvent<Element>
+  ) => {
+    if (
+      e instanceof KeyboardEvent &&
+      e.key !== 'Enter' &&
+      e.key !== 'Backspace'
+    ) {
+      return;
     }
+
+    const { value, name } = (e.currentTarget as any) as HTMLInputElement;
+    router.setParams(this.props.history, { [name]: value });
   };
 
   onSelect = (values: string[] | string, name: string) => {
@@ -139,23 +146,24 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
       <FilterContainer>
         <FlexRow>
           <FlexItem>
-            <FormControl
-              placeholder={__('Search')}
-              name="searchValue"
-              onChange={this.onChange}
-              value={this.state.searchValue}
-              onKeyPress={this.handleKeyDown}
-              autoFocus={true}
-            />
-          </FlexItem>
-
-          <FlexItem>
             <SelectBrands
               label="Brand"
               initialValue={brandId}
               onSelect={this.onSelect}
               name="brandId"
               multi={false}
+            />
+          </FlexItem>
+
+          <FlexItem>
+            <FormControl
+              placeholder={__('Search')}
+              name="searchValue"
+              onChange={this.onChange}
+              value={this.state.searchValue}
+              onKeyPress={this.handleKeyDown}
+              onKeyDown={this.handleKeyDown}
+              autoFocus={true}
             />
           </FlexItem>
         </FlexRow>
