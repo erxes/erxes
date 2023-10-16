@@ -19,6 +19,10 @@
     "erxes": "./bin/erxes.js",
     "pm2": "./node_modules/pm2/bin/pm2"
   },
+  "scripts": {
+    "start": "./bin/erxes.js dev",
+    "restart": "pm2 restart all"
+  },
   "dependencies": {
     "chalk": "^4.1.0",
     "cli-progress": "^3.8.2",

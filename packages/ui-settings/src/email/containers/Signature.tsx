@@ -1,15 +1,7 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
 import * as compose from 'lodash.flowright';
 import * as queries from '@erxes/ui/src/auth/graphql';
-import { IUser } from '@erxes/ui/src/auth/types';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
-import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import Signature from '../components/Signature';
 import {
   IEmailSignature,
   IEmailSignatureWithBrand,
@@ -17,12 +9,23 @@ import {
   UsersConfigEmailSignaturesMutationVariables
 } from '../types';
 
+import { AppConsumer } from 'coreui/appContext';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Signature from '../components/Signature';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+
 type Props = {
-  currentUser: IUser;
   closeModal: () => void;
 };
 
 type FinalProps = {
+  currentUser: IUser;
   brandsQuery: BrandsQueryResponse;
 } & Props &
   UsersConfigEmailSignaturesMutationResponse;
@@ -59,7 +62,7 @@ const SignatureContainer = (props: FinalProps) => {
       });
   };
 
-  const emailSignatures = currentUser.emailSignatures || [];
+  const emailSignatures = currentUser?.emailSignatures || [];
   const signatures: IEmailSignatureWithBrand[] = [];
   const brands = brandsQuery.brands || [];
 
@@ -113,7 +116,7 @@ const WithQuery = withProps<Props>(
         })
       }
     )
-  )(SignatureContainer)
+  )(withCurrentUser(SignatureContainer))
 );
 
 const WithConsumer = props => {

@@ -1,6 +1,5 @@
 import utils from '@erxes/api-utils/src';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
-
 import * as AWS from 'aws-sdk';
 import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
@@ -11,7 +10,6 @@ import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as FormData from 'form-data';
-// import * as tus from 'tus-js-client';
 import fetch from 'node-fetch';
 import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
@@ -280,9 +278,13 @@ export const initFirebase = async (
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
-      await admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
+      try {
+        await admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } catch (e) {
+        console.log(`initFireBase error: ${e.message}`);
+      }
     }
   }
 };

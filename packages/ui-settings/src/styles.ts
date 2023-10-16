@@ -462,6 +462,17 @@ const Row = styled.div`
   }
 `;
 
+const FlexBetween = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ItemCount = styled.span`
+  color: ${colors.colorLightGray};
+  font-weight: 500;
+`;
+
 const ImageWrapper = styled.div`
   margin-bottom: ${dimensions.unitSpacing}px;
 
@@ -494,6 +505,8 @@ export {
   CreatedDate,
   LeftContent,
   Row,
+  FlexBetween,
+  ItemCount,
   SpaceFormsWrapper,
   CommentWrapper,
   TicketComment,
