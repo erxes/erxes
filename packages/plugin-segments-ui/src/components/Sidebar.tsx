@@ -42,7 +42,7 @@ function Sidebar({
         <li>
           <a
             target="_blank"
-            href="https://erxes.org/user/segments"
+            href="https://help.erxes.io/knowledge-base/category?id=6LtMEc7Qbqcz4wgmY"
             rel="noopener noreferrer"
           >
             <u> {__('Learn how to create a segment')}</u>
