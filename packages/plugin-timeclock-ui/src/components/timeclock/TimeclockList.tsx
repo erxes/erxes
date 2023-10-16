@@ -12,6 +12,7 @@ import {
   CustomRangeContainer,
   FlexCenter,
   FlexColumnCustom,
+  FlexRow,
   FlexRowLeft,
   MarginY,
   TextAlignCenter,
@@ -21,7 +22,7 @@ import {
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -279,6 +280,10 @@ function List(props: Props) {
     </FlexColumnCustom>
   );
 
+  const bichilTimeclockActionBar = loadDynamicComponent(
+    'bichilTimeclockActionBar'
+  );
+
   const actionBarLeft = (
     <FlexRowLeft>
       <ToggleButton
@@ -294,20 +299,24 @@ function List(props: Props) {
   );
 
   const actionBarRight = (
-    <>
-      {!isEnabled('bichil') && (
+    <FlexRow>
+      {bichilTimeclockActionBar && bichilTimeclockActionBar}
+
+      <div>
+        {!isEnabled('bichil') && (
+          <ModalTrigger
+            title={__('Extract all data')}
+            trigger={extractTrigger}
+            content={extractContent}
+          />
+        )}
         <ModalTrigger
-          title={__('Extract all data')}
-          trigger={extractTrigger}
-          content={extractContent}
+          title={__('Start shift')}
+          trigger={trigger}
+          content={modalContent}
         />
-      )}
-      <ModalTrigger
-        title={__('Start shift')}
-        trigger={trigger}
-        content={modalContent}
-      />
-    </>
+      </div>
+    </FlexRow>
   );
 
   const actionBar = (
@@ -318,6 +327,19 @@ function List(props: Props) {
       wideSpacing={true}
     />
   );
+
+  getActionBar(actionBar);
+  showSideBar(isSideBarOpen);
+  getPagination(<Pagination count={totalCount} />);
+
+  const bichilTimeclockTable = loadDynamicComponent(
+    'bichilTimeclockTable',
+    props
+  );
+
+  if (bichilTimeclockTable) {
+    return bichilTimeclockTable;
+  }
 
   const content = (
     <Table>
@@ -351,10 +373,6 @@ function List(props: Props) {
       </tbody>
     </Table>
   );
-
-  getActionBar(actionBar);
-  showSideBar(isSideBarOpen);
-  getPagination(<Pagination count={totalCount} />);
 
   return content;
 }
