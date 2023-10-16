@@ -133,7 +133,10 @@ class DealColumn extends React.Component<Props, {}> {
         return null;
       }
 
-      if (localStorage.getItem('showSalesDetail') === 'false') {
+      if (
+        localStorage.getItem('showSalesDetail') === 'false' ||
+        !localStorage.getItem('showSalesDetail')
+      ) {
         return null;
       }
 
@@ -147,15 +150,7 @@ class DealColumn extends React.Component<Props, {}> {
             <span>Forecasted: </span>
             {this.renderPercentedAmount(forecastArray)}
           </li>
-        </>
-      );
-    };
-
-    return (
-      <Amount>
-        {renderDetail()}
-        {localStorage.getItem('showSalesDetail') === 'true' &&
-          totalForType.map(type => {
+          {totalForType.map(type => {
             if (type.name === 'In progress') {
               return null;
             }
@@ -171,8 +166,11 @@ class DealColumn extends React.Component<Props, {}> {
               </li>
             );
           })}
-      </Amount>
-    );
+        </>
+      );
+    };
+
+    return <Amount>{renderDetail()}</Amount>;
   }
 
   renderPercentedAmount(currencies) {
