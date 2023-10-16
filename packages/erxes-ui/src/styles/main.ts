@@ -512,8 +512,8 @@ const FilterLoading = styled.div`
   border-top: 2px solid #3498db;
   border-radius: 50%;
   margin: 0px 30px 0px 30px;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   animation: ${spin} 1s linear infinite;
 `;
 
