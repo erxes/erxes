@@ -26,6 +26,7 @@ export type IProductGroup = {
 
 export type IScreenConfig = {
   isActive: boolean;
+  isPrint?: boolean;
   type: string;
   value: number;
   contentUrl?: string;
@@ -70,6 +71,7 @@ export type IPos = {
   allowTypes?: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  banFractions: boolean;
 
   branchTitle?: string;
   departmentTitle?: string;
