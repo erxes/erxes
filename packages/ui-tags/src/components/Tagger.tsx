@@ -65,12 +65,13 @@ class Tagger extends React.Component<Props, State> {
         const element = document.getElementsByClassName(
           'tag-' + cursor
         )[0] as HTMLElement;
+        const showTags = document.getElementById('conversationTags');
 
-        if (element) {
+        if (element && showTags) {
           element.click();
 
           this.tag(this.state.tagsForList);
-          document.getElementById('conversationTags').click();
+          showTags.click();
         }
         break;
       case 38:

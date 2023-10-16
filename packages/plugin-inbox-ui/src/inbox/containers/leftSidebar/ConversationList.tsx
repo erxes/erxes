@@ -103,34 +103,40 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
     };
 
     const onLoadMore = () => {
-      return conversationsQuery.fetchMore({
-        variables: {
-          skip: conversations.length
-        },
-        updateQuery: (prevResult, { fetchMoreResult }) => {
-          if (!fetchMoreResult || fetchMoreResult.conversations.length === 0) {
-            return prevResult;
-          }
-
-          const prevConversations = prevResult.conversations || [];
-          const prevConversationIds = prevConversations.map(
-            (conversation: IConversation) => conversation._id
-          );
-
-          const fetchedConversations: IConversation[] = [];
-
-          for (const conversation of fetchMoreResult.conversations) {
-            if (!prevConversationIds.includes(conversation._id)) {
-              fetchedConversations.push(conversation);
+      return (
+        conversationsQuery &&
+        conversationsQuery.fetchMore({
+          variables: {
+            skip: conversations.length
+          },
+          updateQuery: (prevResult, { fetchMoreResult }) => {
+            if (
+              !fetchMoreResult ||
+              fetchMoreResult.conversations.length === 0
+            ) {
+              return prevResult;
             }
-          }
 
-          return {
-            ...prevResult,
-            conversations: [...prevConversations, ...fetchedConversations]
-          };
-        }
-      });
+            const prevConversations = prevResult.conversations || [];
+            const prevConversationIds = prevConversations.map(
+              (conversation: IConversation) => conversation._id
+            );
+
+            const fetchedConversations: IConversation[] = [];
+
+            for (const conversation of fetchMoreResult.conversations) {
+              if (!prevConversationIds.includes(conversation._id)) {
+                fetchedConversations.push(conversation);
+              }
+            }
+
+            return {
+              ...prevResult,
+              conversations: [...prevConversations, ...fetchedConversations]
+            };
+          }
+        })
+      );
     };
 
     const updatedProps = {

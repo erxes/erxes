@@ -1,8 +1,3 @@
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAttachment } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
 import {
   InlineColumn,
   InlineHeader,
@@ -14,10 +9,16 @@ import {
   TemplateContent,
   TemplateTitle
 } from '@erxes/ui-inbox/src/inbox/styles';
+
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IAttachment } from '@erxes/ui/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
-import React from 'react';
 import { Link } from 'react-router-dom';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 import strip from 'strip';
 
 type Props = {
@@ -183,10 +184,10 @@ class PopoverContent extends React.Component<Props, State> {
   };
 
   fetchTemplates = () => {
-    const { responseTemplates } = this.props;
+    const { responseTemplates = [] } = this.props;
 
     const perPage = 10;
-    const page = Math.round(responseTemplates.length / perPage + 1);
+    const page = Math.round((responseTemplates || []).length / perPage + 1);
 
     this.props.fetchMore({
       perPage,
