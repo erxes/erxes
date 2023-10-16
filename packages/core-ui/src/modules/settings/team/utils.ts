@@ -5,11 +5,7 @@ export const generateTree = (
   level = -1,
   parentKey = 'parentId'
 ) => {
-  const filtered = list.filter(
-    c =>
-      c[parentKey] === parentId ||
-      (parentId === null && (!c[parentKey] || c[parentKey] === c._id))
-  );
+  const filtered = list.filter(c => c[parentKey] === parentId);
 
   if (filtered.length > 0) {
     level++;
