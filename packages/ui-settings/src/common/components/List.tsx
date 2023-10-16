@@ -31,6 +31,7 @@ type Props = {
   rightActionBar?: any;
   transparent?: boolean;
   hasBorder?: boolean;
+  flexFilter?: () => any;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -59,7 +60,8 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       queryParams,
       transparent,
       history,
-      hasBorder
+      hasBorder,
+      flexFilter
     } = this.props;
 
     const trigger = (
@@ -73,10 +75,19 @@ class List extends React.Component<Props & ICommonListProps, {}> {
     };
 
     const actionBarRight = rightActionBar ? (
-      <BarItems>
-        {additionalButton}
+      <Flex>
+        {flexFilter && flexFilter()}
         {/* <ActionBarDropDown queryParams={queryParams} history={history} /> */}
-      </BarItems>
+        <ModalTrigger
+          title={formTitle || ''}
+          size={size}
+          enforceFocus={false}
+          trigger={trigger}
+          autoOpenKey="showListFormModal"
+          content={content}
+          dialogClassName="transform"
+        />
+      </Flex>
     ) : (
       <Flex>
         {additionalButton}&nbsp;&nbsp;

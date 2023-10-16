@@ -17,10 +17,7 @@ import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import List from '@erxes/ui-settings/src/common/components/List';
-import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import Table from '@erxes/ui/src/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
 import { withRouter } from 'react-router-dom';
 import {
   Actions,
@@ -28,7 +25,6 @@ import {
   Template,
   TemplateBox,
   Templates,
-  TemplateInfo,
   RowTitle
 } from '@erxes/ui-emailtemplates/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -121,26 +117,6 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderRows = ({ objects }) => {
-    return objects.map((object, index) => {
-      const brand = object.brand || {};
-
-      return (
-        <tr key={index}>
-          <td>{brand.name}</td>
-          <td>{object.name}</td>
-          <RowActions
-            {...this.props}
-            object={object}
-            size="lg"
-            renderForm={this.renderForm}
-            additionalActions={this.renderDisableAction}
-          />
-        </tr>
-      );
-    });
-  };
-
   handleKeyDown = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const { value, name } = e.currentTarget as HTMLInputElement;
@@ -163,7 +139,6 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
       <FilterContainer>
         <FlexRow>
           <FlexItem>
-            <ControlLabel>Search</ControlLabel>
             <FormControl
               placeholder={__('Search')}
               name="searchValue"
@@ -175,7 +150,6 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           </FlexItem>
 
           <FlexItem>
-            <ControlLabel>Brand</ControlLabel>
             <SelectBrands
               label="Brand"
               initialValue={brandId}
@@ -188,21 +162,6 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
       </FilterContainer>
     );
   };
-
-  // renderContent = (props) => {
-  //   return (
-  //     <Table>
-  //       <thead>
-  //         <tr>
-  //           <th>{__("Brand")}</th>
-  //           <th>{__("Name")}</th>
-  //           <th>{__("Actions")}</th>
-  //         </tr>
-  //       </thead>
-  //       <tbody>{this.renderRows(props)}</tbody>
-  //     </Table>
-  //   );
-  // };
 
   removeTemplate = object => {
     this.props.remove(object._id);
@@ -222,7 +181,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
               <div onClick={this.removeTemplate.bind(this, object)}>
                 <Icon icon="cancel-1" /> Delete
               </div>
-              {this.renderDisableAction(object)}
+              {/* {this.renderDisableAction(object)} */}
             </Actions>
             <IframePreview>
               <iframe title="response-iframe" srcDoc={object.content} />
@@ -238,8 +197,6 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   };
 
   render() {
-    console.log(this.props.renderButton);
-
     return (
       <List
         formTitle="New response template"
@@ -259,11 +216,12 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
             )}`}
           />
         }
-        renderFilter={this.renderFilter}
+        flexFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         size="lg"
         {...this.props}
+        rightActionBar="true"
       />
     );
   }
