@@ -63,7 +63,7 @@ export default function BlockList(props: Props) {
       extraButtons={extraButtons}
       collapsible={allDatas.length > 6}
     >
-      <SidebarList noTextColor noBackground className="no-link">
+      <SidebarList noTextColor noBackground>
         {renderContent}
       </SidebarList>
     </Box>
