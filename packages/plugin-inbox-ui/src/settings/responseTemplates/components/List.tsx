@@ -22,6 +22,14 @@ import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import Table from '@erxes/ui/src/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
 import { withRouter } from 'react-router-dom';
+import {
+  Actions,
+  IframePreview,
+  Template,
+  TemplateBox,
+  Templates,
+  TemplateInfo
+} from '@erxes/ui-emailtemplates/src/styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -159,19 +167,44 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderContent = props => {
-    return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Brand')}</th>
-            <th>{__('Name')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRows(props)}</tbody>
-      </Table>
-    );
+  // renderContent = (props) => {
+  //   return (
+  //     <Table>
+  //       <thead>
+  //         <tr>
+  //           <th>{__("Brand")}</th>
+  //           <th>{__("Name")}</th>
+  //           <th>{__("Actions")}</th>
+  //         </tr>
+  //       </thead>
+  //       <tbody>{this.renderRows(props)}</tbody>
+  //     </Table>
+  //   );
+  // };
+
+  renderRow = ({ objects }) => {
+    return objects.map((object, index) => {
+      return (
+        <Template key={index} isLongName={object.name > 46}>
+          <h5>{object.brand.name}</h5>
+          <h5>{object.name}</h5>
+          <TemplateBox>
+            <Actions></Actions>
+            <IframePreview>
+              <iframe srcDoc={object.content} />
+            </IframePreview>
+          </TemplateBox>
+          <TemplateInfo>
+            <p>CreatedAt</p>
+            <p>16 Oct 2023</p>
+          </TemplateInfo>
+          <TemplateInfo>
+            <p>Created by</p>
+            <p>erxes Inc</p>
+          </TemplateInfo>
+        </Template>
+      );
+    });
   };
 
   render() {
@@ -196,7 +229,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         }
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
-        renderContent={this.renderContent}
+        renderContent={this.renderRow}
         size="lg"
         {...this.props}
         center={true}
