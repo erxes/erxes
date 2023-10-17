@@ -119,7 +119,7 @@ class DealColumn extends React.Component<Props, {}> {
       return (
         <>
           <ItemProductProbabilities
-            dealTotalAmounts={dealTotalAmounts}
+            dealTotalAmounts={totalForType}
             deals={deals}
           />
           {totalForType.map(type => {
