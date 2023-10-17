@@ -13,8 +13,8 @@ const Cart = () => {
   return (
     <ScrollArea className="flex flex-auto flex-col border-t">
       <AnimatePresence>
-        {cart.map((item) => (
-          <CartItem key={item._id} {...item} />
+        {cart.map((item, idx) => (
+          <CartItem key={item._id} {...item} idx={idx} />
         ))}
       </AnimatePresence>
     </ScrollArea>

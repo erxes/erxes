@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { activeOrderIdAtom, slotCodeAtom } from "@/store/order.store"
-import { useAtomValue } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 
 import { ORDER_STATUSES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ import useFullOrders from "./hooks/useFullOrders"
 
 const ActiveOrders = () => {
   const { ALL, COMPLETE } = ORDER_STATUSES
-  const _id = useAtomValue(activeOrderIdAtom)
+  const [_id, setActiveOrderId] = useAtom(activeOrderIdAtom)
   const slotCode = useAtomValue(slotCodeAtom)
 
   const { fullOrders, subToOrderStatuses, totalCount, handleLoadMore } =
@@ -28,6 +28,11 @@ const ActiveOrders = () => {
         slotCode: _id ? undefined : slotCode,
       },
       query: queries.activeOrders,
+      onCompleted(orders) {
+        if (orders.length === 1) {
+          !_id && slotCode && setActiveOrderId(orders[0]._id)
+        }
+      },
     })
 
   useEffect(() => {

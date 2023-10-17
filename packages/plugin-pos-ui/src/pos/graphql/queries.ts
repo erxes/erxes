@@ -49,6 +49,7 @@ export const posCommonFields = `
   allowTypes
   isCheckRemainder
   checkExcludeCategoryIds
+  banFractions
 
   branchTitle
   departmentTitle

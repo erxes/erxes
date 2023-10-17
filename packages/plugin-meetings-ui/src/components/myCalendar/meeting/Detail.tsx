@@ -120,6 +120,11 @@ export const MeetingDetail = (props: Props) => {
             {meetingDetail?.startDate &&
               moment(meetingDetail?.startDate).format(
                 'ddd, MMMM DD, YYYY • HH:mm a'
+              )}{' '}
+            -{' '}
+            {meetingDetail?.endDate &&
+              moment(meetingDetail?.endDate).format(
+                'ddd, MMMM DD, YYYY • HH:mm a'
               )}
           </MeetingDetailColumn>
           <MeetingDetailColumn>
@@ -146,8 +151,8 @@ export const MeetingDetail = (props: Props) => {
             <span>Team members:</span>{' '}
             {meetingDetail?.participantUser?.map((user, index) => {
               if (index != meetingDetail?.participantUser?.length - 1)
-                return <div key={index}>{user.details?.fullName},</div>;
-              return <div key={index}>{user.details?.fullName}</div>;
+                return <span key={index}>{user.details?.fullName},</span>;
+              return <span key={index}>{user.details?.fullName}</span>;
             })}
           </MeetingDetailColumn>
         </MeetingDetailRow>

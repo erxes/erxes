@@ -32,6 +32,7 @@ const Slot = ({
   name,
   status,
   active,
+  isPreDates,
 }: ISlot & {
   status?: "serving" | "available" | "reserved"
   active: boolean
@@ -70,7 +71,11 @@ const Slot = ({
           </MotionLabel>
         </Button>
       </HoverCardTrigger>
-      <HoverCardContent side="right"></HoverCardContent>
+      {isPreDates && (
+        <HoverCardContent side="right">
+          {isPreDates.toString()}
+        </HoverCardContent>
+      )}
     </HoverCard>
   )
 }

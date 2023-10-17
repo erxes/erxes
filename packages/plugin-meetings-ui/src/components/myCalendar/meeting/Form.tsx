@@ -127,7 +127,7 @@ export const MeetingForm = (props: Props) => {
           onChange={onStartDateChange}
           placeholder={'Start date'}
           dateFormat={'YYYY-MM-DD'}
-          timeFormat="HH:mm"
+          timeFormat="HH:mm a"
         />
         <DateControl
           value={endDate || ''}
@@ -136,7 +136,7 @@ export const MeetingForm = (props: Props) => {
           placeholder={'End date'}
           onChange={onEndDateChange}
           dateFormat={'YYYY-MM-DD'}
-          timeFormat="HH:mm"
+          timeFormat="HH:mm a"
         />
       </CustomRangeContainer>
     );

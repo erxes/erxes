@@ -46,6 +46,7 @@ const posCommonFields = `
   allowTypes: [String]
   isCheckRemainder: Boolean
   checkExcludeCategoryIds: [String]
+  banFractions: Boolean
 `;
 
 const catProd = `

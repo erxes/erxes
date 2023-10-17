@@ -10,11 +10,17 @@ type Props = {
   id: string;
   mainType: string;
 };
+const getContentType = mainType => {
+  if (mainType === 'customer') return 'contacts:customer';
+  if (mainType.includes(':')) return mainType;
+  return `default:${mainType}`;
+};
 const CustomerSidebarContainer = (props: Props) => {
+  const contentType = getContentType(props.mainType);
   const detail = useQuery(gql(queries.detail), {
     variables: {
       contentTypeId: props.id,
-      contentType: `contacts:${props.mainType}`
+      contentType
     },
     fetchPolicy: 'network-only'
   });
@@ -49,7 +55,7 @@ const CustomerSidebarContainer = (props: Props) => {
         if (!detail?.data?.xypDataDetail) {
           add({
             variables: {
-              contentType: `contacts:${props.mainType}`,
+              contentType,
               contentTypeId: props.id,
               data: xypData
             }
@@ -68,7 +74,7 @@ const CustomerSidebarContainer = (props: Props) => {
           edit({
             variables: {
               _id: detail?.data?.xypDataDetail._id,
-              contentType: `contacts:${props.mainType}`,
+              contentType,
               contentTypeId: props.id,
               data: [...unique, ...xypData]
             }
