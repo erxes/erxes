@@ -155,7 +155,7 @@ export const renderAmount = (amount = {}, tick = true) => {
 };
 
 export const renderPercentedAmount = (amount = {}, percent, tick = true) => {
-  if (!Object.keys(amount).length) {
+  if (!Object.keys(amount || {}).length) {
     return <></>;
   }
 

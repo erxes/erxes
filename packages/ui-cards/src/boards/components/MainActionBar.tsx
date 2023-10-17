@@ -267,12 +267,12 @@ class MainActionBar extends React.Component<Props, State> {
     const type = options.type;
     localStorage.setItem(`${type}View`, `${viewType}`);
 
-    const onFilterClick = (type: string) => {
+    const onFilterClick = (option: string) => {
       if (currentBoard && currentPipeline) {
-        return `/${options.type}/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
+        return `/${options.type}/${option}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
       }
 
-      return `/${options.type}/${type}`;
+      return `/${options.type}/${option}`;
     };
 
     return (

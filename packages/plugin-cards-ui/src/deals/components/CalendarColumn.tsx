@@ -102,30 +102,38 @@ class DealColumn extends React.Component<Props, {}> {
 
   renderTotalAmount() {
     const { dealTotalAmounts, deals } = this.props;
-    const totalForType = dealTotalAmounts || [];
+    const totalForType = dealTotalAmounts || ([] as IDealTotalAmount[]);
 
-    const forecastArray = [];
-    const totalAmountArray = [];
+    const forecastArray: Array<{
+      amount: number;
+      name: string;
+      probability: number;
+    }> = [];
+    const totalAmountArray: Array<{ amount: number; name: string }> = [];
 
-    dealTotalAmounts.map(total =>
-      total.currencies.map(currency => totalAmountArray.push(currency))
-    );
+    if (dealTotalAmounts.length > 0) {
+      dealTotalAmounts.map(total =>
+        total.currencies.map(currency => totalAmountArray.push(currency))
+      );
+    }
 
     this.props.deals.map(deal => {
-      const probability =
-        deal.stage.probability === 'Won'
-          ? '100%'
-          : deal.stage.probability === 'Lost'
-          ? '0%'
-          : deal.stage.probability;
+      if (deal.stage) {
+        const probability =
+          deal.stage.probability === 'Won'
+            ? '100%'
+            : deal.stage.probability === 'Lost'
+            ? '0%'
+            : deal.stage.probability;
 
-      Object.keys(deal.amount).map(key =>
-        forecastArray.push({
-          name: key,
-          amount: deal.amount[key] as number,
-          probability: parseInt(probability, 10)
-        })
-      );
+        Object.keys(deal.amount).map(key =>
+          forecastArray.push({
+            name: key,
+            amount: deal.amount[key] as number,
+            probability: parseInt(probability, 10)
+          })
+        );
+      }
     });
 
     const renderDetail = () => {
