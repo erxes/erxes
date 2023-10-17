@@ -61,6 +61,7 @@ class MailFormContainer extends React.Component<
     loadedEmails: boolean;
     verifiedImapEmails: string[];
     verifiedEngageEmails: string[];
+    contacts: any[];
   }
 > {
   constructor(props: FinalProps) {
@@ -69,7 +70,8 @@ class MailFormContainer extends React.Component<
     this.state = {
       loadedEmails: false,
       verifiedImapEmails: [],
-      verifiedEngageEmails: []
+      verifiedEngageEmails: [],
+      contacts: []
     };
   }
 
@@ -266,6 +268,32 @@ class MailFormContainer extends React.Component<
       });
     };
 
+    const searchContacts = debounce(value => {
+      if (value.trim() === '') {
+        this.setState({
+          contacts: []
+        });
+        return;
+      }
+
+      client
+        .query({
+          query: gql(queries.contacts),
+          variables: {
+            searchValue: value
+          }
+        })
+        .then(({ data }) => {
+          this.setState({
+            contacts: data.contacts
+          });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+          this.setState({ contacts: [] });
+        });
+    }, 250);
+
     const updatedProps = {
       ...this.props,
       sendMail,
@@ -279,7 +307,9 @@ class MailFormContainer extends React.Component<
       mails,
       messageId,
       verifiedImapEmails: verifiedImapEmails || [],
-      verifiedEngageEmails: verifiedEngageEmails || []
+      verifiedEngageEmails: verifiedEngageEmails || [],
+      contacts: this.state.contacts || [],
+      searchContacts
     };
 
     return <MailForm {...updatedProps} />;

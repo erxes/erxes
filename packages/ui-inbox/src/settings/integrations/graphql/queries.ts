@@ -220,6 +220,21 @@ const imapIntegrations = `
   }
 `;
 
+const contacts = `
+  query Contacts($searchValue: String) {
+    contacts(searchValue: $searchValue) {
+      _id
+      fullName
+      primaryEmail
+      primaryPhone
+      avatar
+      createdAt
+      status
+      contentType
+    }
+  }
+`;
+
 export default {
   users,
   brands,
@@ -237,5 +252,6 @@ export default {
   integrationsGetTwitterAccount,
   integrationsGetFbPages,
   integrationsVideoCallUsageStatus,
-  imapIntegrations
+  imapIntegrations,
+  contacts
 };
