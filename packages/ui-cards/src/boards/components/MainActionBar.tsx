@@ -67,7 +67,10 @@ class MainActionBar extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { showDetail: false };
+    this.state = {
+      showDetail:
+        localStorage.getItem('showSalesDetail') === 'true' ? true : false
+    };
   }
 
   renderBoards() {
@@ -415,7 +418,9 @@ class MainActionBar extends React.Component<Props, State> {
 
     const type = options.type;
 
-    localStorage.setItem('showSalesDetail', `false`);
+    if (!localStorage.getItem('showSalesDetail')) {
+      localStorage.setItem('showSalesDetail', `false`);
+    }
 
     const actionBarLeft = (
       <BarItems>
