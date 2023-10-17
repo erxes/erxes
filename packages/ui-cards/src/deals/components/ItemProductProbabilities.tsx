@@ -16,7 +16,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
 
     return (
       <div>
-        <span>{__('Forecasted') + `(${probabilityPercentage}):`}</span>
+        <span>{__('Forecasted') + `(${probabilityPercentage})`}</span>
         {renderPercentedAmount(totalAmount, probabilityPercentage)}
       </div>
     );
@@ -101,7 +101,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
         <StageInfo>
           {Object.keys(totalAmount).length > 0 && (
             <div>
-              <span>{__('Total') + ':'}</span>
+              <span>{__('Total')}</span>
               {renderAmount(totalAmount)}
             </div>
           )}
@@ -114,12 +114,12 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
     return (
       <>
         <li>
-          <span>Total: </span>
+          <span>Total </span>
           {this.renderSum(totalAmountArray)}
         </li>
         {forecastArray.length > 0 && (
           <li>
-            <span>Forecasted: </span>
+            <span>Forecasted </span>
             {this.renderSum(forecastArray)}
           </li>
         )}

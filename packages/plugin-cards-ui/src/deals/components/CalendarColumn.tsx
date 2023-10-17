@@ -132,7 +132,7 @@ class DealColumn extends React.Component<Props, {}> {
             return (
               <li key={type._id}>
                 <span>
-                  {type.name} ({percent}):{' '}
+                  {type.name} ({percent}){' '}
                 </span>
                 {this.renderAmount(type.currencies)}
               </li>
