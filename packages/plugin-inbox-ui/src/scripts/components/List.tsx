@@ -123,10 +123,7 @@ class ScriptList extends React.Component<Props> {
               {this.installCodeAction(object)}
             </Actions>
             <IframePreview>
-              <iframe
-                title="scripts-iframe"
-                // srcDoc={content)}
-              />
+              <iframe title="scripts-iframe" srcDoc={object.content} />
             </IframePreview>
           </TemplateBox>
         </Template>
