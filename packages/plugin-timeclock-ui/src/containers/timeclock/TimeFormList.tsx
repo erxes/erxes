@@ -94,7 +94,7 @@ export default withProps<Props>(
           longitude,
           latitude
         },
-        refetchQueries: ['timeclocksMain']
+        refetchQueries: ['timeclocksMain', 'bichilTimeclockReportByUsers']
       })
     }),
 
@@ -107,7 +107,7 @@ export default withProps<Props>(
           longitude,
           latitude
         },
-        refetchQueries: ['timeclocksMain']
+        refetchQueries: ['timeclocksMain', 'bichilTimeclockReportByUsers']
       })
     })
   )(ListContainer)

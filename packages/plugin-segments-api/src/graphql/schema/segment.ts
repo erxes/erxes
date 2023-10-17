@@ -57,7 +57,7 @@ export const queries = `
   segmentsGetAssociationTypes(contentType: String!): [JSON]
   segments(contentTypes: [String]!, config: JSON, ids: [String]): [Segment]
   segmentDetail(_id: String): Segment
-  segmentsGetHeads: [Segment]
+  segmentsGetHeads(contentType:String): [Segment]
   segmentsEvents(contentType: String!): [JSON]
   segmentsPreviewCount(contentType: String!, conditions: JSON, subOf: String, config: JSON, conditionsConjunction: String): Int
 `;
