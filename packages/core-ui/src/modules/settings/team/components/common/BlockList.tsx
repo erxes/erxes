@@ -1,10 +1,9 @@
-import React from 'react';
-
 import Box from '@erxes/ui/src/components/Box';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from 'modules/common/utils';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   allDatas: any[];
@@ -38,7 +37,7 @@ export default function BlockList(props: Props) {
       extraButtons={extraButtons}
       collapsible={allDatas.length > 6}
     >
-      <SidebarList noTextColor noBackground className="no-link">
+      <SidebarList noTextColor={true} noBackground={true} className="no-link">
         {renderItems}
       </SidebarList>
     </Box>

@@ -3,6 +3,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 const productFields = `
   _id
   name
+  shortName
   type
   code
   categoryId

@@ -43,6 +43,7 @@ export default {
   editorAttributes: async ({ subdomain }) => {
     return [
       { value: 'name', name: 'Name' },
+      { value: 'shortName', name: 'Short name' },
       { value: 'code', name: 'Code' },
       { value: 'price', name: 'Price' },
       { value: 'bulkQuantity', name: 'Bulk quantity' },
