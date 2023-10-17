@@ -571,6 +571,16 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
+              <ControlLabel required={true}>Short name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="shortName"
+                defaultValue={object.shortName}
+                required={true}
+              />
+            </FormGroup>
+
+            <FormGroup>
               <ControlLabel required={true}>Type</ControlLabel>
               <FormControl
                 {...formProps}

@@ -1,5 +1,6 @@
 const productParamsDef = `
   $name: String,
+  $shortName: String,
   $type: String,
   $categoryId: String,
   $description: String,
@@ -34,6 +35,7 @@ const productCategoryParamsDef = `
 
 const productParams = `
   name: $name,
+  shortName: $shortName,
   type: $type,
   categoryId: $categoryId,
   description: $description,

@@ -193,6 +193,19 @@ const exmFeedQueries = {
       filter.contentType = { $in: contentTypes };
     }
 
+    if (contentTypes && contentTypes.includes('bravo')) {
+      if (recipientType === 'recieved') {
+        filter.recipientIds = { $in: [user._id] };
+      } else if (recipientType === 'sent') {
+        filter.createdBy = user._id;
+      } else {
+        filter.$or.push(
+          { recipientIds: { $in: [user._id] } },
+          { createdBy: user._id }
+        );
+      }
+    }
+
     if (isPinned !== undefined) {
       if (isPinned) {
         filter.isPinned = true;

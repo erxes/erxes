@@ -1,14 +1,14 @@
-'use client'
+"use client"
 
 import dynamic from "next/dynamic"
-
-import { getMode } from "@/lib/utils"
+import { modeAtom } from "@/store"
+import { useAtomValue } from "jotai"
 
 const Main = dynamic(() => import("./main"))
 const Kiosk = dynamic(() => import("./kiosk"))
 
 const Checkout = () => {
-  const mode = getMode()
+  const mode = useAtomValue(modeAtom)
   return (
     <>
       {["main", "coffee-shop"].includes(mode) && <Main />}

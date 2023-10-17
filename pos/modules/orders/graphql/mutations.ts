@@ -13,6 +13,7 @@ const addEditParamDefs = `
     $description: String
     $buttonType: String
     $dueDate: Date
+    $isPre: Boolean
 `
 
 const addEditParams = `
@@ -28,11 +29,12 @@ const addEditParams = `
     description: $description
     buttonType: $buttonType
     dueDate: $dueDate
+    isPre: $isPre
 `
 
 const ordersAdd = gql`
-  mutation ordersAdd(${addEditParamDefs}, $isPre: Boolean) {
-    ordersAdd(${addEditParams}, isPre: $isPre) {
+  mutation ordersAdd(${addEditParamDefs}) {
+    ordersAdd(${addEditParams}) {
      _id
     }
   }

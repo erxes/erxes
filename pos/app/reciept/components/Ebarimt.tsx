@@ -33,12 +33,12 @@ const Ebarimt = ({
 
     return (
       <>
-        <p>НӨАТ: {formatNum(vat || 0)}</p>
-        <p>НXАТ: {formatNum(cityTax || 0)}</p>
+        {Number(vat) > 0 && <p>НӨАТ: {formatNum(Number(vat))}</p>}
+        {Number(cityTax) > 0 && <p>НXАТ: {formatNum(Number(cityTax))}</p>}
         <p>Дүн: {formatNum(amount || 0)}</p>
         {!type && (
           <p>
-            Сугалаа: <span className="font-semibold">{lottery}</span>
+            Сугалаа: <p className="font-semibold">{lottery}</p>
           </p>
         )}
       </>
@@ -46,13 +46,9 @@ const Ebarimt = ({
   }
 
   return (
-    <div className="flex items-center border-t pt-1">
-      {!type && (
-        <div className="w-1/2">
-          {!!qrData && <QRCodeSVG value={qrData || ""} />}
-        </div>
-      )}
-      <div className="font-base w-1/2 text-[11px]">{renderLotteryCode()}</div>
+    <div className="flex items-center border-t pt-1 px-2 gap-2">
+      {!type && !!qrData && <QRCodeSVG value={qrData || ""} />}
+      <div className="font-base text-[11px] ">{renderLotteryCode()}</div>
     </div>
   )
 }

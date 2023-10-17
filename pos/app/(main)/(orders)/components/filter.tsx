@@ -4,7 +4,7 @@ import SelectSlot from "@/modules/slots/components/selectSlot"
 import { SetAtom } from "@/store"
 import { defaultFilter } from "@/store/history.store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { formatISO, subDays } from "date-fns"
+import { formatISO, setHours, setMinutes, setSeconds, subDays } from "date-fns"
 import { SetStateAction } from "jotai"
 import { SearchIcon, XIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -34,9 +34,11 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 
+const toEnd = (d: string | Date) =>
+  setHours(setMinutes(setSeconds(new Date(d), 59), 59), 23)
+
 const FormSchema = z.object({
   searchValue: z.string(),
-  dateType: z.string().optional(),
   range: z
     .object({
       from: z.date(),
@@ -93,7 +95,7 @@ const Filter = ({
 
   const onSubmit = ({
     searchValue,
-    dateType,
+    dueRange,
     range,
     statuses,
     isPaid,
@@ -110,12 +112,14 @@ const Filter = ({
       searchValue,
       statuses: (statuses || []) as IOrderStatus[],
       startDate: formatISO(new Date(from || subDays(new Date(), 10))),
-      endDate: formatISO(new Date(to || new Date())),
+      endDate: formatISO(toEnd(to || new Date())),
       isPaid: isPaid === "all" ? undefined : isPaid === "paid",
       slotCode: slotCode === "all" ? undefined : slotCode,
       isPreExclude,
       sortField,
       sortDirection,
+      dueStartDate: dueRange?.from ? formatISO(dueRange?.from) : undefined,
+      dueEndDate: dueRange?.to ? formatISO(toEnd(dueRange?.to)) : undefined,
     })
   }
 
@@ -150,7 +154,6 @@ const Filter = ({
                     date={field.value}
                     setDate={field.onChange}
                     toDate={new Date()}
-                    className=""
                   />
                 </FormControl>
                 <FormMessage />
@@ -254,7 +257,22 @@ const Filter = ({
               </FormItem>
             )}
           />
-          <div className="">hi</div>
+          <FormField
+            control={form.control}
+            name="dueRange"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Дуусах огноо /DueDate/ - ны хүрээ</FormLabel>
+                <FormControl>
+                  <DatePickerWithRange
+                    date={field.value}
+                    setDate={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="isPreExclude"

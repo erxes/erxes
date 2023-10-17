@@ -154,6 +154,25 @@ export const renderAmount = (amount = {}, tick = true) => {
   );
 };
 
+export const renderPercentedAmount = (amount = {}, percent, tick = true) => {
+  if (!Object.keys(amount).length) {
+    return <></>;
+  }
+
+  return (
+    <HeaderAmount>
+      <Amount unUsed={!tick}>
+        {Object.keys(amount).map(key => (
+          <li key={key}>
+            {((amount[key] * percent) / 100).toLocaleString()}{' '}
+            <span>{key}</span>
+          </li>
+        ))}
+      </Amount>
+    </HeaderAmount>
+  );
+};
+
 export const invalidateCache = () => {
   localStorage.setItem('cacheInvalidated', 'true');
 };

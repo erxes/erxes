@@ -40,6 +40,7 @@ type State = {
   kioskExcludeProductIds: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  banFractions: boolean;
 };
 
 export default class ConfigStep extends React.Component<Props, State> {
@@ -56,7 +57,8 @@ export default class ConfigStep extends React.Component<Props, State> {
       kioskExcludeCategoryIds: (pos && pos.kioskExcludeCategoryIds) || [],
       kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || [],
       isCheckRemainder: (pos && pos.isCheckRemainder) || false,
-      checkExcludeCategoryIds: (pos && pos.checkExcludeCategoryIds) || []
+      checkExcludeCategoryIds: (pos && pos.checkExcludeCategoryIds) || [],
+      banFractions: (pos && pos.banFractions) || false
     };
   }
 
@@ -202,7 +204,8 @@ export default class ConfigStep extends React.Component<Props, State> {
       kioskExcludeCategoryIds,
       kioskExcludeProductIds,
       isCheckRemainder,
-      checkExcludeCategoryIds
+      checkExcludeCategoryIds,
+      banFractions
     } = this.state;
 
     const groupTrigger = (
@@ -325,6 +328,19 @@ export default class ConfigStep extends React.Component<Props, State> {
                     this.onChangeValue('checkExcludeCategoryIds', categoryIds)
                   }
                   multi={true}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Ban Fractions</ControlLabel>
+                <FormControl
+                  checked={banFractions}
+                  componentClass="checkbox"
+                  onChange={e => {
+                    this.onChangeValue(
+                      'banFractions',
+                      (e.target as any).checked
+                    );
+                  }}
                 />
               </FormGroup>
             </Block>

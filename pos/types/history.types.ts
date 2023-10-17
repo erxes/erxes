@@ -11,4 +11,6 @@ export interface IFilter {
   sortField?: string
   sortDirection?: number
   isPreExclude?: boolean
+  dueStartDate?: string
+  dueEndDate?: string
 }

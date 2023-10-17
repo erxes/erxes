@@ -1,15 +1,15 @@
 "use client"
 
 import dynamic from "next/dynamic"
-
-import { getMode } from "@/lib/utils"
+import { modeAtom } from "@/store"
+import { useAtomValue } from "jotai"
 
 const Market = dynamic(() => import("./market"))
 const Main = dynamic(() => import("./main"))
 const Kiosk = dynamic(() => import("./kiosk"))
 
 export default function IndexPage() {
-  const mode = getMode()
+  const mode = useAtomValue(modeAtom)
   return (
     <>
       {mode === "market" && <Market />}

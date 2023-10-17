@@ -1,8 +1,8 @@
 "use client"
 
 import dynamic from "next/dynamic"
-
-import { getMode } from "@/lib/utils"
+import { modeAtom } from "@/store"
+import { useAtomValue } from "jotai"
 
 const loading = () => <div className="h-14 w-full borde-b" />
 
@@ -19,7 +19,7 @@ const HeaderLayout = (props: {
   children?: React.ReactNode
   hideUser?: boolean
 }) => {
-  const mode = getMode()
+  const mode = useAtomValue(modeAtom)
 
   return (
     <>

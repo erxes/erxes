@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import useConfig from "@/modules/auth/hooks/useConfig"
 import { queries } from "@/modules/orders/graphql"
+import { modeAtom } from "@/store"
 import {
   printTypeAtom,
   putResponsesAtom,
@@ -13,7 +14,6 @@ import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { BILL_TYPES } from "@/lib/constants"
-import { getMode } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import Amount from "@/app/reciept/components/Amount"
@@ -25,7 +25,7 @@ const Reciept = () => {
   const searchParams = useSearchParams()
   const _id = searchParams.get("id")
 
-  const mode = getMode()
+  const mode = useAtomValue(modeAtom)
   const [type, setType] = useAtom(printTypeAtom)
   const putResponses = useAtomValue(putResponsesAtom)
   const setOrderStates = useSetAtom(setOrderStatesAtom)

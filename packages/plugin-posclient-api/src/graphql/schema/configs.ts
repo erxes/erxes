@@ -75,6 +75,7 @@ export const types = `
     allowTypes: [String]
     isCheckRemainder: Boolean
     checkExcludeCategoryIds: [String]
+    banFractions: Boolean
   }
 `;
 

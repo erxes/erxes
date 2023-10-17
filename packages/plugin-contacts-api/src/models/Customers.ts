@@ -91,7 +91,12 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
     customerFields: ICustomerFieldsInput,
     idsToExclude?: string[] | string
   ): never;
-  findActiveCustomers(selector, fields?): Promise<ICustomerDocument[]>;
+  findActiveCustomers(
+    selector,
+    fields?,
+    skip?,
+    limit?
+  ): Promise<ICustomerDocument[]>;
   getCustomer(_id: string): Promise<ICustomerDocument>;
   getCustomerName(customer: ICustomer): string;
   createVisitor(): Promise<string>;
@@ -217,11 +222,14 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       return 'Unknown';
     }
 
-    public static async findActiveCustomers(selector, fields) {
+    public static async findActiveCustomers(selector, fields, skip?, limit?) {
       return models.Customers.find(
         { ...selector, status: { $ne: 'deleted' } },
         fields
-      ).lean();
+      )
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .lean();
     }
 
     /**

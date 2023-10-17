@@ -1,14 +1,15 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
+import React from 'react';
 import { colors } from '../../styles';
 import { rgba } from '../../styles/ecolor';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const Item = styled.li`
+const Item = styledTS<{ isLast?: boolean }>(styled.li)`
   display: inline-block;
   color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   text-transform: capitalize;
-  padding-right: 40px;
+  padding-right: ${props => (props.isLast ? '10px' : '40px')};
 
   > a {
     text-decoration: none;
@@ -37,13 +38,14 @@ type Props = {
   children: React.ReactNode;
   to: string;
   title?: string;
+  isLast?: boolean;
 };
 
-function MenuItem({ to, title, children, ...props }: Props) {
+function MenuItem({ to, title, children, isLast, ...props }: Props) {
   const linkProps = { to, title };
 
   return (
-    <Item>
+    <Item isLast={isLast}>
       <NavLink {...props} {...linkProps} exact={true}>
         {children}
       </NavLink>

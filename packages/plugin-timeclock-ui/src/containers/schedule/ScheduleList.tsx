@@ -148,9 +148,11 @@ const ListContainer = (props: FinalProps) => {
     const { userType, checkOnly } = variables;
     let duplicateSchedules: ISchedule[] = [];
 
-    const res = await checkDuplicateScheduleShiftsMutation({
-      variables
-    });
+    const res =
+      checkInput(variables) &&
+      (await checkDuplicateScheduleShiftsMutation({
+        variables
+      }));
 
     duplicateSchedules = await res.data.checkDuplicateScheduleShifts;
     if (!duplicateSchedules.length) {
@@ -158,11 +160,9 @@ const ListContainer = (props: FinalProps) => {
       if (checkOnly) {
         return duplicateSchedules;
       }
-      if (checkInput(variables)) {
-        userType === 'admin'
-          ? submitSchedule(variables)
-          : submitRequest(variables);
-      }
+      userType === 'admin'
+        ? submitSchedule(variables)
+        : submitRequest(variables);
     }
 
     const usersWithDuplicateShifts: {

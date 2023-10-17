@@ -1,10 +1,12 @@
 "use client"
 
 import * as React from "react"
+import { modeAtom } from "@/store"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva } from "class-variance-authority"
+import { useAtomValue } from "jotai"
 
-import { cn, getMode } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -85,23 +87,26 @@ const NavigationMenuLink = NavigationMenuPrimitive.Link
 const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
->(({ className, ...props }, ref) => (
-  <div
-    className={cn(
-      "absolute  top-full flex justify-center",
-      getMode() === "market" ? "right-0" : "left-0"
-    )}
-  >
-    <NavigationMenuPrimitive.Viewport
+>(({ className, ...props }, ref) => {
+  const mode = useAtomValue(modeAtom)
+  return (
+    <div
       className={cn(
-        "origin-top-center relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]",
-        className
+        "absolute  top-full flex justify-center",
+        mode === "market" ? "right-0" : "left-0"
       )}
-      ref={ref}
-      {...props}
-    />
-  </div>
-))
+    >
+      <NavigationMenuPrimitive.Viewport
+        className={cn(
+          "origin-top-center relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    </div>
+  )
+})
 NavigationMenuViewport.displayName =
   NavigationMenuPrimitive.Viewport.displayName
 

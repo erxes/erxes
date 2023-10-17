@@ -4,10 +4,10 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { IPosDocument } from './models/definitions/pos';
 import {
   sendCoreMessage,
-  sendEbarimtMessage,
   sendPricingMessage,
   sendProductsMessage
 } from './messageBroker';
+import { USER_FIELDS } from './contants';
 
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };
@@ -21,7 +21,8 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
         query: {
           _id: { $in: pos.adminIds },
           isActive: true
-        }
+        },
+        fields: USER_FIELDS
       },
       isRPC: true
     });
@@ -36,7 +37,8 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
         query: {
           _id: { $in: pos.cashierIds },
           isActive: true
-        }
+        },
+        fields: USER_FIELDS
       },
       isRPC: true
     });
