@@ -8,7 +8,7 @@ import Image from "@/components/ui/image"
 import Loader from "@/components/ui/loader"
 
 const Welcome = () => {
-  const { data, loading } = useQuery(queries.uiOptions)
+  const { data, loading } = useQuery(queries.bgImage)
   const { uiOptions } = data?.currentConfig || {}
 
   if (loading) return <Loader className="h-screen" />

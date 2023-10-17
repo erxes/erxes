@@ -7,6 +7,7 @@ import {
 } from "@/types/order.types"
 import { IProduct } from "@/types/product.types"
 import { ORDER_STATUSES } from "@/lib/constants"
+import { getLocal } from "@/lib/utils"
 
 interface IUpdateItem {
   _id: string
@@ -30,6 +31,11 @@ export const changeCartItem = (
     for (let key = 0; key < fieldKeys.length; key++) {
       const value = rest[fieldKeys[key] as keyof typeof rest]
       if (typeof value !== "undefined") {
+        if (getLocal("mode") === "kiosk")
+          return cart.map((item) =>
+            item._id === _id ? { ...item, [fieldKeys[key]]: value } : item
+          )
+
         return [{ ...currentItem, [fieldKeys[key]]: value }, ...exceptCurrent]
       }
     }
@@ -37,6 +43,10 @@ export const changeCartItem = (
 
   if (typeof count !== "undefined") {
     if (count === -1) return exceptCurrent
+
+    if (getLocal("mode") === "kiosk") {
+      return cart.map((item) => (item._id === _id ? { ...item, count } : item))
+    }
 
     return [{ ...currentItem, count }, ...exceptCurrent]
   }

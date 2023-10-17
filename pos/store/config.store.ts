@@ -32,6 +32,11 @@ export const setCurrentUserAtom = atom(
 )
 export const allowTypesAtom = atom<IOrderType[] | null>(null)
 
+export const kitchenScreenAtom = atom<{
+  isActive?: boolean
+  isPrint?: boolean
+} | null>(null)
+
 export const setWholeConfig = atom(
   null,
   (

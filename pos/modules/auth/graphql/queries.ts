@@ -85,6 +85,7 @@ const getSettingsConfig = gql`
 const getEbarimtConfig = gql`
   query EbarimtConfig {
     currentConfig {
+      paymentTypes
       ebarimtConfig {
         footerText
         hasCopy
@@ -157,10 +158,11 @@ const getInitialCategories = gql`
     }
   }
 `
-const getAllowTypes = gql`
-  query AllowTypes {
+const getCheckoutConfig = gql`
+  query checkoutConfig {
     currentConfig {
       allowTypes
+      kitchenScreen
     }
   }
 `
@@ -168,8 +170,29 @@ const uiOptions = gql`
   query UiOptions {
     currentConfig {
       uiOptions {
-        bgImage
+        texts
         logo
+      }
+    }
+  }
+`
+const kioskHomeHeader = gql`
+  query UiOptions {
+    currentConfig {
+      uiOptions {
+        logo
+        kioskHeaderImage
+      }
+    }
+  }
+`
+
+const bgImage = gql`
+  query UiOptions {
+    currentConfig {
+      uiOptions {
+        bgImage
+        texts
       }
     }
   }
@@ -187,10 +210,12 @@ const queries = {
   posUsers,
   getWholeConfig,
   getInitialCategories,
-  getAllowTypes,
+  getCheckoutConfig,
   getWaitingConfig,
   getPaymentTypes,
   uiOptions,
+  bgImage,
+  kioskHomeHeader,
 }
 
 export default queries
