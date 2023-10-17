@@ -1,5 +1,65 @@
 import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
+
+export type MutationVariables = {
+  _id?: string;
+  userId?: string;
+  longitude?: number;
+  latitude?: number;
+  deviceType?: string;
+  shiftStart?: Date;
+  shiftEnd?: Date;
+  shiftActive?: boolean;
+};
+export interface IAbsence {
+  _id: string;
+  user: IUser;
+  startTime: Date;
+  endTime: Date;
+  holidayName: string;
+  reason: string;
+  explanation: string;
+  solved: boolean;
+  status: string;
+  attachment: IAttachment;
+
+  absenceTimeType: string;
+  requestDates: string[];
+  totalHoursOfAbsence: string;
+
+  note?: string;
+
+  absenceType?: string;
+}
+export interface ISchedule {
+  _id: string;
+  user: IUser;
+  shifts: IShift[];
+  solved: boolean;
+  status?: string;
+  scheduleConfigId: string;
+  scheduleChecked: boolean;
+  submittedByAdmin: boolean;
+  totalBreakInMins?: number;
+}
+export interface ITimeclock {
+  _id: string;
+  shiftStart: Date;
+  shiftActive?: boolean;
+  user: IUser;
+  shiftEnd?: Date;
+  employeeUserName?: string;
+  employeeId?: number;
+  deviceName?: string;
+  deviceType?: string;
+  inDevice?: string;
+  outDevice?: string;
+  inDeviceType?: string;
+  outDeviceType?: string;
+  branchName?: string;
+
+  shiftNotClosed?: boolean;
+}
 
 export type ReportsQueryResponse = {
   bichilTimeclockReport: {
@@ -13,6 +73,9 @@ export type ReportsQueryResponse = {
   };
 } & QueryResponse;
 
+export type ReportByUsersQueryResponse = {
+  bichilTimeclockReportByUsers: { list: [IUserReport]; totalCount: number };
+} & QueryResponse;
 export interface IReport {
   groupTitle: string;
   groupReport: IUserReport[];
@@ -20,6 +83,12 @@ export interface IReport {
   groupTotalAbsenceMins?: number;
   groupTotalMinsWorked?: number;
 }
+
+export type TimeclockMutationResponse = {
+  timeclockEditMutation: (params: {
+    variables: MutationVariables;
+  }) => Promise<any>;
+};
 
 export interface IUserReport {
   user: IUser;
@@ -66,6 +135,12 @@ export interface IUserReport {
   totalHoursVacation?: number;
   totalHoursUnpaidAbsence?: number;
   totalHoursSick?: number;
+
+  index?: number;
+
+  schedules?: ISchedule[];
+  timeclocks?: ITimeclock[];
+  requests?: IAbsence[];
 }
 
 export interface IScheduleReport {
@@ -84,4 +159,14 @@ export interface IScheduleReport {
   totalMinsLate: number;
   totalHoursOvertime: number;
   totalHoursOvernight: number;
+}
+
+export interface IShift {
+  _id?: string;
+  user?: IUser;
+  date?: Date;
+  shiftStart: Date;
+  shiftEnd: Date;
+  scheduleConfigId: string;
+  lunchBreakInMins?: number;
 }

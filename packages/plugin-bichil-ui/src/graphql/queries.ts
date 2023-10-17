@@ -27,6 +27,7 @@ const listParamsDef = `
   $branchIds: [String]
   $departmentIds: [String]
   $reportType: String
+  $isCurrentUserAdmin: Boolean
 `;
 
 const listParamsValue = `
@@ -38,6 +39,7 @@ const listParamsValue = `
   branchIds: $branchIds
   departmentIds: $departmentIds
   reportType: $reportType
+  isCurrentUserAdmin: $isCurrentUserAdmin
 `;
 
 const bichilTimeclockReport = `
@@ -121,6 +123,27 @@ const bichilTimeclockReport = `
   
   }`;
 
+const bichilTimeclockReportByUsers = `
+query bichilTimeclockReportByUsers(${listParamsDef}){
+  bichilTimeclockReportByUsers(${listParamsValue}){
+   list {
+      user{
+        ${userFields}
+      }
+
+
+      schedules{
+          shifts{
+            shiftStart
+            shiftEnd
+          }
+      }
+      timeclocks
+      requests
+    }
+    totalCount
+  }
+}`;
 const labelsQuery = `
   query bichilSalaryLabels {
     bichilSalaryLabels
@@ -201,6 +224,7 @@ query BichilSalaryByEmployee($password: String!) {
 `;
 
 export default {
+  bichilTimeclockReportByUsers,
   bichilTimeclockReport,
   labelsQuery,
   bichilSalaryReport,

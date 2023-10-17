@@ -5,8 +5,11 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './bichilReportTable': './src/containers/report/ReportList.tsx',
+    './bichilTimeclockTable': './src/containers/timeclock/TimeclockList.tsx',
     './bichilExportReportBtn': './src/components/report/ExportBtn.tsx',
-    './gotoSalaries': './src/components/salary/SalaryBtn.tsx',
+    './bichilTimeclockActionBar':
+      './src/components/timeclock/TimeclockActionBar.tsx',
+    './gotoSalaries': './src/components/salary/SalaryBtn.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -14,7 +17,9 @@ module.exports = {
     module: './routes'
   },
   bichilReportTable: './bichilReportTable',
+  bichilTimeclockTable: './bichilTimeclockTable',
   bichilExportReportBtn: './bichilExportReportBtn',
+  bichilTimeclockActionBar: './bichilTimeclockActionBar',
   actionForms: './gotoSalaries',
   menus: [
     {
