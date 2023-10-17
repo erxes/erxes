@@ -23,12 +23,17 @@ import {
   TemplateInfo,
   RowTitle
 } from '@erxes/ui-emailtemplates/src/styles';
+import { renderToString } from 'react-dom/server';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonListProps;
 
 class ScriptList extends React.Component<Props> {
+  closeModal = () => {
+    console.log('closed');
+  };
+
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
@@ -56,7 +61,9 @@ class ScriptList extends React.Component<Props> {
   };
 
   installCodeAction = object => {
-    const content = props => <InstallCode {...props} script={object} />;
+    const content = props => (
+      <InstallCode {...props} script={object} closeModal={this.closeModal} />
+    );
 
     return (
       <ModalTrigger
@@ -79,6 +86,10 @@ class ScriptList extends React.Component<Props> {
 
   renderRow = () => {
     return this.props.objects.map((object, index) => {
+      const contentHtml = renderToString(
+        <InstallCode script={object} closeModal={this.closeModal} />
+      );
+
       return (
         <Template key={index}>
           <RowTitle>
@@ -123,7 +134,7 @@ class ScriptList extends React.Component<Props> {
               {this.installCodeAction(object)}
             </Actions>
             <IframePreview>
-              <iframe title="scripts-iframe" srcDoc={object.content} />
+              <iframe title="scripts-iframe" srcDoc={contentHtml} />
             </IframePreview>
           </TemplateBox>
         </Template>
