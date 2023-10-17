@@ -1,8 +1,10 @@
 const insuranceTypeFields = `
   _id
       entity
+      stageId
+      pipelineId
+      boardId
       contributionType
-      chooseBoard 
       frequency
       metric
       goalType

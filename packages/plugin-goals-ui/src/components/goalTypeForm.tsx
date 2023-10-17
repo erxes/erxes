@@ -13,6 +13,7 @@ import {
   MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { IGoalType, IGoalTypeDoc } from '../types';
 import { ENTITY, CONTRIBUTION, FREQUENCY, GOAL_TYPE } from '../constants';
 import React from 'react';
@@ -20,28 +21,35 @@ import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import dayjs from 'dayjs';
-import { IBoard, IPipeline, IStage } from '../types';
-import { SidebarFilters } from '../styles';
+// import { IBoard, IPipeline, IStage } from '../types';
+import { SidebarFilters, FlexRow } from '../styles';
 import Select from 'react-select-plus';
 import { selectOptions } from '../utils';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 const { Section } = Wrapper.Sidebar;
+import SelectBoards from '@erxes/ui-forms/src/settings/properties/containers/SelectBoardPipeline';
+import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
+import { IOption } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import client from '@erxes/ui/src/apolloClient';
+import { gql } from '@apollo/client';
+import { Alert } from '@erxes/ui/src/utils';
+import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
+import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
+import { IAction } from '@erxes/ui-automations/src/types';
+
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
   closeModal: () => void;
   selectedMembers: string[];
+
+  selectedItems: any[];
   boards: IBoard[];
-  pipelines: IPipeline[];
-  stages: IStage[];
-  boardId?: string;
-  pipelineId?: string;
-  stageId?: string;
-  onChangeBoard: (value: string) => void;
-  onChangePipeline: (value: string) => void;
-  onChangeStage: (value: string, callback?: () => void) => void;
-  callback?: () => void;
-  translator?: (key: string, options?: any) => string;
+  onChangeItems: (items: any[]) => any;
+  pipelineLabels?: IPipelineLabel[];
+  activeAction: IAction;
 };
 
 type State = {
@@ -54,6 +62,12 @@ type State = {
   endDate: Date;
   period: boolean;
   selectedMembers: string[];
+
+  pipelineLabels: IPipelineLabel[];
+  config: any;
+  stageId?: any;
+  pipelineId?: any;
+  boardId: any;
 };
 
 class GoalTypeForm extends React.Component<Props, State> {
@@ -61,8 +75,11 @@ class GoalTypeForm extends React.Component<Props, State> {
     super(props);
 
     const { goalType = {} } = props;
+    const { config = {} } = props;
 
     this.state = {
+      config: config.config,
+      pipelineLabels: goalType.pipelineLabels,
       selectedMembers: props.selectedMembers || [],
       entity: goalType.entity || '',
       contributionType: goalType.contributionType || '',
@@ -71,9 +88,56 @@ class GoalTypeForm extends React.Component<Props, State> {
       metric: goalType.metric || '',
       period: goalType.period,
       startDate: goalType.startDate || new Date(),
-      endDate: goalType.endDate || new Date()
+      endDate: goalType.endDate || new Date(),
+      stageId: goalType.stageId || '',
+      pipelineId: goalType.pipelineId || '',
+      boardId: goalType.boardId || ''
+      // selectItems
     };
   }
+
+  onChangeFieldBoard = (name: string, value: string) => {
+    const { config } = this.state;
+    config[name] = value;
+
+    this.setState({ config });
+  };
+
+  onChangeStartDate = value => {
+    this.setState({ startDate: value });
+  };
+
+  // onChangeStage = (stgId) => this.onChangeFieldBoard('stageId', stgId);
+
+  onChangeStage = stgId => {
+    this.setState({ stageId: stgId });
+  };
+
+  // const stgIdOnChange = (stgId) => this.onChangeField('stageId', stgId);
+
+  onChangePipeline = plId => {
+    client
+      .query({
+        query: gql(pipelineQuery.pipelineLabels),
+        fetchPolicy: 'network-only',
+        variables: { pipelineId: plId }
+      })
+      .then(data => {
+        this.setState({ pipelineLabels: data.data.pipelineLabels });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+
+    this.setState({ pipelineId: plId });
+    // this.onChangeFieldBoard('pipelineId', plId);
+  };
+
+  // onChangeBoard = (brId) => this.onChangeFieldBoard('boardId', brId);
+
+  onChangeBoard = brId => {
+    this.setState({ boardId: brId });
+  };
 
   generateDoc = (values: { _id: string } & IGoalTypeDoc) => {
     const { goalType } = this.props;
@@ -87,19 +151,20 @@ class GoalTypeForm extends React.Component<Props, State> {
     const durationEnd = dayjs(endDate).format('MMM D, h:mm A');
 
     return {
-      memberIds: this.state.selectedMembers,
+      // memberIds: this.state.selectedMembers,
       _id: finalValues._id,
       ...this.state,
       entity: finalValues.entity,
+      stageId: finalValues.stageId,
+      pipelineId: finalValues.pipelineId,
+      boardId: finalValues.boardId,
       contributionType: finalValues.contributionType,
-      // chooseBoard: finalValues.chooseBoard,
       frequency: finalValues.frequency,
       metric: finalValues.metric,
       goalType: finalValues.goalType,
-      // contribution: finalValues.contribution,
+      contribution: this.state.selectedMembers,
       startDate: durationStart,
       endDate: durationEnd,
-      // target: finalValues.target
       target: finalValues.target
     };
   };
@@ -122,9 +187,6 @@ class GoalTypeForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as any);
   };
 
-  onChangeStartDate = value => {
-    this.setState({ startDate: value });
-  };
   onChangeEndDate = value => {
     this.setState({ endDate: value });
   };
@@ -135,46 +197,17 @@ class GoalTypeForm extends React.Component<Props, State> {
       </div>
     );
   };
-  renderSelect(placeholder, value, onChange, options) {
-    return (
-      <Select
-        isRequired={true}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        optionRenderer={this.renderOptions}
-        options={options}
-        clearable={false}
-      />
-    );
-  }
+
   renderContent = (formProps: IFormProps) => {
     const goalType = this.props.goalType || ({} as IGoalType);
     const { closeModal, renderButton, selectedMembers } = this.props;
     const { values, isSubmitted } = formProps;
-    console.log(selectedMembers, 'selectedMembers');
-    const {
-      boards,
-      pipelines,
-      stages,
-      boardId,
-      pipelineId,
-      stageId,
-      onChangeBoard,
-      onChangePipeline,
-      onChangeStage,
-      callback
-    } = this.props;
-    const __ = (key: string, options?: any) => {
-      const { translator } = this.props;
-      if (!translator) {
-        return key;
-      }
-      return translator(key, options);
-    };
+
     const onChange = items => {
       this.setState({ selectedMembers: items });
     };
+
+    const type = 'deal';
 
     return (
       <>
@@ -193,49 +226,25 @@ class GoalTypeForm extends React.Component<Props, State> {
                   required={true}
                   onChange={this.onChangeField}
                 >
-                  {ENTITY.map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
+                  {ENTITY.map((item, index) => (
+                    <option key={index} value={item.value}>
+                      {item.name}
                     </option>
                   ))}
                 </FormControl>
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Board</ControlLabel>
-                {this.renderSelect(
-                  __('Choose a board'),
-                  boardId,
-                  board => onChangeBoard(board.value),
-                  selectOptions(boards)
-                )}
+                <BoardSelect
+                  type={this.state.entity}
+                  stageId={this.state.stageId}
+                  pipelineId={this.state.pipelineId}
+                  boardId={this.state.boardId}
+                  onChangeStage={this.onChangeStage}
+                  onChangePipeline={this.onChangePipeline}
+                  onChangeBoard={this.onChangeBoard}
+                />
               </FormGroup>
 
-              <FormGroup>
-                <ControlLabel>Pipeline</ControlLabel>
-                {this.renderSelect(
-                  __('Choose a pipeline'),
-                  pipelineId,
-                  pipeline => onChangePipeline(pipeline.value),
-                  selectOptions(pipelines)
-                )}
-              </FormGroup>
-
-              <FormGroup>
-                <ControlLabel>Stage</ControlLabel>
-                {this.renderSelect(
-                  __('Choose a stage'),
-
-                  stageId,
-                  stage => onChangeStage(stage.value, callback),
-                  selectOptions(stages)
-                )}
-              </FormGroup>
-
-              {/* {this.renderFormGroup('choose board,pipeline', {
-                ...formProps,
-                name: 'chooseBoard',
-                defaultValue: goalType.chooseBoard || ''
-              })} */}
               <FormGroup>
                 <ControlLabel required={true}>{__('frequency')}</ControlLabel>
                 <FormControl
@@ -261,8 +270,6 @@ class GoalTypeForm extends React.Component<Props, State> {
                     {...formProps}
                     required={false}
                     name="date"
-                    // value={this.state.startDate}
-                    // onChange={this.onChangeField}
                     value={this.state.startDate}
                     onChange={this.onChangeStartDate}
                   />
@@ -312,16 +319,6 @@ class GoalTypeForm extends React.Component<Props, State> {
                 />
               </FormGroup>
 
-              {/* {this.renderFormGroup('contribution', {
-                ...formProps,
-                name: 'contribution',
-                defaultValue: goalType.contribution || ''
-              })} */}
-              {/* {this.renderFormGroup('choose stage', {
-                ...formProps,
-                name: 'chooseStage',
-                defaultValue: goalType.chooseStage || ''
-              })} */}
               <FormGroup>
                 <ControlLabel required={true}>
                   {__('contribution type')}

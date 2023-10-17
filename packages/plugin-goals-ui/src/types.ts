@@ -6,8 +6,10 @@ import {
 export interface IGoalTypeDoc {
   createdAt?: Date;
   entity: string;
+  stageId: any;
+  pipelineId: any;
+  boardId: any;
   contributionType: string;
-  chooseBoard: string;
   frequency: string;
   metric: string;
   goalType: string;

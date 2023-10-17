@@ -126,13 +126,13 @@ class GoalTypesList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              <th>
+              {/* <th>
                 <SortHandler sortField={'_id'} label={__('_id')} />
-              </th>
+              </th> */}
 
               <th>{__('entity ')}</th>
               <th>{__('contributionType')}</th>
-              <th>{__('chooseBoard')}</th>
+              {/* <th>{__('chooseBoard')}</th> */}
               <th>{__('frequency')}</th>
               <th>{__('metric')}</th>
               <th>{__('goalType')}</th>
@@ -190,7 +190,6 @@ class GoalTypesList extends React.Component<IProps, State> {
     }
 
     const goalTypeForm = props => {
-      console.log(this.props, 'asdiojoads');
       return <GoalTypeForm {...props} queryParams={queryParams} />;
     };
 

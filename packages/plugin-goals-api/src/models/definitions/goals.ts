@@ -3,8 +3,10 @@ import { field, schemaHooksWrapper } from './utils';
 
 export interface IGoal {
   entity: string;
+  stageId: string;
+  pipelineId: string;
+  boardId: string;
   contributionType: string;
-  chooseBoard: string;
   frequency: string;
   metric: string;
   goalType: string;
@@ -28,7 +30,9 @@ export const goalSchema = schemaHooksWrapper(
       type: String,
       label: 'Contribution Type'
     }),
-    chooseBoard: field({ type: String, label: 'Choose Board,Pipeline' }),
+    stageId: field({ type: String, label: 'stageId' }),
+    pipelineId: field({ type: String, label: 'pipelineId' }),
+    boardId: field({ type: String, label: 'boardId' }),
     frequency: field({ type: String, label: 'Frequency' }),
     metric: field({ type: String, label: 'Metric' }),
     goalType: field({ type: String, label: 'Choose Goal Type' }),

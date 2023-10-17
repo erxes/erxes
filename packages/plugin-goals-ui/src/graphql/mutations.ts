@@ -1,7 +1,9 @@
 const commonFields = `
     $entity: String
+    $stageId: String
+    $pipelineId: String
+    $boardId: String
     $contributionType: String
-    $chooseBoard: String
     $frequency:String
     $metric:String
     $goalType: String
@@ -13,8 +15,10 @@ const commonFields = `
 
 const commonVariables = `
   entity:$entity
+  stageId:$stageId
+  pipelineId:$pipelineId
+  boardId:$boardId
   contributionType:$contributionType
-  chooseBoard:$chooseBoard
   frequency:$frequency
   metric:$metric
   goalType:$goalType
@@ -30,8 +34,10 @@ const goalTypesAdd = `
     goalsAdd(${commonVariables}) {
       _id
       entity
+      boardId
+      pipelineId
+      stageId
       contributionType
-      chooseBoard 
       frequency
       metric
       goalType
@@ -48,8 +54,10 @@ const goalTypesEdit = `
     goalsEdit(_id: $_id, ${commonVariables}) {
       _id
       entity
+      stageId
+      pipelineId
+      boardId
       contributionType
-      chooseBoard 
       frequency
       metric
       goalType

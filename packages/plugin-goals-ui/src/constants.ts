@@ -4,7 +4,14 @@
 //   'Meeting Based Goal',
 //   'Segment Based Goal'
 // ];
-export const ENTITY = ['deal', 'task', 'ticket', 'purchase'];
+export const ENTITY = [
+  { name: 'Deal Based Goal', value: 'deal' },
+  { name: 'Task Based Goal', value: 'task' },
+  { name: 'Ticket Based Goal', value: 'ticket' },
+  { name: 'Purchase Based Goal', value: 'purchase' }
+];
+
+// export const ENTITY = ['deal', 'task', 'ticket', 'purchase'];
 export const CONTRIBUTION = ['Team Goal', 'Personal Goal'];
 
 export const FREQUENCY = ['Weekly', 'Monthly', ' Quarterly', 'Yearly'];

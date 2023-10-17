@@ -44,7 +44,7 @@ class GoalTypeChooser extends React.Component<
     const { data, goalTypesQuery, search } = this.props;
 
     const renderName = goalType => {
-      return `${goalType.entity} - ${goalType.chooseBoard} `;
+      return `${goalType.entity} - ${goalType.contributionType} `;
     };
 
     const getAssociatedGoalType = (newGoalType: IGoalType) => {

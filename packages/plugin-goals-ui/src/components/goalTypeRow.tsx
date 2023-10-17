@@ -64,7 +64,7 @@ function GoalTypeRow(
       <td key={'contributionType'}>
         {displayValue(goalType, 'contributionType')}
       </td>
-      <td key={'chooseBoard'}>{displayValue(goalType, 'chooseBoard')}</td>
+      {/* <td key={'chooseBoard'}>{displayValue(goalType, 'chooseBoard')}</td> */}
       <td key={'frequency'}>{displayValue(goalType, 'frequency')}</td>
       <td key={'metric'}>{displayValue(goalType, 'metric')}</td>
       <td key={'goalType'}>{displayValue(goalType, 'goalType')}</td>
