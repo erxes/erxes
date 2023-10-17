@@ -53,7 +53,6 @@ const PopoverList = styledTS<{ selectable?: boolean; isIndented?: boolean }>(
   styled.ul
 )`
   max-height: 275px;
-  margin: 0;
   padding: 0;
   list-style: none;
   overflow: auto;
@@ -61,7 +60,7 @@ const PopoverList = styledTS<{ selectable?: boolean; isIndented?: boolean }>(
   padding-top: 10px;
   text-indent:${props =>
     props.isIndented && `-${dimensions.unitSpacing + 5}px`};
-  margin-left: ${props => props.isIndented && `${dimensions.unitSpacing}px`};
+  margin: 0 ${props => props.isIndented && `${dimensions.unitSpacing}px`};
 
   li {
     position: relative;
@@ -161,19 +160,13 @@ const ChildList = styled.div`
 
 const iconWidth = 30;
 
-const ToggleIcon = styledTS<{ isIndented?: boolean; type?: string }>(
-  styled.div
-)`
+const ToggleIcon = styledTS<{ type?: string }>(styled.div)`
   position: absolute;
   ${props =>
     props.type === 'list' &&
     `
   top: 8px;
-  left:${
-    props.isIndented
-      ? `${dimensions.unitSpacing * 0.5}px`
-      : `${dimensions.unitSpacing * 1.5}px`
-  };
+  left:${dimensions.unitSpacing * 0.5}px;
   line-height: ${iconWidth}px;
   text-align: center;
   width: ${iconWidth / 2}px;`}
