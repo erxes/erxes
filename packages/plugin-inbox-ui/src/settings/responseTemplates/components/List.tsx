@@ -180,8 +180,12 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
       return (
         <Template key={index} isLongName={object.name > 5}>
           <RowTitle>
-            <h5>{object.brand.name}</h5>
-            <h5>{object.name}</h5>
+            <div>
+              <h5>{object.brand.name}</h5>
+            </div>
+            <div>
+              <h5>{object.name}</h5>
+            </div>
           </RowTitle>
           <TemplateBox>
             <Actions>
