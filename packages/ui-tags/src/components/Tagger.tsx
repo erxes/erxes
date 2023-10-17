@@ -80,7 +80,7 @@ class Tagger extends React.Component<Props, State> {
           this.setState({ cursor: cursor - 1 });
         }
         if (cursor === 0) {
-          this.setState({ cursor: maxCursor });
+          this.setState({ cursor: maxCursor - 1 });
         }
         break;
       case 40:
@@ -128,7 +128,11 @@ class Tagger extends React.Component<Props, State> {
           this.props.type === 'inbox:conversation' && this.state
             ? `tag-${i}`
             : '',
-        itemActiveClass: this.state && this.state.cursor === i && 'active'
+        itemActiveClass:
+          this.props.type === 'inbox:conversation' &&
+          this.state &&
+          this.state.cursor === i &&
+          'active'
       };
     });
   }
@@ -172,7 +176,7 @@ class Tagger extends React.Component<Props, State> {
       selectable: true,
       treeView: disableTreeView ? false : true,
       items: JSON.parse(JSON.stringify(this.state.tagsForList)),
-      isIndented: true,
+      isIndented: false,
       singleSelect: this.props.singleSelect
     };
 

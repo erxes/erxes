@@ -66,6 +66,7 @@ class TaggerSection extends React.Component<Props, State> {
         name="showTags"
         extraButtons={extraButtons}
         callback={collapseCallback}
+        noPadding={true}
       >
         <Collapse in={this.state.isTaggerVisible}>
           <Tagger
