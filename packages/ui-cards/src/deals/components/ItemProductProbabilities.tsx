@@ -2,6 +2,7 @@ import React from 'react';
 import { renderAmount, renderPercentedAmount } from '../../boards/utils';
 import { __ } from '@erxes/ui/src/utils/core';
 import { StageInfo } from '../../boards/styles/stage';
+import { IDeal } from '../types';
 
 type Props = {
   totalAmount?: any;
@@ -51,7 +52,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
     const {
       probability,
       totalAmount,
-      deals = [],
+      deals = [] as IDeal[],
       dealTotalAmounts = []
     } = this.props;
 
@@ -76,7 +77,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
         : probability;
 
     deals.map(deal => {
-      const percentage = deal.stage.probability || null;
+      const percentage = deal.stage?.probability || null;
 
       const percentagePercentage =
         percentage === 'Won'
