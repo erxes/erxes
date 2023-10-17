@@ -68,7 +68,7 @@ class EmailTemplate extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { emailTemplates } = this.props;
+    const { emailTemplates = [] } = this.props;
 
     if (!emailTemplates || emailTemplates.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
