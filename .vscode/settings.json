@@ -9,7 +9,6 @@
   // "editor.minimap.enabled": false,
   "explorer.sortOrder": "type",
   "files.trimFinalNewlines": true,
-  "editor.renderIndentGuides": true,
   "workbench.editor.highlightModifiedTabs": true,
   "files.autoSave": "onFocusChange",
   "editor.suggestSelection": "first",
@@ -36,5 +35,6 @@
     "editor.formatOnSave": true
   },
   "prettier.bracketSameLine": true,
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.guides.indentation": true
 }
