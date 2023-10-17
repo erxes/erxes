@@ -294,7 +294,9 @@ function List(props: Props) {
         <Icon icon="subject" />
       </ToggleButton>
 
-      <Title capitalize={true}>{` Total: ${timeclocks.length}`}</Title>
+      {!isEnabled('bichil') && (
+        <Title capitalize={true}>{` Total: ${timeclocks.length}`}</Title>
+      )}
     </FlexRowLeft>
   );
 
