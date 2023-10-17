@@ -1,16 +1,18 @@
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import * as React from 'react';
+
+import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { EMPTY_CONTENT_SCRIPT } from '@erxes/ui-settings/src/constants';
-import React from 'react';
-import List from '@erxes/ui-settings/src/common/components/List';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import InstallCode from './InstallCode';
+import { __, router } from 'coreui/utils';
+import { FilterContainer } from '@erxes/ui-settings/src/styles';
 import Form from '../containers/Form';
+import { FormControl } from '@erxes/ui/src/components/form';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import List from '@erxes/ui-settings/src/common/components/List';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import { withRouter } from 'react-router-dom';
 import {
   Actions,
   IframePreview,
@@ -19,13 +21,45 @@ import {
   Templates,
   RowTitle
 } from '@erxes/ui-emailtemplates/src/styles';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import InstallCode from './InstallCode';
+import Tip from '@erxes/ui/src/components/Tip';
 import { renderToString } from 'react-dom/server';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  changeStatus: (_id: string, status: string) => void;
+  queryParams: any;
+  history: any;
 } & ICommonListProps;
 
-class ScriptList extends React.Component<Props> {
+type States = {
+  searchValue: string;
+};
+
+type FinalProps = Props & IRouterProps;
+
+class ScriptList extends React.Component<FinalProps, States> {
+  constructor(props) {
+    super(props);
+
+    const { queryParams } = props;
+
+    const searchValue =
+      queryParams && queryParams.searchValue ? queryParams.searchValue : '';
+
+    this.state = {
+      searchValue
+    };
+  }
+
+  onChange = (e: React.FormEvent) => {
+    const { value } = e.currentTarget as HTMLInputElement;
+
+    this.setState({ searchValue: value });
+  };
+
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
@@ -70,11 +104,65 @@ class ScriptList extends React.Component<Props> {
     );
   };
 
+  handleKeyDown = (
+    e: React.KeyboardEvent<Element> | React.MouseEvent<Element>
+  ) => {
+    if (
+      e instanceof KeyboardEvent &&
+      e.key !== 'Enter' &&
+      e.key !== 'Backspace'
+    ) {
+      return;
+    }
+
+    const { value, name } = (e.currentTarget as any) as HTMLInputElement;
+    router.setParams(this.props.history, { [name]: value });
+  };
+
+  onSelect = (values: string[] | string, name: string) => {
+    router.setParams(this.props.history, { [name]: values });
+  };
+
+  renderFilter = () => {
+    const scriptId =
+      this.props.queryParams && this.props.queryParams.scriptId
+        ? this.props.queryParams
+        : '';
+
+    return (
+      <FilterContainer>
+        <FlexRow>
+          <FlexItem>
+            <SelectBrands
+              label="Script"
+              initialValue={scriptId}
+              onSelect={this.onSelect}
+              name="scriptId"
+              multi={false}
+            />
+          </FlexItem>
+
+          <FlexItem>
+            <FormControl
+              placeholder={__('Search')}
+              name="searchValue"
+              onChange={this.onChange}
+              value={this.state.searchValue}
+              onKeyPress={this.handleKeyDown}
+              onKeyDown={this.handleKeyDown}
+              autoFocus={true}
+            />
+          </FlexItem>
+        </FlexRow>
+      </FilterContainer>
+    );
+  };
+
   removeTemplate = object => {
     this.props.remove(object._id);
   };
 
-  renderRow = () => {
+  renderBlock = () => {
     return this.props.objects.map((object, index) => {
       const contentHtml = renderToString(<InstallCode script={object} />);
 
@@ -126,14 +214,20 @@ class ScriptList extends React.Component<Props> {
     });
   };
 
+  searchHandler = event => {
+    const { history } = this.props;
+
+    router.setParams(history, { page: 1, searchValue: event.target.value });
+  };
+
   renderContent = () => {
-    return <Templates>{this.renderRow()}</Templates>;
+    return <Templates>{this.renderBlock()}</Templates>;
   };
 
   render() {
     return (
       <List
-        formTitle={__('New script')}
+        formTitle="New script"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Scripts') }
@@ -150,14 +244,25 @@ class ScriptList extends React.Component<Props> {
             )}`}
           />
         }
+        flexFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         emptyContent={<EmptyContent content={EMPTY_CONTENT_SCRIPT} />}
-        {...this.props}
         size="lg"
+        {...this.props}
+        rightActionBar="true"
+        // additionalButton={
+        //   <FormControl
+        //     type="text"
+        //     placeholder={__("Type to search")}
+        //     onChange={this.searchHandler}
+        //     value={router.getParam(this.props.history, "searchValue")}
+        //     autoFocus={true}
+        //   />
+        // }
       />
     );
   }
 }
 
-export default ScriptList;
+export default withRouter<FinalProps>(ScriptList);
