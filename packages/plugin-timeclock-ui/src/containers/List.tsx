@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
+import { withProps } from '@erxes/ui/src/utils';
 import {
   TimeClockMutationResponse,
   BranchesQueryResponse,
