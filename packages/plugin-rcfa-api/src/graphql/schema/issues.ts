@@ -28,6 +28,13 @@ const createActionMutationParams = `
   name:String
 `;
 
+const createAssesmentParams = `
+  mainType:String,
+  mainTypeId:String,
+  assessmentDoc:JSON,
+  taskDoc:JSON
+`;
+
 export const mutations = `
   addRcfaIssue(issue:String, parentId:String, mainType:String, mainTypeId:String):RCFAIssue
   editRcfaIssue(_id:String, doc:JSON):RCFAIssue
@@ -35,4 +42,5 @@ export const mutations = `
   closeRcfaRoot(_id:String):JSON,
   createTaskRcfaRoot(issueId:String,name:String,stageId:String):JSON
   createActionRcfaRoot(${createActionMutationParams}):JSON
+  createAssessmentOfRcfa(${createAssesmentParams}):JSON
 `;
