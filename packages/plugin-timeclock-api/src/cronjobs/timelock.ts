@@ -95,6 +95,5 @@ export default {
   },
   handleMinutelyJob: async ({ subdomain }) => {
     console.log('minutely job is working');
-    // await connectAndImportFromMysql(subdomain);
   }
 };
