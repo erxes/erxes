@@ -13,6 +13,7 @@ type BoxProps = {
   callback?: () => void;
   collapsible?: boolean;
   isOpen?: boolean;
+  noPadding?: boolean;
 };
 
 type BoxState = {
@@ -74,14 +75,16 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const { Title } = Section;
 
     const { isOpen } = this.state;
-    const { children, title, collapsible } = this.props;
+    const { children, title, collapsible, noPadding } = this.props;
 
     return (
       <SectionContainer hasShadow={true}>
         <Title onClick={this.toggle}>{title}</Title>
         {this.renderDropBtn()}
         {isOpen ? (
-          <Section collapsible={collapsible}>{children}</Section>
+          <Section noPadding={noPadding} collapsible={collapsible}>
+            {children}
+          </Section>
         ) : null}
       </SectionContainer>
     );
