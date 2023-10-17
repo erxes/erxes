@@ -26,10 +26,6 @@ type Props = {
 } & ICommonListProps;
 
 class ScriptList extends React.Component<Props> {
-  closeModal = () => {
-    console.log('closed');
-  };
-
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
@@ -57,9 +53,7 @@ class ScriptList extends React.Component<Props> {
   };
 
   installCodeAction = object => {
-    const content = props => (
-      <InstallCode {...props} script={object} closeModal={this.closeModal} />
-    );
+    const content = props => <InstallCode {...props} script={object} />;
 
     return (
       <ModalTrigger
@@ -82,9 +76,7 @@ class ScriptList extends React.Component<Props> {
 
   renderRow = () => {
     return this.props.objects.map((object, index) => {
-      const contentHtml = renderToString(
-        <InstallCode script={object} closeModal={this.closeModal} />
-      );
+      const contentHtml = renderToString(<InstallCode script={object} />);
 
       return (
         <Template key={index}>

@@ -10,7 +10,7 @@ import { IScript } from '../types';
 
 type Props = {
   script: IScript;
-  closeModal: () => void;
+  closeModal?: () => void;
 };
 
 type State = {
@@ -61,7 +61,7 @@ class InstallCode extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <MarkdownWrapper>
-          <ReactMarkdown children={this.state.code || ""} />
+          <ReactMarkdown children={this.state.code || ''} />
           {this.state.code ? (
             <CopyToClipboard text={this.state.code} onCopy={this.onCopy}>
               <Button size="small" btnStyle="primary" icon="copy-1">
