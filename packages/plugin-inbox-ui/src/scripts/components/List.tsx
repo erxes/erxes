@@ -33,81 +33,6 @@ class ScriptList extends React.Component<Props> {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  installCodeAction = object => {
-    const content = props => <InstallCode {...props} script={object} />;
-
-    return (
-      <ModalTrigger
-        title="Install code"
-        trigger={
-          <Button btnStyle="link">
-            <Tip text="Install code" placement="top">
-              <Icon icon="code" />
-            </Tip>
-          </Button>
-        }
-        content={content}
-      />
-    );
-  };
-
-  // renderRows = ({ objects }) => {
-  //   return objects.map((object, index) => {
-  //     return (
-  //       <tr key={index}>
-  //         <td>{object.name}</td>
-  //         <td>
-  //           {object.messenger && (
-  //             <div>
-  //               <Tip text="Messenger" placement="top">
-  //                 <Icon icon="comment-1" />
-  //               </Tip>{" "}
-  //               {object.messenger.name}
-  //             </div>
-  //           )}
-  //           {object.kbTopic && (
-  //             <div>
-  //               <Tip text="Knowledge Base" placement="top">
-  //                 <Icon icon="book-open" />
-  //               </Tip>{" "}
-  //               {object.kbTopic.title}
-  //             </div>
-  //           )}
-  //           {object.leads.length > 0 && (
-  //             <div>
-  //               <Tip text="Forms" placement="top">
-  //                 <Icon icon="window" />
-  //               </Tip>
-  //               {object.leads.map((lead) => ` ${lead.name},`)}
-  //             </div>
-  //           )}
-  //         </td>
-  // <RowActions
-  //   {...this.props}
-  //   object={object}
-  //   renderForm={this.renderForm}
-  //   additionalActions={this.installCodeAction}
-  // />
-  //       </tr>
-  //     );
-  //   });
-  // };
-
-  // renderContent = (props) => {
-  //   return (
-  //     <Table>
-  //       <thead>
-  //         <tr>
-  //           <th>{__("Name")}</th>
-  //           <th>{__("Integrations")}</th>
-  //           <th style={{ width: 120 }}>{__("Actions")}</th>
-  //         </tr>
-  //       </thead>
-  //       <tbody>{this.renderRows(props)}</tbody>
-  //     </Table>
-  //   );
-  // };
-
   renderEditAction = object => {
     const { save } = this.props;
 
@@ -130,6 +55,24 @@ class ScriptList extends React.Component<Props> {
     );
   };
 
+  installCodeAction = object => {
+    const content = props => <InstallCode {...props} script={object} />;
+
+    return (
+      <ModalTrigger
+        enforceFocus={false}
+        title="Install code"
+        size="lg"
+        trigger={
+          <div>
+            <Icon icon="code" /> Install code
+          </div>
+        }
+        content={content}
+      />
+    );
+  };
+
   removeTemplate = object => {
     this.props.remove(object._id);
   };
@@ -139,33 +82,37 @@ class ScriptList extends React.Component<Props> {
       return (
         <Template key={index}>
           <RowTitle>
-            <h5>{object.name}</h5>
-            <h5>
-              {object.messenger && (
-                <div>
-                  <Tip text="Messenger" placement="top">
-                    <Icon icon="comment-1" />
-                  </Tip>{' '}
-                  {object.messenger.name}
-                </div>
-              )}
-              {object.kbTopic && (
-                <div>
-                  <Tip text="Knowledge Base" placement="top">
-                    <Icon icon="book-open" />
-                  </Tip>{' '}
-                  {object.kbTopic.title}
-                </div>
-              )}
-              {object.leads.length > 0 && (
-                <div>
-                  <Tip text="Forms" placement="top">
-                    <Icon icon="window" />
-                  </Tip>
-                  {object.leads.map(lead => ` ${lead.name},`)}
-                </div>
-              )}
-            </h5>
+            <div>
+              <h5>{object.name}</h5>
+            </div>
+            <div>
+              <h5>
+                {object.messenger && (
+                  <div>
+                    <Tip text="Messenger" placement="top">
+                      <Icon icon="comment-1" />
+                    </Tip>
+                    {object.messenger.name}
+                  </div>
+                )}
+                {object.kbTopic && (
+                  <div>
+                    <Tip text="Knowledge Base" placement="top">
+                      <Icon icon="book-open" />
+                    </Tip>
+                    {object.kbTopic.title}
+                  </div>
+                )}
+                {object.leads.length > 0 && (
+                  <div>
+                    <Tip text="Forms" placement="top">
+                      <Icon icon="window" />
+                    </Tip>
+                    {object.leads.map(lead => ` ${lead.name},`)}
+                  </div>
+                )}
+              </h5>
+            </div>
           </RowTitle>
           <TemplateBox>
             <Actions>
@@ -173,7 +120,7 @@ class ScriptList extends React.Component<Props> {
               <div onClick={this.removeTemplate.bind(this, object)}>
                 <Icon icon="cancel-1" /> Delete
               </div>
-              {this.installCodeAction}
+              {this.installCodeAction(object)}
             </Actions>
             <IframePreview>
               <iframe
