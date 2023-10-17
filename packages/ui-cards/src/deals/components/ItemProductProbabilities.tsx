@@ -48,6 +48,10 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
     ));
   }
 
+  renderPercentage = value => {
+    return value === 'Won' ? '100%' : value === 'Lost' ? '0%' : value;
+  };
+
   renderInfo = () => {
     const {
       probability,
@@ -69,35 +73,22 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
       );
     }
 
-    const probabilityPercentage =
-      probability === 'Won'
-        ? '100%'
-        : probability === 'Lost'
-        ? '0%'
-        : probability;
-
     deals.map(deal => {
       const percentage = deal.stage?.probability || null;
 
-      const percentagePercentage =
-        percentage === 'Won'
-          ? '100%'
-          : percentage === 'Lost'
-          ? '0%'
-          : percentage;
-
-      if (percentagePercentage) {
+      if (percentage) {
         Object.keys(deal.amount).map(key =>
           forecastArray.push({
             name: key,
             amount: deal.amount[key] as number,
-            probability: parseInt(percentagePercentage, 10)
+            probability: parseInt(this.renderPercentage(percentage), 10)
           })
         );
       }
     });
 
     if (totalAmount) {
+      console.log(probability, 'probability');
       return (
         <StageInfo>
           {Object.keys(totalAmount).length > 0 && (
@@ -106,8 +97,10 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
               {renderAmount(totalAmount)}
             </div>
           )}
-          {probabilityPercentage &&
-            this.renderForecast(parseInt(probabilityPercentage, 10))}
+          {probability &&
+            this.renderForecast(
+              parseInt(this.renderPercentage(probability), 10)
+            )}
         </StageInfo>
       );
     }
