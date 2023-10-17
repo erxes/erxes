@@ -206,10 +206,6 @@ export const StageInfo = styled.div`
     align-items: center;
   }
 
-  > div {
-    margin-bottom: 5px;
-  }
-
   span {
     font-size: 11px;
     font-weight: 600;
