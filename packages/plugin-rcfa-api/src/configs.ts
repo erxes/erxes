@@ -4,6 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import forms from './forms';
 
 export let mainDb;
 export let debug;
@@ -30,7 +31,7 @@ export default {
     return context;
   },
 
-  meta: {},
+  meta: { forms },
 
   onServerInit: async options => {
     mainDb = options.db;
