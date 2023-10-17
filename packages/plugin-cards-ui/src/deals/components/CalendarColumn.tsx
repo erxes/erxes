@@ -14,6 +14,7 @@ import options from '@erxes/ui-cards/src/deals/options';
 import { IDeal, IDealTotalAmount } from '@erxes/ui-cards/src/deals/types';
 import Deal from '@erxes/ui-cards/src/deals/components/DealItem';
 import styledTS from 'styled-components-ts';
+import { IStage } from '@erxes/ui-cards/src/boards/types';
 
 type Props = {
   deals: IDeal[];
@@ -118,22 +119,22 @@ class DealColumn extends React.Component<Props, {}> {
     }
 
     this.props.deals.map(deal => {
-      if (deal.stage) {
-        const probability =
-          deal.stage.probability === 'Won'
-            ? '100%'
-            : deal.stage.probability === 'Lost'
-            ? '0%'
-            : deal.stage.probability;
+      const { probability = '10' } = deal.stage || ({} as IStage);
 
-        Object.keys(deal.amount).map(key =>
-          forecastArray.push({
-            name: key,
-            amount: deal.amount[key] as number,
-            probability: parseInt(probability, 10)
-          })
-        );
-      }
+      const probabilityPercentage =
+        probability === 'Won'
+          ? '100%'
+          : probability === 'Lost'
+          ? '0%'
+          : probability;
+
+      Object.keys(deal.amount).map(key =>
+        forecastArray.push({
+          name: key,
+          amount: deal.amount[key] as number,
+          probability: parseInt(probabilityPercentage, 10)
+        })
+      );
     });
 
     const renderDetail = () => {
