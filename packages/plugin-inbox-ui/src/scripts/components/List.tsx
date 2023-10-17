@@ -14,6 +14,15 @@ import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import InstallCode from './InstallCode';
 import Form from '../containers/Form';
+import {
+  Actions,
+  IframePreview,
+  Template,
+  TemplateBox,
+  Templates,
+  TemplateInfo,
+  RowTitle
+} from '@erxes/ui-emailtemplates/src/styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -42,61 +51,86 @@ class ScriptList extends React.Component<Props> {
     );
   };
 
-  renderRows = ({ objects }) => {
-    return objects.map((object, index) => {
+  // renderRows = ({ objects }) => {
+  //   return objects.map((object, index) => {
+  //     return (
+  //       <tr key={index}>
+  //         <td>{object.name}</td>
+  //         <td>
+  //           {object.messenger && (
+  //             <div>
+  //               <Tip text="Messenger" placement="top">
+  //                 <Icon icon="comment-1" />
+  //               </Tip>{" "}
+  //               {object.messenger.name}
+  //             </div>
+  //           )}
+  //           {object.kbTopic && (
+  //             <div>
+  //               <Tip text="Knowledge Base" placement="top">
+  //                 <Icon icon="book-open" />
+  //               </Tip>{" "}
+  //               {object.kbTopic.title}
+  //             </div>
+  //           )}
+  //           {object.leads.length > 0 && (
+  //             <div>
+  //               <Tip text="Forms" placement="top">
+  //                 <Icon icon="window" />
+  //               </Tip>
+  //               {object.leads.map((lead) => ` ${lead.name},`)}
+  //             </div>
+  //           )}
+  //         </td>
+  //         <RowActions
+  //           {...this.props}
+  //           object={object}
+  //           renderForm={this.renderForm}
+  //           additionalActions={this.installCodeAction}
+  //         />
+  //       </tr>
+  //     );
+  //   });
+  // };
+
+  // renderContent = (props) => {
+  //   return (
+  //     <Table>
+  //       <thead>
+  //         <tr>
+  //           <th>{__("Name")}</th>
+  //           <th>{__("Integrations")}</th>
+  //           <th style={{ width: 120 }}>{__("Actions")}</th>
+  //         </tr>
+  //       </thead>
+  //       <tbody>{this.renderRows(props)}</tbody>
+  //     </Table>
+  //   );
+  // };
+
+  renderRow = () => {
+    return this.props.objects.map((object, index) => {
       return (
-        <tr key={index}>
-          <td>{object.name}</td>
-          <td>
-            {object.messenger && (
-              <div>
-                <Tip text="Messenger" placement="top">
-                  <Icon icon="comment-1" />
-                </Tip>{' '}
-                {object.messenger.name}
-              </div>
-            )}
-            {object.kbTopic && (
-              <div>
-                <Tip text="Knowledge Base" placement="top">
-                  <Icon icon="book-open" />
-                </Tip>{' '}
-                {object.kbTopic.title}
-              </div>
-            )}
-            {object.leads.length > 0 && (
-              <div>
-                <Tip text="Forms" placement="top">
-                  <Icon icon="window" />
-                </Tip>
-                {object.leads.map(lead => ` ${lead.name},`)}
-              </div>
-            )}
-          </td>
-          <RowActions
-            {...this.props}
-            object={object}
-            renderForm={this.renderForm}
-            additionalActions={this.installCodeAction}
-          />
-        </tr>
+        <Template key={index}>
+          <RowTitle>
+            <h5>{object.name}</h5>
+            <h5> {object.messenger.name}</h5>
+          </RowTitle>
+          <TemplateBox>
+            <IframePreview>
+              <iframe
+                title="scripts-iframe"
+                // srcDoc={content)}
+              />
+            </IframePreview>
+          </TemplateBox>
+        </Template>
       );
     });
   };
 
-  renderContent = props => {
-    return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Integrations')}</th>
-            <th style={{ width: 120 }}>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRows(props)}</tbody>
-      </Table>
-    );
+  renderContent = () => {
+    return <Templates>{this.renderRow()}</Templates>;
   };
 
   render() {
@@ -121,9 +155,9 @@ class ScriptList extends React.Component<Props> {
         }
         renderForm={this.renderForm}
         renderContent={this.renderContent}
-        center={true}
         emptyContent={<EmptyContent content={EMPTY_CONTENT_SCRIPT} />}
         {...this.props}
+        size="lg"
       />
     );
   }
