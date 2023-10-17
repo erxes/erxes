@@ -290,7 +290,8 @@ export const extractConfig = async (subdomain, doc) => {
     permissionConfig: doc.permissionConfig,
     allowTypes: doc.allowTypes,
     isCheckRemainder: doc.isCheckRemainder,
-    checkExcludeCategoryIds: doc.checkExcludeCategoryIds
+    checkExcludeCategoryIds: doc.checkExcludeCategoryIds,
+    banFractions: doc.banFractions
   };
 };
 

@@ -46,9 +46,10 @@ const MeetingFormContainer = (props: FinalProps) => {
     object
   }: IButtonMutateProps) => {
     values.title =
+      values.title ||
       companiesQuery.companies.find(c => c._id === values.companyId)
-        ?.primaryName || '';
-
+        ?.primaryName ||
+      '';
     return (
       <ButtonMutate
         mutation={object ? mutations.editMeeting : mutations.addMeeting}
