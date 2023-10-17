@@ -82,12 +82,12 @@ class ScriptList extends React.Component<Props> {
   //             </div>
   //           )}
   //         </td>
-  //         <RowActions
-  //           {...this.props}
-  //           object={object}
-  //           renderForm={this.renderForm}
-  //           additionalActions={this.installCodeAction}
-  //         />
+  // <RowActions
+  //   {...this.props}
+  //   object={object}
+  //   renderForm={this.renderForm}
+  //   additionalActions={this.installCodeAction}
+  // />
   //       </tr>
   //     );
   //   });
@@ -108,15 +108,73 @@ class ScriptList extends React.Component<Props> {
   //   );
   // };
 
+  renderEditAction = object => {
+    const { save } = this.props;
+
+    const content = props => {
+      return this.renderForm({ ...props, object, save });
+    };
+
+    return (
+      <ModalTrigger
+        enforceFocus={false}
+        title="Edit"
+        size="lg"
+        trigger={
+          <div>
+            <Icon icon="edit" /> Edit
+          </div>
+        }
+        content={content}
+      />
+    );
+  };
+
+  removeTemplate = object => {
+    this.props.remove(object._id);
+  };
+
   renderRow = () => {
     return this.props.objects.map((object, index) => {
       return (
         <Template key={index}>
           <RowTitle>
             <h5>{object.name}</h5>
-            <h5> {object.messenger.name}</h5>
+            <h5>
+              {object.messenger && (
+                <div>
+                  <Tip text="Messenger" placement="top">
+                    <Icon icon="comment-1" />
+                  </Tip>{' '}
+                  {object.messenger.name}
+                </div>
+              )}
+              {object.kbTopic && (
+                <div>
+                  <Tip text="Knowledge Base" placement="top">
+                    <Icon icon="book-open" />
+                  </Tip>{' '}
+                  {object.kbTopic.title}
+                </div>
+              )}
+              {object.leads.length > 0 && (
+                <div>
+                  <Tip text="Forms" placement="top">
+                    <Icon icon="window" />
+                  </Tip>
+                  {object.leads.map(lead => ` ${lead.name},`)}
+                </div>
+              )}
+            </h5>
           </RowTitle>
           <TemplateBox>
+            <Actions>
+              {this.renderEditAction(object)}
+              <div onClick={this.removeTemplate.bind(this, object)}>
+                <Icon icon="cancel-1" /> Delete
+              </div>
+              {this.installCodeAction}
+            </Actions>
             <IframePreview>
               <iframe
                 title="scripts-iframe"
