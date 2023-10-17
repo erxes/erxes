@@ -25,7 +25,7 @@ const configMutations = {
   ) => {
     const address = await getServerAddress(subdomain);
 
-    const config = await models.Configs.createConfig(token, '');
+    const config = await models.Configs.createConfig(token, 'init');
 
     try {
       const response = await sendRequest({
@@ -64,12 +64,15 @@ const configMutations = {
 
     const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
 
-    const messageBrokerClient = await initBrokerMain({
-      RABBITMQ_HOST,
-      MESSAGE_BROKER_PREFIX,
-      redis,
-      app
-    });
+    const messageBrokerClient = await initBrokerMain(
+      {
+        RABBITMQ_HOST,
+        MESSAGE_BROKER_PREFIX,
+        redis,
+        app
+      },
+      initBroker
+    );
 
     await initBroker(messageBrokerClient)
       .then(() => {

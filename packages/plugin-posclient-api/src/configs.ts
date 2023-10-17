@@ -102,6 +102,10 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
+  },
+
+  reconnectRMQ: async messageBrokerClient => {
+    initBroker(messageBrokerClient);
   }
 };
 
