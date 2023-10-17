@@ -13,8 +13,7 @@ import styled from 'styled-components';
 import options from '@erxes/ui-cards/src/deals/options';
 import { IDeal, IDealTotalAmount } from '@erxes/ui-cards/src/deals/types';
 import Deal from '@erxes/ui-cards/src/deals/components/DealItem';
-import styledTS from 'styled-components-ts';
-import { IStage } from '@erxes/ui-cards/src/boards/types';
+import ItemProductProbabilities from '@erxes/ui-cards/src/deals/components/ItemProductProbabilities';
 
 type Props = {
   deals: IDeal[];
@@ -105,38 +104,6 @@ class DealColumn extends React.Component<Props, {}> {
     const { dealTotalAmounts, deals } = this.props;
     const totalForType = dealTotalAmounts || ([] as IDealTotalAmount[]);
 
-    const forecastArray: Array<{
-      amount: number;
-      name: string;
-      probability: number;
-    }> = [];
-    const totalAmountArray: Array<{ amount: number; name: string }> = [];
-
-    if (dealTotalAmounts.length > 0) {
-      dealTotalAmounts.map(total =>
-        total.currencies.map(currency => totalAmountArray.push(currency))
-      );
-    }
-
-    this.props.deals.map(deal => {
-      const { probability = '10' } = deal.stage || ({} as IStage);
-
-      const probabilityPercentage =
-        probability === 'Won'
-          ? '100%'
-          : probability === 'Lost'
-          ? '0%'
-          : probability;
-
-      Object.keys(deal.amount).map(key =>
-        forecastArray.push({
-          name: key,
-          amount: deal.amount[key] as number,
-          probability: parseInt(probabilityPercentage, 10)
-        })
-      );
-    });
-
     const renderDetail = () => {
       if (!deals || deals.length === 0) {
         return null;
@@ -151,14 +118,10 @@ class DealColumn extends React.Component<Props, {}> {
 
       return (
         <>
-          <li>
-            <span>Total ({deals.length}): </span>
-            {this.renderPercentedAmount(totalAmountArray)}
-          </li>
-          <li>
-            <span>Forecasted: </span>
-            {this.renderPercentedAmount(forecastArray)}
-          </li>
+          <ItemProductProbabilities
+            dealTotalAmounts={dealTotalAmounts}
+            deals={deals}
+          />
           {totalForType.map(type => {
             if (type.name === 'In progress') {
               return null;
@@ -180,31 +143,6 @@ class DealColumn extends React.Component<Props, {}> {
     };
 
     return <Amount>{renderDetail()}</Amount>;
-  }
-
-  renderPercentedAmount(currencies) {
-    const sumByName = {};
-
-    currencies.forEach(item => {
-      const { name, amount, probability = 100 } = item;
-      if (sumByName[name] === undefined) {
-        sumByName[name] = (amount * probability) / 100;
-      } else {
-        sumByName[name] += (amount * probability) / 100;
-      }
-    });
-
-    return Object.keys(sumByName).map((key, index) => (
-      <div key={index}>
-        {sumByName[key].toLocaleString(undefined, {
-          maximumFractionDigits: 0
-        })}{' '}
-        <span>
-          {key}
-          {index < Object.keys(sumByName).length - 1 && ','}&nbsp;
-        </span>
-      </div>
-    ));
   }
 
   renderFooter() {

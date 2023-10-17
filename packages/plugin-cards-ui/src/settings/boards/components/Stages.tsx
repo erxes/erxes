@@ -40,7 +40,6 @@ class Stages extends React.Component<Props, {}> {
       _id: Math.random().toString(),
       name: '',
       visibility: 'public',
-      probability: '10%',
       memberIds: [],
       departmentIds: [],
       type
