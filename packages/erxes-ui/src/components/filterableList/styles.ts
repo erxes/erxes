@@ -53,6 +53,7 @@ const PopoverList = styledTS<{ selectable?: boolean; isIndented?: boolean }>(
   styled.ul
 )`
   max-height: 275px;
+  margin: 0;
   padding: 0;
   list-style: none;
   overflow: auto;
@@ -60,7 +61,7 @@ const PopoverList = styledTS<{ selectable?: boolean; isIndented?: boolean }>(
   padding-top: 10px;
   text-indent:${props =>
     props.isIndented && `-${dimensions.unitSpacing + 5}px`};
-  margin: 0 ${props => props.isIndented && `${dimensions.unitSpacing}px`};
+  margin-left: ${props => props.isIndented && `${dimensions.unitSpacing}px`};
 
   li {
     position: relative;
