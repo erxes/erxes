@@ -424,9 +424,9 @@ const WithConsumer = (props: Props) => {
           return null;
         }
 
-        if (!WithQuery) {
-          WithQuery = generateWithQuery(props);
-        }
+        // if (!WithQuery) {
+        WithQuery = generateWithQuery(props);
+        // }
 
         return <WithQuery {...props} currentUser={currentUser} />;
       }}

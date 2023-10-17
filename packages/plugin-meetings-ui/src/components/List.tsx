@@ -2,7 +2,6 @@ import Button from '@erxes/ui/src/components/Button';
 import { __, router } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import MeetingFormContainer from '../containers/myCalendar/meeting/Form';
-import MyMeetingListContainer from '../containers/myMeetings/List';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -11,10 +10,9 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { menuMeeting } from '../contants';
 import { MyCalendarList } from './myCalendar/MyCalendar';
 import SideBar from '../containers/myCalendar/SideBar';
-import SideBarContainer from '../containers/myMeetings/SideBar';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { FormControl } from '@erxes/ui/src/components';
 import { MeetingsQueryResponse } from '../types';
+import MyMeetings from './myMeetings/MyMeetings';
 
 type Props = {
   meetings: any;
@@ -36,28 +34,17 @@ function List(props: Props) {
     currentUser,
     meetingQuery
   } = props;
-  const { meetingId, searchValue } = queryParams;
+  const { meetingId } = queryParams;
 
   const [component, setComponent] = useState(<div />);
   const [leftSideBar, setLeftSideBar] = useState(<div />);
-
-  const [searchText, setSearchValue] = useState(searchValue);
 
   const routePath = location.pathname.split('/').slice(-1)[0];
 
   useEffect(() => {
     switch (routePath) {
       case 'myMeetings':
-        setComponent(
-          <MyMeetingListContainer history={history} queryParams={queryParams} />
-        );
-        setLeftSideBar(
-          <SideBarContainer
-            history={history}
-            queryParams={queryParams}
-            currentUser={currentUser}
-          />
-        );
+        <MyMeetings {...props} />;
         break;
       default:
         setComponent(
@@ -102,48 +89,27 @@ function List(props: Props) {
     />
   );
 
-  const searchHandler = e => {
-    const searchValue = e.target.value;
-
-    setSearchValue(searchValue);
-
-    setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
-    }, 500);
-  };
   const backToCalendar = () => {
     router.removeParams(history, 'meetingId');
   };
-  const actionBarRight =
-    routePath === 'myCalendar' ? (
-      meetingId ? (
-        <Button
-          btnStyle="success"
-          size="small"
-          icon="calendar-alt"
-          onClick={backToCalendar}
-        >
-          {__('Back to calendar')}
-        </Button>
-      ) : (
-        <ModalTrigger
-          title={__('Create meetings')}
-          trigger={trigger}
-          content={modalContent}
-          enforceFocus={false}
-          size="xl"
-        />
-      )
-    ) : (
-      <FormControl
-        type="text"
-        placeholder={__('Type to search')}
-        defaultValue={searchText}
-        onChange={searchHandler}
-        autoFocus={true}
-      />
-    );
+  const actionBarRight = meetingId ? (
+    <Button
+      btnStyle="success"
+      size="small"
+      icon="calendar-alt"
+      onClick={backToCalendar}
+    >
+      {__('Back to calendar')}
+    </Button>
+  ) : (
+    <ModalTrigger
+      title={__('Create meetings')}
+      trigger={trigger}
+      content={modalContent}
+      enforceFocus={false}
+      size="xl"
+    />
+  );
 
   const title = !meetingId && (
     <Title capitalize={true}>{__('My Calendar')}</Title>

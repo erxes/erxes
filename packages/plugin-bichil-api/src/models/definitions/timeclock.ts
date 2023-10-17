@@ -403,6 +403,10 @@ export interface IUserReport {
   totalMinsLateThisMonth?: number;
   totalAbsenceMins?: number;
   totalMinsAbsenceThisMonth?: number;
+
+  requests?: IAbsenceDocument[];
+  timeclocks?: ITimeClockDocument[];
+  schedules?: IScheduleDocument[];
 }
 export interface IUserAbsenceInfo {
   totalHoursShiftRequest?: number;

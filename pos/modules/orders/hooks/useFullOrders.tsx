@@ -44,11 +44,13 @@ const useFullOrders = ({
   query,
   variables,
   onCountCompleted,
+  onCompleted,
 }: {
   fetchPolicy?: WatchQueryFetchPolicy
   query?: DocumentNode
   variables?: IVariables
   onCountCompleted?: (data: any) => void
+  onCompleted?: (data: any) => void
 }): IFullOrdersResult => {
   const PER_PAGE = (variables || {}).perPage || 28
 
@@ -62,6 +64,10 @@ const useFullOrders = ({
       perPage: PER_PAGE,
     },
     fetchPolicy,
+    onCompleted(data) {
+      const fullOrders = (data || {}).fullOrders || []
+      !!onCompleted && onCompleted(fullOrders)
+    },
   })
 
   const { page, perPage, ...restVariables } = variables || {}

@@ -1,0 +1,21 @@
+{
+  "name": "@erxes/plugin-savings-api",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest --coverage --forceExit --runInBand",
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-saving-api/.erxes && node src",
+    "tsc": "cd .erxes && yarn tsc"
+  },
+  "dependencies": {
+    "@types/body-parser": "^1.17.0",
+    "aws-sdk": "^2.493.0",
+    "body-parser": "^1.17.1",
+    "nodemailer": "^6.2.1"
+  },
+  "peerOptionalDependencies": {
+    "kerberos": "^1.0.0"
+  }
+}

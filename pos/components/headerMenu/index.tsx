@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Logout from "@/modules/auth/components/logout"
+import { modeAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 import {
@@ -12,7 +13,7 @@ import {
   TimerResetIcon,
 } from "lucide-react"
 
-import { cn, getMode } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   NavigationMenu,
@@ -26,7 +27,7 @@ import {
 import { Separator } from "../ui/separator"
 
 const HeaderMenu = () => {
-  const mode = getMode()
+  const mode = useAtomValue(modeAtom)
   const config = useAtomValue(configAtom)
   const menu =
     mode === "market"

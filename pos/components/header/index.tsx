@@ -1,8 +1,8 @@
 "use client"
 
 import dynamic from "next/dynamic"
-
-import { getMode } from "@/lib/utils"
+import { modeAtom } from "@/store"
+import { useAtomValue } from "jotai"
 
 import HeaderLayout from "./headerLayout"
 
@@ -13,7 +13,7 @@ const Market = dynamic(
 const Main = dynamic(() => import("@/components/header/header.main"))
 
 const Header = () => {
-  const mode = getMode()
+  const mode = useAtomValue(modeAtom)
   return (
     <HeaderLayout>
       <>

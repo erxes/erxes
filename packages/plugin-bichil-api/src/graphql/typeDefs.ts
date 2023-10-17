@@ -1,11 +1,27 @@
 import gql from 'graphql-tag';
+import {
+  attachmentType,
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 const types = `
 
+  ${attachmentType}
+  ${attachmentInput}
 
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+  extend type Timeclock @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Schedule @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Absence @key(fields: "_id") {
+    _id: String! @external
+  }
+
 
   type BichilReport {
     groupTitle: String
@@ -49,6 +65,9 @@ const types = `
     totalMinsLateThisMonth: Int
     totalMinsAbsenceThisMonth: Int
 
+    schedules: [Schedule]
+    timeclocks: [JSON]
+    requests: [JSON]
 
     leftWork: String
     paidBonus: String
@@ -138,6 +157,11 @@ const types = `
     totalCount: Int
   }
 
+  type BichilReportByUsersListResponse {
+    list: [BichilUserReport]
+    totalCount: Int
+  }
+
 `;
 
 const queryParams = `
@@ -154,6 +178,8 @@ const queryParams = `
 
 const queries = `
   bichilTimeclockReport(${queryParams}): BichilReportsListResponse
+  
+  bichilTimeclockReportByUsers(${queryParams}): BichilReportByUsersListResponse
 
   bichilSalaryReport(page: Int, perPage: Int, employeeId: String): BichilSalaryReportsListResponse
 

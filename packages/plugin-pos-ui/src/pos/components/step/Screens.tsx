@@ -183,6 +183,7 @@ class ScreensConfig extends React.Component<
     if (pos) {
       kitchenScreen = pos.kitchenScreen || {
         isActive: false,
+        isPrint: false,
         showType: '',
         type: 'time',
         value: 0
@@ -190,9 +191,31 @@ class ScreensConfig extends React.Component<
     }
 
     if (!kitchenScreen.isActive) {
+      const onChangeSwitchIsPrint = e => {
+        const { pos } = this.props;
+
+        this.props.onChange('pos', {
+          ...pos,
+          kitchenScreen: { ...pos.kitchenScreen, isPrint: e.target.checked }
+        });
+      };
+
       return (
         <FormGroup>
-          <DomainRow></DomainRow>
+          <DomainRow>
+            <ControlLabel>Print</ControlLabel>
+            <Toggle
+              id={'isPrint'}
+              checked={
+                pos && pos.kitchenScreen ? pos.kitchenScreen.isPrint : false
+              }
+              onChange={onChangeSwitchIsPrint}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </DomainRow>
         </FormGroup>
       );
     }

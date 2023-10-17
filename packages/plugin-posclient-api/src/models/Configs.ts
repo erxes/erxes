@@ -100,20 +100,21 @@ export const loadProductsConfigClass = models => {
       value
     }: {
       code: string;
-      value: string[];
+      value: any;
     }) {
-      const obj = await models.ProductsConfigs.findOne({ code });
+      let obj = await models.ProductsConfigs.findOne({ code });
 
-      if (obj) {
-        await models.ProductsConfigs.updateOne(
-          { _id: obj._id },
-          { $set: { value } }
-        );
-
-        return models.ProductsConfigs.findOne({ _id: obj._id });
+      if (!obj) {
+        await models.ProductsConfigs.create({ code });
+        obj = await models.ProductsConfigs.findOne({ code });
       }
 
-      return models.ProductsConfigs.create({ code, value });
+      await models.ProductsConfigs.updateOne(
+        { _id: obj._id },
+        { $set: { value } }
+      );
+
+      return models.ProductsConfigs.findOne({ _id: obj._id });
     }
 
     public static constants() {

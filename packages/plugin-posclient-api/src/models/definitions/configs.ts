@@ -75,6 +75,7 @@ export interface IConfig {
   allowTypes: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  banFractions: boolean;
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -164,6 +165,7 @@ export const configSchema = new Schema({
   allowTypes: field({ type: [String], label: 'Allow Types' }),
   isCheckRemainder: field({ type: Boolean, optional: true }),
   checkExcludeCategoryIds: field({ type: [String] }),
+  banFractions: field({ type: Boolean, optional: true }),
   status: field({ type: String, optional: true })
 });
 

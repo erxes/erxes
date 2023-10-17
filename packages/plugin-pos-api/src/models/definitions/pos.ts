@@ -39,6 +39,7 @@ export interface IPos {
   allowTypes: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  banFractions: boolean;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -139,6 +140,7 @@ export const posSchema = schemaHooksWrapper(
       type: [String],
       label: 'Check Exclude Categories'
     }),
+    banFractions: field({ type: Boolean, label: 'has Float count' }),
     status: field({ type: String, label: 'Status', optional: true })
   }),
   'erxes_pos'

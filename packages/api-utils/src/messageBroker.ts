@@ -126,31 +126,33 @@ function splitPluginProcedureName(queueName: string) {
   return { pluginName, procedureName };
 }
 
-export const createConsumeRPCQueue = (app: Express) => (
+export const createConsumeRPCQueue = (app?: Express) => (
   queueName,
   procedure
 ) => {
-  const { procedureName } = splitPluginProcedureName(queueName);
+  if (app) {
+    const { procedureName } = splitPluginProcedureName(queueName);
 
-  if (procedureName.includes(':')) {
-    throw new Error(
-      `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`
-    );
-  }
-
-  const endpoint = `/rpc/${procedureName}`;
-
-  app.post(endpoint, async (req, res) => {
-    try {
-      const response = await procedure(req.body);
-      res.json(response);
-    } catch (e) {
-      res.json({
-        status: 'error',
-        errorMessage: e.message
-      });
+    if (procedureName.includes(':')) {
+      throw new Error(
+        `${procedureName}. RPC procedure name cannot contain : character. Use dot . instead.`
+      );
     }
-  });
+
+    const endpoint = `/rpc/${procedureName}`;
+
+    app.post(endpoint, async (req, res) => {
+      try {
+        const response = await procedure(req.body);
+        res.json(response);
+      } catch (e) {
+        res.json({
+          status: 'error',
+          errorMessage: e.message
+        });
+      }
+    });
+  }
 
   consumeRPCQueueMq(queueName, procedure);
 };

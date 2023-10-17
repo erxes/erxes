@@ -1,14 +1,13 @@
-import { currentPaymentTypeAtom } from "@/store"
+import { currentPaymentTypeAtom, modeAtom } from "@/store"
 import { useMutation } from "@apollo/client"
-import { useSetAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 
-import { getMode } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
 
 const useAddPayment = (options?: { onError?: (errors: any) => void }) => {
-  const mode = getMode()
+  const mode = useAtomValue(modeAtom)
   const setType = useSetAtom(currentPaymentTypeAtom)
   const { onError } = options || {}
   const { onError: error } = useToast()

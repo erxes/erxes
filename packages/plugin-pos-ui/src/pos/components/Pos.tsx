@@ -181,7 +181,8 @@ class Pos extends React.Component<Props, State> {
       permissionConfig: pos.permissionConfig || {},
       allowTypes: saveTypes,
       isCheckRemainder: pos.isCheckRemainder,
-      checkExcludeCategoryIds: pos.checkExcludeCategoryIds || []
+      checkExcludeCategoryIds: pos.checkExcludeCategoryIds || [],
+      banFractions: pos.banFractions
     };
 
     if (!pos.isOnline) {
