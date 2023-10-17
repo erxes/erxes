@@ -7,9 +7,7 @@ import {
   RESPONSE_TEMPLATE_TIPTEXT
 } from '../constants';
 import { __, router } from 'coreui/utils';
-
 import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FilterContainer } from '@erxes/ui-settings/src/styles';
 import Form from '@erxes/ui-inbox/src/settings/responseTemplates/components/Form';
 import { FormControl } from '@erxes/ui/src/components/form';
@@ -25,7 +23,7 @@ import {
   Template,
   TemplateBox,
   Templates,
-  RowTitle
+  TemplateInfo
 } from '@erxes/ui-emailtemplates/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
@@ -117,19 +115,12 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     );
   };
 
-  handleKeyDown = (
-    e: React.KeyboardEvent<Element> | React.MouseEvent<Element>
-  ) => {
-    if (
-      e instanceof KeyboardEvent &&
-      e.key !== 'Enter' &&
-      e.key !== 'Backspace'
-    ) {
-      return;
-    }
+  handleKeyDown = (e: React.KeyboardEvent<Element>) => {
+    if (e.key === 'Enter') {
+      const { value, name } = e.currentTarget as HTMLInputElement;
 
-    const { value, name } = (e.currentTarget as any) as HTMLInputElement;
-    router.setParams(this.props.history, { [name]: value });
+      router.setParams(this.props.history, { [name]: value });
+    }
   };
 
   onSelect = (values: string[] | string, name: string) => {
@@ -178,15 +169,8 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   renderBlock = () => {
     return this.props.objects.map((object, index) => {
       return (
-        <Template key={index} isLongName={object.name > 5}>
-          <RowTitle>
-            <div>
-              <h5>{object.brand.name}</h5>
-            </div>
-            <div>
-              <h5>{object.name}</h5>
-            </div>
-          </RowTitle>
+        <Template key={index} isLongName={object.name > 45}>
+          <h5>{object.name}</h5>
           <TemplateBox>
             <Actions>
               {this.renderEditAction(object)}
@@ -199,6 +183,10 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
               <iframe title="response-iframe" srcDoc={object.content} />
             </IframePreview>
           </TemplateBox>
+          <TemplateInfo>
+            <p>Brand</p>
+            <p>{object.brand.name}</p>
+          </TemplateInfo>
         </Template>
       );
     });
