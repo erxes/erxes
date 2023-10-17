@@ -88,7 +88,6 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
     });
 
     if (totalAmount) {
-      console.log(probability, 'probability');
       return (
         <StageInfo>
           {Object.keys(totalAmount).length > 0 && (
