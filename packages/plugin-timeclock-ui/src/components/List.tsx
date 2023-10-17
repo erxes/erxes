@@ -9,8 +9,10 @@ import TimeclockList from '../containers/timeclock/TimeclockList';
 import AbsenceList from '../containers/absence/AbsenceList';
 import ReportList from '../containers/report/ReportList';
 import ScheduleList from '../containers/schedule/ScheduleList';
+import LogsList from '../containers/logs/LogsList';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IScheduleConfig } from '../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
@@ -101,6 +103,21 @@ function List(props: Props) {
             history={history}
           />
         );
+        setLoading(false);
+        break;
+      case 'logs':
+        if (!isEnabled('bichil')) {
+          setModalComponent(
+            <LogsList
+              {...props}
+              showSideBar={setShowSideBar}
+              getPagination={setPagination}
+              getActionBar={setRightActionBar}
+              queryParams={queryParams}
+              history={history}
+            />
+          );
+        }
         setLoading(false);
         break;
       default:

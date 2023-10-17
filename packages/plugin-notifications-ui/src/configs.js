@@ -1,15 +1,18 @@
 module.exports = {
   name: "notifications",
   port: 3014,
+  scope:'notifications',
   exposes: {
     "./routes": "./src/routes.tsx",
     "./settings": "./src/containers/Widget.tsx",
+    './automation': './src/automations/index.tsx'
   },
   routes: {
     url: "http://localhost:3014/remoteEntry.js",
     scope: "notifications",
     module: "./routes",
   },
+  automation: './automation',
   menus: [
     {
       text: "notifications",
