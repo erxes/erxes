@@ -1,16 +1,13 @@
-import Button from '@erxes/ui/src/components/Button';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Table from '@erxes/ui/src/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import { EMPTY_CONTENT_SCRIPT } from '@erxes/ui-settings/src/constants';
 import React from 'react';
 import List from '@erxes/ui-settings/src/common/components/List';
-import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import InstallCode from './InstallCode';
 import Form from '../containers/Form';
@@ -20,7 +17,6 @@ import {
   Template,
   TemplateBox,
   Templates,
-  TemplateInfo,
   RowTitle
 } from '@erxes/ui-emailtemplates/src/styles';
 import { renderToString } from 'react-dom/server';
@@ -93,36 +89,32 @@ class ScriptList extends React.Component<Props> {
       return (
         <Template key={index}>
           <RowTitle>
+            <div>{object.name}</div>
             <div>
-              <h5>{object.name}</h5>
-            </div>
-            <div>
-              <h5>
-                {object.messenger && (
-                  <div>
-                    <Tip text="Messenger" placement="top">
-                      <Icon icon="comment-1" />
-                    </Tip>
-                    {object.messenger.name}
-                  </div>
-                )}
-                {object.kbTopic && (
-                  <div>
-                    <Tip text="Knowledge Base" placement="top">
-                      <Icon icon="book-open" />
-                    </Tip>
-                    {object.kbTopic.title}
-                  </div>
-                )}
-                {object.leads.length > 0 && (
-                  <div>
-                    <Tip text="Forms" placement="top">
-                      <Icon icon="window" />
-                    </Tip>
-                    {object.leads.map(lead => ` ${lead.name},`)}
-                  </div>
-                )}
-              </h5>
+              {object.messenger && (
+                <div>
+                  <Tip text="Messenger" placement="top">
+                    <Icon icon="comment-1" />
+                  </Tip>{' '}
+                  {object.messenger.name}
+                </div>
+              )}
+              {object.kbTopic && (
+                <div>
+                  <Tip text="Knowledge Base" placement="top">
+                    <Icon icon="book-open" />
+                  </Tip>
+                  {object.kbTopic.title}
+                </div>
+              )}
+              {object.leads.length > 0 && (
+                <div>
+                  <Tip text="Forms" placement="top">
+                    <Icon icon="window" />
+                  </Tip>
+                  {object.leads.map(lead => ` ${lead.name},`)}
+                </div>
+              )}
             </div>
           </RowTitle>
           <TemplateBox>
