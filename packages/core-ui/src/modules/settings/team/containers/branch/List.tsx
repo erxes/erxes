@@ -10,9 +10,17 @@ import Box from '@erxes/ui/src/components/Box';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { MenuFooter } from 'modules/settings/styles';
 
-export default function ListContainer() {
-  const listQuery = useQuery(gql(queries.branches), {
-    variables: { withoutUserFilter: true }
+type Props = {
+  queryParams: string;
+  queryType: string;
+  title: string;
+};
+
+export default function ListContainer(props: Props) {
+  const { queryType, title, queryParams } = props;
+
+  const listQuery = useQuery(gql(queries[queryType]), {
+    variables: queryType === 'units' ? undefined : { withoutUserFilter: true }
   });
 
   if (listQuery.loading) {
@@ -21,7 +29,7 @@ export default function ListContainer() {
 
   if (listQuery.error) {
     return (
-      <Box isOpen={true} title={__('Branch')} name="showBranch">
+      <Box isOpen={true} title={title} name={`show${title}`}>
         <MenuFooter>
           <ErrorMsg>{listQuery.error.message}</ErrorMsg>
         </MenuFooter>
@@ -29,5 +37,12 @@ export default function ListContainer() {
     );
   }
 
-  return <List listQuery={listQuery} />;
+  return (
+    <List
+      queryType={queryType}
+      title={title}
+      listQuery={listQuery}
+      queryParams={queryParams}
+    />
+  );
 }

@@ -10,7 +10,9 @@ import Box from '@erxes/ui/src/components/Box';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { MenuFooter } from 'modules/settings/styles';
 
-export default function ListContainer() {
+type Props = { queryType: string; title: string };
+
+export default function ListContainer(props: Props) {
   const listQuery = useQuery(gql(queries.units));
 
   if (listQuery.loading) {

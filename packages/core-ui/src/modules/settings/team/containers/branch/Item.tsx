@@ -5,10 +5,10 @@ import { useMutation } from '@apollo/client';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { mutations } from '@erxes/ui/src/team/graphql';
 import Item from '../../components/branch/Item';
-import { IBranch } from '@erxes/ui/src/team/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
-  branch: IBranch;
+  branch?: IBranch;
   refetch: () => void;
   level?: number;
 };

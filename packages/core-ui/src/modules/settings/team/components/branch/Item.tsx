@@ -5,7 +5,7 @@ import { IBranch } from '@erxes/ui/src/team/types';
 import BlockItem from '../common/Item';
 
 type Props = {
-  branch: IBranch;
+  branch?: IBranch;
   deleteBranch: (_id: string, callback: () => void) => void;
   refetch: () => void;
   level?: number;
@@ -15,9 +15,10 @@ export default function Item({ branch, refetch, deleteBranch, level }: Props) {
   const renderForm = ({ closeModal }) => {
     return (
       <Form
-        branch={branch}
+        item={branch}
         closeModal={closeModal}
         additionalRefetchQueries={['users']}
+        queryType=""
       />
     );
   };
