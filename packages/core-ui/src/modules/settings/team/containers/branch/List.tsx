@@ -3,7 +3,7 @@ import React from 'react';
 import { useQuery } from '@apollo/client';
 
 import Spinner from '@erxes/ui/src/components/Spinner';
-import List from '../../components/branch/List';
+import List from '../../components/common/List';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { __ } from 'modules/common/utils';
 import Box from '@erxes/ui/src/components/Box';

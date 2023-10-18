@@ -1,5 +1,5 @@
 import React from 'react';
-import BlockList from '../common/BlockList';
+import BlockList from './BlockList';
 import Form from '../../containers/branch/Form';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { gql, useMutation } from '@apollo/client';
