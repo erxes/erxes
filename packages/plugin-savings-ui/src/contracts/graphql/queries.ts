@@ -25,6 +25,8 @@ const contractFields = `
   dealId
   hasTransaction
   currency
+  closeInterestRate
+  storedInterest
 `;
 
 const listParamsDef = `
@@ -75,8 +77,7 @@ export const contracts = `
   query savingsContracts(${listParamsDef}) {
     savingsContracts(${listParamsValue}) {
       ${contractFields}
-      closeInterestRate
-      storedInterest
+      
     }
   }
 `;

@@ -88,6 +88,8 @@ export interface IContract {
   useMargin: boolean;
   useSkipInterest: boolean;
   useDebt: boolean;
+  useManualNumbering: boolean;
+  useFee: boolean;
 
   closeDate?: Date;
   closeType?: string;
@@ -113,6 +115,7 @@ export interface IContract {
   customInterest: number;
   isStoppedInterest: boolean;
   stoppedInterestDate: Date;
+  loanPurpose: string;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -317,6 +320,8 @@ export const contractSchema = schemaHooksWrapper(
     useMargin: field({ type: Boolean, label: 'use margin' }),
     useSkipInterest: field({ type: Boolean, label: 'use skip interest' }),
     useDebt: field({ type: Boolean, label: 'use debt' }),
+    useManualNumbering: field({ type: Boolean, label: 'use manual numbering' }),
+    useFee: field({ type: Boolean, label: 'use fee' }),
     closeDate: field({
       type: Date,
       optional: true,
@@ -417,6 +422,10 @@ export const contractSchema = schemaHooksWrapper(
     stoppedInterestDate: field({
       type: Date,
       label: 'Stopped interest date'
+    }),
+    loanPurpose: field({
+      type: String,
+      label: 'Loan purpose'
     })
   }),
   'erxes_contractSchema'

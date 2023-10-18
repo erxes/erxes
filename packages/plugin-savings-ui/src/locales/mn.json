@@ -153,5 +153,20 @@
   "Transaction Date": "Гүйлгээний огноо",
   "Down payment": "Урьдчилгаа төлбөр",
   "Interest correction": "Хүүгийн өөрчлөлт",
-  "Saving Balance": "Итгэлцэлийн үлдэгдэл"
+  "Saving Balance": "Итгэлцэлийн үлдэгдэл",
+  "Loan Purpose": "Зээлийн зориулалт",
+  "Contract Date": "Гэрээний огноо",
+  "Saving Contract": "Итгэлцэлийн гэрээ",
+  "Saving Contract types": "Итгэлцэлийн гэрээний төрөл",
+  "Duration": "Хугацаа",
+  "Saving Amount": "Итгэлцэлийн дүн",
+  "Interest give type": "Үр шим хүртэх нөхцөл",
+  "Close or extend config": "Хаах эсвэл сунгах нөхцөл",
+  "closeEndOfContract": "Хугацааны эцэст хаах",
+  "autoExtend": "Автомат сунгалт",
+  "currentAccount": "Итгэлцэлийн данс руу",
+  "depositAccount": "Депозит данс руу",
+  "Stored interest": "Хуримтлагдсан хүү",
+  "Saving officer": "Итгэлцэлийн мэргэжилтэн",
+  "Income": "Орлого"
 }
