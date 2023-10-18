@@ -4,11 +4,9 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import BranchForm from '../../components/branch/Form';
 import DepartmentForm from '../../components/department/Form';
 import UnitForm from '../../components/unit/Form';
-
 import { mutations, queries } from '@erxes/ui/src/team/graphql';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client';
-import { IBranch, IDepartment, IUnit } from '@erxes/ui/src/team/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 

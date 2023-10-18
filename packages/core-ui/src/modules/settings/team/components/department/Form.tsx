@@ -8,7 +8,6 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'modules/common/utils';
 import { IDepartment } from '@erxes/ui/src/team/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
