@@ -75,20 +75,31 @@ const FormContainer = (props: Props) => {
 
   if (queryType === 'branches') {
     return (
-      <BranchForm branches={items} {...props} renderButton={renderButton} />
+      <BranchForm
+        branches={items}
+        branch={item}
+        {...props}
+        renderButton={renderButton}
+      />
     );
   }
   if (queryType === 'departments') {
     return (
       <DepartmentForm
         departments={items}
+        department={item}
         {...props}
         renderButton={renderButton}
       />
     );
   } else {
     return (
-      <UnitForm departments={items} {...props} renderButton={renderButton} />
+      <UnitForm
+        departments={items}
+        unit={item}
+        {...props}
+        renderButton={renderButton}
+      />
     );
   }
 };
