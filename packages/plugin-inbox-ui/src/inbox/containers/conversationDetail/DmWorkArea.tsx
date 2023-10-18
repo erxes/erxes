@@ -239,22 +239,17 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
         };
 
-        try {
-          cache.updateQuery(selector, data => {
-            const key = getQueryResultKey(data || {});
-            const messages = data ? data[key] : [];
+        cache.updateQuery(selector, data => {
+          const key = getQueryResultKey(data || {});
+          const messages = data ? data[key] : [];
 
-            // check duplications
-            if (messages.find(m => m._id === message._id)) {
-              return;
-            }
+          // check duplications
+          if (messages.find(m => m._id === message._id)) {
+            return;
+          }
 
-            return { [key]: [...messages, message] };
-          });
-        } catch (e) {
-          console.error(e);
-          return;
-        }
+          return { [key]: [...messages, message] };
+        });
       };
     }
 
