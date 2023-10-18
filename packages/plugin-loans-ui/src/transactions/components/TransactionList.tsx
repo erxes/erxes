@@ -9,13 +9,15 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  BarItems
+  BarItems,
+  DropdownToggle,
+  Icon
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { menuContracts } from '../../constants';
-
+import Dropdown from 'react-bootstrap/Dropdown';
 import TransactionForm from '../containers/TransactionForm';
 import { ContractsTableWrapper } from '../../contracts/styles';
 import { ITransaction } from '../types';
@@ -25,6 +27,7 @@ import { can } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
+import InterestChange from '../../contracts/containers/detail/InterestChange';
 
 interface IProps extends IRouterProps {
   transactions: ITransaction[];
@@ -161,8 +164,8 @@ class TransactionsList extends React.Component<IProps> {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('Add transaction')}
+      <Button size="small" icon="plus-circle">
+        {__('Repayment')}
       </Button>
     );
 
@@ -198,6 +201,14 @@ class TransactionsList extends React.Component<IProps> {
       return <TransactionForm {...props} queryParams={queryParams} />;
     };
 
+    const interestChangeForm = props => (
+      <InterestChange {...props} type="interestChange" />
+    );
+
+    const interestReturnForm = props => (
+      <InterestChange {...props} type="interestReturn" />
+    );
+
     const rightMenuProps = {
       onSelect,
       onSearch,
@@ -209,15 +220,49 @@ class TransactionsList extends React.Component<IProps> {
     const actionBarRight = (
       <BarItems>
         {can('manageTransactions', currentUser) && (
-          <ModalTrigger
-            title={`${__('New transaction')}`}
-            trigger={addTrigger}
-            autoOpenKey="showTransactionModal"
-            size="lg"
-            content={transactionForm}
-            backDrop="static"
-          />
+          <Dropdown>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+              <Button btnStyle="success" size="medium">
+                {__('New transaction')}
+                <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu>
+              <li>
+                <ModalTrigger
+                  title={`${__('Repayment Transaction')}`}
+                  trigger={
+                    <a href="#Repayment">{__('Repayment Transaction')}</a>
+                  }
+                  size="lg"
+                  content={transactionForm}
+                />
+              </li>
+              <li>
+                <ModalTrigger
+                  title={__('Interest Change')}
+                  trigger={
+                    <a href="#Interest Change">{__('Interest Change')}</a>
+                  }
+                  size="lg"
+                  content={interestChangeForm}
+                />
+              </li>
+              <li>
+                <ModalTrigger
+                  title={__('Interest Return')}
+                  trigger={
+                    <a href="#Interest Return">{__('Interest Return')}</a>
+                  }
+                  size="lg"
+                  content={interestReturnForm}
+                />
+              </li>
+            </Dropdown.Menu>
+          </Dropdown>
         )}
+
         <RightMenu {...rightMenuProps} />
       </BarItems>
     );

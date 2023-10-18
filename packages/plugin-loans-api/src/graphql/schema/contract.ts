@@ -101,6 +101,9 @@ export const types = () => `
     customPayment: Float
     customInterest: Float
     isBarter: Boolean
+    useManualNumbering: Boolean
+    useFee: Boolean
+    loanPurpose: String
   }
 
 
@@ -214,6 +217,9 @@ const commonFields = `
   isBarter: Boolean
   customPayment: Float
   customInterest: Float
+  loanPurpose: String
+  useManualNumbering: Boolean
+  useFee: Boolean
 `;
 
 const interestCorrectionFields = `
