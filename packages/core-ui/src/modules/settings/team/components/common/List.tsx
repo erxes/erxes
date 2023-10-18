@@ -18,7 +18,13 @@ export default function List(props: Props) {
   const { queryType, listQuery, title, queryParams } = props;
   const allItems = listQuery.data[queryType] || [];
 
-  const renderForm = ({ closeModal, item }) => {
+  const renderForm = ({
+    closeModal,
+    item
+  }: {
+    closeModal: () => void;
+    item?: string;
+  }): React.ReactNode => {
     return <Form item={item} closeModal={closeModal} queryType={queryType} />;
   };
 
