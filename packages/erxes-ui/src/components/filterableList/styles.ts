@@ -161,19 +161,13 @@ const ChildList = styled.div`
 
 const iconWidth = 30;
 
-const ToggleIcon = styledTS<{ isIndented?: boolean; type?: string }>(
-  styled.div
-)`
+const ToggleIcon = styledTS<{ type?: string }>(styled.div)`
   position: absolute;
   ${props =>
     props.type === 'list' &&
     `
   top: 8px;
-  left:${
-    props.isIndented
-      ? `${dimensions.unitSpacing * 0.5}px`
-      : `${dimensions.unitSpacing * 1.5}px`
-  };
+  left:${dimensions.unitSpacing * 0.5}px;
   line-height: ${iconWidth}px;
   text-align: center;
   width: ${iconWidth / 2}px;`}

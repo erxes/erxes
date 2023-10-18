@@ -4,6 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import automations from './automations';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -36,5 +37,7 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-  }
+  },
+
+  meta: { automations }
 };

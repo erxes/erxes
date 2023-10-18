@@ -151,11 +151,17 @@ const segmentQueries = {
    */
   async segmentsGetHeads(
     _root,
-    _args,
+    { contentType },
     { models, commonQuerySelector }: IContext
   ) {
+    let selector: any = {};
+
+    if (contentType) {
+      selector.contentType = contentType;
+    }
     return models.Segments.find({
       ...commonQuerySelector,
+      ...selector,
       name: { $exists: true },
       $or: [{ subOf: { $exists: false } }, { subOf: '' }]
     });

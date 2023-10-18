@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-import { SidebarTitle } from '@erxes/ui/src/layout/styles';
 
 const FilterWrapper = styled.div`
   margin: 10px 20px 0 20px;
@@ -460,6 +459,32 @@ const CustomContainer = styled.div`
   }
 `;
 
+const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
+  position: relative;
+
+  margin-right: 10px;
+  input {
+    border: 1px solid ${colors.borderPrimary};
+    padding: 20px 20px 20px 30px;
+    border-radius: 20px;
+    width: ${props => (props.isInPopover ? '250px' : '350px')};
+    margin:  ${props => props.isInPopover && '5px 5px 0'};
+    background: ${colors.colorWhite};
+
+    @media (max-width: 1300px) {
+      min-width: 260px;
+    }
+  }
+
+  i {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 15px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
 export {
   FilterItem,
   FilterWrapper,
@@ -496,5 +521,6 @@ export {
   CustomBoxWrapper,
   RoundBox,
   SortItem,
-  CustomContainer
+  CustomContainer,
+  SearchInput
 };

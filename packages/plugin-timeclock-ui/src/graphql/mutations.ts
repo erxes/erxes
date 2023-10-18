@@ -225,6 +225,32 @@ const scheduleConfigRemove = `mutation scheduleConfigRemove($_id: String){
   scheduleConfigRemove(_id: $_id)
 }`;
 
+const deviceConfigAdd = `mutation deviceConfigAdd($deviceName: String, $serialNo: String, $extractRequired: Boolean){
+  deviceConfigAdd(deviceName: $deviceName, serialNo: $serialNo, extractRequired: $extractRequired ){
+    _id
+  }
+}`;
+
+const deviceConfigEdit = `mutation deviceConfigEdit($_id: String, $deviceName: String, $serialNo: String, $extractRequired: Boolean){
+  deviceConfigEdit(_id: $_id, deviceName: $deviceName, serialNo: $serialNo, extractRequired: $extractRequired ){
+    _id
+  }
+}`;
+
+const deviceConfigRemove = `mutation deviceConfigRemove($_id: String){
+  deviceConfigRemove(_id: $_id)
+}`;
+
+const extractAllDataFromMsSQL = `
+mutation extractAllDataFromMsSQL($startDate: String, $endDate: String, $extractAll: Boolean, $branchIds: [String], $departmentIds: [String],$userIds: [String]){
+  extractAllDataFromMsSQL(startDate: $startDate, endDate: $endDate, extractAll: $extractAll, branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds)
+}`;
+
+const extractTimeLogsFromMsSql = `
+mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String, $extractAll: Boolean, $branchIds: [String], $departmentIds: [String],$userIds: [String]){
+  extractTimeLogsFromMsSQL(startDate: $startDate, endDate: $endDate, extractAll: $extractAll, branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds)
+}`;
+
 const createTimeClockFromLog = `
 mutation createTimeClockFromLog($userId: String, $timelog: Date, $inDevice: String){
   createTimeClockFromLog(userId: $userId, timelog: $timelog, inDevice: $inDevice){
@@ -282,8 +308,14 @@ export default {
   scheduleConfigEdit,
   scheduleConfigRemove,
 
+  deviceConfigAdd,
+  deviceConfigEdit,
+  deviceConfigRemove,
+
   submitCheckInOutRequest,
 
+  extractAllDataFromMsSQL,
+  extractTimeLogsFromMsSql,
   createTimeClockFromLog,
 
   scheduleConfigOrderEdit,

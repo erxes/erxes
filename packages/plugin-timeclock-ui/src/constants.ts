@@ -6,6 +6,13 @@ const menuTimeClock = (searchFilter: string, isCurrentUserAdmin: boolean) => {
     { title: __('Timeclocks'), link: `/timeclocks${searchFilter}` }
   ];
 
+  if (!isEnabled('bichil')) {
+    navigationMenu.push({
+      title: __('Time logs'),
+      link: `/timeclocks/logs${searchFilter}`
+    });
+  }
+
   navigationMenu.push(
     { title: __('Requests'), link: `/timeclocks/requests${searchFilter}` },
     { title: __('Schedule'), link: `/timeclocks/schedule${searchFilter}` },
