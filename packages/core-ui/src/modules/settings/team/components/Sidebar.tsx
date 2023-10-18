@@ -1,20 +1,24 @@
-import BranchList from '../containers/branch/List';
-import DepartmentList from '../containers/department/List';
+import List from '../containers/branch/List';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import UnitList from '../containers/unit/List';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 export default function LeftSidebar({
-  loadingMainQuery
+  loadingMainQuery,
+  queryParams
 }: {
   loadingMainQuery: boolean;
+  queryParams: string;
 }) {
   return (
     <Sidebar hasBorder={true}>
-      <BranchList />
-      <DepartmentList />
-      <UnitList />
+      <List queryType="branches" title="Branch" queryParams={queryParams} />
+      <List
+        queryType="departments"
+        title="Department"
+        queryParams={queryParams}
+      />
+      <List queryType="units" title="Unit" queryParams={queryParams} />
       {loadDynamicComponent('teamMemberSidebarComp', {
         loadingMainQuery
       })}

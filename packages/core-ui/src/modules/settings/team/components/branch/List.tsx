@@ -1,42 +1,80 @@
-import BlockList from '../common/BlockList';
-import { EmptyState } from '@erxes/ui/src/components';
-import Form from '../../containers/branch/Form';
-import Item from '../../containers/branch/Item';
 import React from 'react';
-import { generateTree } from '../../utils';
+import BlockList from '../common/BlockList';
+import Form from '../../containers/branch/Form';
+import { Alert, confirm } from '@erxes/ui/src/utils';
+import { gql, useMutation } from '@apollo/client';
+import { mutations } from '@erxes/ui/src/team/graphql';
+import { Button, Tip, Icon } from '@erxes/ui/src/components';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   listQuery: any;
+  queryType: string;
+  title: string;
+  queryParams: string;
 };
 
-export default function List({ listQuery }: Props) {
-  const allBranches = listQuery.data.branches || [];
+export default function List(props: Props) {
+  const { queryType, listQuery, title, queryParams } = props;
+  const allItems = listQuery.data[queryType] || [];
 
-  const renderChildren = parentId => {
-    if (allBranches.length === 0) {
-      return <EmptyState icon="ban" text="No branches" size="small" />;
-    }
-
-    return generateTree(allBranches, parentId, (node, level) => (
-      <Item
-        key={node._id}
-        branch={node}
-        level={level}
-        refetch={listQuery.refetch}
-      />
-    ));
+  const renderForm = ({ closeModal, item }) => {
+    return <Form item={item} closeModal={closeModal} queryType={queryType} />;
   };
 
-  const renderForm = ({ closeModal }) => {
-    return <Form closeModal={closeModal} />;
+  const trigger = (
+    <Button btnStyle="link">
+      <Tip text={'Edit'} placement="bottom">
+        <Icon icon="edit" />
+      </Tip>
+    </Button>
+  );
+
+  const editAction = item => (
+    <ModalTrigger
+      content={({ closeModal }) => renderForm({ closeModal, item })}
+      title={`Edit ${title}`}
+      trigger={trigger}
+    />
+  );
+
+  const [deleteMutation] = useMutation(gql(mutations[queryType + 'Remove']));
+
+  const deleteItem = (_id: string, callback: () => void) => {
+    confirm().then(() => {
+      deleteMutation({ variables: { ids: [_id] } })
+        .then(() => {
+          callback();
+          Alert.success('Successfully deleted');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
+  const renderRemoveAction = item => {
+    return (
+      <Button
+        btnStyle="link"
+        onClick={() => deleteItem(item._id, listQuery.refetch)}
+      >
+        <Tip text={'Remove'} placement="bottom">
+          <Icon icon="cancel-1" />
+        </Tip>
+      </Button>
+    );
   };
 
   return (
     <BlockList
-      allDatas={allBranches}
+      allDatas={allItems}
       renderForm={renderForm}
-      renderItems={renderChildren('')}
-      title="Branch"
+      title={title}
+      queryParams={queryParams}
+      queryType={queryType}
+      removeAction={renderRemoveAction}
+      editAction={editAction}
     />
   );
 }

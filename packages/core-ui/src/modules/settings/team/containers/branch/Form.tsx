@@ -1,22 +1,27 @@
 import React from 'react';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Form from '../../components/branch/Form';
+import BranchForm from '../../components/branch/Form';
+import DepartmentForm from '../../components/department/Form';
+import UnitForm from '../../components/unit/Form';
+
 import { mutations, queries } from '@erxes/ui/src/team/graphql';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client';
-import { IBranch } from '@erxes/ui/src/team/types';
+import { IBranch, IDepartment, IUnit } from '@erxes/ui/src/team/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 
 type Props = {
-  branch?: IBranch;
+  item?: any;
   closeModal: () => void;
   additionalRefetchQueries?: any[];
+  queryType?: any;
 };
 
 const FormContainer = (props: Props) => {
-  const { data, error, loading } = useQuery(gql(queries.branches), {
+  const { queryType, item } = props;
+  const { data, error, loading } = useQuery(gql(queries[queryType]), {
     fetchPolicy: 'network-only'
   });
 
@@ -35,12 +40,17 @@ const FormContainer = (props: Props) => {
     object,
     callback
   }: IButtonMutateProps) => {
+    // console.log(object._id);
     return (
       <ButtonMutate
-        mutation={object._id ? mutations.branchesEdit : mutations.branchesAdd}
+        mutation={
+          object._id
+            ? mutations[`${queryType}Edit`]
+            : mutations[`${queryType}Add`]
+        }
         refetchQueries={[
           {
-            query: gql(queries.branches),
+            query: gql(queries[queryType]),
             variables: {
               withoutUserFilter: true,
               searchValue: undefined
@@ -59,13 +69,28 @@ const FormContainer = (props: Props) => {
     );
   };
 
-  const branch = props.branch;
+  const items = item
+    ? data[queryType].filter(d => d._id !== item._id)
+    : data[queryType];
 
-  const branches = branch
-    ? data.branches.filter(d => d._id !== branch._id)
-    : data.branches;
-
-  return <Form branches={branches} {...props} renderButton={renderButton} />;
+  if (queryType === 'branches') {
+    return (
+      <BranchForm branches={items} {...props} renderButton={renderButton} />
+    );
+  }
+  if (queryType === 'departments') {
+    return (
+      <DepartmentForm
+        departments={items}
+        {...props}
+        renderButton={renderButton}
+      />
+    );
+  } else {
+    return (
+      <UnitForm departments={items} {...props} renderButton={renderButton} />
+    );
+  }
 };
 
 export default FormContainer;

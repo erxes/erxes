@@ -15,7 +15,7 @@ export default function Item({ branch, refetch, deleteBranch, level }: Props) {
   const renderForm = ({ closeModal }) => {
     return (
       <Form
-        branch={branch}
+        item={branch}
         closeModal={closeModal}
         additionalRefetchQueries={['users']}
       />
