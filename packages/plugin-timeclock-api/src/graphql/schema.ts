@@ -326,6 +326,8 @@ const queryParams = `
   reportType: String
   scheduleStatus: String
   isCurrentUserAdmin: Boolean
+
+  searchValue: String
 `;
 
 const commonParams = `
@@ -367,11 +369,13 @@ export const queries = `
   timeclocksMain(${queryParams}): TimeClocksListResponse
   schedulesMain(${queryParams}): SchedulesListResponse
   requestsMain(${queryParams}): RequestsListResponse
+  timelogsMain(${queryParams}): TimelogListResponse
   
   timeclockBranches(${commonParams}):[Branch]
   timeclockDepartments(${commonParams}):[Department]
 
   timeclocksPerUser(userId: String, shiftActive: Boolean, startDate: String, endDate:String): [Timeclock]
+  timeLogsPerUser(userId: String, startDate: String, endDate: String ): [Timelog]
   schedulesPerUser(userId: String, startDate: String, endDate: String): [Schedule]
 
   
@@ -391,6 +395,7 @@ export const queries = `
   scheduleDetail(_id: String!): Schedule
   scheduleConfigs: [ScheduleConfig]
   
+  deviceConfigs(${queryParams}): DeviceConfigsListResponse
   scheduleConfigOrder(userId: String): ScheduleConfigOrder
 
   payDates: [PayDate]
@@ -441,7 +446,15 @@ export const mutations = `
   scheduleRemove(_id: String): JSON
   scheduleShiftRemove(_id: String): JSON
   
+  deviceConfigAdd(deviceName: String, serialNo: String,extractRequired: Boolean): DeviceConfig
+  deviceConfigEdit(_id: String, deviceName: String, serialNo: String,extractRequired: Boolean): DeviceConfig
+  deviceConfigRemove(_id: String): JSON
   
   checkReport(userId: String, startDate: String, endDate: String): CheckReport
   checkSchedule(scheduleId: String): JSON
+
+  createTimeClockFromLog(userId: String, timelog: Date, inDevice: String): Timeclock
+
+  extractAllDataFromMsSQL(startDate: String, endDate: String, extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): JSON
+  extractTimeLogsFromMsSQL(startDate: String, endDate: String,  extractAll: Boolean, branchIds: [String], departmentIds: [String],userIds: [String]): JSON
 `;

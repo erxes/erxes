@@ -258,6 +258,9 @@ export type DepartmentsQueryResponse = {
   timeclockDepartments: IDepartment[];
   departments: IDepartment[];
 };
+export type DeviceConfigsQueryResponse = {
+  deviceConfigs: { list: IDeviceConfig[]; totalCount: number };
+} & QueryResponse;
 
 export type ScheduleQueryResponse = {
   schedulesMain: { list: ISchedule[]; totalCount: number };
@@ -309,6 +312,16 @@ export type ScheduleMutationVariables = {
   scheduleConfigId?: string;
   totalBreakInMins?: number | string;
   status?: string;
+};
+
+export type TimeLogMutationResponse = {
+  extractTimeLogsFromMsSQLMutation: (params: {
+    variables: { startDate: string; endDate: string; params: any };
+  }) => Promise<any>;
+
+  createTimeClockFromLogMutation: (params: {
+    variables: { userId: string; timelog: Date; inDevice?: string };
+  }) => Promise<any>;
 };
 
 export type TimeClockMutationResponse = {

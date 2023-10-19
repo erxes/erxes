@@ -1,12 +1,13 @@
-import { gql } from '@apollo/client';
-import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
 import { Amount, HeaderAmount } from './styles/stage';
-import { IDateColumn } from '@erxes/ui/src/types';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import { ColumnProps, getCommonParams } from './components/Calendar';
-import PriorityIndicator from './components/editForm/PriorityIndicator';
 import { IDraggableLocation, IFilterParams, IItem, IItemMap } from './types';
+import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
+
+import { IDateColumn } from '@erxes/ui/src/types';
+import PriorityIndicator from './components/editForm/PriorityIndicator';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Options = {
   _id: string;
@@ -137,14 +138,14 @@ export const getDefaultBoardAndPipelines = () => {
 };
 
 export const renderAmount = (amount = {}, tick = true) => {
-  if (!Object.keys(amount).length) {
+  if (!Object.keys(amount || {}).length) {
     return <></>;
   }
 
   return (
     <HeaderAmount>
       <Amount unUsed={!tick}>
-        {Object.keys(amount).map(key => (
+        {Object.keys(amount || {}).map(key => (
           <li key={key}>
             {amount[key].toLocaleString()} <span>{key}</span>
           </li>
@@ -155,14 +156,14 @@ export const renderAmount = (amount = {}, tick = true) => {
 };
 
 export const renderPercentedAmount = (amount = {}, percent, tick = true) => {
-  if (!Object.keys(amount).length) {
+  if (!Object.keys(amount || {}).length) {
     return <></>;
   }
 
   return (
     <HeaderAmount>
       <Amount unUsed={!tick}>
-        {Object.keys(amount).map(key => (
+        {Object.keys(amount || {}).map(key => (
           <li key={key}>
             {((amount[key] * percent) / 100).toLocaleString()}{' '}
             <span>{key}</span>

@@ -224,11 +224,20 @@ const SidebarBox = styledTS<{
   }
 `;
 
-const BoxContent = styled.div`
+const BoxContent = styledTS<{ noPadding?: boolean }>(styled.div)`
   flex: 1;
-  ul:first-child {
-    padding: 10px 0;
-  }
+  ${props =>
+    props.noPadding
+      ? `
+    ul {
+      padding: 0 !important;;
+    }
+  `
+      : `
+    ul:first-child {
+      padding: 10px 0;
+    }
+  `}
 `;
 
 const SidebarToggle = styledTS<{ inverse?: boolean }>(styled.a)`
