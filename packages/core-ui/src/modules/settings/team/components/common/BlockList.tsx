@@ -40,7 +40,7 @@ export default function BlockList(props: Props) {
 
   const linkToText = title.toLocaleLowerCase();
 
-  const renderItem = (
+  const renderItems = (
     <CollapsibleList
       items={allDatas}
       linkToText={`?${linkToText}Id=`}
@@ -70,7 +70,7 @@ export default function BlockList(props: Props) {
       collapsible={allDatas.length > 6}
     >
       <SidebarList noTextColor={true} noBackground={true}>
-        {renderItem}
+        {renderItems}
       </SidebarList>
     </Box>
   );
