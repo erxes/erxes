@@ -175,32 +175,32 @@ class ScriptList extends React.Component<FinalProps, States> {
             </IframePreview>
           </TemplateBox>
           <TemplateInfo>
-            <div>
-              {object.messenger && (
-                <div>
-                  <Tip text="Messenger" placement="top">
-                    <Icon icon="comment-1" />
-                  </Tip>{' '}
-                  {object.messenger.name}
-                </div>
-              )}
-              {object.kbTopic && (
-                <div>
-                  <Tip text="Knowledge Base" placement="top">
-                    <Icon icon="book-open" />
-                  </Tip>
+            {object.messenger && (
+              <>
+                <p>Messenger</p>
+                <p>
+                  <Icon icon="comment-1" /> {object.messenger.name}
+                </p>
+              </>
+            )}
+            {object.kbTopic && (
+              <>
+                <p>Knowledge Base"</p>
+                <p>
+                  <Icon icon="book-open" />
                   {object.kbTopic.title}
-                </div>
-              )}
-              {object.leads.length > 0 && (
-                <div>
-                  <Tip text="Forms" placement="top">
-                    <Icon icon="window" />
-                  </Tip>
+                </p>
+              </>
+            )}
+            {object.leads.length > 0 && (
+              <>
+                <p>Forms</p>
+                <p>
+                  <Icon icon="window" />
                   {object.leads.map(lead => ` ${lead.name},`)}
-                </div>
-              )}
-            </div>
+                </p>
+              </>
+            )}
           </TemplateInfo>
         </Template>
       );
@@ -237,23 +237,12 @@ class ScriptList extends React.Component<FinalProps, States> {
             )}`}
           />
         }
-        // flexFilter={this.renderFilter}
-        // rightActionBar="true"
         emptyContent={<EmptyContent content={EMPTY_CONTENT_SCRIPT} />}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         {...this.props}
         queryParams={this.props.queryParams}
         history={this.props.history}
-        additionalButton={
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={this.searchHandler}
-            value={router.getParam(this.props.history, 'searchValue')}
-            autoFocus={true}
-          />
-        }
       />
     );
   }
