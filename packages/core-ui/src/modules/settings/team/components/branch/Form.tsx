@@ -6,53 +6,67 @@ import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'modules/common/utils';
-import { IBranch } from '@erxes/ui/src/team/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import ContactInfoForm from '../common/ContactInfoForm';
+import { generateTree } from '../../utils';
+import Select from 'react-select-plus';
+import SelectStructureMembers from '../SelectStructureMembers';
 
-type Props = {
+type CommonProps = {
+  type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  branch?: IBranch;
+  item?: any;
   closeModal: () => void;
-  branches: IBranch[];
+  items: any[];
 };
 
-export default function BranchForm(props: Props) {
-  const { closeModal, renderButton, branches } = props;
-  const object = props.branch || ({} as IBranch);
+export default function OrganizationForm(props: CommonProps) {
+  const { type, closeModal, renderButton, items } = props;
+  const object = props.item || {};
 
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
   );
-  const [parentId, setParentId] = useState(object.parentId || null);
-  const [links, setLinks] = useState(object.links || {});
-  const [image, setImage] = useState(object.image || null);
+  const [parentId, setParentId] = useState(object.parentId);
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
+  const [links, setLinks] = useState(
+    type === 'branches' ? object.links || {} : null
+  );
+  const [image, setImage] = useState(
+    type === 'branches' ? object.image || null : null
+  );
+  const coordinateObj = type === 'branches' ? object.coordinate || {} : null;
 
-  const coordinateObj = object.coordinate || {};
-
-  const [coordinate, setCoordinate] = useState({
-    longitude: coordinateObj.longitude || '',
-    latitude: coordinateObj.latitude || ''
-  });
+  const [coordinate, setCoordinate] = useState(
+    type === 'branches'
+      ? {
+          longitude: coordinateObj.longitude || '',
+          latitude: coordinateObj.latitude || ''
+        }
+      : null
+  );
 
   const generateDoc = values => {
     const finalValues = values;
-
     if (object) {
       finalValues._id = object._id;
     }
 
-    return {
+    const doc = {
       userIds,
       parentId,
-      links,
-      coordinate,
       supervisorId,
-      image,
-      ...finalValues,
-      radius: Number(finalValues.radius)
+      ...finalValues
     };
+
+    if (type === 'branches') {
+      doc.links = links;
+      doc.coordinate = coordinate;
+      doc.image = image;
+      doc.radius = Number(finalValues.radius);
+    }
+
+    return doc;
   };
 
   const onChangeParent = (value: any) => {
@@ -63,21 +77,31 @@ export default function BranchForm(props: Props) {
     }
   };
 
-  const onSelectTeamMembers = (ids: any) => {
-    setUserIds(ids);
+  const onSelectUsers = values => {
+    setUserIds(values);
   };
 
   const onSelectSupervisor = value => {
     setSupervisorId(value);
   };
 
+  const [departmentId, setDepartmentId] = useState(object.departmentId || null);
+
+  const onChangeDepartment = selectedOption => {
+    if (selectedOption) {
+      setDepartmentId(selectedOption.value);
+    } else {
+      setDepartmentId(null);
+    }
+  };
+
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
     const generateOptions = () => {
-      return branches.map(branch => (
-        <option key={branch._id} value={branch._id}>
-          {branch.title}
+      return items.map(item => (
+        <option key={item._id} value={item._id}>
+          {item.title}
         </option>
       ));
     };
@@ -94,16 +118,29 @@ export default function BranchForm(props: Props) {
             required={true}
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel required={true}>{__('Address')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            required={true}
-            name="address"
-            defaultValue={object.address}
-            componentClass="textarea"
-          />
-        </FormGroup>
+        {type === 'branches' && (
+          <FormGroup>
+            <ControlLabel required={true}>{__('Address')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              required={true}
+              name="address"
+              defaultValue={object.address}
+              componentClass="textarea"
+            />
+          </FormGroup>
+        )}
+        {type === 'departments' && (
+          <FormGroup>
+            <ControlLabel>{__('Description')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="description"
+              defaultValue={object.description}
+              componentClass="textarea"
+            />
+          </FormGroup>
+        )}
         <FormGroup>
           <ControlLabel required={true}>{__('Code')}</ControlLabel>
           <FormControl
@@ -115,7 +152,6 @@ export default function BranchForm(props: Props) {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Supervisor')}</ControlLabel>
-
           <SelectTeamMembers
             label="Choose supervisor"
             name="supervisorId"
@@ -125,48 +161,68 @@ export default function BranchForm(props: Props) {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>{__('Parent')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="parentId"
-            componentClass="select"
-            defaultValue={parentId || null}
-            onChange={onChangeParent}
-          >
-            <option value="" />
-            {generateOptions()}
-          </FormControl>
-        </FormGroup>
+        {type === 'units' && (
+          <FormGroup>
+            <ControlLabel>{__('Department')}</ControlLabel>
+            <Select
+              placeholder={__('Choose department')}
+              value={departmentId}
+              onChange={onChangeDepartment}
+              options={generateTree(items, null, (node, level) => ({
+                value: node._id,
+                label: `${'---'.repeat(level)} ${node.title}`
+              }))}
+            />
+          </FormGroup>
+        )}
+
+        {type !== 'units' && (
+          <FormGroup>
+            <ControlLabel>{__('Parent')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="parentId"
+              componentClass="select"
+              defaultValue={parentId || null}
+              onChange={onChangeParent}
+            >
+              <option value="" />
+              {generateOptions()}
+            </FormControl>
+          </FormGroup>
+        )}
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>
-
           <SelectTeamMembers
             label="Choose team members"
             name="userIds"
             initialValue={userIds}
-            onSelect={onSelectTeamMembers}
+            onSelect={onSelectUsers}
           />
         </FormGroup>
 
-        <ContactInfoForm
-          object={object}
-          formProps={formProps}
-          setLinks={setLinks}
-          links={links}
-          setCoordinate={setCoordinate}
-          coordinate={coordinate}
-          setImage={setImage}
-          image={image}
-        />
-        <FormGroup>
-          <ControlLabel>{__('Radius')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="radius"
-            defaultValue={object.radius}
+        {type === 'branches' && (
+          <ContactInfoForm
+            object={object}
+            formProps={formProps}
+            setLinks={setLinks}
+            links={links}
+            setCoordinate={setCoordinate}
+            coordinate={coordinate}
+            setImage={setImage}
+            image={image}
           />
-        </FormGroup>
+        )}
+        {type === 'branches' && (
+          <FormGroup>
+            <ControlLabel>{__('Radius')}</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="radius"
+              defaultValue={object.radius}
+            />
+          </FormGroup>
+        )}
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -176,7 +232,6 @@ export default function BranchForm(props: Props) {
           >
             Cancel
           </Button>
-
           {renderButton({
             name: values.title,
             values: generateDoc(values),
