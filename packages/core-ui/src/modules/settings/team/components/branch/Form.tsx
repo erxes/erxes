@@ -17,11 +17,14 @@ type CommonProps = {
   item?: any;
   closeModal: () => void;
   items: any[];
+  departments: any[];
 };
 
 export default function OrganizationForm(props: CommonProps) {
-  const { type, closeModal, renderButton, items } = props;
+  const { type, closeModal, renderButton, items, departments } = props;
   const object = props.item || {};
+
+  console.log('FORM', departments);
 
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
@@ -167,7 +170,7 @@ export default function OrganizationForm(props: CommonProps) {
               placeholder={__('Choose department')}
               value={departmentId}
               onChange={onChangeDepartment}
-              options={generateTree(items, null, (node, level) => ({
+              options={generateTree(departments, null, (node, level) => ({
                 value: node._id,
                 label: `${'---'.repeat(level)} ${node.title}`
               }))}

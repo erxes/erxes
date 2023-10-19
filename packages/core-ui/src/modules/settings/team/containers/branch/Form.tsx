@@ -20,6 +20,7 @@ const FormContainer = (props: Props) => {
   const { data, error, loading } = useQuery(gql(queries[queryType]), {
     fetchPolicy: 'network-only'
   });
+  const { data: departmentsData } = useQuery(gql(queries['departments'])); // Moved outside of conditional
 
   if (loading) {
     return <Spinner />;
@@ -64,6 +65,15 @@ const FormContainer = (props: Props) => {
     );
   };
 
+  let departments = [];
+
+  if (queryType === 'units') {
+    departments =
+      departmentsData && departmentsData['departments']
+        ? departmentsData['departments']
+        : [];
+  }
+
   const items = item
     ? data[queryType].filter(d => d._id !== item._id)
     : data[queryType];
@@ -75,6 +85,7 @@ const FormContainer = (props: Props) => {
       {...props}
       renderButton={renderButton}
       type={queryType}
+      departments={departments}
     />
   );
 };
