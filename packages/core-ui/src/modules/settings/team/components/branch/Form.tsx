@@ -10,7 +10,6 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import ContactInfoForm from '../common/ContactInfoForm';
 import { generateTree } from '../../utils';
 import Select from 'react-select-plus';
-import SelectStructureMembers from '../SelectStructureMembers';
 
 type CommonProps = {
   type: string;
