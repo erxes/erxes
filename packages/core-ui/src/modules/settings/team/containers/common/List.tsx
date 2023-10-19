@@ -1,7 +1,5 @@
-import { gql } from '@apollo/client';
 import React from 'react';
 import { useQuery } from '@apollo/client';
-
 import Spinner from '@erxes/ui/src/components/Spinner';
 import List from '../../components/common/List';
 import { queries } from '@erxes/ui/src/team/graphql';
@@ -9,6 +7,8 @@ import { __ } from 'modules/common/utils';
 import Box from '@erxes/ui/src/components/Box';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { MenuFooter } from 'modules/settings/styles';
+import { gql, useMutation } from '@apollo/client';
+import { mutations } from '@erxes/ui/src/team/graphql';
 
 type Props = {
   queryParams: string;
@@ -22,6 +22,8 @@ export default function ListContainer(props: Props) {
   const listQuery = useQuery(gql(queries[queryType]), {
     variables: queryType === 'units' ? undefined : { withoutUserFilter: true }
   });
+
+  const [deleteMutation] = useMutation(gql(mutations[queryType + 'Remove']));
 
   if (listQuery.loading) {
     return <Spinner />;
@@ -43,6 +45,7 @@ export default function ListContainer(props: Props) {
       title={title}
       listQuery={listQuery}
       queryParams={queryParams}
+      deleteMutation={deleteMutation}
     />
   );
 }

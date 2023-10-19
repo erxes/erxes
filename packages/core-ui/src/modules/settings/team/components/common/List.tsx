@@ -2,8 +2,6 @@ import React from 'react';
 import BlockList from './BlockList';
 import Form from '../../containers/branch/Form';
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { gql, useMutation } from '@apollo/client';
-import { mutations } from '@erxes/ui/src/team/graphql';
 import { Button, Tip, Icon } from '@erxes/ui/src/components';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
@@ -12,10 +10,11 @@ type Props = {
   queryType: string;
   title: string;
   queryParams: string;
+  deleteMutation: any;
 };
 
 export default function List(props: Props) {
-  const { queryType, listQuery, title, queryParams } = props;
+  const { queryType, listQuery, title, queryParams, deleteMutation } = props;
   const allItems = listQuery.data[queryType] || [];
 
   const renderForm = ({
@@ -43,8 +42,6 @@ export default function List(props: Props) {
       trigger={trigger}
     />
   );
-
-  const [deleteMutation] = useMutation(gql(mutations[queryType + 'Remove']));
 
   const deleteItem = (_id: string, callback: () => void) => {
     confirm().then(() => {
