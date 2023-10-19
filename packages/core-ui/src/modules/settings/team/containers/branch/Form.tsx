@@ -77,37 +77,6 @@ const FormContainer = (props: Props) => {
       type={queryType}
     />
   );
-
-  // if (queryType === "branches") {
-  //   return (
-  //     <BranchForm
-  //       items={items}
-  //       item={item}
-  //       {...props}
-  //       renderButton={renderButton}
-  //       type={queryType}
-  //     />
-  //   );
-  // }
-  // if (queryType === "departments") {
-  //   return (
-  //     <DepartmentForm
-  //       departments={items}
-  //       department={item}
-  //       {...props}
-  //       renderButton={renderButton}
-  //     />
-  //   );
-  // } else {
-  //   return (
-  //     <UnitForm
-  //       departments={items}
-  //       unit={item}
-  //       {...props}
-  //       renderButton={renderButton}
-  //     />
-  //   );
-  // }
 };
 
 export default FormContainer;
