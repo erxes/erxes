@@ -1,22 +1,35 @@
 import gql from 'graphql-tag';
 
 const types = `
-  type Report {
+  type GeneralReport @key(fields: "_id") {
     _id: String!
     name: String
+
+    contentType: String
+    content: ReportContent
+    createdAt: Date
+    updatedAt: Date
+    createdBy: String
+  }
+
+
+  type ReportContent {
+    type: String
+    data: JSON
   }
 `;
 
 const queries = `
-  reports(typeId: String): [Report]
+  reports(typeId: String): [GeneralReport]
+  reportDetail(_id: String): GeneralReport
 `;
 
 const params = `
-  name: String,
+  contentType: String!
 `;
 
 const mutations = `
-  reportsAdd(${params}): Report
+  reportsAdd(${params}): GeneralReport
 `;
 
 const typeDefs = async _serviceDiscovery => {
