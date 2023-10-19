@@ -24,8 +24,6 @@ export default function OrganizationForm(props: CommonProps) {
   const { type, closeModal, renderButton, items, departments } = props;
   const object = props.item || {};
 
-  console.log('FORM', departments);
-
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
   );
