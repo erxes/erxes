@@ -27,7 +27,6 @@ export interface IPaymentType {
 }
 
 export interface IPaymentConfig extends ICoverConfig {
-  erxesAppToken: string
   permissionConfig?: {
     admins?: {
       isTempBill?: boolean

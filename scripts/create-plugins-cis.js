@@ -67,6 +67,8 @@ var plugins = [
   { name: 'viber', api: true, ui: true },
   { name: 'meetings', api: true, ui: true },
   { name: 'xyp', api: true, ui: true },
+  { name: 'polarissync', api: true, ui: true },
+  { name: 'savings', api: true, ui: true },
 ];
 
 const pluginsMap = {};

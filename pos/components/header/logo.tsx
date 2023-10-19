@@ -25,7 +25,7 @@ const Logo = () => {
   return (
     <div className="hidden rounded-md bg-gray-100 p-1 sm:block">
       <div
-        className="rounded bg-white px-3 py-1 text-black"
+        className="rounded bg-white px-3 text-black"
         onClick={() => (pathname === "/" ? reset() : router.push("/"))}
       >
         <Image
@@ -34,7 +34,7 @@ const Logo = () => {
           fallBack="/logo-dark.png"
           height={24}
           width={48}
-          className="object-contain"
+          className="object-contain h-8 w-auto min-w-[5rem]"
         />
       </div>
     </div>

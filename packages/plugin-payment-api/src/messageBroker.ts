@@ -14,7 +14,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Invoices.findOne(data)
+      data: await models.Invoices.findOne(data).lean()
     };
   });
 };

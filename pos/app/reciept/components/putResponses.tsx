@@ -1,5 +1,5 @@
 import { printTypeAtom, putResponsesAtom } from "@/store/order.store"
-import { useAtom } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 
 import { IPutResponse } from "@/types/order.types"
 import { cn } from "@/lib/utils"
@@ -16,7 +16,7 @@ export const PutResponse = ({
   message,
   ...rest
 }: IPutResponse) => {
-  const [type] = useAtom(printTypeAtom)
+  const type = useAtomValue(printTypeAtom)
   return (
     <div className={cn("space-y-1")}>
       {!type && (

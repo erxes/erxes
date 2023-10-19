@@ -2,14 +2,27 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { queries } from "@/modules/auth/graphql"
 import { orderTypeAtom } from "@/store/order.store"
+import { useQuery } from "@apollo/client"
 import { useSetAtom } from "jotai"
-import { ArrowLeft, ShoppingBagIcon, SoupIcon } from "lucide-react"
+import { ArrowLeft, PhoneIcon, ShoppingBagIcon, SoupIcon } from "lucide-react"
 
 import { IOrderType } from "@/types/order.types"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Button } from "@/components/ui/button"
 import Image from "@/components/ui/image"
+import Loader from "@/components/ui/loader"
+
+// colors: IConfigColors;
+// logo: string;
+// bgImage: string;
+// favIcon: string;
+// receiptIcon: string;
+// kioskHeaderImage: string;
+// mobileAppImage: string;
+// qrCodeImage: string;
+// texts: IConfigColors;
 
 const Page = () => {
   const setType = useSetAtom(orderTypeAtom)
@@ -19,6 +32,10 @@ const Page = () => {
     setType(type)
     router.push("/home")
   }
+  const { data, loading } = useQuery(queries.uiOptions)
+  const { texts, logo } = data?.currentConfig?.uiOptions || {}
+
+  if (loading) return <Loader className="h-screen" />
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-between relative ">
@@ -36,16 +53,13 @@ const Page = () => {
         <div className="w-4/12 text-center">
           <AspectRatio ratio={1.6}>
             <Image
-              src="https://seeklogo.com/images/Y/yoshinoya-logo-0838D5BF03-seeklogo.com.png"
+              src={logo || "/logo-dark.png"}
               alt=""
               className="object-contain p-3"
               sizes={"100vw"}
               quality={100}
             />
           </AspectRatio>
-          <div className="text-sm font-bold whitespace-nowrap uppercase text-black/70">
-            Эрүүл - амттай - түргэн
-          </div>
         </div>
         <div className="w-8/12 grid grid-cols-2 gap-4">
           <Button
@@ -75,8 +89,13 @@ const Page = () => {
         </div>
       </div>
       <div className="flex justify-between items-center text-xs uppercase p-6 w-full text-primary font-bold">
-        <span>v.0.0.1</span>
-        <span>www.yoshinoyamongolia.mn</span>
+        {!!texts?.phone && (
+          <span className="flex items-center gap-1">
+            <PhoneIcon strokeWidth={2.5} className="w-4 h-4" />
+            {texts?.phone}
+          </span>
+        )}
+        <span>{texts?.website}</span>
       </div>
     </div>
   )

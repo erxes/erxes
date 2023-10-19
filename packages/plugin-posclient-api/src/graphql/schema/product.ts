@@ -30,6 +30,7 @@ export const types = `
 
   type PoscProduct {
     ${commonFieldDefs}
+    shortName: String
     type: String
     barcodes: [String]
     barcodeDescription: String
@@ -45,6 +46,8 @@ export const types = `
     subUoms: JSON
     category: PosProductCategory
     remainder: Float
+    soonIn: Float
+    soonOut: Float
     remainders: [JSON]
     isCheckRem: Boolean
     hasSimilarity: Boolean

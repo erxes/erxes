@@ -20,6 +20,7 @@ const useReciept = (options?: { onCompleted?: () => void }) => {
     return () => {
       window.removeEventListener("message", handleIframeMessage)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return { iframeRef }

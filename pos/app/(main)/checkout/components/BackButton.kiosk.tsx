@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 const BackButton = () => {
   return (
     <Button
-      className="font-extrabold px-2"
+      className="font-extrabold p-3 h-auto"
       variant={"secondary"}
       size="sm"
       Component={Link}

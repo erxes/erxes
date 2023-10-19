@@ -1,8 +1,10 @@
 "use client"
 
+import ApolloProvider from "@/modules/ApolloProvider"
 import { atom, Provider } from "jotai"
+import { atomWithStorage } from "jotai/utils"
 
-import { getMode } from "@/lib/utils"
+import { modeT } from "@/types/config.types"
 
 // products
 export const searchAtom = atom<string>("")
@@ -13,9 +15,11 @@ export const hiddenParentsAtom = atom<string[]>([])
 // local
 export const currentAmountAtom = atom<number>(0)
 
-export const currentPaymentTypeAtom = atom<string>(
-  getMode() === "market" ? "cash" : ""
-)
+export const modeAtom = atomWithStorage<modeT>("mode", "main")
+
+export const currentPaymentTypeAtom = atom<string>("")
+
+export const byPercentTypesAtom = atom<string[]>([])
 
 export const customerSearchAtom = atom<string>("")
 
@@ -31,8 +35,14 @@ export const kioskDialogOpenAtom = atom<boolean>(false)
 
 export const ebarimtMainDialogOpenAtom = atom<boolean>(false)
 
+export const scrollWidthAtom = atomWithStorage<number>("scrollWidth", 8)
+
 const JotaiProvider = ({ children }: { children: React.ReactNode }) => {
-  return <Provider>{children}</Provider>
+  return (
+    <Provider>
+      <ApolloProvider>{children}</ApolloProvider>
+    </Provider>
+  )
 }
 
 export type SetAtom<Args extends any[], Result> = (...args: Args) => Result

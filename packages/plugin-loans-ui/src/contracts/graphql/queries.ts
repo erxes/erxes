@@ -48,6 +48,9 @@ const contractFields = `
   loanBalanceAmount
   storedInterest
   lastStoredDate
+  useManualNumbering
+  useFee
+  loanPurpose
 `;
 
 const listParamsDef = `

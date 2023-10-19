@@ -32,6 +32,11 @@ export const setCurrentUserAtom = atom(
 )
 export const allowTypesAtom = atom<IOrderType[] | null>(null)
 
+export const kitchenScreenAtom = atom<{
+  isActive?: boolean
+  isPrint?: boolean
+} | null>(null)
+
 export const setWholeConfig = atom(
   null,
   (
@@ -44,7 +49,6 @@ export const setWholeConfig = atom(
       ISettingsConfig
   ) => {
     const {
-      erxesAppToken,
       paymentIds,
       paymentTypes,
       permissionConfig,
@@ -69,7 +73,6 @@ export const setWholeConfig = atom(
       waitingScreen,
     })
     set(paymentConfigAtom, {
-      erxesAppToken,
       paymentIds,
       paymentTypes,
       permissionConfig,

@@ -25,7 +25,7 @@ const configMutations = {
   ) => {
     const address = await getServerAddress(subdomain);
 
-    const config = await models.Configs.createConfig(token, '');
+    const config = await models.Configs.createConfig(token, 'init');
 
     try {
       const response = await sendRequest({
@@ -64,12 +64,15 @@ const configMutations = {
 
     const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
 
-    const messageBrokerClient = await initBrokerMain({
-      RABBITMQ_HOST,
-      MESSAGE_BROKER_PREFIX,
-      redis,
-      app
-    });
+    const messageBrokerClient = await initBrokerMain(
+      {
+        RABBITMQ_HOST,
+        MESSAGE_BROKER_PREFIX,
+        redis,
+        app
+      },
+      initBroker
+    );
 
     await initBroker(messageBrokerClient)
       .then(() => {
@@ -122,7 +125,10 @@ const configMutations = {
         await importSlots(models, slots, token);
         break;
       case 'productsConfigs':
-        await models.ProductsConfigs.createOrUpdateConfig(response);
+        await models.ProductsConfigs.createOrUpdateConfig({
+          code: 'similarityGroup',
+          value: response
+        });
         break;
     }
     return 'success';

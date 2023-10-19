@@ -15,6 +15,7 @@ export const defaultFilter = {
   page: 1,
   sortField: "modifiedAt",
   sortDirection: -1,
+  slotCode: undefined,
 }
 
 export const openCancelDialogAtom = atom<string | null>(null)

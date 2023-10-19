@@ -74,8 +74,19 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.i)`
 `;
 
 const SidebarContent = styled.div`
-  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
-    ${dimensions.unitSpacing}px;
+  padding: ${dimensions.coreSpacing}px;
+`;
+
+const SidebarFooter = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
+  border-bottom: none;
+  height: ${dimensions.headerSpacing}px;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0px ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.coreSpacing}px;
 `;
 
 const SelectInput = styled.div`
@@ -205,5 +216,6 @@ export {
   RowField,
   FlexRow,
   ObjectListItemContainer,
-  Divider
+  Divider,
+  SidebarFooter
 };

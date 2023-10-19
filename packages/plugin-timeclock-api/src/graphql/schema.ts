@@ -18,12 +18,14 @@ export const types = `
     _id: String! @external
   }
 
-  type Timeclock {
+  type Timeclock @key(fields: "_id"){
     _id: String!
     user: User
     shiftStart: Date
     shiftEnd: Date
     shiftActive: Boolean
+    shiftNotClosed: Boolean
+    
     employeeUserName: String
     deviceName: String
     branchName: String
@@ -46,7 +48,7 @@ export const types = `
     deviceName: String
   }
 
-  type Absence {
+  type Absence @key(fields: "_id"){
     _id: String!
     user: User
     holidayName: String
@@ -61,6 +63,8 @@ export const types = `
     absenceTimeType: String
     requestDates: [String]
     totalHoursOfAbsence: String
+
+    note: String
   }
 
   type AbsenceType {
@@ -104,7 +108,7 @@ export const types = `
     lunchBreakInMins: Int
   }
 
-  type Schedule {
+  type Schedule @key(fields: "_id"){
     _id: String!
     user: User
     shifts: [Shift]
@@ -322,6 +326,8 @@ const queryParams = `
   reportType: String
   scheduleStatus: String
   isCurrentUserAdmin: Boolean
+
+  searchValue: String
 `;
 
 const commonParams = `
@@ -419,7 +425,7 @@ export const mutations = `
   editSchedule(_id: String!, shifts: [ShiftInput]): JSON
   checkDuplicateScheduleShifts(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], status: String): [DuplicateSchedule]
 
-  solveAbsenceRequest(_id: String, status: String): Absence
+  solveAbsenceRequest(_id: String, status: String, note: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): Shift
   

@@ -4,6 +4,7 @@ import { useQuery } from "@apollo/client"
 import { format } from "date-fns"
 import { useAtom } from "jotai"
 import {
+  AlarmClockIcon,
   CalendarCheckIcon,
   CalendarClockIcon,
   CalendarIcon,
@@ -61,6 +62,7 @@ const OrderDetail = () => {
     modifiedAt,
     createdAt,
     dueDate,
+    isPre,
     slotCode,
     user,
     cashAmount,
@@ -70,6 +72,7 @@ const OrderDetail = () => {
     paidAmounts,
     paidDate,
     items,
+    description,
   } = data?.orderDetail || {}
   const { primaryPhone, primaryEmail, email } = user || {}
 
@@ -121,6 +124,13 @@ const OrderDetail = () => {
                 Icon={CalendarClockIcon}
               />
             )}
+            {!!isPre && (
+              <DescriptionCard
+                title="Урьдчилсан захиалга эсэх"
+                value={isPre ? "Тийм" : "Үгүй"}
+                Icon={AlarmClockIcon}
+              />
+            )}
             {!!slotCode && (
               <DescriptionCard
                 title="Байрлал"
@@ -134,6 +144,18 @@ const OrderDetail = () => {
               value={`${primaryEmail || email || ""} ${primaryPhone || ""}`}
               Icon={UserCog}
             />
+            {!!description && (
+              <Card className="col-span-3">
+                <CardHeader className="p-2 pb-1">
+                  <CardTitle className="text-xs text-slate-500 font-medium ">
+                    Тайлбар
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex px-2 pb-2 items-center">
+                  <div className="text-sm text-slate-800">{description}</div>
+                </CardContent>
+              </Card>
+            )}
           </div>
           <Payment
             cashAmount={cashAmount}
@@ -158,7 +180,7 @@ const DescriptionCard = ({
   value: string
   Icon: LucideIcon
 }) => (
-  <Card className="">
+  <Card>
     <CardHeader className="p-2 pb-1">
       <CardTitle className="text-xs text-slate-500 font-medium ">
         {title}

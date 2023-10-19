@@ -52,16 +52,21 @@ export const initBroker = async cl => {
 
     for (const perData of syncOrders) {
       const { responses, order, items } = perData;
-
-      await syncOrderFromClient({
-        subdomain,
-        models,
-        order,
-        items,
-        pos,
-        posToken,
-        responses
-      });
+      try {
+        await syncOrderFromClient({
+          subdomain,
+          models,
+          order,
+          items,
+          pos,
+          posToken,
+          responses
+        });
+      } catch (e) {
+        console.log(
+          `createOrUpdateOrdersMany per warning: ${e.message}, #${order?.number}`
+        );
+      }
     }
 
     return {

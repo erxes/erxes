@@ -21,6 +21,7 @@ export const POS_ORDER_INFO = {
   type: 'Order type',
   branch: 'Branch',
   department: 'Department',
+  subBranch: 'Sub Branch',
   userId: 'Created user',
   synced: 'Synced',
   posToken: 'Pos token',
@@ -55,6 +56,7 @@ export const POS_ORDER_INFO = {
     { field: 'type', label: 'Order type' },
     { field: 'branchId', label: 'Branch id' },
     { field: 'departmentId', label: 'Department id' },
+    { field: 'subBranchId', label: 'Sub branch id' },
     { field: 'userId', label: 'Created User' },
     { field: 'synced', label: 'Synced' },
     { field: 'posToken', label: 'Pos token' },
@@ -67,6 +69,17 @@ export const POS_ORDER_INFO = {
     { field: 'taxinfo', label: 'Tax info' },
     { field: 'convertDealId', label: 'Convert deal id' }
   ]
+};
+
+export const USER_FIELDS = {
+  _id: 1,
+  createdAt: 1,
+  username: 1,
+  password: 1,
+  isOwner: 1,
+  email: 1,
+  isActive: 1,
+  details: 1
 };
 
 export const EXTEND_FIELDS = [

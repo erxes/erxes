@@ -157,6 +157,11 @@ class GeneralStep extends React.Component<Props, State> {
 
   renderCauseOnline() {
     const { pos } = this.props;
+
+    const onChangeBranches = branchId => {
+      this.onChangeFunction('pos', { ...pos, branchId });
+    };
+
     if (pos.isOnline) {
       const onChangeMultiBranches = branchIds => {
         this.onChangeFunction('pos', {
@@ -169,7 +174,24 @@ class GeneralStep extends React.Component<Props, State> {
         <>
           <BlockRow>
             <FormGroup>
+              <ControlLabel>Choose branch</ControlLabel>
+              <p>{__(`If the POS has real goods, select the branch`)}</p>
+              <SelectBranches
+                label="Choose branch"
+                name="branchId"
+                initialValue={pos.branchId}
+                onSelect={onChangeBranches}
+                customOption={{ value: '', label: 'No branch...' }}
+                multi={false}
+              />
+            </FormGroup>
+          </BlockRow>
+          <BlockRow>
+            <FormGroup>
               <ControlLabel>Allow branches</ControlLabel>
+              <p>
+                {__(`Select the potential branches for sales from this pos`)}
+              </p>
               <SelectBranches
                 label="Choose branch"
                 name="allowBranchIds"
@@ -205,10 +227,6 @@ class GeneralStep extends React.Component<Props, State> {
         </>
       );
     }
-
-    const onChangeBranches = branchId => {
-      this.onChangeFunction('pos', { ...pos, branchId });
-    };
 
     return (
       <>

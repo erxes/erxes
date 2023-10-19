@@ -222,8 +222,17 @@ const timeclockQueries = {
 
   deviceConfigs(_root, queryParams, { models }: IContext) {
     const totalCount = models.DeviceConfigs.count({});
+    const { searchValue } = queryParams;
+    const query: any = {};
 
-    const list = paginate(models.DeviceConfigs.find(), {
+    if (searchValue) {
+      query.$or = [
+        { deviceName: new RegExp(`.*${searchValue}.*`, 'gi') },
+        { serialNo: new RegExp(`.*${searchValue}.*`, 'gi') }
+      ];
+    }
+
+    const list = paginate(models.DeviceConfigs.find(query), {
       perPage: queryParams.perPage,
       page: queryParams.page
     });

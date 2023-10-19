@@ -53,8 +53,7 @@ export const loadMeetingClass = (model: IModels) => {
       }
       const result = await model.Meetings.findOne({
         _id: doc._id,
-        createdBy: user._id,
-        status: { $ne: 'completed' }
+        createdBy: user._id
       });
       if (result) {
         await model.Meetings.updateOne(

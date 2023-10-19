@@ -1,4 +1,4 @@
-import { Divider, SidebarContent } from '../styles';
+import { Divider, SidebarContent, SidebarFooter } from '../styles';
 import { IField, ILocationOption } from '@erxes/ui/src/types';
 import { IFieldGroup, LogicParams } from '../types';
 
@@ -199,7 +199,7 @@ class GenerateGroup extends React.Component<Props, State> {
     }
 
     return (
-      <Sidebar.Footer>
+      <SidebarFooter>
         <Button
           btnStyle="simple"
           onClick={this.cancelEditing}
@@ -219,7 +219,7 @@ class GenerateGroup extends React.Component<Props, State> {
             Save
           </Button>
         </div>
-      </Sidebar.Footer>
+      </SidebarFooter>
     );
   }
 

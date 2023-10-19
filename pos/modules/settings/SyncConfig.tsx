@@ -14,7 +14,7 @@ const refetchQueries = {
   config: [
     "SettingConfig",
     queries.getInitialCategories,
-    queries.getAllowTypes,
+    queries.getCheckoutConfig,
   ],
   slots: ["SettingConfig"],
 }
@@ -33,14 +33,14 @@ const SyncConfig = ({
     queries.getWholeConfig,
     {
       onCompleted(data) {
-        const { } = data?.currentConfig || {}
+        const {} = data?.currentConfig || {}
         success()
       },
     }
   )
 
   const [syncConfigProductsConfigs] = useMutation(mutations.syncConfig, {
-    variables: { type: 'productsConfigs' }
+    variables: { type: "productsConfigs" },
   })
 
   const [syncConfig, { loading }] = useMutation(mutations.syncConfig, {
@@ -52,7 +52,7 @@ const SyncConfig = ({
         return success()
       }
 
-      syncConfigProductsConfigs();
+      syncConfigProductsConfigs()
 
       getWholeConfig()
     },

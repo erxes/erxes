@@ -186,6 +186,8 @@ const ListContainer = (props: FinalProps) => {
   const { list = [], totalCount = 0 } =
     listDeviceConfigsQuery.deviceConfigs || {};
 
+  const refetchDeviceConfigsQuery = listDeviceConfigsQuery.refetch;
+
   const updatedProps = {
     ...props,
     deviceConfigs: list,
@@ -199,7 +201,8 @@ const ListContainer = (props: FinalProps) => {
     removePayDate,
     removeScheduleConfig,
     renderButton,
-    removeDeviceConfig
+    removeDeviceConfig,
+    refetchDeviceConfigsQuery
   };
 
   return <ConfigList {...updatedProps} />;

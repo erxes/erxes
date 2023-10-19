@@ -112,7 +112,5 @@ const documentQueries = {
 };
 
 checkPermission(documentQueries, 'documents', 'showDocuments', []);
-checkPermission(documentQueries, 'documents', 'showDocuments');
-checkPermission(documentQueries, 'documents', 'showDocuments');
 
 export default documentQueries;

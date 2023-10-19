@@ -1,4 +1,7 @@
 export type LoanContract = {
+  contractDate: Date;
+  loanPurpose: string;
+  loanSubPurpose: string;
   contractTypeId: string;
   status: string;
   description: string;
@@ -40,12 +43,15 @@ export type LoanContract = {
   downPayment?: number;
   customPayment?: number;
   customInterest?: number;
+  useManualNumbering: boolean;
+  useFee: boolean;
 };
 
 export type LoanSchedule = {
   order: number;
   payment: number;
   balance: number;
+  diffDay: number;
 
   contractId?: string;
   version?: string;
@@ -66,7 +72,7 @@ export type LoanSchedule = {
   didPayment?: number;
   didInsurance?: number;
   didDebt?: number;
-  didTotal: number;
+  didTotal?: number;
   surplus?: number;
 
   scheduleDidPayment?: number;

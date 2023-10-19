@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 const types = `
-  type XypData {
+  type XypData @key(fields: "_id") {
     _id: String!
     contentType: String
     contentTypeId: String

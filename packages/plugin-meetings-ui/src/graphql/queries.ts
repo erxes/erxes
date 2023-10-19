@@ -80,6 +80,8 @@ query MeetingDetail($_id: String!) {
     createdAt
     status
     companyId
+    participantIds
+    dealIds
     deals{
       _id
       boardId
@@ -129,9 +131,23 @@ query meetingPinnedUsers {
   }
 }`;
 
+const deals = `
+  query deals(
+    $searchValue: String,
+  ) {
+    deals(
+      search: $searchValue,
+    ) {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
   meetings,
   meetingDetail,
   meetingsCount,
-  meetingPinnedUsers
+  meetingPinnedUsers,
+  deals
 };

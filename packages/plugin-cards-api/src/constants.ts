@@ -348,6 +348,22 @@ export const CARD_PROPERTIES_INFO = {
       canHide: false,
       validation: null,
       type: 'textarea'
+    },
+    {
+      label: 'Branches',
+      field: 'branchIds',
+      canHide: false,
+      validation: null,
+      type: 'select',
+      options: []
+    },
+    {
+      label: 'Departments',
+      field: 'departmentIds',
+      canHide: false,
+      validation: null,
+      type: 'select',
+      options: []
     }
   ]
 };

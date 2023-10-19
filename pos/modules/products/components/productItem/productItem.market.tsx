@@ -12,7 +12,7 @@ const ProductItem = (props: IProduct) => {
 
   return (
     <div
-      className="mb-1 flex items-center rounded px-2 py-1 hover:bg-neutral-100"
+      className="mb-1 flex items-center rounded px-2 hover:bg-neutral-100"
       onClick={() => {
         addToCart(props)
         changePopover(false)

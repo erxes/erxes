@@ -17,6 +17,7 @@ import { __ } from 'coreui/utils';
 
 import { IContractType, IContractTypeDoc } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { ORGANIZATION_TYPE } from '../../constants';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -34,6 +35,8 @@ type State = {
   useDebt: boolean;
   useSkipInterest: boolean;
   currency: string;
+  useManualNumbering: boolean;
+  useFee: boolean;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -43,12 +46,14 @@ class ContractTypeForm extends React.Component<Props, State> {
     const { contractType = {} } = props;
 
     this.state = {
-      undueCalcType: contractType.undueCalcType,
+      undueCalcType: contractType.undueCalcType || 'fromInterest',
       productCategoryIds: contractType.productCategoryIds,
       leaseType: contractType.leaseType || 'finance',
       useMargin: contractType.useMargin,
       useDebt: contractType.useDebt,
       useSkipInterest: contractType.useSkipInterest,
+      useManualNumbering: contractType.useManualNumbering,
+      useFee: contractType.useFee,
       currency:
         contractType.currency || this.props.currentUser.configs?.dealCurrency[0]
     };
@@ -110,7 +115,7 @@ class ContractTypeForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const contractType = this.props.contractType || ({} as IContractType);
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, currentUser } = this.props;
     const { values, isSubmitted } = formProps;
 
     const onSelectProductCategory = values => {
@@ -204,37 +209,42 @@ class ContractTypeForm extends React.Component<Props, State> {
                   required={true}
                   onChange={this.onChangeField}
                 >
-                  {['finance', 'salvage'].map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
+                  {['finance', 'linear', 'creditCard'].map(
+                    (typeName, index) => (
+                      <option key={index} value={typeName}>
+                        {typeName}
+                      </option>
+                    )
+                  )}
                 </FormControl>
               </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Loss calc type')}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="undueCalcType"
-                  componentClass="select"
-                  value={this.state.undueCalcType}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {[
-                    'fromInterest',
-                    'fromAmount',
-                    'fromTotalPayment',
-                    'fromEndAmount'
-                  ].map((typeName, index) => (
-                    <option key={`undeType${index}`} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
+              {currentUser?.configs?.loansConfig?.organizationType ===
+                ORGANIZATION_TYPE.ENTITY && (
+                <FormGroup>
+                  <ControlLabel required={true}>
+                    {__('Loss calc type')}
+                  </ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="undueCalcType"
+                    componentClass="select"
+                    value={this.state.undueCalcType}
+                    required={true}
+                    onChange={this.onChangeField}
+                  >
+                    {[
+                      'fromInterest',
+                      'fromAmount',
+                      'fromTotalPayment',
+                      'fromEndAmount'
+                    ].map((typeName, index) => (
+                      <option key={`undeType${index}`} value={typeName}>
+                        {typeName}
+                      </option>
+                    ))}
+                  </FormControl>
+                </FormGroup>
+              )}
               {this.renderFormGroup('Is use debt', {
                 ...formProps,
                 className: 'flex-item',
@@ -260,6 +270,24 @@ class ContractTypeForm extends React.Component<Props, State> {
                 componentClass: 'checkbox',
                 name: 'useSkipInterest',
                 checked: this.state.useSkipInterest,
+                onChange: this.onChangeField
+              })}
+              {this.renderFormGroup('Is use manual numbering', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'useManualNumbering',
+                checked: this.state.useManualNumbering,
+                onChange: this.onChangeField
+              })}
+              {this.renderFormGroup('Is use fee', {
+                ...formProps,
+                className: 'flex-item',
+                type: 'checkbox',
+                componentClass: 'checkbox',
+                name: 'useFee',
+                checked: this.state.useFee,
                 onChange: this.onChangeField
               })}
             </FormColumn>

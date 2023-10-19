@@ -53,8 +53,8 @@ const conversationList = `
 `;
 
 const sidebarConversations = `
-  query conversations(${listParamsDef}) {
-    conversations(${listParamsValue}) {
+  query conversations(${listParamsDef}, $skip: Int) {
+    conversations(${listParamsValue}, skip: $skip) {
       _id
       content
       status

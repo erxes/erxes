@@ -1,5 +1,6 @@
+import { IOptions, IStage } from '../../boards/types';
 import { PriceContainer, Right, Status } from '../../boards/styles/item';
-import { renderAmount, renderPriority } from '../../boards/utils';
+import { renderPriority } from '../../boards/utils';
 
 import Assignees from '../../boards/components/Assignees';
 import { Content } from '../../boards/styles/stage';
@@ -7,14 +8,14 @@ import Details from '../../boards/components/Details';
 import DueDateLabel from '../../boards/components/DueDateLabel';
 import EditForm from '../../boards/containers/editForm/EditForm';
 import { IDeal } from '../types';
-import { IOptions } from '../../boards/types';
+import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 import { ItemContainer } from '../../boards/styles/common';
 import ItemFooter from '../../boards/components/portable/ItemFooter';
 import Labels from '../../boards/components/label/Labels';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { colors } from '@erxes/ui/src/styles';
-import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
+import ItemProductProbabilities from './ItemProductProbabilities';
 
 type Props = {
   stageId?: string;
@@ -103,8 +104,21 @@ class DealItem extends React.PureComponent<Props> {
       startDate,
       closeDate,
       isComplete,
+      stage = {} as IStage,
       customProperties
     } = item;
+
+    const renderItemProductProbabilities = () => {
+      if (!window.location.pathname.includes('deal/calendar')) {
+        return null;
+      }
+      return (
+        <ItemProductProbabilities
+          totalAmount={item.amount}
+          probability={stage.probability}
+        />
+      );
+    };
 
     return (
       <>
@@ -123,8 +137,7 @@ class DealItem extends React.PureComponent<Props> {
         />
 
         <PriceContainer>
-          {renderAmount(item.unUsedAmount || {}, false)}
-          {renderAmount(item.amount)}
+          {renderItemProductProbabilities()}
 
           <Right>
             <Assignees users={item.assignedUsers} />

@@ -51,7 +51,11 @@ const commonFields = `
   $skipAmountCalcMonth: Float
   $customPayment: Float
   $customInterest: Float
+  
   $isBarter: Boolean
+  $useManualNumbering:Boolean
+  $useFee:Boolean
+  $loanPurpose: String
 `;
 
 const commonVariables = `
@@ -106,6 +110,9 @@ const commonVariables = `
   customPayment: $customPayment
   customInterest: $customInterest
   isBarter: $isBarter
+  useManualNumbering: $useManualNumbering
+  useFee: $useFee
+  loanPurpose: $loanPurpose
 `;
 
 const contractsAdd = `

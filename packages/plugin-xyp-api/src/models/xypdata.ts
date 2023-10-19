@@ -7,7 +7,7 @@ import {
 
 export interface IXypDataModel extends Model<IXypconfigDocument> {
   getXypData(doc: any): IXypconfigDocument;
-  createXypData(doc: any, user: any): IXypconfigDocument;
+  createXypData(doc: any, user?: any): IXypconfigDocument;
   updateXypData(_id: string, doc: any, user: any): IXypconfigDocument;
   removeXypData(_id: string): IXypconfigDocument;
 }
@@ -49,8 +49,6 @@ export const loadxypConfigClass = models => {
           }
         }
       );
-      console.log('pisda');
-      console.log(ret);
       return models.XypData.findOne({ _id });
     }
     /*
