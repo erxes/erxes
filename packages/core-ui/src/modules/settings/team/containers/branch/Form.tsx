@@ -38,7 +38,6 @@ const FormContainer = (props: Props) => {
     object,
     callback
   }: IButtonMutateProps) => {
-    // console.log(object._id);
     return (
       <ButtonMutate
         mutation={
