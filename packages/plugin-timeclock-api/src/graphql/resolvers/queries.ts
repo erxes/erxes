@@ -7,6 +7,7 @@ import {
   timeclockReportPreliminary
 } from './utils';
 import {
+  customFixDate,
   findAllTeamMembersWithEmpId,
   findTeamMembers,
   generateCommonUserIds,
@@ -140,6 +141,48 @@ const timeclockQueries = {
     return getActiveTimeclock.pop();
   },
 
+  async timelogsMain(
+    _root,
+    queryParams,
+    { subdomain, models, user }: IContext
+  ) {
+    const [selector, commonUserFound] = await generateFilter(
+      queryParams,
+      subdomain,
+      models,
+      'timelog',
+      user
+    );
+    const totalCount = models.TimeLogs.count(selector);
+
+    // if there's no common user, return empty list
+    if (!commonUserFound) {
+      return { list: [], totalCount: 0 };
+    }
+
+    const list = paginate(models.TimeLogs.find(selector), {
+      perPage: queryParams.perPage,
+      page: queryParams.page
+    })
+      .sort({ userId: 1, timelog: -1 })
+      .limit(queryParams.perPage || 20);
+
+    return { list, totalCount };
+  },
+
+  timeLogsPerUser(_root, { userId, startDate, endDate }, { models }: IContext) {
+    const timeField = {
+      timelog: {
+        $gte: fixDate(startDate),
+        $lte: customFixDate(endDate)
+      }
+    };
+
+    return models.TimeLogs.find({
+      $and: [{ userId }, timeField]
+    }).sort({ timelog: 1 });
+  },
+
   async schedulesMain(
     _root,
     queryParams,
@@ -175,6 +218,26 @@ const timeclockQueries = {
 
   scheduleConfigs(_root, {}, { models }: IContext) {
     return models.ScheduleConfigs.find();
+  },
+
+  deviceConfigs(_root, queryParams, { models }: IContext) {
+    const totalCount = models.DeviceConfigs.count({});
+    const { searchValue } = queryParams;
+    const query: any = {};
+
+    if (searchValue) {
+      query.$or = [
+        { deviceName: new RegExp(`.*${searchValue}.*`, 'gi') },
+        { serialNo: new RegExp(`.*${searchValue}.*`, 'gi') }
+      ];
+    }
+
+    const list = paginate(models.DeviceConfigs.find(query), {
+      perPage: queryParams.perPage,
+      page: queryParams.page
+    });
+
+    return { list, totalCount };
   },
 
   scheduleConfigOrder(_root, { userId }, { models, user }: IContext) {
