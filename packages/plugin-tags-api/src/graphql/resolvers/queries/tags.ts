@@ -32,7 +32,7 @@ const tagQueries = {
     return fieldTypes;
   },
 
-  async tags(
+  async tagsQueryCount(
     _root,
     {
       type,
@@ -44,6 +44,68 @@ const tagQueries = {
       searchValue?: string;
       tagIds?: string[];
       parentId?: string;
+    },
+    { models, commonQuerySelector, serverTiming }: IContext
+  ) {
+    console.log('test*************');
+    const selector: any = { ...commonQuerySelector };
+
+    if (type) {
+      selector.type = type;
+    }
+
+    if (searchValue) {
+      selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    if (tagIds) {
+      selector._id = { $in: tagIds };
+    }
+
+    if (parentId) {
+      const parentTag = await models.Tags.find({ parentId }).distinct('_id');
+      let ids = [parentId, ...parentTag];
+
+      const getChildTags = async (parentTagIds: string[]) => {
+        const childTag = await models.Tags.find({
+          parentId: { $in: parentTagIds }
+        }).distinct('_id');
+
+        if (childTag.length > 0) {
+          ids = [...ids, ...childTag];
+          await getChildTags(childTag);
+        }
+
+        return;
+      };
+
+      await getChildTags(parentTag);
+
+      selector._id = { $in: ids };
+    }
+
+    const tagsCount = await models.Tags.find(selector).count();
+    console.log('tagsCount:', tagsCount);
+
+    return tagsCount;
+  },
+
+  async tags(
+    _root,
+    {
+      type,
+      searchValue,
+      tagIds,
+      parentId,
+      page,
+      perPage
+    }: {
+      type: string;
+      searchValue?: string;
+      tagIds?: string[];
+      parentId?: string;
+      page: any;
+      perPage: any;
     },
     { models, commonQuerySelector, serverTiming }: IContext
   ) {
@@ -85,10 +147,12 @@ const tagQueries = {
       selector._id = { $in: ids };
     }
 
-    const tags = await models.Tags.find(selector).sort({
-      order: 1,
-      name: 1
-    });
+    const tags = await models.Tags.find(selector)
+      .sort({
+        order: 1,
+        name: 1
+      })
+      .limit(page * perPage);
 
     serverTiming.endTime('query');
 

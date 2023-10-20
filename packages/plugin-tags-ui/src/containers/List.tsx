@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, router } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
@@ -16,17 +16,17 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { router } from '@erxes/ui/src/utils';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 
 type Props = {
   history: any;
-  type: string;
+  queryParams?: any;
 };
 
 type FinalProps = {
   tagsQuery: TagsQueryResponse;
   tagsGetTypes: any;
+  tagsQueryCount: any;
 } & Props &
   RemoveMutationResponse &
   MergeMutationResponse;
@@ -35,17 +35,20 @@ const ListContainer = (props: FinalProps) => {
   const {
     tagsGetTypes,
     tagsQuery,
+    tagsQueryCount,
     removeMutation,
-    type,
     mergeMutation,
-    history
+    queryParams
   } = props;
 
   if (tagsGetTypes.loading) {
     return <Spinner />;
   }
 
+  const type = queryParams.type || '';
   const types = tagsGetTypes.tagsGetTypes || [];
+  const total = tagsQueryCount.tagsQueryCount;
+  const hasMore = total > 20;
 
   if (types.length === 0) {
     return (
@@ -54,14 +57,6 @@ const ListContainer = (props: FinalProps) => {
         text={__('No taggable plugin found')}
         size="full"
       />
-    );
-  }
-
-  if (!router.getParam(history, 'type') || !tagsQuery) {
-    router.setParams(
-      history,
-      { type: types.length !== 0 ? types[0].contentType.toString() : '' },
-      true
     );
   }
 
@@ -77,7 +72,7 @@ const ListContainer = (props: FinalProps) => {
 
   const remove = tag => {
     confirm(
-      `This action will untag all ${type}(s) with this tag and remove the tag. Are you sure?`
+      `This action will untag all ${tag.type}(s) with this tag and remove the tag. Are you sure?`
     )
       .then(() => {
         removeMutation({ variables: { _id: tag._id } })
@@ -110,7 +105,8 @@ const ListContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
+    name
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -133,6 +129,7 @@ const ListContainer = (props: FinalProps) => {
     tags: tagsQuery.tags || [],
     loading: tagsQuery.loading,
     type,
+    hasMore,
     remove,
     merge,
     renderButton
@@ -141,11 +138,14 @@ const ListContainer = (props: FinalProps) => {
   return <List {...updatedProps} />;
 };
 
-const getRefetchQueries = (type: string) => {
+const getRefetchQueries = (queryParams: any) => {
   return [
     {
       query: gql(queries.tags),
-      variables: { type: type || '' }
+      variables: {
+        type: queryParams.type,
+        searchValue: queryParams.searchValue
+      }
     }
   ];
 };
@@ -155,27 +155,42 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.tagsGetTypes), {
       name: 'tagsGetTypes'
     }),
+    graphql<Props>(gql(queries.tagsQueryCount), {
+      name: 'tagsQueryCount',
+      options: ({ queryParams }) => ({
+        variables: {
+          type: queryParams.type,
+          searchValue: queryParams.searchValue
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
       name: 'tagsQuery',
-      options: ({ type }) => ({
-        variables: { type },
+      options: ({ queryParams }) => ({
+        variables: {
+          type: queryParams.type,
+          searchValue: queryParams.searchValue,
+          page: queryParams.page,
+          perPage: queryParams.perPage
+        },
         fetchPolicy: 'network-only'
-      }),
-      skip: ({ type }) => !type
+      })
+      // skip: ({ type }) => !type,
     }),
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.remove),
       {
         name: 'removeMutation',
-        options: ({ type }: Props) => ({
-          refetchQueries: getRefetchQueries(type)
+        options: ({ queryParams }: Props) => ({
+          refetchQueries: getRefetchQueries(queryParams)
         })
       }
     ),
     graphql<Props, MergeMutationResponse>(gql(mutations.merge), {
       name: 'mergeMutation',
-      options: ({ type }: Props) => ({
-        refetchQueries: getRefetchQueries(type)
+      options: ({ queryParams }: Props) => ({
+        refetchQueries: getRefetchQueries(queryParams)
       })
     })
   )(ListContainer)

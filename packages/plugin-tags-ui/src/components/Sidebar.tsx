@@ -4,26 +4,24 @@ import { SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
+import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 
 function ListItem(value, type) {
-  const className = type && type === value.contentType ? 'active' : '';
+  const isActive = value.contentType === type;
 
   return (
-    <li key={value.contentType}>
-      <Link className={className} to={`/tags?type=${value.contentType}`}>
+    <SidebarListItem key={value.contentType} isActive={isActive}>
+      <Link to={`/settings/tags?type=${value.contentType}`}>
         {__(value.description)}
       </Link>
-    </li>
+    </SidebarListItem>
   );
 }
 
 function TagsSidebar({ types, type }: { types: any[]; type: string }) {
   return (
     <LeftSidebar header={<SidebarHeader />} hasBorder>
-      <LeftSidebar.Header uppercase={true}>
-        {__('Tags type')}
-      </LeftSidebar.Header>
-      <SidebarList noTextColor noBackground id={'TagsSidebar'}>
+      <SidebarList noTextColor={true} noBackground={true} id={'TagsSidebar'}>
         {types.map(value => {
           return ListItem(value, type);
         })}

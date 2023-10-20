@@ -401,10 +401,8 @@ const InputBar = styledTS<{ type?: string }>(styled.div)`
   flex: 1;
   max-width: ${props =>
     props.type === 'active' && `${dimensions.headerSpacingWide * 2 + 20}px`};
-  padding: 5px 5px 0 20px;
   border-radius: 8px;
   margin-left: ${props => props.type === 'active' && '10px'};
-  height: 41px;
   padding-left: ${props =>
     props.type === 'searchBar' && `${dimensions.unitSpacing * 2}px`};
 

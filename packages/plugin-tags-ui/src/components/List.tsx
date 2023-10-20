@@ -8,14 +8,26 @@ import React from 'react';
 import Row from './Row';
 import Sidebar from './Sidebar';
 import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui-settings/src/styles';
+import {
+  FilterContainer,
+  FlexItem,
+  FlexRow,
+  InputBar,
+  Title
+} from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+import { __, router } from '@erxes/ui/src/utils';
+import Icon from '@erxes/ui/src/components/Icon';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { LoadMore } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 
 type Props = {
   types: any[];
   tags: ITag[];
   type: string;
+  history: any;
+  hasMore: boolean;
+  queryParams?: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
   merge: (sourceId: string, destId: string, callback) => void;
@@ -29,8 +41,13 @@ function List({
   merge,
   loading,
   renderButton,
-  types
+  types,
+  history,
+  hasMore,
+  queryParams
 }: Props) {
+  let timer;
+  const [searchValue, setSearchValue] = React.useState(queryParams.searchValue);
   const contentType = (type || '').split(':')[1];
 
   const trigger = (
@@ -43,19 +60,50 @@ function List({
     <FormComponent
       {...props}
       type={type}
+      types={types}
       renderButton={renderButton}
       tags={tags}
     />
   );
 
+  const search = e => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    const inputValue = e.target.value;
+
+    setSearchValue(inputValue);
+
+    timer = setTimeout(() => {
+      router.setParams(history, { searchValue: inputValue });
+    }, 500);
+  };
+
   const actionBarRight = (
-    <ModalTrigger
-      title={__('Add tag')}
-      autoOpenKey={`showTag${type}Modal`}
-      trigger={trigger}
-      content={modalContent}
-      enforceFocus={false}
-    />
+    <FilterContainer>
+      <FlexRow>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              placeholder={__('Search')}
+              name="searchValue"
+              onChange={search}
+              value={searchValue}
+              autoFocus={true}
+            />
+          </FlexItem>
+        </InputBar>
+        <ModalTrigger
+          title={__('Add tag')}
+          autoOpenKey={`showTag${type}Modal`}
+          trigger={trigger}
+          content={modalContent}
+          enforceFocus={false}
+        />
+      </FlexRow>
+    </FilterContainer>
   );
 
   const title = (
@@ -66,7 +114,7 @@ function List({
   const actionBar = (
     <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
   );
-
+  // console.log('hasMore:', hasMore);
   const content = (
     <Table>
       <thead>
@@ -88,6 +136,7 @@ function List({
               tag={tag}
               count={tag.objectCount}
               type={type}
+              types={types}
               space={foundedString ? foundedString.length : 0}
               remove={remove}
               merge={merge}
@@ -97,19 +146,29 @@ function List({
           );
         })}
       </tbody>
+      {hasMore ? (
+        <LoadMore>
+          <Icon icon="redo" />
+          {__('Load More')}
+        </LoadMore>
+      ) : null}
     </Table>
   );
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('Tags'), link: '/tags' },
-    { title: __(contentType) }
+    { title: __('Tags'), link: '/settings/tags' }
   ];
 
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__(contentType)} breadcrumb={breadcrumb} />
+        <Wrapper.Header
+          title={__(contentType)}
+          queryParams={{ type }}
+          breadcrumb={breadcrumb}
+          filterTitle={contentType}
+        />
       }
       actionBar={actionBar}
       content={
