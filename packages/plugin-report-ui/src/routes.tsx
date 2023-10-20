@@ -4,8 +4,7 @@ import { router } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
 import React, { useEffect } from 'react';
 import { Route } from 'react-router-dom';
-import { Chart } from 'chart.js';
-
+import Chart from './components/Chart';
 const routes = () => {
   return <Route path="/reports" component={Chart} />;
 };
