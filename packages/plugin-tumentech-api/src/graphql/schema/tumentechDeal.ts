@@ -24,6 +24,10 @@ export const types = ({ cards }) => `
     estimatedCloseDate: Date
     createdAt: Date
     createdBy: String
+    warehouseUserIdToLoad: String
+    warehouseUserIdToUnload: String
+    warehouseUserToLoad: Customer
+    warehouseUserToUnload: Customer
   }
 
 
@@ -50,6 +54,8 @@ const params = `
     trackingData: [TrackingItemInput],
     tripStartedDate: Date,
     tripFinishedData: Date,
+    warehouseUserIdToLoad: String,
+    warehouseUserIdToUnload: String,
 `;
 
 export const mutations = `
