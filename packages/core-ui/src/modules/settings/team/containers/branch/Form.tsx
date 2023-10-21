@@ -1,7 +1,7 @@
 import React from 'react';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import BranchForm from '../../components/branch/Form';
+import BranchForm from '../../components/common/Form';
 import { mutations, queries } from '@erxes/ui/src/team/graphql';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client';

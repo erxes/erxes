@@ -7,7 +7,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'modules/common/utils';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import ContactInfoForm from '../common/ContactInfoForm';
+import ContactInfoForm from './ContactInfoForm';
 import { generateTree } from '../../utils';
 import Select from 'react-select-plus';
 
