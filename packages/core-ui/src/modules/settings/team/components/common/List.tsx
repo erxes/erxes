@@ -1,6 +1,6 @@
 import React from 'react';
 import BlockList from './BlockList';
-import Form from '../../containers/branch/Form';
+import Form from '../../containers/common/Form';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { Button, Tip, Icon } from '@erxes/ui/src/components';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
