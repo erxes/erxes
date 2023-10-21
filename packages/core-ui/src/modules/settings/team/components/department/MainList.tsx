@@ -17,7 +17,7 @@ import {
 } from '@erxes/ui/src/team/types';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
-import Form from '../../containers/department/Form';
+import Form from '../../containers/branch/Form';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { gql } from '@apollo/client';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
@@ -174,7 +174,7 @@ class MainList extends React.Component<Props, State> {
               title="Edit Department"
               content={({ closeModal }) => (
                 <Form
-                  department={department}
+                  item={department}
                   additionalRefetchQueries={this.refetchQueries()}
                   closeModal={closeModal}
                 />

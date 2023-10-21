@@ -169,7 +169,7 @@ class MainList extends React.Component<Props, State> {
               title="Edit Branch"
               content={({ closeModal }) => (
                 <Form
-                  branch={branch}
+                  item={branch}
                   closeModal={closeModal}
                   additionalRefetchQueries={this.refetchQueries()}
                 />
