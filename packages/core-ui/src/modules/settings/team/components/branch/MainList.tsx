@@ -13,7 +13,7 @@ import {
 import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
-import Form from '../../containers/branch/Form';
+import Form from '../../containers/common/Form';
 import { generateTree } from '../../utils';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { gql } from '@apollo/client';

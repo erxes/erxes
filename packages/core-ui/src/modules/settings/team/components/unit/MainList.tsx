@@ -13,7 +13,7 @@ import {
 import { IUnit, UnitsMainQueryResponse } from '@erxes/ui/src/team/types';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
-import Form from '../../containers/unit/Form';
+import Form from '../../containers/common/Form';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -146,7 +146,7 @@ class MainList extends React.Component<Props, State> {
               key={unit._id}
               title="Edit Unit"
               content={({ closeModal }) => (
-                <Form closeModal={closeModal} unit={unit} />
+                <Form closeModal={closeModal} item={unit} />
               )}
               trigger={trigger}
             />
