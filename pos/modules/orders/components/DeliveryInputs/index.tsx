@@ -1,11 +1,16 @@
+import { useState } from "react"
+import { openCancelDialogAtom } from "@/store/history.store"
 import {
+  activeOrderIdAtom,
   descriptionAtom,
   dueDateAtom,
   getTotalPaidAmountAtom,
   isPreAtom,
+  orderNumberAtom,
+  setInitialAtom,
 } from "@/store/order.store"
 import { format, setHours, setMinutes } from "date-fns"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { AlarmClockIcon, EraserIcon, SlidersHorizontalIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -21,12 +26,19 @@ import {
 } from "@/components/ui/popover"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
+import OrderCancel from "@/app/(main)/(orders)/components/history/orderCancel"
 
 const DeliveryInputs = () => {
   const [description, setDescription] = useAtom(descriptionAtom)
   const [dueDate, setDueDate] = useAtom(dueDateAtom)
   const [isPre, setIsPre] = useAtom(isPreAtom)
   const paidAmount = useAtomValue(getTotalPaidAmountAtom)
+  const orderId = useAtomValue(activeOrderIdAtom)
+  const number = useAtomValue(orderNumberAtom)
+  const changeCancel = useSetAtom(openCancelDialogAtom)
+  const setInitialStates = useSetAtom(setInitialAtom)
+  const [open, setOpen] = useState(false)
+  // const
 
   const chageTimeOfDate = (date: string, time: string) =>
     setMinutes(
@@ -45,7 +57,7 @@ const DeliveryInputs = () => {
   const disableOnPre = paidAmount > 0 && isPre
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={() => setOpen((prev) => !prev)}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -114,6 +126,25 @@ const DeliveryInputs = () => {
               <EraserIcon className="h-5 w-5" />
             </Button>
           </div>
+          {!!orderId && (
+            <div className="col-span-3">
+              <Button
+                variant="destructive"
+                onClick={() => changeCancel(orderId)}
+              >
+                Захиалга цуцлах
+              </Button>
+              <OrderCancel
+                _id={orderId || ""}
+                number={number}
+                refetchQueries={["ActiveOrders"]}
+                onCompleted={() => {
+                  setInitialStates()
+                  setOpen(false)
+                }}
+              />
+            </div>
+          )}
         </div>
       </PopoverContent>
     </Popover>

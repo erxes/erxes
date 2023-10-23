@@ -1,3 +1,4 @@
+import { IContext } from '../../connectionResolver';
 import { IUserReport } from '../../models/definitions/timeclock';
 
 export default {

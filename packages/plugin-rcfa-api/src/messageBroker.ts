@@ -55,11 +55,13 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-export const sendKbMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendRiskAssessmentsMessage = (
+  args: ISendMessageArgs
+): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'knowledgebase',
+    serviceName: 'riskassessment',
     ...args
   });
 };

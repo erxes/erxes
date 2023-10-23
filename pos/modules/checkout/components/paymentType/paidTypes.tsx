@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic"
+import { modeAtom } from "@/store"
 import {
   cashAmountAtom,
   mobileAmountAtom,
@@ -6,7 +7,7 @@ import {
 } from "@/store/order.store"
 import { useAtomValue } from "jotai"
 
-import { getMode, mergePaidAmounts } from "@/lib/utils"
+import { mergePaidAmounts } from "@/lib/utils"
 
 const Market = dynamic(
   () => import("./paidType.market"),
@@ -27,8 +28,9 @@ const PaidTypes = () => {
   const cashAmount = useAtomValue(cashAmountAtom)
   const mobileAmount = useAtomValue(mobileAmountAtom)
   const paidAmounts = useAtomValue(paidAmountsAtom)
+  const mode = useAtomValue(modeAtom)
 
-  const PaidType = getMode() === "market" ? Market : Main
+  const PaidType = mode === "market" ? Market : Main
 
   return (
     <>

@@ -125,7 +125,10 @@ const ChooseFromSimilarities = (
 
   return (
     <div className="space-y-3">
-      <ProductItemImage src={attachment?.url || ""} />
+      <ProductItemImage
+        src={attachment?.url || ""}
+        className="max-w-[300px] mx-auto"
+      />
       <ProductItemTitle>{name}</ProductItemTitle>
       <ProductItemDescription description={description} />
       <ProductItemPriceWithWrapper unitPrice={unitPrice}>

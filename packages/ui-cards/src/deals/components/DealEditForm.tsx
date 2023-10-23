@@ -84,14 +84,14 @@ export default class DealEditForm extends React.Component<Props, State> {
   }
 
   amountHelper = (title, amount) => {
-    if (Object.keys(amount).length === 0) {
+    if (Object.keys(amount || {}).length === 0) {
       return null;
     }
 
     return (
       <HeaderContentSmall>
         <ControlLabel>{__(title)}</ControlLabel>
-        {Object.keys(amount).map(key => (
+        {Object.keys(amount || {}).map(key => (
           <p key={key}>
             {amount[key].toLocaleString()} {key}
           </p>

@@ -22,7 +22,6 @@ import {
   connectAndQueryFromMsSql,
   connectAndQueryTimeLogsFromMsSql
 } from '../../utils';
-import { fixDate } from '@erxes/api-utils/src';
 import { sendMobileNotification } from '../utils';
 
 interface ITimeClockEdit extends ITimeClock {
@@ -903,6 +902,8 @@ const timeclockMutations = {
         'extractAllDataFromMsSQL'
       );
 
+      // await redis.del('extractAllDataFromMsSQL');
+
       if (checkIfExtractingAlready) {
         return {
           message:
@@ -913,7 +914,7 @@ const timeclockMutations = {
       await redis.set('extractAllDataFromMsSQL', {});
       const waitForQuery = await connectAndQueryFromMsSql(subdomain, params);
 
-      // wait for 10s to delete queue
+      // wait for 5s to delete queue
       setTimeout(async () => {
         await redis.del('extractAllDataFromMsSQL');
       }, 5000);

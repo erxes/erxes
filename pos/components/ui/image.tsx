@@ -48,7 +48,7 @@ const Image: FC<
 
   if (srcI === "/product.png" || !srcI)
     return (
-      <Package className={cn("text-zinc-300", className)} strokeWidth={0.8} />
+      <Package className={cn("text-zinc-300", className)} strokeWidth={0.5} />
     )
 
   return (

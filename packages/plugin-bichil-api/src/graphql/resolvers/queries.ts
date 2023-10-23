@@ -12,7 +12,8 @@ import {
 import {
   bichilTimeclockReportFinal,
   bichilTimeclockReportPivot,
-  bichilTimeclockReportPreliminary
+  bichilTimeclockReportPreliminary,
+  timeclockReportByUsers
 } from './utils';
 import { paginate } from '@erxes/api-utils/src/core';
 import { IReport } from '../../models/definitions/timeclock';
@@ -26,6 +27,59 @@ import { sendCommonMessage } from '../../messageBroker';
 const bichilQueries = {
   bichils(_root, _args, _context: IContext) {
     return Bichils.find({});
+  },
+
+  async bichilTimeclockReportByUsers(
+    _root,
+    {
+      userIds,
+      branchIds,
+      departmentIds,
+      startDate,
+      endDate,
+      page,
+      perPage,
+      isCurrentUserAdmin
+    },
+    { subdomain, models, user }: IContext
+  ) {
+    let filterGiven = false;
+    let totalTeamMemberIds;
+    let totalMembers;
+
+    if (userIds || branchIds || departmentIds) {
+      filterGiven = true;
+    }
+
+    if (filterGiven) {
+      totalTeamMemberIds = await generateCommonUserIds(
+        subdomain,
+        userIds,
+        branchIds,
+        departmentIds
+      );
+
+      totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
+    } else {
+      if (isCurrentUserAdmin) {
+        // return all team member ids
+        totalMembers = await findAllTeamMembers(subdomain);
+        totalTeamMemberIds = totalMembers.map(usr => usr._id);
+      } else {
+        // return supervisod users including current user
+        totalMembers = await returnSupervisedUsers(user, subdomain);
+        totalTeamMemberIds = totalMembers.map(usr => usr._id);
+      }
+    }
+
+    return {
+      list: await timeclockReportByUsers(
+        paginateArray(totalTeamMemberIds, perPage, page),
+        models,
+        { startDate, endDate }
+      ),
+      totalCount: totalTeamMemberIds.length
+    };
   },
 
   async bichilTimeclockReport(

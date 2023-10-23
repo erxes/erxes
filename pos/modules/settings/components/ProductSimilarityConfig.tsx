@@ -1,14 +1,15 @@
+import { modeAtom } from "@/store"
 import { similarityConfigAtom } from "@/store/config.store"
-import { useAtom } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 
-import { getMode } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const ProductSimilarityConfig = () => {
   const [type, setType] = useAtom(similarityConfigAtom)
+  const mode = useAtomValue(modeAtom)
 
-  if (getMode() !== "coffee-shop") return null
+  if (mode !== "coffee-shop") return null
 
   return (
     <div className="w-full pb-5">
