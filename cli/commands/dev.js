@@ -232,7 +232,7 @@ module.exports.devCmd = async program => {
       PORT: 4000,
       CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
       ...commonEnv,
-      ...((configs.gateway || {}).envs || {})
+      ...((configs.gateway || {}).extra_env || {})
     }
   });
 
