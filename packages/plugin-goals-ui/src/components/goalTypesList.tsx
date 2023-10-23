@@ -40,15 +40,6 @@ interface IProps extends IRouterProps {
   ) => void;
   history: any;
   queryParams: any;
-  boards: IBoard[];
-  pipelines: IPipeline[];
-  stages: IStage[];
-  boardId?: string;
-  pipelineId?: string;
-  stageId?: string;
-  onChangeBoard: (value: string) => void;
-  onChangePipeline: (value: string) => void;
-  onChangeStage: (value: string, callback?: () => void) => void;
 }
 
 type State = {
@@ -113,7 +104,6 @@ class GoalTypesList extends React.Component<IProps, State> {
       totalCount,
       queryParams
     } = this.props;
-
     const mainContent = (
       <GoalTypesTableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
@@ -126,13 +116,11 @@ class GoalTypesList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              {/* <th>
-                <SortHandler sortField={'_id'} label={__('_id')} />
-              </th> */}
-
               <th>{__('entity ')}</th>
+              <th>{__('stageId ')}</th>
+              <th>{__('pipelineId ')}</th>
+              <th>{__('boardId ')}</th>
               <th>{__('contributionType')}</th>
-              {/* <th>{__('chooseBoard')}</th> */}
               <th>{__('frequency')}</th>
               <th>{__('metric')}</th>
               <th>{__('goalType')}</th>
@@ -140,6 +128,9 @@ class GoalTypesList extends React.Component<IProps, State> {
               <th>{__('startDate')}</th>
               <th>{__('endDate')}</th>
               <th>{__('target')}</th>
+              <th>{__('specificPeriodGoals')}</th>
+              <th>{__('View')}</th>
+              <th>{__('Edit')}</th>
             </tr>
           </thead>
           <tbody id="goalTypes">
@@ -205,6 +196,7 @@ class GoalTypesList extends React.Component<IProps, State> {
         />
 
         <ModalTrigger
+          size="lg"
           title={__('New Goal')}
           trigger={addTrigger}
           autoOpenKey="showGoalTypeModal"

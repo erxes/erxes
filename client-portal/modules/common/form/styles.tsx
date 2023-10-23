@@ -396,7 +396,7 @@ export {
   Select,
   TextArea,
   Radio,
-  Checkbox,
+  ,
   FormLabel,
   Label,
   Formgroup,

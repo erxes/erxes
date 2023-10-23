@@ -1,6 +1,11 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
+export interface ISpecificPeriodGoals {
+  monthy: Date;
+  target: string;
+}
+
 export interface IGoal {
   entity: string;
   stageId: string;
@@ -10,8 +15,9 @@ export interface IGoal {
   frequency: string;
   metric: string;
   goalType: string;
-  contribution: string;
+  contribution?: string[];
   chooseStage: string;
+  specificPeriodGoals?: ISpecificPeriodGoals[];
   startDate: string;
   endDate: string;
   target: string;
@@ -30,13 +36,19 @@ export const goalSchema = schemaHooksWrapper(
       type: String,
       label: 'Contribution Type'
     }),
+    specificPeriodGoals: field({
+      type: Object,
+      optional: true,
+      label: 'Specific Period Goals'
+    }),
+
     stageId: field({ type: String, label: 'stageId' }),
     pipelineId: field({ type: String, label: 'pipelineId' }),
     boardId: field({ type: String, label: 'boardId' }),
     frequency: field({ type: String, label: 'Frequency' }),
     metric: field({ type: String, label: 'Metric' }),
     goalType: field({ type: String, label: 'Choose Goal Type' }),
-    contribution: field({ type: String, label: 'contribution' }),
+    contribution: field({ type: [String], label: 'contribution' }),
     startDate: field({ type: String, lable: 'StartDate Durable' }),
     endDate: field({ type: String, label: 'EndDate Durable' }),
     target: field({ type: String, label: 'Target' })

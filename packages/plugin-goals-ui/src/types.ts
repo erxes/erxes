@@ -3,6 +3,13 @@ import {
   MutationVariables,
   QueryResponse
 } from '@erxes/ui/src/types';
+// tslint:disable-next-line:interface-name
+interface SpecificPeriodGoal {
+  _id: string;
+  addMonthly: string;
+  addTarget: string;
+}
+
 export interface IGoalTypeDoc {
   createdAt?: Date;
   entity: string;
@@ -13,11 +20,33 @@ export interface IGoalTypeDoc {
   frequency: string;
   metric: string;
   goalType: string;
-  contribution: string;
+  contribution: [string];
+  specificPeriodGoals: SpecificPeriodGoal[];
   chooseStage: string;
   startDate: string;
   endDate: string;
   target: string;
+}
+
+export interface ICommonTypes {
+  _id?: string;
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
+
+  title?: string;
+  description?: string;
+  startDate?: Date;
+  endDate?: Date;
+  finishDateOfUse?: Date;
+  attachment?: IAttachment;
+
+  status?: string;
+}
+export interface IAssignmentCampaign extends ICommonTypes {
+  segmentIds?: string[];
+  voucherCampaignId?: string;
 }
 
 export interface IPipeline {

@@ -1,6 +1,6 @@
 export const types = `
  type Goal @key(fields: "_id") @cacheControl(maxAge: 3) {
-   _id: String!
+_id: String!
  entity: String
  stageId:String
  pipelineId:String
@@ -9,7 +9,8 @@ export const types = `
  frequency:String
  metric:String
   goalType: String
-  contribution:String
+  contribution: [String]
+  specificPeriodGoals:JSON
   startDate: String
   endDate: String
   target:String
@@ -24,7 +25,8 @@ export const types = `
   frequency:String
   metric:String
   goalType: String
-   contribution:String
+  contribution: [String]
+  specificPeriodGoals:JSON
   startDate: String
   endDate: String
   target:String
@@ -45,7 +47,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  goals(entity:String, contributionType:String,frequency:String,metric:String,goalType:String,contribution:String, stageId:String,pipelineId:String,boardId:String,
+  goals(entity:String, contributionType:String,frequency:String,metric:String,goalType:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String,
     startDate: String,
   endDate: String,target:String): [Goal]
   goalDetail(_id: String!): Goal
@@ -62,7 +64,8 @@ const params = `
   frequency: String
   metric: String
   goalType: String
-  contribution: String
+  contribution: [String]
+  specificPeriodGoals:JSON
   startDate:String
   endDate:String
   target: String

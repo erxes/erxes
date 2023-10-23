@@ -3,6 +3,8 @@ import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { highlight } from '@erxes/ui/src/utils/animations';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+
 export const DividerBox = styled.span`
   margin-bottom: ${dimensions.coreSpacing}px;
   color: ${colors.colorCoreRed};
@@ -14,6 +16,11 @@ export const DividerBox = styled.span`
   font-weight: bold;
   text-transform: uppercase;
 `;
+const Options = styled.div`
+  display: inline-block;
+  width: 100%;
+  margin-top: 10px;
+`;
 const GoalTypesTableWrapper = styled.div`
   td {
     max-width: 250px;
@@ -22,6 +29,36 @@ const GoalTypesTableWrapper = styled.div`
     white-space: nowrap;
   }
 `;
+
+const FieldWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 48%;
+  float: left;
+  min-height: 110px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 4px;
+  margin-bottom: 4%;
+  padding: 20px;
+  transition: all ease 0.3s;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+
+  &:nth-of-type(even) {
+    margin-left: 4%;
+  }
+
+  > i {
+    margin-bottom: 10px;
+  }
+
+  &:hover {
+    cursor: pointer;
+    box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
+  }
+`;
+
 const SidebarFilters = styledTS(styled.div)`
   overflow: hidden;
   padding: 5px 15px 30px 15px;
@@ -82,3 +119,5 @@ const FlexRow = styled.div`
     margin-top: ${dimensions.coreSpacing / 2}px;
   }
 `;
+
+export { FieldWrapper, Options };

@@ -12,6 +12,7 @@ export interface IGoalModel extends Model<IGoalDocument> {
 export const loadGoalClass = (models: IModels) => {
   class Goal {
     public static async createGoal(doc: IGoal, createdUserId: string) {
+      console.log(doc, 'doc');
       return models.Goals.create({
         ...doc,
         createdDate: new Date(),

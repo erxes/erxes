@@ -7,7 +7,8 @@ const commonFields = `
     $frequency:String
     $metric:String
     $goalType: String
-    $contribution:String
+    $contribution: [String]
+    $specificPeriodGoals:JSON
     $startDate:String
     $endDate:String
     $target:String
@@ -23,6 +24,7 @@ const commonVariables = `
   metric:$metric
   goalType:$goalType
   contribution:$contribution
+  specificPeriodGoals:$specificPeriodGoals
   startDate:$startDate
   endDate:$endDate
   target:$target
@@ -42,6 +44,7 @@ const goalTypesAdd = `
       metric
       goalType
       contribution
+      specificPeriodGoals
       startDate
       endDate
       target
@@ -62,18 +65,13 @@ const goalTypesEdit = `
       metric
       goalType
       contribution
+      specificPeriodGoals
       startDate
       endDate
       target
     }
   }
 `;
-
-// const goalTypesRemove = `
-//   mutation goalsRemove($_id: String) {
-//     goalsRemove(_id: $_id)
-//   }
-// `;
 
 const goalTypesRemove = `
   mutation goalsRemove($ goalTypeIds: [String]) {
