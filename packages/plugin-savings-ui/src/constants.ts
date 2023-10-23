@@ -40,7 +40,8 @@ export const FILTER_PARAMS_CONTRACT = [
   'companyId',
   'savingAmount',
   'interestRate',
-  'branchId'
+  'branchId',
+  'ids'
 ];
 
 export const WEEKENDS = {

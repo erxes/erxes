@@ -27,6 +27,7 @@ const contractFields = `
   currency
   closeInterestRate
   storedInterest
+  endDate
 `;
 
 const listParamsDef = `
@@ -149,8 +150,8 @@ export const scheduleYears = `
 `;
 
 export const closeInfo = `
-  query closeInfo($contractId: String, $date: Date) {
-    closeInfo(contractId: $contractId, date: $date) {
+  query savingsCloseInfo($contractId: String, $date: Date) {
+    savingsCloseInfo(contractId: $contractId, date: $date) {
       balance
       storedInterest
       total
@@ -169,6 +170,16 @@ const documents = `
   }
 `;
 
+const savingsContractsAlert = `
+  query savingsContractsAlert($date: Date) {
+    savingsContractsAlert(date: $date) {
+      name
+      count
+      filter
+    }
+  }
+`;
+
 export default {
   contracts,
   contractsMain,
@@ -176,5 +187,6 @@ export default {
   schedules,
   scheduleYears,
   closeInfo,
-  documents
+  documents,
+  savingsContractsAlert
 };

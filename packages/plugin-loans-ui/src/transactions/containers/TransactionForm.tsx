@@ -10,6 +10,7 @@ import { ITransaction } from '../types';
 import { __ } from 'coreui/utils';
 type Props = {
   transaction: ITransaction;
+  type: string;
   invoice?: IInvoice;
   getAssociatedTransaction?: (transactionId: string) => void;
   closeModal: () => void;

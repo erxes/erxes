@@ -197,8 +197,20 @@ class TransactionsList extends React.Component<IProps> {
       );
     }
 
-    const transactionForm = props => {
-      return <TransactionForm {...props} queryParams={queryParams} />;
+    const repaymentForm = props => {
+      return (
+        <TransactionForm
+          {...props}
+          type="repayment"
+          queryParams={queryParams}
+        />
+      );
+    };
+
+    const giveForm = props => {
+      return (
+        <TransactionForm {...props} type="give" queryParams={queryParams} />
+      );
     };
 
     const interestChangeForm = props => (
@@ -236,7 +248,15 @@ class TransactionsList extends React.Component<IProps> {
                     <a href="#Repayment">{__('Repayment Transaction')}</a>
                   }
                   size="lg"
-                  content={transactionForm}
+                  content={repaymentForm}
+                />
+              </li>
+              <li>
+                <ModalTrigger
+                  title={`${__('Give Transaction')}`}
+                  trigger={<a href="#Give">{__('Give Transaction')}</a>}
+                  size="lg"
+                  content={giveForm}
                 />
               </li>
               <li>

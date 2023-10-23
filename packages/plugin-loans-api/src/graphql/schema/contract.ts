@@ -35,6 +35,7 @@ export const types = () => `
     createdAt: Date
     marginAmount: Float
     leaseAmount: Float
+    givenAmount: Float
     feeAmount: Float
     tenor: Float
     unduePercent: Float
@@ -127,6 +128,11 @@ export const types = () => `
     list: [LoanContract],
     totalCount: Float,
   }
+  type LoanAlert {
+    name: String,
+    count: Float,
+    filter: JSON,
+  }
 `;
 
 const queryParams = `
@@ -167,6 +173,7 @@ export const queries = `
   cpContracts(cpUserType: String cpUserEmail: String cpUserPhone: String): [LoanContract]
   cpContractDetail(_id: String!): LoanContract
   closeInfo(contractId: String, date: Date): CloseInfo
+  contractsAlert(date: Date): [LoanAlert]
 `;
 
 const commonFields = `
@@ -180,6 +187,7 @@ const commonFields = `
   createdAt: Date
   marginAmount: Float
   leaseAmount: Float
+  givenAmount: Float
   feeAmount: Float
   tenor: Float
   unduePercent: Float

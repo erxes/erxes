@@ -23,9 +23,6 @@ import { __ } from 'coreui/utils';
 import SelectContracts, {
   Contracts
 } from '../../contracts/components/common/SelectContract';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { queries } from '../graphql';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

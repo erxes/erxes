@@ -2460,5 +2460,7 @@
   "Repayment Transaction":"Эргэн төлөлт",
   "Interest Change to":"Хүү өөрчлөх дүн",
   "Income Transaction":"Орлогын гүйлгээ",
-  "Outcome Transaction":"Зарлагын гүйлгээ"
+  "Outcome Transaction":"Зарлагын гүйлгээ",
+  "Give Transaction":"Олголтын гүйлгээ",
+  "Given Amount":"Олгосон дүн"
 }

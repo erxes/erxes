@@ -42,6 +42,7 @@ export interface IContract {
   createdBy: string;
   createdAt: Date;
   marginAmount?: number;
+  givenAmount?: number;
   leaseAmount: number;
   feeAmount?: number;
   /**
@@ -52,6 +53,7 @@ export interface IContract {
   unduePercent: number;
   repayment: string;
   startDate: Date;
+  endDate: Date;
   scheduleDays: number[];
   insuranceAmount: number;
   /**
@@ -206,6 +208,12 @@ export const contractSchema = schemaHooksWrapper(
       optional: true,
       label: 'Loan amount'
     }),
+    givenAmount: field({
+      type: Number,
+      optional: true,
+      default: 0,
+      label: 'Given amount'
+    }),
     feeAmount: field({
       type: Number,
       optional: true,
@@ -236,7 +244,8 @@ export const contractSchema = schemaHooksWrapper(
       label: 'Schedule Type',
       selectOptions: REPAYMENT_TYPE
     }),
-    startDate: field({ type: Date, label: 'Rate Start Date' }),
+    startDate: field({ type: Date, label: 'Start Date' }),
+    endDate: field({ type: Date, label: 'End Date' }),
     scheduleDays: field({
       type: [Number],
       min: 1,

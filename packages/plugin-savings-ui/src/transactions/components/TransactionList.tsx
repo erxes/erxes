@@ -28,6 +28,7 @@ import withConsumer from '../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
 import Dropdown from 'react-bootstrap/Dropdown';
+import InterestChange from '../../contracts/containers/detail/InterestChange';
 
 interface IProps extends IRouterProps {
   transactions: ITransaction[];
@@ -140,12 +141,6 @@ class TransactionsList extends React.Component<IProps> {
       </ContractsTableWrapper>
     );
 
-    const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('Add transaction')}
-      </Button>
-    );
-
     let actionBarLeft: React.ReactNode;
 
     if (bulk.length > 0) {
@@ -185,6 +180,14 @@ class TransactionsList extends React.Component<IProps> {
         <TransactionForm type="outcome" {...props} queryParams={queryParams} />
       );
     };
+
+    const interestChangeForm = props => (
+      <InterestChange {...props} type="interestChange" />
+    );
+
+    const interestReturnForm = props => (
+      <InterestChange {...props} type="interestReturn" />
+    );
 
     const rightMenuProps = {
       onSelect,
@@ -226,6 +229,26 @@ class TransactionsList extends React.Component<IProps> {
                   }
                   size="lg"
                   content={outcomeTransactionForm}
+                />
+              </li>
+              <li>
+                <ModalTrigger
+                  title={`${__('Interest Change')}`}
+                  trigger={
+                    <a href="#Interest Change">{__('Interest Change')}</a>
+                  }
+                  size="lg"
+                  content={interestChangeForm}
+                />
+              </li>
+              <li>
+                <ModalTrigger
+                  title={`${__('Interest Return')}`}
+                  trigger={
+                    <a href="#Interest Return">{__('Interest Return')}</a>
+                  }
+                  size="lg"
+                  content={interestReturnForm}
                 />
               </li>
             </Dropdown.Menu>

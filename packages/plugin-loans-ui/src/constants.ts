@@ -54,7 +54,8 @@ export const FILTER_PARAMS_CONTRACT = [
   'interestRate',
   'tenor',
   'repayment',
-  'branchId'
+  'branchId',
+  'ids'
 ];
 
 export const WEEKENDS = {

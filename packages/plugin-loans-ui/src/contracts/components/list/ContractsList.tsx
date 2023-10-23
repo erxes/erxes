@@ -30,6 +30,7 @@ import { __ } from 'coreui/utils';
 import ClassificationForm from '../../containers/ClassificationForm';
 // import Sidebar from './Sidebar';
 
+type ContractAlert = { name: string; count: number; filter: any };
 interface IProps extends IRouterProps {
   contracts: IContract[];
   loading: boolean;
@@ -53,6 +54,7 @@ interface IProps extends IRouterProps {
   isFiltered: boolean;
   clearFilter: () => void;
   currentUser: IUser;
+  alerts: ContractAlert[];
 }
 
 type State = {
@@ -121,7 +123,8 @@ class ContractsList extends React.Component<IProps, State> {
       onSearch,
       isFiltered,
       clearFilter,
-      currentUser
+      currentUser,
+      alerts
     } = this.props;
 
     const mainContent = (
@@ -244,6 +247,21 @@ class ContractsList extends React.Component<IProps, State> {
               {__('Delete')}
             </Button>
           )}
+          {alerts.map(mur => (
+            <Button onClick={() => onSelect(mur.filter, 'ids')}>
+              {mur.name}:{mur.count}
+            </Button>
+          ))}
+        </BarItems>
+      );
+    } else {
+      actionBarLeft = (
+        <BarItems>
+          {alerts.map(mur => (
+            <Button onClick={() => onSelect(mur.filter, 'ids')}>
+              {mur.name}:{mur.count}
+            </Button>
+          ))}
         </BarItems>
       );
     }
