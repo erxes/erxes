@@ -1,5 +1,5 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { router, __ } from '@erxes/ui/src/utils';
+import { loadDynamicComponent, router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Table from '@erxes/ui/src/components/table';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -23,6 +23,8 @@ type Props = {
   getPagination: (pagination: any) => void;
 
   exportReport: () => void;
+
+  isCurrentUserAdmin: boolean;
 };
 
 function ReportList(props: Props) {
@@ -34,7 +36,8 @@ function ReportList(props: Props) {
     getActionBar,
     getPagination,
     exportReport,
-    showSideBar
+    showSideBar,
+    isCurrentUserAdmin
   } = props;
   const [reportType, setType] = useState(queryParams.reportType);
 
@@ -173,6 +176,17 @@ function ReportList(props: Props) {
   };
 
   const content = () => {
+    // custom report for bichil-globus
+    const bichilTable = loadDynamicComponent('bichilReportTable', {
+      reportType,
+      queryParams,
+      isCurrentUserAdmin
+    });
+
+    if (bichilTable) {
+      return bichilTable;
+    }
+
     return (
       <Table>
         <thead>{renderTableHead()}</thead>
@@ -245,6 +259,14 @@ function ReportList(props: Props) {
     );
   };
   const renderExportBtn = () => {
+    const bichilExportReportBtn = loadDynamicComponent(
+      'bichilExportReportBtn',
+      { queryParams }
+    );
+
+    if (bichilExportReportBtn) {
+      return bichilExportReportBtn;
+    }
     return (
       <div>
         <Button onClick={exportReport}>Export</Button>

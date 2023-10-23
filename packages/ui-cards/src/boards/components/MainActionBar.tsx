@@ -67,7 +67,10 @@ class MainActionBar extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { showDetail: false };
+    this.state = {
+      showDetail:
+        localStorage.getItem('showSalesDetail') === 'true' ? true : false
+    };
   }
 
   renderBoards() {
@@ -267,12 +270,12 @@ class MainActionBar extends React.Component<Props, State> {
     const type = options.type;
     localStorage.setItem(`${type}View`, `${viewType}`);
 
-    const onFilterClick = (type: string) => {
+    const onFilterClick = (option: string) => {
       if (currentBoard && currentPipeline) {
-        return `/${options.type}/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
+        return `/${options.type}/${option}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
       }
 
-      return `/${options.type}/${type}`;
+      return `/${options.type}/${option}`;
     };
 
     return (
@@ -382,10 +385,7 @@ class MainActionBar extends React.Component<Props, State> {
   };
 
   renderSalesDetail = () => {
-    if (
-      window.location.pathname.includes('deal/board') ||
-      window.location.pathname.includes('deal/calendar')
-    ) {
+    if (window.location.pathname.includes('deal/calendar')) {
       return (
         <Button
           btnStyle="link"
@@ -414,6 +414,10 @@ class MainActionBar extends React.Component<Props, State> {
     } = this.props;
 
     const type = options.type;
+
+    if (!localStorage.getItem('showSalesDetail')) {
+      localStorage.setItem('showSalesDetail', `false`);
+    }
 
     const actionBarLeft = (
       <BarItems>
