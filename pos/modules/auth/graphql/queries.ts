@@ -26,6 +26,7 @@ const configFields = `
   adminIds
   token
   waitingScreen
+  kitchenScreen
   uiOptions {
     colors
     logo
@@ -110,6 +111,8 @@ const getWholeConfig = gql`
   query WholeConfig {
     currentConfig {
       ${configFields}
+      allowTypes
+      banFractions
       paymentIds
       paymentTypes
       permissionConfig
@@ -162,7 +165,7 @@ const getCheckoutConfig = gql`
   query checkoutConfig {
     currentConfig {
       allowTypes
-      kitchenScreen
+      banFractions
     }
   }
 `

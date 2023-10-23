@@ -7,7 +7,6 @@ import {
 } from "@/types/order.types"
 import { IProduct } from "@/types/product.types"
 import { ORDER_STATUSES } from "@/lib/constants"
-import { getLocal } from "@/lib/utils"
 
 interface IUpdateItem {
   _id: string
@@ -15,38 +14,37 @@ interface IUpdateItem {
   isTake?: boolean
   description?: string
   attachment?: { url?: string } | null
+  fromAdd?: boolean
 }
 
 export const changeCartItem = (
   product: IUpdateItem,
   cart: OrderItem[]
 ): OrderItem[] => {
-  const { _id, count, ...rest } = product
-
-  const currentItem = cart.find((item) => item._id === _id) || ({} as OrderItem)
-  const exceptCurrent = cart.filter((item) => item._id !== _id)
+  const { _id, count, fromAdd, ...rest } = product
 
   const fieldKeys = Object.keys(rest)
   if (fieldKeys.length) {
     for (let key = 0; key < fieldKeys.length; key++) {
       const value = rest[fieldKeys[key] as keyof typeof rest]
       if (typeof value !== "undefined") {
-        if (getLocal("mode") === "kiosk")
-          return cart.map((item) =>
-            item._id === _id ? { ...item, [fieldKeys[key]]: value } : item
-          )
-
-        return [{ ...currentItem, [fieldKeys[key]]: value }, ...exceptCurrent]
+        return cart.map((item) =>
+          item._id === _id ? { ...item, [fieldKeys[key]]: value } : item
+        )
       }
     }
   }
 
   if (typeof count !== "undefined") {
+    const exceptCurrent = cart.filter((item) => item._id !== _id)
     if (count === -1) return exceptCurrent
 
-    if (getLocal("mode") === "kiosk") {
+    if (!fromAdd) {
       return cart.map((item) => (item._id === _id ? { ...item, count } : item))
     }
+
+    const currentItem =
+      cart.find((item) => item._id === _id) || ({} as OrderItem)
 
     return [{ ...currentItem, count }, ...exceptCurrent]
   }
@@ -77,7 +75,7 @@ export const addToCart = (
 
   if (prevItem) {
     const { _id, count } = prevItem
-    return changeCartItem({ _id, count: count + 1 }, cart)
+    return changeCartItem({ _id, count: count + 1, fromAdd: true }, cart)
   }
 
   const { unitPrice, _id, name, attachment } = product
