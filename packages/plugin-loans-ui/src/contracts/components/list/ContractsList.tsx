@@ -147,8 +147,8 @@ class ContractsList extends React.Component<IProps, State> {
               </th>
               <th>
                 <SortHandler
-                  sortField={'marginAmount'}
-                  label={__('marginAmount')}
+                  sortField={'loanBalanceAmount'}
+                  label={__('Loan Balance')}
                 />
               </th>
               <th>

@@ -33,7 +33,6 @@ const contractFields = `
 const listParamsDef = `
   $page: Int
   $perPage: Int
-  $ids: [String]
   $searchValue: String
   $isExpired: String
   $startStartDate:Date
@@ -52,10 +51,14 @@ const listParamsDef = `
   $branchId:String
 `;
 
+const listParamsMainDef = `
+  ${listParamsDef}
+  $ids: [String]
+`;
+
 const listParamsValue = `
   page: $page
   perPage: $perPage
-  ids: $ids
   searchValue: $searchValue
   isExpired: $isExpired
   startStartDate: $startStartDate
@@ -74,6 +77,11 @@ const listParamsValue = `
   branchId: $branchId
 `;
 
+const listParamsMainValue = `
+  ${listParamsValue}
+  ids: $ids
+`;
+
 export const contracts = `
   query savingsContracts(${listParamsDef}) {
     savingsContracts(${listParamsValue}) {
@@ -84,8 +92,8 @@ export const contracts = `
 `;
 
 export const contractsMain = `
-  query savingsContractsMain(${listParamsDef}) {
-    savingsContractsMain(${listParamsValue}) {
+  query savingsContractsMain(${listParamsMainDef}) {
+    savingsContractsMain(${listParamsMainValue}) {
       list {
         ${contractFields}
       }
