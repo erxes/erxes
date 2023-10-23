@@ -15,7 +15,7 @@ const reportss = ({ location, history }) => {
 };
 
 const routes = () => {
-  return <Route path="/reportss/" component={reportss} />;
+  return <Route path="/reports/" component={reportss} />;
 };
 
 export default routes;

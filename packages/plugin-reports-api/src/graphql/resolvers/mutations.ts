@@ -1,39 +1,37 @@
-import { Reportss, Types } from '../../models';
-import { IContext } from '@erxes/api-utils/src/types';
+import { IContext } from '../../connectionResolver';
+import {
+  IChart,
+  IChartDocument,
+  IReport,
+  IReportDocument
+} from '../../models/definitions/reports';
 
 const reportsMutations = {
-  /**
-   * Creates a new reports
-   */
-  async reportssAdd(_root, doc, _context: IContext) {
-    return Reportss.createReports(doc);
+  async reportsAdd(_root, doc: IReport, { models }: IContext) {
+    return models.Reports.createReport(doc);
   },
-  /**
-   * Edits a new reports
-   */
-  async reportssEdit(_root, { _id, ...doc }, _context: IContext) {
-    return Reportss.updateReports(_id, doc);
+  async reportsEdit(
+    _root,
+    { _id, ...doc }: IReportDocument,
+    { models }: IContext
+  ) {
+    return models.Reports.updateReport(_id, doc);
   },
-  /**
-   * Removes a single reports
-   */
-  async reportssRemove(_root, { _id }, _context: IContext) {
-    return Reportss.removeReports(_id);
+  async reportsRemove(_root, _id: string, { models }: IContext) {
+    return models.Reports.removeReport(_id);
   },
-
-  /**
-   * Creates a new type for reports
-   */
-  async reportsTypesAdd(_root, doc, _context: IContext) {
-    return Types.createType(doc);
+  async chartsAdd(_root, doc: IChart, { models }: IContext) {
+    return models.Charts.createChart(doc);
   },
-
-  async reportsTypesRemove(_root, { _id }, _context: IContext) {
-    return Types.removeType(_id);
+  async chartsEdit(
+    _root,
+    { _id, ...doc }: IChartDocument,
+    { models }: IContext
+  ) {
+    return models.Charts.updateChart(_id, doc);
   },
-
-  async reportsTypesEdit(_root, { _id, ...doc }, _context: IContext) {
-    return Types.updateType(_id, doc);
+  async chartsRemove(_root, _id: string, { models }: IContext) {
+    return models.Charts.removeChart(_id);
   }
 };
 

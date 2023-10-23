@@ -1,11 +1,17 @@
 import * as mongoose from 'mongoose';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { IReportModel, loadReportClass } from './models/Reports';
-import { IReportDocument } from './models/definitions/reports';
+import {
+  IChartModel,
+  IReportModel,
+  loadChartClass,
+  loadReportClass
+} from './models/Reports';
+import { IChartDocument, IReportDocument } from './models/definitions/reports';
 
 export interface IModels {
   Reports: IReportModel;
+  Charts: IChartModel;
 }
 
 export interface IContext extends IMainContext {
@@ -21,6 +27,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Reports = db.model<IReportDocument, IReportModel>(
     'report',
     loadReportClass(models)
+  );
+
+  models.Charts = db.model<IChartDocument, IChartModel>(
+    'chart',
+    loadChartClass(models)
   );
 
   return models;

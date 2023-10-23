@@ -2,17 +2,11 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import mutations from './mutations';
 import queries from './queries';
-import { Types } from '../../models';
-
-const Reports = {
-  currentType(reports, _args) {
-    return Types.findOne({ _id: reports.typeId });
-  }
-};
+import Report from './reports';
 
 const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
-  Reports,
+  Report,
   Mutation: {
     ...mutations
   },

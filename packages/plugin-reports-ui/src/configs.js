@@ -10,5 +10,13 @@ module.exports = {
     scope: 'reports',
     module: './routes'
   },
-  menus:[{"text":"Reportss","to":"/reportss","image":"/images/icons/erxes-18.svg","location":"settings","scope":"reports"}]
+  menus: [
+    {
+      text: 'Reports',
+      to: '/reports',
+      image: '/images/icons/erxes-18.svg',
+      location: 'settings',
+      scope: 'reports'
+    }
+  ]
 };

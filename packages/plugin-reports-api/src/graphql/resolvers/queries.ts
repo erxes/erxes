@@ -1,23 +1,26 @@
-import { Reportss, Types } from '../../models';
-import { IContext } from '@erxes/api-utils/src/types';
+import { IContext } from '../../connectionResolver';
 
 const reportsQueries = {
-  reportss(_root, { typeId }, _context: IContext) {
+  reportsList(_root, {}, { models }: IContext) {
     const selector: any = {};
-
-    if (typeId) {
-      selector.typeId = typeId;
-    }
-
-    return Reportss.find(selector).sort({ order: 1, name: 1 });
+    const totalCount = models.Reports.count(selector);
+    const list = models.Reports.find(selector).sort({ createdAt: 1, name: 1 });
+    return { list, totalCount };
   },
 
-  reportsTypes(_root, _args, _context: IContext) {
-    return Types.find({});
+  reportDetail(_root, { _id }, { models }: IContext) {
+    return models.Reports.getReport(_id);
   },
 
-  reportssTotalCount(_root, _args, _context: IContext) {
-    return Reportss.find({}).countDocuments();
+  chartsList(_root, {}, { models }: IContext) {
+    const selector: any = {};
+    const totalCount = models.Charts.count(selector);
+    const list = models.Charts.find(selector).sort({ name: 1 });
+    return { list, totalCount };
+  },
+
+  chartDetail(_root, { _id }, { models }: IContext) {
+    return models.Charts.getChart(_id);
   }
 };
 

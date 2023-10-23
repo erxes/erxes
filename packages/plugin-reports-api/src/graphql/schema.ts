@@ -6,6 +6,7 @@ export const types = `
     memberIds: [String]
     tagIds: [String]
     createdAt:Date
+    charts: [Chart]
   }
 
   enum VisibilityType {
