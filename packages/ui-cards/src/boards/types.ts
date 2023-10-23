@@ -116,6 +116,8 @@ export interface IItemParams {
   aboveItemId?: string;
   attachments?: string[];
   relationData?: any;
+  branchIds?: string[];
+  departmentIds?: string[];
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;

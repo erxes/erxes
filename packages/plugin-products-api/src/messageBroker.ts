@@ -186,7 +186,7 @@ export const initBroker = async cl => {
         data: await models.Products.find(query, fields || {})
           .sort(sort)
           .skip(skip || 0)
-          .limit(limit || 10000)
+          .limit(limit || 0)
           .lean(),
         status: 'success'
       };

@@ -30,6 +30,7 @@ export const types = `
 
   type PoscProduct {
     ${commonFieldDefs}
+    shortName: String
     type: String
     barcodes: [String]
     barcodeDescription: String
