@@ -42,6 +42,27 @@ const chatMessageAdd = gql`
       attachments: $attachments
     ) {
       _id
+      content
+      isPinned
+      attachments
+      mentionedUserIds
+      createdUser {
+        _id
+        email
+        details {
+          avatar
+          fullName
+        }
+      }
+
+      seenList {
+        lastSeenMessageId
+      }
+
+      relatedMessage {
+        _id
+      }
+      createdAt
     }
   }
 `

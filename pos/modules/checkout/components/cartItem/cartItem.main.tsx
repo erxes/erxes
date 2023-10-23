@@ -1,6 +1,8 @@
 import { updateCartAtom } from "@/store/cart.store"
+import { banFractionsAtom } from "@/store/config.store"
+import { orderTypeAtom } from "@/store/order.store"
 import { motion, Variants } from "framer-motion"
-import { useSetAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { ChevronDown, Minus, Plus } from "lucide-react"
 
 import { OrderItem } from "@/types/order.types"
@@ -36,6 +38,8 @@ const CartItem = ({
   idx,
 }: OrderItem & { idx: number }) => {
   const changeItem = useSetAtom(updateCartAtom)
+  const banFractions = useAtomValue(banFractionsAtom)
+  const type = useAtomValue(orderTypeAtom)
 
   return (
     <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
@@ -60,6 +64,7 @@ const CartItem = ({
                   <Checkbox
                     id={_id}
                     checked={isTake}
+                    disabled={type !== "eat"}
                     onCheckedChange={(checked) =>
                       changeItem({ _id, isTake: !!checked })
                     }
@@ -70,6 +75,7 @@ const CartItem = ({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -116,7 +122,12 @@ const CartItem = ({
               className="mx-2 w-8 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               type="number"
               onChange={(e) =>
-                changeItem({ _id, count: Number(e.target.value) })
+                changeItem({
+                  _id,
+                  count: banFractions
+                    ? parseInt(e.target.value)
+                    : Number(e.target.value),
+                })
               }
               value={count}
             />

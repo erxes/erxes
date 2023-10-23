@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { Image as ImageIcon, Paperclip } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
@@ -15,9 +15,10 @@ type Props = {
   defaultFileList: IAttachment[]
   onChange: (attachments: IAttachment[]) => void
   type?: string
+  setUploading: (state: boolean) => void
 }
 
-const Uploader = ({ defaultFileList, onChange, type }: Props) => {
+const Uploader = ({ defaultFileList, onChange, type, setUploading }: Props) => {
   const [loading, setLoading] = useState(false)
 
   const handleFileInput = ({ target }: { target: any }) => {
@@ -28,10 +29,12 @@ const Uploader = ({ defaultFileList, onChange, type }: Props) => {
 
       beforeUpload: () => {
         setLoading(true)
+        setUploading(true)
       },
 
       afterUpload: ({ status, response, fileInfo }) => {
         if (status !== "ok") {
+          setUploading(false)
           return setLoading(false)
         }
 
@@ -41,6 +44,7 @@ const Uploader = ({ defaultFileList, onChange, type }: Props) => {
 
         onChange(updated)
 
+        setUploading(false)
         setLoading(false)
       },
     })

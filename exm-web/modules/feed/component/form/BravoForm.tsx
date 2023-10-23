@@ -1,8 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
-import { queries } from "@/common/team/graphql"
-import { useQuery } from "@apollo/client"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -13,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { FacetedFilter } from "@/components/ui/faceted-filter"
 import {
   Form,
   FormControl,
@@ -24,17 +21,31 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
+import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
+import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { IFeed } from "../../types"
 
 const FormSchema = z.object({
-  title: z.string({
-    required_error: "Please enter an title",
+  title: z
+    .string({
+      required_error: "Please enter an title",
+    })
+    .refine((val) => val.trim().length !== 0, {
+      message: "Please enter an title",
+    }),
+  description: z
+    .string({
+      required_error: "Please enter an description",
+    })
+    .refine((val) => val.trim().length !== 0, {
+      message: "Please enter an description",
+    }),
+  recipientIds: z.array(z.object({})).refine((val) => val.length !== 0, {
+    message: "Please choose users",
   }),
-  description: z.string().optional(),
-  recipientIds: z.array(z.string()).optional(),
 })
 
 const BravoForm = ({
@@ -48,9 +59,18 @@ const BravoForm = ({
     resolver: zodResolver(FormSchema),
   })
 
+  const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
+  const [success, setSuccess] = useState(false)
+
   const callBack = (result: string) => {
     if (result === "success") {
-      setOpen(false)
+      form.reset()
+      setSuccess(true)
+
+      setTimeout(() => {
+        setSuccess(false)
+        setOpen(false)
+      }, 1500)
     }
   }
 
@@ -58,15 +78,13 @@ const BravoForm = ({
     callBack,
   })
 
-  const { data: usersData, loading } = useQuery(queries.users)
-
-  const { users } = usersData || {}
-
   useEffect(() => {
     let defaultValues = {} as any
 
     if (feed) {
       defaultValues = { ...feed }
+
+      defaultValues.recipientIds = feed.recipientIds ? [{}] : []
     }
 
     form.reset({ ...defaultValues })
@@ -78,19 +96,20 @@ const BravoForm = ({
         title: data.title,
         description: data.description ? data.description : "",
         contentType: "bravo",
-        recipientIds: data.recipientIds || [],
+        recipientIds,
       },
       feed?._id || ""
     )
   }
 
   return (
-    <DialogContent>
+    <DialogContent className="max-h-[80vh] overflow-auto">
       <DialogHeader>
         <DialogTitle>Create bravo</DialogTitle>
       </DialogHeader>
 
       {mutationLoading ? <LoadingPost /> : null}
+      {success ? <SuccessPost /> : null}
 
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
@@ -135,21 +154,13 @@ const BravoForm = ({
             name="recipientIds"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Choose one</FormLabel>
+                <FormLabel>Select users</FormLabel>
                 <FormControl>
-                  {loading ? (
-                    <Input disabled={true} placeholder="Loading..." />
-                  ) : (
-                    <FacetedFilter
-                      options={(users || []).map((user: any) => ({
-                        label: user?.details?.fullName || user.email,
-                        value: user._id,
-                      }))}
-                      title="Users"
-                      values={field.value}
-                      onSelect={field.onChange}
-                    />
-                  )}
+                  <SelectUsers
+                    userIds={recipientIds}
+                    onChange={setRecipientIds}
+                    field={field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

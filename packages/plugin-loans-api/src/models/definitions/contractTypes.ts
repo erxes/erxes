@@ -52,6 +52,8 @@ export interface IContractType {
   useMargin: boolean;
   useSkipInterest: boolean;
   useDebt: boolean;
+  useManualNumbering: boolean;
+  useFee: boolean;
   leaseType: string;
   createdAt: Date;
   productCategoryIds: string[];
@@ -101,6 +103,8 @@ export const contractTypeSchema = schemaHooksWrapper(
       optional: true
     }),
     useSkipInterest: field({ type: Boolean, label: 'use skip interest' }),
+    useManualNumbering: field({ type: Boolean, label: 'use manual numbering' }),
+    useFee: field({ type: Boolean, label: 'use fee' }),
     leaseType: field({
       type: String,
       enum: LEASE_TYPES.ALL,

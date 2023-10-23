@@ -77,7 +77,6 @@ export const useChats = ({
   useSubscription(subscriptions.chatUnreadCountChanged, {
     variables: { userId: currentUser._id },
     onSubscriptionData: ({ subscriptionData: { data } }) => {
-      console.log(data)
       if (!data) {
         return null
       }

@@ -210,6 +210,20 @@ const chatForward = gql`
   }
 `
 
+const eventGoingOrInterested = gql`
+  mutation exmFeedEventGoingOrInterested(
+    $id: String!
+    $goingOrInterested: ExmGoingOrInterested!
+  ) {
+    exmFeedEventGoingOrInterested(
+      _id: $id
+      goingOrInterested: $goingOrInterested
+    ) {
+      _id
+    }
+  }
+`
+
 export default {
   addFeed,
   editFeed,
@@ -230,4 +244,5 @@ export default {
   commentAdd,
   commentRemove,
   chatForward,
+  eventGoingOrInterested,
 }

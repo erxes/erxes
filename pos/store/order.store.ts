@@ -132,6 +132,7 @@ export const setOrderStatesAtom = atom(
     set(cashAmountAtom, cashAmount || 0)
     set(mobileAmountAtom, mobileAmount || 0)
     set(paidAmountsAtom, paidAmounts || [])
+    // set(byPercentTypesAtom, getByPercent(paidAmounts))
     set(orderTotalAmountAtom, totalAmount || 0)
     set(paidDateAtom, paidDate || null)
     set(putResponsesAtom, putResponses || [])
@@ -142,6 +143,16 @@ export const setOrderStatesAtom = atom(
     set(isPreAtom, isPre)
   }
 )
+
+// const getByPercent = (paidAmounts?: IPaidAmount[]) => {
+//   const byPercentTypes: string[] = []
+//   ;(paidAmounts || []).forEach((paidAmount) => {
+//     const { type, info } = paidAmount || {}
+//     if (info?.byPercent && !byPercentTypes.includes(type))
+//       return byPercentTypes.push(type)
+//   })
+//   return byPercentTypes
+// }
 
 // getOrderValue
 export const orderValuesAtom = atom((get) => ({

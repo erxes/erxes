@@ -234,6 +234,11 @@ const connectAndQueryTimeLogsFromMsSql = async (
       teamEmployeeIds.push(teamMember.employeeId);
     }
 
+    // if no team member with employee id found
+    if (!teamEmployeeIds.length) {
+      return [];
+    }
+
     const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) ORDER BY ID, authDateTime`;
 
     const queryData = await sequelize.query(query, {
@@ -316,6 +321,12 @@ const connectAndQueryFromMsSql = async (
       teamEmployeeIds.push(teamMember.employeeId);
       teamMemberIds.push(teamMember._id);
     }
+
+    // if no team member with employee id found
+    if (!teamEmployeeIds.length) {
+      return [];
+    }
+
     const devicesList = await models.DeviceConfigs.find({
       serialNo: { $exists: true },
       extractRequired: true
@@ -332,7 +343,7 @@ const connectAndQueryFromMsSql = async (
     });
 
     returnData = await importDataAndCreateTimeclock(
-      subdomain,
+      models,
       queryData,
       teamMembersObject,
       teamMemberIds,
@@ -348,15 +359,13 @@ const connectAndQueryFromMsSql = async (
 };
 
 const importDataAndCreateTimeclock = async (
-  subdomain: string,
+  models: IModels,
   queryData: any,
   teamMembersObj: any,
   teamMemberIds: string[],
   startDate: string,
   endDate: string
 ) => {
-  const models: IModels = await generateModels(subdomain);
-
   const returnData: ITimeClock[] = [];
 
   const empSchedulesObj = await createScheduleObjOfMembers(
@@ -702,28 +711,6 @@ const getShiftStartAndEndIdx = (
   return [getShiftStartIdx, getShiftEndIdx];
 };
 
-const checkTimeClockAlreadyExists = (
-  userData: ITimeClock,
-  existingTimeclocks?: ITimeClockDocument[]
-) => {
-  let alreadyExists = false;
-
-  // find duplicates and not include them in new timeclock data
-  const findExistingTimeclock =
-    existingTimeclocks &&
-    existingTimeclocks.find(
-      existingShift =>
-        existingShift.shiftStart.getTime() === userData.shiftStart?.getTime() ||
-        existingShift.shiftEnd?.getTime() === userData.shiftEnd?.getTime()
-    );
-
-  if (findExistingTimeclock) {
-    alreadyExists = true;
-  }
-
-  return alreadyExists;
-};
-
 const filterExistingTimeclocks = (
   userData: ITimeClock[],
   existingTimeclocks: ITimeClock[]
@@ -774,7 +761,7 @@ const findAndUpdateUnfinishedShifts = async (
 
   const bulkWriteOps: any[] = [];
 
-  unfinishedTimeclocks.forEach(async unfinishedTimeclock => {
+  for (const unfinishedTimeclock of unfinishedTimeclocks) {
     let getShiftEndIdx;
 
     const teamMemberId = unfinishedTimeclock.userId || '';
@@ -783,12 +770,12 @@ const findAndUpdateUnfinishedShifts = async (
     const shiftStart = unfinishedTimeclock.shiftStart;
     const getScheduledDay = dayjs(shiftStart).format(dateFormat);
 
-    // if there's no schedule config for that shift
+    // if there's no scheduled shift for that day
     if (
       !(teamMemberId in empSchedulesObj) ||
       !(getScheduledDay in empSchedulesObj[teamMemberId])
     ) {
-      return;
+      continue;
     }
 
     // for each config of a scheduled day shift  / max 2 configs per scheduled day/
@@ -846,7 +833,7 @@ const findAndUpdateUnfinishedShifts = async (
         break;
       }
     }
-  });
+  }
 
   //  update unfinished timeclocks
   if (bulkWriteOps.length) {
@@ -891,12 +878,50 @@ const createScheduleObjOfMembers = async (
   });
 
   const totalScheduleConfigIds: string[] = [];
+  const totalSchedulesObj: any = {};
+  const totalScheduleShiftsObj: any = {};
+  const totalScheduleConfigsMap: any = {};
+  const totalScheduleConfigShiftsMap: any = {};
 
-  totalScheduleShifts.forEach(scheduleShift => {
+  for (const schedule of totalSchedules) {
+    const userId = schedule.userId;
+
+    if (userId) {
+      if (userId in totalSchedulesObj) {
+        totalSchedulesObj[userId] = [...totalSchedulesObj[userId], schedule];
+        continue;
+      }
+      totalSchedulesObj[userId] = [schedule];
+    }
+  }
+
+  for (const scheduleShift of totalScheduleShifts) {
+    const scheduleId = scheduleShift.scheduleId;
+
+    if (scheduleId) {
+      if (scheduleId in totalScheduleShiftsObj) {
+        totalScheduleShiftsObj[scheduleId] = [
+          ...totalScheduleShiftsObj[scheduleId],
+          scheduleShift
+        ];
+
+        continue;
+      }
+      totalScheduleShiftsObj[scheduleId] = [scheduleShift];
+    }
+  }
+
+  // totalScheduleShifts.forEach(scheduleShift => {
+  //   if (scheduleShift.scheduleConfigId) {
+  //     totalScheduleConfigIds.push(scheduleShift.scheduleConfigId);
+  //   }
+  // });
+
+  for (const scheduleShift of totalScheduleShifts) {
     if (scheduleShift.scheduleConfigId) {
       totalScheduleConfigIds.push(scheduleShift.scheduleConfigId);
     }
-  });
+  }
 
   const totalScheduleConfigShifts = await models.Shifts.find({
     scheduleConfigId: {
@@ -909,17 +934,34 @@ const createScheduleObjOfMembers = async (
     _id: { $in: [...totalScheduleConfigIds] }
   });
 
+  for (const scheduleConfig of totalScheduleConfigs) {
+    totalScheduleConfigsMap[scheduleConfig._id] = scheduleConfig;
+  }
+
+  for (const scheduleConfigShift of totalScheduleConfigShifts) {
+    const scheduleConfigId = scheduleConfigShift.scheduleConfigId;
+
+    if (scheduleConfigId) {
+      if (scheduleConfigId in totalScheduleConfigShiftsMap) {
+        totalScheduleConfigShiftsMap[scheduleConfigId] = [
+          ...totalScheduleConfigShiftsMap[scheduleConfigId],
+          scheduleConfigShift
+        ];
+
+        continue;
+      }
+
+      totalScheduleConfigShiftsMap[scheduleConfigId] = [scheduleConfigShift];
+    }
+  }
+
   for (const teamMemberId of teamMemberIds) {
     const empSchedulesDict: any = {};
-
-    const currEmployeeSchedules = totalSchedules.filter(
-      schedule => schedule.userId === teamMemberId
-    );
+    const currEmployeeSchedules = totalSchedulesObj[teamMemberId] || [];
 
     for (const empSchedule of currEmployeeSchedules) {
-      const currEmployeeScheduleShifts = totalScheduleShifts.filter(
-        scheduleShift => scheduleShift.scheduleId === empSchedule._id
-      );
+      const currEmployeeScheduleShifts =
+        totalScheduleShiftsObj[empSchedule._id] || [];
 
       for (const scheduleShift of currEmployeeScheduleShifts) {
         const shift_date_key = dayjs(scheduleShift.shiftStart).format(
@@ -931,21 +973,14 @@ const createScheduleObjOfMembers = async (
           // add ValidCheckin ValidCheckout
           let currEmpScheduleConfig = {};
 
-          const getScheduleConfig = totalScheduleConfigs.find(
-            scheduleConfig =>
-              scheduleConfig._id === scheduleShift.scheduleConfigId
-          );
+          const getScheduleConfig =
+            totalScheduleConfigsMap[scheduleShift.scheduleConfigId];
 
           const scheduleConfigShifts =
             getScheduleConfig &&
-            totalScheduleConfigShifts.filter(
-              scheduleConfigShift =>
-                scheduleConfigShift.configShiftStart &&
-                scheduleConfigShift.configShiftEnd &&
-                scheduleConfigShift.scheduleConfigId === getScheduleConfig._id
-            );
+            (totalScheduleConfigShiftsMap[getScheduleConfig._id] || []);
 
-          scheduleConfigShifts?.forEach(scheduleConfigShift => {
+          for (const scheduleConfigShift of scheduleConfigShifts) {
             currEmpScheduleConfig[scheduleConfigShift.configName || ''] = {
               configShiftStart: scheduleConfigShift.configShiftStart,
               configShiftEnd: scheduleConfigShift.configShiftEnd,
@@ -961,7 +996,7 @@ const createScheduleObjOfMembers = async (
                     scheduleConfigShift.configShiftEnd
                 )
             };
-          });
+          }
 
           currEmpScheduleConfig = {
             ...currEmpScheduleConfig,

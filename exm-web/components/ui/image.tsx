@@ -1,7 +1,7 @@
 "use client"
 
-import { FC, memo, useState } from "react"
-import NextImage, { ImageProps } from "next/image"
+import { FC, useEffect, useState } from "react"
+import NextImage, { ImageLoaderProps, ImageProps } from "next/image"
 
 import { cn, readFile } from "@/lib/utils"
 
@@ -16,7 +16,7 @@ const Image: FC<
     src,
     fill = true,
     alt = "",
-
+    onError = () => setSrcI(props.fallBack || "/product.png"),
     width,
     height,
     fallBack,
@@ -24,37 +24,52 @@ const Image: FC<
     className,
     ...rest
   } = props
+  const fixedSrc = readFile(src || "")
 
   const [isImageLoading, setIsImageLoading] = useState(true)
+  const [srcI, setSrcI] = useState(fixedSrc || fallBack || "/user.png")
   const handleComplete = () => setIsImageLoading(false)
 
-  const [error, setError] = useState(null)
-
-  const fallbackImage = "/user.png"
+  useEffect(() => {
+    const fixedSrc = readFile(src || "", width)
+    setSrcI(fixedSrc)
+  }, [src])
 
   const updatedProps = {
     ...rest,
-    src: error ? fallbackImage : readFile(src) || "/user.png",
+    src: srcI,
     alt,
     fill: !width && !height ? true : undefined,
     width,
     height,
+    onError,
+  }
+
+  if (srcI.includes("localhost")) {
+    return (
+      <NextImage
+        {...updatedProps}
+        quality={100}
+        onLoadingComplete={handleComplete}
+        className={cn(className, isImageLoading && "blur-2xl", "text-black")}
+      />
+    )
   }
 
   return (
     <NextImage
       {...updatedProps}
-      onError={() => setError}
+      quality={100}
+      loader={!srcI.startsWith("/") ? cloudflareLoader : undefined}
       onLoadingComplete={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}
-      sizes={
-        sizes ||
-        `(max-width: 768px) 20vw,
-  (max-width: 1200px) 15vw,
-  15vw`
-      }
     />
   )
 }
 
-export default memo(Image)
+export function cloudflareLoader({ src, width, quality }: ImageLoaderProps) {
+  const params = [`width=${width}`, `quality=${quality || 100}`, "format=auto"]
+  return `https://erxes.io/cdn-cgi/image/${params.join(",")}/${src}`
+}
+
+export default Image

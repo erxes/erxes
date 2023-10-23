@@ -113,4 +113,56 @@ export const useSendTransaction = ({
   return { loading, sendTransaction }
 }
 
+export const useSettlement = ({
+  onCompleted,
+  onError,
+}: {
+  onCompleted: (response: any) => void
+  onError?: () => void
+}) => {
+  const { onError: errorHandle, toast } = useToast()
+  const [loading, setLoading] = useState(false)
+  const error = (message: string) => {
+    onError && onError()
+    setLoading(false)
+    errorHandle({ message })
+  }
+  const sendSettlement = async ({ number }: { number: string }) => {
+    setLoading(true)
+    fetch(PATH, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        service_name: "doSettlement",
+        service_params: {
+          db_ref_no: number,
+        },
+      }),
+    })
+      .then((res) => res.json())
+      .then((r) => {
+        const { response, status } = r || {}
+
+        if (status && response) {
+          const { response_code, response_msg } = response
+          if (response_code === "000") {
+            toast({ description: "Settlement was successful" })
+            onCompleted && onCompleted(response)
+            return setLoading(false)
+          }
+          return error(response_msg)
+        }
+
+        if (!status && response) {
+          error(`${response?.response_msg}`)
+        }
+      })
+      .catch((e) => error(e.message || e.toString()))
+  }
+
+  return { loading, sendSettlement }
+}
+
 export default useKhanCard

@@ -15,8 +15,8 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
       >
         <XCircleIcon className="h-6 w-6 text-white" />
       </Button>
-      <ScrollArea>
-        <div className="mx-auto flex h-[700px] max-h-[95vh] w-screen max-w-lg flex-col items-center justify-center rounded-lg bg-white px-8 py-5">
+      <ScrollArea className="bg-white rounded-lg h-[44rem] max-h-[95vh] overflow-hidden">
+        <div className="mx-auto flex  w-screen max-w-lg flex-col items-center justify-center px-8 py-5">
           {children}
         </div>
       </ScrollArea>

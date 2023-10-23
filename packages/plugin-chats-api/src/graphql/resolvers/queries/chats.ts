@@ -88,14 +88,51 @@ const chatQueries = {
     { _id },
     { models, user }: { models: IModels; user: IUserDocument }
   ) => {
-    const chat = models.Chats.findOne({
-      _id,
-      participantIds: { $in: [user._id] }
+    const chat = await models.Chats.getChat(_id, user._id);
+
+    const lastMessage = await models.ChatMessages.findOne({
+      chatId: _id
+    }).sort({
+      createdAt: -1
     });
 
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
-    });
+    if (lastMessage) {
+      const seenInfos = chat.seenInfos || [];
+
+      let seenInfo = seenInfos.find(info => info.userId === user._id);
+
+      let updated = false;
+
+      if (!seenInfo) {
+        seenInfo = {
+          userId: user._id,
+          lastSeenMessageId: lastMessage._id,
+          seenDate: new Date()
+        };
+
+        seenInfos.push(seenInfo);
+
+        updated = true;
+      } else {
+        if (seenInfo.lastSeenMessageId !== lastMessage._id) {
+          seenInfo.lastSeenMessageId = lastMessage._id;
+          seenInfo.seenDate = new Date();
+
+          updated = true;
+        }
+      }
+
+      if (updated) {
+        await models.Chats.updateOne(
+          { _id: chat._id },
+          { $set: { seenInfos } }
+        );
+
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
+        });
+      }
+    }
 
     return chat;
   },
@@ -144,6 +181,10 @@ const chatQueries = {
       }
 
       if (updated) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
+        });
+
         await models.Chats.updateOne(
           { _id: chat._id },
           { $set: { seenInfos } }
@@ -191,10 +232,6 @@ const chatQueries = {
       );
     }
 
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
-    });
-
     return {
       list,
       totalCount: await models.ChatMessages.find(filter).countDocuments()
@@ -239,10 +276,6 @@ const chatQueries = {
       graphqlPubsub.publish('chatInserted', {
         userId: user._id
       });
-
-      // graphqlPubsub.publish("chatUnreadCountChanged", {
-      //   userId: user._id,
-      // });
     }
 
     return chat._id;

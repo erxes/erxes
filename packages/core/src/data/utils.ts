@@ -255,16 +255,24 @@ export const createTransporter = async ({ ses }, models?: IModels) => {
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
-export const initFirebase = async (models: IModels): Promise<void> => {
-  const config = await models.Configs.findOne({
-    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
-  });
+export const initFirebase = async (
+  models: IModels,
+  customConfig?: string
+): Promise<void> => {
+  let codeString = 'value';
 
-  if (!config) {
-    return;
+  if (customConfig) {
+    codeString = customConfig;
+  } else {
+    const config = await models.Configs.findOne({
+      code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+    });
+
+    if (!config) {
+      return;
+    }
+    codeString = config.value;
   }
-
-  const codeString = config.value || 'value';
 
   if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
     const serviceAccount = JSON.parse(codeString);
@@ -1287,12 +1295,14 @@ export const configReplacer = config => {
 export const sendMobileNotification = async (
   models: IModels,
   {
+    customConfig,
     receivers,
     title,
     body,
     deviceTokens,
     data
   }: {
+    customConfig: string;
     receivers: string[];
     title: string;
     body: string;
@@ -1301,7 +1311,7 @@ export const sendMobileNotification = async (
   }
 ): Promise<void> => {
   if (!admin.apps.length) {
-    await initFirebase(models);
+    await initFirebase(models, customConfig);
   }
 
   const transporter = admin.messaging();

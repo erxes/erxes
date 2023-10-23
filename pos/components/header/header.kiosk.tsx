@@ -15,7 +15,7 @@ import { useToast } from "../ui/use-toast"
 const Header = () => {
   const { onError } = useToast()
   const router = useRouter()
-  const { data, loading } = useQuery(queries.uiOptions, {
+  const { data, loading } = useQuery(queries.kioskHomeHeader, {
     onError,
   })
   const setInitialState = useSetAtom(setInitialAtom)
@@ -26,7 +26,12 @@ const Header = () => {
     router.push("/")
   }
 
-  if (loading) return <Loader className="h-full" />
+  if (loading)
+    return (
+      <AspectRatio ratio={4} className="flex items-center justify-center">
+        <Loader className="flex-none" />
+      </AspectRatio>
+    )
 
   return (
     <div className="grid grid-cols-4 shadow-lg shadow-stone-200 flex-none">
@@ -42,7 +47,7 @@ const Header = () => {
       <div className="col-span-3 rounded-bl-3xl overflow-hidden">
         <AspectRatio ratio={3 / 1}>
           <Image
-            src="https://scontent.fuln6-2.fna.fbcdn.net/v/t39.30808-6/286434538_488730733026531_7295981423454812952_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=05bb41&_nc_ohc=IbS_M8nfmy8AX_5oJiO&_nc_ht=scontent.fuln6-2.fna&oh=00_AfCtIYnM_ANa6gLonWB3p-HY4f9hNUAHEqXehC75ejtFBQ&oe=6516B77C"
+            src={uiOptions?.kioskHeaderImage}
             alt=""
             quality={100}
             className="object-cover"

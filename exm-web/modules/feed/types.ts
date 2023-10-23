@@ -55,6 +55,14 @@ export interface IEventData {
   interestedUserIds: string[]
 }
 
+export interface IComment {
+  _id: string
+  comment: string
+  contentId: string
+  createdAt?: Date
+  createdUser?: IUser
+}
+
 export interface IFeed {
   _id: string
   title: string

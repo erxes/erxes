@@ -42,6 +42,7 @@ export interface IContract {
   createdBy: string;
   createdAt: Date;
   marginAmount?: number;
+  givenAmount?: number;
   leaseAmount: number;
   feeAmount?: number;
   /**
@@ -52,6 +53,7 @@ export interface IContract {
   unduePercent: number;
   repayment: string;
   startDate: Date;
+  endDate: Date;
   scheduleDays: number[];
   insuranceAmount: number;
   /**
@@ -88,6 +90,8 @@ export interface IContract {
   useMargin: boolean;
   useSkipInterest: boolean;
   useDebt: boolean;
+  useManualNumbering: boolean;
+  useFee: boolean;
 
   closeDate?: Date;
   closeType?: string;
@@ -113,6 +117,7 @@ export interface IContract {
   customInterest: number;
   isStoppedInterest: boolean;
   stoppedInterestDate: Date;
+  loanPurpose: string;
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -203,6 +208,12 @@ export const contractSchema = schemaHooksWrapper(
       optional: true,
       label: 'Loan amount'
     }),
+    givenAmount: field({
+      type: Number,
+      optional: true,
+      default: 0,
+      label: 'Given amount'
+    }),
     feeAmount: field({
       type: Number,
       optional: true,
@@ -233,7 +244,8 @@ export const contractSchema = schemaHooksWrapper(
       label: 'Schedule Type',
       selectOptions: REPAYMENT_TYPE
     }),
-    startDate: field({ type: Date, label: 'Rate Start Date' }),
+    startDate: field({ type: Date, label: 'Start Date' }),
+    endDate: field({ type: Date, label: 'End Date' }),
     scheduleDays: field({
       type: [Number],
       min: 1,
@@ -317,6 +329,8 @@ export const contractSchema = schemaHooksWrapper(
     useMargin: field({ type: Boolean, label: 'use margin' }),
     useSkipInterest: field({ type: Boolean, label: 'use skip interest' }),
     useDebt: field({ type: Boolean, label: 'use debt' }),
+    useManualNumbering: field({ type: Boolean, label: 'use manual numbering' }),
+    useFee: field({ type: Boolean, label: 'use fee' }),
     closeDate: field({
       type: Date,
       optional: true,
@@ -417,6 +431,10 @@ export const contractSchema = schemaHooksWrapper(
     stoppedInterestDate: field({
       type: Date,
       label: 'Stopped interest date'
+    }),
+    loanPurpose: field({
+      type: String,
+      label: 'Loan purpose'
     })
   }),
   'erxes_contractSchema'

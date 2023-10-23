@@ -12,6 +12,8 @@ const commonFields = `
   $useMargin: Boolean
   $useDebt: Boolean
   $useSkipInterest:Boolean
+  $useManualNumbering:Boolean
+  $useFee:Boolean
   $leaseType: String
   $createdAt: Date,
   $productCategoryIds: [String],
@@ -31,6 +33,8 @@ const commonVariables = `
   useMargin: $useMargin
   useDebt: $useDebt
   useSkipInterest: $useSkipInterest
+  useManualNumbering: $useManualNumbering
+  useFee: $useFee
   leaseType: $leaseType
   createdAt: $createdAt,
   productCategoryIds: $productCategoryIds,

@@ -11,7 +11,7 @@ export default function LeftSidebar({
   loadingMainQuery: boolean;
 }) {
   return (
-    <Sidebar hasBorder>
+    <Sidebar hasBorder={true}>
       <BranchList />
       <DepartmentList />
       <UnitList />
