@@ -8,9 +8,9 @@ sidebar_label: Introduction
 
 Hello 👋
 
-Welcome to the erxes developer documentation, the open source of the Hubspot/Qualtrics alternative with many more!
+Welcome to the erxes developer documentation, the open source Hubspot/Qualtrics alternative, and many more!
 
-erxes is an open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business.
+erxes is an open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of businesses.
 
 :::tip
 
@@ -21,7 +21,7 @@ Get started with erxes with our <a href="https://docs.erxes.io/docs/deployment/d
 
 ## With erxes, you can...
 
-Achieving growth and unity within your company is possible. Find more about what you can do with erxes as follows:
+Achieving growth and unity within your company is possible. Find out more about what you can do with erxes as follows:
 
 - erxes is an open-source project (see <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" target="_blank">**LICENSE**</a> for more information); everyone (individuals and companies, especially SaaS providers) can use it for free privately to create better experiences for everything they do, such as customer, employee, production, service, and many more experiences.
 - We love open-source and the idea everybody can freely use and extend what we wrote. Digital marketing technology agencies are welcome to add value to their product and services by selling erxes to their clients to use erxes privately.
