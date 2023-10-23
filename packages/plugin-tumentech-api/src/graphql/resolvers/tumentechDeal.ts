@@ -4,6 +4,7 @@ import {
   ITumentechDeal,
   ITrackingData
 } from '../../models/definitions/tumentechDeal';
+import { sendContactsMessage } from '../../messageBroker';
 
 const TumentechDeal = {
   async deal(tumentechDeal: ITumentechDeal, _params) {
@@ -82,6 +83,60 @@ const TumentechDeal = {
     }
 
     return sortedData;
+  },
+
+  async warehouseUserToLoad(
+    tumentechDeal: ITumentechDeal,
+    _params,
+    { subdomain }: IContext
+  ) {
+    const { warehouseUserIdToLoad } = tumentechDeal;
+
+    if (!warehouseUserIdToLoad) {
+      return null;
+    }
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: warehouseUserIdToLoad
+      },
+      isRPC: true,
+      defaultValue: undefined
+    });
+    if (!customer) {
+      return null;
+    }
+
+    return customer;
+  },
+
+  async warehouseUserToUnload(
+    tumentechDeal: ITumentechDeal,
+    _params,
+    { subdomain }: IContext
+  ) {
+    const { warehouseUserIdToUnload } = tumentechDeal;
+
+    if (!warehouseUserIdToUnload) {
+      return null;
+    }
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: warehouseUserIdToUnload
+      },
+      isRPC: true,
+      defaultValue: undefined
+    });
+    if (!customer) {
+      return null;
+    }
+
+    return customer;
   }
 };
 

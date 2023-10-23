@@ -25,6 +25,8 @@ export interface ITumentechDeal {
   tripDistance: number;
   createdAt: Date;
   createdBy: string;
+  warehouseUserIdToLoad: string;
+  warehouseUserIdToUnload: string;
 }
 
 export interface ITumentechDealDocument extends ITumentechDeal, Document {
@@ -78,7 +80,15 @@ export const tumentechDealSchema = schemaHooksWrapper(
       label: 'Trip distance'
     }),
     createdAt: field({ type: Date, label: 'Created at' }),
-    createdBy: field({ type: String, label: 'Created by' })
+    createdBy: field({ type: String, label: 'Created by' }),
+    warehouseUserIdToLoad: field({
+      type: String,
+      label: 'Warehouse user Id to load'
+    }),
+    warehouseUserIdToUnload: field({
+      type: String,
+      label: 'Warehouse user Id to unload'
+    })
   }),
   'erxes_tumentech_deals'
 );
