@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - staging
+      - tumentech-staging
       - build-test
     paths:
       - 'packages/erxes-ui/**'
@@ -69,7 +70,7 @@ jobs:
           yarn build
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' || github.ref == 'refs/heads/tumentech-staging')
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -77,9 +78,9 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' || github.ref == 'refs/heads/tumentech-staging')
         run: |
           tar -cf build.tar --directory=packages/plugin-tumentech-ui/.erxes/dist .
           cp build.tar packages/plugin-tumentech-ui/.erxes/dist
           rm -rf packages/plugin-tumentech-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-tumentech-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-tumentech-ui --delete
+          aws s3 sync packages/plugin-tumentech-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-tumentech-ui --delete
