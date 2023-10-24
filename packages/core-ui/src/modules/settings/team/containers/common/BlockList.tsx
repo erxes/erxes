@@ -17,7 +17,7 @@ type Props = {
   title: string;
 };
 
-export default function CommonListContainer(props: Props) {
+export default function BlockListContainer(props: Props) {
   const { queryType, title, queryParams } = props;
 
   const listQuery = useQuery(gql(queries[queryType]), {

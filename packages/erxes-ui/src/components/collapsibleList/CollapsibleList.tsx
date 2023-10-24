@@ -31,7 +31,7 @@ type Props = {
   level?: number;
 
   // hooks
-  onClick?: (items: any[], id: string) => void;
+  onClick?: (id: string) => void;
   editAction?: (item: any) => void;
   removeAction?: (item: any) => void;
   additionalActions?: (item: any) => any;
@@ -151,7 +151,7 @@ class CollapsibleList extends React.Component<Props, State> {
       <FlexRow key={item._id}>
         <SidebarListItem
           isActive={this.isActive(item._id)}
-          onClick={onClick ? onClick : (undefined as any)}
+          onClick={onClick ? () => onClick(item._id) : (undefined as any)}
         >
           {this.renderIcons(item, hasChildren, isOpen)}
           {this.renderItemText(item)}

@@ -1,5 +1,7 @@
+import * as routerUtils from '@erxes/ui/src/utils/router';
+
 import BlockForm from '../../containers/common/BlockForm';
-import Box from '@erxes/ui/src/components/Box';
+import Box from 'modules/common/components/Box';
 import Button from 'modules/common/components/Button';
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 import Icon from 'modules/common/components/Icon';
@@ -8,6 +10,7 @@ import React from 'react';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
+import { useHistory } from 'react-router-dom';
 
 type Props = {
   allDatas: any[];
@@ -20,6 +23,7 @@ type Props = {
 
 export default function BlockList(props: Props) {
   const { allDatas, title, queryParams, queryType, removeItem } = props;
+  const history = useHistory();
 
   const renderRemoveAction = item => {
     return (
@@ -65,8 +69,6 @@ export default function BlockList(props: Props) {
     </Button>
   );
 
-  const linkToText = title.toLocaleLowerCase();
-
   const extraButtons = (
     <ModalTrigger
       content={({ closeModal }) => renderForm({ closeModal })}
@@ -74,6 +76,13 @@ export default function BlockList(props: Props) {
       trigger={extreBtnTrigger}
     />
   );
+
+  const linkToText = title.toLocaleLowerCase();
+
+  const onClick = (id: string) => {
+    routerUtils.removeParams(history, 'page');
+    routerUtils.setParams(history, { [`${linkToText}Id`]: id });
+  };
 
   return (
     <Box
@@ -86,7 +95,7 @@ export default function BlockList(props: Props) {
       <SidebarList noTextColor={true} noBackground={true}>
         <CollapsibleList
           items={allDatas}
-          linkToText={`?${linkToText}Id=`}
+          onClick={onClick}
           queryParams={queryParams}
           queryParamName={`${linkToText}Id`}
           isTeam={true}
