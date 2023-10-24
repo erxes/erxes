@@ -29,6 +29,7 @@ type Props = {
   isTeam?: boolean;
   queryParamName?: string;
   level?: number;
+  icon?: string;
 
   // hooks
   onClick?: (id: string) => void;
@@ -143,7 +144,7 @@ class CollapsibleList extends React.Component<Props, State> {
   };
 
   renderItem = (item: any, hasChildren: boolean) => {
-    const { onClick } = this.props;
+    const { onClick, icon } = this.props;
     const { key } = this.state;
     const isOpen = this.state.parentIds[item._id] || !!key;
 
@@ -153,6 +154,7 @@ class CollapsibleList extends React.Component<Props, State> {
           isActive={this.isActive(item._id)}
           onClick={onClick ? () => onClick(item._id) : (undefined as any)}
         >
+          {icon && <Icon className="list-icon" icon={icon} />}
           {this.renderIcons(item, hasChildren, isOpen)}
           {this.renderItemText(item)}
           {this.renderActions(item)}

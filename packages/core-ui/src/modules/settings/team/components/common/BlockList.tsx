@@ -55,6 +55,26 @@ export default function BlockList(props: Props) {
     />
   );
 
+  const renderIcon = () => {
+    let icon = 'building';
+
+    switch (queryType) {
+      case 'branches':
+        icon = 'sitemap-1';
+        break;
+      case 'departments':
+        icon = 'building';
+        break;
+      case 'units':
+        icon = 'users-alt';
+        break;
+      default:
+        break;
+    }
+
+    return icon;
+  };
+
   const extreBtnTrigger = (
     <a href="#settings" tabIndex={0}>
       <Icon icon="plus-circle" />
@@ -100,6 +120,7 @@ export default function BlockList(props: Props) {
           queryParamName={`${linkToText}Id`}
           isTeam={true}
           treeView={true}
+          icon={renderIcon()}
           editAction={renderEditAction}
           removeAction={renderRemoveAction}
         />
