@@ -1,18 +1,18 @@
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { __ } from "@erxes/ui/src/utils";
-import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import React from "react";
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from '@erxes/ui/src/utils';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import React from 'react';
 import {
   NotificationConfig,
-  NotificationModule,
-} from "@erxes/ui-notifications/src/types";
-import { Box, InlineItems, ModuleBox } from "./styles";
+  NotificationModule
+} from '@erxes/ui-notifications/src/types';
+import { Box, InlineItems, ModuleBox } from './styles';
 import {
   Description,
   SubHeading,
-  SubItem,
-} from "@erxes/ui-settings/src/styles";
+  SubItem
+} from '@erxes/ui-settings/src/styles';
 
 type Props = {
   modules: NotificationModule[];
@@ -29,22 +29,22 @@ type Props = {
 };
 
 class NotificationSettings extends React.Component<Props> {
-  onTypeChange = (e) => {
+  onTypeChange = e => {
     // save config
     this.props.saveNotificationConfigurations({
       notifType: e.target.value,
-      isAllowed: e.target.checked,
+      isAllowed: e.target.checked
     });
   };
 
-  onEmailConfigChange = (e) => {
+  onEmailConfigChange = e => {
     // save get notification by email config
     this.props.configGetNotificationByEmail({ isAllowed: e.target.checked });
   };
 
   isChecked(notifType) {
     const oldEntry = this.props.configs.find(
-      (config) => config.notifType === notifType.name
+      config => config.notifType === notifType.name
     );
 
     // if no previous configuration found then default is checked
@@ -65,7 +65,7 @@ class NotificationSettings extends React.Component<Props> {
           onChange={this.onTypeChange}
           icons={{
             checked: null,
-            unchecked: null,
+            unchecked: null
           }}
         />
       </InlineItems>
@@ -87,19 +87,19 @@ class NotificationSettings extends React.Component<Props> {
     const content = (
       <Box>
         <SubHeading>
-          {__("Notifications")}
+          {__('Notifications')}
           <span>
-            {__("Get notified and notify others to keep everything up to date")}
+            {__('Get notified and notify others to keep everything up to date')}
           </span>
         </SubHeading>
         <InlineItems>
-          {__("Get notification by email")}
+          {__('Get notification by email')}
           <Toggle
             defaultChecked={this.props.getNotificationByEmail}
             onChange={this.onEmailConfigChange}
             icons={{
               checked: null,
-              unchecked: null,
+              unchecked: null
             }}
           />
         </InlineItems>
@@ -117,14 +117,14 @@ class NotificationSettings extends React.Component<Props> {
     );
 
     const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("Notification settings") },
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Notification config') }
     ];
 
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/28.svg"
-        title="Notification settings"
+        title="Notification config"
         description={`${__(
           `This allows you to see erxes's real-time notification on all system`
         )}`}
@@ -135,7 +135,7 @@ class NotificationSettings extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("Notification settings")}
+            title={__('Notification settings')}
             breadcrumb={breadcrumb}
           />
         }
