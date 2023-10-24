@@ -2,7 +2,7 @@ import BackButton from "./components/BackButton.kiosk"
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="p-4 space-y-4 flex flex-col justify-start h-screen">
+    <div className="p-3 space-y-4 flex flex-col justify-start h-screen">
       <div>
         <BackButton />
       </div>

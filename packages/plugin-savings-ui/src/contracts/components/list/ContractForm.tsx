@@ -287,7 +287,7 @@ class ContractForm extends React.Component<Props, State> {
                 value: this.state.duration,
                 onChange: this.onChangeField
               })}
-              {this.renderFormGroup('Saving amount', {
+              {this.renderFormGroup('Saving Amount', {
                 ...formProps,
                 className: 'flex-item',
                 type: 'number',
@@ -313,7 +313,7 @@ class ContractForm extends React.Component<Props, State> {
                   {['closeEndOfContract', 'autoExtend'].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
-                        {typeName}
+                        {__(typeName)}
                       </option>
                     )
                   )}
@@ -334,7 +334,7 @@ class ContractForm extends React.Component<Props, State> {
                   {['currentAccount', 'depositAccount'].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
-                        {typeName}
+                        {__(typeName)}
                       </option>
                     )
                   )}

@@ -48,12 +48,15 @@ const contractFields = `
   loanBalanceAmount
   storedInterest
   lastStoredDate
+  useManualNumbering
+  useFee
+  loanPurpose
+  givenAmount
 `;
 
 const listParamsDef = `
   $page: Int
   $perPage: Int
-  $ids: [String]
   $searchValue: String
   $isExpired: String
   $repaymentDate: String
@@ -76,10 +79,14 @@ const listParamsDef = `
   $branchId:String
 `;
 
+const listParamsMainDef = `
+  ${listParamsDef}
+  $ids: [String]
+`;
+
 const listParamsValue = `
   page: $page
   perPage: $perPage
-  ids: $ids
   searchValue: $searchValue
   isExpired: $isExpired
   repaymentDate: $repaymentDate
@@ -102,6 +109,11 @@ const listParamsValue = `
   branchId: $branchId
 `;
 
+const listParamsMainValue = `
+  ${listParamsValue}
+  ids: $ids
+`;
+
 export const contracts = `
   query contracts(${listParamsDef}) {
     contracts(${listParamsValue}) {
@@ -111,8 +123,8 @@ export const contracts = `
 `;
 
 export const contractsMain = `
-  query contractsMain(${listParamsDef}) {
-    contractsMain(${listParamsValue}) {
+  query contractsMain(${listParamsMainDef}) {
+    contractsMain(${listParamsMainValue}) {
       list {
         ${contractFields}
         nextPayment
@@ -253,6 +265,16 @@ const documents = `
   }
 `;
 
+const contractsAlert = `
+  query contractsAlert($date: Date) {
+    contractsAlert(date: $date) {
+      name
+      count
+      filter
+    }
+  }
+`;
+
 export default {
   contracts,
   contractsMain,
@@ -260,5 +282,6 @@ export default {
   schedules,
   scheduleYears,
   closeInfo,
-  documents
+  documents,
+  contractsAlert
 };

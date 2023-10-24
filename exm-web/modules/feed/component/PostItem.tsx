@@ -1,27 +1,27 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
+import dynamic from "next/dynamic"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
-import PostForm from "@/modules/feed/component/form/PostForm"
 import { useFeedDetail } from "@/modules/feed/hooks/useFeedDetail"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
 import {
   AlertTriangleIcon,
-  CheckCircleIcon,
+  CheckCircle2Icon,
   ClockIcon,
   ExternalLinkIcon,
   HeartIcon,
   MapPinIcon,
+  MessageCircleIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PinIcon,
+  StarIcon,
   TrashIcon,
   UserIcon,
   UsersIcon,
-  XCircleIcon,
 } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
@@ -33,6 +33,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import Image from "@/components/ui/image"
 import LoadingCard from "@/components/ui/loading-card"
 import LoadingPost from "@/components/ui/loadingPost"
 import {
@@ -40,18 +41,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
+import { ImageWithPreview } from "@/components/ImageWithPreview"
 
 import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
 import { useReactionQuery } from "../hooks/useReactionQuery"
-import BravoForm from "./form/BravoForm"
-import EventForm from "./form/EventForm"
-import HolidayForm from "./form/HolidayForm"
+import CommentForm from "./form/CommentForm"
+
+const BravoForm = dynamic(() => import("./form/BravoForm"))
+const EventForm = dynamic(() => import("./form/EventForm"))
+const HolidayForm = dynamic(() => import("./form/HolidayForm"))
+const PostForm = dynamic(() => import("./form/PostForm"))
 
 const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
+  const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const callBack = (result: string) => {
@@ -69,11 +74,14 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const {
     deleteFeed,
     pinFeed,
+    eventAction,
     loading: mutationLoading,
   } = useFeedMutation({
     callBack,
   })
-  const { reactionMutation } = useReactionMutaion()
+  const { reactionMutation } = useReactionMutaion({
+    callBack,
+  })
 
   if (loading) {
     return <LoadingCard />
@@ -89,6 +97,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const idExists = emojiReactedUser.some(
     (item: any) => item._id === currentUser._id
   )
+
+  const isGoing = feed.eventData?.goingUserIds.includes(currentUser._id)
+
+  const isInterest = feed.eventData?.interestedUserIds.includes(currentUser._id)
 
   const urlRegex = /(https?:\/\/[^\s]+)/g
 
@@ -113,6 +125,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
   const reactionAdd = () => {
     reactionMutation(feed._id)
+  }
+
+  const handleEventAction = (type: string) => {
+    eventAction(feed._id, type)
   }
 
   const editAction = () => {
@@ -140,7 +156,33 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             </div>
           </DialogTrigger>
 
-          {renderForm()}
+          {open ? renderForm() : null}
+        </Dialog>
+      </>
+    )
+  }
+
+  const renderComment = () => {
+    return (
+      <>
+        <Dialog
+          open={commentOpen}
+          onOpenChange={() => setCommentOpen(!commentOpen)}
+        >
+          <DialogTrigger asChild={true} id="delete-form">
+            <div className="cursor-pointer flex items-center pt-2">
+              <MessageCircleIcon size={20} className="mr-1" color="black" />
+            </div>
+          </DialogTrigger>
+
+          {commentOpen && (
+            <CommentForm
+              feed={feed}
+              currentUserId={currentUser._id}
+              emojiReactedUser={emojiReactedUser}
+              emojiCount={emojiCount}
+            />
+          )}
         </Dialog>
       </>
     )
@@ -156,19 +198,19 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             <AlertTriangleIcon size={30} color={"#6569DF"} /> Are you sure?
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col items-center justify-center sm:justify-center sm:space-x-2">
             <Button
               className="font-semibold rounded-full bg-[#F2F2F2] hover:bg-[#F2F2F2] text-black"
               onClick={() => setFormOpen(false)}
             >
-              <XCircleIcon size={16} className="mr-1" />
               No, Cancel
             </Button>
+
             <Button
-              className="font-semibold rounded-full bg-[#3ECC38] hover:bg-[#3ECC38]"
+              type="submit"
+              className="font-semibold rounded-full"
               onClick={() => deleteFeed(feed._id)}
             >
-              <CheckCircleIcon size={16} className="mr-1" />
               Yes, I am
             </Button>
           </DialogFooter>
@@ -178,7 +220,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
     return (
       <>
-        <Dialog open={formOpen} onOpenChange={() => setOpen(!formOpen)}>
+        <Dialog open={formOpen} onOpenChange={() => setFormOpen(!formOpen)}>
           <DialogTrigger asChild={true} id="delete-form">
             <div className="text-black flex items-center">
               <TrashIcon size={16} className="mr-1" />
@@ -193,6 +235,10 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   }
 
   const renderFeedActions = () => {
+    if (feed.contentType === "welcome") {
+      return null
+    }
+
     return (
       <Popover>
         <PopoverTrigger asChild={true}>
@@ -201,21 +247,30 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-40 p-3">
-          <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-            {editAction()}
-          </div>
-          <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-            {deleteAction()}
-          </div>
-          <div
-            className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
-            onClick={() => pinFeed(feed._id)}
-          >
-            <PinIcon size={16} className="mr-1" />
-            <span className="text-black font-medium">
-              {feed.isPinned ? "UnPin" : "Pin"}
-            </span>
-          </div>
+          {currentUser.isOwner || currentUser._id === user._id ? (
+            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
+              {editAction()}
+            </div>
+          ) : null}
+
+          {currentUser.isOwner || currentUser._id === user._id ? (
+            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
+              {deleteAction()}
+            </div>
+          ) : null}
+
+          {feed.contentType === "event" &&
+          new Date(feed.eventData?.endDate || "") < new Date() ? null : (
+            <div
+              className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex items-center"
+              onClick={() => pinFeed(feed._id)}
+            >
+              <PinIcon size={16} className="mr-1" />
+              <span className="text-black font-medium">
+                {feed.isPinned ? "UnPin" : "Pin"}
+              </span>
+            </div>
+          )}
         </PopoverContent>
       </Popover>
     )
@@ -258,19 +313,17 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Image
-                src={
-                  userDetail.avatar ? readFile(userDetail.avatar) : "/user.png"
-                }
+                src={userDetail?.avatar || "/user.png"}
                 alt="User Profile"
-                width={500}
-                height={500}
+                width={100}
+                height={100}
                 className="w-10 h-10 rounded-full"
               />
               <div className="ml-3">
                 <div className="text-sm font-bold text-gray-700 mb-1">
-                  {userDetail.fullName ||
-                    userDetail.username ||
-                    userDetail.email}
+                  {userDetail?.fullName ||
+                    userDetail?.username ||
+                    userDetail?.email}
                 </div>
                 <div className="text-xs text-[#666] font-normal">
                   {dayjs(feed.createdAt).format("MM/DD/YYYY h:mm A")}{" "}
@@ -280,6 +333,50 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             </div>
 
             <div className="flex items-center cursor-pointer">
+              {feed.contentType === "event" && (
+                <>
+                  <div
+                    className={`cursor-pointer flex items-center p-2 ${
+                      isGoing ? "bg-[#6569DF]" : "bg-[#F0F0F0]"
+                    } mr-1 rounded-lg`}
+                    onClick={() => handleEventAction("going")}
+                  >
+                    <CheckCircle2Icon
+                      size={16}
+                      className="mr-1"
+                      color={`${isGoing ? "white" : "black"}`}
+                    />
+                    <span
+                      className={`${
+                        isGoing ? "text-white" : "text-black"
+                      } text-xs`}
+                    >
+                      Going
+                    </span>
+                  </div>
+
+                  <div
+                    className={`cursor-pointer flex items-center p-2 ${
+                      isInterest ? "bg-[#6569DF]" : "bg-[#F0F0F0]"
+                    } mr-1 rounded-lg`}
+                    onClick={() => handleEventAction("interested")}
+                  >
+                    <StarIcon
+                      size={16}
+                      className="mr-1"
+                      color={`${isInterest ? "white" : "black"}`}
+                    />
+                    <span
+                      className={`${
+                        isInterest ? "text-white" : "text-black"
+                      } text-xs`}
+                    >
+                      Interest
+                    </span>
+                  </div>
+                </>
+              )}
+
               {feed.isPinned && <PinIcon size={18} color={"#FF0000"} />}
               {renderFeedActions()}
             </div>
@@ -322,13 +419,13 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           })}
 
           {feed.images && feed.images.length > 0 && (
-            <AttachmentWithPreview images={feed.images} className="mt-2" />
+            <ImageWithPreview images={feed.images} className="mt-2" />
           )}
         </CardContent>
 
         <CardFooter className="border-t mt-5 pb-2">
           <div
-            className="cursor-pointer flex items-center pt-2"
+            className="cursor-pointer flex items-center pt-2 mr-4"
             onClick={reactionAdd}
           >
             <HeartIcon
@@ -339,6 +436,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             />
             <span className="font-bold text-base">{emojiCount}</span>
           </div>
+          {renderComment()}
         </CardFooter>
       </Card>
     </>

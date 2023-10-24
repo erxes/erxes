@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useInView } from "react-intersection-observer"
 
 import Loader from "@/components/ui/loader"
@@ -8,6 +8,7 @@ import Loader from "@/components/ui/loader"
 import { useChatMessages } from "../../hooks/useChatMessages"
 import Editor from "./Editor"
 import MessageItem from "./MessageItem"
+import ReplyInfo from "./ReplyInfo"
 
 const Messages = () => {
   const {
@@ -19,6 +20,7 @@ const Messages = () => {
     messagesTotalCount,
   } = useChatMessages()
   const chatContainerRef = useRef(null) as any
+  const [reply, setReply] = useState<any>(null)
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -45,13 +47,17 @@ const Messages = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen relative overflow-hidden">
+    <div className="flex flex-col h-screen relative">
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 border-0 flex flex-col-reverse"
+        className="flex-1 overflow-y-auto overflow-x-hidden p-4 border-0 flex flex-col-reverse"
       >
         {chatMessages.map((message) => (
-          <MessageItem key={message._id} message={message} />
+          <MessageItem
+            key={message._id}
+            message={message}
+            setReply={setReply}
+          />
         ))}
 
         {!loading && chatMessages.length < messagesTotalCount && (
@@ -60,8 +66,9 @@ const Messages = () => {
           </div>
         )}
       </div>
+      <ReplyInfo reply={reply} setReply={setReply} />
       <div className="p-4">
-        <Editor sendMessage={sendMessage} />
+        <Editor sendMessage={sendMessage} reply={reply} setReply={setReply} />
       </div>
     </div>
   )

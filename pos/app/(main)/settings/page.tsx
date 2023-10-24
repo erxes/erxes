@@ -9,9 +9,9 @@ import ScrollerWidth from "@/modules/settings/components/ScrollerWidth"
 import StatusExplain from "@/modules/settings/components/StatusExplain"
 import { configAtom, currentUserAtom } from "@/store/config.store"
 import { useAtom } from "jotai"
-import { Loader2 } from "lucide-react"
 
 import Image from "@/components/ui/image"
+import Loader from "@/components/ui/loader"
 
 const Settings = () => {
   const [user] = useAtom(currentUserAtom)
@@ -20,7 +20,7 @@ const Settings = () => {
 
   const { details, email } = user || {}
 
-  if (loading) return <Loader2 className="animate-spin" />
+  if (loading) return <Loader className="h-[40rem] max-h-[95vh] w-full" />
 
   return (
     <>

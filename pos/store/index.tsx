@@ -14,9 +14,12 @@ export const hiddenParentsAtom = atom<string[]>([])
 
 // local
 export const currentAmountAtom = atom<number>(0)
+
 export const modeAtom = atomWithStorage<modeT>("mode", "main")
 
 export const currentPaymentTypeAtom = atom<string>("")
+
+export const byPercentTypesAtom = atom<string[]>([])
 
 export const customerSearchAtom = atom<string>("")
 
@@ -32,7 +35,7 @@ export const kioskDialogOpenAtom = atom<boolean>(false)
 
 export const ebarimtMainDialogOpenAtom = atom<boolean>(false)
 
-export const scrollWidth = atom<number>(8)
+export const scrollWidthAtom = atomWithStorage<number>("scrollWidth", 8)
 
 const JotaiProvider = ({ children }: { children: React.ReactNode }) => {
   return (

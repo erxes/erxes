@@ -136,10 +136,10 @@ export default function Component(props: Props) {
       balance: string;
     };
 
-    let info: dataType[] = polarisData.data.saving_info;
+    let info: dataType[] = polarisData.data.saving_info || [];
 
     if (type === 'investment') {
-      info = polarisData.data.investment_info;
+      info = polarisData.data.investment_info || [];
     }
 
     return (

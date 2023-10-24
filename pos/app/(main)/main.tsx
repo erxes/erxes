@@ -1,4 +1,4 @@
-import AllowTypes from "@/modules/auth/allowTypes"
+import CheckoutConfig from "@/modules/auth/checkoutConfig"
 import BuyAction from "@/modules/checkout/components/buyAction/buyAction.main"
 import Cart from "@/modules/checkout/components/cart/cart.main"
 import TotalAmount from "@/modules/checkout/components/totalAmount/totalAmount.main"
@@ -34,7 +34,7 @@ const MainIndexPage = () => {
           </div>
         </div>
         <div className={"flex w-1/3 flex-col border-l"}>
-          <AllowTypes>
+          <CheckoutConfig>
             <OrderDetail>
               <div className="p-4">
                 <Customer />
@@ -46,7 +46,7 @@ const MainIndexPage = () => {
                 <BuyAction />
               </div>
             </OrderDetail>
-          </AllowTypes>
+          </CheckoutConfig>
         </div>
       </section>
     </BarcodeListener>

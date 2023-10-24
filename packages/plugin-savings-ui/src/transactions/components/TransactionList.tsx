@@ -9,7 +9,9 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  BarItems
+  BarItems,
+  DropdownToggle,
+  Icon
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -25,6 +27,8 @@ import { can } from '@erxes/ui/src/utils/core';
 import withConsumer from '../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
+import Dropdown from 'react-bootstrap/Dropdown';
+import InterestChange from '../../contracts/containers/detail/InterestChange';
 
 interface IProps extends IRouterProps {
   transactions: ITransaction[];
@@ -137,12 +141,6 @@ class TransactionsList extends React.Component<IProps> {
       </ContractsTableWrapper>
     );
 
-    const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('Add transaction')}
-      </Button>
-    );
-
     let actionBarLeft: React.ReactNode;
 
     if (bulk.length > 0) {
@@ -171,9 +169,25 @@ class TransactionsList extends React.Component<IProps> {
       );
     }
 
-    const transactionForm = props => {
-      return <TransactionForm {...props} queryParams={queryParams} />;
+    const incomeTransactionForm = props => {
+      return (
+        <TransactionForm type="income" {...props} queryParams={queryParams} />
+      );
     };
+
+    const outcomeTransactionForm = props => {
+      return (
+        <TransactionForm type="outcome" {...props} queryParams={queryParams} />
+      );
+    };
+
+    const interestChangeForm = props => (
+      <InterestChange {...props} type="interestChange" />
+    );
+
+    const interestReturnForm = props => (
+      <InterestChange {...props} type="interestReturn" />
+    );
 
     const rightMenuProps = {
       onSelect,
@@ -186,14 +200,59 @@ class TransactionsList extends React.Component<IProps> {
     const actionBarRight = (
       <BarItems>
         {can('manageTransactions', currentUser) && (
-          <ModalTrigger
-            title={`${__('New transaction')}`}
-            trigger={addTrigger}
-            autoOpenKey="showTransactionModal"
-            size="lg"
-            content={transactionForm}
-            backDrop="static"
-          />
+          <Dropdown>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+              <Button btnStyle="success" size="medium">
+                {__('New transaction')}
+                <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu>
+              <li>
+                <ModalTrigger
+                  title={`${__('Income Transaction')}`}
+                  trigger={
+                    <a href="#Income Transaction">{__('Income Transaction')}</a>
+                  }
+                  size="lg"
+                  content={incomeTransactionForm}
+                />
+              </li>
+              <li>
+                <ModalTrigger
+                  title={`${__('Outcome Transaction')}`}
+                  trigger={
+                    <a href="#Outcome Transaction">
+                      {__('Outcome Transaction')}
+                    </a>
+                  }
+                  size="lg"
+                  content={outcomeTransactionForm}
+                />
+              </li>
+              <li>
+                <ModalTrigger
+                  title={`${__('Interest Change')}`}
+                  trigger={
+                    <a href="#Interest Change">{__('Interest Change')}</a>
+                  }
+                  size="lg"
+                  content={interestChangeForm}
+                />
+              </li>
+              <li>
+                <ModalTrigger
+                  title={`${__('Interest Return')}`}
+                  trigger={
+                    <a href="#Interest Return">{__('Interest Return')}</a>
+                  }
+                  size="lg"
+                  content={interestReturnForm}
+                />
+              </li>
+            </Dropdown.Menu>
+          </Dropdown>
         )}
         <RightMenu {...rightMenuProps} />
       </BarItems>

@@ -13,11 +13,11 @@ const ProductItem = ({ _id, attachment, name, unitPrice }: IProduct) => {
       className="bg-neutral-100 rounded-3xl p-2"
       onClick={() => addToCart({ name, _id, unitPrice, attachment })}
     >
-      <AspectRatio ratio={1.3}>
+      <AspectRatio >
         <Image
           src={attachment?.url || ""}
           alt=""
-          className="object-cover rounded-2xl"
+          className="object-contain rounded-2xl"
           sizes="20vw"
         />
       </AspectRatio>

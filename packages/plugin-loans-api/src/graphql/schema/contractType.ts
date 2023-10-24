@@ -12,6 +12,8 @@ export const types = () => `
     useMargin: Boolean
     useSkipInterest: Boolean
     useDebt: Boolean
+    useManualNumbering: Boolean
+    useFee: Boolean
     leaseType: String
     createdAt: Date
     productCategoryIds: [String]
@@ -53,6 +55,7 @@ const commonFields = `
   undueCalcType: String
   useMargin: Boolean
   useSkipInterest: Boolean
+  useManualNumbering: Boolean
   useDebt: Boolean
   leaseType: String
   createdAt: Date

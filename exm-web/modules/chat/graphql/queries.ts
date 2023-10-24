@@ -199,7 +199,14 @@ const getChatIdByUserIds = gql`
   }
 `
 
+const getUnreadChatCount = gql`
+  query getUnreadChatCount {
+    getUnreadChatCount
+  }
+`
+
 export default {
+  getUnreadChatCount,
   chatsPinned,
   users,
   allUsers,

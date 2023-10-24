@@ -8,7 +8,8 @@ export const replacePlaceHolders = async ({
   target,
   isRelated = true,
   getRelatedValue,
-  relatedValueProps
+  relatedValueProps,
+  complexFields
 }: {
   models;
   subdomain: string;
@@ -17,6 +18,7 @@ export const replacePlaceHolders = async ({
   isRelated?: boolean;
   getRelatedValue: any;
   relatedValueProps?: any;
+  complexFields?: string[];
 }) => {
   if (actionData) {
     const targetKeys = Object.keys(target);
@@ -86,20 +88,39 @@ export const replacePlaceHolders = async ({
           );
         }
 
-        for (const complexFieldKey of ['customFieldsData', 'trackedData']) {
+        for (const complexFieldKey of [
+          'customFieldsData',
+          'trackedData'
+        ].concat(complexFields || [])) {
           if (actionData[actionDataKey].includes(complexFieldKey)) {
             const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
             const match = regex.exec(actionData[actionDataKey]);
             const fieldId = match && match.length === 2 ? match[1] : '';
 
-            const complexFieldData = target[complexFieldKey].find(
-              cfd => cfd.field === fieldId
-            );
+            if ((complexFields || [])?.includes(complexFieldKey)) {
+              const replaceValue =
+                (await getRelatedValue(
+                  models,
+                  subdomain,
+                  target,
+                  `${complexFieldKey}.${fieldId}`,
+                  relatedValueProps
+                )) || target[targetKey];
 
-            actionData[actionDataKey] = actionData[actionDataKey].replace(
-              `{{ ${complexFieldKey}.${fieldId} }}`,
-              complexFieldData ? complexFieldData.value : ''
-            );
+              actionData[actionDataKey] = actionData[actionDataKey].replace(
+                `{{ ${complexFieldKey}.${fieldId} }}`,
+                replaceValue
+              );
+            } else {
+              const complexFieldData = target[complexFieldKey].find(
+                cfd => cfd.field === fieldId
+              );
+
+              actionData[actionDataKey] = actionData[actionDataKey].replace(
+                `{{ ${complexFieldKey}.${fieldId} }}`,
+                complexFieldData ? complexFieldData.value : ''
+              );
+            }
           }
         }
       }

@@ -175,7 +175,7 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
                   {['daily', 'montly', 'endOfMonth', 'endOfContract'].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
-                        {typeName}
+                        {__(typeName)}
                       </option>
                     )
                   )}
@@ -198,7 +198,7 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
                     'Хугацааны эцэст /ХХОАТ суутгана/'
                   ].map((typeName, index) => (
                     <option key={`interetCalcType${index}`} value={typeName}>
-                      {typeName}
+                      {__(typeName)}
                     </option>
                   ))}
                 </FormControl>

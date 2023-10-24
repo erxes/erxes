@@ -12,7 +12,7 @@ const Kiosk = () => {
   return (
     <div className="max-w-full flex flex-col h-screen">
       <Header />
-      <div className="grid grid-cols-4 flex-auto pt-4 overflow-hidden divide-x">
+      <div className="grid grid-cols-4 flex-auto pt-4 overflow-hidden">
         <ProductCategories />
         <Products />
       </div>
