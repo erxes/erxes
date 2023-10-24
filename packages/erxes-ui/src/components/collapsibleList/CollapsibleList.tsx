@@ -11,11 +11,11 @@ import {
   ToggleIcon
 } from './styles';
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { SidebarList } from '../../layout/styles';
 import EmptyState from '../EmptyState';
 import Icon from '../Icon';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import { SidebarList } from '../../layout/styles';
 import Spinner from '../Spinner';
 
 type Props = {
@@ -68,7 +68,9 @@ class CollapsibleList extends React.Component<Props, State> {
     const { queryParams, queryParamName } = this.props;
 
     const paramName = queryParamName || '';
-    const currentGroup = queryParams[paramName] || '';
+    const currentGroup = queryParamName
+      ? queryParams[paramName] || ''
+      : queryParams.categoryId || '';
 
     return currentGroup === id;
   };
@@ -98,6 +100,10 @@ class CollapsibleList extends React.Component<Props, State> {
   renderActions = (item: any) => {
     const { editAction, removeAction, additionalActions } = this.props;
 
+    if (!editAction || !removeAction || !additionalActions) {
+      return null;
+    }
+
     return (
       <ActionButtons>
         {editAction && editAction(item || ({} as any))}
@@ -110,20 +116,13 @@ class CollapsibleList extends React.Component<Props, State> {
   renderItemName = (item: any) => {
     const { isProductCategory, isTeam } = this.props;
 
-    if (isTeam) {
+    if (isProductCategory || isTeam) {
       return (
         <FlexBetween>
-          {item.code} - {item.title}
-          <ItemCount className="product-count">{item.users.length}</ItemCount>
-        </FlexBetween>
-      );
-    }
-
-    if (isProductCategory) {
-      return (
-        <FlexBetween>
-          {item.code} - {item.name}
-          <ItemCount className="product-count">{item.productCount}</ItemCount>
+          {item.code} - {isTeam ? item.title : item.name}
+          <ItemCount className="product-count">
+            {isTeam ? item.users.length : item.productCount}
+          </ItemCount>
         </FlexBetween>
       );
     }
