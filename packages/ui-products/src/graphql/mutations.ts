@@ -24,6 +24,7 @@ const productCategoryParamsDef = `
   $name: String!,
   $code: String!,
   $parentId: String,
+  $scopeBrandIds: [String]
   $description: String,
   $attachment: AttachmentInput,
   $status: String,
@@ -60,6 +61,7 @@ const productCategoryParams = `
   name: $name,
   code: $code,
   parentId: $parentId,
+  scopeBrandIds: $scopeBrandIds,
   description: $description,
   attachment: $attachment,
   status: $status,

@@ -133,7 +133,14 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterParam('status', false)}
       {renderFilterParam('state', false)}
       {renderFilterParam('categoryApprovalState', false)}
-      {renderFilterWithData('categoryId', 'forum')}
+      {location.href.includes('forum') &&
+        renderFilterWithData('categoryId', 'forum')}
+      {location.href.includes('product') &&
+        renderFilterWithData(
+          'categoryId',
+          'productCategory',
+          '_id, code, name'
+        )}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
       {renderFilterParam('awaitingResponse', true, 'Awaiting Response')}

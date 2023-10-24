@@ -146,6 +146,7 @@ const generateFilterCat = async ({
   withChild,
   searchValue,
   meta,
+  brand,
   status
 }) => {
   const filter: any = {};
@@ -174,6 +175,10 @@ const generateFilterCat = async ({
     } else {
       filter.parentId = parentId;
     }
+  }
+
+  if (brand) {
+    filter.scopeBrandIds = { $in: [brand] };
   }
 
   if (meta) {
@@ -397,7 +402,7 @@ const productQueries = {
 
   async productCategories(
     _root,
-    { parentId, withChild, searchValue, status, meta },
+    { parentId, withChild, searchValue, status, brand, meta },
     { models }: IContext
   ) {
     const filter = await generateFilterCat({
@@ -406,6 +411,7 @@ const productQueries = {
       parentId,
       withChild,
       searchValue,
+      brand,
       meta
     });
 
@@ -418,7 +424,7 @@ const productQueries = {
 
   async productCategoriesTotalCount(
     _root,
-    { parentId, searchValue, status, withChild, meta },
+    { parentId, searchValue, status, withChild, brand, meta },
     { models }: IContext
   ) {
     const filter = await generateFilterCat({
@@ -427,6 +433,7 @@ const productQueries = {
       withChild,
       searchValue,
       status,
+      brand,
       meta
     });
     return models.ProductCategories.find(filter).countDocuments();

@@ -35,6 +35,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     parentId: String
     code: String!
     order: String!
+    scopeBrandIds: [String]
     attachment: Attachment
     status: String
     isRoot: Boolean
@@ -116,6 +117,7 @@ const productCategoryParams = `
   description: String,
   meta: String,
   parentId: String,
+  scopeBrandIds: [String]
   attachment: AttachmentInput,
   status: String
   maskType: String
@@ -142,7 +144,7 @@ const productsQueryParams = `
 `;
 
 export const queries = `
-  productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): [ProductCategory]
+  productCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brand: String): [ProductCategory]
   productCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
   productCategoryDetail(_id: String): ProductCategory
   products(

@@ -693,7 +693,7 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Featured image</ControlLabel>
+              <ControlLabel>Brand</ControlLabel>
               <SelectBrands
                 label={__('Choose brands')}
                 onSelect={brandIds => this.onChangeBrand(brandIds as string[])}

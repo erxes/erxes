@@ -90,6 +90,7 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             status: queryParams.categoryStatus,
+            brand: queryParams.brand,
             parentId: queryParams.parentId
           },
           refetchQueries: getRefetchQueries(),

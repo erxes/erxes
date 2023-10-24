@@ -99,13 +99,14 @@ const productDetail = `
 `;
 
 const productCategories = `
-  query productCategories($status: String) {
-    productCategories(status: $status) {
+  query productCategories($status: String, $brand: String) {
+    productCategories(status: $status, brand: $brand) {
       _id
       name
       order
       code
       parentId
+      scopeBrandIds
       description
       status
       meta
