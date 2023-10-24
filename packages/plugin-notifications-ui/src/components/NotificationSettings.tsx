@@ -13,6 +13,12 @@ import {
   SubHeading,
   SubItem
 } from '@erxes/ui-settings/src/styles';
+import { ContentBox, FlexRow } from '@erxes/ui-settings/src/styles';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import Icon from '@erxes/ui/src/components/Icon';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 
 type Props = {
   modules: NotificationModule[];
@@ -74,46 +80,56 @@ class NotificationSettings extends React.Component<Props> {
 
   renderModule(module, mindex) {
     return (
-      <SubItem key={mindex}>
-        <SubHeading>{module.description}</SubHeading>
+      <CollapseContent
+        beforeTitle={<Icon icon="settings" />}
+        transparent={true}
+        title={module.description}
+      >
         {module.types.map((type, index) =>
           this.renderNotifType(type, `${mindex}${index}`)
         )}
-      </SubItem>
+      </CollapseContent>
     );
   }
 
   render() {
     const content = (
-      <Box>
-        <SubHeading>
-          {__('Notifications')}
-          <span>
-            {__('Get notified and notify others to keep everything up to date')}
-          </span>
-        </SubHeading>
-        <InlineItems>
-          {__('Get notification by email')}
-          <Toggle
-            defaultChecked={this.props.getNotificationByEmail}
-            onChange={this.onEmailConfigChange}
-            icons={{
-              checked: null,
-              unchecked: null
-            }}
-          />
-        </InlineItems>
-        <Description>
-          {__(
-            "If your team hasn't received messages that you sent on the site, we can send it to them via email"
-          )}
-        </Description>
+      <ContentBox id={'NotificationConfig'}>
+        <CollapseContent
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+          title="Notifications"
+        >
+          <SubHeading>
+            <span>
+              {__(
+                'Get notified and notify others to keep everything up to date'
+              )}
+            </span>
+          </SubHeading>
+          <InlineItems>
+            {__('Get notification by email')}
+            <Toggle
+              defaultChecked={this.props.getNotificationByEmail}
+              onChange={this.onEmailConfigChange}
+              icons={{
+                checked: null,
+                unchecked: null
+              }}
+            />
+          </InlineItems>
+          <Description>
+            {__(
+              "If your team hasn't received messages that you sent on the site, we can send it to them via email"
+            )}
+          </Description>
+        </CollapseContent>
         <ModuleBox>
           {this.props.modules.map((module, index) =>
             this.renderModule(module, index)
           )}
         </ModuleBox>
-      </Box>
+      </ContentBox>
     );
 
     const breadcrumb = [
@@ -135,7 +151,7 @@ class NotificationSettings extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Notification settings')}
+            title={__('Notification config')}
             breadcrumb={breadcrumb}
           />
         }
