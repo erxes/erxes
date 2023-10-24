@@ -21,7 +21,8 @@ const {
   CLIENT_PORTAL_DOMAINS,
   ALLOWED_ORIGINS,
   NODE_ENV,
-  APOLLO_ROUTER_PORT
+  APOLLO_ROUTER_PORT,
+  INTROSPECTION
 } = process.env;
 
 let routerProcess: ChildProcess | undefined = undefined;
@@ -59,7 +60,21 @@ const createRouterConfig = async () => {
     // Don't rewrite in production if it exists. Delete and restart to update the config
     return;
   }
-  // const rhaiPath = path.resolve(__dirname, 'rhai/main.rhai');
+
+  if (
+    NODE_ENV === 'production' &&
+    (INTROSPECTION || '').trim().toLowerCase() === 'true'
+  ) {
+    console.warn(
+      '----------------------------------------------------------------------------------------------'
+    );
+    console.warn(
+      "Graphql introspection is enabled in production environment. Disable it, if it isn't required for front-end development. Hint: Check gateway config in configs.json"
+    );
+    console.warn(
+      '----------------------------------------------------------------------------------------------'
+    );
+  }
 
   const config = {
     include_subgraph_errors: {
@@ -91,7 +106,10 @@ const createRouterConfig = async () => {
       }
     },
     supergraph: {
-      listen: `127.0.0.1:${apolloRouterPort}`
+      listen: `127.0.0.1:${apolloRouterPort}`,
+      introspection:
+        NODE_ENV === 'development' ||
+        (INTROSPECTION || '').trim().toLowerCase() === 'true'
     }
   };
 
