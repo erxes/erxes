@@ -26,9 +26,13 @@ type Props = {
   linkToText?: string;
   isProductCategory?: boolean;
   queryParams?: any;
+  isTeam?: boolean;
+  queryParamName?: string;
+  level?: number;
+  icon?: string;
 
   // hooks
-  onClick?: (items: any[], id: string) => void;
+  onClick?: (id: string) => void;
   editAction?: (item: any) => void;
   removeAction?: (item: any) => void;
   additionalActions?: (item: any) => any;
@@ -62,8 +66,12 @@ class CollapsibleList extends React.Component<Props, State> {
   };
 
   isActive = (id: string) => {
-    const { queryParams } = this.props;
-    const currentGroup = queryParams.categoryId || '';
+    const { queryParams, queryParamName } = this.props;
+
+    const paramName = queryParamName || '';
+    const currentGroup = queryParamName
+      ? queryParams[paramName] || ''
+      : queryParams.categoryId || '';
 
     return currentGroup === id;
   };
@@ -93,7 +101,7 @@ class CollapsibleList extends React.Component<Props, State> {
   renderActions = (item: any) => {
     const { editAction, removeAction, additionalActions } = this.props;
 
-    if (!editAction || !removeAction || !additionalActions) {
+    if (!editAction || !removeAction) {
       return null;
     }
 
@@ -107,13 +115,15 @@ class CollapsibleList extends React.Component<Props, State> {
   };
 
   renderItemName = (item: any) => {
-    const { isProductCategory } = this.props;
+    const { isProductCategory, isTeam } = this.props;
 
-    if (isProductCategory) {
+    if (isProductCategory || isTeam) {
       return (
         <FlexBetween>
-          {item.code} - {item.name}
-          <ItemCount className="product-count">{item.productCount}</ItemCount>
+          {item.code} - {isTeam ? item.title : item.name}
+          <ItemCount className="product-count">
+            {isTeam ? item.users.length : item.productCount}
+          </ItemCount>
         </FlexBetween>
       );
     }
@@ -134,7 +144,7 @@ class CollapsibleList extends React.Component<Props, State> {
   };
 
   renderItem = (item: any, hasChildren: boolean) => {
-    const { onClick } = this.props;
+    const { onClick, icon } = this.props;
     const { key } = this.state;
     const isOpen = this.state.parentIds[item._id] || !!key;
 
@@ -142,8 +152,9 @@ class CollapsibleList extends React.Component<Props, State> {
       <FlexRow key={item._id}>
         <SidebarListItem
           isActive={this.isActive(item._id)}
-          onClick={onClick ? onClick : (undefined as any)}
+          onClick={onClick ? () => onClick(item._id) : (undefined as any)}
         >
+          {icon && <Icon className="list-icon" icon={icon} />}
           {this.renderIcons(item, hasChildren, isOpen)}
           {this.renderItemText(item)}
           {this.renderActions(item)}
