@@ -66,6 +66,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     attachment: Attachment
     attachmentMore: [Attachment]
     vendorId: String
+    scopeBrandIds: [String]
     uom: String
     subUoms: JSON
 
@@ -102,6 +103,7 @@ const productParams = `
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
   vendorId: String,
+  scopeBrandIds: [String]
   uom: String,
   subUoms: JSON,
   taxType: String,
@@ -128,6 +130,7 @@ const productsQueryParams = `
   categoryId: String,
   searchValue: String,
   vendorId: String,
+  brand: String
   tag: String,
   ids: [String],
   excludeIds: Boolean,

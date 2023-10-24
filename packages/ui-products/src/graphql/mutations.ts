@@ -13,6 +13,7 @@ const productParamsDef = `
   $attachment: AttachmentInput,
   $attachmentMore: [AttachmentInput],
   $vendorId: String,
+  $scopeBrandIds: [String]
   $uom: String,
   $subUoms: JSON,
   $taxType: String,
@@ -48,6 +49,7 @@ const productParams = `
   attachment: $attachment,
   attachmentMore: $attachmentMore,
   vendorId: $vendorId,
+  scopeBrandIds: $scopeBrandIds,
   uom: $uom,
   subUoms: $subUoms,
   taxType: $taxType,

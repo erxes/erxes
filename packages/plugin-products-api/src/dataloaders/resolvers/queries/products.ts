@@ -21,6 +21,7 @@ interface IQueryParams {
   categoryId?: string;
   searchValue?: string;
   vendorId?: string;
+  brand?: string;
   tag: string;
   page?: number;
   perPage?: number;
@@ -44,6 +45,7 @@ const generateFilter = async (
     categoryId,
     searchValue,
     vendorId,
+    brand,
     tag,
     ids,
     excludeIds,
@@ -129,6 +131,10 @@ const generateFilter = async (
 
   if (vendorId) {
     filter.vendorId = vendorId;
+  }
+
+  if (brand) {
+    filter.scopeBrandIds = { $in: [brand] };
   }
 
   return filter;
