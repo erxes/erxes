@@ -15,7 +15,7 @@ export const postMessage = (source: string, message: string, postData = {}) => {
       fromErxes: true,
       source,
       message,
-      ...postData
+      ...postData,
     },
     '*'
   );
@@ -39,7 +39,7 @@ export type LogicParams = {
 export const requestBrowserInfo = ({
   source,
   postData = {},
-  callback
+  callback,
 }: RequestBrowserInfoParams) => {
   postMessage(source, 'requestingBrowserInfo', postData);
 
@@ -70,7 +70,7 @@ export const setLocale = (code?: string, callBack?: () => void) => {
       setDayjsLocale(code || 'en');
 
       if (callBack) {
-        callBack()
+        callBack();
       }
     })
     .catch((e) => console.log(e)); // tslint:disable-line
@@ -144,7 +144,7 @@ export const readFile = (value: string): string => {
   return `${API_URL}/read-file?key=${value}`;
 };
 
-export const checkRule = async (rule: IRule, browserInfo: IBrowserInfo) => {
+export const checkRule = (rule: IRule, browserInfo: IBrowserInfo) => {
   const { language, url, city, country } = browserInfo || ({} as IBrowserInfo);
   const { value, kind, condition } = rule;
   const ruleValue: any = value;
@@ -230,14 +230,14 @@ export const checkRule = async (rule: IRule, browserInfo: IBrowserInfo) => {
   return true;
 };
 
-export const checkRules = async (
+export const checkRules = (
   rules: IRule[],
   browserInfo: IBrowserInfo
-): Promise<boolean> => {
+): boolean => {
   let passedAllRules = true;
 
   for (const rule of rules) {
-    const result = await checkRule(rule, browserInfo);
+    const result = checkRule(rule, browserInfo);
 
     if (result === false) {
       passedAllRules = false;
@@ -283,9 +283,16 @@ export const urlify = (text: string) => {
 
 export const checkLogicFulfilled = (logics: LogicParams[]) => {
   const values: { [key: string]: boolean } = {};
-  
+
   for (const logic of logics) {
-    const { fieldId, operator, logicValue, fieldValue, validation, type } = logic;
+    const {
+      fieldId,
+      operator,
+      logicValue,
+      fieldValue,
+      validation,
+      type,
+    } = logic;
     const key = `${fieldId}_${logicValue}`;
     values[key] = false;
 
@@ -381,7 +388,6 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
           values[key] = false;
         }
       }
-      
     }
 
     if (validation && validation.includes('date')) {
@@ -438,25 +444,26 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     result.push(values[key]);
   }
 
-  if (result.filter(val => !val).length === 0) {
+  if (result.filter((val) => !val).length === 0) {
     return true;
-  } 
+  }
 
   return false;
-}
+};
 
 export const loadMapApi = (apiKey: string, locale?: string) => {
   if (!apiKey) {
-    return "";
+    return '';
   }
 
-  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places&language=${locale || 'en'}&v=quarterly`;
+  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places&language=${locale ||
+    'en'}&v=quarterly`;
   const scripts: any = document.getElementsByTagName('script');
   // Go through existing script tags, and return google maps api tag when found.
   for (const script of scripts) {
-      if (script.src.indexOf(mapsURL) === 0) {
-          return script;
-      }
+    if (script.src.indexOf(mapsURL) === 0) {
+      return script;
+    }
   }
 
   const googleMapScript = document.createElement('script');

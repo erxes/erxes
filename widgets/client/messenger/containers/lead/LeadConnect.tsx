@@ -1,14 +1,16 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import client from "../../../apollo-client";
-import { formConnectMutation } from "../../../form/graphql";
-import { __, requestBrowserInfo } from "../../../utils";
-import { connection } from "../../connection";
-import LeadContent from "./LeadContent";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import client from '../../../apollo-client';
+import { formConnectMutation } from '../../../form/graphql';
+import { __, checkRules, requestBrowserInfo } from '../../../utils';
+import { connection } from '../../connection';
+import LeadContent from './LeadContent';
+import IntegrationItem from '../../components/IntegrationItem';
 
 interface IState {
   loading: boolean;
   hasError: boolean;
+  browserInfo?: any;
 }
 
 type Props = {
@@ -25,10 +27,11 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
   saveBrowserInfo() {
     requestBrowserInfo({
-      source: "fromMessenger",
-      callback: browserInfo => {
+      source: 'fromMessenger',
+      callback: (browserInfo) => {
         connection.browserInfo = browserInfo;
-      }
+        this.setState({ browserInfo });
+      },
     });
   }
 
@@ -40,20 +43,20 @@ class LeadConnect extends React.PureComponent<Props, IState> {
         mutation: gql(formConnectMutation),
         variables: {
           brandCode,
-          formCode
-        }
+          formCode,
+        },
       })
       .then(({ data = { widgetsLeadConnect: {} } }) => {
         if (!data) {
           this.setState({ hasError: true });
-          return
+          return;
         }
 
         const response = data.widgetsLeadConnect;
 
         if (!response) {
           this.setState({ hasError: true });
-          throw new Error("Integration not found");
+          throw new Error('Integration not found');
         }
 
         // save connection info
@@ -72,14 +75,36 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
   render() {
     if (this.state.hasError) {
-      return <h4>{__("Failed")}</h4>;
+      return <h4>{__('Failed')}</h4>;
     }
 
     if (this.state.loading) {
       return <div className="loader" />;
     }
 
-    return <LeadContent formCode={this.props.formCode} />;
+    if (!this.state.browserInfo) {
+      return null;
+    }
+
+    const leadData = connection.leadData[this.props.formCode];
+
+    const { integration } = leadData;
+
+    // check rules ======
+    const isPassedAllRules = checkRules(
+      integration.leadData.rules || [],
+      this.state.browserInfo
+    );
+
+    if (!isPassedAllRules) {
+      return null;
+    }
+
+    return (
+      <IntegrationItem>
+        <LeadContent formCode={this.props.formCode} />;
+      </IntegrationItem>
+    );
   }
 }
 
