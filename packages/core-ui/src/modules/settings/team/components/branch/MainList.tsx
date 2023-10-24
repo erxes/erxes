@@ -171,6 +171,7 @@ class MainList extends React.Component<Props, State> {
               content={({ closeModal }) => (
                 <Form
                   item={branch}
+                  queryType="branches"
                   closeModal={closeModal}
                   additionalRefetchQueries={this.refetchQueries()}
                 />

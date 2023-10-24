@@ -147,7 +147,7 @@ class MainList extends React.Component<Props, State> {
               key={unit._id}
               title="Edit Unit"
               content={({ closeModal }) => (
-                <Form closeModal={closeModal} item={unit} />
+                <Form closeModal={closeModal} item={unit} queryType="units" />
               )}
               trigger={trigger}
             />
