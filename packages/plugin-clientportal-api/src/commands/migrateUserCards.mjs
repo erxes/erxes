@@ -16,6 +16,7 @@ const client = new MongoClient(MONGO_URL, { useUnifiedTopology: true });
 let db;
 
 let Cards;
+let ClientPortals;
 
 const command = async () => {
     try {
@@ -24,6 +25,9 @@ const command = async () => {
         db = client.db();
 
         Cards = db.collection('client_portal_user_cards');
+        ClientPortals = db.collection('client_portals');
+
+        await ClientPortals.updateMany({}, { $set: { kind: 'client' } });
 
         const cards = await Cards.find({}).toArray();
 
