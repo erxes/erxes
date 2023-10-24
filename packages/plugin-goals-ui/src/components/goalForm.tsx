@@ -14,7 +14,7 @@ import {
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { IGoalType, IGoalTypeDoc, IAssignmentCampaign } from '../types';
+import { IGoal, IGoalTypeDoc, IAssignmentCampaign } from '../types';
 import { ENTITY, CONTRIBUTION, FREQUENCY, GOAL_TYPE } from '../constants';
 import React from 'react';
 import { __ } from 'coreui/utils';
@@ -31,10 +31,10 @@ import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
 import styled from 'styled-components';
-
+import { TabTitle, Tabs as MainTabs, Table } from '@erxes/ui/src';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  goalType: IGoalType;
+  goal: IGoal;
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
   assignmentCampaign?: IAssignmentCampaign;
@@ -76,29 +76,54 @@ const Actions = styled.div`
   justify-content: flex-end;
   margin-top: 10px;
 `;
+function Tabs({ tabs }: ITabs) {
+  const [tabIndex, setTabIndex] = React.useState(0);
+
+  return (
+    <>
+      <MainTabs grayBorder>
+        {tabs.map((tab, index) => (
+          <TabTitle
+            style={{
+              backgroundColor: index === tabIndex && 'rgba(128,128,128,0.2)'
+            }}
+            key={`tab${tab.label}`}
+            onClick={() => setTabIndex(index)}
+          >
+            {tab.label}
+          </TabTitle>
+        ))}
+      </MainTabs>
+
+      <div style={{ width: '100%', marginTop: 20 }}>
+        {tabs?.[tabIndex]?.component}
+      </div>
+    </>
+  );
+}
+
 class GoalTypeForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    // specificPeriodGoals: [],
 
-    const { goalType = {} } = props;
+    const { goal = {} } = props;
     this.state = {
-      specificPeriodGoals: goalType.specificPeriodGoals || [],
-      stageRadio: goalType.stageRadio,
-      segmentRadio: goalType.segmentRadio,
-      contribution: goalType.contribution,
-      pipelineLabels: goalType.pipelineLabels,
-      entity: goalType.entity || '',
-      contributionType: goalType.contributionType || '',
-      frequency: goalType.frequency || '',
-      goalType: goalType.goalType || '',
-      metric: goalType.metric || '',
-      period: goalType.period,
-      startDate: goalType.startDate || new Date(),
-      endDate: goalType.endDate || new Date(),
-      stageId: goalType.stageId,
-      pipelineId: goalType.pipelineId,
-      boardId: goalType.boardId,
+      specificPeriodGoals: goal.specificPeriodGoals || [],
+      stageRadio: goal.stageRadio,
+      segmentRadio: goal.segmentRadio,
+      contribution: goal.contribution,
+      pipelineLabels: goal.pipelineLabels,
+      entity: goal.entity || '',
+      contributionType: goal.contributionType || '',
+      frequency: goal.frequency || '',
+      goalType: goal.goalType || '',
+      metric: goal.metric || '',
+      period: goal.period,
+      startDate: goal.startDate || new Date(),
+      endDate: goal.endDate || new Date(),
+      stageId: goal.stageId,
+      pipelineId: goal.pipelineId,
+      boardId: goal.boardId,
       assignmentCampaign: this.props.assignmentCampaign || {}
     };
   }
@@ -186,7 +211,7 @@ class GoalTypeForm extends React.Component<Props, State> {
    * @returns An object representing the generated document.
    */
   generateDoc = (values: { _id: string } & IGoalTypeDoc) => {
-    const { goalType } = this.props;
+    const { goal } = this.props;
     const {
       startDate,
       endDate,
@@ -202,8 +227,8 @@ class GoalTypeForm extends React.Component<Props, State> {
     const finalValues = values;
     //// assignmentCampaign segment
     const { assignmentCampaign } = this.state;
-    if (goalType) {
-      finalValues._id = goalType._id;
+    if (goal) {
+      finalValues._id = goal._id;
     }
     const durationStart = dayjs(startDate).format('MMM D, h:mm A');
     const durationEnd = dayjs(endDate).format('MMM D, h:mm A');
@@ -263,24 +288,78 @@ class GoalTypeForm extends React.Component<Props, State> {
     });
   };
 
-  renderNext = () => {
-    return (
-      <>
-        <ScrollWrapper>
-          <FormWrapper>
-            <ControlLabel required={true}>{__('choose Entity')}</ControlLabel>
-          </FormWrapper>
-        </ScrollWrapper>
-      </>
-    );
-  };
-
   renderButton = () => {
     return <Form renderContent={this.renderContent} />;
   };
 
+  renderGraphic = (formProps: IFormProps) => {
+    const goal = this.props.goal || ({} as IGoal);
+    const { closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
+
+    return (
+      <>
+        <h2>{'Add notifications to goal'}</h2>
+        <ScrollWrapper>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Goal Started')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  componentClass="checkbox" // Use 'input' for checkboxes
+                  name="stageRadio"
+                  checked={this.state.stageRadio}
+                  onChange={this.onChangeField}
+                  inline={true}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Goal Archieved')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  componentClass="checkbox" // Use 'input' for checkboxes
+                  name="stageRadio"
+                  checked={this.state.stageRadio}
+                  onChange={this.onChangeField}
+                  inline={true}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel required={true}>{__('Goal Missed')}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  componentClass="checkbox" // Use 'input' for checkboxes
+                  name="stageRadio"
+                  checked={this.state.stageRadio}
+                  onChange={this.onChangeField}
+                  inline={true}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+        </ScrollWrapper>
+        {/* <ModalFooter>
+          <Button btnStyle='simple' onClick={closeModal} icon='cancel-1'>
+            {__('Close')}
+          </Button>
+          {renderButton({
+            name: 'goal',
+            values: this.generateDoc(values),
+            isSubmitted,
+            object: this.props.goal
+          })}
+        </ModalFooter> */}
+      </>
+    );
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const goalType = this.props.goalType || ({} as IGoalType);
+    const goal = this.props.goal || ({} as IGoal);
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const { contribution } = this.state;
@@ -482,7 +561,7 @@ class GoalTypeForm extends React.Component<Props, State> {
                   ...formProps,
                   name: 'target',
                   type: 'number',
-                  defaultValue: goalType.target || 0
+                  defaultValue: goal.target || 0
                 })}
               </FormGroup>
               <FormGroup>
@@ -546,21 +625,32 @@ class GoalTypeForm extends React.Component<Props, State> {
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             {__('Close')}
           </Button>
-          <Button onClick={this.renderNext} icon="rightarrow">
-            {__('Next')}
-          </Button>
           {renderButton({
-            name: 'goalType',
+            name: 'goal',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.goalType
+            object: this.props.goal
           })}
         </ModalFooter>
       </>
     );
   };
+
   render() {
-    return <Form renderContent={this.renderContent} />;
+    return (
+      <Tabs
+        tabs={[
+          {
+            label: 'GOAL',
+            component: <Form renderContent={this.renderContent} />
+          },
+          {
+            label: 'NOTIFICATIONS',
+            component: <Form renderContent={this.renderGraphic} />
+          }
+        ]}
+      />
+    );
   }
 }
 

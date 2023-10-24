@@ -1,16 +1,16 @@
-import { ButtonMutate, withProps } from '@erxes/ui/src';
+import { Button, ButtonMutate, withProps } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import GoalTypeForm from '../components/goalTypeForm';
+import GoalTypeForm from '../components/goalForm';
 import { mutations, queries } from '../graphql';
-import { IGoalType } from '../types';
+import { IGoal } from '../types';
 import { __ } from 'coreui/utils';
 
 type Props = {
-  goalType: IGoalType;
+  goal: IGoal;
   getAssociatedGoalType?: (insuranceTypeId: string) => void;
   closeModal: () => void;
 };

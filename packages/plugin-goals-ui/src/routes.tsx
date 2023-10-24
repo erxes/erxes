@@ -16,12 +16,12 @@ const goalTypesLists = ({ location, history }) => {
   );
 };
 
-const LoanRoutes = () => {
+const GoalRoutes = () => {
   return (
     <React.Fragment>
-      <Route path="/erxes-plugin-goal/goal-types" component={goalTypesLists} />
+      <Route path="/erxes-plugin-goal/goal" component={goalTypesLists} />
     </React.Fragment>
   );
 };
 
-export default LoanRoutes;
+export default GoalRoutes;

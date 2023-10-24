@@ -72,7 +72,6 @@ const goalMutations = {
     { goalTypeIds }: { goalTypeIds: string[] },
     { models, user, subdomain }: IContext
   ) {
-    console.log(goalTypeIds, 'goalTypeIds');
     await models.Goals.removeGoal(goalTypeIds);
 
     return goalTypeIds;

@@ -16,21 +16,21 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
-import GoalTypeForm from '../containers/goalTypeForm';
+import GoalTypeForm from '../containers/goalForm';
 import { GoalTypesTableWrapper } from '../styles';
-import { IGoalType } from '../types';
-import GoalTypeRow from './goalTypeRow';
+import { IGoal } from '../types';
+import GoalRow from './goalRow';
 import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
 import { IBoard, IPipeline, IStage } from '../types';
 interface IProps extends IRouterProps {
-  goalTypes: IGoalType[];
+  goalTypes: IGoal[];
   loading: boolean;
   searchValue: string;
   totalCount: number;
   // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
-  toggleAll: (targets: IGoalType[], containerId: string) => void;
+  toggleAll: (targets: IGoal[], containerId: string) => void;
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
@@ -80,8 +80,8 @@ class GoalTypesList extends React.Component<IProps, State> {
   removeGoalTypes = goalTypes => {
     const goalTypeIds: string[] = [];
 
-    goalTypes.forEach(goalType => {
-      goalTypeIds.push(goalType._id);
+    goalTypes.forEach(goal => {
+      goalTypeIds.push(goal._id);
     });
 
     this.props.removeGoalTypes({ goalTypeIds }, this.props.emptyBulk);
@@ -123,7 +123,7 @@ class GoalTypesList extends React.Component<IProps, State> {
               <th>{__('contributionType')}</th>
               <th>{__('frequency')}</th>
               <th>{__('metric')}</th>
-              <th>{__('goalType')}</th>
+              <th>{__('goal')}</th>
               <th>{__('contribution')}</th>
               <th>{__('startDate')}</th>
               <th>{__('endDate')}</th>
@@ -134,11 +134,11 @@ class GoalTypesList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="goalTypes">
-            {goalTypes.map(goalType => (
-              <GoalTypeRow
-                goalType={goalType}
-                isChecked={bulk.includes(goalType)}
-                key={goalType._id}
+            {goalTypes.map(goal => (
+              <GoalRow
+                goal={goal}
+                isChecked={bulk.includes(goal)}
+                key={goal._id}
                 history={history}
                 toggleBulk={toggleBulk}
               />
@@ -229,7 +229,7 @@ class GoalTypesList extends React.Component<IProps, State> {
             data={mainContent}
             loading={loading}
             count={goalTypes.length}
-            emptyText="Add in your first goalType!"
+            emptyText="Add in your first goal!"
             emptyImage="/images/actions/1.svg"
           />
         }

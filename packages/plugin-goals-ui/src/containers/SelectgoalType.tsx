@@ -3,16 +3,16 @@ import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 
 import { queries } from '../graphql';
-import { IGoalType } from '../types';
+import { IGoal } from '../types';
 
-// get goalType options for react-select-plus
-export function generateGoalTypeOptions(array: IGoalType[] = []): IOption[] {
+// get goal options for react-select-plus
+export function generateGoalTypeOptions(array: IGoal[] = []): IOption[] {
   return array.map(item => {
-    const goalType = item || ({} as IGoalType);
+    const goal = item || ({} as IGoal);
 
     return {
-      value: goalType._id,
-      label: `${goalType.entity || ''}`
+      value: goal._id,
+      label: `${goal.entity || ''}`
     };
   });
 }

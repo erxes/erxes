@@ -88,9 +88,10 @@ const goalQueries = {
   /**
    * Get one goal
    */
-  goalDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    console.log(_id, 'id');
-    return models.Goals.findOne({ _id });
+  async goalDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    const data = await models.Goals.findOne({ _id }).lean();
+    // return await models.Goals.findOne({ _id });
+    console.log(data, 'data');
   }
 };
 

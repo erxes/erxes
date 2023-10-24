@@ -13,7 +13,7 @@ module.exports = {
   menus: [
     {
       text: 'Goals',
-      to: '/erxes-plugin-goal/goal-types',
+      to: '/erxes-plugin-goal/goal',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
       scope: 'goal'

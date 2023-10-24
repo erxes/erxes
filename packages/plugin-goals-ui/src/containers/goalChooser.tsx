@@ -8,10 +8,10 @@ import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
   GoalTypesQueryResponse,
-  IGoalType,
+  IGoal,
   IGoalTypeDoc
 } from '../types';
-import GoalTypeForm from './goalTypeForm';
+import GoalTypeForm from './goalForm';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -26,7 +26,7 @@ type FinalProps = {
 
 class GoalTypeChooser extends React.Component<
   WrapperProps & FinalProps,
-  { newGoalType?: IGoalType }
+  { newGoalType?: IGoal }
 > {
   constructor(props) {
     super(props);
@@ -43,11 +43,11 @@ class GoalTypeChooser extends React.Component<
   render() {
     const { data, goalTypesQuery, search } = this.props;
 
-    const renderName = goalType => {
-      return `${goalType.entity} - ${goalType.contributionType} `;
+    const renderName = goal => {
+      return `${goal.entity} - ${goal.contributionType} `;
     };
 
-    const getAssociatedGoalType = (newGoalType: IGoalType) => {
+    const getAssociatedGoalType = (newGoalType: IGoal) => {
       this.setState({ newGoalType });
     };
 
@@ -59,7 +59,7 @@ class GoalTypeChooser extends React.Component<
         datas: data.goalTypes,
         mainTypeId: data.mainTypeId,
         mainType: data.mainType,
-        relType: 'goalType'
+        relType: 'goal'
       },
       search,
       clearState: () => search(''),
@@ -118,12 +118,12 @@ type WrapperProps = {
   data: {
     _id?: string;
     name: string;
-    goalTypes: IGoalType[];
+    goalTypes: IGoal[];
     mainTypeId?: string;
     mainType?: string;
     isRelated?: boolean;
   };
-  onSelect: (datas: IGoalType[]) => void;
+  onSelect: (datas: IGoal[]) => void;
   closeModal: () => void;
 };
 

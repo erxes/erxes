@@ -7,12 +7,12 @@ export interface IGoalModel extends Model<IGoalDocument> {
   createGoal(doc: IGoal): Promise<IGoalDocument>;
   updateGoal(_id: string, doc: IGoal): Promise<IGoalDocument>;
   removeGoal(_ids: string[]);
+  progressGoal(_id: string);
 }
 
 export const loadGoalClass = (models: IModels) => {
   class Goal {
     public static async createGoal(doc: IGoal, createdUserId: string) {
-      console.log(doc, 'doc');
       return models.Goals.create({
         ...doc,
         createdDate: new Date(),
@@ -47,6 +47,7 @@ export const loadGoalClass = (models: IModels) => {
       // }
       // return models.Goals.remove({ _id });
     }
+    public static prog;
   }
 
   goalSchema.loadClass(Goal);
