@@ -1,12 +1,10 @@
-import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-import { FilterSpinner } from '../../styles/main';
 
 const ChipText = (props: any) => {
   const { query } = props;
 
   if (query.loading) {
-    return <FilterSpinner />;
+    return '-';
   }
 
   const brand = query.brandDetail;

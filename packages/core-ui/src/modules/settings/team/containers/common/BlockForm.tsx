@@ -1,12 +1,15 @@
-import React from 'react';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import BranchForm from '../../components/common/Form';
 import { mutations, queries } from '@erxes/ui/src/team/graphql';
+
+import BranchForm from '../../components/branch/Form';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import DepartmentForm from '../../components/department/Form';
+import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import UnitForm from '../../containers/unit/Form';
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 
 type Props = {
   item?: any;
@@ -15,12 +18,15 @@ type Props = {
   queryType?: any;
 };
 
-const FormContainer = (props: Props) => {
-  const { queryType, item } = props;
+const FormContainer = ({
+  queryType,
+  item,
+  additionalRefetchQueries,
+  closeModal
+}: Props) => {
   const { data, error, loading } = useQuery(gql(queries[queryType]), {
     fetchPolicy: 'network-only'
   });
-  const { data: departmentsData } = useQuery(gql(queries['departments'])); // Moved outside of conditional
 
   if (loading) {
     return <Spinner />;
@@ -52,7 +58,7 @@ const FormContainer = (props: Props) => {
               searchValue: undefined
             }
           },
-          ...(props.additionalRefetchQueries || [])
+          ...(additionalRefetchQueries || [])
         ]}
         variables={values}
         isSubmitted={isSubmitted}
@@ -65,29 +71,43 @@ const FormContainer = (props: Props) => {
     );
   };
 
-  let departments = [];
-
-  if (queryType === 'units') {
-    departments =
-      departmentsData && departmentsData['departments']
-        ? departmentsData['departments']
-        : [];
-  }
-
   const items = item
     ? data[queryType].filter(d => d._id !== item._id)
     : data[queryType];
 
-  return (
-    <BranchForm
-      items={items}
-      item={item}
-      {...props}
-      renderButton={renderButton}
-      type={queryType}
-      departments={departments}
-    />
-  );
+  if (queryType === 'units') {
+    return (
+      <UnitForm
+        item={item}
+        closeModal={closeModal}
+        renderButton={renderButton}
+      />
+    );
+  }
+
+  if (queryType === 'departments') {
+    return (
+      <DepartmentForm
+        item={item}
+        items={items}
+        closeModal={closeModal}
+        renderButton={renderButton}
+      />
+    );
+  }
+
+  if (queryType === 'branches') {
+    return (
+      <BranchForm
+        item={item}
+        items={items}
+        closeModal={closeModal}
+        renderButton={renderButton}
+      />
+    );
+  }
+
+  return null;
 };
 
 export default FormContainer;

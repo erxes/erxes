@@ -1,63 +1,77 @@
+import BlockForm from '../../containers/common/BlockForm';
 import Box from '@erxes/ui/src/components/Box';
+import Button from 'modules/common/components/Button';
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import Icon from 'modules/common/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import { Icon } from '@erxes/ui/src/components';
 
 type Props = {
   allDatas: any[];
   title: string;
-  renderForm: ({
+  removeItem: (_id: string) => void;
+  queryParams: string;
+  queryType: string;
+  listQuery: any;
+};
+
+export default function BlockList(props: Props) {
+  const { allDatas, title, queryParams, queryType, removeItem } = props;
+
+  const renderRemoveAction = item => {
+    return (
+      <Button btnStyle="link" onClick={() => removeItem(item._id)}>
+        <Tip text={'Remove'} placement="bottom">
+          <Icon icon="cancel-1" />
+        </Tip>
+      </Button>
+    );
+  };
+
+  const renderForm = ({
     closeModal,
     item
   }: {
     closeModal: () => void;
-    item?: string;
-  }) => React.ReactNode;
-  queryParams: string;
-  queryType: string;
-  removeAction?;
-  editAction?;
-};
+    item?: any;
+  }): React.ReactNode => {
+    return (
+      <BlockForm item={item} closeModal={closeModal} queryType={queryType} />
+    );
+  };
 
-export default function BlockList(props: Props) {
-  const {
-    allDatas,
-    title,
-    renderForm,
-    queryParams,
-    removeAction,
-    editAction
-  } = props;
+  const renderEditAction = item => (
+    <ModalTrigger
+      content={({ closeModal }) => renderForm({ closeModal, item })}
+      title={`Edit ${title}`}
+      trigger={editTrigger}
+    />
+  );
 
-  const trigger = (
+  const extreBtnTrigger = (
     <a href="#settings" tabIndex={0}>
       <Icon icon="plus-circle" />
     </a>
   );
 
-  const linkToText = title.toLocaleLowerCase();
-
-  const renderItems = (
-    <CollapsibleList
-      items={allDatas}
-      linkToText={`?${linkToText}Id=`}
-      queryParams={queryParams}
-      queryParamName={`${linkToText}Id`}
-      isTeam={true}
-      treeView={true}
-      editAction={editAction}
-      removeAction={removeAction}
-    />
+  const editTrigger = (
+    <Button btnStyle="link">
+      <Tip text={'Edit'} placement="bottom">
+        <Icon icon="edit" />
+      </Tip>
+    </Button>
   );
+
+  const linkToText = title.toLocaleLowerCase();
 
   const extraButtons = (
     <ModalTrigger
       content={({ closeModal }) => renderForm({ closeModal })}
       title={`Add a ${title}`}
-      trigger={trigger}
+      trigger={extreBtnTrigger}
     />
   );
 
@@ -70,7 +84,16 @@ export default function BlockList(props: Props) {
       collapsible={allDatas.length > 6}
     >
       <SidebarList noTextColor={true} noBackground={true}>
-        {renderItems}
+        <CollapsibleList
+          items={allDatas}
+          linkToText={`?${linkToText}Id=`}
+          queryParams={queryParams}
+          queryParamName={`${linkToText}Id`}
+          isTeam={true}
+          treeView={true}
+          editAction={renderEditAction}
+          removeAction={renderRemoveAction}
+        />
       </SidebarList>
     </Box>
   );

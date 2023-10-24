@@ -1,5 +1,5 @@
 import { colors, dimensions, typography } from '../styles';
-import styled, { css, keyframes } from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { rgba } from '../styles/ecolor';
 import styledTS from 'styled-components-ts';
@@ -502,25 +502,6 @@ const TextWrapper = styled.div`
   }
 `;
 
-const rotation = keyframes`
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-`;
-
-const FilterSpinner = styled.div`
-  width: 18px;
-  height: 18px;
-  border: 2px solid #8998d9;
-
-  border-radius: 50%;
-  margin: 0px 25px 0px 25px
-  animation: ${rotation} 1s linear infinite;
-`;
-
 export {
   Actions,
   PopoverButton,
@@ -563,6 +544,5 @@ export {
   Pin,
   MapContainer,
   ImageWrapper,
-  TextWrapper,
-  FilterSpinner
+  TextWrapper
 };
