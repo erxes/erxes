@@ -39,3 +39,19 @@ export const hasAnyActivity = log => {
 
   return hasAny;
 };
+
+export const getCPUserName = (user: any) => {
+  if (!user) {
+    return null;
+  }
+
+  if (user.firstName || user.lastName) {
+    return user.firstName + ' ' + user.lastName;
+  }
+
+  if (user.email || user.username || user.phone) {
+    return user.email || user.username || user.phone;
+  }
+
+  return 'Unknown';
+};

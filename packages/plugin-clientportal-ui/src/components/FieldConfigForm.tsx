@@ -65,9 +65,9 @@ function FieldConfigForm(props: Props) {
 
   return (
     <>
-      <CollapseContent title={__('Client portal config')} compact={true}>
+      <CollapseContent title={__('Business portal config')} compact={true}>
         <FormGroup>
-          <ControlLabel>{__('Allowed Client Portals')}</ControlLabel>
+          <ControlLabel>{__('Allowed Business Portals')}</ControlLabel>
           <p>{__('Please select client portals that can use this field.')}</p>
           <Select
             options={options(props.clientPortals)}

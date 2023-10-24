@@ -314,7 +314,7 @@ class CustomerForm extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           <FormGroup>
-            <ControlLabel>Client Portal User Type</ControlLabel>
+            <ControlLabel>Business Portal User Type</ControlLabel>
             <FormControl
               {...formProps}
               name="type"

@@ -33,6 +33,14 @@ function ClientPortalList({
   history,
   queryParams
 }: Props) {
+  const title = history.location.pathname.includes('vendor')
+    ? 'Vendor Portal'
+    : 'Client Portal';
+
+  const kind = history.location.pathname.includes('vendor')
+    ? 'vendor'
+    : 'client';
+
   const renderRow = () => {
     return configs.map(config => {
       const onRemove = () => {
@@ -68,7 +76,7 @@ function ClientPortalList({
         uppercase={false}
         icon="plus-circle"
       >
-        Add New Client Portal
+        {`Add New ${title}`}
       </Button>
     );
 
@@ -77,6 +85,7 @@ function ClientPortalList({
         {...props}
         queryParams=""
         history={history}
+        kind={kind}
       />
     );
 
@@ -84,7 +93,7 @@ function ClientPortalList({
       <TopHeader>
         <ModalTrigger
           size="xl"
-          title="New Client Portal"
+          title={`New ${title}`}
           trigger={addBrand}
           enforceFocus={false}
           content={content}
@@ -103,7 +112,7 @@ function ClientPortalList({
       {!loading && totalCount === 0 && (
         <EmptyState
           image="/images/actions/18.svg"
-          text="There is no client portal"
+          text={`There is no ${title}`}
         />
       )}
     </LeftSidebar>

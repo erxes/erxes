@@ -13,14 +13,13 @@ import { ClientPortalConfig, ClientPortalConfigQueryResponse } from '../types';
 type Props = {
   queryParams: any;
   history: any;
+  kind: 'client' | 'vendor';
   closeModal?: () => void;
 };
 
-function ClientPortalDetailContainer({
-  queryParams,
-  history,
-  closeModal
-}: Props) {
+function ClientPortalDetailContainer(props: Props) {
+  const { queryParams, history, kind, closeModal } = props;
+  console.log('@###### ', kind);
   const { loading, data = {} } = useQuery<ClientPortalConfigQueryResponse>(
     gql(queries.getConfig),
     {
@@ -30,7 +29,7 @@ function ClientPortalDetailContainer({
   );
 
   const [mutate] = useMutation(gql(mutations.createOrUpdateConfig), {
-    refetchQueries: [{ query: gql(queries.getConfigs) }]
+    refetchQueries: [{ query: gql(queries.getConfigs), variables: { kind } }]
   });
 
   if (loading) {
@@ -38,7 +37,10 @@ function ClientPortalDetailContainer({
   }
 
   const handleUpdate = (doc: ClientPortalConfig) => {
-    mutate({ variables: { _id: queryParams._id, ...doc } })
+    const config: any = { _id: queryParams._id, kind, ...doc };
+    delete config.__typename;
+
+    mutate({ variables: { config } })
       .then((response = {}) => {
         const { clientPortalConfigUpdate = {} } = response.data || {};
 
@@ -46,7 +48,7 @@ function ClientPortalDetailContainer({
           routerUtils.setParams(history, { _id: clientPortalConfigUpdate._id });
         }
 
-        Alert.success('Successfully updated the Client portal config');
+        Alert.success('Successfully updated the Business portal config');
 
         if (closeModal) {
           closeModal();
@@ -56,10 +58,11 @@ function ClientPortalDetailContainer({
   };
 
   const updatedProps = {
+    ...props,
     queryParams,
     history,
     loading,
-    config: data.clientPortalGetConfig || {},
+    config: data.clientPortalGetConfig || { tokenPassMethod: 'cookie' },
     handleUpdate
   };
 
