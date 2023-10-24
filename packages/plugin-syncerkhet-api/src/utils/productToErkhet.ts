@@ -1,5 +1,5 @@
 import { sendProductsMessage } from '../messageBroker';
-import { getConfig, toErkhet } from './utils';
+import { toErkhet } from './utils';
 
 export const productCategoryToErkhet = async (
   subdomain,

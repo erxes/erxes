@@ -23,6 +23,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   const syncLogDoc = {
     type: '',
+    brandId: '',
     contentType: type,
     contentId: params.object._id,
     createdAt: new Date(),
