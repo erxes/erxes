@@ -3,12 +3,15 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
-
+import PortableItems from '@erxes/ui-cards/src/boards/components/portable/Items';
 import { List } from '../../styles';
 import { IClientPortalUser } from '../../types';
+import options from '@erxes/ui-cards/src/tickets/options';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
+  cards: any[];
+  cardType: string;
 };
 
 export default class RightSidebar extends React.Component<Props> {
@@ -16,7 +19,7 @@ export default class RightSidebar extends React.Component<Props> {
     const { clientPortalUser } = this.props;
 
     return (
-      <Sidebar>
+      <Sidebar wide={true}>
         <Box title={__('Other')} name="showOthers">
           <List>
             <li>
@@ -29,6 +32,17 @@ export default class RightSidebar extends React.Component<Props> {
             </li>
           </List>
         </Box>
+
+        <PortableItems
+          data={{
+            options: { ...options, title: 'test' }
+          }}
+          hideQuickButtons={true}
+          items={[]}
+          onChangeItem={() => {
+            console.log('onChangeItem');
+          }}
+        />
       </Sidebar>
     );
   }

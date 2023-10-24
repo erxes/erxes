@@ -74,6 +74,7 @@ export interface IClientPortalUser extends IClientPortalUserDoc {
   createdAt: Date;
   modifiedAt: Date;
   forumSubscriptionEndsAfter?: string;
+  clientPortal: ClientPortalConfig;
 }
 
 export type ClientPortalUsersQueryResponse = {
@@ -166,6 +167,7 @@ export type ClientPortalConfig = {
   tokenExpiration?: number;
   refreshTokenExpiration?: number;
   tokenPassMethod: 'cookie' | 'header';
+  vendorParentProductCategoryId?: string;
 };
 
 export type Styles = {

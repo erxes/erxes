@@ -168,7 +168,6 @@ export const clientPortalUserSchema = new Schema({
     label: 'Company registration number'
   }),
   clientPortalId: field({ type: String, required: true }),
-
   erxesCompanyId: field({ type: String, optional: true }),
   erxesCustomerId: field({ type: String, optional: true }),
   phoneVerificationCode: field({ type: String, optional: true }),
