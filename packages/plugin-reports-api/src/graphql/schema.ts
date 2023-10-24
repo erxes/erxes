@@ -1,12 +1,19 @@
 export const types = `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type Report {
     _id: String!
     name: String
     visibility: VisibilityType
     memberIds: [String]
     tagIds: [String]
-    createdAt:Date
     charts: [Chart]
+    
+    lastUpdatedAt:Date
+    createdAt:Date
+    createdBy: User
   }
 
   enum VisibilityType {
@@ -44,7 +51,7 @@ export const types = `
   }
 
   type ReportsListResponse {
-    reports: [Report]
+    list: [Report]
     totalCount: Int
   }
 
@@ -54,11 +61,15 @@ export const types = `
   }
 `;
 
+const query_params = `
+  userId: String`;
+
 export const queries = `
-  reportsList(typeId: String): ReportsListResponse
+  reportsList(${query_params}): ReportsListResponse
   reportDetail(reportId: String!): Report
   chartsList: ChartsListResponse
   chartDetail(chartId: String!): Chart
+  reportChartGetResult(chartId: String!): Chart
 `;
 
 export const params = `

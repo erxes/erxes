@@ -10,7 +10,7 @@ import { buildFile } from './exporterByUrl';
 import segments from './segments';
 import forms from './forms';
 import logs from './logUtils';
-import { generateModels } from './connectionResolver';
+import { generateModels, models } from './connectionResolver';
 import imports from './imports';
 import internalNotes from './internalNotes';
 import automations from './automations';
@@ -30,6 +30,30 @@ export let serviceDiscovery;
 
 export let debug;
 
+const templates = [
+  {
+    templateType: 'test',
+    name: 'test',
+    getChartResult: filter => {
+      return models?.Deals.find(filter);
+    },
+    filterTypes: [
+      {
+        fieldName: 'userId',
+        fieldType: 'string',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabels: 'Select assignedUser'
+      },
+      {
+        fieldName: 'name',
+        fieldType: 'string',
+        fieldLabels: 'Deal name'
+      }
+    ]
+  }
+];
+
 export default {
   name: 'cards',
   permissions,
@@ -45,6 +69,16 @@ export default {
   hasDashboard: true,
 
   meta: {
+    reports: {
+      templates,
+      getChartResult: (templateType: string, filter: any) => {
+        const template =
+          templates.find(t => t.templateType === templateType) || ({} as any);
+
+        return template.getChartResult(filter);
+      }
+    },
+
     cronjobs,
     forms,
     logs: { providesActivityLog: true, consumers: logs },
