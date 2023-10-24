@@ -4,7 +4,7 @@ import { generateFields } from './utils';
 export default {
   types: [
     {
-      description: 'Client Portal User',
+      description: 'Business Portal User',
       type: 'user'
     }
   ],

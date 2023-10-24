@@ -341,7 +341,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
     }
 
     /**
-     * Remove remove Client Portal Users
+     * Remove remove Business Portal Users
      */
     public static async removeUser(
       subdomain: string,
