@@ -7,11 +7,10 @@ import PortableItems from '@erxes/ui-cards/src/boards/components/portable/Items'
 import { List } from '../../styles';
 import { IClientPortalUser } from '../../types';
 import options from '@erxes/ui-cards/src/tickets/options';
+import CardItems from '../../containers/CardItems';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
-  cards: any[];
-  cardType: string;
 };
 
 export default class RightSidebar extends React.Component<Props> {
@@ -33,16 +32,10 @@ export default class RightSidebar extends React.Component<Props> {
           </List>
         </Box>
 
-        <PortableItems
-          data={{
-            options: { ...options, title: 'test' }
-          }}
-          hideQuickButtons={true}
-          items={[]}
-          onChangeItem={() => {
-            console.log('onChangeItem');
-          }}
-        />
+        <CardItems userId={clientPortalUser._id} type="ticket" />
+        <CardItems userId={clientPortalUser._id} type="deal" />
+        <CardItems userId={clientPortalUser._id} type="task" />
+        <CardItems userId={clientPortalUser._id} type="purchase" />
       </Sidebar>
     );
   }
