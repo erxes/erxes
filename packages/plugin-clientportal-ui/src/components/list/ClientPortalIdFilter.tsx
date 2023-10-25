@@ -72,7 +72,7 @@ function ClientPortalUser({
 
   return (
     <Box
-      title={__('Filter by Client Portal')}
+      title={__('Filter by Business Portal')}
       collapsible={clientPortalGetConfigs.length > 5}
       extraButtons={extraButtons}
       name="showFilterByClientPortalId"

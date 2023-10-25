@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import Form from '@erxes/ui/src/components/form/Form';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'modules/common/utils';
+import Form from '@erxes/ui/src/components/form/Form';
 import { IDepartment } from '@erxes/ui/src/team/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  department?: IDepartment;
+  item?: IDepartment;
   closeModal: () => void;
-  departments: IDepartment[];
+  items: IDepartment[];
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, departments } = props;
-  const object = props.department || ({} as any);
+  const { closeModal, renderButton, items, item } = props;
+  const object = item || ({} as IDepartment);
 
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
@@ -62,7 +62,7 @@ export default function DepartmentForm(props: Props) {
     const { values, isSubmitted } = formProps;
 
     const generateOptions = () => {
-      return departments.map(branch => (
+      return items.map(branch => (
         <option key={branch._id} value={branch._id}>
           {branch.title}
         </option>

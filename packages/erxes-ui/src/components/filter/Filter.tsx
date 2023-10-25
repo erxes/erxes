@@ -11,7 +11,7 @@ import { removeParams, setParams } from '../../utils/router';
 
 interface IProps extends IRouterProps {
   queryParams?: any;
-  filterTitle?: string; // Define the prop here
+  filterTitle?: string;
 }
 
 const Filters = styled.div`

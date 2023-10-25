@@ -36,6 +36,7 @@ export interface IPasswordVerificationConfig {
 export interface IClientPortal {
   _id?: string;
   name?: string;
+  kind: 'client' | 'vendor';
   description?: string;
   logo?: string;
   icon?: string;
@@ -89,6 +90,8 @@ export interface IClientPortal {
   dealToggle?: boolean;
   purchaseToggle?: boolean;
   taskToggle?: boolean;
+
+  vendorParentProductCategoryId?: string;
 }
 
 interface IStyles {
@@ -164,6 +167,11 @@ export const clientPortalSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
   description: field({ type: String, optional: true }),
+  kind: field({
+    type: String,
+    enum: ['client', 'vendor'],
+    default: 'client'
+  }),
   url: field({ type: String }),
   logo: field({ type: String, optional: true }),
   icon: field({ type: String, optional: true }),
@@ -261,5 +269,10 @@ export const clientPortalSchema = new Schema({
     default: 'cookie',
     label: 'Token pass method',
     enum: ['cookie', 'header']
+  }),
+
+  vendorParentProductCategoryId: field({
+    type: String,
+    optional: true
   })
 });

@@ -30,17 +30,16 @@ const clientPortalCommentMutations = {
       userId: userId || user._id
     });
 
-    const relatedCard = await models.ClientPortalUserCards.findOne({
-      cardId: typeId
-    });
+    const relatedCards = await models.ClientPortalUserCards.getUserIds(
+      type,
+      typeId
+    );
 
-    if (!relatedCard || userType === 'client') {
+    if (!relatedCards || relatedCards.length === 0 || userType === 'client') {
       return comment;
     }
 
-    const { userIds } = relatedCard;
-
-    for (const cardUserId of userIds) {
+    for (const cardUserId of relatedCards) {
       await sendNotification(models, subdomain, {
         receivers: [cardUserId],
         title: `${user.details?.fullName} has commented on your ${type}.`,

@@ -4,13 +4,13 @@ import {
   FlexCenterContent
 } from '@erxes/ui-log/src/activityLogs/styles';
 
-import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
+import { getCPUserName } from '@erxes/ui-log/src/activityLogs/utils';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
-import dayjs from 'dayjs';
 import { renderUserFullName } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 type Props = {
   activity: any;
@@ -24,14 +24,6 @@ class BoardItemCreatedLog extends React.Component<Props> {
 
     let userName = 'Unknown';
 
-    if (createdByDetail && createdByDetail.type === 'user') {
-      const { content } = createdByDetail;
-
-      if (content && content.details) {
-        userName = renderUserFullName(createdByDetail.content);
-      }
-    }
-
     const body = (
       <Link
         to={`/${contentType}/board?_id=${activity._id}&itemId=${contentDetail._id}`}
@@ -40,6 +32,27 @@ class BoardItemCreatedLog extends React.Component<Props> {
         {contentDetail.name} <Icon icon="arrow-to-right" />
       </Link>
     );
+
+    if (createdByDetail && createdByDetail.type === 'user') {
+      const { content } = createdByDetail;
+
+      if (content && content.details) {
+        userName = renderUserFullName(createdByDetail.content);
+      }
+    }
+
+    if (createdByDetail && createdByDetail.type === 'clientPortalUser') {
+      userName = getCPUserName(createdByDetail.content);
+      const cpUrl = createdByDetail.content.clientPortal.url || '';
+      return (
+        <span>
+          <strong>{userName}</strong> created {body} {contentType} from{' '}
+          <a href={cpUrl} target="_blank">
+            {createdByDetail.content.clientPortal.name || 'client portal'}
+          </a>
+        </span>
+      );
+    }
 
     return (
       <span>
