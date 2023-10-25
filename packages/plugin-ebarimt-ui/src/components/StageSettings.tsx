@@ -1,5 +1,5 @@
 import { Button } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
+import { __, confirm } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
 import { Title } from '@erxes/ui-settings/src/styles';
@@ -57,13 +57,15 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   delete = (currentConfigKey: string) => {
-    const { configsMap } = this.state;
-    delete configsMap.stageInEbarimt[currentConfigKey];
-    delete configsMap.stageInEbarimt['newEbarimtConfig'];
+    confirm('This Action will delete this config are you sure?').then(() => {
+      const { configsMap } = this.state;
+      delete configsMap.stageInEbarimt[currentConfigKey];
+      delete configsMap.stageInEbarimt['newEbarimtConfig'];
 
-    this.setState({ configsMap });
+      this.setState({ configsMap });
 
-    this.props.save(configsMap);
+      this.props.save(configsMap);
+    });
   };
 
   renderConfigs(configs) {
@@ -99,9 +101,9 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.add}
-        icon="plus"
+        icon="plus-circle"
         uppercase={false}
       >
         New config
