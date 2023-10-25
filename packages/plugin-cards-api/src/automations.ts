@@ -337,7 +337,8 @@ export default {
       rules,
       execution,
       relatedItems,
-      sendCommonMessage
+      sendCommonMessage,
+      triggerType
     });
   },
   replacePlaceHolders: async ({
