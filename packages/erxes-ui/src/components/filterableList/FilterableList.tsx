@@ -128,7 +128,6 @@ class FilterableList extends React.Component<Props, State> {
       <>
         {hasChildren && (
           <ToggleIcon
-            isIndented={this.props.isIndented}
             onClick={this.onToggle.bind(this, item._id, isOpen)}
             type="list"
           >
@@ -153,9 +152,9 @@ class FilterableList extends React.Component<Props, State> {
     return (
       <FlexRow key={item._id}>
         <li
-          className={`${showCheckmark ? item.selectedBy : ''}  ${
-            !treeView ? item.itemClassName : !hasChildren && item.itemClassName
-          } ${item.itemActiveClass}`}
+          className={`${showCheckmark ? item.selectedBy : ''}  ${(!treeView ||
+            !hasChildren) &&
+            item.itemClassName} ${item.itemActiveClass}`}
           style={item.style}
           onClick={!hasChildren ? onClick : undefined}
           tabIndex={1}

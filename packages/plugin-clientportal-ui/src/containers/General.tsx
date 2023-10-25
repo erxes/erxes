@@ -62,6 +62,7 @@ function GeneralContainer(props: Props) {
     topics,
     boards,
     pipelines,
+    tokenPassMethod: 'cookie' as 'cookie',
     fetchPipelines
   };
 

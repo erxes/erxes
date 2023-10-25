@@ -318,12 +318,15 @@ async function startServer() {
   // connect to mongo database
   const db = await connect(mongoUrl);
 
-  const messageBrokerClient = await initBroker({
-    RABBITMQ_HOST,
-    MESSAGE_BROKER_PREFIX,
-    redis,
-    app
-  });
+  const messageBrokerClient = await initBroker(
+    {
+      RABBITMQ_HOST,
+      MESSAGE_BROKER_PREFIX,
+      redis,
+      app
+    },
+    configs.reconnectRMQ
+  );
 
   if (configs.permissions) {
     await messageBrokerClient.sendMessage(

@@ -28,9 +28,7 @@ export default class Integrations extends React.PureComponent<Props> {
     }
 
     return formCodes.map((formCode: string) => (
-      <IntegrationItem key={formCode}>
-        <LeadConnect brandCode={brandCode} formCode={formCode} />
-      </IntegrationItem>
+        <LeadConnect key={formCode} brandCode={brandCode} formCode={formCode} />
     ));
   }
 

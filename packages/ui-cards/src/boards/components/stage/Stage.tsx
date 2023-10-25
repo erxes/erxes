@@ -9,13 +9,12 @@ import {
   IndicatorItem,
   LoadingContent,
   StageFooter,
-  StageInfo,
   StageRoot,
   StageTitle
 } from '../../styles/stage';
 import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
 import { IItem, IOptions, IStage } from '../../types';
-import { renderAmount, renderPercentedAmount } from '../../utils';
+import ItemProductProbabilities from '../../../deals/components/ItemProductProbabilities';
 
 import { AddForm } from '../../containers/portable';
 import { Draggable } from 'react-beautiful-dnd';
@@ -351,43 +350,13 @@ export default class Stage extends React.Component<Props, State> {
       return <EmptyState icon="columns-1" text="No stage" size="small" />;
     }
 
-    const probability =
-      stage.probability === 'Won'
-        ? '100%'
-        : stage.probability === 'Lost'
-        ? '0%'
-        : stage.probability;
-
-    const detail = () => {
-      if (
-        window.location.pathname.includes('deal') &&
-        Object.keys(stage.amount).length > 0
-      ) {
-        const forecast = () => {
-          if (!probability) {
-            return null;
-          }
-
-          return (
-            <div>
-              <span>{__('Forecasted') + `(${probability}):`}</span>
-              {renderPercentedAmount(stage.amount, parseInt(probability, 10))}
-            </div>
-          );
-        };
-
+    const renderDetail = () => {
+      if (window.location.pathname.includes('deal')) {
         return (
-          <StageInfo
-            showAll={
-              localStorage.getItem('showSalesDetail') === 'true' ? true : false
-            }
-          >
-            <div>
-              <span>{__('Total') + ':'}</span>
-              {renderAmount(stage.amount)}
-            </div>
-            {forecast()}
-          </StageInfo>
+          <ItemProductProbabilities
+            totalAmount={stage.amount}
+            probability={stage.probability}
+          />
         );
       }
 
@@ -407,7 +376,7 @@ export default class Stage extends React.Component<Props, State> {
                   </div>
                   {this.renderCtrl()}
                 </StageTitle>
-                {detail()}
+                {renderDetail()}
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>

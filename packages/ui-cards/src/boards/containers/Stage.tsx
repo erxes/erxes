@@ -11,7 +11,6 @@ import {
   IFilterParams,
   IItem,
   IOptions,
-  IPipeline,
   IStage,
   ItemsQueryResponse,
   RemoveStageMutation,
@@ -293,15 +292,15 @@ class WithData extends React.Component<StageProps> {
   private withQuery;
   private abortController;
 
-  componentWillUnmount() {
-    this.abortController.abort();
-  }
-
   constructor(props) {
     super(props);
 
     this.withQuery = withQuery({ options: props.options });
     this.abortController = new AbortController();
+  }
+
+  componentWillUnmount() {
+    this.abortController.abort();
   }
 
   render() {
