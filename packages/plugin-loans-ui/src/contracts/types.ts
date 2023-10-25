@@ -46,6 +46,7 @@ export interface IContract {
   createdAt: Date;
   marginAmount: number;
   leaseAmount: number;
+  givenAmount?: number;
   feeAmount: number;
   tenor: number;
   interestRate: number;

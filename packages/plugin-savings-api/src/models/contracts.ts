@@ -21,6 +21,27 @@ export interface IContractModel extends Model<IContractDocument> {
   closeContract(subdomain, doc: ICloseVariable);
   getContractAlert();
   removeContracts(_ids);
+  expandDuration(_id): Promise<IContractDocument>;
+  interestChange({
+    contractId,
+    stoppedDate,
+    interestAmount,
+    lossAmount
+  }: {
+    contractId: string;
+    stoppedDate: Date;
+    interestAmount: number;
+    lossAmount: number;
+  });
+  interestReturn({
+    contractId,
+    invDate,
+    interestAmount
+  }: {
+    contractId: string;
+    invDate: Date;
+    interestAmount: number;
+  });
 }
 export const loadContractClass = (models: IModels) => {
   class Contract {
@@ -87,9 +108,14 @@ export const loadContractClass = (models: IModels) => {
      * Close Contract
      */
     public static async closeContract(subdomain, doc: ICloseVariable) {
-      return models.Contracts.getContract({
+      const contract = await models.Contracts.getContract({
         _id: doc.contractId
       });
+      await models.Contracts.updateOne(
+        { _id: contract._id },
+        { $set: { status: CONTRACT_STATUS.CLOSED } }
+      );
+      return contract;
     }
 
     /**
@@ -103,6 +129,71 @@ export const loadContractClass = (models: IModels) => {
         throw new Error('You can not delete contract with transaction');
 
       return models.Contracts.deleteMany({ _id: { $in: _ids } });
+    }
+
+    public static async expandDuration(_id) {
+      const contract = await models.Contracts.findOne({ _id: _id });
+
+      if (contract) {
+        const endDate = addMonths(new Date(), contract?.duration);
+        console.log('endDate', endDate);
+        await models.Contracts.updateOne(
+          { _id: contract._id },
+          { $set: { endDate: endDate } }
+        );
+      }
+
+      return contract;
+    }
+
+    public static async interestChange({
+      contractId,
+      interestAmount
+    }: {
+      contractId: string;
+      stoppedDate: Date;
+      isStopLoss: boolean;
+      interestAmount: number;
+      lossAmount: number;
+    }) {
+      const contract = await models.Contracts.findOne({ _id: contractId });
+
+      await models.Contracts.updateOne(
+        {
+          _id: contractId
+        },
+        {
+          $inc: {
+            storedInterest: interestAmount
+          }
+        }
+      ).lean();
+
+      return contract;
+    }
+
+    public static async interestReturn({
+      contractId,
+      interestAmount
+    }: {
+      contractId: string;
+      invDate: Date;
+      interestAmount: number;
+    }) {
+      const contract = await models.Contracts.findOne({ _id: contractId });
+
+      await models.Contracts.updateOne(
+        {
+          _id: contractId
+        },
+        {
+          $inc: {
+            storedInterest: interestAmount * -1
+          }
+        }
+      ).lean();
+
+      return contract;
     }
 
     public static async getContractAlert() {}

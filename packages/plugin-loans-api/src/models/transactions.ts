@@ -104,6 +104,17 @@ export const loadTransactionClass = (models: IModels) => {
         await models.Invoices.updateInvoice(doc.invoiceId, invoiceData);
       }
 
+      if (doc.transactionType === 'give') {
+        doc.give = doc.total;
+        doc.contractReaction = contract;
+        const tr = await models.Transactions.create({ ...doc });
+        await models.Contracts.updateOne(
+          { _id: contract._id },
+          { $inc: { givenAmount: doc.give } }
+        );
+        return tr;
+      }
+
       const trInfo = await transactionRule(models, subdomain, {
         ...doc
       });
@@ -399,7 +410,9 @@ export const loadTransactionClass = (models: IModels) => {
      * Remove Transaction
      */
     public static async removeTransactions(_ids) {
-      const transactions = await models.Transactions.find({ _id: _ids })
+      const transactions: ITransactionDocument[] = await models.Transactions.find(
+        { _id: _ids }
+      )
         .sort({ payDate: -1 })
         .lean();
 
@@ -418,11 +431,17 @@ export const loadTransactionClass = (models: IModels) => {
             throw new Error(
               'At this moment transaction can not been created because this date closed'
             );
-          await removeTrAfterSchedule(models, oldTr);
+          oldTr.transactionType !== 'give' &&
+            (await removeTrAfterSchedule(models, oldTr));
           oldTr.contractId &&
             (await models.Contracts.updateOne(
               { _id: oldTr.contractId },
-              { $set: { storedInterest: oldTr.calcedInfo.storedInterest } }
+              {
+                $set: {
+                  storedInterest: oldTr.calcedInfo?.storedInterest,
+                  givenAmount: oldTr.contractReaction?.givenAmount
+                }
+              }
             ));
           await models.Transactions.deleteOne({ _id: oldTr._id });
         }

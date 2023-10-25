@@ -16,6 +16,8 @@ export const contractTypeFields = `
   productCategoryIds
   config
   currency
+  useManualNumbering
+  useFee
 `;
 
 const listParamsDef = `

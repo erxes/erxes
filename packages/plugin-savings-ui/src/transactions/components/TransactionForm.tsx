@@ -23,14 +23,12 @@ import { __ } from 'coreui/utils';
 import SelectContracts, {
   Contracts
 } from '../../contracts/components/common/SelectContract';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { queries } from '../graphql';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
   closeModal: () => void;
+  type: string;
 };
 
 type State = {
@@ -51,7 +49,7 @@ class TransactionForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { transaction = {}, invoice } = props;
+    const { transaction = {}, invoice, type } = props;
 
     this.state = {
       contractId:
@@ -66,7 +64,7 @@ class TransactionForm extends React.Component<Props, State> {
         transaction.customerId || (invoice && invoice.customerId) || '',
       paymentInfo: null,
       storedInterest: 0,
-      transactionType: 'income',
+      transactionType: type,
       closeInterest: 0
     };
   }
@@ -79,8 +77,6 @@ class TransactionForm extends React.Component<Props, State> {
     if (transaction && transaction._id) {
       finalValues._id = transaction._id;
     }
-
-    console.log('finalValues', finalValues);
 
     return {
       _id: finalValues._id,
@@ -179,23 +175,6 @@ class TransactionForm extends React.Component<Props, State> {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              <FormGroup>
-                <ControlLabel>{__('Transaction type')}</ControlLabel>
-                <FormControl
-                  {...this.props}
-                  name="transactionType"
-                  componentClass="select"
-                  value={this.state.transactionType}
-                  required={true}
-                  onChange={onChangeField}
-                >
-                  {['income', 'outcome'].map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
               <FormGroup>
                 <ControlLabel>{__('Pay Date')}</ControlLabel>
                 <DateContainer>

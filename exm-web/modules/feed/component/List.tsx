@@ -12,7 +12,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { useFeeds } from "../hooks/useFeed"
 import { IFeed } from "../types"
-import PostItem from "./PostItem"
+
+const PostItem = dynamic(() => import("./PostItem"))
 
 const FeedForm = dynamic(() => import("../component/form/FeedForm"))
 
@@ -27,28 +28,8 @@ const List = ({ contentType }: { contentType: string }) => {
 
   const datas = feeds || []
 
-  let pinnedList
-  let normalList
-
-  if (contentType === "event") {
-    pinnedList = datas.filter(
-      (data) =>
-        data.isPinned &&
-        ((data.eventData?.visibility === "private" &&
-          data.recipientIds.includes(currentUser?._id)) ||
-          data.eventData?.visibility === "public")
-    )
-    normalList = datas.filter(
-      (data) =>
-        !data.isPinned &&
-        ((data.eventData?.visibility === "private" &&
-          data.recipientIds.includes(currentUser?._id)) ||
-          data.eventData?.visibility === "public")
-    )
-  } else {
-    pinnedList = datas.filter((data) => data.isPinned)
-    normalList = datas.filter((data) => !data.isPinned)
-  }
+  const pinnedList = datas.filter((data) => data.isPinned)
+  const normalList = datas.filter((data) => !data.isPinned)
 
   const showList = (items: IFeed[]) => {
     return items.map((filteredItem: any) => (

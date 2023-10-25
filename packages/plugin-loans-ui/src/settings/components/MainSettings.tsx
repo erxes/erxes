@@ -40,12 +40,13 @@ class MainSettings extends React.Component<Props, State> {
   }
 
   renderConfigs(configs) {
+    const { configsMap } = this.state;
     return (
       <div>
         <MainConfig
           key={Math.random()}
-          configsMap={configs}
-          currentConfigKey="order"
+          configsMap={configsMap}
+          currentConfigKey="loansConfig"
           config={{ title: 'main config', ...configs }}
           save={this.props.save}
         />
@@ -55,7 +56,8 @@ class MainSettings extends React.Component<Props, State> {
 
   renderContent() {
     const { configsMap } = this.state;
-    const configs = configsMap.loansConfig || {};
+
+    const configs = configsMap?.loansConfig || {};
 
     return (
       <ContentBox id={'MainSettingsMenu'}>

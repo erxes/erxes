@@ -100,12 +100,9 @@ class CloseForm extends React.Component<Props, State> {
   renderCloseInfo = () => {
     return (
       <>
+        {this.renderRow('Saving Amount', 'savingAmount')}
+        {this.renderRow('Stored Interest', 'storedInterest')}
         {this.renderRow('Total', 'total')}
-        {this.renderRow('Payment', 'payment')}
-        {this.renderRow('Interest', 'interest')}
-        {this.renderRow('Loss', 'undue')}
-        {this.renderRow('Insurance', 'insurance')}
-        {this.renderRow('Debt', 'debt')}
       </>
     );
   };
@@ -135,27 +132,6 @@ class CloseForm extends React.Component<Props, State> {
                     onChange={onChangeCloseDate}
                   />
                 </DateContainer>
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>{__('Close Type')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="closeType"
-                  componentClass="select"
-                  value={this.state.closeType}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {['value0', 'changeCondition', 'cantPay'].map(
-                    (typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {typeName}
-                      </option>
-                    )
-                  )}
-                </FormControl>
               </FormGroup>
             </FormColumn>
           </FormWrapper>

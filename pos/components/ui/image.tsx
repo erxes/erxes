@@ -1,6 +1,6 @@
 "use client"
 
-import { FC, useEffect, useState } from "react"
+import { FC, memo, useEffect, useState } from "react"
 import NextImage, { ImageLoaderProps, ImageProps } from "next/image"
 import { Package } from "lucide-react"
 
@@ -38,7 +38,7 @@ const Image: FC<
 
   const updatedProps = {
     ...rest,
-    src: srcI,
+    src: readFile(src || ""),
     alt,
     fill: !width && !height ? true : undefined,
     width,
@@ -74,4 +74,4 @@ export function cloudflareLoader({ src, width, quality }: ImageLoaderProps) {
 
 //xos.techstore.mn/gateway/read-file?key=0.021508049013006180.51531201349981501.png
 
-export default Image
+export default memo(Image)

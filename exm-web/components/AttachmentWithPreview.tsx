@@ -4,8 +4,7 @@ import { useState } from "react"
 import { XCircle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-
-import Image from "./ui/image"
+import Image from "@/components/ui/image"
 
 export const AttachmentWithPreview = ({
   images,
@@ -47,12 +46,14 @@ export const AttachmentWithPreview = ({
 
     return (
       <div id="gallery" className={cn("relative w-full", className)}>
-        <div className="relative h-56 overflow-hidden md:h-96">
-          <div className="relative aspect-[5/3]" data-carousel-item={true}>
+        <div className="relative h-full overflow-hidden">
+          <div className="relative" data-carousel-item={true}>
             <Image
               alt="image"
               src={images[index]?.url || ""}
-              className="w-full h-56 object-contain cursor-pointer"
+              width={2000}
+              height={2000}
+              className="w-full h-full object-contain cursor-pointer max-h-[800px]"
             />
           </div>
         </div>
@@ -60,7 +61,7 @@ export const AttachmentWithPreview = ({
         {deleteImage && (
           <button
             type="button"
-            className="absolute top-0 right-0"
+            className="absolute top-1 right-1 bg-white p-1 rounded-full"
             onClick={() => onDelete(index)}
           >
             <XCircle size={18} />
