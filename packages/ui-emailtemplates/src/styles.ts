@@ -1,6 +1,7 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
+
 import { highlight } from '@erxes/ui/src/utils/animations';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -147,12 +148,6 @@ const Template = styledTS<{ isLongName?: boolean }>(styled.div)`
   }
 `;
 
-const RowTitle = styled.h5`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
 const TemplateInfo = styled.div`
   display: flex;
   justify-content: space-between;
@@ -177,6 +172,5 @@ export {
   IframePreview,
   IframeFullScreen,
   TemplateInfo,
-  TemplateWrapper,
-  RowTitle
+  TemplateWrapper
 };
