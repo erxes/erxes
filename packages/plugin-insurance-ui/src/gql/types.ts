@@ -779,36 +779,6 @@ export type Field = {
   validation?: Maybe<Scalars['String']['output']>;
 };
 
-export type FieldItem = {
-  _id?: InputMaybe<Scalars['String']['input']>;
-  associatedFieldId?: InputMaybe<Scalars['String']['input']>;
-  code?: InputMaybe<Scalars['String']['input']>;
-  column?: InputMaybe<Scalars['Int']['input']>;
-  content?: InputMaybe<Scalars['String']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  field?: InputMaybe<Scalars['String']['input']>;
-  groupName?: InputMaybe<Scalars['String']['input']>;
-  isDefinedByErxes?: InputMaybe<Scalars['Boolean']['input']>;
-  isRequired?: InputMaybe<Scalars['Boolean']['input']>;
-  isVisibleToCreate?: InputMaybe<Scalars['Boolean']['input']>;
-  locationOptions?: InputMaybe<Array<InputMaybe<LocationOptionInput>>>;
-  logicAction?: InputMaybe<Scalars['String']['input']>;
-  logics?: InputMaybe<Array<InputMaybe<LogicInput>>>;
-  objectListConfigs?: InputMaybe<Array<InputMaybe<ObjectListConfigInput>>>;
-  options?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  optionsValues?: InputMaybe<Scalars['String']['input']>;
-  order?: InputMaybe<Scalars['Int']['input']>;
-  pageNumber?: InputMaybe<Scalars['Int']['input']>;
-  productCategoryId?: InputMaybe<Scalars['String']['input']>;
-  searchable?: InputMaybe<Scalars['Boolean']['input']>;
-  showInCard?: InputMaybe<Scalars['Boolean']['input']>;
-  subFieldIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  tempFieldId?: InputMaybe<Scalars['String']['input']>;
-  text?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-  validation?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type FieldsGroup = {
   __typename?: 'FieldsGroup';
   _id: Scalars['String']['output'];
@@ -2000,13 +1970,6 @@ export type MutationFieldsAddArgs = {
   text?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
   validation?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type MutationFieldsBulkAddAndEditArgs = {
-  addingFields?: InputMaybe<Array<InputMaybe<FieldItem>>>;
-  contentType: Scalars['String']['input'];
-  contentTypeId?: InputMaybe<Scalars['String']['input']>;
-  editingFields?: InputMaybe<Array<InputMaybe<FieldItem>>>;
 };
 
 export type MutationFieldsEditArgs = {
