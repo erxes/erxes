@@ -12,7 +12,12 @@ type ContactType = {
   fullName: string;
 };
 
-const gneerateSort = ({ type, sortField, sortDirection, searchValue }) => {
+const generateSort = async ({
+  type,
+  sortField,
+  sortDirection,
+  searchValue
+}) => {
   let sort = {};
   const esTypes = getEsTypes(type);
   let fieldToSort = sortField || 'createdAt';
@@ -37,34 +42,24 @@ const generateQuery = async args => {
   const positiveList: any = [];
   const negativeList: any = [];
 
-  if (searchValue.includes('@')) {
-    positiveList.push({
-      match_phrase: {
-        searchText: {
-          query: searchValue
-        }
-      }
-    });
-  } else {
-    positiveList.push({
-      bool: {
-        should: [
-          {
-            match: {
-              searchText: {
-                query: searchValue
-              }
-            }
-          },
-          {
-            wildcard: {
-              searchText: `*${searchValue.toLowerCase()}*`
+  positiveList.push({
+    bool: {
+      should: [
+        {
+          match: {
+            searchText: {
+              query: searchValue
             }
           }
-        ]
-      }
-    });
-  }
+        },
+        {
+          wildcard: {
+            searchText: `*${searchValue.toLowerCase()}*`
+          }
+        }
+      ]
+    }
+  });
 
   if (!!fieldsMustExist?.length) {
     for (const field of fieldsMustExist) {
@@ -91,6 +86,28 @@ const generateQuery = async args => {
   };
 };
 
+const generateAutoCompleteQuery = args => {
+  if (args?.usageType !== 'autoComplete') {
+    return [];
+  }
+
+  return args?.searchValue
+    ? args.searchValue
+        .split(',')
+        .filter(value => {
+          if (value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+            args.searchValue = args.searchValue.replace(`${value},`, '');
+            return value;
+          }
+        })
+        .map(value => ({
+          match: {
+            primaryEmail: { query: value }
+          }
+        }))
+    : [];
+};
+
 const generateContentType = (type, source) => {
   switch (type) {
     case 'companies':
@@ -115,18 +132,59 @@ const generateFullName = (contentType, source) => {
   return null;
 };
 
+const generateList = (type, response) => {
+  return response.hits.hits.map(hit => {
+    const { primaryEmail, primaryPhone, avatar, createdAt, status } =
+      hit._source || {};
+
+    return {
+      _id: hit._id,
+      primaryEmail,
+      primaryPhone,
+      avatar,
+      createdAt,
+      status,
+      contentType: generateContentType(type, hit._source || {}),
+      fullName: generateFullName(type, hit._source || {})
+    };
+  });
+};
+
 const contactQueries = {
   async contacts(_root, args, { subdomain }: IContext) {
     const { perPage, page } = args;
 
     let list: ContactType[] = [];
+    let autoCompleteList: ContactType[] = [];
 
     const _page = Number(page || 1);
     const _limit = Number(perPage || 20);
 
+    const autoCompleteQuery = generateAutoCompleteQuery(args);
+
     for (const type of ['customers', 'companies']) {
-      const customersQueryOptions = await generateQuery(args);
-      const customersSortOptions = await gneerateSort({ type, ...args });
+      const contactsQueryOptions = await generateQuery(args);
+      const contactsSortOptions = await generateSort({ type, ...args });
+
+      if (!!autoCompleteQuery?.length) {
+        const response = await fetchEs({
+          subdomain,
+          action: 'search',
+          index: type,
+          body: {
+            query: {
+              bool: {
+                should: autoCompleteQuery
+              }
+            }
+          }
+        });
+
+        autoCompleteList = [
+          ...autoCompleteList,
+          ...generateList(type, response)
+        ];
+      }
 
       if (list.length === _limit) {
         continue;
@@ -139,30 +197,15 @@ const contactQueries = {
         body: {
           from: (_page - 1) * _limit,
           size: _limit - list.length,
-          ...customersQueryOptions,
-          sort: [customersSortOptions]
+          ...contactsQueryOptions,
+          sort: [contactsSortOptions]
         }
       });
 
-      const responseList: ContactType[] = response.hits.hits.map(hit => {
-        const { primaryEmail, primaryPhone, avatar, createdAt, status } =
-          hit._source || {};
-
-        return {
-          _id: hit._id,
-          primaryEmail,
-          primaryPhone,
-          avatar,
-          createdAt,
-          status,
-          contentType: generateContentType(type, hit._source || {}),
-          fullName: generateFullName(type, hit._source || {})
-        };
-      });
-
-      list = [...list, ...responseList];
+      list = [...list, ...generateList(type, response)];
     }
-    return list;
+
+    return [...autoCompleteList, ...list];
   }
 };
 

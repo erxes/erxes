@@ -29,6 +29,8 @@ const AvatarImg = styled.img`
 const ToggleIcon = styledTS<{ isIndented?: boolean; type?: string }>(
   styled.div
 )`
+  margin-left: -${dimensions.unitSpacing - 5}px;
+  
   i {
     &:before {
       display:block
@@ -74,6 +76,10 @@ const SidebarListItem = styledTS<{
   padding: ${dimensions.unitSpacing - 2}px 0 ${dimensions.unitSpacing - 2}px ${
   dimensions.coreSpacing
 }px;
+
+  span, i {
+    color: ${props => props.isActive && colors.colorPrimary} !important;
+  }
   
   a {
     white-space: normal;
@@ -95,6 +101,11 @@ const SidebarListItem = styledTS<{
       color: #666;
       font-weight: normal;
     }
+  }
+
+  .list-icon {
+    margin-right: ${dimensions.unitSpacing - 5}px;
+    color: ${colors.colorCoreBlue};
   }
 
   &:last-child {

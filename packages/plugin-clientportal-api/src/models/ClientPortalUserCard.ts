@@ -9,15 +9,8 @@ import {
 } from './definitions/clientPortalUserCards';
 
 export interface ICPUserCardModel extends Model<ICPUserCardDocument> {
-  createOrUpdateCard(
-    doc: ICPUserCard,
-    userId: string
-  ): Promise<ICPUserCardDocument>;
-  removeUserFromCard(
-    cardId: string,
-    userId: string
-  ): Promise<ICPUserCardDocument>;
-  getUserIds(type: string, cardId: string): Promise<string[]>;
+  createOrUpdateCard(doc: ICPUserCard): Promise<ICPUserCardDocument>;
+  getUserIds(contentType: string, contentTypeId: string): Promise<string[]>;
 }
 
 export const loadUserCardClass = (models: IModels) => {
@@ -30,58 +23,30 @@ export const loadUserCardClass = (models: IModels) => {
      */
     public static async createOrUpdateCard(doc: ICPUserCard, userId: string) {
       const card = await models.ClientPortalUserCards.findOne({
-        type: doc.type,
-        cardId: doc.cardId
+        contentType: doc.contentType,
+        contentTypeId: doc.contentTypeId
       });
 
       if (!card) {
         return models.ClientPortalUserCards.create({
           ...doc,
-          userIds: [userId]
+          userId
         });
       }
 
-      if (card.userIds.indexOf(userId) === -1) {
-        card.userIds.push(userId);
+      await models.ClientPortalUserCards.updateOne(
+        { _id: card._id },
+        {
+          $set: {
+            ...doc,
+            modifiedAt: new Date()
+          }
+        }
+      );
 
-        await card.save();
-
-        return card;
-      } else {
-        return card;
-      }
-    }
-
-    /**
-     * Remove user from card
-     * @param cardId
-     * @param userId
-     * @return {Promise<ICPUserCardDocument>}
-     * @memberof CleintPortalUserCard
-     */
-
-    public static async removeUserFromCard(cardId: string, userId: string) {
-      const card = await models.ClientPortalUserCards.findOne({
-        cardId
+      return models.ClientPortalUserCards.findOne({
+        _id: card._id
       });
-
-      if (!card) {
-        throw new Error('Card not found');
-      }
-
-      const index = card.userIds.indexOf(userId);
-
-      if (index > -1) {
-        card.userIds.splice(index, 1);
-      }
-
-      await card.save();
-
-      if (card.userIds.length === 0) {
-        await card.remove();
-      }
-
-      return card;
     }
 
     /**
@@ -91,17 +56,23 @@ export const loadUserCardClass = (models: IModels) => {
      * @memberof CleintPortalUserCard
      */
 
-    public static async getUserIds(type: string, cardId: string) {
-      const card = await models.ClientPortalUserCards.findOne({
-        cardId,
-        type
-      });
+    public static async getUserIds(contentType: string, contentTypeId: string) {
+      // aggregate and return array of cpUserId field of ClientPortalUserCards
+      const userIds = await models.ClientPortalUserCards.aggregate([
+        {
+          $match: {
+            contentType,
+            contentTypeId
+          }
+        },
+        {
+          $project: {
+            cpUserId: 1
+          }
+        }
+      ]);
 
-      if (!card) {
-        throw new Error('Card not found');
-      }
-
-      return card.userIds;
+      return userIds.map((user: any) => user.cpUserId);
     }
   }
 

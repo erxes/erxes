@@ -1,26 +1,27 @@
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import Form from '@erxes/ui/src/components/form/Form';
+import { IDepartment, IUnit } from '@erxes/ui/src/team/types';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
+import Select from 'react-select-plus';
+import SelectStructureMembers from '../SelectStructureMembers';
 import { __ } from 'modules/common/utils';
 import { generateTree } from '../../utils';
-import { IDepartment, IUnit } from '@erxes/ui/src/team/types';
-import SelectStructureMembers from '../SelectStructureMembers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  unit?: IUnit;
+  item?: IUnit;
   closeModal: () => void;
   departments: IDepartment[];
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, departments } = props;
-  const object = props.unit || ({} as any);
+  const { closeModal, renderButton, departments, item } = props;
+  const object = item || ({} as IUnit);
 
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
@@ -111,7 +112,7 @@ export default function DepartmentForm(props: Props) {
             placeholder={__('Choose department')}
             value={departmentId}
             onChange={onChangeDepartment}
-            options={generateTree(departments, null, (node, level) => ({
+            options={generateTree(departments, '', (node, level) => ({
               value: node._id,
               label: `${'---'.repeat(level)} ${node.title}`
             }))}

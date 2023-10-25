@@ -8,6 +8,7 @@ import Form from './Form';
 
 type Props = {
   config: ClientPortalConfig;
+  kind: 'client' | 'vendor';
   handleUpdate: (doc: ClientPortalConfig) => void;
 };
 

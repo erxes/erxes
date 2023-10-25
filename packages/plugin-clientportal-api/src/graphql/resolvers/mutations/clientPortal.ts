@@ -3,6 +3,8 @@ import { sendCardsMessage, sendContactsMessage } from '../../../messageBroker';
 import { IClientPortal } from '../../../models/definitions/clientPortal';
 import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '@erxes/api-utils/src';
+import { putActivityLog } from '../../../logUtils';
+import { getUserName } from '../../../utils';
 
 export interface IVerificationParams {
   userId: string;
@@ -11,8 +13,12 @@ export interface IVerificationParams {
 }
 
 const clientPortalMutations = {
-  clientPortalConfigUpdate(_root, args: IClientPortal, { models }: IContext) {
-    return models.ClientPortals.createOrUpdateConfig(args);
+  clientPortalConfigUpdate(
+    _root,
+    { config }: { config: IClientPortal },
+    { models }: IContext
+  ) {
+    return models.ClientPortals.createOrUpdateConfig(config);
   },
 
   clientPortalRemove(_root, { _id }: { _id: string }, { models }: IContext) {
@@ -82,13 +88,11 @@ const clientPortalMutations = {
       isRPC: true
     });
 
-    await models.ClientPortalUserCards.createOrUpdateCard(
-      {
-        type,
-        cardId: card._id
-      },
-      cpUser._id
-    );
+    await models.ClientPortalUserCards.createOrUpdateCard({
+      contentType: type,
+      contentTypeId: card._id,
+      cpUserId: cpUser._id
+    });
 
     return card;
   }

@@ -86,7 +86,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    templates: emailTemplatesQuery.emailTemplates || [],
+    templates: emailTemplatesQuery?.emailTemplates || [],
     smsConfig: configs.find(i => i.code === 'TELNYX_API_KEY'),
     integrations: mappedIntegrations
   };
