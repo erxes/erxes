@@ -113,7 +113,7 @@ const ProductForm = (props: Props) => {
         {renderInput('price', 'number', product.price, 'Price', true, true)}
         or
         <FormGroup>
-          <ControlLabel>Specific price for vendors</ControlLabel>
+          <ControlLabel>Specific price for vendor</ControlLabel>
           {companyConfigs.map((companyConfig, index) => (
             <PriceRow
               key={index}
