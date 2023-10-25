@@ -36,16 +36,12 @@ const tagQueries = {
     _root,
     {
       type,
-      searchValue,
-      tagIds,
-      parentId
+      searchValue
     }: {
       type: string;
       searchValue?: string;
-      tagIds?: string[];
-      parentId?: string;
     },
-    { models, commonQuerySelector, serverTiming }: IContext
+    { models, commonQuerySelector }: IContext
   ) {
     const selector: any = { ...commonQuerySelector };
 
@@ -55,32 +51,6 @@ const tagQueries = {
 
     if (searchValue) {
       selector.name = new RegExp(`.*${searchValue}.*`, 'i');
-    }
-
-    if (tagIds) {
-      selector._id = { $in: tagIds };
-    }
-
-    if (parentId) {
-      const parentTag = await models.Tags.find({ parentId }).distinct('_id');
-      let ids = [parentId, ...parentTag];
-
-      const getChildTags = async (parentTagIds: string[]) => {
-        const childTag = await models.Tags.find({
-          parentId: { $in: parentTagIds }
-        }).distinct('_id');
-
-        if (childTag.length > 0) {
-          ids = [...ids, ...childTag];
-          await getChildTags(childTag);
-        }
-
-        return;
-      };
-
-      await getChildTags(parentTag);
-
-      selector._id = { $in: ids };
     }
 
     const tagsCount = await models.Tags.find(selector).count();

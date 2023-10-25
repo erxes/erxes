@@ -16,8 +16,8 @@ const tags = `
 `;
 
 const tagsQueryCount = `
-  query tagsQueryCount($type: String, $tagIds: [String], $parentId: String, $searchValue: String) {
-    tagsQueryCount(type: $type, tagIds: $tagIds, parentId: $parentId, searchValue: $searchValue)
+  query tagsQueryCount($type: String, $searchValue: String) {
+    tagsQueryCount(type: $type, searchValue: $searchValue)
   }
 `;
 
