@@ -1,13 +1,17 @@
 import * as React from 'react';
 
+import {
+  Actions,
+  IframePreview,
+  Template,
+  TemplateBox,
+  TemplateInfo,
+  Templates
+} from '@erxes/ui-emailtemplates/src/styles';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import {
-  RESPONSE_TEMPLATE_STATUSES,
-  RESPONSE_TEMPLATE_TIPTEXT
-} from '../constants';
 import { __, router } from 'coreui/utils';
-import Button from '@erxes/ui/src/components/Button';
+
 import { FilterContainer } from '@erxes/ui-settings/src/styles';
 import Form from '@erxes/ui-inbox/src/settings/responseTemplates/components/Form';
 import { FormControl } from '@erxes/ui/src/components/form';
@@ -15,21 +19,12 @@ import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import List from '@erxes/ui-settings/src/common/components/List';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import { withRouter } from 'react-router-dom';
-import {
-  Actions,
-  IframePreview,
-  Template,
-  TemplateBox,
-  Templates,
-  TemplateInfo
-} from '@erxes/ui-emailtemplates/src/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  changeStatus: (_id: string, status: string) => void;
   queryParams: any;
   history: any;
 } & ICommonListProps;
@@ -86,35 +81,6 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderDisableAction = object => {
-    const { changeStatus } = this.props;
-    const _id = object._id;
-    const isActive =
-      object.status === null ||
-      object.status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
-    const icon = isActive ? 'archive-alt' : 'redo';
-
-    const status = isActive
-      ? RESPONSE_TEMPLATE_STATUSES.ARCHIVED
-      : RESPONSE_TEMPLATE_STATUSES.ACTIVE;
-
-    const text = isActive
-      ? RESPONSE_TEMPLATE_TIPTEXT.ARCHIVED
-      : RESPONSE_TEMPLATE_TIPTEXT.ACTIVE;
-
-    if (!changeStatus) {
-      return null;
-    }
-
-    const onClick = () => changeStatus(_id, status);
-
-    return (
-      <Button onClick={onClick} btnStyle="link">
-        <Icon icon={icon} /> {text}
-      </Button>
-    );
-  };
-
   handleKeyDown = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const { value, name } = e.currentTarget as HTMLInputElement;
@@ -127,7 +93,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     router.setParams(this.props.history, { [name]: values });
   };
 
-  renderFilter = () => {
+  renderFilters = () => {
     const brandId =
       this.props.queryParams && this.props.queryParams.brandId
         ? this.props.queryParams
@@ -137,18 +103,8 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
       <FilterContainer>
         <FlexRow>
           <FlexItem>
-            <SelectBrands
-              label="Brand"
-              initialValue={brandId}
-              onSelect={this.onSelect}
-              name="brandId"
-              multi={false}
-            />
-          </FlexItem>
-
-          <FlexItem>
             <FormControl
-              placeholder={__('Search')}
+              placeholder={__('Type to search')}
               name="searchValue"
               onChange={this.onChange}
               value={this.state.searchValue}
@@ -157,43 +113,47 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
               autoFocus={true}
             />
           </FlexItem>
+          <FlexItem>
+            <SelectBrands
+              label="Filter by brand"
+              initialValue={brandId}
+              onSelect={this.onSelect}
+              name="brandId"
+              multi={false}
+            />
+          </FlexItem>
         </FlexRow>
       </FilterContainer>
     );
   };
 
-  removeTemplate = object => {
-    this.props.remove(object._id);
-  };
-
-  renderBlock = () => {
-    return this.props.objects.map((object, index) => {
-      return (
-        <Template key={index} isLongName={object.name > 45}>
-          <h5>{object.name}</h5>
-          <TemplateBox>
-            <Actions>
-              {this.renderEditAction(object)}
-              <div onClick={this.removeTemplate.bind(this, object)}>
-                <Icon icon="cancel-1" /> Delete
-              </div>
-              {/* {this.renderDisableAction(object)} */}
-            </Actions>
-            <IframePreview>
-              <iframe title="response-iframe" srcDoc={object.content} />
-            </IframePreview>
-          </TemplateBox>
-          <TemplateInfo>
-            <p>Brand</p>
-            <p>{object.brand.name}</p>
-          </TemplateInfo>
-        </Template>
-      );
-    });
-  };
-
   renderContent = () => {
-    return <Templates>{this.renderBlock()}</Templates>;
+    const { remove, objects } = this.props;
+
+    return (
+      <Templates>
+        {objects.map((object, index) => (
+          <Template key={index} isLongName={object.name > 45}>
+            <h5>{object.name}</h5>
+            <TemplateBox>
+              <Actions>
+                {this.renderEditAction(object)}
+                <div onClick={() => remove(object._id)}>
+                  <Icon icon="cancel-1" /> Delete
+                </div>
+              </Actions>
+              <IframePreview>
+                <iframe title="response-iframe" srcDoc={object.content} />
+              </IframePreview>
+            </TemplateBox>
+            <TemplateInfo>
+              <p>Brand</p>
+              <p>{object.brand.name}</p>
+            </TemplateInfo>
+          </Template>
+        ))}
+      </Templates>
+    );
   };
 
   render() {
@@ -205,7 +165,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           { title: __('Response templates') }
         ]}
         title={__('Response templates')}
-        mainHead={
+        leftActionBar={
           <HeaderDescription
             icon="/images/actions/24.svg"
             title="Response templates"
@@ -216,12 +176,11 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
             )}`}
           />
         }
-        flexFilter={this.renderFilter}
+        additionalButton={this.renderFilters()}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         size="lg"
         {...this.props}
-        rightActionBar="true"
       />
     );
   }
