@@ -203,14 +203,16 @@ const inventoryMutations = {
   async toSyncCategories(
     _root,
     { action, categories }: { action: string; categories: any[] },
-    { subdomain }: IContext
+    { subdomain, models }: IContext
   ) {
+    const config = models.Configs.getConfig('ERKHET', {});
     try {
       switch (action) {
         case 'CREATE': {
           for (const category of categories) {
             await consumeInventoryCategory(
               subdomain,
+              config,
               category,
               category.code,
               'create'
@@ -222,6 +224,7 @@ const inventoryMutations = {
           for (const category of categories) {
             await consumeInventoryCategory(
               subdomain,
+              config,
               category,
               category.code,
               'update'
@@ -233,6 +236,7 @@ const inventoryMutations = {
           for (const category of categories) {
             await consumeInventoryCategory(
               subdomain,
+              config,
               category,
               category.code,
               'delete'

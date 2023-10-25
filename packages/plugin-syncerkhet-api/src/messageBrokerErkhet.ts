@@ -42,7 +42,13 @@ export const initBrokerErkhet = async () => {
         await consumeInventory(subdomain, config, doc, old_code, action);
         break;
       case 'inventories.category':
-        await consumeInventoryCategory(subdomain, doc, old_code, action);
+        await consumeInventoryCategory(
+          subdomain,
+          config,
+          doc,
+          old_code,
+          action
+        );
         break;
       case 'customers.customer':
         await consumeCustomer(subdomain, config, doc, old_code, action);
