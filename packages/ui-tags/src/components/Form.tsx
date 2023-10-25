@@ -31,7 +31,7 @@ const ColorPicker = styled.div`
 
 type Props = {
   tag?: ITag;
-  type: string;
+  tagType: string;
   types: any[];
   afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -120,7 +120,7 @@ class FormComponent extends React.Component<Props, State> {
       afterSave,
       renderButton,
       tags,
-      type,
+      tagType,
       types
     } = this.props;
     const { values, isSubmitted } = formProps;
@@ -170,7 +170,7 @@ class FormComponent extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="type"
-            defaultValue={object.type}
+            defaultValue={object.type || tagType}
             required={true}
             componentClass="select"
           >

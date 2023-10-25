@@ -17,6 +17,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   history: any;
@@ -45,10 +46,9 @@ const ListContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const type = queryParams.type || '';
+  const tagType = queryParams.tagType || '';
   const types = tagsGetTypes.tagsGetTypes || [];
   const total = tagsQueryCount.tagsQueryCount;
-  const hasMore = total > 20;
 
   if (types.length === 0) {
     return (
@@ -72,7 +72,7 @@ const ListContainer = (props: FinalProps) => {
 
   const remove = tag => {
     confirm(
-      `This action will untag all ${tag.type}(s) with this tag and remove the tag. Are you sure?`
+      `This action will untag all ${tag.tagType}(s) with this tag and remove the tag. Are you sure?`
     )
       .then(() => {
         removeMutation({ variables: { _id: tag._id } })
@@ -113,7 +113,7 @@ const ListContainer = (props: FinalProps) => {
         mutation={object ? mutations.edit : mutations.add}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries(type)}
+        refetchQueries={getRefetchQueries(tagType)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -128,8 +128,8 @@ const ListContainer = (props: FinalProps) => {
     types,
     tags: tagsQuery.tags || [],
     loading: tagsQuery.loading,
-    type,
-    hasMore,
+    tagType,
+    total,
     remove,
     merge,
     renderButton
@@ -143,7 +143,7 @@ const getRefetchQueries = (queryParams: any) => {
     {
       query: gql(queries.tags),
       variables: {
-        type: queryParams.type,
+        type: queryParams.tagType,
         searchValue: queryParams.searchValue
       }
     }
@@ -159,7 +159,7 @@ export default withProps<Props>(
       name: 'tagsQueryCount',
       options: ({ queryParams }) => ({
         variables: {
-          type: queryParams.type,
+          type: queryParams.tagType,
           searchValue: queryParams.searchValue
         },
         fetchPolicy: 'network-only'
@@ -169,10 +169,9 @@ export default withProps<Props>(
       name: 'tagsQuery',
       options: ({ queryParams }) => ({
         variables: {
-          type: queryParams.type,
+          type: queryParams.tagType,
           searchValue: queryParams.searchValue,
-          page: queryParams.page,
-          perPage: queryParams.perPage
+          ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'
       })

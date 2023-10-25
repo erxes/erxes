@@ -11,7 +11,7 @@ function ListItem(value, type) {
 
   return (
     <SidebarListItem key={value.contentType} isActive={isActive}>
-      <Link to={`/settings/tags?type=${value.contentType}`}>
+      <Link to={`/settings/tags?tagType=${value.contentType}`}>
         {__(value.description)}
       </Link>
     </SidebarListItem>

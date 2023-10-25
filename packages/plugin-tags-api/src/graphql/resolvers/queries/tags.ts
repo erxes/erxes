@@ -47,7 +47,6 @@ const tagQueries = {
     },
     { models, commonQuerySelector, serverTiming }: IContext
   ) {
-    console.log('test*************');
     const selector: any = { ...commonQuerySelector };
 
     if (type) {
@@ -85,7 +84,6 @@ const tagQueries = {
     }
 
     const tagsCount = await models.Tags.find(selector).count();
-    console.log('tagsCount:', tagsCount);
 
     return tagsCount;
   },
@@ -152,7 +150,8 @@ const tagQueries = {
         order: 1,
         name: 1
       })
-      .limit(page * perPage);
+      .skip(page === 1 ? 0 : (page - 1) * perPage)
+      .limit(perPage);
 
     serverTiming.endTime('query');
 

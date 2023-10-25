@@ -19,36 +19,35 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __, router } from '@erxes/ui/src/utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import { FormControl } from '@erxes/ui/src/components/form';
-import { LoadMore } from '@erxes/ui-cards/src/boards/styles/rightMenu';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   types: any[];
   tags: ITag[];
-  type: string;
+  tagType: string;
   history: any;
-  hasMore: boolean;
   queryParams?: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
   merge: (sourceId: string, destId: string, callback) => void;
   loading: boolean;
+  total?: number;
 };
 
 function List({
   tags,
-  type,
+  tagType,
   remove,
   merge,
   loading,
   renderButton,
   types,
   history,
-  hasMore,
+  total,
   queryParams
 }: Props) {
-  let timer;
   const [searchValue, setSearchValue] = React.useState(queryParams.searchValue);
-  const contentType = (type || '').split(':')[1];
+  const contentType = (tagType || '').split(':')[1];
 
   const trigger = (
     <Button id={'AddTagButton'} btnStyle="success" icon="plus-circle">
@@ -59,7 +58,7 @@ function List({
   const modalContent = props => (
     <FormComponent
       {...props}
-      type={type}
+      tagType={tagType}
       types={types}
       renderButton={renderButton}
       tags={tags}
@@ -67,17 +66,11 @@ function List({
   );
 
   const search = e => {
-    if (timer) {
-      clearTimeout(timer);
-    }
-
     const inputValue = e.target.value;
 
     setSearchValue(inputValue);
 
-    timer = setTimeout(() => {
-      router.setParams(history, { searchValue: inputValue });
-    }, 500);
+    router.setParams(history, { searchValue: inputValue });
   };
 
   const actionBarRight = (
@@ -97,7 +90,7 @@ function List({
         </InputBar>
         <ModalTrigger
           title={__('Add tag')}
-          autoOpenKey={`showTag${type}Modal`}
+          autoOpenKey={`showTag${tagType}Modal`}
           trigger={trigger}
           content={modalContent}
           enforceFocus={false}
@@ -108,13 +101,14 @@ function List({
 
   const title = (
     <Title capitalize={true}>
-      {contentType} {__('tags')}
+      {contentType || 'All'} {__('tags')}
+      {`(${total || 0})`}
     </Title>
   );
   const actionBar = (
     <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
   );
-  // console.log('hasMore:', hasMore);
+
   const content = (
     <Table>
       <thead>
@@ -135,7 +129,7 @@ function List({
               key={tag._id}
               tag={tag}
               count={tag.objectCount}
-              type={type}
+              type={tagType}
               types={types}
               space={foundedString ? foundedString.length : 0}
               remove={remove}
@@ -146,12 +140,6 @@ function List({
           );
         })}
       </tbody>
-      {hasMore ? (
-        <LoadMore>
-          <Icon icon="redo" />
-          {__('Load More')}
-        </LoadMore>
-      ) : null}
     </Table>
   );
 
@@ -165,7 +153,7 @@ function List({
       header={
         <Wrapper.Header
           title={__(contentType)}
-          queryParams={{ type }}
+          queryParams={{ tagType }}
           breadcrumb={breadcrumb}
           filterTitle={contentType}
         />
@@ -180,9 +168,10 @@ function List({
           emptyImage="/images/actions/8.svg"
         />
       }
-      leftSidebar={<Sidebar types={types} type={type} />}
+      leftSidebar={<Sidebar types={types} type={tagType} />}
       transparent={true}
       hasBorder
+      footer={<Pagination count={total && total} />}
     />
   );
 }
