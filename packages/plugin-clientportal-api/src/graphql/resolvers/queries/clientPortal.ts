@@ -9,7 +9,7 @@ import {
   sendCoreMessage,
   sendKbMessage
 } from '../../../messageBroker';
-import { getCards } from '../../../utils';
+import { getCards, getUserCards } from '../../../utils';
 
 const getByHost = async (models, requestInfo) => {
   const origin = requestInfo.headers.origin;
@@ -296,6 +296,61 @@ const configClientPortalQueries = {
     ]);
 
     return users;
+  },
+
+  clientPortalUserTickets(
+    _root,
+    { userId }: { userId: string },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const id = userId || (cpUser && cpUser._id);
+
+    if (!id) {
+      return [];
+    }
+    return getUserCards(id, 'ticket', models, subdomain);
+  },
+
+  clientPortalUserDeals(
+    _root,
+    { userId }: { userId: string },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const id = userId || (cpUser && cpUser._id);
+
+    if (!id) {
+      return [];
+    }
+
+    return getUserCards(id, 'deal', models, subdomain);
+  },
+
+  clientPortalUserPurchases(
+    _root,
+    { userId }: { userId: string },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const id = userId || (cpUser && cpUser._id);
+
+    if (!id) {
+      return [];
+    }
+
+    return getUserCards(id, 'purchase', models, subdomain);
+  },
+
+  clientPortalUserTasks(
+    _root,
+    { userId }: { userId: string },
+    { models, cpUser, subdomain }: IContext
+  ) {
+    const id = userId || (cpUser && cpUser._id);
+
+    if (!id) {
+      return [];
+    }
+
+    return getUserCards(id, 'task', models, subdomain);
   }
 };
 

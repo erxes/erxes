@@ -576,7 +576,7 @@ class Form extends React.Component<Props, State> {
                 {...formProps}
                 name="shortName"
                 defaultValue={object.shortName}
-                required={true}
+                required={false}
               />
             </FormGroup>
 
