@@ -12,6 +12,15 @@ export interface ISESConfig {
   region: string;
   secretAccessKey: string;
 }
+
+export interface ICustomEmailSerivceCnfig {
+  mailServiceName: string;
+  customMailPort: string;
+  customMailUsername: string;
+  customMailPassword: string;
+  customMailHost: string;
+}
+
 export interface IConfigDocument extends IConfig, Document {
   _id: string;
 }
@@ -26,6 +35,7 @@ export interface IConfigModel extends Model<IConfigDocument> {
   updateConfigs(configsMap): Promise<void>;
   createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
   getSESConfigs(): Promise<ISESConfig>;
+  getCustomMailConfigs(): Promise<ICustomEmailSerivceCnfig>;
 }
 
 export const loadConfigClass = (models: IModels) => {
@@ -99,6 +109,28 @@ export const loadConfigClass = (models: IModels) => {
         secretAccessKey,
         region,
         unverifiedEmailsLimit
+      };
+    }
+
+    public static async getCustomMailConfigs() {
+      const mailServiceName = await getValueAsString(models, 'mailServiceName');
+      const customMailPort = await getValueAsString(models, 'customMailPort');
+      const customMailUsername = await getValueAsString(
+        models,
+        'customMailUsername'
+      );
+      const customMailPassword = await getValueAsString(
+        models,
+        'customMailPassword'
+      );
+      const customMailHost = await getValueAsString(models, 'customMailHost');
+
+      return {
+        mailServiceName,
+        customMailPort,
+        customMailUsername,
+        customMailPassword,
+        customMailHost
       };
     }
   }

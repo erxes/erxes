@@ -1,4 +1,4 @@
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __, Tabs, TabTitle } from '@erxes/ui/src';
 import { ContentBox, FlexRow } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
@@ -15,6 +15,12 @@ import Info from '@erxes/ui/src/components/Info';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { Verify } from '@erxes/ui-settings/src/general/components/styles';
+import Select from 'react-select-plus';
+import styled from 'styled-components';
+
+const Container = styled.div`
+  margin: 10px 0;
+`;
 
 type Props = {
   configsMap: IConfigsMap;
@@ -39,6 +45,8 @@ type State = {
   telnyxApiKey?: string;
   telnyxPhone?: string;
   telnyxProfileId?: string;
+  defaultEmailService?: string;
+  selectedTab?: string;
 };
 
 type CommonFields =
@@ -48,7 +56,8 @@ type CommonFields =
   | 'testContent'
   | 'telnyxApiKey'
   | 'telnyxPhone'
-  | 'telnyxProfileId';
+  | 'telnyxProfileId'
+  | 'defaultEmailService';
 
 class EngageSettingsContent extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -65,12 +74,15 @@ class EngageSettingsContent extends React.Component<Props, State> {
       trueMailApiKey: configsMap.trueMailApiKey || '',
       telnyxApiKey: configsMap.telnyxApiKey || '',
       telnyxPhone: configsMap.telnyxPhone || '',
-      telnyxProfileId: configsMap.telnyxProfileId || ''
+      telnyxProfileId: configsMap.telnyxProfileId || '',
+      defaultEmailService: configsMap.defaultEmailService || 'SES',
+      selectedTab: 'general'
     };
   }
 
   generateDoc = values => {
-    return { configsMap: values };
+    const { defaultEmailService } = this.state;
+    return { configsMap: { ...values, defaultEmailService } };
   };
 
   onChangeCommon = (name: CommonFields, e) => {
@@ -122,10 +134,32 @@ class EngageSettingsContent extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { configsMap, renderButton } = this.props;
-    const { values, isSubmitted } = formProps;
+  renderItem = (
+    key: string,
+    label: string,
+    formProps: IFormProps,
+    description?: string,
+    componentClass?: string
+  ) => {
+    const { configsMap } = this.props;
 
+    return (
+      <FormGroup>
+        <ControlLabel>{label}</ControlLabel>
+        {description && <p>{__(description)}</p>}
+        <FormControl
+          {...formProps}
+          name={key}
+          max={140}
+          componentClass={componentClass}
+          defaultValue={configsMap[key]}
+          onChange={this.onChangeCommon.bind(this, key)}
+        />
+      </FormGroup>
+    );
+  };
+
+  renderSeSConfig = formProps => {
     return (
       <>
         <Info>
@@ -142,49 +176,45 @@ class EngageSettingsContent extends React.Component<Props, State> {
             {__('Learn more about Amazon SES configuration')}
           </a>
         </Info>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
-          <FormGroup>
-            <ControlLabel>AWS SES Access key ID</ControlLabel>
-            <FormControl
-              {...formProps}
-              max={140}
-              name="accessKeyId"
-              defaultValue={configsMap.accessKeyId}
-            />
-          </FormGroup>
+        {this.renderItem('accessKeyId', 'AWS SES Access key ID', formProps)}
+        {this.renderItem(
+          'secretAccessKey',
+          'AWS SES Secret access key',
+          formProps
+        )}
+        {this.renderItem('region', 'AWS SES Region', formProps)}
+        {this.renderItem('configSet', 'AWS SES Config set', formProps)}
+      </>
+    );
+  };
 
-          <FormGroup>
-            <ControlLabel>AWS SES Secret access key</ControlLabel>
-            <FormControl
-              {...formProps}
-              max={140}
-              name="secretAccessKey"
-              defaultValue={configsMap.secretAccessKey}
-            />
-          </FormGroup>
-        </FlexRow>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
-          <FormGroup>
-            <ControlLabel>AWS SES Region</ControlLabel>
-            <FormControl
-              {...formProps}
-              max={140}
-              name="region"
-              defaultValue={configsMap.region}
-            />
-          </FormGroup>
+  renderCustomMailConfig = formProps => {
+    return (
+      <>
+        <Info>
+          <a
+            target="_blank"
+            href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#custom-mail-service"
+            rel="noopener noreferrer"
+          >
+            {__('Learn the case of custom email service')}
+          </a>
+        </Info>
+        {this.renderItem('mailServiceName', 'Mail Service Name', formProps)}
+        {this.renderItem('customMailPort', 'Port', formProps)}
+        {this.renderItem('customMailUsername', 'Username', formProps)}
+        {this.renderItem('customMailPassword', 'Password', formProps)}
+        {this.renderItem('customMailHost', 'Host', formProps)}
+      </>
+    );
+  };
 
-          <FormGroup>
-            <ControlLabel>AWS SES Config set</ControlLabel>
-            <FormControl
-              {...formProps}
-              max={140}
-              name="configSet"
-              defaultValue={configsMap.configSet}
-            />
-          </FormGroup>
-        </FlexRow>
+  renderGeneral = (formProps: IFormProps) => {
+    const { configsMap } = this.props;
+    const { defaultEmailService } = this.state;
 
+    return (
+      <>
         <FormGroup>
           <ControlLabel>Unverified emails limit</ControlLabel>
           <FormControl
@@ -194,67 +224,118 @@ class EngageSettingsContent extends React.Component<Props, State> {
             defaultValue={configsMap.unverifiedEmailsLimit || 100}
           />
         </FormGroup>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
-          <FormGroup>
-            <ControlLabel>Allowed email skip limit</ControlLabel>
-            <p>
-              The number of times that each customer can skip to open or click
-              campaign emails. If this limit is exceeded, then the customer will
-              automatically set to
-              <strong> unsubscribed </strong>mode.
-            </p>
-            <FormControl
-              {...formProps}
-              name="allowedEmailSkipLimit"
-              defaultValue={configsMap.allowedEmailSkipLimit || 10}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Customer limit per auto SMS campaign</ControlLabel>
-            <p>
-              The maximum number of customers that can receive auto SMS campaign
-              per each runtime.
-            </p>
-            <FormControl
-              {...formProps}
-              name="smsLimit"
-              defaultValue={configsMap.smsLimit || 0}
-              min={50}
-              max={100}
-            />
-          </FormGroup>
-        </FlexRow>
-        <ModalFooter>
-          {renderButton({
-            name: 'configsMap',
-            values: this.generateDoc(values),
-            isSubmitted,
-            object: this.props.configsMap
-          })}
-        </ModalFooter>
+
+        <FormGroup>
+          <ControlLabel>Allowed email skip limit</ControlLabel>
+          <p>
+            The number of times that each customer can skip to open or click
+            campaign emails. If this limit is exceeded, then the customer will
+            automatically set to
+            <strong> unsubscribed </strong>mode.
+          </p>
+          <FormControl
+            {...formProps}
+            name="allowedEmailSkipLimit"
+            defaultValue={configsMap.allowedEmailSkipLimit || 10}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Customer limit per auto SMS campaign</ControlLabel>
+          <p>
+            The maximum number of customers that can receive auto SMS campaign
+            per each runtime.
+          </p>
+          <FormControl
+            {...formProps}
+            name="smsLimit"
+            defaultValue={configsMap.smsLimit || 0}
+            min={50}
+            max={100}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>DEFAULT EMAIL SERVICE</ControlLabel>
+          <p>
+            {__(
+              'Choose your email service name. The default email service is SES.'
+            )}
+          </p>
+          <Select
+            options={[
+              { label: 'SES', value: 'SES' },
+              { label: 'Custom', value: 'custom' }
+            ]}
+            value={defaultEmailService}
+            clearable={false}
+            searchable={false}
+            onChange={({ value }) =>
+              this.setState({ defaultEmailService: value })
+            }
+          />
+        </FormGroup>
       </>
     );
   };
 
-  render() {
-    return (
-      <ContentBox id={'EngageSettingsMenu'}>
-        <CollapseContent
-          beforeTitle={<Icon icon="settings" />}
-          transparent={true}
-          title="General settings"
-        >
-          <Form renderContent={this.renderContent} />
-        </CollapseContent>
+  renderContent = () => {
+    const { renderButton } = this.props;
 
+    const content = (formProps: IFormProps) => {
+      const { values, isSubmitted } = formProps;
+      return (
+        <Container>
+          <CollapseContent
+            title="General settings"
+            transparent
+            beforeTitle={<Icon icon="settings" />}
+          >
+            {this.renderGeneral(formProps)}
+          </CollapseContent>
+
+          <CollapseContent
+            title="AWS SES"
+            transparent
+            beforeTitle={<Icon icon="shield-check" />}
+          >
+            {this.renderSeSConfig(formProps)}
+          </CollapseContent>
+
+          <CollapseContent
+            title="Custom mail service"
+            transparent
+            beforeTitle={<Icon icon="server-alt" />}
+          >
+            {this.renderCustomMailConfig(formProps)}
+          </CollapseContent>
+          <ModalFooter>
+            {renderButton({
+              name: 'configsMap',
+              values: this.generateDoc(values),
+              isSubmitted,
+              object: this.props.configsMap
+            })}
+          </ModalFooter>
+        </Container>
+      );
+    };
+
+    return <Form renderContent={content} />;
+  };
+
+  renderVerify = () => {
+    return (
+      <Container>
         <CollapseContent
-          beforeTitle={<Icon icon="shield-check" />}
-          transparent={true}
+          transparent
+          beforeTitle={<Icon icon="envelope-shield" />}
           title={__('Verify the email addresses that you send email from')}
         >
           {this.renderVerifiedEmails()}
 
           <Verify>
+            <Icon icon="shield-check" size={36} />
             <ControlLabel required={true}>Email</ControlLabel>
             <FormControl
               type="email"
@@ -271,27 +352,26 @@ class EngageSettingsContent extends React.Component<Props, State> {
           </Verify>
         </CollapseContent>
         <CollapseContent
-          beforeTitle={<Icon icon="envelope-upload" />}
-          transparent={true}
-          title={__('Send your first testing email')}
+          transparent
+          beforeTitle={<Icon icon="mail-alt" />}
+          title={__('Send your test email')}
         >
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
-            <FormGroup>
-              <ControlLabel>From</ControlLabel>
-              <FormControl
-                placeholder="from@email.com"
-                onChange={this.onChangeCommon.bind(this, 'testFrom')}
-              />
-            </FormGroup>
+          <FormGroup>
+            <ControlLabel>From</ControlLabel>
+            <FormControl
+              placeholder="from@email.com"
+              onChange={this.onChangeCommon.bind(this, 'testFrom')}
+            />
+          </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>To</ControlLabel>
-              <FormControl
-                placeholder="to@email.com"
-                onChange={this.onChangeCommon.bind(this, 'testTo')}
-              />
-            </FormGroup>
-          </FlexRow>
+          <FormGroup>
+            <ControlLabel>To</ControlLabel>
+            <FormControl
+              placeholder="to@email.com"
+              onChange={this.onChangeCommon.bind(this, 'testTo')}
+            />
+          </FormGroup>
+
           <FormGroup>
             <ControlLabel>Content</ControlLabel>
             <FormControl
@@ -311,6 +391,30 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </Button>
           </ModalFooter>
         </CollapseContent>
+      </Container>
+    );
+  };
+
+  render() {
+    const { selectedTab } = this.state;
+
+    return (
+      <ContentBox id={'EngageSettingsMenu'}>
+        <Tabs full>
+          <TabTitle
+            className={selectedTab === 'general' ? 'active' : ''}
+            onClick={() => this.setState({ selectedTab: 'general' })}
+          >
+            {__('General Settings')}
+          </TabTitle>
+          <TabTitle
+            className={selectedTab === 'verify' ? 'active' : ''}
+            onClick={() => this.setState({ selectedTab: 'verify' })}
+          >
+            {__('Verify')}
+          </TabTitle>
+        </Tabs>
+        {selectedTab === 'verify' ? this.renderVerify() : this.renderContent()}
       </ContentBox>
     );
   }

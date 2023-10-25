@@ -16,7 +16,10 @@ import {
   createTransporter,
   getEditorAttributeUtil
 } from '../../utils';
-import { awsRequests } from '../../trackers/engageTracker';
+import {
+  awsRequests,
+  customMailServiceRequests
+} from '../../trackers/engageTracker';
 import { debug } from '../../configs';
 import { sendEmail } from '../../sender';
 
@@ -223,7 +226,10 @@ const engageMutations = {
     { email }: { email: string },
     { models }: IContext
   ) {
-    const response = await awsRequests.verifyEmail(models, email);
+    const { isDefaultEmailServiceCMS, verifyEmail } = customMailServiceRequests;
+    const response = (await isDefaultEmailServiceCMS(models))
+      ? await verifyEmail(models, email)
+      : await awsRequests.verifyEmail(models, email);
 
     return JSON.stringify(response);
   },
@@ -236,7 +242,14 @@ const engageMutations = {
     { email }: { email: string },
     { models }: IContext
   ) {
-    const response = await awsRequests.removeVerifiedEmail(models, email);
+    const {
+      isDefaultEmailServiceCMS,
+      removeVerifiedEmail
+    } = customMailServiceRequests;
+
+    const response = (await isDefaultEmailServiceCMS(models))
+      ? await removeVerifiedEmail(models, email)
+      : await awsRequests.removeVerifiedEmail(models, email);
 
     return JSON.stringify(response);
   },

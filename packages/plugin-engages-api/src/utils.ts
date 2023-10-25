@@ -19,6 +19,36 @@ export const isUsingElk = () => {
 };
 
 export const createTransporter = async (models: IModels) => {
+  const defaultEmailService = await models.Configs.getConfig(
+    'defaultEmailService'
+  );
+
+  if (defaultEmailService?.value === 'custom') {
+    const {
+      mailServiceName,
+      customMailPort,
+      customMailUsername,
+      customMailPassword,
+      customMailHost
+    } = await models.Configs.getCustomMailConfigs();
+
+    let auth;
+
+    if (customMailUsername && customMailPassword) {
+      auth = {
+        user: customMailUsername,
+        pass: customMailPassword
+      };
+    }
+
+    return nodemailer.createTransport({
+      service: mailServiceName,
+      host: customMailHost,
+      port: customMailPort,
+      auth
+    });
+  }
+
   const config: ISESConfig = await models.Configs.getSESConfigs();
 
   AWS.config.update(config);
