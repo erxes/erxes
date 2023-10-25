@@ -50,7 +50,7 @@ jobs:
   ui:
     runs-on: ubuntu-22.04
 
-    steps:
+     steps:
       - uses: actions/checkout@v3
 
       - name: Use Node.js 18.17.x
@@ -82,4 +82,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-insurance-ui/.erxes/dist .
           cp build.tar packages/plugin-insurance-ui/.erxes/dist
           rm -rf packages/plugin-insurance-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-insurance-ui/.erxes/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-insurance-ui --delete
+          aws s3 sync packages/plugin-insurance-ui/.erxes/dist s3://erxes-enterprise-plugins/uis/plugin-insurance-ui --delete
