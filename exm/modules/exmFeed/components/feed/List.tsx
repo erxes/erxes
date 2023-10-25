@@ -52,14 +52,14 @@ function List({
   totalCount,
   loadMore
 }: FinalProps) {
-  const editItem = (item) => {
+  const editItem = item => {
     const trigger = (
       <span>
         <a>Edit</a>
       </span>
     );
 
-    const content = (props) => {
+    const content = props => {
       const { closeModal } = props;
 
       return (
@@ -298,7 +298,7 @@ function List({
                 <Icon icon="comment-1" /> {item.commentCount}
               </b>
             }
-            content={(props) => <Comments contentId={item._id} {...props} />}
+            content={props => <Comments contentId={item._id} {...props} />}
           />
           {/* <b>Share</b> */}
         </LikeCommentShare>
@@ -313,29 +313,29 @@ function List({
 
     if (contentType === 'event') {
       pinnedList = datas.filter(
-        (data) =>
+        data =>
           data.isPinned &&
           ((data.eventData?.visibility === 'private' &&
             data.recipientIds.includes(currentUser._id)) ||
             data.eventData?.visibility === 'public')
       );
       normalList = datas.filter(
-        (data) =>
+        data =>
           !data.isPinned &&
           ((data.eventData?.visibility === 'private' &&
             data.recipientIds.includes(currentUser._id)) ||
             data.eventData?.visibility === 'public')
       );
     } else {
-      pinnedList = datas.filter((data) => data.isPinned);
-      normalList = datas.filter((data) => !data.isPinned);
+      pinnedList = datas.filter(data => data.isPinned);
+      normalList = datas.filter(data => !data.isPinned);
     }
 
-    const showList = (items) => {
-      return items.map((filteredItem) => renderItem(filteredItem));
+    const showList = items => {
+      return items.map(filteredItem => renderItem(filteredItem));
     };
 
-    const handleIntersection = (inView) => {
+    const handleIntersection = inView => {
       if (inView && list.length !== totalCount) {
         loadMore();
       }

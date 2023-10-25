@@ -3,6 +3,12 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
+const BusinessPortalMenu = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "BusinessPortalMenu - Settings" */ './components/Menu'
+  )
+);
+
 const ClientPortalDetail = asyncComponent(() =>
   import(
     /* webpackChunkName: "ClientPortalDetail - Settings" */ './containers/ClientPortalDetail'
@@ -33,10 +39,26 @@ const ClientPortalUserList = asyncComponent(() =>
   )
 );
 
+const businessPortal = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <BusinessPortalMenu queryParams={queryParams} history={history} />;
+};
+
 const clientPortal = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <ClientPortal queryParams={queryParams} history={history} />;
+  return (
+    <ClientPortal queryParams={queryParams} history={history} kind="client" />
+  );
+};
+
+const vendorPortal = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <ClientPortal queryParams={queryParams} history={history} kind="vendor" />
+  );
 };
 
 const configsForm = ({ location, history }) => {
@@ -73,10 +95,22 @@ const list = ({ location, history }) => {
 const routes = () => (
   <>
     <Route
-      key="/settings/client-portal/"
-      path="/settings/client-portal"
+      key="/settings/business-portal/"
+      path="/settings/business-portal"
+      exact={true}
+      component={businessPortal}
+    />
+    <Route
+      key="/settings/business-portal/client"
+      path="/settings/business-portal/client"
       exact={true}
       component={clientPortal}
+    />
+    <Route
+      key="/settings/business-portal/vendor"
+      path="/settings/business-portal/vendor"
+      exact={true}
+      component={vendorPortal}
     />
     <Route
       key="/settings/client-portal/form"

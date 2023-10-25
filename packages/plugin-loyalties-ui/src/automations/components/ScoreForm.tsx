@@ -136,16 +136,15 @@ export default class ScoreForm extends React.Component<Props, State> {
           onChange={config => this.setState({ config })}
           customAttributions={additionalAttributes}
         />
-        <FormGroup>
-          <ControlLabel>{__('Score')}</ControlLabel>
-          <FormControl
-            type="number"
-            defaultValue={config?.score}
-            onChange={e =>
-              handleChange((e.currentTarget as HTMLInputElement).value, 'score')
-            }
-          />
-        </FormGroup>
+
+        <PlaceHolderInput
+          config={config}
+          triggerType={triggerType}
+          inputName="scoreString"
+          label="Score"
+          attrTypes={['Number']}
+          onChange={config => this.setState({ config })}
+        />
       </>
     );
   }

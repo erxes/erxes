@@ -6,17 +6,13 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations, queries } from '../../graphql';
-import {
-  CloseInfoQueryResponse,
-  CloseMutationResponse,
-  CloseMutationVariables,
-  IContract
-} from '../../types';
+import { CloseInfoQueryResponse, IContract } from '../../types';
 import InterestChangeForm from '../../components/detail/InterestChangeForm';
 
 type Props = {
   contract: IContract;
   closeModal: () => void;
+  type: string;
 };
 
 type FinalProps = {
@@ -39,7 +35,7 @@ class InterestChangeContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { closeInfoQuery, contract } = this.props;
+    const { contract } = this.props;
 
     const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
       const { closeModal } = this.props;
@@ -51,9 +47,6 @@ class InterestChangeContainer extends React.Component<FinalProps, State> {
       let mutation: any = undefined;
 
       switch (values.type) {
-        case 'stopInterest':
-          mutation = mutations.stopInterest;
-          break;
         case 'interestChange':
           mutation = mutations.interestChange;
           break;
@@ -81,24 +74,13 @@ class InterestChangeContainer extends React.Component<FinalProps, State> {
     };
 
     const onChangeDate = (date: Date) => {
-      this.setState({ invDate: date }, () =>
-        closeInfoQuery.refetch({
-          date
-        })
-      );
+      this.setState({ invDate: date });
     };
-
-    if (closeInfoQuery.loading) {
-      return null;
-    }
-
-    const closeInfo = closeInfoQuery.closeInfo || {};
 
     const updatedProps = {
       ...this.props,
       contract,
       renderButton,
-      closeInfo,
       onChangeDate,
       invDate: this.state.invDate
     };
@@ -118,26 +100,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, CloseInfoQueryResponse, { contractId: string; date: Date }>(
-      gql(queries.closeInfo),
-      {
-        name: 'closeInfoQuery',
-        options: ({ contract }) => ({
-          variables: {
-            contractId: contract._id,
-            date: new Date()
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<{}, CloseMutationResponse, CloseMutationVariables>(
-      gql(mutations.contractsClose),
-      {
-        name: 'contractsClose'
-      }
-    )
-  )(InterestChangeContainer)
-);
+export default withProps<Props>(compose()(InterestChangeContainer));

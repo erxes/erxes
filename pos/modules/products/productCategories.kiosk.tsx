@@ -1,11 +1,12 @@
 "use client"
+
 import { activeCategoryAtom } from "@/store"
 import { useQuery } from "@apollo/client"
 import { useAtom } from "jotai"
 
 import { LoaderIcon, LoaderWrapper } from "@/components/ui/loader"
 import { RadioGroup } from "@/components/ui/radio-group"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollAreaYWithButton } from "@/components/ui/scroll-area"
 
 import { queries } from "../auth/graphql"
 import CategoryItem from "./components/categoryItem/categoryItem.kiosk"
@@ -33,7 +34,7 @@ const ProductCategories = () => {
     )
 
   return (
-    <ScrollArea className="h-full overflow-hidden max-h-full pr-4">
+    <ScrollAreaYWithButton className="h-full overflow-hidden max-h-full pr-4">
       <RadioGroup
         className="space-y-1"
         value={activeCategory || ""}
@@ -46,7 +47,7 @@ const ProductCategories = () => {
           </>
         ))}
       </RadioGroup>
-    </ScrollArea>
+    </ScrollAreaYWithButton>
   )
 }
 

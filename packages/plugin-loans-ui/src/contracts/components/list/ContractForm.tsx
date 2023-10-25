@@ -30,6 +30,7 @@ import { IContractType } from '../../../contractTypes/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { generateCustomGraphic } from '../../utils/customGraphic';
 import { LoanContract, LoanSchedule } from '../../interface/LoanContract';
+import { LoanPurpose } from '../../../constants';
 
 type Props = {
   currentUser: IUser;
@@ -50,6 +51,7 @@ interface State extends LoanContract {
     minInterest: number;
   };
   schedule: LoanSchedule[];
+  contractNumber?: string;
 }
 
 function isGreaterNumber(value: any, compareValue: any) {
@@ -100,6 +102,10 @@ class ContractForm extends React.Component<Props, State> {
     const { contract = {} } = props;
 
     this.state = {
+      contractNumber: contract.number,
+      contractDate: contract.contractDate || new Date(),
+      loanPurpose: contract.loanPurpose,
+      loanSubPurpose: contract.loanSubPurpose,
       contractTypeId: contract.contractTypeId || '',
       status: contract.status,
       branchId: contract.branchId,
@@ -141,6 +147,8 @@ class ContractForm extends React.Component<Props, State> {
       currency:
         contract.currency || this.props.currentUser.configs?.dealCurrency[0],
       downPayment: contract.downPayment || 0,
+      useFee: contract.useFee,
+      useManualNumbering: contract.useManualNumbering,
       schedule:
         contract.repayment === 'custom'
           ? generateCustomGraphic({
@@ -170,9 +178,11 @@ class ContractForm extends React.Component<Props, State> {
     const result: State & {
       createdBy: string;
       createdAt: Date;
+      number?: string;
       _id: string;
     } = {
       _id: finalValues._id,
+      number: this.state.contractNumber,
       ...this.state,
       contractTypeId: this.state.contractTypeId,
       branchId: this.state.branchId,
@@ -214,7 +224,10 @@ class ContractForm extends React.Component<Props, State> {
       relContractId: this.state.relContractId,
       currency: this.state.currency,
       downPayment: Number(this.state.downPayment || 0),
-      schedule: this.state.schedule
+      schedule: this.state.schedule,
+      useManualNumbering: this.state.useManualNumbering,
+      useFee: this.state.useFee,
+      loanPurpose: this.state.loanPurpose
     };
 
     if (this.state.leaseType === 'salvage') {
@@ -316,7 +329,9 @@ class ContractForm extends React.Component<Props, State> {
       useSkipInterest: contractTypeObj.useSkipInterest,
       useDebt: contractTypeObj.useDebt,
       currency: contractTypeObj.currency,
-      config: contractTypeObj?.config
+      config: contractTypeObj?.config,
+      useManualNumbering: contractTypeObj?.useManualNumbering,
+      useFee: contractTypeObj?.useFee
     };
 
     if (!this.state.unduePercent) {
@@ -379,6 +394,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
+      this.state.config.minAmount &&
       isGreaterNumber(this.state.config.minAmount, this.state.leaseAmount)
     )
       errors.leaseAmount = errorWrapper(
@@ -387,6 +403,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
+      this.state.config.maxAmount &&
       isGreaterNumber(this.state.leaseAmount, this.state.config.maxAmount)
     )
       errors.leaseAmount = errorWrapper(
@@ -395,6 +412,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
+      this.state.config.minTenor &&
       isGreaterNumber(this.state.config.minTenor, this.state.tenor)
     )
       errors.tenor = errorWrapper(
@@ -403,6 +421,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
+      this.state.config.maxTenor &&
       isGreaterNumber(this.state.tenor, this.state.config.maxTenor)
     )
       errors.tenor = errorWrapper(
@@ -411,6 +430,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
+      this.state.config.minInterest &&
       isGreaterNumber(this.state.config.minInterest, this.state.interestMonth)
     )
       errors.interestRate = errorWrapper(
@@ -421,6 +441,7 @@ class ContractForm extends React.Component<Props, State> {
 
     if (
       this.state.config &&
+      this.state.config.maxInterest &&
       isGreaterNumber(this.state.interestMonth, this.state.config.maxInterest)
     )
       errors.interestRate = errorWrapper(
@@ -440,11 +461,37 @@ class ContractForm extends React.Component<Props, State> {
       this.setState({ branchId: value });
     };
 
+    const onChangeContractDate = value => {
+      this.setState({ contractDate: value });
+    };
+
     return (
       <>
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
+              {this.state.useManualNumbering &&
+                this.renderFormGroup('Contract Number', {
+                  ...formProps,
+                  name: 'contractNumber',
+                  value: this.state.contractNumber,
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Contract Date')}
+                </ControlLabel>
+                <DateContainer>
+                  <DateControl
+                    {...formProps}
+                    required={false}
+                    name="contractDate"
+                    value={this.state.contractDate}
+                    onChange={onChangeContractDate}
+                  />
+                </DateContainer>
+              </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>
                   {__('Contract Type')}
@@ -458,16 +505,17 @@ class ContractForm extends React.Component<Props, State> {
                 ></SelectContractType>
               </FormGroup>
 
-              {this.renderFormGroup('Fee Amount', {
-                ...formProps,
-                type: 'number',
-                name: 'feeAmount',
-                useNumberFormat: true,
-                fixed: 2,
-                value: this.state.feeAmount || 0,
-                onChange: this.onChangeField,
-                onClick: this.onFieldClick
-              })}
+              {this.state.useFee &&
+                this.renderFormGroup('Fee Amount', {
+                  ...formProps,
+                  type: 'number',
+                  name: 'feeAmount',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  value: this.state.feeAmount || 0,
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
 
               {this.state.useMargin &&
                 this.renderFormGroup('Margin Amount', {
@@ -519,6 +567,27 @@ class ContractForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
               )}
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Loan Purpose')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="loanPurpose"
+                  componentClass="select"
+                  value={this.state.loanPurpose}
+                  onChange={this.onChangeField}
+                >
+                  {(this.state.customerType === 'customer'
+                    ? LoanPurpose['person']
+                    : LoanPurpose['organization']
+                  ).map((typeName, index) => (
+                    <option key={index} value={typeName}>
+                      {__(typeName)}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
               {this.state.useMargin &&
                 this.renderFormGroup('Down payment', {
                   ...formProps,

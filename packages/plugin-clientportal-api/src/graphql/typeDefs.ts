@@ -32,12 +32,18 @@ const typeDefs = async serviceDiscovery => {
   const cardAvailable = await serviceDiscovery.isEnabled('cards');
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
   const formsAvailable = await serviceDiscovery.isEnabled('forms');
+  const productsAvailable = await serviceDiscovery.isEnabled('products');
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${clientPortalTypes(cardAvailable, kbAvailable, formsAvailable)}
+    ${clientPortalTypes(
+      cardAvailable,
+      kbAvailable,
+      formsAvailable,
+      productsAvailable
+    )}
     ${clientPortalUserTypes(isContactsEnabled)}
     ${notificationTypes}
     ${commentTypes}

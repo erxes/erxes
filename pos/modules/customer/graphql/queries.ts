@@ -13,6 +13,19 @@ const poscCustomerDetail = gql`
     }
   }
 `
+// poscCustomers(searchValue: String!, type: String, perPage: Int, page: Int): [PosCustomer]
+const poscCustomers = gql`
+  query poscCustomers($searchValue: String!, $type: String) {
+    poscCustomers(searchValue: $searchValue, type: $type) {
+      _id
+      code
+      primaryPhone
+      firstName
+      primaryEmail
+      lastName
+    }
+  }
+`
 
-const queries = { poscCustomerDetail }
+const queries = { poscCustomerDetail, poscCustomers }
 export default queries

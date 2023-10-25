@@ -25,12 +25,14 @@ const contractFields = `
   dealId
   hasTransaction
   currency
+  closeInterestRate
+  storedInterest
+  endDate
 `;
 
 const listParamsDef = `
   $page: Int
   $perPage: Int
-  $ids: [String]
   $searchValue: String
   $isExpired: String
   $startStartDate:Date
@@ -49,10 +51,14 @@ const listParamsDef = `
   $branchId:String
 `;
 
+const listParamsMainDef = `
+  ${listParamsDef}
+  $ids: [String]
+`;
+
 const listParamsValue = `
   page: $page
   perPage: $perPage
-  ids: $ids
   searchValue: $searchValue
   isExpired: $isExpired
   startStartDate: $startStartDate
@@ -71,19 +77,23 @@ const listParamsValue = `
   branchId: $branchId
 `;
 
+const listParamsMainValue = `
+  ${listParamsValue}
+  ids: $ids
+`;
+
 export const contracts = `
   query savingsContracts(${listParamsDef}) {
     savingsContracts(${listParamsValue}) {
       ${contractFields}
-      closeInterestRate
-      storedInterest
+      
     }
   }
 `;
 
 export const contractsMain = `
-  query savingsContractsMain(${listParamsDef}) {
-    savingsContractsMain(${listParamsValue}) {
+  query savingsContractsMain(${listParamsMainDef}) {
+    savingsContractsMain(${listParamsMainValue}) {
       list {
         ${contractFields}
       }
@@ -148,8 +158,8 @@ export const scheduleYears = `
 `;
 
 export const closeInfo = `
-  query closeInfo($contractId: String, $date: Date) {
-    closeInfo(contractId: $contractId, date: $date) {
+  query savingsCloseInfo($contractId: String, $date: Date) {
+    savingsCloseInfo(contractId: $contractId, date: $date) {
       balance
       storedInterest
       total
@@ -168,6 +178,16 @@ const documents = `
   }
 `;
 
+const savingsContractsAlert = `
+  query savingsContractsAlert($date: Date) {
+    savingsContractsAlert(date: $date) {
+      name
+      count
+      filter
+    }
+  }
+`;
+
 export default {
   contracts,
   contractsMain,
@@ -175,5 +195,6 @@ export default {
   schedules,
   scheduleYears,
   closeInfo,
-  documents
+  documents,
+  savingsContractsAlert
 };

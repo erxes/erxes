@@ -95,7 +95,7 @@ export interface IOrderUser {
 export interface IPaidAmount {
   _id: string
   amount: number
-  info: string
+  info?: { [key: string]: any } | null
   type: string
 }
 

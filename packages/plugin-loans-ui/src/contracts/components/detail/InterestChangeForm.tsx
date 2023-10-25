@@ -16,6 +16,12 @@ import React from 'react';
 import { ChangeAmount } from '../../styles';
 import { ICloseInfo, IContract, IContractDoc } from '../../types';
 import { __ } from 'coreui/utils';
+import SelectContracts, { Contracts } from '../common/SelectContract';
+
+import dayjs from 'dayjs';
+import client from '@erxes/ui/src/apolloClient';
+import { gql } from '@apollo/client';
+import { queries } from '../../../transactions/graphql';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -24,12 +30,15 @@ type Props = {
   onChangeDate: (date: Date) => void;
   closeModal: () => void;
   invDate: Date;
+  type: string;
 };
 
 type State = {
   type: string;
   description: string;
   interestAmount: number;
+  contractId?: string;
+  paymentInfo?: any;
 };
 
 class InterestChangeForm extends React.Component<Props, State> {
@@ -37,7 +46,7 @@ class InterestChangeForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      type: 'stopInterest',
+      type: this.props.type || 'stopInterest',
       description: '',
       interestAmount: 0
     };
@@ -89,7 +98,8 @@ class InterestChangeForm extends React.Component<Props, State> {
 
   renderRow = (label, fieldName) => {
     const { closeInfo } = this.props;
-    const value = closeInfo[fieldName] || 0;
+    const { paymentInfo } = this.state;
+    const value = paymentInfo?.[fieldName] || closeInfo[fieldName] || 0;
     return (
       <FormWrapper>
         <FormColumn>
@@ -106,12 +116,9 @@ class InterestChangeForm extends React.Component<Props, State> {
   renderCloseInfo = () => {
     return (
       <>
-        {this.renderRow('Total', 'total')}
         {this.renderRow('Payment', 'payment')}
         {this.renderRow('Interest', 'storedInterest')}
         {this.renderRow('Loss', 'undue')}
-        {this.renderRow('Insurance', 'insurance')}
-        {this.renderRow('Debt', 'debt')}
       </>
     );
   };
@@ -122,6 +129,22 @@ class InterestChangeForm extends React.Component<Props, State> {
 
     const onChangeinvDate = value => {
       onChangeDate(value);
+    };
+
+    const getPaymentInfo = (
+      contractId,
+      payDate: any = dayjs()
+        .locale('en')
+        .format('MMM, D YYYY')
+    ) => {
+      client
+        .mutate({
+          mutation: gql(queries.getPaymentInfo),
+          variables: { id: contractId, payDate: payDate }
+        })
+        .then(({ data }) => {
+          this.setState({ paymentInfo: data.getPaymentInfo });
+        });
     };
 
     return (
@@ -142,27 +165,52 @@ class InterestChangeForm extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
             </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>{__('Change Type')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="type"
-                  componentClass="select"
-                  value={this.state.type}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {['stopInterest', 'interestChange', 'interestReturn'].map(
-                    (typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {typeName}
-                      </option>
-                    )
-                  )}
-                </FormControl>
-              </FormGroup>
-            </FormColumn>
+            {!this.props.type && (
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel required={true}>
+                    {__('Change Type')}
+                  </ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="type"
+                    componentClass="select"
+                    value={this.state.type}
+                    required={true}
+                    onChange={this.onChangeField}
+                  >
+                    {['stopInterest', 'interestChange', 'interestReturn'].map(
+                      (typeName, index) => (
+                        <option key={index} value={typeName}>
+                          {typeName}
+                        </option>
+                      )
+                    )}
+                  </FormControl>
+                </FormGroup>
+              </FormColumn>
+            )}
+            {this.props.type && (
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>{__('Contract')}</ControlLabel>
+                  <SelectContracts
+                    label={__('Choose an contract')}
+                    name="contractId"
+                    initialValue={this.state.contractId}
+                    onSelect={(v, n) => {
+                      this.onChangeField({
+                        target: { name: n, value: v }
+                      } as any);
+
+                      if (this.state.contractId !== v)
+                        getPaymentInfo(v, this.props.invDate);
+                    }}
+                    multi={false}
+                  />
+                </FormGroup>
+              </FormColumn>
+            )}
           </FormWrapper>
           {this.state.type !== 'stopInterest' && (
             <FormWrapper>

@@ -49,6 +49,7 @@ const ChangeOrderStatus = ({
 
     if (doneItems.length === items.length)
       handleChangeStatus(ORDER_STATUSES.DONE)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memorisedValue])
 
   return (

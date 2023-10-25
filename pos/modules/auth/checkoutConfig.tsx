@@ -1,4 +1,4 @@
-import { allowTypesAtom } from "@/store/config.store"
+import { allowTypesAtom, banFractionsAtom } from "@/store/config.store"
 import { orderTypeAtom } from "@/store/order.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useSetAtom } from "jotai"
@@ -7,16 +7,18 @@ import Loader from "@/components/ui/loader"
 
 import queries from "./graphql/queries"
 
-const AllowTypes = ({ children }: { children: React.ReactNode }) => {
+const CheckoutConfig = ({ children }: { children: React.ReactNode }) => {
   const [allowTypes, setAllowTypes] = useAtom(allowTypesAtom)
   const setType = useSetAtom(orderTypeAtom)
+  const setBanFractions = useSetAtom(banFractionsAtom)
 
-  const { loading } = useQuery(queries.getAllowTypes, {
+  const { loading } = useQuery(queries.getCheckoutConfig, {
     onCompleted(data) {
-      const { allowTypes } = data?.currentConfig || {}
+      const { allowTypes, banFractions } = data?.currentConfig || {}
       setAllowTypes(allowTypes)
       if (allowTypes.length > 0) {
         setType(allowTypes[0])
+        setBanFractions(banFractions)
       }
     },
     skip: !!allowTypes,
@@ -27,4 +29,4 @@ const AllowTypes = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>
 }
 
-export default AllowTypes
+export default CheckoutConfig

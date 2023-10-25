@@ -2,14 +2,14 @@ import { useEffect } from "react"
 import { useSendTransaction } from "@/modules/checkout/hooks/useKhanCard"
 import useTransaction from "@/modules/checkout/hooks/useTransaction"
 import { orderNumberAtom } from "@/store/order.store"
-import { useAtom } from "jotai"
+import { useAtomValue } from "jotai"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
 
 import TerminalUI from "./terminalUI"
 
 const KhanCardSheet = () => {
-  const [number] = useAtom(orderNumberAtom)
+  const number = useAtomValue(orderNumberAtom)
   const { amount, closePaymentSheet, handleAddPayment } = useTransaction(
     BANK_CARD_TYPES.KHANBANK
   )

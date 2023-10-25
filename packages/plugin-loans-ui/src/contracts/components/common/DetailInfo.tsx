@@ -53,6 +53,10 @@ class DetailInfo extends React.Component<Props> {
           (contract.leaseAmount || 0).toLocaleString()
         )}
         {this.renderRow(
+          'Given Amount',
+          (contract.givenAmount || 0).toLocaleString()
+        )}
+        {this.renderRow(
           'Fee Amount',
           (contract.feeAmount || 0).toLocaleString()
         )}

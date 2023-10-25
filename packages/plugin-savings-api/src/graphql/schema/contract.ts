@@ -13,6 +13,7 @@ export const types = () => `
     interestRate: Float
     closeInterestRate: Float
     startDate: Date
+    endDate: Date
     customerId: String
     customerType: String
 
@@ -42,6 +43,13 @@ export const types = () => `
     preCloseInterest: Float,
     total: Float
   }
+
+  type SavingAlert {
+    name: String,
+    count: Float,
+    filter: JSON,
+  }
+
   type SavingContractsListResponse {
     list: [SavingContract],
     totalCount: Float,
@@ -83,6 +91,7 @@ export const queries = `
   savingsContracts(${queryParams}): [SavingContract]
   savingsContractDetail(_id: String!): SavingContract
   savingsCloseInfo(contractId: String, date: Date): SavingCloseInfo
+  savingsContractsAlert(date: Date): [SavingAlert]
 `;
 
 const commonFields = `
@@ -108,10 +117,21 @@ const commonFields = `
   storeInterestInterval: String
 `;
 
+const interestCorrectionFields = `
+  contractId: String
+  stoppedDate: Date
+  isStopLoss: Boolean
+  interestAmount: Float
+  lossAmount: Float
+`;
+
 export const mutations = `
   savingsContractsAdd(${commonFields}): SavingContract
   savingsContractsEdit(_id: String!, ${commonFields}): SavingContract
   savingsContractsDealEdit(_id: String!, ${commonFields}): SavingContract
   savingsContractsClose(contractId: String, closeDate: Date, closeType: String, description: String): SavingContract
   savingsContractsRemove(contractIds: [String]): [String]
+  savingsInterestChange(${interestCorrectionFields}): SavingContract
+  savingsInterestReturn(${interestCorrectionFields}): SavingContract
+  savingsExpandDuration(_id: String!):SavingContract
 `;

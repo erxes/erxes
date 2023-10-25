@@ -1,26 +1,27 @@
 import {
-  Button,
-  ModalTrigger,
   BarItems,
+  Button,
+  DataWithLoader,
   FormControl,
+  ModalTrigger,
+  Pagination,
   Table,
   Wrapper,
-  DataWithLoader,
-  Pagination,
-  router,
-  __
+  __,
+  router
 } from '@erxes/ui/src';
 import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Form from '../../containers/common/BlockForm';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
-import Form from '../../containers/branch/Form';
-import { generateTree } from '../../utils';
-import { queries } from '@erxes/ui/src/team/graphql';
-import { gql } from '@apollo/client';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { generateTree } from '../../utils';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui/src/team/graphql';
 
 type Props = {
   listQuery: BranchesMainQueryResponse;
@@ -169,7 +170,8 @@ class MainList extends React.Component<Props, State> {
               title="Edit Branch"
               content={({ closeModal }) => (
                 <Form
-                  branch={branch}
+                  item={branch}
+                  queryType="branches"
                   closeModal={closeModal}
                   additionalRefetchQueries={this.refetchQueries()}
                 />

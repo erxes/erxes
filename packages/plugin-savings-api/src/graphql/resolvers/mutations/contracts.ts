@@ -137,6 +137,60 @@ const contractMutations = {
     }
 
     return contractIds;
+  },
+  savingsExpandDuration: async (
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    const contract = await models.Contracts.expandDuration(_id);
+
+    return contract;
+  },
+  savingsInterestChange: async (
+    _root,
+    {
+      contractId,
+      stoppedDate,
+      interestAmount,
+      lossAmount
+    }: {
+      contractId: string;
+      stoppedDate: Date;
+      isStopLoss: boolean;
+      interestAmount: number;
+      lossAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const updatedContract = await models.Contracts.interestChange({
+      contractId,
+      stoppedDate,
+      interestAmount,
+      lossAmount
+    });
+
+    return updatedContract;
+  },
+  savingsInterestReturn: async (
+    _root,
+    {
+      contractId,
+      invDate,
+      interestAmount
+    }: {
+      contractId: string;
+      invDate: Date;
+      interestAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const updatedContract = await models.Contracts.interestReturn({
+      contractId,
+      invDate,
+      interestAmount
+    });
+    return updatedContract;
   }
 };
 

@@ -69,12 +69,6 @@ export const loanInterestCorrectionClass = (models: IModels) => {
     }) {
       const contract = await models.Contracts.findOne({ _id: contractId });
 
-      if (contract?.isStoppedInterest !== true) {
-        throw new Error(
-          'You can not change interest this contract not stop interest'
-        );
-      }
-
       const interestChange = await models.InterestCorrection.create({
         contractId,
         invDate: stoppedDate,
@@ -107,12 +101,6 @@ export const loanInterestCorrectionClass = (models: IModels) => {
       interestAmount: number;
     }) {
       const contract = await models.Contracts.findOne({ _id: contractId });
-
-      if (contract?.isStoppedInterest !== true) {
-        throw new Error(
-          'You can not change interest this contract not stop interest'
-        );
-      }
 
       const interestReturn = await models.InterestCorrection.create({
         contractId,

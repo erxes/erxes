@@ -15,7 +15,7 @@ export const isValidURL = (url: string) => {
   }
 }
 
-export const readFile = (value: string, width?: number): string => {
+export const readFileImage = (value: string, width?: number): string => {
   const env = getEnv()
 
   if (
@@ -35,14 +35,36 @@ export const readFile = (value: string, width?: number): string => {
     url += `&width=${width}`
   }
 
-  if (NEXT_PUBLIC_MAIN_API_DOMAIN.includes("localhost")) {
-    url = `${NEXT_PUBLIC_MAIN_API_DOMAIN}/read-file?key=${value}`
+  return url
+}
+
+export const readFile = (url: string = "", width?: any) => {
+  const READ_FILE = "/read-file?key="
+
+  const env = getEnv()
+  const NEXT_PUBLIC_MAIN_API_DOMAIN = env.NEXT_PUBLIC_MAIN_API_DOMAIN || ""
+
+  let fixedUrl = url
+
+  if ((url || "").includes(READ_FILE)) {
+    const apiUrl = url.split(READ_FILE)[0]
+
+    fixedUrl = url.replace(apiUrl, NEXT_PUBLIC_MAIN_API_DOMAIN || "")
 
     if (width) {
-      url += `&width=${width}`
+      fixedUrl += `&width=${width}`
     }
 
-    return url
+    return fixedUrl
+  }
+  if (!(url || "").includes("http") && !(url || "").startsWith("/")) {
+    fixedUrl = NEXT_PUBLIC_MAIN_API_DOMAIN + READ_FILE + url
+
+    if (width) {
+      fixedUrl += `&width=${width}`
+    }
+
+    return fixedUrl
   }
 
   return url
