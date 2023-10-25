@@ -1,18 +1,5 @@
 import * as React from 'react';
 
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { EMPTY_CONTENT_SCRIPT } from '@erxes/ui-settings/src/constants';
-import { __, router } from 'coreui/utils';
-import { FilterContainer } from '@erxes/ui-settings/src/styles';
-import Form from '../containers/Form';
-import { FormControl } from '@erxes/ui/src/components/form';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import List from '@erxes/ui-settings/src/common/components/List';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { withRouter } from 'react-router-dom';
 import {
   Actions,
   IframePreview,
@@ -21,11 +8,20 @@ import {
   TemplateInfo,
   Templates
 } from '@erxes/ui-emailtemplates/src/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import InstallCode from './InstallCode';
-import Tip from '@erxes/ui/src/components/Tip';
-import { renderToString } from 'react-dom/server';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { __, router } from 'coreui/utils';
+
+import { EMPTY_CONTENT_SCRIPT } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import Form from '../containers/Form';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import InstallCode from './InstallCode';
+import List from '@erxes/ui-settings/src/common/components/List';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { renderToString } from 'react-dom/server';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -34,32 +30,9 @@ type Props = {
   history: any;
 } & ICommonListProps;
 
-type States = {
-  searchValue: string;
-};
-
 type FinalProps = Props & IRouterProps;
 
-class ScriptList extends React.Component<FinalProps, States> {
-  constructor(props) {
-    super(props);
-
-    const { queryParams } = props;
-
-    const searchValue =
-      queryParams && queryParams.searchValue ? queryParams.searchValue : '';
-
-    this.state = {
-      searchValue
-    };
-  }
-
-  onChange = (e: React.FormEvent) => {
-    const { value } = e.currentTarget as HTMLInputElement;
-
-    this.setState({ searchValue: value });
-  };
-
+class ScriptList extends React.Component<FinalProps> {
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
@@ -116,117 +89,74 @@ class ScriptList extends React.Component<FinalProps, States> {
     router.setParams(this.props.history, { [name]: values });
   };
 
-  renderFilter = () => {
-    const scriptId =
-      this.props.queryParams && this.props.queryParams.scriptId
-        ? this.props.queryParams
-        : '';
+  renderContent = () => {
+    const { objects, remove } = this.props;
 
     return (
-      <FilterContainer>
-        <FlexRow>
-          <FlexItem>
-            <SelectBrands
-              label="Script"
-              initialValue={scriptId}
-              onSelect={this.onSelect}
-              name="scriptId"
-              multi={false}
-            />
-          </FlexItem>
+      <Templates>
+        {objects.map((object, index) => {
+          const contentHtml = renderToString(<InstallCode script={object} />);
 
-          <FlexItem>
-            <FormControl
-              placeholder={__('Search')}
-              name="searchValue"
-              onChange={this.onChange}
-              value={this.state.searchValue}
-              onKeyPress={this.handleKeyDown}
-              onKeyDown={this.handleKeyDown}
-              autoFocus={true}
-            />
-          </FlexItem>
-        </FlexRow>
-      </FilterContainer>
+          return (
+            <Template key={index}>
+              <h5>{object.name}</h5>
+              <TemplateBox>
+                <Actions>
+                  {this.renderEditAction(object)}
+                  <div onClick={() => remove(object._id)}>
+                    <Icon icon="cancel-1" /> Delete
+                  </div>
+                  {this.installCodeAction(object)}
+                </Actions>
+                <IframePreview>
+                  <iframe title="scripts-iframe" srcDoc={contentHtml} />
+                </IframePreview>
+              </TemplateBox>
+              <TemplateInfo>
+                {object.messenger && (
+                  <>
+                    <p>{__('Messenger')}</p>
+                    <p>
+                      <Icon icon="comment-1" /> {object.messenger.name}
+                    </p>
+                  </>
+                )}
+                {object.kbTopic && (
+                  <>
+                    <p>{__('Knowledge Base')}</p>
+                    <p>
+                      <Icon icon="book-open" />
+                      {object.kbTopic.title}
+                    </p>
+                  </>
+                )}
+                {object.leads.length > 0 && (
+                  <>
+                    <p>{__('Forms')}</p>
+                    <p>
+                      <Icon icon="window" />
+                      {object.leads.map(lead => ` ${lead.name},`)}
+                    </p>
+                  </>
+                )}
+              </TemplateInfo>
+            </Template>
+          );
+        })}
+      </Templates>
     );
-  };
-
-  removeTemplate = object => {
-    this.props.remove(object._id);
-  };
-
-  renderBlock = () => {
-    return this.props.objects.map((object, index) => {
-      const contentHtml = renderToString(<InstallCode script={object} />);
-
-      return (
-        <Template key={index}>
-          <h5>{object.name}</h5>
-          <TemplateBox>
-            <Actions>
-              {this.renderEditAction(object)}
-              <div onClick={this.removeTemplate.bind(this, object)}>
-                <Icon icon="cancel-1" /> Delete
-              </div>
-              {this.installCodeAction(object)}
-            </Actions>
-            <IframePreview>
-              <iframe title="scripts-iframe" srcDoc={contentHtml} />
-            </IframePreview>
-          </TemplateBox>
-          <TemplateInfo>
-            {object.messenger && (
-              <>
-                <p>Messenger</p>
-                <p>
-                  <Icon icon="comment-1" /> {object.messenger.name}
-                </p>
-              </>
-            )}
-            {object.kbTopic && (
-              <>
-                <p>Knowledge Base"</p>
-                <p>
-                  <Icon icon="book-open" />
-                  {object.kbTopic.title}
-                </p>
-              </>
-            )}
-            {object.leads.length > 0 && (
-              <>
-                <p>Forms</p>
-                <p>
-                  <Icon icon="window" />
-                  {object.leads.map(lead => ` ${lead.name},`)}
-                </p>
-              </>
-            )}
-          </TemplateInfo>
-        </Template>
-      );
-    });
-  };
-
-  searchHandler = event => {
-    const { history } = this.props;
-
-    router.setParams(history, { page: 1, searchValue: event.target.value });
-  };
-
-  renderContent = () => {
-    return <Templates>{this.renderBlock()}</Templates>;
   };
 
   render() {
     return (
       <List
-        formTitle="New script"
+        formTitle="New widget script"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Scripts') }
+          { title: __('Widget Script Manager') }
         ]}
-        title={__('Scripts')}
-        mainHead={
+        title={__('Widget Script Manager')}
+        leftActionBar={
           <HeaderDescription
             icon="/images/actions/23.svg"
             title="Scripts"
