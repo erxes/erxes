@@ -50,7 +50,7 @@ jobs:
   ui:
     runs-on: ubuntu-22.04
 
-     steps:
+    steps:
       - uses: actions/checkout@v3
 
       - name: Use Node.js 18.17.x
