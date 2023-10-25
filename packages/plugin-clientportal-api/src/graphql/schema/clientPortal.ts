@@ -1,4 +1,9 @@
-export const types = (cardAvailable, kbAvailable, formsAvailable) => `
+export const types = (
+  cardAvailable,
+  kbAvailable,
+  formsAvailable,
+  productsAvailable
+) => `
 ${
   cardAvailable
     ? `
@@ -32,6 +37,16 @@ ${
     _id: String! @external
   }
    `
+    : ''
+}
+
+${
+  productsAvailable
+    ? `
+    extend type ProductCategory @key(fields: "_id") {
+      _id: String! @external
+    }
+  `
     : ''
 }
 
@@ -92,9 +107,15 @@ ${
     header
   }
 
+  enum BusinessPortalKind {
+    client
+    vendor
+  }
+
   type ClientPortal {
     _id: String!
     name: String!
+    kind: BusinessPortalKind!
     description: String
     url: String
     logo: String
@@ -150,6 +171,7 @@ ${
     tokenExpiration: Int
     refreshTokenExpiration: Int
     tokenPassMethod: TokenPassMethod
+    vendorParentProductCategoryId: String
   }
 
   type Styles {
@@ -192,13 +214,74 @@ ${
     month: Int
     year: Int
   }
+
+  input ClientPortalConfigInput {
+    _id: String
+    name: String!
+    kind: BusinessPortalKind!
+    description: String
+    url: String
+    logo: String
+    icon: String
+    headerHtml: String
+    footerHtml: String
+
+    domain: String
+    dnsStatus: String
+    messengerBrandCode: String
+    kbToggle: Boolean,
+    knowledgeBaseLabel: String
+    knowledgeBaseTopicId: String
+    ticketLabel: String
+    dealLabel: String
+    purchaseLabel: String
+
+    taskToggle: Boolean,
+    publicTaskToggle: Boolean,
+    taskPublicBoardId: String
+    taskPublicPipelineId: String
+    taskPublicLabel: String
+    taskLabel: String
+    taskStageId: String
+    taskPipelineId: String
+    taskBoardId: String
+    ticketToggle: Boolean,
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
+    dealToggle: Boolean,
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
+    purchaseToggle: Boolean,
+    purchaseStageId: String
+    purchasePipelineId: String
+    purchaseBoardId: String
+    googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
+    facebookAppId: String
+    erxesAppToken: String
+    styles: StylesParams
+    mobileResponsive: Boolean
+
+    otpConfig: OTPConfigInput
+    mailConfig: MailConfigInput
+    manualVerificationConfig: JSON
+    passwordVerificationConfig: JSON
+    tokenPassMethod: TokenPassMethod
+    tokenExpiration: Int
+    refreshTokenExpiration: Int
+    vendorParentProductCategoryId: String
+  }
 `;
 
 export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
-  clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
+  clientPortalGetConfigs(kind:BusinessPortalKind, page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain: ClientPortal
-  clientPortalGetLast: ClientPortal
+  clientPortalGetLast(kind: BusinessPortalKind): ClientPortal
   clientPortalConfigsTotalCount: Int
   ${
     formsAvailable
@@ -217,6 +300,11 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
     clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Purchase]
     clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Task]
     clientPortalTicket(_id: String!): Ticket
+    clientPortalCardUsers(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalUser]
+    clientPortalUserTickets(userId: String): [Ticket]
+    clientPortalUserDeals(userId: String): [Deal]
+    clientPortalUserPurchases(userId: String): [Purchase]
+    clientPortalUserTasks(userId: String): [Task]
    `
       : ''
   }
@@ -234,59 +322,7 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
 
 export const mutations = cardAvailable => `
   clientPortalConfigUpdate (
-    _id: String
-    name: String
-    description: String
-    logo: String
-    icon: String
-    headerHtml: String
-    footerHtml: String
-    url: String
-    domain: String
-    messengerBrandCode: String
-    knowledgeBaseLabel: String
-    knowledgeBaseTopicId: String
-    ticketLabel: String
-    taskLabel: String
-    dealLabel: String
-    purchaseLabel: String
-    taskPublicBoardId: String
-    taskPublicPipelineId: String
-    taskPublicLabel: String
-    taskStageId: String
-    taskPipelineId: String
-    taskBoardId: String
-    ticketStageId: String
-    ticketPipelineId: String
-    ticketBoardId: String
-    dealStageId: String
-    dealPipelineId: String
-    dealBoardId: String
-    purchaseStageId: String
-    purchasePipelineId: String
-    purchaseBoardId: String
-    googleCredentials: JSON
-    googleClientId: String
-    googleClientSecret: String
-    googleRedirectUri: String
-    facebookAppId: String
-    erxesAppToken: String
-    styles: StylesParams
-    mobileResponsive: Boolean
-    kbToggle: Boolean,
-    publicTaskToggle: Boolean,
-    ticketToggle: Boolean,
-    dealToggle: Boolean,
-    purchaseToggle: Boolean,
-    taskToggle: Boolean,
-
-    otpConfig: OTPConfigInput
-    mailConfig: MailConfigInput
-    manualVerificationConfig: JSON
-    passwordVerificationConfig: JSON
-    tokenPassMethod: TokenPassMethod
-    tokenExpiration: Int
-    refreshTokenExpiration: Int
+    config: ClientPortalConfigInput!
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
