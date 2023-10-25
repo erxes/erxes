@@ -1,29 +1,30 @@
 import {
-  Button,
-  ModalTrigger,
   BarItems,
-  FormControl,
+  Button,
   DataWithLoader,
-  Wrapper,
+  FormControl,
+  ModalTrigger,
   Pagination,
   Table,
-  router,
+  Wrapper,
   __,
-  generateTree
+  generateTree,
+  router
 } from '@erxes/ui/src';
 import {
   DepartmentsMainQueryResponse,
   IDepartment
 } from '@erxes/ui/src/team/types';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Form from '../../containers/common/BlockForm';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
-import Form from '../../containers/department/Form';
-import { queries } from '@erxes/ui/src/team/graphql';
-import { gql } from '@apollo/client';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui/src/team/graphql';
 
 type Props = {
   listQuery: DepartmentsMainQueryResponse;
@@ -174,7 +175,8 @@ class MainList extends React.Component<Props, State> {
               title="Edit Department"
               content={({ closeModal }) => (
                 <Form
-                  department={department}
+                  item={department}
+                  queryType="departments"
                   additionalRefetchQueries={this.refetchQueries()}
                   closeModal={closeModal}
                 />

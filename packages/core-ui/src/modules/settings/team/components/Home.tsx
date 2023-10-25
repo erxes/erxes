@@ -189,7 +189,9 @@ export default function Home(props: Props) {
           breadcrumb={[{ title: 'Team members' }]}
         />
       }
-      leftSidebar={<Sidebar loadingMainQuery={loading} />}
+      leftSidebar={
+        <Sidebar loadingMainQuery={loading} queryParams={queryParams} />
+      }
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}
       transparent={true}

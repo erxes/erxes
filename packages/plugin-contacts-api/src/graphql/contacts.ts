@@ -17,7 +17,8 @@ const queryParams = `
   searchValue: String,
   fieldsMustExist:[String]
   sortField: String
-  sortDirection: String
+  sortDirection: String,
+  usageType: String
 `;
 
 export const queries = `
