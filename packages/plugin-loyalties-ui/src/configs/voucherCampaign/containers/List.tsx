@@ -8,8 +8,10 @@ import VoucherCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   VoucherCampaignQueryResponse,
-  VoucherCampaignRemoveMutationResponse
+  VoucherCampaignRemoveMutationResponse,
+  VoucherCampaignsCountQueryResponse
 } from '../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -19,6 +21,7 @@ type Props = {
 
 type FinalProps = {
   voucherCampaignQuery: VoucherCampaignQueryResponse;
+  voucherCampaignQueryCount: VoucherCampaignsCountQueryResponse;
 } & Props &
   VoucherCampaignRemoveMutationResponse;
 
@@ -26,6 +29,7 @@ class VoucherCampaignContainer extends React.Component<FinalProps> {
   render() {
     const {
       voucherCampaignQuery,
+      voucherCampaignQueryCount,
       queryParams,
       voucherCampaignsRemove
     } = this.props;
@@ -51,6 +55,7 @@ class VoucherCampaignContainer extends React.Component<FinalProps> {
     const filterStatus = this.props.queryParams.filterStatus || '';
 
     const voucherCampaigns = voucherCampaignQuery.voucherCampaigns || [];
+    const totalCount = voucherCampaignQueryCount.voucherCampaignsCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -59,6 +64,7 @@ class VoucherCampaignContainer extends React.Component<FinalProps> {
       remove,
       loading: voucherCampaignQuery.loading,
       searchValue,
+      totalCount,
       filterStatus
     };
 
@@ -84,9 +90,26 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, VoucherCampaignQueryResponse>(gql(queries.voucherCampaigns), {
-      name: 'voucherCampaignQuery'
+    graphql<Props>(gql(queries.voucherCampaignsCount), {
+      name: 'voucherCampaignQueryCount',
+      options: ({ queryParams }: Props) => ({
+        variables: {
+          searchValue: queryParams.searchValue
+        }
+      })
     }),
+    graphql<Props, VoucherCampaignQueryResponse>(
+      gql(queries.voucherCampaigns),
+      {
+        name: 'voucherCampaignQuery',
+        options: ({ queryParams }: Props) => ({
+          variables: {
+            searchValue: queryParams.searchValue,
+            ...generatePaginationParams(queryParams)
+          }
+        })
+      }
+    ),
     graphql<
       Props,
       VoucherCampaignRemoveMutationResponse,

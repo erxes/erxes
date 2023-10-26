@@ -17,10 +17,6 @@ class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, configsQuery } = this.props;
 
-    if (configsQuery.loading) {
-      return <Spinner objective={true} />;
-    }
-
     // create or update action
     const save = (map: IConfigsMap) => {
       updateConfigs({
