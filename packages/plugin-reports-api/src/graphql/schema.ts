@@ -9,9 +9,10 @@ export const types = `
     visibility: VisibilityType
     memberIds: [String]
     tagIds: [String]
-    charts: [Chart]
+    charts: [ReportChart]
     
     lastUpdatedAt:Date
+    lastUpdatedBy: User
     createdAt:Date
     createdBy: User
   }
@@ -21,7 +22,7 @@ export const types = `
     private
   }
  
-  type Chart {
+  type ReportChart {
     name: String
     reportId: String!
     contentType: String
@@ -56,7 +57,7 @@ export const types = `
   }
 
   type ChartsListResponse {
-    charts: [Chart]
+    charts: [ReportChart]
     totalCount: Int
   }
 `;
@@ -65,11 +66,13 @@ const query_params = `
   userId: String`;
 
 export const queries = `
-  reportsList(${query_params}): ReportsListResponse
+  reportsList: ReportsListResponse
   reportDetail(reportId: String!): Report
-  chartsList: ChartsListResponse
-  chartDetail(chartId: String!): Chart
-  reportChartGetResult(chartId: String!): Chart
+  
+  reportChartsList: ChartsListResponse
+  reportChartDetail(chartId: String!): ReportChart
+  
+  reportChartGetResult(chartId: String!): ReportChart
 `;
 
 export const params = `
@@ -88,7 +91,7 @@ export const mutations = `
   reportsRemove(_id: String!): JSON
   reportsEdit(_id:String!, ${params}): Report
 
-  chartsAdd(${chart_params}): Chart
-  chartsRemove(_id: String!): JSON
-  chartsEdit(_id: String, ${chart_params}): Chart
+  reportChartsAdd(${chart_params}): ReportChart
+  reportChartsRemove(_id: String!): JSON
+  reportChartsEdit(_id: String, ${chart_params}): ReportChart
 `;

@@ -27,10 +27,6 @@ type State = {
 };
 
 class SideBar extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   trigger = (
     <Button
       id={'AddTypeButton'}
@@ -49,6 +45,10 @@ class SideBar extends React.Component<Props, State> {
       </Tip>
     </Button>
   );
+
+  constructor(props: Props) {
+    super(props);
+  }
 
   content = props => {
     const { type } = this.state;

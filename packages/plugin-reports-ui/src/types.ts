@@ -15,8 +15,9 @@ export interface IType {
 }
 
 // queries
-export type ReportsQueryResponse = {
-  reportss: IReports[];
+export type ReportsListQueryResponse = {
+  list: IReports[];
+  totalCount: number;
   refetch: () => void;
   loading: boolean;
 };

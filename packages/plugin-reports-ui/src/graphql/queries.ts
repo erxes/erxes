@@ -1,25 +1,32 @@
-const list = `
-  query listQuery($typeId: String) {
-    reportss(typeId: $typeId) {
-      _id
-      name
-      expiryDate
-      createdAt
-      checked
-      typeId
-      currentType{
+const reportsList = `
+  query reportsList {
+    reportsList {
+      list {
         _id
         name
+        description
+        visibility
+        charts {
+          _id
+          name
+          contentType
+          template
+          order
+          chartType
+          filters {
+            fieldName
+            filterValue
+            filterType
+          }
+          defaultFilter {
+            fieldName
+            filterValue
+            filterType
+          }
+        }
       }
-    }
-  }
-`;
 
-const listReportsTypes = `
-  query listReportsTypeQuery{
-    reportsTypes{
-      _id
-      name
+      totalCount
     }
   }
 `;
@@ -31,7 +38,6 @@ const totalCount = `
 `;
 
 export default {
-  list,
-  totalCount,
-  listReportsTypes
+  reportsList,
+  totalCount
 };

@@ -21,124 +21,91 @@ type Props = {
 };
 
 type FinalProps = {
-  listQuery: ReportsQueryResponse;
+  reportsListQuery: ReportsQueryResponse;
   listReportsTypeQuery: TypeQueryResponse;
-} & Props &
-  RemoveMutationResponse &
-  EditMutationResponse;
+} & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const {
-    listQuery,
-    listReportsTypeQuery,
-    removeMutation,
-    editMutation,
-    history,
-    typeId
-  } = props;
+  const { reportsListQuery, history, typeId } = props;
 
-  if (listQuery.loading) {
+  if (reportsListQuery.loading) {
     return <Spinner />;
   }
 
-  const types = listReportsTypeQuery.reportsTypes || [];
+  // const renderButton = ({
+  //   passedName,
+  //   values,
+  //   isSubmitted,
+  //   callback,
+  //   object
+  // }: IButtonMutateProps) => {
+  //   return (
+  //     <ButtonMutate
+  //       mutation={object ? mutations.edit : mutations.add}
+  //       variables={values}
+  //       callback={callback}
+  //       isSubmitted={isSubmitted}
+  //       type="submit"
+  //       successMessage={`You successfully ${
+  //         object ? 'updated' : 'added'
+  //       } a ${passedName}`}
+  //       refetchQueries={['listQuery']}
+  //     />
+  //   );
+  // };
 
-  const renderButton = ({
-    passedName,
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={object ? mutations.edit : mutations.add}
-        variables={values}
-        callback={callback}
-        isSubmitted={isSubmitted}
-        type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${passedName}`}
-        refetchQueries={['listQuery']}
-      />
-    );
-  };
+  // const remove = reports => {
+  //   confirm('You are about to delete the item. Are you sure? ')
+  //     .then(() => {
+  //       removeMutation({ variables: { _id: reports._id } })
+  //         .then(() => {
+  //           Alert.success('Successfully deleted an item');
+  //         })
+  //         .catch(e => Alert.error(e.message));
+  //     })
+  //     .catch(e => Alert.error(e.message));
+  // };
 
-  const remove = reports => {
-    confirm('You are about to delete the item. Are you sure? ')
-      .then(() => {
-        removeMutation({ variables: { _id: reports._id } })
-          .then(() => {
-            Alert.success('Successfully deleted an item');
-          })
-          .catch(e => Alert.error(e.message));
-      })
-      .catch(e => Alert.error(e.message));
-  };
+  // const edit = reports => {
+  //   editMutation({
+  //     variables: {
+  //       _id: reports._id,
+  //       name: reports.name,
+  //       checked: reports.checked,
+  //       expiryDate: reports.expiryDate,
+  //       type: reports.type
+  //     }
+  //   })
+  //     .then(() => {
+  //       Alert.success('Successfully updated an item');
+  //       listQuery.refetch();
+  //     })
+  //     .catch(e => Alert.error(e.message));
+  // };
 
-  const edit = reports => {
-    editMutation({
-      variables: {
-        _id: reports._id,
-        name: reports.name,
-        checked: reports.checked,
-        expiryDate: reports.expiryDate,
-        type: reports.type
-      }
-    })
-      .then(() => {
-        Alert.success('Successfully updated an item');
-        listQuery.refetch();
-      })
-      .catch(e => Alert.error(e.message));
-  };
+  const { list = [], totalCount = 0 } = reportsListQuery;
 
   const updatedProps = {
     ...props,
-    reportss: listQuery.reportss || [],
-    types: listReportsTypeQuery.reportsTypes || [],
-    typeId,
-    loading: listQuery.loading,
-    remove,
-    edit,
-    renderButton
+
+    totalCount,
+    reports: list,
+    loading: reportsListQuery.loading
   };
   return <List {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.listReportsTypes), {
-      name: 'listReportsTypeQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-
     graphql<Props, ReportsQueryResponse, { typeId: string }>(
-      gql(queries.list),
+      gql(queries.reportsList),
       {
-        name: 'listQuery',
+        name: 'reportsListQuery',
         options: ({ typeId }) => ({
           variables: { typeId: typeId || '' },
           fetchPolicy: 'network-only'
         })
       }
-    ),
-    graphql(gql(queries.totalCount), {
-      name: 'totalCountQuery'
-    }),
-
-    graphql(gql(mutations.remove), {
-      name: 'removeMutation',
-      options: () => ({
-        refetchQueries: ['listQuery']
-      })
-    }),
-
-    graphql(gql(mutations.edit), {
-      name: 'editMutation'
-    })
+    )
   )(ListContainer)
 );
