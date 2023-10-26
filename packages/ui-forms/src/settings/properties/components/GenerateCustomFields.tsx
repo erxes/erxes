@@ -1,6 +1,7 @@
 import { Divider, SidebarContent, SidebarFooter } from '../styles';
 import { IField, ILocationOption } from '@erxes/ui/src/types';
 import { IFieldGroup, LogicParams } from '../types';
+import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
 
 import { Alert } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
@@ -12,6 +13,7 @@ import { ModalTrigger } from '@erxes/ui/src';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Tip from '@erxes/ui/src/components/Tip';
+import _ from 'lodash';
 import { checkLogic } from '../utils';
 import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
 import _ from 'lodash';
@@ -276,7 +278,7 @@ class GenerateGroup extends React.Component<Props, State> {
       <SidebarContent>
         {Array(numberToIterate)
           .fill(0)
-          .map((_, groupDataIndex) => {
+          .map((___, groupDataIndex) => {
             const groupDataValue = groupData[groupDataIndex] || {};
 
             const fieldRenders = fields.map((field, index) => {
