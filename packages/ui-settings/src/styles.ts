@@ -401,12 +401,13 @@ const InputBar = styledTS<{ type?: string }>(styled.div)`
   flex: 1;
   max-width: ${props =>
     props.type === 'active' && `${dimensions.headerSpacingWide * 2 + 20}px`};
+  padding: 0 5px 0 ${dimensions.coreSpacing}px;
   border-radius: 8px;
   margin-left: ${props => props.type === 'active' && '10px'};
   padding-left: ${props =>
     props.type === 'searchBar' && `${dimensions.unitSpacing * 2}px`};
 
-  input {
+  input, .Select-control {
     border-bottom: 0;
   }
 `;
