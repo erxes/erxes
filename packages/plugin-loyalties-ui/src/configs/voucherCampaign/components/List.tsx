@@ -1,18 +1,28 @@
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
 import {
   Button,
-  FormControl,
   DataWithLoader,
-  Table,
-  ModalTrigger
+  FormControl,
+  HeaderDescription,
+  ModalTrigger,
+  Pagination,
+  Table
 } from '@erxes/ui/src/components';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { Wrapper, BarItems } from '@erxes/ui/src/layout';
-import React from 'react';
-import Sidebar from '../../general/components/Sidebar';
-import { IVoucherCampaign } from '../types';
-import Row from './Row';
+import {
+  FilterContainer,
+  FlexItem,
+  FlexRow,
+  InputBar,
+  Title
+} from '@erxes/ui-settings/src/styles';
+
 import Form from '../containers/Form';
-import { __, Alert, router, confirm } from '@erxes/ui/src/utils';
+import { IVoucherCampaign } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import Row from './Row';
+import Sidebar from '../../general/components/Sidebar';
+import { Wrapper } from '@erxes/ui/src/layout';
 
 type Props = {
   voucherCampaigns: IVoucherCampaign[];
@@ -30,11 +40,10 @@ type Props = {
   ) => void;
   searchValue: string;
   filterStatus: string;
-  // configsMap: IConfigsMap;
+  totalCount?: number;
 };
 
 type State = {
-  // configsMap: IConfigsMap;
   searchValue: string;
   filterStatus: string;
 };
@@ -139,30 +148,50 @@ class VoucherCampaigns extends React.Component<Props, State> {
     );
 
     return (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-        <ModalTrigger
-          size={'lg'}
-          title="Add voucher campaign"
-          trigger={trigger}
-          autoOpenKey="showProductModal"
-          content={this.modalContent}
-        />
-      </BarItems>
+      <FilterContainer>
+        <FlexRow>
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                type="text"
+                placeholder={__('Type to search')}
+                onChange={this.search}
+                value={this.state.searchValue}
+                autoFocus={true}
+                onFocus={this.moveCursorAtTheEnd}
+              />
+            </FlexItem>
+          </InputBar>
+          <ModalTrigger
+            size={'lg'}
+            title="Add voucher campaign"
+            trigger={trigger}
+            autoOpenKey="showProductModal"
+            content={this.modalContent}
+          />
+        </FlexRow>
+      </FilterContainer>
     );
   }
 
   render() {
-    const { loading, isAllSelected } = this.props;
+    const { loading, isAllSelected, totalCount, voucherCampaigns } = this.props;
+
+    const header = (
+      <HeaderDescription
+        icon="/images/actions/25.svg"
+        title="Loyalty configs"
+        description=""
+      />
+    );
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
+      {
+        title: __('Loyalties Config'),
+        link: '/erxes-plugin-loyalty/settings/general'
+      },
       { title: __('Voucher Campaign') }
     ];
 
@@ -198,9 +227,10 @@ class VoucherCampaigns extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
+        mainHead={header}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Voucher Campaign')}</Title>}
+            left={<Title capitalize={true}>{__('Voucher Campaign')}</Title>}
             right={this.actionBarRight()}
           />
         }
@@ -208,14 +238,15 @@ class VoucherCampaigns extends React.Component<Props, State> {
           <DataWithLoader
             data={content}
             loading={loading}
-            // count={productsCount}
+            count={voucherCampaigns.length}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />
         }
         leftSidebar={<Sidebar />}
         transparent={true}
-        hasBorder
+        hasBorder={true}
+        footer={<Pagination count={totalCount && totalCount} />}
       />
     );
   }
