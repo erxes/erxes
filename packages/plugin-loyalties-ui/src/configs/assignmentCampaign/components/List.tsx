@@ -1,6 +1,4 @@
-import React from 'react';
-import Row from './Row';
-import Sidebar from '../../general/components/Sidebar';
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
 import {
   Button,
   DataWithLoader,
@@ -9,12 +7,22 @@ import {
   Pagination,
   Table
 } from '@erxes/ui/src/components';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { __, router, confirm, Alert } from '@erxes/ui/src/utils';
-import { IAssignmentCampaign } from '../types';
-import { Link } from 'react-router-dom';
+import {
+  FilterContainer,
+  FlexItem,
+  FlexRow,
+  InputBar,
+  Title
+} from '@erxes/ui-settings/src/styles';
+
 import CreateForm from './CreateForm';
+import { IAssignmentCampaign } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import Row from './Row';
+import Sidebar from '../../general/components/Sidebar';
+import { Wrapper } from '@erxes/ui/src/layout';
 
 type Props = {
   assignmentCampaigns: IAssignmentCampaign[];
@@ -137,32 +145,33 @@ class AssignmentCampaigns extends React.Component<Props, State> {
     }
 
     return (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-        <Link to={`/erxes-plugin-loyalty/settings/assignment/create`}>
-          <Button btnStyle="success" size="medium" icon="plus-circle">
-            Add assignment
-          </Button>
-        </Link>
-      </BarItems>
+      <FilterContainer>
+        <FlexRow>
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                type="text"
+                placeholder={__('Type to search')}
+                onChange={this.search}
+                value={this.state.searchValue}
+                autoFocus={true}
+                onFocus={this.moveCursorAtTheEnd}
+              />
+            </FlexItem>
+          </InputBar>
+          <Link to={`/erxes-plugin-loyalty/settings/assignment/create`}>
+            <Button btnStyle="success" size="medium" icon="plus-circle">
+              Add assignment campaign
+            </Button>
+          </Link>
+        </FlexRow>
+      </FilterContainer>
     );
   }
 
   render() {
-    const {
-      loading,
-      isAllSelected,
-      totalCount,
-      history,
-      queryParams
-    } = this.props;
+    const { loading, isAllSelected, totalCount } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -223,13 +232,14 @@ class AssignmentCampaigns extends React.Component<Props, State> {
           <DataWithLoader
             data={content}
             loading={loading}
+            count={totalCount}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />
         }
         leftSidebar={<Sidebar />}
         transparent={true}
-        hasBorder
+        hasBorder={true}
         footer={<Pagination count={totalCount && totalCount} />}
       />
     );
