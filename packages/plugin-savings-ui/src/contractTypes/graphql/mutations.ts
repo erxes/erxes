@@ -10,6 +10,7 @@ const commonFields = `
   $config: JSON,
   $isAllowIncome:Boolean,
   $isAllowOutcome:Boolean,
+  $isDeposit:Boolean,
   $interestCalcType:String,
   $interestRate: Float,
   $closeInterestRate: Float,
@@ -32,10 +33,11 @@ const commonVariables = `
   interestCalcType:$interestCalcType
   interestRate:$interestRate,
   closeInterestRate:$closeInterestRate,
-  storeInterestInterval:$storeInterestInterval
-  description:$description
-  currency:$currency
-  branchId:$branchId
+  storeInterestInterval:$storeInterestInterval,
+  description:$description,
+  currency:$currency,
+  branchId:$branchId,
+  isDeposit:$isDeposit
 `;
 
 const contractTypesAdd = `

@@ -41,6 +41,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       })
     };
   }
+
   if (
     params.conformityMainTypeId &&
     params.conformityMainType &&
@@ -179,6 +180,10 @@ const generateFilter = async (models, params, commonQuerySelector) => {
 
   if (params.interestRate) {
     filter.interestRate = params.interestRate;
+  }
+
+  if (params.isDeposit) {
+    filter.isDeposit = params.isDeposit;
   }
 
   if (params.dealId) {

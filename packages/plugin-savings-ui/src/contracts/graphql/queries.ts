@@ -26,8 +26,12 @@ const contractFields = `
   hasTransaction
   currency
   closeInterestRate
+  interestCalcType
   storedInterest
   endDate
+  isAllowIncome
+  isAllowOutcome
+  isDeposit
 `;
 
 const listParamsDef = `
@@ -49,6 +53,8 @@ const listParamsDef = `
   $closeDate: Date
   $closeDateType:String
   $branchId:String
+  $status:String
+  $isDeposit:Boolean
 `;
 
 const listParamsMainDef = `
@@ -75,6 +81,8 @@ const listParamsValue = `
   closeDate: $closeDate
   closeDateType: $closeDateType
   branchId: $branchId
+  status: $status
+  isDeposit: $isDeposit
 `;
 
 const listParamsMainValue = `

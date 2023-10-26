@@ -34,6 +34,10 @@ export const types = () => `
     depositAccount: String
     storedInterest: Float
     storeInterestInterval: String
+    interestCalcType: String
+    isAllowIncome: Boolean
+    isAllowOutcome: Boolean
+    isDeposit: Boolean
   }
 
   type SavingCloseInfo {
@@ -84,6 +88,7 @@ const queryParams = `
   closeDateType: String
   branchId: String
   status: String
+  isDeposit: Boolean
 `;
 
 export const queries = `
@@ -115,6 +120,10 @@ const commonFields = `
   closeOrExtendConfig: String
   depositAccount: String
   storeInterestInterval: String
+  interestCalcType: String
+  isAllowIncome: Boolean
+  isAllowOutcome: Boolean
+  isDeposit: Boolean
 `;
 
 const interestCorrectionFields = `
