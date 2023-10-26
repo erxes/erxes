@@ -42,11 +42,13 @@ export const loadClientPortalClass = (models: IModels) => {
         return config.toJSON();
       }
 
-      return models.ClientPortals.findOneAndUpdate(
+      await models.ClientPortals.findOneAndUpdate(
         { _id: config._id },
         { $set: doc },
         { new: true }
       );
+
+      return models.ClientPortals.findOne({ _id: config._id });
     }
   }
 

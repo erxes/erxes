@@ -1,7 +1,7 @@
 module.exports = {
   clientPortal: {
     name: 'clientPortal',
-    description: 'Client portal',
+    description: 'Business portal',
     actions: [
       {
         name: 'clientPortalAll',

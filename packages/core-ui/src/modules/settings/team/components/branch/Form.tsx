@@ -1,25 +1,26 @@
-import React, { useState } from 'react';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import Form from '@erxes/ui/src/components/form/Form';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'modules/common/utils';
-import { IBranch } from '@erxes/ui/src/team/types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import ContactInfoForm from '../common/ContactInfoForm';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import { IBranch } from '@erxes/ui/src/team/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  branch?: IBranch;
+  item?: IBranch;
   closeModal: () => void;
-  branches: IBranch[];
+  items: IBranch[];
 };
 
 export default function BranchForm(props: Props) {
-  const { closeModal, renderButton, branches } = props;
-  const object = props.branch || ({} as IBranch);
+  const { closeModal, renderButton, items, item } = props;
+  const object = item || ({} as IBranch);
 
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
@@ -75,7 +76,7 @@ export default function BranchForm(props: Props) {
     const { values, isSubmitted } = formProps;
 
     const generateOptions = () => {
-      return branches.map(branch => (
+      return items.map(branch => (
         <option key={branch._id} value={branch._id}>
           {branch.title}
         </option>

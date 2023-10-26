@@ -22,11 +22,17 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { OverlayTrigger } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import Toggle from '@erxes/ui/src/components/Toggle';
+import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import Button from '@erxes/ui/src/components/Button';
+import Tip from '@erxes/ui/src/components/Tip';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   topics: ITopic[];
   boards: IBoard[];
   pipelines: IPipeline[];
+  kind: 'client' | 'vendor';
   fetchPipelines: (boardId: string) => void;
   handleFormChange: (name: string, value: string | boolean) => void;
 } & ClientPortalConfig;
@@ -83,7 +89,9 @@ function General({
   taskToggle,
   dealToggle,
   purchaseToggle,
-  ticketToggle
+  ticketToggle,
+  vendorParentProductCategoryId,
+  kind
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
 
@@ -254,11 +262,11 @@ function General({
   const renderMain = () => {
     return (
       <Block>
-        <h4>{__('Client portal')}</h4>
+        <h4>{__('Business portal')}</h4>
         <BlockRow>
           {renderControl({
             required: true,
-            label: 'Client Portal Name',
+            label: 'Business Portal Name',
             subtitle: 'Displayed in the header area',
             formValueName: 'name',
             formValue: name,
@@ -298,7 +306,7 @@ function General({
         <ToggleWrap>
           <FormGroup>
             <ControlLabel>Show {title}</ControlLabel>
-            <p>{__('Show in Client Portal')}</p>
+            <p>{__('Show in Business Portal')}</p>
             <Toggle
               checked={toggle}
               onChange={() => onChangeToggle(toggleName, !toggle)}
@@ -316,11 +324,53 @@ function General({
     );
   };
 
+  const renderSelectCategory = () => {
+    const trigger = (
+      <Button btnStyle="primary" icon="plus-circle">
+        Create Category
+      </Button>
+    );
+
+    const renderTrigger = () => {
+      const content = props => <CategoryForm {...props} categories={[]} />;
+      return (
+        <ModalTrigger
+          title="Manage category"
+          trigger={trigger}
+          size="lg"
+          content={content}
+        />
+      );
+    };
+
+    return (
+      <>
+        <ControlLabel>Parent Product Category for Vendors</ControlLabel>
+        <div style={{ display: 'flex' }}>
+          <SelectProductCategory
+            label="Choose product category"
+            name="productCategoryId"
+            initialValue={vendorParentProductCategoryId || ''}
+            onSelect={categoryId =>
+              handleFormChange(
+                'vendorParentProductCategoryId',
+                categoryId as string
+              )
+            }
+            multi={false}
+          />
+          {renderTrigger()}
+        </div>
+      </>
+    );
+  };
+
   const renderFeatures = () => {
     if (
       !isEnabled('knowledgebase') &&
       !isEnabled('cards') &&
-      !isEnabled('inbox')
+      !isEnabled('inbox') &&
+      !isEnabled('products')
     ) {
       return null;
     }
@@ -342,7 +392,7 @@ function General({
                 <ControlLabel required={true}>
                   Knowledge base topic
                 </ControlLabel>
-                <p>{__('Knowledge base topic in Client Portal')}</p>
+                <p>{__('Knowledge base topic in Business Portal')}</p>
                 <Select
                   placeholder="Select a knowledge base topic"
                   value={knowledgeBaseTopicId}
@@ -456,6 +506,8 @@ function General({
             formValueName: 'messengerBrandCode',
             formValue: messengerBrandCode
           })}
+
+        {isEnabled('products') && kind === 'vendor' && renderSelectCategory()}
       </Block>
     );
   };
