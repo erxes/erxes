@@ -9,6 +9,10 @@ import cronjobs, {
   sendCeremonyNotification
 } from './cronjobs';
 
+import automations from './automations';
+import segments from './segments';
+import forms from './forms';
+
 export let debug;
 export let graphqlPubsub;
 export let mainDb;
@@ -55,5 +59,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
   },
 
-  meta: { cronjobs }
+  meta: { cronjobs, automations, segments, forms }
 };
