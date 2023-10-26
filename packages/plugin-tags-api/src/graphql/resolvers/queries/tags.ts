@@ -4,6 +4,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
+import { paginate } from '@erxes/api-utils/src';
 
 const tagQueries = {
   /**
@@ -115,13 +116,13 @@ const tagQueries = {
       selector._id = { $in: ids };
     }
 
-    const tags = await models.Tags.find(selector)
-      .sort({
+    const tags = await paginate(
+      models.Tags.find(selector).sort({
         order: 1,
         name: 1
-      })
-      .skip(page === 1 ? 0 : (page - 1) * perPage)
-      .limit(perPage);
+      }),
+      { page, perPage }
+    );
 
     serverTiming.endTime('query');
 
