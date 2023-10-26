@@ -1,6 +1,6 @@
 const tags = `
-  query tagsQuery($type: String, $tagIds: [String], $parentId: String) {
-    tags(type: $type, tagIds: $tagIds, parentId: $parentId) {
+  query tagsQuery($type: String, $tagIds: [String], $parentId: String, $searchValue: String, $page: Int, $perPage: Int) {
+    tags(type: $type, tagIds: $tagIds, parentId: $parentId, searchValue: $searchValue, page: $page, perPage: $perPage) {
       _id
       name
       type
@@ -15,6 +15,12 @@ const tags = `
   }
 `;
 
+const tagsQueryCount = `
+  query tagsQueryCount($type: String, $searchValue: String) {
+    tagsQueryCount(type: $type, searchValue: $searchValue)
+  }
+`;
+
 const tagsGetTypes = `
   query tagsGetTypes {
     tagsGetTypes
@@ -23,5 +29,6 @@ const tagsGetTypes = `
 
 export default {
   tags,
-  tagsGetTypes
+  tagsGetTypes,
+  tagsQueryCount
 };
