@@ -5,6 +5,8 @@ import {
   Button,
   DataWithLoader,
   FormControl,
+  HeaderDescription,
+  Pagination,
   Table
 } from '@erxes/ui/src/components';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
@@ -30,6 +32,7 @@ type Props = {
   ) => void;
   searchValue: string;
   filterStatus: string;
+  totalCount?: number;
 };
 
 type State = {
@@ -143,7 +146,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <Link to={`/erxes-plugin-loyalty/settings/assignment/create`}>
+        <Link to={`/settings/erxes-plugin-loyalty/assignment/create`}>
           <Button btnStyle="success" size="medium" icon="plus-circle">
             Add assignment
           </Button>
@@ -153,11 +156,30 @@ class AssignmentCampaigns extends React.Component<Props, State> {
   }
 
   render() {
-    const { loading, isAllSelected } = this.props;
+    const {
+      loading,
+      isAllSelected,
+      totalCount,
+      history,
+      queryParams
+    } = this.props;
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
+      {
+        title: __('Loyalties config'),
+        link: '/settings/erxes-plugin-loyalty/general'
+      },
       { title: __('Assignment Campaign') }
     ];
+
+    const header = (
+      <HeaderDescription
+        icon="/images/actions/25.svg"
+        title="Loyalty configs"
+        description=""
+      />
+    );
 
     const content = (
       <Table hover={true}>
@@ -190,6 +212,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
+        mainHead={header}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('Assignment Campaign')}</Title>}
@@ -207,6 +230,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
         leftSidebar={<Sidebar />}
         transparent={true}
         hasBorder
+        footer={<Pagination count={totalCount && totalCount} />}
       />
     );
   }

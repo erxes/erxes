@@ -60,7 +60,7 @@ class List extends React.Component<IProps> {
     return (
       <>
         <Section.Title>
-          <Link to={`/erxes-plugin-loyalty/settings/lottery`}>
+          <Link to={`/settings/erxes-plugin-loyalty/lottery`}>
             <Icon icon="cog" />
             {__('Manage Lottery Campaigns')}
           </Link>

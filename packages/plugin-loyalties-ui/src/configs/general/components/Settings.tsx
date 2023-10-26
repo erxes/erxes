@@ -4,7 +4,8 @@ import {
   FormControl,
   FormGroup,
   HeaderDescription,
-  CollapseContent
+  CollapseContent,
+  Icon
 } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
@@ -71,7 +72,11 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Loyalty configs') }
+      {
+        title: __('Loyalties config'),
+        link: '/settings/erxes-plugin-loyalty/general'
+      },
+      { title: __('General config') }
     ];
 
     const header = (
@@ -95,11 +100,19 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title={__('General settings')}>
+        <CollapseContent
+          transparent={true}
+          beforeTitle={<Icon icon="settings" />}
+          title={__('General settings')}
+        >
           {this.renderItem('LoyaltyRatioCurrency', 'Loyalty ratio currency')}
         </CollapseContent>
 
-        <CollapseContent title={__('Share settings')}>
+        <CollapseContent
+          title={__('Share settings')}
+          transparent={true}
+          beforeTitle={<Icon icon="settings" />}
+        >
           {this.renderItem('ShareScoreFee', 'Fee for score sharing')}
         </CollapseContent>
 
@@ -111,7 +124,7 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Loyalty configs')}
+            title={__('General Config')}
             breadcrumb={breadcrumb}
           />
         }

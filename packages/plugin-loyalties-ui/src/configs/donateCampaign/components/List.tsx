@@ -6,7 +6,9 @@ import {
   Button,
   DataWithLoader,
   FormControl,
+  HeaderDescription,
   ModalTrigger,
+  Pagination,
   Table
 } from '@erxes/ui/src/components';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
@@ -27,6 +29,7 @@ type Props = {
   remove: (doc: { donateCampaignIds: string[] }, emptyBulk: () => void) => void;
   searchValue: string;
   filterStatus: string;
+  totalCount?: number;
 };
 
 type State = {
@@ -155,11 +158,24 @@ class DonateCampaigns extends React.Component<Props, State> {
   }
 
   render() {
-    const { loading, isAllSelected } = this.props;
+    const { loading, isAllSelected, totalCount } = this.props;
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
+      {
+        title: __('Loyalties config'),
+        link: '/settings/erxes-plugin-loyalty/general'
+      },
       { title: __('Donate Campaign') }
     ];
+
+    const header = (
+      <HeaderDescription
+        icon="/images/actions/25.svg"
+        title="Loyalty configs"
+        description=""
+      />
+    );
 
     const content = (
       <Table hover={true}>
@@ -198,6 +214,7 @@ class DonateCampaigns extends React.Component<Props, State> {
             right={this.actionBarRight()}
           />
         }
+        mainHead={header}
         content={
           <DataWithLoader
             data={content}
@@ -209,6 +226,7 @@ class DonateCampaigns extends React.Component<Props, State> {
         leftSidebar={<Sidebar />}
         transparent={true}
         hasBorder
+        footer={<Pagination count={totalCount && totalCount} />}
       />
     );
   }

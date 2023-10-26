@@ -138,7 +138,7 @@ class EditForm extends React.Component<Props, State> {
 
     const onSave = () => {
       const { history } = this.props;
-      history.push(`/erxes-plugin-loyalty/settings/assignment`);
+      history.push(`/settings/erxes-plugin-loyalty/assignment`);
     };
 
     return (
@@ -274,7 +274,7 @@ class EditForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormFooter>
-          <Link to={`/erxes-plugin-loyalty/settings/assignment`}>
+          <Link to={`/settings/erxes-plugin-loyalty/assignment`}>
             <Button
               btnStyle="simple"
               onClick={() => {}}

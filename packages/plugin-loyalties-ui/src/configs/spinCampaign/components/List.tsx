@@ -3,7 +3,9 @@ import {
   FormControl,
   DataWithLoader,
   Table,
-  ModalTrigger
+  ModalTrigger,
+  HeaderDescription,
+  Pagination
 } from '@erxes/ui/src/components';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';
@@ -27,6 +29,7 @@ type Props = {
   remove: (doc: { spinCampaignIds: string[] }, emptyBulk: () => void) => void;
   searchValue: string;
   filterStatus: string;
+  totalCount?: number;
   // configsMap: IConfigsMap;
 };
 
@@ -157,9 +160,22 @@ class SpinCampaigns extends React.Component<Props, State> {
   }
 
   render() {
-    const { loading, isAllSelected } = this.props;
+    const { loading, isAllSelected, totalCount } = this.props;
+
+    const header = (
+      <HeaderDescription
+        icon="/images/actions/25.svg"
+        title="Loyalty configs"
+        description=""
+      />
+    );
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
+      {
+        title: __('Loyalties config'),
+        link: '/settings/erxes-plugin-loyalty/general'
+      },
       { title: __('Spin Campaign') }
     ];
 
@@ -197,6 +213,7 @@ class SpinCampaigns extends React.Component<Props, State> {
             right={this.actionBarRight()}
           />
         }
+        mainHead={header}
         content={
           <DataWithLoader
             data={content}
@@ -209,6 +226,7 @@ class SpinCampaigns extends React.Component<Props, State> {
         leftSidebar={<Sidebar />}
         transparent={true}
         hasBorder
+        footer={<Pagination count={totalCount && totalCount} />}
       />
     );
   }

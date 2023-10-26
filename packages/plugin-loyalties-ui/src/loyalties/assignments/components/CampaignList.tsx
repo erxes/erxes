@@ -59,7 +59,7 @@ class List extends React.Component<IProps> {
     return (
       <>
         <Section.Title>
-          <Link to={`/erxes-plugin-loyalty/settings/assignment`}>
+          <Link to={`/settings/erxes-plugin-loyalty/assignment`}>
             <Icon icon="cog" />
             {__('Manage Assignment Campaigns')}
           </Link>

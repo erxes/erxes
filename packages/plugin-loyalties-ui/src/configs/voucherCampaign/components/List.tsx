@@ -3,7 +3,9 @@ import {
   FormControl,
   DataWithLoader,
   Table,
-  ModalTrigger
+  ModalTrigger,
+  HeaderDescription,
+  Pagination
 } from '@erxes/ui/src/components';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';
@@ -30,6 +32,7 @@ type Props = {
   ) => void;
   searchValue: string;
   filterStatus: string;
+  totalCount?: number;
   // configsMap: IConfigsMap;
 };
 
@@ -160,9 +163,22 @@ class VoucherCampaigns extends React.Component<Props, State> {
   }
 
   render() {
-    const { loading, isAllSelected } = this.props;
+    const { loading, isAllSelected, totalCount, filterStatus } = this.props;
+
+    const header = (
+      <HeaderDescription
+        icon="/images/actions/25.svg"
+        title="Loyalty configs"
+        description=""
+      />
+    );
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
+      {
+        title: __('Loyalties Config'),
+        link: '/settings/erxes-plugin-loyalty/general'
+      },
       { title: __('Voucher Campaign') }
     ];
 
@@ -198,6 +214,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
+        mainHead={header}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('Voucher Campaign')}</Title>}
@@ -215,6 +232,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
         }
         leftSidebar={<Sidebar />}
         transparent={true}
+        footer={<Pagination count={totalCount && totalCount} />}
         hasBorder
       />
     );
