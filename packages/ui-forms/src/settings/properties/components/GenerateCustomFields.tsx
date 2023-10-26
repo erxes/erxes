@@ -11,12 +11,9 @@ import GenerateField from './GenerateField';
 import Icon from '@erxes/ui/src/components/Icon';
 import { ModalTrigger } from '@erxes/ui/src';
 import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Tip from '@erxes/ui/src/components/Tip';
 import _ from 'lodash';
 import { checkLogic } from '../utils';
-import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
-import _ from 'lodash';
 
 declare const navigator: any;
 
