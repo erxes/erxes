@@ -52,30 +52,6 @@ const generateAttributes = value => {
   return matches.map(match => match.replace(/\{\{\s*|\s*\}\}/g, ''));
 };
 
-const fetchSegment = async ({ subdomain, execution }) => {
-  const { triggerConfig, targetId } = execution;
-
-  const [contentTypeId] = await sendSegmentsMessage({
-    subdomain,
-    action: 'fetchSegment',
-    data: {
-      segmentId: triggerConfig.contentId,
-      options: {
-        defaultMustSelector: [
-          {
-            match: {
-              _id: targetId
-            }
-          }
-        ]
-      }
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-  return contentTypeId;
-};
-
 const generateIds = async value => {
   if (
     Array.isArray(value) &&
@@ -299,11 +275,17 @@ const addScore = async ({
     let attributes = generateAttributes(config?.attribution || '');
 
     if (attributes.includes('triggerExecutor')) {
-      const contentTypeId = await fetchSegment({ subdomain, execution });
+      const { ownerType, ownerId } = await getOwner({
+        models,
+        subdomain,
+        execution,
+        contentType,
+        config
+      });
 
       await models.ScoreLogs.changeOwnersScore({
-        ownerType: contentType,
-        ownerId: contentTypeId || '',
+        ownerType,
+        ownerId,
         changeScore: score,
         description: 'from automation'
       });
