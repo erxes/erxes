@@ -212,44 +212,44 @@ const routes = () => {
   return (
     <>
       <Route
-        path="/settings/erxes-plugin-loyalty/general"
+        path="/erxes-plugin-loyalty/settings/general"
         component={Settings}
       />
 
       <Route
-        path="/settings/erxes-plugin-loyalty/voucher"
+        path="/erxes-plugin-loyalty/settings/voucher"
         component={voucherCampaignList}
       />
 
       <Route
-        path="/settings/erxes-plugin-loyalty/lottery"
+        path="/erxes-plugin-loyalty/settings/lottery"
         component={lotteryCampaignList}
       />
 
       <Route
-        path="/settings/erxes-plugin-loyalty/spin"
+        path="/erxes-plugin-loyalty/settings/spin"
         component={spinCampaignList}
       />
 
       <Route
-        path="/settings/erxes-plugin-loyalty/donate"
+        path="/erxes-plugin-loyalty/settings/donate"
         component={donateCampaignList}
       />
 
       <Route
-        path="/settings/erxes-plugin-loyalty/assignment"
+        path="/erxes-plugin-loyalty/settings/assignment"
         exact={true}
         component={assignmentCampaignList}
       />
 
       <Route
-        path="/settings/erxes-plugin-loyalty/assignment/create"
+        path="/erxes-plugin-loyalty/settings/assignment/create"
         exact={true}
         component={assignmentCampaignCreate}
       />
 
       <Route
-        path="/settings/erxes-plugin-loyalty/assignment/edit"
+        path="/erxes-plugin-loyalty/settings/assignment/edit"
         component={assignmentCampaignEdit}
       />
 
