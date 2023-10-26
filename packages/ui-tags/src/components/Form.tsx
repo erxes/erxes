@@ -31,7 +31,8 @@ const ColorPicker = styled.div`
 
 type Props = {
   tag?: ITag;
-  type: string;
+  tagType: string;
+  types: any[];
   afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal?: () => void;
@@ -63,8 +64,13 @@ class FormComponent extends React.Component<Props, State> {
     this.setState({ colorCode: e.hex });
   };
 
-  generateDoc = (values: { _id?: string; name: string; parentId?: string }) => {
-    const { tag, type } = this.props;
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    type: string;
+    parentId?: string;
+  }) => {
+    const { tag } = this.props;
     const finalValues = values;
 
     if (tag) {
@@ -75,7 +81,7 @@ class FormComponent extends React.Component<Props, State> {
       _id: finalValues._id,
       name: finalValues.name,
       colorCode: this.state.colorCode,
-      type,
+      type: finalValues.type,
       parentId: finalValues.parentId
     };
   };
@@ -108,7 +114,15 @@ class FormComponent extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { tag, closeModal, afterSave, renderButton, tags } = this.props;
+    const {
+      tag,
+      closeModal,
+      afterSave,
+      renderButton,
+      tags,
+      tagType,
+      types
+    } = this.props;
     const { values, isSubmitted } = formProps;
     const { colorCode } = this.state;
     const object = tag || ({} as ITag);
@@ -149,6 +163,23 @@ class FormComponent extends React.Component<Props, State> {
               <ColorPicker style={{ backgroundColor: colorCode }} />
             </ColorPick>
           </OverlayTrigger>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Tags Type</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="type"
+            defaultValue={object.type || tagType}
+            required={true}
+            componentClass="select"
+          >
+            {types.map((type: any, index: number) => (
+              <option value={type.contentType} key={index}>
+                {type.description}
+              </option>
+            ))}
+          </FormControl>
         </FormGroup>
 
         {tags && (

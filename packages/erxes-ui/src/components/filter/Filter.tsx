@@ -150,6 +150,7 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterWithData('departmentId', 'department', '_id title')}
       {renderFilterWithData('unitId', 'unit', '_id title')}
       {renderFilterParam('groupId', true, filterTitle)}
+      {renderFilterParam('tagType', true, filterTitle)}
     </Filters>
   );
 }
