@@ -177,7 +177,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
       { title: __('Settings'), link: '/settings' },
       {
         title: __('Loyalties Config'),
-        link: '/settings/erxes-plugin-loyalty/general'
+        link: '/erxes-plugin-loyalty/settings/general'
       },
       { title: __('Voucher Campaign') }
     ];

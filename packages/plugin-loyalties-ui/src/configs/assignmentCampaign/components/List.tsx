@@ -146,7 +146,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <Link to={`/settings/erxes-plugin-loyalty/assignment/create`}>
+        <Link to={`/erxes-plugin-loyalty/settings/assignment/create`}>
           <Button btnStyle="success" size="medium" icon="plus-circle">
             Add assignment
           </Button>
@@ -168,7 +168,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
       { title: __('Settings'), link: '/settings' },
       {
         title: __('Loyalties config'),
-        link: '/settings/erxes-plugin-loyalty/general'
+        link: '/erxes-plugin-loyalty/settings/general'
       },
       { title: __('Assignment Campaign') }
     ];

@@ -43,7 +43,7 @@ class Row extends React.Component<Props> {
 
       const { history } = this.props;
       history.push(
-        `/settings/erxes-plugin-loyalty/assignment/edit?campaignId=${_id}`
+        `/erxes-plugin-loyalty/settings/assignment/edit?campaignId=${_id}`
       );
 
       if (segmentIds) {
