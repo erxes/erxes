@@ -1,13 +1,3 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormComponent from '@erxes/ui-tags/src/components/Form';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Row from './Row';
-import Sidebar from './Sidebar';
-import Table from '@erxes/ui/src/components/table';
 import {
   FilterContainer,
   FlexItem,
@@ -15,11 +5,22 @@ import {
   InputBar,
   Title
 } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __, router } from '@erxes/ui/src/utils';
-import Icon from '@erxes/ui/src/components/Icon';
+
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormComponent from '@erxes/ui-tags/src/components/Form';
 import { FormControl } from '@erxes/ui/src/components/form';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Row from './Row';
+import Sidebar from './Sidebar';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   types: any[];
@@ -31,7 +32,7 @@ type Props = {
   remove: (tag: ITag) => void;
   merge: (sourceId: string, destId: string, callback) => void;
   loading: boolean;
-  total?: number;
+  total: number;
 };
 
 function List({
@@ -101,12 +102,12 @@ function List({
 
   const title = (
     <Title capitalize={true}>
-      {contentType || 'All'} {__('tags')}
+      {contentType || 'All'} {__('tags')}&nbsp;
       {`(${total || 0})`}
     </Title>
   );
   const actionBar = (
-    <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+    <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing={true} />
   );
 
   const content = (
@@ -170,8 +171,8 @@ function List({
       }
       leftSidebar={<Sidebar types={types} type={tagType} />}
       transparent={true}
-      hasBorder
-      footer={<Pagination count={total && total} />}
+      hasBorder={true}
+      footer={<Pagination count={!loading ? total : 0} />}
     />
   );
 }

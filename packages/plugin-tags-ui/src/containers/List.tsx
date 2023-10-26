@@ -1,4 +1,3 @@
-import { __, router } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
@@ -10,14 +9,15 @@ import {
 import { mutations, queries } from '../graphql';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { __ } from '@erxes/ui/src/utils/core';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   history: any;
@@ -48,7 +48,6 @@ const ListContainer = (props: FinalProps) => {
 
   const tagType = queryParams.tagType || '';
   const types = tagsGetTypes.tagsGetTypes || [];
-  const total = tagsQueryCount.tagsQueryCount;
 
   if (types.length === 0) {
     return (
@@ -60,7 +59,7 @@ const ListContainer = (props: FinalProps) => {
     );
   }
 
-  if (!tagsQuery) {
+  if (!tagsQuery || !tagsQueryCount) {
     return (
       <EmptyState
         image="/images/actions/5.svg"
@@ -123,6 +122,8 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
+  const total = tagsQueryCount.tagsQueryCount || 0;
+
   const updatedProps = {
     ...props,
     types,
@@ -175,7 +176,6 @@ export default withProps<Props>(
         },
         fetchPolicy: 'network-only'
       })
-      // skip: ({ type }) => !type,
     }),
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.remove),
