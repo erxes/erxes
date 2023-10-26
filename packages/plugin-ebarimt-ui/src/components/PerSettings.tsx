@@ -6,12 +6,13 @@ import {
   FormGroup,
   Icon
 } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
+
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import { DISTRICTS } from '../constants';
+import { IConfigsMap } from '../types';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import React from 'react';
-import { IConfigsMap } from '../types';
-import { DISTRICTS } from '../constants';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -172,7 +173,7 @@ class PerSettings extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle="danger"
             icon="times-circle"
             onClick={this.onDelete}
             uppercase={false}

@@ -1,14 +1,14 @@
-import { Button } from '@erxes/ui/src/components';
 import { __, confirm } from '@erxes/ui/src/utils';
-import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
 
+import { Button } from '@erxes/ui/src/components';
 import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
 import Header from './Header';
+import { IConfigsMap } from '../types';
 import PerSettings from './PerSettings';
+import React from 'react';
 import Sidebar from './Sidebar';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { Wrapper } from '@erxes/ui/src/layout';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -72,6 +72,7 @@ class GeneralSettings extends React.Component<Props, State> {
     return Object.keys(configs).map(key => {
       return (
         <PerSettings
+          key={key}
           configsMap={this.state.configsMap}
           config={configs[key]}
           currentConfigKey={key}
