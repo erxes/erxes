@@ -21,10 +21,6 @@ class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, configsQuery } = this.props;
 
-    if (configsQuery.loading) {
-      return <Spinner objective={true} />;
-    }
-
     // create or update action
     const save = (map: IConfigsMap) => {
       updateConfigs({
@@ -44,6 +40,7 @@ class SettingsContainer extends React.Component<FinalProps> {
 
     const configsMap = { [config.code]: config.value };
     const Component = this.props.component;
+
     return <Component {...this.props} configsMap={configsMap} save={save} />;
   }
 }
