@@ -1,14 +1,14 @@
+import { __, confirm } from '@erxes/ui/src/utils';
+
 import { Button } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
+import { ContentBox } from '../styles';
+import Header from './Header';
+import { IConfigsMap } from '../types';
+import PerSettings from './ReturnPerSettings';
+import React from 'react';
+import Sidebar from './Sidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
-
-import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
-import Header from './Header';
-import PerSettings from './ReturnPerSettings';
-import Sidebar from './Sidebar';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -51,19 +51,22 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   delete = (currentConfigKey: string) => {
-    const { configsMap } = this.state;
-    delete configsMap.returnStageInEbarimt[currentConfigKey];
-    delete configsMap.returnStageInEbarimt['newEbarimtConfig'];
+    confirm('This Action will delete this config are you sure?').then(() => {
+      const { configsMap } = this.state;
+      delete configsMap.returnStageInEbarimt[currentConfigKey];
+      delete configsMap.returnStageInEbarimt['newEbarimtConfig'];
 
-    this.setState({ configsMap });
+      this.setState({ configsMap });
 
-    this.props.save(configsMap);
+      this.props.save(configsMap);
+    });
   };
 
   renderConfigs(configs) {
     return Object.keys(configs).map(key => {
       return (
         <PerSettings
+          key={key}
           configsMap={this.state.configsMap}
           config={configs[key]}
           currentConfigKey={key}
@@ -93,9 +96,9 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.add}
-        icon="plus"
+        icon="plus-circle"
         uppercase={false}
       >
         New config
@@ -114,8 +117,6 @@ class GeneralSettings extends React.Component<Props, State> {
         actionBar={
           <Wrapper.ActionBar
             background="colorWhite"
-            withMargin
-            wide
             left={<Title>{__('Return Ebarimt configs')}</Title>}
             right={actionButtons}
           />
@@ -124,7 +125,6 @@ class GeneralSettings extends React.Component<Props, State> {
         content={this.renderContent()}
         hasBorder={true}
         transparent={true}
-        noPadding
       />
     );
   }

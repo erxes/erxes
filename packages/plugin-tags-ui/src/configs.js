@@ -15,7 +15,7 @@ module.exports = {
   menus: [
     {
       text: 'Tags',
-      to: '/tags',
+      to: '/settings/tags',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
       scope: 'tags',

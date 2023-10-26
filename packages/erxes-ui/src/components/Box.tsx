@@ -48,7 +48,9 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
       setConfig(STORAGE_KEY, config);
 
-      return callback && callback();
+      if (!isOpen && callback) {
+        return callback();
+      }
     }
   };
 
