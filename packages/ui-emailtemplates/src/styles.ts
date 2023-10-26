@@ -112,12 +112,14 @@ const Actions = styled.div`
   }
 `;
 
-const Template = styledTS<{ isLongName?: boolean }>(styled.div)`
+const Template = styledTS<{ isLongName?: boolean; position?: string }>(
+  styled.div
+)`
   flex-basis: 300px;
   padding: 10px 10px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: ${props => props.position || 'space-between'};
   border-radius: 6px;
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
   box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
@@ -160,6 +162,11 @@ const TemplateInfo = styled.div`
 
     &:first-child {
       color: #333;
+      margin-right: ${dimensions.coreSpacing}px;
+    }
+
+    &:last-child {
+      text-align: end;
     }
   }
 `;

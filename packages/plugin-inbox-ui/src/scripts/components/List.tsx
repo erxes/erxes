@@ -98,7 +98,7 @@ class ScriptList extends React.Component<FinalProps> {
           const contentHtml = renderToString(<InstallCode script={object} />);
 
           return (
-            <Template key={index}>
+            <Template key={index} position="flex-start">
               <h5>{object.name}</h5>
               <TemplateBox>
                 <Actions>
@@ -112,34 +112,34 @@ class ScriptList extends React.Component<FinalProps> {
                   <iframe title="scripts-iframe" srcDoc={contentHtml} />
                 </IframePreview>
               </TemplateBox>
-              <TemplateInfo>
+              <>
                 {object.messenger && (
-                  <>
+                  <TemplateInfo>
                     <p>{__('Messenger')}</p>
                     <p>
                       <Icon icon="comment-1" /> {object.messenger.name}
                     </p>
-                  </>
+                  </TemplateInfo>
                 )}
                 {object.kbTopic && (
-                  <>
+                  <TemplateInfo>
                     <p>{__('Knowledge Base')}</p>
                     <p>
                       <Icon icon="book-open" />
                       {object.kbTopic.title}
                     </p>
-                  </>
+                  </TemplateInfo>
                 )}
                 {object.leads.length > 0 && (
-                  <>
+                  <TemplateInfo>
                     <p>{__('Forms')}</p>
                     <p>
                       <Icon icon="window" />
                       {object.leads.map(lead => ` ${lead.name},`)}
                     </p>
-                  </>
+                  </TemplateInfo>
                 )}
-              </TemplateInfo>
+              </>
             </Template>
           );
         })}
