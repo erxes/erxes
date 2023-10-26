@@ -62,6 +62,11 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           $in: _ids
         }
       });
+      // const data = await models.Goals.getGoal(_id);
+      // if (!data) {
+      //   throw new Error(`not found with id ${_id}`);
+      // }
+      // return models.Goals.remove({ _id });
     }
 
     public static async progressGoal(_id: string) {
@@ -95,6 +100,10 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         console.error('Error fetching progress IDs goals:', error);
         return []; // Return an empty array or handle the error accordingly
       }
+
+      // const doc = await models.Goals.find({}).lean();
+      // const data = await progressFunctionIds(doc);
+      // return data;
     }
   }
 
@@ -351,3 +360,72 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
 
   return goalSchema;
 };
+
+// async function amountFunction(action_name, goal) {
+//   const amount = await sendCardsMessage({
+//     subdomain,
+//     action: action_name,
+//     data: {
+//       stageId: goal?.stageId
+//     },
+//     isRPC: true
+//   });
+
+//   let mobileAmountsData;
+//   let data;
+//   let totalAmount = 0;
+//   for (const items of amount) {
+//     if (items.productsData && items.status === 'active') {
+//       const productsData = items.productsData;
+//       productsData.forEach((item) => {
+//         totalAmount += item.amount;
+//       });
+//     }
+//     if (items.mobileAmounts && items.mobileAmounts.length > 0) {
+//       mobileAmountsData = items.mobileAmounts[0].amount;
+//     }
+//     if (items.paymentsData) {
+//       const paymentsData = items.paymentsData;
+//       if (paymentsData.prepay) {
+//         data = paymentsData.prepay;
+//       } else if (paymentsData.cash) {
+//         data = paymentsData.cash;
+//       } else if (paymentsData.bankTransaction) {
+//         data = paymentsData.bankTransaction;
+//       } else if (paymentsData.posTerminal) {
+//         data = paymentsData.posTerminal;
+//       } else if (paymentsData.wallet) {
+//         data = paymentsData.wallet;
+//       } else if (paymentsData.barter) {
+//         data = paymentsData.barter;
+//       } else if (paymentsData.receivable) {
+//         data = paymentsData.receivable;
+//       } else if (paymentsData.other) {
+//         data = paymentsData.other;
+//       }
+//     }
+//   }
+
+//   const result = {
+//     mobileAmountsData,
+//     data,
+//     totalAmount
+//   };
+
+//   return result;
+// }
+// async function countFunction(action_name, goal) {
+//   const count = await sendCardsMessage({
+//     subdomain,
+//     action: action_name,
+//     data: {
+//       stageId: goal?.stageId
+//     },
+//     isRPC: true
+//   });
+//   const activeElements = count.filter((item) => item.status === 'active');
+
+//   // Getting the count of elements with status 'active'
+//   const activeCount = activeElements.length;
+//   return activeCount;
+// }

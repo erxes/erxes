@@ -77,21 +77,32 @@ const goalQueries = {
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
 
-    return {
+    const data = {
       list: paginate(models.Goals.find(filter).sort(sortBuilder(params)), {
         page: params.page,
         perPage: params.perPage
       }),
-      totalCount: models.Goals.find(filter).count()
+      totalCount: await models.Goals.find(filter).countDocuments()
     };
+
+    return data;
+  },
+
+  goalTypeMainProgress: async (
+    _root,
+    params,
+    { commonQuerySelector, models }: IContext
+  ) => {
+    const goals = await models.Goals.progressIdsGoals();
+
+    return goals;
   },
   /**
    * Get one goal
    */
   async goalDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    const data = await models.Goals.findOne({ _id }).lean();
-    // return await models.Goals.findOne({ _id });
-    console.log(data, 'data');
+    const goal = await models.Goals.progressGoal(_id);
+    return goal;
   }
 };
 

@@ -15,12 +15,15 @@ export interface IContext extends IMainContext {
 
 export let models: IModels | null = null;
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string
+): IModels => {
   models = {} as IModels;
 
   models.Goals = db.model<IGoalDocument, IGoalModel>(
     'goals',
-    loadGoalClass(models)
+    loadGoalClass(models, subdomain)
   );
 
   return models;

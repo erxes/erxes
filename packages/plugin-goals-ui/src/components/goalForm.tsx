@@ -14,7 +14,7 @@ import {
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { IGoal, IGoalTypeDoc, IAssignmentCampaign } from '../types';
+import { IGoalType, IGoalTypeDoc, IAssignmentCampaign } from '../types';
 import { ENTITY, CONTRIBUTION, FREQUENCY, GOAL_TYPE } from '../constants';
 import React from 'react';
 import { __ } from 'coreui/utils';
@@ -32,9 +32,10 @@ import { LinkButton } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
 import styled from 'styled-components';
 import { TabTitle, Tabs as MainTabs, Table } from '@erxes/ui/src';
+import { DatePicker } from '@/components/ui/date-picker';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  goal: IGoal;
+  goal: IGoalType;
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
   assignmentCampaign?: IAssignmentCampaign;
@@ -292,78 +293,19 @@ class GoalTypeForm extends React.Component<Props, State> {
     return <Form renderContent={this.renderContent} />;
   };
 
-  renderGraphic = (formProps: IFormProps) => {
-    const goal = this.props.goal || ({} as IGoal);
-    const { closeModal, renderButton } = this.props;
-    const { values, isSubmitted } = formProps;
-
-    return (
-      <>
-        <h2>{'Add notifications to goal'}</h2>
-        <ScrollWrapper>
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Goal Started')}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  componentClass="checkbox" // Use 'input' for checkboxes
-                  name="stageRadio"
-                  checked={this.state.stageRadio}
-                  onChange={this.onChangeField}
-                  inline={true}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Goal Archieved')}
-                </ControlLabel>
-                <FormControl
-                  {...formProps}
-                  componentClass="checkbox" // Use 'input' for checkboxes
-                  name="stageRadio"
-                  checked={this.state.stageRadio}
-                  onChange={this.onChangeField}
-                  inline={true}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>{__('Goal Missed')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  componentClass="checkbox" // Use 'input' for checkboxes
-                  name="stageRadio"
-                  checked={this.state.stageRadio}
-                  onChange={this.onChangeField}
-                  inline={true}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-        </ScrollWrapper>
-        {/* <ModalFooter>
-          <Button btnStyle='simple' onClick={closeModal} icon='cancel-1'>
-            {__('Close')}
-          </Button>
-          {renderButton({
-            name: 'goal',
-            values: this.generateDoc(values),
-            isSubmitted,
-            object: this.props.goal
-          })}
-        </ModalFooter> */}
-      </>
-    );
-  };
-
   renderContent = (formProps: IFormProps) => {
-    const goal = this.props.goal || ({} as IGoal);
+    const goal = this.props.goal || ({} as IGoalType);
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const { contribution } = this.state;
     const { specificPeriodGoals } = this.state;
+    /// dateContaner only month and year code
+    const dateContainer = date => {
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      return `${month}/${year}`;
+    };
+    console.log(this.state.entity, 'this.state.entity');
 
     return (
       <>
@@ -549,7 +491,7 @@ class GoalTypeForm extends React.Component<Props, State> {
                   required={true}
                   onChange={this.onChangeField}
                 >
-                  {['Value (MNT)', 'Count'].map((typeName, index) => (
+                  {['Value', 'Count'].map((typeName, index) => (
                     <option key={index} value={typeName}>
                       {typeName}
                     </option>
@@ -585,6 +527,7 @@ class GoalTypeForm extends React.Component<Props, State> {
                   <FormColumn>
                     <FormGroup>
                       <ControlLabel>{__('Period (Monthly)')}</ControlLabel>
+
                       <DateContainer>
                         <DateControl
                           required={false}
