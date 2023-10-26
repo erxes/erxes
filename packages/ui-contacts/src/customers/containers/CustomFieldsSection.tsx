@@ -18,6 +18,7 @@ type Props = {
   customer: ICustomer;
   loading?: boolean;
   isDetail: boolean;
+  collapseCallback: () => void;
 };
 
 type FinalProps = {
@@ -31,7 +32,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     customersEdit,
     fieldsGroupsQuery,
     loading,
-    isDetail
+    isDetail,
+    collapseCallback
   } = props;
 
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
@@ -62,7 +64,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     customFieldsData: customer.customFieldsData,
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
     isDetail,
-    object: customer
+    object: customer,
+    collapseCallback
   };
 
   return <GenerateCustomFields {...updatedProps} />;

@@ -222,6 +222,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             loading={loading}
             customer={customer}
             isDetail={false}
+            collapseCallback={toggleSection}
           />
           <Box
             title={__('Conversation details')}

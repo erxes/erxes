@@ -63,12 +63,22 @@ class Sidebar extends React.Component<FinalProps, State> {
     }
   }
 
+  mergeProperties() {
+    const config = getConfig(STORAGE_KEY) || {};
+
+    return Object.entries(config)?.reduce((result, [key, value]) => {
+      const keys = key.replace(/[0-9]+$/, '');
+      result[keys] = keys in result ? result[keys] || value : value;
+      return result;
+    }, {});
+  }
+
   getCustomerDetail(customerId?: string) {
     if (!customerId) {
       return null;
     }
 
-    const sectionParams = getConfig(STORAGE_KEY);
+    const sectionParams = this.mergeProperties();
 
     this.setState({ loading: true });
 
@@ -99,9 +109,11 @@ class Sidebar extends React.Component<FinalProps, State> {
   render() {
     const { customer, loading } = this.state;
 
+    const mergedProperties = this.mergeProperties();
+
     const taggerRefetchQueries = [
       {
-        query: gql(queries.generateCustomerDetailQuery(getConfig(STORAGE_KEY))),
+        query: gql(queries.generateCustomerDetailQuery(mergedProperties)),
         variables: { _id: customer._id }
       }
     ];
