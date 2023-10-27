@@ -66,15 +66,15 @@ const tagQueries = {
       searchValue,
       tagIds,
       parentId,
-      page,
-      perPage
+      skip,
+      limit
     }: {
       type: string;
       searchValue?: string;
       tagIds?: string[];
       parentId?: string;
-      page: any;
-      perPage: any;
+      skip?: number;
+      limit?: number;
     },
     { models, commonQuerySelector, serverTiming }: IContext
   ) {
@@ -116,13 +116,13 @@ const tagQueries = {
       selector._id = { $in: ids };
     }
 
-    const tags = await paginate(
-      models.Tags.find(selector).sort({
+    const tags = models.Tags.find(selector)
+      .sort({
         order: 1,
         name: 1
-      }),
-      { page, perPage }
-    );
+      })
+      .skip(skip || 0)
+      .limit(limit || 0);
 
     serverTiming.endTime('query');
 

@@ -1,6 +1,6 @@
 const tags = `
-  query tagsQuery($type: String, $tagIds: [String], $parentId: String, $searchValue: String, $page: Int, $perPage: Int) {
-    tags(type: $type, tagIds: $tagIds, parentId: $parentId, searchValue: $searchValue, page: $page, perPage: $perPage) {
+  query tagsQuery($type: String, $tagIds: [String], $parentId: String, $searchValue: String, $skip: Int, $limit: Int) {
+    tags(type: $type, tagIds: $tagIds, parentId: $parentId, searchValue: $searchValue, skip: $skip, limit: $limit) {
       _id
       name
       type

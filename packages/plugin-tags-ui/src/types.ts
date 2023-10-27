@@ -23,6 +23,7 @@ export type TagsQueryResponse = {
   tags: ITag[];
   loading: boolean;
   refetch: () => void;
+  fetchMore?: any;
 };
 
 // mutations

@@ -2,6 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
+  ITag,
   MergeMutationResponse,
   RemoveMutationResponse,
   TagsQueryResponse
@@ -18,6 +19,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 
 type Props = {
   history: any;
@@ -122,18 +124,52 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
+  const tags = tagsQuery.tags || [];
   const total = tagsQueryCount.tagsQueryCount || 0;
+
+  const onLoadMore = () => {
+    return (
+      tagsQuery &&
+      tagsQuery.fetchMore({
+        variables: {
+          skip: tags.length
+        },
+        updateQuery: (prevResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult || fetchMoreResult.tags.length === 0) {
+            return prevResult;
+          }
+
+          const prevTags = prevResult.tags || [];
+          const prevTagsIds = prevTags.map((tag: ITag) => tag._id);
+
+          const fetchedTags: ITag[] = [];
+
+          for (const tag of fetchMoreResult.tags) {
+            if (!prevTagsIds.includes(tag._id)) {
+              fetchedTags.push(tag);
+            }
+          }
+
+          return {
+            ...prevResult,
+            tags: [...prevTags, ...fetchedTags]
+          };
+        }
+      })
+    );
+  };
 
   const updatedProps = {
     ...props,
     types,
-    tags: tagsQuery.tags || [],
+    tags,
     loading: tagsQuery.loading,
     tagType,
     total,
     remove,
     merge,
-    renderButton
+    renderButton,
+    onLoadMore
   };
 
   return <List {...updatedProps} />;
@@ -172,7 +208,7 @@ export default withProps<Props>(
         variables: {
           type: queryParams.tagType,
           searchValue: queryParams.searchValue,
-          ...generatePaginationParams(queryParams)
+          limit: 10
         },
         fetchPolicy: 'network-only'
       })

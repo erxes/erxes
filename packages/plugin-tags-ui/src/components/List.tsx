@@ -15,7 +15,6 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import Row from './Row';
 import Sidebar from './Sidebar';
@@ -28,6 +27,7 @@ type Props = {
   tagType: string;
   history: any;
   queryParams?: any;
+  onLoadMore: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
   merge: (sourceId: string, destId: string, callback) => void;
@@ -45,10 +45,29 @@ function List({
   types,
   history,
   total,
+  onLoadMore,
   queryParams
 }: Props) {
   const [searchValue, setSearchValue] = React.useState(queryParams.searchValue);
   const contentType = (tagType || '').split(':')[1];
+
+  const renderLoadMore = () => {
+    if (tags.length >= total) {
+      return null;
+    }
+
+    return (
+      <Button
+        block={true}
+        btnStyle="link"
+        onClick={() => onLoadMore()}
+        icon="redo"
+        uppercase={false}
+      >
+        {loading ? 'Loading...' : 'Load more'}
+      </Button>
+    );
+  };
 
   const trigger = (
     <Button id={'AddTagButton'} btnStyle="success" icon="plus-circle">
@@ -172,7 +191,7 @@ function List({
       leftSidebar={<Sidebar types={types} type={tagType} />}
       transparent={true}
       hasBorder={true}
-      footer={<Pagination count={!loading ? total : 0} />}
+      footer={renderLoadMore()}
     />
   );
 }
