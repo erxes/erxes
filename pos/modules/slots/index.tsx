@@ -4,7 +4,7 @@ import { useAtom } from "jotai"
 import { ISlot } from "@/types/slots.type"
 import { RadioGroup } from "@/components/ui/radio-group"
 
-import SlotNew from "./components/slot"
+import Slot from "./components/slot"
 import useSlots from "./hooks/useSlots"
 
 const Slots = () => {
@@ -24,7 +24,7 @@ const Slots = () => {
         onValueChange={(value) => setActiveSlot(value)}
       >
         {(slots || []).map((slot: ISlot) => (
-          <SlotNew key={slot._id} {...slot} active={activeSlot === slot.code} />
+          <Slot key={slot._id} {...slot} active={activeSlot === slot.code} />
         ))}
       </RadioGroup>
     </div>

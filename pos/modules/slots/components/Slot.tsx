@@ -41,6 +41,7 @@ const Slot = ({
     borderRadius,
     isShape,
   } = option || {}
+
   const Icon = statusIcons[status || "available"]
   const style = {
     width,
