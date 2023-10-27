@@ -72,14 +72,12 @@ const TaggerContainer = (props: FinalProps) => {
       });
   };
 
-  console.log('tags:', tags);
-
   const onLoadMore = () => {
     return (
       tagsQuery &&
       tagsQuery.fetchMore({
         variables: {
-          page: tags.length / 10 + 1
+          page: tags.length / 20 + 1
         },
         updateQuery: (prevResult, { fetchMoreResult }) => {
           if (!fetchMoreResult || fetchMoreResult.tags.length === 0) {
@@ -174,7 +172,7 @@ export default withProps<Props>(
         variables: {
           type: props.type,
           parentId: props.parentTagId,
-          perPage: 10
+          perPage: 20
         }
       })
     }),
