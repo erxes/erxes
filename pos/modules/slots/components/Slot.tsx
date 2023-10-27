@@ -1,81 +1,121 @@
-import { RadioGroupItem } from "@radix-ui/react-radio-group"
-import { cva } from "class-variance-authority"
 import { motion } from "framer-motion"
-import { Check } from "lucide-react"
+import { CircleDashed, CircleDotDashed, CircleSlash } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import { Label } from "@/components/ui/label"
-
-const className = cva("h-10 w-10 text-base font-bold px-0 relative ", {
-  variants: {
-    status: {
-      serving: "bg-blue-300 hover:bg-blue-200",
-      available: "bg-green-300 hover:bg-green-200",
-      reserved: "bg-orange-200 hover:bg-orange-200",
-    },
-  },
-  defaultVariants: {
-    status: "available",
-  },
-})
+import { RadioGroupItem } from "@/components/ui/radio-group"
 
 const MotionLabel = motion(Label)
 
+const statusIcons = {
+  serving: CircleDotDashed,
+  available: CircleDashed,
+  reserved: CircleSlash,
+}
+
 const Slot = ({
+  active,
   code,
   name,
-  status,
-  active,
+  option,
   isPreDates,
+  status,
 }: ISlot & {
   status?: "serving" | "available" | "reserved"
   active: boolean
 }) => {
+  const {
+    rotateAngle,
+    width,
+    height,
+    top,
+    left,
+    color,
+    zIndex,
+    borderRadius,
+    isShape,
+  } = option || {}
+  const Icon = statusIcons[status || "available"]
+  const style = {
+    width,
+    height,
+    top,
+    left,
+    transform: `rotate(${rotateAngle}deg)`,
+    backgroundColor: color,
+    zIndex,
+    borderRadius,
+  }
+  if (isShape)
+    return (
+      <div
+        className={cn(
+          "absolute flex items-center font-medium justify-center",
+          active && "shadow-md shadow-primary/50"
+        )}
+        style={style}
+      />
+    )
+
   return (
     <HoverCard>
-      <HoverCardTrigger asChild>
-        <Button className={className({ status })} Component={"div"}>
-          {name}
-          <RadioGroupItem
-            value={active ? "" : code}
-            id={code}
-            className="peer sr-only"
-          />
-          <MotionLabel
-            className="absolute inset-0 border-primary rounded-md border-2"
-            animate={{
-              opacity: active ? 1 : 0,
-            }}
-            initial={{
-              opacity: 0,
-            }}
-            htmlFor={code}
-          />
-          <MotionLabel
-            className="absolute -top-1.5 -right-1.5 bg-primary h-5 w-5 rounded-full border-2 border-white p-0.5 text-white"
-            initial={{ opacity: 0, translateY: 2, translateX: -2 }}
-            animate={{
-              opacity: active ? 1 : 0,
-              translateY: active ? 0 : 2,
-              translateX: active ? 0 : -2,
-            }}
-            htmlFor={code}
-          >
-            <Check className="h-3 w-3" strokeWidth={4} />
-          </MotionLabel>
-        </Button>
+      <HoverCardTrigger
+        className={cn(
+          "absolute flex items-center font-medium justify-center text-white",
+          active && "shadow-md shadow-primary/50"
+        )}
+        style={style}
+      >
+        <RadioGroupItem
+          value={active ? "" : code}
+          id={code}
+          className="peer sr-only"
+        />
+        <div
+          style={{
+            transform: `rotate(-${rotateAngle}deg)`,
+          }}
+          className="flex items-center gap-0.5"
+        >
+          <Icon className="h-4 w-4" />
+          {name || code}
+        </div>
+        <MotionLabel
+          animate={{
+            opacity: active ? 1 : 0,
+          }}
+          initial={{
+            opacity: 0,
+          }}
+          className="absolute inset-0 border-primary border-2 cursor-pointer"
+          htmlFor={code}
+          style={{
+            width,
+            height,
+            borderRadius,
+          }}
+        />
       </HoverCardTrigger>
-      {isPreDates && (
-        <HoverCardContent side="right">
-          {isPreDates.toString()}
-        </HoverCardContent>
-      )}
+
+      <HoverCardContent>
+        <div className="flex items-center justify-between">
+          <div>
+            {name} {code}
+          </div>
+          <div className="flex items-center gap-1">
+            <Icon className="h-4 w-4" />
+            {status}
+          </div>
+        </div>
+
+        {(isPreDates || "").toString()}
+      </HoverCardContent>
     </HoverCard>
   )
 }

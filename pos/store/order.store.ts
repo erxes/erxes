@@ -15,6 +15,7 @@ import {
 import { customerSearchAtom } from "."
 import { cartAtom, orderItemInput, totalAmountAtom } from "./cart.store"
 import { allowTypesAtom } from "./config.store"
+import { selectedTabAtom } from "."
 import { paymentSheetAtom } from "./ui.store"
 
 // order
@@ -89,6 +90,7 @@ export const setInitialAtom = atom(
     set(dueDateAtom, undefined)
     set(isPreAtom, undefined)
     set(buttonTypeAtom, null)
+    set(selectedTabAtom, "plan")
   }
 )
 

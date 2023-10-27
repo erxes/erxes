@@ -40,6 +40,7 @@ export const types = `
     name: String
     status: String
     isPreDates: [Date]
+    option: JSON
   }
 
   type PosConfig {
