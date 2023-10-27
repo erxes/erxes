@@ -66,12 +66,12 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
                     src={
                       userDetail.avatar
                         ? readFile(userDetail.avatar)
-                        : "/user.png"
+                        : "/avatar-colored.svg"
                     }
                     alt="User Profile"
                     width={500}
                     height={500}
-                    className="w-10 h-10 rounded-full"
+                    className="w-10 h-10 rounded-full object-cover"
                   />
                   <div className="w-full ml-4">
                     <DialogTrigger asChild={true}>

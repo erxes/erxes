@@ -23,6 +23,11 @@ const useChatsMutation = ({
     mutations.chatRemove
   )
 
+  const [muteChatMutation, { loading: loadingMute }] = useMutation(
+    mutations.chatToggleIsWithNotification,
+    { refetchQueries: ["chats", "chatDetail"] }
+  )
+
   const [adminMutation, { loading: loadingAdmin }] = useMutation(
     mutations.chatMakeOrRemoveAdmin
   )
@@ -40,6 +45,14 @@ const useChatsMutation = ({
 
   const togglePinned = (chatId: string) => {
     togglePinnedChat({
+      variables: { id: chatId },
+    }).then(() => {
+      callBack("success")
+    })
+  }
+
+  const toggleMute = (chatId: string) => {
+    muteChatMutation({
       variables: { id: chatId },
     }).then(() => {
       callBack("success")
@@ -96,8 +109,9 @@ const useChatsMutation = ({
     addOrRemoveMember,
     chatEdit,
     chatDelete,
+    toggleMute,
     loading:
-      loading || loadingEdit || loadingDelete || loadingAdmin || loadingMember,
+      loading || loadingEdit || loadingDelete || loadingAdmin || loadingMember || loadingMute,
   }
 }
 

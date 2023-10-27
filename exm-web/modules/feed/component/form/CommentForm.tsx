@@ -153,13 +153,13 @@ const CommentForm = ({
       <DialogHeader>
         <DialogTitle>{feed?.title || ""}</DialogTitle>
       </DialogHeader>
-      <div className="flex items-center">
+      <div className="flex items-center ">
         <Image
-          src={userDetail?.avatar || "/user.png"}
+          src={userDetail?.avatar || "/avatar-colored.svg"}
           alt="User Profile"
           width={100}
           height={100}
-          className="w-10 h-10 rounded-full"
+          className="w-10 h-10 rounded-full object-cover"
         />
         <div className="ml-3">
           <div className="text-sm font-bold text-gray-700 mb-1">
@@ -172,7 +172,7 @@ const CommentForm = ({
         </div>
       </div>
 
-      <ScrollArea className="overflow-auto h-[650px]">
+      <ScrollArea className="h-[650px]">
         <div className="my-1 overflow-x-hidden">
           <p className="text-[#666]">{updatedDescription}</p>
         </div>

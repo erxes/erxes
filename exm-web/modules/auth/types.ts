@@ -117,7 +117,7 @@ export interface IDepartment extends IStructureCommon {
 export type IUser = IUserC & {
   isSubscribed?: boolean
   isAdmin?: boolean
-  department?: IDepartment
+  departments?: IDepartment[]
 } & {
   isShowNotification?: boolean
 } & {

@@ -89,6 +89,12 @@ const chatToggleIsPinned = gql`
   }
 `
 
+const chatToggleIsWithNotification = gql`
+  mutation chatToggleIsWithNotification($id: String!) {
+    chatToggleIsWithNotification(_id: $id)
+  }
+`
+
 const emojiReact = gql`
   mutation emojiReact(
     $contentId: String!
@@ -141,6 +147,12 @@ const chatForward = gql`
   }
 `
 
+const pinMessage = gql`
+  mutation ChatMessageToggleIsPinned($id: String!) {
+    chatMessageToggleIsPinned(_id: $id)
+  }
+`
+
 export default {
   chatAdd,
   chatEdit,
@@ -154,4 +166,6 @@ export default {
   commentAdd,
   commentRemove,
   chatForward,
+  chatToggleIsWithNotification,
+  pinMessage
 }

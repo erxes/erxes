@@ -52,12 +52,12 @@ const RightSideBar = () => {
             src={
               currentUser.details && currentUser.details.avatar
                 ? currentUser?.details?.avatar
-                : "/user.png"
+                : "/avatar-colored.svg"
             }
             alt="User Profile"
             width={100}
             height={100}
-            className="w-10 h-10 rounded-full"
+            className="w-10 h-10 rounded-full object-cover"
           />
           <div className="ml-3 mt-2">
             <div className="text-sm font-bold text-gray-700 mb-1 flex flex-col">

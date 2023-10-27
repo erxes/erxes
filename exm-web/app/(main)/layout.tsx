@@ -13,7 +13,7 @@ export default function RootLayout({ children }: ILayoutProps) {
       <CheckAuth>
         <div className="relative flex h-screen flex-col">
           <>
-            <section className="flex flex-auto items-stretch bg-[#F8F9FA]">
+            <section className="flex flex-auto items-stretch bg-white">
               <Sidebar />
               {children}
             </section>

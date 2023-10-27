@@ -15,6 +15,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.8.3",
+    "@emoji-mart/data": "^1.1.2",
+    "@emoji-mart/react": "^1.1.1",
     "@hookform/resolvers": "^3.1.0",
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-aspect-ratio": "^1.0.3",
@@ -42,6 +44,7 @@
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.0",
     "dayjs": "^1.11.10",
+    "emoji-mart": "^5.5.2",
     "framer-motion": "^10.12.16",
     "graphql": "^16.6.0",
     "graphql-ws": "^5.13.1",

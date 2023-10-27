@@ -15,6 +15,7 @@ const chats = gql`
         isPinned
         isPinnedUserIds
         featuredImage
+        muteUserIds
         lastMessage {
           content
           createdAt
@@ -68,6 +69,7 @@ const chatsPinned = gql`
         isPinned
         isPinnedUserIds
         featuredImage
+        muteUserIds
         lastMessage {
           content
           createdAt
@@ -118,6 +120,7 @@ const chatDetail = gql`
       type
       isSeen
       featuredImage
+      muteUserIds
       lastMessage {
         createdAt
         content
@@ -157,18 +160,20 @@ const chatDetail = gql`
 `
 
 const chatMessages = gql`
-  query chatMessages($chatId: String, $limit: Int, $skip: Int) {
-    chatMessages(chatId: $chatId, limit: $limit, skip: $skip) {
+  query chatMessages($chatId: String, $limit: Int, $skip: Int, $isPinned: Boolean) {
+    chatMessages(chatId: $chatId, limit: $limit, skip: $skip, isPinned: $isPinned) {
       list {
         _id
         content
         attachments
+        isPinned
         createdUser {
           _id
           email
           details {
             avatar
             fullName
+            position
           }
         }
         createdAt
@@ -181,11 +186,18 @@ const chatMessages = gql`
             details {
               avatar
               fullName
+              position
             }
           }
         }
         seenList {
           lastSeenMessageId
+          user {
+            _id
+            details {
+              avatar
+            }
+          }
         }
       }
       totalCount

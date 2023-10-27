@@ -31,9 +31,14 @@ const SelectUsers = ({
   return (
     <>
       {loading && !reload && !searchValue ? (
-        <Input disabled={true} placeholder="Loading..." />
+        <Input
+          disabled={true}
+          placeholder="Loading..."
+          className="sm:rounded-lg"
+        />
       ) : (
         <Select
+          className="sm:rounded-lg"
           onMenuClose={() => setReload(false)}
           onMenuOpen={() => setReload(true)}
           isMulti={true}
@@ -46,7 +51,9 @@ const SelectUsers = ({
           onInputChange={setSearchValue}
           onChange={(data) => {
             onChangeMultiValue(data)
-            field && field.onChange(data)
+            if (field) {
+              field.onChange(data)
+            }
           }}
         />
       )}
