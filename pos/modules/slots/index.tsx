@@ -4,7 +4,7 @@ import { useAtom } from "jotai"
 import { ISlot } from "@/types/slots.type"
 import { RadioGroup } from "@/components/ui/radio-group"
 
-import Slot from "./components/slot"
+import Slot from "./components/SlotItem"
 import useSlots from "./hooks/useSlots"
 
 const Slots = () => {
