@@ -1,6 +1,5 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
-import Form from '@erxes/ui-tags/src/components/Form';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -11,9 +10,10 @@ import React from 'react';
 import Select from 'react-select-plus';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import FormComponent from '@erxes/ui-tags/src/components/Form';
+import { __ } from '@erxes/ui/src/utils';
 
 export const TagWrapper = styledTS<{ space: number }>(styled.div)`
   padding-left: ${props => props.space * 20}px;
@@ -24,6 +24,7 @@ type Props = {
   type: string;
   count?: number;
   space: number;
+  types: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
   merge: (sourceId: string, destId: string, callback) => void;
@@ -134,7 +135,7 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    const { tag, type, count, renderButton, space, tags } = this.props;
+    const { tag, type, count, renderButton, space, tags, types } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -145,9 +146,10 @@ class Row extends React.Component<Props, State> {
     );
 
     const content = props => (
-      <Form
+      <FormComponent
         {...props}
         type={type}
+        types={types}
         tag={tag}
         renderButton={renderButton}
         tags={tags}

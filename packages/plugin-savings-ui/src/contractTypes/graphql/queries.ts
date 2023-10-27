@@ -16,6 +16,7 @@ export const contractTypeFields = `
   closeInterestRate
   isAllowIncome
   isAllowOutcome
+  isDeposit
 `;
 
 const listParamsDef = `

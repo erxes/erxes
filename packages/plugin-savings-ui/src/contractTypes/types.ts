@@ -59,6 +59,7 @@ export interface IContractTypeDoc {
   branchId: string;
   isAllowIncome: boolean;
   isAllowOutcome: boolean;
+  isDeposit: boolean;
   interestRate: number;
   closeInterestRate: number;
   createdBy?: string;

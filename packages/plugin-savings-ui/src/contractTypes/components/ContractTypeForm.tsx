@@ -42,6 +42,7 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
       storeInterestInterval: contractType.storeInterestInterval,
       isAllowIncome: contractType.isAllowIncome,
       isAllowOutcome: contractType.isAllowOutcome,
+      isDeposit: contractType.isDeposit,
       interestRate: contractType.interestRate,
       closeInterestRate: contractType.closeInterestRate,
       currency:
@@ -67,6 +68,7 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
       vacancy: Number(finalValues.vacancy),
       isAllowIncome: this.state.isAllowIncome,
       isAllowOutcome: this.state.isAllowOutcome,
+      isDeposit: this.state.isDeposit,
       interestCalcType: this.state.interestCalcType,
       storeInterestInterval: this.state.storeInterestInterval,
       description: finalValues.description,
@@ -230,15 +232,25 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
                 checked: this.state.isAllowIncome,
                 onChange: this.onChangeField
               })}
-              {this.renderFormGroup('Is allow outcome', {
+              {this.renderFormGroup('Is Deposit', {
                 ...formProps,
                 className: 'flex-item',
                 type: 'checkbox',
                 componentClass: 'checkbox',
-                name: 'isAllowOutcome',
-                checked: this.state.isAllowOutcome,
+                name: 'isDeposit',
+                checked: this.state.isDeposit,
                 onChange: this.onChangeField
               })}
+              {this.state.isDeposit &&
+                this.renderFormGroup('Is allow outcome', {
+                  ...formProps,
+                  className: 'flex-item',
+                  type: 'checkbox',
+                  componentClass: 'checkbox',
+                  name: 'isAllowOutcome',
+                  checked: this.state.isAllowOutcome,
+                  onChange: this.onChangeField
+                })}
             </FormColumn>
           </FormWrapper>
           <FormWrapper>

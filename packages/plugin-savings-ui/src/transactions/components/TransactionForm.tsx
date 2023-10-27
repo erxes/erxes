@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import {
   Button,
   ControlLabel,
@@ -20,6 +18,7 @@ import { Amount } from '../../contracts/styles';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { __ } from 'coreui/utils';
+import dayjs from 'dayjs';
 import SelectContracts, {
   Contracts
 } from '../../contracts/components/common/SelectContract';
@@ -42,6 +41,9 @@ type State = {
   paymentInfo: any;
   storedInterest: number;
   transactionType: string;
+  closeInterestRate: number;
+  interestRate: number;
+  savingAmount: number;
   closeInterest: number;
 };
 
@@ -63,9 +65,12 @@ class TransactionForm extends React.Component<Props, State> {
       customerId:
         transaction.customerId || (invoice && invoice.customerId) || '',
       paymentInfo: null,
-      storedInterest: 0,
+      storedInterest: transaction.storedInterest || 0,
       transactionType: type,
-      closeInterest: 0
+      closeInterestRate: transaction.closeInterestRate || 0,
+      closeInterest: transaction.closeInterest || 0,
+      interestRate: transaction.interestRate || 0,
+      savingAmount: transaction.savingAmount || 0
     };
   }
 
@@ -197,12 +202,21 @@ class TransactionForm extends React.Component<Props, State> {
                   onSelect={(v, n) => {
                     onSelect(v, n);
                     if (typeof v === 'string') {
-                      onSelect(Contracts[v].customerId, 'customerId');
                       this.setState({
+                        customerId: Contracts[v].customerId,
                         storedInterest: Contracts[v].storedInterest,
-                        closeInterest: Contracts[v].closeInterest,
+                        closeInterestRate: Contracts[v].closeInterestRate,
                         interestRate: Contracts[v].interestRate,
-                        savingAmount: Contracts[v].interestRate
+                        savingAmount: Contracts[v].savingAmount,
+                        closeInterest: Number(
+                          (
+                            ((Contracts[v].savingAmount *
+                              Contracts[v].closeInterestRate) /
+                              100 /
+                              365) *
+                            dayjs().diff(dayjs(Contracts[v].startDate), 'day')
+                          ).toFixed(2)
+                        )
                       });
                     }
                   }}
@@ -242,11 +256,11 @@ class TransactionForm extends React.Component<Props, State> {
                 </Info>
               )}
               {this.state.transactionType === 'outcome' &&
-                this.renderRowTr('savingAmount', 'savingAmount')}
+                this.renderRowTr('Saving Amount', 'savingAmount')}
               {this.state.transactionType === 'outcome' &&
-                this.renderRowTr('storedInterest', 'storedInterest')}
+                this.renderRowTr('Saving stored interest', 'storedInterest')}
               {this.state.transactionType === 'outcome' &&
-                this.renderRowTr('closeInterest', 'closeInterest')}
+                this.renderRowTr('Close interest Rate', 'closeInterest')}
             </FormColumn>
           </FormWrapper>
         </ScrollWrapper>

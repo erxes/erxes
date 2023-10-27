@@ -194,6 +194,7 @@ class ContractTypesList extends React.Component<IProps, State> {
           title={__('New Saving contract type')}
           trigger={addTrigger}
           autoOpenKey="showContractTypeModal"
+          size="lg"
           content={contractTypeForm}
           backDrop="static"
         />
