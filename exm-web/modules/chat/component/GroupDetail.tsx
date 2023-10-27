@@ -18,6 +18,7 @@ import { useToast } from "@/components/ui/use-toast"
 
 import useChatsMutation from "../hooks/useChatsMutation"
 import AddParticipant from "./AddParticipant"
+import LeaveChat from "./LeaveChat"
 import ParticipantList from "./ParticipantList"
 import { GroupChatAction } from "./form/GroupChatAction"
 import { PinnedMessages } from "./messages/PinnedMessages"
@@ -43,6 +44,7 @@ const UserDetail = ({
   const [openMembers, setOpenMembers] = useState(false)
   const [openChangeName, setOpenChangeName] = useState(false)
   const [openChangeImage, setOpenChangeImage] = useState(false)
+  const [open, setOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom)
 
   const renderPinnedMessage = () => {
@@ -185,12 +187,17 @@ const UserDetail = ({
           </div>
           {muted ? "Unmute" : "Mute"}
         </div>
-        <div className="flex flex-col items-center">
-          <div className="bg-[#E6E6E6] rounded-lg p-3 text-[#9A9A9A] cursor-pointer">
-            <LogOut size={16} />
-          </div>
-          Leave
-        </div>
+        <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+          <DialogTrigger asChild={true}>
+            <div className="flex flex-col items-center">
+              <div className="bg-[#E6E6E6] rounded-lg p-3 text-[#9A9A9A] cursor-pointer">
+                <LogOut size={16} />
+              </div>
+              Leave
+            </div>
+          </DialogTrigger>
+          {open ? <LeaveChat setOpen={setOpen} _id={chatDetail._id} /> : null}
+        </Dialog>
       </div>
     )
   }

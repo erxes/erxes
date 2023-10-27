@@ -9,7 +9,6 @@ import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { useAtomValue } from "jotai"
 import {
-  AlertTriangleIcon,
   Archive,
   Bell,
   BellOff,
@@ -17,19 +16,14 @@ import {
   MoreVerticalIcon,
   Pin,
   PinOff,
-  Trash,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import {
   Dialog,
-  DialogContent,
-  DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
-import LoadingPost from "@/components/ui/loadingPost"
 import {
   Popover,
   PopoverContent,
@@ -37,6 +31,7 @@ import {
 } from "@/components/ui/popover"
 
 import useChatsMutation from "../hooks/useChatsMutation"
+import LeaveChat from "./LeaveChat"
 
 dayjs.extend(relativeTime)
 
@@ -62,9 +57,8 @@ export const ChatItem = ({
 
   const {
     togglePinned,
-    chatDelete,
     toggleMute,
-    loading: mutationLoading,
+    chatArchive,
   } = useChatsMutation({ callBack })
   const searchParams = useSearchParams()
 
@@ -90,10 +84,6 @@ export const ChatItem = ({
     }
   }
 
-  const onDelete = () => {
-    chatDelete(chat._id)
-  }
-
   const onPin = () => {
     togglePinned(chat._id)
   }
@@ -103,53 +93,21 @@ export const ChatItem = ({
   }
 
   const renderChatActions = () => {
-    const renderForm = () => {
-      return (
-        <DialogContent>
-          {mutationLoading ? <LoadingPost text="Leaving" /> : null}
-
-          <div className="flex flex-col items-center justify-center">
-            <AlertTriangleIcon size={30} color={"#6569DF"} /> Are you sure?
-          </div>
-
-          <DialogFooter className="flex flex-col items-center justify-center sm:justify-center sm:space-x-2">
-            <Button
-              className="font-semibold rounded-full bg-[#F2F2F2] hover:bg-[#F2F2F2] text-black"
-              onClick={() => setOpen(false)}
-            >
-              No, Cancel
-            </Button>
-
-            <Button
-              type="submit"
-              className="font-semibold rounded-full"
-              onClick={onDelete}
-            >
-              Yes, I am
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      )
-    }
-
     const renderDelete = () => {
-      return (
-        <Dialog open={open} onOpenChange={() => setOpen(!open)}>
-          <DialogTrigger asChild={true}>
-            <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-rose-600 text-xs flex">
-              {chat.type === "direct" ? (
-                <Trash size={14} />
-              ) : (
+      if (chat.type === "group") {
+        return (
+          <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+            <DialogTrigger asChild={true}>
+              <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-rose-600 text-xs flex">
                 <LogOut size={14} />
-              )}
-              &nbsp;
-              {chat.type === "direct" ? "Delete chat" : "Leave Chat"}
-            </div>
-          </DialogTrigger>
+                &nbsp; Leave Chat
+              </div>
+            </DialogTrigger>
 
-          {open ? renderForm() : null}
-        </Dialog>
-      )
+            {open ? <LeaveChat setOpen={setOpen} _id={chat._id} /> : null}
+          </Dialog>
+        )
+      }
     }
 
     return (
@@ -181,7 +139,7 @@ export const ChatItem = ({
           </div>
           <div
             className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex"
-            // onClick={onPin}
+            onClick={() => chatArchive(chat._id)}
           >
             <Archive size={14} />
             &nbsp; Archive chat

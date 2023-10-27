@@ -19,8 +19,13 @@ const useChatsMutation = ({
     mutations.chatEdit,
     { refetchQueries: ["chats", "chatDetail"] }
   )
+
   const [deleteChatMutation, { loading: loadingDelete }] = useMutation(
     mutations.chatRemove
+  )
+
+  const [deleteArchiveMutation, { loading: loadingArchive }] = useMutation(
+    mutations.chatArchive
   )
 
   const [muteChatMutation, { loading: loadingMute }] = useMutation(
@@ -86,6 +91,15 @@ const useChatsMutation = ({
     })
   }
 
+  const chatArchive = (chatId: string) => {
+    deleteArchiveMutation({
+      variables: { id: chatId },
+      refetchQueries: ["chats", "chatDetail"],
+    }).then(() => {
+      callBack("success")
+    })
+  }
+
   const addOrRemoveMember = (
     chatId: string,
     type: string,
@@ -110,8 +124,15 @@ const useChatsMutation = ({
     chatEdit,
     chatDelete,
     toggleMute,
+    chatArchive,
     loading:
-      loading || loadingEdit || loadingDelete || loadingAdmin || loadingMember || loadingMute,
+      loading ||
+      loadingEdit ||
+      loadingDelete ||
+      loadingAdmin ||
+      loadingMember ||
+      loadingMute ||
+      loadingArchive,
   }
 }
 

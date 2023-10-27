@@ -153,6 +153,12 @@ const pinMessage = gql`
   }
 `
 
+const chatArchive = gql`
+  mutation ChatArchive($id: String!) {
+    chatArchive(_id: $id)
+  }
+`
+
 export default {
   chatAdd,
   chatEdit,
@@ -167,5 +173,6 @@ export default {
   commentRemove,
   chatForward,
   chatToggleIsWithNotification,
-  pinMessage
+  pinMessage,
+  chatArchive
 }
