@@ -301,6 +301,10 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
     clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Task]
     clientPortalTicket(_id: String!): Ticket
     clientPortalCardUsers(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalUser]
+    clientPortalUserTickets(userId: String): [Ticket]
+    clientPortalUserDeals(userId: String): [Deal]
+    clientPortalUserPurchases(userId: String): [Purchase]
+    clientPortalUserTasks(userId: String): [Task]
    `
       : ''
   }

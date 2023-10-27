@@ -1,23 +1,24 @@
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import List from '@erxes/ui-settings/src/common/components/List';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import {
   Actions,
   IframePreview,
   Template,
   TemplateBox,
-  Templates,
-  TemplateInfo
+  TemplateInfo,
+  Templates
 } from '@erxes/ui-emailtemplates/src/styles';
+
 import Form from '@erxes/ui-emailtemplates/src/components/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { router } from '@erxes/ui/src';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import List from '@erxes/ui-settings/src/common/components/List';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
+import { router } from '@erxes/ui/src';
 
 type Props = {
   queryParams: any;
@@ -72,7 +73,9 @@ class EmailTemplateList extends React.Component<Props> {
 
   renderDate(createdAt, modifiedAt) {
     if (createdAt === modifiedAt) {
-      if (createdAt === null) return '-';
+      if (createdAt === null) {
+        return '-';
+      }
 
       return dayjs(createdAt).format('DD MMM YYYY');
     }

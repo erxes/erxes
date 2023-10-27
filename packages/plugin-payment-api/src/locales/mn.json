@@ -1,0 +1,20 @@
+{
+  "Payment": "Төлбөр",
+  "Select your payment method": "Төлбөрийн хэрэгсэлээ сонгоно уу",
+  "Invoice information": "нэхэмжлэхийн мэдээлэл",
+  "Amount": "Дүн",
+  "Description": "Гүйлгээний утга",
+  "Select bank": "Банк сонгоно уу",
+  "Status": "Tөлөв",
+  "pending": "хүлээгдэж байна",
+  "Payment method": "Төлбөрийн хэрэгсэл",
+  "Check Social pay app": "Check Social pay app",
+  "Insert phone number": "Утасны дугаараа оруулна уу",
+  "Send": "Илгээх",
+  "Error": "Алдаа",
+  "Insufficient loan amount": "Insufficient loan amount",
+  "Phone number": "Утасны дугаар",
+  "Submit": "Submit",
+  "Please enter your phone number": "Утасны дугаараа оруулна уу",
+  "Enter your Storepay registered phone number": "Storepay-д бүртгэлтэй утасны дугаараа оруулна уу"
+}
