@@ -9,7 +9,7 @@ import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
+import { mutations, queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   ResolveAllMutationResponse,
   ResolveAllMutationVariables
@@ -26,7 +26,10 @@ type Props = {
   currentConversationId?: string;
 } & IRouterProps;
 
-type FinalProps = Props & ResolveAllMutationResponse;
+type FinalProps = {
+  tagsQueryCount: any;
+} & Props &
+  ResolveAllMutationResponse;
 
 const STORAGE_KEY = 'erxes_additional_sidebar_config';
 
@@ -71,7 +74,12 @@ class Sidebar extends React.Component<FinalProps> {
       });
     }
 
-    const { currentConversationId, queryParams, history } = this.props;
+    const {
+      currentConversationId,
+      queryParams,
+      history,
+      tagsQueryCount
+    } = this.props;
     const content = ({ bulk, toggleBulk, emptyBulk }: IBulkContentProps) => {
       return (
         <AppConsumer>
@@ -79,6 +87,7 @@ class Sidebar extends React.Component<FinalProps> {
             <InboxManagementActionConsumer>
               {({ notifyConsumersOfManagementAction }) => (
                 <DumbSidebar
+                  tagsCount={tagsQueryCount.tagsQueryCount}
                   currentUser={currentUser}
                   currentConversationId={currentConversationId}
                   queryParams={queryParams}
@@ -112,7 +121,15 @@ export default withRouter<Props>(
           name: 'resolveAllMutation',
           options: () => refetchSidebarConversationsOptions()
         }
-      )
+      ),
+      graphql<Props>(gql(queries.tagsQueryCount), {
+        name: 'tagsQueryCount',
+        options: () => ({
+          variables: {
+            type: 'inbox:conversation'
+          }
+        })
+      })
     )(Sidebar)
   )
 );

@@ -61,6 +61,7 @@ type Props = {
   currentConversationId?: string;
   queryParams: any;
   history: any;
+  tagsCount: number;
   bulk: IConversation[];
   toggleBulk: (target: IConversation[], toggleAdd: boolean) => void;
   emptyBulk: () => void;
@@ -157,7 +158,7 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   renderAdditionalSidebar(refetchRequired: string) {
-    const { queryParams, currentUser } = this.props;
+    const { queryParams, currentUser, tagsCount } = this.props;
 
     if (!currentUser) {
       return null;
@@ -270,6 +271,7 @@ class LeftSidebar extends React.Component<Props, State> {
                       type: TAG_TYPES.CONVERSATION
                     }
                   }}
+                  totalCount={tagsCount}
                   queryParams={queryParams}
                   counts="byTags"
                   paramKey="tag"
