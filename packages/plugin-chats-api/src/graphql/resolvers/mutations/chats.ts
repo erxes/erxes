@@ -265,7 +265,7 @@ const chatMutations = {
   },
 
   chatMessageAdd: async (_root, args, { models, user }) => {
-    if (!args.content) {
+    if (!args.content && args.attachments.length === 0) {
       throw new Error('Content is required');
     }
 
