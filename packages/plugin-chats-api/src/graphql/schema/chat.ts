@@ -76,6 +76,7 @@ export const types = () => `
     createdAt: Date
     isPinned: Boolean
     isPinnedUserIds: [String]
+    muteUserIds: [String]
     archivedUserIds: [String]
     isWithNotification: Boolean
     featuredImage: JSON
