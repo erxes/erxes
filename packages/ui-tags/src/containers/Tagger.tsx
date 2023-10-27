@@ -2,6 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
+  ITag,
   ITagTypes,
   TagMutationResponse,
   TagMutationVariables,
@@ -28,11 +29,22 @@ type Props = {
 
 type FinalProps = {
   tagsQuery: TagsQueryResponse;
+  tagsCountQuery: any;
 } & Props &
   TagMutationResponse;
 
 const TaggerContainer = (props: FinalProps) => {
-  const { type, targets = [], successCallback, tagsQuery, tagMutation } = props;
+  const {
+    type,
+    targets = [],
+    successCallback,
+    tagsQuery,
+    tagsCountQuery,
+    tagMutation
+  } = props;
+
+  const tags = tagsQuery.tags || [];
+  const totalCount = tagsCountQuery.tagsQueryCount || 0;
 
   const tag = selectedTagIds => {
     const variables = {
@@ -60,19 +72,73 @@ const TaggerContainer = (props: FinalProps) => {
       });
   };
 
+  console.log('tags:', tags);
+
+  const onLoadMore = () => {
+    return (
+      tagsQuery &&
+      tagsQuery.fetchMore({
+        variables: {
+          page: tags.length / 10 + 1
+        },
+        updateQuery: (prevResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult || fetchMoreResult.tags.length === 0) {
+            return prevResult;
+          }
+
+          const prevTags = prevResult.tags || [];
+          const prevTagsIds = prevTags.map((tag: ITag) => tag._id);
+
+          const fetchedTags: ITag[] = [];
+
+          for (const tag of fetchMoreResult.tags) {
+            if (!prevTagsIds.includes(tag._id)) {
+              fetchedTags.push(tag);
+            }
+          }
+
+          return {
+            ...prevResult,
+            tags: [...prevTags, ...fetchedTags]
+          };
+        }
+      })
+    );
+  };
+
   const updatedProps = {
     ...props,
     loading: tagsQuery.loading,
-    tags: tagsQuery.tags || [],
+    tags,
+    totalCount,
+    onLoadMore,
     tag
   };
 
   return <Tagger {...updatedProps} />;
 };
 
+const tagCountQuery = gql`
+  query tagsQueryCount($type: String, $searchValue: String) {
+    tagsQueryCount(type: $type, searchValue: $searchValue)
+  }
+`;
+
 const query = gql`
-  query($type: String!, $tagIds: [String], $parentId: String) {
-    tags(type: $type, tagIds: $tagIds, parentId: $parentId) {
+  query(
+    $type: String!
+    $tagIds: [String]
+    $parentId: String
+    $page: Int
+    $perPage: Int
+  ) {
+    tags(
+      type: $type
+      tagIds: $tagIds
+      parentId: $parentId
+      page: $page
+      perPage: $perPage
+    ) {
       _id
       name
       colorCode
@@ -93,13 +159,22 @@ const mutation = gql`
 
 export default withProps<Props>(
   compose(
+    graphql<Props, any, { type: string }>(tagCountQuery, {
+      name: 'tagsCountQuery',
+      options: (props: Props) => ({
+        variables: {
+          type: props.type,
+          parentId: props.parentTagId
+        }
+      })
+    }),
     graphql<Props, TagsQueryResponse, { type: string }>(query, {
       name: 'tagsQuery',
       options: (props: Props) => ({
         variables: {
           type: props.type,
           parentId: props.parentTagId,
-          perPage: 100
+          perPage: 10
         }
       })
     }),

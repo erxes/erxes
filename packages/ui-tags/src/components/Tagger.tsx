@@ -1,5 +1,5 @@
 import { ITag, ITagTypes } from '../types';
-
+import Button from '@erxes/ui/src/components/Button';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -12,7 +12,8 @@ type Props = {
   event?: 'onClick' | 'onExit';
   className?: string;
   disableTreeView?: boolean;
-
+  onLoadMore?: any;
+  totalCount?: any;
   // from container
   loading: boolean;
   tags: ITag[];
@@ -157,12 +158,37 @@ class Tagger extends React.Component<Props, State> {
   };
 
   render() {
-    const { className, event, type, loading, disableTreeView } = this.props;
+    const {
+      className,
+      event,
+      type,
+      loading,
+      disableTreeView,
+      tags,
+      onLoadMore,
+      totalCount
+    } = this.props;
 
     if (loading) {
       return <Spinner objective={true} />;
     }
+    const renderLoadMore = () => {
+      if (tags.length >= totalCount) {
+        return null;
+      }
 
+      return (
+        <Button
+          block={true}
+          btnStyle="link"
+          onClick={() => onLoadMore()}
+          icon="redo"
+          uppercase={false}
+        >
+          {loading ? 'Loading...' : 'Load more'}
+        </Button>
+      );
+    };
     const links = [
       {
         title: __('Manage tags'),
@@ -177,7 +203,8 @@ class Tagger extends React.Component<Props, State> {
       treeView: disableTreeView ? false : true,
       items: JSON.parse(JSON.stringify(this.state.tagsForList)),
       isIndented: false,
-      singleSelect: this.props.singleSelect
+      singleSelect: this.props.singleSelect,
+      renderLoadMore
     };
 
     if (event) {

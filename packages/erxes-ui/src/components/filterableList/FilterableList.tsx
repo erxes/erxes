@@ -4,6 +4,7 @@ import EmptyState from '../EmptyState';
 import Icon from '../Icon';
 import Spinner from '../Spinner';
 import Filter from './Filter';
+
 import {
   AvatarImg,
   FlexRow,
@@ -28,7 +29,7 @@ type Props = {
   treeView?: boolean;
   isIndented?: boolean;
   singleSelect?: boolean;
-
+  renderLoadMore?: any;
   // hooks
   onClick?: (items: any[], id: string) => void;
   onSearch?: (e: React.FormEvent<HTMLElement>) => void;
@@ -240,7 +241,14 @@ class FilterableList extends React.Component<Props, State> {
   }
 
   render() {
-    const { className, onSearch, selectable, links, isIndented } = this.props;
+    const {
+      className,
+      onSearch,
+      selectable,
+      links,
+      isIndented,
+      renderLoadMore
+    } = this.props;
 
     return (
       <div className={className}>
@@ -253,6 +261,7 @@ class FilterableList extends React.Component<Props, State> {
             {this.renderItems()}
           </PopoverList>
         </PopoverBody>
+        {renderLoadMore()}
         {links && (
           <PopoverFooter>
             <PopoverList>
