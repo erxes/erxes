@@ -286,7 +286,8 @@ const chatMutations = {
       },
       {
         $set: {
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          archivedUserIds: []
         }
       }
     );
