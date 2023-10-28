@@ -2462,5 +2462,11 @@
   "Income Transaction":"Орлогын гүйлгээ",
   "Outcome Transaction":"Зарлагын гүйлгээ",
   "Give Transaction":"Олголтын гүйлгээ",
-  "Given Amount":"Олгосон дүн"
+  "Given Amount":"Олгосон дүн",
+  "Saving stored interest":"Хуримтлагдсан үр шим",
+  "Close interest Rate":"Цуцлах үеийн хүү",
+  "Is allow outcome":"Зарлага зөвшөөрөх эсэх",
+  "Is Deposit":"Депозит эсэх",
+  "Is allow income":"Орлого зөвшөөрөх эсэх",
+  "Deposit account":"Депозит данс"
 }

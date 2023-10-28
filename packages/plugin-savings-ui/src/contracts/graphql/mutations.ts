@@ -21,6 +21,10 @@ const commonFields = `
   $closeOrExtendConfig: String,
   $depositAccount: String,
   $storeInterestInterval: String
+  $interestCalcType: String
+  $isAllowIncome: Boolean
+  $isAllowOutcome: Boolean
+  $isDeposit: Boolean
 `;
 
 const commonVariables = `
@@ -43,7 +47,11 @@ const commonVariables = `
   interestGiveType: $interestGiveType,
   closeOrExtendConfig: $closeOrExtendConfig,
   depositAccount: $depositAccount,
-  storeInterestInterval: $storeInterestInterval
+  storeInterestInterval: $storeInterestInterval,
+  interestCalcType: $interestCalcType,
+  isAllowIncome:$isAllowIncome,
+  isAllowOutcome:$isAllowOutcome,
+  isDeposit:$isDeposit,
 `;
 
 const contractsAdd = `

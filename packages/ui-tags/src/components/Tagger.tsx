@@ -166,7 +166,7 @@ class Tagger extends React.Component<Props, State> {
     const links = [
       {
         title: __('Manage tags'),
-        href: `/tags/${type}`
+        href: `/settings/tags/${type}`
       }
     ];
 

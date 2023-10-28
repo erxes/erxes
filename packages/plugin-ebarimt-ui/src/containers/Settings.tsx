@@ -1,11 +1,13 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { Spinner } from '@erxes/ui/src/components';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations, queries } from '../graphql';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
+import { mutations, queries } from '../graphql';
+
+import React from 'react';
+import { Spinner } from '@erxes/ui/src/components';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   component: any;
@@ -22,7 +24,7 @@ class SettingsContainer extends React.Component<FinalProps> {
     const { updateConfigs, configsQuery } = this.props;
 
     if (configsQuery.loading) {
-      return <Spinner objective={true} />;
+      return <Spinner />;
     }
 
     // create or update action
@@ -44,6 +46,7 @@ class SettingsContainer extends React.Component<FinalProps> {
 
     const configsMap = { [config.code]: config.value };
     const Component = this.props.component;
+
     return <Component {...this.props} configsMap={configsMap} save={save} />;
   }
 }

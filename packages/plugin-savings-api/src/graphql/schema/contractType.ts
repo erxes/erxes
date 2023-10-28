@@ -17,6 +17,7 @@ export const types = () => `
     branchId: String
     isAllowIncome: Boolean
     isAllowOutcome: Boolean
+    isDeposit: Boolean
   }
 
   type SavingContractTypesListResponse {
@@ -57,6 +58,7 @@ const commonFields = `
   branchId: String
   isAllowIncome: Boolean
   isAllowOutcome: Boolean
+  isDeposit: Boolean
 `;
 
 export const mutations = `

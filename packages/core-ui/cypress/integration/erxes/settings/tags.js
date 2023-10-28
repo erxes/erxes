@@ -1,4 +1,5 @@
 import "cypress-file-upload";
+
 import { SignIn } from "../utils";
 
 SignIn;
@@ -16,7 +17,7 @@ context("Tags", () => {
       .children()
       .eq(2)
       .click();
-    cy.url().should("include", "/tags/conversation");
+    cy.url().should("include", "/settings/tags/conversation");
 
     cy.get("#AddTagButton").click();
     cy.get("input[name=name]").type("name");

@@ -22,6 +22,7 @@ import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectC
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import { IContractType } from '../../../contractTypes/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import SelectContracts from '../common/SelectContract';
 
 type Props = {
   currentUser: IUser;
@@ -57,6 +58,7 @@ type State = {
     minInterest: number;
   };
   interestGiveType: string;
+  interestCalcType: string;
   closeOrExtendConfig: string;
   depositAccount?: string;
 };
@@ -91,7 +93,8 @@ class ContractForm extends React.Component<Props, State> {
         contract.currency || this.props.currentUser.configs?.dealCurrency[0],
       interestGiveType: contract.interestGiveType,
       closeOrExtendConfig: contract.closeOrExtendConfig,
-      depositAccount: contract.depositAccount
+      depositAccount: contract.depositAccount,
+      interestCalcType: contract.interestCalcType
     };
   }
 
@@ -119,6 +122,7 @@ class ContractForm extends React.Component<Props, State> {
       interestRate: Number(this.state.interestRate),
       closeInterestRate: Number(this.state.closeInterestRate),
       storeInterestInterval: this.state.storeInterestInterval,
+      interestCalcType: this.state.interestCalcType,
       customerId: this.state.customerId,
       customerType: this.state.customerType
     };
@@ -148,12 +152,17 @@ class ContractForm extends React.Component<Props, State> {
 
     var changingStateValue: any = { contractTypeId: value };
 
+    //get default value from contract type
     changingStateValue['interestRate'] = Number(contractTypeObj?.interestRate);
     changingStateValue['closeInterestRate'] = Number(
       contractTypeObj?.closeInterestRate
     );
     changingStateValue['storeInterestInterval'] =
       contractTypeObj?.storeInterestInterval;
+    changingStateValue['interestCalcType'] = contractTypeObj?.interestCalcType;
+    changingStateValue['isAllowIncome'] = contractTypeObj?.isAllowIncome;
+    changingStateValue['isAllowOutcome'] = contractTypeObj?.isAllowOutcome;
+    changingStateValue['isDeposit'] = contractTypeObj?.isDeposit;
 
     if (!this.state.duration && contractTypeObj?.config?.minDuration) {
       changingStateValue['duration'] = contractTypeObj?.config?.minDuration;
@@ -340,14 +349,25 @@ class ContractForm extends React.Component<Props, State> {
                   )}
                 </FormControl>
               </FormGroup>
-              {this.state.interestGiveType === 'depositAccount' &&
-                this.renderFormGroup('Deposit account', {
-                  ...formProps,
-                  className: 'flex-item',
-                  name: 'depositAccount',
-                  value: this.state.depositAccount,
-                  onChange: this.onChangeField
-                })}
+              {this.state.interestGiveType === 'depositAccount' && (
+                <FormGroup>
+                  <ControlLabel>{__('Deposit account')}</ControlLabel>
+                  <SelectContracts
+                    label={__('Choose an contract')}
+                    name="depositAccount"
+                    initialValue={this.state.depositAccount}
+                    filterParams={{ isDeposit: true }}
+                    onSelect={v => {
+                      if (typeof v === 'string') {
+                        this.setState({
+                          depositAccount: v
+                        });
+                      }
+                    }}
+                    multi={false}
+                  />
+                </FormGroup>
+              )}
             </FormColumn>
           </FormWrapper>
           <FormWrapper>

@@ -33,6 +33,7 @@ function renderFormTrigger(
   return (
     <ModalTrigger
       title="Edit contract type"
+      size="lg"
       trigger={trigger}
       content={content}
     />

@@ -14,7 +14,6 @@ export const LoyaltyAmount = styled.div`
 
 export const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  max-width: 640px;
   margin: 0 auto;
 `;
 
