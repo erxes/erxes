@@ -197,34 +197,34 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   if (type === 'contacts:customer') {
     if (action === 'create') {
-      customerToErkhet(subdomain, models, params, 'create');
+      customerToErkhet(models, params, 'create');
       return;
     }
 
     if (action === 'update') {
-      customerToErkhet(subdomain, models, params, 'update');
+      customerToErkhet(models, params, 'update');
       return;
     }
 
     if (action === 'delete') {
-      customerToErkhet(subdomain, models, params, 'delete');
+      customerToErkhet(models, params, 'delete');
       return;
     }
   }
 
   if (type === 'contacts:company') {
     if (action === 'create') {
-      companyToErkhet(subdomain, models, params, 'create', user);
+      companyToErkhet(models, params, 'create');
       return;
     }
 
     if (action === 'update') {
-      companyToErkhet(subdomain, models, params, 'update', user);
+      companyToErkhet(models, params, 'update');
       return;
     }
 
     if (action === 'delete') {
-      companyToErkhet(subdomain, models, params, 'delete', user);
+      companyToErkhet(models, params, 'delete');
       return;
     }
   }
