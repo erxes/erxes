@@ -8,7 +8,7 @@
     "start": "cd .erxes/dist/plugin-facebook-api/.erxes && node src"
   },
   "dependencies": {
-    "botbuilder": "^4.4.0",
+    "botbuilder": "^4.17.1",
     "botbuilder-adapter-facebook-erxes": "^1.0.5",
     "fbgraph": "^1.4.4",
     "aws-sdk": "^2.151.0",
