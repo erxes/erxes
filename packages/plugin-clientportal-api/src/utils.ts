@@ -602,3 +602,27 @@ export const getUserName = (data: IUser) => {
 
   return 'Unknown';
 };
+
+export const getUserCards = async (
+  userId: string,
+  contentType: string,
+  models: IModels,
+  subdomain
+) => {
+  const cardIds = await models.ClientPortalUserCards.find({
+    cpUserId: userId,
+    contentType
+  }).distinct('contentTypeId');
+
+  const cards = await sendCardsMessage({
+    subdomain,
+    action: `${contentType}s.find`,
+    data: {
+      _id: { $in: cardIds }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return cards;
+};

@@ -36,7 +36,7 @@ module.exports.devCmd = async program => {
   );
 
   const commonEnv = {
-    DEBUG: 'erxes*',
+    DEBUG: '*error*',
     NODE_ENV: 'development',
     JWT_TOKEN_SECRET: configs.jwt_token_secret,
     MONGO_URL: 'mongodb://127.0.0.1/erxes',

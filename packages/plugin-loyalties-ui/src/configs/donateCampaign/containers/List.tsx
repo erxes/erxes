@@ -8,8 +8,10 @@ import DonateCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   DonateCampaignQueryResponse,
-  DonateCampaignRemoveMutationResponse
+  DonateCampaignRemoveMutationResponse,
+  DonateCampaignsCountQueryResponse
 } from '../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -19,6 +21,7 @@ type Props = {
 
 type FinalProps = {
   donateCampaignQuery: DonateCampaignQueryResponse;
+  donateCampaignQueryCount: DonateCampaignsCountQueryResponse;
 } & Props &
   DonateCampaignRemoveMutationResponse;
 
@@ -26,6 +29,7 @@ class DonateCampaignContainer extends React.Component<FinalProps> {
   render() {
     const {
       donateCampaignQuery,
+      donateCampaignQueryCount,
       queryParams,
       donateCampaignsRemove
     } = this.props;
@@ -51,6 +55,7 @@ class DonateCampaignContainer extends React.Component<FinalProps> {
     const filterStatus = this.props.queryParams.filterStatus || '';
 
     const donateCampaigns = donateCampaignQuery.donateCampaigns || [];
+    const totalCount = donateCampaignQueryCount.donateCampaignsCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -59,7 +64,8 @@ class DonateCampaignContainer extends React.Component<FinalProps> {
       remove,
       loading: donateCampaignQuery.loading,
       searchValue,
-      filterStatus
+      filterStatus,
+      totalCount
     };
 
     const productList = props => (
@@ -84,8 +90,25 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, DonateCampaignQueryResponse>(gql(queries.donateCampaigns), {
-      name: 'donateCampaignQuery'
+    graphql<Props, DonateCampaignQueryResponse>(
+      gql(queries.donateCampaignsCount),
+      {
+        name: 'donateCampaignQueryCount',
+        options: ({ queryParams }: Props) => ({
+          variables: {
+            searchValue: queryParams.searchValue
+          }
+        })
+      }
+    ),
+    graphql<Props, DonateCampaignQueryResponse>(gql(queries.donateCampaigns), {
+      name: 'donateCampaignQuery',
+      options: ({ queryParams }: Props) => ({
+        variables: {
+          searchValue: queryParams.searchValue,
+          ...generatePaginationParams(queryParams)
+        }
+      })
     }),
     graphql<
       Props,

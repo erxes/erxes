@@ -98,7 +98,8 @@ export default withProps<Props>(
       options: (props: Props) => ({
         variables: {
           type: props.type,
-          parentId: props.parentTagId
+          parentId: props.parentTagId,
+          perPage: 100
         }
       })
     }),

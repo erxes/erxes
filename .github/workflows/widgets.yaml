@@ -3,18 +3,18 @@ name: Widgets CI
 on:
   push:
     branches:
-      - 'dev'
-      - staging
-      - build-test
+      - "dev"
+      - "staging"
     paths:
-      - 'widgets/**'
-      - '.github/workflows/widgets.yaml'
+      - "widgets/**"
+      - ".github/workflows/widgets.yaml"
   pull_request:
     branches:
       - master
       - dev
+      - staging
     paths:
-      - 'widgets/**'
+      - "widgets/**"
 
 jobs:
   widgets:
@@ -50,7 +50,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         run: |
           cd widgets
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

@@ -263,17 +263,19 @@ export default class SubscriptionResolver {
         return merge(payloadData, Object.values(response.data)[0]);
       }
     } catch (error) {
-      console.error('----------------- subscription resolver request error ---------------------------');
+      console.error(
+        '----------------- subscription resolver request error ---------------------------'
+      );
       console.error('query', query);
       console.error('error', error);
-      console.error('---------------------------------------------------------------------------------');
+      console.error(
+        '---------------------------------------------------------------------------------'
+      );
     }
   }
 
   private async query(graphqlRequest: GraphQLRequest): Promise<FetchResult> {
-    const response = await toPromise(
-      execute(this.apolloLink, graphqlRequest)
-    );
+    const response = await toPromise(execute(this.apolloLink, graphqlRequest));
     return response;
   }
 }

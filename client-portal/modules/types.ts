@@ -414,6 +414,7 @@ export interface IProductCategory {
 export interface IProduct {
   _id: string;
   name: string;
+  shortName: string;
   type: string;
   categoryId: string;
   description: string;

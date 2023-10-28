@@ -1,0 +1,18 @@
+{
+  "name": "@erxes/plugin-imap-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-imap-api/.erxes && node src"
+  },
+  "dependencies": {
+    "base64-stream": "^1.0.0",
+    "mailparser": "^3.5.0",
+    "node-imap": "^0.9.6",
+    "nodemailer": "^6.8.0",
+    "retry": "^0.13.1",
+    "generic-pool":"3.5.0"
+  }
+}

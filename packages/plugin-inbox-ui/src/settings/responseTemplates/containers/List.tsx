@@ -1,4 +1,3 @@
-import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   ICommonFormProps,
   ICommonListProps
@@ -10,9 +9,7 @@ import {
 
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import List from '../components/List';
-import { RESPONSE_TEMPLATE_STATUSES } from '../constants';
 import React from 'react';
-import client from '@erxes/ui/src/apolloClient';
 import { commonListComposer } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
@@ -27,39 +24,8 @@ type Props = ICommonListProps &
   };
 
 class ResponseListContainer extends React.Component<Props> {
-  changeStatus = (_id: string, status: string) => {
-    const isActive =
-      status === null || status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
-    const message = isActive
-      ? 'You are going to archive this response template. Are you sure?'
-      : 'You are going to active this response template. Are you sure?';
-
-    const statusAction = isActive
-      ? RESPONSE_TEMPLATE_STATUSES.ACTIVE
-      : RESPONSE_TEMPLATE_STATUSES.ARCHIVED;
-
-    confirm(message).then(() => {
-      client
-        .mutate({
-          mutation: gql(mutations.responseTemplatesChangeStatus),
-          variables: { _id, status }
-        })
-        .then(({ data }) => {
-          const template = data.responseTemplatesChangeStatus;
-
-          if (template && template._id) {
-            Alert.success(`Response template has been ${statusAction}.`);
-            this.props.listQuery.refetch();
-          }
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
-  };
-
   render() {
-    return <List {...this.props} changeStatus={this.changeStatus} />;
+    return <List {...this.props} />;
   }
 }
 
@@ -77,7 +43,6 @@ export default commonListComposer<Props>({
         variables: {
           searchValue: queryParams.searchValue,
           brandId: queryParams.brandId,
-          status: queryParams.status,
           ...generatePaginationParams(queryParams)
         }
       };

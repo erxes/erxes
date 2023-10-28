@@ -1,0 +1,20 @@
+{
+  "Payment": "Payment",
+  "Select your payment method": "Select your payment method",
+  "Invoice information": "Information of Invoice",
+  "Amount": "Amount",
+  "Description": "Description",
+  "Select bank": "Select bank",
+  "Status": "Status",
+  "pending": "pending",
+  "Payment method": "Payment method",
+  "Check Social pay app": "Check Social pay app",
+  "Insert phone number": "Insert phone number",
+  "Send": "Send",
+  "Error": "Error",
+  "Insufficient loan amount": "Insufficient loan amount",
+  "Phone number": "Phone number",
+  "Submit": "Submit",
+  "Please enter your phone number": "Please enter your phone number",
+  "Enter your Storepay registered phone number": "Enter your Storepay registered phone number"
+}

@@ -1,5 +1,9 @@
 import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
-import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import {
+  FilterContainer,
+  InputBar,
+  Title
+} from '@erxes/ui-settings/src/styles';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import React, { useState } from 'react';
 
@@ -100,10 +104,34 @@ export default function Home(props: Props) {
     );
   };
 
-  const renderFilter = (
+  const title = (
+    <Title capitalize={true}>
+      {__('Team Members')}&nbsp;
+      {`(${totalCount || 0})`}
+    </Title>
+  );
+
+  const renderInvitationForm = formProps => {
+    const { usersGroups, renderButton } = props;
+
+    return (
+      <UserInvitationForm
+        closeModal={formProps.closeModal}
+        usersGroups={usersGroups}
+        renderButton={renderButton}
+      />
+    );
+  };
+
+  const trigger = (
+    <Button btnStyle="success" icon="plus-circle">
+      Invite team members
+    </Button>
+  );
+
+  const righActionBar = (
     <FilterContainer>
       <FlexRow>
-        <ControlLabel>#{totalCount} members&nbsp;&nbsp;</ControlLabel>
         {renderBrandChooser()}
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
@@ -139,43 +167,22 @@ export default function Home(props: Props) {
             />
           </FlexItem>
         </InputBar>
+        <ModalTrigger
+          content={renderInvitationForm}
+          size="xl"
+          title="Invite team members"
+          autoOpenKey="showMemberInviteModal"
+          trigger={trigger}
+        />
       </FlexRow>
     </FilterContainer>
-  );
-
-  const renderInvitationForm = formProps => {
-    const { usersGroups, renderButton } = props;
-
-    return (
-      <UserInvitationForm
-        closeModal={formProps.closeModal}
-        usersGroups={usersGroups}
-        renderButton={renderButton}
-      />
-    );
-  };
-
-  const trigger = (
-    <Button btnStyle="success" icon="plus">
-      Invite team members
-    </Button>
-  );
-
-  const righActionBar = (
-    <ModalTrigger
-      content={renderInvitationForm}
-      size="xl"
-      title="Invite team members"
-      autoOpenKey="showMemberInviteModal"
-      trigger={trigger}
-    />
   );
 
   const actionBar = (
     <Wrapper.ActionBar
       hasFlex={true}
       right={righActionBar}
-      left={renderFilter}
+      left={title}
       wideSpacing={true}
     />
   );

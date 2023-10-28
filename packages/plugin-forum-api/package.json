@@ -1,0 +1,14 @@
+{
+  "name": "@erxes/plugin-forum-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-forum-api/.erxes && node src"
+  },
+  "dependencies": {
+    "server-timing": "3.3.1",
+    "jsonwebtoken": "^8.5.1"
+  }
+}
