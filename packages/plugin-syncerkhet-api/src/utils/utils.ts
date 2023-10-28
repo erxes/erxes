@@ -1,6 +1,26 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IModels } from '../connectionResolver';
 import { sendCardsMessage } from '../messageBroker';
 import { sendRPCMessage } from '../messageBrokerErkhet';
+
+export const getSyncLogDoc = (params: {
+  type: string;
+  user: IUserDocument;
+  object: any;
+}) => {
+  const { type, user } = params;
+
+  return {
+    type: '',
+    brandId: '',
+    contentType: type,
+    contentId: params.object._id,
+    createdAt: new Date(),
+    createdBy: user._id,
+    consumeData: params,
+    consumeStr: JSON.stringify(params)
+  };
+};
 
 export const toErkhet = (models, syncLog, config, sendData, action) => {
   const postData = {

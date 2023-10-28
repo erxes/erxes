@@ -1,13 +1,7 @@
 import { toErkhet } from './utils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
-export const customerToErkhet = async (
-  subdomain,
-  models,
-  syncLog,
-  params,
-  action
-) => {
+export const customerToErkhet = async (subdomain, models, params, action) => {
   const config = await models.Configs.getConfig('ERKHET', {});
 
   const customer = params.updatedDocument || params.object;
@@ -70,7 +64,6 @@ export const validCompanyCode = async (config, companyCode) => {
 export const companyToErkhet = async (
   subdomain,
   models,
-  syncLog,
   params,
   action,
   user

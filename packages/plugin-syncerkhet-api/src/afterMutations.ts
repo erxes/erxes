@@ -21,17 +21,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   const models = await generateModels(subdomain);
 
-  const syncLogDoc = {
-    type: '',
-    brandId: '',
-    contentType: type,
-    contentId: params.object._id,
-    createdAt: new Date(),
-    createdBy: user._id,
-    consumeData: params,
-    consumeStr: JSON.stringify(params)
-  };
-
   if (!Object.keys(allowTypes).includes(type)) {
     return;
   }
@@ -40,238 +29,204 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
-  let syncLog;
+  if (type === 'cards:deal') {
+    if (action === 'update') {
+      const deal = params.updatedDocument;
+      const oldDeal = params.object;
+      const destinationStageId = deal.stageId || '';
 
-  try {
-    if (type === 'cards:deal') {
-      if (action === 'update') {
-        const deal = params.updatedDocument;
-        const oldDeal = params.object;
-        const destinationStageId = deal.stageId || '';
+      if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
+        return;
+      }
 
-        if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
-          return;
-        }
+      const configs = await models.Configs.getConfig('ebarimtConfig', {});
+      const moveConfigs = await models.Configs.getConfig(
+        'stageInMoveConfig',
+        {}
+      );
+      const returnConfigs = await models.Configs.getConfig(
+        'returnEbarimtConfig',
+        {}
+      );
 
-        const configs = await models.Configs.getConfig('ebarimtConfig', {});
-        const moveConfigs = await models.Configs.getConfig(
-          'stageInMoveConfig',
-          {}
-        );
-        const returnConfigs = await models.Configs.getConfig(
-          'returnEbarimtConfig',
-          {}
-        );
+      // return
+      if (Object.keys(returnConfigs).includes(destinationStageId)) {
+        const returnConfig = {
+          ...returnConfigs[destinationStageId],
+          ...(await models.Configs.getConfig('ERKHET', {}))
+        };
 
-        // return
-        if (Object.keys(returnConfigs).includes(destinationStageId)) {
-          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-          const returnConfig = {
-            ...returnConfigs[destinationStageId],
-            ...(await models.Configs.getConfig('ERKHET', {}))
-          };
-
-          const orderInfos = [
-            {
-              orderId: deal._id,
-              returnKind: 'note'
-            }
-          ];
-
-          const postData = {
-            userEmail: returnConfig.userEmail,
-            token: returnConfig.apiToken,
-            apiKey: returnConfig.apiKey,
-            apiSecret: returnConfig.apiSecret,
-            orderInfos: JSON.stringify(orderInfos)
-          };
-
-          await sendRPCMessage(
-            models,
-            syncLog,
-            'rpc_queue:erxes-automation-erkhet',
-            {
-              action: 'get-response-return-order',
-              isJson: true,
-              isEbarimt: false,
-              payload: JSON.stringify(postData),
-              thirdService: true
-            }
-          );
-
-          return;
-        }
-
-        // move
-        if (Object.keys(moveConfigs).includes(destinationStageId)) {
-          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-          const moveConfig = {
-            ...moveConfigs[destinationStageId],
-            ...(await models.Configs.getConfig('ERKHET', {}))
-          };
-
-          const postData = await getMoveData(subdomain, moveConfig, deal);
-
-          const response = await sendRPCMessage(
-            models,
-            syncLog,
-            'rpc_queue:erxes-automation-erkhet',
-            {
-              action: 'get-response-inv-movement-info',
-              isJson: true,
-              isEbarimt: false,
-              payload: JSON.stringify(postData),
-              thirdService: true
-            }
-          );
-
-          if (response.message || response.error) {
-            const txt = JSON.stringify({
-              message: response.message,
-              error: response.error
-            });
-            if (moveConfig.responseField) {
-              await sendCardInfo(subdomain, deal, moveConfig, txt);
-            } else {
-              console.log(txt);
-            }
+        const orderInfos = [
+          {
+            orderId: deal._id,
+            returnKind: 'note'
           }
+        ];
 
-          return;
+        const postData = {
+          userEmail: returnConfig.userEmail,
+          token: returnConfig.apiToken,
+          apiKey: returnConfig.apiKey,
+          apiSecret: returnConfig.apiSecret,
+          orderInfos: JSON.stringify(orderInfos)
+        };
+
+        await sendRPCMessage(
+          models,
+          syncLog,
+          'rpc_queue:erxes-automation-erkhet',
+          {
+            action: 'get-response-return-order',
+            isJson: true,
+            isEbarimt: false,
+            payload: JSON.stringify(postData),
+            thirdService: true
+          }
+        );
+
+        return;
+      }
+
+      // move
+      if (Object.keys(moveConfigs).includes(destinationStageId)) {
+        const moveConfig = {
+          ...moveConfigs[destinationStageId],
+          ...(await models.Configs.getConfig('ERKHET', {}))
+        };
+
+        const postData = await getMoveData(subdomain, moveConfig, deal);
+
+        const response = await sendRPCMessage(
+          models,
+          syncLog,
+          'rpc_queue:erxes-automation-erkhet',
+          {
+            action: 'get-response-inv-movement-info',
+            isJson: true,
+            isEbarimt: false,
+            payload: JSON.stringify(postData),
+            thirdService: true
+          }
+        );
+
+        if (response.message || response.error) {
+          const txt = JSON.stringify({
+            message: response.message,
+            error: response.error
+          });
+          if (moveConfig.responseField) {
+            await sendCardInfo(subdomain, deal, moveConfig, txt);
+          } else {
+            console.log(txt);
+          }
         }
 
-        // create sale
-        if (Object.keys(configs).includes(destinationStageId)) {
-          syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-          const config = {
-            ...configs[destinationStageId],
-            ...(await models.Configs.getConfig('ERKHET', {}))
-          };
-          const postData = await getPostData(subdomain, config, deal);
+        return;
+      }
 
-          const response = await sendRPCMessage(
-            models,
-            syncLog,
-            'rpc_queue:erxes-automation-erkhet',
-            {
-              action: 'get-response-send-order-info',
-              isEbarimt: false,
-              payload: JSON.stringify(postData),
-              isJson: true,
-              thirdService: true
-            }
-          );
+      // create sale
+      if (Object.keys(configs).includes(destinationStageId)) {
+        const config = {
+          ...configs[destinationStageId],
+          ...(await models.Configs.getConfig('ERKHET', {}))
+        };
+        const postData = await getPostData(subdomain, config, deal);
 
-          if (response && (response.message || response.error)) {
-            const txt = JSON.stringify({
-              message: response.message,
-              error: response.error
-            });
-            if (config.responseField) {
-              await sendCardInfo(subdomain, deal, config, txt);
-            } else {
-              console.log(txt);
-            }
+        const response = await sendRPCMessage(
+          models,
+          syncLog,
+          'rpc_queue:erxes-automation-erkhet',
+          {
+            action: 'get-response-send-order-info',
+            isEbarimt: false,
+            payload: JSON.stringify(postData),
+            isJson: true,
+            thirdService: true
           }
-          return;
+        );
+
+        if (response && (response.message || response.error)) {
+          const txt = JSON.stringify({
+            message: response.message,
+            error: response.error
+          });
+          if (config.responseField) {
+            await sendCardInfo(subdomain, deal, config, txt);
+          } else {
+            console.log(txt);
+          }
         }
         return;
       }
       return;
     }
+    return;
+  }
 
-    if (type === 'products:product') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-      if (action === 'create') {
-        productToErkhet(subdomain, models, syncLog, params, 'create');
-        return;
-      }
-      if (action === 'update') {
-        productToErkhet(subdomain, models, syncLog, params, 'update');
-        return;
-      }
-      if (action === 'delete') {
-        productToErkhet(subdomain, models, syncLog, params, 'delete');
-        return;
-      }
+  if (type === 'products:product') {
+    if (action === 'create') {
+      productToErkhet(subdomain, models, params, 'create');
       return;
     }
-    if (type === 'products:productCategory') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-      if (action === 'create') {
-        productCategoryToErkhet(
-          subdomain,
-          models,
-          syncLog,
-          params,
-          'createCategory'
-        );
-        return;
-      }
-
-      if (action === 'update') {
-        productCategoryToErkhet(
-          subdomain,
-          models,
-          syncLog,
-          params,
-          'updateCategory'
-        );
-        return;
-      }
-
-      if (action === 'delete') {
-        productCategoryToErkhet(
-          subdomain,
-          models,
-          syncLog,
-          params,
-          'deleteCategory'
-        );
-        return;
-      }
+    if (action === 'update') {
+      productToErkhet(subdomain, models, params, 'update');
+      return;
+    }
+    if (action === 'delete') {
+      productToErkhet(subdomain, models, params, 'delete');
+      return;
+    }
+    return;
+  }
+  if (type === 'products:productCategory') {
+    if (action === 'create') {
+      productCategoryToErkhet(subdomain, models, params, 'createCategory');
+      return;
     }
 
-    if (type === 'contacts:customer') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-      if (action === 'create') {
-        customerToErkhet(subdomain, models, syncLog, params, 'create');
-        return;
-      }
-
-      if (action === 'update') {
-        customerToErkhet(subdomain, models, syncLog, params, 'update');
-        return;
-      }
-
-      if (action === 'delete') {
-        customerToErkhet(subdomain, models, syncLog, params, 'delete');
-        return;
-      }
+    if (action === 'update') {
+      productCategoryToErkhet(subdomain, models, params, 'updateCategory');
+      return;
     }
 
-    if (type === 'contacts:company') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-      if (action === 'create') {
-        companyToErkhet(subdomain, models, syncLog, params, 'create', user);
-        return;
-      }
-
-      if (action === 'update') {
-        companyToErkhet(subdomain, models, syncLog, params, 'update', user);
-        return;
-      }
-
-      if (action === 'delete') {
-        companyToErkhet(subdomain, models, syncLog, params, 'delete', user);
-        return;
-      }
+    if (action === 'delete') {
+      productCategoryToErkhet(subdomain, models, params, 'deleteCategory');
+      return;
     }
-  } catch (e) {
-    await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
-      { $set: { error: e.message } }
-    );
+  }
+
+  if (type === 'contacts:customer') {
+    if (action === 'create') {
+      customerToErkhet(subdomain, models, params, 'create');
+      return;
+    }
+
+    if (action === 'update') {
+      customerToErkhet(subdomain, models, params, 'update');
+      return;
+    }
+
+    if (action === 'delete') {
+      customerToErkhet(subdomain, models, params, 'delete');
+      return;
+    }
+  }
+
+  if (type === 'contacts:company') {
+    if (action === 'create') {
+      companyToErkhet(subdomain, models, params, 'create', user);
+      return;
+    }
+
+    if (action === 'update') {
+      companyToErkhet(subdomain, models, params, 'update', user);
+      return;
+    }
+
+    if (action === 'delete') {
+      companyToErkhet(subdomain, models, params, 'delete', user);
+      return;
+    }
   }
 };
 
