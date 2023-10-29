@@ -1,18 +1,16 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import FilterByParams from '@erxes/ui/src/components/FilterByParams';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import FilterByParams from '@erxes/ui/src/components/FilterByParams';
 import { NoHeight } from '@erxes/ui-inbox/src/inbox/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import client from '@erxes/ui/src/apolloClient';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };
   fields?: any[];
-  totalCount: number;
   counts: string;
   paramKey: string;
   icon?: string;
@@ -26,9 +24,7 @@ type Props = {
 type State = {
   fields: any[];
   counts: any;
-  limit: number;
   loading: boolean;
-  loadMore: boolean;
 };
 
 export default class FilterList extends React.PureComponent<Props, State> {
@@ -52,29 +48,18 @@ export default class FilterList extends React.PureComponent<Props, State> {
     this.state = {
       fields: props.fields || [],
       counts: {},
-      limit: 10,
-      loadMore: false,
       loading
     };
   }
 
   fetchData(ignoreCache = false) {
-    const { query, counts, queryParams, setCounts, totalCount } = this.props;
-
-    if (this.state.loadMore) {
-      this.setState({ limit: this.state.limit + 10 });
-    }
+    const { query, counts, queryParams, setCounts } = this.props;
 
     this.mounted = true;
 
     // Fetching filter lists channels, brands, tags etc
     if (query) {
-      let { queryName, dataName, variables = {} } = query;
-
-      variables = {
-        ...variables,
-        perPage: this.state.limit + (this.state.loadMore ? 10 : 0)
-      };
+      const { queryName, dataName, variables = {} } = query;
 
       client
         .query({
@@ -116,7 +101,6 @@ export default class FilterList extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    this.setState({ loadMore: true });
     this.fetchData();
   }
 
@@ -140,31 +124,8 @@ export default class FilterList extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { paramKey, icon, multiple, treeView, totalCount } = this.props;
+    const { paramKey, icon, multiple, treeView } = this.props;
     const { counts, fields, loading } = this.state;
-
-    const onLoadMore = () => {
-      this.componentDidMount();
-    };
-
-    const renderLoadMore = () => {
-      if (fields.length >= totalCount) {
-        this.setState({ loadMore: false });
-        return null;
-      }
-
-      return (
-        <Button
-          block={true}
-          btnStyle="link"
-          onClick={onLoadMore}
-          icon="redo"
-          uppercase={false}
-        >
-          {loading ? 'Loading...' : 'Load more'}
-        </Button>
-      );
-    };
 
     if (loading) {
       return <Spinner objective={true} />;
@@ -182,7 +143,6 @@ export default class FilterList extends React.PureComponent<Props, State> {
           multiple={multiple}
           treeView={treeView}
         />
-        {renderLoadMore()}
       </NoHeight>
     );
   }
