@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+import CartItemPriceInfo from "@/modules/products/productPriceInfo"
 import { updateCartAtom } from "@/store/cart.store"
 import { motion } from "framer-motion"
 import { useSetAtom } from "jotai"
@@ -8,6 +10,7 @@ import { MinusIcon, PlusIcon, X } from "lucide-react"
 import { OrderItem } from "@/types/order.types"
 import { formatNum } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { HoverCard, HoverCardTrigger } from "@/components/ui/hover-card"
 import { Input } from "@/components/ui/input"
 
 const CartItem = ({
@@ -16,9 +19,11 @@ const CartItem = ({
   count,
   productName,
   unitPrice,
+  productId,
 }: OrderItem & { index: number }) => {
   const updateCart = useSetAtom(updateCartAtom)
   const formattedIndex = (index + 1).toString().padStart(2, "0")
+  const [openPriceInfo, setOpenPriceInfo] = useState<boolean>(false)
 
   const handleUpdate = (newCount: number | string) =>
     updateCart({ _id, count: Number(newCount) })
@@ -61,9 +66,27 @@ const CartItem = ({
           </Button>
         </div>
       </div>
-      <div className="flex w-4/12">
+      <div className="flex w-4/12 items-center">
         <span className="block h-4 w-6/12 overflow-hidden">{"-"}</span>
-        <span className="w-5/12 font-extrabold">{formatNum(unitPrice)}₮</span>
+        <span className="w-5/12">
+          <HoverCard
+            open={openPriceInfo}
+            onOpenChange={(op) => setOpenPriceInfo(op)}
+          >
+            <HoverCardTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                className=" font-extrabold p-1 h-auto hover:bg-black/10"
+              >
+                {formatNum(unitPrice)}₮
+              </Button>
+            </HoverCardTrigger>
+            {openPriceInfo && (
+              <CartItemPriceInfo productId={productId} price={unitPrice} />
+            )}
+          </HoverCard>
+        </span>
         <Button
           className="h-4 w-4 rounded-full bg-warning p-0 hover:bg-warning/90"
           Component="div"

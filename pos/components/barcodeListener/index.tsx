@@ -20,9 +20,13 @@ const BarcodeListener = ({ children }: { children: React.ReactNode }) => {
           setChangeDate(Date.now())
           return
         }
-        if (value.length > 8 && key === "Enter") {
+        if (key === "Enter") {
+          if (value.length > 8) {
+            setBarcode(value)
+          } else {
+            setBarcode("")
+          }
           setChangeDate(Date.now())
-          setBarcode(value)
           setValue("")
         }
       }

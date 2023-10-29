@@ -3,16 +3,17 @@ import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { ebarimtSheetAtom } from "@/store/ui.store"
 import { useAtom, useSetAtom } from "jotai"
 
+import useKeyEvent from "@/lib/useKeyEvent"
 import useReciept from "@/lib/useReciept"
 import { Button } from "@/components/ui/button"
-
-// import { Sheet, SheetContent } from "@/components/ui/sheet"
 
 const MakePayment = () => {
   const [activeOrder] = useAtom(activeOrderIdAtom)
   const setInitial = useSetAtom(setInitialAtom)
 
   const { changeVisiblity, loading, disabled, printBill } = usePrintBill()
+
+  useKeyEvent(() => !(disabled || loading) && printBill(), "F5")
 
   const [open] = useAtom(ebarimtSheetAtom)
 
@@ -32,10 +33,9 @@ const MakePayment = () => {
         onClick={printBill}
         loading={loading}
       >
-        Баримт хэвлэх
+        Баримт хэвлэх F5
       </Button>
-      {/* <Sheet open={open} onOpenChange={() => changeVisiblity(false)}>
-        <SheetContent closable className="flex flex-col p-4 sm:max-w-xs"> */}
+
       {open && (
         <iframe
           ref={iframeRef}
@@ -44,8 +44,6 @@ const MakePayment = () => {
           style={{ top: 10000, left: 10000 }}
         />
       )}
-      {/* </SheetContent>
-      </Sheet> */}
     </>
   )
 }

@@ -3,6 +3,7 @@ import { cartAtom } from "@/store/cart.store"
 import { activeOrderIdAtom } from "@/store/order.store"
 import { useAtom, useSetAtom } from "jotai"
 
+import useKeyEvent from "@/lib/useKeyEvent"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -10,6 +11,8 @@ const OrderCUButton = ({ variant }: { variant?: "outline" }) => {
   const [cart] = useAtom(cartAtom)
   const setActive = useSetAtom(activeOrderIdAtom)
   const { orderCU, loading } = useOrderCU((id) => setActive(id))
+  const disabled = cart.length === 0 || loading
+  useKeyEvent(() => !disabled && orderCU(), "F12")
 
   return (
     <Button
@@ -23,7 +26,7 @@ const OrderCUButton = ({ variant }: { variant?: "outline" }) => {
       onClick={() => orderCU()}
       variant={variant}
     >
-      Төлбөр шалгах
+      Төлбөр шалгах F12
     </Button>
   )
 }
