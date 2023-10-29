@@ -31,7 +31,7 @@ const chatMarkAsRead = gql`
 const chatMessageAdd = gql`
   mutation chatMessageAdd(
     $chatId: String!
-    $content: String!
+    $content: String
     $relatedId: String
     $attachments: [JSON]
   ) {

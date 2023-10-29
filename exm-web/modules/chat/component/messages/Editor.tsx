@@ -69,14 +69,7 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   }
 
   const onSubmit = () => {
-    if (message) {
-      sendMessage({ content: message, relatedId, attachments })
-    } else {
-      return toast({
-        description: `Please enter message`,
-      })
-    }
-
+    sendMessage({ content: message, relatedId, attachments })
     setAttachments([])
     setMessage("")
     setReply(null)

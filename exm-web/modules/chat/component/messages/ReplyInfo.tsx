@@ -28,7 +28,9 @@ const ReplyInfo = ({
             onClick={() => setReply(null)}
           />
         </div>
-        <p className="max-w-md overflow-hidden truncate">{reply.content}</p>
+        <p className="max-w-md overflow-hidden truncate">
+          {reply.content === "<p></p>" ? "File" : reply.content}
+        </p>
       </div>
     )
   } else {

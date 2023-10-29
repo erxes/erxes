@@ -31,7 +31,7 @@ const MessageItem = ({
   const { pinMessage } = useChatMessages()
 
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-  const [showAction, setShowAction] = useState(true)
+  const [showAction, setShowAction] = useState(false)
 
   const isMe = useMemo(
     () => currentUser?._id === createdUser._id,
@@ -79,6 +79,7 @@ const MessageItem = ({
     const style = isMe
       ? ` ${"bg-[#f8f8f8] text-[#000] rounded-lg"} font-medium`
       : ` ${"bg-[#F9F7FF] text-[#000] rounded-lg"} font-medium`
+
     return (
       <>
         {renderReplyText()}
@@ -129,6 +130,62 @@ const MessageItem = ({
     )
   }
 
+  const renderActions = () => {
+    if (!showAction) {
+      return null
+    }
+
+    return (
+      <div className={`flex gap-3 ${isMe ? "flex-row" : "flex-row-reverse"}`}>
+        <div className="p-2.5 bg-[#F2F2F2] rounded-full cursor-pointer">
+          <ReplyIcon size={16} onClick={() => setReply(message)} />
+        </div>{" "}
+        <div className="p-2.5 bg-[#F2F2F2] rounded-full cursor-pointer">
+          {message.isPinned ? (
+            <PinOff size={16} onClick={() => pinMessage(message._id)} />
+          ) : (
+            <Pin size={16} onClick={() => pinMessage(message._id)} />
+          )}
+        </div>
+        <ForwardMessage content={content} attachments={attachments} />
+      </div>
+    )
+  }
+
+  const renderContent = () => {
+    if (content && content !== "<p></p>") {
+      return (
+        <div
+          className={`flex gap-2 items-center ${
+            isMe ? "flex-row-reverse" : "flex-row"
+          }`}
+        >
+          {messageSection(messageContent(content))}
+          {renderActions()}
+        </div>
+      )
+    }
+
+    return null
+  }
+
+  const renderAttachment = () => {
+    if (!content || content === "<p></p>") {
+      return (
+        <div
+          className={`flex gap-2 items-center ${
+            isMe ? "flex-row-reverse" : "flex-row"
+          }`}
+        >
+          <MessageAttachmentSection attachments={attachments} />
+          {renderActions()}
+        </div>
+      )
+    }
+
+    return <MessageAttachmentSection attachments={attachments} />
+  }
+
   return (
     <>
       <div
@@ -158,39 +215,9 @@ const MessageItem = ({
               {relatedMessage &&
                 messageReplySection(messageContent(relatedMessage.content))}
             </div>
-            <div
-              className={`flex gap-2 items-center ${
-                isMe ? "flex-row-reverse" : "flex-row"
-              }`}
-            >
-              {messageSection(messageContent(content))}
-              {showAction ? (
-                <div
-                  className={`flex gap-3 ${
-                    isMe ? "flex-row" : "flex-row-reverse"
-                  }`}
-                >
-                  <div className="p-2.5 bg-[#F2F2F2] rounded-full cursor-pointer">
-                    <ReplyIcon size={16} onClick={() => setReply(message)} />
-                  </div>{" "}
-                  <div className="p-2.5 bg-[#F2F2F2] rounded-full cursor-pointer">
-                    {message.isPinned ? (
-                      <PinOff
-                        size={16}
-                        onClick={() => pinMessage(message._id)}
-                      />
-                    ) : (
-                      <Pin size={16} onClick={() => pinMessage(message._id)} />
-                    )}
-                  </div>
-                  <ForwardMessage content={content} attachments={attachments} />
-                </div>
-              ) : null}
-            </div>
+            {renderContent()}
           </div>
-          {attachments && attachments.length > 0 && (
-            <MessageAttachmentSection attachments={attachments} />
-          )}
+          {attachments && attachments.length > 0 && renderAttachment()}
         </div>
       </div>
       <div className={`flex justify-end mt-1`}>

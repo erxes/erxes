@@ -7,7 +7,13 @@ import { useToast } from "@/components/ui/use-toast"
 import Login from "./components/login"
 import { mutations } from "./graphql"
 
-const LoginContainer = () => {
+const LoginContainer = ({
+  type,
+  setType,
+}: {
+  type: string
+  setType: (type: string) => void
+}) => {
   const { toast } = useToast()
 
   const [login, { loading }] = useMutation(mutations.login, {
@@ -20,13 +26,41 @@ const LoginContainer = () => {
     refetchQueries: ["currentUser"],
   })
 
+  const [forgotPassword, { loading: forgotPasswordLoading }] = useMutation(
+    mutations.forgotPassword,
+    {
+      onCompleted() {
+        return toast({
+          description:
+            "Further instructions have been sent to your e-mail address.",
+        })
+      },
+      onError(error) {
+        return toast({ description: error.message, variant: "destructive" })
+      },
+    }
+  )
+
   const handleLogin: IHandleLogin = ({ email, password }) => {
     login({ variables: { email, password } })
   }
 
-  return <Login loading={loading} login={handleLogin} />
+  const handleForgotPassword: IHandleForgotPassword = ({ email }) => {
+    forgotPassword({ variables: { email } })
+  }
+
+  return (
+    <Login
+      loading={loading || forgotPasswordLoading}
+      login={handleLogin}
+      forgotPassword={handleForgotPassword}
+      type={type}
+      setType={setType}
+    />
+  )
 }
 
 export type IHandleLogin = (params: { email: string; password: string }) => void
+export type IHandleForgotPassword = (params: { email: string }) => void
 
 export default LoginContainer

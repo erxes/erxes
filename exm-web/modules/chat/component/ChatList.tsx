@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { useAtomValue } from "jotai"
@@ -96,6 +97,26 @@ const ChatList = () => {
     })
   }
 
+  const filteredPinnedChats = pinnedChats.filter((item: any) => {
+    let name = ""
+
+    if (item.type === "direct") {
+      const users: any[] = item.participantUsers || []
+      const user: any =
+        users.length > 1
+          ? users.filter((u) => u._id !== (currentUser || ({} as IUser))._id)[0]
+          : users[0]
+      name = user.details.fullName || user.email
+      return (
+        name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        user.details.position.toLowerCase().includes(searchValue.toLowerCase())
+      )
+    } else {
+      name = item.name
+      return name.toLowerCase().includes(searchValue.toLowerCase())
+    }
+  })
+
   const renderPinnedChats = () => {
     if (pinnedChats.length !== 0) {
       return pinnedChats.map((c: any) => (
@@ -151,7 +172,13 @@ const ChatList = () => {
           <p className="pb-3">Group chats</p>
           {renderGroupChats()}
           <p className="pb-3">Pinned chats</p>
-          {renderPinnedChats()}
+          {filteredPinnedChats.map((c: any) => (
+            <ChatItem
+              key={c._id}
+              chat={c}
+              isPinned={c.isPinnedUserIds.includes(currentUser?._id)}
+            />
+          ))}
         </div>
       )
     }
