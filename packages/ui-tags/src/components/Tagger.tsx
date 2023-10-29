@@ -1,4 +1,5 @@
 import { ITag, ITagTypes } from '../types';
+
 import Button from '@erxes/ui/src/components/Button';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
 import React from 'react';
@@ -12,13 +13,13 @@ type Props = {
   event?: 'onClick' | 'onExit';
   className?: string;
   disableTreeView?: boolean;
-  onLoadMore?: any;
-  totalCount?: any;
   // from container
   loading: boolean;
   tags: ITag[];
   tag: (tags: ITag[]) => void;
   singleSelect?: boolean;
+  onLoadMore?: () => void;
+  totalCount?: number;
 };
 
 type State = {
@@ -157,38 +158,33 @@ class Tagger extends React.Component<Props, State> {
     tag(tags.filter(t => t.selectedBy === 'all').map(t => t._id));
   };
 
+  renderLoadMore = () => {
+    const { loading, tags, onLoadMore, totalCount = 0 } = this.props;
+
+    if (tags.length >= totalCount) {
+      return null;
+    }
+
+    return (
+      <Button
+        block={true}
+        btnStyle="link"
+        onClick={() => onLoadMore && onLoadMore()}
+        icon="redo"
+        uppercase={false}
+      >
+        {loading ? 'Loading...' : 'Load more'}
+      </Button>
+    );
+  };
+
   render() {
-    const {
-      className,
-      event,
-      type,
-      loading,
-      disableTreeView,
-      tags,
-      onLoadMore,
-      totalCount
-    } = this.props;
+    const { className, event, type, loading, disableTreeView } = this.props;
 
     if (loading) {
       return <Spinner objective={true} />;
     }
-    const renderLoadMore = () => {
-      if (tags.length >= totalCount) {
-        return null;
-      }
 
-      return (
-        <Button
-          block={true}
-          btnStyle="link"
-          onClick={() => onLoadMore()}
-          icon="redo"
-          uppercase={false}
-        >
-          {loading ? 'Loading...' : 'Load more'}
-        </Button>
-      );
-    };
     const links = [
       {
         title: __('Manage tags'),
@@ -204,7 +200,7 @@ class Tagger extends React.Component<Props, State> {
       items: JSON.parse(JSON.stringify(this.state.tagsForList)),
       isIndented: false,
       singleSelect: this.props.singleSelect,
-      renderLoadMore
+      renderLoadMore: this.renderLoadMore()
     };
 
     if (event) {

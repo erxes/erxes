@@ -1,23 +1,23 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import EmptyState from '../EmptyState';
-import Icon from '../Icon';
-import Spinner from '../Spinner';
-import Filter from './Filter';
-
 import {
   AvatarImg,
+  ChildList,
   FlexRow,
   IconWrapper,
+  ItemText,
   PopoverBody,
   PopoverFooter,
   PopoverHeader,
   PopoverList,
-  ChildList,
-  ToggleIcon,
-  ItemText
+  ToggleIcon
 } from './styles';
+
+import EmptyState from '../EmptyState';
+import Filter from './Filter';
+import Icon from '../Icon';
+import { Link } from 'react-router-dom';
+import React from 'react';
 import { SidebarList } from '../../layout/styles';
+import Spinner from '../Spinner';
 
 type Props = {
   items?: any[];
@@ -261,7 +261,7 @@ class FilterableList extends React.Component<Props, State> {
             {this.renderItems()}
           </PopoverList>
         </PopoverBody>
-        {renderLoadMore()}
+        {renderLoadMore && renderLoadMore()}
         {links && (
           <PopoverFooter>
             <PopoverList>

@@ -77,7 +77,7 @@ const TaggerContainer = (props: FinalProps) => {
       tagsQuery &&
       tagsQuery.fetchMore({
         variables: {
-          page: tags.length / 20 + 1
+          page: tags.length
         },
         updateQuery: (prevResult, { fetchMoreResult }) => {
           if (!fetchMoreResult || fetchMoreResult.tags.length === 0) {
@@ -85,13 +85,13 @@ const TaggerContainer = (props: FinalProps) => {
           }
 
           const prevTags = prevResult.tags || [];
-          const prevTagsIds = prevTags.map((tag: ITag) => tag._id);
+          const prevTagsIds = prevTags.map((t: ITag) => t._id);
 
           const fetchedTags: ITag[] = [];
 
-          for (const tag of fetchMoreResult.tags) {
-            if (!prevTagsIds.includes(tag._id)) {
-              fetchedTags.push(tag);
+          for (const t of fetchMoreResult.tags) {
+            if (!prevTagsIds.includes(t._id)) {
+              fetchedTags.push(t);
             }
           }
 
