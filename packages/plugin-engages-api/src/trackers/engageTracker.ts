@@ -11,6 +11,8 @@ import { createTransporter } from '../utils';
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
 
+  console.log({ config });
+
   if (!config) {
     return;
   }
@@ -36,6 +38,8 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   } catch (e) {
     parsedMessage = message;
   }
+
+  console.log({ parsedMessage });
 
   const { eventType, mail } = parsedMessage;
 
@@ -108,6 +112,18 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
 // aws service middleware
 export const engageTracker = async (req, res) => {
   const chunks: any = [];
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+
+  const isCustomMailService = await customMailServiceRequests.isDefaultEmailServiceCMS(
+    models
+  );
+
+  if (isCustomMailService) {
+    const headers = req.headers;
+    const data = req.body;
+    res.send('success');
+  }
 
   req.setEncoding('utf8');
 
