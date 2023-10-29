@@ -19,7 +19,10 @@ const goalTypesLists = ({ location, history }) => {
 const GoalRoutes = () => {
   return (
     <React.Fragment>
-      <Route path="/erxes-plugin-goal/goal" component={goalTypesLists} />
+      <Route
+        path="/erxes-plugin-goalType/goalType"
+        component={goalTypesLists}
+      />
     </React.Fragment>
   );
 };

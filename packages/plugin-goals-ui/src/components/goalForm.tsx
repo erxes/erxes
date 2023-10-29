@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import {
   Button,
   ControlLabel,
@@ -15,7 +13,13 @@ import {
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { IGoalType, IGoalTypeDoc, IAssignmentCampaign } from '../types';
-import { ENTITY, CONTRIBUTION, FREQUENCY, GOAL_TYPE } from '../constants';
+import {
+  ENTITY,
+  CONTRIBUTION,
+  FREQUENCY,
+  GOAL_TYPE,
+  SPECIFIC_PERIOD_GOAL
+} from '../constants';
 import React from 'react';
 import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
@@ -28,14 +32,10 @@ import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import Icon from '@erxes/ui/src/components/Icon';
-import styled from 'styled-components';
-import { TabTitle, Tabs as MainTabs, Table } from '@erxes/ui/src';
-import { DatePicker } from '@/components/ui/date-picker';
+
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  goal: IGoalType;
+  goalType: IGoalType;
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
   assignmentCampaign?: IAssignmentCampaign;
@@ -44,9 +44,10 @@ type Props = {
 type State = {
   specificPeriodGoals: Array<{
     _id: string;
-    addMonthly: Date;
-    addTarget: string;
+    addMonthly: string;
+    addTarget: number;
   }>;
+  periodGoal: string;
   entity: string;
   contributionType: string;
   frequency: string;
@@ -65,94 +66,32 @@ type State = {
   segmentRadio: boolean;
 };
 
-interface ITabs {
-  tabs: ITabItem[];
-}
-interface ITabItem {
-  component: any;
-  label: string;
-}
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-`;
-function Tabs({ tabs }: ITabs) {
-  const [tabIndex, setTabIndex] = React.useState(0);
-
-  return (
-    <>
-      <MainTabs grayBorder>
-        {tabs.map((tab, index) => (
-          <TabTitle
-            style={{
-              backgroundColor: index === tabIndex && 'rgba(128,128,128,0.2)'
-            }}
-            key={`tab${tab.label}`}
-            onClick={() => setTabIndex(index)}
-          >
-            {tab.label}
-          </TabTitle>
-        ))}
-      </MainTabs>
-
-      <div style={{ width: '100%', marginTop: 20 }}>
-        {tabs?.[tabIndex]?.component}
-      </div>
-    </>
-  );
-}
-
 class GoalTypeForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { goal = {} } = props;
+    const { goalType = {} } = props;
     this.state = {
-      specificPeriodGoals: goal.specificPeriodGoals || [],
-      stageRadio: goal.stageRadio,
-      segmentRadio: goal.segmentRadio,
-      contribution: goal.contribution,
-      pipelineLabels: goal.pipelineLabels,
-      entity: goal.entity || '',
-      contributionType: goal.contributionType || '',
-      frequency: goal.frequency || '',
-      goalType: goal.goalType || '',
-      metric: goal.metric || '',
-      period: goal.period,
-      startDate: goal.startDate || new Date(),
-      endDate: goal.endDate || new Date(),
-      stageId: goal.stageId,
-      pipelineId: goal.pipelineId,
-      boardId: goal.boardId,
+      specificPeriodGoals: goalType.specificPeriodGoals || [],
+      stageRadio: goalType.stageRadio,
+      periodGoal: goalType.periodGoal,
+      segmentRadio: goalType.segmentRadio,
+      contribution: goalType.contribution,
+      pipelineLabels: goalType.pipelineLabels,
+      entity: goalType.entity || '',
+      contributionType: goalType.contributionType || '',
+      frequency: goalType.frequency || '',
+      goalType: goalType.goalType || '',
+      metric: goalType.metric || '',
+      period: goalType.period,
+      startDate: goalType.startDate || new Date(),
+      endDate: goalType.endDate || new Date(),
+      stageId: goalType.stageId,
+      pipelineId: goalType.pipelineId,
+      boardId: goalType.boardId,
       assignmentCampaign: this.props.assignmentCampaign || {}
     };
   }
-
-  add = () => {
-    const { specificPeriodGoals } = this.state;
-
-    // Check if there are elements in specificPeriodGoals before accessing its properties
-    const newElement =
-      specificPeriodGoals.length > 0
-        ? {
-            _id: Math.random().toString(), // You should use a more robust method for generating unique IDs
-            addMonthly: specificPeriodGoals[0].addMonthly
-              ? new Date(specificPeriodGoals[0].addMonthly)
-              : new Date(),
-            addTarget: specificPeriodGoals[0].addTarget || 'defaultTargetValue'
-          }
-        : {
-            _id: Math.random().toString(), // You should use a more robust method for generating unique IDs
-            addMonthly: new Date(),
-            addTarget: 'defaultTargetValue'
-          };
-
-    this.setState(prevState => ({
-      ...prevState,
-      specificPeriodGoals: [...prevState.specificPeriodGoals, newElement]
-    }));
-  };
 
   onChangeStartDate = value => {
     this.setState({ startDate: value });
@@ -167,12 +106,52 @@ class GoalTypeForm extends React.Component<Props, State> {
   };
 
   onChangeTarget = (index, event) => {
-    const specificPeriodGoals = [...this.state.specificPeriodGoals];
-    specificPeriodGoals[index] = {
-      ...specificPeriodGoals[index],
-      addTarget: event.target.value
-    };
-    this.setState({ specificPeriodGoals });
+    const { specificPeriodGoals, periodGoal } = this.state;
+    const { value } = event.target;
+
+    const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal, i) => {
+      if (i === index) {
+        return { ...goal, addTarget: value };
+      }
+      return goal;
+    });
+    if (periodGoal === 'Monthly') {
+      const months = this.mapMonths();
+
+      months.forEach(month => {
+        const exists = specificPeriodGoals.some(
+          goal => goal.addMonthly === month
+        );
+        if (!exists) {
+          const newElement = {
+            _id: Math.random().toString(),
+            addMonthly: month,
+            addTarget: 0
+          };
+          updatedSpecificPeriodGoals.push(newElement);
+        }
+      });
+
+      this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
+    } else {
+      const weeks = this.mapWeeks();
+
+      weeks.forEach(week => {
+        const exists = specificPeriodGoals.some(
+          goal => goal.addMonthly === week
+        );
+        if (!exists) {
+          const newElement = {
+            _id: Math.random().toString(),
+            addMonthly: week,
+            addTarget: 0
+          };
+          updatedSpecificPeriodGoals.push(newElement);
+        }
+      });
+
+      this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
+    }
   };
 
   onDeleteElement = index => {
@@ -212,7 +191,7 @@ class GoalTypeForm extends React.Component<Props, State> {
    * @returns An object representing the generated document.
    */
   generateDoc = (values: { _id: string } & IGoalTypeDoc) => {
-    const { goal } = this.props;
+    const { goalType } = this.props;
     const {
       startDate,
       endDate,
@@ -228,8 +207,8 @@ class GoalTypeForm extends React.Component<Props, State> {
     const finalValues = values;
     //// assignmentCampaign segment
     const { assignmentCampaign } = this.state;
-    if (goal) {
-      finalValues._id = goal._id;
+    if (goalType) {
+      finalValues._id = goalType._id;
     }
     const durationStart = dayjs(startDate).format('MMM D, h:mm A');
     const durationEnd = dayjs(endDate).format('MMM D, h:mm A');
@@ -293,19 +272,57 @@ class GoalTypeForm extends React.Component<Props, State> {
     return <Form renderContent={this.renderContent} />;
   };
 
+  mapMonths = (): string[] => {
+    const { startDate, endDate } = this.state;
+    const startDateObject = new Date(startDate); // Ensure startDate is a Date object
+    const endDateObject = new Date(endDate); // Ensure endDate is a Date object
+    const startMonth = startDateObject.getMonth();
+    const endMonth = endDateObject.getMonth();
+    const year = startDateObject.getFullYear(); //
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    const months: string[] = [];
+
+    for (let i = startMonth; i <= endMonth; i++) {
+      months.push(`${monthNames[i]} ${year}`);
+    }
+    return months;
+  };
+
+  mapWeeks = (): string[] => {
+    const { startDate, endDate } = this.state;
+    const weeks: string[] = [];
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const weekStart = new Date(currentDate);
+      const weekEnd = new Date(currentDate);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      weeks.push(
+        `Week of ${weekStart.toDateString()} - ${weekEnd.toDateString()}`
+      );
+      currentDate.setDate(currentDate.getDate() + 7);
+    }
+    return weeks;
+  };
   renderContent = (formProps: IFormProps) => {
-    const goal = this.props.goal || ({} as IGoalType);
+    const goalType = this.props.goalType || ({} as IGoalType);
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const { contribution } = this.state;
-    const { specificPeriodGoals } = this.state;
-    /// dateContaner only month and year code
-    const dateContainer = date => {
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      return `${month}/${year}`;
-    };
-    console.log(this.state.entity, 'this.state.entity');
+    const months: string[] = this.mapMonths();
+    const weeks = this.mapWeeks();
 
     return (
       <>
@@ -434,7 +451,7 @@ class GoalTypeForm extends React.Component<Props, State> {
             <FormColumn>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('choose goal type')}
+                  {__('choose goalType type')}
                 </ControlLabel>
                 <FormControl
                   {...formProps}
@@ -481,6 +498,7 @@ class GoalTypeForm extends React.Component<Props, State> {
                   multi={false}
                 />
               </FormGroup>
+
               <FormGroup>
                 <ControlLabel>{__('metric')}:</ControlLabel>
                 <FormControl
@@ -503,64 +521,89 @@ class GoalTypeForm extends React.Component<Props, State> {
                   ...formProps,
                   name: 'target',
                   type: 'number',
-                  defaultValue: goal.target || 0
+                  defaultValue: goalType.target || 0
                 })}
               </FormGroup>
+
               <FormGroup>
-                {this.renderFormGroup('specific period goals', {
-                  ...formProps,
-                  className: 'flex-item',
-                  type: 'checkbox',
-                  componentClass: 'checkbox',
-                  name: 'period',
-                  checked: this.state.period,
-                  onChange: this.onChangeField
-                })}
+                <ControlLabel>
+                  {__('choose specific period goals')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="periodGoal"
+                  componentClass="select"
+                  value={this.state.periodGoal}
+                  required={true}
+                  onChange={this.onChangeField}
+                >
+                  {SPECIFIC_PERIOD_GOAL.map((item, index) => (
+                    <option key={index} value={item.value}>
+                      {item.name}
+                    </option>
+                  ))}
+                </FormControl>
               </FormGroup>
             </FormColumn>
           </FormWrapper>
-
-          {this.state.period === true && (
+          {this.state.periodGoal === 'Monthly' && (
             <div>
-              {this.state.specificPeriodGoals.map((element, index) => (
+              {months.map((month, index) => (
                 <FormWrapper key={index}>
                   <FormColumn>
+                    <ControlLabel>{__('Period (Monthly)')}</ControlLabel>
                     <FormGroup>
-                      <ControlLabel>{__('Period (Monthly)')}</ControlLabel>
-
-                      <DateContainer>
-                        <DateControl
-                          required={false}
-                          name="date"
-                          value={element.addMonthly}
-                          onChange={value =>
-                            this.onChangeStartDateAdd(index, value)
-                          }
-                        />
-                      </DateContainer>
+                      <DateContainer>{month}</DateContainer>
                     </FormGroup>
                   </FormColumn>
                   <FormColumn>
+                    <ControlLabel>{__('Target')}</ControlLabel>
                     <FormGroup>
-                      <ControlLabel>{__('Target(Value, MNT)')}</ControlLabel>
                       <FormControl
                         type="number"
                         name="target"
-                        value={element.addTarget || '0'}
+                        value={
+                          this.state.specificPeriodGoals[index]?.addTarget !==
+                          undefined
+                            ? this.state.specificPeriodGoals[index].addTarget
+                            : 0
+                        }
                         onChange={event => this.onChangeTarget(index, event)}
                       />
                     </FormGroup>
                   </FormColumn>
-                  <Button
-                    btnStyle="link"
-                    onClick={() => this.onDeleteElement(index)}
-                    icon="times"
-                  />
                 </FormWrapper>
               ))}
-              <LinkButton onClick={this.add}>
-                <Icon icon="plus-1" /> {__('Add another goal')}
-              </LinkButton>
+            </div>
+          )}
+          {this.state.periodGoal === 'Weekly' && (
+            <div>
+              {weeks.map((week, index) => (
+                <FormWrapper key={index}>
+                  <FormColumn>
+                    <ControlLabel>{__('Period (Weekly)')}</ControlLabel>
+                    <FormGroup>
+                      <DateContainer>{week}</DateContainer>
+                    </FormGroup>
+                  </FormColumn>
+                  <FormColumn>
+                    <ControlLabel>{__('Target')}</ControlLabel>
+                    <FormGroup>
+                      <FormControl
+                        type="number"
+                        name="target"
+                        value={
+                          this.state.specificPeriodGoals[index]?.addTarget !==
+                          undefined
+                            ? this.state.specificPeriodGoals[index].addTarget
+                            : 0
+                        }
+                        onChange={event => this.onChangeTarget(index, event)}
+                      />
+                    </FormGroup>
+                  </FormColumn>
+                </FormWrapper>
+              ))}
             </div>
           )}
         </ScrollWrapper>
@@ -569,10 +612,10 @@ class GoalTypeForm extends React.Component<Props, State> {
             {__('Close')}
           </Button>
           {renderButton({
-            name: 'goal',
+            name: 'goalType',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.goal
+            object: this.props.goalType
           })}
         </ModalFooter>
       </>
@@ -580,20 +623,7 @@ class GoalTypeForm extends React.Component<Props, State> {
   };
 
   render() {
-    return (
-      <Tabs
-        tabs={[
-          {
-            label: 'GOAL',
-            component: <Form renderContent={this.renderContent} />
-          },
-          {
-            label: 'NOTIFICATIONS',
-            component: <Form renderContent={this.renderGraphic} />
-          }
-        ]}
-      />
-    );
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

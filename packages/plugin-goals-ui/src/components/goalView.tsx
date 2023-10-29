@@ -1,204 +1,149 @@
-// import { gql, useQuery, useMutation } from '@apollo/client';
-// import { Alert, confirm } from '@erxes/ui/src/utils';
-// import {
-//   mutations,
-//   queries
-// } from '@erxes/ui-cards/src/settings/boards/graphql';
-// import Button from '@erxes/ui/src/components/Button';
-// import Icon from '@erxes/ui/src/components/Icon';
-// import { LinkButton } from '@erxes/ui/src/styles/main';
-// import Modal from 'react-bootstrap/Modal';
-// import { __ } from 'coreui/utils';
-// import { FormControl } from '@erxes/ui/src/components/form';
-// import Table from '@erxes/ui/src/components/table';
-// import { IGoal, IGoalTypeDoc, IAssignmentCampaign } from '../types';
-// import * as path from 'path';
-
-// import {
-//   ControlLabel,
-//   Form,
-//   DateControl,
-//   MainStyleFormColumn as FormColumn,
-//   FormGroup,
-//   MainStyleFormWrapper as FormWrapper,
-//   MainStyleModalFooter as ModalFooter,
-//   MainStyleScrollWrapper as ScrollWrapper
-// } from '@erxes/ui/src';
-// import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-// import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-// import { ENTITY, CONTRIBUTION, FREQUENCY, GOAL_TYPE } from '../constants';
-
-// import { DateContainer } from '@erxes/ui/src/styles/main';
-// import dayjs from 'dayjs';
-// import client from '@erxes/ui/src/apolloClient';
-// import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
-// import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
-// import { isEnabled } from '@erxes/ui/src/utils/core';
-// import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-// import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
-
-// import styled from 'styled-components';
-// import { TabTitle, Tabs as MainTabs } from '@erxes/ui/src';
-
-// import { ModalTrigger } from '@erxes/ui/src';
-// import GoalTypeForm from './goalTypeForm';
-// type Props = {
-//   _id: any;
-// };
-// // tslint:disable-next-line:class-name
-// type State = {};
-// // tslint:disable-next-line:class-name
-
-// import React, { Component } from 'react';
-
-// class GoalView extends Component<Props, State> {
-//   constructor(props: Props) {
-//     super(props);
-//     const { _id = {} } = props;
-//     console.log(_id, 'goalTypeView');
-//     this.state = {
-//       // Initialize your state here if necessary
-//     };
-//   }
-
-//   render() {
-//     return (
-//       <div>
-//         <h2>{'GoalView'}</h2>
-//       </div>
-//     );
-//   }
-// }
-
-// export default GoalView;
-
-import React, { useState, useEffect } from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import React from 'react';
+import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { IGoalType } from '../types';
 import {
-  mutations,
-  queries
-} from '@erxes/ui-cards/src/settings/boards/graphql';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import Modal from 'react-bootstrap/Modal';
+  ControlLabel,
+  Form,
+  DateControl,
+  MainStyleFormColumn as FormColumn,
+  FormGroup,
+  MainStyleFormWrapper as FormWrapper,
+  MainStyleModalFooter as ModalFooter,
+  MainStyleScrollWrapper as ScrollWrapper
+} from '@erxes/ui/src';
+import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
-import { FormControl } from '@erxes/ui/src/components/form';
 import Table from '@erxes/ui/src/components/table';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { BoardHeader } from '@erxes/ui-cards/src/settings/boards/styles';
+import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import dayjs from 'dayjs';
 
-function GoalView() {
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-  const [costMutation] = useMutation(gql(mutations.costAdd));
-  const { data, loading } = useQuery(gql(queries.costs));
-  //   useEffect(() => {
-  //     if (data) {
-  //       setElements(data.costs);
-  //     }
-  //   }, [data]);
-
-  //   const [inputValues, setInputValues] = useState({
-  //     _id: '',
-  //     name: '',
-  //     code: ''
-  //   });
-
-  //   const addElement = () => {
-  //     const newElement = {
-  //       _id: Math.random().toString(),
-  //       code: inputValues.code,
-  //       name: inputValues.name
-  //     };
-  //     setElements((prevElements) => [...prevElements, newElement]);
-  //     setInputValues({
-  //       _id: '',
-  //       code: '',
-  //       name: ''
-  //     });
-  //   };
-
-  //   const changeElement = (index, newValue1, newValue2) => {
-  //     const updatedElements = [...elements];
-  //     updatedElements[index] = {
-  //       _id: elements[index]._id,
-  //       code: newValue1,
-  //       name: newValue2
-  //     };
-  //     setElements(updatedElements);
-  //   };
-
-  //   const deleteElement = (index) => {
-  //     const updatedElements = [...elements];
-  //     updatedElements.splice(index, 1);
-  //     setElements(updatedElements);
-  //   };
-
-  //   const handleSubmit = (event) => {
-  //     const setData = elements.map((element, index) => {
-  //       if (element.name === '' || element.code === '') {
-  //         Alert.error('Please fill all fields');
-  //         throw new Error('Please fill all fields');
-  //       }
-  //       return {
-  //         name: element.name,
-  //         code: element.code,
-  //         _id: element._id
-  //       };
-  //     });
-  //     event.preventDefault();
-  //     confirm().then(() => {
-  //       costMutation({ variables: { costObjects: setData } })
-  //         .then(() => {
-  //           Alert.success('Successfully created');
-  //           handleClose();
-  //         })
-  //         .catch((e) => {
-  //           Alert.error(e.message);
-  //         });
-  //     });
-  //   };
-
-  return (
-    <div className="container">
-      <h1>Deals Progress Report</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Month</th>
-            <th>Target</th>
-            <th>Current</th>
-            <th>Progress</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Aug 2023</td>
-            <td>10</td>
-            <td>11</td>
-            <td>110%</td>
-          </tr>
-          {/* Add more rows for other months */}
-        </tbody>
-      </table>
-    </div>
-  );
-
-  //   return (
-
-  //     // <>
-  //     //   <Table whiteSpace='nowrap' hover={true}>
-  //     //     <thead>
-  //     //       <tr>
-  //     //         <th>{__('Code')}</th>
-  //     //         <th>{__('Name')}</th>
-  //     //         <th>{__('Action')}</th>
-  //     //       </tr>
-  //     //     </thead>
-  //     //   </Table>
-  //     // </>
-  //   );
+// Define the type for the props
+interface IProps extends RouteComponentProps {
+  goalType: IGoalType; // Adjust the type of goalTypes as per your
+  usersQuery: UsersQueryResponse;
+  _id: string;
+  users: IUser[];
 }
 
-export default GoalView;
+// tslint:disable-next-line:interface-name
+// interface State {
+//   // Define your state properties here
+// }
+
+class GoalView extends React.Component<IProps> {
+  constructor(props: IProps) {
+    super(props);
+  }
+
+  render() {
+    console.log(this.props.users, 'asdopk');
+    const data = this.props.goalType; // Assuming this.props contains the 'data' object
+    const nestedProgressValue = data.progress.progress; // "100.000"
+    const current = data.progress.current;
+    // let current: string; // Declare the variable outside the block
+
+    // if (data.progress.length > 0) {
+    //   current = data.progress[0].current;
+    //   console.log(current); // Output: 10
+    // } else {
+    //   console.log('No elements in data.progress');
+    // }
+    return (
+      <div>
+        <div>
+          <ControlLabel>{__('Monthly ' + data.entity)}</ControlLabel>
+          <FlexContent>
+            <FlexItem>
+              <BoardHeader>
+                <FormGroup>
+                  <ControlLabel>
+                    {__('Contributor: ') + data.contribution}
+                  </ControlLabel>
+                  <ControlLabel>
+                    {__('Goal Type: ') + data.goalType}
+                  </ControlLabel>
+                  <ControlLabel>
+                    {__('Board/Pipeline/Stage:  ')}
+                    {data.boardName +
+                      '/' +
+                      data.pipelineName +
+                      '/' +
+                      data.stageName}
+                  </ControlLabel>
+                </FormGroup>
+              </BoardHeader>
+            </FlexItem>
+            <FlexItem>
+              <FormGroup>
+                <ControlLabel>
+                  {__('Frequency: ') + data.frequency}
+                </ControlLabel>
+                <ControlLabel>
+                  {__('Duration: ')} {data.startDate} - {data.endDate}
+                </ControlLabel>
+                <ControlLabel>{__('Current: ') + current}</ControlLabel>
+                <ControlLabel>{__('Target: ') + data.target}</ControlLabel>
+                <ControlLabel>
+                  {__('Progress: ') + nestedProgressValue}
+                </ControlLabel>
+              </FormGroup>
+            </FlexItem>
+          </FlexContent>
+        </div>
+        <div>
+          <ControlLabel>{__('Month ' + data.entity)}</ControlLabel>
+          <FlexContent>
+            <FlexItem>
+              <BoardHeader>
+                <FormGroup>
+                  <ControlLabel>
+                    {__(
+                      data.entity +
+                        ' progressed: ' +
+                        data.pipelineName +
+                        data.stageName
+                    )}
+                  </ControlLabel>
+                </FormGroup>
+              </BoardHeader>
+            </FlexItem>
+          </FlexContent>
+        </div>
+
+        <FlexContent>
+          <FlexItem>
+            <BoardHeader>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>{__('Target')}</th>
+                    <th>{__('Current')}</th>
+                    <th> {__('progress(%)')}</th>
+                    <th>{__('Month')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.specificPeriodGoals.map((element, index) => (
+                    <tr key={index}>
+                      <td>{element.addTarget}</td>
+                      <td>{current}</td>
+                      <td>{element.progress + '%'}</td>
+                      <td>
+                        {dayjs(element.addMonthly).format('MMM D, h:mm A')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </BoardHeader>
+          </FlexItem>
+        </FlexContent>
+      </div>
+    );
+  }
+}
+
+export default withRouter(GoalView);

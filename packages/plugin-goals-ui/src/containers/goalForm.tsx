@@ -6,11 +6,11 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import GoalTypeForm from '../components/goalForm';
 import { mutations, queries } from '../graphql';
-import { IGoal } from '../types';
+import { IGoalType } from '../types';
 import { __ } from 'coreui/utils';
 
 type Props = {
-  goal: IGoal;
+  goalType: IGoalType;
   getAssociatedGoalType?: (insuranceTypeId: string) => void;
   closeModal: () => void;
 };

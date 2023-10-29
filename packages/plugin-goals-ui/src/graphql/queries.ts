@@ -10,6 +10,10 @@ const insuranceTypeFields = `
       goalType
       contribution
       specificPeriodGoals
+      progress
+      stageName
+      boardName
+      pipelineName
       startDate
       endDate
       target

@@ -75,6 +75,7 @@ const goalQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
+    await models.Goals.progressIdsGoals();
     const filter = await generateFilter(params, commonQuerySelector);
 
     const data = {

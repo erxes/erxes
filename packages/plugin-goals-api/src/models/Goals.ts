@@ -8,6 +8,7 @@ import {
 } from '../messageBroker';
 import { Goals } from '../graphql/resolvers/mutations';
 import _ = require('underscore');
+import { resolve } from 'path';
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
@@ -171,7 +172,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     const result = await models.Goals.updateOne(
       { _id: goal._id },
       { $set: { progress: { current, progress, amountData, target } } },
-      { runValdatiors: true }
+      { runValidators: true }
     );
     return result;
   }
@@ -179,13 +180,14 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
   async function progressFunctionIds(doc) {
     // tslint:disable-next-line:interface-name
     interface DataItem {
-      stageId: any;
-      _id: any;
-      current: any;
-      progress: any;
+      stageId: string;
+      _id: string;
+      current: string;
+      progress: string;
       amountData: any;
-      target: any;
+      target: string;
     }
+    // tslint:disable-next-line:interface-name
 
     const data: DataItem[] = [];
 
@@ -218,21 +220,35 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       for (const stagesItem of fetchedStages) {
         await models.Goals.updateOne(
           { stageId: stagesItem._id }, // Replace '_id' with the appropriate identifier for your Goals model
-          { $set: { stageName: stagesItem.name } },
+          {
+            $set: {
+              stageName: stagesItem.name
+            }
+          },
           { runValidators: true } // This option ensures that the validators are run
         );
       }
       for (const boardItem of fetchedBoard) {
         await models.Goals.updateOne(
           { boardId: boardItem._id }, // Replace '_id' with the appropriate identifier for your Goals model
-          { $set: { boardName: boardItem.name } },
+          {
+            $set: {
+              boardName: boardItem.name
+            }
+          },
           { runValidators: true } // This option ensures that the validators are run
         );
       }
       for (const pipelineItem of fetchedPipelines) {
         await models.Goals.updateOne(
-          { pipelineId: pipelineItem._id }, // Replace '_id' with the appropriate identifier for your Goals model
-          { $set: { pipelineName: pipelineItem.name } },
+          {
+            pipelineId: pipelineItem._id
+          }, // Replace '_id' with the appropriate identifier for your Goals model
+          {
+            $set: {
+              pipelineName: pipelineItem.name
+            }
+          },
           { runValidators: true } // This option ensures that the validators are run
         );
       }
@@ -309,6 +325,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           parseInt(item.target || '')
         );
       }
+
       data.push({
         stageId: item.stageId,
         _id: item._id,
@@ -318,33 +335,120 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         target: item.target
       });
     }
-
-    for (const result of data) {
-      await models.Goals.updateOne(
-        { _id: result._id },
-        {
-          $set: {
-            progress: {
-              current: result.current,
-              progress: result.progress,
-              amountData: result.amountData,
-              target: result.target,
-              _id: result._id
+    if (data) {
+      for (const result of data) {
+        await models.Goals.updateOne(
+          { _id: result._id },
+          {
+            $set: {
+              progress: {
+                current: result.current,
+                progress: result.progress,
+                amountData: result.amountData,
+                target: result.target,
+                _id: result._id
+              }
             }
-          }
-        },
-        { runValidators: true }
-      );
+          },
+          { runValidators: true }
+        );
+      }
     }
 
     const updates = await models.Goals.find({}).lean();
+    for (const item of updates) {
+      const action_name = item?.entity + 's.find';
+      const stage = item?.stageId;
+      const amount = await sendCardsMessage({
+        subdomain,
+        action: action_name,
+        data: {
+          stageId: stage
+        },
+        isRPC: true
+      });
+      let totalAmount = 0;
+      let current;
+      if (item.metric === 'Value') {
+        // let progress;
+        for (const items of amount) {
+          if (items.productsData && items.status === 'active') {
+            const productsData = items.productsData;
+            // tslint:disable-next-line:no-shadowed-variable
+            productsData.forEach(item => {
+              totalAmount += item.amount;
+            });
+          }
+          current = totalAmount;
 
+          if (
+            item.specificPeriodGoals &&
+            Array.isArray(item.specificPeriodGoals)
+          ) {
+            const updatedSpecificPeriodGoals = item.specificPeriodGoals.map(
+              result => {
+                const progress = (current / result.addTarget) * 100;
+                const convertedNumber = progress.toFixed(3);
+
+                return {
+                  ...result,
+                  addMonthly: result.addMonthly, // update other properties as needed
+                  progress: convertedNumber // updating the progress property
+                };
+              }
+            );
+            await models.Goals.updateOne(
+              { _id: item._id },
+              {
+                $set: {
+                  specificPeriodGoals: updatedSpecificPeriodGoals
+                }
+              }
+            );
+          }
+        }
+      } else if (item.metric === 'Count') {
+        const activeElements = amount.filter(
+          // tslint:disable-next-line:no-shadowed-variable
+          item => item.status === 'active'
+        );
+        current = activeElements.length;
+        if (
+          item.specificPeriodGoals &&
+          Array.isArray(item.specificPeriodGoals)
+        ) {
+          const updatedSpecificPeriodGoals = item.specificPeriodGoals.map(
+            result => {
+              const progress = (current / result.addTarget) * 100;
+              const convertedNumber = progress.toFixed(3);
+
+              return {
+                ...result,
+                addMonthly: result.addMonthly, // update other properties as needed
+                current,
+                progress: convertedNumber // updating the progress property
+              };
+            }
+          );
+          await models.Goals.updateOne(
+            { _id: item._id },
+            {
+              $set: {
+                specificPeriodGoals: updatedSpecificPeriodGoals
+              }
+            }
+          );
+        }
+      }
+    }
     return updates;
   }
 
   async function differenceFunction(amount: number, target: number) {
     const diff = (amount / target) * 100;
-    return diff;
+    const convertedNumber = diff.toFixed(3);
+
+    return convertedNumber;
   }
 
   goalSchema.loadClass(Goal);

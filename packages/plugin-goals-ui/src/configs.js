@@ -1,36 +1,36 @@
 module.exports = {
-  name: 'goal',
+  name: 'goalType',
   port: 3017,
-  scope: 'goal',
+  scope: 'goalType',
   exposes: {
     './routes': './src/routes.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
-    scope: 'goal',
+    scope: 'goalType',
     module: './routes'
   },
   menus: [
     {
       text: 'Goals',
-      to: '/erxes-plugin-goal/goal',
+      to: '/erxes-plugin-goalType/goalType',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
-      scope: 'goal'
+      scope: 'goalType'
     }
   ]
 };
 
 // module.exports = {
-//   name: 'goal',
+//   name: 'goalType',
 //   port: 3017,
-//   scope: 'goal',
+//   scope: 'goalType',
 //   exposes: {
 //     './routes': './src/routes.tsx'
 //   },
 //   routes: {
 //     url: 'http://localhost:3017/remoteEntry.js',
-//     scope: 'goal',
+//     scope: 'goalType',
 //     module: './routes'
 //   },
 //   menus: [
@@ -39,7 +39,7 @@ module.exports = {
 //       to: '/goals',
 //       image: '/images/icons/erxes-18.svg',
 //       location: 'settings',
-//       scope: 'goal'
+//       scope: 'goalType'
 //     }
 //   ]
 // };

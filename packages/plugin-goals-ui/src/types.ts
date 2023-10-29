@@ -5,23 +5,37 @@ import {
 } from '@erxes/ui/src/types';
 // tslint:disable-next-line:interface-name
 interface SpecificPeriodGoal {
+  progress: string;
   _id: string;
+  current: string;
   addMonthly: string;
   addTarget: string;
+}
+// tslint:disable-next-line:interface-name
+interface ProgressGoal {
+  current: string;
+  progress: string;
+  amountData: string;
+  target: string;
+  _id: string;
 }
 
 export interface IGoalTypeDoc {
   createdAt?: Date;
   entity: string;
   stageId: any;
+  stageName: string;
   pipelineId: any;
+  pipelineName: string;
   boardId: any;
+  boardName: string;
   contributionType: string;
   frequency: string;
   metric: string;
   goalType: string;
   contribution: [string];
   specificPeriodGoals: SpecificPeriodGoal[];
+  progress: ProgressGoal[];
   chooseStage: string;
   startDate: string;
   endDate: string;
@@ -84,6 +98,8 @@ export interface IBoard {
 }
 export interface IGoalType extends IGoalTypeDoc {
   _id: string;
+  map(arg0: (item: any, index: any) => void): import('react').ReactNode;
+  forEach(arg0: (goal: any) => void): unknown;
 }
 
 // mutation types

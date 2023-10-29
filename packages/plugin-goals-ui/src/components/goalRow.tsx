@@ -3,15 +3,14 @@ import _ from 'lodash';
 import React from 'react';
 
 import GoalTypeForm from '../containers/goalForm';
-import { IGoal } from '../types';
-import { check } from 'prettier';
-import { Checkbox } from '@erxes/ui/src/components/form/styles';
+import { IGoalType } from '../types';
+
 import GoalView from './goalView';
 type Props = {
-  goal: IGoal;
+  goalType: IGoalType;
   history: any;
   isChecked: boolean;
-  toggleBulk: (goal: IGoal, isChecked?: boolean) => void;
+  toggleBulk: (goalType: IGoalType, isChecked?: boolean) => void;
 };
 
 type State = {
@@ -19,14 +18,14 @@ type State = {
   checkbox: boolean;
 };
 
-function displayValue(goal, name) {
-  const value = _.get(goal, name);
+function displayValue(goalType, name) {
+  const value = _.get(goalType, name);
 
   return formatValue(value);
 }
 
-function renderFormTrigger(trigger: React.ReactNode, goal: IGoal) {
-  const content = props => <GoalTypeForm {...props} goal={goal} />;
+function renderFormTrigger(trigger: React.ReactNode, goalType: IGoalType) {
+  const content = props => <GoalTypeForm {...props} goalType={goalType} />;
 
   return (
     <ModalTrigger
@@ -37,8 +36,10 @@ function renderFormTrigger(trigger: React.ReactNode, goal: IGoal) {
     />
   );
 }
-function renderFormTViewrigger(trigger: React.ReactNode, goal: IGoal) {
-  const content = props => <GoalView {...props} _id={goal._id} />;
+function renderFormTViewrigger(trigger: React.ReactNode, goalType: IGoalType) {
+  const content = props => (
+    <GoalView {...props} goalType={goalType} _id={goalType._id} />
+  );
 
   return (
     <ModalTrigger
@@ -50,28 +51,29 @@ function renderFormTViewrigger(trigger: React.ReactNode, goal: IGoal) {
   );
 }
 
-function renderEditAction(goal: IGoal) {
+function renderEditAction(goalType: IGoalType) {
   const trigger = <Button btnStyle="link" icon="edit-1" />;
 
-  return renderFormTrigger(trigger, goal);
+  return renderFormTrigger(trigger, goalType);
 }
-function renderViewAction(goal: IGoal) {
+function renderViewAction(goalType: IGoalType) {
   const trigger = <Button btnStyle="link" icon="eye" />;
-  return renderFormTViewrigger(trigger, goal);
+  return renderFormTViewrigger(trigger, goalType);
 }
 
 function GoalRow(
-  { goal, history, isChecked, toggleBulk }: Props,
+  { goalType, history, isChecked, toggleBulk }: Props,
   { showModal }: State
 ) {
   const onChange = e => {
     if (toggleBulk) {
-      toggleBulk(goal, e.target.checked);
+      toggleBulk(goalType, e.target.checked);
     }
   };
   const onClick = e => {
     e.stopPropagation();
   };
+
   return (
     <tr>
       <td onClick={onClick}>
@@ -81,24 +83,23 @@ function GoalRow(
           onChange={onChange}
         />
       </td>
-
-      <td key={'entity'}>{displayValue(goal, 'entity')}</td>
-      <td key={'stageId'}>{displayValue(goal, 'stageId')}</td>
-      <td key={'pipelineId'}>{displayValue(goal, 'pipelineId')}</td>
-      <td key={'boardId'}>{displayValue(goal, 'boardId')}</td>
-      <td key={'contributionType'}>{displayValue(goal, 'contributionType')}</td>
-      <td key={'frequency'}>{displayValue(goal, 'frequency')}</td>
-      <td key={'metric'}>{displayValue(goal, 'metric')}</td>
-      <td key={'goal'}>{displayValue(goal, 'goal')}</td>
-      <td key={'contribution'}>{displayValue(goal, 'contribution')}</td>
-      <td key={'startDate'}>{displayValue(goal, 'startDate')}</td>
-      <td key={'endDate'}>{displayValue(goal, 'endDate')}</td>
-      <td key={'target'}>{displayValue(goal, 'target')}</td>
-      <td key={'specificPeriodGoals'}>
-        {displayValue(goal, 'specificPeriodGoals')}
+      <td key={'entity'}>{displayValue(goalType, 'entity')}</td>
+      <td key={'boardName'}>{displayValue(goalType, 'boardName')}</td>
+      <td key={'pipelineName'}>{displayValue(goalType, 'pipelineName')}</td>
+      <td key={'stageName'}>{displayValue(goalType, 'stageName')}</td>
+      <td key={'contributionType'}>
+        {displayValue(goalType, 'contributionType')}
       </td>
-      <td>{renderViewAction(goal)}</td>
-      <td>{renderEditAction(goal)}</td>
+      <td key={'frequency'}>{displayValue(goalType, 'frequency')}</td>
+      <td key={'metric'}>{displayValue(goalType, 'metric')}</td>
+      <td key={'goalType'}>{displayValue(goalType, 'goalType')}</td>
+      <td key={'startDate'}>{displayValue(goalType, 'startDate')}</td>
+      <td key={'endDate'}>{displayValue(goalType, 'endDate')}</td>
+      <td key={'current'}>{displayValue(goalType.progress, 'current')}</td>
+      <td key={'target'}>{displayValue(goalType, 'target')}</td>
+      <td key={'progress'}>{displayValue(goalType.progress, 'progress')}</td>
+      <td>{renderViewAction(goalType)}</td>
+      <td>{renderEditAction(goalType)}</td>
     </tr>
   );
 }

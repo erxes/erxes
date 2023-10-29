@@ -10,6 +10,19 @@ export const ENTITY = [
   { name: 'Ticket Based Goal', value: 'ticket' },
   { name: 'Purchase Based Goal', value: 'purchase' }
 ];
+export const SPECIFIC_PERIOD_GOAL = [
+  {
+    name: 'Weekly',
+    value: 'Weekly'
+  },
+  { name: 'Monthly', value: 'Monthly' }
+];
+
+export const viewModes = [
+  { label: 'List View', type: 'list', icon: 'list-ui-alt' },
+  { label: 'Board View', type: 'board', icon: 'postcard' },
+  { label: 'Calendar view', type: 'calendar', icon: 'postcard' }
+];
 
 // export const ENTITY = ['deal', 'task', 'ticket', 'purchase'];
 export const CONTRIBUTION = ['Team Goal', 'Personal Goal'];
@@ -265,4 +278,44 @@ export const HACKSTAGES = [
   'Retention',
   'Revenue',
   'Referrals'
+];
+
+export const PRODUCT_TYPE_CHOISES = {
+  product: 'Product',
+  service: 'Service',
+  unique: 'Unique'
+};
+
+export const PRODUCT_CATEGORIES_STATUS = ['active', 'disabled', 'archived'];
+export const PRODUCT_CATEGORIES_STATUS_FILTER = {
+  disabled: 'Disabled',
+  archived: 'Archived',
+  deleted: 'Deleted'
+};
+
+export const CONFIGS_KEY_LABELS = {
+  isRequireUOM: 'is required UOM'
+};
+
+import { colors } from '@erxes/ui/src';
+
+export const responseTypes = [
+  {
+    label: 'Approved',
+    value: 'approved',
+    icon: 'like-1',
+    color: colors.colorCoreGreen
+  },
+  {
+    label: 'Declined',
+    value: 'declined',
+    icon: 'dislike',
+    color: colors.colorCoreRed
+  },
+  {
+    label: 'Waiting',
+    value: 'waiting',
+    icon: 'clock',
+    color: colors.colorCoreBlue
+  }
 ];

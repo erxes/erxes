@@ -47,7 +47,7 @@ class GoalTypeListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a goal');
+          Alert.success('You successfully deleted a goalType');
         })
         .catch(e => {
           Alert.error(e.message);

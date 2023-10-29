@@ -2,8 +2,9 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface ISpecificPeriodGoals {
-  monthy: Date;
+  monthly: Date;
   target: string;
+  progress: any;
 }
 
 export interface IGoal {
