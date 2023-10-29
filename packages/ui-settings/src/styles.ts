@@ -222,7 +222,6 @@ const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
   justify-content: ${props =>
     props.justifyContent ? props.justifyContent : 'flex-start'};
   flex: 1;
-  margin-right: ${dimensions.coreSpacing}px;
 
   > div {
     flex: 1;
