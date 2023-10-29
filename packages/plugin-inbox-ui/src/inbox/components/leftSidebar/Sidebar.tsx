@@ -267,7 +267,8 @@ class LeftSidebar extends React.Component<Props, State> {
                     queryName: 'tagList',
                     dataName: 'tags',
                     variables: {
-                      type: TAG_TYPES.CONVERSATION
+                      type: TAG_TYPES.CONVERSATION,
+                      perPage: 100
                     }
                   }}
                   queryParams={queryParams}
