@@ -8,6 +8,7 @@ import {
   TagMutationVariables,
   TagsQueryResponse
 } from '../types';
+import { mutations, queries } from '../graphql';
 
 import React from 'react';
 import Tagger from '../components/Tagger';
@@ -117,12 +118,6 @@ const TaggerContainer = (props: FinalProps) => {
   return <Tagger {...updatedProps} />;
 };
 
-const tagCountQuery = gql`
-  query tagsQueryCount($type: String, $searchValue: String) {
-    tagsQueryCount(type: $type, searchValue: $searchValue)
-  }
-`;
-
 const query = gql`
   query(
     $type: String!
@@ -146,19 +141,9 @@ const query = gql`
   }
 `;
 
-const mutation = gql`
-  mutation tagsTag(
-    $type: String!
-    $targetIds: [String!]!
-    $tagIds: [String!]!
-  ) {
-    tagsTag(type: $type, targetIds: $targetIds, tagIds: $tagIds)
-  }
-`;
-
 export default withProps<Props>(
   compose(
-    graphql<Props, any, { type: string }>(tagCountQuery, {
+    graphql<Props, any, { type: string }>(gql(queries.tagsQueryCount), {
       name: 'tagsCountQuery',
       options: (props: Props) => ({
         variables: {
@@ -177,11 +162,14 @@ export default withProps<Props>(
         }
       })
     }),
-    graphql<Props, TagMutationResponse, TagMutationVariables>(mutation, {
-      name: 'tagMutation',
-      options: ({ refetchQueries }) => ({
-        refetchQueries
-      })
-    })
+    graphql<Props, TagMutationResponse, TagMutationVariables>(
+      gql(mutations.tagsTag),
+      {
+        name: 'tagMutation',
+        options: ({ refetchQueries }) => ({
+          refetchQueries
+        })
+      }
+    )
   )(TaggerContainer)
 );
