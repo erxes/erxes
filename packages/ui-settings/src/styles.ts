@@ -333,9 +333,10 @@ const SubItem = styled.div`
   }
 `;
 
-const FilterContainer = styled.div`
+const FilterContainer = styledTS<{ marginRight?: boolean }>(styled.div)`
   position: relative;
   z-index: 2;
+  margin-right: ${props => props.marginRight && '10px'};
 `;
 
 const SidebarList = styled.div`

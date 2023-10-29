@@ -5,10 +5,11 @@ import {
   IframePreview,
   Template,
   TemplateBox,
+  TemplateBoxInfo,
   TemplateInfo,
   Templates
 } from '@erxes/ui-emailtemplates/src/styles';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+import { FlexItem, FlexRow, InputBar } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from 'coreui/utils';
 
@@ -100,28 +101,33 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         : '';
 
     return (
-      <FilterContainer>
+      <FilterContainer marginRight={true}>
         <FlexRow>
-          <FlexItem>
-            <FormControl
-              placeholder={__('Type to search')}
-              name="searchValue"
-              onChange={this.onChange}
-              value={this.state.searchValue}
-              onKeyPress={this.handleKeyDown}
-              onKeyDown={this.handleKeyDown}
-              autoFocus={true}
-            />
-          </FlexItem>
-          <FlexItem>
-            <SelectBrands
-              label="Filter by brand"
-              initialValue={brandId}
-              onSelect={this.onSelect}
-              name="brandId"
-              multi={false}
-            />
-          </FlexItem>
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                placeholder={__('Type to search')}
+                name="searchValue"
+                onChange={this.onChange}
+                value={this.state.searchValue}
+                onKeyPress={this.handleKeyDown}
+                onKeyDown={this.handleKeyDown}
+                autoFocus={true}
+              />
+            </FlexItem>
+          </InputBar>
+          <InputBar type="selectBar">
+            <FlexItem>
+              <SelectBrands
+                label="Filter by brand"
+                initialValue={brandId}
+                onSelect={this.onSelect}
+                name="brandId"
+                multi={false}
+              />
+            </FlexItem>
+          </InputBar>
         </FlexRow>
       </FilterContainer>
     );
@@ -133,9 +139,12 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     return (
       <Templates>
         {objects.map((object, index) => (
-          <Template key={index} isLongName={object.name > 45}>
-            <h5>{object.name}</h5>
-            <TemplateBox>
+          <Template
+            key={index}
+            isLongName={object.name > 45}
+            position="flex-start"
+          >
+            <TemplateBox hasPadding={true}>
               <Actions>
                 {this.renderEditAction(object)}
                 <div onClick={() => remove(object._id)}>
@@ -146,10 +155,13 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
                 <iframe title="response-iframe" srcDoc={object.content} />
               </IframePreview>
             </TemplateBox>
-            <TemplateInfo>
-              <p>Brand</p>
-              <p>{object.brand.name}</p>
-            </TemplateInfo>
+            <TemplateBoxInfo>
+              <h5>{object.name}</h5>
+              <TemplateInfo>
+                <p>Brand</p>
+                <p>{object.brand.name}</p>
+              </TemplateInfo>
+            </TemplateBoxInfo>
           </Template>
         ))}
       </Templates>
