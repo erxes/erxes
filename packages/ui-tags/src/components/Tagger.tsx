@@ -17,15 +17,16 @@ type Props = {
   loading: boolean;
   tags: ITag[];
   tag: (tags: ITag[]) => void;
+  totalCount: number;
   singleSelect?: boolean;
-  onLoadMore?: () => void;
-  totalCount?: number;
+  onLoadMore?: (page: number) => void;
 };
 
 type State = {
   tagsForList: any[];
   keysPressed: any;
   cursor: number;
+  page: number;
 };
 
 class Tagger extends React.Component<Props, State> {
@@ -35,7 +36,8 @@ class Tagger extends React.Component<Props, State> {
     this.state = {
       tagsForList: this.generateTagsParams(props.tags, props.targets),
       keysPressed: {},
-      cursor: 0
+      cursor: 0,
+      page: 1
     };
   }
 
@@ -139,6 +141,18 @@ class Tagger extends React.Component<Props, State> {
     });
   }
 
+  onLoad = () => {
+    this.setState(
+      {
+        page: this.state.page + 1
+      },
+      () => {
+        // tslint:disable-next-line:no-unused-expression
+        this.props.onLoadMore && this.props.onLoadMore(this.state.page);
+      }
+    );
+  };
+
   tag = tags => {
     const { tag } = this.props;
 
@@ -159,7 +173,7 @@ class Tagger extends React.Component<Props, State> {
   };
 
   renderLoadMore = () => {
-    const { loading, tags, onLoadMore, totalCount = 0 } = this.props;
+    const { loading, tags, totalCount = 0 } = this.props;
 
     if (tags.length >= totalCount) {
       return null;
@@ -169,7 +183,7 @@ class Tagger extends React.Component<Props, State> {
       <Button
         block={true}
         btnStyle="link"
-        onClick={() => onLoadMore && onLoadMore()}
+        onClick={() => this.onLoad()}
         icon="redo"
         uppercase={false}
       >
@@ -200,7 +214,7 @@ class Tagger extends React.Component<Props, State> {
       items: JSON.parse(JSON.stringify(this.state.tagsForList)),
       isIndented: false,
       singleSelect: this.props.singleSelect,
-      renderLoadMore: this.renderLoadMore()
+      renderLoadMore: this.renderLoadMore
     };
 
     if (event) {

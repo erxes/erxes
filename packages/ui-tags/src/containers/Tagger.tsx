@@ -72,12 +72,13 @@ const TaggerContainer = (props: FinalProps) => {
       });
   };
 
-  const onLoadMore = () => {
+  const onLoadMore = (page: number) => {
     return (
       tagsQuery &&
       tagsQuery.fetchMore({
         variables: {
-          page: tags.length
+          perPage: tags.length,
+          page
         },
         updateQuery: (prevResult, { fetchMoreResult }) => {
           if (!fetchMoreResult || fetchMoreResult.tags.length === 0) {

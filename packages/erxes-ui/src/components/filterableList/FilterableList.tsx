@@ -84,6 +84,7 @@ class FilterableList extends React.Component<Props, State> {
     if (this.props.singleSelect) {
       items.map(i => {
         if (i._id === id) {
+          // tslint:disable-next-line:no-unused-expression
           i.selectedBy === 'all' ? 'none' : 'all';
         } else {
           i.selectedBy = 'none';
