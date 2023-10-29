@@ -62,7 +62,7 @@ export const chatMessageSchema = schemaHooksWrapper(
       default: false,
       label: 'Has pinned'
     }),
-    content: field({ type: String, label: 'Content' }),
+    content: field({ type: String, label: 'Content', optional: true }),
     createdAt: field({ type: Date, label: 'Created at' }),
     createdBy: field({ type: String, label: 'Created by' })
   }),
