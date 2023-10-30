@@ -23,13 +23,14 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 import CustomerType from "./CustomerType"
 import { queries } from "./graphql"
+import { customerPopoverAtom } from '@/store/ui.store'
 const placeHolder = (type: CustomerTypeT) => {
   if (type === "company") return "Байгууллага"
   if (type === "user") return "Ажилтан"
   return "Хэрэглэгч"
 }
 const Customer = () => {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useAtom(customerPopoverAtom)
   const [customer, setCustomer] = useAtom(customerAtom)
   const customerType = useAtomValue(customerTypeAtom)
   const [value, setValue] = React.useState("")
@@ -57,7 +58,7 @@ const Customer = () => {
   return (
     <div className="flex items-center gap-1">
       <CustomerType className="h-5 w-5" />
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={op => setOpen(op)}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"

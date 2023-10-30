@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react"
 import { barcodeAtom } from "@/store/barcode.store"
-import { customerPopoverAtom } from "@/store/ui.store"
+import { disableBarcodeAtom } from "@/store/ui.store"
 import { differenceInMilliseconds } from "date-fns"
 import { useAtomValue, useSetAtom } from "jotai"
 
 const BarcodeListener = ({ children }: { children: React.ReactNode }) => {
   const [value, setValue] = useState("")
   const [changeDate, setChangeDate] = useState<number>(0)
-  const disableBarcode = useAtomValue(customerPopoverAtom)
+  const disableBarcode = useAtomValue(disableBarcodeAtom)
   const setBarcode = useSetAtom(barcodeAtom)
 
   const handleKeyPress = useCallback(
