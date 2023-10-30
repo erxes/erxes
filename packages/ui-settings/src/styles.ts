@@ -222,7 +222,6 @@ const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
   justify-content: ${props =>
     props.justifyContent ? props.justifyContent : 'flex-start'};
   flex: 1;
-  margin-right: ${dimensions.coreSpacing}px;
 
   > div {
     flex: 1;
@@ -334,9 +333,10 @@ const SubItem = styled.div`
   }
 `;
 
-const FilterContainer = styled.div`
+const FilterContainer = styledTS<{ marginRight?: boolean }>(styled.div)`
   position: relative;
   z-index: 2;
+  margin-right: ${props => props.marginRight && '10px'};
 `;
 
 const SidebarList = styled.div`

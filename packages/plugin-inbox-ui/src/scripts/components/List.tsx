@@ -2,15 +2,18 @@ import * as React from 'react';
 
 import {
   Actions,
+  EllipsedRow,
   IframePreview,
   Template,
   TemplateBox,
+  TemplateBoxInfo,
   TemplateInfo,
   Templates
 } from '@erxes/ui-emailtemplates/src/styles';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from 'coreui/utils';
 
+import { Count } from '@erxes/ui/src/styles/main';
 import { EMPTY_CONTENT_SCRIPT } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import Form from '../containers/Form';
@@ -89,6 +92,21 @@ class ScriptList extends React.Component<FinalProps> {
     router.setParams(this.props.history, { [name]: values });
   };
 
+  renderForms = forms => {
+    if (forms.length === 0) {
+      return '-';
+    }
+
+    const showEllipsis = forms.length > 2 ? true : false;
+
+    return (
+      <>
+        <EllipsedRow>{forms.map(lead => `${lead.name},`)}</EllipsedRow>
+        <span>&nbsp;{showEllipsis && '...'}</span>
+      </>
+    );
+  };
+
   renderContent = () => {
     const { objects, remove } = this.props;
 
@@ -99,7 +117,6 @@ class ScriptList extends React.Component<FinalProps> {
 
           return (
             <Template key={index} position="flex-start">
-              <h5>{object.name}</h5>
               <TemplateBox>
                 <Actions>
                   {this.renderEditAction(object)}
@@ -112,34 +129,34 @@ class ScriptList extends React.Component<FinalProps> {
                   <iframe title="scripts-iframe" srcDoc={contentHtml} />
                 </IframePreview>
               </TemplateBox>
-              <>
-                {object.messenger && (
+              <TemplateBoxInfo>
+                <h5>{object.name}</h5>
+                <div>
                   <TemplateInfo>
-                    <p>{__('Messenger')}</p>
                     <p>
-                      <Icon icon="comment-1" /> {object.messenger.name}
+                      <Icon icon="comment-1" />
+                      &nbsp;{__('Messenger')}
                     </p>
+                    <p>{object.messenger ? object.messenger.name : '-'}</p>
                   </TemplateInfo>
-                )}
-                {object.kbTopic && (
                   <TemplateInfo>
-                    <p>{__('Knowledge Base')}</p>
                     <p>
                       <Icon icon="book-open" />
-                      {object.kbTopic.title}
+                      &nbsp;{__('Knowledge Base')}
                     </p>
+                    <p>{object.kbTopic ? object.kbTopic.title : '-'}</p>
                   </TemplateInfo>
-                )}
-                {object.leads.length > 0 && (
                   <TemplateInfo>
-                    <p>{__('Forms')}</p>
                     <p>
+                      {' '}
                       <Icon icon="window" />
-                      {object.leads.map(lead => ` ${lead.name},`)}
+                      &nbsp;{__('Forms')}
+                      &nbsp;({object.leads.length || 0})
                     </p>
+                    <p className="flex">{this.renderForms(object.leads)}</p>
                   </TemplateInfo>
-                )}
-              </>
+                </div>
+              </TemplateBoxInfo>
             </Template>
           );
         })}
