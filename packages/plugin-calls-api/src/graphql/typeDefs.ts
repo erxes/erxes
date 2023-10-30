@@ -15,13 +15,6 @@ const types = `
     _id: String! @external
   }
 
-  type CallsCustomerType {
-    _id: String!
-    inboxIntegrationId: String
-    primaryPhone: String
-    erxesApiId: String
-  }
-  
   type CallsIntegrationDetailResponse {
     ${integrationCommonFields}
   }
@@ -41,7 +34,7 @@ const queries = `
 const mutations = `
 
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
-  callAddCustomer(inboxIntegrationId: String, primaryPhone: String): CallsCustomerType
+  callAddCustomer(inboxIntegrationId: String, primaryPhone: String): Customer
 `;
 
 const typeDefs = async _serviceDiscovery => {

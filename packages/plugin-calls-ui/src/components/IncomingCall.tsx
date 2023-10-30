@@ -25,14 +25,15 @@ import Button from '@erxes/ui/src/components/Button';
 import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import Tagger from '@erxes/ui-tags/src/containers/Tagger';
 import WidgetPopover from './WidgetPopover';
-import { renderFullName } from '@erxes/ui/src/utils/core';
+import { isEnabled, renderFullName } from '@erxes/ui/src/utils/core';
 import * as PropTypes from 'prop-types';
 import { callPropType, sipPropType } from '../lib/types';
-import { CALL_STATUS_ACTIVE, CALL_STATUS_IDLE } from '../lib/enums';
+import { CALL_STATUS_IDLE } from '../lib/enums';
+import { ICustomer } from '../types';
+import { Tags } from '@erxes/ui/src/components';
 
 type Props = {
-  customer?: any;
-  phoneNumber?: string;
+  customer: ICustomer;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -66,12 +67,12 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   const Sip = context;
   const { mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
 
-  const { customer, phoneNumber } = props;
+  const { customer } = props;
+  const primaryPhone = customer?.primaryPhone;
 
   const [currentTab, setCurrentTab] = useState('');
   const [haveIncomingCall, setHaveIncomingCall] = useState(
-    true
-    // primaryPhone ? true : false
+    primaryPhone ? true : false
   );
   const [shrink, setShrink] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
@@ -86,12 +87,12 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
       }, 1000);
     }
 
-    if (phoneNumber) {
+    if (primaryPhone) {
       setHaveIncomingCall(true);
     }
 
     return () => clearInterval(timer);
-  }, [status, phoneNumber]);
+  }, [status, primaryPhone]);
 
   const onTabClick = (tab: string) => {
     setCurrentTab(tab);
@@ -152,13 +153,13 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
       return (
         <>
           {renderFullName(customer || '')}
-          <PhoneNumber shrink={shrink}>{phoneNumber}</PhoneNumber>
+          <PhoneNumber shrink={shrink}>{primaryPhone}</PhoneNumber>
           <p>{caller.place}</p>
         </>
       );
     }
 
-    return <PhoneNumber shrink={shrink}>{phoneNumber}</PhoneNumber>;
+    return <PhoneNumber shrink={shrink}>{primaryPhone}</PhoneNumber>;
   };
 
   const onAcceptCall = () => {
@@ -173,11 +174,15 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
 
   const onDeclineCall = () => {
     setHaveIncomingCall(false);
-    const { stopCall, call } = context;
+    const { stopCall } = context;
 
-    if (stopCall && call.status === CALL_STATUS_ACTIVE) {
+    if (stopCall) {
       stopCall();
     }
+  };
+
+  const ignoreCall = () => {
+    setHaveIncomingCall(false);
   };
 
   const handleAudioToggle = () => {
@@ -272,9 +277,13 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     return (
       <IncomingCallNav>
         <NameCard
-          user={customer}
+          user={{ ...customer, username: customer?.primaryPhone }}
           avatarSize={30}
-          secondLine="Incoming call..."
+          secondLine={
+            isEnabled('tags') && (
+              <Tags tags={customer?.getTags || []} limit={3} />
+            )
+          }
         />
         <OverlayTrigger
           trigger="click"
@@ -289,7 +298,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
         <CallButton type="decline" onClick={onDeclineCall}>
           <Icon icon="cancel" size={13} />
         </CallButton>
-        <Button size="small" btnStyle="simple">
+        <Button size="small" btnStyle="simple" onClick={ignoreCall}>
           Ignore
         </Button>
       </IncomingCallNav>

@@ -60,7 +60,7 @@ const SipProviderContainer = props => {
   return (
     <SipProvider {...sipConfig}>
       {state =>
-        state?.callDirection === CALL_DIRECTION_INCOMING ? (
+        state.callDirection === CALL_DIRECTION_INCOMING ? (
           <IncomingCallContainer
             {...props}
             callIntegrationsOfUser={callIntegrationsOfUser}

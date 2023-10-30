@@ -26,8 +26,14 @@ const callsMutations = {
       primaryPhone
     };
 
-    const customer = receiveCall(models, subdomain, createData);
-    return customer;
+    const customer = await receiveCall(models, subdomain, createData);
+
+    return (
+      customer.erxesApiId && {
+        __typename: 'Customer',
+        _id: customer.erxesApiId
+      }
+    );
   }
 };
 

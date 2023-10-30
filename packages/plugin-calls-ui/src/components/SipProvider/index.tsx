@@ -515,6 +515,7 @@ export default class SipProvider extends React.Component<
           });
           this.ua?.terminateSessions();
           rtcSession = null;
+          this.outgoingAudio?.pause();
         });
 
         rtcSession.on('ended', () => {
@@ -529,6 +530,7 @@ export default class SipProvider extends React.Component<
           });
           this.ua?.terminateSessions();
           rtcSession = null;
+          this.outgoingAudio?.pause();
         });
 
         rtcSession.on('rejected', function(e) {
