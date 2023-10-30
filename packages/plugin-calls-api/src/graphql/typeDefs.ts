@@ -1,33 +1,27 @@
 import gql from 'graphql-tag';
 
 const integrationCommonFields = `
-_id: String
+    _id: String
     inboxId: String
-    username: String
-    password: String
     phone: String
     wsServer: String
-    operatorIds: [String]
+    operators: JSON
     token: String
 `;
 
 const types = `
-  type Calls {
+
+  extend type Customer @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  type CallsCustomerType {
     _id: String!
-    name: String
-    createdAt:Date
-    expiryDate:Date
-    checked:Boolean
-    typeId: String
+    inboxIntegrationId: String
+    primaryPhone: String
+    erxesApiId: String
+  }
   
-    currentType: CallsType
-  }
-
-  type CallsType {
-    _id: String!
-    name: String
-  }
-
   type CallsIntegrationDetailResponse {
     ${integrationCommonFields}
   }
@@ -35,32 +29,19 @@ const types = `
   input CallIntegrationConfigs {
     ${integrationCommonFields}
   }
+
 `;
 
 const queries = `
-  callss(typeId: String): [Calls]
-  callsTypes: [CallsType]
-  callssTotalCount: Int
-
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
-`;
-
-const params = `
-  name: String,
-  expiryDate: Date,
-  checked: Boolean,
-  typeId:String
+  callIntegrationsOfUser: [CallsIntegrationDetailResponse]
+  callsCustomerDetail(callerNumber: String): Customer
 `;
 
 const mutations = `
-  callssAdd(${params}): Calls
-  callssRemove(_id: String!): JSON
-  callssEdit(_id:String!, ${params}): Calls
-  callsTypesAdd(name:String):CallsType
-  callsTypesRemove(_id: String!):JSON
-  callsTypesEdit(_id: String!, name:String): CallsType
 
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
+  callAddCustomer(inboxIntegrationId: String, primaryPhone: String): CallsCustomerType
 `;
 
 const typeDefs = async _serviceDiscovery => {

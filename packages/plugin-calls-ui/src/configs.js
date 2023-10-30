@@ -4,16 +4,15 @@ module.exports = {
   scope: 'calls',
   exposes: {
     './routes': './src/routes.tsx',
-    './call': './src/containers/Widget.tsx',
-    './incomin-call': './src/containers/IncomingCall.tsx',
+    './call': './src/containers/SipProvider.tsx',
     './inboxIntegrationForm': './src/components/IntegrationForm.tsx',
-    './integrationEditForm': './src/components/IntegrationEditForm.tsx',
-    './integrationCustomActions': './src/components/TokenButton.tsx',
+    './integrationDetailsForm': './src/components/IntegrationEditForm.tsx',
+    './integrationCustomActions': './src/components/TokenButton.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
     scope: 'calls',
-    module: './routes',
+    module: './routes'
   },
   menus: [
     {
@@ -22,20 +21,13 @@ module.exports = {
       icon: 'icon-outgoing-call',
       location: 'topNavigation',
       scope: 'calls',
-      component: './call',
-    },
-    {
-      text: 'Incoming calls',
-      icon: 'icon-outgoing-call',
-      location: 'topNavigation',
-      scope: 'calls',
-      component: './incomin-call',
-    },
+      component: './call'
+    }
   ],
 
   inboxIntegrationForm: './inboxIntegrationForm',
   invoiceDetailRightSection: './invoiceDetailRightSection',
-  integrationEditForm: './integrationEditForm',
+  integrationDetailsForm: './integrationDetailsForm',
   integrationCustomActions: './integrationCustomActions',
   inboxIntegrations: [
     {
@@ -44,7 +36,7 @@ module.exports = {
       isAvailable: true,
       kind: 'calls',
       logo: '/images/integrations/grandstream.png',
-      createModal: 'grandstream',
-    },
-  ],
+      createModal: 'grandstream'
+    }
+  ]
 };

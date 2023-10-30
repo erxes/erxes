@@ -1,56 +1,33 @@
-import { Callss, Types, Integrations } from '../../models';
-import { IContext } from '@erxes/api-utils/src/types';
-import * as jwt from 'jsonwebtoken';
 import { generateToken } from '../../utils';
+import { IContext } from '../../connectionResolver';
+import { ICustomer } from '../../models/definitions/customers';
+
+import receiveCall from '../../receiveCall';
 
 const callsMutations = {
-  /**
-   * Creates a new calls
-   */
-  async callssAdd(_root, doc, _context: IContext) {
-    return Callss.createCalls(doc);
-  },
-  /**
-   * Edits a new calls
-   */
-  async callssEdit(_root, { _id, ...doc }, _context: IContext) {
-    return Callss.updateCalls(_id, doc);
-  },
-  /**
-   * Removes a single calls
-   */
-  async callssRemove(_root, { _id }, _context: IContext) {
-    return Callss.removeCalls(_id);
-  },
+  async callsIntegrationUpdate(_root, { configs }, { models }: IContext) {
+    const { inboxId, ...data } = configs;
+    const token = await generateToken(inboxId);
 
-  /**
-   * Creates a new type for calls
-   */
-  async callsTypesAdd(_root, doc, _context: IContext) {
-    return Types.createType(doc);
-  },
-
-  async callsTypesRemove(_root, { _id }, _context: IContext) {
-    return Types.removeType(_id);
-  },
-
-  async callsTypesEdit(_root, { _id, ...doc }, _context: IContext) {
-    return Types.updateType(_id, doc);
-  },
-
-  async callsIntegrationUpdate(_root, { configs }, _context: IContext) {
-    const { inboxId, username, password, ...data } = configs;
-
-    const token = await generateToken(inboxId, username, password);
-
-    const integration = await Integrations.findOneAndUpdate(
+    const integration = await models.Integrations.findOneAndUpdate(
       { inboxId },
-      { $set: { ...data, token, username, password } },
-      {
-        returnOriginal: false
-      }
+      { $set: { ...data, token } }
     );
     return integration;
+  },
+
+  async callAddCustomer(
+    _root,
+    { primaryPhone, inboxIntegrationId },
+    { models, subdomain }: IContext
+  ) {
+    const createData: ICustomer = {
+      inboxIntegrationId,
+      primaryPhone
+    };
+
+    const customer = receiveCall(models, subdomain, createData);
+    return customer;
   }
 };
 
