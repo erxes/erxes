@@ -1,5 +1,6 @@
-import React, { useState } from "react"
+import React from "react"
 import { activeCategoryAtom, searchAtom } from "@/store"
+import { searchPopoverAtom } from "@/store/ui.store"
 import { motion } from "framer-motion"
 import { useAtom, useSetAtom } from "jotai"
 import { SearchIcon } from "lucide-react"
@@ -8,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 
 const Search: React.FC = () => {
-  const [focused, setFocused] = useState(false)
+  const [focused, setFocused] = useAtom(searchPopoverAtom)
   const [search, setSearch] = useAtom(searchAtom)
   const setActiveCat = useSetAtom(activeCategoryAtom)
 
