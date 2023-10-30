@@ -16,6 +16,12 @@ const ContractsTableWrapper = styled.div`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  tr:nth-child(odd) {
+    background-color: ${colors.colorCoreLightGray};
+  }
+  tr:nth-child(even) {
+    background-color: #fff;
+  }
 `;
 
 const CollateralLogo = styled.div`
