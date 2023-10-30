@@ -9,6 +9,17 @@ const add = `
   }
 `;
 
+const tagsTag = `
+  mutation tagsTag(
+    $type: String!
+    $targetIds: [String!]!
+    $tagIds: [String!]!
+  ) {
+    tagsTag(type: $type, targetIds: $targetIds, tagIds: $tagIds)
+  }
+`;
+
 export default {
-  add
+  add,
+  tagsTag
 };
