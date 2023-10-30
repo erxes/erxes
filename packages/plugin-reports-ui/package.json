@@ -7,6 +7,7 @@
     "build": "cd .erxes && yarn build"
   },
   "dependencies": {
-    "chart.js": "^4.4.0"
+    "chart.js": "^4.4.0",
+    "react-grid-layout": "^1.3.4"
   }
 }
