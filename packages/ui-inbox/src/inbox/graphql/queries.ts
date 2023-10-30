@@ -206,12 +206,18 @@ const allBrands = `
   }
 `;
 
+const tagsQueryCount = `
+  query tagsQueryCount($type: String) {
+    tagsQueryCount(type: $type)
+  }
+`;
+
 const tagList = `
-  query tags($type: String) {
+  query tags($type: String, $page: Int, $perPage: Int) {
     ${
       isEnabled('tags')
         ? `
-    tags(type: $type) {
+    tags(type: $type, page: $page, perPage: $perPage) {
       _id
       name
       colorCode
@@ -411,6 +417,7 @@ export default {
   totalConversationsCount,
   unreadConversationsCount,
   lastConversation,
+  tagsQueryCount,
   channelsByMembers,
   generateCustomerDetailQuery,
   convertToInfo

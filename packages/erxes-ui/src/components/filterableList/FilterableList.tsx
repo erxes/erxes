@@ -1,22 +1,23 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import EmptyState from '../EmptyState';
-import Icon from '../Icon';
-import Spinner from '../Spinner';
-import Filter from './Filter';
 import {
   AvatarImg,
+  ChildList,
   FlexRow,
   IconWrapper,
+  ItemText,
   PopoverBody,
   PopoverFooter,
   PopoverHeader,
   PopoverList,
-  ChildList,
-  ToggleIcon,
-  ItemText
+  ToggleIcon
 } from './styles';
+
+import EmptyState from '../EmptyState';
+import Filter from './Filter';
+import Icon from '../Icon';
+import { Link } from 'react-router-dom';
+import React from 'react';
 import { SidebarList } from '../../layout/styles';
+import Spinner from '../Spinner';
 
 type Props = {
   items?: any[];
@@ -28,7 +29,7 @@ type Props = {
   treeView?: boolean;
   isIndented?: boolean;
   singleSelect?: boolean;
-
+  renderLoadMore?: any;
   // hooks
   onClick?: (items: any[], id: string) => void;
   onSearch?: (e: React.FormEvent<HTMLElement>) => void;
@@ -83,6 +84,7 @@ class FilterableList extends React.Component<Props, State> {
     if (this.props.singleSelect) {
       items.map(i => {
         if (i._id === id) {
+          // tslint:disable-next-line:no-unused-expression
           i.selectedBy === 'all' ? 'none' : 'all';
         } else {
           i.selectedBy = 'none';
@@ -240,7 +242,14 @@ class FilterableList extends React.Component<Props, State> {
   }
 
   render() {
-    const { className, onSearch, selectable, links, isIndented } = this.props;
+    const {
+      className,
+      onSearch,
+      selectable,
+      links,
+      isIndented,
+      renderLoadMore
+    } = this.props;
 
     return (
       <div className={className}>
@@ -253,6 +262,7 @@ class FilterableList extends React.Component<Props, State> {
             {this.renderItems()}
           </PopoverList>
         </PopoverBody>
+        {renderLoadMore && renderLoadMore()}
         {links && (
           <PopoverFooter>
             <PopoverList>
