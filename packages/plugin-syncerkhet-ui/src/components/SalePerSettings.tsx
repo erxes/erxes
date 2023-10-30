@@ -3,7 +3,8 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Tip
 } from '@erxes/ui/src/components';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
@@ -17,6 +18,8 @@ import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/ty
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import { GroupWrapper } from '@erxes/ui-segments/src/styles';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -29,6 +32,7 @@ type Props = {
 type State = {
   config: any;
   hasOpen: boolean;
+  saleConfigs: any;
   fieldsCombined: FieldsCombinedByType[];
 };
 
@@ -39,6 +43,7 @@ class PerSettings extends React.Component<Props, State> {
     this.state = {
       config: props.config,
       hasOpen: false,
+      saleConfigs: props.config.saleConfigs || {},
       fieldsCombined: []
     };
 
@@ -76,8 +81,8 @@ class PerSettings extends React.Component<Props, State> {
     const { config } = this.state;
     const key = config.stageId;
 
-    delete configsMap.ebarimtConfig[currentConfigKey];
-    configsMap.ebarimtConfig[key] = config;
+    delete configsMap.stageInSaleConfig[currentConfigKey];
+    configsMap.stageInSaleConfig[key] = config;
     this.props.save(configsMap);
   };
 
@@ -134,32 +139,161 @@ class PerSettings extends React.Component<Props, State> {
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
+          componentClass="checkbox"
           checked={config[key]}
           onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
         />
       </FormGroup>
     );
   };
+
+  addConfig = () => {
+    const { saleConfigs } = this.state;
+    this.setState({
+      saleConfigs: {
+        ...saleConfigs,
+        newBrand: {
+          brandId: '',
+          userEmail: '',
+          hasVat: false,
+          hasCitytax: false,
+          defaultPay: 'debtAmount'
+        }
+      }
+    });
+  };
+
+  removeConfig = brandId => {
+    const { saleConfigs } = this.state;
+    const newConfig = { ...saleConfigs };
+    delete newConfig[brandId];
+    this.setState({
+      saleConfigs: newConfig
+    });
+  };
+
+  updateConfig = (brandId, key, value) => {
+    console.log(brandId, key, value);
+    const { saleConfigs } = this.state;
+    const newConfig = { ...saleConfigs };
+    if (key === 'brandId') {
+      delete newConfig.newBrand;
+    }
+    newConfig[brandId] = { ...newConfig[brandId], [key]: value };
+    this.setState({
+      saleConfigs: newConfig
+    });
+  };
+
+  renderPerConfig() {
+    const { saleConfigs } = this.state;
+
+    return Object.keys(saleConfigs).map(key => {
+      return (
+        <GroupWrapper key={Math.random()}>
+          <FormGroup>
+            <ControlLabel>Brand</ControlLabel>
+            <SelectBrands
+              label={__('Choose brands')}
+              onSelect={brand => this.updateConfig(brand, 'brandId', brand)}
+              initialValue={key}
+              multi={false}
+              name="selectedBrands"
+              customOption={{
+                label: 'No Brand (noBrand)',
+                value: 'noBrand'
+              }}
+            />
+          </FormGroup>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>User Email</ControlLabel>
+                <FormControl
+                  defaultValue={saleConfigs[key].userEmail}
+                  onChange={e =>
+                    this.updateConfig(key, 'userEmail', (e.target as any).value)
+                  }
+                  required={true}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Has Vat</ControlLabel>
+                <FormControl
+                  componentClass="checkbox"
+                  checked={saleConfigs[key].hasVat}
+                  onChange={e =>
+                    this.updateConfig(key, 'hasVat', (e.target as any).checked)
+                  }
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>default Pay</ControlLabel>
+                <Select
+                  value={saleConfigs[key].defaultPay}
+                  onChange={option =>
+                    this.updateConfig(key, 'defaultPay', option.value)
+                  }
+                  clearable={false}
+                  required={true}
+                  options={[
+                    { value: 'debtAmount', label: 'debtAmount' },
+                    { value: 'cashAmount', label: 'cashAmount' },
+                    { value: 'cardAmount', label: 'cardAmount' }
+                  ]}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Has Citytax</ControlLabel>
+                <FormControl
+                  componentClass="checkbox"
+                  checked={saleConfigs[key].hasCitytax}
+                  onChange={e =>
+                    this.updateConfig(
+                      key,
+                      'hasCitytax',
+                      (e.target as any).checked
+                    )
+                  }
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+          <Tip text={'Delete'}>
+            <Button
+              btnStyle="simple"
+              size="small"
+              onClick={this.removeConfig.bind(this, key)}
+              icon="times"
+            />
+          </Tip>
+        </GroupWrapper>
+      );
+    });
+  }
 
   render() {
     const { config } = this.state;
     return (
       <CollapseContent
         title={__(config.title)}
-        open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
+        open={
+          this.props.currentConfigKey === 'newStageInSaleConfig' ? true : false
+        }
       >
-        <FormGroup>
-          <ControlLabel>{'Title'}</ControlLabel>
-          <FormControl
-            defaultValue={config['title']}
-            onChange={this.onChangeInput.bind(this, 'title')}
-            required={true}
-            autoFocus={true}
-          />
-        </FormGroup>
         <FormWrapper>
           <FormColumn>
+            <FormGroup>
+              <ControlLabel>{'Title'}</ControlLabel>
+              <FormControl
+                defaultValue={config['title']}
+                onChange={this.onChangeInput.bind(this, 'title')}
+                required={true}
+                autoFocus={true}
+              />
+            </FormGroup>
             <FormGroup>
               <BoardSelectContainer
                 type="deal"
@@ -185,28 +319,17 @@ class PerSettings extends React.Component<Props, State> {
               />
             </FormGroup>
           </FormColumn>
-          <FormColumn>
-            {this.renderInput('userEmail', 'userEmail', '')}
-            {this.renderCheckbox('hasVat', 'hasVat', '')}
-            {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
-
-            <FormGroup>
-              <ControlLabel>{'defaultPay'}</ControlLabel>
-              <Select
-                value={config.defaultPay}
-                onChange={this.onChangeCombo}
-                clearable={false}
-                required={true}
-                options={[
-                  { value: 'debtAmount', label: 'debtAmount' },
-                  { value: 'cashAmount', label: 'cashAmount' },
-                  { value: 'cardAmount', label: 'cardAmount' }
-                ]}
-              />
-            </FormGroup>
-          </FormColumn>
+          <FormColumn>{this.renderPerConfig()}</FormColumn>
         </FormWrapper>
         <ModalFooter>
+          <Button
+            btnStyle="primary"
+            onClick={this.addConfig}
+            icon="plus"
+            uppercase={false}
+          >
+            Add config
+          </Button>
           <Button
             btnStyle="simple"
             icon="cancel-1"

@@ -69,7 +69,7 @@ const GeneralSetting = () => {
 };
 
 const StageSetting = () => {
-  return <Settings component={StageSettings} configCode="ebarimtConfig" />;
+  return <Settings component={StageSettings} configCode="stageInSaleConfig" />;
 };
 
 const StageMoveSetting = () => {
@@ -82,7 +82,7 @@ const ReturnStageSetting = () => {
   return (
     <Settings
       component={ReturnStageSettings}
-      configCode="returnEbarimtConfig"
+      configCode="stageInReturnConfig"
     />
   );
 };

@@ -32,12 +32,12 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap } = this.state;
 
-    if (!configsMap.ebarimtConfig) {
-      configsMap.ebarimtConfig = {};
+    if (!configsMap.stageInSaleConfig) {
+      configsMap.stageInSaleConfig = {};
     }
 
     // must save prev item saved then new item
-    configsMap.ebarimtConfig.newEbarimtConfig = {
+    configsMap.stageInSaleConfig.newStageInSaleConfig = {
       title: 'New Erkhet Config',
       boardId: '',
       pipelineId: '',
@@ -53,8 +53,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
   delete = (currentConfigKey: string) => {
     const { configsMap } = this.state;
-    delete configsMap.ebarimtConfig[currentConfigKey];
-    delete configsMap.ebarimtConfig['newEbarimtConfig'];
+    delete configsMap.stageInSaleConfig[currentConfigKey];
+    delete configsMap.stageInSaleConfig['newStageInSaleConfig'];
 
     this.setState({ configsMap });
 
@@ -77,7 +77,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
   renderContent() {
     const { configsMap } = this.state;
-    const configs = configsMap.ebarimtConfig || {};
+    const configs = configsMap.stageInSaleConfig || {};
 
     return (
       <ContentBox id={'GeneralSettingsMenu'}>

@@ -120,8 +120,6 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     productCodeById[product._id] = product.code;
   }
 
-  const details: any = [];
-
   const branchIds = deal.productsData.map(pd => pd.branchId) || [];
   const departmentIds = deal.productsData.map(pd => pd.departmentId) || [];
 
@@ -155,6 +153,8 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       departmentsById[department._id] = department;
     }
   }
+
+  const details: any = [];
 
   for (const productData of deal.productsData) {
     // not tickUsed product not sent

@@ -4,9 +4,9 @@ import {
   productToErkhet,
   productCategoryToErkhet
 } from './utils/productToErkhet';
-import { sendCardInfo } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
 import { generateModels } from './connectionResolver';
+import { getSyncLogDoc } from './utils/utils';
 
 const allowTypes = {
   'cards:deal': ['update'],
@@ -49,6 +49,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
         {}
       );
 
+      const mainConfigs = await models.Configs.getConfig('erkhetConfig', {});
+
       // return
       if (Object.keys(returnConfigs).includes(destinationStageId)) {
         const returnConfig = {
@@ -70,7 +72,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
           apiSecret: returnConfig.apiSecret,
           orderInfos: JSON.stringify(orderInfos)
         };
-
+        const syncLog = await models.SyncLogs.syncLogsAdd(
+          getSyncLogDoc(params)
+        );
         await sendRPCMessage(
           models,
           syncLog,
@@ -95,7 +99,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
         };
 
         const postData = await getMoveData(subdomain, moveConfig, deal);
-
+        const syncLog = await models.SyncLogs.syncLogsAdd(
+          getSyncLogDoc(params)
+        );
         const response = await sendRPCMessage(
           models,
           syncLog,
@@ -114,11 +120,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             message: response.message,
             error: response.error
           });
-          if (moveConfig.responseField) {
-            await sendCardInfo(subdomain, deal, moveConfig, txt);
-          } else {
-            console.log(txt);
-          }
+          console.log(txt);
         }
 
         return;
@@ -126,33 +128,33 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       // create sale
       if (Object.keys(configs).includes(destinationStageId)) {
-        const config = {
-          ...configs[destinationStageId],
-          ...(await models.Configs.getConfig('ERKHET', {}))
-        };
-        const postData = await getPostData(subdomain, config, deal);
+        const postDatas = (await getPostData(
+          subdomain,
+          configs[destinationStageId],
+          mainConfigs,
+          deal
+        )) as any;
 
-        const response = await sendRPCMessage(
-          models,
-          syncLog,
-          'rpc_queue:erxes-automation-erkhet',
-          {
-            action: 'get-response-send-order-info',
-            isEbarimt: false,
-            payload: JSON.stringify(postData),
-            isJson: true,
-            thirdService: true
-          }
-        );
+        for (const data of postDatas) {
+          const { syncLog, postData } = data;
+          const response = await sendRPCMessage(
+            models,
+            syncLog,
+            'rpc_queue:erxes-automation-erkhet',
+            {
+              action: 'get-response-send-order-info',
+              isEbarimt: false,
+              payload: JSON.stringify(postData),
+              isJson: true,
+              thirdService: true
+            }
+          );
 
-        if (response && (response.message || response.error)) {
-          const txt = JSON.stringify({
-            message: response.message,
-            error: response.error
-          });
-          if (config.responseField) {
-            await sendCardInfo(subdomain, deal, config, txt);
-          } else {
+          if (response && (response.message || response.error)) {
+            const txt = JSON.stringify({
+              message: response.message,
+              error: response.error
+            });
             console.log(txt);
           }
         }

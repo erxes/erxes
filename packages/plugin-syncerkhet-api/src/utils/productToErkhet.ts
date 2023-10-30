@@ -59,7 +59,7 @@ export const productCategoryToErkhet = async (
     data: { _id: category.parentId },
     isRPC: true
   });
-  const noBrandConfig = configs['newBrandId'];
+  const noBrandConfig = configs['noBrand'];
 
   const remBrands = oldCategory.scopeBrandIds.filter(
     b => !category.scopeBrandIds.includes(b)
@@ -179,7 +179,7 @@ export const productToErkhet = async (subdomain, models, params, action) => {
     ratioMeasureUnit = subUom.ratio;
   }
 
-  const noBrandConfig = configs['newBrandId'];
+  const noBrandConfig = configs['noBrand'];
 
   const remBrands = oldProduct.scopeBrandIds.filter(
     b => !product.scopeBrandIds.includes(b)
