@@ -13,6 +13,7 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Chart, { ChartType } from './chart/Chart';
 import { Label } from '@erxes/ui/src/components/form/styles';
+import LineChart from './chart/LineChart';
 
 type Props = {
   reports: any;
@@ -87,6 +88,8 @@ function List({ reports, remove, renderButton, loading, edit }: Props) {
     { title: __('Settings'), link: '/settings' },
     { title: __('Reports'), link: '/reports' }
   ];
+
+  return <LineChart />;
 
   return (
     <Chart

@@ -32,23 +32,30 @@ export let debug;
 
 const templates = [
   {
-    templateType: 'test',
-    name: 'test',
-    getChartResult: filter => {
+    templateType: 'dealsChart',
+    name: 'dealsChart',
+    getChartResult: ({ filter }) => {
       return models?.Deals.find(filter);
     },
     filterTypes: [
       {
-        fieldName: 'userId',
+        fieldName: 'userIds',
         fieldType: 'string',
         multi: true,
         fieldQuery: 'users',
-        fieldLabels: 'Select assignedUser'
+        fieldLabels: 'Select assigned users'
       },
       {
-        fieldName: 'name',
+        fieldName: 'userId',
         fieldType: 'string',
-        fieldLabels: 'Deal name'
+        fieldQuery: 'user',
+        fieldLabels: 'Select assigned user'
+      },
+      {
+        fieldName: 'pipelineId',
+        fieldType: 'string',
+        fieldQuery: 'pipelines',
+        fieldLabels: 'Select pipeline'
       }
     ]
   }

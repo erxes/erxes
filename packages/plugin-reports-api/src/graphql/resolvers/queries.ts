@@ -30,10 +30,31 @@ const reportsQueries = {
     return models.Charts.getChart(_id);
   },
 
+  reportChartGetFilterTypes(
+    _root,
+    { serviceType, templateType },
+    { models }: IContext
+  ) {
+    const service = serviceDiscovery.getService(serviceType);
+
+    const templates = service.configs.meta.reports || {};
+
+    let filterTypes = [];
+
+    if (templates) {
+      const template = templates.find(t => t.templateType === templateType);
+      if (template) {
+        filterTypes = template.filterTypes || [];
+      }
+    }
+
+    return filterTypes;
+  },
+
   reportChartGetTemplates(_root, { serviceType }, { models }: IContext) {
     const service = serviceDiscovery.getService(serviceType);
 
-    const reportConfig = service.configs.meta.report || {};
+    const reportConfig = service.configs.meta.reports || {};
 
     let templates = [];
 
