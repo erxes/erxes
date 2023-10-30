@@ -24,6 +24,7 @@ type Props = {
   className?: string;
   refetchQueries?: any[];
   parentTagId?: string;
+  perPage?: number;
   singleSelect?: boolean;
   disableTreeView?: boolean;
 };
@@ -158,7 +159,7 @@ export default withProps<Props>(
         variables: {
           type: props.type,
           parentId: props.parentTagId,
-          perPage: 20
+          perPage: props.perPage || 20
         }
       })
     }),
