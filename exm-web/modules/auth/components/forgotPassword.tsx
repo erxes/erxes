@@ -15,28 +15,23 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-import { IHandleLogin } from "../login"
+import { IHandleForgotPassword } from "../login"
 
 const Login = ({
   loading,
-  login,
+  forgotPassword,
   setType,
 }: {
   loading?: boolean
-  login: IHandleLogin
+  forgotPassword: IHandleForgotPassword
   setType: (type: string) => void
 }) => {
   const FormSchema = z.object({
     email: z
       .string({
-        required_error: "Please enter an email to login.",
+        required_error: "Please enter an email to reset password.",
       })
       .email(),
-    password: z
-      .string({
-        required_error: "Please enter a password to login",
-      })
-      .min(8),
   })
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -44,7 +39,7 @@ const Login = ({
   })
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    login(data)
+    forgotPassword(data)
   }
 
   return (
@@ -64,34 +59,21 @@ const Login = ({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <Button
           type="submit"
           className="w-full font-bold uppercase"
           loading={loading}
         >
-          Log in
+          Email Me The Instruction
         </Button>
         <Button
-          onClick={() => setType("forgotPassword")}
+          onClick={() => setType("login")}
           className="w-full"
           loading={loading}
           variant="ghost"
           size="sm"
         >
-          Forgot Password
+          Sign in
         </Button>
       </form>
     </Form>

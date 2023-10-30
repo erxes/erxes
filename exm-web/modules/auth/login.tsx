@@ -4,6 +4,7 @@ import { useMutation } from "@apollo/client"
 
 import { useToast } from "@/components/ui/use-toast"
 
+import ForgotPassword from "./components/forgotPassword"
 import Login from "./components/login"
 import { mutations } from "./graphql"
 
@@ -49,12 +50,20 @@ const LoginContainer = ({
     forgotPassword({ variables: { email } })
   }
 
+  if (type === "forgotPassword") {
+    return (
+      <ForgotPassword
+        loading={loading || forgotPasswordLoading}
+        forgotPassword={handleForgotPassword}
+        setType={setType}
+      />
+    )
+  }
+
   return (
     <Login
       loading={loading || forgotPasswordLoading}
       login={handleLogin}
-      forgotPassword={handleForgotPassword}
-      type={type}
       setType={setType}
     />
   )
