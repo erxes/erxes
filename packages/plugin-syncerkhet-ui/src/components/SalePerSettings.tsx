@@ -78,11 +78,11 @@ class PerSettings extends React.Component<Props, State> {
   onSave = e => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
-    const { config } = this.state;
+    const { config, saleConfigs } = this.state;
     const key = config.stageId;
 
     delete configsMap.stageInSaleConfig[currentConfigKey];
-    configsMap.stageInSaleConfig[key] = config;
+    configsMap.stageInSaleConfig[key] = { ...config, saleConfigs };
     this.props.save(configsMap);
   };
 
@@ -173,15 +173,14 @@ class PerSettings extends React.Component<Props, State> {
   };
 
   updateConfig = (brandId, key, value) => {
-    console.log(brandId, key, value);
     const { saleConfigs } = this.state;
-    const newConfig = { ...saleConfigs };
+
     if (key === 'brandId') {
-      delete newConfig.newBrand;
+      delete saleConfigs.newBrand;
     }
-    newConfig[brandId] = { ...newConfig[brandId], [key]: value };
+    saleConfigs[brandId] = { ...saleConfigs[brandId], [key]: value };
     this.setState({
-      saleConfigs: newConfig
+      saleConfigs: saleConfigs
     });
   };
 
@@ -190,19 +189,19 @@ class PerSettings extends React.Component<Props, State> {
 
     return Object.keys(saleConfigs).map(key => {
       return (
-        <GroupWrapper key={Math.random()}>
+        <GroupWrapper key={key}>
           <FormGroup>
             <ControlLabel>Brand</ControlLabel>
             <SelectBrands
               label={__('Choose brands')}
-              onSelect={brand => this.updateConfig(brand, 'brandId', brand)}
-              initialValue={key}
-              multi={false}
-              name="selectedBrands"
+              initialValue={saleConfigs[key].brandId}
+              name="brandId"
               customOption={{
                 label: 'No Brand (noBrand)',
                 value: 'noBrand'
               }}
+              onSelect={brand => this.updateConfig(brand, 'brandId', brand)}
+              multi={false}
             />
           </FormGroup>
           <FormWrapper>
@@ -210,7 +209,7 @@ class PerSettings extends React.Component<Props, State> {
               <FormGroup>
                 <ControlLabel>User Email</ControlLabel>
                 <FormControl
-                  defaultValue={saleConfigs[key].userEmail}
+                  value={saleConfigs[key].userEmail}
                   onChange={e =>
                     this.updateConfig(key, 'userEmail', (e.target as any).value)
                   }

@@ -92,6 +92,7 @@ class PerSettings extends React.Component<Props, State> {
 
   render() {
     const { config } = this.state;
+
     return (
       <CollapseContent
         title={__(config.title)}
