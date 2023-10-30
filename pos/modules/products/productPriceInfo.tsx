@@ -1,7 +1,13 @@
+import { useState } from "react"
 import { useQuery } from "@apollo/client"
 
-import { formatNum } from "@/lib/utils"
-import { HoverCardContent } from "@/components/ui/hover-card"
+import { cn, formatNum } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import queries from "./graphql/queries"
@@ -35,4 +41,35 @@ const CartItemPriceInfo = ({
   )
 }
 
-export default CartItemPriceInfo
+const ProductPrice = ({
+  productId,
+  unitPrice,
+  className,
+}: {
+  productId: string
+  unitPrice: number
+  className: string
+}) => {
+  const [openPriceInfo, setOpenPriceInfo] = useState<boolean>(false)
+  return (
+    <HoverCard open={openPriceInfo} onOpenChange={(op) => setOpenPriceInfo(op)}>
+      <HoverCardTrigger asChild>
+        <Button
+          size="sm"
+          variant="ghost"
+          className={cn(
+            "font-extrabold p-1 h-auto hover:bg-black/10",
+            className
+          )}
+        >
+          {formatNum(unitPrice)}₮
+        </Button>
+      </HoverCardTrigger>
+      {openPriceInfo && (
+        <CartItemPriceInfo productId={productId} price={unitPrice} />
+      )}
+    </HoverCard>
+  )
+}
+
+export default ProductPrice

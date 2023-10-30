@@ -1,3 +1,4 @@
+import ProductPrice from "@/modules/products/productPriceInfo"
 import { updateCartAtom } from "@/store/cart.store"
 import { orderTypeAtom } from "@/store/order.store"
 import { motion, Variants } from "framer-motion"
@@ -5,7 +6,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { ChevronDown, Minus, Plus } from "lucide-react"
 
 import { OrderItem } from "@/types/order.types"
-import { cn, formatNum } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -35,6 +36,7 @@ const CartItem = ({
   description,
   attachment,
   idx,
+  productId,
 }: OrderItem & { idx: number }) => {
   const changeItem = useSetAtom(updateCartAtom)
   const type = useAtomValue(orderTypeAtom)
@@ -104,9 +106,11 @@ const CartItem = ({
             </TooltipProvider>
             <div className="mt-1 flex items-center">
               <CartItemStatus status={status} />
-              <div className="ml-2 text-xs font-extrabold">
-                {formatNum(unitPrice)}₮
-              </div>
+              <ProductPrice
+                unitPrice={unitPrice}
+                productId={productId}
+                className="ml-2 text-xs"
+              />
             </div>
           </div>
           <div className="flex w-5/12 items-center justify-end">

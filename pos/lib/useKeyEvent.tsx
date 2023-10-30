@@ -10,7 +10,7 @@ const useKeyEvent = (callBack: () => void, key: string) => {
     }
     document.addEventListener("keydown", down)
     return () => document.removeEventListener("keydown", down)
-  }, [])
+  }, [callBack, key])
 
   return {}
 }
