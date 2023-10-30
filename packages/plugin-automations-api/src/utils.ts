@@ -97,31 +97,33 @@ export const executeActions = async (
     }
 
     if (action.type === ACTIONS.IF) {
-      let ifActionId;
+      setTimeout(async () => {
+        let ifActionId;
 
-      const isIn = await isInSegment(
-        subdomain,
-        action.config.contentId,
-        execution.targetId
-      );
-      if (isIn) {
-        ifActionId = action.config.yes;
-      } else {
-        ifActionId = action.config.no;
-      }
+        const isIn = await isInSegment(
+          subdomain,
+          action.config.contentId,
+          execution.targetId
+        );
+        if (isIn) {
+          ifActionId = action.config.yes;
+        } else {
+          ifActionId = action.config.no;
+        }
 
-      execAction.nextActionId = ifActionId;
-      execAction.result = { condition: isIn };
-      execution.actions = [...(execution.actions || []), execAction];
-      execution = await execution.save();
+        execAction.nextActionId = ifActionId;
+        execAction.result = { condition: isIn };
+        execution.actions = [...(execution.actions || []), execAction];
+        execution = await execution.save();
 
-      return executeActions(
-        subdomain,
-        triggerType,
-        execution,
-        actionsMap,
-        ifActionId
-      );
+        return executeActions(
+          subdomain,
+          triggerType,
+          execution,
+          actionsMap,
+          ifActionId
+        );
+      }, 10000);
     }
 
     if (action.type === ACTIONS.SET_PROPERTY) {
@@ -326,7 +328,7 @@ const isWaitingDateConfig = dateConfig => {
     if (dateConfig.type === 'range') {
       const { startDate, endDate } = dateConfig;
       if (startDate < NOW && endDate > NOW) {
-        return false;
+        return true;
       }
     }
 
@@ -349,11 +351,11 @@ const isWaitingDateConfig = dateConfig => {
           const endDate = generateDate(dateConfig.endDate);
 
           if (NOW < startDate && NOW > endDate) {
-            return false;
+            return true;
           }
         }
         if (NOW < startDate) {
-          return false;
+          return true;
         }
       }
       if (frequencyType === 'everyMonth') {
@@ -362,16 +364,16 @@ const isWaitingDateConfig = dateConfig => {
           const endDate = generateDate(dateConfig.endDate, true);
 
           if (NOW < startDate && NOW > endDate) {
-            return false;
+            return true;
           }
         }
         if (NOW < startDate) {
-          return false;
+          return true;
         }
       }
     }
   }
-  return true;
+  return false;
 };
 
 /*

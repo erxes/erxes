@@ -90,7 +90,7 @@ class SetProperty extends React.Component<Props, State> {
   };
 
   getFieldType = (chosenField: FieldsCombinedByType) => {
-    if (chosenField.selectOptions) {
+    if (chosenField.selectOptions && chosenField.selectOptions?.length > 0) {
       return 'select';
     }
 
