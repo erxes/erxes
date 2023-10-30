@@ -34,12 +34,17 @@ export const types = `
     productId: String
   }
 
+  type PreDate {
+    _id: String
+    dueDate: Date
+  }
+
   type PosclientSlot {
     _id: String
     code: String
     name: String
     status: String
-    isPreDates: [Date]
+    isPreDates: [PreDate]
     option: JSON
   }
 
