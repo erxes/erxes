@@ -420,6 +420,12 @@ export const resetDmWithQueryCache = () => {
 };
 
 const WithConsumer = (props: Props) => {
+  const [isInitial, setIsInitial] = React.useState(true);
+
+  React.useEffect(() => {
+    setIsInitial(false);
+  }, [WithQuery]);
+
   return (
     <AppConsumer>
       {({ currentUser }) => {
@@ -427,9 +433,9 @@ const WithConsumer = (props: Props) => {
           return null;
         }
 
-        // if (!WithQuery) {
-        WithQuery = generateWithQuery(props);
-        // }
+        if (isInitial) {
+          WithQuery = generateWithQuery(props);
+        }
 
         return <WithQuery {...props} currentUser={currentUser} />;
       }}
