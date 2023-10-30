@@ -319,6 +319,61 @@ export const calculateExecution = async ({
   });
 };
 
+const isWaitingDateConfig = dateConfig => {
+  if (dateConfig) {
+    const NOW = new Date();
+
+    if (dateConfig.type === 'range') {
+      const { startDate, endDate } = dateConfig;
+      if (startDate < NOW && endDate > NOW) {
+        return false;
+      }
+    }
+
+    if (dateConfig?.type === 'cycle') {
+      const { frequencyType } = dateConfig;
+
+      const generateDate = (inputDate, isMonth?) => {
+        const date = new Date(inputDate);
+
+        return new Date(
+          NOW.getFullYear(),
+          isMonth ? NOW.getMonth() : date.getMonth(),
+          date.getDay()
+        );
+      };
+
+      if (frequencyType === 'everyYear') {
+        const startDate = generateDate(dateConfig.startDate);
+        if (dateConfig?.endDate) {
+          const endDate = generateDate(dateConfig.endDate);
+
+          if (NOW < startDate && NOW > endDate) {
+            return false;
+          }
+        }
+        if (NOW < startDate) {
+          return false;
+        }
+      }
+      if (frequencyType === 'everyMonth') {
+        const startDate = generateDate(dateConfig.startDate, true);
+        if (dateConfig?.endDate) {
+          const endDate = generateDate(dateConfig.endDate, true);
+
+          if (NOW < startDate && NOW > endDate) {
+            return false;
+          }
+        }
+        if (NOW < startDate) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+};
+
 /*
  * target is one of the TriggerType objects
  */
@@ -346,6 +401,10 @@ export const receiveTrigger = async ({
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
         if (trigger.type !== type) {
+          continue;
+        }
+
+        if (isWaitingDateConfig(trigger?.config?.dateConfig)) {
           continue;
         }
 
