@@ -17,7 +17,7 @@ block layout-content
         button(type='button', data-toggle='modal', data-target='#myModal', onclick=`onPaymentClick('${JSON.stringify(payment)}', '${JSON.stringify(invoiceData)}','${prefix}')`).button
           img(src=`${prefix}/pl:payment/static/images/payments/${payment.kind}.png`)
           .payment-name  
-            p !{payment.title}  
+            p !{payment.title} - !{payment.name}   
 
     if monpayCouponEnabled
       .monpay-coupon(id='monpay-coupon')
