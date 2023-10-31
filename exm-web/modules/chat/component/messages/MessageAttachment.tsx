@@ -4,14 +4,23 @@ import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPrevie
 
 const MessageAttachmentSection = ({
   attachments,
+  isMe,
 }: {
   attachments: IAttachment[]
+  isMe: boolean
 }) => {
+  const style = isMe
+    ? `${"bg-[#4F33AF] text-[#fff] rounded-tr-none rounded-tl-lg rounded-br-lg rounded-bl-lg"}`
+    : `${"bg-[#F2F3F5] text-[#000] rounded-tl-none rounded-tr-lg rounded-br-lg rounded-bl-lg"}`
+
   const medias = attachments.filter((attachment) =>
     attachment.type.startsWith("image/")
   )
   const files = attachments.filter((attachment) =>
     attachment.type.startsWith("application/")
+  )
+  const audios = attachments.filter((attachment) =>
+    attachment.type.startsWith("audio/")
   )
 
   return (
@@ -34,6 +43,13 @@ const MessageAttachmentSection = ({
           attachments={files}
           className={`flex flex-col gap-1 py-1`}
           isDownload={true}
+        />
+      )}
+      {audios && (
+        <AttachmentWithChatPreview
+          attachments={audios}
+          className={`${style} mt-2 py-2.5 px-5 max-w-md drop-shadow-md font-medium`}
+          isMe={isMe}
         />
       )}
     </>

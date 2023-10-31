@@ -9,11 +9,13 @@ export const AttachmentWithChatPreview = ({
   className,
   deleteImage,
   isDownload,
+  isMe
 }: {
   attachments: any[]
   className?: string
   deleteImage?: (index: number) => void
   isDownload?: boolean
+  isMe?: boolean
 }) => {
   const renderAttachmentPreview = () => {
     if (attachments && attachments.length === 0) {
@@ -33,6 +35,7 @@ export const AttachmentWithChatPreview = ({
               isDownload={isDownload}
               attachments={attachments}
               indexProp={i}
+              isMe={isMe}
             />
           ))}
         </div>

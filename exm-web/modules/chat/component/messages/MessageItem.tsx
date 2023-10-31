@@ -50,10 +50,10 @@ const MessageItem = ({
     (relatedMessage.createdUser.details.fullName ||
       relatedMessage.createdUser.email)
 
-  const messageContent = (content: string) => {
+  const messageContent = (text: string) => {
     const urlRegex =
       /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi
-    return content.replace(urlRegex, (url) => {
+    return text.replace(urlRegex, (url) => {
       return `<a href="${url}" target="_blank" class="text-blue-500 font-bold">${url}</a>`
     })
   }
@@ -181,13 +181,13 @@ const MessageItem = ({
             isMe ? "flex-row-reverse" : "flex-row"
           }`}
         >
-          <MessageAttachmentSection attachments={attachments} />
+          <MessageAttachmentSection attachments={attachments} isMe={isMe} />
           {renderActions()}
         </div>
       )
     }
 
-    return <MessageAttachmentSection attachments={attachments} />
+    return <MessageAttachmentSection attachments={attachments} isMe={isMe} />
   }
 
   return (

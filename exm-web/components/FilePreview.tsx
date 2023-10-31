@@ -1,4 +1,5 @@
 import React from "react"
+import AudioVisualizer from "@/modules/chat/component/messages/AudioVisualizer"
 import { ExternalLinkIcon, XCircle } from "lucide-react"
 
 import { readFile } from "@/lib/utils"
@@ -15,6 +16,7 @@ export const FilePreview = ({
   isDownload,
   attachments,
   indexProp,
+  isMe,
 }: {
   fileUrl: string
   fileName?: string
@@ -23,6 +25,7 @@ export const FilePreview = ({
   isDownload?: boolean
   attachments?: any[]
   indexProp?: number
+  isMe?: boolean
 }) => {
   if (!fileUrl || !fileUrl.split) {
     return null
@@ -124,6 +127,36 @@ export const FilePreview = ({
     )
   }
 
+  const renderAudioFile = () => {
+    if (deleteImage) {
+      return (
+        <div className="relative">
+          <button
+            type="button"
+            className="absolute -top-2 -right-2 bg-white rounded-full"
+            onClick={() => onDelete(fileIndex)}
+          >
+            <XCircle size={18} />
+          </button>
+          <div className="p-2 rounded-md bg-[#F0F0F0] ">
+            <div className="flex gap-2 items-center font-semibold text-[#444] break-words">
+              <ExternalLinkIcon size={18} /> {fileName}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <AudioVisualizer
+        url={readFile(fileUrl)}
+        waveColor={"#b5b4b4"}
+        progressColor={`${isMe ? "#fff" : "#4F33AF"}`}
+        from="message"
+      />
+    )
+  }
+
   const fileExtension = fileUrl.split(".").pop()
 
   let filePreview
@@ -137,6 +170,12 @@ export const FilePreview = ({
       break
     case "xlsx":
       filePreview = renderFile()
+      break
+    case "webm":
+      filePreview = renderAudioFile()
+      break
+    case "mp3":
+      filePreview = renderAudioFile()
       break
     // case "mp4":
     //   filePreview = renderVideo()
@@ -158,7 +197,6 @@ export const FilePreview = ({
     case "avi":
     case "txt":
     case "rar":
-    case "mp3":
     case "pdf":
     default:
       filePreview = renderFile()

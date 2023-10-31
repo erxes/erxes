@@ -2,15 +2,15 @@ import React, { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/types"
-import data from "@emoji-mart/data"
-import Picker from "@emoji-mart/react"
 import { useAtomValue } from "jotai"
-import { Paperclip, Smile } from "lucide-react"
+import { Mic, Paperclip } from "lucide-react"
 
 import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
 import uploadHandler from "@/components/uploader/uploadHandler"
 
 import useChatsMutation from "../../hooks/useChatsMutation"
+import AudioRecorder from "./AudioRecorder"
+import EmojiPicker from "./EmojiPicker"
 import ReplyInfo from "./ReplyInfo"
 
 type IProps = {
@@ -42,7 +42,6 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   const searchParams = useSearchParams()
   const chatId = searchParams.get("id")
 
-  const [showEmoji, setShowEmoji] = useState(false)
   const textareaRef = useRef<any>(null)
 
   let typingTimeout: any
@@ -59,6 +58,8 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
       }, 1000)
     }
   }, [message])
+
+  const [isRecording, setIsRecording] = useState<boolean>(false)
 
   const handleInputChange = (e: any) => {
     setMessage(e.target.value)
@@ -109,7 +110,7 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
 
   const attachmentsSection = () => {
     return (
-      <div className="pt-2 overflow-auto w-full">
+      <div className="pt-2 overflow-auto w-full scrollbar-hide">
         {attachments && attachments.length > 0 && (
           <AttachmentWithChatPreview
             attachments={attachments || []}
@@ -121,63 +122,107 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
     )
   }
 
-  const emojiHandler = (emojiData: any, event: MouseEvent) => {
+  const emojiHandler = (emojiData: any) => {
     setMessage((inputValue) => inputValue + emojiData.native)
+  }
+
+  const convertBlobToFileList = (blob: Blob) => {
+    const fileName = "voice-message.mp3"
+    const file = new File([blob], fileName, { type: "audio/mpeg" })
+    const fileList = [file]
+
+    return fileList
+  }
+
+  const sendAudio = (audioBlob: Blob) => {
+    const files: any = convertBlobToFileList(audioBlob)
+
+    uploadHandler({
+      files,
+      beforeUpload: () => {
+        setLoading(true)
+        return
+      },
+      afterUpload: ({ response, fileInfo }) => {
+        setLoading(false)
+        setIsRecording(false)
+        setAttachments([
+          ...(attachments || []),
+          Object.assign({ url: response }, fileInfo),
+        ])
+      },
+    })
+  }
+
+  const inputSection = (type?: string) => {
+    if (isRecording) {
+      return null
+    }
+
+    if (type === "button") {
+      return (
+        <button onClick={() => setIsRecording(true)}>
+          <Mic size={18} />
+        </button>
+      )
+    }
+
+    return (
+      <div className={`flex justify-between w-full`}>
+        <textarea
+          value={message}
+          onChange={handleInputChange}
+          onKeyDown={onEnterPress}
+          autoComplete="off"
+          ref={textareaRef}
+          className="outline-none w-full h-auto bg-transparent resize-none scrollbar-hide"
+          placeholder="Type your message"
+          rows={1}
+        />
+
+        <EmojiPicker
+          emojiHandler={(emojiData: any) => emojiHandler(emojiData)}
+        />
+      </div>
+    )
   }
 
   return (
     <div className={`border-t py-4 px-5 ${showSidebar && "w-[72.5%]"}`}>
       {attachments && attachments.length > 0 && attachmentsSection()}
       <div className="flex items-center justify-around gap-7 ">
-        <div className="flex gap-4">
-          <label className="cursor-pointer">
-            <input
-              autoComplete="off"
-              type="file"
-              multiple={true}
-              onChange={handleAttachmentChange}
-              className="hidden"
-            />
-            <Paperclip size={16} />
-          </label>
-        </div>
-        <div className="w-full">
-          <ReplyInfo reply={reply} setReply={setReply} />
-          <div className="relative flex flex-1 items-center gap-4 p-5 rounded-lg bg-[#F5FAFF] drop-shadow-md">
-            <textarea
-              value={message}
-              onChange={handleInputChange}
-              onKeyDown={onEnterPress}
-              autoComplete="off"
-              ref={textareaRef}
-              className="outline-none w-full h-auto bg-transparent resize-none scrollbar-hide"
-              placeholder="Type your message"
-              rows={1}
-            />
-            {showEmoji && (
-              <div className="absolute bottom-16 right-0 z-10">
-                <Picker
-                  data={data}
-                  onEmojiSelect={emojiHandler}
-                  previewPosition="none"
-                  searchPosition="none"
-                  theme="light"
+        {isRecording ? (
+          <AudioRecorder sendAudio={sendAudio} />
+        ) : (
+          <>
+            <div className="flex gap-4">
+              {inputSection("button")}
+              <label className="cursor-pointer">
+                <input
+                  autoComplete="off"
+                  type="file"
+                  multiple={true}
+                  onChange={handleAttachmentChange}
+                  className="hidden"
                 />
+                <Paperclip size={16} />
+              </label>
+            </div>
+            <div className="w-full">
+              <ReplyInfo reply={reply} setReply={setReply} />
+              <div className="relative flex flex-1 items-center gap-4 p-5 rounded-lg bg-[#F5FAFF] drop-shadow-md">
+                {inputSection()}
               </div>
-            )}
-            <button onClick={() => setShowEmoji(!showEmoji)}>
-              <Smile size={16} />
+            </div>
+            <button
+              type="submit"
+              className="rounded-md bg-primary-light px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#5532c7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              onClick={onSubmit}
+            >
+              Send
             </button>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          className="rounded-md bg-primary-light px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#5532c7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          onClick={onSubmit}
-        >
-          Send
-        </button>
+          </>
+        )}
       </div>
     </div>
   )

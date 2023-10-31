@@ -78,9 +78,16 @@ export interface IBrand {
   emailConfig: { type: string; template: string }
 }
 
+export interface IBranch {
+  _id: string
+  title?: string
+  address?: string
+}
+
 export interface IUserC extends IUserDoc {
   _id: string
   brands?: IBrand[]
+  branches?: IBranch[]
   emailSignatures?: IEmailSignature[]
   onboardingHistory?: IOnboardingHistory
   branchIds: string[]
