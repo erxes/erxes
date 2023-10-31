@@ -18,26 +18,22 @@ import {
   CallTabsContainer,
   CallTabContent
 } from '../styles';
-import { all, caller, callActionButtons, inCallTabs } from '../constants';
+import { caller, inCallTabs } from '../constants';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Button from '@erxes/ui/src/components/Button';
 import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
 import Tagger from '@erxes/ui-tags/src/containers/Tagger';
 import WidgetPopover from './WidgetPopover';
-import { renderFullName } from '@erxes/ui/src/utils/core';
+import { isEnabled, renderFullName } from '@erxes/ui/src/utils/core';
+import * as PropTypes from 'prop-types';
+import { callPropType, sipPropType } from '../lib/types';
+import { CALL_STATUS_IDLE } from '../lib/enums';
+import { ICustomer } from '../types';
+import { Tags } from '@erxes/ui/src/components';
 
 type Props = {
-  callData?: any;
-};
-
-type State = {
-  currentTab: string;
-  haveIncomingCall: boolean;
-  shrink: boolean;
-  timeSpent: number;
-  status: string;
-  showHistory: boolean;
+  customer: ICustomer;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -67,10 +63,16 @@ const formatNumber = (n: number) => {
   });
 };
 
-const IncomingCall: React.FC<Props> = ({ callData }) => {
+const IncomingCall: React.FC<Props> = (props: Props, context) => {
+  const Sip = context;
+  const { mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
+
+  const { customer } = props;
+  const primaryPhone = customer?.primaryPhone;
+
   const [currentTab, setCurrentTab] = useState('');
   const [haveIncomingCall, setHaveIncomingCall] = useState(
-    callData && callData.callerNumber ? true : false
+    primaryPhone ? true : false
   );
   const [shrink, setShrink] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
@@ -85,12 +87,12 @@ const IncomingCall: React.FC<Props> = ({ callData }) => {
       }, 1000);
     }
 
-    if (callData && callData.callerNumber) {
+    if (primaryPhone && status !== 'accepted') {
       setHaveIncomingCall(true);
     }
 
     return () => clearInterval(timer);
-  }, [status, callData]);
+  }, [status, primaryPhone]);
 
   const onTabClick = (tab: string) => {
     setCurrentTab(tab);
@@ -98,11 +100,12 @@ const IncomingCall: React.FC<Props> = ({ callData }) => {
   };
 
   const afterSave = () => {
-    console.log('');
+    onDeclineCall();
+    setShowHistory(true);
   };
 
   const endCall = () => {
-    setHaveIncomingCall(false);
+    onDeclineCall();
     setShowHistory(true);
   };
 
@@ -142,29 +145,60 @@ const IncomingCall: React.FC<Props> = ({ callData }) => {
   };
 
   const renderCallerInfo = () => {
-    if (!callData) {
+    if (!customer) {
       return null;
     }
 
     if (!shrink) {
       return (
         <>
-          {renderFullName(callData.customer)}
-          <PhoneNumber shrink={shrink}>{callData.callerNumber}</PhoneNumber>
+          {renderFullName(customer || '')}
+          <PhoneNumber shrink={shrink}>{primaryPhone}</PhoneNumber>
           <p>{caller.place}</p>
         </>
       );
     }
 
-    return <PhoneNumber shrink={shrink}>{callData.callerNumber}</PhoneNumber>;
+    return <PhoneNumber shrink={shrink}>{primaryPhone}</PhoneNumber>;
   };
 
   const onAcceptCall = () => {
     setStatus('accepted');
+    const { answerCall, call } = context;
+    setHaveIncomingCall(false);
+
+    if (answerCall && call?.status !== CALL_STATUS_IDLE) {
+      answerCall();
+    }
   };
 
   const onDeclineCall = () => {
     setHaveIncomingCall(false);
+    const { stopCall } = context;
+
+    if (stopCall) {
+      stopCall();
+    }
+  };
+
+  const ignoreCall = () => {
+    setHaveIncomingCall(false);
+  };
+
+  const handleAudioToggle = () => {
+    if (!isMuted()) {
+      mute();
+    } else {
+      unmute();
+    }
+  };
+
+  const handleHold = () => {
+    if (!isHolded().localHold) {
+      hold();
+    } else {
+      unhold();
+    }
   };
 
   const popoverNotification = (
@@ -176,12 +210,39 @@ const IncomingCall: React.FC<Props> = ({ callData }) => {
           </p>
           <div>{renderCallerInfo()}</div>
           <Actions>
-            {callActionButtons.map(action => (
-              <CallAction key={action.text} shrink={shrink}>
-                <Icon icon={action.icon} />
-                {!shrink && __(action.text)}
+            {!isMuted() && (
+              <CallAction
+                key={'Mute'}
+                shrink={false}
+                onClick={handleAudioToggle}
+              >
+                <Icon icon={'phone-times'} />
+                {__('Mute')}
               </CallAction>
-            ))}
+            )}
+            {isMuted() && (
+              <CallAction
+                key={'UnMute'}
+                shrink={true}
+                onClick={handleAudioToggle}
+              >
+                <Icon icon={'phone-times'} />
+                {__('UnMute')}
+              </CallAction>
+            )}
+
+            {!isHolded().localHold && (
+              <CallAction key={'Hold'} shrink={false} onClick={handleHold}>
+                <Icon icon={'pause-1'} />
+                {__('Hold')}
+              </CallAction>
+            )}
+            {isHolded().localHold && (
+              <CallAction key={'UnHold'} shrink={true} onClick={handleHold}>
+                <Icon icon={'pause-1'} />
+                {__('UnHold')}
+              </CallAction>
+            )}
             {shrink && (
               <CallAction shrink={shrink} isDecline={true} onClick={endCall}>
                 <Icon icon="phone-slash" />
@@ -211,14 +272,17 @@ const IncomingCall: React.FC<Props> = ({ callData }) => {
   if (showHistory) {
     return <WidgetPopover autoOpenTab="History" />;
   }
-
   if (haveIncomingCall) {
     return (
       <IncomingCallNav>
         <NameCard
-          user={callData.customer}
+          user={{ ...customer, username: customer?.primaryPhone }}
           avatarSize={30}
-          secondLine="Incoming call..."
+          secondLine={
+            isEnabled('tags') && (
+              <Tags tags={customer?.getTags || []} limit={3} />
+            )
+          }
         />
         <OverlayTrigger
           trigger="click"
@@ -230,17 +294,50 @@ const IncomingCall: React.FC<Props> = ({ callData }) => {
             <Icon icon="check" size={13} />
           </CallButton>
         </OverlayTrigger>
-        <CallButton type="decline" onClick={onDeclineCall}>
+        {/* <CallButton type="decline" onClick={onDeclineCall}>
           <Icon icon="cancel" size={13} />
-        </CallButton>
-        <Button size="small" btnStyle="simple">
+        </CallButton> */}
+        <Button size="small" btnStyle="simple" onClick={ignoreCall}>
           Ignore
         </Button>
       </IncomingCallNav>
     );
   }
-
+  if (status === 'accepted' && !haveIncomingCall) {
+    return (
+      <IncomingCallNav>
+        <NameCard
+          user={customer}
+          avatarSize={30}
+          secondLine="Incoming call..."
+        />
+        <OverlayTrigger
+          trigger="click"
+          rootClose={true}
+          placement="bottom"
+          overlay={popoverNotification}
+        >
+          <CallButton>
+            <Icon icon="phone" size={13} />
+          </CallButton>
+        </OverlayTrigger>
+      </IncomingCallNav>
+    );
+  }
   return null;
 };
 
+IncomingCall.contextTypes = {
+  sip: sipPropType,
+  call: callPropType,
+  startCall: PropTypes.func,
+  stopCall: PropTypes.func,
+  answerCall: PropTypes.func,
+  mute: PropTypes.func,
+  unmute: PropTypes.func,
+  hold: PropTypes.func,
+  unhold: PropTypes.func,
+  isMuted: PropTypes.func,
+  isHolded: PropTypes.func
+};
 export default IncomingCall;
