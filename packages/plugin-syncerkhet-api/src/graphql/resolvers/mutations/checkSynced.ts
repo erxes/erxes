@@ -94,7 +94,14 @@ const checkSyncedMutations = {
             ...configs[syncedStageId],
             ...mainConfig
           };
-          const postData = await getPostData(subdomain, config, deal, dateType);
+          const postData = await getPostData(
+            subdomain,
+            models,
+            user,
+            config,
+            deal,
+            dateType
+          );
 
           const response = await sendRPCMessage(
             models,

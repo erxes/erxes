@@ -7,12 +7,13 @@ export const getSyncLogDoc = (params: {
   type: string;
   user: IUserDocument;
   object: any;
+  brandId?: string;
 }) => {
-  const { type, user } = params;
+  const { type, user, brandId } = params;
 
   return {
     type: '',
-    brandId: '',
+    brandId,
     contentType: type,
     contentId: params.object._id,
     createdAt: new Date(),

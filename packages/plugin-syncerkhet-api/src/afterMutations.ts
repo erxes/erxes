@@ -131,14 +131,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       // create sale
-      console.log(
-        Object.keys(saleConfigs),
-        destinationStageId,
-        'ddddddddddddd'
-      );
       if (Object.keys(saleConfigs).includes(destinationStageId)) {
         const brandRules = saleConfigs[destinationStageId].brandRules || {};
-        console.log(brandRules, 'kkkkkkkkkkkkkkkkk');
+
         const brandIds = Object.keys(brandRules).filter(b =>
           Object.keys(mainConfigs).includes(b)
         );
@@ -147,10 +142,18 @@ export const afterMutationHandlers = async (subdomain, params) => {
         for (const brandId of brandIds) {
           configs[brandId] = {
             ...mainConfigs[brandId],
-            ...brandRules[brandId]
+            ...brandRules[brandId],
+            hasPayment: saleConfigs[destinationStageId].hasPayment
           };
         }
-        const postDatas = (await getPostData(subdomain, configs, deal)) as any;
+
+        const postDatas = (await getPostData(
+          subdomain,
+          models,
+          user,
+          configs,
+          deal
+        )) as any;
 
         for (const data of postDatas) {
           const { syncLog, postData } = data;

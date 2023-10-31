@@ -3,6 +3,7 @@ import {
   sendCoreMessage,
   sendProductsMessage
 } from '../messageBroker';
+import { getSyncLogDoc } from './utils';
 
 export const validConfigMsg = async config => {
   if (!config.url) {
@@ -11,9 +12,18 @@ export const validConfigMsg = async config => {
   return '';
 };
 
-export const getPostData = async (subdomain, configs, deal, dateType = '') => {
+export const getPostData = async (
+  subdomain,
+  models,
+  user,
+  configs,
+  deal,
+  dateType = ''
+) => {
   let billType = 1;
   let customerCode = '';
+
+  const syncLogDoc = getSyncLogDoc({ type: 'cards:deal', user, object: deal });
 
   const companyIds = await sendCoreMessage({
     subdomain,
@@ -306,12 +316,17 @@ export const getPostData = async (subdomain, configs, deal, dateType = '') => {
       }
     ];
 
+    const syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+
     postDatas.push({
-      userEmail: config.userEmail,
-      token: config.apiToken,
-      apiKey: config.apiKey,
-      apiSecret: config.apiSecret,
-      orderInfos: JSON.stringify(orderInfos)
+      syncLog,
+      postData: {
+        userEmail: config.userEmail,
+        token: config.apiToken,
+        apiKey: config.apiKey,
+        apiSecret: config.apiSecret,
+        orderInfos: JSON.stringify(orderInfos)
+      }
     });
   }
 
