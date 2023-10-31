@@ -1,15 +1,16 @@
-import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
 import { gql } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
 import { graphql } from '@apollo/client/react/hoc';
+import { router } from '@erxes/ui/src';
+import { Bulk } from '@erxes/ui/src/components';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations } from '../graphql';
+import Alert from '@erxes/ui/src/utils/Alert';
 import { withProps } from '@erxes/ui/src/utils/core';
+import * as compose from 'lodash.flowright';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
 import InventoryProducts from '../components/inventoryProducts/InventoryProducts';
+import { mutations } from '../graphql';
 import {
   ToCheckProductsMutationResponse,
   ToSyncProductsMutationResponse
@@ -41,6 +42,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
 
   render() {
     const { items, loading } = this.state;
+    const brandId = this.props.queryParams.brandId || 'noBrand';
 
     const setSyncStatus = (data: any, action: string) => {
       const createData = data[action].items.map(d => ({
@@ -62,11 +64,17 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
       });
     };
 
+    const setBrand = (brandId: string) => {
+      router.setParams(this.props.history, { brandId: brandId });
+      return router;
+    };
+
     const toSyncProducts = (action: string, products: any[]) => {
       this.setState({ loading: true });
       this.props
         .toSyncProducts({
           variables: {
+            brandId: brandId,
             action: action,
             products: products
           }
@@ -91,7 +99,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
       this.setState({ loading: true });
       this.props
         .toCheckProducts({
-          variables: {}
+          variables: { brandId }
         })
         .then(response => {
           let data = response.data.toCheckProducts;
@@ -116,6 +124,7 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
       ...this.props,
       loading: loading,
       toCheckProducts,
+      setBrand,
       items,
       toSyncProducts
     };

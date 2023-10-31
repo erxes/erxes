@@ -7,6 +7,8 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Row from './InventoryCategoryRow';
 import { menuSyncerkhet } from '../../constants';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   loading: boolean;
@@ -14,6 +16,7 @@ type Props = {
   queryParams: any;
   toCheckCategories: () => void;
   toSyncCategories: (action: string, categories: any[]) => void;
+  setBrand: (brandId: string) => void;
   items: any;
 };
 
@@ -130,7 +133,19 @@ class InventoryCategory extends React.Component<Props, State> {
     };
 
     const checkButton = (
-      <>
+      <BarItems>
+        <SelectBrands
+          label={__('Choose brands')}
+          onSelect={brand => this.props.setBrand(brand as string)}
+          initialValue={this.props.queryParams.brandId}
+          multi={false}
+          name="selectedBrands"
+          customOption={{
+            label: 'No Brand (noBrand)',
+            value: ''
+          }}
+        />
+
         <Button
           btnStyle="warning"
           size="small"
@@ -139,7 +154,7 @@ class InventoryCategory extends React.Component<Props, State> {
         >
           Check
         </Button>
-      </>
+      </BarItems>
     );
     const header = <Wrapper.ActionBar right={checkButton} />;
     const content = (

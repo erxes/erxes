@@ -1,5 +1,4 @@
 import { IContext } from '../../../connectionResolver';
-import { getConfig } from '../../../utils/utils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { sendProductsMessage } from '../../../messageBroker';
 import {
@@ -8,10 +7,15 @@ import {
 } from '../../../utils/consumeInventory';
 
 const inventoryMutations = {
-  async toCheckProducts(_root, _params, { subdomain, models }: IContext) {
-    const config = await models.Configs.getConfig('ERKHET', {});
+  async toCheckProducts(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain, models }: IContext
+  ) {
+    const configs = await models.Configs.getConfig('erkhetConfig', {});
+    const config = configs[brandId || 'noBrand'];
 
-    if (!config.apiToken || !config.apiKey || !config.apiSecret) {
+    if (!config || !config.apiToken || !config.apiKey || !config.apiSecret) {
       throw new Error('Erkhet config not found.');
     }
 
@@ -96,6 +100,7 @@ const inventoryMutations = {
             (categoryOfId[product.categoryId] || {}).code
         ) {
           matchedCount = matchedCount + 1;
+          console.log(product.code);
         } else {
           updateProducts.push(resProd);
         }
@@ -123,10 +128,15 @@ const inventoryMutations = {
     };
   },
 
-  async toCheckCategories(_root, _params, { subdomain, models }: IContext) {
-    const config = await models.Configs.getConfig('ERKHET', {});
+  async toCheckCategories(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain, models }: IContext
+  ) {
+    const configs = await models.Configs.getConfig('erkhetConfig', {});
+    const config = configs[brandId || 'noBrand'];
 
-    if (!config.apiToken || !config.apiKey || !config.apiSecret) {
+    if (!config || !config.apiToken || !config.apiKey || !config.apiSecret) {
       throw new Error('Erkhet config not found.');
     }
 
@@ -202,10 +212,20 @@ const inventoryMutations = {
 
   async toSyncCategories(
     _root,
-    { action, categories }: { action: string; categories: any[] },
+    {
+      brandId,
+      action,
+      categories
+    }: { brandId: string; action: string; categories: any[] },
     { subdomain, models }: IContext
   ) {
-    const config = models.Configs.getConfig('ERKHET', {});
+    const configs = await models.Configs.getConfig('erkhetConfig', {});
+    const config = configs[brandId || 'noBrand'];
+
+    if (!config || !config.apiToken || !config.apiKey || !config.apiSecret) {
+      throw new Error('Erkhet config not found.');
+    }
+
     try {
       switch (action) {
         case 'CREATE': {
@@ -257,10 +277,20 @@ const inventoryMutations = {
 
   async toSyncProducts(
     _root,
-    { action, products }: { action: string; products: any[] },
+    {
+      brandId,
+      action,
+      products
+    }: { brandId: string; action: string; products: any[] },
     { subdomain, models }: IContext
   ) {
-    const config = models.Configs.getConfig('ERKHET', {});
+    const configs = await models.Configs.getConfig('erkhetConfig', {});
+    const config = configs[brandId || 'noBrand'];
+
+    if (!config || !config.apiToken || !config.apiKey || !config.apiSecret) {
+      throw new Error('Erkhet config not found.');
+    }
+
     try {
       switch (action) {
         case 'CREATE': {

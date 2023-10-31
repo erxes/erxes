@@ -43,6 +43,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         'stageInSaleConfig',
         {}
       );
+
       const moveConfigs = await models.Configs.getConfig(
         'stageInMoveConfig',
         {}
@@ -130,8 +131,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       // create sale
+      console.log(
+        Object.keys(saleConfigs),
+        destinationStageId,
+        'ddddddddddddd'
+      );
       if (Object.keys(saleConfigs).includes(destinationStageId)) {
         const brandRules = saleConfigs[destinationStageId].brandRules || {};
+        console.log(brandRules, 'kkkkkkkkkkkkkkkkk');
         const brandIds = Object.keys(brandRules).filter(b =>
           Object.keys(mainConfigs).includes(b)
         );
