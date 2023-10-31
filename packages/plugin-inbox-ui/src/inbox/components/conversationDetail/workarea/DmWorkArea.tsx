@@ -58,10 +58,17 @@ export default class WorkArea extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const internalNoteState =
+      localStorage.getItem(
+        `showInternalState-${props.currentConversationId}`
+      ) === 'true'
+        ? true
+        : false;
+
     this.state = {
       attachmentPreview: null,
       keysPressed: {},
-      showInternalState: false
+      showInternalState: internalNoteState || false
     };
 
     this.node = React.createRef();
@@ -87,7 +94,15 @@ export default class WorkArea extends React.Component<Props, State> {
         this.state.keysPressed.Control === true &&
         this.state.keysPressed.i === true
       ) {
-        this.setState({ showInternalState: !this.state.showInternalState });
+        this.setState(
+          { showInternalState: !this.state.showInternalState },
+          () => {
+            localStorage.setItem(
+              `showInternalState-${this.props.currentConversationId}`,
+              String(this.state.showInternalState)
+            );
+          }
+        );
       }
     });
   };
@@ -252,7 +267,6 @@ export default class WorkArea extends React.Component<Props, State> {
     } = this.props;
 
     const { kind } = currentConversation.integration;
-    const { keysPressed } = this.state;
 
     const showInternal =
       this.isMailConversation(kind) ||
@@ -275,6 +289,7 @@ export default class WorkArea extends React.Component<Props, State> {
                 : this.state.showInternalState
               : false
           }
+          disableInternalState={showInternal ? true : false}
           conversation={currentConversation}
           setAttachmentPreview={this.setAttachmentPreview}
           addMessage={addMessage}

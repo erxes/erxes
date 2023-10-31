@@ -1,11 +1,14 @@
 import React from 'react';
 import { ITrigger } from '../../../types';
 import SegmentsForm from '@erxes/ui-segments/src/containers/form/SegmentsForm';
-import { Description, TriggerTabs } from '../../../styles';
+import { Description, FlexContainer, TriggerTabs } from '../../../styles';
 import { ScrolledContent } from '@erxes/ui-automations/src/styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import ReEnrollmentContainer from '../../../containers/forms/triggers/ReEnrollment';
+import { Button, ModalTrigger } from '@erxes/ui/src';
+import DateSettings from './subForms/Date';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 
 type Props = {
   closeModal: () => void;
@@ -64,15 +67,60 @@ class TriggerDetailForm extends React.Component<
     );
   }
 
+  renderSettings() {
+    const { activeTrigger, addConfig } = this.props;
+    const config = activeTrigger.config || {};
+
+    const onChange = config => {
+      activeTrigger.config = config;
+      addConfig(activeTrigger, activeTrigger.id, config);
+    };
+
+    const onClear = () => {
+      const { contentId, reEnrollment, reEnrollmentRules } =
+        activeTrigger?.config || {};
+
+      activeTrigger.config = { contentId, reEnrollment, reEnrollmentRules };
+      addConfig(activeTrigger, activeTrigger.id);
+    };
+
+    const trigger = <Button icon="settings" btnStyle="link" />;
+
+    const content = () => {
+      return (
+        <>
+          <DateSettings onChange={onChange} config={config} />
+          <ModalFooter>
+            <Button btnStyle="simple" onClick={onClear}>
+              {__('Clear')}
+            </Button>
+          </ModalFooter>
+        </>
+      );
+    };
+
+    return (
+      <ModalTrigger
+        title="Trigger Settings"
+        trigger={trigger}
+        content={content}
+        hideHeader={true}
+      />
+    );
+  }
+
   render() {
     const { currentTab, activeTrigger } = this.state;
 
     return (
       <>
         <Description>
-          <h4>
-            {activeTrigger.label} {__('based')}
-          </h4>
+          <FlexContainer>
+            <h4>
+              {activeTrigger.label} {__('based')}
+            </h4>
+            {this.renderSettings()}
+          </FlexContainer>
           <p>{activeTrigger.description}</p>
         </Description>
         <TriggerTabs>
