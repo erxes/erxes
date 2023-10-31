@@ -1,4 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
+import configMutations from './mutations/configs';
+import configQueries from './queries/configs';
 import checkSyncedMutations from './mutations/checkSynced';
 import inventoryMutations from './mutations/syncInventory';
 import erkhetRemainders from './queries/remainders';
@@ -9,11 +11,13 @@ const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
   SyncHistory,
   Query: {
+    ...configQueries,
     ...erkhetRemainders,
     ...syncHistories
   },
 
   Mutation: {
+    ...configMutations,
     ...checkSyncedMutations,
     ...inventoryMutations
   }

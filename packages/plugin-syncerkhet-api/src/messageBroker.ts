@@ -26,6 +26,16 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('syncerkhet:getConfig', async ({ subdomain, data }) => {
+    const { code, defaultValue } = data;
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: models.Configs.getConfig(code, defaultValue)
+    };
+  });
+
   consumeRPCQueue('syncerkhet:toOrder', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { pos, order } = data;

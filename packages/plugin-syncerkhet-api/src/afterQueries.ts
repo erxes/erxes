@@ -1,5 +1,6 @@
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { generateModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 
 export default {
@@ -8,6 +9,7 @@ export default {
 
 export const afterQueryHandlers = async (subdomain, data) => {
   const { args, results, queryName } = data;
+  const models = await generateModels(subdomain);
 
   if (queryName !== 'products') {
     return results;
@@ -19,19 +21,8 @@ export const afterQueryHandlers = async (subdomain, data) => {
     return results;
   }
   try {
-    const configs = await sendCoreMessage({
-      subdomain,
-      action: 'getConfig',
-      data: { code: 'ERKHET', defaultValue: {} },
-      isRPC: true
-    });
-
-    const remConfigs = await sendCoreMessage({
-      subdomain,
-      action: 'getConfig',
-      data: { code: 'remainderConfig', defaultValue: {} },
-      isRPC: true
-    });
+    const configs = await models.Configs.getConfig('ERKHET', {});
+    const remConfigs = await models.Configs.getConfig('remainderConfig', {});
 
     if (!Object.keys(remConfigs).includes(pipelineId)) {
       return results;
@@ -42,7 +33,8 @@ export const afterQueryHandlers = async (subdomain, data) => {
     const codes = (results || []).map(item => item.code);
 
     const response = await sendRequest({
-      url: configs.getRemainderApiUrl,
+      url: `${process.env.ERKHET_URL ||
+        'https://erkhet.biz'}/get-api/?kind=remainder`,
       method: 'GET',
       params: {
         kind: 'remainder',

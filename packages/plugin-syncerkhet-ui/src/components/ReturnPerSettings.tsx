@@ -52,8 +52,8 @@ class PerSettings extends React.Component<Props, State> {
     const { config } = this.state;
     const key = config.stageId;
 
-    delete configsMap.returnEbarimtConfig[currentConfigKey];
-    configsMap.returnEbarimtConfig[key] = config;
+    delete configsMap.stageInReturnConfig[currentConfigKey];
+    configsMap.stageInReturnConfig[key] = config;
     this.props.save(configsMap);
   };
 
@@ -118,7 +118,11 @@ class PerSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         title={__(config.title)}
-        open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
+        open={
+          this.props.currentConfigKey === 'newStageInReturnConfig'
+            ? true
+            : false
+        }
       >
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>

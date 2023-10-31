@@ -3,8 +3,8 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const configs = `
-  query configsGetValue($code: String!) {
-    configsGetValue(code: $code)
+  query syncerkhetConfigsGetValue($code: String!) {
+    syncerkhetConfigsGetValue(code: $code)
   }
 `;
 

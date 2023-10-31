@@ -1,15 +1,16 @@
-import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
 import { gql } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
 import { graphql } from '@apollo/client/react/hoc';
+import { router } from '@erxes/ui/src';
+import { Bulk } from '@erxes/ui/src/components';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations } from '../graphql';
+import Alert from '@erxes/ui/src/utils/Alert';
 import { withProps } from '@erxes/ui/src/utils/core';
+import * as compose from 'lodash.flowright';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
 import InventoryCategory from '../components/inventoryCategory/InventoryCategory';
+import { mutations } from '../graphql';
 import {
   ToCheckCategoriesMutationResponse,
   ToSyncCategoriesMutationResponse
@@ -41,6 +42,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
 
   render() {
     const { items, loading } = this.state;
+    const brandId = this.props.queryParams.brandId || 'noBrand';
 
     const setSyncStatus = (data: any, action: string) => {
       const createData = data[action].items.map(d => ({
@@ -62,11 +64,17 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
       });
     };
 
+    const setBrand = (brandId: string) => {
+      router.setParams(this.props.history, { brandId: brandId });
+      return router;
+    };
+
     const toSyncCategories = (action: string, categories: any[]) => {
       this.setState({ loading: true });
       this.props
         .toSyncCategories({
           variables: {
+            brandId,
             action: action,
             categories: categories
           }
@@ -91,7 +99,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
     const toCheckCategories = () => {
       this.setState({ loading: true });
       this.props
-        .toCheckCategories({ variables: {} })
+        .toCheckCategories({ variables: { brandId } })
         .then(response => {
           let data = response.data.toCheckCategories;
 
@@ -117,6 +125,7 @@ class InventoryCategoryContainer extends React.Component<FinalProps, State> {
       loading: loading,
       toCheckCategories,
       toSyncCategories,
+      setBrand,
       items
     };
 

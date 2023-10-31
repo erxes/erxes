@@ -12,7 +12,7 @@ export type IConfig = {
 
 // query types
 export type ConfigsQueryResponse = {
-  configsGetValue: IConfig;
+  syncerkhetConfigsGetValue: IConfig;
   loading: boolean;
   refetch: () => void;
 };
@@ -42,22 +42,26 @@ export type ToSyncDealsMutationResponse = {
 };
 
 export type ToCheckProductsMutationResponse = {
-  toCheckProducts: (mutation: { variables: {} }) => Promise<any>;
+  toCheckProducts: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
 };
 
 export type ToCheckCategoriesMutationResponse = {
-  toCheckCategories: (mutation: { variables: {} }) => Promise<any>;
+  toCheckCategories: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
 };
 
 export type ToSyncCategoriesMutationResponse = {
   toSyncCategories: (mutation: {
-    variables: { action: string; categories: any[] };
+    variables: { brandId: string; action: string; categories: any[] };
   }) => Promise<any>;
 };
 
 export type ToSyncProductsMutationResponse = {
   toSyncProducts: (mutation: {
-    variables: { action: string; products: any[] };
+    variables: { brandId: string; action: string; products: any[] };
   }) => Promise<any>;
 };
 

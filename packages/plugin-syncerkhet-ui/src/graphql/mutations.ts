@@ -1,8 +1,8 @@
 // Settings
 
 const updateConfigs = `
-  mutation configsUpdate($configsMap: JSON!) {
-    configsUpdate(configsMap: $configsMap)
+  mutation syncerkhetConfigsUpdate($configsMap: JSON!) {
+    syncerkhetConfigsUpdate(configsMap: $configsMap)
   }
 `;
 
@@ -31,8 +31,8 @@ const toSyncOrders = `
 `;
 
 const toCheckProducts = `
-  mutation toCheckProducts($productCodes: [String]) {
-    toCheckProducts(productCodes: $productCodes)
+  mutation toCheckProducts($brandId: String) {
+    toCheckProducts(brandId: $brandId)
   }
 `;
 
@@ -43,8 +43,8 @@ const toSyncProducts = `
 `;
 
 const toCheckCategories = `
-  mutation toCheckCategories($categoryCodes: [String]) {
-    toCheckCategories(categoryCodes: $categoryCodes)
+  mutation toCheckCategories($brandId: String) {
+    toCheckCategories(brandId: $brandId)
   }
 `;
 

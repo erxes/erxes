@@ -1,5 +1,4 @@
 import { IContext } from '../../../connectionResolver';
-import { getConfig } from '../../../utils/utils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import {
   sendCardsMessage,
@@ -13,7 +12,7 @@ const erkhetQueries = {
   async erkhetRemainders(
     _root,
     { productIds, stageId, pipelineId },
-    { subdomain }: IContext
+    { subdomain, models }: IContext
   ) {
     if (!pipelineId && stageId) {
       const pipeline = await sendCardsMessage({
@@ -32,9 +31,9 @@ const erkhetQueries = {
     }[] = [];
 
     try {
-      const configs = await getConfig(subdomain, 'ERKHET');
+      const configs = await models.Configs.getConfig('ERKHET');
 
-      const remConfigs = await getConfig(subdomain, 'remainderConfig');
+      const remConfigs = await models.Configs.getConfig('remainderConfig');
 
       if (!Object.keys(remConfigs).includes(pipelineId)) {
         return [];
@@ -57,7 +56,8 @@ const erkhetQueries = {
       const codes = (products || []).map(item => item.code);
 
       const response = await sendRequest({
-        url: configs.getRemainderApiUrl,
+        url: `${process.env.ERKHET_URL ||
+          'https://erkhet.biz'}/get-api/?kind=remainder`,
         method: 'GET',
         params: {
           kind: 'remainder',
@@ -122,18 +122,18 @@ const erkhetQueries = {
       endDate?: Date;
       isMore: boolean;
     },
-    { subdomain }: IContext
+    { subdomain, models }: IContext
   ) {
     const result: any = {};
 
     try {
-      const configs = await getConfig(subdomain, 'ERKHET');
+      const configs = await models.Configs.getConfig('ERKHET', {});
 
       if (!configs || !Object.keys(configs).length) {
         return {};
       }
 
-      if (!configs.debtAccounts) {
+      if (configs.url || !configs.debtAccounts) {
         return {};
       }
 
@@ -197,7 +197,8 @@ const erkhetQueries = {
       }
 
       const response = await sendRequest({
-        url: configs.getRemainderApiUrl,
+        url: `${process.env.ERKHET_URL ||
+          'https://erkhet.biz'}/get-api/?kind=remainder`,
         method: 'GET',
         params: sendParams,
         timeout: 8000

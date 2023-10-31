@@ -7,7 +7,7 @@ import React from 'react';
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import Header from './Header';
-import PerSettings from './PerSettings';
+import PerSettings from './SalePerSettings';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -32,29 +32,34 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap } = this.state;
 
-    if (!configsMap.ebarimtConfig) {
-      configsMap.ebarimtConfig = {};
+    if (!configsMap.stageInSaleConfig) {
+      configsMap.stageInSaleConfig = {};
     }
 
     // must save prev item saved then new item
-    configsMap.ebarimtConfig.newEbarimtConfig = {
+    configsMap.stageInSaleConfig.newStageInSaleConfig = {
       title: 'New Erkhet Config',
       boardId: '',
       pipelineId: '',
       stageId: '',
-      userEmail: '',
-      hasVat: false,
-      hasCitytax: false,
-      defaultPay: 'debtAmount'
+      brandRules: {
+        noBrand: {
+          brandId: 'noBrand',
+          userEmail: '',
+          hasVat: false,
+          hasCitytax: false,
+          hasPayment: true,
+          defaultPay: 'debtAmount'
+        }
+      }
     };
-
     this.setState({ configsMap });
   };
 
   delete = (currentConfigKey: string) => {
     const { configsMap } = this.state;
-    delete configsMap.ebarimtConfig[currentConfigKey];
-    delete configsMap.ebarimtConfig['newEbarimtConfig'];
+    delete configsMap.stageInSaleConfig[currentConfigKey];
+    delete configsMap.stageInSaleConfig['newStageInSaleConfig'];
 
     this.setState({ configsMap });
 
@@ -65,6 +70,7 @@ class GeneralSettings extends React.Component<Props, State> {
     return Object.keys(configs).map(key => {
       return (
         <PerSettings
+          key={key}
           configsMap={this.state.configsMap}
           config={configs[key]}
           currentConfigKey={key}
@@ -77,7 +83,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
   renderContent() {
     const { configsMap } = this.state;
-    const configs = configsMap.ebarimtConfig || {};
+    const configs = configsMap.stageInSaleConfig || {};
 
     return (
       <ContentBox id={'GeneralSettingsMenu'}>

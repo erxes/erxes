@@ -7,7 +7,7 @@ import React from 'react';
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import Header from './Header';
-import PerRemSettings from './PerRemSettings';
+import PerRemSettings from './RemPerSettings';
 import Sidebar from './Sidebar';
 
 type Props = {

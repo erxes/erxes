@@ -1,14 +1,14 @@
-import { getConfig, toErkhet } from './utils';
+import { getSyncLogDoc, toErkhet } from './utils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
-export const customerToErkhet = async (
-  subdomain,
-  models,
-  syncLog,
-  params,
-  action
-) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
+export const customerToErkhet = async (models, params, action) => {
+  const syncLogDoc = getSyncLogDoc(params);
+  const configs = await models.Configs.getConfig('erkhetConfig', {});
+
+  const configBrandIds = Object.keys(configs);
+  if (!configBrandIds.length) {
+    return;
+  }
 
   const customer = params.updatedDocument || params.object;
   const oldCustomer = params.object;
@@ -24,21 +24,33 @@ export const customerToErkhet = async (
     name && customer.lastName
       ? name.concat(' - ').concat(customer.lastName || '')
       : name || customer.lastName || '';
-  name = name ? name : config.customerDefaultName;
 
-  sendData = {
-    action,
-    oldCode: oldCustomer.code || customer.code || '',
-    object: {
-      code: customer.code || '',
-      name,
-      defaultCategory: (config.customerCategoryCode || '').toString(),
-      email: customer.primaryEmail || '',
-      phone: customer.primaryPhone || ''
+  for (const brandId of configBrandIds) {
+    const config = configs[brandId];
+    name = name ? name : config.customerDefaultName;
+
+    const syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+    try {
+      sendData = {
+        action,
+        oldCode: oldCustomer.code || customer.code || '',
+        object: {
+          code: customer.code || '',
+          name,
+          defaultCategory: (config.customerCategoryCode || '').toString(),
+          email: customer.primaryEmail || '',
+          phone: customer.primaryPhone || ''
+        }
+      };
+
+      toErkhet(models, syncLog, config, sendData, 'customer-change');
+    } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
     }
-  };
-
-  toErkhet(models, syncLog, config, sendData, 'customer-change');
+  }
 };
 
 export const validCompanyCode = async (config, companyCode) => {
@@ -67,30 +79,42 @@ export const validCompanyCode = async (config, companyCode) => {
   return result;
 };
 
-export const companyToErkhet = async (
-  subdomain,
-  models,
-  syncLog,
-  params,
-  action,
-  user
-) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
+export const companyToErkhet = async (models, params, action) => {
+  const syncLogDoc = getSyncLogDoc(params);
+  const configs = await models.Configs.getConfig('erkhetConfig', {});
+
+  const configBrandIds = Object.keys(configs);
+  if (!configBrandIds.length) {
+    return;
+  }
+
   const company = params.updatedDocument || params.object;
 
   const oldCompany = params.object;
 
-  const sendData = {
-    action,
-    oldCode: oldCompany.code || company.code || '',
-    object: {
-      code: company.code || '',
-      name: company.primaryName,
-      defaultCategory: config.companyCategoryCode,
-      email: company.primaryEmail || '',
-      phone: company.primaryPhone || ''
-    }
-  };
+  for (const brandId of configBrandIds) {
+    const config = configs[brandId];
 
-  toErkhet(models, syncLog, config, sendData, 'customer-change');
+    const syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
+    try {
+      const sendData = {
+        action,
+        oldCode: oldCompany.code || company.code || '',
+        object: {
+          code: company.code || '',
+          name: company.primaryName,
+          defaultCategory: config.companyCategoryCode,
+          email: company.primaryEmail || '',
+          phone: company.primaryPhone || ''
+        }
+      };
+
+      toErkhet(models, syncLog, config, sendData, 'customer-change');
+    } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
+    }
+  }
 };

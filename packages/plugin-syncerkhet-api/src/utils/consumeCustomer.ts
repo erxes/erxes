@@ -1,10 +1,13 @@
-import { getConfig } from './utils';
 import { sendContactsMessage } from '../messageBroker';
 import { validCompanyCode } from './customerToErkhet';
 
-export const consumeCustomer = async (subdomain, doc, old_code, action) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
-
+export const consumeCustomer = async (
+  subdomain,
+  config,
+  doc,
+  old_code,
+  action
+) => {
   const isCompany = await validCompanyCode(config, doc.code);
 
   if (isCompany) {

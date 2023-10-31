@@ -1,20 +1,14 @@
-import {
-  Button,
-  CollapseContent,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from '@erxes/ui/src/components';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
+import { Button } from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
-import { KEY_LABELS } from '../constants';
+
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import Header from './Header';
+import PerSettings from './GeneralPerSettings';
 import Sidebar from './Sidebar';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -22,7 +16,7 @@ type Props = {
 };
 
 type State = {
-  currentMap: IConfigsMap;
+  configsMap: IConfigsMap;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
@@ -30,134 +24,109 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentMap: props.configsMap.ERKHET || {}
+      configsMap: props.configsMap
     };
   }
 
-  save = e => {
+  add = e => {
     e.preventDefault();
+    const { configsMap } = this.state;
 
-    const { currentMap } = this.state;
-    const { configsMap } = this.props;
-    configsMap.ERKHET = currentMap;
+    if (!configsMap.erkhetConfig) {
+      configsMap.erkhetConfig = {};
+    }
+
+    // must save prev item saved then new item
+    configsMap.erkhetConfig.newBrandId = {
+      title: 'New Erkhet Config',
+      brandId: '',
+      apiKey: '',
+      apiSecret: '',
+      apiToken: '',
+      costAccount: '',
+      saleAccount: '',
+      productCategoryCode: '',
+      consumeDescription: '',
+      customerDefaultName: '',
+      customerCategoryCode: '',
+      companyCategoryCode: '',
+      debtAccounts: '',
+      userEmail: '',
+      defaultCustomer: ''
+    };
+
+    this.setState({ configsMap });
+  };
+
+  delete = (currentConfigKey: string) => {
+    const { configsMap } = this.state;
+    delete configsMap.erkhetConfig[currentConfigKey];
+    delete configsMap.erkhetConfig['newBrandId'];
+
+    this.setState({ configsMap });
+
     this.props.save(configsMap);
   };
 
-  onChangeConfig = (code: string, value) => {
-    const { currentMap } = this.state;
+  renderConfigs(configs) {
+    return Object.keys(configs).map(key => {
+      return (
+        <PerSettings
+          key={key}
+          configsMap={this.state.configsMap}
+          config={configs[key]}
+          currentConfigKey={key}
+          save={this.props.save}
+          delete={this.delete}
+        />
+      );
+    });
+  }
 
-    currentMap[code] = value;
-
-    this.setState({ currentMap });
-  };
-
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
-  };
-
-  renderItem = (key: string, description?: string) => {
-    const { currentMap } = this.state;
+  renderContent() {
+    const { configsMap } = this.state;
+    const configs = configsMap.erkhetConfig || {};
 
     return (
-      <FormGroup>
-        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          defaultValue={currentMap[key]}
-          onChange={this.onChangeInput.bind(this, key)}
-        />
-      </FormGroup>
+      <ContentBox id={'GeneralSettingsMenu'}>
+        {this.renderConfigs(configs)}
+      </ContentBox>
     );
-  };
+  }
 
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Sync erkhet config') }
+      { title: __('Erkhet config') }
     ];
 
     const actionButtons = (
       <Button
         btnStyle="primary"
-        onClick={this.save}
-        icon="check-circle"
+        onClick={this.add}
+        icon="plus"
         uppercase={false}
       >
-        Save
+        New config
       </Button>
-    );
-
-    const content = (
-      <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title="General settings">
-          {this.renderItem('apiKey')}
-          {this.renderItem('apiSecret')}
-          {this.renderItem('apiToken')}
-          {this.renderItem(
-            'getRemainderApiUrl',
-            'Get remainder from erkhet api url'
-          )}
-        </CollapseContent>
-        <CollapseContent title="Product to erkhet">
-          {this.renderItem('costAccount', 'Cost Account fullCode on erkhet')}
-          {this.renderItem('saleAccount', 'Sale Account fullCode on erkhet')}
-          {this.renderItem(
-            'productCategoryCode',
-            'Default Category Code on erkhet inventory'
-          )}
-          {this.renderItem(
-            'consumeDescription',
-            'Set description when incoming erkhet inventory'
-          )}
-        </CollapseContent>
-        <CollapseContent title="Customer to erkhet">
-          {this.renderItem('checkCompanyUrl')}
-          {this.renderItem(
-            'customerDefaultName',
-            'Customer default name on erkhet'
-          )}
-          {this.renderItem(
-            'customerCategoryCode',
-            'Customer default category code on erkhet'
-          )}
-          {this.renderItem(
-            'companyCategoryCode',
-            'Company default category code on erkhet'
-          )}
-          {this.renderItem('debtAccounts', 'Split "," account fullcode')}
-        </CollapseContent>
-        {isEnabled('loans') && (
-          <CollapseContent title="Loan transaction to erkhet">
-            {this.renderItem('userEmail', 'user email')}
-            {this.renderItem(
-              'defaultCustomer',
-              'Customer default code on erkhet'
-            )}
-          </CollapseContent>
-        )}
-      </ContentBox>
     );
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            title={__('Sync erkhet config')}
-            breadcrumb={breadcrumb}
-          />
+          <Wrapper.Header title={__('Erkhet config')} breadcrumb={breadcrumb} />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Sync erkhet configs')}</Title>}
+            left={<Title>{__('Erkhet configs')}</Title>}
             right={actionButtons}
-            background="colorWhite"
           />
         }
         leftSidebar={<Sidebar />}
-        content={content}
-        transparent={true}
+        content={this.renderContent()}
         hasBorder={true}
+        transparent={true}
       />
     );
   }

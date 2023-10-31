@@ -1,4 +1,4 @@
-import { sendCoreMessage } from '../messageBroker';
+import { generateModels } from '../connectionResolver';
 
 export const getPureDate = (date: Date) => {
   const ndate = new Date(date);
@@ -6,21 +6,13 @@ export const getPureDate = (date: Date) => {
   return new Date(ndate.getTime() - diffTimeZone);
 };
 
-export const getConfig = async (subdomain, code, defaultValue?) => {
-  return await sendCoreMessage({
-    subdomain,
-    action: 'getConfig',
-    data: { code, defaultValue },
-    isRPC: true
-  });
-};
-
 export const loansTransactionToErkhet = async (
   subdomain,
   generals: any[] = [],
   orderId
 ) => {
-  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
+  const models = await generateModels(subdomain);
+  let erkhetConfig = await models.Configs.getConfig('ERKHET', {});
 
   if (
     !erkhetConfig ||

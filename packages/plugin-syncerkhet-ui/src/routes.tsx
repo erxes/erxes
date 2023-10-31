@@ -11,12 +11,14 @@ const GeneralSettings = asyncComponent(() =>
 );
 
 const StageSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "StageSettings" */ './components/StageSettings')
+  import(
+    /* webpackChunkName: "StageSettings" */ './components/SaleStageSettings'
+  )
 );
 
 const StageMoveSettings = asyncComponent(() =>
   import(
-    /* webpackChunkName: "StageSettings" */ './components/StageMoveSettings'
+    /* webpackChunkName: "StageSettings" */ './components/MoveStageSettings'
   )
 );
 
@@ -28,7 +30,7 @@ const ReturnStageSettings = asyncComponent(() =>
 
 const PipelineSettings = asyncComponent(() =>
   import(
-    /* webpackChunkName: "PipelineSettings" */ './components/PipelineSettings'
+    /* webpackChunkName: "PipelineSettings" */ './components/RemPipelineSettings'
   )
 );
 
@@ -63,11 +65,11 @@ const InventoryCategory = asyncComponent(() =>
 );
 
 const GeneralSetting = () => {
-  return <Settings component={GeneralSettings} configCode="ERKHET" />;
+  return <Settings component={GeneralSettings} configCode="erkhetConfig" />;
 };
 
 const StageSetting = () => {
-  return <Settings component={StageSettings} configCode="ebarimtConfig" />;
+  return <Settings component={StageSettings} configCode="stageInSaleConfig" />;
 };
 
 const StageMoveSetting = () => {
@@ -80,7 +82,7 @@ const ReturnStageSetting = () => {
   return (
     <Settings
       component={ReturnStageSettings}
-      configCode="returnEbarimtConfig"
+      configCode="stageInReturnConfig"
     />
   );
 };
