@@ -39,7 +39,10 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
-      const configs = await models.Configs.getConfig('ebarimtConfig', {});
+      const saleConfigs = await models.Configs.getConfig(
+        'stageInSaleConfig',
+        {}
+      );
       const moveConfigs = await models.Configs.getConfig(
         'stageInMoveConfig',
         {}
@@ -127,13 +130,20 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       // create sale
-      if (Object.keys(configs).includes(destinationStageId)) {
-        const postDatas = (await getPostData(
-          subdomain,
-          configs[destinationStageId],
-          mainConfigs,
-          deal
-        )) as any;
+      if (Object.keys(saleConfigs).includes(destinationStageId)) {
+        const brandRules = saleConfigs[destinationStageId].brandRules || {};
+        const brandIds = Object.keys(brandRules).filter(b =>
+          Object.keys(mainConfigs).includes(b)
+        );
+
+        const configs = {};
+        for (const brandId of brandIds) {
+          configs[brandId] = {
+            ...mainConfigs[brandId],
+            ...brandRules[brandId]
+          };
+        }
+        const postDatas = (await getPostData(subdomain, configs, deal)) as any;
 
         for (const data of postDatas) {
           const { syncLog, postData } = data;

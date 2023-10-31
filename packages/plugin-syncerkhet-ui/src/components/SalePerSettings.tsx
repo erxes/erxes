@@ -32,7 +32,7 @@ type Props = {
 type State = {
   config: any;
   hasOpen: boolean;
-  saleConfigs: any;
+  brandRules: any;
   fieldsCombined: FieldsCombinedByType[];
 };
 
@@ -43,7 +43,7 @@ class PerSettings extends React.Component<Props, State> {
     this.state = {
       config: props.config,
       hasOpen: false,
-      saleConfigs: props.config.saleConfigs || {},
+      brandRules: props.config.brandRules || {},
       fieldsCombined: []
     };
 
@@ -78,11 +78,11 @@ class PerSettings extends React.Component<Props, State> {
   onSave = e => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
-    const { config, saleConfigs } = this.state;
+    const { config, brandRules } = this.state;
     const key = config.stageId;
 
     delete configsMap.stageInSaleConfig[currentConfigKey];
-    configsMap.stageInSaleConfig[key] = { ...config, saleConfigs };
+    configsMap.stageInSaleConfig[key] = { ...config, brandRules };
     this.props.save(configsMap);
   };
 
@@ -148,10 +148,10 @@ class PerSettings extends React.Component<Props, State> {
   };
 
   addConfig = () => {
-    const { saleConfigs } = this.state;
+    const { brandRules } = this.state;
     this.setState({
-      saleConfigs: {
-        ...saleConfigs,
+      brandRules: {
+        ...brandRules,
         newBrand: {
           brandId: '',
           userEmail: '',
@@ -164,37 +164,37 @@ class PerSettings extends React.Component<Props, State> {
   };
 
   removeConfig = brandId => {
-    const { saleConfigs } = this.state;
-    const newConfig = { ...saleConfigs };
+    const { brandRules } = this.state;
+    const newConfig = { ...brandRules };
     delete newConfig[brandId];
     this.setState({
-      saleConfigs: newConfig
+      brandRules: newConfig
     });
   };
 
   updateConfig = (brandId, key, value) => {
-    const { saleConfigs } = this.state;
+    const { brandRules } = this.state;
 
     if (key === 'brandId') {
-      delete saleConfigs.newBrand;
+      delete brandRules.newBrand;
     }
-    saleConfigs[brandId] = { ...saleConfigs[brandId], [key]: value };
+    brandRules[brandId] = { ...brandRules[brandId], [key]: value };
     this.setState({
-      saleConfigs: saleConfigs
+      brandRules: brandRules
     });
   };
 
   renderPerConfig() {
-    const { saleConfigs } = this.state;
+    const { brandRules } = this.state;
 
-    return Object.keys(saleConfigs).map(key => {
+    return Object.keys(brandRules).map(key => {
       return (
         <GroupWrapper key={key}>
           <FormGroup>
             <ControlLabel>Brand</ControlLabel>
             <SelectBrands
               label={__('Choose brands')}
-              initialValue={saleConfigs[key].brandId}
+              initialValue={brandRules[key].brandId}
               name="brandId"
               customOption={{
                 label: 'No Brand (noBrand)',
@@ -209,7 +209,7 @@ class PerSettings extends React.Component<Props, State> {
               <FormGroup>
                 <ControlLabel>User Email</ControlLabel>
                 <FormControl
-                  value={saleConfigs[key].userEmail}
+                  value={brandRules[key].userEmail}
                   onChange={e =>
                     this.updateConfig(key, 'userEmail', (e.target as any).value)
                   }
@@ -220,7 +220,7 @@ class PerSettings extends React.Component<Props, State> {
                 <ControlLabel>Has Vat</ControlLabel>
                 <FormControl
                   componentClass="checkbox"
-                  checked={saleConfigs[key].hasVat}
+                  checked={brandRules[key].hasVat}
                   onChange={e =>
                     this.updateConfig(key, 'hasVat', (e.target as any).checked)
                   }
@@ -231,7 +231,7 @@ class PerSettings extends React.Component<Props, State> {
               <FormGroup>
                 <ControlLabel>default Pay</ControlLabel>
                 <Select
-                  value={saleConfigs[key].defaultPay}
+                  value={brandRules[key].defaultPay}
                   onChange={option =>
                     this.updateConfig(key, 'defaultPay', option.value)
                   }
@@ -248,7 +248,7 @@ class PerSettings extends React.Component<Props, State> {
                 <ControlLabel>Has Citytax</ControlLabel>
                 <FormControl
                   componentClass="checkbox"
-                  checked={saleConfigs[key].hasCitytax}
+                  checked={brandRules[key].hasCitytax}
                   onChange={e =>
                     this.updateConfig(
                       key,

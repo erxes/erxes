@@ -42,12 +42,16 @@ class GeneralSettings extends React.Component<Props, State> {
       boardId: '',
       pipelineId: '',
       stageId: '',
-      userEmail: '',
-      hasVat: false,
-      hasCitytax: false,
-      defaultPay: 'debtAmount'
+      brandRules: {
+        noBrand: {
+          brandId: 'noBrand',
+          userEmail: '',
+          hasVat: false,
+          hasCitytax: false,
+          defaultPay: 'debtAmount'
+        }
+      }
     };
-
     this.setState({ configsMap });
   };
 
