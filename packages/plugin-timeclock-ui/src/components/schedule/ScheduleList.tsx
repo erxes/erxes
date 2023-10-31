@@ -1,10 +1,16 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { FilterItem, FlexRow, FlexRowLeft, ToggleButton } from '../../styles';
+import {
+  FilterItem,
+  FlexRow,
+  FlexRowLeft,
+  SchedulesTableWrapper,
+  ToggleButton
+} from '../../styles';
 
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import ScheduleForm from '../../containers/schedule/ScheduleForm';
@@ -78,8 +84,13 @@ function ScheduleList(props: Props) {
     showSideBar,
     getPagination,
     isCurrentUserSupervisor,
-    checkDuplicateScheduleShifts
+    checkDuplicateScheduleShifts,
+    scheduleConfigs
   } = props;
+
+  const [scheduleConfigsWrappedById, setScheduleConfigsWrappedById] = useState(
+    {}
+  );
 
   const [selectedScheduleStatus, setScheduleStatus] = useState(
     router.getParam(history, 'scheduleStatus') || ''
@@ -108,6 +119,17 @@ function ScheduleList(props: Props) {
   };
 
   const daysAndDatesHeaders: Column[] = [];
+
+  useEffect(() => {
+    const scheduleConfigsWrapped = {};
+    if (scheduleConfigs) {
+      for (const scheduleConfig of scheduleConfigs) {
+        scheduleConfigsWrapped[scheduleConfig._id] = scheduleConfig;
+      }
+    }
+
+    setScheduleConfigsWrappedById(scheduleConfigsWrapped);
+  }, [scheduleConfigs]);
 
   const prepareTableHeaders = () => {
     let startRange = dayjs(startDate);
@@ -294,41 +316,25 @@ function ScheduleList(props: Props) {
         <tr>
           <th
             rowSpan={2}
-            style={{ border: '1px solid #EEE' }}
             onMouseOver={() => setShowButtons(true)}
             onMouseLeave={() => setShowButtons(false)}
           >
             {''}
           </th>
           {selectedScheduleStatus === 'Pending' && (
-            <th
-              rowSpan={2}
-              style={{ textAlign: 'center', border: '1px solid #EEE' }}
-            >
+            <th rowSpan={2} style={{ textAlign: 'center' }}>
               {__('Action')}
             </th>
           )}
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+          <th rowSpan={2} className="fixed-column">
             {__('Team members')}
           </th>
 
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Employee Id')}
-          </th>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Total days')}
-          </th>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Total hours')}
-          </th>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Total Break')}
-          </th>
-          {!isEnabled('bichil') && (
-            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-              {__('Member checked')}
-            </th>
-          )}
+          <th rowSpan={2}>{__('Employee Id')}</th>
+          <th rowSpan={2}>{__('Total days')}</th>
+          <th rowSpan={2}>{__('Total hours')}</th>
+          <th rowSpan={2}>{__('Total Break')}</th>
+          {!isEnabled('bichil') && <th rowSpan={2}>{__('Member checked')}</th>}
           {daysAndDatesHeaders.map(column => {
             return (
               <th
@@ -367,6 +373,7 @@ function ScheduleList(props: Props) {
       shiftStart: string;
       shiftEnd: string;
       backgroundColor: string;
+      scheduleConfigId: string;
     };
 
     const listShiftsOnCorrectColumn: { [columnNo: number]: ShiftString[] } = [];
@@ -378,6 +385,7 @@ function ScheduleList(props: Props) {
           dayjs(shift.shiftStart).format(dateOfTheMonthFormat)
       );
 
+      const scheduleConfigId = shift.scheduleConfigId;
       if (findColumn) {
         const columnNumber = findColumn.columnNo;
         const backgroundColor = findColumn.backgroundColor;
@@ -392,7 +400,8 @@ function ScheduleList(props: Props) {
             {
               shiftStart,
               shiftEnd,
-              backgroundColor
+              backgroundColor,
+              scheduleConfigId
             },
             ...prevShifts
           ];
@@ -400,7 +409,7 @@ function ScheduleList(props: Props) {
         }
 
         listShiftsOnCorrectColumn[columnNumber] = [
-          { shiftStart, shiftEnd, backgroundColor }
+          { shiftStart, shiftEnd, backgroundColor, scheduleConfigId }
         ];
         continue;
       }
@@ -410,18 +419,26 @@ function ScheduleList(props: Props) {
 
     for (let i = 1; i < lastColumnIdx; i++) {
       if (i in listShiftsOnCorrectColumn) {
-        const shiftsOfDay = listShiftsOnCorrectColumn[i].map(shift => {
+        const shiftsOfDay = listShiftsOnCorrectColumn[i].map((shift, index) => {
+          const getScheduleConfigName = scheduleConfigsWrappedById[
+            shift.scheduleConfigId
+          ]
+            ? scheduleConfigsWrappedById[shift.scheduleConfigId].scheduleName
+            : 'insert';
+
           return (
-            <td
-              key={Math.random()}
-              style={{
-                backgroundColor: shift.backgroundColor,
-                border: '1px solid #EEE'
-              }}
-            >
-              <div>{shift.shiftStart}</div>
-              <div>{shift.shiftEnd}</div>
-            </td>
+            <Tip key={index} text={getScheduleConfigName}>
+              <td
+                style={{
+                  cursor: 'default',
+                  backgroundColor: shift.backgroundColor,
+                  border: '1px solid #EEE'
+                }}
+              >
+                <div>{shift.shiftStart}</div>
+                <div>{shift.shiftEnd}</div>
+              </td>
+            </Tip>
           );
         });
         listRowOnColumnOrder.push(...shiftsOfDay);
@@ -569,7 +586,7 @@ function ScheduleList(props: Props) {
             </FlexRow>
           </td>
         )}
-        <td>{name}</td>
+        <td className="fixed-column">{name}</td>
         <td>{employeeId}</td>
         <td>{totalDaysScheduled}</td>
         <td>{totalHoursScheduled.toFixed(1)}</td>
@@ -588,13 +605,15 @@ function ScheduleList(props: Props) {
     const getFilteredSchedules = filterSchedules(scheduleOfMembers);
 
     return (
-      <Table bordered={true} condensed={true} responsive={true}>
-        {renderTableHeaders()}
-        {getFilteredSchedules.map(schedule => {
-          return renderScheduleRow(schedule, schedule.user);
-        })}
-        <tbody>{}</tbody>
-      </Table>
+      <SchedulesTableWrapper>
+        <Table bordered={true} condensed={true} responsive={true}>
+          {renderTableHeaders()}
+          {getFilteredSchedules.map(schedule => {
+            return renderScheduleRow(schedule, schedule.user);
+          })}
+          <tbody>{}</tbody>
+        </Table>
+      </SchedulesTableWrapper>
     );
   };
   return content();
