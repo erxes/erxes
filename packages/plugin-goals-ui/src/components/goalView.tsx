@@ -1,4 +1,3 @@
-import React from 'react';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { IGoalType } from '../types';
 import {
@@ -19,19 +18,19 @@ import { BoardHeader } from '@erxes/ui-cards/src/settings/boards/styles';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
 
 // Define the type for the props
 interface IProps extends RouteComponentProps {
   goalType: IGoalType; // Adjust the type of goalTypes as per your
+  boardName: string;
+  pipelineName: string;
+  stageName: string;
   usersQuery: UsersQueryResponse;
+  emailName: string;
   _id: string;
   users: IUser[];
 }
-
-// tslint:disable-next-line:interface-name
-// interface State {
-//   // Define your state properties here
-// }
 
 class GoalView extends React.Component<IProps> {
   constructor(props: IProps) {
@@ -39,22 +38,20 @@ class GoalView extends React.Component<IProps> {
   }
 
   render() {
-    console.log(this.props.users, 'asdopk');
     const data = this.props.goalType; // Assuming this.props contains the 'data' object
     const nestedProgressValue = data.progress.progress; // "100.000"
     const current = data.progress.current;
-    // let current: string; // Declare the variable outside the block
-
-    // if (data.progress.length > 0) {
-    //   current = data.progress[0].current;
-    //   console.log(current); // Output: 10
-    // } else {
-    //   console.log('No elements in data.progress');
-    // }
+    const boardName = this.props.boardName;
+    const pipelineName = this.props.pipelineName;
+    const stageName = this.props.stageName;
+    const email = this.props.emailName;
     return (
       <div>
         <div>
-          <ControlLabel>{__('Monthly ' + data.entity)}</ControlLabel>
+          <ControlLabel>
+            {__(' Monthly: ' + data.entity + ', ' + email)}
+          </ControlLabel>
+
           <FlexContent>
             <FlexItem>
               <BoardHeader>
@@ -65,14 +62,20 @@ class GoalView extends React.Component<IProps> {
                   <ControlLabel>
                     {__('Goal Type: ') + data.goalType}
                   </ControlLabel>
-                  <ControlLabel>
-                    {__('Board/Pipeline/Stage:  ')}
-                    {data.boardName +
-                      '/' +
-                      data.pipelineName +
-                      '/' +
-                      data.stageName}
-                  </ControlLabel>
+                  <FormGroup>
+                    <ControlLabel>
+                      {__('Board:  ')}
+                      {boardName}
+                    </ControlLabel>
+                    <ControlLabel>
+                      {__('Pipeline:  ')}
+                      {pipelineName}
+                    </ControlLabel>
+                    <ControlLabel>
+                      {__('Stage:  ')}
+                      {stageName}
+                    </ControlLabel>
+                  </FormGroup>
                 </FormGroup>
               </BoardHeader>
             </FlexItem>
@@ -103,8 +106,9 @@ class GoalView extends React.Component<IProps> {
                     {__(
                       data.entity +
                         ' progressed: ' +
-                        data.pipelineName +
-                        data.stageName
+                        pipelineName +
+                        ', ' +
+                        stageName
                     )}
                   </ControlLabel>
                 </FormGroup>

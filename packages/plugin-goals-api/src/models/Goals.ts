@@ -172,7 +172,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     const result = await models.Goals.updateOne(
       { _id: goal._id },
       { $set: { progress: { current, progress, amountData, target } } },
-      { runValidators: true }
+      { runValuators: true }
     );
     return result;
   }
@@ -192,67 +192,6 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     const data: DataItem[] = [];
 
     for (const item of doc) {
-      const fetchedBoard = await sendCardsMessage({
-        subdomain,
-        action: 'boards.find',
-        data: {
-          _id: item.boardId
-        },
-        isRPC: true
-      });
-      const fetchedStages = await sendCardsMessage({
-        subdomain,
-        action: 'stages.find',
-        data: {
-          _id: item.stageId
-        },
-        isRPC: true
-      });
-      const fetchedPipelines = await sendCardsMessage({
-        subdomain,
-        action: 'pipelines.find',
-        data: {
-          _id: item.pipelineId
-        },
-        isRPC: true
-      });
-
-      for (const stagesItem of fetchedStages) {
-        await models.Goals.updateOne(
-          { stageId: stagesItem._id }, // Replace '_id' with the appropriate identifier for your Goals model
-          {
-            $set: {
-              stageName: stagesItem.name
-            }
-          },
-          { runValidators: true } // This option ensures that the validators are run
-        );
-      }
-      for (const boardItem of fetchedBoard) {
-        await models.Goals.updateOne(
-          { boardId: boardItem._id }, // Replace '_id' with the appropriate identifier for your Goals model
-          {
-            $set: {
-              boardName: boardItem.name
-            }
-          },
-          { runValidators: true } // This option ensures that the validators are run
-        );
-      }
-      for (const pipelineItem of fetchedPipelines) {
-        await models.Goals.updateOne(
-          {
-            pipelineId: pipelineItem._id
-          }, // Replace '_id' with the appropriate identifier for your Goals model
-          {
-            $set: {
-              pipelineName: pipelineItem.name
-            }
-          },
-          { runValidators: true } // This option ensures that the validators are run
-        );
-      }
-
       const amount = await sendCardsMessage({
         subdomain,
         action: item.entity + 's.find',
@@ -335,24 +274,23 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         target: item.target
       });
     }
-    if (data) {
-      for (const result of data) {
-        await models.Goals.updateOne(
-          { _id: result._id },
-          {
-            $set: {
-              progress: {
-                current: result.current,
-                progress: result.progress,
-                amountData: result.amountData,
-                target: result.target,
-                _id: result._id
-              }
+
+    for (const result of data) {
+      await models.Goals.updateOne(
+        { _id: result._id },
+        {
+          $set: {
+            progress: {
+              current: result.current,
+              progress: result.progress,
+              amountData: result.amountData,
+              target: result.target,
+              _id: result._id
             }
-          },
-          { runValidators: true }
-        );
-      }
+          }
+        },
+        { runValidators: true }
+      );
     }
 
     const updates = await models.Goals.find({}).lean();

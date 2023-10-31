@@ -5,7 +5,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
-
+import { useQuery } from '@apollo/client';
 import GoalTypesList from '../components/goalTypesList';
 import { mutations, queries } from '../graphql';
 import {
@@ -54,13 +54,14 @@ class GoalTypeListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const searchValue = this.props.queryParams.searchValue || '';
+    const query = this.props.queryParams.queryParams || '';
+
     const { list = [], totalCount = 0 } =
       goalTypesMainQuery.goalTypesMain || {};
     const updatedProps = {
       ...this.props,
       totalCount,
-      searchValue,
+      // searchValue,
       goalTypes: list,
       loading: goalTypesMainQuery.loading || this.state.loading,
       removeGoalTypes
@@ -78,19 +79,6 @@ class GoalTypeListContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParams = ({ queryParams }) => ({
-  variables: {
-    ...router.generatePaginationParams(queryParams || {}),
-    ids: queryParams.ids,
-    searchValue: queryParams.searchValue,
-    sortField: queryParams.sortField,
-    sortDirection: queryParams.sortDirection
-      ? parseInt(queryParams.sortDirection, 10)
-      : undefined
-  },
-  fetchPolicy: 'network-only'
-});
-
 const generateOptions = () => ({
   refetchQueries: ['goalTypesMain']
 });
@@ -101,7 +89,23 @@ export default withProps<Props>(
       gql(queries.goalTypesMain),
       {
         name: 'goalTypesMainQuery',
-        options: { ...generateParams }
+        options: ({ queryParams }) => {
+          return {
+            variables: {
+              ...router.generatePaginationParams(queryParams || {}),
+              date: queryParams.date,
+              branch: queryParams.branch,
+              department: queryParams.department,
+              unit: queryParams.unit,
+              contribution: queryParams.contribution,
+              sortField: queryParams.sortField,
+              sortDirection: queryParams.sortDirection
+                ? parseInt(queryParams.sortDirection, 10)
+                : undefined
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
       }
     ),
     // mutations

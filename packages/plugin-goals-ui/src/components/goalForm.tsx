@@ -16,29 +16,38 @@ import { IGoalType, IGoalTypeDoc, IAssignmentCampaign } from '../types';
 import {
   ENTITY,
   CONTRIBUTION,
-  FREQUENCY,
   GOAL_TYPE,
-  SPECIFIC_PERIOD_GOAL
+  SPECIFIC_PERIOD_GOAL,
+  GOAL_STRUCTURE
 } from '../constants';
-import React from 'react';
+
 import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import dayjs from 'dayjs';
 import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
 import { Alert } from '@erxes/ui/src/utils';
 import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
 import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
+import React, { useEffect, useState } from 'react';
+import { gql } from '@apollo/client';
 
+import {
+  BranchesMainQueryResponse,
+  DepartmentsMainQueryResponse,
+  UnitsMainQueryResponse
+} from '@erxes/ui/src/team/types';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
   assignmentCampaign?: IAssignmentCampaign;
+  branchListQuery: BranchesMainQueryResponse;
+  unitListQuery: UnitsMainQueryResponse;
+  departmentListQuery: DepartmentsMainQueryResponse;
 };
 
 type State = {
@@ -49,6 +58,7 @@ type State = {
   }>;
   periodGoal: string;
   entity: string;
+  teamGoalType: string;
   contributionType: string;
   frequency: string;
   goalType: string;
@@ -57,6 +67,9 @@ type State = {
   endDate: Date;
   period: boolean;
   contribution: string;
+  branch: string;
+  department: string;
+  unit: string;
   pipelineLabels: IPipelineLabel[];
   stageId?: any;
   pipelineId?: any;
@@ -69,9 +82,11 @@ type State = {
 class GoalTypeForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-
     const { goalType = {} } = props;
     this.state = {
+      branch: goalType.branch || '',
+      department: goalType.department || '',
+      unit: goalType.unit || '',
       specificPeriodGoals: goalType.specificPeriodGoals || [],
       stageRadio: goalType.stageRadio,
       periodGoal: goalType.periodGoal,
@@ -79,6 +94,7 @@ class GoalTypeForm extends React.Component<Props, State> {
       contribution: goalType.contribution,
       pipelineLabels: goalType.pipelineLabels,
       entity: goalType.entity || '',
+      teamGoalType: goalType.teamGoalType || '',
       contributionType: goalType.contributionType || '',
       frequency: goalType.frequency || '',
       goalType: goalType.goalType || '',
@@ -216,6 +232,9 @@ class GoalTypeForm extends React.Component<Props, State> {
       _id: finalValues._id,
       ...this.state,
       entity: finalValues.entity,
+      department: finalValues.department,
+      unit: finalValues.unit,
+      branch: finalValues.branch,
       specificPeriodGoals, // Renamed the property
       stageRadio,
       segmentRadio,
@@ -320,10 +339,13 @@ class GoalTypeForm extends React.Component<Props, State> {
     const goalType = this.props.goalType || ({} as IGoalType);
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
-    const { contribution } = this.state;
     const months: string[] = this.mapMonths();
-    const weeks = this.mapWeeks();
 
+    const weeks = this.mapWeeks();
+    const { departmentListQuery, branchListQuery, unitListQuery } = this.props;
+    const departments = departmentListQuery.departmentsMain?.list || [];
+    const branches = branchListQuery.branchesMain?.list || [];
+    const units = unitListQuery.unitsMain?.list || [];
     return (
       <>
         <ScrollWrapper>
@@ -389,7 +411,6 @@ class GoalTypeForm extends React.Component<Props, State> {
                   )}
                 </FormGroup>
               )}
-
               {this.state.stageRadio === true && (
                 <FormGroup>
                   {isEnabled('cards') && (
@@ -406,12 +427,12 @@ class GoalTypeForm extends React.Component<Props, State> {
                 </FormGroup>
               )}
 
-              <FormGroup>
+              {/* <FormGroup> next development
                 <ControlLabel required={true}>{__('frequency')}</ControlLabel>
                 <FormControl
                   {...formProps}
-                  name="frequency"
-                  componentClass="select"
+                  name='frequency'
+                  componentClass='select'
                   value={this.state.frequency}
                   required={true}
                   onChange={this.onChangeField}
@@ -422,7 +443,7 @@ class GoalTypeForm extends React.Component<Props, State> {
                     </option>
                   ))}
                 </FormControl>
-              </FormGroup>
+              </FormGroup> */}
               <FormGroup>
                 <ControlLabel>{__('start duration')}:</ControlLabel>
                 <DateContainer>
@@ -458,7 +479,6 @@ class GoalTypeForm extends React.Component<Props, State> {
                   name="goalType"
                   componentClass="select"
                   value={this.state.goalType}
-                  required={true}
                   onChange={this.onChangeField}
                 >
                   {GOAL_TYPE.map((typeName, index) => (
@@ -477,27 +497,103 @@ class GoalTypeForm extends React.Component<Props, State> {
                   name="contributionType"
                   componentClass="select"
                   value={this.state.contributionType}
-                  required={true}
                   onChange={this.onChangeField}
                 >
-                  {CONTRIBUTION.map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
+                  {CONTRIBUTION.map((item, index) => (
+                    <option key={index} value={item.value}>
+                      {item.name}
                     </option>
                   ))}
                 </FormControl>
               </FormGroup>
-              <FormGroup>
-                <ControlLabel>contribution</ControlLabel>
-                <SelectTeamMembers
-                  label="Choose users"
-                  name="userId"
-                  customOption={{ label: 'Choose user', value: '' }}
-                  initialValue={contribution || ''}
-                  onSelect={this.onUserChange}
-                  multi={false}
-                />
-              </FormGroup>
+              {this.state.contributionType === 'person' && (
+                <FormGroup>
+                  <ControlLabel>contribution</ControlLabel>
+                  <SelectTeamMembers
+                    label="Choose users"
+                    name="userId"
+                    customOption={{ label: 'Choose user', value: '' }}
+                    initialValue={this.state.contribution || ''}
+                    onSelect={this.onUserChange}
+                    multi={false}
+                  />
+                </FormGroup>
+              )}
+              {this.state.contributionType === 'team' && (
+                <FormGroup>
+                  <ControlLabel>{__('Choose Structure')}</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="teamGoalType"
+                    componentClass="select"
+                    value={this.state.teamGoalType}
+                    onChange={this.onChangeField}
+                  >
+                    {GOAL_STRUCTURE.map((item, index) => (
+                      <option key={index} value={item.value}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </FormControl>
+                </FormGroup>
+              )}
+              {this.state.teamGoalType === 'Departments' &&
+                this.state.contributionType === 'team' && (
+                  <FormGroup>
+                    <ControlLabel>{__('Departments')}</ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="department"
+                      componentClass="select"
+                      value={this.state.department}
+                      onChange={this.onChangeField}
+                    >
+                      {departments.map((item, index) => (
+                        <option key={index} value={item._id}>
+                          {item.title}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                )}
+              {this.state.teamGoalType === 'Units' &&
+                this.state.contributionType === 'team' && (
+                  <FormGroup>
+                    <ControlLabel>{__('Units')}</ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="unit"
+                      componentClass="select"
+                      value={this.state.unit}
+                      onChange={this.onChangeField}
+                    >
+                      {units.map((item, index) => (
+                        <option key={index} value={item._id}>
+                          {item.title}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                )}
+              {this.state.teamGoalType === 'Branches' &&
+                this.state.contributionType === 'team' && (
+                  <FormGroup>
+                    <ControlLabel>{__('Branches')}</ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="branch"
+                      componentClass="select"
+                      value={this.state.branch}
+                      onChange={this.onChangeField}
+                    >
+                      {branches.map((item, index) => (
+                        <option key={index} value={item._id}>
+                          {item.title}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                )}
 
               <FormGroup>
                 <ControlLabel>{__('metric')}:</ControlLabel>
@@ -524,7 +620,6 @@ class GoalTypeForm extends React.Component<Props, State> {
                   defaultValue: goalType.target || 0
                 })}
               </FormGroup>
-
               <FormGroup>
                 <ControlLabel>
                   {__('choose specific period goals')}

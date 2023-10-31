@@ -8,6 +8,9 @@ const commonFields = `
     $metric:String
     $goalType: String
     $contribution: [String]
+    $department:String
+    $unit:String
+    $branch:String
     $specificPeriodGoals:JSON
     $startDate:String
     $endDate:String
@@ -24,6 +27,9 @@ const commonVariables = `
   metric:$metric
   goalType:$goalType
   contribution:$contribution
+  department:$department
+  unit:$unit
+  branch:$branch
   specificPeriodGoals:$specificPeriodGoals
   startDate:$startDate
   endDate:$endDate
@@ -44,6 +50,9 @@ const goalTypesAdd = `
       metric
       goalType
       contribution
+      department
+      unit
+      branch
       specificPeriodGoals
       startDate
       endDate
@@ -65,6 +74,9 @@ const goalTypesEdit = `
       metric
       goalType
       contribution
+      department
+      unit
+      branch
       specificPeriodGoals
       startDate
       endDate

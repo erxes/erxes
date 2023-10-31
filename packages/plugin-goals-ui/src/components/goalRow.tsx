@@ -1,10 +1,11 @@
 import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
 import _ from 'lodash';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import GoalTypeForm from '../containers/goalForm';
 import { IGoalType } from '../types';
-
+import { mutations, queries } from '../graphql';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import GoalView from './goalView';
 type Props = {
   goalType: IGoalType;
@@ -16,6 +17,9 @@ type Props = {
 type State = {
   showModal: boolean;
   checkbox: boolean;
+  pipName: string;
+  boardName: string;
+  stageName: string;
 };
 
 function displayValue(goalType, name) {
@@ -36,9 +40,24 @@ function renderFormTrigger(trigger: React.ReactNode, goalType: IGoalType) {
     />
   );
 }
-function renderFormTViewrigger(trigger: React.ReactNode, goalType: IGoalType) {
+function renderFormTViewrigger(
+  trigger: React.ReactNode,
+  goalType: IGoalType,
+  boardName: string,
+  pipelineName: string,
+  stageName: string,
+  emailName: string
+) {
   const content = props => (
-    <GoalView {...props} goalType={goalType} _id={goalType._id} />
+    <GoalView
+      {...props}
+      goalType={goalType}
+      _id={goalType._id}
+      boardName={boardName}
+      pipelineName={pipelineName}
+      stageName={stageName}
+      emailName={emailName}
+    />
   );
 
   return (
@@ -56,9 +75,22 @@ function renderEditAction(goalType: IGoalType) {
 
   return renderFormTrigger(trigger, goalType);
 }
-function renderViewAction(goalType: IGoalType) {
+function renderViewAction(
+  goalType: IGoalType,
+  boardName: string,
+  pipelineName: string,
+  stageName: string,
+  emailName: string
+) {
   const trigger = <Button btnStyle="link" icon="eye" />;
-  return renderFormTViewrigger(trigger, goalType);
+  return renderFormTViewrigger(
+    trigger,
+    goalType,
+    boardName,
+    pipelineName,
+    stageName,
+    emailName
+  );
 }
 
 function GoalRow(
@@ -73,6 +105,62 @@ function GoalRow(
   const onClick = e => {
     e.stopPropagation();
   };
+  const [pipelineName, setPipelineName] = useState('');
+  const [boardName, setBoardName] = useState('');
+  const [stageName, setStageName] = useState('');
+  const [emailName, setEmail] = useState('');
+
+  const pipelineDetail = useQuery(gql(queries.pipelineDetail), {
+    variables: {
+      _id: goalType.pipelineId
+    }
+  });
+
+  const boardDetail = useQuery(gql(queries.boardDetail), {
+    variables: {
+      _id: goalType.boardId
+    }
+  });
+
+  const stageDetail = useQuery(gql(queries.stageDetail), {
+    variables: {
+      _id: goalType.stageId
+    }
+  });
+  const userDetail = useQuery(gql(queries.userDetail), {
+    variables: {
+      _id: goalType.contribution[0]
+    }
+  });
+
+  useEffect(() => {
+    if (userDetail.data && userDetail.data.userDetail) {
+      setEmail(userDetail.data.userDetail.email);
+    }
+    if (pipelineDetail.data && pipelineDetail.data.pipelineDetail) {
+      setPipelineName(pipelineDetail.data.pipelineDetail.name);
+    }
+    if (boardDetail.data && boardDetail.data.boardDetail) {
+      setBoardName(boardDetail.data.boardDetail.name);
+    }
+    if (stageDetail.data && stageDetail.data.stageDetail) {
+      setStageName(stageDetail.data.stageDetail.name);
+    }
+  }, [
+    pipelineDetail.data,
+    boardDetail.data,
+    stageDetail.data,
+    userDetail.data
+  ]);
+
+  if (
+    pipelineDetail.loading ||
+    boardDetail.loading ||
+    stageDetail.loading ||
+    userDetail.loading
+  ) {
+    return null; // or a loading indicator
+  }
 
   return (
     <tr>
@@ -84,9 +172,9 @@ function GoalRow(
         />
       </td>
       <td key={'entity'}>{displayValue(goalType, 'entity')}</td>
-      <td key={'boardName'}>{displayValue(goalType, 'boardName')}</td>
-      <td key={'pipelineName'}>{displayValue(goalType, 'pipelineName')}</td>
-      <td key={'stageName'}>{displayValue(goalType, 'stageName')}</td>
+      <td>{boardName}</td>
+      <td>{pipelineName}</td>
+      <td>{stageName}</td>
       <td key={'contributionType'}>
         {displayValue(goalType, 'contributionType')}
       </td>
@@ -98,7 +186,15 @@ function GoalRow(
       <td key={'current'}>{displayValue(goalType.progress, 'current')}</td>
       <td key={'target'}>{displayValue(goalType, 'target')}</td>
       <td key={'progress'}>{displayValue(goalType.progress, 'progress')}</td>
-      <td>{renderViewAction(goalType)}</td>
+      <td>
+        {renderViewAction(
+          goalType,
+          boardName,
+          pipelineName,
+          stageName,
+          emailName
+        )}
+      </td>
       <td>{renderEditAction(goalType)}</td>
     </tr>
   );

@@ -2,25 +2,74 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
+import * as dayjs from 'dayjs';
 
 const generateFilter = async (params, commonQuerySelector) => {
-  const filter: any = commonQuerySelector;
-
-  if (params.searchValue) {
+  const { branch, department, unit, contribution, date } = params;
+  let filter: any = {};
+  // if (params.branch) {
+  //   filter.branch = params.branch;
+  // }
+  // if (params.department) {
+  //   filter.department = params.department;
+  // }
+  // if (params.unit) {
+  //   filter.unit = params.unit;
+  // }
+  // return filter;
+  // const filter: any = { status: 'active' };
+  // const filter: any = {};
+  // if (branch) {
+  //   filter.branchIds = { $in: [branch] };
+  // }
+  if (branch) {
+    filter.branch = branch;
+  }
+  if (department) {
+    filter.department = { $in: [department] };
+  }
+  if (unit) {
+    filter.unit = { $in: [unit] };
+  }
+  if (contribution) {
+    filter.contribution = { $in: [contribution] };
+  }
+  if (date) {
+    const now = dayjs(date);
+    const nowISO = now.toISOString();
     filter.$or = [
-      { name: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { code: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } }
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: false
+      },
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: false,
+        startDate: {
+          $lt: nowISO
+        }
+      },
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: true,
+        endDate: {
+          $gt: nowISO
+        }
+      },
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: true,
+        startDate: {
+          $lt: nowISO
+        },
+        endDate: {
+          $gt: nowISO
+        }
+      }
     ];
   }
-
-  // if (params.ids) {
-  //   filter._id = { $in: params.ids };
-  // }
-
   return filter;
 };
 
@@ -77,16 +126,13 @@ const goalQueries = {
   ) => {
     await models.Goals.progressIdsGoals();
     const filter = await generateFilter(params, commonQuerySelector);
-
-    const data = {
+    return {
       list: paginate(models.Goals.find(filter).sort(sortBuilder(params)), {
         page: params.page,
         perPage: params.perPage
       }),
-      totalCount: await models.Goals.find(filter).countDocuments()
+      totalCount: models.Goals.find(filter).count()
     };
-
-    return data;
   },
 
   goalTypeMainProgress: async (

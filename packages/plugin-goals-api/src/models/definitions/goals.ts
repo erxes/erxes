@@ -10,16 +10,16 @@ export interface ISpecificPeriodGoals {
 export interface IGoal {
   entity: string;
   stageId: string;
-  stageName: string;
   pipelineId: string;
-  pipelineName: string;
   boardId: string;
-  boardName: string;
   contributionType: string;
   frequency: string;
   metric: string;
   goalType: string;
   contribution?: string[];
+  department: string;
+  unit: string;
+  branch: string;
   chooseStage: string;
   specificPeriodGoals?: ISpecificPeriodGoals[];
   startDate: string;
@@ -61,17 +61,17 @@ export const goalSchema = schemaHooksWrapper(
       type: Object,
       label: 'Progress'
     },
-    stageName: {
+    department: {
       type: String,
-      label: 'stageName'
+      label: 'Department'
     },
-    boardName: {
+    unit: {
       type: String,
-      label: 'boardName'
+      label: 'Unit'
     },
-    pipelineName: {
+    branch: {
       type: String,
-      label: 'pipelineName'
+      label: 'Branch'
     }
   }),
   'erxes_goals'

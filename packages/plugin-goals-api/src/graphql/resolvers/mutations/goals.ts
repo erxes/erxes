@@ -20,8 +20,6 @@ interface IGoalsEdit extends IGoal {
   _id: string;
 }
 
-const TAG = 'goal';
-
 const goalMutations = {
   /**
    * Creates a new goal
@@ -76,16 +74,6 @@ const goalMutations = {
 
     return goalTypeIds;
   }
-  // async goalsRemove(
-  //   _root,
-  //   { goalTypeIds }: { goalTypeIds: string[] },
-  //   { models, user, subdomain }: IContext
-  // ) {
-  //   console.log(goalTypeIds, 'goalTypeIds');
-  //   await models.Goals.removeGoal(goalTypeIds);
-
-  //   return goalTypeIds;
-  // }
 };
 
 // requireLogin(goalMutations, 'goalsGoal');

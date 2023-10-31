@@ -8,21 +8,26 @@ import {
   ModalTrigger,
   Pagination,
   router,
-  SortHandler,
   Table,
   Wrapper
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-
+import { queries } from '../graphql';
 import GoalTypeForm from '../containers/goalForm';
 import { GoalTypesTableWrapper } from '../styles';
 import { IGoalType } from '../types';
 import GoalRow from './goalRow';
-import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
 import { IBoard, IPipeline, IStage } from '../types';
+import goalForm from '../containers/goalForm';
+import GoalForm from '../containers/goalForm';
+import { Spinner, __ } from '@erxes/ui/src';
+import Sidebar from './Sidebar';
+// import Sidebar from '../containers/Sidebar';
+import queryString from 'query-string';
+import { gql, useQuery } from '@apollo/client';
 interface IProps extends IRouterProps {
   goalTypes: IGoalType[];
   loading: boolean;
@@ -92,6 +97,20 @@ class GoalTypesList extends React.Component<IProps, State> {
     e.target.value = '';
     e.target.value = tmpValue;
   };
+  renderForm() {
+    const content = props => <GoalForm {...props} />;
+
+    const trigger = <Button btnStyle="success">{__('Add Config')}</Button>;
+
+    return (
+      <ModalTrigger
+        title="Add Config"
+        trigger={trigger}
+        content={content}
+        size="xl"
+      />
+    );
+  }
 
   render() {
     const {
@@ -104,6 +123,14 @@ class GoalTypesList extends React.Component<IProps, State> {
       totalCount,
       queryParams
     } = this.props;
+    const query = queryString.parse(location.search);
+
+    const params = {
+      ...query,
+      perPage: query.perPage && Number(query.perPage),
+      page: query.page && Number(query.page)
+    };
+
     const mainContent = (
       <GoalTypesTableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
@@ -186,15 +213,6 @@ class GoalTypesList extends React.Component<IProps, State> {
 
     const actionBarRight = (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-
         <ModalTrigger
           size="lg"
           title={__('New Goal')}
@@ -209,7 +227,6 @@ class GoalTypesList extends React.Component<IProps, State> {
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
-
     return (
       <Wrapper
         header={
@@ -223,6 +240,7 @@ class GoalTypesList extends React.Component<IProps, State> {
           />
         }
         actionBar={actionBar}
+        leftSidebar={<Sidebar params={params} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader

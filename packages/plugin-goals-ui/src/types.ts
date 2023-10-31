@@ -26,16 +26,23 @@ export interface IGoalTypeDoc {
   stageId: any;
   stageName: string;
   pipelineId: any;
-  pipelineName: string;
   boardId: any;
-  boardName: string;
   contributionType: string;
   frequency: string;
   metric: string;
   goalType: string;
   contribution: [string];
+  department: string;
+  unit: string;
+  branch: string;
   specificPeriodGoals: SpecificPeriodGoal[];
-  progress: ProgressGoal[];
+  progress: {
+    current: string;
+    progress: string;
+    amountData: string;
+    target: string;
+    _id: string;
+  };
   chooseStage: string;
   startDate: string;
   endDate: string;

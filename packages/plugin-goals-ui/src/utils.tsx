@@ -4,7 +4,10 @@ import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
 import { IDateColumn } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-
+import {
+  PRODUCT_TYPE_CHOISES,
+  PRODUCT_CATEGORIES_STATUS_FILTER
+} from './constants';
 type Options = {
   _id: string;
   name?: string;
@@ -12,7 +15,18 @@ type Options = {
   index?: number;
   itemId?: string;
 };
+export const categoryStatusChoises = __ => {
+  const options: Array<{ value: string; label: string }> = [];
 
+  for (const key of Object.keys(PRODUCT_CATEGORIES_STATUS_FILTER)) {
+    options.push({
+      value: key,
+      label: __(PRODUCT_CATEGORIES_STATUS_FILTER[key])
+    });
+  }
+
+  return options;
+};
 // get options for react-select-plus
 export function selectOptions(array: Options[] = []) {
   return array.map(item => ({ value: item._id, label: item.name }));
@@ -212,6 +226,10 @@ export const getFilterParams = (
     search: queryParams.search,
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
+    date: queryParams.date,
+    branch: queryParams.branch,
+    department: queryParams.department,
+    unit: queryParams.unit,
     assignedUserIds: queryParams.assignedUserIds,
     labelIds: queryParams.labelIds,
     userIds: queryParams.userIds,
