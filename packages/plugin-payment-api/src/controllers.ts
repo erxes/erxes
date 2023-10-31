@@ -212,6 +212,7 @@ router.get('/gateway', async (req, res) => {
   const payments = paymentsFound.map(p => ({
     _id: p._id,
     kind: p.kind,
+    name: p.name,
     title: PAYMENTS[p.kind].title
   }));
 

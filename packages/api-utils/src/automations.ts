@@ -350,25 +350,34 @@ export const setProperty = async ({
         if (rule.field.includes(complexFieldKey)) {
           const fieldId = rule.field.replace(`${complexFieldKey}.`, '');
 
+          const complexFieldData = await sendCommonMessage({
+            subdomain,
+            serviceName: 'forms',
+            action: 'fields.generateTypedItem',
+            data: {
+              field: fieldId,
+              value
+            },
+            isRPC: true
+          });
+
           if (
             (relatedItem[complexFieldKey] || []).find(
               obj => obj.field === fieldId
             )
           ) {
             selectorDoc[`${complexFieldKey}.field`] = fieldId;
-            setDoc[`${complexFieldKey}.$.value`] = value;
-            setDoc[`${complexFieldKey}.$.stringValue`] = value;
+
+            const complexFieldDataKeys = Object.keys(complexFieldData).filter(
+              key => key !== 'field'
+            );
+
+            for (const complexFieldDataKey of complexFieldDataKeys) {
+              setDoc[`${complexFieldKey}.$.${complexFieldDataKey}`] =
+                complexFieldData[complexFieldDataKey];
+            }
           } else {
-            pushDoc[complexFieldKey] = await sendCommonMessage({
-              subdomain,
-              serviceName: 'forms',
-              action: 'fields.generateTypedItem',
-              data: {
-                field: fieldId,
-                value
-              },
-              isRPC: true
-            });
+            pushDoc[complexFieldKey] = complexFieldData;
           }
         }
       }

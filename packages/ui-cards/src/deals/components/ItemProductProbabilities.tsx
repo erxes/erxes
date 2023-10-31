@@ -1,8 +1,9 @@
-import React from 'react';
 import { renderAmount, renderPercentedAmount } from '../../boards/utils';
-import { __ } from '@erxes/ui/src/utils/core';
-import { StageInfo } from '../../boards/styles/stage';
+
 import { IDeal } from '../types';
+import React from 'react';
+import { StageInfo } from '../../boards/styles/stage';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   totalAmount?: any;
@@ -97,6 +98,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
             </div>
           )}
           {probability &&
+            window.location.pathname.includes('deal/calendar') &&
             this.renderForecast(
               parseInt(this.renderPercentage(probability), 10)
             )}
@@ -110,12 +112,13 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
           <span>Total </span>
           {this.renderSum(totalAmountArray)}
         </li>
-        {forecastArray.length > 0 && (
-          <li>
-            <span>Forecasted </span>
-            {this.renderSum(forecastArray)}
-          </li>
-        )}
+        {forecastArray.length > 0 &&
+          window.location.pathname.includes('deal/calendar') && (
+            <li>
+              <span>Forecasted </span>
+              {this.renderSum(forecastArray)}
+            </li>
+          )}
       </>
     );
   };
