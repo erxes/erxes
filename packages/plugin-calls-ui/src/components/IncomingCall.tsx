@@ -294,9 +294,9 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
             <Icon icon="check" size={13} />
           </CallButton>
         </OverlayTrigger>
-        <CallButton type="decline" onClick={onDeclineCall}>
+        {/* <CallButton type="decline" onClick={onDeclineCall}>
           <Icon icon="cancel" size={13} />
-        </CallButton>
+        </CallButton> */}
         <Button size="small" btnStyle="simple" onClick={ignoreCall}>
           Ignore
         </Button>
