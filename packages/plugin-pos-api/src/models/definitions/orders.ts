@@ -89,6 +89,7 @@ export interface IPosSlot {
   posId: string;
   name: string;
   code: string;
+  option: { [key: string]: number | string | boolean };
 }
 
 export interface IPosSlotDocument extends IPosSlot, Document {

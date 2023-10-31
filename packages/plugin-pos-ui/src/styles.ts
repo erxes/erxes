@@ -457,9 +457,67 @@ export const MenuFooter = styled.footer`
   max-width: 95%;
 `;
 
-export const PosSlotAddButton = styled.div`
-  width: 100%;
+export const PosSlotContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+`;
+
+export const HallContainer = styled.div`
+  aspect-ratio: 1;
+  overflow: scroll;
+  grid-column: span 2 / span 2;
+`;
+
+export const Hall = styled.div`
+  position: relative;
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 10px;
+  width: 1000px;
+  height: 1000px;
+  background-size: 10px 10px;
+  background-image: linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+    linear-gradient(to bottom, #e5e7eb 1px, transparent 1px);
+  overflow: hidden;
+
+  .background {
+    position: absolute;
+    inset: 0;
+  }
+`;
+
+export const SlotList = styled.div`
+  overflow-y: auto;
+  aspect-ratio: 0.5;
+  .slots-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+`;
+export const SlotListItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  padding-right: 0rem;
+  border-bottom: 1px solid #eee;
+  .actions {
+    display: flex;
+    align-items: center;
+    & > button {
+      padding: 8px !important;
+    }
+  }
+`;
+
+export const SlotDetailStyled = styled.div`
+  overflow-y: auto;
+  aspect-ratio: 0.5;
+  .slot-detail-title {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    font-size: 1.1rem;
+  }
 `;

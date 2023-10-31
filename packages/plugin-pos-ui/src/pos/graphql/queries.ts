@@ -102,6 +102,7 @@ const posSlots = `
       posId
       code
       name
+      option
     }
   }
 `;
