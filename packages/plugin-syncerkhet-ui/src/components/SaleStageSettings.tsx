@@ -48,6 +48,7 @@ class GeneralSettings extends React.Component<Props, State> {
           userEmail: '',
           hasVat: false,
           hasCitytax: false,
+          hasPayment: true,
           defaultPay: 'debtAmount'
         }
       }

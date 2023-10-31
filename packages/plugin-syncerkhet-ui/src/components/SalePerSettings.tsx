@@ -155,6 +155,7 @@ class PerSettings extends React.Component<Props, State> {
         newBrand: {
           brandId: '',
           userEmail: '',
+          hasPayment: true,
           hasVat: false,
           hasCitytax: false,
           defaultPay: 'debtAmount'
@@ -305,6 +306,7 @@ class PerSettings extends React.Component<Props, State> {
                 onChangeStage={this.onChangeStage}
               />
             </FormGroup>
+            {this.renderCheckbox('hasPayment', 'has Payment')}
             <FormGroup>
               <ControlLabel>{__('Choose response field')}</ControlLabel>
               <Select

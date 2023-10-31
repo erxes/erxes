@@ -234,7 +234,6 @@ export const getPostData = async (subdomain, configs, deal, dateType = '') => {
   }
 
   // debit payments coll
-  const payments = {};
   const configure = {
     prepay: 'preAmount',
     cash: 'cashAmount',
@@ -254,31 +253,34 @@ export const getPostData = async (subdomain, configs, deal, dateType = '') => {
     }
 
     const config = configs[brandId];
+    const payments = {};
 
-    let sumSaleAmount = details.reduce((predet, detail) => {
-      return { amount: predet.amount + detail.amount };
-    }).amount;
+    if (config.hasPayment) {
+      let sumSaleAmount = details.reduce((predet, detail) => {
+        return { amount: predet.amount + detail.amount };
+      }).amount;
 
-    for (const paymentKind of Object.keys(deal.paymentsData || [])) {
-      const payment = deal.paymentsData[paymentKind];
-      payments[configure[paymentKind]] =
-        (payments[configure[paymentKind]] || 0) + payment.amount;
-      sumSaleAmount = sumSaleAmount - payment.amount;
-    }
+      for (const paymentKind of Object.keys(deal.paymentsData || [])) {
+        const payment = deal.paymentsData[paymentKind];
+        payments[configure[paymentKind]] =
+          (payments[configure[paymentKind]] || 0) + payment.amount;
+        sumSaleAmount = sumSaleAmount - payment.amount;
+      }
 
-    // if payments is less sum sale amount then create debt
-    if (sumSaleAmount > 0.005) {
-      payments[config.defaultPay] =
-        (payments[config.defaultPay] || 0) + sumSaleAmount;
-    } else if (sumSaleAmount < -0.005) {
-      if ((payments[config.defaultPay] || 0) > 0.005) {
+      // if payments is less sum sale amount then create debt
+      if (sumSaleAmount > 0.005) {
         payments[config.defaultPay] =
-          payments[config.defaultPay] + sumSaleAmount;
-      } else {
-        for (const key of Object.keys(payments)) {
-          if (payments[key] > 0.005) {
-            payments[key] = payments[key] + sumSaleAmount;
-            continue;
+          (payments[config.defaultPay] || 0) + sumSaleAmount;
+      } else if (sumSaleAmount < -0.005) {
+        if ((payments[config.defaultPay] || 0) > 0.005) {
+          payments[config.defaultPay] =
+            payments[config.defaultPay] + sumSaleAmount;
+        } else {
+          for (const key of Object.keys(payments)) {
+            if (payments[key] > 0.005) {
+              payments[key] = payments[key] + sumSaleAmount;
+              continue;
+            }
           }
         }
       }
