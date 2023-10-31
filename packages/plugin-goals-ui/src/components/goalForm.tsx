@@ -59,7 +59,6 @@ type State = {
   entity: string;
   teamGoalType: string;
   contributionType: string;
-  frequency: string;
   goalType: string;
   metric: string;
   startDate: Date;
@@ -95,7 +94,6 @@ class GoalTypeForm extends React.Component<Props, State> {
       entity: goalType.entity || '',
       teamGoalType: goalType.teamGoalType || '',
       contributionType: goalType.contributionType || '',
-      frequency: goalType.frequency || '',
       goalType: goalType.goalType || '',
       metric: goalType.metric || '',
       period: goalType.period,
@@ -186,11 +184,6 @@ class GoalTypeForm extends React.Component<Props, State> {
     this.setState({ boardId: brId });
   };
 
-  /**
-   * Generates a document object based on the provided values and state.
-   * @param values An object containing the values to be included in the document.
-   * @returns An object representing the generated document.
-   */
   generateDoc = (values: { _id: string } & IGoalTypeDoc) => {
     const { goalType } = this.props;
     const {
@@ -229,7 +222,6 @@ class GoalTypeForm extends React.Component<Props, State> {
       contribution,
       period,
       contributionType: finalValues.contributionType,
-      frequency: finalValues.frequency,
       metric: finalValues.metric,
       goalType: finalValues.goalType,
       startDate: durationStart,
@@ -408,24 +400,6 @@ class GoalTypeForm extends React.Component<Props, State> {
                   )}
                 </FormGroup>
               )}
-
-              {/* <FormGroup> next development
-                <ControlLabel required={true}>{__('frequency')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name='frequency'
-                  componentClass='select'
-                  value={this.state.frequency}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {FREQUENCY.map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup> */}
               <FormGroup>
                 <ControlLabel>{__('start duration')}:</ControlLabel>
                 <DateContainer>

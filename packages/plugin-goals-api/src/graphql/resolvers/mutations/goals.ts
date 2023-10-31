@@ -28,20 +28,7 @@ const goalMutations = {
   /**
    * Removes a goal
    */
-  goalTypesRemove: async (
-    _root,
-    { goalTypeIds }: { goalTypeIds: string[] },
-    { models }: IContext
-  ) => {
-    // TODO: contracts check
-    // const goalTypes = await models.Goals.find({
-    //   _id: { $in: goalTypeIds }
-    // }).lean();
 
-    await models.Goals.removeGoal(goalTypeIds);
-
-    return goalTypeIds;
-  },
   async goalsRemove(
     _root,
     { goalTypeIds }: { goalTypeIds: string[] },

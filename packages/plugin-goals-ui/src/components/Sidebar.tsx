@@ -7,8 +7,9 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+
 import { router, __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';

@@ -30,7 +30,6 @@ interface IProps extends IRouterProps {
   loading: boolean;
   searchValue: string;
   totalCount: number;
-  // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
   toggleAll: (targets: IGoalType[], containerId: string) => void;
   bulk: any[];
@@ -147,7 +146,6 @@ class GoalTypesList extends React.Component<IProps, State> {
               <th>{__('pipelineName ')}</th>
               <th>{__('stageName ')}</th>
               <th>{__('contributionType')}</th>
-              <th>{__('frequency')}</th>
               <th>{__('metric')}</th>
               <th>{__('goalType')}</th>
               <th>{__('startDate')}</th>

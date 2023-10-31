@@ -4,7 +4,6 @@ import { paginate } from '@erxes/api-utils/src';
 const generateFilter = async (params, commonQuerySelector) => {
   const { branch, department, unit, contribution, date } = params;
   let filter: any = {};
-
   if (branch) {
     filter.branch = branch;
   }
@@ -69,16 +68,6 @@ const goalQueries = {
    * Goals list
    */
 
-  async goals(_root, params, { models, commonQuerySelector }: IContext) {
-    return paginate(
-      models.Goals.find(await generateFilter(params, commonQuerySelector)),
-      {
-        page: params.page,
-        perPage: params.perPage
-      }
-    );
-  },
-
   goalTypes: async (
     _root,
     params,
@@ -113,15 +102,6 @@ const goalQueries = {
     };
   },
 
-  goalTypeMainProgress: async (
-    _root,
-    params,
-    { commonQuerySelector, models }: IContext
-  ) => {
-    const goals = await models.Goals.progressIdsGoals();
-
-    return goals;
-  },
   /**
    * Get one goal
    */

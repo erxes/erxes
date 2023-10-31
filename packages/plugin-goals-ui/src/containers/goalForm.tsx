@@ -112,5 +112,3 @@ export default withProps<{}>(
     })
   )(GoalTypeFromContainer)
 );
-
-// export default withProps<Props>(compose()(GoalTypeFromContainer));

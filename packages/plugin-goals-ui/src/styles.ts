@@ -201,7 +201,7 @@ const SidebarFilters = styledTS(styled.div)`
   padding: 5px 15px 30px 15px;
 `;
 export { SidebarFilters };
-export { GoalTypesTableWrapper, FlexRow };
+export { GoalTypesTableWrapper };
 
 export const BoardItemWrapper = styled(DrawerDetail)`
   > div > div {
@@ -225,35 +225,6 @@ export const Card = styled.div`
   &.active {
     animation: ${highlight} 0.9s ease;
     box-shadow: 0 0 5px 0 #63d2d6;
-  }
-`;
-const FlexRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  .flex-item {
-    flex: 1;
-    margin-left: ${dimensions.coreSpacing}px;
-
-    &:first-child {
-      margin: 0;
-    }
-
-    input[type='checkbox'] {
-      display: inline-block;
-      height: auto;
-      width: auto;
-      margin-right: 5px;
-    }
-  }
-
-  button {
-    margin-left: ${dimensions.coreSpacing / 2}px;
-  }
-
-  & + div {
-    margin-top: ${dimensions.coreSpacing / 2}px;
   }
 `;
 

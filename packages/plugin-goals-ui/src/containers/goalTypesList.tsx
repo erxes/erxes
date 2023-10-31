@@ -58,7 +58,6 @@ class GoalTypeListContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       totalCount,
-      // searchValue,
       goalTypes: list,
       loading: goalTypesMainQuery.loading || this.state.loading,
       removeGoalTypes
@@ -94,11 +93,7 @@ export default withProps<Props>(
               branch: queryParams.branch,
               department: queryParams.department,
               unit: queryParams.unit,
-              contribution: queryParams.contribution,
-              sortField: queryParams.sortField,
-              sortDirection: queryParams.sortDirection
-                ? parseInt(queryParams.sortDirection, 10)
-                : undefined
+              contribution: queryParams.contribution
             },
             fetchPolicy: 'network-only'
           };

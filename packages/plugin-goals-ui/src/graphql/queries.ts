@@ -7,7 +7,6 @@ const insuranceTypeFields = `
       pipelineId
       boardId
       contributionType
-      frequency
       metric
       goalType
       contribution

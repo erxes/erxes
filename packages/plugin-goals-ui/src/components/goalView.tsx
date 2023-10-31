@@ -71,9 +71,6 @@ class GoalView extends React.Component<IProps> {
             <FlexItem>
               <FormGroup>
                 <ControlLabel>
-                  {__('Frequency: ') + data.frequency}
-                </ControlLabel>
-                <ControlLabel>
                   {__('Duration: ')} {data.startDate} - {data.endDate}
                 </ControlLabel>
                 <ControlLabel>{__('Current: ') + current}</ControlLabel>

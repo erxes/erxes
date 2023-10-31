@@ -93,10 +93,7 @@ function renderViewAction(
   );
 }
 
-function GoalRow(
-  { goalType, history, isChecked, toggleBulk }: Props,
-  { showModal }: State
-) {
+function GoalRow({ goalType, isChecked, toggleBulk }: Props, {}: State) {
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(goalType, e.target.checked);
@@ -178,7 +175,6 @@ function GoalRow(
       <td key={'contributionType'}>
         {displayValue(goalType, 'contributionType')}
       </td>
-      <td key={'frequency'}>{displayValue(goalType, 'frequency')}</td>
       <td key={'metric'}>{displayValue(goalType, 'metric')}</td>
       <td key={'goalType'}>{displayValue(goalType, 'goalType')}</td>
       <td key={'startDate'}>{displayValue(goalType, 'startDate')}</td>

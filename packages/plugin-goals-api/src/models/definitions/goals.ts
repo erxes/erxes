@@ -13,7 +13,6 @@ export interface IGoal {
   pipelineId: string;
   boardId: string;
   contributionType: string;
-  frequency: string;
   metric: string;
   goalType: string;
   contribution?: string[];
@@ -50,11 +49,10 @@ export const goalSchema = schemaHooksWrapper(
     stageId: field({ type: String, label: 'stageId' }),
     pipelineId: field({ type: String, label: 'pipelineId' }),
     boardId: field({ type: String, label: 'boardId' }),
-    frequency: field({ type: String, label: 'Frequency' }),
     metric: field({ type: String, label: 'Metric' }),
     goalType: field({ type: String, label: 'Choose Goal Type' }),
     contribution: field({ type: [String], label: 'contribution' }),
-    startDate: field({ type: String, lable: 'StartDate Durable' }),
+    startDate: field({ type: String, label: 'StartDate Durable' }),
     endDate: field({ type: String, label: 'EndDate Durable' }),
     target: field({ type: String, label: 'Target' }),
     progress: {

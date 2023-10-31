@@ -4,7 +4,6 @@ import React from 'react';
 import { queries } from '../graphql';
 import { IGoalType } from '../types';
 
-// get goalType options for react-select-plus
 export function generateGoalTypeOptions(array: IGoalType[] = []): IOption[] {
   return array.map(item => {
     const goalType = item || ({} as IGoalType);
