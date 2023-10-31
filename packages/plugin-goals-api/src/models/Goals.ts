@@ -113,7 +113,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     let amountData;
     if (metric === 'Value') {
       let mobileAmountsData;
-      // tslint:disable-next-line:no-shadowed-variable
+
       let data;
       let totalAmount = 0;
       for (const items of amount) {
@@ -152,21 +152,13 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         mobileAmountsData,
         paymentsData: data
       };
-      progress = await differenceFunction(
-        current,
-        // tslint:disable-next-line:radix
-        parseInt(target || '')
-      );
+      progress = await differenceFunction(current, parseInt(target || ''));
     } else if (metric === 'Count') {
       const activeElements = amount.filter(item => item.status === 'active');
       // Getting the count of elements with status 'active'
       current = activeElements.length;
 
-      progress = await differenceFunction(
-        current,
-        // tslint:disable-next-line:radix
-        parseInt(target || '')
-      );
+      progress = await differenceFunction(current, parseInt(target || ''));
     }
 
     const result = await models.Goals.updateOne(
@@ -206,13 +198,13 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
 
       if (item.metric === 'Value') {
         let mobileAmountsData;
-        // tslint:disable-next-line:no-shadowed-variable
+
         let data;
         let totalAmount = 0;
         for (const items of amount) {
           if (items.productsData && items.status === 'active') {
             const productsData = items.productsData;
-            // tslint:disable-next-line:no-shadowed-variable
+
             productsData.forEach(item => {
               totalAmount += item.amount;
             });
@@ -248,19 +240,14 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         };
         progress = await differenceFunction(
           current,
-          // tslint:disable-next-line:radix
           parseInt(item.target || '')
         );
       } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(
-          // tslint:disable-next-line:no-shadowed-variable
-          item => item.status === 'active'
-        );
+        const activeElements = amount.filter(item => item.status === 'active');
         current = activeElements.length;
 
         progress = await differenceFunction(
           current,
-          // tslint:disable-next-line:radix
           parseInt(item.target || '')
         );
       }
@@ -312,7 +299,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         for (const items of amount) {
           if (items.productsData && items.status === 'active') {
             const productsData = items.productsData;
-            // tslint:disable-next-line:no-shadowed-variable
+
             productsData.forEach(item => {
               totalAmount += item.amount;
             });
@@ -346,10 +333,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           }
         }
       } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(
-          // tslint:disable-next-line:no-shadowed-variable
-          item => item.status === 'active'
-        );
+        const activeElements = amount.filter(item => item.status === 'active');
         current = activeElements.length;
         if (
           item.specificPeriodGoals &&
