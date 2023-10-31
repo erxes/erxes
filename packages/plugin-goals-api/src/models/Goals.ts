@@ -1,14 +1,8 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { IGoal, IGoalDocument, goalSchema } from './definitions/goals';
-import {
-  sendCardsMessage,
-  sendStageMessage,
-  sendBoardMessage
-} from '../messageBroker';
-import { Goals } from '../graphql/resolvers/mutations';
-import _ = require('underscore');
-import { resolve } from 'path';
+import { sendCardsMessage } from '../messageBroker';
+import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
+
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
@@ -71,9 +65,9 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       });
       const target = goal?.target;
 
-      const action_name = goal?.entity + 's.find';
+      const actionName = goal?.entity + 's.find';
       const progressed = await progressFunction(
-        action_name,
+        actionName,
         goal,
         goal?.metric,
         target
@@ -99,10 +93,10 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     }
   }
 
-  async function progressFunction(action_name, goal, metric, target) {
+  async function progressFunction(actionName, goal, metric, target) {
     const amount = await sendCardsMessage({
       subdomain,
-      action: action_name,
+      action: actionName,
       data: {
         stageId: goal?.stageId
       },
@@ -282,11 +276,11 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
 
     const updates = await models.Goals.find({}).lean();
     for (const item of updates) {
-      const action_name = item?.entity + 's.find';
+      const actionName = item?.entity + 's.find';
       const stage = item?.stageId;
       const amount = await sendCardsMessage({
         subdomain,
-        action: action_name,
+        action: actionName,
         data: {
           stageId: stage
         },

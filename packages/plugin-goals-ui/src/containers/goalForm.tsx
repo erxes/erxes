@@ -1,21 +1,19 @@
-import { Button, ButtonMutate, withProps } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import GoalTypeForm from '../components/goalForm';
-import { mutations, queries } from '../graphql';
-import { IGoalType } from '../types';
-import { __ } from 'coreui/utils';
-import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { ButtonMutate, Spinner, withProps } from '@erxes/ui/src';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import {
   BranchesMainQueryResponse,
   DepartmentsMainQueryResponse,
   UnitsMainQueryResponse
 } from '@erxes/ui/src/team/types';
-import { EmptyState, Spinner } from '@erxes/ui/src';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { __ } from 'coreui/utils';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import GoalTypeForm from '../components/goalForm';
+import { mutations, queries } from '../graphql';
+import { IGoalType } from '../types';
 
 type Props = {
   goalType: IGoalType;

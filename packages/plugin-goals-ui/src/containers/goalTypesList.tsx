@@ -1,11 +1,10 @@
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
 import GoalTypesList from '../components/goalTypesList';
 import { mutations, queries } from '../graphql';
 import {
@@ -53,8 +52,6 @@ class GoalTypeListContainer extends React.Component<FinalProps, State> {
           Alert.error(e.message);
         });
     };
-
-    const query = this.props.queryParams.queryParams || '';
 
     const { list = [], totalCount = 0 } =
       goalTypesMainQuery.goalTypesMain || {};

@@ -1,44 +1,43 @@
+import { gql } from '@apollo/client';
+import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
+import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
+import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
 import {
   Button,
   ControlLabel,
-  Form,
   DateControl,
-  MainStyleFormColumn as FormColumn,
+  Form,
   FormControl,
   FormGroup,
+  MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { IGoalType, IGoalTypeDoc, IAssignmentCampaign } from '../types';
-import {
-  ENTITY,
-  CONTRIBUTION,
-  GOAL_TYPE,
-  SPECIFIC_PERIOD_GOAL,
-  GOAL_STRUCTURE
-} from '../constants';
-
-import { __ } from 'coreui/utils';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import dayjs from 'dayjs';
 import client from '@erxes/ui/src/apolloClient';
-import { Alert } from '@erxes/ui/src/utils';
-import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
-import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { DateContainer } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
-import React, { useEffect, useState } from 'react';
-import { gql } from '@apollo/client';
-
 import {
   BranchesMainQueryResponse,
   DepartmentsMainQueryResponse,
   UnitsMainQueryResponse
 } from '@erxes/ui/src/team/types';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { Alert } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { __ } from 'coreui/utils';
+import dayjs from 'dayjs';
+import React from 'react';
+import {
+  CONTRIBUTION,
+  ENTITY,
+  GOAL_STRUCTURE,
+  GOAL_TYPE,
+  SPECIFIC_PERIOD_GOAL
+} from '../constants';
+import { IAssignmentCampaign, IGoalType, IGoalTypeDoc } from '../types';
+
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
@@ -112,14 +111,6 @@ class GoalTypeForm extends React.Component<Props, State> {
   onChangeStartDate = value => {
     this.setState({ startDate: value });
   };
-  onChangeStartDateAdd = (index, value) => {
-    const specificPeriodGoals = [...this.state.specificPeriodGoals];
-    specificPeriodGoals[index] = {
-      ...specificPeriodGoals[index],
-      addMonthly: value
-    };
-    this.setState({ specificPeriodGoals });
-  };
 
   onChangeTarget = (index, event) => {
     const { specificPeriodGoals, periodGoal } = this.state;
@@ -168,12 +159,6 @@ class GoalTypeForm extends React.Component<Props, State> {
 
       this.setState({ specificPeriodGoals: updatedSpecificPeriodGoals });
     }
-  };
-
-  onDeleteElement = index => {
-    const specificPeriodGoals = [...this.state.specificPeriodGoals];
-    specificPeriodGoals.splice(index, 1);
-    this.setState({ specificPeriodGoals });
   };
 
   onChangeStage = stgId => {
@@ -285,10 +270,6 @@ class GoalTypeForm extends React.Component<Props, State> {
         segmentIds: values.map(v => v.value)
       }
     });
-  };
-
-  renderButton = () => {
-    return <Form renderContent={this.renderContent} />;
   };
 
   mapMonths = (): string[] => {

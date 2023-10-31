@@ -1,24 +1,13 @@
-import { withRouter, RouteComponentProps } from 'react-router-dom';
-import { IGoalType } from '../types';
-import {
-  ControlLabel,
-  Form,
-  DateControl,
-  MainStyleFormColumn as FormColumn,
-  FormGroup,
-  MainStyleFormWrapper as FormWrapper,
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src';
-import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
+import { BoardHeader } from '@erxes/ui-cards/src/settings/boards/styles';
+import { ControlLabel, FormGroup } from '@erxes/ui/src';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import Table from '@erxes/ui/src/components/table';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { BoardHeader } from '@erxes/ui-cards/src/settings/boards/styles';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { IGoalType } from '../types';
 
 // Define the type for the props
 interface IProps extends RouteComponentProps {

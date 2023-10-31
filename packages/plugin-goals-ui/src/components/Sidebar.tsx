@@ -1,6 +1,4 @@
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -9,9 +7,8 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-
+import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
 import { router, __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';

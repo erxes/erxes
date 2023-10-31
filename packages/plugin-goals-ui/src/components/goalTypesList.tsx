@@ -9,25 +9,22 @@ import {
   Pagination,
   router,
   Table,
-  Wrapper
+  Wrapper,
+  __
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
+import queryString from 'query-string';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { queries } from '../graphql';
-import GoalTypeForm from '../containers/goalForm';
+import {
+  default as GoalForm,
+  default as GoalTypeForm
+} from '../containers/goalForm';
 import { GoalTypesTableWrapper } from '../styles';
 import { IGoalType } from '../types';
 import GoalRow from './goalRow';
-import dayjs from 'dayjs';
-import { IBoard, IPipeline, IStage } from '../types';
-import goalForm from '../containers/goalForm';
-import GoalForm from '../containers/goalForm';
-import { Spinner, __ } from '@erxes/ui/src';
 import Sidebar from './Sidebar';
-// import Sidebar from '../containers/Sidebar';
-import queryString from 'query-string';
-import { gql, useQuery } from '@apollo/client';
+
 interface IProps extends IRouterProps {
   goalTypes: IGoalType[];
   loading: boolean;
@@ -97,6 +94,7 @@ class GoalTypesList extends React.Component<IProps, State> {
     e.target.value = '';
     e.target.value = tmpValue;
   };
+
   renderForm() {
     const content = props => <GoalForm {...props} />;
 
@@ -123,6 +121,7 @@ class GoalTypesList extends React.Component<IProps, State> {
       totalCount,
       queryParams
     } = this.props;
+
     const query = queryString.parse(location.search);
 
     const params = {

@@ -1,12 +1,12 @@
+import { gql, useQuery } from '@apollo/client';
 import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
-
 import GoalTypeForm from '../containers/goalForm';
+import { queries } from '../graphql';
 import { IGoalType } from '../types';
-import { mutations, queries } from '../graphql';
-import { gql, useQuery, useMutation } from '@apollo/client';
 import GoalView from './goalView';
+
 type Props = {
   goalType: IGoalType;
   history: any;

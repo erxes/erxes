@@ -1,13 +1,8 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { IGoal, IGoalDocument, goalSchema } from './definitions/goals';
-import {
-  sendCardsMessage,
-  sendStageMessage,
-  sendBoardMessage
-} from '../messageBroker';
-import { Goals } from '../graphql/resolvers/mutations';
-import _ = require('underscore');
+import { sendCardsMessage } from '../messageBroker';
+
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
@@ -121,7 +116,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     let amountData;
     if (metric === 'Value') {
       let mobileAmountsData;
-      // tslint:disable-next-line:no-shadowed-variable
+
       let data;
       let totalAmount = 0;
       for (const items of amount) {
@@ -160,21 +155,13 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         mobileAmountsData,
         paymentsData: data
       };
-      progress = await differenceFunction(
-        current,
-        // tslint:disable-next-line:radix
-        parseInt(target || '')
-      );
+      progress = await differenceFunction(current, parseInt(target || ''));
     } else if (metric === 'Count') {
       const activeElements = amount.filter(item => item.status === 'active');
       // Getting the count of elements with status 'active'
       current = activeElements.length;
 
-      progress = await differenceFunction(
-        current,
-        // tslint:disable-next-line:radix
-        parseInt(target || '')
-      );
+      progress = await differenceFunction(current, parseInt(target || ''));
     }
 
     const result = await models.Goals.updateOne(
@@ -260,13 +247,13 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
 
       if (item.metric === 'Value') {
         let mobileAmountsData;
-        // tslint:disable-next-line:no-shadowed-variable
+
         let data;
         let totalAmount = 0;
         for (const items of amount) {
           if (items.productsData && items.status === 'active') {
             const productsData = items.productsData;
-            // tslint:disable-next-line:no-shadowed-variable
+
             productsData.forEach(item => {
               totalAmount += item.amount;
             });
@@ -302,19 +289,14 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         };
         progress = await differenceFunction(
           current,
-          // tslint:disable-next-line:radix
           parseInt(item.target || '')
         );
       } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(
-          // tslint:disable-next-line:no-shadowed-variable
-          item => item.status === 'active'
-        );
+        const activeElements = amount.filter(item => item.status === 'active');
         current = activeElements.length;
 
         progress = await differenceFunction(
           current,
-          // tslint:disable-next-line:radix
           parseInt(item.target || '')
         );
       }
@@ -360,72 +342,3 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
 
   return goalSchema;
 };
-
-// async function amountFunction(action_name, goal) {
-//   const amount = await sendCardsMessage({
-//     subdomain,
-//     action: action_name,
-//     data: {
-//       stageId: goal?.stageId
-//     },
-//     isRPC: true
-//   });
-
-//   let mobileAmountsData;
-//   let data;
-//   let totalAmount = 0;
-//   for (const items of amount) {
-//     if (items.productsData && items.status === 'active') {
-//       const productsData = items.productsData;
-//       productsData.forEach((item) => {
-//         totalAmount += item.amount;
-//       });
-//     }
-//     if (items.mobileAmounts && items.mobileAmounts.length > 0) {
-//       mobileAmountsData = items.mobileAmounts[0].amount;
-//     }
-//     if (items.paymentsData) {
-//       const paymentsData = items.paymentsData;
-//       if (paymentsData.prepay) {
-//         data = paymentsData.prepay;
-//       } else if (paymentsData.cash) {
-//         data = paymentsData.cash;
-//       } else if (paymentsData.bankTransaction) {
-//         data = paymentsData.bankTransaction;
-//       } else if (paymentsData.posTerminal) {
-//         data = paymentsData.posTerminal;
-//       } else if (paymentsData.wallet) {
-//         data = paymentsData.wallet;
-//       } else if (paymentsData.barter) {
-//         data = paymentsData.barter;
-//       } else if (paymentsData.receivable) {
-//         data = paymentsData.receivable;
-//       } else if (paymentsData.other) {
-//         data = paymentsData.other;
-//       }
-//     }
-//   }
-
-//   const result = {
-//     mobileAmountsData,
-//     data,
-//     totalAmount
-//   };
-
-//   return result;
-// }
-// async function countFunction(action_name, goal) {
-//   const count = await sendCardsMessage({
-//     subdomain,
-//     action: action_name,
-//     data: {
-//       stageId: goal?.stageId
-//     },
-//     isRPC: true
-//   });
-//   const activeElements = count.filter((item) => item.status === 'active');
-
-//   // Getting the count of elements with status 'active'
-//   const activeCount = activeElements.length;
-//   return activeCount;
-// }
