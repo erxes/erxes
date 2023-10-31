@@ -1,5 +1,6 @@
 import { Model } from 'mongoose';
 import {
+  IIntegration,
   IIntegrationDocument,
   integrationSchema
 } from './definitions/integrations';
@@ -14,17 +15,19 @@ export const loadIntegrationClass = (models: IModels) => {
     public static async getIntegrations(userId: string) {
       const integrations = await models.Integrations.find({
         'operators.userId': userId
-      });
+      }).lean();
 
       if (!integrations) {
         return [];
       }
-      const filteredIntegrations = integrations.map(integration => {
-        const filteredOperators = integration.operators.filter(
-          operator => operator.userId === userId
-        );
-        return { ...integration, operators: filteredOperators };
-      });
+      const filteredIntegrations = integrations.map(
+        (integration: IIntegration) => {
+          const filteredOperators = integration.operators.filter(
+            operator => operator.userId === userId
+          );
+          return { ...integration, operators: filteredOperators };
+        }
+      );
 
       return filteredIntegrations;
     }
