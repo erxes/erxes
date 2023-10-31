@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import Image from "@/components/ui/image"
 import { RadioGroupItem } from "@/components/ui/radio-group"
+import { Skeleton } from "@/components/ui/skeleton"
 
 import { queries } from "../../graphql"
 
@@ -43,7 +44,9 @@ const CategoryItem = ({ _id, active }: { _id: string; active: boolean }) => {
             />
           )}
         </AspectRatio>
-        <div className="font-bold uppercase pt-2">{loading ? "..." : name}</div>
+        <div className="font-bold uppercase pt-2">
+          {loading ? <Skeleton className="w-16 h-4 mx-auto" /> : name}
+        </div>
       </Label>
     </div>
   )

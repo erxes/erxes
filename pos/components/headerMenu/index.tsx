@@ -28,15 +28,22 @@ import { Separator } from "../ui/separator"
 
 const HeaderMenu = () => {
   const mode = useAtomValue(modeAtom)
-  const config = useAtomValue(configAtom)
-  const menu =
-    mode === "market"
-      ? supermarketMenu
-      : supermarketMenu.concat(
-          config?.waitingScreen?.isActive
-            ? [progressMenu, waitingMenu]
-            : progressMenu
-        )
+  const { waitingScreen, kitchenScreen } = useAtomValue(configAtom) || {}
+
+  const getMenu = () => {
+    if (mode === "market") return supermarketMenu
+    let menu = [...supermarketMenu]
+    if (kitchenScreen?.isActive) {
+      menu.push(progressMenu)
+    }
+    if (waitingScreen?.isActive) {
+      menu.push(waitingMenu)
+    }
+    return menu
+  }
+
+  const menu = getMenu()
+
   return (
     <div
       className={cn(

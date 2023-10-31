@@ -196,34 +196,21 @@ export const StageTitle = styled.h4`
   }
 `;
 
-export const StageInfo = styledTS<{ showAll?: boolean }>(styled.div)`
+export const StageInfo = styled.div`
   margin-bottom: 10px;
-  ${props =>
-    props.showAll === false
-      ? `
-  height: 15px;
-  overflow: hidden;
-  transition: all 300ms ease-out;
-  `
-      : `
-  height: unset;
-  `}
+
   div {
     display: flex;
     justify-content: space-between;
     min-height: unset !important;
     align-items: center;
   }
-  
-  > div {
-    margin-bottom: 5px;
-  }
-  
+
   span {
     font-size: 11px;
     font-weight: 600;
   }
-  
+
   ul {
     margin: 0;
     li {

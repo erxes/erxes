@@ -54,7 +54,7 @@ export const loadRCFAIssuesClass = (models: IModels, subdomain: string) => {
               }
             }
           ]);
-          if (issue?.countHierarchies === 4) {
+          if (issue?.countHierarchies === 5) {
             throw new Error('You cannot add issue this level of rcfa');
           }
           if (issue?.status !== 'inProgress') {

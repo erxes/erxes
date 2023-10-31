@@ -11,7 +11,7 @@ import { removeParams, setParams } from '../../utils/router';
 
 interface IProps extends IRouterProps {
   queryParams?: any;
-  filterTitle?: string; // Define the prop here
+  filterTitle?: string;
 }
 
 const Filters = styled.div`
@@ -150,6 +150,7 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterWithData('departmentId', 'department', '_id title')}
       {renderFilterWithData('unitId', 'unit', '_id title')}
       {renderFilterParam('groupId', true, filterTitle)}
+      {renderFilterParam('tagType', true, filterTitle)}
     </Filters>
   );
 }

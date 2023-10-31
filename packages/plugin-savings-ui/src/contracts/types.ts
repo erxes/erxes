@@ -40,6 +40,7 @@ export interface IContract {
   interestGiveType: string;
   closeOrExtendConfig: string;
   depositAccount: string;
+  customers?: any;
 }
 
 export interface IContractDoc extends IContract {

@@ -271,7 +271,7 @@ class MailFormContainer extends React.Component<
       sendMail,
       currentUser,
       fetchMoreEmailTemplates,
-      loading: emailTemplatesQuery.loading,
+      loading: emailTemplatesQuery?.loading,
       emailTemplates: emailTemplatesQuery?.emailTemplates || [],
       emailSignatures: currentUser.emailSignatures || [],
       brands: currentUser.brands || [],

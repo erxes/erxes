@@ -44,6 +44,8 @@ export const loadContractTypeClass = (models: IModels) => {
      * Update ContractType
      */
     public static async updateContractType(_id, doc) {
+      console.log('_id, doc', _id, doc);
+
       await models.ContractTypes.updateOne({ _id }, { $set: doc });
 
       return models.ContractTypes.findOne({ _id });

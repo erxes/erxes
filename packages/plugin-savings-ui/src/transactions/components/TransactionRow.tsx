@@ -108,6 +108,7 @@ function TransactionRow({
       <TrNumberCols key={'total'}>
         {displayNumber(transaction, 'total')}
       </TrNumberCols>
+      <TrNumberCols key={'total'}>{transaction.transactionType}</TrNumberCols>
       <td key={'manage'}>
         {renderChangeBtn()}
         {renderEditBrn()}

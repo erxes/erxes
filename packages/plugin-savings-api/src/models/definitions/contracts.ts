@@ -32,6 +32,7 @@ export interface IContract {
   storeInterestInterval: string;
   isAllowIncome: boolean;
   isAllowOutcome: boolean;
+  isDeposit: boolean;
   interestGiveType: string;
   closeOrExtendConfig: string;
   depositAccount: string;
@@ -158,6 +159,7 @@ export const contractSchema = schemaHooksWrapper(
     }),
     isAllowIncome: field({ type: Boolean, label: 'Is Allow income' }),
     isAllowOutcome: field({ type: Boolean, label: 'Is Allow outcome' }),
+    isDeposit: field({ type: Boolean, label: 'Is Deposit' }),
     interestGiveType: field({
       type: String,
       label: 'Interest give type'

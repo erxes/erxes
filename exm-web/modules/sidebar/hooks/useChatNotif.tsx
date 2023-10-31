@@ -6,7 +6,7 @@ import { IUser } from "@/modules/types"
 import { useQuery, useSubscription } from "@apollo/client"
 import { useAtomValue } from "jotai"
 
-import { queries, subscriptions } from "../graphql"
+import { queries, subscriptions } from "../../chat/graphql"
 
 export interface IUseChats {
   unreadCount: number
@@ -17,7 +17,10 @@ export const useChatNotif = (): IUseChats => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
   const pathname = usePathname()
 
-  const { data, loading, refetch } = useQuery(queries.getUnreadChatCount)
+  const { data, loading, refetch } = useQuery(queries.getUnreadChatCount, {})
+  const { refetch: refetchChat } = useQuery(queries.chats, {
+    variables: { limit: 20 },
+  })
 
   let unreadCount = 0
 
@@ -28,16 +31,16 @@ export const useChatNotif = (): IUseChats => {
   useSubscription(subscriptions.chatUnreadCountChanged, {
     variables: { userId: currentUser._id },
     onSubscriptionData: ({ subscriptionData: { data } }) => {
-      console.log(data)
       if (!data) {
         return null
       }
 
       if (!pathname.includes("/chats")) {
         const audio = new Audio("/sound/notify.mp3")
+        refetch()
+        refetchChat()
         audio.play()
       }
-
       refetch()
     },
   })

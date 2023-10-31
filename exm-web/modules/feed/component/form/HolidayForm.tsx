@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -22,17 +22,30 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import LoadingPost from "@/components/ui/loadingPost"
+import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
+import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { IFeed } from "../../types"
+import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
-  title: z.string({
-    required_error: "Please enter an title",
-  }),
-  description: z.string().optional(),
-  createdAt: z.date().optional(),
+  title: z
+    .string({
+      required_error: "Please enter an title",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an title",
+    }),
+  description: z
+    .string({
+      required_error: "Please enter an description",
+    })
+    .refine((val) => val.length !== 0, {
+      message: "Please enter an description",
+    }),
+  createdAt: z.date(),
 })
 
 const HolidayForm = ({
@@ -45,27 +58,37 @@ const HolidayForm = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
+  const [images, setImage] = useState(feed?.images || [])
+  const [success, setSuccess] = useState(false)
 
   const callBack = (result: string) => {
     if (result === "success") {
-      setOpen(false)
+      form.reset()
+      setImage([])
+      setSuccess(true)
+
+      setTimeout(() => {
+        setSuccess(false)
+        setOpen(false)
+      }, 1500)
     }
   }
 
   const { feedMutation, loading: mutationLoading } = useFeedMutation({
     callBack,
   })
+  const [imageUploading, setImageUploading] = useState(false)
 
   useEffect(() => {
     let defaultValues = {} as any
-    let date = {} as any
 
     if (feed) {
       defaultValues = { ...feed }
-      date = { ...feed.eventData }
+
+      defaultValues.createdAt = new Date(defaultValues.createdAt || "")
     }
 
-    form.reset({ ...defaultValues, ...date })
+    form.reset({ ...defaultValues })
   }, [feed])
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
@@ -75,18 +98,28 @@ const HolidayForm = ({
         description: data.description ? data.description : "",
         contentType: "publicHoliday",
         createdAt: data.createdAt,
+        images,
       },
       feed?._id || ""
     )
   }
 
+  const deleteImage = (index: number) => {
+    const updated = [...images]
+
+    updated.splice(index, 1)
+
+    setImage(updated)
+  }
+
   return (
-    <DialogContent>
+    <DialogContent className="max-h-[80vh] overflow-auto">
       <DialogHeader>
         <DialogTitle>Create public holiday</DialogTitle>
       </DialogHeader>
 
       {mutationLoading ? <LoadingPost /> : null}
+      {success ? <SuccessPost /> : null}
 
       <Form {...form}>
         <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
@@ -137,6 +170,7 @@ const HolidayForm = ({
                     date={field.value}
                     setDate={field.onChange}
                     className="w-full"
+                    fromDate={new Date()}
                   />
                 </FormControl>
                 <FormMessage />
@@ -144,7 +178,25 @@ const HolidayForm = ({
             )}
           />
 
-          <Button type="submit" className="font-semibold w-full rounded-full">
+          <Uploader
+            defaultFileList={images || []}
+            onChange={setImage}
+            type={"image"}
+            setUploading={setImageUploading}
+          />
+          {images && images.length > 0 && (
+            <AttachmentWithPreview
+              images={images}
+              className="mt-2"
+              deleteImage={deleteImage}
+            />
+          )}
+
+          <Button
+            type="submit"
+            className="font-semibold w-full rounded-full"
+            disabled={imageUploading}
+          >
             Post
           </Button>
         </form>

@@ -3,6 +3,8 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import segments from './segments';
+import forms from './forms';
 
 export let debug;
 export let graphqlPubsub;
@@ -36,5 +38,5 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: {}
+  meta: { segments, forms }
 };

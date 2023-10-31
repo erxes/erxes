@@ -8,6 +8,7 @@ export const commonFields = `
   _id
   name
   url
+  kind
   description
   logo
   icon
@@ -98,6 +99,7 @@ export const commonFields = `
   tokenExpiration
   refreshTokenExpiration
   tokenPassMethod
+  vendorParentProductCategoryId
 `;
 
 export const basicFields = `
@@ -182,8 +184,8 @@ const getTotalCount = `
 `;
 
 const getConfigs = `
-  query clientPortalGetConfigs($page: Int, $perPage: Int) {
-    clientPortalGetConfigs(page: $page, perPage: $perPage) {
+  query clientPortalGetConfigs($kind: BusinessPortalKind $page: Int, $perPage: Int) {
+    clientPortalGetConfigs(kind: $kind, page: $page, perPage: $perPage) {
       ${commonFields}
     }
   }
@@ -198,8 +200,8 @@ const getConfig = `
 `;
 
 const getConfigLast = `
-  query clientPortalGetLast {
-    clientPortalGetLast {
+  query clientPortalGetLast($kind: BusinessPortalKind) {
+    clientPortalGetLast(kind: $kind) {
       ${commonFields}
     }
   }
@@ -274,6 +276,100 @@ query ClientPortalFieldConfig($fieldId: String) {
 }
 `;
 
+const usersOfCard = `
+query ClientPortalCardUsers($contentType: String!, $contentTypeId: String!, $userKind: BusinessPortalKind) {
+  clientPortalCardUsers(contentType: $contentType, contentTypeId: $contentTypeId, userKind: $userKind) {
+    _id
+    firstName
+    lastName
+    email
+    phone
+    username
+    company {
+      _id
+      primaryName
+      primaryEmail
+      primaryPhone
+    }
+    clientPortal {
+      _id
+      name
+      url
+    }
+  }
+}
+`;
+
+const cardFields = `
+_id
+companies {
+  _id
+  primaryName
+  primaryEmail
+  primaryPhone
+}
+assignedUsers {
+  _id
+  details {
+    avatar
+    firstName
+    fullName
+    lastName
+    shortName
+  }
+  email
+  username
+}
+customers {
+  _id
+  firstName
+  lastName
+  middleName
+  primaryEmail
+  primaryPhone
+}
+name
+boardId
+stageId
+status
+pipeline {
+  _id
+}
+createdAt
+`;
+
+const tasksOfUser = `
+query ClientPortalUserTasks($userId: String) {
+  clientPortalUserTasks(userId: $userId) {
+    ${cardFields}
+  }
+}
+`;
+
+const dealsOfUser = `
+query ClientPortalUserDeals($userId: String) {
+  clientPortalUserDeals(userId: $userId) {
+    ${cardFields}
+  }
+}
+`;
+
+const ticketsOfUser = `
+query ClientPortalUserTickets($userId: String) {
+  clientPortalUserTickets(userId: $userId) {
+    ${cardFields}
+  }
+}
+`;
+
+const purchasesOfUser = `
+query ClientPortalUserPurchases($userId: String) {
+  clientPortalUserPurchases(userId: $userId) {
+    ${cardFields}
+  }
+}
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -284,5 +380,10 @@ export default {
   clientPortalUserDetail,
   clientPortalUserCounts,
   clientPortalComments,
-  fieldConfig
+  fieldConfig,
+  usersOfCard,
+  tasksOfUser,
+  dealsOfUser,
+  ticketsOfUser,
+  purchasesOfUser
 };

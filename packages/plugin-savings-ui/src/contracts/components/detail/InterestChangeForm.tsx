@@ -14,22 +14,27 @@ import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { ChangeAmount } from '../../styles';
-import { ICloseInfo, IContract, IContractDoc } from '../../types';
+import { IContract, IContractDoc } from '../../types';
 import { __ } from 'coreui/utils';
+import SelectContracts, {
+  Contracts
+} from '../../../contracts/components/common/SelectContract';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   contract: IContract;
-  closeInfo: ICloseInfo;
   onChangeDate: (date: Date) => void;
   closeModal: () => void;
   invDate: Date;
+  type: string;
 };
 
 type State = {
   type: string;
   description: string;
   interestAmount: number;
+  contractId: string;
+  contract?: IContract;
 };
 
 class InterestChangeForm extends React.Component<Props, State> {
@@ -37,9 +42,10 @@ class InterestChangeForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      type: 'stopInterest',
+      type: props.type || 'interestChange',
       description: '',
-      interestAmount: 0
+      interestAmount: 0,
+      contractId: props.contract?._id
     };
   }
 
@@ -53,13 +59,8 @@ class InterestChangeForm extends React.Component<Props, State> {
     }
 
     return {
-      contractId: finalValues._id,
       ...this.state,
-      interestAmount: Number(
-        this.state.type === 'stopInterest'
-          ? this.props.closeInfo.storedInterest
-          : this.state.interestAmount
-      ),
+      interestAmount: Number(this.state.interestAmount),
       description: this.state.description,
       invDate: this.props.invDate,
       type: this.state.type
@@ -88,8 +89,9 @@ class InterestChangeForm extends React.Component<Props, State> {
   };
 
   renderRow = (label, fieldName) => {
-    const { closeInfo } = this.props;
-    const value = closeInfo[fieldName] || 0;
+    const { contract } = this.state;
+    if (!contract) return null;
+    const value = contract[fieldName] || 0;
     return (
       <FormWrapper>
         <FormColumn>
@@ -106,12 +108,9 @@ class InterestChangeForm extends React.Component<Props, State> {
   renderCloseInfo = () => {
     return (
       <>
+        {this.renderRow('Saving Amount', 'savingAmount')}
+        {this.renderRow('Stored Interest', 'storedInterest')}
         {this.renderRow('Total', 'total')}
-        {this.renderRow('Payment', 'payment')}
-        {this.renderRow('Interest', 'storedInterest')}
-        {this.renderRow('Loss', 'undue')}
-        {this.renderRow('Insurance', 'insurance')}
-        {this.renderRow('Debt', 'debt')}
       </>
     );
   };
@@ -142,45 +141,43 @@ class InterestChangeForm extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
             </FormColumn>
+          </FormWrapper>
+          <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>{__('Change Type')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="type"
-                  componentClass="select"
-                  value={this.state.type}
-                  required={true}
-                  onChange={this.onChangeField}
-                >
-                  {['stopInterest', 'interestChange', 'interestReturn'].map(
-                    (typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {typeName}
-                      </option>
-                    )
-                  )}
-                </FormControl>
+                <ControlLabel>{__('Contract')}</ControlLabel>
+                <SelectContracts
+                  label={__('Choose an contract')}
+                  name="contractId"
+                  initialValue={this.state.contractId || ''}
+                  onSelect={(v, n) => {
+                    if (typeof v === 'string') {
+                      this.setState({
+                        contractId: v,
+                        contract: Contracts[v]
+                      });
+                    }
+                  }}
+                  multi={false}
+                />
               </FormGroup>
             </FormColumn>
           </FormWrapper>
-          {this.state.type !== 'stopInterest' && (
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel>{__('Interest Change to')}</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="interestAmount"
-                    type="number"
-                    useNumberFormat
-                    value={this.state.interestAmount || ''}
-                    onChange={this.onChangeField}
-                  />
-                </FormGroup>
-              </FormColumn>
-            </FormWrapper>
-          )}
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>{__('Interest Change to')}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="interestAmount"
+                  type="number"
+                  useNumberFormat
+                  value={this.state.interestAmount || ''}
+                  onChange={this.onChangeField}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
           <FormWrapper>
             <FormColumn>
               <FormGroup>

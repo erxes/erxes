@@ -91,7 +91,7 @@ export interface IDepartment extends IStructureCommon {
   order: string;
   userIds: string[];
   userCount: number;
-  users: IUser;
+  users: IUser[];
 }
 
 export interface IUnit extends IStructureCommon {
@@ -99,7 +99,7 @@ export interface IUnit extends IStructureCommon {
   department: IDepartment;
   description: string;
   userIds: string[];
-  users: IUser;
+  users: IUser[];
 }
 
 interface IContactInfo {

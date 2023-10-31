@@ -228,8 +228,6 @@ class WorkArea extends React.Component<FinalProps, State> {
           messagesQuery = getQueryString('messagesQuery', dmConfig);
         }
 
-        // trying to read query by initial variables. Because currenty it is apollo bug.
-        // https://github.com/apollographql/apollo-client/issues/2499
         const selector = {
           query: gql(messagesQuery),
           variables: {
@@ -239,17 +237,22 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
         };
 
-        cache.updateQuery(selector, data => {
-          const key = getQueryResultKey(data || {});
-          const messages = data ? data[key] : [];
+        try {
+          cache.updateQuery(selector, data => {
+            const key = getQueryResultKey(data || {});
+            const messages = data ? data[key] : [];
 
-          // check duplications
-          if (messages.find(m => m._id === message._id)) {
-            return;
-          }
+            // check duplications
+            if (messages.find(m => m._id === message._id)) {
+              return {};
+            }
 
-          return { [key]: [...messages, message] };
-        });
+            return { [key]: [...messages, message] };
+          });
+        } catch (e) {
+          console.error(e);
+          return;
+        }
       };
     }
 

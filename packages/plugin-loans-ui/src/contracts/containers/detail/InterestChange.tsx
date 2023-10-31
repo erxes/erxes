@@ -17,6 +17,7 @@ import InterestChangeForm from '../../components/detail/InterestChangeForm';
 type Props = {
   contract: IContract;
   closeModal: () => void;
+  type: string;
 };
 
 type FinalProps = {
@@ -81,18 +82,21 @@ class InterestChangeContainer extends React.Component<FinalProps, State> {
     };
 
     const onChangeDate = (date: Date) => {
-      this.setState({ invDate: date }, () =>
-        closeInfoQuery.refetch({
-          date
-        })
+      this.setState(
+        { invDate: date },
+        () =>
+          !this.props.type &&
+          closeInfoQuery.refetch({
+            date
+          })
       );
     };
 
-    if (closeInfoQuery.loading) {
+    if (closeInfoQuery?.loading) {
       return null;
     }
 
-    const closeInfo = closeInfoQuery.closeInfo || {};
+    const closeInfo = closeInfoQuery?.closeInfo || {};
 
     const updatedProps = {
       ...this.props,
@@ -126,7 +130,7 @@ export default withProps<Props>(
         name: 'closeInfoQuery',
         options: ({ contract }) => ({
           variables: {
-            contractId: contract._id,
+            contractId: contract?._id,
             date: new Date()
           },
           fetchPolicy: 'network-only'

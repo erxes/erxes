@@ -16,6 +16,7 @@ import {
 
 import * as admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
+import { IUser } from './models/definitions/clientPortalUser';
 
 export const getConfig = async (
   code: string,
@@ -584,4 +585,44 @@ export const getCloseDateByType = (closeDateType: string) => {
 
     return { $lt: today };
   }
+};
+
+export const getUserName = (data: IUser) => {
+  if (!data) {
+    return null;
+  }
+
+  if (data.firstName || data.lastName) {
+    return data.firstName + ' ' + data.lastName;
+  }
+
+  if (data.email || data.username || data.phone) {
+    return data.email || data.username || data.phone;
+  }
+
+  return 'Unknown';
+};
+
+export const getUserCards = async (
+  userId: string,
+  contentType: string,
+  models: IModels,
+  subdomain
+) => {
+  const cardIds = await models.ClientPortalUserCards.find({
+    cpUserId: userId,
+    contentType
+  }).distinct('contentTypeId');
+
+  const cards = await sendCardsMessage({
+    subdomain,
+    action: `${contentType}s.find`,
+    data: {
+      _id: { $in: cardIds }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return cards;
 };

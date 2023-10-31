@@ -8,8 +8,10 @@ import AssignmentCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   AssignmentCampaignQueryResponse,
-  AssignmentCampaignRemoveMutationResponse
+  AssignmentCampaignRemoveMutationResponse,
+  AssignmentCampaignsCountQueryResponse
 } from '../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -19,6 +21,7 @@ type Props = {
 
 type FinalProps = {
   assignmentCampaignQuery: AssignmentCampaignQueryResponse;
+  assignmentCampaignQueryCount: AssignmentCampaignsCountQueryResponse;
 } & Props &
   AssignmentCampaignRemoveMutationResponse;
 
@@ -26,13 +29,10 @@ class AssignmentCampaignContainer extends React.Component<FinalProps> {
   render() {
     const {
       assignmentCampaignQuery,
+      assignmentCampaignQueryCount,
       queryParams,
       assignmentCampaignsRemove
     } = this.props;
-
-    if (assignmentCampaignQuery.loading) {
-      return <Spinner />;
-    }
 
     // remove action
     const remove = ({ assignmentCampaignIds }, emptyBulk) => {
@@ -56,6 +56,8 @@ class AssignmentCampaignContainer extends React.Component<FinalProps> {
 
     const assignmentCampaigns =
       assignmentCampaignQuery.assignmentCampaigns || [];
+    const totalCount =
+      assignmentCampaignQueryCount.assignmentCampaignsCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -64,7 +66,8 @@ class AssignmentCampaignContainer extends React.Component<FinalProps> {
       remove,
       loading: assignmentCampaignQuery.loading,
       searchValue,
-      filterStatus
+      filterStatus,
+      totalCount
     };
 
     const productList = props => (
@@ -89,10 +92,27 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, AssignmentCampaignQueryResponse>(
+    graphql<Props, AssignmentCampaignQueryResponse>(
+      gql(queries.assignmentCampaignsCount),
+      {
+        name: 'assignmentCampaignQueryCount',
+        options: ({ queryParams }: Props) => ({
+          variables: {
+            searchValue: queryParams.searchValue
+          }
+        })
+      }
+    ),
+    graphql<Props, AssignmentCampaignQueryResponse>(
       gql(queries.assignmentCampaigns),
       {
-        name: 'assignmentCampaignQuery'
+        name: 'assignmentCampaignQuery',
+        options: ({ queryParams }: Props) => ({
+          variables: {
+            searchValue: queryParams.searchValue,
+            ...generatePaginationParams(queryParams)
+          }
+        })
       }
     ),
     graphql<

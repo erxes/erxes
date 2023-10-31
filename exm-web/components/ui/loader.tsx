@@ -2,7 +2,7 @@ import { Loader2Icon, LucideProps } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const Loader = ({ className }: { className?: string }) => {
+const Loader = ({ className }: { className?: string; size?: number }) => {
   return (
     <LoaderWrapper className={className}>
       <LoaderIcon />

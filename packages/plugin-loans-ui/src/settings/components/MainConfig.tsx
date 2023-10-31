@@ -29,16 +29,15 @@ class MainConfig extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      config: props.config,
+      config: props.config || {},
       hasOpen: false
     };
   }
 
   onSave = e => {
     e.preventDefault();
-    const { configsMap } = this.props;
     const { config } = this.state;
-
+    const { configsMap } = this.props;
     configsMap.loansConfig = config;
     this.props.save(configsMap);
   };
@@ -64,6 +63,21 @@ class MainConfig extends React.Component<Props, State> {
         title={__(config.title)}
         open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
       >
+        <FormGroup>
+          <ControlLabel required={true}>{__('Organization type')}</ControlLabel>
+          <FormControl
+            name="organizationType"
+            componentClass="select"
+            defaultValue={config['organizationType']}
+            onChange={this.onChangeInput.bind(this, 'organizationType')}
+          >
+            {['bbsb', 'entity'].map((typeName, index) => (
+              <option key={index} value={typeName}>
+                {__(typeName)}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Calculation number fixed')}</ControlLabel>
           <FormControl
