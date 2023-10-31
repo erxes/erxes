@@ -17,9 +17,7 @@ const KeyPadContainer = ({ callIntegrationsOfUser, setConfig }) => {
         primaryPhone
       }
     })
-      .then(() => {
-        Alert.success('Contact successfully added');
-      })
+      .then(() => {})
       .catch(e => {
         Alert.error(e.message);
       });
