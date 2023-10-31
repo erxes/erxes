@@ -37,7 +37,7 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
       }
     `};
 
-    > label {
+  > label {
     margin-right: ${dimensions.unitSpacing}px;
   }
 
@@ -74,8 +74,8 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
         padding: 5px 20px;
       `;
     }
-    return '';
 
+    return '';
   }};
 
   &:hover {
