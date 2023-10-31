@@ -284,7 +284,7 @@ export const types = `
     totalCount: Float
   }
 
-  type ReportsListResponse {
+  type TimeclockReportsListResponse {
     list: [TimeclockReport]
     totalCount: Float
   }
@@ -381,7 +381,7 @@ export const queries = `
   
   absenceTypes:[AbsenceType]
   
-  timeclockReports(${queryParams}): ReportsListResponse
+  timeclockReports(${queryParams}): TimeclockReportsListResponse
 
   
   timeclockReportByUser(selectedUser: String, selectedMonth: String, selectedYear: String, selectedDate:String): UserReport
