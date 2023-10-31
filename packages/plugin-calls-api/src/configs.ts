@@ -3,6 +3,8 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import webhookReceiver from './webhook';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { generateModels } from './connectionResolver';
 
 export let mainDb;
 export let debug;
@@ -32,7 +34,13 @@ export default {
 
   postHandlers: [{ path: '/webhook', method: webhookReceiver }],
 
-  apolloServerContext: async context => {
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    context.subdomain = req.hostname;
+    context.models = models;
+
     return context;
   },
 

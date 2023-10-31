@@ -2,14 +2,14 @@ import { Request, Response } from 'express';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { graphqlPubsub } from './configs';
 import { sendCommonMessage } from './messageBroker';
-import { Integrations } from './models';
 import * as jwt from 'jsonwebtoken';
+import { generateModels } from './connectionResolver';
 
 const { JWT_TOKEN_SECRET = '' } = process.env;
 
 const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
   const subdomain: string = getSubdomain(req);
-
+  const models = generateModels(subdomain);
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -23,9 +23,9 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
     const { integrationId }: any = await jwt.verify(token, JWT_TOKEN_SECRET);
 
     if (req.body.event === 'incomingCall') {
-      const { callId, callerNumber, calledNumber } = req.body;
+      const { callerNumber, calledNumber } = req.body;
 
-      const integration = await Integrations.findOne({
+      const integration = await (await models).Integrations.findOne({
         inboxId: integrationId,
         phone: calledNumber
       });
