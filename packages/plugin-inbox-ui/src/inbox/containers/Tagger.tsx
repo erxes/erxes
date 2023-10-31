@@ -14,6 +14,7 @@ const Tagger = props => {
         isEnabled('tags') && (
           <TaggerPopover
             {...props}
+            perPage={200}
             type={TAG_TYPES.CONVERSATION}
             refetchQueries={refetchQueries}
             successCallback={notifyConsumersOfManagementAction}

@@ -10,7 +10,7 @@ const menuContacts = [
   { title: 'Companies', link: '/companies' },
   isEnabled('clientportal')
     ? {
-        title: 'Client Portal Users',
+        title: 'Business Portal Users',
         link: '/settings/client-portal/user'
       }
     : { title: '', link: '' }

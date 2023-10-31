@@ -115,9 +115,15 @@ const ActionButtons = styled.div`
   }
 `;
 
-const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
+const SidebarListItem = styledTS<{
+  isActive: boolean;
+  backgroundColor?: string;
+}>(styled.li)`
   position: relative;
-  background: ${props => props.isActive && rgba(colors.colorPrimary, 0.2)};
+  background: ${props =>
+    (props.isActive && rgba(colors.colorPrimary, 0.2)) ||
+    props.backgroundColor ||
+    colors.colorWhite};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -216,7 +222,6 @@ const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
   justify-content: ${props =>
     props.justifyContent ? props.justifyContent : 'flex-start'};
   flex: 1;
-  margin-right: ${dimensions.coreSpacing}px;
 
   > div {
     flex: 1;
@@ -328,9 +333,10 @@ const SubItem = styled.div`
   }
 `;
 
-const FilterContainer = styled.div`
+const FilterContainer = styledTS<{ marginRight?: boolean }>(styled.div)`
   position: relative;
   z-index: 2;
+  margin-right: ${props => props.marginRight && '10px'};
 `;
 
 const SidebarList = styled.div`
@@ -401,14 +407,13 @@ const InputBar = styledTS<{ type?: string }>(styled.div)`
   flex: 1;
   max-width: ${props =>
     props.type === 'active' && `${dimensions.headerSpacingWide * 2 + 20}px`};
-  padding: 5px 5px 0 20px;
+  padding: 0 5px 0 ${dimensions.coreSpacing}px;
   border-radius: 8px;
   margin-left: ${props => props.type === 'active' && '10px'};
-  height: 41px;
   padding-left: ${props =>
     props.type === 'searchBar' && `${dimensions.unitSpacing * 2}px`};
 
-  input {
+  input, .Select-control {
     border-bottom: 0;
   }
 `;

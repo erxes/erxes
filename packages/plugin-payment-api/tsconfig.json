@@ -1,0 +1,4 @@
+{
+    "extends": "./.erxes/tsconfig.json"
+}
+  

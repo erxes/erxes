@@ -1,12 +1,12 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import FilterByParams from '@erxes/ui/src/components/FilterByParams';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import FilterByParams from '@erxes/ui/src/components/FilterByParams';
 import { NoHeight } from '@erxes/ui-inbox/src/inbox/styles';
-import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import client from '@erxes/ui/src/apolloClient';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };
@@ -60,6 +60,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
     // Fetching filter lists channels, brands, tags etc
     if (query) {
       const { queryName, dataName, variables = {} } = query;
+
       client
         .query({
           query: gql(queries[queryName]),

@@ -27,12 +27,12 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Use Node.js 18.17.x
         uses: actions/setup-node@v3
         with:
           node-version: 18.17.x
-
-      - uses: actions/checkout@v3
 
       # https://github.com/actions/cache/blob/main/examples.md#node---yarn
       - name: Get yarn cache directory path

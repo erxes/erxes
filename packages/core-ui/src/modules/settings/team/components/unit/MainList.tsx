@@ -1,22 +1,21 @@
-import {
-  BarItems,
-  DataWithLoader,
-  FormControl,
-  Pagination,
-  Button,
-  router,
-  Table,
-  Wrapper,
-  __,
-  ModalTrigger
-} from '@erxes/ui/src';
+import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
 import { IUnit, UnitsMainQueryResponse } from '@erxes/ui/src/team/types';
+import { __, router } from '@erxes/ui/src/utils';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import { BarItems } from 'modules/layout/styles';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Form from '../../containers/common/BlockForm';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
-import Form from '../../containers/unit/Form';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Table from 'modules/common/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
+import Wrapper from 'modules/layout/components/Wrapper';
 
 type Props = {
   listQuery: UnitsMainQueryResponse;
@@ -58,7 +57,9 @@ class MainList extends React.Component<Props, State> {
       </Button>
     );
 
-    const content = ({ closeModal }) => <Form closeModal={closeModal} />;
+    const content = ({ closeModal }) => (
+      <Form queryType="units" closeModal={closeModal} />
+    );
 
     return (
       <ModalTrigger title="Add Unit" content={content} trigger={trigger} />
@@ -90,14 +91,19 @@ class MainList extends React.Component<Props, State> {
     };
 
     return (
-      <FormControl
-        type="text"
-        placeholder={__('Type to search')}
-        onChange={search}
-        value={this.state.searchValue}
-        autoFocus={true}
-        onFocus={moveCursorAtTheEnd}
-      />
+      <FilterContainer marginRight={true}>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={search}
+            value={this.state.searchValue}
+            autoFocus={true}
+            onFocus={moveCursorAtTheEnd}
+          />
+        </InputBar>
+      </FilterContainer>
     );
   }
 
@@ -146,7 +152,7 @@ class MainList extends React.Component<Props, State> {
               key={unit._id}
               title="Edit Unit"
               content={({ closeModal }) => (
-                <Form closeModal={closeModal} unit={unit} />
+                <Form closeModal={closeModal} item={unit} queryType="units" />
               )}
               trigger={trigger}
             />

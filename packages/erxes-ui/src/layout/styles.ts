@@ -130,6 +130,7 @@ const HeaderItems = styledTS<{
   align-self: center;
   flex: ${props => props.hasFlex && 1};
   margin-left: ${props => props.rightAligned && 'auto'};
+  flex-shrink: ${props => props.rightAligned && '0'};
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }

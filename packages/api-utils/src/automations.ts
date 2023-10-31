@@ -145,6 +145,21 @@ export const OPERATORS = {
   ALL: ['set', 'concat', 'add', 'subtract', 'multiply', 'divide', 'percent']
 };
 
+const convertOp1 = (relatedItem, field) => {
+  if (
+    ['customFieldsData', 'trackedData'].some(complexField =>
+      field.includes(complexField)
+    )
+  ) {
+    const [complexFieldKey, nestedComplexFieldKey] = field.split('.');
+    return (relatedItem[complexFieldKey] || []).find(
+      nestedObj => nestedObj.field === nestedComplexFieldKey
+    )?.value;
+  }
+
+  return relatedItem[field];
+};
+
 const getPerValue = async (args: {
   models;
   subdomain;
@@ -152,6 +167,9 @@ const getPerValue = async (args: {
   rule;
   target;
   getRelatedValue;
+  triggerType?;
+  serviceName?;
+  sendCommonMessage;
 }) => {
   const {
     models,
@@ -159,12 +177,39 @@ const getPerValue = async (args: {
     relatedItem,
     rule,
     target,
-    getRelatedValue
+    getRelatedValue,
+    serviceName,
+    triggerType,
+    sendCommonMessage
   } = args;
-  const { field, operator, value } = rule;
-  const op1Type = typeof relatedItem[field];
+  let { field, operator, value } = rule;
 
-  let op1 = relatedItem[field];
+  const op1Type = typeof convertOp1(relatedItem, field);
+
+  // replace placeholder if value has attributes from related service
+  if (
+    value.match(/\{\{\s*([^}]+)\s*\}\}/g) &&
+    !(triggerType || '').includes(serviceName)
+  ) {
+    const [relatedServiceName] = triggerType.split(':');
+
+    value =
+      (
+        await sendCommonMessage({
+          serviceName: relatedServiceName,
+          subdomain,
+          action: 'automations.replacePlaceHolders',
+          data: {
+            target,
+            config: { value }
+          },
+          isRPC: true,
+          defaultValue: {}
+        })
+      )?.value || value;
+  }
+
+  let op1 = convertOp1(relatedItem, field);
 
   let updatedValue = (
     await replacePlaceHolders({
@@ -252,7 +297,18 @@ export const setProperty = async ({
   execution,
   getRelatedValue,
   relatedItems,
-  sendCommonMessage
+  sendCommonMessage,
+  triggerType
+}: {
+  models;
+  subdomain;
+  module;
+  rules;
+  execution;
+  getRelatedValue;
+  relatedItems;
+  sendCommonMessage;
+  triggerType?;
 }) => {
   const { target } = execution;
   const [serviceName, collectionType] = module.split(':');
@@ -262,6 +318,7 @@ export const setProperty = async ({
   for (const relatedItem of relatedItems) {
     const setDoc = {};
     const pushDoc = {};
+    const selectorDoc = {};
     const servicesToForward: string[] = [];
 
     for (const rule of rules) {
@@ -271,7 +328,10 @@ export const setProperty = async ({
         relatedItem,
         rule,
         target,
-        getRelatedValue
+        getRelatedValue,
+        triggerType,
+        serviceName,
+        sendCommonMessage
       });
 
       if (rule.forwardTo) {
@@ -290,7 +350,7 @@ export const setProperty = async ({
         if (rule.field.includes(complexFieldKey)) {
           const fieldId = rule.field.replace(`${complexFieldKey}.`, '');
 
-          pushDoc[complexFieldKey] = await sendCommonMessage({
+          const complexFieldData = await sendCommonMessage({
             subdomain,
             serviceName: 'forms',
             action: 'fields.generateTypedItem',
@@ -300,6 +360,25 @@ export const setProperty = async ({
             },
             isRPC: true
           });
+
+          if (
+            (relatedItem[complexFieldKey] || []).find(
+              obj => obj.field === fieldId
+            )
+          ) {
+            selectorDoc[`${complexFieldKey}.field`] = fieldId;
+
+            const complexFieldDataKeys = Object.keys(complexFieldData).filter(
+              key => key !== 'field'
+            );
+
+            for (const complexFieldDataKey of complexFieldDataKeys) {
+              setDoc[`${complexFieldKey}.$.${complexFieldDataKey}`] =
+                complexFieldData[complexFieldDataKey];
+            }
+          } else {
+            pushDoc[complexFieldKey] = complexFieldData;
+          }
         }
       }
     }
@@ -318,7 +397,7 @@ export const setProperty = async ({
       subdomain,
       serviceName,
       action: `${pluralFormation(collectionType)}.updateMany`,
-      data: { selector: { _id: relatedItem._id }, modifier },
+      data: { selector: { _id: relatedItem._id, ...selectorDoc }, modifier },
       isRPC: true
     });
 

@@ -8,8 +8,10 @@ import LotteryCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   LotteryCampaignQueryResponse,
-  LotteryCampaignRemoveMutationResponse
+  LotteryCampaignRemoveMutationResponse,
+  LotteryCampaignsCountQueryResponse
 } from '../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -19,6 +21,7 @@ type Props = {
 
 type FinalProps = {
   lotteryCampaignQuery: LotteryCampaignQueryResponse;
+  lotteryCampaignQueryCount: LotteryCampaignsCountQueryResponse;
 } & Props &
   LotteryCampaignRemoveMutationResponse;
 
@@ -26,6 +29,7 @@ class LotteryCampaignContainer extends React.Component<FinalProps> {
   render() {
     const {
       lotteryCampaignQuery,
+      lotteryCampaignQueryCount,
       queryParams,
       lotteryCampaignsRemove
     } = this.props;
@@ -51,6 +55,7 @@ class LotteryCampaignContainer extends React.Component<FinalProps> {
     const filterStatus = this.props.queryParams.filterStatus || '';
 
     const lotteryCampaigns = lotteryCampaignQuery.lotteryCampaigns || [];
+    const totalCount = lotteryCampaignQueryCount.lotteryCampaignsCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -59,6 +64,7 @@ class LotteryCampaignContainer extends React.Component<FinalProps> {
       remove,
       loading: lotteryCampaignQuery.loading,
       searchValue,
+      totalCount,
       filterStatus
     };
 
@@ -84,9 +90,26 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, LotteryCampaignQueryResponse>(gql(queries.lotteryCampaigns), {
-      name: 'lotteryCampaignQuery'
+    graphql<Props>(gql(queries.lotteryCampaignsCount), {
+      name: 'lotteryCampaignQueryCount',
+      options: ({ queryParams }: Props) => ({
+        variables: {
+          searchValue: queryParams.searchValue
+        }
+      })
     }),
+    graphql<Props, LotteryCampaignQueryResponse>(
+      gql(queries.lotteryCampaigns),
+      {
+        name: 'lotteryCampaignQuery',
+        options: ({ queryParams }: Props) => ({
+          variables: {
+            searchValue: queryParams.searchValue,
+            ...generatePaginationParams(queryParams)
+          }
+        })
+      }
+    ),
     graphql<
       Props,
       LotteryCampaignRemoveMutationResponse,
