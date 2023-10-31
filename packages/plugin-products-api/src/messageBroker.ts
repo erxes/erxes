@@ -163,12 +163,35 @@ export const initBroker = async cl => {
     'products:find',
     async ({
       subdomain,
-      data: { query, sort, skip, limit, categoryId, fields }
+      data: { query, sort, skip, limit, categoryId, categoryIds, fields }
     }) => {
       const models = await generateModels(subdomain);
 
       if (!query) {
         query = {};
+      }
+
+      if (categoryIds?.length > 0) {
+        const categories = await models.ProductCategories.find({
+          _id: { $in: categoryIds }
+        }).lean();
+
+        const orderQry: any[] = [];
+
+        for (const category of categories) {
+          orderQry.push({
+            order: { $regex: new RegExp(`^${category.order}`) }
+          });
+        }
+
+        const categoriesWithChildren = await models.ProductCategories.find({
+          status: { $nin: ['disabled', 'archived'] },
+          $or: orderQry
+        }).lean();
+
+        query.categoryId = {
+          $in: categoriesWithChildren.map(category => category._id)
+        };
       }
 
       if (categoryId) {
