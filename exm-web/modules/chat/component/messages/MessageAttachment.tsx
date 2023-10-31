@@ -7,7 +7,7 @@ const MessageAttachmentSection = ({
   isMe,
 }: {
   attachments: IAttachment[]
-  isMe: boolean
+  isMe?: boolean
 }) => {
   const style = isMe
     ? `${"bg-[#4F33AF] text-[#fff] rounded-tr-none rounded-tl-lg rounded-br-lg rounded-bl-lg"}`

@@ -79,7 +79,7 @@ export const PinnedMessages = () => {
           </div>
           {renderContent()}
           {attachments && attachments.length > 0 && (
-            <MessageAttachmentSection attachments={attachments} />
+            <MessageAttachmentSection attachments={attachments}/>
           )}
         </div>
       )
