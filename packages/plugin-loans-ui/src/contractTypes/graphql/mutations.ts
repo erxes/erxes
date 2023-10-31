@@ -19,6 +19,7 @@ const commonFields = `
   $productCategoryIds: [String],
   $config: JSON,
   $currency: String,
+  $productType: String
 `;
 
 const commonVariables = `
@@ -40,6 +41,7 @@ const commonVariables = `
   productCategoryIds: $productCategoryIds,
   config: $config,
   currency: $currency,
+  productType: $productType
 `;
 
 const contractTypesAdd = `

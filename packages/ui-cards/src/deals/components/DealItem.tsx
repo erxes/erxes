@@ -1,6 +1,5 @@
 import { IOptions, IStage } from '../../boards/types';
 import { PriceContainer, Right, Status } from '../../boards/styles/item';
-import { renderPriority } from '../../boards/utils';
 
 import Assignees from '../../boards/components/Assignees';
 import { Content } from '../../boards/styles/stage';
@@ -11,11 +10,12 @@ import { IDeal } from '../types';
 import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 import { ItemContainer } from '../../boards/styles/common';
 import ItemFooter from '../../boards/components/portable/ItemFooter';
+import ItemProductProbabilities from './ItemProductProbabilities';
 import Labels from '../../boards/components/label/Labels';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { colors } from '@erxes/ui/src/styles';
-import ItemProductProbabilities from './ItemProductProbabilities';
+import { renderPriority } from '../../boards/utils';
 
 type Props = {
   stageId?: string;
@@ -109,15 +109,19 @@ class DealItem extends React.PureComponent<Props> {
     } = item;
 
     const renderItemProductProbabilities = () => {
-      if (!window.location.pathname.includes('deal/calendar')) {
-        return null;
+      if (
+        window.location.pathname.includes('deal/board') ||
+        window.location.pathname.includes('deal/calendar')
+      ) {
+        return (
+          <ItemProductProbabilities
+            totalAmount={item.amount}
+            probability={stage.probability}
+          />
+        );
       }
-      return (
-        <ItemProductProbabilities
-          totalAmount={item.amount}
-          probability={stage.probability}
-        />
-      );
+
+      return null;
     };
 
     return (
