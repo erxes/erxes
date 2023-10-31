@@ -95,7 +95,12 @@ export const useChatMessages = (): IUseChats => {
           relatedId,
           attachments,
           lastSeenMessageId: { lastMessageId: "temp-d" },
-          seenList: { lastSeenMessageId: "temp-d" },
+          seenList: [
+            {
+              lastSeenMessageId: "temp-d",
+              user: { _id: "", details: { avatar: "" } },
+            },
+          ],
           relatedMessage: null,
           createdAt: new Date(),
           mentionedUserIds: [],

@@ -52,11 +52,18 @@ const chatMessageAdd = gql`
         details {
           avatar
           fullName
+          position
         }
       }
 
       seenList {
         lastSeenMessageId
+        user {
+          _id
+          details {
+            avatar
+          }
+        }
       }
 
       relatedMessage {

@@ -19,26 +19,6 @@ const chats = gql`
         lastMessage {
           content
           createdAt
-          createdUser {
-            _id
-          }
-          seenList {
-            seenDate
-            user {
-              _id
-            }
-            lastSeenMessageId
-          }
-        }
-        createdUser {
-          _id
-          email
-          details {
-            avatar
-            description
-            fullName
-            operatorPhone
-          }
         }
         createdAt
         participantUsers {
