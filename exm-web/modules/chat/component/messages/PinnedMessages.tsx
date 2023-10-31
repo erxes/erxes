@@ -14,13 +14,13 @@ import {
 } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 
-import { useChatMessages } from "../../hooks/useChatMessages"
+import { usePinnedChats } from "../../hooks/usePinnedChats"
 import MessageAttachmentSection from "./MessageAttachment"
 
 dayjs.extend(relativeTime)
 
 export const PinnedMessages = () => {
-  const { chatPinnedMessages } = useChatMessages()
+  const { chatPinnedMessages } = usePinnedChats()
   const [open, setOpen] = useState(false)
 
   const renderPinnedMessages = () => {
@@ -33,7 +33,7 @@ export const PinnedMessages = () => {
       )
     }
 
-    return chatPinnedMessages.map((message) => {
+    return chatPinnedMessages.map((message: any) => {
       const { createdAt, createdUser, _id, content, attachments } = message
 
       const renderContent = () => {

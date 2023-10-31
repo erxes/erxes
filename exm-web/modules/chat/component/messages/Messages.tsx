@@ -1,20 +1,28 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react"
-import { ChevronLeft } from "lucide-react"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { IUser } from "@/modules/auth/types"
+import { useAtomValue } from "jotai"
 import { useInView } from "react-intersection-observer"
 
-import Image from "@/components/ui/image"
 import Loader from "@/components/ui/loader"
 
 import { useChatDetail } from "../../hooks/useChatDetail"
 import { useChatMessages } from "../../hooks/useChatMessages"
+import { useTyping } from "../../hooks/useTyping"
 import Editor from "./Editor"
 import MessageItem from "./MessageItem"
 import MessagesHeader from "./MessagesHeader"
 import TypingIndicator from "./TypingIndicator"
 
-const Messages = ({ setShowSidebar, showSidebar }: { setShowSidebar: () => void, showSidebar: boolean }) => {
+const Messages = ({
+  setShowSidebar,
+  showSidebar,
+}: {
+  setShowSidebar: () => void
+  showSidebar: boolean
+}) => {
   const {
     chatMessages,
     loading,
@@ -23,10 +31,12 @@ const Messages = ({ setShowSidebar, showSidebar }: { setShowSidebar: () => void,
     handleLoadMore,
     messagesTotalCount,
   } = useChatMessages()
+  const { typing } = useTyping()
 
   const { chatDetail } = useChatDetail()
   const chatContainerRef = useRef(null) as any
   const [reply, setReply] = useState<any>(null)
+  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -58,11 +68,17 @@ const Messages = ({ setShowSidebar, showSidebar }: { setShowSidebar: () => void,
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto overflow-x-hidden p-5 border-0 flex flex-col-reverse scrollbar-hide "
       >
-        {/* <div className="w-full pt-2">
-          {chatDetail.participantUsers && (
-            <TypingIndicator participants={chatDetail.participantUsers} />
+        <div className="w-full pt-2">
+          {typing && typing !== currentUser._id && (
+            <TypingIndicator
+              user={
+                chatDetail.participantUsers.find(
+                  (user) => user._id === typing
+                ) || ({} as IUser)
+              }
+            />
           )}
-        </div> */}
+        </div>
         {chatMessages.map((message) => (
           <MessageItem
             key={message._id}
@@ -79,7 +95,12 @@ const Messages = ({ setShowSidebar, showSidebar }: { setShowSidebar: () => void,
         )}
       </div>
 
-      <Editor sendMessage={sendMessage} reply={reply} setReply={setReply} showSidebar={showSidebar} />
+      <Editor
+        sendMessage={sendMessage}
+        reply={reply}
+        setReply={setReply}
+        showSidebar={showSidebar}
+      />
     </div>
   )
 }

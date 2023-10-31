@@ -10,7 +10,7 @@ import { Pin, PinOff, ReplyIcon } from "lucide-react"
 import Image from "@/components/ui/image"
 
 import { currentUserAtom } from "../../../JotaiProiveder"
-import { useChatMessages } from "../../hooks/useChatMessages"
+import useChatsMutation from "../../hooks/useChatsMutation"
 import { IChatMessage } from "../../types"
 import ForwardMessage from "./ForwardMessage"
 import MessageAttachmentSection from "./MessageAttachment"
@@ -28,7 +28,11 @@ const MessageItem = ({
 }) => {
   const { relatedMessage, content, attachments, createdUser } = message
 
-  const { pinMessage } = useChatMessages()
+  const callBack = (result: string) => {
+    return null
+  }
+
+  const { pinMessage } = useChatsMutation({ callBack })
 
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
   const [showAction, setShowAction] = useState(false)
@@ -187,7 +191,7 @@ const MessageItem = ({
   }
 
   return (
-    <>
+    <div>
       <div
         className={`w-full my-1 flex items-start gap-[10px]  ${
           isMe ? "flex-row-reverse" : "flex-row"
@@ -237,7 +241,7 @@ const MessageItem = ({
           )
         })}
       </div>
-    </>
+    </div>
   )
 }
 

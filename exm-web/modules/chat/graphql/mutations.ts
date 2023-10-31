@@ -159,6 +159,12 @@ const chatArchive = gql`
   }
 `
 
+const chatTyping = gql`
+  mutation ChatTypingInfo($chatId: String!, $userId: String!) {
+    chatTypingInfo(chatId: $chatId, userId: $userId)
+  }
+`
+
 export default {
   chatAdd,
   chatEdit,
@@ -174,5 +180,6 @@ export default {
   chatForward,
   chatToggleIsWithNotification,
   pinMessage,
-  chatArchive
+  chatArchive,
+  chatTyping
 }

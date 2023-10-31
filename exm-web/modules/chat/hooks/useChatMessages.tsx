@@ -6,12 +6,10 @@ import { useAtomValue } from "jotai"
 
 import { mutations, queries, subscriptions } from "../graphql"
 import { IChatMessage } from "../types"
-import { IAttachment } from "@/modules/types"
 
 export interface IUseChats {
   loading: boolean
   chatMessages: IChatMessage[]
-  chatPinnedMessages: IChatMessage[]
   error: any
   handleLoadMore: () => void
   sendMessage: ({
@@ -23,18 +21,6 @@ export interface IUseChats {
     relatedId?: string
     attachments?: string[]
   }) => void
-  pinMessage: (id: string) => void
-  chatForward: ({
-    id,
-    type,
-    content,
-    attachments,
-  }: {
-    id?: string
-    type?: string
-    content?: string
-    attachments?: any[]
-  }) => void
   messagesTotalCount: number
 }
 
@@ -44,19 +30,12 @@ export const useChatMessages = (): IUseChats => {
 
   const id = searchParams.get("id") as string
 
-  const { data, loading, fetchMore, error, refetch } = useQuery(
-    queries.chatMessages,
-    {
-      variables: { chatId: id, skip: 0, limit: 30 },
-    }
-  )
-
-  const chatPinnedMessagesQuery = useQuery(queries.chatMessages, {
-    variables: { chatId: id, isPinned: true, skip: 0, limit: 30 },
+  const chatMessagesQuery = useQuery(queries.chatMessages, {
+    variables: { chatId: id, skip: 0, limit: 30 },
   })
 
   useEffect(() => {
-    refetch()
+    chatMessagesQuery.refetch()
   }, [id])
 
   const [sendMessageMutation] = useMutation(mutations.chatMessageAdd, {
@@ -79,11 +58,9 @@ export const useChatMessages = (): IUseChats => {
             return
           }
 
-          const newData = { ...messages }
+          const newData = { ...messages } as any
 
           newData.list = [chatMessageAdd, ...newData.list]
-
-          console.log(chatMessageAdd)
 
           return { chatMessages: newData }
         })
@@ -94,16 +71,6 @@ export const useChatMessages = (): IUseChats => {
 
     refetchQueries: ["chatMessages", "chats"],
   })
-
-  const [pinMessageMutation] = useMutation(mutations.pinMessage)
-
-  const [chatForwardMutation] = useMutation(mutations.chatForward)
-
-  const pinMessage = (id: string) => {
-    pinMessageMutation({ variables: { id } })
-      .then(() => refetch())
-      .catch((e) => console.log(e))
-  }
 
   const sendMessage = ({
     content,
@@ -138,34 +105,6 @@ export const useChatMessages = (): IUseChats => {
     }).catch((e) => console.log(e))
   }
 
-  const chatForward = ({
-    id,
-    type,
-    content,
-    attachments,
-  }: {
-    id?: string
-    type?: string
-    content?: string
-    attachments?: IAttachment[]
-  }) => {
-    console.log(type)
-
-    if (type === "group") {
-      chatForwardMutation({
-        variables: { chatId: id, content, attachments },
-        refetchQueries: ["chatMessages", "chats"],
-      }).catch((e) => console.log(e))
-    }
-
-    if (type === "direct") {
-      chatForwardMutation({
-        variables: { userIds: [id], content, attachments },
-        refetchQueries: ["chatMessages", "chats"],
-      }).catch((e) => console.log(e))
-    }
-  }
-
   useSubscription(subscriptions.chatMessageInserted, {
     variables: { chatId: id },
     onSubscriptionData: ({ subscriptionData: { data } }) => {
@@ -173,14 +112,14 @@ export const useChatMessages = (): IUseChats => {
         return null
       }
 
-      fetchMore({})
+      chatMessagesQuery.fetchMore({})
     },
   })
 
   const handleLoadMore = () => {
-    const chatLength = data.chatMessages.list.length || 0
+    const chatLength = chatMessagesQuery.data.chatMessages.list.length || 0
 
-    fetchMore({
+    chatMessagesQuery.fetchMore({
       variables: {
         skip: chatLength,
       },
@@ -206,28 +145,23 @@ export const useChatMessages = (): IUseChats => {
     })
   }
 
-  const chatMessages = (data || {}).chatMessages
-    ? (data || {}).chatMessages.list
-    : []
+  const chatMessages =
+    chatMessagesQuery.data && chatMessagesQuery.data.chatMessages
+      ? chatMessagesQuery.data.chatMessages.list
+      : []
 
-  const chatPinnedMessages = chatPinnedMessagesQuery.data && chatPinnedMessagesQuery.data.chatMessages
-    ? chatPinnedMessagesQuery.data.chatMessages.list
-    : []
-
-  const messagesTotalCount = (data || {}).chatMessages
-    ? (data || {}).chatMessages.totalCount
-    : 0
+  const messagesTotalCount =
+    chatMessagesQuery.data && chatMessagesQuery.data.chatMessages
+      ? chatMessagesQuery.data.chatMessages.totalCount
+      : 0
 
   return {
-    loading,
+    loading: chatMessagesQuery.loading,
     chatMessages,
-    error,
+    error: chatMessagesQuery.error,
     handleLoadMore,
     sendMessage,
     messagesTotalCount,
-    chatPinnedMessages,
-    pinMessage,
-    chatForward,
   }
 }
 

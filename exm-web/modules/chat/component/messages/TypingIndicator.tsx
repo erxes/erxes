@@ -1,29 +1,27 @@
-import React, { ReactNode } from "react"
+import React from "react"
+import { IUser } from "@/modules/auth/types"
 
 import Image from "@/components/ui/image"
 
 type Props = {
-  participants: any[]
+  user: IUser
 }
 
-const TypingIndicator = ({ participants }: Props) => {
+const TypingIndicator = ({ user }: Props) => {
   return (
     <div className="flex gap-2 items-center">
       <div className="flex -space-x-1">
-        {participants?.map((participant, index) => (
-          <Image
-            key={index}
-            src={
-              participant.details.avatar
-                ? participant.details.avatar
-                : "/avatar-colored.svg"
-            }
-            alt="avatar"
-            width={100}
-            height={100}
-            className="inline-block w-11 h-11 rounded-full object-cover ring-1 ring-primary "
-          />
-        ))}
+        <Image
+          src={
+            user.details && user.details.avatar
+              ? user.details.avatar
+              : "/avatar-colored.svg"
+          }
+          alt="avatar"
+          width={100}
+          height={100}
+          className="inline-block w-11 h-11 rounded-full object-cover ring-1 ring-primary "
+        />
       </div>
       <div className="p-2 bg-[#E4E6EB] rounded-lg h-6">
         <div className="flex gap-[2px]">

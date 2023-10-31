@@ -15,8 +15,8 @@ import {
 import Loader from "@/components/ui/loader"
 import { useUsers } from "@/components/hooks/useUsers"
 
-import { useChatMessages } from "../../hooks/useChatMessages"
 import { useChats } from "../../hooks/useChats"
+import useChatsMutation from "../../hooks/useChatsMutation"
 import { ChatItem } from "../ChatItem"
 
 type Props = {
@@ -28,9 +28,11 @@ type Props = {
 const ForwardMessage = ({ content, attachments }: Props) => {
   const [searchValue, setSearchValue] = useState("")
   const [open, setOpen] = useState(false)
-
+  const callBack = (result: string) => {
+    return null
+  }
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-  const { chatForward } = useChatMessages()
+  const { chatForward } = useChatsMutation({ callBack })
 
   const { users, loading: usersLoading } = useUsers({ searchValue })
   const { chats, loading: chatsLoading } = useChats({ searchValue })
@@ -47,7 +49,6 @@ const ForwardMessage = ({ content, attachments }: Props) => {
 
   const handleForward = (id: string, forwardType: string) => {
     chatForward({ id, type: forwardType, content, attachments })
-    console.log(forwardType, " clicked ", id)
   }
 
   const handleInputChange = (e: any) => {

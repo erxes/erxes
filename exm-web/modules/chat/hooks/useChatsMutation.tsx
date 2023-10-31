@@ -1,3 +1,4 @@
+import { IAttachment } from "@/modules/types"
 import { ApolloError, useMutation } from "@apollo/client"
 
 import { useToast } from "@/components/ui/use-toast"
@@ -39,6 +40,44 @@ const useChatsMutation = ({
   const [memberMutation, { loading: loadingMember }] = useMutation(
     mutations.chatAddOrRemoveMember
   )
+  const [chatTypingMutation] = useMutation(mutations.chatTyping)
+
+  const [pinMessageMutation] = useMutation(mutations.pinMessage)
+
+  const [chatForwardMutation] = useMutation(mutations.chatForward)
+
+  const pinMessage = (id: string) => {
+    pinMessageMutation({
+      variables: { id },
+      refetchQueries: ["chatMessages"],
+    }).catch((e) => console.log(e))
+  }
+
+  const chatForward = ({
+    id,
+    type,
+    content,
+    attachments,
+  }: {
+    id?: string
+    type?: string
+    content?: string
+    attachments?: IAttachment[]
+  }) => {
+    if (type === "group") {
+      chatForwardMutation({
+        variables: { chatId: id, content, attachments },
+        refetchQueries: ["chatMessages", "chats"],
+      }).catch((e) => console.log(e))
+    }
+
+    if (type === "direct") {
+      chatForwardMutation({
+        variables: { userIds: [id], content, attachments },
+        refetchQueries: ["chatMessages", "chats"],
+      }).catch((e) => console.log(e))
+    }
+  }
 
   const [togglePinnedChat, { loading }] = useMutation(
     mutations.chatToggleIsPinned,
@@ -100,6 +139,12 @@ const useChatsMutation = ({
     })
   }
 
+  const chatTyping = (chatId: string, userId: string) => {
+    chatTypingMutation({
+      variables: { chatId, userId },
+    })
+  }
+
   const addOrRemoveMember = (
     chatId: string,
     type: string,
@@ -125,6 +170,9 @@ const useChatsMutation = ({
     chatDelete,
     toggleMute,
     chatArchive,
+    chatTyping,
+    chatForward,
+    pinMessage,
     loading:
       loading ||
       loadingEdit ||

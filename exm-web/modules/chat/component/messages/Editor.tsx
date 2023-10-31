@@ -1,12 +1,16 @@
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { IUser } from "@/modules/types"
 import data from "@emoji-mart/data"
 import Picker from "@emoji-mart/react"
+import { useAtomValue } from "jotai"
 import { Paperclip, Smile } from "lucide-react"
 
-import { useToast } from "@/components/ui/use-toast"
 import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
 import uploadHandler from "@/components/uploader/uploadHandler"
 
+import useChatsMutation from "../../hooks/useChatsMutation"
 import ReplyInfo from "./ReplyInfo"
 
 type IProps = {
@@ -28,12 +32,33 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   const [message, setMessage] = useState("")
   const [attachments, setAttachments] = useState<any[]>([])
   const relatedId = (reply && reply._id) || null
-  const { toast } = useToast()
+  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
+  const callBack = (result: string) => {
+    return
+  }
+  const { chatTyping } = useChatsMutation({ callBack })
 
   const [loading, setLoading] = useState(false)
+  const searchParams = useSearchParams()
+  const chatId = searchParams.get("id")
 
   const [showEmoji, setShowEmoji] = useState(false)
   const textareaRef = useRef<any>(null)
+
+  let typingTimeout: any
+
+  useEffect(() => {
+    if (message === "" && chatId) {
+      chatTyping(chatId, "")
+    }
+
+    if (message && chatId) {
+      clearTimeout(typingTimeout)
+      typingTimeout = setTimeout(() => {
+        chatTyping(chatId, currentUser._id)
+      }, 1000)
+    }
+  }, [message])
 
   const handleInputChange = (e: any) => {
     setMessage(e.target.value)

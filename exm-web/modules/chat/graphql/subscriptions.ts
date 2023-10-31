@@ -47,4 +47,13 @@ const chatUnreadCountChanged = gql`
   }
 `
 
-export default { chatUnreadCountChanged, chatMessageInserted, chatInserted }
+const chatTypingStatusChanged = gql`
+  subscription chatTypingStatusChanged($chatId: String!) {
+    chatTypingStatusChanged(chatId: $chatId){
+      chatId
+      userId
+    }
+  }
+`
+
+export default { chatUnreadCountChanged, chatMessageInserted, chatInserted, chatTypingStatusChanged }
