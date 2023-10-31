@@ -93,7 +93,7 @@ function renderViewAction(
   );
 }
 
-function GoalRow({ goalType, isChecked, toggleBulk }: Props, {}: State) {
+function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(goalType, e.target.checked);
