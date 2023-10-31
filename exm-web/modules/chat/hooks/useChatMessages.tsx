@@ -65,8 +65,6 @@ export const useChatMessages = (): IUseChats => {
 
           newData.list = [chatMessageAdd, ...newData.list]
 
-          console.log(chatMessageAdd)
-
           return { chatMessages: newData }
         })
       } catch (e) {
