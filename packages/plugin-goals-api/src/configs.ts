@@ -4,7 +4,6 @@ import { generateModels } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import dashboards from './dashboards';
 
 export let debug;
 export let graphqlPubsub;
@@ -13,7 +12,6 @@ export let serviceDiscovery;
 
 export default {
   name: 'goals',
-  hasDashboard: true,
   graphql: async sd => {
     serviceDiscovery = sd;
     return {
@@ -45,5 +43,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
   },
 
-  meta: { dashboards }
+  meta: {}
 };
