@@ -38,6 +38,7 @@ export interface IContractConfig {
   repaymentTemp: string;
 
   isAutoSendEBarimt: boolean;
+  productType: string;
 }
 
 export interface IContractType {
@@ -126,6 +127,11 @@ export const contractTypeSchema = schemaHooksWrapper(
       type: String,
       default: 'MNT',
       label: 'contract type currency of lease'
+    }),
+    productType: field({
+      type: String,
+      default: 'private',
+      label: 'product Type'
     })
   }),
   'erxes_contractTypeSchema'

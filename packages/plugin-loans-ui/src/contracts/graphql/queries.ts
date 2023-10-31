@@ -128,6 +128,11 @@ export const contractsMain = `
       list {
         ${contractFields}
         nextPayment
+        customers {
+          code
+          firstName
+          lastName
+        }
       }
       totalCount
     }
