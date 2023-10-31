@@ -1,7 +1,6 @@
 import { SelectWithSearch } from '@erxes/ui/src';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
-
 import { queries } from '../graphql';
 import { IGoalType } from '../types';
 
