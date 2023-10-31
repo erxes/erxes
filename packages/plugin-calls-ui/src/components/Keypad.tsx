@@ -9,7 +9,8 @@ import {
   CallInfo,
   Actions,
   CallAction,
-  InCallFooter
+  InCallFooter,
+  PhoneNumber
 } from '../styles';
 import { numbers, symbols } from '../constants';
 import { FormControl } from '@erxes/ui/src/components/form';
@@ -217,6 +218,15 @@ const KeyPad = (props: Props, context) => {
     }
   };
 
+  const renderCallerInfo = () => {
+    const formatedPhone = formatPhone(number);
+    if (!formatedPhone) {
+      return null;
+    }
+
+    return <PhoneNumber>{formatedPhone}</PhoneNumber>;
+  };
+
   return (
     <>
       {Sip.call?.status === CALL_STATUS_ACTIVE && (
@@ -226,6 +236,7 @@ const KeyPad = (props: Props, context) => {
               <p>
                 {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
               </p>
+              <div>{renderCallerInfo()}</div>
               <Actions>
                 {!isMuted() && (
                   <CallAction
