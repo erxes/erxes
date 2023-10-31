@@ -861,8 +861,12 @@ const clientPortalUserMutations = {
   clientPortalUserAssignCompany: async (
     _root,
     args: { userId: string; erxesCompanyId: string; erxesCustomerId: string },
-    { models, subdomain }: IContext
+    { models, subdomain, cpUser }: IContext
   ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
     const { userId, erxesCompanyId, erxesCustomerId } = args;
 
     const getCompany = await sendContactsMessage({
@@ -892,6 +896,15 @@ const clientPortalUserMutations = {
       });
     } catch (error) {
       throw new Error(error);
+    }
+
+    const cp = await models.ClientPortals.findOne(cpUser.clientPortalId).lean();
+
+    if (cp || cp.kind === 'vendor') {
+      await models.Companies.createOrUpdateCompany({
+        erxesCompanyId,
+        clientPortalId: cp._id
+      });
     }
 
     return models.ClientPortalUsers.updateOne(

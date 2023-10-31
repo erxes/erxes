@@ -20,7 +20,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 47.4% 11.2%;
 
-    --border: 0 0% 88%;   
+    --border: 0 0% 88%;
     --input: 0 0% 88%;
 
     --card: 0 0% 100%;
@@ -78,4 +78,34 @@
 
     --radius: 0.5rem;
   }
+}
+
+.slick-prev {
+  left: 10px !important;
+  z-index: 1;
+  padding: 1px !important;
+  border-radius: 999px !important;
+  background: black !important;
+}
+
+.slick-next {
+  right: 10px !important;
+  z-index: 1;
+  padding: 1px !important;
+  border-radius: 999px !important;
+  background: black !important;
+}
+
+.slick-dots {
+  bottom: 0 !important;
+}
+
+.slick-dots li {
+  margin: 0 !important;
+  width: 15px !important;
+}
+
+.slick-dots li button:before {
+  color: #fff !important;
+  font-size: 8px !important;
 }

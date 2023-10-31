@@ -3,13 +3,15 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
+
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import React from 'react';
 import { IConfigsMap } from '../types';
+import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -114,6 +116,8 @@ class PerSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         title={__(config.title)}
+        transparent={true}
+        beforeTitle={<Icon icon="settings" />}
         open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
       >
         <FormGroup>
@@ -142,8 +146,8 @@ class PerSettings extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            icon="cancel-1"
+            btnStyle="danger"
+            icon="times-circle"
             onClick={this.onDelete}
             uppercase={false}
           >
@@ -151,7 +155,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="primary"
+            btnStyle="success"
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}

@@ -8,7 +8,8 @@ export const replacePlaceHolders = async ({
   target,
   isRelated = true,
   getRelatedValue,
-  relatedValueProps
+  relatedValueProps,
+  complexFields
 }: {
   models;
   subdomain: string;
@@ -17,6 +18,7 @@ export const replacePlaceHolders = async ({
   isRelated?: boolean;
   getRelatedValue: any;
   relatedValueProps?: any;
+  complexFields?: string[];
 }) => {
   if (actionData) {
     const targetKeys = Object.keys(target);
@@ -86,20 +88,39 @@ export const replacePlaceHolders = async ({
           );
         }
 
-        for (const complexFieldKey of ['customFieldsData', 'trackedData']) {
+        for (const complexFieldKey of [
+          'customFieldsData',
+          'trackedData'
+        ].concat(complexFields || [])) {
           if (actionData[actionDataKey].includes(complexFieldKey)) {
             const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
             const match = regex.exec(actionData[actionDataKey]);
             const fieldId = match && match.length === 2 ? match[1] : '';
 
-            const complexFieldData = target[complexFieldKey].find(
-              cfd => cfd.field === fieldId
-            );
+            if ((complexFields || [])?.includes(complexFieldKey)) {
+              const replaceValue =
+                (await getRelatedValue(
+                  models,
+                  subdomain,
+                  target,
+                  `${complexFieldKey}.${fieldId}`,
+                  relatedValueProps
+                )) || target[targetKey];
 
-            actionData[actionDataKey] = actionData[actionDataKey].replace(
-              `{{ ${complexFieldKey}.${fieldId} }}`,
-              complexFieldData ? complexFieldData.value : ''
-            );
+              actionData[actionDataKey] = actionData[actionDataKey].replace(
+                `{{ ${complexFieldKey}.${fieldId} }}`,
+                replaceValue
+              );
+            } else {
+              const complexFieldData = target[complexFieldKey].find(
+                cfd => cfd.field === fieldId
+              );
+
+              actionData[actionDataKey] = actionData[actionDataKey].replace(
+                `{{ ${complexFieldKey}.${fieldId} }}`,
+                complexFieldData ? complexFieldData.value : ''
+              );
+            }
           }
         }
       }
@@ -124,6 +145,21 @@ export const OPERATORS = {
   ALL: ['set', 'concat', 'add', 'subtract', 'multiply', 'divide', 'percent']
 };
 
+const convertOp1 = (relatedItem, field) => {
+  if (
+    ['customFieldsData', 'trackedData'].some(complexField =>
+      field.includes(complexField)
+    )
+  ) {
+    const [complexFieldKey, nestedComplexFieldKey] = field.split('.');
+    return (relatedItem[complexFieldKey] || []).find(
+      nestedObj => nestedObj.field === nestedComplexFieldKey
+    )?.value;
+  }
+
+  return relatedItem[field];
+};
+
 const getPerValue = async (args: {
   models;
   subdomain;
@@ -131,6 +167,9 @@ const getPerValue = async (args: {
   rule;
   target;
   getRelatedValue;
+  triggerType?;
+  serviceName?;
+  sendCommonMessage;
 }) => {
   const {
     models,
@@ -138,12 +177,39 @@ const getPerValue = async (args: {
     relatedItem,
     rule,
     target,
-    getRelatedValue
+    getRelatedValue,
+    serviceName,
+    triggerType,
+    sendCommonMessage
   } = args;
-  const { field, operator, value } = rule;
-  const op1Type = typeof relatedItem[field];
+  let { field, operator, value } = rule;
 
-  let op1 = relatedItem[field];
+  const op1Type = typeof convertOp1(relatedItem, field);
+
+  // replace placeholder if value has attributes from related service
+  if (
+    value.match(/\{\{\s*([^}]+)\s*\}\}/g) &&
+    !(triggerType || '').includes(serviceName)
+  ) {
+    const [relatedServiceName] = triggerType.split(':');
+
+    value =
+      (
+        await sendCommonMessage({
+          serviceName: relatedServiceName,
+          subdomain,
+          action: 'automations.replacePlaceHolders',
+          data: {
+            target,
+            config: { value }
+          },
+          isRPC: true,
+          defaultValue: {}
+        })
+      )?.value || value;
+  }
+
+  let op1 = convertOp1(relatedItem, field);
 
   let updatedValue = (
     await replacePlaceHolders({
@@ -231,7 +297,18 @@ export const setProperty = async ({
   execution,
   getRelatedValue,
   relatedItems,
-  sendCommonMessage
+  sendCommonMessage,
+  triggerType
+}: {
+  models;
+  subdomain;
+  module;
+  rules;
+  execution;
+  getRelatedValue;
+  relatedItems;
+  sendCommonMessage;
+  triggerType?;
 }) => {
   const { target } = execution;
   const [serviceName, collectionType] = module.split(':');
@@ -241,6 +318,7 @@ export const setProperty = async ({
   for (const relatedItem of relatedItems) {
     const setDoc = {};
     const pushDoc = {};
+    const selectorDoc = {};
     const servicesToForward: string[] = [];
 
     for (const rule of rules) {
@@ -250,7 +328,10 @@ export const setProperty = async ({
         relatedItem,
         rule,
         target,
-        getRelatedValue
+        getRelatedValue,
+        triggerType,
+        serviceName,
+        sendCommonMessage
       });
 
       if (rule.forwardTo) {
@@ -269,16 +350,26 @@ export const setProperty = async ({
         if (rule.field.includes(complexFieldKey)) {
           const fieldId = rule.field.replace(`${complexFieldKey}.`, '');
 
-          pushDoc[complexFieldKey] = await sendCommonMessage({
-            subdomain,
-            serviceName: 'forms',
-            action: 'fields.generateTypedItem',
-            data: {
-              field: fieldId,
-              value
-            },
-            isRPC: true
-          });
+          if (
+            (relatedItem[complexFieldKey] || []).find(
+              obj => obj.field === fieldId
+            )
+          ) {
+            selectorDoc[`${complexFieldKey}.field`] = fieldId;
+            setDoc[`${complexFieldKey}.$.value`] = value;
+            setDoc[`${complexFieldKey}.$.stringValue`] = value;
+          } else {
+            pushDoc[complexFieldKey] = await sendCommonMessage({
+              subdomain,
+              serviceName: 'forms',
+              action: 'fields.generateTypedItem',
+              data: {
+                field: fieldId,
+                value
+              },
+              isRPC: true
+            });
+          }
         }
       }
     }
@@ -297,7 +388,7 @@ export const setProperty = async ({
       subdomain,
       serviceName,
       action: `${pluralFormation(collectionType)}.updateMany`,
-      data: { selector: { _id: relatedItem._id }, modifier },
+      data: { selector: { _id: relatedItem._id, ...selectorDoc }, modifier },
       isRPC: true
     });
 

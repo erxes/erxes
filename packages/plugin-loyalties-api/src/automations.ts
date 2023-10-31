@@ -52,30 +52,6 @@ const generateAttributes = value => {
   return matches.map(match => match.replace(/\{\{\s*|\s*\}\}/g, ''));
 };
 
-const fetchSegment = async ({ subdomain, execution }) => {
-  const { triggerConfig, targetId } = execution;
-
-  const [contentTypeId] = await sendSegmentsMessage({
-    subdomain,
-    action: 'fetchSegment',
-    data: {
-      segmentId: triggerConfig.contentId,
-      options: {
-        defaultMustSelector: [
-          {
-            match: {
-              _id: targetId
-            }
-          }
-        ]
-      }
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-  return contentTypeId;
-};
-
 const generateIds = async value => {
   if (
     Array.isArray(value) &&
@@ -87,6 +63,11 @@ const generateIds = async value => {
   if (typeof value === 'string' && value.includes(', ')) {
     return [...new Set(value.split(', '))];
   }
+
+  if (typeof value === 'string') {
+    return [value];
+  }
+
   return [];
 };
 
@@ -229,6 +210,36 @@ const createVoucher = async ({
   });
 };
 
+const generateScore = async ({
+  serviceName,
+  subdomain,
+  target,
+  scoreString
+}) => {
+  if (scoreString.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
+    const replacedContent = await sendCommonMessage({
+      serviceName,
+      subdomain,
+      action: 'automations.replacePlaceHolders',
+      data: {
+        target,
+        config: {
+          scoreString
+        }
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    scoreString = replacedContent?.scoreString || 0;
+  }
+
+  if (scoreString.match(/[+\-*/]/)) {
+    return eval(scoreString);
+  }
+  return scoreString;
+};
+
 const addScore = async ({
   models,
   subdomain,
@@ -244,11 +255,18 @@ const addScore = async ({
   contentType: string;
   config: any;
 }) => {
+  const score = await generateScore({
+    serviceName,
+    subdomain,
+    target: execution.target,
+    scoreString: config.scoreString
+  });
+
   if (!!config?.ownerType && !!config?.ownerIds?.length) {
     return await models.ScoreLogs.changeOwnersScore({
       ownerType: config.ownerType,
       ownerIds: config.ownerIds,
-      changeScore: Number(config?.score || 0),
+      changeScore: score,
       description: 'from automation'
     });
   }
@@ -257,12 +275,18 @@ const addScore = async ({
     let attributes = generateAttributes(config?.attribution || '');
 
     if (attributes.includes('triggerExecutor')) {
-      const contentTypeId = await fetchSegment({ subdomain, execution });
+      const { ownerType, ownerId } = await getOwner({
+        models,
+        subdomain,
+        execution,
+        contentType,
+        config
+      });
 
       await models.ScoreLogs.changeOwnersScore({
-        ownerType: contentType,
-        ownerId: contentTypeId || '',
-        changeScore: Number(config?.score || 0),
+        ownerType,
+        ownerId,
+        changeScore: score,
         description: 'from automation'
       });
       attributes = attributes.filter(
@@ -299,7 +323,7 @@ const addScore = async ({
       await models.ScoreLogs.changeOwnersScore({
         ownerType: 'customer',
         ownerIds: await generateIds(replacedContent['customers']),
-        changeScore: Number(config?.score || 0),
+        changeScore: score,
         description: 'from automation'
       });
     }
@@ -308,7 +332,7 @@ const addScore = async ({
       await models.ScoreLogs.changeOwnersScore({
         ownerType: 'company',
         ownerIds: await generateIds(replacedContent['companies']),
-        changeScore: Number(config?.score || 0),
+        changeScore: score,
         description: 'from automation'
       });
     }
@@ -330,7 +354,7 @@ const addScore = async ({
     await models.ScoreLogs.changeOwnersScore({
       ownerType: 'user',
       ownerIds: teamMemberIds || [],
-      changeScore: Number(config?.score || 0),
+      changeScore: score,
       description: 'from automation'
     });
     return 'done';

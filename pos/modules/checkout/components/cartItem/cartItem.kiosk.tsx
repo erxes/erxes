@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { updateCartAtom } from "@/store/cart.store"
 import { useSetAtom } from "jotai"
 import { MinusIcon, PlusIcon, XIcon } from "lucide-react"
@@ -16,7 +17,7 @@ const CartItem = ({
 }: OrderItem) => {
   const changeItem = useSetAtom(updateCartAtom)
   return (
-    <div className="bg-white w-6/12 flex rounded-lg items-center relative min-w-[31vw]">
+    <div className="bg-white w-[12.5rem] flex rounded-lg items-center relative min-w-[31vw]">
       <div className="w-5/12">
         <AspectRatio ratio={1}>
           <Image
@@ -41,7 +42,7 @@ const CartItem = ({
             className="h-5 w-5 p-0"
             onClick={() => changeItem({ _id, count: (count || 0) - 1 })}
           >
-            <MinusIcon />
+            <MinusIcon strokeWidth={3}/>
           </Button>
           <div className="w-5 font-bold text-center">{count}</div>
           <Button
@@ -49,7 +50,7 @@ const CartItem = ({
             className="h-5 w-5 p-0"
             onClick={() => changeItem({ _id, count: (count || 0) + 1 })}
           >
-            <PlusIcon />
+            <PlusIcon strokeWidth={3}/>
           </Button>
         </div>
       </div>
@@ -57,10 +58,10 @@ const CartItem = ({
         className="h-5 w-5 p-0 bg-destructive hover:bg-destructive/90 rounded-full absolute -top-2.5 right-2"
         onClick={() => changeItem({ _id, count: -1 })}
       >
-        <XIcon />
+        <XIcon strokeWidth={3}/>
       </Button>
     </div>
   )
 }
 
-export default CartItem
+export default memo(CartItem)

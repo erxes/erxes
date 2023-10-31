@@ -23,9 +23,12 @@ type Props = {
 
 type FinalProps = {
   contractsMainQuery: MainQueryResponse;
+  savingsContractsAlertQuery: any;
 } & Props &
   IRouterProps &
   RemoveMutationResponse;
+
+type SavingAlert = { name: string; count: number; filter: any };
 
 type State = {
   loading: boolean;
@@ -82,7 +85,8 @@ class ContractListContainer extends React.Component<FinalProps, State> {
   render() {
     const {
       contractsMainQuery,
-      contractsRemove
+      contractsRemove,
+      savingsContractsAlertQuery
       // contractsMerge,
     } = this.props;
 
@@ -102,12 +106,15 @@ class ContractListContainer extends React.Component<FinalProps, State> {
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } =
       contractsMainQuery.savingsContractsMain || {};
+    const alerts: SavingAlert[] =
+      savingsContractsAlertQuery?.savingsContractsAlert || [];
 
     const updatedProps = {
       ...this.props,
       totalCount,
       searchValue,
       contracts: list,
+      alerts,
       loading: contractsMainQuery.loading || this.state.loading,
       queryParams: this.props.queryParams,
       removeContracts,
@@ -169,6 +176,20 @@ export default withProps<Props>(
               sortDirection: queryParams.sortDirection
                 ? parseInt(queryParams.sortDirection, 10)
                 : undefined
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }
+    ),
+    graphql<{ queryParams: any }, any, any>(
+      gql(queries.savingsContractsAlert),
+      {
+        name: 'savingsContractsAlertQuery',
+        options: () => {
+          return {
+            variables: {
+              date: new Date()
             },
             fetchPolicy: 'network-only'
           };

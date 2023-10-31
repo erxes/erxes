@@ -94,14 +94,14 @@ class Sidebar extends React.Component<Props> {
     const { tags, tagCounts } = this.props;
 
     return (
-      <Wrapper.Sidebar hasBorder>
+      <Wrapper.Sidebar hasBorder={true}>
         {this.renderKindFilter()}
         {this.renderStatusFilter()}
 
         {isEnabled('tags') && (
           <CountsByTag
             tags={tags}
-            manageUrl="/tags?type=engages:engageMessage"
+            manageUrl="/settings/tags?type=engages:engageMessage"
             counts={tagCounts}
             loading={false}
           />

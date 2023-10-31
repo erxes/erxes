@@ -119,7 +119,7 @@ export default withProps<Props>(
     graphql<{}, CloseMutationResponse, CloseMutationVariables>(
       gql(mutations.contractsClose),
       {
-        name: 'contractsClose'
+        name: 'savingsContractsClose'
       }
     )
   )(CloseFromContainer)

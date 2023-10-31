@@ -1,22 +1,23 @@
 import {
   BarItems,
+  Button,
   DataWithLoader,
   FormControl,
+  ModalTrigger,
   Pagination,
-  Button,
-  router,
   Table,
   Wrapper,
   __,
-  ModalTrigger
+  router
 } from '@erxes/ui/src';
 import { IUnit, UnitsMainQueryResponse } from '@erxes/ui/src/team/types';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Form from '../../containers/common/BlockForm';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
-import Form from '../../containers/unit/Form';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   listQuery: UnitsMainQueryResponse;
@@ -146,7 +147,7 @@ class MainList extends React.Component<Props, State> {
               key={unit._id}
               title="Edit Unit"
               content={({ closeModal }) => (
-                <Form closeModal={closeModal} unit={unit} />
+                <Form closeModal={closeModal} item={unit} queryType="units" />
               )}
               trigger={trigger}
             />

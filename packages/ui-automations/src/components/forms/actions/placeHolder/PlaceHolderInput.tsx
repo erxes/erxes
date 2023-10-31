@@ -31,6 +31,7 @@ type Props = {
   customAttributions?: FieldsCombinedByType[];
   additionalContent?: JSX.Element;
   attrWithSegmentConfig?: boolean;
+  required?: boolean;
 };
 
 type State = {
@@ -249,7 +250,8 @@ class PlaceHolderInput extends React.Component<Props, State> {
       inputName,
       label,
       fieldType = 'string',
-      additionalContent
+      additionalContent,
+      required
     } = this.props;
 
     let converted: string = config[inputName] || '';
@@ -279,7 +281,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       <BoardHeader>
         <FormGroup>
           <div className="header-row">
-            <ControlLabel>{label}</ControlLabel>
+            <ControlLabel required={required}>{label}</ControlLabel>
             <div>
               {this.renderSelect()}
               {this.renderDate()}

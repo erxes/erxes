@@ -32,6 +32,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
   invoice?: IInvoice;
+  type: string;
   closeModal: () => void;
 };
 
@@ -76,7 +77,7 @@ class TransactionForm extends React.Component<Props, State> {
   }
 
   generateDoc = (values: { _id: string } & ITransactionDoc) => {
-    const { transaction } = this.props;
+    const { transaction, type } = this.props;
 
     const finalValues = values;
 
@@ -87,6 +88,7 @@ class TransactionForm extends React.Component<Props, State> {
     return {
       _id: finalValues._id,
       ...this.state,
+      transactionType: type,
       isManual: true,
       payDate: finalValues.payDate,
       total: Number(this.state.total)
@@ -203,7 +205,7 @@ class TransactionForm extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, type } = this.props;
     const { values, isSubmitted } = formProps;
 
     const onSelect = (value, name) => {
@@ -337,27 +339,29 @@ class TransactionForm extends React.Component<Props, State> {
                       onSelect(Contracts[v].storedInterest, 'storedInterest');
                     }
 
-                    if (this.state.contractId !== v)
+                    if (this.state.contractId !== v && type !== 'give')
                       getPaymentInfo(v, this.state.payDate);
                   }}
                   multi={false}
                 />
               </FormGroup>
               {this.renderRowTr('Total', 'total', true)}
-              <FormGroup>
-                <ControlLabel>{__('Is get E-Barimt')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  type={'checkbox'}
-                  componentClass="checkbox"
-                  useNumberFormat
-                  fixed={0}
-                  name="isGetEBarimt"
-                  value={this.state.isGetEBarimt}
-                  onChange={onChangeField}
-                  onClick={this.onFieldClick}
-                />
-              </FormGroup>
+              {type !== 'give' && (
+                <FormGroup>
+                  <ControlLabel>{__('Is get E-Barimt')}</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    type={'checkbox'}
+                    componentClass="checkbox"
+                    useNumberFormat
+                    fixed={0}
+                    name="isGetEBarimt"
+                    value={this.state.isGetEBarimt}
+                    onChange={onChangeField}
+                    onClick={this.onFieldClick}
+                  />
+                </FormGroup>
+              )}
               {this.state.isGetEBarimt && (
                 <FormGroup>
                   <ControlLabel>{__('Is organization')}</ControlLabel>
@@ -406,7 +410,7 @@ class TransactionForm extends React.Component<Props, State> {
             </FormColumn>
           </FormWrapper>
 
-          {this.renderInfo()}
+          {type !== 'give' && this.renderInfo()}
         </ScrollWrapper>
 
         <ModalFooter>

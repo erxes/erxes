@@ -62,6 +62,8 @@ export interface IContractTypeDoc {
   useMargin: boolean;
   useDebt: boolean;
   useSkipInterest: boolean;
+  useManualNumbering: boolean;
+  useFee: boolean;
   currency: string;
 }
 

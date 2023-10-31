@@ -66,8 +66,8 @@ class ContractTypeFromContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = () => {
   return [
-    'savingsContractTypesMain',
-    'savingsContractTypeDetail',
+    'contractTypesMain',
+    'SavingsContractTypesMain',
     'savingsContractTypes'
   ];
 };

@@ -26,6 +26,7 @@ export interface IEBarimt {}
 
 export interface ITransaction {
   number?: string;
+  transactionType?: string;
   contractId?: string;
   customerId?: string;
   companyId?: string;
@@ -33,6 +34,7 @@ export interface ITransaction {
   description?: string;
   payDate: Date;
   payment?: number;
+  give?: number;
   interestEve?: number;
   interestNonce?: number;
   undue?: number;
@@ -80,6 +82,10 @@ export const transactionSchema = schemaHooksWrapper(
       label: 'Number',
       index: true
     }),
+    transactionType: field({
+      type: String,
+      label: 'Transaction Type'
+    }),
     contractId: field({
       type: String,
       optional: true,
@@ -110,6 +116,7 @@ export const transactionSchema = schemaHooksWrapper(
       default: new Date(),
       label: 'Created at'
     }),
+    give: field({ type: Number, min: 0, optional: true, label: 'give' }),
     payment: field({ type: Number, min: 0, optional: true, label: 'payment' }),
     interestEve: field({
       type: Number,

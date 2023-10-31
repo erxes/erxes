@@ -73,15 +73,13 @@ export const loadTransactionClass = (models: IModels) => {
       }
 
       doc.number = `${contract.number}${new Date().getTime().toString()}`;
-
+      doc.payment = doc.total;
+      doc.balance = contract.savingAmount;
       switch (doc.transactionType) {
         case TRANSACTION_TYPE.INCOME:
-          doc.payment = doc.total;
-          doc.contractReaction = contract;
-          doc.balance = contract.savingAmount;
           await models.Contracts.updateOne(
             { _id: contract._id },
-            { $inc: { savingAmount: doc.payment } }
+            { $inc: { savingAmount: doc.payment || 0 } }
           );
           break;
         case TRANSACTION_TYPE.OUTCOME:
@@ -190,11 +188,11 @@ export const loadTransactionClass = (models: IModels) => {
      * Remove Transaction
      */
     public static async removeTransactions(_ids) {
-      const transactions = await models.Transactions.find({ _id: _ids })
+      const transactions: ITransactionDocument[] = await models.Transactions.find(
+        { _id: _ids }
+      )
         .sort({ payDate: -1 })
         .lean();
-
-      console.log('_ids', _ids);
 
       for await (const oldTr of transactions) {
         if (oldTr) {
@@ -211,6 +209,11 @@ export const loadTransactionClass = (models: IModels) => {
             throw new Error(
               'At this moment transaction can not been created because this date closed'
             );
+
+          await models.Contracts.updateOne(
+            { _id: oldTr.contractId },
+            { $set: { savingAmount: oldTr.contractReaction?.savingAmount } }
+          );
 
           await models.Transactions.deleteOne({ _id: oldTr._id });
         }

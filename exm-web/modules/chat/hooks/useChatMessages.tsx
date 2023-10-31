@@ -1,5 +1,8 @@
+import { useEffect } from "react"
 import { useSearchParams } from "next/navigation"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { useMutation, useQuery, useSubscription } from "@apollo/client"
+import { useAtomValue } from "jotai"
 
 import { mutations, queries, subscriptions } from "../graphql"
 import { IChatMessage } from "../types"
@@ -23,14 +26,54 @@ export interface IUseChats {
 
 export const useChatMessages = (): IUseChats => {
   const searchParams = useSearchParams()
+  const currentUser = useAtomValue(currentUserAtom)
 
   const id = searchParams.get("id") as string
 
-  const { data, loading, fetchMore, error } = useQuery(queries.chatMessages, {
-    variables: { chatId: id, skip: 0, limit: 30 },
-  })
+  const { data, loading, fetchMore, error, refetch } = useQuery(
+    queries.chatMessages,
+    {
+      variables: { chatId: id, skip: 0, limit: 30 },
+    }
+  )
+
+  useEffect(() => {
+    refetch()
+  }, [id])
 
   const [sendMessageMutation] = useMutation(mutations.chatMessageAdd, {
+    update(cache, { data }: any) {
+      let messagesQuery = queries.chatMessages
+
+      const chatMessageAdd = data.chatMessageAdd ? data.chatMessageAdd : data
+
+      const selector = {
+        query: messagesQuery,
+        variables: { chatId: id, skip: 0, limit: 30 },
+      }
+
+      try {
+        cache.updateQuery(selector, (data) => {
+          const key = "chatMessages"
+          const messages = data ? data[key] : []
+
+          if (messages?.list?.find((m: any) => m._id === chatMessageAdd._id)) {
+            return
+          }
+
+          const newData = { ...messages }
+
+          newData.list = [chatMessageAdd, ...newData.list]
+
+          console.log(chatMessageAdd)
+
+          return { chatMessages: newData }
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    },
+
     refetchQueries: ["chatMessages", "chats"],
   })
 
@@ -45,6 +88,25 @@ export const useChatMessages = (): IUseChats => {
   }) => {
     sendMessageMutation({
       variables: { chatId: id, content, relatedId, attachments },
+
+      optimisticResponse: {
+        __typename: "Mutation",
+        chatMessageAdd: {
+          __typename: "ChatMessage",
+          _id: "temp-id",
+          chatId: id,
+          content,
+          createdUser: currentUser,
+          relatedId,
+          attachments,
+          lastSeenMessageId: { lastMessageId: "temp-d" },
+          seenList: { lastSeenMessageId: "temp-d" },
+          relatedMessage: null,
+          createdAt: new Date(),
+          mentionedUserIds: [],
+          isPinned: false,
+        },
+      },
     }).catch((e) => console.log(e))
   }
 

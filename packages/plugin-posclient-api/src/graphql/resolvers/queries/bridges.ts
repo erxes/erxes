@@ -43,7 +43,7 @@ const bridgesQueries = {
         },
         isRPC: true
       });
-      console.log(companies.length);
+
       if (companies) {
         return companies.map(company => ({
           _id: company._id,

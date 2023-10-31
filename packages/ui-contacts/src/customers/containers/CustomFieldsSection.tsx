@@ -1,23 +1,25 @@
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { withProps } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 
-import { mutations } from '../graphql';
 import { EditMutationResponse, ICustomer } from '../types';
+
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
+import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { mutations } from '../graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   customer: ICustomer;
   loading?: boolean;
   isDetail: boolean;
+  collapseCallback: () => void;
 };
 
 type FinalProps = {
@@ -31,7 +33,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     customersEdit,
     fieldsGroupsQuery,
     loading,
-    isDetail
+    isDetail,
+    collapseCallback
   } = props;
 
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
@@ -62,7 +65,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     customFieldsData: customer.customFieldsData,
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
     isDetail,
-    object: customer
+    object: customer,
+    collapseCallback
   };
 
   return <GenerateCustomFields {...updatedProps} />;
