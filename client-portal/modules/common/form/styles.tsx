@@ -16,6 +16,7 @@ const Label = styledTS<{ uppercase?: boolean }>(styled.label)`
   font-weight: ${typography.fontWeightMedium};
   color: ${colors.textPrimary};
   font-size: ${typography.fontSizeUppercase}px;
+
   > span {
     color: ${colors.colorCoreRed};
   }
@@ -24,18 +25,22 @@ const Label = styledTS<{ uppercase?: boolean }>(styled.label)`
 const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
   margin-bottom: 20px;
   position: relative;
+
   ${props =>
     props.horizontal &&
     css`
       display: flex;
       gap: ${dimensions.coreSpacing}px;
+
       > div {
         flex: 1;
       }
     `};
-  > label {
+
+    > label {
     margin-right: ${dimensions.unitSpacing}px;
   }
+
   p {
     font-size: 12px;
     color: ${colors.colorCoreGray};
@@ -59,6 +64,7 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
   border-color:${props => (props.hasError ? colors.colorCoreRed : '#DFDFE6')};
   background: none;
   transition: all 0.3s ease;
+
   ${props => {
     if (props.round) {
       return `
@@ -69,14 +75,18 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
       `;
     }
     return '';
+
   }};
+
   &:hover {
     border-color: ${colors.colorLightGray};
   }
+
   &:focus {
     outline: none;
     border-color: ${colors.colorSecondary};
   }
+
   ::placeholder {
     color: #aaa;
   }
@@ -89,6 +99,7 @@ const SelectWrapper = styledTS<{ hasError?: boolean }>(styled.div)`
   width: 100%;
   height: ${textInputHeight};
   position: relative;
+
   &:after {
     position: absolute;
     right: 5px;
@@ -130,6 +141,7 @@ const FormLabel = styled.label`
   position: relative;
   display: inline-block;
   font-weight: normal;
+
   span {
     cursor: pointer;
     display: inline-block;
@@ -149,6 +161,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
   width: 1px !important;
   white-space: nowrap !important;
   cursor: ${props => props.disabled && 'not-allowed'}
+
   &:focus {
     + span {
       &::before {
@@ -156,6 +169,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
       }
     }
   }
+
   &:hover {
     + span {
       &::before {
@@ -164,6 +178,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
       }
     }
   }
+
   &:active {
     + span {
       &::before {
@@ -171,10 +186,12 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
       }
     }
   }
+
   + span {
     position: relative;
     padding: ${inputPadding};
     user-select: none;
+
     &:before {
       background-color: ${colors.colorWhite};
       border: ${inputBorderWidth} solid ${props =>
@@ -192,6 +209,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
       border-radius: 2px;
       cursor: ${props => props.disabled && 'not-allowed'}
     }
+
     &:after {
       box-sizing: content-box;
       content: '';
@@ -207,6 +225,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
       transition: transform 200ms ease-out;
     }
   }
+
   + span:last-child:before {
     margin-right: 0px;
   }
@@ -219,6 +238,7 @@ const Radio = styled(inputStyle)`
       border-radius: 50%;
     }
   }
+
   &:checked {
     &:active,
     &:focus {
@@ -230,12 +250,14 @@ const Radio = styled(inputStyle)`
         }
       }
     }
+
     + span {
       &:before {
         animation: none;
         background-color: ${colors.colorSecondary};
         border-color: transparent;
       }
+
       &:after {
         transform: scale(1);
       }
@@ -261,6 +283,7 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
       transition: none;
     }
   }
+
   &:checked + span {
     &:before {
       animation: none;
@@ -268,6 +291,7 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
         props.color ? props.color : colors.colorSecondary};
       border-color: transparent;
     }
+
     &:after {
       content: '';
       transform: rotate(-45deg) scale(1);
