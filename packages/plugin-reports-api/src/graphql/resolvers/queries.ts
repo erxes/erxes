@@ -68,7 +68,7 @@ const reportsQueries = {
   async reportChartGetResult(
     _root,
     { serviceName, templateType, filter },
-    { subdomain }: IContext
+    { subdomain, user }: IContext
   ) {
     const reportResult = await sendCommonMessage({
       subdomain,
@@ -76,7 +76,8 @@ const reportsQueries = {
       action: 'reports.getChartResult',
       data: {
         filter,
-        templateType
+        templateType,
+        currentUser: user
       },
       isRPC: true
     });

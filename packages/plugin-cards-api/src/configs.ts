@@ -10,7 +10,7 @@ import { buildFile } from './exporterByUrl';
 import segments from './segments';
 import forms from './forms';
 import logs from './logUtils';
-import { generateModels, models } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import imports from './imports';
 import internalNotes from './internalNotes';
 import automations from './automations';
@@ -22,6 +22,8 @@ import tags from './tags';
 import exporter from './exporter';
 import cronjobs from './cronjobs/common';
 import dashboards from './dashboards';
+import reports from './reports';
+
 import { NOTIFICATION_MODULES } from './constants';
 
 export let mainDb;
@@ -29,67 +31,6 @@ export let graphqlPubsub;
 export let serviceDiscovery;
 
 export let debug;
-
-const templates = [
-  {
-    templateType: 'dealsChart',
-    name: 'dealsChart',
-    getChartResult: ({ filter }) => {
-      const DEFAULT_FILTER = {
-        userIds: ['12311'],
-        userId: '12321',
-        pipelineId: '1231'
-      };
-
-      const query = {
-        userId: { $in: DEFAULT_FILTER.userIds },
-        pipelineId: DEFAULT_FILTER.pipelineId
-      } as any;
-
-      if (filter.userIds) {
-        query.userId.$in = filter.userIds;
-      }
-
-      if (filter.pipelineId) {
-        query.pipelineId = filter.pipelineId;
-      }
-
-      return models?.Deals.find(query);
-    },
-
-    filterTypes: [
-      {
-        fieldName: 'userIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users'
-      },
-      {
-        fieldName: 'userId',
-        fieldType: 'select',
-        fieldQuery: 'user',
-        fieldLabel: 'Select assigned user'
-      },
-      {
-        fieldName: 'pipelineId',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldLabel: 'Select pipeline'
-      },
-      {
-        fieldName: 'createdAt',
-        fieldType: 'date',
-        fieldQuery: 'createdAt'
-      },
-      {
-        fieldName: 'dealName',
-        fieldType: 'string',
-        fieldQuery: 'name'
-      }
-    ]
-  }
-];
 
 export default {
   name: 'cards',
@@ -106,17 +47,8 @@ export default {
   hasDashboard: true,
 
   meta: {
-    reports: {
-      templates,
-      getChartResult: (templateType: string, filter: any) => {
-        const template =
-          templates.find(t => t.templateType === templateType) || ({} as any);
-
-        return template.getChartResult(filter);
-      }
-    },
-
     cronjobs,
+    reports,
     forms,
     logs: { providesActivityLog: true, consumers: logs },
     segments,
