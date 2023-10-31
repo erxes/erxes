@@ -1,28 +1,28 @@
 import { addToCartAtom } from "@/store/cart.store"
-import { setSearchPopoverAtom } from "@/store/ui.store"
-import { useAtom } from "jotai"
+import { searchPopoverAtom } from "@/store/ui.store"
+import { useSetAtom } from "jotai"
 import { SearchIcon } from "lucide-react"
 
 import { IProduct } from "@/types/product.types"
+import { CommandItem } from "@/components/ui/command"
 
 const ProductItem = (props: IProduct) => {
   const { name, code } = props
-  const [, addToCart] = useAtom(addToCartAtom)
-  const [, changePopover] = useAtom(setSearchPopoverAtom)
+  const addToCart = useSetAtom(addToCartAtom)
+  const closePopover = useSetAtom(searchPopoverAtom)
+
+  const onSelect = () => {
+    addToCart(props)
+    setTimeout(() => closePopover(false))
+  }
 
   return (
-    <div
-      className="mb-1 flex items-center rounded px-2 hover:bg-neutral-100"
-      onClick={() => {
-        addToCart(props)
-        changePopover(false)
-      }}
-    >
-      <SearchIcon className="mr-2 h-4 w-4 text-black/50" />
+    <CommandItem onSelect={onSelect} onClick={onSelect}>
+      <SearchIcon className="mr-2 h-4 w-4 text-black/60" />
       <span>
         {name} - {code}
       </span>
-    </div>
+    </CommandItem>
   )
 }
 

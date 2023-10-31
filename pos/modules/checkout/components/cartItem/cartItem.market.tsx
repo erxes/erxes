@@ -1,13 +1,14 @@
 "use client"
 
+import ProductPrice from "@/modules/products/productPriceInfo"
 import { updateCartAtom } from "@/store/cart.store"
 import { motion } from "framer-motion"
 import { useSetAtom } from "jotai"
 import { MinusIcon, PlusIcon, X } from "lucide-react"
 
 import { OrderItem } from "@/types/order.types"
-import { formatNum } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { FocusChanger } from "@/components/ui/focus-changer"
 import { Input } from "@/components/ui/input"
 
 const CartItem = ({
@@ -16,6 +17,7 @@ const CartItem = ({
   count,
   productName,
   unitPrice,
+  productId,
 }: OrderItem & { index: number }) => {
   const updateCart = useSetAtom(updateCartAtom)
   const formattedIndex = (index + 1).toString().padStart(2, "0")
@@ -45,13 +47,15 @@ const CartItem = ({
           >
             <MinusIcon className="h-3 w-3" />
           </Button>
-          <Input
-            className="h-6 w-16 rounded-none border-none px-2 py-0 text-center"
-            focus={false}
-            type="number"
-            value={count}
-            onChange={(e) => handleUpdate(e.target.value)}
-          />
+          <FocusChanger>
+            <Input
+              className="h-6 w-16 rounded-none border-none px-2 py-0 text-center"
+              focus={false}
+              type="number"
+              value={count}
+              onChange={(e) => handleUpdate(e.target.value)}
+            />
+          </FocusChanger>
           <Button
             className={btnClassName}
             Component="div"
@@ -61,9 +65,15 @@ const CartItem = ({
           </Button>
         </div>
       </div>
-      <div className="flex w-4/12">
+      <div className="flex w-4/12 items-center">
         <span className="block h-4 w-6/12 overflow-hidden">{"-"}</span>
-        <span className="w-5/12 font-extrabold">{formatNum(unitPrice)}₮</span>
+        <span className="w-5/12">
+          <ProductPrice
+            productId={productId}
+            unitPrice={unitPrice}
+            className="ml-2 text-xs font-extrabold"
+          />
+        </span>
         <Button
           className="h-4 w-4 rounded-full bg-warning p-0 hover:bg-warning/90"
           Component="div"
