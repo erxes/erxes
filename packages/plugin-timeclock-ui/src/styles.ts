@@ -485,6 +485,30 @@ const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
   }
 `;
 
+const SchedulesTableWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+
+  table {
+    border-collapse: collapse;
+    width: auto;
+  }
+
+  .fixed-column {
+    position: sticky;
+    left: 0;
+    background-color: #fff;
+    z-index: 99;
+  }
+
+  th {
+    border: 1px solid #eee !important;
+  }
+`;
+
+// /* Apply styles to the first 'n' columns you want to fix (in this example, 'n' is 2) */
+// th:nth-child(-n+2),
+
 export {
   FilterItem,
   FilterWrapper,
@@ -522,5 +546,6 @@ export {
   RoundBox,
   SortItem,
   CustomContainer,
-  SearchInput
+  SearchInput,
+  SchedulesTableWrapper
 };
