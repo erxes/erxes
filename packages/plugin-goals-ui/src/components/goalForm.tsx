@@ -264,9 +264,10 @@ class GoalTypeForm extends React.Component<Props, State> {
   };
 
   onChangeSegments = values => {
+    const { assignmentCampaign } = this.state;
     this.setState({
       assignmentCampaign: {
-        ...this.state.assignmentCampaign,
+        ...assignmentCampaign,
         segmentIds: values.map(v => v.value)
       }
     });

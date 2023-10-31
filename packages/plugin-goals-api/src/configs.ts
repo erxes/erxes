@@ -1,4 +1,3 @@
-import * as serverTiming from 'server-timing';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
@@ -36,7 +35,6 @@ export default {
 
     return context;
   },
-  middlewares: [(serverTiming as any)()],
 
   onServerInit: async options => {
     mainDb = options.db;
