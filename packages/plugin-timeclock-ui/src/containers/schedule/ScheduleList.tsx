@@ -9,6 +9,7 @@ import {
   ISchedule,
   IScheduleConfig,
   IShift,
+  ScheduleConfigQueryResponse,
   ScheduleMutationResponse,
   ScheduleQueryResponse
 } from '../../types';
@@ -53,6 +54,7 @@ type Props = {
 type FinalProps = {
   listSchedulesMain: ScheduleQueryResponse;
   listBranchesQuery: BranchesQueryResponse;
+  listScheduleConfigsQuery: ScheduleConfigQueryResponse;
 } & Props &
   ScheduleMutationResponse;
 
@@ -65,12 +67,16 @@ const ListContainer = (props: FinalProps) => {
     removeScheduleMutation,
     removeScheduleShiftMutation,
     checkDuplicateScheduleShiftsMutation,
-    listSchedulesMain
+    listSchedulesMain,
+    listScheduleConfigsQuery
   } = props;
 
-  if (listSchedulesMain.loading) {
+  if (listSchedulesMain.loading || listScheduleConfigsQuery.loading) {
     return <Spinner />;
   }
+
+  const { scheduleConfigs = [] } = listScheduleConfigsQuery;
+
   const solveSchedule = (scheduleId: string, status: string) => {
     solveScheduleMutation({
       variables: { _id: scheduleId, status: `${status}` }
@@ -234,6 +240,7 @@ const ListContainer = (props: FinalProps) => {
     scheduleOfMembers: list,
     totalCount,
     loading: listSchedulesMain.loading,
+    scheduleConfigs,
     solveSchedule,
     solveShift,
     submitRequest,
@@ -260,6 +267,12 @@ export default withProps<Props>(
           branchIds: queryParams.branchIds,
           scheduleStatus: queryParams.scheduleStatus
         },
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, ScheduleConfigQueryResponse>(gql(queries.scheduleConfigs), {
+      name: 'listScheduleConfigsQuery',
+      options: () => ({
         fetchPolicy: 'network-only'
       })
     }),
