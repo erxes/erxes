@@ -506,9 +506,6 @@ const SchedulesTableWrapper = styled.div`
   }
 `;
 
-// /* Apply styles to the first 'n' columns you want to fix (in this example, 'n' is 2) */
-// th:nth-child(-n+2),
-
 export {
   FilterItem,
   FilterWrapper,
