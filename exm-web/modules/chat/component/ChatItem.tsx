@@ -19,10 +19,7 @@ import {
 } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 import {
   Popover,
@@ -55,11 +52,9 @@ export const ChatItem = ({
     }
   }
 
-  const {
-    togglePinned,
-    toggleMute,
-    chatArchive,
-  } = useChatsMutation({ callBack })
+  const { togglePinned, toggleMute, chatArchive } = useChatsMutation({
+    callBack,
+  })
   const searchParams = useSearchParams()
 
   const [open, setOpen] = useState(false)
@@ -108,6 +103,16 @@ export const ChatItem = ({
           </Dialog>
         )
       }
+
+      return (
+        <div
+          className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex"
+          onClick={() => chatArchive(chat._id)}
+        >
+          <Archive size={14} />
+          &nbsp; Archive chat
+        </div>
+      )
     }
 
     return (
@@ -136,13 +141,6 @@ export const ChatItem = ({
             {chat.muteUserIds.includes(currentUser._id)
               ? "Unmute notification"
               : "Mute notification"}
-          </div>
-          <div
-            className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs flex"
-            onClick={() => chatArchive(chat._id)}
-          >
-            <Archive size={14} />
-            &nbsp; Archive chat
           </div>
 
           {renderDelete()}
