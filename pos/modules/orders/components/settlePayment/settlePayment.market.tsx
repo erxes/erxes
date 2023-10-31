@@ -1,11 +1,12 @@
 import usePrintBill from "@/modules/checkout/hooks/usePrintBill"
 import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { ebarimtSheetAtom } from "@/store/ui.store"
-import { useAtom, useSetAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import useKeyEvent from "@/lib/useKeyEvent"
 import useReciept from "@/lib/useReciept"
 import { Button } from "@/components/ui/button"
+import { LoaderIcon, LoaderWrapper } from "@/components/ui/loader"
 
 const MakePayment = () => {
   const [activeOrder] = useAtom(activeOrderIdAtom)
@@ -15,7 +16,7 @@ const MakePayment = () => {
 
   useKeyEvent(() => !(disabled || loading) && printBill(), "F5")
 
-  const [open] = useAtom(ebarimtSheetAtom)
+  const open = useAtomValue(ebarimtSheetAtom)
 
   const { iframeRef } = useReciept({
     onCompleted() {
@@ -37,12 +38,18 @@ const MakePayment = () => {
       </Button>
 
       {open && (
-        <iframe
-          ref={iframeRef}
-          src={"/reciept/ebarimt?id=" + activeOrder}
-          className="absolute h-1 w-1"
-          style={{ top: 10000, left: 10000 }}
-        />
+        <>
+          <iframe
+            ref={iframeRef}
+            src={"/reciept/ebarimt?id=" + activeOrder}
+            className="absolute h-1 w-1"
+            style={{ top: 10000, left: 10000 }}
+          />
+          <LoaderWrapper className="fixed inset-0 bg-white/50">
+            <LoaderIcon />
+            <span>Хэвлэж байна...</span>
+          </LoaderWrapper>
+        </>
       )}
     </>
   )

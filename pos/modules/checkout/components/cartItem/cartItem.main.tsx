@@ -14,6 +14,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { FocusChanger } from "@/components/ui/focus-changer"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -120,17 +121,19 @@ const CartItem = ({
             >
               <Minus className="h-3 w-3" strokeWidth={4} />
             </Button>
-            <Input
-              className="mx-2 w-8 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              type="number"
-              onChange={(e) =>
-                changeItem({
-                  _id,
-                  count: Number(e.target.value),
-                })
-              }
-              value={count}
-            />
+            <FocusChanger>
+              <Input
+                className="mx-2 w-8 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                type="number"
+                onChange={(e) =>
+                  changeItem({
+                    _id,
+                    count: Number(e.target.value),
+                  })
+                }
+                value={count}
+              />
+            </FocusChanger>
             <Button
               className={countBtnClass}
               onClick={() => changeItem({ _id, count: (count || 0) + 1 })}

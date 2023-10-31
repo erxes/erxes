@@ -8,6 +8,7 @@ import { MinusIcon, PlusIcon, X } from "lucide-react"
 
 import { OrderItem } from "@/types/order.types"
 import { Button } from "@/components/ui/button"
+import { FocusChanger } from "@/components/ui/focus-changer"
 import { Input } from "@/components/ui/input"
 
 const CartItem = ({
@@ -46,13 +47,15 @@ const CartItem = ({
           >
             <MinusIcon className="h-3 w-3" />
           </Button>
-          <Input
-            className="h-6 w-16 rounded-none border-none px-2 py-0 text-center"
-            focus={false}
-            type="number"
-            value={count}
-            onChange={(e) => handleUpdate(e.target.value)}
-          />
+          <FocusChanger>
+            <Input
+              className="h-6 w-16 rounded-none border-none px-2 py-0 text-center"
+              focus={false}
+              type="number"
+              value={count}
+              onChange={(e) => handleUpdate(e.target.value)}
+            />
+          </FocusChanger>
           <Button
             className={btnClassName}
             Component="div"

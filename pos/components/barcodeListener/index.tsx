@@ -6,29 +6,24 @@ import { useAtomValue, useSetAtom } from "jotai"
 
 const BarcodeListener = ({ children }: { children: React.ReactNode }) => {
   const [value, setValue] = useState("")
-  const [changeDate, setChangeDate] = useState<number>(0)
+  const [changeDate, setChangeDate] = useState<Date | null>()
   const disableBarcode = useAtomValue(disableBarcodeAtom)
   const setBarcode = useSetAtom(barcodeAtom)
 
   const handleKeyPress = useCallback(
     ({ key }: { key: string }) => {
       const date = new Date()
-      const diff = differenceInMilliseconds(changeDate, date)
-      if (diff < 30) {
-        if ((key || "").length === 1) {
-          setValue(value + key)
-          setChangeDate(Date.now())
-          return
-        }
-        if (key === "Enter") {
-          if (value.length > 8) {
-            setBarcode(value)
-          } else {
-            setBarcode("")
-          }
-          setChangeDate(Date.now())
-          setValue("")
-        }
+      const diff =
+        differenceInMilliseconds(date, new Date(changeDate || 0)) < 30
+
+      if ((key || "").length === 1) {
+        setValue((prev) => (diff ? prev + key : key.toString()))
+        return setChangeDate(date)
+      }
+
+      if (key === "Enter" && value.length > 4 && diff) {
+        setBarcode(value)
+        setValue("")
       }
     },
     [changeDate, setBarcode, value]
