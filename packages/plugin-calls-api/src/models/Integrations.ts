@@ -17,9 +17,16 @@ export const loadIntegrationClass = (models: IModels) => {
       });
 
       if (!integrations) {
-        throw new Error('Integrations not found');
+        return [];
       }
-      return integrations;
+      const filteredIntegrations = integrations.map(integration => {
+        const filteredOperators = integration.operators.filter(
+          operator => operator.userId === userId
+        );
+        return { ...integration, operators: filteredOperators };
+      });
+
+      return filteredIntegrations;
     }
   }
 
