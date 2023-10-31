@@ -1,22 +1,17 @@
+import { Title } from '@erxes/ui-settings/src/styles';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Button from '@erxes/ui/src/components/Button';
-import { IReports, IType } from '../types';
-import Row from './Row';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import Form from './Form';
-import { Title } from '@erxes/ui-settings/src/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import Chart, { ChartType } from './chart/Chart';
-import { Label } from '@erxes/ui/src/components/form/styles';
-import LineChart from './chart/LineChart';
+import React from 'react';
 import { DragField } from '../styles';
-import FunnelChart from './FunnelChart';
-import GridLayout from 'react-grid-layout';
+import { IReports } from '../types';
+import Chart, { ChartType } from './chart/Chart';
+import FunnelChart from './chart/FunnelChart';
+import LineChart from './chart/LineChart';
 
 type Props = {
   reports: any;

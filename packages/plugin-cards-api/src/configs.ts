@@ -35,27 +35,57 @@ const templates = [
     templateType: 'dealsChart',
     name: 'dealsChart',
     getChartResult: ({ filter }) => {
-      return models?.Deals.find(filter);
+      const DEFAULT_FILTER = {
+        userIds: ['12311'],
+        userId: '12321',
+        pipelineId: '1231'
+      };
+
+      const query = {
+        userId: { $in: DEFAULT_FILTER.userIds },
+        pipelineId: DEFAULT_FILTER.pipelineId
+      } as any;
+
+      if (filter.userIds) {
+        query.userId.$in = filter.userIds;
+      }
+
+      if (filter.pipelineId) {
+        query.pipelineId = filter.pipelineId;
+      }
+
+      return models?.Deals.find(query);
     },
+
     filterTypes: [
       {
         fieldName: 'userIds',
-        fieldType: 'string',
+        fieldType: 'select',
         multi: true,
         fieldQuery: 'users',
-        fieldLabels: 'Select assigned users'
+        fieldLabel: 'Select assigned users'
       },
       {
         fieldName: 'userId',
-        fieldType: 'string',
+        fieldType: 'select',
         fieldQuery: 'user',
-        fieldLabels: 'Select assigned user'
+        fieldLabel: 'Select assigned user'
       },
       {
         fieldName: 'pipelineId',
-        fieldType: 'string',
+        fieldType: 'select',
         fieldQuery: 'pipelines',
-        fieldLabels: 'Select pipeline'
+        fieldLabel: 'Select pipeline'
+      },
+      {
+        fieldName: 'createdAt',
+        fieldType: 'date',
+        fieldQuery: 'createdAt'
+      },
+      {
+        fieldName: 'dealName',
+        fieldType: 'string',
+        fieldQuery: 'name'
       }
     ]
   }

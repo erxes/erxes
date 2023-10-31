@@ -32,10 +32,10 @@ const reportsQueries = {
 
   reportChartGetFilterTypes(
     _root,
-    { serviceType, templateType },
+    { serviceName, templateType },
     { models }: IContext
   ) {
-    const service = serviceDiscovery.getService(serviceType);
+    const service = serviceDiscovery.getService(serviceName);
 
     const templates = service.configs.meta.reports || {};
 
@@ -51,10 +51,10 @@ const reportsQueries = {
     return filterTypes;
   },
 
-  reportChartGetTemplates(_root, { serviceType }, { models }: IContext) {
-    const service = serviceDiscovery.getService(serviceType);
+  async reportChartGetTemplates(_root, { serviceName }, { models }: IContext) {
+    const service = await serviceDiscovery.getService(serviceName, true);
 
-    const reportConfig = service.configs.meta.reports || {};
+    const reportConfig = service.config.meta.reports || {};
 
     let templates = [];
 
@@ -67,16 +67,14 @@ const reportsQueries = {
 
   async reportChartGetResult(
     _root,
-    { serviceType, templateType, filter },
+    { serviceName, templateType, filter },
     { subdomain }: IContext
   ) {
-    const serviceName = serviceType.split(':')[0];
     const reportResult = await sendCommonMessage({
       subdomain,
       serviceName,
       action: 'reports.getChartResult',
       data: {
-        actionType: 'create',
         filter,
         templateType
       },

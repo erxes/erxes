@@ -23,20 +23,34 @@ const data = {
   ]
 };
 
+// const config = {
+//   type: 'line',
+//   data,
+//   options: {
+//     responsive: true,
+//     plugins: {
+//       legend: {
+//         position: 'top'
+//       },
+//       title: {
+//         display: true,
+//         text: 'Line chart'
+//       }
+//     }
+//   }
+// };
+
 const config = {
-  type: 'line',
-  data,
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top'
-      },
-      title: {
-        display: true,
-        text: 'Line chart'
+  type: 'bar',
+  data: {
+    datasets: [
+      {
+        data: [20, 10],
+        borderColor: ['rgba(255, 99, 132, 0.6)', 'rgba(255, 206, 86, 0.6)'],
+        backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(255, 206, 86, 0.6)']
       }
-    }
+    ],
+    labels: ['a', 'b']
   }
 };
 
