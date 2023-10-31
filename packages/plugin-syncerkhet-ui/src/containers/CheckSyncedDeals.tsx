@@ -101,12 +101,12 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    if (
-      checkSyncItemsQuery.loading ||
-      checkSyncedDealsTotalCountQuery.loading
-    ) {
-      return <Spinner />;
-    }
+    // if (
+    //   checkSyncItemsQuery.loading ||
+    //   checkSyncedDealsTotalCountQuery.loading
+    // ) {
+    //   return <Spinner />;
+    // }
 
     const deals = checkSyncItemsQuery.deals || [];
     const totalCount = checkSyncedDealsTotalCountQuery.dealsTotalCount || 0;

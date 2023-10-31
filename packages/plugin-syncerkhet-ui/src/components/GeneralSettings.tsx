@@ -3,7 +3,8 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
@@ -89,7 +90,11 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title="General settings">
+        <CollapseContent
+          title="General settings"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
           {this.renderItem('apiKey')}
           {this.renderItem('apiSecret')}
           {this.renderItem('apiToken')}
@@ -98,7 +103,11 @@ class GeneralSettings extends React.Component<Props, State> {
             'Get remainder from erkhet api url'
           )}
         </CollapseContent>
-        <CollapseContent title="Product to erkhet">
+        <CollapseContent
+          title="Product to erkhet"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
           {this.renderItem('costAccount', 'Cost Account fullCode on erkhet')}
           {this.renderItem('saleAccount', 'Sale Account fullCode on erkhet')}
           {this.renderItem(
@@ -110,7 +119,11 @@ class GeneralSettings extends React.Component<Props, State> {
             'Set description when incoming erkhet inventory'
           )}
         </CollapseContent>
-        <CollapseContent title="Customer to erkhet">
+        <CollapseContent
+          title="Customer to erkhet"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
           {this.renderItem('checkCompanyUrl')}
           {this.renderItem(
             'customerDefaultName',
@@ -127,7 +140,11 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('debtAccounts', 'Split "," account fullcode')}
         </CollapseContent>
         {isEnabled('loans') && (
-          <CollapseContent title="Loan transaction to erkhet">
+          <CollapseContent
+            title="Loan transaction to erkhet"
+            beforeTitle={<Icon icon="settings" />}
+            transparent={true}
+          >
             {this.renderItem('userEmail', 'user email')}
             {this.renderItem(
               'defaultCustomer',
