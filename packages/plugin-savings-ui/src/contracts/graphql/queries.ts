@@ -104,6 +104,11 @@ export const contractsMain = `
     savingsContractsMain(${listParamsMainValue}) {
       list {
         ${contractFields}
+        customers {
+          code
+          firstName
+          lastName
+        }
       }
       totalCount
     }

@@ -224,19 +224,6 @@ class ContractForm extends React.Component<Props, State> {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Contract Type')}
-                </ControlLabel>
-                <SelectContractType
-                  label={__('Choose type')}
-                  name="contractTypeId"
-                  value={this.state.contractTypeId || ''}
-                  onSelect={this.onSelectContractType}
-                  multi={false}
-                ></SelectContractType>
-              </FormGroup>
-
               <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
                 {this.renderFormGroup('Is Organization', {
                   ...formProps,
@@ -273,6 +260,18 @@ class ContractForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
               )}
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Contract Type')}
+                </ControlLabel>
+                <SelectContractType
+                  label={__('Choose type')}
+                  name="contractTypeId"
+                  value={this.state.contractTypeId || ''}
+                  onSelect={this.onSelectContractType}
+                  multi={false}
+                ></SelectContractType>
+              </FormGroup>
             </FormColumn>
             <FormColumn>
               <FormGroup>
