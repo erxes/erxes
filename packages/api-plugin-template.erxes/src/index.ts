@@ -351,7 +351,8 @@ async function startServer() {
       exporter,
       documentPrintHook,
       readFileHook,
-      payment
+      payment,
+      reports
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -563,6 +564,18 @@ async function startServer() {
           async args => ({
             status: 'success',
             data: await automations.replacePlaceHolders(args)
+          })
+        );
+      }
+    }
+
+    if (reports) {
+      if (reports.getChartResult) {
+        consumeRPCQueue(
+          `${configs.name}:reports.getChartResult`,
+          async args => ({
+            status: 'success',
+            data: await reports.getChartResult(args)
           })
         );
       }

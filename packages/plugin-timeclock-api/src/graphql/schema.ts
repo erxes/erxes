@@ -209,7 +209,7 @@ export const types = `
     totalHoursAbsenceSelectedMonth: Float
   }
   
-  type Report {
+  type TimeclockReport {
     groupTitle: String
     groupReport: [UserReport]
     groupTotalMinsLate: Int
@@ -285,7 +285,7 @@ export const types = `
   }
 
   type ReportsListResponse {
-    list: [Report]
+    list: [TimeclockReport]
     totalCount: Float
   }
   

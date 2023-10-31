@@ -470,68 +470,6 @@ class ContractForm extends React.Component<Props, State> {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {this.state.useManualNumbering &&
-                this.renderFormGroup('Contract Number', {
-                  ...formProps,
-                  name: 'contractNumber',
-                  value: this.state.contractNumber,
-                  onChange: this.onChangeField,
-                  onClick: this.onFieldClick
-                })}
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Contract Date')}
-                </ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={false}
-                    name="contractDate"
-                    value={this.state.contractDate}
-                    onChange={onChangeContractDate}
-                  />
-                </DateContainer>
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>
-                  {__('Contract Type')}
-                </ControlLabel>
-                <SelectContractType
-                  label={__('Choose type')}
-                  name="contractTypeId"
-                  value={this.state.contractTypeId || ''}
-                  onSelect={this.onSelectContractType}
-                  multi={false}
-                ></SelectContractType>
-              </FormGroup>
-
-              {this.state.useFee &&
-                this.renderFormGroup('Fee Amount', {
-                  ...formProps,
-                  type: 'number',
-                  name: 'feeAmount',
-                  useNumberFormat: true,
-                  fixed: 2,
-                  value: this.state.feeAmount || 0,
-                  onChange: this.onChangeField,
-                  onClick: this.onFieldClick
-                })}
-
-              {this.state.useMargin &&
-                this.renderFormGroup('Margin Amount', {
-                  ...formProps,
-                  type: 'number',
-                  name: 'marginAmount',
-                  useNumberFormat: true,
-                  fixed: 2,
-                  value: this.state.marginAmount || 0,
-                  required: true,
-                  errors: this.checkValidation(),
-                  onChange: this.onChangeField,
-                  onClick: this.onFieldClick
-                })}
-            </FormColumn>
-            <FormColumn>
               <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
                 {this.renderFormGroup('Is Organization', {
                   ...formProps,
@@ -567,6 +505,68 @@ class ContractForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
               )}
+              {this.state.useManualNumbering &&
+                this.renderFormGroup('Contract Number', {
+                  ...formProps,
+                  name: 'contractNumber',
+                  value: this.state.contractNumber,
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
+
+              {this.state.useFee &&
+                this.renderFormGroup('Fee Amount', {
+                  ...formProps,
+                  type: 'number',
+                  name: 'feeAmount',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  value: this.state.feeAmount || 0,
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
+
+              {this.state.useMargin &&
+                this.renderFormGroup('Margin Amount', {
+                  ...formProps,
+                  type: 'number',
+                  name: 'marginAmount',
+                  useNumberFormat: true,
+                  fixed: 2,
+                  value: this.state.marginAmount || 0,
+                  required: true,
+                  errors: this.checkValidation(),
+                  onChange: this.onChangeField,
+                  onClick: this.onFieldClick
+                })}
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Contract Date')}
+                </ControlLabel>
+                <DateContainer>
+                  <DateControl
+                    {...formProps}
+                    required={false}
+                    name="contractDate"
+                    value={this.state.contractDate}
+                    onChange={onChangeContractDate}
+                  />
+                </DateContainer>
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Contract Type')}
+                </ControlLabel>
+                <SelectContractType
+                  label={__('Choose type')}
+                  name="contractTypeId"
+                  value={this.state.contractTypeId || ''}
+                  onSelect={this.onSelectContractType}
+                  multi={false}
+                ></SelectContractType>
+              </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>
                   {__('Loan Purpose')}
