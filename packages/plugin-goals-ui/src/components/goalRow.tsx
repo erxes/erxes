@@ -1,11 +1,10 @@
 import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
-
 import GoalTypeForm from '../containers/goalForm';
 import { IGoalType } from '../types';
-import { mutations, queries } from '../graphql';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { queries } from '../graphql';
+import { gql, useQuery } from '@apollo/client';
 import GoalView from './goalView';
 type Props = {
   goalType: IGoalType;
@@ -93,10 +92,7 @@ function renderViewAction(
   );
 }
 
-function GoalRow(
-  { goalType, history, isChecked, toggleBulk }: Props,
-  { showModal }: State
-) {
+function GoalRow({ goalType, isChecked, toggleBulk }: Props, {}: State) {
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(goalType, e.target.checked);
@@ -178,7 +174,6 @@ function GoalRow(
       <td key={'contributionType'}>
         {displayValue(goalType, 'contributionType')}
       </td>
-      <td key={'frequency'}>{displayValue(goalType, 'frequency')}</td>
       <td key={'metric'}>{displayValue(goalType, 'metric')}</td>
       <td key={'goalType'}>{displayValue(goalType, 'goalType')}</td>
       <td key={'startDate'}>{displayValue(goalType, 'startDate')}</td>

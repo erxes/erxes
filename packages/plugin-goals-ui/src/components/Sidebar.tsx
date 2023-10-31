@@ -1,6 +1,4 @@
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';

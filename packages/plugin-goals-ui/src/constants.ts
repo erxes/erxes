@@ -4,11 +4,6 @@ export const PRODUCT_CATEGORIES_STATUS_FILTER = {
   archived: 'Archived',
   deleted: 'Deleted'
 };
-export const PRODUCT_TYPE_CHOISES = {
-  product: 'Product',
-  service: 'Service',
-  unique: 'Unique'
-};
 
 export const ENTITY = [
   { name: 'Deal Based Goal', value: 'deal' },
@@ -35,15 +30,10 @@ export const viewModes = [
   { label: 'Calendar view', type: 'calendar', icon: 'postcard' }
 ];
 
-// export const ENTITY = ['deal', 'task', 'ticket', 'purchase'];
-// export const CONTRIBUTION = ['Team Goal', 'Personal Goal'];
-
 export const CONTRIBUTION = [
   { name: 'Team Goal', value: 'team' },
   { name: 'Personal Goal', value: 'person' }
 ];
-
-export const FREQUENCY = ['Weekly', 'Monthly', ' Quarterly', 'Yearly'];
 
 export const GOAL_TYPE = [
   'Added',

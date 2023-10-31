@@ -15,7 +15,7 @@ import {
   DepartmentsMainQueryResponse,
   UnitsMainQueryResponse
 } from '@erxes/ui/src/team/types';
-import { EmptyState, Spinner } from '@erxes/ui/src';
+import { Spinner } from '@erxes/ui/src';
 
 type Props = {
   goalType: IGoalType;
@@ -114,5 +114,3 @@ export default withProps<{}>(
     })
   )(GoalTypeFromContainer)
 );
-
-// export default withProps<Props>(compose()(GoalTypeFromContainer));

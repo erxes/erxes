@@ -1,16 +1,6 @@
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { IGoalType } from '../types';
-import {
-  ControlLabel,
-  Form,
-  DateControl,
-  MainStyleFormColumn as FormColumn,
-  FormGroup,
-  MainStyleFormWrapper as FormWrapper,
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src';
-import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
+import { ControlLabel, FormGroup } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import Table from '@erxes/ui/src/components/table';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
@@ -81,9 +71,6 @@ class GoalView extends React.Component<IProps> {
             </FlexItem>
             <FlexItem>
               <FormGroup>
-                <ControlLabel>
-                  {__('Frequency: ') + data.frequency}
-                </ControlLabel>
                 <ControlLabel>
                   {__('Duration: ')} {data.startDate} - {data.endDate}
                 </ControlLabel>

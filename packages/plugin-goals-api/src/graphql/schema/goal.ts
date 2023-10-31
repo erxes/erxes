@@ -6,7 +6,6 @@ _id: String!
  pipelineId:String
  boardId:String
  contributionType: String
- frequency:String
  metric:String
   goalType: String
   contribution: [String]
@@ -26,7 +25,6 @@ _id: String!
    pipelineId:String
    boardId:String
   contributionType: String
-  frequency:String
   metric:String
   goalType: String
   contribution: [String]
@@ -61,7 +59,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  goals(entity:String, contributionType:String,frequency:String,metric:String,goalType:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String,
+  goals(entity:String, contributionType:String,metric:String,goalType:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String,
   department:String,unit:String,branch:String,
   startDate: String, progress:JSON
   endDate: String,target:String): [Goal]
@@ -77,7 +75,6 @@ const params = `
   pipelineId: String
   boardId: String
   contributionType: String
-  frequency: String
   metric: String
   goalType: String
   contribution: [String]

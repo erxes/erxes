@@ -5,7 +5,6 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
 import GoalTypesList from '../components/goalTypesList';
 import { mutations, queries } from '../graphql';
 import {

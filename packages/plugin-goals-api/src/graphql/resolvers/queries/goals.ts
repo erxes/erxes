@@ -1,7 +1,3 @@
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 import * as dayjs from 'dayjs';
@@ -9,21 +5,7 @@ import * as dayjs from 'dayjs';
 const generateFilter = async (params, commonQuerySelector) => {
   const { branch, department, unit, contribution, date } = params;
   let filter: any = {};
-  // if (params.branch) {
-  //   filter.branch = params.branch;
-  // }
-  // if (params.department) {
-  //   filter.department = params.department;
-  // }
-  // if (params.unit) {
-  //   filter.unit = params.unit;
-  // }
-  // return filter;
-  // const filter: any = { status: 'active' };
-  // const filter: any = {};
-  // if (branch) {
-  //   filter.branchIds = { $in: [branch] };
-  // }
+
   if (branch) {
     filter.branch = branch;
   }
@@ -88,18 +70,8 @@ const goalQueries = {
    * Goals list
    */
 
-  // tslint:disable-next-line:no-empty
   async goals(_root, _args, { models }: IContext) {
     return await models.Goals.find({}).lean();
-    // return paginate(
-    //   models.Goals.find(
-    //     await generateFilter(models, params, commonQuerySelector)
-    //   ),
-    //   {
-    //     page: params.page,
-    //     perPage: params.perPage
-    //   }
-    // );
   },
   goalTypes: async (
     _root,
@@ -135,11 +107,7 @@ const goalQueries = {
     };
   },
 
-  goalTypeMainProgress: async (
-    _root,
-    params,
-    { commonQuerySelector, models }: IContext
-  ) => {
+  goalTypeMainProgress: async (_root, params, { models }: IContext) => {
     const goals = await models.Goals.progressIdsGoals();
 
     return goals;
@@ -152,8 +120,5 @@ const goalQueries = {
     return goal;
   }
 };
-
-// requireLogin(goalQueries, 'goalDetail');
-// checkPermission(goalQueries, 'goals', 'showGoals', []);
 
 export default goalQueries;

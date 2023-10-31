@@ -4,7 +4,6 @@ const commonFields = `
     $pipelineId: String
     $boardId: String
     $contributionType: String
-    $frequency:String
     $metric:String
     $goalType: String
     $contribution: [String]
@@ -23,7 +22,6 @@ const commonVariables = `
   pipelineId:$pipelineId
   boardId:$boardId
   contributionType:$contributionType
-  frequency:$frequency
   metric:$metric
   goalType:$goalType
   contribution:$contribution
@@ -46,7 +44,6 @@ const goalTypesAdd = `
       pipelineId
       stageId
       contributionType
-      frequency
       metric
       goalType
       contribution
@@ -70,7 +67,6 @@ const goalTypesEdit = `
       pipelineId
       boardId
       contributionType
-      frequency
       metric
       goalType
       contribution
