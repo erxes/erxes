@@ -87,7 +87,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
       }, 1000);
     }
 
-    if (primaryPhone) {
+    if (primaryPhone && status !== 'accepted') {
       setHaveIncomingCall(true);
     }
 
@@ -272,7 +272,6 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   if (showHistory) {
     return <WidgetPopover autoOpenTab="History" />;
   }
-
   if (haveIncomingCall) {
     return (
       <IncomingCallNav>
@@ -304,8 +303,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
       </IncomingCallNav>
     );
   }
-
-  if (status === 'accepted') {
+  if (status === 'accepted' && !haveIncomingCall) {
     return (
       <IncomingCallNav>
         <NameCard
