@@ -123,7 +123,6 @@ function ScheduleList(props: Props) {
   useEffect(() => {
     const scheduleConfigsWrapped = {};
     if (scheduleConfigs) {
-      console.log('configs ', scheduleConfigs);
       for (const scheduleConfig of scheduleConfigs) {
         scheduleConfigsWrapped[scheduleConfig._id] = scheduleConfig;
       }
