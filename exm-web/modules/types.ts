@@ -1,7 +1,7 @@
 export interface IAttachment {
   name: string
   url: string
-  size: number
+  size?: number
   type: string
 }
 

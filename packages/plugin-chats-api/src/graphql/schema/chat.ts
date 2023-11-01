@@ -69,14 +69,16 @@ export const types = () => `
     description: String
     visibility: String
     isSeen: Boolean
+    isArchived: Boolean
     lastMessage: ChatMessage
     participantUsers: [ChatUser]
     createdUser: User
     createdAt: Date
     isPinned: Boolean
     isPinnedUserIds: [String]
-    isWithNotification: Boolean
     muteUserIds: [String]
+    archivedUserIds: [String]
+    isWithNotification: Boolean
     featuredImage: JSON
   }
 
@@ -131,6 +133,9 @@ export const mutations = `
   chatAdd(name: String, type: ChatType!, description: String, visibility: ChatVisibilityType, participantIds: [String], featuredImage: JSON): Chat
   chatEdit(_id: String!, name: String, description: String, visibility: ChatVisibilityType, featuredImage: JSON): Chat
   chatRemove(_id: String!): JSON
+  chatArchive(_id: String!): JSON
+
+  
   chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String
   chatMarkAsRead(_id : String!) : String
   chatToggleIsPinned(_id: String!): Boolean
