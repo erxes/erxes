@@ -71,7 +71,7 @@ const ListContainer = (props: FinalProps) => {
 
   const remove = tag => {
     confirm(
-      `This action will untag all ${tag.tagType}(s) with this tag and remove the tag. Are you sure?`
+      `This action will untag all ${tag.type}(s) with this tag and remove the tag. Are you sure?`
     )
       .then(() => {
         removeMutation({ variables: { _id: tag._id } })
@@ -112,7 +112,7 @@ const ListContainer = (props: FinalProps) => {
         mutation={object ? mutations.edit : mutations.add}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries(tagType)}
+        refetchQueries={getRefetchQueries(queryParams)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -139,10 +139,18 @@ const ListContainer = (props: FinalProps) => {
   return <List {...updatedProps} />;
 };
 
-const getRefetchQueries = (queryParams: any) => {
+const getRefetchQueries = queryParams => {
   return [
     {
       query: gql(queries.tags),
+      variables: {
+        type: queryParams.tagType,
+        searchValue: queryParams.searchValue,
+        ...generatePaginationParams(queryParams)
+      }
+    },
+    {
+      query: gql(queries.tagsQueryCount),
       variables: {
         type: queryParams.tagType,
         searchValue: queryParams.searchValue

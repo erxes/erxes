@@ -111,6 +111,7 @@ export interface ISchedule {
 
   transactionIds?: string[];
   isDefault: boolean;
+  customers?: any;
 }
 
 export interface ICloseInfo {

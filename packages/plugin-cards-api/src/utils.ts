@@ -11,8 +11,8 @@ export const configReplacer = config => {
   // replace type of date
   return config
     .replace(/\{year}/g, now.getFullYear().toString())
-    .replace(/\{month}/g, (now.getMonth() + 1).toString())
-    .replace(/\{day}/g, now.getDate().toString());
+    .replace(/\{month}/g, `0${(now.getMonth() + 1).toString()}`.slice(-2))
+    .replace(/\{day}/g, `0${now.getDate().toString()}`.slice(-2));
 };
 
 export const generateConditionStageIds = async (

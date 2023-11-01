@@ -1,3 +1,4 @@
+import { colors } from '@erxes/ui/src';
 import styled from 'styled-components';
 
 const PeriodLocksTableWrapper = styled.div`
@@ -6,6 +7,12 @@ const PeriodLocksTableWrapper = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  tr:nth-child(odd) {
+    background-color: ${colors.colorShadowGray};
+  }
+  tr:nth-child(even) {
+    background-color: #fff;
   }
 `;
 

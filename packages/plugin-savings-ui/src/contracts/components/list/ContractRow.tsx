@@ -49,6 +49,8 @@ function ContractRow({ contract, history, isChecked, toggleBulk }: Props) {
       </td>
 
       <td key={'number'}>{displayValue(contract, 'number')} </td>
+      <td key={'number'}>{displayValue(contract.customers, 'firstName')} </td>
+      <td key={'number'}>{displayValue(contract.customers, 'code')} </td>
       <td key={'savingAmount'}>{displayValue(contract, 'savingAmount')}</td>
       <td key={'status'}>{displayValue(contract, 'status')}</td>
       <td key={'tenor'}>{displayValue(contract, 'duration')}</td>

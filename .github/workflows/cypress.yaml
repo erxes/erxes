@@ -38,7 +38,6 @@ jobs:
         run: |
           cd packages/gateway
           yarn install --save
-          yarn watchTemplateForCli
 
       - name: start with "dev --deps" 
         run: |

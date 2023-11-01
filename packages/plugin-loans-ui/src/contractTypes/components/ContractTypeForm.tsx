@@ -37,6 +37,7 @@ type State = {
   currency: string;
   useManualNumbering: boolean;
   useFee: boolean;
+  productType: string;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -54,6 +55,7 @@ class ContractTypeForm extends React.Component<Props, State> {
       useSkipInterest: contractType.useSkipInterest,
       useManualNumbering: contractType.useManualNumbering,
       useFee: contractType.useFee,
+      productType: contractType.productType,
       currency:
         contractType.currency || this.props.currentUser.configs?.dealCurrency[0]
     };
@@ -83,6 +85,7 @@ class ContractTypeForm extends React.Component<Props, State> {
       leaseType: this.state.leaseType,
       productCategoryIds: this.state.productCategoryIds,
       description: finalValues.description,
+      productType: this.state.productType,
       currency: finalValues.currency
     };
   };
@@ -169,6 +172,25 @@ class ContractTypeForm extends React.Component<Props, State> {
                     )}${category.code} - ${category.name}`
                   }))}
                 />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Loss calc type')}
+                </ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="productType"
+                  componentClass="select"
+                  value={this.state.productType}
+                  required={true}
+                  onChange={this.onChangeField}
+                >
+                  {['private', 'public'].map((typeName, index) => (
+                    <option key={`undeType${index}`} value={typeName}>
+                      {typeName}
+                    </option>
+                  ))}
+                </FormControl>
               </FormGroup>
             </FormColumn>
             <FormColumn>

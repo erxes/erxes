@@ -43,6 +43,38 @@ const generateProductsOptions = async (
   };
 };
 
+const generateProductsCategoriesOptions = async (
+  subdomain: string,
+  name: string,
+  label: string,
+  type: string
+) => {
+  const productCategories = await sendProductsMessage({
+    subdomain,
+    action: 'categories.find',
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const options: Array<{ label: string; value: any }> = productCategories.map(
+    productCategory => ({
+      value: productCategory._id,
+      label: `${productCategory.code} - ${productCategory.name}`
+    })
+  );
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
 const generateContactsOptions = async (
   subdomain: string,
   name: string,
@@ -297,7 +329,17 @@ export const generateFields = async ({ subdomain, data }) => {
       'product'
     );
 
-    fields = [...fields, ...[productOptions, assignedUserOptions]];
+    const productsCategoriesOptions = await generateProductsCategoriesOptions(
+      subdomain,
+      'productsData.categoryId',
+      'Product Categories',
+      'select'
+    );
+
+    fields = [
+      ...fields,
+      ...[productOptions, productsCategoriesOptions, assignedUserOptions]
+    ];
   }
 
   if (type === 'deal' || (type === 'purchase' && usageType === 'export')) {

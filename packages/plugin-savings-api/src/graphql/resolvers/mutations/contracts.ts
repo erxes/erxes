@@ -140,10 +140,10 @@ const contractMutations = {
   },
   savingsExpandDuration: async (
     _root,
-    { _id }: { _id: string },
+    { _id, contractTypeId }: { _id: string; contractTypeId: string },
     { models }: IContext
   ) => {
-    const contract = await models.Contracts.expandDuration(_id);
+    const contract = await models.Contracts.expandDuration(_id, contractTypeId);
 
     return contract;
   },

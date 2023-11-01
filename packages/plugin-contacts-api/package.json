@@ -2,12 +2,11 @@
   "name": "@erxes/plugin-contacts-api",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && yarn install",
-    "dev": "cd .erxes && yarn dev",
-    "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-contacts-api/.erxes && node src"
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
   },
   "dependencies": {
+    "@erxes/api-utils" : "*",
     "uuid-by-string": "^3.0.5",
     "xlsx-populate": "^1.20.1"
   }

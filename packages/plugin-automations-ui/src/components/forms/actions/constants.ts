@@ -54,6 +54,10 @@ export const PROPERTY_OPERATOR = {
     {
       value: 'divide',
       label: 'Divide'
+    },
+    {
+      value: 'set',
+      label: 'Set'
     }
   ],
   Default: [

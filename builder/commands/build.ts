@@ -1,29 +1,4 @@
-import * as fse from 'fs-extra';
-import { exec } from 'child_process';
-
-const execute = async func => {
-  try {
-    await func();
-  } catch (e) {
-    console.log(e.message);
-  }
-};
-
-const execCommand = command => {
-  return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      console.log(stdout);
-
-      if (error !== null) {
-        return reject(error);
-      }
-
-      console.log(stderr);
-
-      return resolve('done');
-    });
-  });
-};
+import build from '../src/build';
 
 const main = async () => {
   if (process.argv.length <= 2) {
@@ -32,8 +7,8 @@ const main = async () => {
     );
   }
 
-  const type = process.argv[2];
 
+  const type = process.argv[2];
   let folderName = type;
 
   if (type === 'plugin') {
@@ -44,89 +19,11 @@ const main = async () => {
     folderName = `plugin-${process.argv[3]}-api`;
   }
 
-  await execute(() =>
-    fse.copy('../packages/api-utils', './api-utils', { overwrite: true })
-  );
-
-  if (type !== 'gateway') {
-    await execute(() =>
-      fse.copy('../packages/api-plugin-template', './api-plugin-template', {
-        overwrite: true
-      })
-    );
-  }
-
-  await execute(() =>
-    fse.copy(`../packages/${folderName}`, `./${folderName}`, {
-      overwrite: true
-    })
-  );
-
-  if (type === 'plugin') {
-    console.log('replacing .erxes ...........');
-
-    await execute(() =>
-      fse.copy(
-        '../packages/api-plugin-template.erxes',
-        `./${folderName}/.erxes`,
-        {
-          overwrite: true
-        }
-      )
-    );
-
-    await execute(() =>
-      fse.copy(
-        `./${folderName}/Dockerfile`,
-        `./${folderName}/.erxes/Dockerfile`,
-        {
-          overwrite: true
-        }
-      )
-    );
-  }
-
-  // Even though this global yarn.lock contains all node_modules in packages folder
-  // later when we are yarn install. it can compare package.json files in dist folders
-  // and removing non existing modules from yarn.lock. Therefore it can only install nessecesary modules
-  console.log('Replacing yarn.lock with global yarn.lock ...........');
-
-  await execute(() =>
-    fse.copy('../yarn.lock', `./yarn.lock`, {
-      overwrite: true
-    })
-  );
-
-  console.log('Yarn install ....');
-  await execCommand('yarn install');
-
-  process.chdir(folderName);
-
-  console.log('Yarn build ....');
-  
-  await execCommand('yarn build');
-
-  console.log('Removing node_modules with dev dependencies ....');
-  process.chdir('..');
-  await execCommand('rm -rf node_modules');
-  console.log('Installing production deps ....');
-  await execCommand('yarn install --production');
-
-  console.log('Moving node_modules ....');
-
-  if (type === 'plugin') {
-    await execute(() =>
-      fse.move('./node_modules', `./${folderName}/.erxes/dist/node_modules`)
-    );
-  } else {
-    await execute(() =>
-      fse.move('./node_modules', `./${folderName}/dist/node_modules`)
-    );
-  }
+  await build(folderName);  
 };
 
 main()
-  .then(() => process.exit())
+  .then(() => process.exit(0))
   .catch(e => {
     console.log(e);
     process.exit(1);

@@ -106,8 +106,8 @@ const contractsClose = `
   }
 `;
 const expandContract = `
-  mutation SavingsExpandDuration($id: String!) {
-    savingsExpandDuration(_id: $id) {
+  mutation SavingsExpandDuration($id: String!,$contractTypeId: String) {
+    savingsExpandDuration(_id: $id,contractTypeId:$contractTypeId) {
       _id
     }
   }

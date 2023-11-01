@@ -1,19 +1,20 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
+import FormComponent from '@erxes/ui-tags/src/components/Form';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
+import Label from '@erxes/ui/src/components/Label';
 import Modal from 'react-bootstrap/Modal';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Select from 'react-select-plus';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import FormComponent from '@erxes/ui-tags/src/components/Form';
-import { __ } from '@erxes/ui/src/utils';
 
 export const TagWrapper = styledTS<{ space: number }>(styled.div)`
   padding-left: ${props => props.space * 20}px;
@@ -165,6 +166,9 @@ class Row extends React.Component<Props, State> {
         </td>
         <td>{tag.totalObjectCount || '-'}</td>
         <td>{count || '0'}</td>
+        <td>
+          <Label lblStyle="default">{tag.type || '-'}</Label>
+        </td>
         <td>
           <ActionButtons>
             <ModalTrigger

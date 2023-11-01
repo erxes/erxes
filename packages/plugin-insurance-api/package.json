@@ -2,14 +2,16 @@
   "name": "@erxes/plugin-insurance-api",
   "version": "1.0.0",
   "scripts": {
-    "install-deps": "cd .erxes && yarn install",
-    "dev": "cd .erxes && yarn dev",
-    "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-insurance-api/.erxes && node src"
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
   },
 
   "dependencies": {
     "@graphql-tools/load-files": "^7.0.0",
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^8.5.1",
+    "@erxes/api-utils": "*",
+    "axios": "^1.2.2",
+    "erxes-inmemory-storage": "^1.0.20",
+    "request-promise": "^4.2.6"
   }
 }
