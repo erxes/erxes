@@ -1,3 +1,4 @@
+//#region  import
 import { IModels } from '../../connectionResolver';
 import {
   INVOICE_STATUS,
@@ -25,7 +26,14 @@ import {
   getFullDate,
   getDatesDiffMonth
 } from './utils';
+//#endregion
 
+/**
+ * @param models
+ * @param contract
+ * @param trDate
+ * @returns
+ */
 export const getAOESchedules = async (
   models: IModels,
   contract,
@@ -464,6 +472,14 @@ export const getCalcedAmounts = async (
   return result;
 };
 
+/**
+ * get payment information
+ * @param models
+ * @param subdomain
+ * @param doc
+ * @param result
+ * @returns
+ */
 export const transactionRule = async (
   models: IModels,
   subdomain: string,
@@ -571,6 +587,7 @@ export const transactionRule = async (
 
   return result;
 };
+
 /**
  * when transaction done
  * then schedule must be modified by paid amount
@@ -675,6 +692,13 @@ export const trAfterSchedule = async (
   return;
 };
 
+/**
+ * transaction remove action
+ * @param models
+ * @param tr
+ * @param noDeleteSchIds
+ * @returns
+ */
 export const removeTrAfterSchedule = async (
   models: IModels,
   tr: ITransactionDocument,
