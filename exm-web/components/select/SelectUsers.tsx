@@ -38,7 +38,7 @@ const SelectUsers = ({
         />
       ) : (
         <Select
-          className="sm:rounded-lg"
+          className="sm:rounded-lg hide-user-remove-button"
           onMenuClose={() => setReload(false)}
           onMenuOpen={() => setReload(true)}
           isMulti={true}
@@ -49,6 +49,7 @@ const SelectUsers = ({
           placeholder="Select users"
           isSearchable={true}
           onInputChange={setSearchValue}
+          isClearable={false}
           onChange={(data) => {
             onChangeMultiValue(data)
             if (field) {
