@@ -3,16 +3,13 @@
   "version": "1.0.0",
   "license": "GNU General Public License v3.0 with Commons Clause",
   "scripts": {
-    "dev": "NODE_ENV=development yarn watchTemplate & nodemon src/index.ts",
-    "watchTemplate": "nodemon src/commands/watch-template.ts",
-    "watchTemplateForCli": "yarn ts-node src/commands/watch-template.ts",
-    "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts",
-    "build": "yarn tsc -p tsconfig.prod.json && node fix-build.js"
+    "dev": "NODE_ENV=development nodemon src/index.ts",
+    "build": "yarn tsc"
   },
   "dependencies": {
     "@apollo/client": "~3.7.14",
+    "@erxes/api-utils" : "*",
     "@graphql-tools/schema": "^9.0.16",
-    "@sentry/node": "^7.50.0",
     "agentkeepalive": "^4.3.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.4",
@@ -30,9 +27,7 @@
     "ioredis": "^5.3.2",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.7",
-    "nodejs-file-downloader": "^4.9.2",
     "server-timing": "^3.3.2",
-    "ws": "^8.4.0",
     "yaml": "^1.10.2"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { sendRequest } from '../../../api-utils/src/requests';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 dotenv.config();
 
 import { Collection, Db, MongoClient } from 'mongodb';
