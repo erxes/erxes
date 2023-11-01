@@ -1,15 +1,3 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import { __ } from '@erxes/ui/src/utils';
-import { IProduct } from '@erxes/ui-products/src/types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import React from 'react';
-import Select from 'react-select-plus';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import {
   Amount,
   ProductButton,
@@ -17,13 +5,26 @@ import {
   VoucherCard,
   VoucherContainer
 } from '../../styles';
-import { IPurchase, IDiscountValue, IProductData } from '../../types';
-import { selectConfigOptions } from '../../utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IDiscountValue, IProductData, IPurchase } from '../../types';
+
+import CURRENCIES from '@erxes/ui/src/constants/currencies';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IProduct } from '@erxes/ui-products/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import React from 'react';
+import Select from 'react-select-plus';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '../../graphql';
-import Tip from '@erxes/ui/src/components/Tip';
+import { selectConfigOptions } from '../../utils';
 
 type Props = {
   advancedView?: boolean;
@@ -94,8 +95,6 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   onChangeField = (type: string, value, _id: string) => {
-    console.log(type, _id);
-
     const {
       productsData,
       onChangeProductsData,

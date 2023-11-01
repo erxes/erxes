@@ -1,4 +1,4 @@
-import { IImportHistoryDocument } from 'src/db/models/definitions/importHistory';
+import { IImportHistoryDocument } from '../../db/models/definitions/importHistory';
 
 export default {
   user(history: IImportHistoryDocument) {

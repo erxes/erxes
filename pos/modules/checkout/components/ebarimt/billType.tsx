@@ -7,10 +7,12 @@ import { useAtom } from "jotai"
 
 import { IBillType } from "@/types/order.types"
 import { BILL_TYPES } from "@/lib/constants"
+import useKeyEvent from "@/lib/useKeyEvent"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Shortcut } from "@/components/ui/shortcut"
 
 const CheckRegister = dynamic(() => import("./checkRegister.market"))
 
@@ -18,6 +20,8 @@ const BillType = () => {
   const [billType, setBillType] = useAtom(billTypeAtom)
   const { skipEbarimt, allowInnerBill } = useRenderEbarimt()
   const { printBill, loading } = usePrintBill()
+
+  useKeyEvent(() => setBillType("3"), "F10")
 
   useEffect(() => {
     if (billType === BILL_TYPES.INNER) printBill()
@@ -44,7 +48,9 @@ const BillType = () => {
         </div>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="3" id="3" disabled={skipEbarimt} />
-          <Label htmlFor="3">Байгуулга</Label>
+          <Label htmlFor="3">
+            Байгуулга <Shortcut>F10</Shortcut>
+          </Label>
         </div>
 
         {showInner && (
