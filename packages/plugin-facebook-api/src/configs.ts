@@ -5,7 +5,7 @@ import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import initApp from './index';
+import initApp from './initApp';
 import { INTEGRATION_KINDS } from './constants';
 
 export let mainDb;

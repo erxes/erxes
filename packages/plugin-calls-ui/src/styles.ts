@@ -295,8 +295,8 @@ export const Actions = styled.div`
 export const CallAction = styledTS<{ isDecline?: boolean; shrink?: boolean }>(
   styled.div
 )`
-  width: ${props => (props.shrink ? '38px' : '70px')};
-  height: ${props => (props.shrink ? '38px' : '70px')};
+  width: 70px;
+  height: 70px
   border-radius: 50%;
   border: 1.2px solid rgba(255, 255, 255, 0.7);
   display: flex;
@@ -305,6 +305,7 @@ export const CallAction = styledTS<{ isDecline?: boolean; shrink?: boolean }>(
   flex-direction: column;
   cursor: pointer;
   color: #fff;
+  background: ${props => props.shrink && '#999999'};
 
   ${props =>
     props.isDecline &&

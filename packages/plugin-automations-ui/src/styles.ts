@@ -715,3 +715,15 @@ export const MainInfo = styled.div`
     margin-right: ${dimensions.unitSpacing}px;
   }
 `;
+
+export const FlexContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
+  transition: all ease .3s;
+  filter: ${props => !props.isToggled && `blur(4px)`};
+  pointer-events: ${props => !props.isToggled && `none`};
+`;

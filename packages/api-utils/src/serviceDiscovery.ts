@@ -3,52 +3,40 @@ import redisClient from './redis';
 import Redis from 'ioredis';
 dotenv.config();
 
-const REDIS_CHANNEL_REFRESH_ENABLED_SERVICES = 'refresh_enabled_services';
-
 const {
   NODE_ENV,
   LOAD_BALANCER_ADDRESS,
-  ENABLED_SERVICES_PATH,
+  ENABLED_SERVICES_JSON,
   REDIS_HOST,
   REDIS_PORT,
   REDIS_PASSWORD,
   SKIP_REDIS
 } = process.env;
-let enabledServicesCache: string[] = [];
 
 const isDev = NODE_ENV === 'development';
 
-if (!ENABLED_SERVICES_PATH) {
+if (!ENABLED_SERVICES_JSON) {
   throw new Error(
-    'ENABLED_SERVICES_PATH environment variable is not configured.'
+    'ENABLED_SERVICES_JSON environment variable is not configured.'
   );
 }
 
-function refreshEnabledServices() {
-  if (!ENABLED_SERVICES_PATH) {
-    throw new Error(
-      'ENABLED_SERVICES_PATH environment variable is not configured.'
-    );
-  }
+const enabledServices = JSON.parse(ENABLED_SERVICES_JSON) || [];
 
-  delete require.cache[require.resolve(ENABLED_SERVICES_PATH)];
-  enabledServicesCache = require(ENABLED_SERVICES_PATH) || [];
-  enabledServicesCache.push('core');
+if (!Array.isArray(enabledServices)) {
+  throw new Error(
+    "ENABLED_SERVICES_JSON environment variable's value must be JSON array"
+  );
 }
 
-function ensureCache() {
-  if (!enabledServicesCache || enabledServicesCache.length === 0) {
-    refreshEnabledServices();
-  }
-}
+enabledServices.push('core');
 
 export const redis = redisClient;
 
 const generateKey = name => `service:config:${name}`;
 
 export const getServices = async (): Promise<string[]> => {
-  ensureCache();
-  return [...enabledServicesCache];
+  return enabledServices;
 };
 
 export const getService = async (name: string, config?: boolean) => {
@@ -109,8 +97,7 @@ export const leave = async (name, _port) => {
 
 export const isEnabled = name => {
   if (name === 'core') return true;
-  ensureCache();
-  return enabledServicesCache.includes(name);
+  return enabledServices.includes(name);
 };
 
 export const isAvailable = isEnabled;
@@ -125,22 +112,5 @@ export const getPluginAddress = async name => {
 };
 
 export const getEnabledServices = async () => {
-  ensureCache();
-  return [...enabledServicesCache];
+  return enabledServices;
 };
-
-export const publishRefreshEnabledServices = async () => {
-  await redis.publish(REDIS_CHANNEL_REFRESH_ENABLED_SERVICES, '');
-};
-
-(async () => {
-  if (SKIP_REDIS) return;
-
-  const redisSubscriber = new Redis({
-    host: REDIS_HOST,
-    port: parseInt(REDIS_PORT || '6379', 10),
-    password: REDIS_PASSWORD
-  });
-  await redisSubscriber.subscribe(REDIS_CHANNEL_REFRESH_ENABLED_SERVICES);
-  await redisSubscriber.on('message', refreshEnabledServices);
-})();

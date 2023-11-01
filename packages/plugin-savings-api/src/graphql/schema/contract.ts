@@ -142,5 +142,5 @@ export const mutations = `
   savingsContractsRemove(contractIds: [String]): [String]
   savingsInterestChange(${interestCorrectionFields}): SavingContract
   savingsInterestReturn(${interestCorrectionFields}): SavingContract
-  savingsExpandDuration(_id: String!):SavingContract
+  savingsExpandDuration(_id: String!,contractTypeId:String):SavingContract
 `;

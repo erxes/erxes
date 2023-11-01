@@ -485,6 +485,27 @@ const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
   }
 `;
 
+const SchedulesTableWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+
+  table {
+    border-collapse: collapse;
+    width: auto;
+  }
+
+  .fixed-column {
+    position: sticky;
+    left: 0;
+    background-color: #fff;
+    z-index: 99;
+  }
+
+  th {
+    border: 1px solid #eee !important;
+  }
+`;
+
 export {
   FilterItem,
   FilterWrapper,
@@ -522,5 +543,6 @@ export {
   RoundBox,
   SortItem,
   CustomContainer,
-  SearchInput
+  SearchInput,
+  SchedulesTableWrapper
 };

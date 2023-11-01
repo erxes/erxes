@@ -285,7 +285,7 @@ const addScore = async ({
 
       await models.ScoreLogs.changeOwnersScore({
         ownerType,
-        ownerId,
+        ownerIds: [ownerId],
         changeScore: score,
         description: 'from automation'
       });
