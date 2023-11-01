@@ -10,8 +10,8 @@
     "generateDocs": "NODE_OPTIONS=--openssl-legacy-provider npx spectaql --embeddable --target-dir static/developers/docs/references spectaql.yml"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.75",
-    "@docusaurus/preset-classic": "2.0.0-alpha.75",
+    "@docusaurus/core": "3.0.0",
+    "@docusaurus/preset-classic": "3.0.0",
     "@docusaurus/theme-search-algolia": "^2.0.0-alpha.32",
     "apollo-cache-inmemory": "^1.6.6",
     "apollo-client": "^2.6.10",
