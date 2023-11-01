@@ -1,6 +1,10 @@
 import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
 import { generateModels } from './connectionResolver';
-import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+import {
+  sendCommonMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from './messageBroker';
 import { generateConditionStageIds } from './utils';
 import {
   gatherAssociatedTypes,
@@ -42,6 +46,7 @@ export default {
     const models = await generateModels(subdomain);
 
     let positive;
+    let ignoreThisPostiveQuery;
 
     const stageIds = await generateConditionStageIds(models, {
       boardId: condition.boardId,
@@ -56,7 +61,25 @@ export default {
       };
     }
 
-    return { data: { positive }, status: 'success' };
+    const productIds = await generateProductsCategoryProductIds(
+      subdomain,
+      condition
+    );
+    if (productIds.length > 0) {
+      positive = {
+        bool: {
+          should: productIds.map(productId => ({
+            match: { 'productsData.productId': productId }
+          }))
+        }
+      };
+
+      if (condition.propertyName == 'productsData.categoryId') {
+        ignoreThisPostiveQuery = true;
+      }
+    }
+
+    return { data: { positive, ignoreThisPostiveQuery }, status: 'success' };
   },
 
   associationFilter: async ({
@@ -127,4 +150,29 @@ export default {
 
     return { data: { positive }, status: 'success' };
   }
+};
+
+const generateProductsCategoryProductIds = async (subdomain, condition) => {
+  let productCategoryIds: string[] = [];
+
+  const { propertyName, propertyValue } = condition;
+  if (propertyName === 'productsData.categoryId') {
+    productCategoryIds.push(propertyValue);
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        categoryIds: [...new Set(productCategoryIds)],
+        fields: { _id: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const productIds = products.map(product => product._id);
+
+    return productIds;
+  }
+  return [];
 };

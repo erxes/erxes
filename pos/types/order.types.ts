@@ -1,4 +1,5 @@
 import { Customer, CustomerType } from "./customer.types"
+import { IProduct } from "./product.types"
 
 export type IOrderItemStatus = "new" | "done" | "confirm"
 export interface OrderItemInput {
@@ -10,6 +11,10 @@ export interface OrderItemInput {
   isTake?: boolean
   status?: IOrderItemStatus
   manufacturedDate?: string
+}
+
+export interface IAddToCartInput extends IProduct {
+  manufactureDate?: string
 }
 
 export interface OrderItem extends OrderItemInput {

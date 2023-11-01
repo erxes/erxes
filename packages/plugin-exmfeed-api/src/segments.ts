@@ -41,8 +41,6 @@ export default {
         negativeQuery
       });
 
-      console.log({ teamMemberIds });
-
       ids = await fetchByQuery({
         subdomain,
         index: 'exm_feeds',
@@ -54,7 +52,6 @@ export default {
         },
         negativeQuery: undefined
       });
-      console.log({ ids });
     }
 
     ids = _.uniq(ids);

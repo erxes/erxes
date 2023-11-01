@@ -5,11 +5,10 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { NotifButton } from '@erxes/ui-notifications/src/components/styles';
 import WidgetPopover from './WidgetPopover';
-import { type } from 'os';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
-  currentUser: IUser;
+  callIntegrationsOfUser: any;
+  setConfig: any;
 };
 const Widget = (props: Props) => {
   return (
@@ -17,7 +16,7 @@ const Widget = (props: Props) => {
       trigger="click"
       rootClose={true}
       placement="bottom"
-      overlay={<WidgetPopover autoOpenTab="Keyboard" />}
+      overlay={<WidgetPopover autoOpenTab="Keyboard" {...props} />}
     >
       <NotifButton>
         <Tip text={__('Call')} placement="bottom">
