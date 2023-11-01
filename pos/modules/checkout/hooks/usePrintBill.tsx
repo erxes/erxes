@@ -6,7 +6,7 @@ import {
   registerNumberAtom,
   unPaidAmountAtom,
 } from "@/store/order.store"
-import { setEbarimtSheetAtom } from "@/store/ui.store"
+import { ebarimtSheetAtom } from "@/store/ui.store"
 import { useMutation } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
 
@@ -21,7 +21,7 @@ const usePrintBill = (onCompleted?: () => void) => {
   const registerNumber = useAtomValue(registerNumberAtom)
   const paidDate = useAtomValue(paidDateAtom)
   const unPaidAmount = useAtomValue(unPaidAmountAtom)
-  const changeVisiblity = useSetAtom(setEbarimtSheetAtom)
+  const changeVisiblity = useSetAtom(ebarimtSheetAtom)
   const { onError } = useToast()
   const { skipEbarimt } = useRenderEbarimt()
   const disabled = unPaidAmount > 0

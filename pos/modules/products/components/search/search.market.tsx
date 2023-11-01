@@ -1,15 +1,13 @@
-"use client"
-
 import Products from "@/modules/products/products.market"
 import { searchAtom } from "@/store"
 import { searchPopoverAtom } from "@/store/ui.store"
 import { AnimatePresence, motion } from "framer-motion"
-import { useAtom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { SearchIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import useKeyEvent from "@/lib/useKeyEvent"
 import { Button } from "@/components/ui/button"
-import { Input, InputProps } from "@/components/ui/input"
+import { Command, CommandInput } from "@/components/ui/command"
 import {
   Popover,
   PopoverContent,
@@ -20,13 +18,12 @@ const Content = motion(PopoverContent)
 
 const Search = () => {
   const [open, setOpen] = useAtom(searchPopoverAtom)
+  useKeyEvent(() => setOpen(true), "F6")
 
   return (
-    <SearchTrigger onClick={() => setOpen(true)}>
-      <Popover open={open} onOpenChange={() => setOpen((prev) => !prev)} modal>
-        <PopoverTrigger className="absolute -top-4 h-0 w-full" asChild>
-          <div />
-        </PopoverTrigger>
+    <SearchTrigger>
+      <Popover open={open} onOpenChange={(op) => setOpen(op)} modal>
+        <PopoverTrigger className="absolute -top-4 h-0 w-full" />
         <AnimatePresence>
           {open && (
             <Content
@@ -43,26 +40,10 @@ const Search = () => {
                 width: "calc(var(--radix-popper-anchor-width) + 1.5rem)",
               }}
             >
-              <div className="flex items-center">
-                <SearchInput className="flex-auto" />
-                <AnimatePresence>
-                  {open && (
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: "auto" }}
-                    >
-                      <Button
-                        className="ml-3 px-3 text-black/60 hover:text-black/60"
-                        variant="outline"
-                        onClick={() => setOpen(false)}
-                      >
-                        Esc
-                      </Button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-              <Products />
+              <Command shouldFilter={false}>
+                <SearchInput />
+                <Products />
+              </Command>
             </Content>
           )}
         </AnimatePresence>
@@ -71,60 +52,46 @@ const Search = () => {
   )
 }
 
-const SearchInput = ({ onClick, className, ...rest }: InputProps) => {
+const SearchInput = () => {
   const [search, setSearch] = useAtom(searchAtom)
+  const setOpen = useSetAtom(searchPopoverAtom)
+
   return (
-    <div className={cn("relative", className)}>
-      <Input
-        {...rest}
-        className="h-10 pl-8"
-        placeholder="1062 - Төмс (Монгол)"
+    <div className="relative">
+      <CommandInput
+        placeholder="Бараа хайх F6"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        onClick={onClick}
+        onValueChange={(value) => setSearch(value)}
       />
-      <SearchIc />
+      <AnimatePresence>
+        <Button
+          className="ml-3 px-3 text-black/60 hover:text-black/60 absolute top-1/2 right-0 -translate-y-1/2"
+          size="sm"
+          variant="ghost"
+          onClick={() => setTimeout(() => setOpen(false))}
+        >
+          Esc
+        </Button>
+      </AnimatePresence>
     </div>
   )
 }
 
-const SearchTrigger = ({
-  onClick,
-  children,
-}: {
-  onClick?: () => void
-  children: React.ReactNode
-}) => {
-  const [search] = useAtom(searchAtom)
+const SearchTrigger = ({ children }: { children: React.ReactNode }) => {
+  const searchValue = useAtomValue(searchAtom)
+  const setOpen = useSetAtom(searchPopoverAtom)
   return (
-    <div className="relative">
-      <div className="flex h-10 w-full items-center rounded-md border border-input bg-transparent py-2 pl-8 text-transparent">
-        1062 - Төмс (Монгол)
+    <div className="relative" onClick={() => setOpen(true)}>
+      <div className="py-3 h-11 flex relative pl-3 text-popover-foreground/70 items-center leading-none">
+        <SearchIcon className={"h-4 w-4 mr-2"} strokeWidth={2} />
+        <span className="border-t-2 border-white">
+          {searchValue || "Бараа хайх F6"}
+        </span>
       </div>
-      <SearchIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-2/4 text-black/40 " />
-      <div
-        className={cn(
-          "absolute left-[33px] top-[13px]  xl:top-[20%]",
-          !!search ? "text-black" : "text-muted-foreground"
-        )}
-      >
-        {search || "1062 - Төмс (Монгол)"}
-      </div>
-      <div className="absolute inset-0" onClick={onClick}></div>
       {children}
     </div>
   )
 }
-
-export const SearchIc = ({ className }: { className?: string }) => (
-  <SearchIcon
-    className={cn(
-      "absolute left-2 top-1/2 h-4 w-4 -translate-y-2/4 text-black/40",
-      className
-    )}
-    strokeWidth={2}
-  />
-)
 
 const itemVariants = {
   animate: {
@@ -132,7 +99,7 @@ const itemVariants = {
     height: "80vh",
   },
   initial: {
-    height: 0,
+    height: "40vh",
     opacity: 0,
   },
 }
