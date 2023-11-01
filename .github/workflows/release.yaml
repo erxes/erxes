@@ -28,7 +28,7 @@ jobs:
 
           docker push erxes/erxes:${GITHUB_REF#refs/tags/} 
 
-          aws s3 cp s3://erxes-${GITHUB_REF#refs/heads/}-plugins/locales.tar s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/locales.tar
+          aws s3 cp s3://erxes-dev-plugins/locales.tar s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/locales.tar
       - name: core
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
