@@ -82,6 +82,9 @@ export type ISlot = {
   code: string;
   name: string;
   posId: string;
+  option: {
+    [key: string]: string | number;
+  };
 };
 
 // query types

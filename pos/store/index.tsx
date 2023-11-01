@@ -27,6 +27,8 @@ export const reportDateAtom = atom<Date | null>(null)
 
 export const productCountAtom = atom<number>(0)
 
+export const selectedTabAtom = atom<"plan" | "products">("plan")
+
 // dialog
 
 export const kioskModalView = atom<string>("")

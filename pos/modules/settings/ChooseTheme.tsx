@@ -30,6 +30,7 @@ const ChooseTheme = () => {
           <SelectItem value="main">Үндсэн</SelectItem>
           <SelectItem value="market">Дэлгүүр</SelectItem>
           <SelectItem value="coffee-shop">Кофе шоп</SelectItem>
+          <SelectItem value="restaurant">Ресторан</SelectItem>
           <SelectItem value="kiosk">Kiosk</SelectItem>
           <SelectItem value="waiting">Waiting Screen</SelectItem>
           <SelectItem value="kitchen">Kitchen Screen</SelectItem>

@@ -60,7 +60,7 @@ const configQueries = {
       if (preOrders.length) {
         slot.status = 'reserved';
         slot.isPreDates = preOrders
-          .map(po => po.dueDate)
+          .map(po => ({ _id: po._id, dueDate: po.dueDate }))
           .sort((a, b) => {
             return (
               new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime()
