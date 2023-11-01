@@ -1,0 +1,10 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.1
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - erxes-telemetry > lodash:
+        patched: '2023-11-01T10:48:23.035Z'
+        id: SNYK-JS-LODASH-567746
+        path: erxes-telemetry > lodash

@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepare": "yarn run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
@@ -30,7 +32,7 @@
     "ora": "^3.4.0"
   },
   "dependencies": {
-    "@apollo/server" : "^4.9.3",
+    "@apollo/server": "^4.9.3",
     "@apollo/subgraph": "^2.4.12",
     "@sentry/node": "^7.50.0",
     "agentkeepalive": "^4.3.0",
@@ -39,13 +41,13 @@
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "elasticsearch": "^16.7.2",
-    "graphql": "^16.7.1",
+    "graphql": "^16.8.1",
     "graphql-redis-subscriptions": "^2.4.2",
     "graphql-subscriptions": "^2.0.0",
-    "graphql-tag" : "^2.12.6",
+    "graphql-tag": "^2.12.6",
     "ioredis": "^5.3.2",
     "lodash": "^4.17.21",
-    "nanoid" : "^3.3.6",
+    "nanoid": "^3.3.6",
     "moment": "^2.18.1",
     "mongoose": "5.7.5",
     "node-fetch": "^2.6.7",
@@ -58,8 +60,10 @@
     "cookie-parser": "^1.4.6",
     "dataloader": "^2.0.0",
     "erxes-telemetry": "^1.0.4",
-    "express": "^4.17.2",
-    "redis": "^2.8.0",
-    "validator": "^13.5.2"
-  }
+    "express": "^4.17.3",
+    "redis": "^3.1.1",
+    "validator": "^13.5.2",
+    "@snyk/protect": "latest"
+  },
+  "snyk": true
 }
