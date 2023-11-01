@@ -10,7 +10,7 @@ const MessageAttachmentSection = ({
   isMe?: boolean
 }) => {
   const style = isMe
-    ? `${"bg-[#4F33AF] text-[#fff] rounded-tr-none rounded-tl-lg rounded-br-lg rounded-bl-lg"}`
+    ? `${"bg-primary-light text-[#fff] rounded-tr-none rounded-tl-lg rounded-br-lg rounded-bl-lg"}`
     : `${"bg-[#F2F3F5] text-[#000] rounded-tl-none rounded-tr-lg rounded-br-lg rounded-bl-lg"}`
 
   const medias = attachments.filter((attachment) =>
