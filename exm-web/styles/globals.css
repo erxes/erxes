@@ -188,3 +188,9 @@
 .w-message {
   width: calc(75% - 90px);
 }
+.hide-user-remove-button .css-12a83d4-MultiValueRemove {
+  display: none;
+}
+.hide-user-remove-button .css-wsp0cs-MultiValueGeneric {
+  padding-right: 6px;
+}

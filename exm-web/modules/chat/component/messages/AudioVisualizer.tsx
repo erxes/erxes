@@ -108,7 +108,7 @@ const AudioVisualizer = (props: Props) => {
 
   return (
     <div className="relative flex gap-2 items-center w-full">
-      <button onClick={onPlayToggle} className="bg-[#4F33AF] rounded-full p-1">
+      <button onClick={onPlayToggle} className="bg-primary-light rounded-full p-1">
         {!isPlaying ? (
           <Play
             size={16}

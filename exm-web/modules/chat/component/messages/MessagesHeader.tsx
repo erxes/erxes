@@ -1,4 +1,7 @@
 import React from "react"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { IUser } from "@/modules/auth/types"
+import { useAtomValue } from "jotai"
 import { ChevronLeft } from "lucide-react"
 
 import Image from "@/components/ui/image"
@@ -9,14 +12,19 @@ type Props = {
 }
 
 const MessagesHeader = ({ chatDetail, setShowSidebar }: Props) => {
+  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
+  const users: any[] = chatDetail?.participantUsers || []
+  const user: any =
+    users?.length > 1
+      ? users?.filter((u) => u._id !== currentUser?._id)[0]
+      : users?.[0]
+
   const renderAvatar = () => {
     if (chatDetail.type === "direct") {
       return (
         <Image
           src={
-            chatDetail.participantUsers[0].details.avatar
-              ? chatDetail.participantUsers[0].details.avatar
-              : "/avatar-colored.svg"
+            user.details.avatar ? user.details.avatar : "/avatar-colored.svg"
           }
           alt="avatar"
           width={100}
@@ -57,14 +65,17 @@ const MessagesHeader = ({ chatDetail, setShowSidebar }: Props) => {
           <div className="font-semibold text-[16px]">
             {chatDetail.type === "direct"
               ? chatDetail
-                ? chatDetail.participantUsers[0].details.fullName
+                ? user.details.fullName
                 : ""
               : chatDetail.name}
           </div>
           <div className="text-[12px] text-green-400">Active Now</div>
         </div>
       </div>
-      <button className="bg-gray-200 rounded-full p-1 cursor-pointer" onClick={() => setShowSidebar()}>
+      <button
+        className="bg-gray-200 rounded-full p-1 cursor-pointer"
+        onClick={() => setShowSidebar()}
+      >
         <ChevronLeft size={16} />
       </button>
     </>

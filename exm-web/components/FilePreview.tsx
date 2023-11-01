@@ -151,7 +151,7 @@ export const FilePreview = ({
       <AudioVisualizer
         url={readFile(fileUrl)}
         waveColor={"#b5b4b4"}
-        progressColor={`${isMe ? "#fff" : "#4F33AF"}`}
+        progressColor={`${isMe ? "#fff" : "#8771D5"}`}
         from="message"
       />
     )

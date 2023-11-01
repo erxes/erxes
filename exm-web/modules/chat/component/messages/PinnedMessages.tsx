@@ -37,7 +37,7 @@ export const PinnedMessages = () => {
       const { createdAt, createdUser, _id, content, attachments } = message
 
       const renderContent = () => {
-        if (content === "<p></p>") {
+        if (content === "<p></p>" || !content) {
           return null
         }
 
@@ -47,6 +47,7 @@ export const PinnedMessages = () => {
           </div>
         )
       }
+
       return (
         <div key={_id} className="mb-5">
           <div className="flex mb-4">
