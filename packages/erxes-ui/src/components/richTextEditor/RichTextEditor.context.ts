@@ -1,12 +1,9 @@
 import { Editor } from '@tiptap/react';
 import { RichTextEditorLabels } from './labels';
-import { createSafeContext } from './hooks';
+import { createSafeContext } from './createSafeContext';
 interface RichTextEditorContext {
   editor: Editor | null;
   labels: RichTextEditorLabels;
-  withCodeHighlightStyles: boolean | undefined;
-  withTypographyStyles: boolean | undefined;
-  unstyled: boolean | undefined;
 }
 
 export const [

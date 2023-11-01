@@ -12,7 +12,8 @@ import {
   TextLeft,
   TextRight,
   TextCenter,
-  Justify
+  Justify,
+  Link45deg
 } from 'react-bootstrap-icons';
 
 import { createControl } from './RichTextEditorControl';
@@ -51,11 +52,11 @@ export const StrikeThroughControl = createControl({
 //   operation: { name: 'unsetAllMarks' },
 // });
 
-// export const UnlinkControl = createControl({
-//   label: 'unlinkControlLabel',
-//   icon: (props) => <IconUnlink {...props} stroke={1.5} />,
-//   operation: { name: 'unsetLink' },
-// });
+export const UnlinkControl = createControl({
+  label: 'unlinkControlLabel',
+  icon: props => <Link45deg />,
+  operation: { name: 'unsetLink' }
+});
 
 export const BulletListControl = createControl({
   label: 'bulletListControlLabel',
@@ -123,24 +124,34 @@ export const H3Control = createControl({
 export const AlignLeftControl = createControl({
   label: 'alignLeftControlLabel',
   icon: props => <TextLeft />,
-  operation: { name: 'setTextAlign', attributes: 'left' }
+
+  // { textAlign: 'left' }
+  // editor?.isActive(isActive.name, isActive.attributes)
+  isActive: { name: null, attributes: { textAlign: 'left' } },
+  operation: {
+    name: 'setTextAlign',
+    attributes: 'left'
+  }
 });
 
 export const AlignRightControl = createControl({
   label: 'alignRightControlLabel',
   icon: props => <TextRight />,
+  isActive: { name: null, attributes: { textAlign: 'right' } },
   operation: { name: 'setTextAlign', attributes: 'right' }
 });
 
 export const AlignCenterControl = createControl({
   label: 'alignCenterControlLabel',
   icon: props => <TextCenter />,
+  isActive: { name: null, attributes: { textAlign: 'center' } },
   operation: { name: 'setTextAlign', attributes: 'center' }
 });
 
 export const AlignJustifyControl = createControl({
   label: 'alignJustifyControlLabel',
   icon: props => <Justify />,
+  isActive: { name: null, attributes: { textAlign: 'justify' } },
   operation: { name: 'setTextAlign', attributes: 'justify' }
 });
 

@@ -1253,7 +1253,15 @@ a:hover {
     > * + * {
       margin-top: 0.75em;
     }
-  
+
+    a {
+      color: #228be6;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+
     ul,
     ol {
       padding: 0 1rem;
@@ -1310,17 +1318,12 @@ a:hover {
   
   .ProseMirror{
     padding: 1rem;
+    outline: 0px;
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
   }
-
-  &[data-promise-mirror-editor] {
-    div {
-      outline: 0px;
-      min-height: 150px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-  }
-
+ 
 `;
 
 const globalStyle = [`${style}`] as any;

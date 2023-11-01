@@ -7,8 +7,6 @@ export function createSafeContext<ContextValue>(errorMessage: string) {
     const ctx = useContext(Context);
 
     if (ctx === null) {
-      console.log('ASDLKJASDLKAJSDASD NOL TFOUND');
-
       throw new Error(errorMessage);
     }
 

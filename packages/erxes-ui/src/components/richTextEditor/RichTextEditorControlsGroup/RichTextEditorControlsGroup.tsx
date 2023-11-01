@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
 import { ControlsGroupWrapper } from './styles';
 
-export type RichTextEditorControlsGroupFactory = {
-  props: any;
-  ref: HTMLDivElement;
-};
+export interface RichTextEditorControlsGroupProps
+  extends React.HTMLAttributes<HTMLDivElement> {}
 
-export const RichTextEditorControlsGroup = props => {
+export const RichTextEditorControlsGroup = (
+  props: RichTextEditorControlsGroupProps
+) => {
   const ref = useRef<HTMLDivElement>(null);
-  return <ControlsGroupWrapper ref={ref} {...props} />;
+  return <ControlsGroupWrapper innerRef={ref} {...props} />;
 };

@@ -7,20 +7,21 @@ export interface RichTextEditorToolbarProps {
 
   /** Sets top style to offset elements with fixed position, `0` by default */
   stickyOffset?: React.CSSProperties['top'];
+
+  children?: React.ReactNode | string;
 }
 
-export type RichTextEditorToolbarFactory = {
-  props: RichTextEditorToolbarProps;
-  ref: HTMLDivElement;
-};
-
-const defaultProps: Partial<RichTextEditorToolbarProps> = {};
-
-export const RichTextEditorToolbar = props => {
+export const RichTextEditorToolbar = (
+  props: Partial<RichTextEditorToolbarProps> = {}
+) => {
   const ref = useRef<HTMLDivElement>(null);
   const { sticky = false, stickyOffset, ...others } = props;
 
   return (
-    <EditorToolbarWrapper ref={ref} style={{ position: sticky }} {...others} />
+    <EditorToolbarWrapper
+      innerRef={ref}
+      style={{ position: sticky ? 'sticky' : 'unset' }}
+      {...others}
+    />
   );
 };

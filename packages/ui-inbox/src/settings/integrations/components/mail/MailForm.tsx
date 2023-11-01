@@ -2,6 +2,7 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   ControlWrapper,
   EditorFooter,
+  EditorFooterGroup,
   MailEditorWrapper,
   Resipients,
   ShowReplies,
@@ -24,7 +25,6 @@ import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import EmailTemplate from './emailTemplate/EmailTemplate';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachment } from '@erxes/ui/src/types';
@@ -32,7 +32,6 @@ import { IEmailSignature } from '@erxes/ui/src/auth/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Label } from '@erxes/ui/src/components/form/styles';
-import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import MailChooser from './MailChooser';
 import { Meta } from './styles';
 import SignatureChooser from './SignatureChooser';
@@ -444,8 +443,9 @@ class MailForm extends React.Component<Props, State> {
     });
   };
 
-  onEditorChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onEditorChange = (value: string) => {
+    // this.setState({ content: e.editor.getData() });
+    this.setState({ content: value });
     this.prepareData();
   };
 
@@ -749,50 +749,55 @@ class MailForm extends React.Component<Props, State> {
           />
         </UploaderWrapper>
         <EditorFooter>
-          <div>
-            {this.renderSubmit('Send', this.onSubmit, 'primary')}
-            {isReply &&
-              this.renderSubmit(
-                conversationStatus === 'closed'
-                  ? 'Send and Open'
-                  : 'Send and Resolve',
-                onSubmitResolve,
-                conversationStatus === 'closed' ? 'warning' : 'success',
-                conversationStatus === 'closed' ? 'redo' : 'check-circle',
-                'resolveOrOpen'
+          <EditorFooterGroup>
+            <div>
+              {this.renderSubmit('Send', this.onSubmit, 'primary')}
+              {isReply &&
+                this.renderSubmit(
+                  conversationStatus === 'closed'
+                    ? 'Send and Open'
+                    : 'Send and Resolve',
+                  onSubmitResolve,
+                  conversationStatus === 'closed' ? 'warning' : 'success',
+                  conversationStatus === 'closed' ? 'redo' : 'check-circle',
+                  'resolveOrOpen'
+                )}
+            </div>
+            <ToolBar>
+              <Uploader
+                defaultFileList={this.state.attachments || []}
+                onChange={onChangeAttachment}
+                icon="attach"
+                showOnlyIcon={true}
+                noPreview={true}
+              />
+
+              {isEnabled('emailtemplates') && (
+                <EmailTemplate
+                  onSelect={this.templateChange}
+                  totalCount={totalCount}
+                  fetchMoreEmailTemplates={fetchMoreEmailTemplates}
+                  targets={generateEmailTemplateParams(emailTemplates || [])}
+                  history={history}
+                />
               )}
-          </div>
+              <SignatureChooser
+                signatureContent={this.signatureContent}
+                brands={brands || []}
+                signatures={emailSignatures || []}
+                emailSignature={this.state.emailSignature}
+                emailContent={this.state.content}
+                onContentChange={this.onContentChange}
+                onSignatureChange={this.onSignatureChange}
+              />
+            </ToolBar>
+          </EditorFooterGroup>
           <ToolBar>
-            <Uploader
-              defaultFileList={this.state.attachments || []}
-              onChange={onChangeAttachment}
-              icon="attach"
-              showOnlyIcon={true}
-              noPreview={true}
-            />
             {this.renderIcon({
               text: 'Delete',
               icon: 'trash-alt',
               onClick: toggleReply
             })}
-            {isEnabled('emailtemplates') && (
-              <EmailTemplate
-                onSelect={this.templateChange}
-                totalCount={totalCount}
-                fetchMoreEmailTemplates={fetchMoreEmailTemplates}
-                targets={generateEmailTemplateParams(emailTemplates || [])}
-                history={history}
-              />
-            )}
-            <SignatureChooser
-              signatureContent={this.signatureContent}
-              brands={brands || []}
-              signatures={emailSignatures || []}
-              emailSignature={this.state.emailSignature}
-              emailContent={this.state.content}
-              onContentChange={this.onContentChange}
-              onSignatureChange={this.onSignatureChange}
-            />
           </ToolBar>
         </EditorFooter>
       </div>
@@ -822,38 +827,13 @@ class MailForm extends React.Component<Props, State> {
   renderBody() {
     return (
       <MailEditorWrapper>
-        {/* {this.renderShowReplies()} */}
+        {this.renderShowReplies()}
 
-        <RichTextEditor>
-          <RichTextEditor.Toolbar sticky stickyOffset={60}>
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.Bold />
-              <RichTextEditor.Italic />
-              {/* <RichTextEditor.Underline /> */}
-              <RichTextEditor.Strikethrough />
-            </RichTextEditor.ControlsGroup>
-
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.H1 />
-              <RichTextEditor.H2 />
-              <RichTextEditor.H3 />
-            </RichTextEditor.ControlsGroup>
-
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.BulletList />
-              <RichTextEditor.OrderedList />
-            </RichTextEditor.ControlsGroup>
-
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.AlignLeft />
-              <RichTextEditor.AlignRight />
-              <RichTextEditor.AlignCenter />
-              <RichTextEditor.AlignJustify />
-            </RichTextEditor.ControlsGroup>
-          </RichTextEditor.Toolbar>
-          <RichTextEditor.Content />
-        </RichTextEditor>
-
+        <RichTextEditor
+          content={this.state.content}
+          onChange={this.onEditorChange}
+          toolbarLocation="bottom"
+        />
         {/* <EditorCK
           toolbar={MAIL_TOOLBARS_CONFIG}
           removePlugins="elementspath"

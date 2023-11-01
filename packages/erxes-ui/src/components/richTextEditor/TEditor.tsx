@@ -1,57 +1,121 @@
-import React, { useMemo, useRef } from 'react';
-import { DEFAULT_LABELS } from './labels';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { DEFAULT_LABELS, RichTextEditorLabels } from './labels';
 import { RichTextEditorProvider } from './RichTextEditor.context';
 import { RichTextEditorContent } from './RichTextEditorContent/RichTextEditorContent';
 import { RichTextEditorControlsGroup } from './RichTextEditorControlsGroup/RichTextEditorControlsGroup';
 import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToolbar';
 import { RichTextEditorControl } from './RichTextEditorControl/RichTextEditorControl';
-import { useEditor } from '@tiptap/react';
+
 import * as controls from './RichTextEditorControl/controls';
 
-import StarterKit from '@tiptap/starter-kit';
+import {
+  RichTextEditorFontControl,
+  RichTextEditorLinkControl
+} from './RichTextEditorControl';
+import { useEditor } from '@tiptap/react';
+import useExtensions from './hooks/useExtensions';
 
-export const RichTextEditor = props => {
+type toolbarLocationOption = 'bottom' | 'top';
+export interface RichTextEditorProps {
+  /** Controlled value */
+  content: string;
+
+  /** Exposing editor onChange to outer component via props */
+  onChange?: (editorHtml: string) => void;
+  labels?: RichTextEditorLabels;
+  toolbarLocation?: toolbarLocationOption;
+}
+
+export const RichTextEditor = (props: RichTextEditorProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const {
-    unstyled,
-    vars,
-    // editor,
-    withCodeHighlightStyles,
-    withTypographyStyles,
-    labels,
-    children,
-    ...others
-  } = props;
+  const { content, onChange, labels } = props;
 
   const mergedLabels = useMemo(() => ({ ...DEFAULT_LABELS, ...labels }), [
     labels
   ]);
 
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: '<h1> hi </h1>'
+  const handleEditorChange = ({ editor }) => {
+    if (onChange) {
+      onChange(editor.getHTML());
+    }
+  };
+
+  const extensions = useExtensions({
+    placeholder: 'Custom placeholder...'
   });
+
+  const editor = useEditor({
+    extensions,
+    content,
+    parseOptions: { preserveWhitespace: 'full' },
+    onUpdate: handleEditorChange
+  });
+
+  useEffect(() => {
+    if (!editor) return;
+    let { from, to } = editor.state.selection;
+    editor.commands.setContent(content, false, {
+      preserveWhitespace: true
+    });
+    editor.commands.setTextSelection({ from, to });
+  }, [editor, content]);
 
   return (
     <RichTextEditorProvider
       value={{
         editor,
-        labels: mergedLabels,
-        withCodeHighlightStyles,
-        withTypographyStyles,
-        unstyled
+        labels: mergedLabels
       }}
     >
       <div
-        {...others}
+        // {...others}
         ref={ref}
         style={{
+          position: 'relative',
+          background: '#fff',
+          overflowY: 'hidden',
+          minHeight: 350,
           margin: '0.5rem',
           border: '1px solid #e9ecef',
           borderRadius: '4px'
         }}
       >
-        {children}
+        <RichTextEditor.Toolbar sticky stickyOffset={60}>
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Bold />
+            <RichTextEditor.Italic />
+            {/* <RichTextEditor.Underline /> */}
+            <RichTextEditor.Strikethrough />
+          </RichTextEditor.ControlsGroup>
+
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.H1 />
+            <RichTextEditor.H2 />
+            <RichTextEditor.H3 />
+          </RichTextEditor.ControlsGroup>
+
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.BulletList />
+            <RichTextEditor.OrderedList />
+          </RichTextEditor.ControlsGroup>
+
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Link />
+            <RichTextEditor.Unlink />
+          </RichTextEditor.ControlsGroup>
+
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.FontSize />
+          </RichTextEditor.ControlsGroup>
+
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.AlignLeft />
+            <RichTextEditor.AlignRight />
+            <RichTextEditor.AlignCenter />
+            <RichTextEditor.AlignJustify />
+          </RichTextEditor.ControlsGroup>
+        </RichTextEditor.Toolbar>
+        <RichTextEditorContent />
       </div>
     </RichTextEditorProvider>
   );
@@ -77,13 +141,16 @@ RichTextEditor.H3 = controls.H3Control;
 // RichTextEditor.H6 = controls.H6Control;
 RichTextEditor.BulletList = controls.BulletListControl;
 RichTextEditor.OrderedList = controls.OrderedListControl;
-// RichTextEditor.Link = controls.RichTextEditorLinkControl;
-// RichTextEditor.Unlink = controls.UnlinkControl;
+RichTextEditor.Link = RichTextEditorLinkControl;
+RichTextEditor.Unlink = controls.UnlinkControl;
 // RichTextEditor.Blockquote = controls.BlockquoteControl;
 RichTextEditor.AlignLeft = controls.AlignLeftControl;
 RichTextEditor.AlignRight = controls.AlignRightControl;
 RichTextEditor.AlignCenter = controls.AlignCenterControl;
 RichTextEditor.AlignJustify = controls.AlignJustifyControl;
+
+RichTextEditor.FontSize = RichTextEditorFontControl;
+
 // RichTextEditor.Superscript = controls.SuperscriptControl;
 // RichTextEditor.Subscript = controls.SubscriptControl;
 // RichTextEditor.Code = controls.CodeControl;
