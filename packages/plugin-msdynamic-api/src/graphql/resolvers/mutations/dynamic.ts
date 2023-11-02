@@ -24,11 +24,11 @@ const msdynamicMutations = {
     const deleteProducts: any = [];
     let matchedCount = 0;
 
-    if (!config.endpoint || !config.username || !config.password) {
+    if (!config.itemApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not found.');
     }
 
-    const { endpoint, username, password } = config;
+    const { itemApi, username, password } = config;
 
     try {
       const productsCount = await sendProductsMessage({
@@ -51,7 +51,7 @@ const msdynamicMutations = {
       const productCodes = products.map(p => p.code) || [];
 
       const response = await sendRequest({
-        url: endpoint,
+        url: itemApi,
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

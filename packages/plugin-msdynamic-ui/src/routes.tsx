@@ -56,9 +56,9 @@ const routes = () => {
       />
 
       <Route
-        key="/msdynamics-products"
+        key="/msdynamic-products"
         exact={true}
-        path="/msdynamics-products"
+        path="/msdynamic-products"
         component={InventoryProductList}
       />
     </React.Fragment>
