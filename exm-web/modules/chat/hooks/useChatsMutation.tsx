@@ -1,3 +1,4 @@
+import { IAttachment } from "@/modules/types"
 import { ApolloError, useMutation } from "@apollo/client"
 
 import { useToast } from "@/components/ui/use-toast"
@@ -19,8 +20,18 @@ const useChatsMutation = ({
     mutations.chatEdit,
     { refetchQueries: ["chats", "chatDetail"] }
   )
+
   const [deleteChatMutation, { loading: loadingDelete }] = useMutation(
     mutations.chatRemove
+  )
+
+  const [deleteArchiveMutation, { loading: loadingArchive }] = useMutation(
+    mutations.chatArchive
+  )
+
+  const [muteChatMutation, { loading: loadingMute }] = useMutation(
+    mutations.chatToggleIsWithNotification,
+    { refetchQueries: ["chats", "chatDetail"] }
   )
 
   const [adminMutation, { loading: loadingAdmin }] = useMutation(
@@ -29,6 +40,44 @@ const useChatsMutation = ({
   const [memberMutation, { loading: loadingMember }] = useMutation(
     mutations.chatAddOrRemoveMember
   )
+  const [chatTypingMutation] = useMutation(mutations.chatTyping)
+
+  const [pinMessageMutation] = useMutation(mutations.pinMessage)
+
+  const [chatForwardMutation] = useMutation(mutations.chatForward)
+
+  const pinMessage = (id: string) => {
+    pinMessageMutation({
+      variables: { id },
+      refetchQueries: ["chatMessages"],
+    }).catch((e) => console.log(e))
+  }
+
+  const chatForward = ({
+    id,
+    type,
+    content,
+    attachments,
+  }: {
+    id?: string
+    type?: string
+    content?: string
+    attachments?: IAttachment[]
+  }) => {
+    if (type === "group") {
+      chatForwardMutation({
+        variables: { chatId: id, content, attachments },
+        refetchQueries: ["chatMessages", "chats"],
+      }).catch((e) => console.log(e))
+    }
+
+    if (type === "direct") {
+      chatForwardMutation({
+        variables: { userIds: [id], content, attachments },
+        refetchQueries: ["chatMessages", "chats"],
+      }).catch((e) => console.log(e))
+    }
+  }
 
   const [togglePinnedChat, { loading }] = useMutation(
     mutations.chatToggleIsPinned,
@@ -40,6 +89,14 @@ const useChatsMutation = ({
 
   const togglePinned = (chatId: string) => {
     togglePinnedChat({
+      variables: { id: chatId },
+    }).then(() => {
+      callBack("success")
+    })
+  }
+
+  const toggleMute = (chatId: string) => {
+    muteChatMutation({
       variables: { id: chatId },
     }).then(() => {
       callBack("success")
@@ -73,6 +130,21 @@ const useChatsMutation = ({
     })
   }
 
+  const chatArchive = (chatId: string) => {
+    deleteArchiveMutation({
+      variables: { id: chatId },
+      refetchQueries: ["chats", "chatDetail"],
+    }).then(() => {
+      callBack("success")
+    })
+  }
+
+  const chatTyping = (chatId: string, userId: string) => {
+    chatTypingMutation({
+      variables: { chatId, userId },
+    })
+  }
+
   const addOrRemoveMember = (
     chatId: string,
     type: string,
@@ -96,8 +168,19 @@ const useChatsMutation = ({
     addOrRemoveMember,
     chatEdit,
     chatDelete,
+    toggleMute,
+    chatArchive,
+    chatTyping,
+    chatForward,
+    pinMessage,
     loading:
-      loading || loadingEdit || loadingDelete || loadingAdmin || loadingMember,
+      loading ||
+      loadingEdit ||
+      loadingDelete ||
+      loadingAdmin ||
+      loadingMember ||
+      loadingMute ||
+      loadingArchive,
   }
 }
 

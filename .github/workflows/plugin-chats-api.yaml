@@ -8,7 +8,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-chats-api/**'
       - '.github/workflows/plugin-chats-api.yaml'
   pull_request:
@@ -18,7 +17,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-chats-api/**'
       - '.github/workflows/plugin-chats-api.yaml'
 
@@ -43,9 +41,9 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-plugin-chats-api-${{ hashFiles('yarn.lock', 'plugin-chats-api/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-api-plugin-chats
           restore-keys: |
-            ${{ runner.os }}-yarn-plugin-chats-api-
+            ${{ runner.os }}-yarn-api-
             ${{ runner.os }}-yarn-
 
       - name: Build
@@ -54,13 +52,11 @@ jobs:
           cd dist
           yarn install
           yarn build plugin chats
-          cd plugin-chats-api/.erxes
-          cd dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         run: |
-          cd dist/plugin-chats-api/.erxes
+          cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/plugin-chats-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker buildx build -t erxes/plugin-chats-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
           docker push erxes/plugin-chats-api:${GITHUB_REF#refs/heads/}

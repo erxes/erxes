@@ -9,7 +9,8 @@ import React from 'react';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 import { __ } from '@erxes/ui/src/utils/core';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import OperatorForm from './OperatorForm';
+import { Operator } from '../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -19,32 +20,25 @@ type Props = {
 };
 
 type State = {
-  operatorIds: string[];
+  operators: Operator[];
 };
 
 class IntegrationForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { operatorIds: [] };
+    this.state = { operators: [] };
   }
 
-  generateDoc = (values: {
-    name: string;
-    brandId: string;
-    username: string;
-    password: string;
-    wsServer: string;
-  }) => {
+  generateDoc = (values: any) => {
     return {
       name: values.name,
       brandId: values.brandId,
       kind: 'calls',
       data: {
-        username: values.username,
-        password: values.password,
+        phone: values.phone,
         wsServer: values.wsServer,
-        operatorIds: this.state.operatorIds
+        operators: this.state.operators
       }
     };
   };
@@ -74,9 +68,38 @@ class IntegrationForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { renderButton, callback, onChannelChange, channelIds } = this.props;
     const { values, isSubmitted } = formProps;
+    const { operators } = this.state;
 
-    const onChangeUsers = userIds => {
-      this.setState({ operatorIds: userIds });
+    const onChangeOperators = (index: number, value: any) => {
+      operators[index] = value;
+      this.setState({ operators });
+    };
+
+    const onChangeOperatorDetails = (
+      name: string,
+      value: string,
+      index: number
+    ) => {
+      const currentOperator = operators.find((l, i) => i === index);
+
+      if (currentOperator) {
+        currentOperator[name] = value;
+      }
+    };
+
+    const handleAddOperation = () => {
+      const temp = { userId: '', gsUsername: '', gsPassword: '' };
+      const { operators } = this.state;
+
+      operators.push(temp);
+
+      this.setState({ operators });
+    };
+
+    const handleRemoveOperator = (index: number) => {
+      const operators = this.state.operators.filter((l, i) => i !== index);
+
+      this.setState({ operators });
     };
 
     return (
@@ -84,35 +107,42 @@ class IntegrationForm extends React.Component<Props, State> {
         {this.renderField({ label: 'Name', fieldName: 'name', formProps })}
 
         {this.renderField({
-          label: 'Username',
-          fieldName: 'username',
-          formProps
-        })}
-        {this.renderField({
-          label: 'Password',
-          fieldName: 'password',
-          formProps
-        })}
-        {this.renderField({
           label: 'Phone number',
           fieldName: 'phone',
           formProps
         })}
+
         {this.renderField({
           label: 'Web socket server',
           fieldName: 'wsServer',
           formProps
         })}
 
-        <FormGroup>
-          <ControlLabel>Operators</ControlLabel>
-          <SelectTeamMembers
-            label="Choose operators"
-            name="operatorIds"
-            initialValue={[]}
-            onSelect={onChangeUsers}
-          />
-        </FormGroup>
+        <>
+          {operators.map((operator, index) => (
+            <OperatorForm
+              operator={operator}
+              index={index}
+              formProps={formProps}
+              onChange={onChangeOperators}
+              onChangeDetails={onChangeOperatorDetails}
+              removeOperator={handleRemoveOperator}
+              key={index}
+            />
+          ))}
+          <FormGroup>
+            <div style={{ display: 'flex', justifyContent: 'end' }}>
+              <Button
+                btnStyle="primary"
+                icon="plus"
+                size="medium"
+                onClick={handleAddOperation}
+              >
+                {__('Add Operator')}
+              </Button>
+            </div>
+          </FormGroup>
+        </>
 
         <SelectBrand
           isRequired={true}

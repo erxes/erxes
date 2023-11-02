@@ -12,6 +12,7 @@ type IOption = {
 export interface IUseFeedDetail {
   loading: boolean
   userOptions: IOption[]
+  users: IUser[]
 }
 
 export const useUsers = ({
@@ -43,5 +44,6 @@ export const useUsers = ({
   return {
     loading,
     userOptions,
+    users: users || []
   }
 }

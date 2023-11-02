@@ -109,11 +109,36 @@ const chatMutations = {
 
         return 'Success';
       }
-
-      return models.Chats.removeChat(_id);
     }
 
-    return models.Chats.removeChat(_id);
+    return 'Success';
+  },
+
+  chatArchive: async (_root, { _id }, { models, user }) => {
+    const chat = await models.Chats.findOne({
+      _id,
+      participantIds: { $in: [user._id] }
+    });
+
+    if (!chat) {
+      throw new Error('Chat not found');
+    }
+
+    const archiverUser = chat && chat.archivedUserIds.includes(user._id);
+
+    if (archiverUser) {
+      await models.Chats.updateOne(
+        { _id },
+        { $pull: { archivedUserIds: { $in: [user._id] } } }
+      );
+    } else {
+      await models.Chats.updateOne(
+        { _id },
+        { $push: { archivedUserIds: [user._id] } }
+      );
+    }
+
+    return 'Success';
   },
 
   chatMarkAsRead: async (_root, { _id }, { models, user }) => {
@@ -240,7 +265,7 @@ const chatMutations = {
   },
 
   chatMessageAdd: async (_root, args, { models, user }) => {
-    if (!args.content) {
+    if (!args.content && args.attachments.length === 0) {
       throw new Error('Content is required');
     }
 
@@ -261,7 +286,8 @@ const chatMutations = {
       },
       {
         $set: {
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          archivedUserIds: []
         }
       }
     );

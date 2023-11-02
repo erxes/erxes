@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { currentPaymentTypeAtom } from "@/store"
 import { useAtomValue } from "jotai"
 
@@ -14,7 +15,7 @@ import {
 import { useCheckNotSplit } from "../../hooks/usePaymentType"
 import usePossiblePaymentTerms from "../../hooks/usePossiblePaymentTerms"
 
-const SelectPaymentType = () => {
+const SelectPaymentType = ({ onSelect }: { onSelect?: () => void }) => {
   const {
     loadingKhan,
     disabledTerms,
@@ -23,12 +24,29 @@ const SelectPaymentType = () => {
     tdb,
     golomt,
     mappedPts,
+    notPaidAmount,
   } = usePossiblePaymentTerms()
   const type = useAtomValue(currentPaymentTypeAtom)
   const { handleSetType } = useCheckNotSplit()
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    !!notPaidAmount && setOpen(true)
+  }, [notPaidAmount])
+
+  const handleValueChange = (value: string) => {
+    handleSetType(value)
+    onSelect && onSelect()
+  }
 
   return (
-    <Select disabled={loadingKhan} value={type} onValueChange={handleSetType}>
+    <Select
+      disabled={loadingKhan}
+      value={type}
+      onValueChange={handleValueChange}
+      open={open}
+      onOpenChange={(op) => setOpen(op)}
+    >
       <SelectTrigger>
         <SelectValue placeholder="сонгох" />
       </SelectTrigger>

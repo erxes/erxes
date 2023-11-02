@@ -1,124 +1,115 @@
-import React, { useEffect, useState } from 'react';
-import { gql, useMutation, useQuery } from '@apollo/client';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import query from '../graphql/queries';
-import mutations from '../graphql/mutations';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import React, { useState, useEffect } from 'react';
+import OperatorForm from './OperatorForm';
+import Button from '@erxes/ui/src/components/Button';
+import { __ } from '@erxes/ui/src/utils/core';
 
 interface IProps {
-  integrationId: string;
-  isSubmitted: boolean;
+  integrationKind: string;
+  details: any;
+  onChange: (key: string, value: any) => void;
 }
 
-const Component = ({ integration, isSubmitted, saveDoc }) => {
-  const [config, setConfig] = useState<any>(integration);
-  const [operatorIds, setOperatorIds] = useState<string[]>(
-    integration.operatorIds || []
-  );
+const IntegrationEditForm = (props: IProps) => {
+  const { integrationKind, details } = props;
+  const [operators, setOperators] = useState<any>(details.operators);
 
   useEffect(() => {
-    if (isSubmitted) {
-      delete config.__typename;
-      saveDoc({ ...config, operatorIds });
+    props.onChange('operators', operators);
+  }, [operators]);
+
+  if (integrationKind !== 'calls') {
+    return null;
+  }
+
+  const onChange = (e: any) => {
+    props.onChange(e.target.name, e.target.value);
+  };
+
+  const onChangeOperatorDetails = (
+    name: string,
+    value: string,
+    index: number
+  ) => {
+    const currentOperator = operators.find((l, i) => i === index);
+
+    if (currentOperator) {
+      currentOperator[name] = value;
     }
-  }, [isSubmitted]);
 
-  const renderField = ({
-    label,
-    fieldName,
-    value
-  }: {
-    label: string;
-    fieldName: string;
-    value: string;
-  }) => {
-    const onChange = (e: any) => {
-      setConfig({ ...config, [fieldName]: e.target.value });
-    };
+    setOperators([...currentOperator]);
+  };
 
+  const onChangeOperators = (index: number, value: any) => {
+    operators[index] = value;
+
+    setOperators([...operators]);
+  };
+
+  const handleAddOperation = () => {
+    const temp = { userId: '', gsUsername: '', gsPassword: '' };
+
+    operators.push(temp);
+
+    setOperators([...operators]);
+  };
+
+  const handleRemoveOperator = (index: number) => {
+    const filtered = operators.filter((l, i) => i !== index);
+
+    setOperators(filtered);
+  };
+
+  const renderInput = (name: string, label: string, defaultValue: string) => {
     return (
       <FormGroup>
-        <ControlLabel required={true}>{label}</ControlLabel>
+        <ControlLabel required={false}>{label}</ControlLabel>
         <FormControl
-          name={fieldName}
-          required={true}
-          autoFocus={fieldName === 'name'}
-          value={value}
+          name={name}
+          required={false}
+          autoFocus={false}
+          defaultValue={defaultValue}
           onChange={onChange}
         />
       </FormGroup>
     );
   };
 
+  const keys = ['host', 'smtpHost', 'smtpPort', 'mainUser', 'user', 'password'];
+
   return (
     <>
-      {renderField({
-        label: 'Username',
-        fieldName: 'username',
-        value: config.username
-      })}
-      {renderField({
-        label: 'Password',
-        fieldName: 'password',
-        value: config.password
-      })}
-      {renderField({
-        label: 'Phone number',
-        fieldName: 'phone',
-        value: config.phone
-      })}
-      {renderField({
-        label: 'Web socket server',
-        fieldName: 'wsServer',
-        value: config.wsServer
-      })}
+      {renderInput('phone', 'Phone number', details.phone)}
 
-      <FormGroup>
-        <ControlLabel>Operators</ControlLabel>
-        <SelectTeamMembers
-          label="Choose operators"
-          name="operatorIds"
-          initialValue={config.operatorIds || []}
-          onSelect={userIds => {
-            setOperatorIds(userIds as string[]);
-          }}
-        />
-      </FormGroup>
+      {renderInput('wsServer', 'Web socket server', details.wsServer)}
+
+      <>
+        {operators.map((operator, index) => (
+          <OperatorForm
+            operator={operator}
+            index={index}
+            onChange={onChangeOperators}
+            onChangeDetails={onChangeOperatorDetails}
+            removeOperator={handleRemoveOperator}
+            key={index}
+          />
+        ))}
+        <FormGroup>
+          <div style={{ display: 'flex', justifyContent: 'end' }}>
+            <Button
+              btnStyle="primary"
+              icon="plus"
+              size="medium"
+              onClick={handleAddOperation}
+            >
+              {__('Add Operator')}
+            </Button>
+          </div>
+        </FormGroup>
+      </>
     </>
-  );
-};
-
-const IntegrationEditForm = (props: IProps) => {
-  const { data, loading } = useQuery(gql(query.callsIntegrationDetail), {
-    variables: { integrationId: props.integrationId },
-    fetchPolicy: 'network-only'
-  });
-
-  const [updateMutation] = useMutation(gql(mutations.callsIntegrationUpdate));
-
-  if (loading) {
-    return null;
-  }
-
-  const integration = data.callsIntegrationDetail;
-
-  return (
-    <Component
-      isSubmitted={props.isSubmitted}
-      integration={integration}
-      saveDoc={config => {
-        updateMutation({
-          variables: {
-            configs: {
-              ...config,
-              inboxId: props.integrationId
-            }
-          }
-        });
-      }}
-    />
   );
 };
 

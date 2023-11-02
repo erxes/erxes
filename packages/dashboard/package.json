@@ -4,9 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node dist",
     "dev": "ERXES_TELEMETRY_DISABLED=1 DEBUG=erxes-dashboard-api* NODE_ENV=development nodemon src/index.ts",
-    "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json"
+    "build": "tsc"
   },
   "dependencies": {
     "@cubejs-backend/mongobi-driver": "^0.30.25",

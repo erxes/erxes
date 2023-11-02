@@ -12,7 +12,8 @@ import {
   SelectTeamMembers,
   TabTitle,
   Tabs as MainTabs,
-  Table
+  Table,
+  Icon
 } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
@@ -28,7 +29,7 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import { IContractType } from '../../../contractTypes/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { generateCustomGraphic } from '../../utils/customGraphic';
+import { generateCustomGraphic, getDiffDay } from '../../utils/customGraphic';
 import { LoanContract, LoanSchedule } from '../../interface/LoanContract';
 import { LoanPurpose } from '../../../constants';
 
@@ -52,6 +53,7 @@ interface State extends LoanContract {
   };
   schedule: LoanSchedule[];
   contractNumber?: string;
+  changeRowIndex?: number;
 }
 
 function isGreaterNumber(value: any, compareValue: any) {
@@ -684,6 +686,36 @@ class ContractForm extends React.Component<Props, State> {
       });
     };
 
+    const onChangeRow = (value, key, index) => {
+      const { schedule } = this.state;
+      switch (key) {
+        case 'payDate':
+          const nDate = new Date(
+            schedule[index - 1]?.payDate ?? this.state.startDate
+          );
+          schedule[index].payDate = new Date(value);
+          schedule[index].diffDay = Number(getDiffDay(nDate, value).toFixed(0));
+          if (schedule[index + 1]?.payDate)
+            schedule[index + 1].diffDay = Number(
+              getDiffDay(
+                schedule[index].payDate,
+                schedule[index + 1].payDate
+              ).toFixed(0)
+            );
+          break;
+        case 'payment':
+          schedule[index].payment = Number(value);
+          break;
+        case 'interestNonce':
+          schedule[index].interestNonce = Number(value);
+          break;
+
+        default:
+          break;
+      }
+      this.setState({ schedule: [...schedule] });
+    };
+
     return (
       <>
         <ScrollWrapper>
@@ -825,24 +857,92 @@ class ContractForm extends React.Component<Props, State> {
                 </tr>
               </thead>
               <tbody>
-                {this.state.schedule.map(mur => (
-                  <tr key={`schedule${mur.order}`}>
-                    <td style={{ textAlign: 'center' }}>{mur.order}</td>
-                    <td style={{ textAlign: 'center' }}>{mur.diffDay}</td>
-                    <td style={{ textAlign: 'center' }}>
-                      {mur.payDate.toLocaleDateString()}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      {mur.payment?.toLocaleString()}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      {mur.interestNonce?.toLocaleString()}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      {mur.total?.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
+                {this.state.schedule.map((mur, rowIndex) => {
+                  if (rowIndex === this.state.changeRowIndex)
+                    return (
+                      <tr key={`schedule${mur.order}`}>
+                        <td style={{ textAlign: 'center' }}>{mur.order}</td>
+                        <td style={{ textAlign: 'center' }}>{mur.diffDay}</td>
+                        <td style={{ textAlign: 'center' }}>
+                          <DateContainer>
+                            <DateControl
+                              required={false}
+                              name="payDate"
+                              value={mur.payDate}
+                              onChange={v =>
+                                onChangeRow(v, 'payDate', rowIndex)
+                              }
+                            />
+                          </DateContainer>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          {this.renderFormGroup(undefined, {
+                            type: 'number',
+                            useNumberFormat: true,
+                            fixed: 2,
+                            name: 'payment',
+                            value: mur.payment || 0,
+                            onChange: e => {
+                              onChangeRow(e.target.value, 'payment', rowIndex);
+                            }
+                          })}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          {this.renderFormGroup(undefined, {
+                            type: 'number',
+                            useNumberFormat: true,
+                            fixed: 2,
+                            name: 'interestNonce',
+                            value: mur.interestNonce || 0,
+                            onChange: e => {
+                              onChangeRow(
+                                e.target.value,
+                                'interestNonce',
+                                rowIndex
+                              );
+                            }
+                          })}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <span>{mur.total?.toLocaleString()}</span>
+                          <span
+                            style={{ marginLeft: 10 }}
+                            onClick={() =>
+                              this.setState({ changeRowIndex: undefined })
+                            }
+                          >
+                            <Icon icon="check" />
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  return (
+                    <tr key={`schedule${mur.order}`}>
+                      <td style={{ textAlign: 'center' }}>{mur.order}</td>
+                      <td style={{ textAlign: 'center' }}>{mur.diffDay}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        {mur.payDate.toLocaleDateString()}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        {mur.payment?.toLocaleString()}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        {mur.interestNonce?.toLocaleString()}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span>{mur.total?.toLocaleString()}</span>
+                        <span
+                          style={{ marginLeft: 10 }}
+                          onClick={() =>
+                            this.setState({ changeRowIndex: rowIndex })
+                          }
+                        >
+                          <Icon icon="edit" />
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
                 <tr>
                   <td></td>
                   <td></td>

@@ -116,16 +116,16 @@ const CommentItem = ({
       onMouseEnter={() => setShowAction(true)}
       onMouseLeave={() => setShowAction(false)}
     >
-      <div className="flex items-start">
+      <div className="flex items-center justify-start ">
         <Image
-          src={userDetail?.avatar || "/user.png"}
+          src={userDetail?.avatar || "/avatar-colored.svg"}
           alt="User Profile"
           width={100}
           height={100}
-          className="w-8 h-8 rounded-full shrink-0"
+          className="w-8 h-8 rounded-full shrink-0 object-cover"
         />
 
-        <div className="ml-3">
+        <div className="ml-3 flex-wrap">
           <div className="bg-[#F8F9FA] py-1 px-2 rounded-lg">
             <div className="text-sm font-bold text-gray-700">
               {userDetail?.fullName || user?.username || user?.email}
