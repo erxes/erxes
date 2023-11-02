@@ -92,6 +92,8 @@ const chart_params = `
 export const mutations = `
   reportsAdd(${params}): Report
   reportsRemove(_id: String!): JSON
+  reportsRemoveMany(ids: [String]!): JSON 
+   
   reportsEdit(_id:String!, ${params}): Report
 
   reportChartsAdd(${chart_params}): ReportChart

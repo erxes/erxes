@@ -137,6 +137,82 @@ const Report = (props: Props) => {
     );
   };
 
+  // return (
+  //   <DragField>
+  //     <div
+  //       key={Math.random()}
+  //       data-grid={{
+  //         x: 0,
+  //         y: 0,
+  //         w: 3,
+  //         h: 3,
+  //         minW: 1,
+  //         minH: 1
+  //       }}
+  //     >
+  //       <LineChart />
+  //       {/* <div>hahahha</div> */}
+  //     </div>
+
+  //     <div
+  //       key={Math.random()}
+  //       data-grid={{
+  //         x: 0,
+  //         y: 0,
+  //         w: 3,
+  //         h: 3,
+  //         minW: 1,
+  //         minH: 1
+  //       }}
+  //     >
+  //       <FunnelChart
+  //         data={{
+  //           title: 'Funnel chart',
+  //           labels: ['a', 'b', 'c'],
+  //           values: [
+  //             [0, 10],
+  //             [2, 8],
+  //             [4, 6]
+  //           ]
+  //         }}
+  //       />
+  //     </div>
+
+  //     <div
+  //       key={Math.random()}
+  //       data-grid={{
+  //         x: 0,
+  //         y: 0,
+  //         w: 3,
+  //         h: 3,
+  //         minW: 1,
+  //         minH: 1
+  //       }}
+  //     >
+  //       <Chart
+  //         data={[1, 2, 3, 4, 5, 6]}
+  //         labels={['a', 'b', 'c', 'd', 'e', 'f']}
+  //         chartType={ChartType.BAR}
+  //         name="Bar Chart"
+  //       />
+  //     </div>
+  //   </DragField>
+  // );
+
+  // return (
+  //   <GridLayout className="layout" cols={12} rowHeight={30} width={1200}>
+  //     <div key="a" data-grid={{ x: 0, y: 0, w: 1, h: 2, static: true }}>
+  //       a
+  //     </div>
+  //     <div key="b" data-grid={{ x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4 }}>
+  //       b
+  //     </div>
+  //     <div key="c" data-grid={{ x: 4, y: 0, w: 1, h: 2 }}>
+  //       c
+  //     </div>
+  //   </GridLayout>
+  // );
+
   return (
     <>
       <Wrapper.Header

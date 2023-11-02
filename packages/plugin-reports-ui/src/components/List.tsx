@@ -1,27 +1,30 @@
+import React, { useState } from 'react';
 import { Title } from '@erxes/ui-settings/src/styles';
+import { FormControl } from '@erxes/ui/src/components';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { DragField } from '../styles';
-import { IReports } from '../types';
-import Chart, { ChartType } from './chart/Chart';
-import FunnelChart from './chart/FunnelChart';
-import LineChart from './chart/LineChart';
+import { __, router } from '@erxes/ui/src/utils';
+import { IReport } from '../types';
 
 type Props = {
   reports: any;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
-  remove?: (reports: IReports) => void;
-  edit?: (reports: IReports) => void;
+  removeReports?: (reportIds: string[]) => void;
+  editReport?: (report: IReport) => void;
   loading: boolean;
+  history: any;
 };
 
-function List({ reports, remove, renderButton, loading, edit }: Props) {
+function List(props: Props) {
+  const { reports, renderButton, loading, history } = props;
+  const [searchValue, setSearchvalue] = useState(null);
+  let timer: NodeJS.Timer;
+
   const trigger = (
     <Button id={'AddReportsButton'} btnStyle="success" icon="plus-circle">
       Add Reports
@@ -46,9 +49,50 @@ function List({ reports, remove, renderButton, loading, edit }: Props) {
   //   />
   // );
 
+  const search = e => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    const value = e.target.value;
+    setSearchvalue(value);
+
+    timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue: value });
+    }, 500);
+  };
+
+  const moveCursorAtTheEnd = e => {
+    const tmpValue = e.target.value;
+    e.target.value = '';
+    e.target.value = tmpValue;
+  };
   const title = <Title capitalize={true}>{__('Reports')}</Title>;
 
-  const actionBar = <Wrapper.ActionBar left={title} wideSpacing />;
+  const actionBarRight = (
+    <BarItems>
+      <FormControl
+        type="text"
+        placeholder={__('Search a report')}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
+
+      <Button
+        btnStyle="success"
+        size="small"
+        icon="plus-circle"
+        // onClick={history.push('/dashboard/details')}
+      >
+        {__('Create a report')}
+      </Button>
+    </BarItems>
+  );
+
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} wideSpacing />;
 
   const content = (
     <Table>
@@ -87,93 +131,6 @@ function List({ reports, remove, renderButton, loading, edit }: Props) {
     { title: __('Reports'), link: '/reports' }
   ];
 
-  const defaultLayout = i => ({
-    x: i?.layout.x || 0,
-    y: i?.layout.y || 0,
-    w: i?.layout.w || 3,
-    h: i?.layout.h || 3,
-    minW: 1,
-    minH: 1
-  });
-
-  // return (
-  //   <GridLayout className="layout" cols={12} rowHeight={30} width={1200}>
-  //     <div key="a" data-grid={{ x: 0, y: 0, w: 1, h: 2, static: true }}>
-  //       a
-  //     </div>
-  //     <div key="b" data-grid={{ x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4 }}>
-  //       b
-  //     </div>
-  //     <div key="c" data-grid={{ x: 4, y: 0, w: 1, h: 2 }}>
-  //       c
-  //     </div>
-  //   </GridLayout>
-  // );
-
-  // return (
-
-  return (
-    <DragField>
-      <div
-        key={Math.random()}
-        data-grid={{
-          x: 0,
-          y: 0,
-          w: 3,
-          h: 3,
-          minW: 1,
-          minH: 1
-        }}
-      >
-        <LineChart />
-        {/* <div>hahahha</div> */}
-      </div>
-
-      <div
-        key={Math.random()}
-        data-grid={{
-          x: 0,
-          y: 0,
-          w: 3,
-          h: 3,
-          minW: 1,
-          minH: 1
-        }}
-      >
-        <FunnelChart
-          data={{
-            title: 'Funnel chart',
-            labels: ['a', 'b', 'c'],
-            values: [
-              [0, 10],
-              [2, 8],
-              [4, 6]
-            ]
-          }}
-        />
-      </div>
-
-      <div
-        key={Math.random()}
-        data-grid={{
-          x: 0,
-          y: 0,
-          w: 3,
-          h: 3,
-          minW: 1,
-          minH: 1
-        }}
-      >
-        <Chart
-          data={[1, 2, 3, 4, 5, 6]}
-          labels={['a', 'b', 'c', 'd', 'e', 'f']}
-          chartType={ChartType.BAR}
-          name="Bar Chart"
-        />
-      </div>
-    </DragField>
-  );
-
   return (
     <Wrapper
       header={<Wrapper.Header title={__('Reports')} breadcrumb={breadcrumb} />}
@@ -183,7 +140,7 @@ function List({ reports, remove, renderButton, loading, edit }: Props) {
           data={content}
           loading={loading}
           count={reports.length}
-          emptyText={__('Theres no reports')}
+          emptyText={__('There are no reports')}
           emptyImage="/images/actions/8.svg"
         />
       }

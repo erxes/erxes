@@ -20,6 +20,9 @@ const reportsMutations = {
   async reportsRemove(_root, _id: string, { models }: IContext) {
     return models.Reports.removeReport(_id);
   },
+  async reportsRemoveMany(_root, ids: string[], { models }: IContext) {
+    return models.Reports.remove({ _id: { $in: ids } });
+  },
   async chartsAdd(_root, doc: IChart, { models }: IContext) {
     return models.Charts.createChart(doc);
   },
