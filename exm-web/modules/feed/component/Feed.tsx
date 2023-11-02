@@ -40,18 +40,11 @@ const Feed = () => {
           </div>
         </TabsList>
 
-        <TabsContent value="post" className="bg-[#F8F9FA]">
-          <List contentType="post" />
-        </TabsContent>
-        <TabsContent value="event" className="bg-[#F8F9FA]">
-          <List contentType="event" />
-        </TabsContent>
-        <TabsContent value="bravo" className="bg-[#F8F9FA]">
-          <List contentType="bravo" />
-        </TabsContent>
-        <TabsContent value="publicHoliday" className="bg-[#F8F9FA]">
-          <List contentType="publicHoliday" />
-        </TabsContent>
+        {["post", "event", "bravo", "publicHoliday"].map((item) => (
+          <TabsContent value={item} className="bg-[#F8F9FA]" key={item}>
+            <List contentType={item} />
+          </TabsContent>
+        ))}
       </Tabs>
     </div>
   )

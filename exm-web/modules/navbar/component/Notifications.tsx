@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
-import { BellRing } from "lucide-react"
+import { Ban, BellRing } from "lucide-react"
 import { useInView } from "react-intersection-observer"
 
 import Image from "@/components/ui/image"
@@ -69,6 +69,9 @@ const Notifications = () => {
   }
 
   const renderNotifRow = (notification: INotification) => {
+    const { details, username, email } = notification.createdUser
+    const { avatar, fullName } = details
+
     return (
       <li
         key={notification._id}
@@ -77,12 +80,7 @@ const Notifications = () => {
       >
         <div className="w-10 h-10 shrink-0">
           <Image
-            src={
-              notification.createdUser.details &&
-              notification.createdUser.details.avatar
-                ? notification.createdUser?.details?.avatar
-                : "/avatar-colored.svg"
-            }
+            src={details && avatar ? avatar : "/avatar-colored.svg"}
             alt="User Profile"
             width={80}
             height={80}
@@ -91,12 +89,7 @@ const Notifications = () => {
         </div>
         <div className="text-[12px]">
           <div>
-            <b>
-              {notification.createdUser.details
-                ? notification.createdUser.details.fullName
-                : notification.createdUser.username ||
-                  notification.createdUser.email}{" "}
-            </b>
+            <b>{details ? fullName : username || email} </b>
             {renderNotifInfo(notification)}
           </div>
           <div
@@ -111,6 +104,44 @@ const Notifications = () => {
           <div className="h-4 w-4 bg-primary-light rounded-full shrink-0" />
         )}
       </li>
+    )
+  }
+
+  const renderLoadMore = () => {
+    if (loading || notifications.length === notificationsCount) {
+      return null
+    }
+
+    return (
+      <div ref={ref}>
+        <Loader />
+      </div>
+    )
+  }
+
+  const renderNoNotification = () => {
+    return (
+      <div className="gap-3 flex flex-col justify-center items-center py-4">
+        <Ban size={25} />
+        There is no notification
+      </div>
+    )
+  }
+
+  const renderNotification = (isUnread?: boolean) => {
+    if (
+      isUnread
+        ? notifications.filter((notif) => !notif.isRead).length === 0
+        : notifications.length === 0
+    ) {
+      return renderNoNotification()
+    }
+
+    return (
+      <>
+        {notifications.map((notification) => renderNotifRow(notification))}
+        {renderLoadMore()}
+      </>
     )
   }
 
@@ -150,27 +181,10 @@ const Notifications = () => {
           </p>
           <TabsContent value="all">
             <ul className="max-h-[300px] overflow-y-auto">
-              {notifications.map((notification) =>
-                renderNotifRow(notification)
-              )}
-              {!loading && notifications.length < notificationsCount && (
-                <div ref={ref}>
-                  <Loader />
-                </div>
-              )}
+              {renderNotification()}
             </ul>
           </TabsContent>
-          <TabsContent value="unread">
-            {notifications.map(
-              (notification) =>
-                !notification.isRead && renderNotifRow(notification)
-            )}
-            {!loading && notifications.length < notificationsCount && (
-              <div ref={ref}>
-                <Loader />
-              </div>
-            )}
-          </TabsContent>
+          <TabsContent value="unread">{renderNotification(true)}</TabsContent>
         </Tabs>
       </PopoverContent>
     </Popover>
