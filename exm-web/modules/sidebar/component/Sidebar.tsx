@@ -86,7 +86,7 @@ export const Sidebar = () => {
   return (
     <div
       className={`h-full p-4 border-r  ${
-        pathname.includes("/chat") ? "" : "w-1/5"
+        pathname.includes("/chat") ? "" : "w-1/4"
       }`}
     >
       <div className="w-full pb-2 mb-4 border-b flex justify-center">

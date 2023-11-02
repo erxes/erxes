@@ -61,10 +61,13 @@ const Notifications = () => {
       )
     }
     if (notification.action === "bravo created") {
-      return <span>mentioned you in bravo</span>
+      return <span>Mentioned you in bravo</span>
+    }
+    if (notification.action === "event created") {
+      return <span>Created event</span>
     }
     if (notification.action === "publicHoliday created") {
-      return <span>created public holiday</span>
+      return <span>Created public holiday</span>
     }
   }
 
@@ -76,28 +79,30 @@ const Notifications = () => {
       <li
         key={notification._id}
         onClick={() => markAsRead([notification._id])}
-        className="flex gap-2 p-2 cursor-pointer hover:bg-[#F0F0F0] rounded-[5px] items-center"
+        className="flex gap-2 p-2 cursor-pointer hover:bg-[#F0F0F0] rounded-[5px] items-center justify-between"
       >
-        <div className="w-10 h-10 shrink-0">
-          <Image
-            src={details && avatar ? avatar : "/avatar-colored.svg"}
-            alt="User Profile"
-            width={80}
-            height={80}
-            className="w-10 h-10 rounded-full object-cover border border-primary"
-          />
-        </div>
-        <div className="text-[12px]">
-          <div>
-            <b>{details ? fullName : username || email} </b>
-            {renderNotifInfo(notification)}
+        <div className="flex gap-2 items-center">
+          <div className="w-10 h-10 shrink-0">
+            <Image
+              src={details && avatar ? avatar : "/avatar-colored.svg"}
+              alt="User Profile"
+              width={80}
+              height={80}
+              className="w-10 h-10 rounded-full object-cover border border-primary"
+            />
           </div>
-          <div
-            className={`${
-              !notification.isRead && "text-primary-light"
-            } text-[11px]`}
-          >
-            {dayjs(notification.date).fromNow()}
+          <div className="text-[12px]">
+            <div className="flex flex-col">
+              <b>{details ? fullName : username || email} </b>
+              {renderNotifInfo(notification)}
+            </div>
+            <div
+              className={`${
+                !notification.isRead && "text-primary-light"
+              } text-[#5E5B5B] text-[11px]`}
+            >
+              {dayjs(notification.date).fromNow()}
+            </div>
           </div>
         </div>
         {!notification.isRead && (
@@ -121,7 +126,7 @@ const Notifications = () => {
 
   const renderNoNotification = () => {
     return (
-      <div className="gap-3 flex flex-col justify-center items-center py-4">
+      <div className="gap-3 flex flex-col justify-center items-center py-4 text-[#A1A1A1]">
         <Ban size={25} />
         There is no notification
       </div>
@@ -158,10 +163,9 @@ const Notifications = () => {
         </div>
       </PopoverTrigger>
       <PopoverContent className="mr-8 w-80">
-        <div>Notifications</div>
         <Tabs defaultValue="all">
           <TabsList>
-            <div className="flex gap-3 my-2">
+            <div className="flex gap-3 mb-3">
               <TabsTrigger className={tabTriggerStyle} value="all">
                 All
               </TabsTrigger>
@@ -170,7 +174,7 @@ const Notifications = () => {
               </TabsTrigger>
             </div>
           </TabsList>
-          <p className="font-normal mb-1 flex justify-between">
+          <p className="font-normal mb-3 flex justify-between text-[13px]">
             Earlier{" "}
             <span
               className="text-primary cursor-pointer"

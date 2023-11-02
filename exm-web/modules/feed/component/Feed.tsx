@@ -8,33 +8,25 @@ const List = dynamic(() => import("./List"))
 
 const Feed = () => {
   localStorage.getItem("exm_env_REACT_APP_DOMAIN")
+
+  const style =
+    "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
+    
   return (
     <div>
       <Tabs defaultValue="post">
         <TabsList className="border-b">
           <div className="w-[60%] items-center flex mx-auto h-[2.5rem] my-3">
-            <TabsTrigger
-              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8"
-              value="post"
-            >
+            <TabsTrigger className={style} value="post">
               Post
             </TabsTrigger>
-            <TabsTrigger
-              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8"
-              value="event"
-            >
+            <TabsTrigger className={style} value="event">
               Event
             </TabsTrigger>
-            <TabsTrigger
-              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8"
-              value="bravo"
-            >
+            <TabsTrigger className={style} value="bravo">
               Bravo
             </TabsTrigger>
-            <TabsTrigger
-              className="text-[#444] data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-8"
-              value="publicHoliday"
-            >
+            <TabsTrigger className={style} value="publicHoliday">
               Calendar
             </TabsTrigger>
           </div>
