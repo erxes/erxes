@@ -11,7 +11,7 @@ export let graphqlPubsub;
 export let serviceDiscovery;
 
 export default {
-  name: 'msdynamics',
+  name: 'msdynamic',
   graphql: async sd => {
     serviceDiscovery = sd;
 
