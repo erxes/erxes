@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import {
   AwardIcon,
+  CalendarClock,
   HomeIcon,
   LayersIcon,
   MessageCircleIcon,
@@ -166,5 +167,12 @@ export const MAIN_NAVIGATION = [
     Icon: LayersIcon,
     color: "#63D2D6",
     desc: "Coming soon",
+  },
+  {
+    active: "timeclocks",
+    href: "timeclocks",
+    value: "Timeclocks",
+    Icon: CalendarClock,
+    color: "#3d91a9",
   },
 ]
