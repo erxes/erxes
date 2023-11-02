@@ -18,17 +18,23 @@ export const PRODUCT_CORE_FIELDS = gql`
     price
     description
     updatedAt
-    riskIds
     companyProductConfigs {
       companyId
       specificPrice
     }
-    risks {
+    riskConfigs {
+      riskId
+      coverage
+      coverageLimit
+    }
+    categoryId
+    category {
       _id
       name
-      code
-      description
-      updatedAt
+      risks {
+        _id
+        name
+      }
     }
   }
 `;

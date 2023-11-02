@@ -6,6 +6,7 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import forms from './forms';
 
 export let mainDb;
 export let debug;
@@ -21,6 +22,10 @@ export default {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd)
     };
+  },
+
+  meta: {
+    forms
   },
 
   apolloServerContext: async (context, req) => {

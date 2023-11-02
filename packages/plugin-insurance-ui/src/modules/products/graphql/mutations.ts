@@ -6,7 +6,8 @@ const PRODUCTS_ADD = gql`
     $code: String!
     $description: String!
     $price: Float!
-    $riskIds: [ID]
+    $riskConfigs: [RiskConfigInput]
+    $categoryId: ID!
     $companyProductConfigs: [CompanyProductConfigInput]
   ) {
     insuranceProductsAdd(
@@ -14,8 +15,9 @@ const PRODUCTS_ADD = gql`
       code: $code
       description: $description
       price: $price
-      riskIds: $riskIds
+      riskConfigs: $riskConfigs
       companyProductConfigs: $companyProductConfigs
+      categoryId: $categoryId
     ) {
       _id
     }
@@ -29,7 +31,8 @@ const PRODUCTS_EDIT = gql`
     $code: String
     $description: String
     $price: Float
-    $riskIds: [ID]
+    $riskConfigs: [RiskConfigInput]
+    $categoryId: ID
     $companyProductConfigs: [CompanyProductConfigInput]
   ) {
     insuranceProductsEdit(
@@ -38,7 +41,8 @@ const PRODUCTS_EDIT = gql`
       code: $code
       description: $description
       price: $price
-      riskIds: $riskIds
+      riskConfigs: $riskConfigs
+      categoryId: $categoryId
       companyProductConfigs: $companyProductConfigs
     ) {
       _id

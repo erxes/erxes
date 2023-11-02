@@ -3,9 +3,9 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 
 import { getGqlString } from '@erxes/ui/src/utils/core';
-import { Risk } from '../../../types.b';
 import RiskForm from '../components/Form';
 import { mutations, queries } from '../graphql';
+import { Risk } from '../../../gql/types';
 
 type Props = {
   risk?: Risk;

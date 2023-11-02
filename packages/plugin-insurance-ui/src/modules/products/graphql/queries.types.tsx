@@ -1,6 +1,6 @@
 import * as Types from '../../../gql/types';
 
-export type InsuranceProductsPaginatedQueryVariables = Types.Exact<{
+export type InsuranceProductListQueryVariables = Types.Exact<{
   page?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   perPage?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   sortField?: Types.InputMaybe<Types.Scalars['String']['input']>;
@@ -8,12 +8,12 @@ export type InsuranceProductsPaginatedQueryVariables = Types.Exact<{
   searchValue?: Types.InputMaybe<Types.Scalars['String']['input']>;
 }>;
 
-export type InsuranceProductsPaginatedQuery = {
+export type InsuranceProductListQuery = {
   __typename?: 'Query';
-  insuranceProductsPaginated?: {
-    __typename?: 'InsuranceProductPage';
-    count?: number | null;
-    products?: Array<{
+  insuranceProductList?: {
+    __typename?: 'InsuranceProductList';
+    totalCount?: number | null;
+    list?: Array<{
       __typename?: 'InsuranceProduct';
       _id: string;
       name?: string | null;
@@ -21,7 +21,7 @@ export type InsuranceProductsPaginatedQuery = {
       price?: number | null;
       description?: string | null;
       updatedAt?: any | null;
-      riskIds?: Array<string | null> | null;
+      categoryId?: string | null;
       lastModifiedBy?: {
         __typename?: 'User';
         _id: string;
@@ -42,14 +42,37 @@ export type InsuranceProductsPaginatedQuery = {
         companyId: string;
         specificPrice?: number | null;
       } | null> | null;
-      risks?: Array<{
-        __typename?: 'Risk';
+      riskConfigs?: Array<{
+        __typename?: 'RiskConfig';
+        riskId: string;
+        coverage?: number | null;
+        coverageLimit?: number | null;
+      } | null> | null;
+      category?: {
+        __typename?: 'InsuranceCategory';
         _id: string;
         name?: string | null;
-        code?: string | null;
-        description?: string | null;
-        updatedAt?: any | null;
-      } | null> | null;
+        risks?: Array<{
+          __typename?: 'Risk';
+          _id: string;
+          name?: string | null;
+        } | null> | null;
+      } | null;
     } | null> | null;
   } | null;
+};
+
+export type InsuranceProductsQueryVariables = Types.Exact<{
+  searchValue?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  page?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  perPage?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+}>;
+
+export type InsuranceProductsQuery = {
+  __typename?: 'Query';
+  insuranceProducts?: Array<{
+    __typename?: 'InsuranceProduct';
+    _id: string;
+    name?: string | null;
+  } | null> | null;
 };

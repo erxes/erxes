@@ -15,6 +15,18 @@ const ProductList = asyncComponent(() =>
   )
 );
 
+const PackageList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "List - Packages" */ './modules/productPackages/containers/List'
+  )
+);
+
+const CategoryList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "List - Categories" */ './modules/categories/containers/List'
+  )
+);
+
 const risks = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
@@ -29,16 +41,34 @@ const products = ({ location, history }) => {
   return <ProductList typeId={type} history={history} />;
 };
 
+const packageList = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+  const { type } = queryParams;
+
+  return <PackageList typeId={type} history={history} />;
+};
+
+const categories = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+  const { type } = queryParams;
+
+  return <CategoryList typeId={type} history={history} />;
+};
+
 export const menu = [
   { title: 'Risks', link: '/insurance/risks' },
+  { title: 'Categories', link: '/insurance/categories' },
   { title: 'Products', link: '/insurance/products' }
+  // { title: 'Packages', link: '/insurance/packages' }
 ];
 
 const routes = () => {
   return (
     <React.Fragment>
       <Route path="/insurance/risks/" component={risks} />
+      <Route path="/insurance/categories/" component={categories} />
       <Route path="/insurance/products/" component={products} />
+      <Route path="/insurance/packages/" component={packageList} />
     </React.Fragment>
   );
 };

@@ -5,11 +5,12 @@ export type InsuranceProductsAddMutationVariables = Types.Exact<{
   code: Types.Scalars['String']['input'];
   description: Types.Scalars['String']['input'];
   price: Types.Scalars['Float']['input'];
-  riskIds?: Types.InputMaybe<
-    | Array<Types.InputMaybe<Types.Scalars['ID']['input']>>
-    | Types.InputMaybe<Types.Scalars['ID']['input']>
+  riskConfigs?: Types.InputMaybe<
+    | Array<Types.InputMaybe<Types.RiskConfigInput>>
+    | Types.InputMaybe<Types.RiskConfigInput>
   >;
-  companyConfigs?: Types.InputMaybe<
+  categoryId: Types.Scalars['ID']['input'];
+  companyProductConfigs?: Types.InputMaybe<
     | Array<Types.InputMaybe<Types.CompanyProductConfigInput>>
     | Types.InputMaybe<Types.CompanyProductConfigInput>
   >;
@@ -29,11 +30,12 @@ export type InsuranceProductsEditMutationVariables = Types.Exact<{
   code?: Types.InputMaybe<Types.Scalars['String']['input']>;
   description?: Types.InputMaybe<Types.Scalars['String']['input']>;
   price?: Types.InputMaybe<Types.Scalars['Float']['input']>;
-  riskIds?: Types.InputMaybe<
-    | Array<Types.InputMaybe<Types.Scalars['ID']['input']>>
-    | Types.InputMaybe<Types.Scalars['ID']['input']>
+  riskConfigs?: Types.InputMaybe<
+    | Array<Types.InputMaybe<Types.RiskConfigInput>>
+    | Types.InputMaybe<Types.RiskConfigInput>
   >;
-  companyConfigs?: Types.InputMaybe<
+  categoryId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
+  companyProductConfigs?: Types.InputMaybe<
     | Array<Types.InputMaybe<Types.CompanyProductConfigInput>>
     | Types.InputMaybe<Types.CompanyProductConfigInput>
   >;
