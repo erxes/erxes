@@ -165,7 +165,7 @@ var main = async () => {
     }
   }
 
-  const actions = permissionCheckers.map((action) => action.name);
+  const actions = permissionCheckers.map(action => action.name);
   const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
 
   if (dups.length) {
