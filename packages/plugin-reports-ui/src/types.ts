@@ -1,4 +1,4 @@
-export interface IReports {
+export interface IReport {
   _id: string;
   name?: string;
   createdAt?: Date;
@@ -7,8 +7,27 @@ export interface IReports {
   checked?: boolean;
   typeId?: string;
   currentType?: IType;
+  charts?: IChart[];
+  visibility?: ReportVisibility;
 }
 
+enum ReportVisibility {
+  public = 'public',
+  private = 'private'
+}
+
+export interface IChart {
+  _id: string;
+  name?: string;
+  contentType?: string;
+  template?: string;
+  order?: number;
+  chartType?: string;
+  filters?: any[];
+  defaultFilter?: any;
+
+  layout?: any;
+}
 export interface IType {
   _id: string;
   name: string;
@@ -16,7 +35,7 @@ export interface IType {
 
 // queries
 export type ReportsListQueryResponse = {
-  list: IReports[];
+  list: IReport[];
   totalCount: number;
   refetch: () => void;
   loading: boolean;

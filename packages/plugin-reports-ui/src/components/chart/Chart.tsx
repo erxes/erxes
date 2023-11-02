@@ -6,6 +6,7 @@ import {
   ChartOptions,
   Colors
 } from 'chart.js';
+import { IChart } from '../../types';
 
 Chart.register(Colors);
 
@@ -20,11 +21,13 @@ export enum ChartType {
   SCATTER = 'scatter'
 }
 interface IChartProps {
-  data: number[];
-  labels: string[];
+  chart: IChart;
+
+  data?: number[];
+  labels?: string[];
   template?: string;
-  chartType: ChartType;
-  name: string;
+  chartType?: ChartType;
+  name?: string;
 }
 
 const CHART_DEFAULT_SCALES = {
@@ -72,29 +75,30 @@ const ChartComponent: React.FC<IChartProps> = ({
           data: {
             labels,
             datasets: [
-              {
-                type: 'bar',
-                label: name,
-                data,
-                backgroundColor: [
-                  'rgba(255, 99, 132, 0.6)',
-                  'rgba(54, 162, 235, 0.6)',
-                  'rgba(255, 206, 86, 0.6)',
-                  'rgba(75, 192, 192, 0.6)',
-                  'rgba(153, 102, 255, 0.6)',
-                  'rgba(255, 159, 64, 0.6)'
-                ],
+              // {
+              //   type: 'bar',
+              //   label: name,
+              //   data,
+              //   backgroundColor: [
+              //     'rgba(255, 99, 132, 0.6)',
+              //     'rgba(54, 162, 235, 0.6)',
+              //     'rgba(255, 206, 86, 0.6)',
+              //     'rgba(75, 192, 192, 0.6)',
+              //     'rgba(153, 102, 255, 0.6)',
+              //     'rgba(255, 159, 64, 0.6)'
+              //   ],
 
-                borderColor: [
-                  'rgba(255, 99, 132, 1)',
-                  'rgba(54, 162, 235, 1)',
-                  'rgba(255, 206, 86, 1)',
-                  'rgba(75, 192, 192, 1)',
-                  'rgba(153, 102, 255, 1)',
-                  'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-              },
+              //   borderColor: [
+              //     'rgba(255, 99, 132, 1)',
+              //     'rgba(54, 162, 235, 1)',
+              //     'rgba(255, 206, 86, 1)',
+              //     'rgba(75, 192, 192, 1)',
+              //     'rgba(153, 102, 255, 1)',
+              //     'rgba(255, 159, 64, 1)'
+              //   ],
+              //   borderWidth: 1
+              // },
+
               {
                 label: 'Bar chart 2',
                 data: [0, 2, 3, 4, 6, 7],
@@ -174,7 +178,18 @@ const ChartComponent: React.FC<IChartProps> = ({
 
       const options: ChartOptions = {};
 
-      const myChart = new Chart(chartRef.current, config);
+      const cfg = {
+        type: 'bar',
+        data: {
+          datasets: [
+            {
+              data: [0, 1, 1]
+            }
+          ],
+          labels: ['Ariuka ', 'Enkhtuvshin Narmandakh', 'Erdembileg Ebi']
+        }
+      };
+      const myChart = new Chart(chartRef.current, cfg);
 
       // setChartImageUrl(myChart.toBase64Image('image/png', 1));
       return () => {
