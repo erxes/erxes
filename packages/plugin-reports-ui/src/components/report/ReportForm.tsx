@@ -2,7 +2,12 @@ import { Label } from '@erxes/ui/src/components';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { BoxContainer } from '../../styles';
-const ReportForm = () => {
+
+type Props = {
+  history: any;
+  queryParams: any;
+};
+const ReportForm = (props: Props) => {
   // show report templates list
   // set visibility
   return (

@@ -85,7 +85,7 @@ function List(props: Props) {
         btnStyle="success"
         size="small"
         icon="plus-circle"
-        // onClick={history.push('/dashboard/details')}
+        onClick={() => history.push('/reports/details/create-report')}
       >
         {__('Create a report')}
       </Button>
