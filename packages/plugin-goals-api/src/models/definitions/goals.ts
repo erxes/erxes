@@ -21,6 +21,7 @@ export interface IGoal {
   branch: string;
   chooseStage: string;
   specificPeriodGoals?: ISpecificPeriodGoals[];
+  segmentIds: string[];
   startDate: string;
   endDate: string;
   target: string;
@@ -70,7 +71,8 @@ export const goalSchema = schemaHooksWrapper(
     branch: {
       type: String,
       label: 'Branch'
-    }
+    },
+    segmentIds: field({ type: [String], label: 'Segment Data' })
   }),
   'erxes_goals'
 );

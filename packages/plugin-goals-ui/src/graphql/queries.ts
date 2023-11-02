@@ -15,6 +15,7 @@ const insuranceTypeFields = `
       startDate
       endDate
       target
+      segmentIds
 `;
 
 const listParamsDef = `

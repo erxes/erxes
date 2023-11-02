@@ -1,15 +1,20 @@
-import {
-  IAttachment,
-  MutationVariables,
-  QueryResponse
-} from '@erxes/ui/src/types';
-// tslint:disable-next-line:interface-name
-interface SpecificPeriodGoal {
-  progress: string;
-  _id: string;
-  current: string;
-  addMonthly: string;
-  addTarget: string;
+import { IAttachment } from '@erxes/ui/src/types';
+
+export interface ICommonTypes {
+  _id?: string;
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
+
+  title?: string;
+  description?: string;
+  startDate?: Date;
+  endDate?: Date;
+  finishDateOfUse?: Date;
+  attachment?: IAttachment;
+
+  status?: string;
 }
 
 export interface IGoalTypeDoc {
@@ -26,7 +31,16 @@ export interface IGoalTypeDoc {
   department: string;
   unit: string;
   branch: string;
-  specificPeriodGoals: SpecificPeriodGoal[];
+  specificPeriodGoals: {
+    map(
+      arg0: (element: any, index: any) => JSX.Element
+    ): import('react').ReactNode;
+    progress: string;
+    _id: string;
+    current: string;
+    addMonthly: string;
+    addTarget: string;
+  };
   progress: {
     current: string;
     progress: string;
@@ -38,6 +52,7 @@ export interface IGoalTypeDoc {
   startDate: string;
   endDate: string;
   target: string;
+  segmentIds: string[];
 }
 
 export interface IGoalType extends IGoalTypeDoc {

@@ -36,14 +36,14 @@ import {
   GOAL_TYPE,
   SPECIFIC_PERIOD_GOAL
 } from '../constants';
-import { IAssignmentCampaign, IGoalType, IGoalTypeDoc } from '../types';
+import { IGoalType, IGoalTypeDoc } from '../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
-  assignmentCampaign?: IAssignmentCampaign;
+  segmentIds?: any;
   branchListQuery: BranchesMainQueryResponse;
   unitListQuery: UnitsMainQueryResponse;
   departmentListQuery: DepartmentsMainQueryResponse;
@@ -69,10 +69,10 @@ type State = {
   department: string;
   unit: string;
   pipelineLabels: IPipelineLabel[];
-  stageId?: any;
-  pipelineId?: any;
-  boardId: any;
-  assignmentCampaign: IAssignmentCampaign;
+  stageId?: string;
+  pipelineId?: string;
+  boardId: string;
+  segmentIds: string[];
   stageRadio: boolean;
   segmentRadio: boolean;
 };
@@ -82,6 +82,7 @@ class GoalTypeForm extends React.Component<Props, State> {
     super(props);
     const { goalType = {} } = props;
     this.state = {
+      segmentIds: goalType.segmentIds || [],
       branch: goalType.branch || '',
       department: goalType.department || '',
       unit: goalType.unit || '',
@@ -101,8 +102,7 @@ class GoalTypeForm extends React.Component<Props, State> {
       endDate: goalType.endDate || new Date(),
       stageId: goalType.stageId,
       pipelineId: goalType.pipelineId,
-      boardId: goalType.boardId,
-      assignmentCampaign: this.props.assignmentCampaign || {}
+      boardId: goalType.boardId
     };
   }
 
@@ -196,16 +196,15 @@ class GoalTypeForm extends React.Component<Props, State> {
       stageRadio,
       segmentRadio,
       period,
-      specificPeriodGoals
+      specificPeriodGoals,
+      segmentIds
     } = this.state;
     const finalValues = values;
-    //// assignmentCampaign segment
-    const { assignmentCampaign } = this.state;
+
     if (goalType) {
       finalValues._id = goalType._id;
     }
-    const durationStart = dayjs(startDate).format('MMM D, h:mm A');
-    const durationEnd = dayjs(endDate).format('MMM D, h:mm A');
+
     return {
       _id: finalValues._id,
       ...this.state,
@@ -213,6 +212,7 @@ class GoalTypeForm extends React.Component<Props, State> {
       department: finalValues.department,
       unit: finalValues.unit,
       branch: finalValues.branch,
+      segmentIds,
       specificPeriodGoals, // Renamed the property
       stageRadio,
       segmentRadio,
@@ -224,8 +224,8 @@ class GoalTypeForm extends React.Component<Props, State> {
       contributionType: finalValues.contributionType,
       metric: finalValues.metric,
       goalType: finalValues.goalType,
-      startDate: durationStart,
-      endDate: durationEnd,
+      startDate,
+      endDate,
       target: finalValues.target
     };
   };
@@ -256,13 +256,7 @@ class GoalTypeForm extends React.Component<Props, State> {
   };
 
   onChangeSegments = values => {
-    const { assignmentCampaign } = this.state;
-    this.setState({
-      assignmentCampaign: {
-        ...assignmentCampaign,
-        segmentIds: values.map(v => v.value)
-      }
-    });
+    this.setState({ segmentIds: values });
   };
 
   mapMonths = (): string[] => {
@@ -320,6 +314,7 @@ class GoalTypeForm extends React.Component<Props, State> {
     const departments = departmentListQuery.departmentsMain?.list || [];
     const branches = branchListQuery.branchesMain?.list || [];
     const units = unitListQuery.unitsMain?.list || [];
+    console.log(this.state.entity, 'sdaa');
     return (
       <>
         <ScrollWrapper>
@@ -365,22 +360,23 @@ class GoalTypeForm extends React.Component<Props, State> {
                 />
                 {__('Segment')}
               </FormGroup>
-
               {this.state.segmentRadio === true && (
                 <FormGroup>
-                  {isEnabled('segments') && (
+                  {isEnabled('segments') && isEnabled('contacts') && (
                     <>
-                      <ControlLabel>{__('Segment')}</ControlLabel>
-                      <SelectSegments
-                        name="segmentIds"
-                        label="Choose segments"
-                        contentTypes={['contacts:customer', 'contacts:lead']}
-                        initialValue={this.state.assignmentCampaign.segmentIds}
-                        multi={true}
-                        onSelect={segmentIds =>
-                          this.onChangeSegments(segmentIds)
-                        }
-                      />
+                      <FormGroup>
+                        <ControlLabel>Segments</ControlLabel>
+                        <SelectSegments
+                          name="segmentIds"
+                          label="Choose segments"
+                          contentTypes={[`cards:${this.state.entity}`]}
+                          initialValue={this.state.segmentIds.segmentIds}
+                          multi={true}
+                          onSelect={segmentIds =>
+                            this.onChangeSegments(segmentIds)
+                          }
+                        />
+                      </FormGroup>
                     </>
                   )}
                 </FormGroup>

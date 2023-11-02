@@ -14,14 +14,6 @@ type Props = {
   toggleBulk: (goalType: IGoalType, isChecked?: boolean) => void;
 };
 
-type State = {
-  showModal: boolean;
-  checkbox: boolean;
-  pipName: string;
-  boardName: string;
-  stageName: string;
-};
-
 function displayValue(goalType, name) {
   const value = _.get(goalType, name);
 
@@ -30,7 +22,6 @@ function displayValue(goalType, name) {
 
 function renderFormTrigger(trigger: React.ReactNode, goalType: IGoalType) {
   const content = props => <GoalTypeForm {...props} goalType={goalType} />;
-
   return (
     <ModalTrigger
       size="lg"
