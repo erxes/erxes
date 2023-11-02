@@ -12,11 +12,11 @@ import {
   TextLeft,
   TextRight,
   TextCenter,
-  Justify,
-  Link45deg
+  Justify
 } from 'react-bootstrap-icons';
 
 import { createControl } from './RichTextEditorControl';
+import Icon from '../../Icon';
 
 export const BoldControl = createControl({
   label: 'boldControlLabel',
@@ -54,7 +54,7 @@ export const StrikeThroughControl = createControl({
 
 export const UnlinkControl = createControl({
   label: 'unlinkControlLabel',
-  icon: props => <Link45deg />,
+  icon: props => <Icon icon="link-broken" />,
   operation: { name: 'unsetLink' }
 });
 

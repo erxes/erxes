@@ -1,85 +1,51 @@
-import { Extension } from '@tiptap/core';
-
-export type FontSizeAttrs = {
-  fontSize?: string | null;
-};
-
-export type FontSizeOptions = {
-  /**
-   * What types of marks this applies to. By default just "textStyle".
-   * (https://tiptap.dev/api/marks/text-style).
-   */
-  types: string[];
-};
+import TextStyle from '@tiptap/extension-text-style';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     fontSize: {
       /**
-       * Set the text font size. ex: "12px", "2em", or "small". Must be a valid
-       * CSS font-size
-       * (https://developer.mozilla.org/en-US/docs/Web/CSS/font-size).
+       * Set the font size
        */
-      setFontSize: (fontSize: string) => ReturnType;
+      setFontSize: (size: string) => ReturnType;
       /**
-       * Unset the text font size.
+       * Unset the font size
        */
       unsetFontSize: () => ReturnType;
     };
   }
 }
-
-/**
- * Allow for setting the font size of text. Requires the TextStyle extension
- * https://tiptap.dev/api/marks/text-style, as Tiptap suggests.
- */
-const FontSize = Extension.create<FontSizeOptions>({
-  name: 'fontSize',
-
-  addOptions() {
+const FontSize = TextStyle.extend({
+  addAttributes() {
     return {
-      types: ['textStyle']
-    };
-  },
-
-  addGlobalAttributes() {
-    return [
-      {
-        types: this.options.types,
-        attributes: {
-          fontSize: {
-            default: null,
-            parseHTML: element => element.style.fontSize.replace(/['"]+/g, ''),
-            renderHTML: (attributes: FontSizeAttrs) => {
-              if (!attributes.fontSize) {
-                return {};
-              }
-
-              return {
-                style: `font-size: ${attributes.fontSize}`
-              };
-            }
+      ...this.parent?.(),
+      fontSize: {
+        default: null,
+        parseHTML: element => element.style.fontSize.replace('px', ''),
+        renderHTML: attributes => {
+          if (!attributes['fontSize']) {
+            return {};
           }
+          return {
+            style: `font-size: ${attributes['fontSize']}px`
+          };
         }
       }
-    ];
+    };
   },
 
   addCommands() {
     return {
-      setFontSize: fontSize => ({ chain }) => {
-        return chain()
-          .setMark('textStyle', { fontSize })
-          .run();
+      ...this.parent?.(),
+      setFontSize: fontSize => ({ commands }) => {
+        return commands.setMark(this.name, { fontSize: fontSize });
       },
       unsetFontSize: () => ({ chain }) => {
         return chain()
-          .setMark('textStyle', { fontSize: null })
+          .setMark(this.name, { fontSize: null })
           .removeEmptyTextStyle()
           .run();
       }
     };
   }
 });
-
 export default FontSize;

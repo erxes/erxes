@@ -1,4 +1,4 @@
-import React, { forwardRef, useRef } from 'react';
+import React, { useRef } from 'react';
 
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import { RichTextEditorLabels } from '../labels';

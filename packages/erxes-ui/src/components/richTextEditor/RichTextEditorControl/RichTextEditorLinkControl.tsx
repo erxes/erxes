@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
-import { OverlayTrigger, PopoverContent } from 'react-bootstrap';
-import { Link, BoxArrowUpRight } from 'react-bootstrap-icons';
+import React, { useState } from 'react';
+import { OverlayTrigger } from 'react-bootstrap';
+import { BoxArrowUpRight } from 'react-bootstrap-icons';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
   RichTextEditorControlBaseProps,
@@ -8,24 +8,21 @@ import {
 } from './RichTextEditorControl';
 import Tip from '../../Tip';
 import { InputAction, InputWrapper, LinkInput, LinkWrapper } from './styles';
+import Icon from '../../Icon';
 
-const LinkIcon: RichTextEditorControlBaseProps['icon'] = props => (
-  <Link {...props} />
+const LinkIcon: RichTextEditorControlBaseProps['icon'] = () => (
+  <Icon icon="link-alt" />
 );
 
-export const RichTextEditorLinkControl = props => {
-  const {
-    classNames,
-    className,
-    style,
-    styles,
-    vars,
-    icon,
-    popoverProps,
-    disableTooltips,
-    initialExternal,
-    ...others
-  } = props;
+export type RichTextEditorLinkControlProps = {
+  icon?: React.FC;
+  initialExternal?: boolean;
+};
+
+export const RichTextEditorLinkControl = (
+  props: RichTextEditorLinkControlProps
+) => {
+  const { icon, initialExternal } = props;
 
   const ctx = useRichTextEditorContext();
 
@@ -124,13 +121,10 @@ export const RichTextEditorLinkControl = props => {
     >
       <RichTextEditorControlBase
         icon={icon || LinkIcon}
-        {...others}
         aria-label={ctx.labels.linkControlLabel}
         title={ctx.labels.linkControlLabel}
         onClick={handleOpen}
         active={ctx.editor?.isActive('link')}
-        className={className}
-        style={style}
       />
     </OverlayTrigger>
   );

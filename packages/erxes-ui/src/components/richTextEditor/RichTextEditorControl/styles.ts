@@ -109,7 +109,6 @@ const InputAction = styled.div`
   }
 `;
 const FontSelectWrapper = styled.div`
-  z-index: 100;
   .Select {
     border: 0.0625rem solid #ced4da;
     border-radius: 0.25rem;
@@ -119,6 +118,8 @@ const FontSelectWrapper = styled.div`
     display: none;
   }
   .Select-input {
+    z-index: 10;
+    position: absolute;
   }
   .Select-control {
     width: 56px;
@@ -142,6 +143,7 @@ const FontSelectWrapper = styled.div`
     }
   }
   .Select-menu-outer {
+    z-index: 100;
     width: max-content;
   }
   .Select-option {

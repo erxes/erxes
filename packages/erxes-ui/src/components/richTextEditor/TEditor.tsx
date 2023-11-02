@@ -80,7 +80,7 @@ export const RichTextEditor = (props: RichTextEditorProps) => {
           borderRadius: '4px'
         }}
       >
-        <RichTextEditor.Toolbar sticky stickyOffset={60}>
+        <RichTextEditor.Toolbar>
           <RichTextEditor.ControlsGroup>
             <RichTextEditor.Bold />
             <RichTextEditor.Italic />
