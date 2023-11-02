@@ -1,23 +1,16 @@
 import { memo } from "react"
-import { selectedTabAtom, slotFilterAtom } from "@/store"
+import { selectedTabAtom } from "@/store"
 import { slotCodeAtom } from "@/store/order.store"
 import { motion } from "framer-motion"
 import { useSetAtom } from "jotai"
-import { CheckCircle2, Circle, ListFilterIcon, XCircleIcon } from "lucide-react"
+import { CheckCircle2, Circle, XCircleIcon } from "lucide-react"
 
 import { ISlot } from "@/types/slots.type"
 import { cn } from "@/lib/utils"
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu"
+import { ContextMenuTrigger } from "@/components/ui/context-menu"
 import { Label } from "@/components/ui/label"
 
-import CreateSlot from "./createSlot"
-import PreDates from "./preDates"
+import SlotActions from "./slotActions"
 
 const MotionLabel = motion(Label)
 
@@ -27,17 +20,14 @@ const statusIcons = {
   reserved: XCircleIcon,
 }
 
-const Slot = ({
-  active,
-  code,
-  name,
-  option,
-  isPreDates,
-  status,
-}: ISlot & {
-  status?: "serving" | "available" | "reserved"
-  active: boolean
-}) => {
+const Slot = (
+  props: ISlot & {
+    status?: "serving" | "available" | "reserved"
+    active: boolean
+  }
+) => {
+  const { active, code, name, option, status } = props
+
   const {
     rotateAngle,
     width,
@@ -63,7 +53,6 @@ const Slot = ({
   }
   const setActiveSlot = useSetAtom(slotCodeAtom)
   const setSelectedTab = useSetAtom(selectedTabAtom)
-  const setFilterSlots = useSetAtom(slotFilterAtom)
 
   if (isShape)
     return (
@@ -82,7 +71,7 @@ const Slot = ({
   }
 
   return (
-    <ContextMenu>
+    <SlotActions {...props}>
       <ContextMenuTrigger
         className={cn(
           "absolute flex items-center font-medium justify-center text-white",
@@ -116,31 +105,7 @@ const Slot = ({
           }}
         />
       </ContextMenuTrigger>
-
-      <ContextMenuContent className="min-w-[13rem]">
-        <div className="flex items-center justify-between px-2 py-1.5">
-          <div>
-            {name} {code}
-          </div>
-          <div className="flex items-center gap-1">
-            <Icon className="h-5 w-5" />
-            {status}
-          </div>
-        </div>
-
-        <ContextMenuSeparator />
-        <ContextMenuItem onClick={handleChoose}>Сонгох</ContextMenuItem>
-        <CreateSlot code={code} />
-        <ContextMenuItem
-          className="flex items-center"
-          onClick={() => setFilterSlots(code)}
-        >
-          <ListFilterIcon className="h-4 w-4 mr-1" />
-          Захиалгууд
-        </ContextMenuItem>
-        <PreDates isPreDates={isPreDates} />
-      </ContextMenuContent>
-    </ContextMenu>
+    </SlotActions>
   )
 }
 
