@@ -153,7 +153,7 @@ const Notifications = () => {
   return (
     <Popover>
       <PopoverTrigger asChild={true}>
-        <div className="p-2.5 bg-[#F0F0F0] rounded-full mr-4 relative">
+        <div className="p-2.5 bg-[#F0F0F0] rounded-full mr-4 relative cursor-pointer">
           <BellRing size={16} />
           {unreadCount > 0 && (
             <div className="absolute top-[-6px] right-[-9px] bg-destructive text-white text-[9px] flex w-[20px] justify-center items-center rounded-full">

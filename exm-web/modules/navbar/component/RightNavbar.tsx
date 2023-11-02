@@ -26,7 +26,7 @@ const RightNavbar = () => {
         <Notifications />
         <Popover>
           <PopoverTrigger asChild={true}>
-            <div>
+            <div className="cursor-pointer">
               <Image
                 src={
                   currentUser.details && currentUser.details.avatar
