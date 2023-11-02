@@ -76,7 +76,7 @@ const queries = {
 
   insuranceProductsOfVendor: async (
     _root,
-    _args,
+    { categoryId },
     { models, subdomain, cpUser }: IContext
   ) => {
     if (!cpUser) {
@@ -135,11 +135,23 @@ const queries = {
       throw new Error("User's company not found");
     }
 
+    const match: any = {
+      $and: [
+        {
+          'companyProductConfigs.companyId': company._id
+        }
+      ]
+    };
+
+    if (categoryId) {
+      match.$and.push({
+        categoryId
+      });
+    }
+
     const products = await models.Products.aggregate([
       {
-        $match: {
-          'companyProductConfigs.companyId': company._id // Filter by companyId
-        }
+        $match: match
       },
       {
         $unwind: '$companyProductConfigs' // Unwind the companyConfigs array
