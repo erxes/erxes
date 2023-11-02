@@ -8,7 +8,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-productplaces-api/**'
       - '.github/workflows/plugin-productplaces-api.yaml'
   pull_request:
@@ -18,7 +17,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-productplaces-api/**'
       - '.github/workflows/plugin-productplaces-api.yaml'
 

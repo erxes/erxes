@@ -8,7 +8,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-logs-api/**'
       - '.github/workflows/plugin-logs-api.yaml'
   pull_request:
@@ -18,7 +17,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-logs-api/**'
       - '.github/workflows/plugin-logs-api.yaml'
 

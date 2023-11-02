@@ -8,7 +8,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-meetings-api/**'
       - '.github/workflows/plugin-meetings-api.yaml'
   pull_request:
@@ -18,7 +17,6 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-meetings-api/**'
       - '.github/workflows/plugin-meetings-api.yaml'
 

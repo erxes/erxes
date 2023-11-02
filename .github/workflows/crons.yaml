@@ -32,7 +32,7 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-crons-${{ hashFiles('yarn.lock', 'crons/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-crons
           restore-keys: |
             ${{ runner.os }}-yarn-crons
             ${{ runner.os }}-yarn-
