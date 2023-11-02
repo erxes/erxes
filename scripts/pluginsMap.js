@@ -440,9 +440,10 @@ module.exports = {
       scope: 'calls',
       exposes: {
         './routes': './src/routes.tsx',
-        './call': './src/containers/SipProvider.tsx',
+        './call': './src/containers/Widget.tsx',
+        './incomin-call': './src/containers/IncomingCall.tsx',
         './inboxIntegrationForm': './src/components/IntegrationForm.tsx',
-        './integrationDetailsForm': './src/components/IntegrationEditForm.tsx',
+        './integrationEditForm': './src/components/IntegrationEditForm.tsx',
         './integrationCustomActions': './src/components/TokenButton.tsx'
       },
       routes: {
@@ -459,11 +460,18 @@ module.exports = {
           location: 'topNavigation',
           scope: 'calls',
           component: './call'
+        },
+        {
+          text: 'Incoming calls',
+          icon: 'icon-outgoing-call',
+          location: 'topNavigation',
+          scope: 'calls',
+          component: './incomin-call'
         }
       ],
       inboxIntegrationForm: './inboxIntegrationForm',
       invoiceDetailRightSection: './invoiceDetailRightSection',
-      integrationDetailsForm: './integrationDetailsForm',
+      integrationEditForm: './integrationEditForm',
       integrationCustomActions: './integrationCustomActions',
       inboxIntegrations: [
         {
@@ -4084,37 +4092,7 @@ module.exports = {
       ],
       url:
         'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-goals-ui/remoteEntry.js'
-    }
-  },
-  msdynamic: {
-    ui: {
-      name: 'msdynamic',
-      scope: 'msdynamic',
-      exposes: { './routes': './src/routes.tsx' },
-      routes: {
-        url:
-          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-msdynamic-ui/remoteEntry.js',
-        scope: 'msdynamic',
-        module: './routes'
-      },
-      menus: [
-        {
-          text: 'Msdynamics',
-          to: '/msdynamics',
-          image: '/images/icons/erxes-18.svg',
-          location: 'settings',
-          scope: 'msdynamic'
-        },
-        {
-          text: 'Sync MS Dynamic',
-          url: '/sync-msdynamic-history',
-          icon: 'icon-file-check-alt',
-          location: 'mainNavigation',
-          scope: 'syncmsdynamic'
-        }
-      ],
-      url:
-        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-msdynamic-ui/remoteEntry.js'
-    }
+    },
+    api: { essyncer: [{ name: 'goals', schema: '{}', script: '' }] }
   }
 };

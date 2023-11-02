@@ -1,20 +1,9 @@
-import { IAttachment } from '@erxes/ui/src/types';
-
-export interface ICommonTypes {
-  _id?: string;
-  createdAt?: Date;
-  createdBy?: string;
-  modifiedAt?: Date;
-  modifiedBy?: string;
-
-  title?: string;
-  description?: string;
-  startDate?: Date;
-  endDate?: Date;
-  finishDateOfUse?: Date;
-  attachment?: IAttachment;
-
-  status?: string;
+export interface ISpecificPeriodGoal {
+  progress: string;
+  _id: string;
+  current: string;
+  addMonthly: string;
+  addTarget: string;
 }
 
 export interface IGoalTypeDoc {
@@ -31,16 +20,7 @@ export interface IGoalTypeDoc {
   department: string;
   unit: string;
   branch: string;
-  specificPeriodGoals: {
-    map(
-      arg0: (element: any, index: any) => JSX.Element
-    ): import('react').ReactNode;
-    progress: string;
-    _id: string;
-    current: string;
-    addMonthly: string;
-    addTarget: string;
-  };
+  specificPeriodGoals: ISpecificPeriodGoal[];
   progress: {
     current: string;
     progress: string;
